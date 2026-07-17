@@ -1,0 +1,15 @@
+# deps y build
+node_modules/
+dist/
+.astro/
+
+# Cloudflare local
+.wrangler/
+
+# secretos — jamás en el repo
+.dev.vars
+.env
+.env.*
+
+# sistema
+.DS_Store

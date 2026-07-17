@@ -1,0 +1,26 @@
+---
+// Layout raíz mínimo. Landing/Shop/Admin heredan de aquí (fases 2, 4 y 5).
+import '../styles/global.css';
+
+interface Props {
+  title: string;
+  description?: string;
+  noindex?: boolean;
+}
+
+const { title, description = '', noindex = false } = Astro.props;
+---
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    {description && <meta name="description" content={description} />}
+    {noindex && <meta name="robots" content="noindex,follow" />}
+  </head>
+  <body class="min-h-screen bg-white text-gray-900 antialiased">
+    <slot />
+  </body>
+</html>

@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /demo/
+Disallow: /api/
+
+Sitemap: https://ecom.logic2b.com/sitemap.xml

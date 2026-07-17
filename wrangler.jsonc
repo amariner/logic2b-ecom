@@ -1,0 +1,22 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "ecom-logic2b",
+  "compatibility_date": "2026-07-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "pages_build_output_dir": "./dist",
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "ecom-demo",
+      // ID real se rellena al crear la D1 remota en Fase 6 (`wrangler d1 create`)
+      "database_id": "local-placeholder",
+      "migrations_dir": "migrations"
+    }
+  ],
+  "vars": {
+    "DEMO_MODE": "true"
+  }
+  // Secretos (via `wrangler secret put`, nunca aquí):
+  //   STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET, ADMIN_COOKIE_SECRET
+  // Cron de reset cada 6h: se añade en Fase 6 (requiere Worker con scheduled handler).
+}
