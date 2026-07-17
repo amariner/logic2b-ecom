@@ -1,0 +1,108 @@
+---
+import Shop from '../../../layouts/Shop.astro';
+import { shopConfig } from '../../../../shop.config';
+import { getActiveProducts, isSortOption } from '../../../lib/db';
+import { formatEurCents } from '../../../lib/format';
+
+export const prerender = false;
+
+const url = Astro.url;
+const rawCategory = url.searchParams.get('categoria') ?? '';
+const category = shopConfig.categories.some((cat) => cat.id === rawCategory) ? rawCategory : undefined;
+const rawSort = url.searchParams.get('orden') ?? 'featured';
+const sort = isSortOption(rawSort) ? rawSort : 'featured';
+
+const products = await getActiveProducts(Astro.locals.runtime.env.DB, { category, sort });
+
+const sortOptions = [
+  { id: 'featured', label: 'Destacados' },
+  { id: 'price-asc', label: 'Precio: menor a mayor' },
+  { id: 'price-desc', label: 'Precio: mayor a menor' },
+  { id: 'name', label: 'Nombre A-Z' },
+];
+
+const linkFor = (cat?: string, ord?: string): string => {
+  const params = new URLSearchParams();
+  if (cat) params.set('categoria', cat);
+  if (ord && ord !== 'featured') params.set('orden', ord);
+  const qs = params.toString();
+  return `/demo/tienda${qs ? `?${qs}` : ''}`;
+};
+---
+
+<Shop title="Tienda" description="Catálogo demo de La Botiga del Maestrat">
+  <main class="mx-auto max-w-6xl px-4 py-8">
+    <h1 class="text-3xl font-bold tracking-tight">Productes de la terra</h1>
+    <p class="mt-1 text-stone-600">Aceites, embutidos, mieles, vinos, conservas y quesos del Maestrat.</p>
+
+    <div class="mt-6 flex flex-wrap items-center justify-between gap-4">
+      <nav class="flex flex-wrap gap-2" aria-label="Categorías">
+        <a
+          href={linkFor(undefined, sort)}
+          class:list={['rounded-full border px-3 py-1 text-sm', !category ? 'border-brand bg-brand text-white' : 'border-stone-300 text-stone-700 hover:border-stone-500']}
+        >Todo</a>
+        {shopConfig.categories.map((cat) => (
+          <a
+            href={linkFor(cat.id, sort)}
+            class:list={['rounded-full border px-3 py-1 text-sm', category === cat.id ? 'border-brand bg-brand text-white' : 'border-stone-300 text-stone-700 hover:border-stone-500']}
+          >{cat.label}</a>
+        ))}
+      </nav>
+
+      <form method="get" class="text-sm">
+        {category && <input type="hidden" name="categoria" value={category} />}
+        <label class="text-stone-600" for="orden">Ordenar:</label>
+        <select id="orden" name="orden" class="ml-1 rounded border border-stone-300 px-2 py-1" onchange="this.form.submit()">
+          {sortOptions.map((opt) => (
+            <option value={opt.id} selected={opt.id === sort}>{opt.label}</option>
+          ))}
+        </select>
+      </form>
+    </div>
+
+    <ul class="mt-8 grid grid-cols-2 gap-6 sm:grid-cols-3 lg:grid-cols-4">
+      {products.map((prod) => (
+        <li class="group flex flex-col overflow-hidden rounded-lg border border-stone-200 bg-white">
+          <a href={`/demo/tienda/${prod.slug}`} class="flex flex-1 flex-col">
+            <img
+              src={prod.image}
+              alt={prod.name}
+              width="600"
+              height="450"
+              loading="lazy"
+              class="aspect-[4/3] w-full bg-stone-100 object-cover transition group-hover:scale-[1.02]"
+            />
+            <div class="flex flex-1 flex-col gap-1 p-3">
+              <h2 class="text-sm font-medium leading-snug">{prod.name}</h2>
+              <p class="mt-auto text-base font-bold">{formatEurCents(prod.price_cents)}</p>
+              {prod.stock === 0 && <p class="text-xs font-medium text-red-600">Agotado</p>}
+            </div>
+          </a>
+          <div class="p-3 pt-0">
+            <button
+              type="button"
+              data-add-to-cart={prod.slug}
+              disabled={prod.stock === 0}
+              class="w-full rounded bg-brand px-3 py-1.5 text-sm font-medium text-white hover:bg-brand-dark disabled:cursor-not-allowed disabled:bg-stone-300"
+            >Añadir al carrito</button>
+          </div>
+        </li>
+      ))}
+    </ul>
+
+    {products.length === 0 && <p class="mt-12 text-center text-stone-500">No hay productos en esta categoría.</p>}
+  </main>
+
+  <script>
+    import { addToCart } from '../../../lib/cart-client';
+
+    document.querySelectorAll<HTMLButtonElement>('[data-add-to-cart]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        addToCart(btn.dataset.addToCart ?? '');
+        const prev = btn.textContent;
+        btn.textContent = 'Añadido ✓';
+        setTimeout(() => (btn.textContent = prev), 900);
+      });
+    });
+  </script>
+</Shop>

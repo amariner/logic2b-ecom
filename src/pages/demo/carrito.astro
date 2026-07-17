@@ -1,0 +1,201 @@
+---
+import Shop from '../../layouts/Shop.astro';
+
+// Página estática: el contenido del carrito vive en localStorage y se
+// presupuesta contra /api/cart/quote (precios SIEMPRE del servidor).
+---
+
+<Shop title="Carrito" description="Tu carrito de la compra">
+  <main class="mx-auto max-w-3xl px-4 py-8">
+    <h1 class="text-3xl font-bold tracking-tight">Tu carrito</h1>
+
+    <div data-cart-empty class="hidden py-16 text-center text-stone-500">
+      <p>El carrito está vacío.</p>
+      <a href="/demo/tienda" class="mt-4 inline-block rounded bg-brand px-5 py-2 font-medium text-white hover:bg-brand-dark">Ir a la tienda</a>
+    </div>
+
+    <div data-cart-loading class="py-16 text-center text-stone-400">Calculando precios…</div>
+
+    <div data-cart-content class="hidden">
+      <ul data-cart-lines class="mt-6 divide-y divide-stone-200"></ul>
+
+      <div class="mt-6 rounded-lg border border-stone-200 bg-stone-50 p-4">
+        <label class="block text-sm font-medium text-stone-700" for="cp">Código postal de entrega</label>
+        <div class="mt-1 flex gap-2">
+          <input
+            id="cp"
+            inputmode="numeric"
+            maxlength="5"
+            placeholder="12001"
+            class="w-32 rounded border border-stone-300 px-3 py-1.5"
+          />
+          <button type="button" data-apply-cp class="rounded border border-stone-400 px-4 py-1.5 text-sm hover:bg-stone-100">Calcular portes</button>
+        </div>
+        <p data-cp-feedback class="mt-2 hidden text-sm"></p>
+
+        <dl class="mt-4 space-y-1 border-t border-stone-200 pt-3 text-sm">
+          <div class="flex justify-between"><dt>Subtotal</dt><dd data-subtotal class="font-medium"></dd></div>
+          <div class="flex justify-between"><dt>Envío <span data-shipping-label class="text-stone-500"></span></dt><dd data-shipping></dd></div>
+          <div class="flex justify-between border-t border-stone-200 pt-2 text-base font-bold"><dt>Total</dt><dd data-total></dd></div>
+        </dl>
+      </div>
+
+      <p data-cart-problems class="mt-4 hidden rounded border border-red-200 bg-red-50 p-3 text-sm text-red-800"></p>
+
+      <div class="mt-6 flex justify-end">
+        <a
+          href="/demo/checkout"
+          data-checkout-link
+          class="pointer-events-none rounded bg-stone-300 px-6 py-2.5 font-medium text-white"
+        >Tramitar pedido</a>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    import { readCart, setQty } from '../../lib/cart-client';
+
+    type QuoteLine = {
+      slug: string; name: string; image: string; unit_price_cents: number; qty: number;
+      line_total_cents: number; available_stock: number;
+      status: 'ok' | 'not-found' | 'out-of-stock' | 'insufficient-stock';
+    };
+    type Quote = {
+      lines: QuoteLine[]; subtotal_cents: number; shipping_cents: number | null;
+      total_cents: number | null; purchasable: boolean;
+      shipping: { zone: string; label: string; free_over_cents: number | null } | null;
+    };
+
+    const eur = (cents: number): string =>
+      new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(cents / 100);
+
+    const $ = <T extends HTMLElement>(sel: string): T => document.querySelector<T>(sel)!;
+    const CP_KEY = 'ecom-demo-cp';
+
+    const problemText: Record<Exclude<QuoteLine['status'], 'ok'>, (l: QuoteLine) => string> = {
+      'not-found': (l) => `«${l.slug}» ya no está disponible; elimínalo para continuar.`,
+      'out-of-stock': (l) => `«${l.name}» está agotado; elimínalo para continuar.`,
+      'insufficient-stock': (l) => `De «${l.name}» solo quedan ${l.available_stock} unidades; ajusta la cantidad.`,
+    };
+
+    async function refresh(): Promise<void> {
+      const lines = readCart();
+      const empty = $('[data-cart-empty]');
+      const loading = $('[data-cart-loading]');
+      const content = $('[data-cart-content]');
+
+      if (lines.length === 0) {
+        empty.classList.remove('hidden');
+        loading.classList.add('hidden');
+        content.classList.add('hidden');
+        return;
+      }
+
+      const postal = (localStorage.getItem(CP_KEY) ?? '').trim();
+      const res = await fetch('/api/cart/quote', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ lines, ...(postal ? { postal_code: postal } : {}) }),
+      });
+      if (!res.ok) {
+        loading.textContent = 'No se pudo calcular el carrito. Recarga la página.';
+        return;
+      }
+      const quote = (await res.json()) as Quote;
+
+      loading.classList.add('hidden');
+      empty.classList.add('hidden');
+      content.classList.remove('hidden');
+
+      const list = $('[data-cart-lines]');
+      list.innerHTML = '';
+      for (const line of quote.lines) {
+        const li = document.createElement('li');
+        li.className = 'flex items-center gap-4 py-4';
+        const bad = line.status !== 'ok';
+        li.innerHTML = `
+          <img src="${line.image}" alt="" width="64" height="48" class="h-12 w-16 rounded bg-stone-100 object-cover" />
+          <div class="flex-1">
+            <p class="text-sm font-medium ${bad ? 'text-red-700 line-through' : ''}">${line.name}</p>
+            <p class="text-sm text-stone-500">${bad ? '' : eur(line.unit_price_cents)}</p>
+          </div>
+          <input type="number" min="0" max="99" value="${line.qty}" data-qty="${line.slug}"
+            class="w-16 rounded border border-stone-300 px-2 py-1 text-sm" aria-label="Cantidad de ${line.name}" />
+          <p class="w-20 text-right text-sm font-medium">${bad ? '—' : eur(line.line_total_cents)}</p>
+          <button type="button" data-remove="${line.slug}" aria-label="Eliminar ${line.name}"
+            class="text-stone-400 hover:text-red-600">✕</button>`;
+        list.appendChild(li);
+      }
+
+      list.querySelectorAll<HTMLInputElement>('[data-qty]').forEach((input) => {
+        input.addEventListener('change', () => {
+          setQty(input.dataset.qty ?? '', Math.max(0, Number(input.value) || 0));
+          void refresh();
+        });
+      });
+      list.querySelectorAll<HTMLButtonElement>('[data-remove]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          setQty(btn.dataset.remove ?? '', 0);
+          void refresh();
+        });
+      });
+
+      $('[data-subtotal]').textContent = eur(quote.subtotal_cents);
+      const shippingEl = $('[data-shipping]');
+      const shippingLabel = $('[data-shipping-label]');
+      const cpFeedback = $('[data-cp-feedback]');
+      if (quote.shipping_cents === null) {
+        shippingEl.textContent = 'introduce tu CP';
+        shippingLabel.textContent = '';
+        if (postal) {
+          cpFeedback.textContent = 'No hay cobertura de envío para ese código postal.';
+          cpFeedback.className = 'mt-2 text-sm text-red-700';
+        }
+      } else {
+        shippingEl.textContent = quote.shipping_cents === 0 ? 'Gratis' : eur(quote.shipping_cents);
+        shippingLabel.textContent = quote.shipping ? `(${quote.shipping.label})` : '';
+        const freeOver = quote.shipping?.free_over_cents;
+        if (typeof freeOver === 'number' && quote.shipping_cents > 0) {
+          cpFeedback.textContent = `Envío gratis a partir de ${eur(freeOver)}.`;
+          cpFeedback.className = 'mt-2 text-sm text-stone-500';
+        } else {
+          cpFeedback.classList.add('hidden');
+        }
+      }
+      $('[data-total]').textContent = quote.total_cents === null ? '—' : eur(quote.total_cents);
+
+      const problems = quote.lines.filter((line) => line.status !== 'ok');
+      const problemsEl = $('[data-cart-problems]');
+      if (problems.length > 0) {
+        problemsEl.textContent = problems
+          .map((line) => problemText[line.status as Exclude<QuoteLine['status'], 'ok'>](line))
+          .join(' ');
+        problemsEl.classList.remove('hidden');
+      } else {
+        problemsEl.classList.add('hidden');
+      }
+
+      const checkout = $('[data-checkout-link]');
+      const ready = quote.purchasable && quote.total_cents !== null;
+      checkout.classList.toggle('pointer-events-none', !ready);
+      checkout.classList.toggle('bg-stone-300', !ready);
+      checkout.classList.toggle('bg-brand', ready);
+      checkout.classList.toggle('hover:bg-brand-dark', ready);
+    }
+
+    const cpInput = $('#cp') as unknown as HTMLInputElement;
+    cpInput.value = localStorage.getItem(CP_KEY) ?? '';
+    $('[data-apply-cp]').addEventListener('click', () => {
+      localStorage.setItem(CP_KEY, cpInput.value.trim());
+      void refresh();
+    });
+    cpInput.addEventListener('keydown', (ev) => {
+      if (ev.key === 'Enter') {
+        localStorage.setItem(CP_KEY, cpInput.value.trim());
+        void refresh();
+      }
+    });
+
+    void refresh();
+  </script>
+</Shop>

@@ -4,8 +4,8 @@ import '../styles/global.css';
 
 interface Props {
   title: string;
-  description?: string;
-  noindex?: boolean;
+  description?: string | undefined;
+  noindex?: boolean | undefined;
 }
 
 const { title, description = '', noindex = false } = Astro.props;

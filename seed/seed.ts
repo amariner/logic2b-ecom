@@ -22,7 +22,7 @@ export function seedStatements(): string[] {
   ];
 
   for (const prod of seedProducts) {
-    const image = `/images/products/${prod.category}.webp`;
+    const image = `/images/products/${prod.category}.svg`;
     statements.push(
       `INSERT INTO products (slug, name, description, price_cents, stock, image, category, active) VALUES (` +
         `${sqlString(prod.slug)}, ${sqlString(prod.name)}, ${sqlString(prod.description)}, ` +

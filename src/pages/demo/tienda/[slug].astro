@@ -1,0 +1,105 @@
+---
+import Shop from '../../../layouts/Shop.astro';
+import { shopConfig } from '../../../../shop.config';
+import { getProductBySlug } from '../../../lib/db';
+import { formatEurCents } from '../../../lib/format';
+
+export const prerender = false;
+
+const { slug = '' } = Astro.params;
+const product = await getProductBySlug(Astro.locals.runtime.env.DB, slug);
+if (!product) {
+  return new Response(null, { status: 404, statusText: 'Not found' });
+}
+
+const categoryLabel = shopConfig.categories.find((cat) => cat.id === product.category)?.label ?? product.category;
+
+// Schema Product+Offer válido: parte del argumento de venta (aunque la demo sea noindex).
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Product',
+  name: product.name,
+  description: product.description,
+  image: new URL(product.image, Astro.site).href,
+  sku: product.slug,
+  category: categoryLabel,
+  offers: {
+    '@type': 'Offer',
+    priceCurrency: 'EUR',
+    price: (product.price_cents / 100).toFixed(2),
+    availability: product.stock > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+    url: new URL(`/demo/tienda/${product.slug}`, Astro.site).href,
+  },
+};
+---
+
+<Shop title={product.name} description={product.description}>
+  <main class="mx-auto max-w-6xl px-4 py-8">
+    <nav class="text-sm text-stone-500">
+      <a href="/demo/tienda" class="hover:underline">Tienda</a>
+      <span aria-hidden="true"> / </span>
+      <a href={`/demo/tienda?categoria=${product.category}`} class="hover:underline">{categoryLabel}</a>
+    </nav>
+
+    <div class="mt-6 grid gap-10 md:grid-cols-2">
+      <img
+        src={product.image}
+        alt={product.name}
+        width="800"
+        height="600"
+        class="aspect-[4/3] w-full rounded-lg bg-stone-100 object-cover"
+      />
+
+      <div>
+        <h1 class="text-3xl font-bold tracking-tight">{product.name}</h1>
+        <p class="mt-4 text-2xl font-bold">{formatEurCents(product.price_cents)}</p>
+        <p class="mt-4 leading-relaxed text-stone-700">{product.description}</p>
+
+        {product.stock > 0 ? (
+          <div class="mt-6 flex items-center gap-3">
+            <label class="text-sm text-stone-600" for="qty">Cantidad</label>
+            <input
+              id="qty"
+              type="number"
+              min="1"
+              max={Math.min(product.stock, 99)}
+              value="1"
+              class="w-20 rounded border border-stone-300 px-2 py-1.5"
+            />
+            <button
+              type="button"
+              data-add-to-cart={product.slug}
+              class="rounded bg-brand px-5 py-2 font-medium text-white hover:bg-brand-dark"
+            >Añadir al carrito</button>
+          </div>
+        ) : (
+          <p class="mt-6 font-medium text-red-600">Agotado temporalmente</p>
+        )}
+
+        <dl class="mt-8 space-y-1 border-t border-stone-200 pt-4 text-sm text-stone-600">
+          <div><dt class="inline font-medium">Envío:</dt> <dd class="inline">{shopConfig.legal.shippingNote}</dd></div>
+          <div><dt class="inline font-medium">Devoluciones:</dt> <dd class="inline">{shopConfig.legal.returnsNote}</dd></div>
+          {product.stock > 0 && product.stock <= 10 && (
+            <div><dt class="inline font-medium">Stock:</dt> <dd class="inline">quedan {product.stock} unidades</dd></div>
+          )}
+        </dl>
+      </div>
+    </div>
+  </main>
+
+  <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} is:inline />
+
+  <script>
+    import { addToCart } from '../../../lib/cart-client';
+
+    const btn = document.querySelector<HTMLButtonElement>('[data-add-to-cart]');
+    const qtyInput = document.querySelector<HTMLInputElement>('#qty');
+    btn?.addEventListener('click', () => {
+      const qty = Math.max(1, Number(qtyInput?.value ?? 1) || 1);
+      addToCart(btn.dataset.addToCart ?? '', qty);
+      const prev = btn.textContent;
+      btn.textContent = 'Añadido ✓';
+      setTimeout(() => (btn.textContent = prev), 900);
+    });
+  </script>
+</Shop>

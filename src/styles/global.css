@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
-/* Tokens de marca: se sobreescriben por tienda desde shop.config.ts (Fase 1). */
+/* Tokens de marca — mantener en sintonía con brand.color de shop.config.ts */
 @theme {
-  --color-brand: #0f766e;
-  --color-brand-dark: #115e59;
+  --color-brand: #8a3324;
+  --color-brand-dark: #5e2118;
 }
