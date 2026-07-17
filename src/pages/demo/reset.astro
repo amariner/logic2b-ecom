@@ -1,0 +1,40 @@
+---
+import Shop from '../../layouts/Shop.astro';
+---
+
+<Shop title="Restaurar demo" description="Restaura el estado inicial de la demo">
+  <main class="mx-auto max-w-xl px-4 py-16 text-center">
+    <h1 class="text-3xl font-bold tracking-tight">Restaurar la demo</h1>
+    <p class="mt-3 text-stone-600">
+      Vuelve al estado inicial: catálogo completo, sin pedidos ni emails.
+      (En producción esto no existe; la demo pública se restaura sola cada 6 horas.)
+    </p>
+    <button
+      type="button"
+      data-reset
+      class="mt-6 rounded bg-brand px-6 py-2.5 font-medium text-white hover:bg-brand-dark disabled:bg-stone-300"
+    >Restaurar datos ahora</button>
+    <p data-reset-status class="mt-3 h-5 text-sm text-stone-500"></p>
+  </main>
+
+  <script>
+    import { clearCart } from '../../lib/cart-client';
+
+    const btn = document.querySelector<HTMLButtonElement>('[data-reset]')!;
+    const statusEl = document.querySelector<HTMLElement>('[data-reset-status]')!;
+    btn.addEventListener('click', () => {
+      btn.disabled = true;
+      statusEl.textContent = 'Restaurando…';
+      void fetch('/api/demo/reset', { method: 'POST' }).then((res) => {
+        if (res.ok) {
+          clearCart();
+          statusEl.textContent = 'Listo. Redirigiendo a la tienda…';
+          setTimeout(() => window.location.assign('/demo/tienda'), 800);
+        } else {
+          btn.disabled = false;
+          statusEl.textContent = 'No se pudo restaurar.';
+        }
+      });
+    });
+  </script>
+</Shop>

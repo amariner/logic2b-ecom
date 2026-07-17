@@ -1,0 +1,94 @@
+---
+import Admin from '../../../layouts/Admin.astro';
+import { shopConfig } from '../../../../shop.config';
+
+export const prerender = false;
+
+type Row = { id: number; slug: string; name: string; price_cents: number; stock: number; category: string; active: number };
+const { results: products } = await Astro.locals.runtime.env.DB.prepare(
+  'SELECT id, slug, name, price_cents, stock, category, active FROM products ORDER BY category, name',
+).all<Row>();
+
+const categoryLabel = new Map(shopConfig.categories.map((cat) => [cat.id, cat.label]));
+---
+
+<Admin title="Productos" active="productos">
+  <h1 class="text-2xl font-bold">Productos</h1>
+  <p class="mt-1 text-sm text-stone-500">
+    Edita precio (en euros), stock o desactiva un producto. Los cambios se guardan al salir de la celda.
+    Los pedidos ya realizados nunca cambian: guardan su propio precio.
+  </p>
+
+  <div class="mt-4 overflow-x-auto rounded-lg border border-stone-300 bg-white">
+    <table class="w-full text-sm">
+      <thead class="border-b border-stone-200 bg-stone-50 text-left text-xs uppercase tracking-wide text-stone-500">
+        <tr>
+          <th class="px-4 py-2">Producto</th>
+          <th class="px-4 py-2">Categoría</th>
+          <th class="px-4 py-2 text-right">Precio €</th>
+          <th class="px-4 py-2 text-right">Stock</th>
+          <th class="px-4 py-2 text-center">Activo</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-stone-100">
+        {products.map((prod) => (
+          <tr class:list={['hover:bg-stone-50', prod.active === 0 && 'opacity-50']}>
+            <td class="px-4 py-1.5">
+              <input data-field="name" data-id={prod.id} value={prod.name} class="w-full min-w-56 rounded border border-transparent px-1 py-0.5 hover:border-stone-300 focus:border-stone-400" />
+            </td>
+            <td class="px-4 py-1.5 text-stone-500">{categoryLabel.get(prod.category) ?? prod.category}</td>
+            <td class="px-4 py-1.5 text-right">
+              <input data-field="price" data-id={prod.id} value={(prod.price_cents / 100).toFixed(2)} inputmode="decimal" class="w-20 rounded border border-transparent px-1 py-0.5 text-right hover:border-stone-300 focus:border-stone-400" />
+            </td>
+            <td class="px-4 py-1.5 text-right">
+              <input data-field="stock" data-id={prod.id} value={prod.stock} inputmode="numeric" class="w-16 rounded border border-transparent px-1 py-0.5 text-right hover:border-stone-300 focus:border-stone-400" />
+            </td>
+            <td class="px-4 py-1.5 text-center">
+              <input data-field="active" data-id={prod.id} type="checkbox" checked={prod.active === 1} class="h-4 w-4 accent-stone-900" />
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+  <p data-save-status class="mt-2 h-5 text-sm text-stone-500"></p>
+
+  <script>
+    const statusEl = document.querySelector<HTMLElement>('[data-save-status]')!;
+
+    async function save(id: string, patch: Record<string, unknown>): Promise<void> {
+      statusEl.textContent = 'Guardando…';
+      const res = await fetch(`/api/admin/products/${id}`, {
+        method: 'PATCH',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify(patch),
+      });
+      if (res.ok) {
+        statusEl.textContent = 'Guardado ✓';
+        setTimeout(() => (statusEl.textContent = ''), 1500);
+      } else {
+        const body = (await res.json()) as { error?: string };
+        statusEl.textContent = `Error: ${body.error ?? 'inesperado'}`;
+      }
+    }
+
+    document.querySelectorAll<HTMLInputElement>('[data-field]').forEach((input) => {
+      const id = input.dataset.id ?? '';
+      const field = input.dataset.field ?? '';
+      input.addEventListener('change', () => {
+        if (field === 'name') void save(id, { name: input.value.trim() });
+        if (field === 'price') {
+          const cents = Math.round(Number(input.value.replace(',', '.')) * 100);
+          if (Number.isInteger(cents) && cents >= 0) void save(id, { price_cents: cents });
+          else statusEl.textContent = 'Precio inválido';
+        }
+        if (field === 'stock') {
+          const stock = Number(input.value);
+          if (Number.isInteger(stock) && stock >= 0) void save(id, { stock });
+          else statusEl.textContent = 'Stock inválido';
+        }
+        if (field === 'active') void save(id, { active: input.checked });
+      });
+    });
+  </script>
+</Admin>

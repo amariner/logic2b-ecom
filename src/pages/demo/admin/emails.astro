@@ -1,0 +1,42 @@
+---
+import Admin from '../../../layouts/Admin.astro';
+
+export const prerender = false;
+
+type Row = { id: number; to_addr: string; subject: string; body_html: string; created_at: string };
+const { results: emails } = await Astro.locals.runtime.env.DB.prepare(
+  'SELECT id, to_addr, subject, body_html, created_at FROM emails_outbox ORDER BY id DESC LIMIT 100',
+).all<Row>();
+---
+
+<Admin title="Emails" active="emails">
+  <h1 class="text-2xl font-bold">Bandeja de salida simulada</h1>
+  <p class="mt-1 text-sm text-stone-500">
+    Estos son los emails que el sistema <strong>habría enviado</strong> (confirmaciones de pedido, avisos de envío).
+    En la demo se capturan aquí; en producción salen por Resend con el dominio del comercio.
+  </p>
+
+  <div class="mt-4 space-y-3">
+    {emails.map((email) => (
+      <details class="rounded-lg border border-stone-300 bg-white">
+        <summary class="flex cursor-pointer flex-wrap items-center gap-x-4 gap-y-1 px-4 py-3 text-sm">
+          <span class="text-stone-400">{email.created_at.slice(0, 16)}</span>
+          <span class="font-medium">{email.subject}</span>
+          <span class="text-stone-500">→ {email.to_addr}</span>
+        </summary>
+        <iframe
+          srcdoc={email.body_html}
+          title={email.subject}
+          sandbox=""
+          class="h-96 w-full border-t border-stone-200 bg-white"
+        ></iframe>
+      </details>
+    ))}
+  </div>
+
+  {emails.length === 0 && (
+    <p class="mt-8 rounded-lg border border-stone-300 bg-white p-8 text-center text-stone-500">
+      Aún no hay emails. Completa una compra en la <a href="/demo/tienda" class="underline">tienda demo</a> y verás aquí la confirmación.
+    </p>
+  )}
+</Admin>

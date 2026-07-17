@@ -1,0 +1,54 @@
+---
+/**
+ * Layout del backoffice demo. Deliberadamente sobrio: el argumento de venta
+ * es "esto se aprende en 5 minutos". En producción va tras Cloudflare Access.
+ */
+import Base from './Base.astro';
+import { shopConfig } from '../../shop.config';
+
+interface Props {
+  title: string;
+  active: 'pedidos' | 'productos' | 'envios' | 'emails';
+}
+
+const { title, active } = Astro.props;
+
+const nav = [
+  { id: 'pedidos', href: '/demo/admin', label: 'Pedidos' },
+  { id: 'productos', href: '/demo/admin/productos', label: 'Productos' },
+  { id: 'envios', href: '/demo/admin/envios', label: 'Envíos' },
+  { id: 'emails', href: '/demo/admin/emails', label: 'Emails' },
+] as const;
+---
+
+<Base title={`${title} — Panel · ${shopConfig.name}`} noindex>
+  <div class="border-b border-sky-200 bg-sky-50 px-4 py-1.5 text-center text-xs text-sky-900">
+    Panel de demostración, acceso libre. En producción está protegido con Cloudflare Access (login del comercio).
+  </div>
+
+  <div class="min-h-screen bg-stone-100">
+    <header class="border-b border-stone-300 bg-white">
+      <div class="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
+        <div class="flex items-center gap-6">
+          <span class="font-bold">{shopConfig.name} <span class="font-normal text-stone-500">· panel</span></span>
+          <nav class="flex gap-1 text-sm">
+            {nav.map((item) => (
+              <a
+                href={item.href}
+                class:list={[
+                  'rounded px-3 py-1.5',
+                  active === item.id ? 'bg-stone-900 text-white' : 'text-stone-600 hover:bg-stone-100',
+                ]}
+              >{item.label}</a>
+            ))}
+          </nav>
+        </div>
+        <a href="/demo/tienda" class="text-sm text-stone-500 hover:text-stone-900">← Ver tienda</a>
+      </div>
+    </header>
+
+    <main class="mx-auto max-w-6xl px-4 py-6">
+      <slot />
+    </main>
+  </div>
+</Base>
