@@ -11,7 +11,8 @@
     "check": "astro check && vitest run && astro build",
     "test": "vitest run",
     "db:migrate": "wrangler d1 migrations apply ecom-demo --local",
-    "db:reset": "rm -rf .wrangler/state && pnpm db:migrate"
+    "db:seed": "node seed/generate.ts > .wrangler/seed.sql && wrangler d1 execute ecom-demo --local --file .wrangler/seed.sql",
+    "db:reset": "rm -rf .wrangler/state && pnpm db:migrate && pnpm db:seed"
   },
   "dependencies": {
     "@astrojs/cloudflare": "^12.6.0",
