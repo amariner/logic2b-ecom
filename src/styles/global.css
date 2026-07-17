@@ -4,4 +4,10 @@
 @theme {
   --color-brand: #8a3324;
   --color-brand-dark: #5e2118;
+  /* Landing editorial (dirección B): papel cálido + tinta + nogal */
+  --color-paper: #faf7f2;
+  --color-ink: #1f1c19;
+  --color-walnut: #8a6f5c;
+  --color-walnut-dark: #6b5546;
+  --font-display: Georgia, 'Times New Roman', serif;
 }
