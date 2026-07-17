@@ -23,6 +23,11 @@ Demo pública + plantilla clonable de ecommerce ultraligero (Astro 5 + Cloudflar
 | 6 | Deploy ecom.logic2b.com + cron reset + README + docs/CLIENTE.md | ⬜ Pendiente | | |
 | 7 | bootstrap.sh + checklist demo→cliente real | ⬜ Pendiente | | |
 
+## Repo y entornos
+
+- GitHub: `https://github.com/amariner/logic2b-ecom` (rama `main`).
+- Cloudflare: pendiente de login/configuración (Fase 6: D1 remota, deploy en ecom.logic2b.com, cron reset).
+
 ## Decisiones tomadas
 
 - 2026-07-17: `CLAUDE.md` = copia del prompt maestro; este ROADMAP es la fuente de verdad del estado.
