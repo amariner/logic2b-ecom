@@ -1,0 +1,115 @@
+---
+import Shop from '../../layouts/Shop.astro';
+---
+
+<Shop title="Checkout" description="Datos de envío y pago">
+  <main class="mx-auto max-w-xl px-4 py-8">
+    <h1 class="text-3xl font-bold tracking-tight">Datos de envío</h1>
+    <p class="mt-1 text-sm text-stone-600">
+      Después pasarás al pago seguro de Stripe. Tu tarjeta nunca toca nuestro servidor.
+    </p>
+
+    <form data-checkout-form class="mt-6 space-y-4" novalidate>
+      <div>
+        <label class="block text-sm font-medium" for="name">Nombre y apellidos</label>
+        <input id="name" name="name" required minlength="2" autocomplete="name"
+          class="mt-1 w-full rounded border border-stone-300 px-3 py-2" />
+      </div>
+      <div>
+        <label class="block text-sm font-medium" for="email">Email</label>
+        <input id="email" name="email" type="email" required autocomplete="email"
+          class="mt-1 w-full rounded border border-stone-300 px-3 py-2" />
+        <p class="mt-1 text-xs text-stone-500">Aquí llegarán la confirmación y el seguimiento (en la demo, a la bandeja simulada).</p>
+      </div>
+      <div>
+        <label class="block text-sm font-medium" for="street">Dirección</label>
+        <input id="street" name="street" required minlength="3" autocomplete="street-address"
+          class="mt-1 w-full rounded border border-stone-300 px-3 py-2" />
+      </div>
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-medium" for="postal_code">Código postal</label>
+          <input id="postal_code" name="postal_code" required pattern="\d{5}" inputmode="numeric" maxlength="5" autocomplete="postal-code"
+            class="mt-1 w-full rounded border border-stone-300 px-3 py-2" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium" for="city">Población</label>
+          <input id="city" name="city" required minlength="2" autocomplete="address-level2"
+            class="mt-1 w-full rounded border border-stone-300 px-3 py-2" />
+        </div>
+      </div>
+      <div>
+        <label class="block text-sm font-medium" for="phone">Teléfono <span class="font-normal text-stone-500">(opcional)</span></label>
+        <input id="phone" name="phone" type="tel" autocomplete="tel"
+          class="mt-1 w-full rounded border border-stone-300 px-3 py-2" />
+      </div>
+
+      <p data-checkout-error class="hidden rounded border border-red-200 bg-red-50 p-3 text-sm text-red-800"></p>
+
+      <button type="submit" data-checkout-submit
+        class="w-full rounded bg-brand px-6 py-3 font-medium text-white hover:bg-brand-dark disabled:bg-stone-300">
+        Continuar al pago seguro
+      </button>
+      <p class="text-center text-xs text-stone-500">
+        Demo: usa la tarjeta 4242 4242 4242 4242, cualquier fecha futura y cualquier CVC.
+      </p>
+    </form>
+  </main>
+
+  <script>
+    import { readCart } from '../../lib/cart-client';
+
+    const form = document.querySelector<HTMLFormElement>('[data-checkout-form]')!;
+    const errorEl = document.querySelector<HTMLElement>('[data-checkout-error]')!;
+    const submitBtn = document.querySelector<HTMLButtonElement>('[data-checkout-submit]')!;
+
+    const cpStored = localStorage.getItem('ecom-demo-cp');
+    if (cpStored) (document.querySelector('#postal_code') as HTMLInputElement).value = cpStored;
+
+    if (readCart().length === 0) {
+      window.location.replace('/demo/carrito');
+    }
+
+    form.addEventListener('submit', (ev) => {
+      ev.preventDefault();
+      if (!form.reportValidity()) return;
+      errorEl.classList.add('hidden');
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Preparando el pago…';
+
+      const data = new FormData(form);
+      const phone = String(data.get('phone') ?? '').trim();
+      const payload = {
+        lines: readCart(),
+        customer: {
+          name: String(data.get('name') ?? '').trim(),
+          email: String(data.get('email') ?? '').trim(),
+          street: String(data.get('street') ?? '').trim(),
+          city: String(data.get('city') ?? '').trim(),
+          postal_code: String(data.get('postal_code') ?? '').trim(),
+          ...(phone ? { phone } : {}),
+        },
+      };
+
+      void (async () => {
+        try {
+          const res = await fetch('/api/checkout/session', {
+            method: 'POST',
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify(payload),
+          });
+          const body = (await res.json()) as { url?: string; error?: string };
+          if (!res.ok || !body.url) {
+            throw new Error(body.error ?? 'No se pudo iniciar el pago');
+          }
+          window.location.assign(body.url);
+        } catch (err) {
+          errorEl.textContent = err instanceof Error ? err.message : 'Error inesperado';
+          errorEl.classList.remove('hidden');
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Continuar al pago seguro';
+        }
+      })();
+    });
+  </script>
+</Shop>

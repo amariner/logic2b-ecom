@@ -1,0 +1,53 @@
+---
+import Shop from '../../layouts/Shop.astro';
+import { formatEurCents } from '../../lib/format';
+
+export const prerender = false;
+
+const sessionId = Astro.url.searchParams.get('session_id');
+type OrderRow = {
+  order_number: string;
+  customer_name: string;
+  email: string;
+  status: string;
+  total_cents: number;
+};
+const order = sessionId
+  ? await Astro.locals.runtime.env.DB.prepare(
+      'SELECT order_number, customer_name, email, status, total_cents FROM orders WHERE stripe_session_id = ?',
+    )
+      .bind(sessionId)
+      .first<OrderRow>()
+  : null;
+---
+
+<Shop title="Gracias" description="Confirmación de pedido">
+  <main class="mx-auto max-w-xl px-4 py-16 text-center">
+    {order ? (
+      <>
+        <p class="text-5xl" aria-hidden="true">🧺</p>
+        <h1 class="mt-4 text-3xl font-bold tracking-tight">¡Gracias, {order.customer_name.split(' ')[0]}!</h1>
+        <p class="mt-3 text-stone-700">
+          Tu pedido <strong>{order.order_number}</strong> por {formatEurCents(order.total_cents)} está
+          {order.status === 'paid' ? ' confirmado' : ' registrándose (el pago se está procesando)'}.
+        </p>
+        <p class="mt-2 text-sm text-stone-500">
+          Hemos enviado la confirmación a {order.email}.
+          <a href="/demo/admin/emails" class="underline">Vela en la bandeja simulada</a>.
+        </p>
+      </>
+    ) : (
+      <>
+        <h1 class="text-3xl font-bold tracking-tight">No encontramos ese pedido</h1>
+        <p class="mt-3 text-stone-600">Si acabas de pagar, dale unos segundos y recarga.</p>
+      </>
+    )}
+    <a href="/demo/tienda" class="mt-8 inline-block rounded bg-brand px-5 py-2 font-medium text-white hover:bg-brand-dark">Volver a la tienda</a>
+  </main>
+
+  <script>
+    import { clearCart } from '../../lib/cart-client';
+    // El pedido ya está registrado en servidor; el carrito local ya no aplica.
+    if (document.querySelector('main strong')) clearCart();
+  </script>
+</Shop>
