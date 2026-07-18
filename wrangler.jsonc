@@ -11,6 +11,9 @@
     "binding": "ASSETS",
     "directory": "./dist"
   },
+  // Dominio público de la demo. Wrangler aprovisiona el registro DNS + certificado
+  // en la zona logic2b.com (debe estar en la misma cuenta de Cloudflare).
+  "routes": [{ "pattern": "ecom.logic2b.com", "custom_domain": true }],
   // Reset de la demo cada 6 h (handler `scheduled` en src/worker.ts).
   // En una tienda real: eliminar este bloque.
   "triggers": {
@@ -20,8 +23,8 @@
     {
       "binding": "DB",
       "database_name": "ecom-demo",
-      // ID real: sustituir por el que devuelve `wrangler d1 create ecom-demo` (ver README, despliegue)
-      "database_id": "local-placeholder",
+      // ID real de la D1 remota (creada con `wrangler d1 create ecom-demo`).
+      "database_id": "7ae9b06d-3664-4790-a87c-04bb4c67e97a",
       "migrations_dir": "migrations"
     }
   ],

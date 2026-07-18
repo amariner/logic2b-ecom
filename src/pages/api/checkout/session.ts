@@ -1,8 +1,11 @@
 import type { APIRoute } from 'astro';
 import { z } from 'zod';
 import { shopConfig } from '../../../../shop.config';
-import { generateOrderNumber } from '../../../lib/orders';
+import { applyPaidMutation, generateOrderNumber } from '../../../lib/orders';
+import { isSimulatedPayment } from '../../../lib/payment-mode';
+import { buildPaidMutation, type OrderItemForPayment } from '../../../lib/payment-transition';
 import { quoteCart } from '../../../lib/quote';
+import { deliverPendingEmails } from '../../../lib/send-email';
 import { stripeClient } from '../../../lib/stripe';
 
 export const prerender = false;
@@ -46,40 +49,10 @@ export const POST: APIRoute = async ({ request, locals }) => {
     return Response.json({ error: 'No hay cobertura de envío para ese código postal' }, { status: 422 });
   }
 
-  const stripe = stripeClient(env.STRIPE_SECRET_KEY);
   const orderNumber = generateOrderNumber();
   const origin = new URL(request.url).origin;
+  const simulate = isSimulatedPayment(env);
 
-  // line_items construidos EN SERVIDOR desde la quote (nunca del cliente)
-  const lineItems = quote.lines.map((line) => ({
-    quantity: line.qty,
-    price_data: {
-      currency: shopConfig.currency,
-      unit_amount: line.unit_price_cents,
-      product_data: { name: line.name },
-    },
-  }));
-  if (quote.shipping_cents > 0) {
-    lineItems.push({
-      quantity: 1,
-      price_data: {
-        currency: shopConfig.currency,
-        unit_amount: quote.shipping_cents,
-        product_data: { name: `Envío — ${quote.shipping.label}` },
-      },
-    });
-  }
-
-  const session = await stripe.checkout.sessions.create({
-    mode: 'payment',
-    line_items: lineItems,
-    customer_email: customer.email,
-    metadata: { order_number: orderNumber },
-    success_url: `${origin}/demo/gracias?session_id={CHECKOUT_SESSION_ID}`,
-    cancel_url: `${origin}/demo/carrito`,
-  });
-
-  // Pedido en 'pending' + líneas con snapshot de nombre y precio, en una batch
   const addressJson = JSON.stringify({
     name: customer.name,
     phone: customer.phone ?? null,
@@ -89,6 +62,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
     zone: quote.shipping.zone,
   });
 
+  // Mapa slug → id de producto para el snapshot de líneas (y el decremento de stock).
   const productRows = await env.DB.prepare(
     `SELECT id, slug FROM products WHERE slug IN (${quote.lines.map(() => '?').join(',')})`,
   )
@@ -96,6 +70,47 @@ export const POST: APIRoute = async ({ request, locals }) => {
     .all<{ id: number; slug: string }>();
   const idBySlug = new Map(productRows.results.map((row) => [row.slug, row.id]));
 
+  // En pago real, el session_id lo da Stripe. En simulación lo sintetizamos:
+  // sirve de clave de idempotencia y de referencia en /demo/gracias.
+  let sessionId = `sim_${orderNumber}`;
+  let redirectUrl = `${origin}/demo/gracias?session_id=${sessionId}`;
+
+  if (!simulate) {
+    const stripe = stripeClient(env.STRIPE_SECRET_KEY!);
+
+    // line_items construidos EN SERVIDOR desde la quote (nunca del cliente)
+    const lineItems = quote.lines.map((line) => ({
+      quantity: line.qty,
+      price_data: {
+        currency: shopConfig.currency,
+        unit_amount: line.unit_price_cents,
+        product_data: { name: line.name },
+      },
+    }));
+    if (quote.shipping_cents > 0) {
+      lineItems.push({
+        quantity: 1,
+        price_data: {
+          currency: shopConfig.currency,
+          unit_amount: quote.shipping_cents,
+          product_data: { name: `Envío — ${quote.shipping.label}` },
+        },
+      });
+    }
+
+    const session = await stripe.checkout.sessions.create({
+      mode: 'payment',
+      line_items: lineItems,
+      customer_email: customer.email,
+      metadata: { order_number: orderNumber },
+      success_url: `${origin}/demo/gracias?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${origin}/demo/carrito`,
+    });
+    sessionId = session.id;
+    redirectUrl = session.url ?? redirectUrl;
+  }
+
+  // Pedido en 'pending' + líneas con snapshot de nombre y precio, en una batch
   const insertOrder = env.DB.prepare(
     `INSERT INTO orders (order_number, email, customer_name, address_json, subtotal_cents, shipping_cents, total_cents, status, stripe_session_id)
      VALUES (?, ?, ?, ?, ?, ?, ?, 'pending', ?)`,
@@ -107,7 +122,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
     quote.subtotal_cents,
     quote.shipping_cents,
     quote.total_cents,
-    session.id,
+    sessionId,
   );
   await insertOrder.run();
 
@@ -118,10 +133,17 @@ export const POST: APIRoute = async ({ request, locals }) => {
     return Response.json({ error: 'No se pudo registrar el pedido' }, { status: 500 });
   }
 
-  const itemStatements = quote.lines.map((line) =>
+  const items: OrderItemForPayment[] = quote.lines.map((line) => ({
+    product_id: idBySlug.get(line.slug) ?? 0,
+    name_snapshot: line.name,
+    unit_price_cents: line.unit_price_cents,
+    qty: line.qty,
+  }));
+
+  const itemStatements = items.map((item) =>
     env.DB.prepare(
       'INSERT INTO order_items (order_id, product_id, name_snapshot, unit_price_cents, qty) VALUES (?, ?, ?, ?, ?)',
-    ).bind(orderRow.id, idBySlug.get(line.slug) ?? null, line.name, line.unit_price_cents, line.qty),
+    ).bind(orderRow.id, item.product_id || null, item.name_snapshot, item.unit_price_cents, item.qty),
   );
   itemStatements.push(
     env.DB.prepare(
@@ -130,5 +152,29 @@ export const POST: APIRoute = async ({ request, locals }) => {
   );
   await env.DB.batch(itemStatements);
 
-  return Response.json({ url: session.url, order_number: orderNumber });
+  // Pago simulado: marcamos pagado al instante (sin Stripe ni webhook). Reutiliza
+  // exactamente la misma mutación que el webhook real → stock, evento y emails.
+  if (simulate) {
+    const mutation = buildPaidMutation(
+      {
+        id: orderRow.id,
+        order_number: orderNumber,
+        status: 'pending',
+        email: customer.email,
+        customer_name: customer.name,
+        subtotal_cents: quote.subtotal_cents,
+        shipping_cents: quote.shipping_cents,
+        total_cents: quote.total_cents,
+      },
+      items,
+      `sim_pi_${orderNumber}`,
+      'Pago confirmado (simulado)',
+    );
+    if (mutation !== null) {
+      await applyPaidMutation(env.DB, mutation);
+      locals.runtime.ctx.waitUntil(deliverPendingEmails(env.DB, env));
+    }
+  }
+
+  return Response.json({ url: redirectUrl, order_number: orderNumber });
 };

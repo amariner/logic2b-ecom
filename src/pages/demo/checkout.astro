@@ -6,7 +6,8 @@ import Shop from '../../layouts/Shop.astro';
   <main class="mx-auto max-w-xl px-4 py-8">
     <h1 class="text-3xl font-bold tracking-tight">Datos de envío</h1>
     <p class="mt-1 text-sm text-stone-600">
-      Después pasarás al pago seguro de Stripe. Tu tarjeta nunca toca nuestro servidor.
+      Demo: el pago está <strong>simulado</strong>, no se cobra nada. En una tienda real, aquí se
+      redirige al pago seguro de Stripe y la tarjeta nunca toca nuestro servidor.
     </p>
 
     <form data-checkout-form class="mt-6 space-y-4" novalidate>
@@ -48,10 +49,10 @@ import Shop from '../../layouts/Shop.astro';
 
       <button type="submit" data-checkout-submit
         class="w-full rounded bg-brand px-6 py-3 font-medium text-white hover:bg-brand-dark disabled:bg-stone-300">
-        Continuar al pago seguro
+        Confirmar pedido (pago simulado)
       </button>
       <p class="text-center text-xs text-stone-500">
-        Demo: usa la tarjeta 4242 4242 4242 4242, cualquier fecha futura y cualquier CVC.
+        Demo: el pago se simula automáticamente, no hace falta tarjeta ni datos bancarios.
       </p>
     </form>
   </main>
@@ -75,7 +76,7 @@ import Shop from '../../layouts/Shop.astro';
       if (!form.reportValidity()) return;
       errorEl.classList.add('hidden');
       submitBtn.disabled = true;
-      submitBtn.textContent = 'Preparando el pago…';
+      submitBtn.textContent = 'Confirmando el pedido…';
 
       const data = new FormData(form);
       const phone = String(data.get('phone') ?? '').trim();
@@ -100,14 +101,14 @@ import Shop from '../../layouts/Shop.astro';
           });
           const body = (await res.json()) as { url?: string; error?: string };
           if (!res.ok || !body.url) {
-            throw new Error(body.error ?? 'No se pudo iniciar el pago');
+            throw new Error(body.error ?? 'No se pudo procesar el pedido');
           }
           window.location.assign(body.url);
         } catch (err) {
           errorEl.textContent = err instanceof Error ? err.message : 'Error inesperado';
           errorEl.classList.remove('hidden');
           submitBtn.disabled = false;
-          submitBtn.textContent = 'Continuar al pago seguro';
+          submitBtn.textContent = 'Confirmar pedido (pago simulado)';
         }
       })();
     });

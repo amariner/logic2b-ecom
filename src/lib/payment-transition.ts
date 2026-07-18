@@ -47,6 +47,7 @@ export function buildPaidMutation(
   order: OrderForPayment | null,
   items: OrderItemForPayment[],
   paymentIntent: string | null,
+  note = 'Pago confirmado por Stripe',
 ): PaidMutation | null {
   if (order === null) return null;
   if (order.status !== 'pending') return null;
@@ -65,7 +66,7 @@ export function buildPaidMutation(
     orderId: order.id,
     paymentIntent,
     stockDecrements: items.map((item) => ({ product_id: item.product_id, qty: item.qty })),
-    event: { from_status: 'pending', to_status: 'paid', note: 'Pago confirmado por Stripe' },
+    event: { from_status: 'pending', to_status: 'paid', note },
     emails: [orderConfirmationEmail(emailData), merchantNewOrderEmail(emailData)],
   };
 }

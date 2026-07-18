@@ -13,6 +13,12 @@ export const prerender = false;
 
 export const POST: APIRoute = async ({ request, locals }) => {
   const env = locals.runtime.env;
+  // Sin claves de Stripe el checkout va en modo simulado y no hay webhook que verificar.
+  if (!env.STRIPE_SECRET_KEY || !env.STRIPE_WEBHOOK_SECRET) {
+    return new Response('Pagos en modo simulado: webhook deshabilitado', { status: 503 });
+  }
+  const stripeSecretKey = env.STRIPE_SECRET_KEY;
+  const stripeWebhookSecret = env.STRIPE_WEBHOOK_SECRET;
   const signature = request.headers.get('stripe-signature');
   if (signature === null) {
     return new Response('Falta la firma', { status: 400 });
@@ -22,10 +28,10 @@ export const POST: APIRoute = async ({ request, locals }) => {
   let event: Stripe.Event;
   try {
     event = await verifyWebhookEvent(
-      stripeClient(env.STRIPE_SECRET_KEY),
+      stripeClient(stripeSecretKey),
       payload,
       signature,
-      env.STRIPE_WEBHOOK_SECRET,
+      stripeWebhookSecret,
     );
   } catch {
     return new Response('Firma inválida', { status: 400 });
