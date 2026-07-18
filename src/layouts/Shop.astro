@@ -1,7 +1,7 @@
 ---
 /**
- * Layout de la tienda demo: noindex, banner de modo demo con tarjeta de prueba,
- * header con navegación y contador de carrito.
+ * Layout de la tienda demo: noindex, banner de modo demo discreto,
+ * header sticky con navegación y contador de carrito. Estética limpia tipo Shopify.
  */
 import Base from './Base.astro';
 import { shopConfig } from '../../shop.config';
@@ -15,30 +15,24 @@ const { title, description } = Astro.props;
 ---
 
 <Base title={`${title} — ${shopConfig.name}`} description={description} noindex>
-  <div class="border-b border-amber-200 bg-amber-50 px-4 py-2 text-center text-sm text-amber-900">
-    <strong>Demo</strong> — tienda ficticia de <a href="/" class="underline">Logic2B Commerce Kit</a>.
-    Paga con la tarjeta de prueba
-    <button
-      type="button"
-      class="cursor-pointer rounded bg-amber-100 px-1.5 py-0.5 font-mono text-xs hover:bg-amber-200"
-      data-copy-card
-      title="Copiar número de tarjeta"
-    >4242 4242 4242 4242</button>
-    — nada es real.
+  <div class="bg-ink px-4 py-1.5 text-center text-xs text-white/80">
+    <strong class="font-semibold text-white">Demo</strong> — tienda ficticia del
+    <a href="/" class="underline decoration-white/40 underline-offset-2 hover:text-white">Logic2B Commerce Kit</a>.
+    El pago está simulado: nada es real.
   </div>
 
-  <header class="border-b border-stone-200 bg-white">
-    <div class="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-4">
-      <a href="/demo/tienda" class="text-xl font-bold tracking-tight text-brand">{shopConfig.name}</a>
-      <nav class="flex items-center gap-5 text-sm">
-        <a href="/demo/tienda" class="text-stone-600 hover:text-stone-900">Tienda</a>
-        <a href="/demo/admin" class="text-stone-600 hover:text-stone-900">Panel del comercio</a>
-        <a href="/demo/carrito" class="relative inline-flex items-center gap-1 font-medium text-stone-900">
+  <header class="sticky top-0 z-40 border-b border-black/5 bg-white/90 backdrop-blur-md">
+    <div class="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-4">
+      <a href="/demo/tienda" class="font-display text-lg tracking-tight text-ink">{shopConfig.name}</a>
+      <nav class="flex items-center gap-4 text-sm sm:gap-6">
+        <a href="/demo/tienda" class="hidden text-stone-600 hover:text-ink sm:block">Tienda</a>
+        <a href="/demo/admin" class="hidden text-stone-600 hover:text-ink sm:block">Panel del comercio</a>
+        <a href="/demo/carrito" class="relative inline-flex items-center gap-1.5 rounded-full bg-cream px-4 py-2 font-medium text-ink transition hover:bg-stone-200">
           <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" aria-hidden="true">
             <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 0 0-16.536-1.84M7.5 14.25 5.106 5.272M6 20.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm12.75 0a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z" />
           </svg>
-          Carrito
-          <span data-cart-badge class="hidden rounded-full bg-brand px-1.5 text-xs font-bold text-white">0</span>
+          <span class="hidden sm:inline">Carrito</span>
+          <span data-cart-badge class="hidden rounded-full bg-brand px-1.5 py-0.5 text-xs font-bold text-white">0</span>
         </a>
       </nav>
     </div>
@@ -46,10 +40,11 @@ const { title, description } = Astro.props;
 
   <slot />
 
-  <footer class="mt-16 border-t border-stone-200 bg-stone-50">
-    <div class="mx-auto max-w-6xl px-4 py-8 text-sm text-stone-500">
-      <p>{shopConfig.legalName}. {shopConfig.legal.shippingNote} {shopConfig.legal.returnsNote}</p>
-      <p class="mt-2">Demo del <a href="/" class="underline">Logic2B Commerce Kit</a> · <a href="/demo/reset" class="underline">Restaurar datos de la demo</a></p>
+  <footer class="mt-20 border-t border-black/5 bg-cream">
+    <div class="mx-auto max-w-6xl px-4 py-10 text-sm text-stone-500">
+      <p class="font-display text-base text-ink">{shopConfig.name}</p>
+      <p class="mt-3 max-w-2xl leading-relaxed">{shopConfig.legalName}. {shopConfig.legal.shippingNote} {shopConfig.legal.returnsNote}</p>
+      <p class="mt-4">Demo del <a href="/" class="underline underline-offset-2 hover:text-ink">Logic2B Commerce Kit</a> · <a href="/demo/reset" class="underline underline-offset-2 hover:text-ink">Restaurar datos de la demo</a></p>
     </div>
   </footer>
 
@@ -58,14 +53,5 @@ const { title, description } = Astro.props;
 
     const badge = document.querySelector<HTMLElement>('[data-cart-badge]');
     if (badge) bindCartBadge(badge);
-
-    document.querySelector<HTMLButtonElement>('[data-copy-card]')?.addEventListener('click', (ev) => {
-      const btn = ev.currentTarget as HTMLButtonElement;
-      void navigator.clipboard.writeText('4242424242424242').then(() => {
-        const prev = btn.textContent;
-        btn.textContent = '¡Copiada!';
-        setTimeout(() => (btn.textContent = prev), 1200);
-      });
-    });
   </script>
 </Base>

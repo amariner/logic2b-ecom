@@ -26,7 +26,7 @@ const order = sessionId
     {order ? (
       <>
         <p class="text-5xl" aria-hidden="true">🧺</p>
-        <h1 class="mt-4 text-3xl font-bold tracking-tight">¡Gracias, {order.customer_name.split(' ')[0]}!</h1>
+        <h1 class="mt-4 font-display text-3xl sm:text-4xl">¡Gracias, {order.customer_name.split(' ')[0]}!</h1>
         <p class="mt-3 text-stone-700">
           Tu pedido <strong>{order.order_number}</strong> por {formatEurCents(order.total_cents)} está
           {order.status === 'paid' ? ' confirmado' : ' registrándose (el pago se está procesando)'}.
@@ -38,11 +38,11 @@ const order = sessionId
       </>
     ) : (
       <>
-        <h1 class="text-3xl font-bold tracking-tight">No encontramos ese pedido</h1>
+        <h1 class="font-display text-3xl">No encontramos ese pedido</h1>
         <p class="mt-3 text-stone-600">Si acabas de pagar, dale unos segundos y recarga.</p>
       </>
     )}
-    <a href="/demo/tienda" class="mt-8 inline-block rounded bg-brand px-5 py-2 font-medium text-white hover:bg-brand-dark">Volver a la tienda</a>
+    <a href="/demo/tienda" class="mt-8 inline-block rounded-full bg-brand px-7 py-3 font-semibold text-white transition hover:bg-brand-dark">Volver a la tienda</a>
   </main>
 
   <script>

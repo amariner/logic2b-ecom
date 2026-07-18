@@ -34,53 +34,58 @@ const jsonLd = {
 ---
 
 <Shop title={product.name} description={product.description}>
-  <main class="mx-auto max-w-6xl px-4 py-8">
+  <main class="mx-auto max-w-6xl px-4 py-10">
     <nav class="text-sm text-stone-500">
-      <a href="/demo/tienda" class="hover:underline">Tienda</a>
+      <a href="/demo/tienda" class="hover:text-ink hover:underline">Tienda</a>
       <span aria-hidden="true"> / </span>
-      <a href={`/demo/tienda?categoria=${product.category}`} class="hover:underline">{categoryLabel}</a>
+      <a href={`/demo/tienda?categoria=${product.category}`} class="hover:text-ink hover:underline">{categoryLabel}</a>
     </nav>
 
-    <div class="mt-6 grid gap-10 md:grid-cols-2">
-      <img
-        src={product.image}
-        alt={product.name}
-        width="800"
-        height="600"
-        class="aspect-[4/3] w-full rounded-lg bg-stone-100 object-cover"
-      />
+    <div class="mt-6 grid gap-8 md:grid-cols-2 md:gap-14">
+      <div class="overflow-hidden rounded-3xl bg-cream">
+        <img
+          src={product.image}
+          alt={product.name}
+          width="800"
+          height="800"
+          class="aspect-square w-full object-cover"
+        />
+      </div>
 
-      <div>
-        <h1 class="text-3xl font-bold tracking-tight">{product.name}</h1>
-        <p class="mt-4 text-2xl font-bold">{formatEurCents(product.price_cents)}</p>
-        <p class="mt-4 leading-relaxed text-stone-700">{product.description}</p>
+      <div class="md:py-4">
+        <p class="text-sm font-medium uppercase tracking-wide text-brand">{categoryLabel}</p>
+        <h1 class="mt-2 font-display text-3xl sm:text-4xl">{product.name}</h1>
+        <p class="mt-4 text-2xl font-semibold">{formatEurCents(product.price_cents)}</p>
+        <p class="mt-5 leading-relaxed text-stone-600">{product.description}</p>
 
         {product.stock > 0 ? (
-          <div class="mt-6 flex items-center gap-3">
-            <label class="text-sm text-stone-600" for="qty">Cantidad</label>
-            <input
-              id="qty"
-              type="number"
-              min="1"
-              max={Math.min(product.stock, 99)}
-              value="1"
-              class="w-20 rounded border border-stone-300 px-2 py-1.5"
-            />
+          <div class="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
+            <div class="flex items-center gap-3">
+              <label class="text-sm text-stone-600" for="qty">Cantidad</label>
+              <input
+                id="qty"
+                type="number"
+                min="1"
+                max={Math.min(product.stock, 99)}
+                value="1"
+                class="w-20 rounded-full border border-stone-300 px-4 py-2.5 text-center"
+              />
+            </div>
             <button
               type="button"
               data-add-to-cart={product.slug}
-              class="rounded bg-brand px-5 py-2 font-medium text-white hover:bg-brand-dark"
+              class="flex-1 rounded-full bg-brand px-8 py-3 font-semibold text-white shadow-lg shadow-brand/20 transition hover:bg-brand-dark sm:flex-none"
             >Añadir al carrito</button>
           </div>
         ) : (
-          <p class="mt-6 font-medium text-red-600">Agotado temporalmente</p>
+          <p class="mt-8 inline-block rounded-full bg-red-50 px-4 py-2 font-medium text-red-600">Agotado temporalmente</p>
         )}
 
-        <dl class="mt-8 space-y-1 border-t border-stone-200 pt-4 text-sm text-stone-600">
-          <div><dt class="inline font-medium">Envío:</dt> <dd class="inline">{shopConfig.legal.shippingNote}</dd></div>
-          <div><dt class="inline font-medium">Devoluciones:</dt> <dd class="inline">{shopConfig.legal.returnsNote}</dd></div>
+        <dl class="mt-10 space-y-2 border-t border-stone-200 pt-5 text-sm text-stone-600">
+          <div class="flex gap-2"><dt class="font-medium text-ink">Envío:</dt> <dd>{shopConfig.legal.shippingNote}</dd></div>
+          <div class="flex gap-2"><dt class="font-medium text-ink">Devoluciones:</dt> <dd>{shopConfig.legal.returnsNote}</dd></div>
           {product.stock > 0 && product.stock <= 10 && (
-            <div><dt class="inline font-medium">Stock:</dt> <dd class="inline">quedan {product.stock} unidades</dd></div>
+            <div class="flex gap-2"><dt class="font-medium text-ink">Stock:</dt> <dd>quedan {product.stock} unidades</dd></div>
           )}
         </dl>
       </div>

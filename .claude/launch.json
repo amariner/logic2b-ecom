@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "wrangler-dev",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["wrangler", "dev", "--port", "8799", "--local"],
+      "port": 8799
+    }
+  ]
+}

@@ -31,28 +31,28 @@ const linkFor = (cat?: string, ord?: string): string => {
 ---
 
 <Shop title="Tienda" description="Catálogo demo de La Botiga del Maestrat">
-  <main class="mx-auto max-w-6xl px-4 py-8">
-    <h1 class="text-3xl font-bold tracking-tight">Productes de la terra</h1>
-    <p class="mt-1 text-stone-600">Aceites, embutidos, mieles, vinos, conservas y quesos del Maestrat.</p>
+  <main class="mx-auto max-w-6xl px-4 py-10">
+    <h1 class="font-display text-3xl sm:text-4xl">Productes de la terra</h1>
+    <p class="mt-2 max-w-2xl text-stone-600">Aceites, embutidos, mieles, vinos, conservas y quesos del Maestrat.</p>
 
-    <div class="mt-6 flex flex-wrap items-center justify-between gap-4">
-      <nav class="flex flex-wrap gap-2" aria-label="Categorías">
+    <div class="mt-8 flex flex-wrap items-center justify-between gap-4">
+      <nav class="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0" aria-label="Categorías">
         <a
           href={linkFor(undefined, sort)}
-          class:list={['rounded-full border px-3 py-1 text-sm', !category ? 'border-brand bg-brand text-white' : 'border-stone-300 text-stone-700 hover:border-stone-500']}
+          class:list={['shrink-0 rounded-full px-4 py-2 text-sm font-medium transition', !category ? 'bg-ink text-white' : 'bg-cream text-stone-700 hover:bg-stone-200']}
         >Todo</a>
         {shopConfig.categories.map((cat) => (
           <a
             href={linkFor(cat.id, sort)}
-            class:list={['rounded-full border px-3 py-1 text-sm', category === cat.id ? 'border-brand bg-brand text-white' : 'border-stone-300 text-stone-700 hover:border-stone-500']}
+            class:list={['shrink-0 rounded-full px-4 py-2 text-sm font-medium transition', category === cat.id ? 'bg-ink text-white' : 'bg-cream text-stone-700 hover:bg-stone-200']}
           >{cat.label}</a>
         ))}
       </nav>
 
       <form method="get" class="text-sm">
         {category && <input type="hidden" name="categoria" value={category} />}
-        <label class="text-stone-600" for="orden">Ordenar:</label>
-        <select id="orden" name="orden" class="ml-1 rounded border border-stone-300 px-2 py-1" onchange="this.form.submit()">
+        <label class="text-stone-500" for="orden">Ordenar:</label>
+        <select id="orden" name="orden" class="ml-1 rounded-full border border-stone-200 bg-white px-3 py-1.5" onchange="this.form.submit()">
           {sortOptions.map((opt) => (
             <option value={opt.id} selected={opt.id === sort}>{opt.label}</option>
           ))}
@@ -60,30 +60,32 @@ const linkFor = (cat?: string, ord?: string): string => {
       </form>
     </div>
 
-    <ul class="mt-8 grid grid-cols-2 gap-6 sm:grid-cols-3 lg:grid-cols-4">
+    <ul class="mt-8 grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 sm:gap-x-6 lg:grid-cols-4">
       {products.map((prod) => (
-        <li class="group flex flex-col overflow-hidden rounded-lg border border-stone-200 bg-white">
+        <li class="group flex flex-col">
           <a href={`/demo/tienda/${prod.slug}`} class="flex flex-1 flex-col">
-            <img
-              src={prod.image}
-              alt={prod.name}
-              width="600"
-              height="450"
-              loading="lazy"
-              class="aspect-[4/3] w-full bg-stone-100 object-cover transition group-hover:scale-[1.02]"
-            />
-            <div class="flex flex-1 flex-col gap-1 p-3">
-              <h2 class="text-sm font-medium leading-snug">{prod.name}</h2>
-              <p class="mt-auto text-base font-bold">{formatEurCents(prod.price_cents)}</p>
+            <div class="overflow-hidden rounded-2xl bg-cream">
+              <img
+                src={prod.image}
+                alt={prod.name}
+                width="800"
+                height="800"
+                loading="lazy"
+                class="aspect-square w-full object-cover transition duration-300 group-hover:scale-[1.04]"
+              />
+            </div>
+            <div class="flex flex-1 flex-col gap-0.5 pt-3">
+              <h2 class="text-sm font-medium leading-snug text-ink">{prod.name}</h2>
+              <p class="mt-auto pt-1 text-base font-semibold">{formatEurCents(prod.price_cents)}</p>
               {prod.stock === 0 && <p class="text-xs font-medium text-red-600">Agotado</p>}
             </div>
           </a>
-          <div class="p-3 pt-0">
+          <div class="pt-2.5">
             <button
               type="button"
               data-add-to-cart={prod.slug}
               disabled={prod.stock === 0}
-              class="w-full rounded bg-brand px-3 py-1.5 text-sm font-medium text-white hover:bg-brand-dark disabled:cursor-not-allowed disabled:bg-stone-300"
+              class="w-full rounded-full border border-ink/15 bg-white px-3 py-2 text-sm font-semibold text-ink transition hover:border-ink hover:bg-ink hover:text-white disabled:cursor-not-allowed disabled:border-stone-200 disabled:bg-stone-100 disabled:text-stone-400"
             >Añadir al carrito</button>
           </div>
         </li>

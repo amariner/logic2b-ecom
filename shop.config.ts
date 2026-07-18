@@ -22,8 +22,8 @@ export const shopConfig = {
 
   /** Marca (alimenta los tokens de Tailwind en global.css) */
   brand: {
-    color: '#8a3324', // teja maestrat
-    colorDark: '#5e2118',
+    color: '#008060', // verde profundo (estética Shopify)
+    colorDark: '#004c3f',
   },
 
   /** Categorías del catálogo. El seed y los filtros de tienda derivan de aquí. */

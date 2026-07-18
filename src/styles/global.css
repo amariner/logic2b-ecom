@@ -1,13 +1,22 @@
 @import "tailwindcss";
 
-/* Tokens de marca — mantener en sintonía con brand.color de shop.config.ts */
+/* Tokens de marca — estética tipo Shopify: blanco, tinta casi negra, verde profundo.
+   Mantener en sintonía con brand.color de shop.config.ts */
 @theme {
-  --color-brand: #8a3324;
-  --color-brand-dark: #5e2118;
-  /* Landing editorial (dirección B): papel cálido + tinta + nogal */
-  --color-paper: #faf7f2;
-  --color-ink: #1f1c19;
-  --color-walnut: #8a6f5c;
-  --color-walnut-dark: #6b5546;
-  --font-display: Georgia, 'Times New Roman', serif;
+  --color-brand: #008060;
+  --color-brand-dark: #004c3f;
+  --color-ink: #1a1a1a;
+  --color-paper: #ffffff;
+  --color-cream: #f6f6f4;
+  /* Compatibilidad con /arquitectura (dirección editorial anterior) */
+  --color-walnut: #6b7f5c;
+  --color-walnut-dark: #46543a;
+  --font-sans: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-display: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+/* Titulares con el peso y tracking del estilo Shopify */
+.font-display {
+  font-weight: 700;
+  letter-spacing: -0.03em;
 }

@@ -6,47 +6,47 @@ import Shop from '../../layouts/Shop.astro';
 ---
 
 <Shop title="Carrito" description="Tu carrito de la compra">
-  <main class="mx-auto max-w-3xl px-4 py-8">
-    <h1 class="text-3xl font-bold tracking-tight">Tu carrito</h1>
+  <main class="mx-auto max-w-3xl px-4 py-10">
+    <h1 class="font-display text-3xl sm:text-4xl">Tu carrito</h1>
 
     <div data-cart-empty class="hidden py-16 text-center text-stone-500">
       <p>El carrito está vacío.</p>
-      <a href="/demo/tienda" class="mt-4 inline-block rounded bg-brand px-5 py-2 font-medium text-white hover:bg-brand-dark">Ir a la tienda</a>
+      <a href="/demo/tienda" class="mt-5 inline-block rounded-full bg-brand px-7 py-3 font-semibold text-white transition hover:bg-brand-dark">Ir a la tienda</a>
     </div>
 
     <div data-cart-loading class="py-16 text-center text-stone-400">Calculando precios…</div>
 
     <div data-cart-content class="hidden">
-      <ul data-cart-lines class="mt-6 divide-y divide-stone-200"></ul>
+      <ul data-cart-lines class="mt-6 divide-y divide-stone-100"></ul>
 
-      <div class="mt-6 rounded-lg border border-stone-200 bg-stone-50 p-4">
+      <div class="mt-6 rounded-2xl bg-cream p-5 sm:p-6">
         <label class="block text-sm font-medium text-stone-700" for="cp">Código postal de entrega</label>
-        <div class="mt-1 flex gap-2">
+        <div class="mt-2 flex gap-2">
           <input
             id="cp"
             inputmode="numeric"
             maxlength="5"
             placeholder="12001"
-            class="w-32 rounded border border-stone-300 px-3 py-1.5"
+            class="w-32 rounded-full border border-stone-300 bg-white px-4 py-2"
           />
-          <button type="button" data-apply-cp class="rounded border border-stone-400 px-4 py-1.5 text-sm hover:bg-stone-100">Calcular portes</button>
+          <button type="button" data-apply-cp class="rounded-full border border-ink/15 bg-white px-5 py-2 text-sm font-medium transition hover:border-ink">Calcular portes</button>
         </div>
         <p data-cp-feedback class="mt-2 hidden text-sm"></p>
 
-        <dl class="mt-4 space-y-1 border-t border-stone-200 pt-3 text-sm">
-          <div class="flex justify-between"><dt>Subtotal</dt><dd data-subtotal class="font-medium"></dd></div>
-          <div class="flex justify-between"><dt>Envío <span data-shipping-label class="text-stone-500"></span></dt><dd data-shipping></dd></div>
-          <div class="flex justify-between border-t border-stone-200 pt-2 text-base font-bold"><dt>Total</dt><dd data-total></dd></div>
+        <dl class="mt-5 space-y-2 border-t border-stone-200 pt-4 text-sm">
+          <div class="flex justify-between"><dt class="text-stone-600">Subtotal</dt><dd data-subtotal class="font-medium"></dd></div>
+          <div class="flex justify-between"><dt class="text-stone-600">Envío <span data-shipping-label class="text-stone-400"></span></dt><dd data-shipping></dd></div>
+          <div class="flex justify-between border-t border-stone-200 pt-3 text-base font-bold"><dt>Total</dt><dd data-total></dd></div>
         </dl>
       </div>
 
-      <p data-cart-problems class="mt-4 hidden rounded border border-red-200 bg-red-50 p-3 text-sm text-red-800"></p>
+      <p data-cart-problems class="mt-4 hidden rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-800"></p>
 
       <div class="mt-6 flex justify-end">
         <a
           href="/demo/checkout"
           data-checkout-link
-          class="pointer-events-none rounded bg-stone-300 px-6 py-2.5 font-medium text-white"
+          class="pointer-events-none w-full rounded-full bg-stone-300 px-8 py-3.5 text-center font-semibold text-white transition sm:w-auto"
         >Tramitar pedido</a>
       </div>
     </div>
@@ -114,7 +114,7 @@ import Shop from '../../layouts/Shop.astro';
         li.className = 'flex items-center gap-4 py-4';
         const bad = line.status !== 'ok';
         li.innerHTML = `
-          <img src="${line.image}" alt="" width="64" height="48" class="h-12 w-16 rounded bg-stone-100 object-cover" />
+          <img src="${line.image}" alt="" width="64" height="64" class="h-16 w-16 rounded-xl bg-cream object-cover" />
           <div class="flex-1">
             <p class="text-sm font-medium ${bad ? 'text-red-700 line-through' : ''}">${line.name}</p>
             <p class="text-sm text-stone-500">${bad ? '' : eur(line.unit_price_cents)}</p>
