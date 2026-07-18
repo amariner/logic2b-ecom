@@ -3,13 +3,16 @@ import Shop from '../../../layouts/Shop.astro';
 import { shopConfig } from '../../../../shop.config';
 import { getProductBySlug } from '../../../lib/db';
 import { formatEurCents } from '../../../lib/format';
+import { notFoundResponse } from '../../../lib/not-found';
 
 export const prerender = false;
 
 const { slug = '' } = Astro.params;
 const product = await getProductBySlug(Astro.locals.runtime.env.DB, slug);
-if (!product) {
-  return new Response(null, { status: 404, statusText: 'Not found' });
+// Producto borrado o desactivado: servimos la 404 propia con su estado real.
+const notFound = product ? null : await notFoundResponse(Astro.locals.runtime.env, Astro.url);
+if (!product || notFound) {
+  return notFound;
 }
 
 const categoryLabel = shopConfig.categories.find((cat) => cat.id === product.category)?.label ?? product.category;

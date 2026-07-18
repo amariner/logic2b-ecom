@@ -37,13 +37,23 @@ export function isSortOption(value: string): value is SortOption {
 
 export async function getActiveProducts(
   db: D1Database,
-  opts: { category?: string | undefined; sort?: SortOption | undefined } = {},
+  opts: { category?: string | undefined; sort?: SortOption | undefined; search?: string | undefined } = {},
 ): Promise<ProductRow[]> {
   const sort = SORT_SQL[opts.sort ?? 'featured'];
-  const where = opts.category ? 'active = 1 AND category = ?' : 'active = 1';
-  const stmt = db.prepare(`SELECT * FROM products WHERE ${where} ORDER BY ${sort}`);
-  const bound = opts.category ? stmt.bind(opts.category) : stmt;
-  const { results } = await bound.all<ProductRow>();
+  const conditions = ['active = 1'];
+  const params: string[] = [];
+  if (opts.category) {
+    conditions.push('category = ?');
+    params.push(opts.category);
+  }
+  if (opts.search) {
+    // LIKE con escape propio para que %, _ y \ del usuario sean literales.
+    const escaped = opts.search.replace(/[\\%_]/g, (ch) => `\\${ch}`);
+    conditions.push("(name LIKE ? ESCAPE '\\' OR description LIKE ? ESCAPE '\\')");
+    params.push(`%${escaped}%`, `%${escaped}%`);
+  }
+  const stmt = db.prepare(`SELECT * FROM products WHERE ${conditions.join(' AND ')} ORDER BY ${sort}`);
+  const { results } = await (params.length > 0 ? stmt.bind(...params) : stmt).all<ProductRow>();
   return results;
 }
 

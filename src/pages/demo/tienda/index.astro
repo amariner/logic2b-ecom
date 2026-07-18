@@ -11,8 +11,13 @@ const rawCategory = url.searchParams.get('categoria') ?? '';
 const category = shopConfig.categories.some((cat) => cat.id === rawCategory) ? rawCategory : undefined;
 const rawSort = url.searchParams.get('orden') ?? 'featured';
 const sort = isSortOption(rawSort) ? rawSort : 'featured';
+const search = (url.searchParams.get('q') ?? '').trim().slice(0, 60);
 
-const products = await getActiveProducts(Astro.locals.runtime.env.DB, { category, sort });
+const products = await getActiveProducts(Astro.locals.runtime.env.DB, {
+  category,
+  sort,
+  search: search || undefined,
+});
 
 const sortOptions = [
   { id: 'featured', label: 'Destacados' },
@@ -25,6 +30,7 @@ const linkFor = (cat?: string, ord?: string): string => {
   const params = new URLSearchParams();
   if (cat) params.set('categoria', cat);
   if (ord && ord !== 'featured') params.set('orden', ord);
+  if (search) params.set('q', search);
   const qs = params.toString();
   return `/demo/tienda${qs ? `?${qs}` : ''}`;
 };
@@ -49,16 +55,43 @@ const linkFor = (cat?: string, ord?: string): string => {
         ))}
       </nav>
 
-      <form method="get" class="text-sm">
-        {category && <input type="hidden" name="categoria" value={category} />}
-        <label class="text-stone-500" for="orden">Ordenar:</label>
-        <select id="orden" name="orden" class="ml-1 rounded-full border border-stone-200 bg-white px-3 py-1.5" onchange="this.form.submit()">
-          {sortOptions.map((opt) => (
-            <option value={opt.id} selected={opt.id === sort}>{opt.label}</option>
-          ))}
-        </select>
-      </form>
+      <div class="flex flex-wrap items-center gap-3">
+        <form method="get" action="/demo/tienda" role="search" class="relative">
+          {category && <input type="hidden" name="categoria" value={category} />}
+          {sort !== 'featured' && <input type="hidden" name="orden" value={sort} />}
+          <svg class="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-400" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-4.34-4.34m1.34-5.16a6.5 6.5 0 1 1-13 0 6.5 6.5 0 0 1 13 0Z" />
+          </svg>
+          <input
+            type="search"
+            name="q"
+            value={search}
+            maxlength="60"
+            placeholder="Buscar producto…"
+            aria-label="Buscar en el catálogo"
+            class="w-44 rounded-full border border-stone-200 bg-white py-1.5 pl-9 pr-3 text-sm transition focus:w-56 focus:border-ink focus:outline-none sm:w-52"
+          />
+        </form>
+
+        <form method="get" class="text-sm">
+          {category && <input type="hidden" name="categoria" value={category} />}
+          {search && <input type="hidden" name="q" value={search} />}
+          <label class="text-stone-500" for="orden">Ordenar:</label>
+          <select id="orden" name="orden" class="ml-1 rounded-full border border-stone-200 bg-white px-3 py-1.5" onchange="this.form.submit()">
+            {sortOptions.map((opt) => (
+              <option value={opt.id} selected={opt.id === sort}>{opt.label}</option>
+            ))}
+          </select>
+        </form>
+      </div>
     </div>
+
+    {search && products.length > 0 && (
+      <p class="mt-6 text-sm text-stone-500">
+        {products.length} {products.length === 1 ? 'resultado' : 'resultados'} para «{search}»
+        · <a href={category ? `/demo/tienda?categoria=${category}` : '/demo/tienda'} class="text-brand underline underline-offset-2 hover:text-brand-dark">quitar búsqueda</a>
+      </p>
+    )}
 
     <ul class="mt-8 grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 sm:gap-x-6 lg:grid-cols-4">
       {products.map((prod) => (
@@ -92,7 +125,22 @@ const linkFor = (cat?: string, ord?: string): string => {
       ))}
     </ul>
 
-    {products.length === 0 && <p class="mt-12 text-center text-stone-500">No hay productos en esta categoría.</p>}
+    {products.length === 0 && (
+      <div class="mt-8 rounded-2xl bg-cream px-6 py-16 text-center">
+        <p class="font-display text-xl">
+          {search ? `Nada por aquí para «${search}»` : 'No hay productos en esta categoría'}
+        </p>
+        <p class="mx-auto mt-2 max-w-md text-sm leading-relaxed text-stone-600">
+          {search
+            ? 'Prueba con otra palabra (por ejemplo «aceite», «miel» o «queso») o vuelve al catálogo completo.'
+            : 'Puede que el comercio la haya vaciado temporalmente. El resto del catálogo sigue disponible.'}
+        </p>
+        <a
+          href="/demo/tienda"
+          class="mt-6 inline-block rounded-full bg-ink px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-black"
+        >Ver todo el catálogo</a>
+      </div>
+    )}
   </main>
 
   <script>
