@@ -3,20 +3,35 @@
   "name": "ecom-logic2b",
   "compatibility_date": "2026-07-01",
   "compatibility_flags": ["nodejs_compat"],
-  "pages_build_output_dir": "./dist",
+  // Worker con assets estáticos (no Cloudflare Pages): es lo que permite el
+  // Cron Trigger de reset. `_worker.js` y `_routes.json` se excluyen del
+  // upload de assets vía `public/.assetsignore`.
+  "main": "./dist/_worker.js/index.js",
+  "assets": {
+    "binding": "ASSETS",
+    "directory": "./dist"
+  },
+  // Reset de la demo cada 6 h (handler `scheduled` en src/worker.ts).
+  // En una tienda real: eliminar este bloque.
+  "triggers": {
+    "crons": ["0 */6 * * *"]
+  },
   "d1_databases": [
     {
       "binding": "DB",
       "database_name": "ecom-demo",
-      // ID real se rellena al crear la D1 remota en Fase 6 (`wrangler d1 create`)
+      // ID real: sustituir por el que devuelve `wrangler d1 create ecom-demo` (ver README, despliegue)
       "database_id": "local-placeholder",
       "migrations_dir": "migrations"
     }
   ],
   "vars": {
     "DEMO_MODE": "true"
+  },
+  "observability": {
+    "enabled": true
   }
   // Secretos (via `wrangler secret put`, nunca aquí):
   //   STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET, ADMIN_COOKIE_SECRET
-  // Cron de reset cada 6h: se añade en Fase 6 (requiere Worker con scheduled handler).
+  //   RESEND_API_KEY (solo tienda real: activa el envío de emails via Resend)
 }

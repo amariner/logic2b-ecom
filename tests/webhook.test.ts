@@ -5,6 +5,7 @@ import {
   type OrderForPayment,
   type OrderItemForPayment,
 } from '../src/lib/payment-transition';
+import { shopConfig } from '../shop.config';
 
 const order: OrderForPayment = {
   id: 7,
@@ -51,10 +52,19 @@ describe('buildPaidMutation (idempotencia del webhook)', () => {
 
   it('el email de confirmación lleva número de pedido, items y total', () => {
     const mutation = buildPaidMutation(order, items, null);
-    expect(mutation?.email.to_addr).toBe('clienta@example.com');
-    expect(mutation?.email.subject).toContain('BM-260717-TEST');
-    expect(mutation?.email.body_html).toContain('AOVE Picual 500 ml × 2');
-    expect(mutation?.email.body_html).toContain('35,30');
+    const confirmation = mutation?.emails[0];
+    expect(confirmation?.to_addr).toBe('clienta@example.com');
+    expect(confirmation?.subject).toContain('BM-260717-TEST');
+    expect(confirmation?.body_html).toContain('AOVE Picual 500 ml × 2');
+    expect(confirmation?.body_html).toContain('35,30');
+  });
+
+  it('genera también el aviso interno al comercio', () => {
+    const mutation = buildPaidMutation(order, items, null);
+    const notice = mutation?.emails[1];
+    expect(notice?.to_addr).toBe(shopConfig.email);
+    expect(notice?.subject).toContain('BM-260717-TEST');
+    expect(notice?.body_html).toContain('clienta@example.com');
   });
 });
 

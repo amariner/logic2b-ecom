@@ -6,6 +6,7 @@ import {
   type OrderForPayment,
   type OrderItemForPayment,
 } from '../../../lib/payment-transition';
+import { deliverPendingEmails } from '../../../lib/send-email';
 import { stripeClient, verifyWebhookEvent } from '../../../lib/stripe';
 
 export const prerender = false;
@@ -54,6 +55,8 @@ export const POST: APIRoute = async ({ request, locals }) => {
     const mutation = buildPaidMutation(order, items, paymentIntent);
     if (mutation !== null) {
       await applyPaidMutation(env.DB, mutation);
+      // Producción: entrega el email de confirmación sin retrasar el 200 a Stripe.
+      locals.runtime.ctx.waitUntil(deliverPendingEmails(env.DB, env));
     }
   }
 

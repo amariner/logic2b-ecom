@@ -6,6 +6,8 @@ type Env = {
   STRIPE_SECRET_KEY: string;
   STRIPE_WEBHOOK_SECRET: string;
   ADMIN_COOKIE_SECRET: string;
+  /** Solo producción: si falta (o DEMO_MODE=true), los emails se quedan en la outbox. */
+  RESEND_API_KEY?: string;
 };
 
 type Runtime = import('@astrojs/cloudflare').Runtime<Env>;

@@ -10,6 +10,8 @@ export default defineConfig({
   output: 'static',
   adapter: cloudflare({
     platformProxy: { enabled: true }, // bindings D1 locales en `astro dev`
+    // Entry point propio: añade el handler `scheduled` del cron de reset.
+    workerEntryPoint: { path: 'src/worker.ts' },
   }),
   vite: {
     plugins: [tailwindcss()],

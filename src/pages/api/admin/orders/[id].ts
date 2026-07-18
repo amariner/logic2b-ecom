@@ -2,6 +2,7 @@ import type { APIRoute } from 'astro';
 import { z } from 'zod';
 import { orderShippedEmail, type OrderEmailData } from '../../../../lib/emails';
 import { decideTransition, isOrderStatus } from '../../../../lib/order-transitions';
+import { deliverPendingEmails } from '../../../../lib/send-email';
 
 export const prerender = false;
 
@@ -114,5 +115,9 @@ export const PATCH: APIRoute = async ({ params, request, locals }) => {
   }
 
   await env.DB.batch(statements);
+  if (decision.sendShippedEmail) {
+    // Producción: entrega el email de aviso sin retrasar la respuesta al panel.
+    locals.runtime.ctx.waitUntil(deliverPendingEmails(env.DB, env));
+  }
   return Response.json({ ok: true, status: parsed.data.status });
 };

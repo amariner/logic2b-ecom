@@ -3,7 +3,12 @@
  * La capa D1 (webhook endpoint) aplica el resultado en una sola batch.
  */
 
-import { orderConfirmationEmail, type EmailMessage, type OrderEmailData } from './emails';
+import {
+  merchantNewOrderEmail,
+  orderConfirmationEmail,
+  type EmailMessage,
+  type OrderEmailData,
+} from './emails';
 
 export type OrderForPayment = {
   id: number;
@@ -29,7 +34,8 @@ export type PaidMutation = {
   /** decremento por producto; la SQL aplica MAX(stock - qty, 0) */
   stockDecrements: { product_id: number; qty: number }[];
   event: { from_status: string; to_status: 'paid'; note: string };
-  email: EmailMessage;
+  /** [0] confirmación al comprador, [1] aviso al comercio */
+  emails: EmailMessage[];
 };
 
 /**
@@ -60,7 +66,7 @@ export function buildPaidMutation(
     paymentIntent,
     stockDecrements: items.map((item) => ({ product_id: item.product_id, qty: item.qty })),
     event: { from_status: 'pending', to_status: 'paid', note: 'Pago confirmado por Stripe' },
-    email: orderConfirmationEmail(emailData),
+    emails: [orderConfirmationEmail(emailData), merchantNewOrderEmail(emailData)],
   };
 }
 

@@ -50,6 +50,19 @@ export function orderConfirmationEmail(data: OrderEmailData): EmailMessage {
   };
 }
 
+/** Aviso interno al comercio de que ha entrado un pedido pagado (paso 1 de docs/CLIENTE.md). */
+export function merchantNewOrderEmail(data: OrderEmailData): EmailMessage {
+  return {
+    to_addr: shopConfig.email,
+    subject: `Nuevo pedido ${data.order_number} (${formatEurCents(data.total_cents)})`,
+    body_html: wrap(
+      `Nuevo pedido de ${data.customer_name}`,
+      `<p style="font-size:14px">Pedido <strong>${data.order_number}</strong> pagado (${data.email}). ` +
+        `Dirección y etiqueta de envío en el panel.</p>${itemsTable(data)}`,
+    ),
+  };
+}
+
 export function orderShippedEmail(
   data: OrderEmailData,
   tracking: { carrier: string; number: string },

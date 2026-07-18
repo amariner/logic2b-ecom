@@ -28,9 +28,11 @@ export async function applyPaidMutation(db: D1Database, mutation: PaidMutation):
     db
       .prepare('INSERT INTO order_events (order_id, from_status, to_status, note) VALUES (?, ?, ?, ?)')
       .bind(mutation.orderId, mutation.event.from_status, mutation.event.to_status, mutation.event.note),
-    db
-      .prepare('INSERT INTO emails_outbox (to_addr, subject, body_html) VALUES (?, ?, ?)')
-      .bind(mutation.email.to_addr, mutation.email.subject, mutation.email.body_html),
+    ...mutation.emails.map((email) =>
+      db
+        .prepare('INSERT INTO emails_outbox (to_addr, subject, body_html) VALUES (?, ?, ?)')
+        .bind(email.to_addr, email.subject, email.body_html),
+    ),
   ];
   await db.batch(statements);
 }

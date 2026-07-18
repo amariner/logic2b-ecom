@@ -8,6 +8,7 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "wrangler dev",
+    "deploy": "astro build && wrangler deploy",
     "check": "astro check && vitest run && astro build",
     "test": "vitest run",
     "db:migrate": "wrangler d1 migrations apply ecom-demo --local",
