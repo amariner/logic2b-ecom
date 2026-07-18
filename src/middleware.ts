@@ -15,6 +15,10 @@ export const onRequest = defineMiddleware(async (context, next) => {
   const { pathname, search } = context.url;
   if (!needsAuth(pathname)) return next();
 
+  // En una tienda real (DEMO_MODE off) el guardián es Cloudflare Access
+  // (docs/PRODUCCION.md §5); la cookie de login es la capa didáctica de la demo.
+  if (context.locals.runtime.env.DEMO_MODE !== 'true') return next();
+
   const secret = resolveCookieSecret(context.locals.runtime.env);
   const token = context.cookies.get(ADMIN_COOKIE_NAME)?.value;
   if (secret && token && (await verifySessionToken(secret, token))) return next();

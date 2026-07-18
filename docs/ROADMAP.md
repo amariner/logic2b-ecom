@@ -34,19 +34,19 @@ Demo pública + plantilla clonable de ecommerce ultraligero (Astro 5 + Cloudflar
 > Objetivo: demo impecable como pieza de venta. Ordenado por impacto/esfuerzo; ir marcando al completar.
 
 **Coherencia visual y marca**
-- [ ] ⬜ Restyle de `/arquitectura` a la estética Shopify actual (aún usa la dirección editorial antigua: paper/walnut/serif). Es la única página desalineada.
-- [ ] ⬜ Favicon + `apple-touch-icon` (no hay ninguno; el navegador enseña el globo por defecto).
-- [ ] ⬜ `og:image` en `Base.astro` (1200×630, generable con Higgsfield): hoy compartir el enlace en WhatsApp/LinkedIn sale sin imagen. Alta visibilidad comercial.
-- [ ] ⬜ Página 404 propia con enlaces a landing/tienda (hoy sale la genérica del Worker).
+- [x] ✅ 2026-07-18 — Restyle de `/arquitectura` a la estética Shopify actual (header sticky de la landing, verde/tinta, SVG del flujo recoloreado; tokens walnut eliminados).
+- [x] ✅ 2026-07-18 — Favicon (`favicon.svg` + `.ico`) y `apple-touch-icon.png` con la marca L2B.
+- [x] ✅ 2026-07-18 — `og:image` 1200×630 (`/images/og.jpg`, claim + foto hero) + `twitter:card` en `Base.astro`, en todas las páginas.
+- [x] ✅ 2026-07-18 — Página 404 propia (`src/pages/404.astro`) con enlaces a landing/tienda/panel; también la sirven las fichas de producto inexistentes.
 
 **Experiencia de la demo**
 - [ ] ⬜ Fotos por producto (no solo por categoría): generar 3–4 variantes por categoría con Higgsfield y repartirlas en el seed para que el catálogo no repita 10 veces la misma imagen. Es el mayor salto visual pendiente.
-- [ ] ⬜ Búsqueda simple en el catálogo (input + filtro en servidor; sin JS extra en cliente).
-- [ ] ⬜ Estados vacíos y de error cuidados (carrito con producto agotado, CP sin cobertura, admin sin pedidos).
+- [x] ✅ 2026-07-18 — Búsqueda simple en el catálogo (`?q=`, LIKE escapado sobre nombre+descripción en D1, combinable con categoría/orden, cero JS cliente).
+- [x] ✅ 2026-07-18 — Estados vacíos/error: catálogo sin resultados (card con CTA), ficha inexistente → 404 propia. (Carrito agotado/CP sin cobertura y admin vacío ya estaban cubiertos de fases anteriores.)
 - [ ] ⬜ Micro-guía en la demo: tooltip o franja "prueba a comprar → mira el panel → mira los emails" que guíe el recorrido de venta.
 
 **Robustez (sin salir del stack)**
-- [ ] ⬜ Auth del admin con cookie firmada (`ADMIN_COOKIE_SECRET` ya está en secrets; hoy el panel demo está abierto a propósito, pero con auth la demo enseña el flujo real de login).
+- [x] ✅ 2026-07-18 — Auth del admin con cookie firmada: login `/demo/admin/login` (contraseña «demo» visible), middleware sobre `/demo/admin/*` y `/api/admin/*`, HMAC-SHA256 Web Crypto, 6 tests. Con `DEMO_MODE` off la capa se desactiva y manda Cloudflare Access.
 - [ ] ⬜ Rate limiting básico en APIs públicas (`/api/cart/quote`, `/api/checkout/session`) con Cloudflare.
 - [ ] ⬜ Export/backup periódico de la D1 (cron ya existente; volcado a R2 o al repo).
 - [ ] ⬜ Campo NIF/razón social opcional en checkout → los pedidos nacen con datos para facturar (ver decisión de facturación abajo).
@@ -135,6 +135,15 @@ Demo pública + plantilla clonable de ecommerce ultraligero (Astro 5 + Cloudflar
 - 2026-07-18 (arquitectura del backend — conversación con Andreu):
   - **No Payload CMS** (ni headless CMS): rompería coste 0 €/mes (necesita servidor Node + Postgres), el minimalismo y el stack edge. Se reserva para proyectos Logic2B de contenido editorial donde sí encaja (Astro + Payload headless).
   - **Reparto de responsabilidades**: Stripe = solo cobros; nuestro panel D1 = gestión de pedidos (estados, tracking, stock, CSV) — Stripe no cubre nada de eso; facturación legal = **fuera del kit** (herramienta del comercio o gestoría, alimentada por nuestro export). Motivo clave: emitir facturas nos metería en el ámbito de VeriFactu/ley antifraude como software de facturación. Stripe Invoicing descartado también por su 0,4 % por factura (contra el argumento "sin comisiones").
+
+- 2026-07-18 (Fase 8, sesión cloud — 4 primeros ítems del backlog):
+  - `/arquitectura` alineada con la estética Shopify; eliminados los tokens `walnut` de `global.css`.
+  - Favicon/apple-touch-icon/og:image generados en la propia sesión (HTML renderizado con Chromium headless + Pillow; sin dependencias nuevas en el repo). `og.jpg` con URL absoluta desde `Astro.site`.
+  - 404: además de `src/pages/404.astro` (el Worker la sirve para toda ruta no reconocida), las fichas con slug inexistente responden 404 con la misma página via binding `ASSETS` (`src/lib/not-found.ts`).
+  - Búsqueda de catálogo en servidor (`getActiveProducts` acepta `search`; `%`/`_`/`\` escapados en el LIKE). Formulario GET puro, sin JS.
+  - Auth admin: token sin estado `expiry.firma` (HMAC-SHA256, `crypto.subtle`, verificación en tiempo constante), cookie HttpOnly/SameSite=Lax 24 h via `Astro.cookies`, middleware nuevo `src/middleware.ts`. **Decisión**: con `DEMO_MODE` off el middleware deja pasar y la protección real es Cloudflare Access (si no, un panel real sin contraseña demo válida quedaría inaccesible); reflejado en `docs/PRODUCCION.md` §5. Fallback de secreto solo en demo sin `.dev.vars`.
+  - Nota curiosa del tooling: el TSX que `astro check` genera elimina las expresiones `return` del frontmatter — cualquier variable/import usado solo dentro de un `return` da falso ts(6133); se resuelve referenciándolo fuera del `return`.
+  - 48 tests en verde. Verificado en runtime (wrangler dev + curl + capturas headless): búsqueda, estados vacíos, 404, flujo login/logout completo, CSV con sesión, cookie manipulada rechazada y open redirect bloqueado.
 
 ## Decisiones pendientes
 
