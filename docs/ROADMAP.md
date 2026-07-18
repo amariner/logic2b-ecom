@@ -22,11 +22,43 @@ Demo pública + plantilla clonable de ecommerce ultraligero (Astro 5 + Cloudflar
 | 5 | Landing comercial + /arquitectura + SEO técnico | ✅ Hecho | 2026-07-17 | Dirección B elegida (escaparate editorial). Cero JS en landing. Sitemap+JSON-LD OK |
 | 6 | Deploy ecom.logic2b.com + cron reset + README + docs/CLIENTE.md | ✅ Hecho | 2026-07-18 | **Desplegado y en vivo en https://ecom.logic2b.com** (Worker `ecom-logic2b`, D1 remota `ecom-demo` id `7ae9b06d…`, custom domain + cron reset activos). Pagos en **modo simulado** (sin Stripe) |
 | 7 | bootstrap.sh + checklist demo→cliente real | ✅ Hecho | 2026-07-18 | `scripts/bootstrap.sh` (local probado end-to-end; `--remote` aprovisiona Cloudflare) + `docs/PRODUCCION.md` |
+| 8 | Pulido de la demo (backlog abajo) | 🟡 En curso | 2026-07-18 | Rediseño Shopify + imágenes Higgsfield hechos; resto del backlog priorizado en la sección «Fase 8» |
 
 ## Repo y entornos
 
 - GitHub: `https://github.com/amariner/logic2b-ecom` (rama `main`).
-- Cloudflare: pendiente de login/configuración (Fase 6: D1 remota, deploy en ecom.logic2b.com, cron reset).
+- Cloudflare: **en producción** — Worker `ecom-logic2b` en https://ecom.logic2b.com, D1 remota `ecom-demo` (`7ae9b06d-3664-4790-a87c-04bb4c67e97a`), cron reset cada 6 h, cuenta marinerandreu@gmail.com.
+
+## Fase 8 — Pulido de la demo (backlog priorizado)
+
+> Objetivo: demo impecable como pieza de venta. Ordenado por impacto/esfuerzo; ir marcando al completar.
+
+**Coherencia visual y marca**
+- [ ] ⬜ Restyle de `/arquitectura` a la estética Shopify actual (aún usa la dirección editorial antigua: paper/walnut/serif). Es la única página desalineada.
+- [ ] ⬜ Favicon + `apple-touch-icon` (no hay ninguno; el navegador enseña el globo por defecto).
+- [ ] ⬜ `og:image` en `Base.astro` (1200×630, generable con Higgsfield): hoy compartir el enlace en WhatsApp/LinkedIn sale sin imagen. Alta visibilidad comercial.
+- [ ] ⬜ Página 404 propia con enlaces a landing/tienda (hoy sale la genérica del Worker).
+
+**Experiencia de la demo**
+- [ ] ⬜ Fotos por producto (no solo por categoría): generar 3–4 variantes por categoría con Higgsfield y repartirlas en el seed para que el catálogo no repita 10 veces la misma imagen. Es el mayor salto visual pendiente.
+- [ ] ⬜ Búsqueda simple en el catálogo (input + filtro en servidor; sin JS extra en cliente).
+- [ ] ⬜ Estados vacíos y de error cuidados (carrito con producto agotado, CP sin cobertura, admin sin pedidos).
+- [ ] ⬜ Micro-guía en la demo: tooltip o franja "prueba a comprar → mira el panel → mira los emails" que guíe el recorrido de venta.
+
+**Robustez (sin salir del stack)**
+- [ ] ⬜ Auth del admin con cookie firmada (`ADMIN_COOKIE_SECRET` ya está en secrets; hoy el panel demo está abierto a propósito, pero con auth la demo enseña el flujo real de login).
+- [ ] ⬜ Rate limiting básico en APIs públicas (`/api/cart/quote`, `/api/checkout/session`) con Cloudflare.
+- [ ] ⬜ Export/backup periódico de la D1 (cron ya existente; volcado a R2 o al repo).
+- [ ] ⬜ Campo NIF/razón social opcional en checkout → los pedidos nacen con datos para facturar (ver decisión de facturación abajo).
+
+**Medición y calidad**
+- [ ] ⬜ Cloudflare Web Analytics (gratis, sin cookies, sin banner) en landing y demo.
+- [ ] ⬜ Auditoría Lighthouse en producción y ajustar hasta 100/100/100/100 (objetivo declarado en la landing; hay que poder demostrarlo).
+- [ ] ⬜ Test E2E del flujo de compra simulado (fetch contra wrangler dev en CI local).
+
+**Comercial (explorar, no implementar sin OK)**
+- [ ] ⬜ Versión «Lite» del kit (Astro estático + Stripe Payment Links, sin panel): producto de entrada para negocios de <10 productos, con upgrade al kit completo. Decidir si se ofrece.
+- [ ] ⬜ Pagos reales en la demo con claves test de Stripe (tarjeta 4242): más impactante que la simulación. Requiere claves de Andreu + webhook.
 
 ## Decisiones tomadas
 
@@ -100,10 +132,15 @@ Demo pública + plantilla clonable de ecommerce ultraligero (Astro 5 + Cloudflar
   - **Imágenes generadas con Higgsfield** (Marketing Studio, estilo consistente: producto sobre fondo crema, luz suave editorial): 6 fotos de categoría en `public/images/products/*.webp` (9–27 KB, optimizadas con sharp 800×800) + `public/images/hero.webp` (flat-lay 16:9 para el héroe de la landing). Los SVG placeholder eliminados; `seed/seed.ts` apunta a `.webp`.
   - Rediseñados: landing `/`, `Shop.astro` (banner demo negro discreto), catálogo, ficha, carrito, checkout, gracias. Cero JS en la landing se mantiene. Verificado con preview en móvil y escritorio. Deploy + re-seed remoto hechos.
 
+- 2026-07-18 (arquitectura del backend — conversación con Andreu):
+  - **No Payload CMS** (ni headless CMS): rompería coste 0 €/mes (necesita servidor Node + Postgres), el minimalismo y el stack edge. Se reserva para proyectos Logic2B de contenido editorial donde sí encaja (Astro + Payload headless).
+  - **Reparto de responsabilidades**: Stripe = solo cobros; nuestro panel D1 = gestión de pedidos (estados, tracking, stock, CSV) — Stripe no cubre nada de eso; facturación legal = **fuera del kit** (herramienta del comercio o gestoría, alimentada por nuestro export). Motivo clave: emitir facturas nos metería en el ámbito de VeriFactu/ley antifraude como software de facturación. Stripe Invoicing descartado también por su 0,4 % por factura (contra el argumento "sin comisiones").
+
 ## Decisiones pendientes
 
 - Confirmar precios de la landing (1.900 € setup / 29 €/mes) — hoy publicados provisionalmente en la demo en vivo.
 - Cuando se quieran pagos reales: añadir claves TEST de Stripe (`wrangler secret put STRIPE_SECRET_KEY` + `STRIPE_WEBHOOK_SECRET`) y configurar el webhook en el dashboard de Stripe apuntando a `https://ecom.logic2b.com/api/webhooks/stripe`.
+- Decidir si se ofrece la versión «Lite» (Payment Links) como producto de entrada — ver Fase 8, bloque comercial.
 
 ## Cómo retomar una sesión
 
