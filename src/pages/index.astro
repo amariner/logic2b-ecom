@@ -1,6 +1,14 @@
 ---
-// Landing comercial — estética tipo Shopify: blanco, tinta, verde, tipografía grande. Cero JS.
+// Landing comercial — sistema Logic2B UI (Inter, tokens neutros, isotipo) +
+// acento de marca. Cero JS.
 import Base from '../layouts/Base.astro';
+import SiteHeader from '../components/SiteHeader.astro';
+
+const nav = [
+  { href: '/arquitectura', label: 'Cómo funciona' },
+  { href: '#precios', label: 'Precios' },
+  { href: '#contacto', label: 'Contacto' },
+];
 
 const faqs = [
   {
@@ -71,35 +79,27 @@ const features = [
   canonicalPath="/"
   jsonLd={jsonLd}
 >
-  <div class="bg-paper text-ink">
-    <!-- Header sticky -->
-    <header class="sticky top-0 z-40 border-b border-black/5 bg-white/85 backdrop-blur-md">
-      <div class="mx-auto flex h-16 max-w-6xl items-center justify-between px-5">
-        <a href="/" class="font-display text-lg">Logic2B<span class="text-brand">.</span></a>
-        <nav class="flex items-center gap-3 text-sm sm:gap-6">
-          <a href="/arquitectura" class="hidden text-stone-600 hover:text-ink sm:block">Cómo funciona</a>
-          <a href="#precios" class="hidden text-stone-600 hover:text-ink sm:block">Precios</a>
-          <a href="#contacto" class="text-stone-600 hover:text-ink">Contacto</a>
-          <a
-            href="/demo/tienda"
-            class="rounded-full bg-ink px-4 py-2 text-sm font-semibold text-white transition hover:bg-black sm:px-5"
-          >Ver la demo</a>
-        </nav>
-      </div>
-    </header>
+  <div class="bg-background text-foreground">
+    <SiteHeader homeHref="/" wordmark="Logic2B" nav={nav}>
+      <a
+        slot="actions"
+        href="/demo/tienda"
+        class="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition hover:bg-primary/90 sm:px-5"
+      >Ver la demo</a>
+    </SiteHeader>
 
     <main>
     <!-- Héroe -->
     <section class="mx-auto max-w-6xl px-5 pb-10 pt-14 text-center sm:pb-16 sm:pt-24">
-      <p class="mx-auto mb-5 inline-block rounded-full border border-stone-200 bg-cream px-4 py-1.5 text-xs font-medium text-stone-600">
+      <p class="mx-auto mb-5 inline-block rounded-full border border-border bg-muted px-4 py-1.5 text-xs font-medium text-muted-foreground">
         Para comercios de 50–100 productos · Hecho en Castellón
       </p>
       <h1 class="mx-auto max-w-4xl font-display text-4xl leading-[1.05] sm:text-6xl md:text-7xl">
         Una tienda online que es <span class="text-brand">tuya</span>, no alquilada.
       </h1>
-      <p class="mx-auto mt-6 max-w-2xl text-base leading-relaxed text-stone-600 sm:text-lg">
+      <p class="mx-auto mt-6 max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg">
         Código a medida, pagos con Stripe y una infraestructura que cuesta
-        <strong class="text-ink">0 € al mes</strong>. Sin cuotas de plataforma. Sin comisiones extra por venta.
+        <strong class="text-foreground">0 € al mes</strong>. Sin cuotas de plataforma. Sin comisiones extra por venta.
       </p>
       <div class="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row sm:gap-4">
         <a
@@ -108,15 +108,15 @@ const features = [
         >Entra en la tienda demo</a>
         <a
           href="/arquitectura"
-          class="w-full rounded-full border border-stone-300 px-8 py-3.5 text-base font-semibold text-ink transition hover:border-ink sm:w-auto"
+          class="w-full rounded-full border border-border px-8 py-3.5 text-base font-semibold text-foreground transition hover:border-foreground sm:w-auto"
         >Cómo funciona por dentro</a>
       </div>
-      <p class="mt-5 text-sm text-stone-500">
+      <p class="mt-5 text-sm text-muted-foreground">
         La demo es real: compra, recibe el email y gestiona el pedido en el panel.
       </p>
 
       <!-- Imagen héroe -->
-      <div class="mx-auto mt-12 max-w-5xl overflow-hidden rounded-2xl border border-black/5 shadow-2xl shadow-stone-900/10 sm:mt-16">
+      <div class="mx-auto mt-12 max-w-5xl overflow-hidden rounded-2xl border border-border shadow-2xl shadow-stone-900/10 sm:mt-16">
         <img
           src="/images/hero.webp"
           alt="Productos gourmet de La Botiga del Maestrat, la tienda demo del Commerce Kit"
@@ -129,21 +129,21 @@ const features = [
     </section>
 
     <!-- Cifras del problema -->
-    <section class="border-y border-black/5 bg-cream">
+    <section class="border-y border-border bg-muted">
       <div class="mx-auto max-w-6xl px-5 py-14 sm:py-20">
         <h2 class="max-w-2xl font-display text-3xl sm:text-4xl">Lo que te está costando tu tienda actual</h2>
         <div class="mt-10 grid gap-6 sm:grid-cols-3">
-          <div class="rounded-2xl bg-white p-7 shadow-sm">
+          <div class="rounded-2xl bg-card p-7 shadow-sm">
             <p class="font-display text-5xl text-brand">432 €</p>
-            <p class="mt-3 leading-relaxed text-stone-600">al año solo de cuota de Shopify, vendas o no vendas.</p>
+            <p class="mt-3 leading-relaxed text-muted-foreground">al año solo de cuota de Shopify, vendas o no vendas.</p>
           </div>
-          <div class="rounded-2xl bg-white p-7 shadow-sm">
+          <div class="rounded-2xl bg-card p-7 shadow-sm">
             <p class="font-display text-5xl text-brand">~2 %</p>
-            <p class="mt-3 leading-relaxed text-stone-600">de comisión extra en cada venta si no usas su pasarela.</p>
+            <p class="mt-3 leading-relaxed text-muted-foreground">de comisión extra en cada venta si no usas su pasarela.</p>
           </div>
-          <div class="rounded-2xl bg-white p-7 shadow-sm">
+          <div class="rounded-2xl bg-card p-7 shadow-sm">
             <p class="font-display text-5xl text-brand">2–4 s</p>
-            <p class="mt-3 leading-relaxed text-stone-600">de carga con una plantilla genérica. Cada segundo son ventas que se van.</p>
+            <p class="mt-3 leading-relaxed text-muted-foreground">de carga con una plantilla genérica. Cada segundo son ventas que se van.</p>
           </div>
         </div>
       </div>
@@ -152,30 +152,30 @@ const features = [
     <!-- Qué incluye -->
     <section class="mx-auto max-w-6xl px-5 py-14 sm:py-20">
       <h2 class="font-display text-3xl sm:text-4xl">Todo lo que necesitas para vender</h2>
-      <p class="mt-3 max-w-2xl text-stone-600">Nada que no necesites. Cada pieza está pensada para un comercio real, no para una lista de features.</p>
+      <p class="mt-3 max-w-2xl text-muted-foreground">Nada que no necesites. Cada pieza está pensada para un comercio real, no para una lista de features.</p>
       <div class="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
         {features.map(([title, body]) => (
-          <div class="rounded-2xl border border-black/5 bg-white p-6 transition hover:border-brand/30 hover:shadow-md">
+          <div class="rounded-2xl border border-border bg-card p-6 transition hover:border-brand/30 hover:shadow-md">
             <div class="flex h-10 w-10 items-center justify-center rounded-full bg-brand/10 text-brand">
               <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">
                 <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
               </svg>
             </div>
             <h3 class="mt-4 font-semibold">{title}</h3>
-            <p class="mt-2 text-sm leading-relaxed text-stone-600">{body}</p>
+            <p class="mt-2 text-sm leading-relaxed text-muted-foreground">{body}</p>
           </div>
         ))}
       </div>
     </section>
 
     <!-- Comparativa -->
-    <section class="border-y border-black/5 bg-cream">
+    <section class="border-y border-border bg-muted">
       <div class="mx-auto max-w-6xl px-5 py-14 sm:py-20">
         <h2 class="font-display text-3xl sm:text-4xl">Las cuentas claras</h2>
-        <div class="mt-8 overflow-x-auto rounded-2xl border border-black/5 bg-white shadow-sm">
+        <div class="mt-8 overflow-x-auto rounded-2xl border border-border bg-card shadow-sm">
           <table class="w-full min-w-[640px] text-left text-sm">
             <thead>
-              <tr class="border-b border-stone-200 text-stone-600">
+              <tr class="border-b border-border text-muted-foreground">
                 <th scope="col" class="px-5 py-4 font-normal"><span class="sr-only">Concepto</span></th>
                 <th scope="col" class="px-5 py-4 font-normal">Shopify</th>
                 <th scope="col" class="px-5 py-4 font-normal">WooCommerce</th>
@@ -184,17 +184,17 @@ const features = [
             </thead>
             <tbody>
               {comparison.map((row) => (
-                <tr class="border-b border-stone-100 last:border-0">
+                <tr class="border-b border-border last:border-0">
                   <th scope="row" class="px-5 py-4 text-left font-medium">{row.concept}</th>
-                  <td class="px-5 py-4 text-stone-500">{row.shopify}</td>
-                  <td class="px-5 py-4 text-stone-500">{row.woo}</td>
+                  <td class="px-5 py-4 text-muted-foreground">{row.shopify}</td>
+                  <td class="px-5 py-4 text-muted-foreground">{row.woo}</td>
                   <td class="px-5 py-4 font-semibold text-brand-dark">{row.kit}</td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
-        <p class="mt-3 text-xs text-stone-600">
+        <p class="mt-3 text-xs text-muted-foreground">
           Precios de Shopify plan Basic y hosting WordPress típico, julio 2026. La comisión de Stripe (1,5 % + 0,25 € en tarjetas UE) la cobran todas las opciones.
         </p>
       </div>
@@ -203,54 +203,54 @@ const features = [
     <!-- Demos -->
     <section class="mx-auto max-w-6xl px-5 py-14 sm:py-20">
       <h2 class="font-display text-3xl sm:text-4xl">Tócalo antes de decidir</h2>
-      <p class="mt-3 max-w-2xl text-stone-600">
+      <p class="mt-3 max-w-2xl text-muted-foreground">
         «La Botiga del Maestrat» es una tienda ficticia montada con el kit, completa y funcionando.
         Nada de vídeos ni capturas: compra y gestiona tu propio pedido.
       </p>
       <div class="mt-10 grid gap-5 sm:grid-cols-3">
-        <a href="/demo/tienda" class="group overflow-hidden rounded-2xl border border-black/5 bg-white transition hover:-translate-y-1 hover:shadow-xl">
+        <a href="/demo/tienda" class="group overflow-hidden rounded-2xl border border-border bg-card transition hover:-translate-y-1 hover:shadow-xl">
           <img src="/images/products/aceites.webp" alt="" width="800" height="800" loading="lazy" class="aspect-[4/3] w-full object-cover" />
           <div class="p-5">
             <p class="font-semibold group-hover:text-brand">La tienda →</p>
-            <p class="mt-1 text-sm text-stone-500">Catálogo, ficha, carrito y checkout completo.</p>
+            <p class="mt-1 text-sm text-muted-foreground">Catálogo, ficha, carrito y checkout completo.</p>
           </div>
         </a>
-        <a href="/demo/admin" class="group overflow-hidden rounded-2xl border border-black/5 bg-white transition hover:-translate-y-1 hover:shadow-xl">
+        <a href="/demo/admin" class="group overflow-hidden rounded-2xl border border-border bg-card transition hover:-translate-y-1 hover:shadow-xl">
           <img src="/images/products/conservas.webp" alt="" width="800" height="800" loading="lazy" class="aspect-[4/3] w-full object-cover" />
           <div class="p-5">
             <p class="font-semibold group-hover:text-brand">El panel del comercio →</p>
-            <p class="mt-1 text-sm text-stone-500">Pedidos, envíos con tracking, productos y tarifas.</p>
+            <p class="mt-1 text-sm text-muted-foreground">Pedidos, envíos con tracking, productos y tarifas.</p>
           </div>
         </a>
-        <a href="/demo/admin/emails" class="group overflow-hidden rounded-2xl border border-black/5 bg-white transition hover:-translate-y-1 hover:shadow-xl">
+        <a href="/demo/admin/emails" class="group overflow-hidden rounded-2xl border border-border bg-card transition hover:-translate-y-1 hover:shadow-xl">
           <img src="/images/products/mieles.webp" alt="" width="800" height="800" loading="lazy" class="aspect-[4/3] w-full object-cover" />
           <div class="p-5">
             <p class="font-semibold group-hover:text-brand">Los emails →</p>
-            <p class="mt-1 text-sm text-stone-500">La bandeja simulada: cada email que enviaría el sistema.</p>
+            <p class="mt-1 text-sm text-muted-foreground">La bandeja simulada: cada email que enviaría el sistema.</p>
           </div>
         </a>
       </div>
     </section>
 
     <!-- Precios -->
-    <section id="precios" class="border-y border-black/5 bg-cream">
+    <section id="precios" class="border-y border-border bg-muted">
       <div class="mx-auto max-w-6xl px-5 py-14 sm:py-20">
         <h2 class="text-center font-display text-3xl sm:text-4xl">Precios sin letra pequeña</h2>
         <div class="mx-auto mt-10 grid max-w-4xl gap-6 sm:grid-cols-2">
-          <div class="rounded-2xl border border-black/5 bg-white p-8 shadow-sm">
-            <p class="text-sm font-medium uppercase tracking-wide text-stone-500">Puesta en marcha</p>
-            <p class="mt-3 font-display text-5xl">1.900 €<span class="text-lg font-normal text-stone-500"> pago único</span></p>
-            <ul class="mt-6 space-y-3 text-sm leading-relaxed text-stone-600">
+          <div class="rounded-2xl border border-border bg-card p-8 shadow-sm">
+            <p class="text-sm font-medium uppercase tracking-wide text-muted-foreground">Puesta en marcha</p>
+            <p class="mt-3 font-display text-5xl">1.900 €<span class="text-lg font-normal text-muted-foreground"> pago único</span></p>
+            <ul class="mt-6 space-y-3 text-sm leading-relaxed text-muted-foreground">
               <li class="flex gap-2"><span class="text-brand">✓</span> Diseño a medida y catálogo cargado</li>
               <li class="flex gap-2"><span class="text-brand">✓</span> Pagos y envíos configurados</li>
               <li class="flex gap-2"><span class="text-brand">✓</span> Dominio y emails con tu marca</li>
               <li class="flex gap-2"><span class="text-brand">✓</span> Vendiendo en 3–4 semanas (orientativo)</li>
             </ul>
           </div>
-          <div class="relative rounded-2xl border-2 border-brand bg-white p-8 shadow-lg shadow-brand/10">
-            <p class="text-sm font-medium uppercase tracking-wide text-stone-500">Mantenimiento</p>
-            <p class="mt-3 font-display text-5xl">29 €<span class="text-lg font-normal text-stone-500">/mes</span></p>
-            <ul class="mt-6 space-y-3 text-sm leading-relaxed text-stone-600">
+          <div class="relative rounded-2xl border-2 border-brand bg-card p-8 shadow-lg shadow-brand/10">
+            <p class="text-sm font-medium uppercase tracking-wide text-muted-foreground">Mantenimiento</p>
+            <p class="mt-3 font-display text-5xl">29 €<span class="text-lg font-normal text-muted-foreground">/mes</span></p>
+            <ul class="mt-6 space-y-3 text-sm leading-relaxed text-muted-foreground">
               <li class="flex gap-2"><span class="text-brand">✓</span> Actualizaciones y copias de seguridad</li>
               <li class="flex gap-2"><span class="text-brand">✓</span> Soporte por email</li>
               <li class="flex gap-2"><span class="text-brand">✓</span> Pequeños cambios de contenido</li>
@@ -258,14 +258,14 @@ const features = [
             </ul>
           </div>
         </div>
-        <p class="mt-6 text-center text-sm text-stone-600">
+        <p class="mt-6 text-center text-sm text-muted-foreground">
           A comparar: Shopify Basic son 432 €/año de por vida, más comisiones. Este kit se paga solo.
         </p>
-        <p class="mt-2 text-center text-sm text-stone-600">
+        <p class="mt-2 text-center text-sm text-muted-foreground">
           ¿Quieres el detalle completo del servicio?
           <a href="/dossier" class="font-medium text-brand underline underline-offset-2 hover:text-brand-dark">Lee el dossier</a>, pensado para imprimir y compartir.
         </p>
-        <p class="mt-2 text-center text-sm text-stone-600">
+        <p class="mt-2 text-center text-sm text-muted-foreground">
           ¿Vendes menos de 10 productos?
           <a
             href="mailto:hola@logic2b.com?subject=Kit%20Lite%20para%20mi%20negocio"
@@ -280,12 +280,12 @@ const features = [
       <h2 class="text-center font-display text-3xl sm:text-4xl">Preguntas frecuentes</h2>
       <div class="mt-8 space-y-3">
         {faqs.map((faq) => (
-          <details class="group rounded-2xl border border-black/5 bg-white px-6 py-4 open:shadow-sm">
+          <details class="group rounded-2xl border border-border bg-card px-6 py-4 open:shadow-sm">
             <summary class="flex cursor-pointer list-none items-center justify-between gap-4 font-semibold marker:content-none">
               {faq.q}
               <span class="text-xl leading-none text-brand transition group-open:rotate-45">+</span>
             </summary>
-            <p class="mt-3 text-sm leading-relaxed text-stone-600">{faq.a}</p>
+            <p class="mt-3 text-sm leading-relaxed text-muted-foreground">{faq.a}</p>
           </details>
         ))}
       </div>
@@ -294,10 +294,10 @@ const features = [
     </main>
 
     <!-- CTA contacto -->
-    <section id="contacto" class="bg-ink text-white">
+    <section id="contacto" class="bg-foreground text-background">
       <div class="mx-auto max-w-6xl px-5 py-16 text-center sm:py-24">
         <h2 class="mx-auto max-w-2xl font-display text-3xl sm:text-5xl">¿Hablamos de tu tienda?</h2>
-        <p class="mx-auto mt-5 max-w-xl leading-relaxed text-stone-400">
+        <p class="mx-auto mt-5 max-w-xl leading-relaxed text-background/70">
           Cuéntanos qué vendes y te decimos, sin compromiso, si este kit encaja contigo
           y qué necesitaríamos para arrancar.
         </p>
@@ -306,10 +306,10 @@ const features = [
           class="mt-9 inline-block rounded-full bg-brand px-9 py-4 font-semibold text-white transition hover:bg-brand-dark"
         >Escríbenos: hola@logic2b.com</a>
       </div>
-      <footer class="border-t border-white/10">
-        <div class="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-2 px-5 py-6 text-sm text-stone-400">
+      <footer class="border-t border-background/10">
+        <div class="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-2 px-5 py-6 text-sm text-background/60">
           <p>© 2026 Logic2B · Castellón</p>
-          <p><a href="/arquitectura" class="hover:text-white">Arquitectura</a> · <a href="/dossier" class="hover:text-white">Dossier</a> · <a href="/demo/tienda" class="hover:text-white">Demo</a></p>
+          <p><a href="/arquitectura" class="hover:text-background">Arquitectura</a> · <a href="/dossier" class="hover:text-background">Dossier</a> · <a href="/demo/tienda" class="hover:text-background">Demo</a></p>
         </div>
       </footer>
     </section>
