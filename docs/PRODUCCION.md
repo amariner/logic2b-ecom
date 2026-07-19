@@ -47,6 +47,11 @@ El envío ya está implementado (`src/lib/send-email.ts`): la outbox es la fuent
 - [ ] `wrangler secret put RESEND_API_KEY`.
 - [ ] Comprobar tras el primer pedido real que los emails llegan y que la outbox los marca `sent = 1` (un fallo de Resend los deja pendientes y se reintentan en el siguiente pedido o cambio de estado).
 
+## 6b. Analytics y copias de seguridad
+
+- [ ] **Web Analytics**: token en el dashboard de Cloudflare (Analytics → Web Analytics) → pegarlo en `shop.config.ts` → `analytics.cfBeaconToken`. El beacon solo se inyecta en tienda y panel; la home queda sin JS.
+- [ ] **Backups**: el panel tiene botón «Copia de seguridad» (volcado SQL restaurable con `wrangler d1 execute <db> --remote --file copia.sql`). Recomendado: descargarla tras rachas de pedidos o antes de cambios grandes. La variante automática (cron → R2) requiere bucket + binding; pendiente si el cliente la quiere.
+
 ## 7. Dominio y despliegue
 
 - [ ] `astro.config.mjs`: `site` → dominio del cliente. `shop.config.ts`: `baseUrl` ídem.
@@ -56,7 +61,7 @@ El envío ya está implementado (`src/lib/send-email.ts`): la outbox es la fuent
 
 ## 8. Verificación final
 
-- [ ] `pnpm check` en verde (tipos + 32 tests + build).
+- [ ] `pnpm check` en verde (tipos + 58 tests + build) y `pnpm test:e2e` contra un preview con datos de prueba.
 - [ ] Lighthouse ≥ 95 en las 4 métricas sobre la home y una ficha de producto.
 - [ ] Rich Results Test de Google en una ficha (schema `Product` + `Offer` válido).
 - [ ] Entregar `docs/CLIENTE.md` al comercio y hacer juntos un pedido de prueba.
