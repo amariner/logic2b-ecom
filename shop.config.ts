@@ -82,7 +82,7 @@ export const shopConfig = {
 
   /** Textos legales mínimos (páginas legales completas: por cliente) */
   legal: {
-    shippingNote: 'Envío en 24/48h laborables a península. Portes según zona.',
+    shippingNote: 'Envío en 24/48h laborables a península. Coste según zona.',
     returnsNote: 'Devoluciones aceptadas en 14 días naturales desde la entrega.',
   },
 };

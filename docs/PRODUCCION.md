@@ -17,6 +17,7 @@ En la plantilla `/` es la landing comercial de Logic2B y la tienda vive bajo `/d
 - [ ] Quitar el banner de demo y el `noindex` de `src/layouts/Shop.astro`.
 - [ ] Actualizar `src/pages/sitemap.xml.ts` y `public/robots.txt` para indexar la tienda; revisar el JSON-LD `Product`/`Offer` con los datos reales.
 - [ ] Eliminar `/arquitectura` y las páginas/API de demo que no apliquen (`/demo/reset`, `/api/demo/reset`).
+- [ ] Quitar los widgets pensados como pieza de venta de la demo, no como feature de tienda: el selector de temas (`src/lib/demo-themes.ts` y su botón flotante en `Shop.astro`, más las webfonts de `public/fonts/` si no se usan ya para la marca real) y la franja/tarjeta "Recorrido de la demo" (catálogo y `/demo/gracias`).
 
 ## 3. Modo demo fuera
 
@@ -57,7 +58,7 @@ El envío ya está implementado (`src/lib/send-email.ts`): la outbox es la fuent
 - [ ] `astro.config.mjs`: `site` → dominio del cliente. `shop.config.ts`: `baseUrl` ídem.
 - [ ] `wrangler.jsonc`: `name` del worker propio del cliente (p. ej. `ecom-<cliente>`) y nueva D1 (`./scripts/bootstrap.sh --remote` hace el aprovisionamiento).
 - [ ] Custom domain del cliente en el dashboard de Cloudflare (DNS en Cloudflare, proxied).
-- [ ] `pnpm deploy` y smoke test: catálogo, carrito, quote de portes por CP, checkout, webhook, panel.
+- [ ] `pnpm deploy` y smoke test: catálogo, carrito, quote de envío por CP, checkout, webhook, panel.
 
 ## 8. Verificación final
 

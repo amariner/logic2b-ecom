@@ -141,7 +141,7 @@ import Shop from '../../layouts/Shop.astro';
         qtyInput.step = '1';
         qtyInput.value = String(line.qty);
         qtyInput.dataset.qty = line.slug;
-        qtyInput.className = 'w-16 rounded border border-stone-300 px-2 py-1 text-sm';
+        qtyInput.className = 'w-16 rounded-btn border border-stone-300 px-2 py-1 text-sm';
         qtyInput.setAttribute('aria-label', `Cantidad de ${line.name}`);
 
         const totalEl = document.createElement('p');
@@ -152,7 +152,7 @@ import Shop from '../../layouts/Shop.astro';
         removeBtn.type = 'button';
         removeBtn.dataset.remove = line.slug;
         removeBtn.setAttribute('aria-label', `Eliminar ${line.name}`);
-        removeBtn.className = 'text-stone-400 hover:text-red-600';
+        removeBtn.className = 'text-stone-500 hover:text-red-600';
         removeBtn.textContent = '✕';
 
         li.appendChild(img);

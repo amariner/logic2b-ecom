@@ -19,15 +19,17 @@ type Row = {
 };
 
 const db = Astro.locals.runtime.env.DB;
+const ORDER_LIMIT = 200;
 const query = status
-  ? db.prepare('SELECT id, order_number, customer_name, email, total_cents, status, created_at FROM orders WHERE status = ? ORDER BY created_at DESC LIMIT 200').bind(status)
-  : db.prepare('SELECT id, order_number, customer_name, email, total_cents, status, created_at FROM orders ORDER BY created_at DESC LIMIT 200');
+  ? db.prepare('SELECT id, order_number, customer_name, email, total_cents, status, created_at FROM orders WHERE status = ? ORDER BY created_at DESC LIMIT ?').bind(status, ORDER_LIMIT)
+  : db.prepare('SELECT id, order_number, customer_name, email, total_cents, status, created_at FROM orders ORDER BY created_at DESC LIMIT ?').bind(ORDER_LIMIT);
 const { results: orders } = await query.all<Row>();
 
 const counts = (
   await db.prepare('SELECT status, count(*) AS n FROM orders GROUP BY status').all<{ status: string; n: number }>()
 ).results;
 const countFor = (st: string): number => counts.find((c) => c.status === st)?.n ?? 0;
+const totalForView = status ? countFor(status) : counts.reduce((sum, c) => sum + c.n, 0);
 
 const statusLabel: Record<string, string> = {
   pending: 'Pendiente de pago',
@@ -46,9 +48,9 @@ const statusBadge: Record<string, string> = {
 ---
 
 <Admin title="Pedidos" active="pedidos">
-  <div class="flex items-center justify-between">
+  <div class="flex flex-wrap items-center justify-between gap-2">
     <h1 class="text-2xl font-bold">Pedidos</h1>
-    <div class="flex gap-2">
+    <div class="flex flex-wrap gap-2">
       <a
         href="/api/admin/backup.sql"
         class="rounded border border-stone-400 bg-white px-4 py-1.5 text-sm font-medium hover:bg-stone-50"
@@ -73,6 +75,12 @@ const statusBadge: Record<string, string> = {
       </a>
     ))}
   </nav>
+
+  {totalForView > ORDER_LIMIT && (
+    <p class="mt-3 rounded border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">
+      Mostrando los {ORDER_LIMIT} más recientes de {totalForView}. Filtra por estado o usa la copia de seguridad para ver el resto.
+    </p>
+  )}
 
   <div class="mt-4 overflow-x-auto rounded-lg border border-stone-300 bg-white">
     <table class="w-full text-sm">

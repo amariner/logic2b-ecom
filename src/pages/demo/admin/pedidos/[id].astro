@@ -40,7 +40,7 @@ const statusLabel: Record<string, string> = {
 
 <Admin title={`Pedido ${order.order_number}`} active="pedidos">
   <a href="/demo/admin" class="text-sm text-stone-600 hover:text-stone-900">← Todos los pedidos</a>
-  <div class="mt-2 flex items-center justify-between">
+  <div class="mt-2 flex flex-wrap items-center justify-between gap-2">
     <h1 class="text-2xl font-bold">
       <span class="font-mono">{order.order_number}</span>
       <span class="ml-2 align-middle rounded-full bg-stone-200 px-2.5 py-0.5 text-xs font-medium text-stone-700">{statusLabel[order.status] ?? order.status}</span>
