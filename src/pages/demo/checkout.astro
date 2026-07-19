@@ -10,6 +10,17 @@ import Shop from '../../layouts/Shop.astro';
       redirige al pago seguro de Stripe y la tarjeta nunca toca nuestro servidor.
     </p>
 
+    <!-- Resumen del pedido: siempre precios recalculados en servidor -->
+    <div data-summary class="mt-6 hidden rounded-2xl bg-cream p-5 sm:p-6">
+      <h2 class="text-sm font-semibold uppercase tracking-wide text-stone-600">Tu pedido</h2>
+      <ul data-summary-lines class="mt-3 divide-y divide-stone-200 text-sm"></ul>
+      <dl class="mt-3 space-y-1.5 border-t border-stone-200 pt-3 text-sm">
+        <div class="flex justify-between"><dt class="text-stone-600">Subtotal</dt><dd data-summary-subtotal class="font-medium"></dd></div>
+        <div class="flex justify-between"><dt class="text-stone-600">Envío <span data-summary-shipping-label class="text-stone-500"></span></dt><dd data-summary-shipping></dd></div>
+        <div class="flex justify-between border-t border-stone-200 pt-2 text-base font-bold"><dt>Total</dt><dd data-summary-total></dd></div>
+      </dl>
+    </div>
+
     <form data-checkout-form class="mt-6 space-y-4" novalidate>
       <div>
         <label class="block text-sm font-medium" for="name">Nombre y apellidos</label>
@@ -82,11 +93,66 @@ import Shop from '../../layouts/Shop.astro';
     const submitBtn = document.querySelector<HTMLButtonElement>('[data-checkout-submit]')!;
 
     const cpStored = localStorage.getItem('ecom-demo-cp');
-    if (cpStored) (document.querySelector('#postal_code') as HTMLInputElement).value = cpStored;
+    const cpInput = document.querySelector('#postal_code') as HTMLInputElement;
+    if (cpStored) cpInput.value = cpStored;
 
     if (readCart().length === 0) {
       window.location.replace('/demo/carrito');
     }
+
+    // Resumen del pedido, siempre recalculado en servidor (mismo /api/cart/quote del carrito).
+    const eur = (cents: number): string =>
+      new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(cents / 100);
+    type SummaryQuote = {
+      lines: { name: string; qty: number; line_total_cents: number; status: string }[];
+      subtotal_cents: number;
+      shipping_cents: number | null;
+      total_cents: number | null;
+      shipping: { label: string } | null;
+    };
+
+    async function refreshSummary(): Promise<void> {
+      const lines = readCart();
+      if (lines.length === 0) return;
+      const postal = cpInput.value.trim();
+      const res = await fetch('/api/cart/quote', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ lines, ...(postal.length === 5 ? { postal_code: postal } : {}) }),
+      });
+      if (!res.ok) return;
+      const quote = (await res.json()) as SummaryQuote;
+
+      const list = document.querySelector('[data-summary-lines]')!;
+      list.innerHTML = '';
+      for (const line of quote.lines) {
+        if (line.status !== 'ok') continue;
+        const li = document.createElement('li');
+        li.className = 'flex justify-between gap-3 py-1.5';
+        const nameEl = document.createElement('span');
+        nameEl.textContent = `${line.qty} × ${line.name}`;
+        const totalEl = document.createElement('span');
+        totalEl.className = 'shrink-0 font-medium';
+        totalEl.textContent = eur(line.line_total_cents);
+        li.appendChild(nameEl);
+        li.appendChild(totalEl);
+        list.appendChild(li);
+      }
+      document.querySelector('[data-summary-subtotal]')!.textContent = eur(quote.subtotal_cents);
+      document.querySelector('[data-summary-shipping]')!.textContent =
+        quote.shipping_cents === null ? 'según CP' : quote.shipping_cents === 0 ? 'Gratis' : eur(quote.shipping_cents);
+      document.querySelector('[data-summary-shipping-label]')!.textContent = quote.shipping
+        ? `(${quote.shipping.label})`
+        : '';
+      document.querySelector('[data-summary-total]')!.textContent =
+        quote.total_cents === null ? '—' : eur(quote.total_cents);
+      document.querySelector('[data-summary]')!.classList.remove('hidden');
+    }
+
+    cpInput.addEventListener('input', () => {
+      if (cpInput.value.trim().length === 5) void refreshSummary();
+    });
+    void refreshSummary();
 
     form.addEventListener('submit', (ev) => {
       ev.preventDefault();
