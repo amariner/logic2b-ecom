@@ -1,0 +1,322 @@
+---
+// Dossier comercial del servicio — pensado para enviarlo a un prospecto o
+// imprimirlo en PDF (Ctrl/Cmd+P). Indexable, cero JS, mismo lenguaje visual
+// que la landing. Los precios son los publicados en la landing.
+import Base from '../layouts/Base.astro';
+
+const included = [
+  {
+    area: 'La tienda que ve tu cliente',
+    items: [
+      'Catálogo con categorías, búsqueda y ordenación, listo para 50–100 productos.',
+      'Ficha de producto con foto optimizada, precio, stock y datos estructurados (schema Product) que Google entiende.',
+      'Carrito y checkout como invitado: nadie tiene que crearse una cuenta para comprarte.',
+      'Pago en la página segura de Stripe: la tarjeta nunca pasa por tu web (cero papeleo PCI).',
+      'Cálculo de portes por zona con umbral de envío gratis configurable.',
+      'Página de confirmación y email de pedido con tu marca.',
+    ],
+  },
+  {
+    area: 'El panel desde el que gestionas',
+    items: [
+      'Lista de pedidos con filtros por estado: pendiente, pagado, enviado, entregado.',
+      'Detalle de cada pedido: líneas, dirección, NIF si piden factura, y su historial completo.',
+      'Marcar «enviado» pegando el número de seguimiento: el cliente recibe el aviso solo.',
+      'Exportación CSV compatible con Packlink PRO y SendCloud para imprimir etiquetas.',
+      'Edición de productos al momento: nombre, precio, stock, activar/desactivar.',
+      'Tarifas de envío editables y copia de seguridad de la base de datos en un clic.',
+    ],
+  },
+  {
+    area: 'Lo invisible que marca la diferencia',
+    items: [
+      'Carga en menos de medio segundo desde cualquier lugar (CDN global de Cloudflare).',
+      'Lighthouse 100/100/100/100: rendimiento, accesibilidad, buenas prácticas y SEO.',
+      'SEO técnico de serie: sitemap, canonicals, Open Graph, datos estructurados validables.',
+      'Emails transaccionales con tu dominio (confirmación de pedido y aviso de envío).',
+      'Infraestructura en los planes gratuitos de Cloudflare: 0 €/mes, sin servidores que mantener.',
+      'El repositorio de código es tuyo. Si un día te vas, te lo llevas todo.',
+    ],
+  },
+];
+
+const process = [
+  {
+    step: '1',
+    title: 'Brief y materiales',
+    body: 'Una reunión (o un email largo) para entender qué vendes y a quién. Nos pasas fotos, lista de productos y textos; te damos una plantilla sencilla para organizarlo.',
+  },
+  {
+    step: '2',
+    title: 'Diseño y montaje',
+    body: 'Adaptamos el kit a tu marca: colores, tipografía, logo, textos legales. Te enseñamos una versión navegable en un dominio de pruebas para que opines sobre algo real.',
+  },
+  {
+    step: '3',
+    title: 'Catálogo, pagos y envíos',
+    body: 'Cargamos el catálogo completo, conectamos tu cuenta de Stripe y configuramos zonas y tarifas de envío con sus umbrales de envío gratis.',
+  },
+  {
+    step: '4',
+    title: 'Lanzamiento y formación',
+    body: 'Publicamos en tu dominio y te enseñamos el panel: son tres pasos por pedido y se aprende en cinco minutos. Manual de una página incluido.',
+  },
+];
+
+const needs = [
+  ['Fotos de producto', 'Las que tengas; si hacen falta mejores, te orientamos sobre cómo hacerlas o con quién.'],
+  ['Lista de productos', 'Nombre, precio, descripción corta y stock en una hoja de cálculo que te pasamos.'],
+  ['Tu dominio', 'Si ya lo tienes, lo conectamos; si no, te ayudamos a registrarlo (~12 €/año).'],
+  ['Cuenta de Stripe', 'Gratis. Te guiamos en el alta: se hace online en una tarde con tus datos fiscales.'],
+  ['Textos legales', 'Aviso legal, privacidad y condiciones de venta: te damos las plantillas base para tu gestoría.'],
+];
+
+const faqs = [
+  {
+    q: '¿De verdad el coste de infraestructura es 0 €/mes?',
+    a: 'Sí. La tienda corre entera en los planes gratuitos de Cloudflare (hosting, base de datos, CDN global). Los únicos costes variables son el dominio (~12 €/año) y la comisión de Stripe por venta (1,5 % + 0,25 € en tarjetas europeas), que cobra Stripe, no nosotros.',
+  },
+  {
+    q: '¿Es seguro el pago?',
+    a: 'El pago ocurre en la página de Stripe, el mismo procesador que usan Amazon o Zara. El número de tarjeta nunca pasa por la tienda: cero superficie de ataque, cero papeleo PCI para ti.',
+  },
+  {
+    q: '¿Podré gestionarlo yo sin saber de informática?',
+    a: 'Ese es el diseño. Por cada pedido: llega el email, exportas la dirección a Packlink o SendCloud e imprimes la etiqueta, marcas «enviado» y pegas el seguimiento. Nada más. El panel entero se aprende en cinco minutos y te lo enseñamos en el lanzamiento.',
+  },
+  {
+    q: '¿Emite facturas la tienda?',
+    a: 'No, y es deliberado: el software de facturación tiene requisitos legales propios (VeriFactu). La tienda te da todos los datos del pedido —incluido el NIF si el cliente lo pide— para que factures desde tu herramienta o tu gestoría, sin comisiones por factura.',
+  },
+  {
+    q: '¿Y si mi catálogo crece o cambia?',
+    a: 'Precios, stock, nombres y productos activos los cambias tú desde el panel al momento. Cambios grandes (fotos nuevas, categorías, secciones) entran en el mantenimiento. Si creces hasta necesitar funciones nuevas, el código es a medida: se amplía, no se tira.',
+  },
+  {
+    q: '¿Qué pasa si dejo el mantenimiento?',
+    a: 'Nada dramático: no hay permanencia y el código y los datos son tuyos. La tienda sigue funcionando; simplemente dejas de tener soporte, actualizaciones y cambios de contenido incluidos.',
+  },
+  {
+    q: '¿Por qué no Shopify o WooCommerce?',
+    a: 'Para 50–100 productos, Shopify son 36 €/mes de por vida más ~2 % extra por venta si no usas su pasarela, sobre una plantilla compartida. WooCommerce es «gratis» pero vives pendiente de hosting y plugins. Aquí el código es tuyo, a medida, sin cuotas de plataforma y más rápido que ambos.',
+  },
+  {
+    q: '¿Tienda en varios idiomas?',
+    a: 'La versión actual es monoidioma a propósito: cada función que no necesitas es coste y fricción que te ahorras. Si tu negocio lo pide de verdad, se presupuesta como ampliación.',
+  },
+];
+
+const jsonLd = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'Service',
+    name: 'Logic2B Commerce Kit',
+    description:
+      'Tienda online a medida para comercios de 50 a 100 productos: ultrarrápida, sin cuotas mensuales de plataforma y con coste de infraestructura cero.',
+    provider: { '@type': 'Organization', name: 'Logic2B', url: 'https://logic2b.com' },
+    areaServed: 'ES',
+    serviceType: 'Desarrollo de comercio electrónico',
+  },
+];
+---
+
+<Base
+  title="Dossier del servicio — Logic2B Commerce Kit"
+  description="Qué incluye exactamente el Commerce Kit, cómo trabajamos, qué necesitamos de ti y cuánto cuesta. El detalle completo del servicio, listo para imprimir."
+  canonicalPath="/dossier"
+  jsonLd={jsonLd}
+>
+  <div class="bg-paper text-ink">
+    <header class="sticky top-0 z-40 border-b border-black/5 bg-white/85 backdrop-blur-md print:hidden">
+      <div class="mx-auto flex h-16 max-w-4xl items-center justify-between px-5">
+        <a href="/" class="font-display text-lg">Logic2B<span class="text-brand">.</span></a>
+        <nav class="flex items-center gap-3 text-sm sm:gap-6">
+          <a href="/" class="text-stone-600 hover:text-ink">Inicio</a>
+          <a href="/arquitectura" class="hidden text-stone-600 hover:text-ink sm:block">Cómo funciona</a>
+          <a
+            href="/demo/tienda"
+            class="rounded-full bg-ink px-4 py-2 text-sm font-semibold text-white transition hover:bg-black sm:px-5"
+          >Ver la demo</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="mx-auto max-w-4xl px-5 pb-16 pt-12 sm:pt-16">
+      <!-- Portada -->
+      <p class="text-sm font-medium uppercase tracking-wide text-brand">Dossier del servicio</p>
+      <h1 class="mt-3 max-w-3xl font-display text-4xl leading-[1.05] sm:text-5xl">
+        Tu tienda online, a medida y sin cuotas: el detalle completo.
+      </h1>
+      <p class="mt-5 max-w-2xl text-base leading-relaxed text-stone-600 sm:text-lg">
+        Este documento explica exactamente qué incluye el <strong class="text-ink">Logic2B Commerce Kit</strong>,
+        cómo trabajamos, qué necesitamos de ti y cuánto cuesta. Sin letra pequeña: es lo mismo que
+        firmarías en el presupuesto.
+      </p>
+      <p class="mt-3 text-sm text-stone-500 print:hidden">
+        Guárdalo o compártelo: esta página está pensada para imprimirse en PDF (Ctrl/Cmd + P).
+      </p>
+
+      <!-- Para quién es -->
+      <section class="mt-14">
+        <h2 class="font-display text-2xl sm:text-3xl">Para quién es (y para quién no)</h2>
+        <div class="mt-6 grid gap-5 sm:grid-cols-2">
+          <div class="rounded-2xl border border-brand/30 bg-brand/5 p-6">
+            <p class="font-semibold text-brand-dark">Es para ti si…</p>
+            <ul class="mt-3 space-y-2 text-sm leading-relaxed text-stone-700">
+              <li class="flex gap-2"><span class="text-brand">✓</span> Vendes entre 50 y 100 productos y quieres una tienda seria, tuya y rápida.</li>
+              <li class="flex gap-2"><span class="text-brand">✓</span> Estás pagando cuotas y comisiones de plataforma que no entiendes.</li>
+              <li class="flex gap-2"><span class="text-brand">✓</span> Quieres gestionar los pedidos tú, sin depender de nadie para el día a día.</li>
+            </ul>
+          </div>
+          <div class="rounded-2xl border border-stone-200 bg-cream p-6">
+            <p class="font-semibold text-stone-700">No es para ti si…</p>
+            <ul class="mt-3 space-y-2 text-sm leading-relaxed text-stone-600">
+              <li class="flex gap-2"><span>—</span> <span>Necesitas miles de referencias, multiidioma o marketplace: eso es otro proyecto (y podemos hablarlo).</span></li>
+              <li class="flex gap-2"><span>—</span> <span>Buscas la tienda más barata posible sin diseño propio: una plantilla te servirá.</span></li>
+              <li class="flex gap-2"><span>—</span> <span>Vendes menos de 10 productos: pregunta por el <a href="mailto:hola@logic2b.com?subject=Kit%20Lite%20para%20mi%20negocio" class="font-medium text-brand underline underline-offset-2">Kit Lite</a>, la versión de entrada.</span></li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- Qué incluye -->
+      <section class="mt-14">
+        <h2 class="font-display text-2xl sm:text-3xl">Qué incluye, exactamente</h2>
+        <div class="mt-6 space-y-6">
+          {included.map((block) => (
+            <div class="rounded-2xl border border-black/5 bg-white p-6 shadow-sm">
+              <h3 class="font-semibold">{block.area}</h3>
+              <ul class="mt-3 grid gap-x-8 gap-y-2 text-sm leading-relaxed text-stone-600 sm:grid-cols-2">
+                {block.items.map((item) => (
+                  <li class="flex gap-2"><span class="text-brand">✓</span> <span>{item}</span></li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
+        <p class="mt-4 text-sm text-stone-500">
+          ¿Quieres verlo por dentro? La <a href="/demo/tienda" class="text-brand underline underline-offset-2 hover:text-brand-dark">demo</a> es
+          este mismo kit funcionando: compra, gestiona el pedido en el panel y mira los emails que enviaría.
+          En <a href="/arquitectura" class="text-brand underline underline-offset-2 hover:text-brand-dark">/arquitectura</a> está la explicación técnica.
+        </p>
+      </section>
+
+      <!-- Proceso -->
+      <section class="mt-14">
+        <h2 class="font-display text-2xl sm:text-3xl">Cómo trabajamos</h2>
+        <p class="mt-2 max-w-2xl text-stone-600">
+          De brief a tienda vendiendo en <strong class="text-ink">3–4 semanas</strong> (orientativo: depende
+          sobre todo de lo rápido que tengamos fotos y catálogo).
+        </p>
+        <ol class="mt-6 grid gap-5 sm:grid-cols-2">
+          {process.map((p) => (
+            <li class="rounded-2xl border border-black/5 bg-white p-6 shadow-sm">
+              <span class="flex h-8 w-8 items-center justify-center rounded-full bg-brand font-display text-white" aria-hidden="true">{p.step}</span>
+              <h3 class="mt-3 font-semibold">{p.title}</h3>
+              <p class="mt-2 text-sm leading-relaxed text-stone-600">{p.body}</p>
+            </li>
+          ))}
+        </ol>
+      </section>
+
+      <!-- Qué necesitamos -->
+      <section class="mt-14">
+        <h2 class="font-display text-2xl sm:text-3xl">Qué necesitamos de ti</h2>
+        <dl class="mt-6 space-y-3">
+          {needs.map(([what, detail]) => (
+            <div class="flex flex-col gap-1 rounded-2xl bg-cream px-6 py-4 sm:flex-row sm:gap-4">
+              <dt class="shrink-0 font-semibold sm:w-44">{what}</dt>
+              <dd class="text-sm leading-relaxed text-stone-600 sm:text-base">{detail}</dd>
+            </div>
+          ))}
+        </dl>
+      </section>
+
+      <!-- Precios -->
+      <section class="mt-14">
+        <h2 class="font-display text-2xl sm:text-3xl">Cuánto cuesta</h2>
+        <div class="mt-6 grid gap-5 sm:grid-cols-2">
+          <div class="rounded-2xl border border-black/5 bg-white p-7 shadow-sm">
+            <p class="text-sm font-medium uppercase tracking-wide text-stone-500">Puesta en marcha</p>
+            <p class="mt-2 font-display text-4xl">1.900 €<span class="text-base font-normal text-stone-500"> pago único</span></p>
+            <p class="mt-4 text-sm leading-relaxed text-stone-600">
+              Todo lo del apartado «Qué incluye»: diseño a medida, catálogo cargado, pagos y envíos
+              configurados, dominio y emails con tu marca, formación y manual.
+            </p>
+          </div>
+          <div class="rounded-2xl border-2 border-brand bg-white p-7 shadow-lg shadow-brand/10">
+            <p class="text-sm font-medium uppercase tracking-wide text-stone-500">Mantenimiento</p>
+            <p class="mt-2 font-display text-4xl">29 €<span class="text-base font-normal text-stone-500">/mes</span></p>
+            <p class="mt-4 text-sm leading-relaxed text-stone-600">
+              Actualizaciones, copias de seguridad, soporte por email y pequeños cambios de contenido.
+              Sin permanencia: el código y los datos son tuyos.
+            </p>
+          </div>
+        </div>
+        <p class="mt-4 text-sm leading-relaxed text-stone-600">
+          Costes que no dependen de nosotros: dominio (~12 €/año) y comisión de Stripe por venta
+          (1,5 % + 0,25 € en tarjetas europeas), que pagarías igual en cualquier plataforma. No hay
+          ninguna otra cuota: la infraestructura corre en los planes gratuitos de Cloudflare.
+        </p>
+        <p class="mt-3 text-sm leading-relaxed text-stone-600">
+          Para comparar: solo la cuota de Shopify Basic son 1.296 € en 3 años (más ~2 % extra por venta
+          si no usas su pasarela), sobre una plantilla que no es tuya. El kit son 2.944 € en 3 años con
+          diseño a medida, mantenimiento incluido y el código en propiedad.
+        </p>
+      </section>
+
+      <!-- FAQ -->
+      <section class="mt-14">
+        <h2 class="font-display text-2xl sm:text-3xl">Preguntas frecuentes</h2>
+        <div class="mt-6 space-y-6">
+          {faqs.map((faq) => (
+            <div>
+              <h3 class="font-semibold">{faq.q}</h3>
+              <p class="mt-1.5 max-w-3xl text-sm leading-relaxed text-stone-600">{faq.a}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <!-- Contacto (también visible en papel) -->
+      <section class="mt-14 rounded-2xl bg-ink p-8 text-white print:rounded-none print:bg-white print:p-0 print:text-ink">
+        <h2 class="font-display text-2xl sm:text-3xl">¿Hablamos de tu tienda?</h2>
+        <p class="mt-3 max-w-xl leading-relaxed text-stone-400 print:text-stone-600">
+          Cuéntanos qué vendes y te decimos, sin compromiso, si este kit encaja contigo y qué
+          necesitaríamos para arrancar.
+        </p>
+        <p class="mt-5 font-semibold">
+          <a href="mailto:hola@logic2b.com?subject=Mi%20tienda%20online%20con%20Commerce%20Kit" class="underline underline-offset-4 hover:text-brand">hola@logic2b.com</a>
+          <span class="mx-2 text-stone-500">·</span>
+          <span class="font-normal text-stone-400 print:text-stone-600">Logic2B, Castellón · logic2b.com</span>
+        </p>
+      </section>
+    </main>
+
+    <footer class="border-t border-black/5 print:hidden">
+      <div class="mx-auto flex max-w-4xl flex-wrap items-center justify-between gap-2 px-5 py-6 text-sm text-stone-500">
+        <p>© 2026 Logic2B · Castellón</p>
+        <p><a href="/" class="hover:text-ink">Inicio</a> · <a href="/arquitectura" class="hover:text-ink">Arquitectura</a> · <a href="/demo/tienda" class="hover:text-ink">Demo</a></p>
+      </div>
+    </footer>
+  </div>
+
+  <style>
+    /* Impresión: papel limpio, sin sombras ni fondos, tinta negra */
+    @media print {
+      :global(body) {
+        background: white !important;
+      }
+      .shadow-sm,
+      .shadow-lg {
+        box-shadow: none !important;
+      }
+      section {
+        break-inside: avoid;
+      }
+      a {
+        color: inherit;
+      }
+    }
+  </style>
+</Base>

@@ -5,6 +5,7 @@
  */
 import Base from './Base.astro';
 import { shopConfig } from '../../shop.config';
+import { demoThemes } from '../lib/demo-themes';
 
 interface Props {
   title: string;
@@ -15,6 +16,24 @@ const { title, description } = Astro.props;
 ---
 
 <Base title={`${title} — ${shopConfig.name}`} description={description} noindex>
+  {/* Aplica el tema guardado ANTES de pintar nada (sin flash). Lista de variables
+      cerrada y en sintonía con THEME_VARS de src/lib/demo-themes.ts */}
+  <script is:inline>
+    try {
+      var stored = JSON.parse(localStorage.getItem('ecom-demo-theme') || 'null');
+      if (stored && stored.vars) {
+        var allowed = ['--color-brand', '--color-brand-dark', '--font-display', '--radius-btn'];
+        for (var i = 0; i < allowed.length; i++) {
+          var value = stored.vars[allowed[i]];
+          if (typeof value === 'string' && value.length <= 200) {
+            document.documentElement.style.setProperty(allowed[i], value);
+          }
+        }
+      }
+    } catch (_) {
+      /* localStorage corrupto o bloqueado: se queda el tema por defecto */
+    }
+  </script>
   <div class="bg-ink px-4 py-1.5 text-center text-xs text-white/80">
     <strong class="font-semibold text-white">Demo</strong> — tienda ficticia del
     <a href="/" class="underline decoration-white/40 underline-offset-2 hover:text-white">Logic2B Commerce Kit</a>.
@@ -27,7 +46,7 @@ const { title, description } = Astro.props;
       <nav class="flex items-center gap-4 text-sm sm:gap-6">
         <a href="/demo/tienda" class="hidden text-stone-600 hover:text-ink sm:block">Tienda</a>
         <a href="/demo/admin" class="hidden text-stone-600 hover:text-ink sm:block">Panel del comercio</a>
-        <a href="/demo/carrito" aria-label="Carrito" class="relative inline-flex items-center gap-1.5 rounded-full bg-cream px-4 py-2 font-medium text-ink transition hover:bg-stone-200">
+        <a href="/demo/carrito" aria-label="Carrito" class="relative inline-flex items-center gap-1.5 rounded-btn bg-cream px-4 py-2 font-medium text-ink transition hover:bg-stone-200">
           <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" aria-hidden="true">
             <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 0 0-16.536-1.84M7.5 14.25 5.106 5.272M6 20.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm12.75 0a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z" />
           </svg>
@@ -48,11 +67,117 @@ const { title, description } = Astro.props;
     </div>
   </footer>
 
+  {/* Selector de temas: pieza de venta. Demuestra que la marca del kit son unos
+      pocos tokens de configuración; en un proyecto real este widget no existe. */}
+  <div data-theme-widget class="fixed bottom-4 left-4 z-50">
+    <div
+      data-theme-panel
+      hidden
+      class="absolute bottom-full left-0 mb-3 w-72 rounded-2xl border border-black/10 bg-white p-4 shadow-xl shadow-black/10"
+    >
+      <p class="font-display text-base text-ink">Hazla tuya</p>
+      <p class="mt-1 text-xs leading-relaxed text-stone-500">
+        Cada tienda del kit define su marca en un único fichero de configuración.
+        Prueba cómo se vería la tuya:
+      </p>
+      <ul class="mt-3 space-y-2">
+        {demoThemes.map((theme) => (
+          <li>
+            <button
+              type="button"
+              data-theme-choice={theme.id}
+              aria-pressed="false"
+              style={`border-radius: ${theme.vars['--radius-btn']}; font-family: ${theme.vars['--font-display']};`}
+              class="flex w-full items-center gap-3 border border-stone-200 px-3.5 py-2.5 text-left transition hover:border-ink data-[selected]:border-ink data-[selected]:ring-1 data-[selected]:ring-ink"
+            >
+              <span
+                class="h-6 w-6 shrink-0 rounded-full border border-black/10"
+                style={`background: ${theme.vars['--color-brand']};`}
+                aria-hidden="true"
+              ></span>
+              <span class="flex-1">
+                <span class="block text-sm font-semibold text-ink">{theme.label}</span>
+                <span class="block font-sans text-[11px] leading-tight text-stone-500">{theme.hint}</span>
+              </span>
+            </button>
+          </li>
+        ))}
+      </ul>
+    </div>
+    <button
+      type="button"
+      data-theme-toggle
+      aria-expanded="false"
+      aria-label="Personalizar el diseño de la demo"
+      class="flex items-center gap-2 rounded-btn border border-black/10 bg-white px-4 py-2.5 text-sm font-semibold text-ink shadow-lg shadow-black/10 transition hover:border-ink"
+    >
+      <svg class="h-4 w-4 text-brand" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M9.53 16.122a3 3 0 0 0-5.78 1.128 2.25 2.25 0 0 1-2.4 2.245 4.5 4.5 0 0 0 8.4-2.245c0-.399-.078-.78-.22-1.128Zm0 0a15.998 15.998 0 0 0 3.388-1.62m-5.043-.025a15.994 15.994 0 0 1 1.622-3.395m3.42 3.42a15.995 15.995 0 0 0 4.764-4.648l3.876-5.814a1.151 1.151 0 0 0-1.597-1.597L14.146 6.32a15.996 15.996 0 0 0-4.649 4.763m3.42 3.42a6.776 6.776 0 0 0-3.42-3.42" />
+      </svg>
+      Tema
+    </button>
+  </div>
+
   <script>
     import { bindCartBadge } from '../lib/cart-client';
+    import { DEMO_THEME_KEY, applyTheme, defaultTheme, demoThemes } from '../lib/demo-themes';
 
     const badge = document.querySelector<HTMLElement>('[data-cart-badge]');
     if (badge) bindCartBadge(badge);
+
+    // — Selector de temas —
+    const widget = document.querySelector<HTMLElement>('[data-theme-widget]');
+    const toggle = document.querySelector<HTMLButtonElement>('[data-theme-toggle]');
+    const panel = document.querySelector<HTMLElement>('[data-theme-panel]');
+    const choices = [...document.querySelectorAll<HTMLButtonElement>('[data-theme-choice]')];
+
+    const markSelected = (id: string): void => {
+      for (const btn of choices) {
+        const selected = btn.dataset.themeChoice === id;
+        btn.toggleAttribute('data-selected', selected);
+        btn.setAttribute('aria-pressed', String(selected));
+      }
+    };
+
+    const currentId = (): string => {
+      try {
+        const stored = JSON.parse(localStorage.getItem(DEMO_THEME_KEY) ?? 'null') as { id?: string } | null;
+        return demoThemes.some((t) => t.id === stored?.id) ? (stored?.id as string) : defaultTheme.id;
+      } catch {
+        return defaultTheme.id;
+      }
+    };
+
+    const setOpen = (open: boolean): void => {
+      panel?.toggleAttribute('hidden', !open);
+      toggle?.setAttribute('aria-expanded', String(open));
+    };
+
+    toggle?.addEventListener('click', () => setOpen(panel?.hidden ?? false));
+    document.addEventListener('keydown', (ev) => {
+      if (ev.key === 'Escape') setOpen(false);
+    });
+    document.addEventListener('click', (ev) => {
+      if (widget && !widget.contains(ev.target as Node)) setOpen(false);
+    });
+
+    for (const btn of choices) {
+      btn.addEventListener('click', () => {
+        const theme = demoThemes.find((t) => t.id === btn.dataset.themeChoice);
+        if (!theme) return;
+        applyTheme(theme);
+        try {
+          // Se guarda con sus vars para que el script inline pre-pintado
+          // pueda aplicarlo en la siguiente página sin cargar este módulo.
+          localStorage.setItem(DEMO_THEME_KEY, JSON.stringify({ id: theme.id, vars: theme.vars }));
+        } catch {
+          /* almacenamiento bloqueado: el tema durará lo que dure la página */
+        }
+        markSelected(theme.id);
+      });
+    }
+
+    markSelected(currentId());
   </script>
 
   {shopConfig.analytics.cfBeaconToken && (

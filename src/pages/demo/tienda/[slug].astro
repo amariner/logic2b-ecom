@@ -78,17 +78,17 @@ const jsonLd = {
                 min="1"
                 max={Math.min(product.stock, 99)}
                 value="1"
-                class="w-20 rounded-full border border-stone-300 px-4 py-2.5 text-center"
+                class="w-20 rounded-btn border border-stone-300 px-4 py-2.5 text-center"
               />
             </div>
             <button
               type="button"
               data-add-to-cart={product.slug}
-              class="flex-1 rounded-full bg-brand px-8 py-3 font-semibold text-white shadow-lg shadow-brand/20 transition hover:bg-brand-dark sm:flex-none"
+              class="flex-1 rounded-btn bg-brand px-8 py-3 font-semibold text-white shadow-lg shadow-brand/20 transition hover:bg-brand-dark active:scale-[.98] sm:flex-none"
             >Añadir al carrito</button>
           </div>
         ) : (
-          <p class="mt-8 inline-block rounded-full bg-red-50 px-4 py-2 font-medium text-red-600">Agotado temporalmente</p>
+          <p class="mt-8 inline-block rounded-btn bg-red-50 px-4 py-2 font-medium text-red-600">Agotado temporalmente</p>
         )}
 
         <dl class="mt-10 space-y-2 border-t border-stone-200 pt-5 text-sm text-stone-600">

@@ -11,7 +11,7 @@ import Shop from '../../layouts/Shop.astro';
 
     <div data-cart-empty class="hidden py-16 text-center text-stone-500">
       <p>El carrito está vacío.</p>
-      <a href="/demo/tienda" class="mt-5 inline-block rounded-full bg-brand px-7 py-3 font-semibold text-white transition hover:bg-brand-dark">Ir a la tienda</a>
+      <a href="/demo/tienda" class="mt-5 inline-block rounded-btn bg-brand px-7 py-3 font-semibold text-white transition hover:bg-brand-dark">Ir a la tienda</a>
     </div>
 
     <div data-cart-loading class="py-16 text-center text-stone-400">Calculando precios…</div>
@@ -27,9 +27,9 @@ import Shop from '../../layouts/Shop.astro';
             inputmode="numeric"
             maxlength="5"
             placeholder="12001"
-            class="w-32 rounded-full border border-stone-300 bg-white px-4 py-2"
+            class="w-32 rounded-btn border border-stone-300 bg-white px-4 py-2"
           />
-          <button type="button" data-apply-cp class="rounded-full border border-ink/15 bg-white px-5 py-2 text-sm font-medium transition hover:border-ink">Calcular portes</button>
+          <button type="button" data-apply-cp class="rounded-btn border border-ink/15 bg-white px-5 py-2 text-sm font-medium transition hover:border-ink">Calcular portes</button>
         </div>
         <p data-cp-feedback class="mt-2 hidden text-sm"></p>
 
@@ -46,7 +46,7 @@ import Shop from '../../layouts/Shop.astro';
         <a
           href="/demo/checkout"
           data-checkout-link
-          class="pointer-events-none w-full rounded-full bg-stone-300 px-8 py-3.5 text-center font-semibold text-white transition sm:w-auto"
+          class="pointer-events-none w-full rounded-btn bg-stone-300 px-8 py-3.5 text-center font-semibold text-white transition sm:w-auto"
         >Tramitar pedido</a>
       </div>
     </div>
