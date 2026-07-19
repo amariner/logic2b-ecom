@@ -115,17 +115,50 @@ import Shop from '../../layouts/Shop.astro';
         const li = document.createElement('li');
         li.className = 'flex items-center gap-4 py-4';
         const bad = line.status !== 'ok';
-        li.innerHTML = `
-          <img src="${line.image}" alt="" width="64" height="64" class="h-16 w-16 rounded-xl bg-cream object-cover" />
-          <div class="flex-1">
-            <p class="text-sm font-medium ${bad ? 'text-red-700 line-through' : ''}">${line.name}</p>
-            <p class="text-sm text-stone-500">${bad ? '' : eur(line.unit_price_cents)}</p>
-          </div>
-          <input type="number" min="0" max="99" value="${line.qty}" data-qty="${line.slug}"
-            class="w-16 rounded border border-stone-300 px-2 py-1 text-sm" aria-label="Cantidad de ${line.name}" />
-          <p class="w-20 text-right text-sm font-medium">${bad ? '—' : eur(line.line_total_cents)}</p>
-          <button type="button" data-remove="${line.slug}" aria-label="Eliminar ${line.name}"
-            class="text-stone-400 hover:text-red-600">✕</button>`;
+
+        const img = document.createElement('img');
+        img.src = line.image;
+        img.alt = '';
+        img.width = 64;
+        img.height = 64;
+        img.className = 'h-16 w-16 rounded-xl bg-cream object-cover';
+
+        const info = document.createElement('div');
+        info.className = 'flex-1';
+        const nameEl = document.createElement('p');
+        nameEl.className = `text-sm font-medium ${bad ? 'text-red-700 line-through' : ''}`;
+        nameEl.textContent = line.name;
+        const priceEl = document.createElement('p');
+        priceEl.className = 'text-sm text-stone-500';
+        priceEl.textContent = bad ? '' : eur(line.unit_price_cents);
+        info.appendChild(nameEl);
+        info.appendChild(priceEl);
+
+        const qtyInput = document.createElement('input');
+        qtyInput.type = 'number';
+        qtyInput.min = '0';
+        qtyInput.max = '99';
+        qtyInput.value = String(line.qty);
+        qtyInput.dataset.qty = line.slug;
+        qtyInput.className = 'w-16 rounded border border-stone-300 px-2 py-1 text-sm';
+        qtyInput.setAttribute('aria-label', `Cantidad de ${line.name}`);
+
+        const totalEl = document.createElement('p');
+        totalEl.className = 'w-20 text-right text-sm font-medium';
+        totalEl.textContent = bad ? '—' : eur(line.line_total_cents);
+
+        const removeBtn = document.createElement('button');
+        removeBtn.type = 'button';
+        removeBtn.dataset.remove = line.slug;
+        removeBtn.setAttribute('aria-label', `Eliminar ${line.name}`);
+        removeBtn.className = 'text-stone-400 hover:text-red-600';
+        removeBtn.textContent = '✕';
+
+        li.appendChild(img);
+        li.appendChild(info);
+        li.appendChild(qtyInput);
+        li.appendChild(totalEl);
+        li.appendChild(removeBtn);
         list.appendChild(li);
       }
 

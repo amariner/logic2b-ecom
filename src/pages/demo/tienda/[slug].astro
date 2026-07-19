@@ -2,7 +2,7 @@
 import Shop from '../../../layouts/Shop.astro';
 import { shopConfig } from '../../../../shop.config';
 import { getProductBySlug } from '../../../lib/db';
-import { formatEurCents } from '../../../lib/format';
+import { formatEurCents, jsonLdScript } from '../../../lib/format';
 import { notFoundResponse } from '../../../lib/not-found';
 
 export const prerender = false;
@@ -132,7 +132,7 @@ const jsonLd = {
     )}
   </main>
 
-  <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} is:inline />
+  <script type="application/ld+json" set:html={jsonLdScript(jsonLd)} is:inline />
 
   <script>
     import { addToCart } from '../../../lib/cart-client';

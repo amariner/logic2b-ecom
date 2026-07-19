@@ -1,6 +1,7 @@
 ---
 // Layout raíz. Landing/Shop/Admin heredan de aquí.
 import '../styles/global.css';
+import { jsonLdScript } from '../lib/format';
 
 interface Props {
   title: string;
@@ -40,7 +41,7 @@ const ogImage = new URL('/images/og.jpg', Astro.site).href;
     <meta property="og:image:alt" content="Logic2B Commerce Kit — tu tienda online sin cuotas de plataforma" />
     <meta name="twitter:card" content="summary_large_image" />
     {jsonLd.map((obj) => (
-      <script type="application/ld+json" set:html={JSON.stringify(obj)} is:inline />
+      <script type="application/ld+json" set:html={jsonLdScript(obj)} is:inline />
     ))}
   </head>
   <body class="min-h-screen bg-white text-gray-900 antialiased">
