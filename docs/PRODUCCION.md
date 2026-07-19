@@ -61,7 +61,7 @@ El envío ya está implementado (`src/lib/send-email.ts`): la outbox es la fuent
 
 ## 8. Verificación final
 
-- [ ] `pnpm check` en verde (tipos + 62 tests + build) y `pnpm test:e2e` contra un preview con datos de prueba.
+- [ ] `pnpm check` en verde (tipos + 64 tests + build) y `pnpm test:e2e` contra un preview con datos de prueba.
 - [ ] Lighthouse ≥ 95 en las 4 métricas sobre la home y una ficha de producto.
 - [ ] Rich Results Test de Google en una ficha (schema `Product` + `Offer` válido).
 - [ ] Entregar `docs/CLIENTE.md` al comercio y hacer juntos un pedido de prueba.

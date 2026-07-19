@@ -200,6 +200,10 @@ Demo pública + plantilla clonable de ecommerce ultraligero (Astro 5 + Cloudflar
   - Re-confirmado (no reintentado más allá de una comprobación): el CDN de Higgsfield sigue devolviendo 403 a través del proxy de la sesión — sigue siendo un paso solo-local para Andreu, sin cambios.
   - `pnpm check` (62 tests) y `pnpm test:e2e` (19 pasos, contra `pnpm preview --ip 127.0.0.1`) en verde tras los cambios.
 
+- 2026-07-19 (Fase 8, sesión cloud — octava tanda: seguridad, misma delegación):
+  - **XSS almacenado real, explotable en la demo pública**: el nombre de producto (editable desde el admin, y la contraseña del admin de la demo es **pública a propósito**, «demo») se interpolaba sin escapar en dos sitios: (1) `carrito.astro` construía cada línea del carrito con una plantilla asignada a `innerHTML` — un nombre con HTML/script se ejecutaba en el navegador de cualquier visitante que abriera su carrito; (2) los dos bloques JSON-LD independientes (`Base.astro` vía la prop `jsonLd`, y el `<script>` propio de la ficha de producto) hacían `set:html={JSON.stringify(...)}` sin escapar `</script>` dentro de los valores, así que un nombre que contuviera esa secuencia cerraba la etiqueta `<script>` e inyectaba HTML arbitrario en la página. Confirmado explotable en vivo antes del arreglo (Playwright: el payload rompía la etiqueta / aparecía como HTML crudo) y neutralizado después (renderiza como texto inerte, sin diálogo, sin `<script>` literal en el DOM). Arreglo: construcción seguro del DOM (`createElement`/`textContent`) en el carrito, y un helper compartido y testeado `src/lib/format.ts#jsonLdScript()` (escapa `<` a su forma unicode) usado en ambos sitios de `set:html`. `tests/format.test.ts` nuevo.
+  - `pnpm check` (64 tests) y `pnpm test:e2e` (19 pasos) en verde.
+
 ## Decisiones pendientes
 
 - Confirmar precios de la landing (1.900 € setup / 29 €/mes) — hoy publicados provisionalmente en la demo en vivo.
