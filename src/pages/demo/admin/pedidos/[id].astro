@@ -39,13 +39,13 @@ const statusLabel: Record<string, string> = {
 ---
 
 <Admin title={`Pedido ${order.order_number}`} active="pedidos">
-  <a href="/demo/admin" class="text-sm text-stone-500 hover:text-stone-900">← Todos los pedidos</a>
+  <a href="/demo/admin" class="text-sm text-stone-600 hover:text-stone-900">← Todos los pedidos</a>
   <div class="mt-2 flex items-center justify-between">
     <h1 class="text-2xl font-bold">
       <span class="font-mono">{order.order_number}</span>
       <span class="ml-2 align-middle rounded-full bg-stone-200 px-2.5 py-0.5 text-xs font-medium text-stone-700">{statusLabel[order.status] ?? order.status}</span>
     </h1>
-    <p class="text-sm text-stone-500">{order.created_at.slice(0, 16)}</p>
+    <p class="text-sm text-stone-600">{order.created_at.slice(0, 16)}</p>
   </div>
 
   <div class="mt-6 grid gap-6 lg:grid-cols-3">
@@ -72,7 +72,7 @@ const statusLabel: Record<string, string> = {
         <ol class="mt-3 space-y-2 text-sm">
           {events.map((event) => (
             <li class="flex gap-3">
-              <span class="w-32 shrink-0 text-stone-400">{event.created_at.slice(0, 16)}</span>
+              <span class="w-32 shrink-0 text-stone-500">{event.created_at.slice(0, 16)}</span>
               <span>
                 <strong>{statusLabel[event.to_status] ?? event.to_status}</strong>
                 {event.note && <span class="text-stone-500"> — {event.note}</span>}

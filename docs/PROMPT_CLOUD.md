@@ -10,23 +10,24 @@ Eres el desarrollador principal del **Logic2B Commerce Kit**, un ecommerce ultra
 
 1. Lee `CLAUDE.md` (especificación completa: principios, stack, gotchas técnicos, reglas de trabajo).
 2. Lee `docs/ROADMAP.md` (estado real del proyecto y decisiones tomadas — es la fuente de verdad).
-3. Las **Fases 0–8 están completas** (5 PRs mergeados a `main`). No queda backlog técnico ejecutable desde cloud: lo pendiente son decisiones y pasos locales de Andreu (lista abajo).
+3. Las **Fases 0–8 están completas**. No queda backlog técnico ejecutable desde cloud: lo pendiente son decisiones y pasos locales de Andreu (lista abajo).
 
-## Estado actual (julio 2026)
+## Estado actual (julio 2026, tras las sesiones cloud del 18–19)
 
-- Fases 0–8 completas: tienda, checkout, panel admin, landing, deploy, docs, pulido. **58 tests unitarios + E2E de 19 comprobaciones** (`pnpm test:e2e`), todo en verde.
-- **Producción**: Cloudflare Worker `ecom-logic2b` + D1 remota `ecom-demo`, custom domain, cron de reset cada 6 h. Lighthouse 100/100/100/100 en landing y `/arquitectura` (auditado en local; contra producción, pendiente tras el próximo deploy).
+- Fases 0–8 completas: tienda (con búsqueda, resumen de pedido en checkout, productos relacionados, micro-guía, NIF opcional, selector de temas), panel admin (auth con cookie firmada, contraseña demo «demo», backup SQL), landing + `/arquitectura` + dossier comercial `/dossier`, rate limiting de aplicación, Web Analytics cableado (falta token), deploy y docs.
+- **62 tests unitarios + E2E de 19 pasos** (`pnpm test:e2e` contra `wrangler dev`), todo en verde. Lighthouse **100 de accesibilidad en todas las páginas**; landing, `/arquitectura` y `/dossier` en 100/100/100/100.
+- **Producción**: Cloudflare Worker `ecom-logic2b` + D1 remota `ecom-demo`, custom domain, cron de reset cada 6 h.
 - **Pagos en modo simulado** (sin claves Stripe): `src/lib/payment-mode.ts` — no lo cambies sin preguntar. Con `STRIPE_SECRET_KEY` puesta vuelve solo a Stripe Checkout real.
-- **Diseño**: estética tipo Shopify (blanco, tinta, verde `#008060`, botones pill, sans del sistema) en todas las páginas. Imágenes de producto IA en `public/images/products/*.webp`.
+- **Diseño**: estética tipo Shopify (blanco, tinta, verde `#008060`, botones pill, sans del sistema). En la tienda demo, un selector de 4 temas (`src/lib/demo-themes.ts`) sobreescribe color/tipografía/radios via variables CSS; el radio de los controles usa el token `--radius-btn` (`rounded-btn`). Imágenes de producto IA en `public/images/products/*.webp`; webfonts self-hosted en `public/fonts/`.
 
 ## Pendiente (no arrancar sin instrucción explícita de Andreu)
 
 **Decisiones de Andreu** (ver «Decisiones pendientes» del ROADMAP):
-- Confirmar precios de la landing (1.900 € / 29 €/mes, hoy provisionales en vivo).
+- Confirmar precios (1.900 € / 29 €/mes, hoy provisionales en landing y dossier).
 - Ofrecer o no la versión «Lite» (análisis en `docs/LITE.md`; en la landing ya hay línea de medición de demanda).
 - Activar pagos reales con claves TEST de Stripe (más impactante que la simulación).
 
-**Pasos locales de Andreu** (bloqueados desde cloud por red/credenciales):
+**Pasos locales de Andreu** (bloqueados desde cloud por red/credenciales — no los reintentes):
 - `node scripts/fetch-product-images.mjs` + re-seed (las 18 fotos por producto; el CDN de Higgsfield está bloqueado desde cloud).
 - Token de Web Analytics en `shop.config.ts` (`analytics.cfBeaconToken`).
 - Regla de rate limiting en el dashboard de Cloudflare (refuerzo del limiter de aplicación ya desplegado).
@@ -43,18 +44,18 @@ La marcará Andreu en su mensaje. Si no la concreta, pregunta antes de tocar nad
 - UI y docs en español; código y commits en inglés.
 - Verificación antes de cada commit: `pnpm check` (astro check + tests + build) y, si tocas el flujo de compra o el panel, también `pnpm test:e2e`. No commitees en rojo.
 - Mobile-first: todo debe verse perfecto en 375 px.
-- La landing `/` debe seguir con **cero JavaScript** (el beacon de analytics solo va en `/demo/*`).
+- La landing `/` debe seguir con **cero JavaScript** (el beacon de analytics y el selector de temas solo van en `/demo/*`).
 - No toques `wrangler.jsonc` (IDs de producción) ni el modo de pago simulado.
-- **No puedes desplegar desde cloud** (no hay auth de Cloudflare): trabaja en una rama, commit al final de cada tarea con mensaje descriptivo, y abre un PR hacia `main`. Andreu revisa, mergea y despliega en local con `pnpm deploy`. Un PR mergeado no se reutiliza: reinicia la rama desde `main`.
+- **No puedes desplegar desde cloud** (no hay auth de Cloudflare): trabaja en una rama, commit al final de cada tarea con mensaje descriptivo, y abre un PR hacia `main`. Andreu revisa, mergea y despliega en local con `pnpm deploy`. Un PR mergeado no se reutiliza: reinicia la rama desde `main`. Ojo: puede haber sesiones cloud en paralelo — haz `git fetch origin main` antes de abrir el PR y resuelve conflictos tú.
 - Al terminar, **actualiza `docs/ROADMAP.md`**: marca lo completado con fecha y una línea de resumen.
 
-## Gotchas de entorno cloud (ya descubiertos, no los repitas)
+## Trucos de entorno cloud ya aprendidos (no los redescubras)
 
-- El egress bloquea el CDN de Higgsfield (`cloudfront.net`) y la propia producción (`ecom.logic2b.com`) — no intentes descargarlos ni auditarlos desde aquí.
-- `checkOrigin` de Astro 5 exige cabecera `Origin` en POST de formulario (login, reset) — los curl/fetch de scripts deben mandarla.
-- Lighthouse resuelve `localhost` a IPv4: lanza `wrangler dev --ip 127.0.0.1`.
-- El TSX de `astro check` elimina los `return` del frontmatter: variables usadas solo dentro de un `return` dan falso ts(6133).
+- El egress bloquea Higgsfield/cloudfront (403 de política, no reintentar), la propia producción (`ecom.logic2b.com`) y `logic2b.com`; github.com, npm y Google Fonts sí pasan.
+- `wrangler dev` escucha solo IPv6; para Lighthouse/CDP lanza `wrangler dev --ip 127.0.0.1` y usa `--no-proxy-server` en Chrome (`/opt/pw-browsers/chromium`).
+- El `checkOrigin` de Astro 5 exige cabecera `Origin` en POST de formulario (login, reset) — los curl/fetch de scripts deben mandarla; los POST JSON no.
+- El TSX de `astro check` elimina los `return` del frontmatter: lo usado solo dentro de un `return` da falso ts(6133). Y `El.append(a, b)` en `<script>` de `.astro` da falso ts(2345): usa `appendChild`.
 
 ## Al empezar
 
-Devuélveme primero: (1) qué vas a hacer en esta sesión y en qué orden, (2) cualquier duda de alcance. Después arranca con lo primero.
+Devuélveme primero: (1) qué vas a atacar en esta sesión y en qué orden, (2) cualquier duda de alcance. Después arranca con lo primero.
