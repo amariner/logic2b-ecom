@@ -1,4 +1,5 @@
 import type { APIRoute } from 'astro';
+import { csvField } from '../../../../lib/csv';
 
 export const prerender = false;
 
@@ -11,8 +12,6 @@ type ExportRow = {
   status: string;
   items_summary: string | null;
 };
-
-const csvField = (value: string): string => `"${value.replaceAll('"', '""')}"`;
 
 /**
  * Export CSV con columnas compatibles con la importación de Packlink PRO /
