@@ -19,6 +19,8 @@ export const shopConfig = {
   email: 'hola@botigadelmaestrat.demo',
   baseUrl: 'https://ecom.logic2b.com',
   currency: 'eur' as const,
+  /** Prefijo del nº de pedido legible (p. ej. BM-260719-K7M2). 2-4 letras mayúsculas. */
+  orderNumberPrefix: 'BM',
 
   /** Marca (alimenta los tokens de Tailwind en global.css) */
   brand: {
