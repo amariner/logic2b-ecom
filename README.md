@@ -4,7 +4,7 @@ Plantilla de ecommerce ultraligera y de coste operativo ~0 €/mes, pensada para
 
 Este repositorio es dos cosas a la vez:
 
-1. **Demo comercial** — landing de venta del servicio + tienda ficticia navegable ("La Botiga del Maestrat") con checkout Stripe en modo test, panel de pedidos y bandeja de emails simulada.
+1. **Demo comercial** — landing de venta del servicio + tienda ficticia navegable ("La Botiga del Maestrat") con **pago simulado** (sin claves de Stripe el checkout marca el pedido como pagado al instante; con claves test vuelve solo a Stripe Checkout), panel de pedidos con login y bandeja de emails simulada.
 2. **Plantilla clonable** — para arrancar la tienda de un cliente real: editar `shop.config.ts`, reemplazar el seed, poner claves reales de Stripe y desplegar.
 
 ## Stack
@@ -17,7 +17,7 @@ Este repositorio es dos cosas a la vez:
 | Estilos | Tailwind CSS v4 |
 | Pagos | Stripe Checkout alojado (la tarjeta nunca toca nuestro servidor) |
 | Emails | Resend (en demo: capturados en D1, visibles en `/demo/admin/emails`) |
-| Tests | Vitest (precios, portes, transiciones de estado, webhook) |
+| Tests | Vitest (58: precios, portes, transiciones, webhook, auth, rate limit, backup) + E2E de 19 pasos |
 
 ## Requisitos
 

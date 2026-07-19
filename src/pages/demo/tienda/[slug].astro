@@ -17,6 +17,13 @@ if (!product || notFound) {
 
 const categoryLabel = shopConfig.categories.find((cat) => cat.id === product.category)?.label ?? product.category;
 
+// Hasta 4 productos más de la misma categoría (venta cruzada + enlazado interno).
+const { results: related } = await Astro.locals.runtime.env.DB.prepare(
+  'SELECT slug, name, price_cents, image, stock FROM products WHERE category = ? AND slug != ? AND active = 1 ORDER BY id LIMIT 4',
+)
+  .bind(product.category, product.slug)
+  .all<{ slug: string; name: string; price_cents: number; image: string; stock: number }>();
+
 // Schema Product+Offer válido: parte del argumento de venta (aunque la demo sea noindex).
 const jsonLd = {
   '@context': 'https://schema.org',
@@ -93,6 +100,36 @@ const jsonLd = {
         </dl>
       </div>
     </div>
+
+    {related.length > 0 && (
+      <section class="mt-16">
+        <div class="flex items-baseline justify-between">
+          <h2 class="font-display text-2xl">Más {categoryLabel.toLowerCase()}</h2>
+          <a href={`/demo/tienda?categoria=${product.category}`} class="text-sm text-brand underline underline-offset-2 hover:text-brand-dark">Ver todos</a>
+        </div>
+        <ul class="mt-5 grid grid-cols-2 gap-x-4 gap-y-6 sm:grid-cols-4 sm:gap-x-6">
+          {related.map((rel) => (
+            <li class="group">
+              <a href={`/demo/tienda/${rel.slug}`} class="flex flex-col">
+                <div class="overflow-hidden rounded-2xl bg-cream">
+                  <img
+                    src={rel.image}
+                    alt={rel.name}
+                    width="800"
+                    height="800"
+                    loading="lazy"
+                    class="aspect-square w-full object-cover transition duration-300 group-hover:scale-[1.04]"
+                  />
+                </div>
+                <p class="pt-2.5 text-sm font-medium leading-snug text-ink">{rel.name}</p>
+                <p class="pt-1 text-sm font-semibold">{formatEurCents(rel.price_cents)}</p>
+                {rel.stock === 0 && <p class="text-xs font-medium text-red-600">Agotado</p>}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </section>
+    )}
   </main>
 
   <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} is:inline />

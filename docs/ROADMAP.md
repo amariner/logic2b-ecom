@@ -163,6 +163,12 @@ Demo pública + plantilla clonable de ecommerce ultraligero (Astro 5 + Cloudflar
   - **Lite**: `docs/LITE.md` con análisis y recomendación (medir demanda antes de construir).
   - E2E ampliado a 19 comprobaciones (backup incluido). 58 tests unitarios. Producción no es alcanzable desde el proxy de la sesión → el Lighthouse contra ecom.logic2b.com queda necesariamente para después del deploy de Andreu.
 
+- 2026-07-19 (Fase 8, sesión cloud — quinta tanda: interfaz y documentación):
+  - **Checkout con resumen del pedido**: card «Tu pedido» (líneas, subtotal, envío con etiqueta de tarifa y total) recalculada contra `/api/cart/quote` al cargar y al completar el CP — el comprador ya ve lo que paga antes de confirmar. Verificado con captura CDP (carrito sembrado): 2×8,90 + 7,50 + 4,90 = 30,20 € ✓.
+  - **Ficha con venta cruzada**: sección «Más {categoría}» con hasta 4 productos relacionados (consulta en servidor, `loading="lazy"`) + enlace a la categoría. Lighthouse de la ficha sigue en 100/100/100.
+  - README: descripción del pago simulado (ya no dice «Stripe en modo test»), fila de tests actualizada (58 + E2E 19). Botón de `/demo/reset` alineado a la estética (pill).
+  - Nota tooling: dentro de los `<script>` de `.astro`, `El.append(a, b)` resuelve mal los tipos (falso ts(2345)); usar `appendChild` dos veces.
+
 ## Decisiones pendientes
 
 - Confirmar precios de la landing (1.900 € setup / 29 €/mes) — hoy publicados provisionalmente en la demo en vivo.
