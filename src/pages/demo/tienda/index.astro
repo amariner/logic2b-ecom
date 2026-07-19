@@ -38,6 +38,15 @@ const linkFor = (cat?: string, ord?: string): string => {
 
 <Shop title="Tienda" description="Catálogo demo de La Botiga del Maestrat">
   <main class="mx-auto max-w-6xl px-4 py-10">
+    <div class="mb-8 flex flex-wrap items-center gap-x-2 gap-y-1 rounded-2xl bg-cream px-5 py-3 text-sm text-stone-600">
+      <span class="font-semibold text-ink">Recorrido de la demo:</span>
+      <span><span class="font-semibold text-brand">1</span> compra algo</span>
+      <span aria-hidden="true">→</span>
+      <span><span class="font-semibold text-brand">2</span> gestiona el pedido en el <a href="/demo/admin" class="underline underline-offset-2 hover:text-ink">panel</a></span>
+      <span aria-hidden="true">→</span>
+      <span><span class="font-semibold text-brand">3</span> mira los <a href="/demo/admin/emails" class="underline underline-offset-2 hover:text-ink">emails</a> que se habrían enviado</span>
+    </div>
+
     <h1 class="font-display text-3xl sm:text-4xl">Productes de la terra</h1>
     <p class="mt-2 max-w-2xl text-stone-600">Aceites, embutidos, mieles, vinos, conservas y quesos del Maestrat.</p>
 

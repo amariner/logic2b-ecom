@@ -31,10 +31,32 @@ const order = sessionId
           Tu pedido <strong>{order.order_number}</strong> por {formatEurCents(order.total_cents)} está
           {order.status === 'paid' ? ' confirmado' : ' registrándose (el pago se está procesando)'}.
         </p>
-        <p class="mt-2 text-sm text-stone-500">
-          Hemos enviado la confirmación a {order.email}.
-          <a href="/demo/admin/emails" class="underline">Vela en la bandeja simulada</a>.
-        </p>
+        <p class="mt-2 text-sm text-stone-500">Hemos enviado la confirmación a {order.email}.</p>
+
+        <div class="mt-8 rounded-2xl bg-cream p-6 text-left">
+          <p class="text-sm font-semibold uppercase tracking-wide text-brand">Sigue el recorrido de la demo</p>
+          <ol class="mt-4 space-y-4 text-sm leading-relaxed text-stone-700">
+            <li class="flex gap-3">
+              <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-brand font-bold text-white" aria-hidden="true">✓</span>
+              <span><strong>Has comprado.</strong> El pedido ya existe de verdad: con stock descontado, estado «pagado» y su historial.</span>
+            </li>
+            <li class="flex gap-3">
+              <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-ink font-bold text-white" aria-hidden="true">2</span>
+              <span>
+                <strong>Gestiónalo como el comercio:</strong> entra en el
+                <a href="/demo/admin" class="text-brand underline underline-offset-2 hover:text-brand-dark">panel de pedidos</a>
+                (contraseña <span class="font-mono">demo</span>) y márcalo como enviado con un tracking inventado.
+              </span>
+            </li>
+            <li class="flex gap-3">
+              <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-ink font-bold text-white" aria-hidden="true">3</span>
+              <span>
+                <strong>Mira los emails</strong> que el sistema habría enviado (confirmación y aviso de envío) en la
+                <a href="/demo/admin/emails" class="text-brand underline underline-offset-2 hover:text-brand-dark">bandeja simulada</a>.
+              </span>
+            </li>
+          </ol>
+        </div>
       </>
     ) : (
       <>

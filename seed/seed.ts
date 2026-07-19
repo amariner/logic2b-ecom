@@ -4,6 +4,7 @@
  */
 
 import { shopConfig } from '../shop.config.ts';
+import { imageVariants } from './image-variants.ts';
 import { seedProducts } from './products.ts';
 
 function sqlString(value: string): string {
@@ -21,8 +22,14 @@ export function seedStatements(): string[] {
     'DELETE FROM products',
   ];
 
+  const perCategory: Record<string, number> = {};
   for (const prod of seedProducts) {
-    const image = `/images/products/${prod.category}.webp`;
+    // Reparto round-robin de las variantes de foto dentro de cada categoría.
+    const index = perCategory[prod.category] ?? 0;
+    perCategory[prod.category] = index + 1;
+    const variant = (index % (imageVariants[prod.category] ?? 1)) + 1;
+    const suffix = variant === 1 ? '' : `-${variant}`;
+    const image = `/images/products/${prod.category}${suffix}.webp`;
     statements.push(
       `INSERT INTO products (slug, name, description, price_cents, stock, image, category, active) VALUES (` +
         `${sqlString(prod.slug)}, ${sqlString(prod.name)}, ${sqlString(prod.description)}, ` +
