@@ -46,6 +46,8 @@ import Shop from '../../layouts/Shop.astro';
         <a
           href="/demo/checkout"
           data-checkout-link
+          aria-disabled="true"
+          tabindex="-1"
           class="pointer-events-none w-full rounded-btn bg-stone-300 px-8 py-3.5 text-center font-semibold text-white transition sm:w-auto"
         >Tramitar pedido</a>
       </div>
@@ -181,7 +183,13 @@ import Shop from '../../layouts/Shop.astro';
       checkout.classList.toggle('bg-stone-300', !ready);
       checkout.classList.toggle('bg-brand', ready);
       checkout.classList.toggle('hover:bg-brand-dark', ready);
+      checkout.setAttribute('aria-disabled', String(!ready));
+      checkout.tabIndex = ready ? 0 : -1;
     }
+
+    $('[data-checkout-link]').addEventListener('click', (ev) => {
+      if ($('[data-checkout-link]').getAttribute('aria-disabled') === 'true') ev.preventDefault();
+    });
 
     const cpInput = $('#cp') as unknown as HTMLInputElement;
     cpInput.value = localStorage.getItem(CP_KEY) ?? '';
