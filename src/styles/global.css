@@ -1,7 +1,26 @@
 @import "tailwindcss";
 
+/* Fuentes de los temas de la demo (subsets latinos variables, self-hosted).
+   Solo se descargan si el tema activo las usa: declarar @font-face no cuesta nada. */
+@font-face {
+  font-family: 'Fraunces';
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url('/fonts/fraunces-latin-var.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Space Grotesk';
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url('/fonts/space-grotesk-latin-var.woff2') format('woff2');
+}
+
 /* Tokens de marca — estética tipo Shopify: blanco, tinta casi negra, verde profundo.
-   Mantener en sintonía con brand.color de shop.config.ts */
+   Mantener en sintonía con brand.color de shop.config.ts.
+   El selector de temas de la demo sobreescribe brand/brand-dark/font-display/radius-btn
+   en :root (ver src/lib/demo-themes.ts): es la prueba en vivo de la clonabilidad. */
 @theme {
   --color-brand: #008060;
   --color-brand-dark: #004c3f;
@@ -10,10 +29,18 @@
   --color-cream: #f6f6f4;
   --font-sans: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   --font-display: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  /* Radio de botones y controles (pill por defecto); cada tema puede cuadrarlo */
+  --radius-btn: 9999px;
 }
 
 /* Titulares con el peso y tracking del estilo Shopify */
 .font-display {
   font-weight: 700;
   letter-spacing: -0.03em;
+}
+
+/* Foco visible coherente con la marca en toda la demo (teclado) */
+:focus-visible {
+  outline: 2px solid var(--color-brand);
+  outline-offset: 2px;
 }

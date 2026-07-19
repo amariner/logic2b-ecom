@@ -54,12 +54,12 @@ const linkFor = (cat?: string, ord?: string): string => {
       <nav class="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0" aria-label="Categorías">
         <a
           href={linkFor(undefined, sort)}
-          class:list={['shrink-0 rounded-full px-4 py-2 text-sm font-medium transition', !category ? 'bg-ink text-white' : 'bg-cream text-stone-700 hover:bg-stone-200']}
+          class:list={['shrink-0 rounded-btn px-4 py-2 text-sm font-medium transition', !category ? 'bg-ink text-white' : 'bg-cream text-stone-700 hover:bg-stone-200']}
         >Todo</a>
         {shopConfig.categories.map((cat) => (
           <a
             href={linkFor(cat.id, sort)}
-            class:list={['shrink-0 rounded-full px-4 py-2 text-sm font-medium transition', category === cat.id ? 'bg-ink text-white' : 'bg-cream text-stone-700 hover:bg-stone-200']}
+            class:list={['shrink-0 rounded-btn px-4 py-2 text-sm font-medium transition', category === cat.id ? 'bg-ink text-white' : 'bg-cream text-stone-700 hover:bg-stone-200']}
           >{cat.label}</a>
         ))}
       </nav>
@@ -78,7 +78,7 @@ const linkFor = (cat?: string, ord?: string): string => {
             maxlength="60"
             placeholder="Buscar producto…"
             aria-label="Buscar en el catálogo"
-            class="w-44 rounded-full border border-stone-200 bg-white py-1.5 pl-9 pr-3 text-sm transition focus:w-56 focus:border-ink focus:outline-none sm:w-52"
+            class="w-44 rounded-btn border border-stone-200 bg-white py-1.5 pl-9 pr-3 text-sm transition focus:w-56 focus:border-ink focus:outline-none sm:w-52"
           />
         </form>
 
@@ -86,7 +86,7 @@ const linkFor = (cat?: string, ord?: string): string => {
           {category && <input type="hidden" name="categoria" value={category} />}
           {search && <input type="hidden" name="q" value={search} />}
           <label class="text-stone-500" for="orden">Ordenar:</label>
-          <select id="orden" name="orden" class="ml-1 rounded-full border border-stone-200 bg-white px-3 py-1.5" onchange="this.form.submit()">
+          <select id="orden" name="orden" class="ml-1 rounded-btn border border-stone-200 bg-white px-3 py-1.5" onchange="this.form.submit()">
             {sortOptions.map((opt) => (
               <option value={opt.id} selected={opt.id === sort}>{opt.label}</option>
             ))}
@@ -127,7 +127,7 @@ const linkFor = (cat?: string, ord?: string): string => {
               type="button"
               data-add-to-cart={prod.slug}
               disabled={prod.stock === 0}
-              class="w-full rounded-full border border-ink/15 bg-white px-3 py-2 text-sm font-semibold text-ink transition hover:border-ink hover:bg-ink hover:text-white disabled:cursor-not-allowed disabled:border-stone-200 disabled:bg-stone-100 disabled:text-stone-400"
+              class="w-full rounded-btn border border-ink/15 bg-white px-3 py-2 text-sm font-semibold text-ink transition hover:border-ink hover:bg-ink hover:text-white active:scale-[.98] disabled:cursor-not-allowed disabled:border-stone-200 disabled:bg-stone-100 disabled:text-stone-400"
             >Añadir al carrito</button>
           </div>
         </li>
@@ -146,7 +146,7 @@ const linkFor = (cat?: string, ord?: string): string => {
         </p>
         <a
           href="/demo/tienda"
-          class="mt-6 inline-block rounded-full bg-ink px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-black"
+          class="mt-6 inline-block rounded-btn bg-ink px-6 py-2.5 text-sm font-semibold text-white transition hover:bg-black"
         >Ver todo el catálogo</a>
       </div>
     )}
