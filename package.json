@@ -11,6 +11,7 @@
     "deploy": "astro build && wrangler deploy",
     "check": "astro check && vitest run && astro build",
     "test": "vitest run",
+    "test:e2e": "node scripts/e2e.mjs",
     "db:migrate": "wrangler d1 migrations apply ecom-demo --local",
     "db:seed": "node seed/generate.ts > .wrangler/seed.sql && wrangler d1 execute ecom-demo --local --file .wrangler/seed.sql",
     "db:reset": "rm -rf .wrangler/state && pnpm db:migrate && pnpm db:seed"

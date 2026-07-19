@@ -29,6 +29,8 @@ const { results: events } = await db
 
 const addr = JSON.parse(order.address_json) as {
   name: string; phone: string | null; street: string; city: string; postal_code: string; zone: string;
+  // Opcionales de facturación (pueden faltar en pedidos antiguos)
+  nif?: string | null; company?: string | null;
 };
 
 const statusLabel: Record<string, string> = {
@@ -88,6 +90,11 @@ const statusLabel: Record<string, string> = {
         <p>{addr.street}</p>
         <p>{addr.postal_code} {addr.city}</p>
         <p class="text-stone-500">{order.email}{addr.phone ? ` · ${addr.phone}` : ''}</p>
+        {(addr.nif || addr.company) && (
+          <p class="mt-2 rounded bg-amber-50 p-2 text-amber-900">
+            Factura: {[addr.company, addr.nif].filter(Boolean).join(' · ')}
+          </p>
+        )}
         {order.tracking_number && (
           <p class="mt-2 rounded bg-sky-50 p-2 text-sky-900">
             {order.tracking_carrier}: <strong>{order.tracking_number}</strong>

@@ -22,6 +22,10 @@ const checkoutRequestSchema = z.object({
     street: z.string().trim().min(3).max(200),
     city: z.string().trim().min(2).max(100),
     postal_code: z.string().trim().regex(/^\d{5}$/, 'CP de 5 dígitos'),
+    // Datos de facturación opcionales: el kit no emite facturas (ver ROADMAP),
+    // pero el pedido nace con lo necesario para que el comercio la haga fuera.
+    nif: z.string().trim().max(20).optional(),
+    company: z.string().trim().max(160).optional(),
   }),
 });
 
@@ -60,6 +64,8 @@ export const POST: APIRoute = async ({ request, locals }) => {
     city: customer.city,
     postal_code: customer.postal_code,
     zone: quote.shipping.zone,
+    nif: customer.nif ?? null,
+    company: customer.company ?? null,
   });
 
   // Mapa slug → id de producto para el snapshot de líneas (y el decremento de stock).
