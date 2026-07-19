@@ -54,4 +54,13 @@ const nav = [
       <slot />
     </main>
   </div>
+
+  {shopConfig.analytics.cfBeaconToken && (
+    <script
+      defer
+      src="https://static.cloudflareinsights.com/beacon.min.js"
+      data-cf-beacon={JSON.stringify({ token: shopConfig.analytics.cfBeaconToken })}
+      is:inline
+    ></script>
+  )}
 </Base>

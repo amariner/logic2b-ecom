@@ -67,6 +67,17 @@ export const shopConfig = {
     ],
   },
 
+  /**
+   * Cloudflare Web Analytics (gratis, sin cookies, sin banner).
+   * Token del dashboard → Analytics → Web Analytics. Vacío = sin beacon.
+   * Solo se inyecta en tienda y panel: la landing se mantiene con cero JS
+   * (decisión 2026-07-19; las visitas a la landing ya salen en las métricas
+   * de requests del Worker sin script alguno).
+   */
+  analytics: {
+    cfBeaconToken: '',
+  },
+
   /** Textos legales mínimos (páginas legales completas: por cliente) */
   legal: {
     shippingNote: 'Envío en 24/48h laborables a península. Portes según zona.',
