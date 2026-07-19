@@ -82,6 +82,23 @@ export const PATCH: APIRoute = async ({ params, request, locals }) => {
     ),
   );
 
+  // paid → cancelled: el webhook ya decrementó stock al cobrar; al cancelar (p. ej.
+  // tras un reembolso en Stripe) hay que devolverlo, o el producto queda agotado
+  // para siempre por unidades que nunca llegaron a salir del almacén.
+  if (decision.restoreStock) {
+    const { results: restockItems } = await env.DB.prepare(
+      'SELECT product_id, qty FROM order_items WHERE order_id = ?',
+    )
+      .bind(id)
+      .all<{ product_id: number | null; qty: number }>();
+    for (const item of restockItems) {
+      if (item.product_id === null) continue;
+      statements.push(
+        env.DB.prepare('UPDATE products SET stock = stock + ? WHERE id = ?').bind(item.qty, item.product_id),
+      );
+    }
+  }
+
   if (decision.sendShippedEmail) {
     const items = (
       await env.DB.prepare(
