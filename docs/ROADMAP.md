@@ -172,6 +172,7 @@ Demo pública + plantilla clonable de ecommerce ultraligero (Astro 5 + Cloudflar
   - **Selector de temas** como argumento de venta (no feature de tienda): presets cerrados en vez de pickers libres para evitar combinaciones feas; solo en `/demo/*` (el panel se mantiene sobrio y la landing con cero JS). El preset por defecto «La Botiga» limpia los overrides, y un test lo mantiene en sintonía con los tokens de `global.css`.
   - **Webfonts self-hosted** (sin Google Fonts en runtime): los `@font-face` declarados solo descargan la fuente si el tema activo la referencia, así el peso extra es 0 en el tema por defecto.
   - **Dossier `/dossier`**: los precios y claims reutilizan los de la landing (1.900 €/29 €/mes provisionales, «vendiendo en 3–4 semanas» marcado como orientativo). FAQ nueva de facturación alineada con la decisión VeriFactu del 2026-07-18. Verificado con captura en pantalla, móvil y emulación de impresión.
+  - Lighthouse local tras la tanda: `/` y `/dossier` en 100/100/100/100; catálogo (con el widget de temas cargado) en 100/100/100 de performance/a11y/best-practices. El peso de las webfonts no computa en el tema por defecto (no se descargan).
   - Pendiente de Andreu tras esta tanda: nada nuevo — deploy (`pnpm deploy`) para publicar selector y dossier.
 
 ## Decisiones pendientes
