@@ -18,6 +18,10 @@ const limiter = new RateLimiter();
 const PUBLIC_API_RULES: Record<string, RateLimitRule> = {
   '/api/cart/quote': { limit: 60, windowMs: 60_000 },
   '/api/checkout/session': { limit: 10, windowMs: 60_000 },
+  // Reset destructivo (borra pedidos y emails de todos los visitantes): sin
+  // autenticación por diseño (es un botón público de la demo), así que necesita
+  // un límite bajo para que no se pueda machacar la demo en bucle.
+  '/api/demo/reset': { limit: 3, windowMs: 60_000 },
 };
 
 export const onRequest = defineMiddleware(async (context, next) => {
