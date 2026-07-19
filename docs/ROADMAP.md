@@ -40,21 +40,21 @@ Demo pública + plantilla clonable de ecommerce ultraligero (Astro 5 + Cloudflar
 - [x] ✅ 2026-07-18 — Página 404 propia (`src/pages/404.astro`) con enlaces a landing/tienda/panel; también la sirven las fichas de producto inexistentes.
 
 **Experiencia de la demo**
-- [ ] ⬜ Fotos por producto (no solo por categoría): generar 3–4 variantes por categoría con Higgsfield y repartirlas en el seed para que el catálogo no repita 10 veces la misma imagen. Es el mayor salto visual pendiente.
+- [x] 🟡 2026-07-19 — Fotos por producto: 18 variantes nuevas (3 extra × 6 categorías) generadas con Higgsfield en el estilo actual, y el seed ya reparte variantes round-robin (`seed/image-variants.ts`). **Falta un paso local de Andreu**: la red de la sesión cloud bloquea el CDN de Higgsfield, así que hay que ejecutar `node scripts/fetch-product-images.mjs` (descarga + optimiza a WebP con sharp y sube el manifest a 4) y re-sembrar.
 - [x] ✅ 2026-07-18 — Búsqueda simple en el catálogo (`?q=`, LIKE escapado sobre nombre+descripción en D1, combinable con categoría/orden, cero JS cliente).
 - [x] ✅ 2026-07-18 — Estados vacíos/error: catálogo sin resultados (card con CTA), ficha inexistente → 404 propia. (Carrito agotado/CP sin cobertura y admin vacío ya estaban cubiertos de fases anteriores.)
-- [ ] ⬜ Micro-guía en la demo: tooltip o franja "prueba a comprar → mira el panel → mira los emails" que guíe el recorrido de venta.
+- [x] ✅ 2026-07-19 — Micro-guía: franja «1 compra → 2 panel → 3 emails» en el catálogo + tarjeta «Sigue el recorrido de la demo» en `/demo/gracias` (con la contraseña del panel). Sin JS extra.
 
 **Robustez (sin salir del stack)**
 - [x] ✅ 2026-07-18 — Auth del admin con cookie firmada: login `/demo/admin/login` (contraseña «demo» visible), middleware sobre `/demo/admin/*` y `/api/admin/*`, HMAC-SHA256 Web Crypto, 6 tests. Con `DEMO_MODE` off la capa se desactiva y manda Cloudflare Access.
-- [ ] ⬜ Rate limiting básico en APIs públicas (`/api/cart/quote`, `/api/checkout/session`) con Cloudflare.
-- [ ] ⬜ Export/backup periódico de la D1 (cron ya existente; volcado a R2 o al repo).
-- [ ] ⬜ Campo NIF/razón social opcional en checkout → los pedidos nacen con datos para facturar (ver decisión de facturación abajo).
+- [ ] 🔒 Rate limiting básico en APIs públicas — **bloqueado en cloud**: el binding de rate limiting o las reglas WAF exigen tocar `wrangler.jsonc`/dashboard (vetados desde esta sesión). Para Andreu en local.
+- [ ] 🔒 Export/backup periódico de la D1 a R2 — **bloqueado en cloud**: requiere crear el bucket y añadir el binding en `wrangler.jsonc`. Para Andreu en local.
+- [x] ✅ 2026-07-19 — Campo NIF/razón social opcional en checkout (desplegable «¿Necesitas factura?»), validado en la API, guardado en `address_json` y visible en el detalle del pedido del admin.
 
 **Medición y calidad**
-- [ ] ⬜ Cloudflare Web Analytics (gratis, sin cookies, sin banner) en landing y demo.
+- [ ] ⚠️ Cloudflare Web Analytics — **decisión pendiente de Andreu**: el beacon es un `<script>` externo y la regla de la landing es «cero JavaScript». Opciones: (a) solo en `/demo/*`, (b) aceptar el beacon `defer` también en la landing, (c) descartar. No se implementa sin OK.
 - [ ] ⬜ Auditoría Lighthouse en producción y ajustar hasta 100/100/100/100 (objetivo declarado en la landing; hay que poder demostrarlo).
-- [ ] ⬜ Test E2E del flujo de compra simulado (fetch contra wrangler dev en CI local).
+- [x] ✅ 2026-07-19 — Test E2E del flujo de compra simulado: `pnpm test:e2e` (`scripts/e2e.mjs`, sin dependencias) contra wrangler dev — 18 comprobaciones: reset, quote en servidor, checkout con NIF, stock decrementado, guardas de auth, login, CSV, enviado+tracking y ambos emails en la bandeja.
 
 **Comercial (explorar, no implementar sin OK)**
 - [ ] ⬜ Versión «Lite» del kit (Astro estático + Stripe Payment Links, sin panel): producto de entrada para negocios de <10 productos, con upgrade al kit completo. Decidir si se ofrece.
@@ -144,6 +144,12 @@ Demo pública + plantilla clonable de ecommerce ultraligero (Astro 5 + Cloudflar
   - Auth admin: token sin estado `expiry.firma` (HMAC-SHA256, `crypto.subtle`, verificación en tiempo constante), cookie HttpOnly/SameSite=Lax 24 h via `Astro.cookies`, middleware nuevo `src/middleware.ts`. **Decisión**: con `DEMO_MODE` off el middleware deja pasar y la protección real es Cloudflare Access (si no, un panel real sin contraseña demo válida quedaría inaccesible); reflejado en `docs/PRODUCCION.md` §5. Fallback de secreto solo en demo sin `.dev.vars`.
   - Nota curiosa del tooling: el TSX que `astro check` genera elimina las expresiones `return` del frontmatter — cualquier variable/import usado solo dentro de un `return` da falso ts(6133); se resuelve referenciándolo fuera del `return`.
   - 48 tests en verde. Verificado en runtime (wrangler dev + curl + capturas headless): búsqueda, estados vacíos, 404, flujo login/logout completo, CSV con sesión, cookie manipulada rechazada y open redirect bloqueado.
+
+- 2026-07-19 (Fase 8, sesión cloud — segunda tanda):
+  - **Fotos por producto**: 18 imágenes generadas con Higgsfield Marketing Studio (36 créditos; mismo estilo crema/editorial). El egress de la sesión cloud deniega el CDN (`cloudfront.net`, 403 de política; verificado también via WebFetch) → las URLs quedan fijadas en `scripts/fetch-product-images.mjs`, que Andreu ejecuta en local (`pnpm add -D sharp` temporal). El seed ya reparte variantes por categoría desde `seed/image-variants.ts` (seguro para el worker: sin fs) con test que impide declarar variantes sin usar o usar no declaradas.
+  - Micro-guía en catálogo y gracias; campo NIF/razón social opcional (desplegable `<details>`, cero JS añadido); E2E `pnpm test:e2e` con 18 checks en verde.
+  - Nota CSRF: el `checkOrigin` de Astro 5 exige cabecera `Origin` en los POST de formulario (login, reset) — curl/fetch de scripts deben mandarla; los POST JSON no la necesitan.
+  - Bloqueados en cloud (para local): rate limiting (wrangler.jsonc/dashboard), backup D1→R2 (binding), Web Analytics (decisión por la regla cero-JS de la landing), Lighthouse en producción (pendiente).
 
 ## Decisiones pendientes
 
