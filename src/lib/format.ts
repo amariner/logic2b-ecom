@@ -13,3 +13,16 @@ export function formatEurCents(cents: number): string {
 export function jsonLdScript(obj: object): string {
   return JSON.stringify(obj).replace(/</g, '\\u003c');
 }
+
+const HTML_ESCAPES: Record<string, string> = {
+  '&': '&amp;',
+  '<': '&lt;',
+  '>': '&gt;',
+  '"': '&quot;',
+  "'": '&#39;',
+};
+
+/** Escapa texto para insertarlo en HTML construido con plantillas de string (emails). */
+export function escapeHtml(value: string): string {
+  return value.replace(/[&<>"']/g, (ch) => HTML_ESCAPES[ch]!);
+}
