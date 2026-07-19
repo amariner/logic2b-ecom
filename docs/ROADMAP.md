@@ -48,16 +48,16 @@ Demo pública + plantilla clonable de ecommerce ultraligero (Astro 5 + Cloudflar
 **Robustez (sin salir del stack)**
 - [x] ✅ 2026-07-18 — Auth del admin con cookie firmada: login `/demo/admin/login` (contraseña «demo» visible), middleware sobre `/demo/admin/*` y `/api/admin/*`, HMAC-SHA256 Web Crypto, 6 tests. Con `DEMO_MODE` off la capa se desactiva y manda Cloudflare Access.
 - [x] 🟡 2026-07-19 — Rate limiting en APIs públicas, **capa de aplicación**: `src/lib/rate-limit.ts` (ventana fija en memoria por isolate, techo de claves, 6 tests) aplicado en el middleware a `POST /api/cart/quote` (60/min por IP) y `POST /api/checkout/session` (10/min por IP) → 429 + `Retry-After`. Best-effort consciente: el estado es por isolate/PoP. La regla de plataforma (WAF/Rate Limiting de Cloudflare, dashboard) sigue pendiente para Andreu como refuerzo opcional.
-- [ ] 🔒 Export/backup periódico de la D1 a R2 — **bloqueado en cloud**: requiere crear el bucket y añadir el binding en `wrangler.jsonc`. Para Andreu en local.
+- [x] 🟡 2026-07-19 — Backup de la D1, **v1 manual**: botón «Copia de seguridad» en el panel → `GET /api/admin/backup.sql` (volcado completo restaurable con `wrangler d1 execute --file`; `src/lib/backup.ts` puro con tests, protegido por la auth del panel). La variante **periódica a R2** sigue pendiente de Andreu (bucket + binding en `wrangler.jsonc`); el cron actual de la demo la haría trivial de añadir.
 - [x] ✅ 2026-07-19 — Campo NIF/razón social opcional en checkout (desplegable «¿Necesitas factura?»), validado en la API, guardado en `address_json` y visible en el detalle del pedido del admin.
 
 **Medición y calidad**
-- [ ] ⚠️ Cloudflare Web Analytics — **decisión pendiente de Andreu**: el beacon es un `<script>` externo y la regla de la landing es «cero JavaScript». Opciones: (a) solo en `/demo/*`, (b) aceptar el beacon `defer` también en la landing, (c) descartar. No se implementa sin OK.
+- [x] 🟡 2026-07-19 — Cloudflare Web Analytics, **decidido y cableado**: beacon solo en tienda y panel (la landing conserva cero JS; sus visitas ya salen en las métricas de requests del Worker). Se activa rellenando `analytics.cfBeaconToken` en `shop.config.ts` con el token del dashboard (→ Analytics → Web Analytics) — **falta ese token de Andreu**; con el campo vacío no se inyecta nada.
 - [x] 🟡 2026-07-19 — Auditoría Lighthouse **en local** (wrangler dev, Lighthouse 13): landing, `/arquitectura`, catálogo, ficha y carrito en **100/100/100** de performance/accesibilidad/best-practices tras corregir contrastes, landmark `<main>` y cabeceras de la tabla comparativa (el SEO de `/demo/*` queda bajo a propósito por el `noindex`; landing y arquitectura, 100 también en SEO). Falta repetirla contra producción tras el próximo deploy para poder citarla.
 - [x] ✅ 2026-07-19 — Test E2E del flujo de compra simulado: `pnpm test:e2e` (`scripts/e2e.mjs`, sin dependencias) contra wrangler dev — 18 comprobaciones: reset, quote en servidor, checkout con NIF, stock decrementado, guardas de auth, login, CSV, enviado+tracking y ambos emails en la bandeja.
 
 **Comercial (explorar, no implementar sin OK)**
-- [ ] ⬜ Versión «Lite» del kit (Astro estático + Stripe Payment Links, sin panel): producto de entrada para negocios de <10 productos, con upgrade al kit completo. Decidir si se ofrece.
+- [ ] 🟡 Versión «Lite» del kit — **explorada, decisión pendiente**: análisis completo en `docs/LITE.md` (2026-07-19). Recomendación: ofrecerla en la landing para medir demanda, no construirla hasta el primer cliente. Decidir: Andreu.
 - [ ] ⬜ Pagos reales en la demo con claves test de Stripe (tarjeta 4242): más impactante que la simulación. Requiere claves de Andreu + webhook.
 
 ## Decisiones tomadas
@@ -156,6 +156,12 @@ Demo pública + plantilla clonable de ecommerce ultraligero (Astro 5 + Cloudflar
   - Lighthouse local en verde (ver arriba). Truco de entorno: el Chrome de Lighthouse resuelve `localhost` a IPv4 y `wrangler dev` escuchaba solo en IPv6 → lanzar `wrangler dev --ip 127.0.0.1` para auditar.
   - README: documentados `pnpm test:e2e`, la contraseña del panel demo y el paso local de las fotos de producto.
   - Rate limiting de aplicación en el middleware (ver bloque Robustez): verificado en runtime — 60 POST a quote → 200, del 61 en adelante 429 con `Retry-After`; E2E completo sigue en verde con el limiter activo. PR #2 mergeado (Lighthouse + docs); la landing pasa a 100/100/100/100 real.
+
+- 2026-07-19 (Fase 8, sesión cloud — cuarta tanda, con delegación explícita de Andreu para decidir y avanzar):
+  - **Backup manual v1** desde el panel (endpoint SQL restaurable) en lugar de esperar al binding R2; la periódica queda como mejora local.
+  - **Web Analytics**: decidido beacon solo en `/demo/*` y panel via `shop.config.analytics.cfBeaconToken` (vacío = nada); la landing mantiene cero JS.
+  - **Lite**: `docs/LITE.md` con análisis y recomendación (medir demanda antes de construir).
+  - E2E ampliado a 19 comprobaciones (backup incluido). 58 tests unitarios. Producción no es alcanzable desde el proxy de la sesión → el Lighthouse contra ecom.logic2b.com queda necesariamente para después del deploy de Andreu.
 
 ## Decisiones pendientes
 

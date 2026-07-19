@@ -104,6 +104,13 @@ const csv = await fetch(`${BASE}/api/admin/orders/export.csv`, { headers: { cook
 const csvText = await csv.text();
 check('CSV incluye el pedido pagado', csv.ok && csvText.includes(checkout.order_number));
 
+const backup = await fetch(`${BASE}/api/admin/backup.sql`, { headers: { cookie } });
+const backupText = await backup.text();
+check(
+  'copia de seguridad SQL con catálogo y pedido',
+  backup.ok && backupText.includes('INSERT INTO products') && backupText.includes(checkout.order_number),
+);
+
 // ── 6. Marcar enviado → email de aviso en la bandeja ─────────────────
 const orderIdMatch = (await (await fetch(`${BASE}/demo/admin`, { headers: { cookie } })).text()).match(
   new RegExp(`/demo/admin/pedidos/(\\d+)"[^>]*>${checkout.order_number}`),
