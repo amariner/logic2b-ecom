@@ -40,6 +40,8 @@ El sistema envía **automáticamente** al cliente un email con su número de seg
 
 **¿Puedo cambiar un precio?** Sí, en *Productos*, y se aplica al instante. Los pedidos ya hechos conservan el precio al que se compraron.
 
+**¿Puedo guardar una copia de mis datos?** Sí: en *Pedidos*, botón **«Copia de seguridad»** — descarga un fichero con todo (catálogo, pedidos, emails). Guárdalo de vez en cuando; si algún día hiciera falta, nosotros lo restauramos.
+
 **¿Cómo devuelvo un pago?** Los cobros viven en Stripe: entra en tu panel de Stripe → Pagos → busca el pedido → *Reembolsar*. Después cancela el pedido en tu panel.
 
 **¿Cuándo me llega el dinero?** Stripe lo transfiere a tu cuenta bancaria automáticamente (por defecto, cada pocos días). Comisión de Stripe: ~1,5 % + 0,25 € por pedido europeo. No hay ninguna otra comisión.
