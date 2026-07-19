@@ -9,6 +9,18 @@
 
 Demo pública + plantilla clonable de ecommerce ultraligero (Astro 5 + Cloudflare D1/Workers + Stripe Checkout) desplegada en `ecom.logic2b.com`. Especificación completa en `CLAUDE.md`.
 
+## ⚠️ RECONCILIACIÓN EN CURSO (2026-07-20) — leer antes de trabajar
+
+**Hacer `git fetch` SIEMPRE al empezar**: hay sesiones cloud empujando a `origin/main`. El 2026-07-19/20 se descubrió que `origin/main` iba ~62 commits por delante (Fase 8: seguridad, auth admin, búsqueda, `/dossier`, selector de temas, 97 tests) mientras una sesión local hacía la Fase 9 (rediseño Logic2B UI). Se restauró producción a `origin/main` (Version `f18fce30`, segura).
+
+**Estado del port Logic2B UI** (rama `logic2b-ui-base`, NO desplegada; producción sigue en `origin/main`):
+- ✅ **Base + temas**: `global.css` reescrito como base Logic2B UI (Inter, tokens neutros oklch, dark, radios). Los 4 temas de la demo (`src/lib/demo-themes.ts`) se **acoplan encima** sobreescribiendo `--color-brand`/`--font-display`/`--radius-btn`. Verificado (el tema Atlàntic pinta el acento azul sobre la base). Decisión del usuario: "la UI de Logic es la base, los temas dan diversos estilos".
+- ✅ **Landing** (`index.astro`): migrada a `SiteHeader` (isotipo) + tokens semánticos + acento verde. Conserva dossier/Kit Lite/a11y del remoto.
+- ⬜ **Pendiente**: tienda (`Shop.astro` + catálogo/ficha/carrito/checkout/gracias), admin (`Admin.astro` + 5 páginas + login), `arquitectura`, `404`, `dossier`, restyle del **widget selector de temas** (en `Shop.astro`), quitar alias de compat (`--color-ink/paper/cream` en `global.css`), Lighthouse, y **desplegar**.
+- Componentes listos: `src/components/{Logo,SiteHeader}.astro`. Isotipo en `public/brand/logo-mark.svg`. Fuentes Inter en `public/fonts/`. Referencia estética: `ui.logic2b.com` (memoria `logic2b-ui-design-system`).
+- Patrón de migración por superficie: `SiteHeader` en el layout + perl de tokens (ink→foreground, cream→muted, paper→background, bg-white→bg-card, stone→muted-foreground/border, border-black/5→border-border) **preservando `brand`**; bandas oscuras `bg-foreground text-background`. Verificar en claro y con ≥1 tema; `pnpm check` (97 tests) verde antes de commitear.
+- La rama `fase9-logic2b-ui` guarda el rediseño original (9 commits) por si se necesita rescatar algo.
+
 ## Estado de fases
 
 | Fase | Descripción | Estado | Fecha | Notas |
