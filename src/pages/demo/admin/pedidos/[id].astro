@@ -147,9 +147,11 @@ const statusLabel: Record<string, string> = {
 
   <script>
     const shipForm = document.querySelector<HTMLFormElement>('[data-ship-form]');
+    const shipSubmitBtn = shipForm?.querySelector<HTMLButtonElement>('button[type="submit"]');
     shipForm?.addEventListener('submit', (ev) => {
       ev.preventDefault();
-      if (!shipForm.reportValidity()) return;
+      if (!shipForm.reportValidity() || shipSubmitBtn?.disabled) return;
+      if (shipSubmitBtn) shipSubmitBtn.disabled = true;
       const data = new FormData(shipForm);
       void (async () => {
         const res = await fetch(`/api/admin/orders/${shipForm.dataset.orderId}`, {
@@ -168,22 +170,30 @@ const statusLabel: Record<string, string> = {
           const errEl = document.querySelector<HTMLElement>('[data-ship-error]')!;
           errEl.textContent = body.error ?? 'Error inesperado';
           errEl.classList.remove('hidden');
+          if (shipSubmitBtn) shipSubmitBtn.disabled = false;
         }
       })();
     });
 
     document.querySelector<HTMLButtonElement>('[data-deliver]')?.addEventListener('click', (ev) => {
       const btn = ev.currentTarget as HTMLButtonElement;
+      if (btn.disabled) return;
+      btn.disabled = true;
       void fetch(`/api/admin/orders/${btn.dataset.orderId}`, {
         method: 'PATCH',
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({ status: 'delivered' }),
-      }).then(() => window.location.reload());
+      }).then((res) => {
+        if (res.ok) window.location.reload();
+        else btn.disabled = false;
+      });
     });
 
     document.querySelector<HTMLButtonElement>('[data-cancel]')?.addEventListener('click', (ev) => {
       const btn = ev.currentTarget as HTMLButtonElement;
+      if (btn.disabled) return;
       if (!window.confirm('¿Cancelar este pedido y devolver el stock? Solo hazlo si ya has reembolsado el pago en Stripe.')) return;
+      btn.disabled = true;
       void (async () => {
         const res = await fetch(`/api/admin/orders/${btn.dataset.orderId}`, {
           method: 'PATCH',
@@ -193,6 +203,7 @@ const statusLabel: Record<string, string> = {
         if (res.ok) {
           window.location.reload();
         } else {
+          btn.disabled = false;
           const body = (await res.json()) as { error?: string };
           const errEl = document.querySelector<HTMLElement>('[data-cancel-error]')!;
           errEl.textContent = body.error ?? 'Error inesperado';

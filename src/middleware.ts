@@ -22,6 +22,9 @@ const PUBLIC_API_RULES: Record<string, RateLimitRule> = {
   // autenticación por diseño (es un botón público de la demo), así que necesita
   // un límite bajo para que no se pueda machacar la demo en bucle.
   '/api/demo/reset': { limit: 3, windowMs: 60_000 },
+  // Login del panel: sin esto, la contraseña (pública a propósito en demo, pero
+  // el mismo código correría en una tienda real) admitía intentos ilimitados.
+  '/demo/admin/login': { limit: 10, windowMs: 60_000 },
 };
 
 export const onRequest = defineMiddleware(async (context, next) => {
@@ -32,9 +35,18 @@ export const onRequest = defineMiddleware(async (context, next) => {
     const ip = context.request.headers.get('cf-connecting-ip') ?? 'local';
     const key = `${pathname}:${ip}`;
     if (!limiter.check(key, rule)) {
+      const retryAfter = String(limiter.retryAfterSeconds(key, rule));
+      if (!pathname.startsWith('/api/')) {
+        // Página normal (p. ej. el login): redirigir con un aviso legible en
+        // vez de servir JSON crudo a un envío de formulario. Conserva el resto
+        // de la query (p. ej. `next`) para no perder la redirección post-login.
+        const params = new URLSearchParams(search);
+        params.set('limited', '1');
+        return context.redirect(`${pathname}?${params}`, 303);
+      }
       return Response.json(
         { error: 'Demasiadas peticiones; espera un momento e inténtalo de nuevo.' },
-        { status: 429, headers: { 'retry-after': String(limiter.retryAfterSeconds(key, rule)) } },
+        { status: 429, headers: { 'retry-after': retryAfter } },
       );
     }
   }

@@ -58,29 +58,37 @@ export const PATCH: APIRoute = async ({ params, request, locals }) => {
   });
   if (!decision.ok) return Response.json({ error: decision.error }, { status: 422 });
 
-  const statements: D1PreparedStatement[] = [];
-  if (parsed.data.status === 'shipped') {
-    statements.push(
-      env.DB.prepare(
-        "UPDATE orders SET status = ?, tracking_carrier = ?, tracking_number = ?, updated_at = datetime('now') WHERE id = ?",
-      ).bind(parsed.data.status, parsed.data.tracking_carrier ?? '', parsed.data.tracking_number ?? '', id),
-    );
-  } else {
-    statements.push(
-      env.DB.prepare("UPDATE orders SET status = ?, updated_at = datetime('now') WHERE id = ?").bind(
-        parsed.data.status,
-        id,
-      ),
+  // Guarda de idempotencia (misma clase de bug que applyPaidMutation, ver ROADMAP):
+  // el UPDATE va guardado por el estado LEÍDO y en solitario, y solo si de verdad
+  // afectó una fila seguimos con el resto. Dos clics casi simultáneos (o un doble
+  // envío por conexión lenta) sobre el mismo pedido no deben restockear ni avisar
+  // por email dos veces.
+  const guardedUpdate =
+    parsed.data.status === 'shipped'
+      ? env.DB.prepare(
+          "UPDATE orders SET status = ?, tracking_carrier = ?, tracking_number = ?, updated_at = datetime('now') WHERE id = ? AND status = ?",
+        ).bind(parsed.data.status, parsed.data.tracking_carrier ?? '', parsed.data.tracking_number ?? '', id, order.status)
+      : env.DB.prepare("UPDATE orders SET status = ?, updated_at = datetime('now') WHERE id = ? AND status = ?").bind(
+          parsed.data.status,
+          id,
+          order.status,
+        );
+  const updateResult = await guardedUpdate.run();
+  if (updateResult.meta.changes === 0) {
+    return Response.json(
+      { error: 'El pedido cambió de estado mientras se procesaba; recarga la página.' },
+      { status: 409 },
     );
   }
-  statements.push(
+
+  const statements: D1PreparedStatement[] = [
     env.DB.prepare('INSERT INTO order_events (order_id, from_status, to_status, note) VALUES (?, ?, ?, ?)').bind(
       id,
       order.status,
       parsed.data.status,
       decision.note,
     ),
-  );
+  ];
 
   // paid → cancelled: el webhook ya decrementó stock al cobrar; al cancelar (p. ej.
   // tras un reembolso en Stripe) hay que devolverlo, o el producto queda agotado

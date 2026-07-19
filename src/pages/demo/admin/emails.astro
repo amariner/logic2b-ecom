@@ -4,9 +4,13 @@ import Admin from '../../../layouts/Admin.astro';
 export const prerender = false;
 
 type Row = { id: number; to_addr: string; subject: string; body_html: string; created_at: string };
-const { results: emails } = await Astro.locals.runtime.env.DB.prepare(
-  'SELECT id, to_addr, subject, body_html, created_at FROM emails_outbox ORDER BY id DESC LIMIT 100',
-).all<Row>();
+const db = Astro.locals.runtime.env.DB;
+const EMAIL_LIMIT = 100;
+const { results: emails } = await db
+  .prepare('SELECT id, to_addr, subject, body_html, created_at FROM emails_outbox ORDER BY id DESC LIMIT ?')
+  .bind(EMAIL_LIMIT)
+  .all<Row>();
+const total = (await db.prepare('SELECT COUNT(*) AS n FROM emails_outbox').first<{ n: number }>())?.n ?? 0;
 ---
 
 <Admin title="Emails" active="emails">
@@ -15,6 +19,12 @@ const { results: emails } = await Astro.locals.runtime.env.DB.prepare(
     Estos son los emails que el sistema <strong>habría enviado</strong> (confirmaciones de pedido, avisos de envío).
     En la demo se capturan aquí; en producción salen por Resend con el dominio del comercio.
   </p>
+
+  {total > EMAIL_LIMIT && (
+    <p class="mt-3 rounded border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">
+      Mostrando los {EMAIL_LIMIT} más recientes de {total}. Los más antiguos siguen en la copia de seguridad del panel.
+    </p>
+  )}
 
   <div class="mt-4 space-y-3">
     {emails.map((email) => (
