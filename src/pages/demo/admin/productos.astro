@@ -56,7 +56,11 @@ const categoryLabel = new Map(shopConfig.categories.map((cat) => [cat.id, cat.la
   <script>
     const statusEl = document.querySelector<HTMLElement>('[data-save-status]')!;
 
-    async function save(id: string, patch: Record<string, unknown>): Promise<void> {
+    // Si el servidor rechaza el valor, revertimos al último guardado con éxito
+    // (no al de la carga de página, que puede ser una edición previa de la misma
+    // sesión) — dejar el valor rechazado en el input engañaría al comercio
+    // haciéndole creer que se guardó.
+    async function save(id: string, patch: Record<string, unknown>, input: HTMLInputElement): Promise<void> {
       statusEl.textContent = 'Guardando…';
       const res = await fetch(`/api/admin/products/${id}`, {
         method: 'PATCH',
@@ -65,10 +69,14 @@ const categoryLabel = new Map(shopConfig.categories.map((cat) => [cat.id, cat.la
       });
       if (res.ok) {
         statusEl.textContent = 'Guardado ✓';
+        if (input.type === 'checkbox') input.defaultChecked = input.checked;
+        else input.defaultValue = input.value;
         setTimeout(() => (statusEl.textContent = ''), 1500);
       } else {
         const body = (await res.json()) as { error?: string };
         statusEl.textContent = `Error: ${body.error ?? 'inesperado'}`;
+        if (input.type === 'checkbox') input.checked = input.defaultChecked;
+        else input.value = input.defaultValue;
       }
     }
 
@@ -76,18 +84,34 @@ const categoryLabel = new Map(shopConfig.categories.map((cat) => [cat.id, cat.la
       const id = input.dataset.id ?? '';
       const field = input.dataset.field ?? '';
       input.addEventListener('change', () => {
-        if (field === 'name') void save(id, { name: input.value.trim() });
+        if (field === 'name') {
+          const name = input.value.trim();
+          if (name.length < 2) {
+            statusEl.textContent = 'El nombre debe tener al menos 2 caracteres';
+            input.value = input.defaultValue;
+            return;
+          }
+          void save(id, { name }, input);
+        }
         if (field === 'price') {
-          const cents = Math.round(Number(input.value.replace(',', '.')) * 100);
-          if (Number.isInteger(cents) && cents >= 0) void save(id, { price_cents: cents });
-          else statusEl.textContent = 'Precio inválido';
+          const raw = input.value.trim();
+          const cents = raw === '' ? NaN : Math.round(Number(raw.replace(',', '.')) * 100);
+          if (Number.isInteger(cents) && cents >= 0) void save(id, { price_cents: cents }, input);
+          else {
+            statusEl.textContent = 'Precio inválido';
+            input.value = input.defaultValue;
+          }
         }
         if (field === 'stock') {
-          const stock = Number(input.value);
-          if (Number.isInteger(stock) && stock >= 0) void save(id, { stock });
-          else statusEl.textContent = 'Stock inválido';
+          const raw = input.value.trim();
+          const stock = raw === '' ? NaN : Number(raw);
+          if (Number.isInteger(stock) && stock >= 0) void save(id, { stock }, input);
+          else {
+            statusEl.textContent = 'Stock inválido';
+            input.value = input.defaultValue;
+          }
         }
-        if (field === 'active') void save(id, { active: input.checked });
+        if (field === 'active') void save(id, { active: input.checked }, input);
       });
     });
   </script>

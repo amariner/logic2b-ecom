@@ -70,15 +70,25 @@ const zoneLabel = new Map(shopConfig.shipping.zones.map((zone) => [zone.id, zone
   <script>
     const statusEl = document.querySelector<HTMLElement>('[data-save-status]')!;
 
-    async function save(id: string, patch: Record<string, unknown>): Promise<void> {
+    // Revertir al último valor guardado con éxito si el servidor rechaza el
+    // cambio: dejar el valor rechazado en el input haría creer que se guardó.
+    async function save(id: string, patch: Record<string, unknown>, input: HTMLInputElement): Promise<void> {
       statusEl.textContent = 'Guardando…';
       const res = await fetch(`/api/admin/shipping-rates/${id}`, {
         method: 'PATCH',
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify(patch),
       });
-      statusEl.textContent = res.ok ? 'Guardado ✓' : 'Error al guardar';
-      if (res.ok) setTimeout(() => (statusEl.textContent = ''), 1500);
+      if (res.ok) {
+        statusEl.textContent = 'Guardado ✓';
+        if (input.type === 'checkbox') input.defaultChecked = input.checked;
+        else input.defaultValue = input.value;
+        setTimeout(() => (statusEl.textContent = ''), 1500);
+      } else {
+        statusEl.textContent = 'Error al guardar';
+        if (input.type === 'checkbox') input.checked = input.defaultChecked;
+        else input.value = input.defaultValue;
+      }
     }
 
     document.querySelectorAll<HTMLInputElement>('[data-field]').forEach((input) => {
@@ -86,21 +96,30 @@ const zoneLabel = new Map(shopConfig.shipping.zones.map((zone) => [zone.id, zone
       input.addEventListener('change', () => {
         const field = input.dataset.field;
         if (field === 'price') {
-          const cents = Math.round(Number(input.value.replace(',', '.')) * 100);
-          if (Number.isInteger(cents) && cents >= 0) void save(id, { price_cents: cents });
-          else statusEl.textContent = 'Precio inválido';
+          // Vacío ≠ 0 €: un campo de precio en blanco es un valor inválido, no un
+          // envío gratis silencioso (Number('') === 0 lo coló antes de este arreglo).
+          const raw = input.value.trim();
+          const cents = raw === '' ? NaN : Math.round(Number(raw.replace(',', '.')) * 100);
+          if (Number.isInteger(cents) && cents >= 0) void save(id, { price_cents: cents }, input);
+          else {
+            statusEl.textContent = 'Precio inválido';
+            input.value = input.defaultValue;
+          }
         }
         if (field === 'free_over') {
           const raw = input.value.trim();
           if (raw === '') {
-            void save(id, { free_over_cents: null });
+            void save(id, { free_over_cents: null }, input);
           } else {
             const cents = Math.round(Number(raw.replace(',', '.')) * 100);
-            if (Number.isInteger(cents) && cents >= 0) void save(id, { free_over_cents: cents });
-            else statusEl.textContent = 'Importe inválido';
+            if (Number.isInteger(cents) && cents >= 0) void save(id, { free_over_cents: cents }, input);
+            else {
+              statusEl.textContent = 'Importe inválido';
+              input.value = input.defaultValue;
+            }
           }
         }
-        if (field === 'active') void save(id, { active: input.checked });
+        if (field === 'active') void save(id, { active: input.checked }, input);
       });
     });
   </script>
