@@ -56,6 +56,7 @@ import Shop from '../../layouts/Shop.astro';
 
   <script>
     import { readCart, setQty } from '../../lib/cart-client';
+    import { formatEurCents as eur } from '../../lib/format';
 
     type QuoteLine = {
       slug: string; name: string; image: string; unit_price_cents: number; qty: number;
@@ -67,9 +68,6 @@ import Shop from '../../layouts/Shop.astro';
       total_cents: number | null; purchasable: boolean;
       shipping: { zone: string; label: string; free_over_cents: number | null } | null;
     };
-
-    const eur = (cents: number): string =>
-      new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(cents / 100);
 
     const $ = <T extends HTMLElement>(sel: string): T => document.querySelector<T>(sel)!;
     const CP_KEY = 'ecom-demo-cp';

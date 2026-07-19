@@ -1,5 +1,23 @@
 import { describe, expect, it } from 'vitest';
-import { escapeHtml, jsonLdScript } from '../src/lib/format';
+import { escapeHtml, formatEurCents, jsonLdScript } from '../src/lib/format';
+import { shopConfig } from '../shop.config';
+
+describe('formatEurCents', () => {
+  it('formatea céntimos como divisa localizada (es-ES)', () => {
+    // Intl inserta un separador NBSP entre importe y símbolo según el runtime/ICU:
+    // se normaliza a espacio simple antes de comparar para no acoplar el test a eso.
+    expect(formatEurCents(1234).replace(/\s/g, ' ')).toBe('12,34 €');
+  });
+
+  it('usa la divisa de shop.config.ts, no un literal hardcodeado', () => {
+    const formatted = formatEurCents(100);
+    const symbol = new Intl.NumberFormat('es-ES', { style: 'currency', currency: shopConfig.currency.toUpperCase() })
+      .formatToParts(1)
+      .find((p) => p.type === 'currency')?.value;
+    expect(symbol).toBeDefined();
+    expect(formatted).toContain(symbol!);
+  });
+});
 
 describe('jsonLdScript', () => {
   it('serializa un objeto normal como JSON válido', () => {

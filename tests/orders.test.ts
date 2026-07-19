@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { shopConfig } from '../shop.config';
-import { applyPaidMutation, generateOrderNumber, generateSimulatedSessionToken } from '../src/lib/orders';
+import { applyExpiredMutation, applyPaidMutation, generateOrderNumber, generateSimulatedSessionToken } from '../src/lib/orders';
 import { buildPaidMutation, type OrderForPayment, type OrderItemForPayment } from '../src/lib/payment-transition';
 
 describe('generateOrderNumber', () => {
@@ -56,6 +56,13 @@ class FakeD1 {
         if (!row || row.status !== 'pending') return { success: true, meta: { changes: 0 } } as D1Result;
         row.status = 'paid';
         row.stripe_payment_intent = paymentIntent;
+        return { success: true, meta: { changes: 1 } } as D1Result;
+      }
+      if (sql.startsWith("UPDATE orders SET status = 'cancelled'")) {
+        const [orderId] = params as [number];
+        const row = this.orders.get(orderId);
+        if (!row || row.status !== 'pending') return { success: true, meta: { changes: 0 } } as D1Result;
+        row.status = 'cancelled';
         return { success: true, meta: { changes: 1 } } as D1Result;
       }
       if (sql.startsWith('UPDATE products SET stock')) {
@@ -129,5 +136,32 @@ describe('applyPaidMutation (idempotencia real contra dos entregas concurrentes)
     expect(db.products.get(1)?.stock).toBe(8); // no 6: el segundo decremento nunca se aplica
     expect(db.events).toHaveLength(1);
     expect(db.emails).toHaveLength(2); // no 4
+  });
+});
+
+describe('applyExpiredMutation (idempotencia de checkout.session.expired)', () => {
+  it('pedido pending → cancelled y un evento, devuelve true', async () => {
+    const db = new FakeD1(7, {});
+    const applied = await applyExpiredMutation(db as unknown as D1Database, 7);
+    expect(applied).toBe(true);
+    expect(db.orders.get(7)?.status).toBe('cancelled');
+    expect(db.events).toHaveLength(1);
+  });
+
+  it('dos entregas del mismo evento expired solapadas: solo la primera cancela e inserta evento', async () => {
+    const db = new FakeD1(7, {});
+    const appliedA = await applyExpiredMutation(db as unknown as D1Database, 7);
+    const appliedB = await applyExpiredMutation(db as unknown as D1Database, 7);
+    expect(appliedA).toBe(true);
+    expect(appliedB).toBe(false);
+    expect(db.events).toHaveLength(1); // no 2
+  });
+
+  it('pedido que ya no está pending (p. ej. pagado antes de que caducara la sesión) → false, sin evento', async () => {
+    const db = new FakeD1(7, {});
+    await applyExpiredMutation(db as unknown as D1Database, 7); // lo deja en 'cancelled'
+    const appliedAgain = await applyExpiredMutation(db as unknown as D1Database, 7);
+    expect(appliedAgain).toBe(false);
+    expect(db.events).toHaveLength(1);
   });
 });

@@ -63,3 +63,26 @@ export async function applyPaidMutation(db: D1Database, mutation: PaidMutation):
   await db.batch(statements);
   return true;
 }
+
+/**
+ * Aplica la transición a 'cancelled' por caducidad de la sesión de pago.
+ * Mismo patrón que applyPaidMutation: el UPDATE guardado va primero y en
+ * solitario, y solo si gana la carrera (changes === 1) se inserta el evento
+ * — evita un evento duplicado si el mismo `checkout.session.expired` llega
+ * dos veces solapado.
+ */
+export async function applyExpiredMutation(db: D1Database, orderId: number): Promise<boolean> {
+  const orderUpdate = await db
+    .prepare("UPDATE orders SET status = 'cancelled', updated_at = datetime('now') WHERE id = ? AND status = 'pending'")
+    .bind(orderId)
+    .run();
+  if (orderUpdate.meta.changes === 0) return false;
+
+  await db
+    .prepare(
+      "INSERT INTO order_events (order_id, from_status, to_status, note) VALUES (?, 'pending', 'cancelled', 'Sesión de pago caducada')",
+    )
+    .bind(orderId)
+    .run();
+  return true;
+}

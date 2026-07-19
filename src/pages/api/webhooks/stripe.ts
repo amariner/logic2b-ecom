@@ -1,6 +1,6 @@
 import type { APIRoute } from 'astro';
 import type Stripe from 'stripe';
-import { applyPaidMutation } from '../../../lib/orders';
+import { applyExpiredMutation, applyPaidMutation } from '../../../lib/orders';
 import {
   buildPaidMutation,
   type OrderForPayment,
@@ -69,19 +69,11 @@ export const POST: APIRoute = async ({ request, locals }) => {
 
   if (event.type === 'checkout.session.expired') {
     const session = event.data.object;
-    const order = await env.DB.prepare('SELECT id, status FROM orders WHERE stripe_session_id = ?')
+    const order = await env.DB.prepare('SELECT id FROM orders WHERE stripe_session_id = ?')
       .bind(session.id)
-      .first<{ id: number; status: string }>();
-    // Idempotente: solo actúa la primera vez que llega estando en 'pending'
-    if (order !== null && order.status === 'pending') {
-      await env.DB.batch([
-        env.DB.prepare(
-          "UPDATE orders SET status = 'cancelled', updated_at = datetime('now') WHERE id = ? AND status = 'pending'",
-        ).bind(order.id),
-        env.DB.prepare(
-          "INSERT INTO order_events (order_id, from_status, to_status, note) VALUES (?, 'pending', 'cancelled', 'Sesión de pago caducada')",
-        ).bind(order.id),
-      ]);
+      .first<{ id: number }>();
+    if (order !== null) {
+      await applyExpiredMutation(env.DB, order.id);
     }
   }
 

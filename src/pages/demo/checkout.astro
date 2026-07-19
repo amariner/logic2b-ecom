@@ -87,6 +87,7 @@ import Shop from '../../layouts/Shop.astro';
 
   <script>
     import { readCart } from '../../lib/cart-client';
+    import { formatEurCents as eur } from '../../lib/format';
 
     const form = document.querySelector<HTMLFormElement>('[data-checkout-form]')!;
     const errorEl = document.querySelector<HTMLElement>('[data-checkout-error]')!;
@@ -101,8 +102,6 @@ import Shop from '../../layouts/Shop.astro';
     }
 
     // Resumen del pedido, siempre recalculado en servidor (mismo /api/cart/quote del carrito).
-    const eur = (cents: number): string =>
-      new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(cents / 100);
     type SummaryQuote = {
       lines: { name: string; qty: number; line_total_cents: number; status: string }[];
       subtotal_cents: number;

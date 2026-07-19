@@ -1,7 +1,9 @@
 /** Formateo de dinero para UI. El dato siempre viaja en céntimos enteros. */
 
+import { shopConfig } from '../../shop.config';
+
 export function formatEurCents(cents: number): string {
-  return new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(cents / 100);
+  return new Intl.NumberFormat('es-ES', { style: 'currency', currency: shopConfig.currency.toUpperCase() }).format(cents / 100);
 }
 
 /**

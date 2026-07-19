@@ -35,7 +35,7 @@ const jsonLd = {
   category: categoryLabel,
   offers: {
     '@type': 'Offer',
-    priceCurrency: 'EUR',
+    priceCurrency: shopConfig.currency.toUpperCase(),
     price: (product.price_cents / 100).toFixed(2),
     availability: product.stock > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
     url: new URL(`/demo/tienda/${product.slug}`, Astro.site).href,
