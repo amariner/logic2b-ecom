@@ -48,6 +48,14 @@ Verificación completa (tipos + tests + build):
 pnpm check
 ```
 
+E2E del flujo de compra simulado (contra un `pnpm preview` en marcha; 18 comprobaciones: quote, checkout, stock, auth del panel, CSV, envío con tracking y emails):
+
+```bash
+pnpm test:e2e    # BASE_URL=… para apuntar a otro despliegue con DEMO_MODE
+```
+
+El panel de la demo (`/demo/admin`) pide login: contraseña `demo` (se muestra en la propia página de acceso).
+
 ### Probar el checkout Stripe end-to-end
 
 1. Claves **test** de Stripe en `.dev.vars` (`STRIPE_SECRET_KEY=sk_test_…`).
@@ -95,6 +103,8 @@ Cada despliegue:
 ```bash
 pnpm deploy      # astro build && wrangler deploy
 ```
+
+Fotos de producto (una vez, en local — la sesión cloud no puede descargar del CDN de Higgsfield): `pnpm add -D sharp && node scripts/fetch-product-images.mjs && pnpm remove sharp`, después re-sembrar (`pnpm db:reset` en local; en remoto re-ejecutar el seed o esperar al cron de reset).
 
 Después del primer deploy:
 

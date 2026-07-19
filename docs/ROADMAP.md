@@ -53,7 +53,7 @@ Demo pública + plantilla clonable de ecommerce ultraligero (Astro 5 + Cloudflar
 
 **Medición y calidad**
 - [ ] ⚠️ Cloudflare Web Analytics — **decisión pendiente de Andreu**: el beacon es un `<script>` externo y la regla de la landing es «cero JavaScript». Opciones: (a) solo en `/demo/*`, (b) aceptar el beacon `defer` también en la landing, (c) descartar. No se implementa sin OK.
-- [ ] ⬜ Auditoría Lighthouse en producción y ajustar hasta 100/100/100/100 (objetivo declarado en la landing; hay que poder demostrarlo).
+- [x] 🟡 2026-07-19 — Auditoría Lighthouse **en local** (wrangler dev, Lighthouse 13): landing, `/arquitectura`, catálogo, ficha y carrito en **100/100/100** de performance/accesibilidad/best-practices tras corregir contrastes, landmark `<main>` y cabeceras de la tabla comparativa (el SEO de `/demo/*` queda bajo a propósito por el `noindex`; landing y arquitectura, 100 también en SEO). Falta repetirla contra producción tras el próximo deploy para poder citarla.
 - [x] ✅ 2026-07-19 — Test E2E del flujo de compra simulado: `pnpm test:e2e` (`scripts/e2e.mjs`, sin dependencias) contra wrangler dev — 18 comprobaciones: reset, quote en servidor, checkout con NIF, stock decrementado, guardas de auth, login, CSV, enviado+tracking y ambos emails en la bandeja.
 
 **Comercial (explorar, no implementar sin OK)**
@@ -150,6 +150,11 @@ Demo pública + plantilla clonable de ecommerce ultraligero (Astro 5 + Cloudflar
   - Micro-guía en catálogo y gracias; campo NIF/razón social opcional (desplegable `<details>`, cero JS añadido); E2E `pnpm test:e2e` con 18 checks en verde.
   - Nota CSRF: el `checkOrigin` de Astro 5 exige cabecera `Origin` en los POST de formulario (login, reset) — curl/fetch de scripts deben mandarla; los POST JSON no la necesitan.
   - Bloqueados en cloud (para local): rate limiting (wrangler.jsonc/dashboard), backup D1→R2 (binding), Web Analytics (decisión por la regla cero-JS de la landing), Lighthouse en producción (pendiente).
+
+- 2026-07-19 (Fase 8, sesión cloud — tercera tanda, post-merge del PR #1):
+  - PR #1 mergeado a `main` por orden de Andreu; la rama de trabajo se reinició desde `main` (regla del entorno cloud: un PR mergeado no se reutiliza).
+  - Lighthouse local en verde (ver arriba). Truco de entorno: el Chrome de Lighthouse resuelve `localhost` a IPv4 y `wrangler dev` escuchaba solo en IPv6 → lanzar `wrangler dev --ip 127.0.0.1` para auditar.
+  - README: documentados `pnpm test:e2e`, la contraseña del panel demo y el paso local de las fotos de producto.
 
 ## Decisiones pendientes
 
