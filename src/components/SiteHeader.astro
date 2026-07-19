@@ -1,0 +1,62 @@
+---
+/**
+ * Header de marca compartido (landing, tienda, admin) — estructura Logic2B UI:
+ * sticky h-14, border-b, bg-background/80 backdrop-blur; isotipo+wordmark a la
+ * izquierda, nav text-muted-foreground en medio, acciones (slot) a la derecha.
+ * El theming de la demo se hace con el selector de temas (no un toggle aquí).
+ */
+import Logo from './Logo.astro';
+
+interface NavLink {
+  href: string;
+  label: string;
+}
+interface Props {
+  homeHref?: string;
+  wordmark?: string | null;
+  nav?: readonly NavLink[];
+  /** Mostrar el isotipo Logic2B junto al wordmark (false en la tienda "real"). */
+  showMark?: boolean;
+  /** href del enlace de nav activo (se resalta en foreground). */
+  activeHref?: string | undefined;
+}
+
+const {
+  homeHref = '/',
+  wordmark = 'Logic2B',
+  nav = [],
+  showMark = true,
+  activeHref,
+} = Astro.props;
+---
+
+<header class="sticky top-0 z-50 w-full border-b border-border bg-background/80 backdrop-blur">
+  <div class="mx-auto flex h-14 w-full max-w-6xl items-center gap-6 px-4 sm:px-6">
+    <a href={homeHref} class="flex items-center gap-2 text-foreground" aria-label={wordmark ?? 'Inicio'}>
+      <Logo size={20} wordmark={wordmark} mark={showMark} />
+    </a>
+
+    {
+      nav.length > 0 && (
+        <nav class="hidden flex-1 items-center gap-5 text-sm text-muted-foreground md:flex">
+          {nav.map((link) => (
+            <a
+              href={link.href}
+              class:list={[
+                'transition-colors hover:text-foreground',
+                link.href === activeHref && 'font-medium text-foreground',
+              ]}
+              aria-current={link.href === activeHref ? 'page' : undefined}
+            >
+              {link.label}
+            </a>
+          ))}
+        </nav>
+      )
+    }
+
+    <div class="ml-auto flex items-center gap-1">
+      <slot name="actions" />
+    </div>
+  </div>
+</header>

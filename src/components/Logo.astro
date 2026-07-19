@@ -1,0 +1,28 @@
+---
+/**
+ * Isotipo oficial Logic2B (logo-mark.svg) + wordmark opcional.
+ * `fill: currentColor` → hereda el color del texto, funciona en claro y oscuro.
+ */
+interface Props {
+  /** Alto/ancho del isotipo en px. */
+  size?: number;
+  /** Texto del wordmark. Si es null/'' se muestra solo el isotipo. */
+  wordmark?: string | null;
+  /** Mostrar el isotipo. false = solo wordmark (p. ej. tienda "real"). */
+  mark?: boolean;
+  class?: string;
+}
+
+const { size = 20, wordmark = 'Logic2B', mark = true, class: className = '' } = Astro.props;
+---
+
+<span class={`inline-flex items-center gap-2 ${className}`}>
+  {
+    mark && (
+      <svg viewBox="0 0 523.83 536.87" width={size} height={size} fill="currentColor" class="shrink-0" aria-hidden="true">
+        <path d="M403.46,202.16c-60.83,93.91-71.45,143.92-44.45,209.15,10.99,26.54,32.1,55.89,54.35,75.57,17.76,15.71,20.23,25.12,10.04,38.19-6.97,8.93-14.31,13.01-20.71,11.49-1.93-.46-11.87-6.23-22.07-12.8-49.82-32.2-90.43-44.39-138.3-41.53-34.25,2.04-62.31,10.2-110.19,32.03-44.52,20.29-58.65,24.55-71.19,21.36-2.74-.68-7.96-3.89-11.61-7.11-12.97-11.47-12.61-23.15,2.18-70.64,20.34-65.24,24.79-89.78,22.59-124.35-3.01-47.65-18.68-83.85-56.15-129.68-8.96-10.98-16.82-21.9-17.47-24.28-1.68-6.18,1.04-12.15,9.37-20.45,12.46-12.4,19.13-10.83,46.17,10.87,54.55,43.72,121,57.77,174.32,36.81,22.68-8.93,57.22-30.53,88.51-55.36,35.79-28.4,63.48-54.57,109.37-103.36C464.76,9.19,471.58,3.53,484.96.84c11.09-2.22,17.42-.26,27.32,8.49,7.06,6.23,9.04,8.96,10.41,14.17,4.51,17.46-3.75,33.37-36.84,70.85-29.02,32.88-60.73,74.38-82.39,107.82h0Z" />
+      </svg>
+    )
+  }
+  {wordmark ? <span class="font-display text-[15px] font-semibold tracking-tight">{wordmark}</span> : null}
+</span>
