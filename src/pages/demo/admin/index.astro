@@ -92,7 +92,7 @@ const statusBadge: Record<string, string> = {
               <a href={`/demo/admin/pedidos/${order.id}`} class="text-sky-700 underline-offset-2 hover:underline">{order.order_number}</a>
             </td>
             <td class="px-4 py-2 text-stone-500">{order.created_at.slice(0, 16)}</td>
-            <td class="px-4 py-2">{order.customer_name} <span class="text-stone-400">· {order.email}</span></td>
+            <td class="px-4 py-2">{order.customer_name} <span class="text-stone-500">· {order.email}</span></td>
             <td class="px-4 py-2 text-right font-medium">{formatEurCents(order.total_cents)}</td>
             <td class="px-4 py-2">
               <span class:list={['rounded-full px-2 py-0.5 text-xs font-medium', statusBadge[order.status]]}>
