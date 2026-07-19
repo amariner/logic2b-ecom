@@ -14,7 +14,7 @@ const categoryLabel = new Map(shopConfig.categories.map((cat) => [cat.id, cat.la
 
 <Admin title="Productos" active="productos">
   <h1 class="text-2xl font-bold">Productos</h1>
-  <p class="mt-1 text-sm text-stone-500">
+  <p class="mt-1 text-sm text-stone-600">
     Edita precio (en euros), stock o desactiva un producto. Los cambios se guardan al salir de la celda.
     Los pedidos ya realizados nunca cambian: guardan su propio precio.
   </p>
@@ -34,24 +34,24 @@ const categoryLabel = new Map(shopConfig.categories.map((cat) => [cat.id, cat.la
         {products.map((prod) => (
           <tr class:list={['hover:bg-stone-50', prod.active === 0 && 'opacity-50']}>
             <td class="px-4 py-1.5">
-              <input data-field="name" data-id={prod.id} value={prod.name} class="w-full min-w-56 rounded border border-transparent px-1 py-0.5 hover:border-stone-300 focus:border-stone-400" />
+              <input data-field="name" data-id={prod.id} value={prod.name} aria-label={`Nombre de ${prod.slug}`} class="w-full min-w-56 rounded border border-transparent px-1 py-0.5 hover:border-stone-300 focus:border-stone-400" />
             </td>
             <td class="px-4 py-1.5 text-stone-500">{categoryLabel.get(prod.category) ?? prod.category}</td>
             <td class="px-4 py-1.5 text-right">
-              <input data-field="price" data-id={prod.id} value={(prod.price_cents / 100).toFixed(2)} inputmode="decimal" class="w-20 rounded border border-transparent px-1 py-0.5 text-right hover:border-stone-300 focus:border-stone-400" />
+              <input data-field="price" data-id={prod.id} aria-label={`Precio de ${prod.name}`} value={(prod.price_cents / 100).toFixed(2)} inputmode="decimal" class="w-20 rounded border border-transparent px-1 py-0.5 text-right hover:border-stone-300 focus:border-stone-400" />
             </td>
             <td class="px-4 py-1.5 text-right">
-              <input data-field="stock" data-id={prod.id} value={prod.stock} inputmode="numeric" class="w-16 rounded border border-transparent px-1 py-0.5 text-right hover:border-stone-300 focus:border-stone-400" />
+              <input data-field="stock" data-id={prod.id} aria-label={`Stock de ${prod.name}`} value={prod.stock} inputmode="numeric" class="w-16 rounded border border-transparent px-1 py-0.5 text-right hover:border-stone-300 focus:border-stone-400" />
             </td>
             <td class="px-4 py-1.5 text-center">
-              <input data-field="active" data-id={prod.id} type="checkbox" checked={prod.active === 1} class="h-4 w-4 accent-stone-900" />
+              <input data-field="active" data-id={prod.id} type="checkbox" aria-label={`Activo: ${prod.name}`} checked={prod.active === 1} class="h-4 w-4 accent-stone-900" />
             </td>
           </tr>
         ))}
       </tbody>
     </table>
   </div>
-  <p data-save-status class="mt-2 h-5 text-sm text-stone-500"></p>
+  <p data-save-status class="mt-2 h-5 text-sm text-stone-600"></p>
 
   <script>
     const statusEl = document.querySelector<HTMLElement>('[data-save-status]')!;

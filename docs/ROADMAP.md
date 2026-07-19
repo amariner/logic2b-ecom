@@ -169,6 +169,11 @@ Demo pública + plantilla clonable de ecommerce ultraligero (Astro 5 + Cloudflar
   - README: descripción del pago simulado (ya no dice «Stripe en modo test»), fila de tests actualizada (58 + E2E 19). Botón de `/demo/reset` alineado a la estética (pill).
   - Nota tooling: dentro de los `<script>` de `.astro`, `El.append(a, b)` resuelve mal los tipos (falso ts(2345)); usar `appendChild` dos veces.
 
+- 2026-07-19 (Fase 8, sesión cloud — sexta tanda: admin accesible y docs de continuidad):
+  - **Lighthouse del admin con sesión** (`--extra-headers` con la cookie): pedidos 94→100, productos 80→100, envíos 84→100, emails 90→100. Fixes: contrastes `stone-400/500` según fondo (blanco vs `stone-100`) y `aria-label` en todos los inputs de edición inline (nombre/precio/stock/activo de productos; precio/gratis-desde/activa de tarifas). **Todas las páginas del proyecto están ya en 100 de accesibilidad.**
+  - Ruta alternativa para las fotos descartada definitivamente: todos los dominios de Higgsfield bloqueados por el proxy (000). Queda solo el paso local.
+  - `docs/PROMPT_CLOUD.md` reescrito al estado actual: próxima sesión arranca del ROADMAP, con la lista de pendientes solo-local y los trucos de entorno (IPv4 de wrangler, checkOrigin, falsos errores del TSX, dominios bloqueados).
+
 ## Decisiones pendientes
 
 - Confirmar precios de la landing (1.900 € setup / 29 €/mes) — hoy publicados provisionalmente en la demo en vivo.

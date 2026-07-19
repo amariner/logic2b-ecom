@@ -20,7 +20,7 @@ const zoneLabel = new Map(shopConfig.shipping.zones.map((zone) => [zone.id, zone
       Exportar CSV para Packlink/SendCloud
     </a>
   </div>
-  <p class="mt-1 text-sm text-stone-500">
+  <p class="mt-1 text-sm text-stone-600">
     Tarifa plana por zona. «Gratis desde» en euros; vacío = nunca gratis. Se aplica al momento en la tienda.
   </p>
 
@@ -41,22 +41,22 @@ const zoneLabel = new Map(shopConfig.shipping.zones.map((zone) => [zone.id, zone
             <td class="px-4 py-2 font-medium">{zoneLabel.get(rate.zone) ?? rate.zone}</td>
             <td class="px-4 py-2 text-stone-500">{rate.label}</td>
             <td class="px-4 py-2 text-right">
-              <input data-field="price" data-id={rate.id} value={(rate.price_cents / 100).toFixed(2)} inputmode="decimal"
+              <input data-field="price" data-id={rate.id} aria-label={`Precio de la zona ${zoneLabel.get(rate.zone) ?? rate.zone}`} value={(rate.price_cents / 100).toFixed(2)} inputmode="decimal"
                 class="w-20 rounded border border-transparent px-1 py-0.5 text-right hover:border-stone-300 focus:border-stone-400" />
             </td>
             <td class="px-4 py-2 text-right">
-              <input data-field="free_over" data-id={rate.id} value={rate.free_over_cents === null ? '' : (rate.free_over_cents / 100).toFixed(2)} inputmode="decimal" placeholder="—"
+              <input data-field="free_over" data-id={rate.id} aria-label={`Envío gratis desde, zona ${zoneLabel.get(rate.zone) ?? rate.zone}`} value={rate.free_over_cents === null ? '' : (rate.free_over_cents / 100).toFixed(2)} inputmode="decimal" placeholder="—"
                 class="w-20 rounded border border-transparent px-1 py-0.5 text-right hover:border-stone-300 focus:border-stone-400" />
             </td>
             <td class="px-4 py-2 text-center">
-              <input data-field="active" data-id={rate.id} type="checkbox" checked={rate.active === 1} class="h-4 w-4 accent-stone-900" />
+              <input data-field="active" data-id={rate.id} type="checkbox" aria-label={`Activa: zona ${zoneLabel.get(rate.zone) ?? rate.zone}`} checked={rate.active === 1} class="h-4 w-4 accent-stone-900" />
             </td>
           </tr>
         ))}
       </tbody>
     </table>
   </div>
-  <p data-save-status class="mt-2 h-5 text-sm text-stone-500"></p>
+  <p data-save-status class="mt-2 h-5 text-sm text-stone-600"></p>
 
   <div class="mt-8 rounded-lg border border-stone-300 bg-white p-4 text-sm text-stone-600">
     <h2 class="font-semibold text-stone-900">Cómo funciona el flujo de envíos</h2>
