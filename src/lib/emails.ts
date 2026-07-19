@@ -4,7 +4,7 @@
  */
 
 import { shopConfig } from '../../shop.config';
-import { formatEurCents } from './format';
+import { escapeHtml, formatEurCents } from './format';
 
 export type EmailMessage = { to_addr: string; subject: string; body_html: string };
 
@@ -31,7 +31,7 @@ const itemsTable = (data: OrderEmailData): string => `
 ${data.items
   .map(
     (item) =>
-      `<tr><td style="padding:4px 0">${item.name_snapshot} × ${item.qty}</td>` +
+      `<tr><td style="padding:4px 0">${escapeHtml(item.name_snapshot)} × ${item.qty}</td>` +
       `<td style="text-align:right">${formatEurCents(item.unit_price_cents * item.qty)}</td></tr>`,
   )
   .join('')}
@@ -39,25 +39,31 @@ ${data.items
 <tr><td style="padding:4px 0;font-weight:bold">Total</td><td style="text-align:right;font-weight:bold">${formatEurCents(data.total_cents)}</td></tr>
 </table>`;
 
+// Todo dato que pueda venir de un formulario (nombre del cliente, email, tracking
+// tecleado por el comercio) se escapa antes de entrar en el HTML del email: estos
+// mensajes salen tal cual a bandejas reales (Resend) o se muestran en el panel demo.
+
 export function orderConfirmationEmail(data: OrderEmailData): EmailMessage {
+  const orderNumber = escapeHtml(data.order_number);
   return {
     to_addr: data.email,
     subject: `Pedido ${data.order_number} confirmado — ${shopConfig.name}`,
     body_html: wrap(
-      `¡Gracias por tu pedido, ${data.customer_name}!`,
-      `<p style="font-size:14px">Hemos recibido el pago del pedido <strong>${data.order_number}</strong>. Te avisaremos cuando salga de la tienda.</p>${itemsTable(data)}`,
+      `¡Gracias por tu pedido, ${escapeHtml(data.customer_name)}!`,
+      `<p style="font-size:14px">Hemos recibido el pago del pedido <strong>${orderNumber}</strong>. Te avisaremos cuando salga de la tienda.</p>${itemsTable(data)}`,
     ),
   };
 }
 
 /** Aviso interno al comercio de que ha entrado un pedido pagado (paso 1 de docs/CLIENTE.md). */
 export function merchantNewOrderEmail(data: OrderEmailData): EmailMessage {
+  const orderNumber = escapeHtml(data.order_number);
   return {
     to_addr: shopConfig.email,
     subject: `Nuevo pedido ${data.order_number} (${formatEurCents(data.total_cents)})`,
     body_html: wrap(
-      `Nuevo pedido de ${data.customer_name}`,
-      `<p style="font-size:14px">Pedido <strong>${data.order_number}</strong> pagado (${data.email}). ` +
+      `Nuevo pedido de ${escapeHtml(data.customer_name)}`,
+      `<p style="font-size:14px">Pedido <strong>${orderNumber}</strong> pagado (${escapeHtml(data.email)}). ` +
         `Dirección y etiqueta de envío en el panel.</p>${itemsTable(data)}`,
     ),
   };
@@ -67,13 +73,14 @@ export function orderShippedEmail(
   data: OrderEmailData,
   tracking: { carrier: string; number: string },
 ): EmailMessage {
+  const orderNumber = escapeHtml(data.order_number);
   return {
     to_addr: data.email,
     subject: `Pedido ${data.order_number} en camino — ${shopConfig.name}`,
     body_html: wrap(
-      `Tu pedido está en camino, ${data.customer_name}`,
-      `<p style="font-size:14px">El pedido <strong>${data.order_number}</strong> ha salido con <strong>${tracking.carrier}</strong>.<br>` +
-        `Número de seguimiento: <strong>${tracking.number}</strong></p>${itemsTable(data)}`,
+      `Tu pedido está en camino, ${escapeHtml(data.customer_name)}`,
+      `<p style="font-size:14px">El pedido <strong>${orderNumber}</strong> ha salido con <strong>${escapeHtml(tracking.carrier)}</strong>.<br>` +
+        `Número de seguimiento: <strong>${escapeHtml(tracking.number)}</strong></p>${itemsTable(data)}`,
     ),
   };
 }

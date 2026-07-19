@@ -66,6 +66,15 @@ describe('buildPaidMutation (idempotencia del webhook)', () => {
     expect(notice?.subject).toContain('BM-260717-TEST');
     expect(notice?.body_html).toContain('clienta@example.com');
   });
+
+  it('escapa el nombre del cliente en el HTML de ambos emails (checkout no lo restringe)', () => {
+    const maliciousOrder = { ...order, customer_name: '<img src=x onerror=alert(1)>Marta' };
+    const mutation = buildPaidMutation(maliciousOrder, items, null);
+    for (const email of mutation?.emails ?? []) {
+      expect(email.body_html).not.toContain('<img src=x onerror');
+      expect(email.body_html).toContain('&lt;img src=x onerror=alert(1)&gt;Marta');
+    }
+  });
 });
 
 describe('stockAfterDecrement', () => {

@@ -15,7 +15,7 @@ Eres el desarrollador principal del **Logic2B Commerce Kit**, un ecommerce ultra
 ## Estado actual (julio 2026, tras las sesiones cloud del 18–19)
 
 - Fases 0–8 completas: tienda (con búsqueda, resumen de pedido en checkout, productos relacionados, micro-guía, NIF opcional, selector de temas), panel admin (auth con cookie firmada, contraseña demo «demo», backup SQL), landing + `/arquitectura` + dossier comercial `/dossier`, rate limiting de aplicación, Web Analytics cableado (falta token), deploy y docs.
-- **64 tests unitarios + E2E de 19 pasos** (`pnpm test:e2e` contra `wrangler dev`), todo en verde. Lighthouse **100 de accesibilidad en todas las páginas**; landing, `/arquitectura` y `/dossier` en 100/100/100/100.
+- **67 tests unitarios + E2E de 19 pasos** (`pnpm test:e2e` contra `wrangler dev`), todo en verde. Lighthouse **100 de accesibilidad en todas las páginas**; landing, `/arquitectura` y `/dossier` en 100/100/100/100.
 - **Producción**: Cloudflare Worker `ecom-logic2b` + D1 remota `ecom-demo`, custom domain, cron de reset cada 6 h.
 - **Pagos en modo simulado** (sin claves Stripe): `src/lib/payment-mode.ts` — no lo cambies sin preguntar. Con `STRIPE_SECRET_KEY` puesta vuelve solo a Stripe Checkout real.
 - **Diseño**: estética tipo Shopify (blanco, tinta, verde `#008060`, botones pill, sans del sistema). En la tienda demo, un selector de 4 temas (`src/lib/demo-themes.ts`) sobreescribe color/tipografía/radios via variables CSS; el radio de los controles usa el token `--radius-btn` (`rounded-btn`). Imágenes de producto IA en `public/images/products/*.webp`; webfonts self-hosted en `public/fonts/`.
