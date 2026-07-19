@@ -26,7 +26,7 @@ export type TransitionRequest = {
 };
 
 export type TransitionDecision =
-  | { ok: true; note: string; sendShippedEmail: boolean }
+  | { ok: true; note: string; sendShippedEmail: boolean; restoreStock: boolean }
   | { ok: false; error: string };
 
 export function decideTransition(from: OrderStatus, req: TransitionRequest): TransitionDecision {
@@ -41,11 +41,19 @@ export function decideTransition(from: OrderStatus, req: TransitionRequest): Tra
       ok: true,
       note: `Enviado con ${req.tracking_carrier.trim()} (${req.tracking_number.trim()})`,
       sendShippedEmail: true,
+      restoreStock: false,
     };
   }
   const notes: Partial<Record<OrderStatus, string>> = {
     delivered: 'Marcado como entregado',
     cancelled: 'Cancelado desde el panel',
   };
-  return { ok: true, note: notes[req.to] ?? `Estado cambiado a ${req.to}`, sendShippedEmail: false };
+  // El stock solo se decrementó al pasar a 'paid' (webhook): cancelar un pedido
+  // pagado debe devolverlo. Cancelar desde 'pending' no toca stock (nunca se descontó).
+  return {
+    ok: true,
+    note: notes[req.to] ?? `Estado cambiado a ${req.to}`,
+    sendShippedEmail: false,
+    restoreStock: from === 'paid' && req.to === 'cancelled',
+  };
 }

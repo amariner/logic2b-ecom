@@ -138,6 +138,7 @@ import Shop from '../../layouts/Shop.astro';
         qtyInput.type = 'number';
         qtyInput.min = '0';
         qtyInput.max = '99';
+        qtyInput.step = '1';
         qtyInput.value = String(line.qty);
         qtyInput.dataset.qty = line.slug;
         qtyInput.className = 'w-16 rounded border border-stone-300 px-2 py-1 text-sm';
@@ -164,7 +165,9 @@ import Shop from '../../layouts/Shop.astro';
 
       list.querySelectorAll<HTMLInputElement>('[data-qty]').forEach((input) => {
         input.addEventListener('change', () => {
-          setQty(input.dataset.qty ?? '', Math.max(0, Number(input.value) || 0));
+          // Redondear hacia abajo: un valor no entero se colaría en localStorage
+          // y luego readCart() lo descartaría en silencio (línea "perdida").
+          setQty(input.dataset.qty ?? '', Math.max(0, Math.floor(Number(input.value)) || 0));
           void refresh();
         });
       });

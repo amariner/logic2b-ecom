@@ -1,7 +1,7 @@
 import type { APIRoute } from 'astro';
 import { z } from 'zod';
 import { shopConfig } from '../../../../shop.config';
-import { applyPaidMutation, generateOrderNumber } from '../../../lib/orders';
+import { applyPaidMutation, generateOrderNumber, generateSimulatedSessionToken } from '../../../lib/orders';
 import { isSimulatedPayment } from '../../../lib/payment-mode';
 import { buildPaidMutation, type OrderItemForPayment } from '../../../lib/payment-transition';
 import { quoteCart } from '../../../lib/quote';
@@ -76,9 +76,10 @@ export const POST: APIRoute = async ({ request, locals }) => {
     .all<{ id: number; slug: string }>();
   const idBySlug = new Map(productRows.results.map((row) => [row.slug, row.id]));
 
-  // En pago real, el session_id lo da Stripe. En simulación lo sintetizamos:
-  // sirve de clave de idempotencia y de referencia en /demo/gracias.
-  let sessionId = `sim_${orderNumber}`;
+  // En pago real, el session_id lo da Stripe (alta entropía propia). En
+  // simulación lo sintetizamos con un token aleatorio independiente del nº de
+  // pedido: /demo/gracias no requiere login y lo usa para exponer nombre/email/total.
+  let sessionId = `sim_${generateSimulatedSessionToken()}`;
   let redirectUrl = `${origin}/demo/gracias?session_id=${sessionId}`;
 
   if (!simulate) {
@@ -176,8 +177,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
       `sim_pi_${orderNumber}`,
       'Pago confirmado (simulado)',
     );
-    if (mutation !== null) {
-      await applyPaidMutation(env.DB, mutation);
+    if (mutation !== null && (await applyPaidMutation(env.DB, mutation))) {
       locals.runtime.ctx.waitUntil(deliverPendingEmails(env.DB, env));
     }
   }

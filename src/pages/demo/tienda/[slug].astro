@@ -77,6 +77,7 @@ const jsonLd = {
                 type="number"
                 min="1"
                 max={Math.min(product.stock, 99)}
+                step="1"
                 value="1"
                 class="w-20 rounded-btn border border-stone-300 px-4 py-2.5 text-center"
               />
@@ -140,7 +141,9 @@ const jsonLd = {
     const btn = document.querySelector<HTMLButtonElement>('[data-add-to-cart]');
     const qtyInput = document.querySelector<HTMLInputElement>('#qty');
     btn?.addEventListener('click', () => {
-      const qty = Math.max(1, Number(qtyInput?.value ?? 1) || 1);
+      // Redondear hacia abajo: un valor no entero (p. ej. "2.5") no debe colarse
+      // en el carrito — readCart() lo descartaría en silencio más adelante.
+      const qty = Math.max(1, Math.floor(Number(qtyInput?.value ?? 1)) || 1);
       addToCart(btn.dataset.addToCart ?? '', qty);
       const prev = btn.textContent;
       btn.textContent = 'Añadido ✓';

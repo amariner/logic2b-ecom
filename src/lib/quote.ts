@@ -23,6 +23,25 @@ export const quoteRequestSchema = z.object({
 
 export type QuoteRequest = z.infer<typeof quoteRequestSchema>;
 
+/** Tope por producto tras agrupar líneas duplicadas (ver `aggregateLineQuantities`). */
+const MAX_QTY_PER_LINE = 99;
+
+/**
+ * Agrupa líneas duplicadas del mismo slug sumando qty, con el mismo tope de 99
+ * uds que ya aplica el cliente en `cart-client.ts`. Sin este tope, una petición
+ * fabricada a mano con el mismo slug repetido en varias líneas (cada una ≤ 99,
+ * el máximo que valida el schema por línea) podría acumular una cantidad muy
+ * superior a 99 para ese producto.
+ */
+export function aggregateLineQuantities(lines: readonly { slug: string; qty: number }[]): Map<string, number> {
+  const qtyBySlug = new Map<string, number>();
+  for (const line of lines) {
+    const next = (qtyBySlug.get(line.slug) ?? 0) + line.qty;
+    qtyBySlug.set(line.slug, Math.min(next, MAX_QTY_PER_LINE));
+  }
+  return qtyBySlug;
+}
+
 export type QuoteLine = {
   slug: string;
   name: string;
@@ -48,10 +67,7 @@ export type QuoteResult = {
 
 export async function quoteCart(db: D1Database, request: QuoteRequest): Promise<QuoteResult> {
   // Colapsar duplicados del mismo slug antes de tocar la base
-  const qtyBySlug = new Map<string, number>();
-  for (const line of request.lines) {
-    qtyBySlug.set(line.slug, (qtyBySlug.get(line.slug) ?? 0) + line.qty);
-  }
+  const qtyBySlug = aggregateLineQuantities(request.lines);
 
   const products = await getProductsBySlugs(db, [...qtyBySlug.keys()]);
   const bySlug = new Map(products.map((prod) => [prod.slug, prod]));

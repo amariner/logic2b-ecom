@@ -57,10 +57,11 @@ export const POST: APIRoute = async ({ request, locals }) => {
         ).results
       : [];
 
-    // Idempotente: pedido desconocido o ya no-pending → mutación null → 200 sin efectos
+    // Idempotente: pedido desconocido o ya no-pending → mutación null → 200 sin efectos.
+    // applyPaidMutation reconfirma con un UPDATE guardado por si dos entregas del
+    // mismo evento llegan solapadas (ambas leyeron 'pending' antes de que la otra escribiera).
     const mutation = buildPaidMutation(order, items, paymentIntent);
-    if (mutation !== null) {
-      await applyPaidMutation(env.DB, mutation);
+    if (mutation !== null && (await applyPaidMutation(env.DB, mutation))) {
       // Producción: entrega el email de confirmación sin retrasar el 200 a Stripe.
       locals.runtime.ctx.waitUntil(deliverPendingEmails(env.DB, env));
     }

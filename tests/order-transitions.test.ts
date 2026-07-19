@@ -6,7 +6,7 @@ describe('decideTransition', () => {
     expect(decideTransition('paid', { to: 'shipped' }).ok).toBe(false);
     expect(decideTransition('paid', { to: 'shipped', tracking_carrier: 'SEUR', tracking_number: ' ' }).ok).toBe(false);
     const ok = decideTransition('paid', { to: 'shipped', tracking_carrier: 'SEUR', tracking_number: 'ES123' });
-    expect(ok).toEqual({ ok: true, note: 'Enviado con SEUR (ES123)', sendShippedEmail: true });
+    expect(ok).toEqual({ ok: true, note: 'Enviado con SEUR (ES123)', sendShippedEmail: true, restoreStock: false });
   });
 
   it('shipped → delivered sin email', () => {
@@ -27,5 +27,17 @@ describe('decideTransition', () => {
 
   it('no se puede saltar de paid a delivered', () => {
     expect(decideTransition('paid', { to: 'delivered' }).ok).toBe(false);
+  });
+
+  it('paid → cancelled devuelve el stock (el webhook lo había decrementado)', () => {
+    const res = decideTransition('paid', { to: 'cancelled' });
+    expect(res.ok).toBe(true);
+    if (res.ok) expect(res.restoreStock).toBe(true);
+  });
+
+  it('pending → cancelled NO devuelve stock (nunca se decrementó)', () => {
+    const res = decideTransition('pending', { to: 'cancelled' });
+    expect(res.ok).toBe(true);
+    if (res.ok) expect(res.restoreStock).toBe(false);
   });
 });
