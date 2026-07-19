@@ -4,7 +4,7 @@ Pasos para convertir esta plantilla en la tienda de un cliente. En orden; todo e
 
 ## 1. Personalizar la tienda
 
-- [ ] `shop.config.ts`: nombre, razón social, email, divisa, colores de marca, categorías, zonas de envío y tarifas seed.
+- [ ] `shop.config.ts`: nombre, razón social, email, divisa, `orderNumberPrefix` (nº de pedido legible: `{prefijo}-AAMMDD-XXXX`, hoy `BM` de la demo), colores de marca, categorías, zonas de envío y tarifas seed.
 - [ ] `seed/products.ts`: catálogo real del cliente (el formato es autoexplicativo; precios en céntimos).
 - [ ] Imágenes reales de producto en `public/images/products/` (WebP optimizado, 800×800). El seed reparte variantes por categoría vía `seed/image-variants.ts` — actualiza ese fichero con el nº de fotos reales por categoría del cliente (hoy apunta a las fotos IA de la demo).
 - [ ] Textos legales del footer (aviso legal, privacidad, devoluciones) con los datos del comercio.
@@ -61,7 +61,7 @@ El envío ya está implementado (`src/lib/send-email.ts`): la outbox es la fuent
 
 ## 8. Verificación final
 
-- [ ] `pnpm check` en verde (tipos + 70 tests + build) y `pnpm test:e2e` contra un preview con datos de prueba.
+- [ ] `pnpm check` en verde (tipos + 78 tests + build) y `pnpm test:e2e` contra un preview con datos de prueba.
 - [ ] Lighthouse ≥ 95 en las 4 métricas sobre la home y una ficha de producto.
 - [ ] Rich Results Test de Google en una ficha (schema `Product` + `Offer` válido).
 - [ ] Entregar `docs/CLIENTE.md` al comercio y hacer juntos un pedido de prueba.
