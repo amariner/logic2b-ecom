@@ -23,7 +23,7 @@ const nav = [
 
 <Base title={`${title} — Panel · ${shopConfig.name}`} noindex>
   <div class="border-b border-sky-200 bg-sky-50 px-4 py-1.5 text-center text-xs text-sky-900">
-    Panel de demostración, acceso libre. En producción está protegido con Cloudflare Access (login del comercio).
+    Panel de demostración (contraseña «demo»). En producción está protegido además con Cloudflare Access (login del comercio).
   </div>
 
   <div class="min-h-screen bg-stone-100">
@@ -43,7 +43,10 @@ const nav = [
             ))}
           </nav>
         </div>
-        <a href="/demo/tienda" class="text-sm text-stone-500 hover:text-stone-900">← Ver tienda</a>
+        <div class="flex items-center gap-4 text-sm">
+          <a href="/demo/tienda" class="text-stone-500 hover:text-stone-900">← Ver tienda</a>
+          <a href="/demo/admin/login?salir=1" class="text-stone-500 hover:text-stone-900">Salir</a>
+        </div>
       </div>
     </header>
 

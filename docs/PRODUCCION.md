@@ -32,11 +32,11 @@ En la plantilla `/` es la landing comercial de Logic2B y la tienda vive bajo `/d
 
 ## 5. Proteger el admin con Cloudflare Access
 
-En la demo el panel es de acceso libre con un aviso. En real:
+En la demo el panel pide login con cookie firmada y contraseña pública «demo» (`src/lib/admin-auth.ts` + `src/middleware.ts`). En real:
 
 - [ ] Cloudflare Zero Trust (plan gratuito hasta 50 usuarios) → Access → nueva aplicación self-hosted cubriendo `/demo/admin*` y `/api/admin*` (o las rutas finales si se movieron), con política "solo el email del comercio (+ Logic2B)".
 - [ ] Verificar que las rutas admin piden login de Access y que el resto de la web sigue pública.
-- [ ] `ADMIN_COOKIE_SECRET` queda reservado (la cookie simple de demo no sustituye a Access).
+- [ ] Con `DEMO_MODE` off la capa de cookie/contraseña «demo» se desactiva sola (el middleware delega en Access): sin el paso anterior el panel quedaría público. Access no es opcional.
 
 ## 6. Emails reales via Resend
 

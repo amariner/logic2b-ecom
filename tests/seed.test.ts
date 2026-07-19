@@ -37,6 +37,28 @@ describe('integridad del seed', () => {
     }
   });
 
+  it('cada imagen referenciada por el seed corresponde a una variante declarada', async () => {
+    const { imageVariants } = await import('../seed/image-variants');
+    const stmts = seedStatements().filter((stmt) => stmt.includes('INSERT INTO products'));
+    for (const stmt of stmts) {
+      const match = stmt.match(/\/images\/products\/([a-z]+)(?:-(\d+))?\.webp/);
+      expect(match, `imagen no reconocida en: ${stmt}`).not.toBeNull();
+      const [, category, variant] = match!;
+      const total = imageVariants[category!] ?? 1;
+      expect(Number(variant ?? '1')).toBeLessThanOrEqual(total);
+    }
+    // Con más de una variante declarada, el reparto debe usarlas todas.
+    for (const [category, total] of Object.entries(imageVariants)) {
+      if (total === 1) continue;
+      for (let v = 2; v <= total; v++) {
+        expect(
+          stmts.some((stmt) => stmt.includes(`/images/products/${category}-${v}.webp`)),
+          `variante sin usar: ${category}-${v}`,
+        ).toBe(true);
+      }
+    }
+  });
+
   it('genera SQL con limpieza previa y sin comillas sin escapar', () => {
     const stmts = seedStatements();
     expect(stmts[0]).toContain('DELETE FROM');

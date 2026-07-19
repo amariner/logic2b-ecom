@@ -8,9 +8,6 @@
   --color-ink: #1a1a1a;
   --color-paper: #ffffff;
   --color-cream: #f6f6f4;
-  /* Compatibilidad con /arquitectura (dirección editorial anterior) */
-  --color-walnut: #6b7f5c;
-  --color-walnut-dark: #46543a;
   --font-sans: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   --font-display: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
 }
