@@ -22,7 +22,7 @@ Demo pública + plantilla clonable de ecommerce ultraligero (Astro 5 + Cloudflar
 | 5 | Landing comercial + /arquitectura + SEO técnico | ✅ Hecho | 2026-07-17 | Dirección B elegida (escaparate editorial). Cero JS en landing. Sitemap+JSON-LD OK |
 | 6 | Deploy ecom.logic2b.com + cron reset + README + docs/CLIENTE.md | ✅ Hecho | 2026-07-18 | **Desplegado y en vivo en https://ecom.logic2b.com** (Worker `ecom-logic2b`, D1 remota `ecom-demo` id `7ae9b06d…`, custom domain + cron reset activos). Pagos en **modo simulado** (sin Stripe) |
 | 7 | bootstrap.sh + checklist demo→cliente real | ✅ Hecho | 2026-07-18 | `scripts/bootstrap.sh` (local probado end-to-end; `--remote` aprovisiona Cloudflare) + `docs/PRODUCCION.md` |
-| 8 | Pulido de la demo (backlog abajo) | 🟡 En curso | 2026-07-18 | Rediseño Shopify + imágenes Higgsfield hechos; resto del backlog priorizado en la sección «Fase 8» |
+| 8 | Pulido de la demo (backlog abajo) | 🟡 En curso | 2026-07-19 | Backlog técnico agotado; solo quedan decisiones y pasos locales de Andreu (ver «Decisiones pendientes» y `docs/PROMPT_CLOUD.md`). Última tanda: auditoría propia que encontró y corrigió un bug real de checkout — ver sección «Fase 8» |
 
 ## Repo y entornos
 
@@ -60,6 +60,11 @@ Demo pública + plantilla clonable de ecommerce ultraligero (Astro 5 + Cloudflar
 - [x] ✅ 2026-07-19 — Selector de temas en la tienda demo: 4 presets (color + tipografía de titulares + radio de botones) en `src/lib/demo-themes.ts`, widget flotante «Tema» en `Shop.astro`, aplicado via variables CSS con persistencia en localStorage y sin flash (script inline pre-pintado). Dos webfonts variables self-hosted (`public/fonts/`: Fraunces 66 KB, Space Grotesk 22 KB, subsets latinos de Google Fonts) que solo se descargan si el tema activo las usa. Nuevo token `--radius-btn` (utilidad `rounded-btn`) en los controles de la tienda. 4 tests (vars completas, contraste AA de todos los presets).
 - [x] ✅ 2026-07-19 — Pulido de diseño: foco visible de marca global (`:focus-visible`), `active:scale` en CTAs principales, radios de controles unificados bajo el token de tema.
 - [x] ✅ 2026-07-19 — Dossier comercial imprimible en `/dossier` (indexable, cero JS, en sitemap, enlazado desde precios y footer de la landing): para quién es/no es, qué incluye al detalle, proceso en 4 pasos (3–4 semanas orientativo), qué necesitamos del cliente, precios con comparativa a 3 años, FAQ ampliada (incl. facturación/VeriFactu fuera del kit) y CSS de impresión (pensado para enviarlo en PDF a prospectos).
+
+**Correcciones (auditoría propia, sesión 2026-07-19)**
+- [x] ✅ 2026-07-19 — Bug de checkout: `pattern="\d{5}"` del CP llegaba al HTML como `pattern="d{5}"` (Astro consume la barra invertida en atributos de texto plano), bloqueando el checkout real para cualquier CP válido. El E2E no lo veía por llamar a la API directamente. Arreglado (`pattern="\\d{5}"`) y verificado con un flujo de compra completo en navegador.
+- [x] ✅ 2026-07-19 — Cabecera del panel admin no responsive a 375px (título partido en 5 líneas). Reestructurada a 2 filas con nav en pills de scroll horizontal.
+- [x] ✅ 2026-07-19 — Enlace "Tramitar pedido" del carrito: `pointer-events-none` no bloqueaba el teclado. Añadidos `aria-disabled`/`tabindex` sincronizados.
 
 **Comercial (explorar, no implementar sin OK)**
 - [ ] 🟡 Versión «Lite» del kit — **explorada, decisión pendiente**: análisis completo en `docs/LITE.md` (2026-07-19). Recomendación: ofrecerla en la landing para medir demanda, no construirla hasta el primer cliente. Decidir: Andreu.
@@ -185,6 +190,15 @@ Demo pública + plantilla clonable de ecommerce ultraligero (Astro 5 + Cloudflar
   - **Dossier `/dossier`**: los precios y claims reutilizan los de la landing (1.900 €/29 €/mes provisionales, «vendiendo en 3–4 semanas» marcado como orientativo). FAQ nueva de facturación alineada con la decisión VeriFactu del 2026-07-18. Verificado con captura en pantalla, móvil y emulación de impresión.
   - Lighthouse local tras la tanda: `/` y `/dossier` en 100/100/100/100; catálogo (con el widget de temas cargado) en 100/100/100 de performance/a11y/best-practices. El peso de las webfonts no computa en el tema por defecto (no se descargan).
   - Pendiente de Andreu tras esta tanda: nada nuevo — deploy (`pnpm deploy`) para publicar selector y dossier.
+
+- 2026-07-19 (Fase 8, sesión cloud — séptima tanda: auditoría propia sin backlog nuevo pendiente, con delegación explícita de Andreu para revisar y cerrar temas por criterio propio):
+  - **Bug real encontrado y corregido**: el `pattern="\d{5}"` del código postal en `/demo/checkout` llegaba al HTML como `pattern="d{5}"` — Astro trata el valor de un atributo de texto plano como literal JS, y `\d` no es un escape reconocido ahí, así que la barra invertida se comía (comportamiento estándar de los string literals de JS, no un bug de Astro). Resultado: la validación nativa del navegador rechazaba **cualquier** CP válido de 5 dígitos y bloqueaba el checkout entero desde la UI real. El E2E (`scripts/e2e.mjs`) no lo detectaba porque llama a `/api/checkout/session` directamente, sin pasar por la validación HTML del formulario. Arreglado escapando a `pattern="\\d{5}"`. Verificado con un flujo de compra completo en navegador (Playwright + Chromium headless): ficha → checkout con CP real → gracias → pedido en el panel → ambos emails en la bandeja.
+  - **Cabecera del admin no responsive a 375px**: el nombre de la tienda y la nav competían por el mismo ancho sin wrap, partiendo el título en hasta 5 líneas en móvil. Reestructurada a 2 filas (título+acciones arriba, nav en pills con scroll horizontal debajo), verificado en las 4 páginas del panel.
+  - **Enlace "Tramitar pedido" del carrito**: cuando el carrito no es comprable, `pointer-events-none` bloquea el ratón pero no el teclado (un `<a>` enfocado sigue activándose con Enter). Añadido `aria-disabled`/`tabindex` sincronizados con el estado real, más un guard en el click.
+  - Auditoría de diseño con capturas Playwright a 375/1440 px de las 12 páginas navegables (landing, arquitectura, dossier, tienda, ficha, carrito, checkout, gracias y las 4 del panel): sin más hallazgos — el resto ya estaba pulido de tandas anteriores.
+  - Docs: `README.md` y `docs/PRODUCCION.md` tenían el recuento de tests desactualizado (58→62 unitarios, 18→19 E2E) y una referencia obsoleta a placeholders SVG en el checklist de imágenes; corregidos.
+  - Re-confirmado (no reintentado más allá de una comprobación): el CDN de Higgsfield sigue devolviendo 403 a través del proxy de la sesión — sigue siendo un paso solo-local para Andreu, sin cambios.
+  - `pnpm check` (62 tests) y `pnpm test:e2e` (19 pasos, contra `pnpm preview --ip 127.0.0.1`) en verde tras los cambios.
 
 ## Decisiones pendientes
 
