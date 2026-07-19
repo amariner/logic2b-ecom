@@ -28,25 +28,25 @@ const nav = [
 
   <div class="min-h-screen bg-stone-100">
     <header class="border-b border-stone-300 bg-white">
-      <div class="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
-        <div class="flex items-center gap-6">
-          <span class="font-bold">{shopConfig.name} <span class="font-normal text-stone-500">· panel</span></span>
-          <nav class="flex gap-1 text-sm">
-            {nav.map((item) => (
-              <a
-                href={item.href}
-                class:list={[
-                  'rounded px-3 py-1.5',
-                  active === item.id ? 'bg-stone-900 text-white' : 'text-stone-600 hover:bg-stone-100',
-                ]}
-              >{item.label}</a>
-            ))}
-          </nav>
+      <div class="mx-auto max-w-6xl px-4 py-3">
+        <div class="flex items-center justify-between gap-4">
+          <span class="truncate font-bold">{shopConfig.name} <span class="hidden font-normal text-stone-500 sm:inline">· panel</span></span>
+          <div class="flex shrink-0 items-center gap-4 text-sm">
+            <a href="/demo/tienda" class="text-stone-500 hover:text-stone-900">← Ver tienda</a>
+            <a href="/demo/admin/login?salir=1" class="text-stone-500 hover:text-stone-900">Salir</a>
+          </div>
         </div>
-        <div class="flex items-center gap-4 text-sm">
-          <a href="/demo/tienda" class="text-stone-500 hover:text-stone-900">← Ver tienda</a>
-          <a href="/demo/admin/login?salir=1" class="text-stone-500 hover:text-stone-900">Salir</a>
-        </div>
+        <nav class="-mx-4 mt-3 flex gap-1 overflow-x-auto px-4 text-sm sm:mx-0 sm:mt-2 sm:px-0">
+          {nav.map((item) => (
+            <a
+              href={item.href}
+              class:list={[
+                'shrink-0 rounded px-3 py-1.5',
+                active === item.id ? 'bg-stone-900 text-white' : 'text-stone-600 hover:bg-stone-100',
+              ]}
+            >{item.label}</a>
+          ))}
+        </nav>
       </div>
     </header>
 
