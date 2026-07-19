@@ -132,6 +132,78 @@ const emailsHtml = await (await fetch(`${BASE}/demo/admin/emails`, { headers: { 
 check('bandeja con confirmación de pedido', emailsHtml.includes(checkout.order_number));
 check('bandeja con aviso de envío (tracking)', emailsHtml.includes('E2E123') || emailsHtml.includes('camino'));
 
+// ── 7. Validación de la API de productos del admin ───────────────────
+const productosHtml = await (await fetch(`${BASE}/demo/admin/productos`, { headers: { cookie } })).text();
+const productIdMatch = productosHtml.match(/data-field="name" data-id="(\d+)"/);
+const productId = productIdMatch?.[1];
+check('el panel de productos expone al menos un id', productId !== undefined);
+
+const emptyPatch = await fetch(`${BASE}/api/admin/products/${productId}`, {
+  method: 'PATCH',
+  headers: { 'content-type': 'application/json', cookie },
+  body: '{}',
+});
+check('PATCH producto vacío → 400 (nada que actualizar)', emptyPatch.status === 400, `HTTP ${emptyPatch.status}`);
+
+const negativePricePatch = await fetch(`${BASE}/api/admin/products/${productId}`, {
+  method: 'PATCH',
+  headers: { 'content-type': 'application/json', cookie },
+  body: JSON.stringify({ price_cents: -1 }),
+});
+check('PATCH producto con precio negativo → 400', negativePricePatch.status === 400, `HTTP ${negativePricePatch.status}`);
+
+const unknownIdPatch = await fetch(`${BASE}/api/admin/products/999999`, {
+  method: 'PATCH',
+  headers: { 'content-type': 'application/json', cookie },
+  body: JSON.stringify({ stock: 5 }),
+});
+check('PATCH producto inexistente → 404', unknownIdPatch.status === 404, `HTTP ${unknownIdPatch.status}`);
+
+const stockPatch = await fetch(`${BASE}/api/admin/products/${productId}`, {
+  method: 'PATCH',
+  headers: { 'content-type': 'application/json', cookie },
+  body: JSON.stringify({ stock: 0 }),
+});
+check('PATCH producto con stock 0 → 200', stockPatch.ok, `HTTP ${stockPatch.status}`);
+const productSlugMatch = productosHtml.match(/Nombre de ([a-z0-9-]+)"/);
+const productSlug = productSlugMatch?.[1];
+const quoteAfterStockPatch = await json(
+  await fetch(`${BASE}/api/cart/quote`, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ lines: [{ slug: productSlug, qty: 1 }] }),
+  }),
+);
+check(
+  'el stock a 0 se refleja en la siguiente quote',
+  quoteAfterStockPatch?.lines?.[0]?.status === 'out-of-stock',
+  JSON.stringify(quoteAfterStockPatch?.lines?.[0]),
+);
+
+// ── 8. Rate limit del login (10/min por IP; ya gastamos 1 en el paso 5) ──
+let lastLoginRes;
+for (let i = 0; i < 9; i++) {
+  lastLoginRes = await fetch(`${BASE}/demo/admin/login`, {
+    method: 'POST',
+    redirect: 'manual',
+    headers: { 'content-type': 'application/x-www-form-urlencoded', ...{ origin: ORIGIN.origin } },
+    body: 'password=incorrecta',
+  });
+}
+// Contraseña incorrecta: la página se re-renderiza con el error (200), no redirige.
+check('9 intentos fallidos más (10 en total) todavía no bloquean', lastLoginRes.status === 200, `HTTP ${lastLoginRes.status}`);
+const lockedOutRes = await fetch(`${BASE}/demo/admin/login`, {
+  method: 'POST',
+  redirect: 'manual',
+  headers: { 'content-type': 'application/x-www-form-urlencoded', ...{ origin: ORIGIN.origin } },
+  body: 'password=demo',
+});
+check(
+  'el 11º intento en la ventana → redirige con ?limited=1',
+  lockedOutRes.status === 303 && String(lockedOutRes.headers.get('location')).includes('limited=1'),
+  `HTTP ${lockedOutRes.status} location=${lockedOutRes.headers.get('location')}`,
+);
+
 // ── Resultado ────────────────────────────────────────────────────────
 if (failures > 0) {
   console.error(`\nE2E: ${failures} comprobaciones fallidas`);

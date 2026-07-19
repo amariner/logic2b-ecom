@@ -35,6 +35,11 @@ export function isSortOption(value: string): value is SortOption {
   return value in SORT_SQL;
 }
 
+/** Escapa %, _ y \ para que un LIKE ... ESCAPE '\' trate el término de búsqueda como literal. */
+export function escapeLikePattern(term: string): string {
+  return term.replace(/[\\%_]/g, (ch) => `\\${ch}`);
+}
+
 export async function getActiveProducts(
   db: D1Database,
   opts: { category?: string | undefined; sort?: SortOption | undefined; search?: string | undefined } = {},
@@ -47,8 +52,7 @@ export async function getActiveProducts(
     params.push(opts.category);
   }
   if (opts.search) {
-    // LIKE con escape propio para que %, _ y \ del usuario sean literales.
-    const escaped = opts.search.replace(/[\\%_]/g, (ch) => `\\${ch}`);
+    const escaped = escapeLikePattern(opts.search);
     conditions.push("(name LIKE ? ESCAPE '\\' OR description LIKE ? ESCAPE '\\')");
     params.push(`%${escaped}%`, `%${escaped}%`);
   }
