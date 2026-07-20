@@ -9,38 +9,38 @@ import Shop from '../../layouts/Shop.astro';
   <main class="mx-auto max-w-3xl px-4 py-10">
     <h1 class="font-display text-3xl sm:text-4xl">Tu carrito</h1>
 
-    <div data-cart-empty class="hidden py-16 text-center text-stone-500">
+    <div data-cart-empty class="hidden py-16 text-center text-muted-foreground">
       <p>El carrito está vacío.</p>
       <a href="/demo/tienda" class="mt-5 inline-block rounded-btn bg-brand px-7 py-3 font-semibold text-white transition hover:bg-brand-dark">Ir a la tienda</a>
     </div>
 
-    <div data-cart-loading class="py-16 text-center text-stone-400">Calculando precios…</div>
+    <div data-cart-loading class="py-16 text-center text-muted-foreground">Calculando precios…</div>
 
     <div data-cart-content class="hidden">
-      <ul data-cart-lines class="mt-6 divide-y divide-stone-100"></ul>
+      <ul data-cart-lines class="mt-6 divide-y divide-border"></ul>
 
-      <div class="mt-6 rounded-2xl bg-cream p-5 sm:p-6">
-        <label class="block text-sm font-medium text-stone-700" for="cp">Código postal de entrega</label>
+      <div class="mt-6 rounded-2xl bg-muted p-5 sm:p-6">
+        <label class="block text-sm font-medium text-muted-foreground" for="cp">Código postal de entrega</label>
         <div class="mt-2 flex gap-2">
           <input
             id="cp"
             inputmode="numeric"
             maxlength="5"
             placeholder="12001"
-            class="w-32 rounded-btn border border-stone-300 bg-white px-4 py-2"
+            class="w-32 rounded-btn border border-border bg-card px-4 py-2"
           />
-          <button type="button" data-apply-cp class="rounded-btn border border-ink/15 bg-white px-5 py-2 text-sm font-medium transition hover:border-ink">Calcular envío</button>
+          <button type="button" data-apply-cp class="rounded-btn border border-border bg-card px-5 py-2 text-sm font-medium transition hover:border-foreground">Calcular envío</button>
         </div>
         <p data-cp-feedback class="mt-2 hidden text-sm"></p>
 
-        <dl class="mt-5 space-y-2 border-t border-stone-200 pt-4 text-sm">
-          <div class="flex justify-between"><dt class="text-stone-600">Subtotal</dt><dd data-subtotal class="font-medium"></dd></div>
-          <div class="flex justify-between"><dt class="text-stone-600">Envío <span data-shipping-label class="text-stone-400"></span></dt><dd data-shipping></dd></div>
-          <div class="flex justify-between border-t border-stone-200 pt-3 text-base font-bold"><dt>Total</dt><dd data-total></dd></div>
+        <dl class="mt-5 space-y-2 border-t border-border pt-4 text-sm">
+          <div class="flex justify-between"><dt class="text-muted-foreground">Subtotal</dt><dd data-subtotal class="font-medium"></dd></div>
+          <div class="flex justify-between"><dt class="text-muted-foreground">Envío <span data-shipping-label class="text-muted-foreground"></span></dt><dd data-shipping></dd></div>
+          <div class="flex justify-between border-t border-border pt-3 text-base font-bold"><dt>Total</dt><dd data-total></dd></div>
         </dl>
       </div>
 
-      <p data-cart-problems class="mt-4 hidden rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-800"></p>
+      <p data-cart-problems class="mt-4 hidden rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-destructive"></p>
 
       <div class="mt-6 flex justify-end">
         <a
@@ -48,7 +48,7 @@ import Shop from '../../layouts/Shop.astro';
           data-checkout-link
           aria-disabled="true"
           tabindex="-1"
-          class="pointer-events-none w-full rounded-btn bg-stone-300 px-8 py-3.5 text-center font-semibold text-white transition sm:w-auto"
+          class="pointer-events-none w-full rounded-btn bg-muted px-8 py-3.5 text-center font-semibold text-white transition sm:w-auto"
         >Tramitar pedido</a>
       </div>
     </div>
@@ -119,15 +119,15 @@ import Shop from '../../layouts/Shop.astro';
         img.alt = '';
         img.width = 64;
         img.height = 64;
-        img.className = 'h-16 w-16 rounded-xl bg-cream object-cover';
+        img.className = 'h-16 w-16 rounded-xl bg-muted object-cover';
 
         const info = document.createElement('div');
         info.className = 'flex-1';
         const nameEl = document.createElement('p');
-        nameEl.className = `text-sm font-medium ${bad ? 'text-red-700 line-through' : ''}`;
+        nameEl.className = `text-sm font-medium ${bad ? 'text-destructive line-through' : ''}`;
         nameEl.textContent = line.name;
         const priceEl = document.createElement('p');
-        priceEl.className = 'text-sm text-stone-500';
+        priceEl.className = 'text-sm text-muted-foreground';
         priceEl.textContent = bad ? '' : eur(line.unit_price_cents);
         info.appendChild(nameEl);
         info.appendChild(priceEl);
@@ -139,7 +139,7 @@ import Shop from '../../layouts/Shop.astro';
         qtyInput.step = '1';
         qtyInput.value = String(line.qty);
         qtyInput.dataset.qty = line.slug;
-        qtyInput.className = 'w-16 rounded-btn border border-stone-300 px-2 py-1 text-sm';
+        qtyInput.className = 'w-16 rounded-btn border border-border px-2 py-1 text-sm';
         qtyInput.setAttribute('aria-label', `Cantidad de ${line.name}`);
 
         const totalEl = document.createElement('p');
@@ -150,7 +150,7 @@ import Shop from '../../layouts/Shop.astro';
         removeBtn.type = 'button';
         removeBtn.dataset.remove = line.slug;
         removeBtn.setAttribute('aria-label', `Eliminar ${line.name}`);
-        removeBtn.className = 'text-stone-500 hover:text-red-600';
+        removeBtn.className = 'text-muted-foreground hover:text-destructive';
         removeBtn.textContent = '✕';
 
         li.appendChild(img);
@@ -185,7 +185,7 @@ import Shop from '../../layouts/Shop.astro';
         shippingLabel.textContent = '';
         if (postal) {
           cpFeedback.textContent = 'No hay cobertura de envío para ese código postal.';
-          cpFeedback.className = 'mt-2 text-sm text-red-700';
+          cpFeedback.className = 'mt-2 text-sm text-destructive';
         }
       } else {
         shippingEl.textContent = quote.shipping_cents === 0 ? 'Gratis' : eur(quote.shipping_cents);
@@ -193,7 +193,7 @@ import Shop from '../../layouts/Shop.astro';
         const freeOver = quote.shipping?.free_over_cents;
         if (typeof freeOver === 'number' && quote.shipping_cents > 0) {
           cpFeedback.textContent = `Envío gratis a partir de ${eur(freeOver)}.`;
-          cpFeedback.className = 'mt-2 text-sm text-stone-500';
+          cpFeedback.className = 'mt-2 text-sm text-muted-foreground';
         } else {
           cpFeedback.classList.add('hidden');
         }
@@ -214,7 +214,7 @@ import Shop from '../../layouts/Shop.astro';
       const checkout = $('[data-checkout-link]');
       const ready = quote.purchasable && quote.total_cents !== null;
       checkout.classList.toggle('pointer-events-none', !ready);
-      checkout.classList.toggle('bg-stone-300', !ready);
+      checkout.classList.toggle('bg-muted', !ready);
       checkout.classList.toggle('bg-brand', ready);
       checkout.classList.toggle('hover:bg-brand-dark', ready);
       checkout.setAttribute('aria-disabled', String(!ready));

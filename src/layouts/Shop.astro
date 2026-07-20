@@ -4,8 +4,14 @@
  * header sticky con navegación y contador de carrito. Estética limpia tipo Shopify.
  */
 import Base from './Base.astro';
+import SiteHeader from '../components/SiteHeader.astro';
 import { shopConfig } from '../../shop.config';
 import { demoThemes } from '../lib/demo-themes';
+
+const nav = [
+  { href: '/demo/tienda', label: 'Tienda' },
+  { href: '/demo/admin', label: 'Panel del comercio' },
+] as const;
 
 interface Props {
   title: string;
@@ -34,36 +40,34 @@ const { title, description } = Astro.props;
       /* localStorage corrupto o bloqueado: se queda el tema por defecto */
     }
   </script>
-  <div class="bg-ink px-4 py-1.5 text-center text-xs text-white/80">
-    <strong class="font-semibold text-white">Demo</strong> — tienda ficticia del
-    <a href="/" class="underline decoration-white/40 underline-offset-2 hover:text-white">Logic2B Commerce Kit</a>.
+  <div class="bg-foreground px-4 py-1.5 text-center text-xs text-background/80">
+    <strong class="font-semibold text-background">Demo</strong> — tienda ficticia del
+    <a href="/" class="underline decoration-background/40 underline-offset-2 hover:text-background">Logic2B Commerce Kit</a>.
     El pago está simulado: nada es real.
   </div>
 
-  <header class="sticky top-0 z-40 border-b border-black/5 bg-white/90 backdrop-blur-md">
-    <div class="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-4">
-      <a href="/demo/tienda" class="font-display text-lg tracking-tight text-ink">{shopConfig.name}</a>
-      <nav class="flex items-center gap-4 text-sm sm:gap-6">
-        <a href="/demo/tienda" class="hidden text-stone-600 hover:text-ink sm:block">Tienda</a>
-        <a href="/demo/admin" class="hidden text-stone-600 hover:text-ink sm:block">Panel del comercio</a>
-        <a href="/demo/carrito" aria-label="Carrito" class="relative inline-flex items-center gap-1.5 rounded-btn bg-cream px-4 py-2 font-medium text-ink transition hover:bg-stone-200">
-          <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" aria-hidden="true">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 0 0-16.536-1.84M7.5 14.25 5.106 5.272M6 20.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm12.75 0a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z" />
-          </svg>
-          <span class="hidden sm:inline">Carrito</span>
-          <span data-cart-badge class="hidden rounded-full bg-brand px-1.5 py-0.5 text-xs font-bold text-white">0</span>
-        </a>
-      </nav>
-    </div>
-  </header>
+  <SiteHeader homeHref="/demo/tienda" wordmark={shopConfig.name} showMark={false} nav={nav}>
+    <a
+      slot="actions"
+      href="/demo/carrito"
+      aria-label="Carrito"
+      class="relative inline-flex items-center gap-1.5 rounded-btn bg-muted px-4 py-2 text-sm font-medium text-foreground transition hover:bg-secondary"
+    >
+      <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 0 0-16.536-1.84M7.5 14.25 5.106 5.272M6 20.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm12.75 0a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z" />
+      </svg>
+      <span class="hidden sm:inline">Carrito</span>
+      <span data-cart-badge class="hidden rounded-full bg-brand px-1.5 py-0.5 text-xs font-bold text-white">0</span>
+    </a>
+  </SiteHeader>
 
   <slot />
 
-  <footer class="mt-20 border-t border-black/5 bg-cream">
-    <div class="mx-auto max-w-6xl px-4 py-10 text-sm text-stone-600">
-      <p class="font-display text-base text-ink">{shopConfig.name}</p>
+  <footer class="mt-20 border-t border-border bg-muted">
+    <div class="mx-auto max-w-6xl px-4 py-10 text-sm text-muted-foreground">
+      <p class="font-display text-base text-foreground">{shopConfig.name}</p>
       <p class="mt-3 max-w-2xl leading-relaxed">{shopConfig.legalName}. {shopConfig.legal.shippingNote} {shopConfig.legal.returnsNote}</p>
-      <p class="mt-4">Demo del <a href="/" class="underline underline-offset-2 hover:text-ink">Logic2B Commerce Kit</a> · <a href="/demo/reset" class="underline underline-offset-2 hover:text-ink">Restaurar datos de la demo</a></p>
+      <p class="mt-4">Demo del <a href="/" class="underline underline-offset-2 hover:text-foreground">Logic2B Commerce Kit</a> · <a href="/demo/reset" class="underline underline-offset-2 hover:text-foreground">Restaurar datos de la demo</a></p>
     </div>
   </footer>
 
@@ -73,10 +77,10 @@ const { title, description } = Astro.props;
     <div
       data-theme-panel
       hidden
-      class="absolute bottom-full left-0 mb-3 w-72 rounded-2xl border border-black/10 bg-white p-4 shadow-xl shadow-black/10"
+      class="absolute bottom-full left-0 mb-3 w-72 rounded-2xl border border-border bg-popover p-4 shadow-xl shadow-black/10"
     >
-      <p class="font-display text-base text-ink">Hazla tuya</p>
-      <p class="mt-1 text-xs leading-relaxed text-stone-500">
+      <p class="font-display text-base text-foreground">Hazla tuya</p>
+      <p class="mt-1 text-xs leading-relaxed text-muted-foreground">
         Cada tienda del kit define su marca en un único fichero de configuración.
         Prueba cómo se vería la tuya:
       </p>
@@ -88,16 +92,16 @@ const { title, description } = Astro.props;
               data-theme-choice={theme.id}
               aria-pressed="false"
               style={`border-radius: ${theme.vars['--radius-btn']}; font-family: ${theme.vars['--font-display']};`}
-              class="flex w-full items-center gap-3 border border-stone-200 px-3.5 py-2.5 text-left transition hover:border-ink data-[selected]:border-ink data-[selected]:ring-1 data-[selected]:ring-ink"
+              class="flex w-full items-center gap-3 border border-border px-3.5 py-2.5 text-left transition hover:border-foreground data-[selected]:border-foreground data-[selected]:ring-1 data-[selected]:ring-foreground"
             >
               <span
-                class="h-6 w-6 shrink-0 rounded-full border border-black/10"
+                class="h-6 w-6 shrink-0 rounded-full border border-border"
                 style={`background: ${theme.vars['--color-brand']};`}
                 aria-hidden="true"
               ></span>
               <span class="flex-1">
-                <span class="block text-sm font-semibold text-ink">{theme.label}</span>
-                <span class="block font-sans text-[11px] leading-tight text-stone-500">{theme.hint}</span>
+                <span class="block text-sm font-semibold text-foreground">{theme.label}</span>
+                <span class="block font-sans text-[11px] leading-tight text-muted-foreground">{theme.hint}</span>
               </span>
             </button>
           </li>
@@ -109,7 +113,7 @@ const { title, description } = Astro.props;
       data-theme-toggle
       aria-expanded="false"
       aria-label="Personalizar el diseño de la demo"
-      class="flex items-center gap-2 rounded-btn border border-black/10 bg-white px-4 py-2.5 text-sm font-semibold text-ink shadow-lg shadow-black/10 transition hover:border-ink"
+      class="flex items-center gap-2 rounded-btn border border-border bg-popover px-4 py-2.5 text-sm font-semibold text-foreground shadow-lg shadow-black/10 transition hover:border-foreground"
     >
       <svg class="h-4 w-4 text-brand" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" aria-hidden="true">
         <path stroke-linecap="round" stroke-linejoin="round" d="M9.53 16.122a3 3 0 0 0-5.78 1.128 2.25 2.25 0 0 1-2.4 2.245 4.5 4.5 0 0 0 8.4-2.245c0-.399-.078-.78-.22-1.128Zm0 0a15.998 15.998 0 0 0 3.388-1.62m-5.043-.025a15.994 15.994 0 0 1 1.622-3.395m3.42 3.42a15.995 15.995 0 0 0 4.764-4.648l3.876-5.814a1.151 1.151 0 0 0-1.597-1.597L14.146 6.32a15.996 15.996 0 0 0-4.649 4.763m3.42 3.42a6.776 6.776 0 0 0-3.42-3.42" />
