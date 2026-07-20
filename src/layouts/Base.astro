@@ -2,6 +2,15 @@
 // Layout raíz. Landing/Shop/Admin heredan de aquí.
 import '../styles/global.css';
 import { jsonLdScript } from '../lib/format';
+import { shopConfig } from '../../shop.config';
+
+// El color de marca es única fuente de verdad en shop.config.ts (CLAUDE.md §11):
+// lo inyectamos en :root para que TODAS las utilidades `*-brand` de Tailwind lo
+// usen. `html:root` gana en especificidad al `:root` que emite @theme en
+// global.css (que queda como fallback). Es CSS, no JS: la landing sigue cero-JS.
+// En /demo/* el selector de temas sobreescribe con estilo inline en el elemento
+// (mayor precedencia aún), así que sigue mandando sobre esto.
+const brandTokens = `html:root{--color-brand:${shopConfig.brand.color};--color-brand-dark:${shopConfig.brand.colorDark}}`;
 
 interface Props {
   title: string;
@@ -23,6 +32,7 @@ const ogImage = new URL('/images/og.jpg', Astro.site).href;
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style set:html={brandTokens} is:inline></style>
     <title>{title}</title>
     {description && <meta name="description" content={description} />}
     {noindex && <meta name="robots" content="noindex,follow" />}

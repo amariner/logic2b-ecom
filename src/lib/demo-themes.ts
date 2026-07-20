@@ -11,6 +11,8 @@
  * variables permitidas está cerrada (THEME_VARS) para que nada más sea tocable.
  */
 
+import { shopConfig } from '../../shop.config';
+
 export const DEMO_THEME_KEY = 'ecom-demo-theme';
 
 export const THEME_VARS = [
@@ -39,9 +41,11 @@ export const demoThemes: DemoTheme[] = [
     id: 'botiga',
     label: 'La Botiga',
     hint: 'Verde profundo, sans del sistema, botones pill',
+    // El preset por defecto ES la marca real: toma el color de shop.config.ts
+    // (única fuente) para no poder desincronizarse del resto del sitio.
     vars: {
-      '--color-brand': '#008060',
-      '--color-brand-dark': '#004c3f',
+      '--color-brand': shopConfig.brand.color,
+      '--color-brand-dark': shopConfig.brand.colorDark,
       '--font-display': SYSTEM_SANS,
       '--radius-btn': '9999px',
     },

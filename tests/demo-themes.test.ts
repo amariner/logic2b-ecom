@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { THEME_VARS, defaultTheme, demoThemes } from '../src/lib/demo-themes';
+import { shopConfig } from '../shop.config';
 
 /** Luminancia relativa WCAG de un color #rrggbb. */
 function luminance(hex: string): number {
@@ -27,11 +28,11 @@ describe('temas de la demo', () => {
     }
   });
 
-  it('el tema por defecto coincide con los tokens de global.css', () => {
-    // Si cambia la marca en global.css/shop.config, este preset debe seguirla:
-    // es el que "limpia" los overrides y debe ser indistinguible del CSS base.
-    expect(defaultTheme.vars['--color-brand']).toBe('#008060');
-    expect(defaultTheme.vars['--color-brand-dark']).toBe('#004c3f');
+  it('el tema por defecto es la marca de shop.config.ts', () => {
+    // El preset "limpia" los overrides y debe ser indistinguible de la marca real,
+    // que ahora sale de una única fuente (shop.config.ts, inyectada por Base.astro).
+    expect(defaultTheme.vars['--color-brand']).toBe(shopConfig.brand.color);
+    expect(defaultTheme.vars['--color-brand-dark']).toBe(shopConfig.brand.colorDark);
     expect(defaultTheme.vars['--radius-btn']).toBe('9999px');
   });
 

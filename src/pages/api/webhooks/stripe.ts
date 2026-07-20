@@ -39,6 +39,14 @@ export const POST: APIRoute = async ({ request, locals }) => {
 
   if (event.type === 'checkout.session.completed') {
     const session = event.data.object;
+    // Solo cumplimos el pedido si Stripe confirma el cobro. Con métodos de pago
+    // diferido (SEPA, iDEAL con captura async…) 'completed' puede llegar con
+    // payment_status distinto de 'paid' y confirmarse (o fallar) más tarde; el
+    // kit asume cobro inmediato, así que ignoramos lo no pagado en vez de
+    // decrementar stock y enviar confirmación por un cobro aún sin cerrar.
+    if (session.payment_status !== 'paid') {
+      return Response.json({ received: true });
+    }
     const paymentIntent = typeof session.payment_intent === 'string' ? session.payment_intent : null;
 
     const order = await env.DB.prepare(

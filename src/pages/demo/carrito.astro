@@ -150,7 +150,8 @@ import Shop from '../../layouts/Shop.astro';
         removeBtn.type = 'button';
         removeBtn.dataset.remove = line.slug;
         removeBtn.setAttribute('aria-label', `Eliminar ${line.name}`);
-        removeBtn.className = 'text-muted-foreground hover:text-destructive';
+        // -m-2 p-2: agranda el área táctil a ≥24px (WCAG 2.5.8) sin mover el layout.
+        removeBtn.className = '-m-2 p-2 text-muted-foreground hover:text-destructive';
         removeBtn.textContent = '✕';
 
         li.appendChild(img);

@@ -25,35 +25,35 @@ import Shop from '../../layouts/Shop.astro';
       <div>
         <label class="block text-sm font-medium" for="name">Nombre y apellidos</label>
         <input id="name" name="name" required minlength="2" autocomplete="name"
-          class="mt-1 w-full rounded-xl border border-border px-4 py-2.5 focus:border-brand focus:outline-none" />
+          class="mt-1 w-full rounded-btn border border-border px-4 py-2.5 focus:border-brand focus:outline-none" />
       </div>
       <div>
         <label class="block text-sm font-medium" for="email">Email</label>
         <input id="email" name="email" type="email" required autocomplete="email"
-          class="mt-1 w-full rounded-xl border border-border px-4 py-2.5 focus:border-brand focus:outline-none" />
+          class="mt-1 w-full rounded-btn border border-border px-4 py-2.5 focus:border-brand focus:outline-none" />
         <p class="mt-1 text-xs text-muted-foreground">Aquí llegarán la confirmación y el seguimiento (en la demo, a la bandeja simulada).</p>
       </div>
       <div>
         <label class="block text-sm font-medium" for="street">Dirección</label>
         <input id="street" name="street" required minlength="3" autocomplete="street-address"
-          class="mt-1 w-full rounded-xl border border-border px-4 py-2.5 focus:border-brand focus:outline-none" />
+          class="mt-1 w-full rounded-btn border border-border px-4 py-2.5 focus:border-brand focus:outline-none" />
       </div>
       <div class="grid grid-cols-2 gap-4">
         <div>
           <label class="block text-sm font-medium" for="postal_code">Código postal</label>
           <input id="postal_code" name="postal_code" required pattern="\\d{5}" inputmode="numeric" maxlength="5" autocomplete="postal-code"
-            class="mt-1 w-full rounded-xl border border-border px-4 py-2.5 focus:border-brand focus:outline-none" />
+            class="mt-1 w-full rounded-btn border border-border px-4 py-2.5 focus:border-brand focus:outline-none" />
         </div>
         <div>
           <label class="block text-sm font-medium" for="city">Población</label>
           <input id="city" name="city" required minlength="2" autocomplete="address-level2"
-            class="mt-1 w-full rounded-xl border border-border px-4 py-2.5 focus:border-brand focus:outline-none" />
+            class="mt-1 w-full rounded-btn border border-border px-4 py-2.5 focus:border-brand focus:outline-none" />
         </div>
       </div>
       <div>
         <label class="block text-sm font-medium" for="phone">Teléfono <span class="font-normal text-muted-foreground">(opcional)</span></label>
         <input id="phone" name="phone" type="tel" autocomplete="tel"
-          class="mt-1 w-full rounded-xl border border-border px-4 py-2.5 focus:border-brand focus:outline-none" />
+          class="mt-1 w-full rounded-btn border border-border px-4 py-2.5 focus:border-brand focus:outline-none" />
       </div>
 
       <details class="rounded-xl border border-border bg-muted/60 px-4 py-3">
@@ -62,12 +62,12 @@ import Shop from '../../layouts/Shop.astro';
           <div>
             <label class="block text-sm font-medium" for="nif">NIF / CIF</label>
             <input id="nif" name="nif" maxlength="20" autocomplete="off" placeholder="B12345678"
-              class="mt-1 w-full rounded-xl border border-border bg-card px-4 py-2.5 focus:border-brand focus:outline-none" />
+              class="mt-1 w-full rounded-btn border border-border bg-card px-4 py-2.5 focus:border-brand focus:outline-none" />
           </div>
           <div>
             <label class="block text-sm font-medium" for="company">Razón social</label>
             <input id="company" name="company" maxlength="160" autocomplete="organization"
-              class="mt-1 w-full rounded-xl border border-border bg-card px-4 py-2.5 focus:border-brand focus:outline-none" />
+              class="mt-1 w-full rounded-btn border border-border bg-card px-4 py-2.5 focus:border-brand focus:outline-none" />
           </div>
         </div>
         <p class="mt-2 text-xs text-muted-foreground">El comercio los tendrá junto al pedido para emitir tu factura.</p>
