@@ -1,11 +1,12 @@
 ---
-// Landing comercial — sistema Logic2B UI (Inter, tokens neutros, isotipo) +
-// acento de marca. Cero JS.
+// Landing comercial de LogicEcom — sistema Logic2B UI (Inter, tokens neutros,
+// wordmark sin isotipo) + acento de marca. Cero JS.
 import Base from '../layouts/Base.astro';
 import SiteHeader from '../components/SiteHeader.astro';
 
 const nav = [
   { href: '/arquitectura', label: 'Cómo funciona' },
+  { href: '/estilos', label: 'Estilos' },
   { href: '#precios', label: 'Precios' },
   { href: '#contacto', label: 'Contacto' },
 ];
@@ -37,7 +38,7 @@ const jsonLd = [
   {
     '@context': 'https://schema.org',
     '@type': 'Service',
-    name: 'Logic2B Commerce Kit',
+    name: 'LogicEcom',
     description:
       'Tienda online a medida para comercios de 50 a 100 productos: ultrarrápida, sin cuotas mensuales de plataforma y con coste de infraestructura cero.',
     provider: { '@type': 'Organization', name: 'Logic2B', url: 'https://logic2b.com' },
@@ -74,13 +75,13 @@ const features = [
 ---
 
 <Base
-  title="Logic2B Commerce Kit — tu tienda online sin cuotas ni comisiones de plataforma"
+  title="LogicEcom — tu tienda online sin cuotas ni comisiones de plataforma"
   description="Tienda online a medida para comercios de 50–100 productos. Ultrarrápida, con pagos Stripe y coste de infraestructura 0 €/mes. Hecha en Castellón por Logic2B."
   canonicalPath="/"
   jsonLd={jsonLd}
 >
   <div class="bg-background text-foreground">
-    <SiteHeader homeHref="/" wordmark="Logic2B" nav={nav}>
+    <SiteHeader homeHref="/" wordmark="LogicEcom" nav={nav}>
       <a
         slot="actions"
         href="/demo/tienda"
@@ -119,7 +120,7 @@ const features = [
       <div class="mx-auto mt-12 max-w-5xl overflow-hidden rounded-2xl border border-border shadow-2xl shadow-stone-900/10 sm:mt-16">
         <img
           src="/images/hero.webp"
-          alt="Productos gourmet de La Botiga del Maestrat, la tienda demo del Commerce Kit"
+          alt="Productos gourmet de La Botiga del Maestrat, la tienda demo de LogicEcom"
           width="1600"
           height="893"
           class="w-full object-cover"
@@ -179,7 +180,7 @@ const features = [
                 <th scope="col" class="px-5 py-4 font-normal"><span class="sr-only">Concepto</span></th>
                 <th scope="col" class="px-5 py-4 font-normal">Shopify</th>
                 <th scope="col" class="px-5 py-4 font-normal">WooCommerce</th>
-                <th scope="col" class="px-5 py-4 font-semibold text-brand">Commerce Kit</th>
+                <th scope="col" class="px-5 py-4 font-semibold text-brand">LogicEcom</th>
               </tr>
             </thead>
             <tbody>

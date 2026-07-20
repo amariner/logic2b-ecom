@@ -1,0 +1,247 @@
+---
+/**
+ * /estilos — CATÁLOGO DE ESTILOS de LogicEcom.
+ *
+ * Pieza de venta: convierte "te lo hacemos a medida" (abstracto, suena caro) en
+ * una elección concreta de catálogo. El cliente elige el punto de partida y a
+ * partir de ahí se adapta a su marca.
+ *
+ * La fuente de verdad es src/lib/demo-themes.ts — esta página solo la pinta.
+ * Documentación de cada tema: docs/TEMAS.md
+ */
+import Base from '../layouts/Base.astro';
+import SiteHeader from '../components/SiteHeader.astro';
+import { demoThemes, defaultTheme } from '../lib/demo-themes';
+
+/**
+ * Se enseña la imaginería PROPIA de cada tema (`sample`), no la captura de
+ * referencia: esta página es indexable y republicar el diseño de otra tienda
+ * aquí no procede. Las referencias son material interno de trabajo.
+ *
+ * Existencia resuelta en BUILD con el glob de Vite —no `node:fs`, que exigiría
+ * @types/node— para pintar un marcador de hueco en vez de un <img> roto.
+ */
+const sampleFiles = new Set(
+  Object.keys(import.meta.glob('../../public/images/temas/*.webp')).map(
+    (path) => `/images/temas/${path.split('/').pop()!}`,
+  ),
+);
+const hasSample = (sample: string | null): boolean => Boolean(sample) && sampleFiles.has(sample!);
+
+const nav = [
+  { href: '/arquitectura', label: 'Cómo funciona' },
+  { href: '/estilos', label: 'Estilos' },
+  { href: '/#precios', label: 'Precios' },
+  { href: '/#contacto', label: 'Contacto' },
+];
+
+const styles = demoThemes.filter((t) => t.id !== defaultTheme.id);
+const readyCount = demoThemes.filter((t) => t.status === 'ready').length;
+
+const layoutLabels: Record<string, string> = {
+  // rejilla
+  '2': '2 columnas', '3': '3 columnas', '4': '4 columnas',
+  // nav
+  top: 'Nav superior', sidebar: 'Nav lateral',
+  // tarjeta
+  hairline: 'Tarjeta con filete', plain: 'Tarjeta sin borde',
+  elevated: 'Tarjeta elevada', divided: 'Tarjeta dividida',
+  // filtros
+  chips: 'Filtros en chips', sidebar_f: 'Filtros laterales', dropdown: 'Filtros en desplegable',
+  // densidad
+  compact: 'Densidad compacta', regular: 'Densidad normal', airy: 'Densidad aireada',
+};
+
+const jsonLd = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name: 'Catálogo de estilos — LogicEcom',
+    description:
+      'Siete direcciones visuales completas para tu tienda online. Elige el punto de partida y lo adaptamos a tu marca.',
+    isPartOf: { '@type': 'WebSite', name: 'LogicEcom', url: 'https://ecom.logic2b.com' },
+  },
+];
+---
+
+<Base
+  title="Catálogo de estilos — LogicEcom"
+  description="Siete direcciones visuales completas para tu tienda online: del catálogo técnico B2B al minimalismo de mobiliario. Elige el punto de partida y lo adaptamos a tu marca."
+  canonicalPath="/estilos"
+  jsonLd={jsonLd}
+>
+  <div class="bg-background text-foreground">
+    <SiteHeader homeHref="/" wordmark="LogicEcom" nav={nav} activeHref="/estilos">
+      <a
+        slot="actions"
+        href="/demo/tienda"
+        class="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition hover:bg-primary/90 sm:px-5"
+      >Ver la demo</a>
+    </SiteHeader>
+
+    <main>
+      <!-- Héroe -->
+      <section class="mx-auto max-w-6xl px-5 pb-12 pt-14 sm:pt-20">
+        <p class="mb-5 inline-block rounded-full border border-border bg-muted px-4 py-1.5 text-xs font-medium text-muted-foreground">
+          {styles.length} direcciones visuales · {readyCount} desarrollada{readyCount === 1 ? '' : 's'}
+        </p>
+        <h1 class="max-w-4xl font-display text-4xl leading-[1.05] sm:text-6xl">
+          Tu tienda no tiene por qué parecerse a <span class="text-brand">ninguna otra</span>.
+        </h1>
+        <p class="mt-6 max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg">
+          «A medida» suena caro y abstracto. Esto es lo que significa en concreto: siete
+          direcciones visuales completas, cada una pensada para un tipo de comercio
+          distinto. Eliges la que más se parece a lo que tienes en la cabeza y la
+          adaptamos a tu marca.
+        </p>
+      </section>
+
+      <!-- Qué cambia y qué no -->
+      <section class="border-y border-border bg-muted/40">
+        <div class="mx-auto grid max-w-6xl gap-8 px-5 py-12 sm:grid-cols-2">
+          <div>
+            <h2 class="font-display text-xl">Lo que cambia con el estilo</h2>
+            <p class="mt-3 text-sm leading-relaxed text-muted-foreground">
+              La rejilla del catálogo, la densidad, el tratamiento de cada ficha de
+              producto, la tipografía de los titulares, la forma de los botones, dónde
+              vive la navegación y cómo se filtra. Es decir: <strong class="text-foreground">todo
+              lo que tu cliente ve</strong>.
+            </p>
+          </div>
+          <div>
+            <h2 class="font-display text-xl">Lo que nunca cambia</h2>
+            <p class="mt-3 text-sm leading-relaxed text-muted-foreground">
+              El motor. Pagos con Stripe, cálculo de portes, control de stock, panel de
+              pedidos, emails y exportación a Packlink son <strong class="text-foreground">exactamente
+              los mismos</strong> en los siete estilos. Elegir diseño no cambia lo que la
+              tienda hace, ni su fiabilidad, ni su precio.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Rejilla de estilos -->
+      <section class="mx-auto max-w-6xl px-5 py-14 sm:py-20">
+        <ul class="grid gap-8 sm:grid-cols-2">
+          {styles.map((theme, i) => (
+            <li class="flex flex-col overflow-hidden rounded-xl border border-border bg-card">
+              {/* Referencia visual. Mientras no exista el fichero, marcador de hueco. */}
+              <div
+                class="relative flex aspect-[16/10] items-end border-b border-border"
+                style={`background: ${theme.vars['--surface-sunken']};`}
+              >
+                {hasSample(theme.sample) ? (
+                  <img
+                    src={theme.sample!}
+                    alt={`Imaginería de producto en la estética del estilo ${theme.label}`}
+                    loading="lazy"
+                    decoding="async"
+                    width="1376"
+                    height="768"
+                    class="absolute inset-0 h-full w-full object-cover"
+                  />
+                ) : (
+                  <div class="absolute inset-0 flex items-center justify-center">
+                    <span class="font-mono text-[11px] uppercase tracking-widest text-muted-foreground">
+                      Muestra pendiente
+                    </span>
+                  </div>
+                )}
+                <span
+                  class="absolute left-4 top-4 rounded-full px-2.5 py-1 text-[11px] font-semibold"
+                  style={`background: ${theme.vars['--color-brand']}; color: ${theme.vars['--color-brand-fg']};`}
+                >
+                  {String(i + 1).padStart(2, '0')} · {theme.label}
+                </span>
+                {theme.status === 'planned' && (
+                  <span class="absolute right-4 top-4 rounded-full border border-border bg-background/90 px-2.5 py-1 text-[11px] font-medium text-muted-foreground">
+                    En desarrollo
+                  </span>
+                )}
+              </div>
+
+              <div class="flex flex-1 flex-col p-6">
+                <h3
+                  class="font-display text-2xl"
+                  style={`letter-spacing: ${theme.vars['--tracking-display']}; font-weight: ${theme.vars['--weight-display']};`}
+                >
+                  {theme.label}
+                </h3>
+                <p class="mt-2 text-sm leading-relaxed text-muted-foreground">{theme.hint}</p>
+
+                <p class="mt-4 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                  Encaja bien en
+                </p>
+                <ul class="mt-2 flex flex-wrap gap-1.5">
+                  {theme.bestFor.map((use) => (
+                    <li class="rounded-full bg-muted px-2.5 py-1 text-xs text-foreground">{use}</li>
+                  ))}
+                </ul>
+
+                {/* Ficha técnica del estilo — la prueba de que hay sistema detrás */}
+                <dl class="mt-5 grid grid-cols-2 gap-x-4 gap-y-2 border-t border-border pt-4 text-xs">
+                  <dt class="text-muted-foreground">Acento</dt>
+                  <dd class="flex items-center gap-1.5 justify-self-end font-mono text-foreground">
+                    <span
+                      class="inline-block h-3 w-3 rounded-full border border-border"
+                      style={`background: ${theme.vars['--color-brand']};`}
+                      aria-hidden="true"
+                    ></span>
+                    {theme.vars['--color-brand']}
+                  </dd>
+
+                  <dt class="text-muted-foreground">Rejilla</dt>
+                  <dd class="justify-self-end text-foreground">{layoutLabels[String(theme.layout.gridCols)]}</dd>
+
+                  <dt class="text-muted-foreground">Navegación</dt>
+                  <dd class="justify-self-end text-foreground">{layoutLabels[theme.layout.nav]}</dd>
+
+                  <dt class="text-muted-foreground">Densidad</dt>
+                  <dd class="justify-self-end text-foreground">{layoutLabels[theme.layout.density]}</dd>
+                </dl>
+
+                <p class="mt-4 border-t border-border pt-4 text-xs text-muted-foreground">
+                  Inspirado en la dirección visual de <strong class="font-medium text-foreground">{theme.reference?.name}</strong>,
+                  reconstruida sobre el sistema Logic2B UI.
+                </p>
+              </div>
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      <!-- Nota honesta sobre el estado -->
+      <section class="border-t border-border bg-muted/40">
+        <div class="mx-auto max-w-3xl px-5 py-14 text-center">
+          <h2 class="font-display text-2xl sm:text-3xl">¿Y si ninguno es exactamente lo tuyo?</h2>
+          <p class="mt-4 text-base leading-relaxed text-muted-foreground">
+            Mejor. Estos siete son puntos de partida, no un menú cerrado: lo normal es
+            coger la rejilla de uno, la tipografía de otro y el color de tu marca. El
+            catálogo existe para tener una conversación concreta, no para encajarte en
+            una plantilla.
+          </p>
+          <div class="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
+            <a
+              href="/demo/tienda"
+              class="rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground transition hover:bg-primary/90"
+            >Entra en la tienda demo</a>
+            <a
+              href="/#contacto"
+              class="rounded-full border border-border px-6 py-3 text-sm font-semibold text-foreground transition hover:border-foreground"
+            >Cuéntanos tu proyecto</a>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="border-t border-border">
+      <div class="mx-auto flex max-w-6xl flex-col gap-2 px-5 py-10 text-sm text-muted-foreground sm:flex-row sm:justify-between">
+        <p>© 2026 Logic2B · Castellón</p>
+        <p>
+          <a href="/" class="underline underline-offset-2 hover:text-foreground">LogicEcom</a> ·
+          <a href="/arquitectura" class="underline underline-offset-2 hover:text-foreground">Arquitectura</a>
+        </p>
+      </div>
+    </footer>
+  </div>
+</Base>

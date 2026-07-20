@@ -1,4 +1,9 @@
-# ROADMAP — Logic2B Commerce Kit (ecom.logic2b.com)
+# ROADMAP — LogicEcom (ecom.logic2b.com)
+
+> **Renombrado 2026-07-20:** el producto pasa a llamarse **LogicEcom**
+> (antes «Logic2B Commerce Kit»). **Logic2B** sigue siendo la agencia: aparece
+> como proveedor, en el copyright y en la firma. El isotipo se retira de la
+> cabecera — el producto se presenta como wordmark tipográfico.
 
 > **Documento de continuidad.** Cada sesión de trabajo con Claude Code debe:
 > 1. Leer este fichero al empezar (junto con `CLAUDE.md`).
@@ -9,7 +14,17 @@
 
 Demo pública + plantilla clonable de ecommerce ultraligero (Astro 5 + Cloudflare D1/Workers + Stripe Checkout) desplegada en `ecom.logic2b.com`. Especificación completa en `CLAUDE.md`.
 
-## ⚠️ RECONCILIACIÓN EN CURSO (2026-07-20) — leer antes de trabajar
+## ✅ RECONCILIACIÓN RESUELTA (2026-07-20)
+
+`logic2b-ui-base` y `origin/main` están **al día** (0 ahead / 0 behind tras el
+merge `7483d4d`). Sigue vigente la regla de **hacer `git fetch` siempre al
+empezar**: hay sesiones cloud empujando a `origin/main`. El historial de la
+reconciliación se conserva abajo por contexto.
+
+<details>
+<summary>Historial de la reconciliación (resuelto)</summary>
+
+### ⚠️ RECONCILIACIÓN EN CURSO (2026-07-20) — leer antes de trabajar
 
 **Hacer `git fetch` SIEMPRE al empezar**: hay sesiones cloud empujando a `origin/main`. El 2026-07-19/20 se descubrió que `origin/main` iba ~62 commits por delante (Fase 8: seguridad, auth admin, búsqueda, `/dossier`, selector de temas, 97 tests) mientras una sesión local hacía la Fase 9 (rediseño Logic2B UI). Se restauró producción a `origin/main` (Version `f18fce30`, segura).
 
@@ -20,6 +35,8 @@ Demo pública + plantilla clonable de ecommerce ultraligero (Astro 5 + Cloudflar
 - Componentes listos: `src/components/{Logo,SiteHeader}.astro`. Isotipo en `public/brand/logo-mark.svg`. Fuentes Inter en `public/fonts/`. Referencia estética: `ui.logic2b.com` (memoria `logic2b-ui-design-system`).
 - Patrón de migración por superficie: `SiteHeader` en el layout + perl de tokens (ink→foreground, cream→muted, paper→background, bg-white→bg-card, stone→muted-foreground/border, border-black/5→border-border) **preservando `brand`**; bandas oscuras `bg-foreground text-background`. Verificar en claro y con ≥1 tema; `pnpm check` (97 tests) verde antes de commitear.
 - La rama `fase9-logic2b-ui` guarda el rediseño original (9 commits) por si se necesita rescatar algo.
+
+</details>
 
 ## Estado de fases
 
@@ -34,12 +51,136 @@ Demo pública + plantilla clonable de ecommerce ultraligero (Astro 5 + Cloudflar
 | 5 | Landing comercial + /arquitectura + SEO técnico | ✅ Hecho | 2026-07-17 | Dirección B elegida (escaparate editorial). Cero JS en landing. Sitemap+JSON-LD OK |
 | 6 | Deploy ecom.logic2b.com + cron reset + README + docs/CLIENTE.md | ✅ Hecho | 2026-07-18 | **Desplegado y en vivo en https://ecom.logic2b.com** (Worker `ecom-logic2b`, D1 remota `ecom-demo` id `7ae9b06d…`, custom domain + cron reset activos). Pagos en **modo simulado** (sin Stripe) |
 | 7 | bootstrap.sh + checklist demo→cliente real | ✅ Hecho | 2026-07-18 | `scripts/bootstrap.sh` (local probado end-to-end; `--remote` aprovisiona Cloudflare) + `docs/PRODUCCION.md` |
+| 9 | Catálogo de estilos (7 temas) | 🟡 En curso | 2026-07-20 | Arquitectura + documentación + `/estilos` hechos. Los 7 temas se desarrollan uno por sesión. Ver «Fase 9» y `docs/TEMAS.md` |
+| 10 | Documentación para el cliente | ⬜ Pendiente | — | Ver «Fase 10». Es material de venta y de entrega, no docs técnicas |
 | 8 | Pulido de la demo (backlog abajo) | 🟡 En curso | 2026-07-19 | Backlog técnico agotado; solo quedan decisiones y pasos locales de Andreu (ver «Decisiones pendientes» y `docs/PROMPT_CLOUD.md`). Últimas tandas: novena (race de idempotencia en el pago, PII enumerable en `/demo/gracias`, cancelación de pedido pagado sin devolver stock), décima (la misma race en el PATCH de admin, campos vacíos guardados como 0, login sin rate limit), undécima (diagrama móvil de `/arquitectura`, hedge del plazo de entrega, tokens de tema en `/demo/reset`, terminología «envío»), duodécima (aviso de corte en pedidos del admin, cabeceras sin wrap a 375px, leftover «portes», token de radio del carrito, contraste del botón eliminar, H1 en valenciano, checklist de producción) y decimotercera (misma race de idempotencia en `checkout.session.expired`, divisa hardcodeada a EUR fuera de Stripe, cobertura de test de `quoteCart`/PATCH admin/emails) y decimocuarta (config parcial de Stripe → cobro sin cumplimiento, emails duplicados bajo concurrencia, `payment_status` del webhook, color de marca centralizado en `shop.config.ts`, contraste/tema en carrito y checkout) — ver sección «Fase 8» |
 
 ## Repo y entornos
 
 - GitHub: `https://github.com/amariner/logic2b-ecom` (rama `main`).
 - Cloudflare: **en producción** — Worker `ecom-logic2b` en https://ecom.logic2b.com, D1 remota `ecom-demo` (`7ae9b06d-3664-4790-a87c-04bb4c67e97a`), cron reset cada 6 h, cuenta marinerandreu@gmail.com.
+
+## Fase 9 — Catálogo de estilos (7 temas)
+
+> **Documentación completa: [`docs/TEMAS.md`](TEMAS.md).** Leerlo entero antes de
+> desarrollar cualquier tema. Aquí solo va el estado y el orden.
+
+### Qué se hizo el 2026-07-20 (base de la fase)
+
+- **Arquitectura de temas reescrita.** `THEME_VARS` pasa de 4 variables a 14
+  (acento + `--color-brand-fg`, tipografía, forma, superficie, ritmo) y cada tema
+  añade un descriptor estructural `layout` (rejilla, nav, tarjeta, filtros,
+  densidad, anotaciones, footer) y metadatos de venta (`reference`, `bestFor`,
+  `status`).
+- **Contrato:** un tema = tokens + layout + componentes en
+  `src/components/themes/<id>/`. **El backend es UNO para todos.**
+- **`/estilos`**: catálogo público con ficha por tema. Indexable, en el sitemap y
+  en la nav de la landing.
+- **Tests:** contraste WCAG AA acento/texto en los 8 temas, integridad de
+  `THEME_VARS`, y guardia de sincronía del script anti-flash de `Shop.astro`.
+- **Selector de la tienda** limitado a `readyThemes`: un tema `planned` cambiaría
+  tokens pero no estructura, y daría una idea falsa del estilo.
+
+### Estado de los temas
+
+| # | Tema | Referencia | Estado |
+|---|------|-----------|--------|
+| — | Base | — | ✅ listo |
+| 01 | Editorial | Teenage Engineering | ⬜ pendiente |
+| 02 | Industrial | TAGARNO | ⬜ pendiente |
+| 03 | Natural | All Natural / AFF | ⬜ pendiente |
+| 04 | Guide | Pour over | ⬜ pendiente |
+| 05 | Specs | ACF-01 | ⬜ pendiente |
+| 06 | Minimal | propro | ⬜ pendiente |
+| 07 | Launch | P1 | ⬜ pendiente |
+
+### Orden sugerido de desarrollo
+
+Ordenado por **riesgo creciente**, para que los primeros temas validen la
+arquitectura antes de meterse en los que tocan datos:
+
+1. **Minimal** — el más lejano a Base estructuralmente (nav lateral, 2 columnas,
+   sin filetes) pero **sin necesidades de datos nuevas**. Es la mejor prueba de
+   que el descriptor `layout` aguanta.
+2. **Editorial** — valida densidad compacta y anotaciones.
+3. **Launch** — valida composición de landing y estado de stock en vivo.
+4. **Guide** — valida acento claro (`--color-brand-fg` en tinta) y pide
+   ilustración de línea: primer compromiso serio de recursos.
+5. **Industrial** — primer tema que quiere un campo nuevo (subtítulo técnico).
+6. **Natural** — quiere precio de oferta (`compare_at_price`).
+7. **Specs** — el que más datos nuevos pide (filas de especificación).
+
+### Bloqueantes conocidos
+
+- ⚠️ **Capturas de referencia sin subir.** `public/images/referencias/` está vacía
+  (los ficheros se aportaron por chat). `/estilos` pinta «Referencia pendiente» en
+  su lugar. Nombres exactos esperados en el README de esa carpeta.
+- ⚠️ **Tres temas piden datos que el modelo no tiene** (Industrial, Natural,
+  Specs). Cualquiera es migración de D1 = backend compartido → **consultar antes
+  de implementar**. Alternativa barata: derivarlos del seed sin tocar el esquema.
+- ⚠️ **Deriva de componentes.** 7 temas × 6 componentes = 42 ficheros si se
+  implementa todo. Mitigación: herencia de Base, implementar solo lo que el tema
+  redefine de verdad. Revisar en cada sesión.
+
+---
+
+## Fase 10 — Documentación para el cliente
+
+> **Qué es:** el material que lee un **comercio**, no un desarrollador. Se divide
+> en dos momentos con públicos distintos: quien todavía **no ha contratado**
+> (venta) y quien **ya tiene la tienda** (operación).
+>
+> **Qué no es:** documentación técnica. `README.md`, `docs/PRODUCCION.md` y
+> `docs/TEMAS.md` ya cubren eso y siguen siendo para nosotros.
+
+### Principio rector
+
+El cliente objetivo es un comercio pequeño de 50–100 productos, sin equipo
+técnico. **Si un documento necesita que expliquemos qué es un webhook, está mal
+escrito.** El listón: que el dueño de la tienda pueda operar sin llamarnos, y que
+un cliente potencial entienda qué compra sin que le traduzcamos nada.
+
+### 10.1 · Antes de contratar (material de venta)
+
+| Pieza | Formato | Estado | Contenido |
+|---|---|---|---|
+| **Dossier de servicio** | `/dossier` (existe) | 🟡 revisar | Ya existe. Falta: actualizarlo al nombre LogicEcom y enlazar el catálogo de estilos |
+| **Catálogo de estilos** | `/estilos` (existe) | ✅ hecho | Las 7 direcciones visuales con su ficha |
+| **Guía «cómo elegir tu estilo»** | Sección en `/estilos` | ⬜ | Árbol de decisión corto: nº de productos, si el producto entra por la foto o por los datos, sector. Convierte 7 opciones en 1-2 recomendadas |
+| **Comparativa honesta** | Sección en `/` (existe parcial) | 🟡 | Ya hay tabla vs Shopify/Woo. Falta la parte incómoda: **cuándo NO somos la opción** (necesitas multiidioma, +500 SKUs, marketplace, suscripciones) |
+| **Qué necesitamos de ti** | `/dossier` | ⬜ | Checklist previa: fotos, textos, logo, datos fiscales, cuenta de Stripe, dominio. Es la causa nº 1 de que un proyecto se alargue |
+| **Precio y qué incluye** | `/` (existe) | 🟡 | Revisar que separe con claridad setup vs mantenimiento vs lo que paga a terceros (Stripe, dominio) |
+
+### 10.2 · Después de contratar (material de operación)
+
+| Pieza | Formato | Estado | Contenido |
+|---|---|---|---|
+| **Manual de 1 página** | `docs/CLIENTE.md` (existe) | 🟡 revisar | Los 3 pasos: llega el pedido → exportas a Packlink → marcas enviado con tracking. **Mantenerlo en 1 página; si crece, es que algo del producto no es obvio** |
+| **Guía de producto** | Nuevo | ⬜ | Cómo dar de alta un producto que venda: foto (formato, fondo, peso), nombre, descripción, precio, stock. Con ejemplos buenos y malos |
+| **Guía de envíos** | Nuevo | ⬜ | Cómo configurar zonas, tarifas y umbral de envío gratis. Qué implica cambiarlas |
+| **Qué hacer cuando…** | Nuevo | ⬜ | Runbook de incidencias reales del comercio: un pedido no llega, el cliente quiere devolver, un pago queda pendiente, me equivoqué de tracking, hay que cancelar. **La pieza que más llamadas ahorra** |
+| **Vídeo de 3 minutos** | Externo | ⬜ | Recorrido por el panel. Para muchos comercios sustituye a todo lo anterior |
+| **Qué NO puedes romper** | Nuevo | ⬜ | Límites claros: qué puede tocar el cliente sin miedo y qué nos tiene que pedir |
+
+### 10.3 · Entrega y traspaso
+
+| Pieza | Formato | Estado | Contenido |
+|---|---|---|---|
+| **Acta de entrega** | Plantilla | ⬜ | Qué se entrega: repo, dominio, accesos Cloudflare/Stripe, documentación. Firmado, cierra el proyecto |
+| **Inventario de accesos** | Plantilla | ⬜ | Dónde vive cada cosa y a nombre de quién. **Las cuentas de Stripe y dominio van a nombre del cliente, no nuestro** — evita el secuestro de infraestructura y es argumento de venta |
+| **Qué pasa si nos vamos** | Sección en dossier | ⬜ | El código es suyo, la infraestructura está a su nombre, cualquier desarrollador puede continuar. Es de las objeciones más frecuentes al «a medida» |
+
+### Decisiones pendientes de esta fase
+
+- **¿Dónde vive la documentación de operación?** Opciones: (a) Markdown en el
+  repo del cliente, (b) página `/ayuda` con `noindex` en su propia tienda,
+  (c) PDF entregado. La (b) tiene la ventaja de estar donde el cliente ya mira.
+- **¿Se traduce al valenciano?** El público objetivo es Castellón. Puede ser
+  diferenciador, pero duplica el mantenimiento.
+- **¿Documentación por estilo?** Si un cliente elige *Specs*, su manual habla de
+  fichas técnicas. ¿Se generan variantes o se mantiene uno genérico?
+
+---
 
 ## Fase 8 — Pulido de la demo (backlog priorizado)
 

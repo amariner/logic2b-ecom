@@ -63,11 +63,33 @@
 
   --radius: 0.625rem;
 
-  /* --- GANCHOS DE TEMA (los sobreescribe demo-themes.ts en :root) --- */
-  --color-brand: #008060;         /* acento por defecto (tema "La Botiga") */
+  /* --- GANCHOS DE TEMA (los sobreescribe demo-themes.ts en :root) ---
+     Lista cerrada = THEME_VARS en src/lib/demo-themes.ts. Los valores de aquí
+     son el fallback del tema "Base"; si añades uno, añádelo también allí. */
+
+  /* Acento */
+  --color-brand: #008060;
   --color-brand-dark: #004c3f;
-  --font-display: var(--font-sans); /* titulares: Inter por defecto */
-  --radius-btn: 9999px;             /* botones pill por defecto */
+  --color-brand-fg: #ffffff;        /* texto SOBRE el acento (Guide lo pone en tinta) */
+
+  /* Tipografía */
+  --font-display: var(--font-sans);
+  --font-accent: var(--font-mono);
+  --tracking-display: -0.02em;
+  --weight-display: 600;
+
+  /* Forma */
+  --radius-btn: 9999px;
+  --radius-card: 0.75rem;
+  --border-width: 1px;
+
+  /* Superficie */
+  --surface-product: #f6f6f4;
+  --surface-sunken: #fafafa;
+
+  /* Ritmo */
+  --space-density: 1;
+  --grid-gap: 1.5rem;
 }
 
 .dark {
@@ -98,12 +120,17 @@
   --font-sans: var(--font-sans);
   --font-mono: var(--font-mono);
   --font-display: var(--font-display);
+  --font-accent: var(--font-accent);
 
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
   --radius-btn: var(--radius-btn);
+  --radius-card: var(--radius-card);
+
+  --color-surface-product: var(--surface-product);
+  --color-surface-sunken: var(--surface-sunken);
 
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -128,6 +155,7 @@
   /* Acento de marca (lo cambian los temas) */
   --color-brand: var(--color-brand);
   --color-brand-dark: var(--color-brand-dark);
+  --color-brand-fg: var(--color-brand-fg);
 }
 
 /* COMPAT TEMPORAL — alias Shopify (ink/paper/cream) con valores fijos, para que
@@ -151,8 +179,8 @@
   }
   .font-display {
     font-family: var(--font-display);
-    font-weight: 600;
-    letter-spacing: -0.02em;
+    font-weight: var(--weight-display);
+    letter-spacing: var(--tracking-display);
   }
   /* Foco visible con el acento activo (teclado) */
   :focus-visible {

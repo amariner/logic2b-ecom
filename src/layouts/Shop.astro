@@ -6,7 +6,7 @@
 import Base from './Base.astro';
 import SiteHeader from '../components/SiteHeader.astro';
 import { shopConfig } from '../../shop.config';
-import { demoThemes } from '../lib/demo-themes';
+import { readyThemes } from '../lib/demo-themes';
 
 const nav = [
   { href: '/demo/tienda', label: 'Tienda' },
@@ -22,13 +22,21 @@ const { title, description } = Astro.props;
 ---
 
 <Base title={`${title} — ${shopConfig.name}`} description={description} noindex>
-  {/* Aplica el tema guardado ANTES de pintar nada (sin flash). Lista de variables
-      cerrada y en sintonía con THEME_VARS de src/lib/demo-themes.ts */}
+  {/* Aplica el tema guardado ANTES de pintar nada (sin flash).
+      OJO: `is:inline` no puede importar, así que la lista va literal y DEBE
+      mantenerse en sintonía con THEME_VARS de src/lib/demo-themes.ts.
+      El test `tests/theme-inline-script.test.ts` falla si divergen. */}
   <script is:inline>
     try {
       var stored = JSON.parse(localStorage.getItem('ecom-demo-theme') || 'null');
       if (stored && stored.vars) {
-        var allowed = ['--color-brand', '--color-brand-dark', '--font-display', '--radius-btn'];
+        var allowed = [
+          '--color-brand', '--color-brand-dark', '--color-brand-fg',
+          '--font-display', '--font-accent', '--tracking-display', '--weight-display',
+          '--radius-btn', '--radius-card', '--border-width',
+          '--surface-product', '--surface-sunken',
+          '--space-density', '--grid-gap',
+        ];
         for (var i = 0; i < allowed.length; i++) {
           var value = stored.vars[allowed[i]];
           if (typeof value === 'string' && value.length <= 200) {
@@ -42,7 +50,7 @@ const { title, description } = Astro.props;
   </script>
   <div class="bg-foreground px-4 py-1.5 text-center text-xs text-background/80">
     <strong class="font-semibold text-background">Demo</strong> — tienda ficticia del
-    <a href="/" class="underline decoration-background/40 underline-offset-2 hover:text-background">Logic2B Commerce Kit</a>.
+    <a href="/" class="underline decoration-background/40 underline-offset-2 hover:text-background">LogicEcom</a>.
     El pago está simulado: nada es real.
   </div>
 
@@ -67,7 +75,7 @@ const { title, description } = Astro.props;
     <div class="mx-auto max-w-6xl px-4 py-10 text-sm text-muted-foreground">
       <p class="font-display text-base text-foreground">{shopConfig.name}</p>
       <p class="mt-3 max-w-2xl leading-relaxed">{shopConfig.legalName}. {shopConfig.legal.shippingNote} {shopConfig.legal.returnsNote}</p>
-      <p class="mt-4">Demo del <a href="/" class="underline underline-offset-2 hover:text-foreground">Logic2B Commerce Kit</a> · <a href="/demo/reset" class="underline underline-offset-2 hover:text-foreground">Restaurar datos de la demo</a></p>
+      <p class="mt-4">Demo de <a href="/" class="underline underline-offset-2 hover:text-foreground">LogicEcom</a> · <a href="/demo/reset" class="underline underline-offset-2 hover:text-foreground">Restaurar datos de la demo</a></p>
     </div>
   </footer>
 
@@ -85,7 +93,10 @@ const { title, description } = Astro.props;
         Prueba cómo se vería la tuya:
       </p>
       <ul class="mt-3 space-y-2">
-        {demoThemes.map((theme) => (
+        {/* Solo los temas YA desarrollados: aplicar uno "planned" cambiaría los
+            tokens pero no la estructura, y daría una idea falsa del estilo. El
+            catálogo completo, con los pendientes, vive en /estilos. */}
+        {readyThemes.map((theme) => (
           <li>
             <button
               type="button"

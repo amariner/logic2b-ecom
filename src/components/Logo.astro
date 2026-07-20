@@ -1,19 +1,22 @@
 ---
 /**
- * Isotipo oficial Logic2B (logo-mark.svg) + wordmark opcional.
- * `fill: currentColor` → hereda el color del texto, funciona en claro y oscuro.
+ * Wordmark del producto + isotipo Logic2B opcional.
+ *
+ * El isotipo está RETIRADO por defecto (decisión 2026-07-20): LogicEcom se
+ * presenta como wordmark tipográfico puro. El SVG se conserva porque la marca
+ * de agencia (Logic2B) lo sigue usando; para reactivarlo basta `mark={true}`.
  */
 interface Props {
   /** Alto/ancho del isotipo en px. */
   size?: number;
   /** Texto del wordmark. Si es null/'' se muestra solo el isotipo. */
   wordmark?: string | null;
-  /** Mostrar el isotipo. false = solo wordmark (p. ej. tienda "real"). */
+  /** Mostrar el isotipo. Por defecto false = solo wordmark. */
   mark?: boolean;
   class?: string;
 }
 
-const { size = 20, wordmark = 'Logic2B', mark = true, class: className = '' } = Astro.props;
+const { size = 20, wordmark = 'LogicEcom', mark = false, class: className = '' } = Astro.props;
 ---
 
 <span class={`inline-flex items-center gap-2 ${className}`}>

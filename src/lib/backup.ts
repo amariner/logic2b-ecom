@@ -37,7 +37,7 @@ export function dumpTable(table: string, rows: Row[]): string[] {
 /** Dump completo: limpieza (hijos primero) + INSERTs en orden de FK. */
 export function buildBackupSql(tablesRows: Record<string, Row[]>, generatedAt: string): string {
   const lines = [
-    `-- Copia de seguridad Logic2B Commerce Kit — ${generatedAt}`,
+    `-- Copia de seguridad LogicEcom — ${generatedAt}`,
     `-- Restaurar con: wrangler d1 execute <database> --remote --file <este fichero>`,
     'PRAGMA defer_foreign_keys = true;',
   ];

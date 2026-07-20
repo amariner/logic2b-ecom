@@ -6,6 +6,12 @@
       "runtimeExecutable": "pnpm",
       "runtimeArgs": ["wrangler", "dev", "--port", "8799", "--local"],
       "port": 8799
+    },
+    {
+      "name": "wrangler-preview",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["wrangler", "dev", "--port", "8788", "--local"],
+      "port": 8788
     }
   ]
 }

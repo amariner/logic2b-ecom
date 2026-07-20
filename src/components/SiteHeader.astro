@@ -15,7 +15,10 @@ interface Props {
   homeHref?: string;
   wordmark?: string | null;
   nav?: readonly NavLink[];
-  /** Mostrar el isotipo Logic2B junto al wordmark (false en la tienda "real"). */
+  /**
+   * Mostrar el isotipo junto al wordmark. Por defecto NO: el producto se
+   * presenta como wordmark tipográfico "LogicEcom" (decisión 2026-07-20).
+   */
   showMark?: boolean;
   /** href del enlace de nav activo (se resalta en foreground). */
   activeHref?: string | undefined;
@@ -23,9 +26,9 @@ interface Props {
 
 const {
   homeHref = '/',
-  wordmark = 'Logic2B',
+  wordmark = 'LogicEcom',
   nav = [],
-  showMark = true,
+  showMark = false,
   activeHref,
 } = Astro.props;
 ---
