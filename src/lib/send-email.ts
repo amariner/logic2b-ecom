@@ -61,15 +61,29 @@ export async function deliverPendingEmails(db: D1Database, env: SendEnv): Promis
 
   let delivered = 0;
   for (const message of pending) {
+    // Reclamo atómico ANTES de enviar: marcamos sent=1 condicionado a que siga
+    // en 0. D1 serializa las escrituras, así que de dos entregas concurrentes
+    // (dos pedidos pagados casi a la vez → dos waitUntil) solo una obtiene
+    // changes===1 y hace el fetch; la otra ve 0 y salta el email. Sin esto,
+    // ambas leerían el mismo pendiente y Resend lo enviaría por duplicado.
+    const claim = await db
+      .prepare('UPDATE emails_outbox SET sent = 1 WHERE id = ? AND sent = 0')
+      .bind(message.id)
+      .run();
+    if (claim.meta.changes !== 1) continue; // otra invocación ya lo reclamó
+
     try {
       const { url, init } = buildResendRequest(message, apiKey);
       const response = await fetch(url, init);
       if (response.ok) {
-        await db.prepare('UPDATE emails_outbox SET sent = 1 WHERE id = ?').bind(message.id).run();
         delivered++;
+      } else {
+        // Resend rechazó: liberamos el reclamo para reintentar en el próximo disparo.
+        await db.prepare('UPDATE emails_outbox SET sent = 0 WHERE id = ?').bind(message.id).run();
       }
     } catch {
-      // Red caída o Resend fuera: el email sigue sent=0 y se reintentará.
+      // Red caída o Resend fuera: liberamos el reclamo y se reintentará.
+      await db.prepare('UPDATE emails_outbox SET sent = 0 WHERE id = ?').bind(message.id).run();
     }
   }
   return delivered;

@@ -9,8 +9,18 @@ describe('isSimulatedPayment', () => {
     expect(isSimulatedPayment({ STRIPE_SECRET_KEY: '   ' })).toBe(true);
   });
 
-  it('usa Stripe real cuando la clave está configurada', () => {
-    expect(isSimulatedPayment({ STRIPE_SECRET_KEY: 'sk_test_123' })).toBe(false);
+  it('sigue simulando si falta la clave del webhook (config a medias)', () => {
+    // Solo la secret key: el checkout cobraría de verdad pero el webhook (que
+    // exige STRIPE_WEBHOOK_SECRET) respondería 503 y el pedido nunca se cumpliría.
+    expect(isSimulatedPayment({ STRIPE_SECRET_KEY: 'sk_test_123' })).toBe(true);
+    expect(isSimulatedPayment({ STRIPE_SECRET_KEY: 'sk_test_123', STRIPE_WEBHOOK_SECRET: '' })).toBe(true);
+    expect(isSimulatedPayment({ STRIPE_SECRET_KEY: 'sk_test_123', STRIPE_WEBHOOK_SECRET: '  ' })).toBe(true);
+    // Solo el webhook secret, sin secret key: también simulado.
+    expect(isSimulatedPayment({ STRIPE_WEBHOOK_SECRET: 'whsec_123' })).toBe(true);
+  });
+
+  it('usa Stripe real solo cuando ambas claves están configuradas', () => {
+    expect(isSimulatedPayment({ STRIPE_SECRET_KEY: 'sk_test_123', STRIPE_WEBHOOK_SECRET: 'whsec_123' })).toBe(false);
   });
 });
 

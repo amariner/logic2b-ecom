@@ -2,7 +2,7 @@
 
 > Manual completo del panel. No hay más que esto.
 
-Tu panel está en **`tudominio.com/demo/admin`** (guárdalo en favoritos).
+Tu panel está en **la dirección que te hemos dado** (algo como `tutienda.com/admin`) — guárdala en favoritos.
 Cada vez que alguien compra, el pago ya está cobrado por Stripe antes de que tú veas nada. Tu único trabajo es **enviar el paquete**.
 
 ---

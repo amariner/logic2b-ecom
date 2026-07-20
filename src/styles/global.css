@@ -18,7 +18,9 @@
 }
 
 /* Tokens de marca — estética tipo Shopify: blanco, tinta casi negra, verde profundo.
-   Mantener en sintonía con brand.color de shop.config.ts.
+   El color de marca lo manda shop.config.ts (brand.color/colorDark): Base.astro lo
+   inyecta en :root con mayor especificidad, así que estos dos valores son solo el
+   fallback si ese layout no corriera. Los demás tokens (tinta, cream, tipos) viven aquí.
    El selector de temas de la demo sobreescribe brand/brand-dark/font-display/radius-btn
    en :root (ver src/lib/demo-themes.ts): es la prueba en vivo de la clonabilidad. */
 @theme {

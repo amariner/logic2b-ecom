@@ -36,7 +36,7 @@ const linkFor = (cat?: string, ord?: string): string => {
 };
 ---
 
-<Shop title="Tienda" description="Catálogo demo de La Botiga del Maestrat">
+<Shop title="Tienda" description={`Catálogo demo de ${shopConfig.name}`}>
   <main class="mx-auto max-w-6xl px-4 py-10">
     <div class="mb-8 flex flex-wrap items-center gap-x-2 gap-y-1 rounded-2xl bg-cream px-5 py-3 text-sm text-stone-600">
       <span class="font-semibold text-ink">Recorrido de la demo:</span>

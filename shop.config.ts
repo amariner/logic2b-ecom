@@ -22,7 +22,11 @@ export const shopConfig = {
   /** Prefijo del nº de pedido legible (p. ej. BM-260719-K7M2). 2-4 letras mayúsculas. */
   orderNumberPrefix: 'BM',
 
-  /** Marca (alimenta los tokens de Tailwind en global.css) */
+  /**
+   * Marca — fuente única del color. Base.astro lo inyecta en :root, así que las
+   * utilidades `*-brand` de Tailwind (y el preset por defecto del selector de
+   * temas) lo siguen. Cambiar aquí basta; global.css solo guarda el fallback.
+   */
   brand: {
     color: '#008060', // verde profundo (estética Shopify)
     colorDark: '#004c3f',
