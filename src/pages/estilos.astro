@@ -40,7 +40,7 @@ const readyCount = demoThemes.filter((t) => t.status === 'ready').length;
 
 const layoutLabels: Record<string, string> = {
   // rejilla
-  '2': '2 columnas', '3': '3 columnas', '4': '4 columnas',
+  '2': '2 columnas', '3': '3 columnas', '4': '4 columnas', '5': '5 columnas',
   // nav
   top: 'Nav superior', sidebar: 'Nav lateral',
   // tarjeta
@@ -52,13 +52,20 @@ const layoutLabels: Record<string, string> = {
   compact: 'Densidad compacta', regular: 'Densidad normal', airy: 'Densidad aireada',
 };
 
+/**
+ * Nunca devuelve vacío: si falta una etiqueta (p. ej. al añadir un valor nuevo a
+ * ThemeLayout), cae al valor crudo en vez de renderizar una fila en blanco.
+ * `tests/estilos-labels.test.ts` avisa antes de que eso llegue a producción.
+ */
+const label = (key: string | number): string => layoutLabels[String(key)] ?? String(key);
+
 const jsonLd = [
   {
     '@context': 'https://schema.org',
     '@type': 'CollectionPage',
     name: 'Catálogo de estilos — LogicEcom',
     description:
-      'Siete direcciones visuales completas para tu tienda online. Elige el punto de partida y lo adaptamos a tu marca.',
+      `${styles.length} direcciones visuales completas para tu tienda online. Elige el punto de partida y lo adaptamos a tu marca.`,
     isPartOf: { '@type': 'WebSite', name: 'LogicEcom', url: 'https://ecom.logic2b.com' },
   },
 ];
@@ -66,7 +73,7 @@ const jsonLd = [
 
 <Base
   title="Catálogo de estilos — LogicEcom"
-  description="Siete direcciones visuales completas para tu tienda online: del catálogo técnico B2B al minimalismo de mobiliario. Elige el punto de partida y lo adaptamos a tu marca."
+  description={`${styles.length} direcciones visuales completas para tu tienda online: del catálogo técnico B2B al minimalismo de mobiliario. Elige el punto de partida y lo adaptamos a tu marca.`}
   canonicalPath="/estilos"
   jsonLd={jsonLd}
 >
@@ -89,10 +96,10 @@ const jsonLd = [
           Tu tienda no tiene por qué parecerse a <span class="text-brand">ninguna otra</span>.
         </h1>
         <p class="mt-6 max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg">
-          «A medida» suena caro y abstracto. Esto es lo que significa en concreto: siete
-          direcciones visuales completas, cada una pensada para un tipo de comercio
-          distinto. Eliges la que más se parece a lo que tienes en la cabeza y la
-          adaptamos a tu marca.
+          «A medida» suena caro y abstracto. Esto es lo que significa en concreto:
+          {' '}{styles.length} direcciones visuales completas, cada una pensada para un tipo
+          de comercio distinto. Eliges la que más se parece a lo que tienes en la
+          cabeza y la adaptamos a tu marca.
         </p>
       </section>
 
@@ -113,7 +120,7 @@ const jsonLd = [
             <p class="mt-3 text-sm leading-relaxed text-muted-foreground">
               El motor. Pagos con Stripe, cálculo de portes, control de stock, panel de
               pedidos, emails y exportación a Packlink son <strong class="text-foreground">exactamente
-              los mismos</strong> en los siete estilos. Elegir diseño no cambia lo que la
+              los mismos</strong> en todos los estilos. Elegir diseño no cambia lo que la
               tienda hace, ni su fiabilidad, ni su precio.
             </p>
           </div>
@@ -136,8 +143,8 @@ const jsonLd = [
                     alt={`Imaginería de producto en la estética del estilo ${theme.label}`}
                     loading="lazy"
                     decoding="async"
-                    width="1376"
-                    height="768"
+                    width="2752"
+                    height="1536"
                     class="absolute inset-0 h-full w-full object-cover"
                   />
                 ) : (
@@ -191,13 +198,13 @@ const jsonLd = [
                   </dd>
 
                   <dt class="text-muted-foreground">Rejilla</dt>
-                  <dd class="justify-self-end text-foreground">{layoutLabels[String(theme.layout.gridCols)]}</dd>
+                  <dd class="justify-self-end text-foreground">{label(theme.layout.gridCols)}</dd>
 
                   <dt class="text-muted-foreground">Navegación</dt>
-                  <dd class="justify-self-end text-foreground">{layoutLabels[theme.layout.nav]}</dd>
+                  <dd class="justify-self-end text-foreground">{label(theme.layout.nav)}</dd>
 
                   <dt class="text-muted-foreground">Densidad</dt>
-                  <dd class="justify-self-end text-foreground">{layoutLabels[theme.layout.density]}</dd>
+                  <dd class="justify-self-end text-foreground">{label(theme.layout.density)}</dd>
                 </dl>
 
                 <p class="mt-4 border-t border-border pt-4 text-xs text-muted-foreground">
@@ -215,7 +222,7 @@ const jsonLd = [
         <div class="mx-auto max-w-3xl px-5 py-14 text-center">
           <h2 class="font-display text-2xl sm:text-3xl">¿Y si ninguno es exactamente lo tuyo?</h2>
           <p class="mt-4 text-base leading-relaxed text-muted-foreground">
-            Mejor. Estos siete son puntos de partida, no un menú cerrado: lo normal es
+            Mejor. Estos son puntos de partida, no un menú cerrado: lo normal es
             coger la rejilla de uno, la tipografía de otro y el color de tu marca. El
             catálogo existe para tener una conversación concreta, no para encajarte en
             una plantilla.

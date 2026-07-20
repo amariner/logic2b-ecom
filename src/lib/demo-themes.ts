@@ -75,9 +75,26 @@ export type DemoThemeVars = Record<ThemeVar, string>;
  */
 export type ThemeLayout = {
   /** Columnas del catálogo en desktop. */
-  gridCols: 2 | 3 | 4;
+  gridCols: 2 | 3 | 4 | 5;
+  /**
+   * Cómo se comporta la rejilla.
+   *  · `uniform`   — todas las celdas iguales (lo normal).
+   *  · `irregular` — celdas de distinto tamaño/span. Editorial, Industrial y
+   *    Specs lo usan: en sus referencias hay productos que ocupan 2 columnas o
+   *    filas de altura distinta. Es composición explícita por breakpoint, NO
+   *    `grid-auto-flow: dense` (que reordena y rompe el orden de catálogo).
+   */
+  gridStyle: 'uniform' | 'irregular';
   /** Dónde vive la navegación de catálogo. */
   nav: 'top' | 'sidebar';
+  /**
+   * Cabecera del catálogo.
+   *  · `none`      — directo a la rejilla.
+   *  · `split`     — texto a un lado, imagen a sangre al otro (Natural).
+   *  · `card`      — tarjeta grande redondeada con título y nav (Guide).
+   *  · `fullbleed` — imagen a sangre con título superpuesto, header DEBAJO (Street).
+   */
+  hero: 'none' | 'split' | 'card' | 'fullbleed';
   /** Tratamiento de la tarjeta de producto. */
   card: 'hairline' | 'plain' | 'elevated' | 'divided';
   /** Cómo se filtra el catálogo. */
@@ -150,8 +167,9 @@ export const demoThemes: DemoTheme[] = [
       '--grid-gap': '1.5rem',
     },
     layout: {
-      gridCols: 4, nav: 'top', card: 'plain', filters: 'chips',
-      density: 'regular', annotations: false, darkFooter: false,
+      gridCols: 4, gridStyle: 'uniform', nav: 'top', hero: 'none',
+      card: 'plain', filters: 'chips', density: 'regular',
+      annotations: false, darkFooter: false,
     },
   },
 
@@ -183,8 +201,9 @@ export const demoThemes: DemoTheme[] = [
       '--grid-gap': '0.5rem',
     },
     layout: {
-      gridCols: 4, nav: 'top', card: 'hairline', filters: 'chips',
-      density: 'compact', annotations: true, darkFooter: false,
+      gridCols: 4, gridStyle: 'irregular', nav: 'top', hero: 'none',
+      card: 'hairline', filters: 'chips', density: 'compact',
+      annotations: true, darkFooter: false,
     },
   },
 
@@ -216,8 +235,9 @@ export const demoThemes: DemoTheme[] = [
       '--grid-gap': '0rem',
     },
     layout: {
-      gridCols: 4, nav: 'top', card: 'divided', filters: 'dropdown',
-      density: 'compact', annotations: false, darkFooter: true,
+      gridCols: 4, gridStyle: 'irregular', nav: 'top', hero: 'none',
+      card: 'divided', filters: 'dropdown', density: 'compact',
+      annotations: false, darkFooter: true,
     },
   },
 
@@ -249,8 +269,9 @@ export const demoThemes: DemoTheme[] = [
       '--grid-gap': '1rem',
     },
     layout: {
-      gridCols: 4, nav: 'top', card: 'plain', filters: 'sidebar',
-      density: 'regular', annotations: false, darkFooter: false,
+      gridCols: 4, gridStyle: 'uniform', nav: 'top', hero: 'split',
+      card: 'plain', filters: 'sidebar', density: 'regular',
+      annotations: false, darkFooter: false,
     },
   },
 
@@ -283,8 +304,9 @@ export const demoThemes: DemoTheme[] = [
       '--grid-gap': '1rem',
     },
     layout: {
-      gridCols: 4, nav: 'top', card: 'elevated', filters: 'chips',
-      density: 'airy', annotations: true, darkFooter: false,
+      gridCols: 4, gridStyle: 'uniform', nav: 'top', hero: 'card',
+      card: 'elevated', filters: 'chips', density: 'airy',
+      annotations: true, darkFooter: false,
     },
   },
 
@@ -316,8 +338,9 @@ export const demoThemes: DemoTheme[] = [
       '--grid-gap': '0.75rem',
     },
     layout: {
-      gridCols: 3, nav: 'top', card: 'divided', filters: 'dropdown',
-      density: 'compact', annotations: true, darkFooter: false,
+      gridCols: 3, gridStyle: 'irregular', nav: 'top', hero: 'none',
+      card: 'divided', filters: 'dropdown', density: 'compact',
+      annotations: true, darkFooter: false,
     },
   },
 
@@ -349,8 +372,9 @@ export const demoThemes: DemoTheme[] = [
       '--grid-gap': '2rem',
     },
     layout: {
-      gridCols: 2, nav: 'sidebar', card: 'plain', filters: 'dropdown',
-      density: 'airy', annotations: false, darkFooter: true,
+      gridCols: 2, gridStyle: 'uniform', nav: 'sidebar', hero: 'none',
+      card: 'plain', filters: 'dropdown', density: 'airy',
+      annotations: false, darkFooter: true,
     },
   },
 
@@ -382,8 +406,44 @@ export const demoThemes: DemoTheme[] = [
       '--grid-gap': '1.5rem',
     },
     layout: {
-      gridCols: 3, nav: 'top', card: 'hairline', filters: 'chips',
-      density: 'airy', annotations: false, darkFooter: false,
+      gridCols: 3, gridStyle: 'uniform', nav: 'top', hero: 'none',
+      card: 'hairline', filters: 'chips', density: 'airy',
+      annotations: false, darkFooter: false,
+    },
+  },
+
+  // ---------------------------------------------------------------------------
+  // 08 · STREET — ref. Up There Athletics
+  // ---------------------------------------------------------------------------
+  {
+    id: 'street',
+    label: 'Street',
+    hint: 'Revista de moda: ticker, hero a sangre, rejilla densa de 5, footer negro.',
+    reference: { name: 'Up There Athletics', file: '08-street.webp' },
+    sample: '/images/temas/street.webp',
+    bestFor: ['Moda y streetwear', 'Calzado deportivo', 'Marcas con drops y campañas'],
+    status: 'planned',
+    vars: {
+      // Verde neón del ticker. Acento CLARO → texto en tinta encima.
+      '--color-brand': '#c3f53c',
+      '--color-brand-dark': '#a8d92b',
+      '--color-brand-fg': '#111111',
+      '--font-display': SYSTEM_SANS,
+      '--font-accent': MONO,
+      '--tracking-display': '-0.01em',
+      '--weight-display': '600',
+      '--radius-btn': '9999px',
+      '--radius-card': '0rem',
+      '--border-width': '0px',
+      '--surface-product': '#f4f4f4',
+      '--surface-sunken': '#efefef',
+      '--space-density': '0.85',
+      '--grid-gap': '0.75rem',
+    },
+    layout: {
+      gridCols: 5, gridStyle: 'uniform', nav: 'top', hero: 'fullbleed',
+      card: 'plain', filters: 'chips', density: 'compact',
+      annotations: true, darkFooter: true,
     },
   },
 ];

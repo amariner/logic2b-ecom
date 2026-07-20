@@ -1,35 +1,30 @@
 # Referencias visuales del catálogo de estilos
 
-Cada fichero de esta carpeta es la **referencia de origen** de un tema de
-`src/lib/demo-themes.ts`. El catálogo público (`/estilos`) las muestra junto a
-la ficha de cada tema.
+Cada fichero es la **referencia de origen** de un tema de
+[`src/lib/demo-themes.ts`](../../../src/lib/demo-themes.ts). La lectura detallada
+de cada una está en [`docs/TEMAS.md`](../../../docs/TEMAS.md) § 5.
 
-## Ficheros esperados
+## Ficheros
 
-El campo `reference.file` de cada tema apunta aquí. Los nombres son contrato
-(hay un test que valida el formato `NN-nombre.webp`):
+Los nombres son contrato (hay un test que valida el formato `NN-nombre.webp`):
 
-| Fichero            | Tema         | Referencia de origen |
-|--------------------|--------------|----------------------|
-| `01-editorial.webp`| Editorial    | Teenage Engineering  |
-| `02-industrial.webp`| Industrial  | TAGARNO              |
-| `03-natural.webp`  | Natural      | All Natural / AFF    |
-| `04-guide.webp`    | Guide        | Pour over            |
-| `05-specs.webp`    | Specs        | ACF-01               |
-| `06-minimal.webp`  | Minimal      | propro               |
-| `07-launch.webp`   | Launch       | P1                   |
+| Fichero | Tema | Referencia | Original aportado |
+|---|---|---|---|
+| `01-editorial.webp` | Editorial | Teenage Engineering | `tienda de musica.jpg` |
+| `02-industrial.webp` | Industrial | TAGARNO | `tienda de electronica.jpg` |
+| `03-natural.webp` | Natural | All Natural / AFF | `tienda de cremas.jpg` |
+| `04-guide.webp` | Guide | Pour over | `tienda cafe.jpg` |
+| `05-specs.webp` | Specs | ACF-01 | `tienda de piezas.jpg` |
+| `06-minimal.webp` | Minimal | propro | `tienda de muebles.jpg` |
+| `07-launch.webp` | Launch | P1 | `tienda de motos.jpg` |
+| `08-street.webp` | Street | Up There Athletics | `tienda ropa.jpg` |
 
-## ⚠️ Pendiente de subir
-
-Las capturas se aportaron por chat y **no están en el repo todavía**. Hay que
-guardarlas aquí con esos nombres exactos, en WebP y ~1200px de ancho:
+Los `.jpg` originales se conservan junto a los `.webp` por si hace falta volver a
+la fuente. Conversión usada:
 
 ```sh
-cwebp -q 82 -resize 1200 0 captura.png -o public/images/referencias/01-editorial.webp
+cwebp -q 82 -resize 1200 0 "tienda de musica.jpg" -o 01-editorial.webp
 ```
-
-Hasta que existan, `/estilos` pinta un marcador de hueco en lugar de la imagen —
-la página no se rompe, pero la ficha queda coja.
 
 ## No confundir con `public/images/temas/`
 
@@ -50,5 +45,5 @@ el *sistema* (densidad, rejilla, ritmo tipográfico, tratamiento de tarjeta), no
 los activos, la marca ni los textos de esas tiendas. Cada tema se implementa
 sobre la base Logic2B UI y con catálogo e imaginería propios.
 
-Por eso estas capturas **no se publican en la landing indexable como galería**:
-viven en el catálogo interno de estilos como apoyo a la conversación comercial.
+Por eso estas capturas **no se publican en la landing indexable**: viven en el
+repo como apoyo de trabajo y de conversación comercial.
