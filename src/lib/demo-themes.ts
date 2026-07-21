@@ -183,7 +183,7 @@ export const demoThemes: DemoTheme[] = [
     reference: { name: 'Teenage Engineering', file: '01-editorial.webp' },
     sample: '/images/temas/editorial.webp',
     bestFor: ['Diseño y objeto', 'Audio y tecnología', 'Marcas con voz propia'],
-    status: 'planned',
+    status: 'ready',
     vars: {
       '--color-brand': '#d42f08',
       '--color-brand-dark': '#a82406',

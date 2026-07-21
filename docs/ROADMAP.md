@@ -51,7 +51,7 @@ reconciliación se conserva abajo por contexto.
 | 5 | Landing comercial + /arquitectura + SEO técnico | ✅ Hecho | 2026-07-17 | Dirección B elegida (escaparate editorial). Cero JS en landing. Sitemap+JSON-LD OK |
 | 6 | Deploy ecom.logic2b.com + cron reset + README + docs/CLIENTE.md | ✅ Hecho | 2026-07-18 | **Desplegado y en vivo en https://ecom.logic2b.com** (Worker `ecom-logic2b`, D1 remota `ecom-demo` id `7ae9b06d…`, custom domain + cron reset activos). Pagos en **modo simulado** (sin Stripe) |
 | 7 | bootstrap.sh + checklist demo→cliente real | ✅ Hecho | 2026-07-18 | `scripts/bootstrap.sh` (local probado end-to-end; `--remote` aprovisiona Cloudflare) + `docs/PRODUCCION.md` |
-| 9 | Catálogo de estilos (8 temas) | 🟡 En curso | 2026-07-21 | Arquitectura + `/estilos` + **tema 06 Minimal desarrollado** (primer tema con componentes; 2 listos con Base). Resto, uno por sesión. Ver «Fase 9» y `docs/TEMAS.md` |
+| 9 | Catálogo de estilos (8 temas) | 🟡 En curso | 2026-07-21 | Arquitectura + `/estilos` + **temas 06 Minimal y 01 Editorial desarrollados** (3 listos con Base; registro de catálogo por tema generalizado). Resto, uno por sesión. Ver «Fase 9» y `docs/TEMAS.md` |
 | 10 | Documentación para el cliente | ⬜ Pendiente | — | Ver «Fase 10». Es material de venta y de entrega, no docs técnicas |
 | 8 | Pulido de la demo (backlog abajo) | 🟡 En curso | 2026-07-19 | Backlog técnico agotado; solo quedan decisiones y pasos locales de Andreu (ver «Decisiones pendientes» y `docs/PROMPT_CLOUD.md`). Últimas tandas: novena (race de idempotencia en el pago, PII enumerable en `/demo/gracias`, cancelación de pedido pagado sin devolver stock), décima (la misma race en el PATCH de admin, campos vacíos guardados como 0, login sin rate limit), undécima (diagrama móvil de `/arquitectura`, hedge del plazo de entrega, tokens de tema en `/demo/reset`, terminología «envío»), duodécima (aviso de corte en pedidos del admin, cabeceras sin wrap a 375px, leftover «portes», token de radio del carrito, contraste del botón eliminar, H1 en valenciano, checklist de producción) y decimotercera (misma race de idempotencia en `checkout.session.expired`, divisa hardcodeada a EUR fuera de Stripe, cobertura de test de `quoteCart`/PATCH admin/emails) y decimocuarta (config parcial de Stripe → cobro sin cumplimiento, emails duplicados bajo concurrencia, `payment_status` del webhook, color de marca centralizado en `shop.config.ts`, contraste/tema en carrito y checkout) — ver sección «Fase 8» |
 
@@ -109,12 +109,47 @@ gris, **sin filetes** (`--border-width: 0`), footer oscuro a sangre y mucho aire
   tema activo, a 1280px y 375px, y en modo oscuro (tokens semánticos). `pnpm
   check` en verde (108 tests, 0 errores de tipos). Sin dependencias nuevas.
 
+### 2026-07-21 — Tema 01 · Editorial (rejilla suiza irregular)
+
+Segundo tema con componentes. Reproduce la referencia *Teenage Engineering*
+(`01-editorial.webp`): **rejilla suiza densa e IRREGULAR**, filete hairline,
+anotaciones monoespaciadas y naranja señal (`#d42f08`). Nav `top` → header/footer
+caen a **Base** (no se duplican): el carácter vive en el catálogo.
+
+- **Generalización del catálogo por tema (hereda todo el catálogo restante).** El
+  catálogo (`src/pages/demo/tienda/index.astro`) bifurcaba con el booleano
+  `isMinimal = layout.nav === 'sidebar'`, que dejaba fuera cualquier tema de nav
+  superior. Ahora hay un **registro `catalogViews` (id → `Catalog.astro`)**: un
+  tema que redefine el catálogo expone UN `Catalog.astro`; los que no están en el
+  registro caen a la vista Base. Añadir un tema = un import + una entrada. Minimal
+  se migró a `minimal/Catalog.astro` para encajar en el mismo patrón (sin cambios
+  de comportamiento).
+- **Componentes** en `src/components/themes/editorial/`:
+  - `ProductGrid` — rejilla irregular por **composición explícita** (patrón de 8
+    celdas con `col/row-span` que tesela 4×4 sin huecos y **preserva el orden** de
+    catálogo; NO `grid-auto-flow: dense`). Filete hairline que **lee
+    `--border-width`**, imagen sobre `--surface-product`, y el **`+` de la esquina
+    = añadir al carrito real** (usa `data-editorial-add` para no colisionar con el
+    handler genérico de Base). A 375px cae a 2 columnas uniformes.
+  - `Filters` — filtros en **chips** (rectángulos hairline, activa en naranja),
+    contra los mismos `categoria`/`orden`/`q` de la tienda Base.
+  - `CatalogHeader` — **numeración de sección** (`Tienda⁽⁰¹⁾`), palabras sueltas
+    flotando y tira mono del recorrido de la demo.
+  - `Catalog` — orquesta los tres + texto vertical rotado en naranja como textura
+    (`aria-hidden`, un solo eje, moderado — nota de `docs/TEMAS.md`).
+- Ficha/carrito/checkout caen a Base y **heredan los tokens** (acento naranja,
+  radio de botón, mono) por CSS vars, como en Minimal.
+- **Verificado** con `wrangler dev` (catálogo, ficha, carrito, checkout) a 1280px
+  y 375px y en modo oscuro (`.dark`; tokens semánticos). `pnpm check` en verde
+  (108 tests, 0 errores). Sin dependencias nuevas. `status` a `'ready'` → entra en
+  el selector de la tienda y en `/estilos`.
+
 ### Estado de los temas
 
 | # | Tema | Referencia | Estado |
 |---|------|-----------|--------|
 | — | Base | — | ✅ listo |
-| 01 | Editorial | Teenage Engineering | ⬜ pendiente |
+| 01 | Editorial | Teenage Engineering | ✅ listo (2026-07-21) |
 | 02 | Industrial | TAGARNO | ⬜ pendiente |
 | 03 | Natural | All Natural / AFF | ⬜ pendiente |
 | 04 | Guide | Pour over | ⬜ pendiente |

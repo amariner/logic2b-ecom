@@ -4,8 +4,8 @@ import { shopConfig } from '../../../../shop.config';
 import { getActiveProducts, isSortOption } from '../../../lib/db';
 import { formatEurCents } from '../../../lib/format';
 import { resolveActiveTheme } from '../../../lib/active-theme';
-import MinimalFilters from '../../../components/themes/minimal/Filters.astro';
-import MinimalProductGrid from '../../../components/themes/minimal/ProductGrid.astro';
+import MinimalCatalog from '../../../components/themes/minimal/Catalog.astro';
+import EditorialCatalog from '../../../components/themes/editorial/Catalog.astro';
 
 export const prerender = false;
 
@@ -38,35 +38,24 @@ const linkFor = (cat?: string, ord?: string): string => {
   return `/demo/tienda${qs ? `?${qs}` : ''}`;
 };
 
-// Tema activo (SSR). Minimal redefine el catálogo (toolbar + rejilla 2 col);
-// el resto de temas cae a la vista Base de esta página.
+// Tema activo (SSR). REGISTRO de vistas de catálogo por tema: cada tema que
+// redefine el catálogo expone UN `Catalog.astro`; los que no están en el registro
+// caen a la vista Base de esta misma página. Es el punto de extensión que
+// heredarán los temas restantes (añadir import + entrada, sin tocar la vista Base).
 const active = resolveActiveTheme(Astro.cookies);
-const isMinimal = active.layout.nav === 'sidebar';
+const catalogViews = {
+  minimal: MinimalCatalog,
+  editorial: EditorialCatalog,
+} as const;
+const ThemedCatalog = catalogViews[active.id as keyof typeof catalogViews] ?? null;
 ---
 
 <Shop title="Tienda" description={`Catálogo demo de ${shopConfig.name}`}>
-  {isMinimal && (
-    <main class="px-5 py-6 md:px-2 md:py-10">
-      <MinimalFilters count={products.length} activeCategory={category} sort={sort} search={search} />
-      <div class="mt-8">
-        {products.length > 0 ? (
-          <MinimalProductGrid products={products} />
-        ) : (
-          <div class="py-20 text-center">
-            <p class="font-display text-lg">
-              {search ? `Nada por aquí para «${search}»` : 'No hay productos en esta categoría'}
-            </p>
-            <a
-              href="/demo/tienda"
-              class="mt-4 inline-block text-[11px] uppercase tracking-[0.14em] text-muted-foreground underline underline-offset-4 transition-colors hover:text-foreground"
-            >Ver todo el catálogo</a>
-          </div>
-        )}
-      </div>
-    </main>
+  {ThemedCatalog && (
+    <ThemedCatalog products={products} category={category} sort={sort} search={search} />
   )}
 
-  {!isMinimal && (
+  {!ThemedCatalog && (
   <main class="mx-auto max-w-6xl px-4 py-10">
     <div class="mb-8 flex flex-wrap items-center gap-x-2 gap-y-1 rounded-2xl bg-muted px-5 py-3 text-sm text-muted-foreground">
       <span class="font-semibold text-foreground">Recorrido de la demo:</span>

@@ -1,0 +1,71 @@
+---
+/**
+ * EDITORIAL · Catalog — vista completa del catálogo para el tema. La página
+ * (src/pages/demo/tienda/index.astro) delega aquí vía el registro de temas: cada
+ * tema con vista propia expone UN `Catalog.astro`; los demás caen a la vista Base.
+ *
+ * Orquesta encabezado numerado + filtros en chips + rejilla irregular, y añade
+ * el texto vertical rotado en rojo por el margen — TEXTURA tipográfica de la
+ * referencia. Va `aria-hidden`: es decoración, un lector de pantalla leyéndolo
+ * sería ruido puro (nota de docs/TEMAS.md).
+ */
+import CatalogHeader from './CatalogHeader.astro';
+import Filters from './Filters.astro';
+import ProductGrid from './ProductGrid.astro';
+
+type GridProduct = {
+  slug: string;
+  name: string;
+  price_cents: number;
+  image: string;
+  stock: number;
+};
+
+interface Props {
+  products: GridProduct[];
+  category?: string | undefined;
+  sort: string;
+  search?: string | undefined;
+}
+
+const { products, category, sort, search } = Astro.props;
+---
+
+<main class="relative mx-auto max-w-6xl px-4 py-10 lg:px-8">
+  {/* Textura tipográfica vertical (un solo eje, con moderación). Decorativa. */}
+  <span
+    aria-hidden="true"
+    class="pointer-events-none absolute right-1 top-40 hidden select-none whitespace-nowrap font-accent text-[11px] uppercase tracking-[0.3em] text-brand/70 [writing-mode:vertical-rl] xl:block"
+    style="rotate: 180deg;"
+  >del maestrat · del maestrat · del maestrat</span>
+
+  <CatalogHeader />
+
+  <div class="mt-8">
+    <Filters count={products.length} activeCategory={category} sort={sort} search={search} />
+  </div>
+
+  <div class="mt-8">
+    {products.length > 0 ? (
+      <ProductGrid products={products} />
+    ) : (
+      <div
+        class="px-6 py-20 text-center"
+        style="border: var(--border-width) solid var(--color-border);"
+      >
+        <p class="font-display text-2xl">
+          {search ? `Sin referencias para «${search}»` : 'No hay productos en esta categoría'}
+        </p>
+        <p class="mx-auto mt-2 max-w-md text-sm leading-relaxed text-muted-foreground">
+          {search
+            ? 'Prueba con otra palabra (por ejemplo «aceite», «miel» o «queso») o vuelve al catálogo completo.'
+            : 'Puede que el comercio la haya vaciado temporalmente. El resto del catálogo sigue disponible.'}
+        </p>
+        <a
+          href="/demo/tienda"
+          class="mt-6 inline-block rounded-btn bg-brand px-6 py-2.5 font-accent text-[11px] uppercase tracking-[0.12em] text-brand-fg transition hover:bg-brand-dark"
+        >Ver todo el catálogo</a>
+      </div>
+    )}
+  </div>
+</main>

@@ -1,0 +1,47 @@
+---
+/**
+ * EDITORIAL · CatalogHeader — encabezado de catálogo con ANOTACIONES
+ * monoespaciadas (layout.annotations): kicker con numeración de sección en
+ * superíndice (rasgo de la referencia: `Store⁽⁰³⁾`), titular display y palabras
+ * sueltas flotando a distinta altura arriba a la derecha (`fresc·` `local·`
+ * `de temporada·`).
+ *
+ * Debajo, una tira mono con el «recorrido de la demo» (compra → panel → emails):
+ * es guía de la demo, no del producto real; en editorial encaja como anotación.
+ */
+---
+
+<header class="relative">
+  {/* Palabras sueltas flotando (decorativas, estética de la referencia). */}
+  <div
+    aria-hidden="true"
+    class="pointer-events-none absolute right-0 top-0 hidden select-none text-right font-accent text-[11px] lowercase tracking-[0.08em] text-muted-foreground sm:block"
+  >
+    <span class="block">fresco.</span>
+    <span class="mt-1 block translate-x-[-1.5rem]">local.</span>
+    <span class="mt-1 block">de temporada.</span>
+  </div>
+
+  <p class="font-accent text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
+    Tienda<sup class="text-brand">(01)</sup>
+  </p>
+  <h1 class="mt-3 max-w-2xl font-display text-4xl leading-[1.05] sm:text-5xl">
+    Productos de la tierra
+  </h1>
+  <p class="mt-3 max-w-xl text-sm leading-relaxed text-muted-foreground">
+    Aceites, embutidos, mieles, vinos, conservas y quesos del Maestrat.
+    Composición en rejilla suiza — cada referencia en su celda.
+  </p>
+
+  <div
+    class="mt-6 flex flex-wrap items-center gap-x-3 gap-y-1 py-2 font-accent text-[11px] uppercase tracking-[0.1em] text-muted-foreground"
+    style="border-top: var(--border-width) solid var(--color-border); border-bottom: var(--border-width) solid var(--color-border);"
+  >
+    <span class="font-semibold text-foreground">Recorrido</span>
+    <span><span class="text-brand">01</span> compra</span>
+    <span aria-hidden="true">→</span>
+    <span><span class="text-brand">02</span> <a href="/demo/admin" class="underline underline-offset-2 hover:text-foreground">panel</a></span>
+    <span aria-hidden="true">→</span>
+    <span><span class="text-brand">03</span> <a href="/demo/admin/emails" class="underline underline-offset-2 hover:text-foreground">emails</a></span>
+  </div>
+</header>

@@ -1,0 +1,101 @@
+---
+/**
+ * EDITORIAL · Filters — filtros en CHIPS (layout.filters 'chips'). Categorías
+ * como pastillas rectangulares (radio del token, hairline), la activa en naranja
+ * señal (`bg-brand`/`text-brand-fg`). A la derecha, orden y búsqueda en mono.
+ *
+ * Filtra contra los MISMOS parámetros de URL que la tienda Base (`categoria`,
+ * `orden`, `q`): el backend es UNO, aquí solo cambia la presentación.
+ */
+import { shopConfig } from '../../../../shop.config';
+
+interface Props {
+  count: number;
+  activeCategory?: string | undefined;
+  sort: string;
+  search?: string | undefined;
+}
+
+const { count, activeCategory, sort, search } = Astro.props;
+
+const sortOptions = [
+  { id: 'featured', label: 'Destacados' },
+  { id: 'price-asc', label: 'Precio ↑' },
+  { id: 'price-desc', label: 'Precio ↓' },
+  { id: 'name', label: 'Nombre A-Z' },
+];
+
+const linkFor = (catId?: string): string => {
+  const params = new URLSearchParams();
+  if (catId) params.set('categoria', catId);
+  if (sort && sort !== 'featured') params.set('orden', sort);
+  if (search) params.set('q', search);
+  const qs = params.toString();
+  return `/demo/tienda${qs ? `?${qs}` : ''}`;
+};
+
+const chipBase = 'shrink-0 border px-3 py-1.5 font-accent text-[11px] uppercase tracking-[0.1em] transition-colors';
+const chipOff = 'border-border text-muted-foreground hover:border-foreground hover:text-foreground';
+const chipOn = 'border-brand bg-brand text-brand-fg';
+---
+
+<div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+  <nav aria-label="Categorías" class="-mx-1 overflow-x-auto lg:overflow-visible">
+    <ul class="flex items-center gap-1.5 px-1 lg:flex-wrap">
+      <li>
+        <a
+          href={linkFor()}
+          aria-current={!activeCategory ? 'page' : undefined}
+          class:list={[chipBase, 'rounded-btn', !activeCategory ? chipOn : chipOff]}
+        >Todo</a>
+      </li>
+      {shopConfig.categories.map((cat) => (
+        <li>
+          <a
+            href={linkFor(cat.id)}
+            aria-current={activeCategory === cat.id ? 'page' : undefined}
+            class:list={[chipBase, 'rounded-btn', activeCategory === cat.id ? chipOn : chipOff]}
+          >{cat.label}</a>
+        </li>
+      ))}
+    </ul>
+  </nav>
+
+  <div class="flex shrink-0 items-center gap-4 font-accent text-[11px] uppercase tracking-[0.1em] text-muted-foreground">
+    <span class="whitespace-nowrap">{count} {count === 1 ? 'ref.' : 'refs.'}</span>
+
+    <form method="get" role="search" class="relative flex items-center">
+      {activeCategory && <input type="hidden" name="categoria" value={activeCategory} />}
+      {sort !== 'featured' && <input type="hidden" name="orden" value={sort} />}
+      <input
+        type="search"
+        name="q"
+        value={search}
+        maxlength="60"
+        placeholder="Buscar…"
+        aria-label="Buscar en el catálogo"
+        class="w-28 border border-border bg-background px-2.5 py-1.5 font-accent text-[11px] uppercase tracking-[0.1em] text-foreground transition-[width,border-color] placeholder:text-muted-foreground focus:w-40 focus:border-foreground focus:outline-none"
+        style="border-radius: var(--radius-btn);"
+      />
+    </form>
+
+    <form method="get" class="flex items-center gap-1.5">
+      {activeCategory && <input type="hidden" name="categoria" value={activeCategory} />}
+      {search && <input type="hidden" name="q" value={search} />}
+      <label for="orden" class="whitespace-nowrap">Orden</label>
+      <div class="relative flex items-center">
+        <select
+          id="orden"
+          name="orden"
+          onchange="this.form.submit()"
+          class="cursor-pointer appearance-none bg-transparent pr-4 font-accent text-[11px] uppercase tracking-[0.1em] text-foreground focus:outline-none"
+        >
+          {sortOptions.map((opt) => (
+            <option value={opt.id} selected={opt.id === sort}>{opt.label}</option>
+          ))}
+        </select>
+        <span aria-hidden="true" class="pointer-events-none absolute right-0">⌄</span>
+      </div>
+    </form>
+  </div>
+</div>

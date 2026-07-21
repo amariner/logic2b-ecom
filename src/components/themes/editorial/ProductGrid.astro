@@ -1,0 +1,107 @@
+---
+/**
+ * EDITORIAL · ProductGrid — rejilla suiza DENSA e IRREGULAR (gridStyle
+ * 'irregular'). Las celdas ocupan distinto span por breakpoint: es composición
+ * EXPLÍCITA, no `grid-auto-flow: dense`. El patrón de 8 celdas tesela un bloque
+ * de 4×4 sin huecos y preservando el orden de catálogo (ver `SPANS`).
+ *
+ * Tarjeta: filete hairline (lee `--border-width`), imagen sobre `--surface-product`,
+ * y ANOTACIONES abajo — nombre + precio a la izquierda (precio en mono) y un `+`
+ * de AÑADIR AL CARRITO real en la esquina inferior derecha (no es decoración).
+ * El `+` usa `data-editorial-add` (no `data-add-to-cart`) para no colisionar con
+ * el handler genérico del catálogo Base.
+ */
+import { formatEurCents } from '../../../lib/format';
+
+type GridProduct = {
+  slug: string;
+  name: string;
+  price_cents: number;
+  image: string;
+  stock: number;
+};
+
+interface Props {
+  products: GridProduct[];
+}
+
+const { products } = Astro.props;
+
+/**
+ * Composición irregular. Índice i mod 8 → clases de span (col/row-span 1 = por
+ * defecto, se omiten). El bloque de 8 llena un área de 4 columnas × 4 filas sin
+ * dejar hueco. Solo se aplica en `lg` (4 col): a 375px cae a 2 columnas uniformes.
+ * Las cadenas son literales para que el escáner de Tailwind conserve las clases.
+ */
+const SPANS = [
+  'lg:col-span-2 lg:row-span-2',
+  'lg:col-span-2',
+  '',
+  '',
+  'lg:col-span-2',
+  'lg:row-span-2',
+  'lg:row-span-2',
+  'lg:col-span-2',
+] as const;
+---
+
+<ul class="grid grid-cols-2 lg:grid-cols-4 lg:auto-rows-[14rem]" style="gap: var(--grid-gap);">
+  {products.map((prod, i) => (
+    <li
+      class:list={['group flex flex-col overflow-hidden bg-background', SPANS[i % 8]]}
+      style="border: var(--border-width) solid var(--color-border);"
+    >
+      <a
+        href={`/demo/tienda/${prod.slug}`}
+        class="flex min-h-0 flex-1 flex-col"
+        aria-label={prod.name}
+      >
+        <div class="relative aspect-square w-full overflow-hidden bg-surface-product lg:aspect-auto lg:min-h-0 lg:flex-1">
+          <img
+            src={prod.image}
+            alt={prod.name}
+            width="800"
+            height="800"
+            loading="lazy"
+            class="h-full w-full object-cover transition duration-500 group-hover:scale-[1.03]"
+          />
+          {prod.stock === 0 && (
+            <span class="absolute left-0 top-0 bg-foreground px-1.5 py-0.5 font-accent text-[10px] uppercase tracking-[0.12em] text-background">
+              Agotado
+            </span>
+          )}
+        </div>
+      </a>
+
+      <div
+        class="flex items-end justify-between gap-2 px-2.5 py-2"
+        style="border-top: var(--border-width) solid var(--color-border);"
+      >
+        <a href={`/demo/tienda/${prod.slug}`} class="min-w-0 leading-tight">
+          <span class="block truncate text-xs font-medium text-foreground">{prod.name}</span>
+          <span class="mt-0.5 block font-accent text-[11px] text-muted-foreground">{formatEurCents(prod.price_cents)}</span>
+        </a>
+        <button
+          type="button"
+          data-editorial-add={prod.slug}
+          disabled={prod.stock === 0}
+          aria-label={`Añadir ${prod.name} al carrito`}
+          class="grid h-7 w-7 shrink-0 place-items-center border border-border font-accent text-base leading-none text-foreground transition-colors hover:border-brand hover:bg-brand hover:text-brand-fg focus-visible:border-brand disabled:cursor-not-allowed disabled:text-muted-foreground disabled:hover:border-border disabled:hover:bg-transparent disabled:hover:text-muted-foreground"
+          style="border-radius: var(--radius-btn);"
+        >+</button>
+      </div>
+    </li>
+  ))}
+</ul>
+
+<script>
+  import { addToCart } from '../../../lib/cart-client';
+
+  for (const btn of document.querySelectorAll<HTMLButtonElement>('[data-editorial-add]')) {
+    btn.addEventListener('click', () => {
+      addToCart(btn.dataset.editorialAdd ?? '');
+      btn.textContent = '✓';
+      window.setTimeout(() => (btn.textContent = '+'), 900);
+    });
+  }
+</script>
