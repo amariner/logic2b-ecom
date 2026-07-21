@@ -1,19 +1,25 @@
 import { describe, expect, it } from 'vitest';
 import { shopConfig } from '../shop.config';
 import { demoCollection } from '../src/collections/demo';
+import { demoOrderStatements } from '../seed/demo-orders';
 import { seedProducts } from '../seed/products';
 import { seedStatements } from '../seed/seed';
 
 describe('integridad del seed', () => {
-  it('tiene ~60 productos repartidos en las 6 categorías de la colección demo', () => {
+  it('tiene 60 productos en categorías de la colección demo, con una de temporada vacía', () => {
     expect(seedProducts.length).toBe(60);
     const configCategories = new Set(demoCollection.categories.map((c) => c.id));
     for (const prod of seedProducts) {
       expect(configCategories.has(prod.category), `categoría desconocida: ${prod.category}`).toBe(true);
     }
+    const productCategories = new Set(seedProducts.map((prod) => prod.category));
     for (const cat of configCategories) {
+      // La categoría de temporada queda vacía a propósito (estado vacío alcanzable, 9B.2).
+      if (!productCategories.has(cat)) continue;
       expect(seedProducts.filter((prod) => prod.category === cat).length).toBeGreaterThanOrEqual(5);
     }
+    const emptyCategories = [...configCategories].filter((cat) => !productCategories.has(cat));
+    expect(emptyCategories, 'debe quedar exactamente una categoría vacía para el estado vacío').toHaveLength(1);
   });
 
   it('slugs únicos y bien formados', () => {
@@ -63,8 +69,8 @@ describe('integridad del seed', () => {
   it('genera SQL con limpieza previa y sin comillas sin escapar', () => {
     const stmts = seedStatements();
     expect(stmts[0]).toContain('DELETE FROM');
-    // 6 DELETE + 60 productos + 4 tarifas
-    expect(stmts.length).toBe(6 + 60 + 4);
+    // 6 DELETE + 60 productos + 4 tarifas + las fixtures de pedidos de demo (9B.2)
+    expect(stmts.length).toBe(6 + 60 + 4 + demoOrderStatements().length);
     for (const stmt of stmts) {
       // apóstrofes escapados como '' — nunca un quote suelto dentro de un valor
       expect(() => stmt).not.toThrow();

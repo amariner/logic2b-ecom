@@ -145,7 +145,12 @@ const ThemedCatalog = catalogViews[active.id as keyof typeof catalogViews] ?? nu
             </div>
             <div class="flex flex-1 flex-col gap-0.5 pt-3">
               <h2 class="text-sm font-medium leading-snug text-foreground">{prod.name}</h2>
-              <p class="mt-auto pt-1 text-base font-semibold">{formatEurCents(prod.price_cents)}</p>
+              <p class="mt-auto flex items-baseline gap-1.5 pt-1">
+                <span class="text-base font-semibold">{formatEurCents(prod.price_cents)}</span>
+                {prod.compare_at_price_cents !== null && prod.compare_at_price_cents > prod.price_cents && (
+                  <span class="text-xs font-normal text-muted-foreground line-through">{formatEurCents(prod.compare_at_price_cents)}</span>
+                )}
+              </p>
               {prod.stock === 0 && <p class="text-xs font-medium text-destructive">Agotado</p>}
             </div>
           </a>

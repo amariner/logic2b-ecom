@@ -4,6 +4,7 @@
  */
 
 import { shopConfig } from '../shop.config.ts';
+import { demoOrderStatements } from './demo-orders.ts';
 import { imageVariants } from './image-variants.ts';
 import { seedProducts, type SeedProduct } from './products.ts';
 
@@ -60,7 +61,7 @@ export function seedStatements(): string[] {
       `INSERT INTO products (slug, name, description, price_cents, stock, image, category, active, ` +
         `collection, subtitle, compare_at_price_cents, specs_json) VALUES (` +
         `${sqlString(prod.slug)}, ${sqlString(prod.name)}, ${sqlString(prod.description)}, ` +
-        `${prod.price_cents}, ${prod.stock}, ${sqlString(image)}, ${sqlString(prod.category)}, 1, ` +
+        `${prod.price_cents}, ${prod.stock}, ${sqlString(image)}, ${sqlString(prod.category)}, ${prod.active ?? 1}, ` +
         `${sqlString(prod.collection ?? DEFAULT_COLLECTION)}, ${sqlNullable(prod.subtitle)}, ` +
         `${prod.compare_at_price_cents ?? 'NULL'}, ${sqlNullable(specsJson)})`,
     );
@@ -73,6 +74,12 @@ export function seedStatements(): string[] {
         `${rate.free_over_cents === null ? 'NULL' : rate.free_over_cents}, 1)`,
     );
   }
+
+  // Pedidos de la demo genérica (Fase 9B.2): backoffice sembrado con todas las
+  // variantes. Van al final: sus subconsultas por slug / order_number necesitan
+  // los productos y pedidos ya insertados en esta misma batch. SOLO DEMO — un
+  // cliente real borra esta línea (ver seed/demo-orders.ts).
+  statements.push(...demoOrderStatements());
 
   return statements;
 }

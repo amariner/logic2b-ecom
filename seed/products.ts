@@ -13,6 +13,8 @@ export type SeedProduct = {
   category: string;
   /** Tienda del escaparate. Por defecto, la genérica. */
   collection?: string;
+  /** Activo en tienda. Por defecto 1; 0 para demostrar un producto desactivado. */
+  active?: number;
 
   // — Capacidades opcionales (migración 0002). Omitirlas es lo normal. —
   /** Subtítulo técnico bajo el nombre (Industrial). */
@@ -41,12 +43,32 @@ export const seedProducts: SeedProduct[] = [
   p('aceites', 'aove-picual-1l', 'AOVE Picual 1 L', 1490, 30, 'Formato litro de nuestro picual más vendido. Ideal para cocina diaria de nivel.'),
   p('aceites', 'aove-arbequina-500', 'AOVE Arbequina 500 ml', 950, 38, 'Arbequina suave y dulce, perfecta para ensaladas y desayunos con pan de pueblo.'),
   p('aceites', 'aove-arbequina-1l', 'AOVE Arbequina 1 L', 1590, 25, 'Arbequina en formato litro. Recolección temprana, verde y elegante.'),
-  p('aceites', 'aove-coupage-750', 'AOVE Coupage del Maestrat 750 ml', 1290, 20, 'Mezcla de picual, arbequina y farga centenaria. Nuestro coupage de la casa.'),
-  p('aceites', 'aove-farga-centenaria-500', 'AOVE Farga Centenaria 500 ml', 1890, 12, 'De olivos milenarios de la variedad farga del Maestrat. Edición limitada numerada.'),
+  // Capacidad "subtítulo" (migración 0002): línea técnica bajo el nombre.
+  { ...p('aceites', 'aove-coupage-750', 'AOVE Coupage del Maestrat 750 ml', 1290, 20, 'Mezcla de picual, arbequina y farga centenaria. Nuestro coupage de la casa.'), subtitle: 'Picual · Arbequina · Farga centenaria' },
+  // Capacidades "subtítulo" + "ficha técnica" a la vez.
+  {
+    ...p('aceites', 'aove-farga-centenaria-500', 'AOVE Farga Centenaria 500 ml', 1890, 12, 'De olivos milenarios de la variedad farga del Maestrat. Edición limitada numerada.'),
+    subtitle: 'Edición limitada numerada',
+    specs: [
+      { label: 'Variedad', value: 'Farga centenaria' },
+      { label: 'Acidez', value: '≤ 0,2°' },
+      { label: 'Recolección', value: 'Temprana, en verde' },
+      { label: 'Formato', value: '500 ml' },
+    ],
+  },
   p('aceites', 'aove-ecologico-500', 'AOVE Ecológico 500 ml', 1190, 28, 'Certificación ecológica CAECV. Sin filtrar, con toda su esencia.'),
   p('aceites', 'aceite-trufa-250', 'Aceite aromatizado con trufa 250 ml', 1450, 15, 'AOVE infusionado con trufa negra de Sarrión. Unas gotas bastan.'),
   p('aceites', 'aceite-romero-250', 'Aceite aromatizado con romero 250 ml', 790, 22, 'AOVE con romero de secano. Para carnes a la brasa y asados.'),
-  p('aceites', 'lata-aove-5l', 'Lata AOVE cosecha propia 5 L', 4990, 10, 'Formato ahorro en lata de 5 litros. La despensa de todo el año.'),
+  // Capacidades "oferta" (precio anterior tachado, SOLO presentación) + "ficha técnica".
+  {
+    ...p('aceites', 'lata-aove-5l', 'Lata AOVE cosecha propia 5 L', 4990, 10, 'Formato ahorro en lata de 5 litros. La despensa de todo el año.'),
+    compare_at_price_cents: 5990,
+    specs: [
+      { label: 'Capacidad', value: '5 L' },
+      { label: 'Variedad', value: 'Coupage de la casa' },
+      { label: 'Envase', value: 'Lata de hojalata con tapón vertedor' },
+    ],
+  },
 
   // ── Embutidos (10) ─────────────────────────────────────────────────
   p('embutidos', 'llonganissa-seca-300', 'Llonganissa seca artesana 300 g', 650, 35, 'Curada al aire del Maestrat, con pimienta negra en grano. Receta de casa.'),
@@ -66,7 +88,8 @@ export const seedProducts: SeedProduct[] = [
   p('mieles', 'miel-mil-flores-1kg', 'Miel mil flores 1 kg', 1150, 32, 'Formato familiar de nuestra miel multifloral de primavera.'),
   p('mieles', 'miel-encina-500', 'Miel de encina 500 g', 950, 15, 'Oscura, intensa y con notas de malta. La preferida de los entendidos.'),
   p('mieles', 'miel-tomillo-500', 'Miel de tomillo 500 g', 890, 20, 'Miel de tomillo de montaña, aromática y balsámica.'),
-  p('mieles', 'panal-miel-300', 'Panal de miel natural 300 g', 1290, 8, 'Trozo de panal directo de la colmena. La miel en su estado más puro.'),
+  // Estado "stock bajo": la ficha muestra «quedan 3 unidades».
+  p('mieles', 'panal-miel-300', 'Panal de miel natural 300 g', 1290, 3, 'Trozo de panal directo de la colmena. La miel en su estado más puro.'),
   p('mieles', 'polen-abeja-250', 'Polen de abeja 250 g', 990, 18, 'Polen granulado secado en frío. Para desayunos con energía.'),
   p('mieles', 'miel-jalea-real-250', 'Miel con jalea real 250 g', 1190, 16, 'Miel de romero enriquecida con jalea real fresca.'),
   p('mieles', 'crema-miel-turron-250', 'Crema de miel y turrón 250 g', 850, 24, 'Crema untable de miel con almendra marcona tostada.'),
@@ -82,19 +105,22 @@ export const seedProducts: SeedProduct[] = [
   p('vinos', 'mistela-moscatel-50', 'Mistela de Moscatel 50 cl', 890, 20, 'Dulce tradicional de moscatel romano. El final de comida de la tierra.'),
   p('vinos', 'vermut-artesano-1l', 'Vermut artesano 1 L', 990, 28, 'Vermut rojo macerado con 40 botánicos. De grifo a botella.'),
   p('vinos', 'tinto-reserva-magnum', 'Tinto reserva Magnum 1,5 L', 2990, 8, 'Nuestra reserva en formato magnum. Para ocasiones que lo merecen.'),
-  p('vinos', 'estuche-tres-vinos', 'Estuche selección 3 vinos', 2790, 15, 'Tinto crianza, blanco barrica y espumoso en estuche de madera.'),
+  // Estado "oferta": precio anterior tachado (SOLO presentación, no se cobra).
+  { ...p('vinos', 'estuche-tres-vinos', 'Estuche selección 3 vinos', 2790, 15, 'Tinto crianza, blanco barrica y espumoso en estuche de madera.'), compare_at_price_cents: 3490 },
 
   // ── Conservas (10) ─────────────────────────────────────────────────
   p('conservas', 'tomate-seco-aceite-300', 'Tomate seco en AOVE 300 g', 690, 30, 'Tomate de pera secado al sol y conservado en nuestro AOVE.'),
   p('conservas', 'alcachofa-corazones-390', 'Corazones de alcachofa 390 g', 790, 26, 'Alcachofa de Benicarló DOP en conserva al natural.'),
   p('conservas', 'pimiento-asado-lena-390', 'Pimiento asado a la leña 390 g', 650, 28, 'Pimiento rojo asado a la leña y pelado a mano.'),
-  p('conservas', 'perdiz-escabeche-750', 'Perdiz en escabeche 750 g', 1890, 10, 'Perdiz de caza en escabeche suave de vino viejo. Receta de masía.'),
+  // Estado "agotado": stock 0 → la tarjeta pinta «Agotado» y el botón se deshabilita.
+  p('conservas', 'perdiz-escabeche-750', 'Perdiz en escabeche 750 g', 1890, 0, 'Perdiz de caza en escabeche suave de vino viejo. Receta de masía.'),
   p('conservas', 'pate-olivada-negra-140', 'Olivada de aceituna negra 140 g', 450, 34, 'Paté de aceituna negra de aragón con AOVE y hierbas.'),
   p('conservas', 'mermelada-higo-280', 'Mermelada de higo 280 g', 490, 32, 'Higos de secano y azúcar de caña, nada más. Para quesos curados.'),
   p('conservas', 'mermelada-naranja-280', 'Mermelada de naranja amarga 280 g', 490, 30, 'Naranja de la Plana con su punto justo de amargor.'),
   p('conservas', 'anchoa-cantabrico-8f', 'Anchoas del Cantábrico 8 filetes', 1290, 16, 'Anchoa de Santoña en AOVE, limpiada a mano. Alianza de mar y monte.'),
   p('conservas', 'bonito-ventresca-115', 'Ventresca de bonito del norte 115 g', 990, 20, 'Ventresca en AOVE de la costera del bonito.'),
-  p('conservas', 'salsa-tomate-casera-350', 'Salsa de tomate casera 350 g', 420, 40, 'Tomate, AOVE, cebolla y paciencia. Como la de casa.'),
+  // Estado "inactivo": el comercio lo desactiva → fuera de la tienda, gris en el panel.
+  { ...p('conservas', 'salsa-tomate-casera-350', 'Salsa de tomate casera 350 g', 420, 40, 'Tomate, AOVE, cebolla y paciencia. Como la de casa.'), active: 0 },
 
   // ── Quesos (10) ────────────────────────────────────────────────────
   p('quesos', 'queso-cabra-curado-400', 'Queso de cabra curado 400 g', 1090, 22, 'Leche cruda de cabra del Maestrat, curación de 4 meses.'),
@@ -105,6 +131,7 @@ export const seedProducts: SeedProduct[] = [
   p('quesos', 'crema-queso-trufa-150', 'Crema de queso con trufa 150 g', 690, 20, 'Crema untable de queso curado con trufa negra.'),
   p('quesos', 'queso-ahumado-350', 'Queso ahumado al sarmiento 350 g', 990, 16, 'Ahumado suave con sarmientos de nuestras viñas.'),
   p('quesos', 'cunya-parmesano-maestrat-300', 'Cuña estilo grana curado 24 meses 300 g', 1390, 12, 'Nuestra versión del grana: 24 meses, cristalitos y potencia.'),
-  p('quesos', 'tabla-quesos-seleccion', 'Tabla selección 4 quesos', 2490, 10, 'Cabra, oveja, azul y ahumado. Con mermelada de higo de regalo.'),
+  // Estado "oferta": precio anterior tachado (SOLO presentación).
+  { ...p('quesos', 'tabla-quesos-seleccion', 'Tabla selección 4 quesos', 2490, 10, 'Cabra, oveja, azul y ahumado. Con mermelada de higo de regalo.'), compare_at_price_cents: 2990 },
   p('quesos', 'membrillo-artesano-400', 'Dulce de membrillo artesano 400 g', 490, 30, 'El compañero inseparable de cualquier tabla de quesos.'),
 ];

@@ -24,5 +24,9 @@ export const demoCollection: CollectionConfig = {
     { id: 'vinos', label: 'Vinos' },
     { id: 'conservas', label: 'Conservas' },
     { id: 'quesos', label: 'Quesos' },
+    // Categoría de temporada SIN productos en el seed: hace alcanzable el
+    // estado vacío «no hay productos en esta categoría» en una llamada de venta,
+    // sin fabricar el estado a mano (el comercio la reabre en campaña).
+    { id: 'cestas-navidad', label: 'Cestas de Navidad' },
   ],
 };

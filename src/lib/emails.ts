@@ -3,8 +3,11 @@
  * en producción el mismo HTML iría a Resend.
  */
 
-import { shopConfig } from '../../shop.config';
-import { escapeHtml, formatEurCents } from './format';
+// Extensiones .ts explícitas: estos módulos entran en la cadena del seed, que
+// corre con `node seed/generate.ts` (ESM con type-stripping), y ahí los imports
+// relativos exigen extensión. Es el mismo patrón que ya usa seed/*.
+import { shopConfig } from '../../shop.config.ts';
+import { escapeHtml, formatEurCents } from './format.ts';
 
 export type EmailMessage = { to_addr: string; subject: string; body_html: string };
 

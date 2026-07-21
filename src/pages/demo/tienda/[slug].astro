@@ -1,7 +1,7 @@
 ---
 import Shop from '../../../layouts/Shop.astro';
 import { shopConfig } from '../../../../shop.config';
-import { getProductBySlug } from '../../../lib/db';
+import { getProductBySlug, parseSpecs } from '../../../lib/db';
 import { categoryLabel as labelForCategory, defaultCollection } from '../../../lib/collections';
 import { formatEurCents, jsonLdScript } from '../../../lib/format';
 import { notFoundResponse } from '../../../lib/not-found';
@@ -20,6 +20,13 @@ if (!product || notFound) {
 }
 
 const categoryLabel = labelForCategory(collection, product.category);
+
+// Capacidades opcionales (migración 0002). Nullable: el motor las hereda de
+// serie y la tienda las pinta solo si el producto las trae. `compare_at_price_cents`
+// es SOLO presentación: no entra en ninguna cuenta (ver tests/pricing-guard.test.ts).
+const specs = parseSpecs(product.specs_json);
+const hasOffer =
+  product.compare_at_price_cents !== null && product.compare_at_price_cents > product.price_cents;
 
 // Hasta 4 productos más de la misma categoría (venta cruzada + enlazado interno).
 // Acotado a la colección: la venta cruzada nunca salta de tienda.
@@ -70,8 +77,27 @@ const jsonLd = {
       <div class="md:py-4">
         <p class="text-sm font-medium uppercase tracking-wide text-brand">{categoryLabel}</p>
         <h1 class="mt-2 font-display text-3xl sm:text-4xl">{product.name}</h1>
-        <p class="mt-4 text-2xl font-semibold">{formatEurCents(product.price_cents)}</p>
+        {product.subtitle && (
+          <p class="mt-1.5 text-sm font-medium uppercase tracking-wide text-muted-foreground">{product.subtitle}</p>
+        )}
+        <p class="mt-4 flex items-baseline gap-2.5">
+          <span class="text-2xl font-semibold">{formatEurCents(product.price_cents)}</span>
+          {hasOffer && (
+            <span class="text-lg font-normal text-muted-foreground line-through">{formatEurCents(product.compare_at_price_cents!)}</span>
+          )}
+        </p>
         <p class="mt-5 leading-relaxed text-muted-foreground">{product.description}</p>
+
+        {specs.length > 0 && (
+          <dl class="mt-6 divide-y divide-border rounded-2xl border border-border text-sm">
+            {specs.map((spec) => (
+              <div class="flex justify-between gap-4 px-4 py-2.5">
+                <dt class="text-muted-foreground">{spec.label}</dt>
+                <dd class="text-right font-medium text-foreground">{spec.value}</dd>
+              </div>
+            ))}
+          </dl>
+        )}
 
         {product.stock > 0 ? (
           <div class="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
