@@ -4,6 +4,7 @@
  * página (src/pages/demo/tienda/index.astro) a través del registro de temas.
  * Barra `Catalog (N) · Ordenar · categorías` + rejilla de 2 columnas con aire.
  */
+import type { CollectionConfig } from '../../../lib/collections';
 import Filters from './Filters.astro';
 import ProductGrid from './ProductGrid.astro';
 
@@ -17,16 +18,17 @@ type GridProduct = {
 
 interface Props {
   products: GridProduct[];
+  collection: CollectionConfig;
   category?: string | undefined;
   sort: string;
   search?: string | undefined;
 }
 
-const { products, category, sort, search } = Astro.props;
+const { products, collection, category, sort, search } = Astro.props;
 ---
 
 <main class="px-5 py-6 md:px-2 md:py-10">
-  <Filters count={products.length} activeCategory={category} sort={sort} search={search} />
+  <Filters collection={collection} count={products.length} activeCategory={category} sort={sort} search={search} />
   <div class="mt-8">
     {products.length > 0 ? (
       <ProductGrid products={products} />

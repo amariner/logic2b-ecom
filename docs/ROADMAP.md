@@ -51,7 +51,8 @@ reconciliación se conserva abajo por contexto.
 | 5 | Landing comercial + /arquitectura + SEO técnico | ✅ Hecho | 2026-07-17 | Dirección B elegida (escaparate editorial). Cero JS en landing. Sitemap+JSON-LD OK |
 | 6 | Deploy ecom.logic2b.com + cron reset + README + docs/CLIENTE.md | ✅ Hecho | 2026-07-18 | **Desplegado y en vivo en https://ecom.logic2b.com** (Worker `ecom-logic2b`, D1 remota `ecom-demo` id `7ae9b06d…`, custom domain + cron reset activos). Pagos en **modo simulado** (sin Stripe) |
 | 7 | bootstrap.sh + checklist demo→cliente real | ✅ Hecho | 2026-07-18 | `scripts/bootstrap.sh` (local probado end-to-end; `--remote` aprovisiona Cloudflare) + `docs/PRODUCCION.md` |
-| 9 | Catálogo de estilos (8 temas) | 🟡 En curso | 2026-07-21 | Arquitectura + `/estilos` + **temas 06 Minimal, 01 Editorial, 07 Launch y 04 Guide desarrollados** (5 listos con Base; registro de catálogo por tema generalizado). Resto, uno por sesión. Ver «Fase 9» y `docs/TEMAS.md` |
+| 9 | Catálogo de estilos (8 temas) | 🟡 En curso | 2026-07-21 | Arquitectura + `/estilos` + **temas 06 Minimal, 01 Editorial, 07 Launch y 04 Guide desarrollados** (5 listos con Base; registro de catálogo por tema generalizado). **Replanteada como Fase 9B** (ver abajo): de «una tienda, 8 pieles» a «8 tiendas, un motor» |
+| 9B | 8 tiendas distintas sobre un solo motor | 🟡 En curso | 2026-07-21 | **9B.0 y 9B.1 hechos.** Migración 0002 (colecciones + capacidades opcionales), `shop.config` partido en motor/colección, guardarraíl del precio de oferta. 128 tests. Ver «Fase 9B» |
 | 10 | Documentación para el cliente | ⬜ Pendiente | — | Ver «Fase 10». Es material de venta y de entrega, no docs técnicas |
 | 8 | Pulido de la demo (backlog abajo) | 🟡 En curso | 2026-07-19 | Backlog técnico agotado; solo quedan decisiones y pasos locales de Andreu (ver «Decisiones pendientes» y `docs/PROMPT_CLOUD.md`). Últimas tandas: novena (race de idempotencia en el pago, PII enumerable en `/demo/gracias`, cancelación de pedido pagado sin devolver stock), décima (la misma race en el PATCH de admin, campos vacíos guardados como 0, login sin rate limit), undécima (diagrama móvil de `/arquitectura`, hedge del plazo de entrega, tokens de tema en `/demo/reset`, terminología «envío»), duodécima (aviso de corte en pedidos del admin, cabeceras sin wrap a 375px, leftover «portes», token de radio del carrito, contraste del botón eliminar, H1 en valenciano, checklist de producción) y decimotercera (misma race de idempotencia en `checkout.session.expired`, divisa hardcodeada a EUR fuera de Stripe, cobertura de test de `quoteCart`/PATCH admin/emails) y decimocuarta (config parcial de Stripe → cobro sin cumplimiento, emails duplicados bajo concurrencia, `payment_status` del webhook, color de marca centralizado en `shop.config.ts`, contraste/tema en carrito y checkout) — ver sección «Fase 8» |
 
@@ -59,6 +60,122 @@ reconciliación se conserva abajo por contexto.
 
 - GitHub: `https://github.com/amariner/logic2b-ecom` (rama `main`).
 - Cloudflare: **en producción** — Worker `ecom-logic2b` en https://ecom.logic2b.com, D1 remota `ecom-demo` (`7ae9b06d-3664-4790-a87c-04bb4c67e97a`), cron reset cada 6 h, cuenta marinerandreu@gmail.com.
+
+## Fase 9B — Ocho tiendas distintas sobre un solo motor
+
+> **Esto es un REPLANTEAMIENTO de la Fase 9, no una continuación.** La Fase 9
+> construía «una tienda con 8 pieles»: un catálogo compartido (aceite del
+> Maestrat) y un selector con cookie que cambiaba la presentación. La Fase 9B
+> construye **8 tiendas**, cada una con su URL, su catálogo, su identidad y su
+> imaginería, sobre **un solo motor que no se bifurca**.
+>
+> La tesis comercial que manda sobre todo lo técnico: *«diseñamos tiendas
+> radicalmente distintas y las entregamos rápido»*. Lo que hace eso posible es
+> que cada encargo nuevo toque **solo diseño y productos**. Un tema espectacular
+> que haya exigido tocar el motor es un fracaso de arquitectura disfrazado de
+> éxito de diseño.
+
+### 9B.0 — Decisiones cerradas (2026-07-21)
+
+1. **Fidelidad: réplica del screenshot.** Cada tema se construye mirando su
+   `.webp` de `public/images/referencias/` y clavando la composición: rejilla,
+   gaps, filetes, escala tipográfica, colores exactos, orden de los elementos.
+   La imaginería de Higgsfield reproduce la receta visual de la captura (mismo
+   objeto, fondo, luz y encuadre). **Lo único que no cruza:** nombre de marca,
+   logotipo, textos literales y fuentes propietarias — `/estilos` es una página
+   comercial indexable. Deroga el «todo se reconstruye en Inter + neutros» de
+   `docs/TEMAS.md § 4`.
+2. **Migración de D1 aprobada** (ver 9B.1).
+3. **74 productos**, repartidos por lo que llena la rejilla de cada tema:
+   Natural y Street 12, Editorial e Industrial 10, Specs 9, Guide y Minimal 8,
+   Launch 5.
+4. **Guide cambia de catálogo, no de tema.** Su referencia (*Pour over*) es una
+   tienda de café: su colección pasa a ser **café de especialidad y equipo de
+   cafetería**. Con 8 objetos simples y bien definidos, la ilustración de línea
+   deja de ser «un sistema gráfico a medida» y son 8 generaciones. **Entra.**
+5. **`shop.config` partido** en motor + colección (ver 9B.1).
+6. **El selector con cookie se elimina** — cada tienda es su URL (9B.4).
+7. **Carrito, checkout y gracias siguen siendo UNA implementación**, servida bajo
+   la ruta de la colección para heredar sus tokens. Funcionalidad idéntica,
+   estilo distinto, cero duplicación de lógica.
+
+**Colecciones propuestas** (pendiente de veto de Andreu; los nombres de tienda se
+proponen en 9B.4): Editorial → audio y objeto de diseño · Industrial →
+instrumentación técnica · Natural → cosmética natural · Guide → café de
+especialidad · Specs → componentes de precisión · Minimal → mobiliario e interior
+· Launch → producto estrella · Street → streetwear y calzado.
+
+### 9B.1 — Motor: colecciones y capacidades opcionales (2026-07-21)
+
+Es el cimiento: a partir de aquí el motor **no se vuelve a tocar** al desarrollar
+un tema.
+
+- **Migración `0002_collections_and_product_capabilities.sql`**, una sola:
+  - `collection TEXT NOT NULL DEFAULT 'demo'` — el DEFAULT retro-llena las 60
+    filas existentes en el mismo `ALTER`, así que el catálogo actual queda íntegro
+    en la colección `demo`.
+  - `subtitle`, `compare_at_price_cents`, `specs_json` — nullable e ignorables.
+    Resuelven de una vez lo que Industrial, Natural y Specs pedían, en vez de con
+    tres apaños derivados del seed. Un cliente real hereda descuentos y ficha
+    técnica de serie.
+  - Índice `(collection, active, category)`.
+  - **`slug` sigue UNIQUE global, deliberadamente:** es la clave del carrito y del
+    checkout. Hacerlo único-por-colección obligaría a propagar la colección a
+    `cart-client.ts`, `/api/cart/quote` y `/api/checkout/session` — o sea, a
+    bifurcar la ruta de cobro. Los slugs se namespacean en el seed.
+  - SQLite no admite `CHECK` en `ALTER TABLE ADD COLUMN`: la invariante
+    `compare_at_price_cents > price_cents` se valida en el seed (`assertCompareAtPrice`).
+- **⚠️ Guardarraíl del precio de oferta** (`tests/pricing-guard.test.ts`, 10 tests).
+  `compare_at_price_cents` es EXCLUSIVAMENTE presentación. Cuatro capas: el
+  subtotal lo ignora; el umbral de envío gratis se evalúa contra el precio real
+  (el test que de verdad detecta el bug de dinero); `QuoteLine` no lo expone; y
+  una **guardia estática** que falla si la cadena `compare_at_price` aparece en
+  `pricing`, `shipping`, `quote`, checkout, quote-API o webhook. Verificado que
+  muerde: introducido el campo en `pricing.ts` a propósito, el test falla.
+- **`shop.config.ts` partido en dos capas.** Se queda lo que influye en lo que se
+  COBRA, se ENVÍA o dice un EMAIL (divisa, zonas, tarifas, numeración, legal,
+  identidad del operador). Las **categorías salen de ahí** y pasan a
+  `src/collections/<id>.ts` junto con nombre, tagline y descripción. Ocho
+  `shop.config` habrían sido ocho motores.
+- **`src/lib/collections.ts`** — registro. La colección activa sale SIEMPRE del
+  segmento de URL validado contra el registro: un id desconocido es `null` (→ 404),
+  nunca un fallback a otra tienda. `resolveCategory` valida la categoría contra su
+  propia colección.
+- **`lib/db.ts`**: `collection` es parámetro **obligatorio** de `getActiveProducts`
+  y `getProductBySlug` — el compilador obliga a cada punto de lectura a declarar de
+  qué tienda tira, y ningún tema puede leer la tabla entera por olvido.
+  `getProductsBySlugs` (carrito) queda agnóstico a propósito. Añadido `parseSpecs`,
+  que valida `specs_json` de forma defensiva.
+- **Los 4 temas hechos reciben `collection` como prop** en vez de leer
+  `shopConfig.categories`. Es el acoplamiento correcto y hace 9B.4 barato.
+- **Verificado**: `pnpm check` en verde (**128 tests**, 0 errores de tipos, build
+  OK). `pnpm db:reset` aplica las dos migraciones y deja los 60 productos en
+  `collection='demo'` con las columnas nuevas a NULL. En `wrangler dev`: catálogo,
+  filtro por categoría, ficha (200), slug inexistente (404) y `/api/cart/quote`
+  devolviendo precios y portes correctos. Sin dependencias nuevas.
+- **No se tocó** ni una línea de `lib/pricing.ts`, `lib/shipping.ts`,
+  `cart-client.ts`, el webhook ni los emails.
+
+### Pendiente en la Fase 9B
+
+- **9B.2** — Demo genérica: seed de fixtures con todas las variantes (5 estados de
+  pedido, envío gratis y no, 3 zonas, los 2 emails, agotado/stock bajo/inactivo,
+  estados vacíos, `order_events` con timeline real).
+- **9B.3** — Scaffold de tema (`pnpm new:theme <id>`) y checklist de entrega.
+- **9B.4** — Rutas `/demo/tiendas/[collection]/…`, carrito/checkout/gracias
+  compartidos bajo la colección, borrado del selector con cookie y de
+  `active-theme.ts`, y re-hospedaje de los 4 temas existentes **con pasada de
+  fidelidad contra su screenshot** (se construyeron contra la descripción, no como
+  réplica).
+- **9B.5** — Imaginería en sesión LOCAL (el CDN de Higgsfield está bloqueado en
+  cloud). ~94 piezas finales, 140–190 generaciones con retries. **Falta cerrar
+  créditos disponibles con Andreu.**
+- **9B.6** — Un tema por sesión, con su catálogo y sus fotos.
+- **9B.7** — `/estilos` enlazando a las 8 tiendas reales.
+- **9B.8** — Reescribir `docs/TEMAS.md` con el contrato nuevo (hoy describe el
+  modelo de «una tienda, 8 pieles» y está desfasado).
+
+---
 
 ## Fase 9 — Catálogo de estilos (7 temas)
 

@@ -11,6 +11,7 @@ import SiteHeader from '../components/SiteHeader.astro';
 import MinimalHeader from '../components/themes/minimal/Header.astro';
 import MinimalFooter from '../components/themes/minimal/Footer.astro';
 import { shopConfig } from '../../shop.config';
+import { defaultCollection } from '../lib/collections';
 import { readyThemes } from '../lib/demo-themes';
 import { resolveActiveTheme } from '../lib/active-theme';
 
@@ -71,11 +72,11 @@ const useSidebar = active.layout.nav === 'sidebar';
         {/* Hoja blanca insertada sobre gris claro, con nav lateral a la izquierda. */}
         <div class="mx-auto max-w-[1400px] bg-background">
           <div class="md:grid md:grid-cols-[13rem_minmax(0,1fr)]">
-            <MinimalHeader />
+            <MinimalHeader collection={defaultCollection()} />
             <div class="min-w-0"><slot /></div>
           </div>
         </div>
-        <MinimalFooter />
+        <MinimalFooter collection={defaultCollection()} />
       </Fragment>
     ) : (
       <Fragment>

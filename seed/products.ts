@@ -11,6 +11,19 @@ export type SeedProduct = {
   price_cents: number;
   stock: number;
   category: string;
+  /** Tienda del escaparate. Por defecto, la genérica. */
+  collection?: string;
+
+  // — Capacidades opcionales (migración 0002). Omitirlas es lo normal. —
+  /** Subtítulo técnico bajo el nombre (Industrial). */
+  subtitle?: string;
+  /**
+   * Precio anterior tachado (Natural). SOLO presentación: no se cobra, no cuenta
+   * para el envío gratis. Debe ser mayor que `price_cents` — lo valida el seed.
+   */
+  compare_at_price_cents?: number;
+  /** Filas de ficha técnica (Specs). */
+  specs?: readonly { label: string; value: string }[];
 };
 
 const p = (

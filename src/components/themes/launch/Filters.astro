@@ -5,16 +5,17 @@
  * Filtra contra los MISMOS parámetros de URL que la tienda Base (`categoria`,
  * `orden`, `q`): el backend es UNO, aquí solo cambia la presentación.
  */
-import { shopConfig } from '../../../../shop.config';
+import type { CollectionConfig } from '../../../lib/collections';
 
 interface Props {
+  collection: CollectionConfig;
   count: number;
   activeCategory?: string | undefined;
   sort: string;
   search?: string | undefined;
 }
 
-const { count, activeCategory, sort, search } = Astro.props;
+const { collection, count, activeCategory, sort, search } = Astro.props;
 
 const sortOptions = [
   { id: 'featured', label: 'Destacados' },
@@ -48,7 +49,7 @@ const chipOn = 'border-brand bg-brand text-brand-fg';
           style="border-radius: var(--radius-btn);"
         >Todo</a>
       </li>
-      {shopConfig.categories.map((cat) => (
+      {collection.categories.map((cat) => (
         <li>
           <a
             href={linkFor(cat.id)}

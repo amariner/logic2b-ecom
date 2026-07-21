@@ -10,7 +10,7 @@
  * Backend compartido: mismos `categoria`/`orden`/`q` y el mismo carrito. Aquí
  * solo cambia la presentación.
  */
-import { shopConfig } from '../../../../shop.config';
+import type { CollectionConfig } from '../../../lib/collections';
 import Hero from './Hero.astro';
 import Toolbar from './Toolbar.astro';
 import ProductGrid from './ProductGrid.astro';
@@ -27,14 +27,15 @@ type GridProduct = {
 
 interface Props {
   products: GridProduct[];
+  collection: CollectionConfig;
   category?: string | undefined;
   sort: string;
   search?: string | undefined;
 }
 
-const { products, category, sort, search } = Astro.props;
+const { products, collection, category, sort, search } = Astro.props;
 
-const categoryLabel = shopConfig.categories.find((cat) => cat.id === category)?.label;
+const categoryLabel = collection.categories.find((cat) => cat.id === category)?.label;
 
 // Pastilla «NUEVO»: las altas más recientes del catálogo. Presentación derivada
 // de datos que YA existen — sin campos nuevos en D1.
@@ -56,6 +57,7 @@ const newSlugs = new Set(
 <div class="bg-muted">
   <main class="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-8">
     <Hero
+      collection={collection}
       activeCategory={category}
       categoryLabel={categoryLabel}
       sort={sort}

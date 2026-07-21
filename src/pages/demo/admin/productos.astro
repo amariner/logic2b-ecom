@@ -1,6 +1,6 @@
 ---
 import Admin from '../../../layouts/Admin.astro';
-import { shopConfig } from '../../../../shop.config';
+import { allCategoryLabels } from '../../../lib/collections';
 
 export const prerender = false;
 
@@ -9,7 +9,9 @@ const { results: products } = await Astro.locals.runtime.env.DB.prepare(
   'SELECT id, slug, name, price_cents, stock, category, active FROM products ORDER BY category, name',
 ).all<Row>();
 
-const categoryLabel = new Map(shopConfig.categories.map((cat) => [cat.id, cat.label]));
+// El backoffice es UNO y ve los productos de todas las tiendas: las etiquetas
+// salen de la unión de categorías del registro de colecciones.
+const categoryLabel = allCategoryLabels();
 ---
 
 <Admin title="Productos" active="productos">

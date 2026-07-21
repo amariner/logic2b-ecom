@@ -16,6 +16,7 @@
  *
  * La barra sticky inferior con el ESTADO REAL DE STOCK (D1) acompaña siempre.
  */
+import type { CollectionConfig } from '../../../lib/collections';
 import Filters from './Filters.astro';
 import ProductGrid from './ProductGrid.astro';
 import FeatureScroller from './FeatureScroller.astro';
@@ -33,12 +34,13 @@ type GridProduct = {
 
 interface Props {
   products: GridProduct[];
+  collection: CollectionConfig;
   category?: string | undefined;
   sort: string;
   search?: string | undefined;
 }
 
-const { products, category, sort, search } = Astro.props;
+const { products, collection, category, sort, search } = Astro.props;
 
 // Composición de landing solo en la vista prístina del catálogo.
 const landing = !category && !search && sort === 'featured' && products.length > 0;
@@ -83,7 +85,7 @@ const star = products.find((p) => p.stock > 0) ?? products[0];
     )}
 
     <div class="mt-7">
-      <Filters count={products.length} activeCategory={category} sort={sort} search={search} />
+      <Filters collection={collection} count={products.length} activeCategory={category} sort={sort} search={search} />
     </div>
 
     <div class="mt-8">

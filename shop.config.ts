@@ -1,6 +1,24 @@
 /**
- * shop.config.ts — TODO lo específico de una tienda vive aquí.
- * Para un cliente nuevo: clonar el repo, editar este fichero y el seed. Nada más.
+ * shop.config.ts — configuración del MOTOR. Hay UNA, nunca una por tema.
+ * ============================================================================
+ *
+ * Para un cliente nuevo: clonar el repo, editar este fichero, su colección en
+ * `src/collections/` y el seed. Nada más.
+ *
+ * QUÉ VA AQUÍ Y QUÉ NO (Fase 9B, 2026-07-21). Aquí vive lo que influye en lo que
+ * se COBRA, lo que se ENVÍA y lo que dice un EMAIL: divisa, zonas y tarifas,
+ * numeración de pedido, identidad del operador, textos legales. Lo consumen
+ * lib/pricing, lib/shipping, lib/orders, lib/emails y el checkout — que son uno
+ * solo para todas las tiendas.
+ *
+ * La identidad y las categorías de cada ESCAPARATE viven en
+ * `src/collections/<id>.ts`. Ocho `shop.config` serían ocho motores; por eso el
+ * catálogo de categorías salió de aquí y ya no vuelve.
+ *
+ * `name`/`legalName` son la identidad del OPERADOR: es lo que firma los emails y
+ * lo que rotula el backoffice, que es único. En un proyecto real hay una sola
+ * colección y coincide con el nombre de su tienda; en la demo, el backoffice se
+ * llama como la tienda genérica.
  */
 
 export type ShippingZone = {
@@ -32,15 +50,10 @@ export const shopConfig = {
     colorDark: '#004c3f',
   },
 
-  /** Categorías del catálogo. El seed y los filtros de tienda derivan de aquí. */
-  categories: [
-    { id: 'aceites', label: 'Aceites de oliva' },
-    { id: 'embutidos', label: 'Embutidos' },
-    { id: 'mieles', label: 'Mieles' },
-    { id: 'vinos', label: 'Vinos' },
-    { id: 'conservas', label: 'Conservas' },
-    { id: 'quesos', label: 'Quesos' },
-  ],
+  /**
+   * Las CATEGORÍAS ya no viven aquí: son de cada escaparate y están en
+   * `src/collections/<id>.ts`. Ver el bloque de cabecera de este fichero.
+   */
 
   /**
    * Envíos: zonas resueltas por prefijo de CP + tarifa plana por zona

@@ -6,16 +6,18 @@
  * buttons arriba a la derecha, y una fila de pie con dos apuntes. Entre medias,
  * MUCHO VACÍO: es intencional en la referencia (Pour over) y no se rellena.
  */
+import type { CollectionConfig } from '../../../lib/collections';
 import Filters from './Filters.astro';
 
 interface Props {
+  collection: CollectionConfig;
   activeCategory?: string | undefined;
   categoryLabel?: string | undefined;
   sort: string;
   search?: string | undefined;
 }
 
-const { activeCategory, categoryLabel, sort, search } = Astro.props;
+const { collection, activeCategory, categoryLabel, sort, search } = Astro.props;
 ---
 
 <section
@@ -34,7 +36,7 @@ const { activeCategory, categoryLabel, sort, search } = Astro.props;
     </div>
 
     <div class="shrink-0 lg:pt-2">
-      <Filters activeCategory={activeCategory} sort={sort} search={search} />
+      <Filters collection={collection} activeCategory={activeCategory} sort={sort} search={search} />
     </div>
   </div>
 

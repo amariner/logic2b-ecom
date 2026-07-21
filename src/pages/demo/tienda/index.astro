@@ -2,6 +2,7 @@
 import Shop from '../../../layouts/Shop.astro';
 import { shopConfig } from '../../../../shop.config';
 import { getActiveProducts, isSortOption } from '../../../lib/db';
+import { defaultCollection, resolveCategory } from '../../../lib/collections';
 import { formatEurCents } from '../../../lib/format';
 import { resolveActiveTheme } from '../../../lib/active-theme';
 import MinimalCatalog from '../../../components/themes/minimal/Catalog.astro';
@@ -11,14 +12,17 @@ import GuideCatalog from '../../../components/themes/guide/Catalog.astro';
 
 export const prerender = false;
 
+// Tienda GENÉRICA: la del recorrido transaccional completo. Su colección es fija
+// (las 8 del escaparate de estilos viven en /demo/tiendas/<id>/, en 9B.4).
+const collection = defaultCollection();
+
 const url = Astro.url;
-const rawCategory = url.searchParams.get('categoria') ?? '';
-const category = shopConfig.categories.some((cat) => cat.id === rawCategory) ? rawCategory : undefined;
+const category = resolveCategory(collection, url.searchParams.get('categoria'));
 const rawSort = url.searchParams.get('orden') ?? 'featured';
 const sort = isSortOption(rawSort) ? rawSort : 'featured';
 const search = (url.searchParams.get('q') ?? '').trim().slice(0, 60);
 
-const products = await getActiveProducts(Astro.locals.runtime.env.DB, {
+const products = await getActiveProducts(Astro.locals.runtime.env.DB, collection.id, {
   category,
   sort,
   search: search || undefined,
@@ -56,7 +60,7 @@ const ThemedCatalog = catalogViews[active.id as keyof typeof catalogViews] ?? nu
 
 <Shop title="Tienda" description={`Catálogo demo de ${shopConfig.name}`}>
   {ThemedCatalog && (
-    <ThemedCatalog products={products} category={category} sort={sort} search={search} />
+    <ThemedCatalog products={products} collection={collection} category={category} sort={sort} search={search} />
   )}
 
   {!ThemedCatalog && (
@@ -70,8 +74,8 @@ const ThemedCatalog = catalogViews[active.id as keyof typeof catalogViews] ?? nu
       <span><span class="font-semibold text-brand">3</span> mira los <a href="/demo/admin/emails" class="underline underline-offset-2 hover:text-foreground">emails</a> que se habrían enviado</span>
     </div>
 
-    <h1 class="font-display text-3xl sm:text-4xl">Productos de la tierra</h1>
-    <p class="mt-2 max-w-2xl text-muted-foreground">Aceites, embutidos, mieles, vinos, conservas y quesos del Maestrat.</p>
+    <h1 class="font-display text-3xl sm:text-4xl">{collection.tagline}</h1>
+    <p class="mt-2 max-w-2xl text-muted-foreground">{collection.description}</p>
 
     <div class="mt-8 flex flex-wrap items-center justify-between gap-4">
       <nav class="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0" aria-label="Categorías">
@@ -79,7 +83,7 @@ const ThemedCatalog = catalogViews[active.id as keyof typeof catalogViews] ?? nu
           href={linkFor(undefined, sort)}
           class:list={['shrink-0 rounded-btn px-4 py-2 text-sm font-medium transition', !category ? 'bg-foreground text-background' : 'bg-muted text-muted-foreground hover:bg-secondary']}
         >Todo</a>
-        {shopConfig.categories.map((cat) => (
+        {collection.categories.map((cat) => (
           <a
             href={linkFor(cat.id, sort)}
             class:list={['shrink-0 rounded-btn px-4 py-2 text-sm font-medium transition', category === cat.id ? 'bg-foreground text-background' : 'bg-muted text-muted-foreground hover:bg-secondary']}

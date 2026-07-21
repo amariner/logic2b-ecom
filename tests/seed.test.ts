@@ -1,12 +1,13 @@
 import { describe, expect, it } from 'vitest';
 import { shopConfig } from '../shop.config';
+import { demoCollection } from '../src/collections/demo';
 import { seedProducts } from '../seed/products';
 import { seedStatements } from '../seed/seed';
 
 describe('integridad del seed', () => {
-  it('tiene ~60 productos repartidos en las 6 categorías de shop.config', () => {
+  it('tiene ~60 productos repartidos en las 6 categorías de la colección demo', () => {
     expect(seedProducts.length).toBe(60);
-    const configCategories = new Set(shopConfig.categories.map((c) => c.id));
+    const configCategories = new Set(demoCollection.categories.map((c) => c.id));
     for (const prod of seedProducts) {
       expect(configCategories.has(prod.category), `categoría desconocida: ${prod.category}`).toBe(true);
     }

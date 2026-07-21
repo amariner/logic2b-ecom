@@ -2,26 +2,31 @@
 import Shop from '../../../layouts/Shop.astro';
 import { shopConfig } from '../../../../shop.config';
 import { getProductBySlug } from '../../../lib/db';
+import { categoryLabel as labelForCategory, defaultCollection } from '../../../lib/collections';
 import { formatEurCents, jsonLdScript } from '../../../lib/format';
 import { notFoundResponse } from '../../../lib/not-found';
 
 export const prerender = false;
 
+// Ficha de la tienda GENÉRICA. Las 8 del escaparate tienen la suya en 9B.4.
+const collection = defaultCollection();
+
 const { slug = '' } = Astro.params;
-const product = await getProductBySlug(Astro.locals.runtime.env.DB, slug);
+const product = await getProductBySlug(Astro.locals.runtime.env.DB, collection.id, slug);
 // Producto borrado o desactivado: servimos la 404 propia con su estado real.
 const notFound = product ? null : await notFoundResponse(Astro.locals.runtime.env, Astro.url);
 if (!product || notFound) {
   return notFound;
 }
 
-const categoryLabel = shopConfig.categories.find((cat) => cat.id === product.category)?.label ?? product.category;
+const categoryLabel = labelForCategory(collection, product.category);
 
 // Hasta 4 productos más de la misma categoría (venta cruzada + enlazado interno).
+// Acotado a la colección: la venta cruzada nunca salta de tienda.
 const { results: related } = await Astro.locals.runtime.env.DB.prepare(
-  'SELECT slug, name, price_cents, image, stock FROM products WHERE category = ? AND slug != ? AND active = 1 ORDER BY id LIMIT 4',
+  'SELECT slug, name, price_cents, image, stock FROM products WHERE collection = ? AND category = ? AND slug != ? AND active = 1 ORDER BY id LIMIT 4',
 )
-  .bind(product.category, product.slug)
+  .bind(collection.id, product.category, product.slug)
   .all<{ slug: string; name: string; price_cents: number; image: string; stock: number }>();
 
 // Schema Product+Offer válido: parte del argumento de venta (aunque la demo sea noindex).

@@ -10,7 +10,13 @@
  * COLLECTIONS / ABOUT US / CONTACTS replican el juego de la referencia (propro)
  * apuntando a destinos REALES de la demo — no inventamos páginas.
  */
-import { shopConfig } from '../../../../shop.config';
+import type { CollectionConfig } from '../../../lib/collections';
+
+interface Props {
+  collection: CollectionConfig;
+}
+
+const { collection } = Astro.props;
 
 const pathname = Astro.url.pathname;
 const onCatalog = pathname.startsWith('/demo/tienda');
@@ -29,8 +35,8 @@ const items = [
   <a
     href="/demo/tienda"
     class="shrink-0 font-display text-lg leading-tight tracking-tight text-foreground md:mb-14"
-    aria-label={shopConfig.name}
-  >{shopConfig.name}</a>
+    aria-label={collection.name}
+  >{collection.name}</a>
 
   <nav aria-label="Secciones" class="shrink-0 md:w-full">
     <ul

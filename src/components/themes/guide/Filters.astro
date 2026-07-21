@@ -7,15 +7,16 @@
  * contra los mismos parámetros de URL que la tienda Base (`categoria`, `orden`,
  * `q`). El círculo relleno marca el activo; el hueco, el resto.
  */
-import { shopConfig } from '../../../../shop.config';
+import type { CollectionConfig } from '../../../lib/collections';
 
 interface Props {
+  collection: CollectionConfig;
   activeCategory?: string | undefined;
   sort: string;
   search?: string | undefined;
 }
 
-const { activeCategory, sort, search } = Astro.props;
+const { collection, activeCategory, sort, search } = Astro.props;
 
 const linkFor = (catId?: string): string => {
   const params = new URLSearchParams();
@@ -28,7 +29,7 @@ const linkFor = (catId?: string): string => {
 
 const options = [
   { id: undefined, label: 'Todo' },
-  ...shopConfig.categories.map((cat) => ({ id: cat.id as string | undefined, label: cat.label })),
+  ...collection.categories.map((cat) => ({ id: cat.id as string | undefined, label: cat.label })),
 ];
 ---
 
