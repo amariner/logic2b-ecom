@@ -52,7 +52,7 @@ reconciliación se conserva abajo por contexto.
 | 6 | Deploy ecom.logic2b.com + cron reset + README + docs/CLIENTE.md | ✅ Hecho | 2026-07-18 | **Desplegado y en vivo en https://ecom.logic2b.com** (Worker `ecom-logic2b`, D1 remota `ecom-demo` id `7ae9b06d…`, custom domain + cron reset activos). Pagos en **modo simulado** (sin Stripe) |
 | 7 | bootstrap.sh + checklist demo→cliente real | ✅ Hecho | 2026-07-18 | `scripts/bootstrap.sh` (local probado end-to-end; `--remote` aprovisiona Cloudflare) + `docs/PRODUCCION.md` |
 | 9 | Catálogo de estilos (8 temas) | 🟡 En curso | 2026-07-21 | Arquitectura + `/estilos` + **temas 06 Minimal, 01 Editorial, 07 Launch y 04 Guide desarrollados** (5 listos con Base; registro de catálogo por tema generalizado). **Replanteada como Fase 9B** (ver abajo): de «una tienda, 8 pieles» a «8 tiendas, un motor» |
-| 9B | 8 tiendas distintas sobre un solo motor | 🟡 En curso | 2026-07-21 | **9B.0 y 9B.1 hechos.** Migración 0002 (colecciones + capacidades opcionales), `shop.config` partido en motor/colección, guardarraíl del precio de oferta. 128 tests. Ver «Fase 9B» |
+| 9B | 8 tiendas distintas sobre un solo motor | 🟡 En curso | 2026-07-21 | **9B.0, 9B.1 y 9B.2 hechos.** Migración 0002 (colecciones + capacidades opcionales), `shop.config` partido en motor/colección, guardarraíl del precio de oferta, y demo genérica con fixtures de backoffice en todos los estados. 144 tests. Ver «Fase 9B» |
 | 10 | Documentación para el cliente | ⬜ Pendiente | — | Ver «Fase 10». Es material de venta y de entrega, no docs técnicas |
 | 8 | Pulido de la demo (backlog abajo) | 🟡 En curso | 2026-07-19 | Backlog técnico agotado; solo quedan decisiones y pasos locales de Andreu (ver «Decisiones pendientes» y `docs/PROMPT_CLOUD.md`). Últimas tandas: novena (race de idempotencia en el pago, PII enumerable en `/demo/gracias`, cancelación de pedido pagado sin devolver stock), décima (la misma race en el PATCH de admin, campos vacíos guardados como 0, login sin rate limit), undécima (diagrama móvil de `/arquitectura`, hedge del plazo de entrega, tokens de tema en `/demo/reset`, terminología «envío»), duodécima (aviso de corte en pedidos del admin, cabeceras sin wrap a 375px, leftover «portes», token de radio del carrito, contraste del botón eliminar, H1 en valenciano, checklist de producción) y decimotercera (misma race de idempotencia en `checkout.session.expired`, divisa hardcodeada a EUR fuera de Stripe, cobertura de test de `quoteCart`/PATCH admin/emails) y decimocuarta (config parcial de Stripe → cobro sin cumplimiento, emails duplicados bajo concurrencia, `payment_status` del webhook, color de marca centralizado en `shop.config.ts`, contraste/tema en carrito y checkout) — ver sección «Fase 8» |
 
@@ -156,11 +156,47 @@ un tema.
 - **No se tocó** ni una línea de `lib/pricing.ts`, `lib/shipping.ts`,
   `cart-client.ts`, el webhook ni los emails.
 
+### 9B.2 — Demo genérica: fixtures del backoffice (2026-07-21)
+
+El backend de demo ya deja sembrado un panel realista con **todas** las variantes,
+para poder enseñarlo en una llamada de venta sin fabricar el estado a mano.
+
+- **`seed/demo-orders.ts`** (nuevo, SOLO demo, separable para cliente real): 8
+  pedidos que cubren los **cinco estados** (pending, paid, shipped con tracking,
+  delivered, cancelled), formas distintas (una línea / varias, envío gratis por
+  umbral y sin alcanzarlo) y las **cuatro zonas** (península, Baleares, Canarias,
+  Ceuta/Melilla). `order_events` con **timeline real** (hasta 4 hitos) y
+  `emails_outbox` con los emails **reales** del flujo (6 confirmación + 6 aviso
+  al comercio + 4 aviso de envío), generados por `lib/emails` — nada de HTML a
+  mano. Totales calculados con `lib/pricing`. **Timestamps relativos**
+  (`datetime('now', …)`) para que el reset por cron no envejezca la demo.
+- **Estados de producto** en el seed: agotado, stock bajo, inactivo, y las
+  capacidades de 9B.1 hechas **visibles** — oferta (`compare_at`, solo
+  presentación), subtítulo y ficha técnica. La ficha Base y la tarjeta del
+  catálogo los pintan ahora.
+- **Estados vacíos alcanzables**: categoría de temporada vacía («Cestas de
+  Navidad») en `demo.ts` + búsqueda sin resultados (ya lo era).
+- **Blindaje**: `tests/demo-seed.test.ts` (16 tests) fija la cobertura y la
+  **integridad referencial** (un slug inexistente → `product_id` NULL rompería el
+  reset en vivo en silencio; el gotcha del seed). `seed.test.ts` actualizado.
+- **Coste / frontera**: trabajo de demo, no de tema. Tocó `seed/*`,
+  `src/collections/demo.ts` (presentación de la colección demo) y la **ficha Base**
+  (presentación genérica, se hereda para todos). Único roce con el MOTOR:
+  `lib/emails.ts` y `lib/format.ts` reciben extensiones `.ts` explícitas en sus
+  imports para que el seed corriendo con `node` los resuelva — **cambio de
+  especificador, cero lógica**. No se bifurcó nada.
+- **Verificado**: `pnpm check` en verde (**144 tests**, 0 errores, build OK).
+  `pnpm db:reset` + `/api/demo/reset` idempotente sobre D1 local (8 pedidos, 16
+  emails, 21 eventos, 0 `product_id` nulos). Navegador con `wrangler dev` a 1440px
+  y 375px: panel (5 estados, tracking, factura, timeline), bandeja de emails,
+  ficha con subtítulo/oferta/specs, agotado, categoría vacía y búsqueda vacía.
+  Sin dependencias nuevas.
+- **Pendiente de despliegue**: el nuevo seed vive en el worker; para que el reset
+  en producción (botón + cron) genere estas fixtures hace falta desplegar primero.
+  Se deja para el OK de Andreu (la rama aún no está en `main`).
+
 ### Pendiente en la Fase 9B
 
-- **9B.2** — Demo genérica: seed de fixtures con todas las variantes (5 estados de
-  pedido, envío gratis y no, 3 zonas, los 2 emails, agotado/stock bajo/inactivo,
-  estados vacíos, `order_events` con timeline real).
 - **9B.3** — Scaffold de tema (`pnpm new:theme <id>`) y checklist de entrega.
 - **9B.4** — Rutas `/demo/tiendas/[collection]/…`, carrito/checkout/gracias
   compartidos bajo la colección, borrado del selector con cookie y de
