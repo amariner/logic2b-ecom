@@ -1,0 +1,67 @@
+---
+/**
+ * LAUNCH · FeatureScroller — la fila de features de la referencia P1: items
+ * numerados (01…) cuyas imágenes se CORTAN en ambos bordes del viewport,
+ * indicando desplazamiento. Aquí los "features" son los productos destacados
+ * del lanzamiento (los primeros del orden de catálogo, datos reales de D1).
+ *
+ * Es `overflow-x: auto` con `scroll-snap`, accesible por teclado (la región es
+ * focusable y las flechas desplazan de forma nativa). NO es un carrusel con JS
+ * — nota de docs/TEMAS.md.
+ */
+import { formatEurCents } from '../../../lib/format';
+
+type FeatureProduct = {
+  slug: string;
+  name: string;
+  description: string;
+  price_cents: number;
+  image: string;
+};
+
+interface Props {
+  products: FeatureProduct[];
+}
+
+const { products } = Astro.props;
+---
+
+<div
+  class="scrollbar-none -mx-4 mt-10 snap-x snap-mandatory overflow-x-auto scroll-smooth px-4 sm:-mx-6 sm:px-6"
+  tabindex="0"
+  role="region"
+  aria-label="Productos del lanzamiento"
+>
+  <ol class="flex w-max gap-8 pb-2 sm:gap-10">
+    {products.map((prod, i) => (
+      <li class="w-[16rem] shrink-0 snap-start sm:w-[19rem]">
+        <a href={`/demo/tienda/${prod.slug}`} class="group block">
+          <div class="overflow-hidden bg-surface-product" style="border-radius: var(--radius-card);">
+            <img
+              src={prod.image}
+              alt={prod.name}
+              width="800"
+              height="800"
+              loading="lazy"
+              class="aspect-square w-full object-cover transition duration-500 group-hover:scale-[1.02]"
+            />
+          </div>
+          <p class="mt-5 font-accent text-xs text-muted-foreground">{String(i + 1).padStart(2, '0')}</p>
+          <h3 class="mt-1.5 text-lg font-normal text-foreground">{prod.name}</h3>
+          <p class="mt-1.5 line-clamp-2 text-sm leading-relaxed text-muted-foreground">{prod.description}</p>
+          <p class="mt-2 text-sm font-medium text-foreground">{formatEurCents(prod.price_cents)}</p>
+        </a>
+      </li>
+    ))}
+  </ol>
+</div>
+
+<style>
+  /* La barra de scroll rompería la ilusión de "imágenes cortadas al borde". */
+  .scrollbar-none {
+    scrollbar-width: none;
+  }
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
+  }
+</style>

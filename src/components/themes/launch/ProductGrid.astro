@@ -1,0 +1,80 @@
+---
+/**
+ * LAUNCH · ProductGrid — rejilla uniforme de 3 columnas con aire (density
+ * 'airy'), tarjeta con filete hairline (lee `--border-width`) y esquinas del
+ * token `--radius-card`. Imagen sobre `--surface-product`, nombre en peso
+ * ligero y precio discreto: el tema vende con titulares, no con densidad.
+ *
+ * El botón de compra usa `data-launch-add` (no `data-add-to-cart`) para no
+ * colisionar con el handler genérico del catálogo Base.
+ */
+import { formatEurCents } from '../../../lib/format';
+
+type GridProduct = {
+  slug: string;
+  name: string;
+  price_cents: number;
+  image: string;
+  stock: number;
+};
+
+interface Props {
+  products: GridProduct[];
+}
+
+const { products } = Astro.props;
+---
+
+<ul class="grid grid-cols-2 lg:grid-cols-3" style="gap: var(--grid-gap);">
+  {products.map((prod) => (
+    <li
+      class="group flex flex-col overflow-hidden bg-background"
+      style="border: var(--border-width) solid var(--color-border); border-radius: var(--radius-card);"
+    >
+      <a href={`/demo/tienda/${prod.slug}`} class="block">
+        <div class="relative overflow-hidden bg-surface-product">
+          <img
+            src={prod.image}
+            alt={prod.name}
+            width="800"
+            height="800"
+            loading="lazy"
+            class="aspect-square w-full object-cover transition duration-500 group-hover:scale-[1.02]"
+          />
+          {prod.stock === 0 && (
+            <span class="absolute left-3 top-3 rounded-full bg-foreground px-2.5 py-1 text-[11px] font-medium text-background">
+              Agotado
+            </span>
+          )}
+        </div>
+      </a>
+      <div class="flex flex-1 items-end justify-between gap-3 p-4">
+        <a href={`/demo/tienda/${prod.slug}`} class="min-w-0">
+          <h2 class="truncate text-sm font-normal text-foreground">{prod.name}</h2>
+          <p class="mt-0.5 text-sm text-muted-foreground">{formatEurCents(prod.price_cents)}</p>
+        </a>
+        <button
+          type="button"
+          data-launch-add={prod.slug}
+          disabled={prod.stock === 0}
+          aria-label={`Añadir ${prod.name} al carrito`}
+          class="shrink-0 border border-border px-3 py-1.5 text-xs font-medium text-foreground transition-colors hover:border-brand hover:bg-brand hover:text-brand-fg disabled:cursor-not-allowed disabled:text-muted-foreground disabled:hover:border-border disabled:hover:bg-transparent disabled:hover:text-muted-foreground"
+          style="border-radius: var(--radius-btn);"
+        >Añadir</button>
+      </div>
+    </li>
+  ))}
+</ul>
+
+<script>
+  import { addToCart } from '../../../lib/cart-client';
+
+  for (const btn of document.querySelectorAll<HTMLButtonElement>('[data-launch-add]')) {
+    btn.addEventListener('click', () => {
+      addToCart(btn.dataset.launchAdd ?? '');
+      const prev = btn.textContent;
+      btn.textContent = '✓';
+      window.setTimeout(() => (btn.textContent = prev), 900);
+    });
+  }
+</script>

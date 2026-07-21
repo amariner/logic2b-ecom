@@ -51,7 +51,7 @@ reconciliación se conserva abajo por contexto.
 | 5 | Landing comercial + /arquitectura + SEO técnico | ✅ Hecho | 2026-07-17 | Dirección B elegida (escaparate editorial). Cero JS en landing. Sitemap+JSON-LD OK |
 | 6 | Deploy ecom.logic2b.com + cron reset + README + docs/CLIENTE.md | ✅ Hecho | 2026-07-18 | **Desplegado y en vivo en https://ecom.logic2b.com** (Worker `ecom-logic2b`, D1 remota `ecom-demo` id `7ae9b06d…`, custom domain + cron reset activos). Pagos en **modo simulado** (sin Stripe) |
 | 7 | bootstrap.sh + checklist demo→cliente real | ✅ Hecho | 2026-07-18 | `scripts/bootstrap.sh` (local probado end-to-end; `--remote` aprovisiona Cloudflare) + `docs/PRODUCCION.md` |
-| 9 | Catálogo de estilos (8 temas) | 🟡 En curso | 2026-07-21 | Arquitectura + `/estilos` + **temas 06 Minimal y 01 Editorial desarrollados** (3 listos con Base; registro de catálogo por tema generalizado). Resto, uno por sesión. Ver «Fase 9» y `docs/TEMAS.md` |
+| 9 | Catálogo de estilos (8 temas) | 🟡 En curso | 2026-07-21 | Arquitectura + `/estilos` + **temas 06 Minimal, 01 Editorial y 07 Launch desarrollados** (4 listos con Base; registro de catálogo por tema generalizado). Resto, uno por sesión. Ver «Fase 9» y `docs/TEMAS.md` |
 | 10 | Documentación para el cliente | ⬜ Pendiente | — | Ver «Fase 10». Es material de venta y de entrega, no docs técnicas |
 | 8 | Pulido de la demo (backlog abajo) | 🟡 En curso | 2026-07-19 | Backlog técnico agotado; solo quedan decisiones y pasos locales de Andreu (ver «Decisiones pendientes» y `docs/PROMPT_CLOUD.md`). Últimas tandas: novena (race de idempotencia en el pago, PII enumerable en `/demo/gracias`, cancelación de pedido pagado sin devolver stock), décima (la misma race en el PATCH de admin, campos vacíos guardados como 0, login sin rate limit), undécima (diagrama móvil de `/arquitectura`, hedge del plazo de entrega, tokens de tema en `/demo/reset`, terminología «envío»), duodécima (aviso de corte en pedidos del admin, cabeceras sin wrap a 375px, leftover «portes», token de radio del carrito, contraste del botón eliminar, H1 en valenciano, checklist de producción) y decimotercera (misma race de idempotencia en `checkout.session.expired`, divisa hardcodeada a EUR fuera de Stripe, cobertura de test de `quoteCart`/PATCH admin/emails) y decimocuarta (config parcial de Stripe → cobro sin cumplimiento, emails duplicados bajo concurrencia, `payment_status` del webhook, color de marca centralizado en `shop.config.ts`, contraste/tema en carrito y checkout) — ver sección «Fase 8» |
 
@@ -144,6 +144,43 @@ caen a **Base** (no se duplican): el carácter vive en el catálogo.
   (108 tests, 0 errores). Sin dependencias nuevas. `status` a `'ready'` → entra en
   el selector de la tienda y en `/estilos`.
 
+### 2026-07-21 — Tema 07 · Launch (landing de lanzamiento)
+
+Tercer tema con componentes. Reproduce la referencia *P1* (`07-launch.webp`):
+planteamiento de **landing de lanzamiento**, titulares muy grandes de peso
+ligero (`--weight-display: 400`), acento verde, tarjetas hairline y footer
+claro. Nav `top` → header/footer caen a Base, como Editorial.
+
+- **El "encaja mal con 60 productos" de la ficha se resuelve por composición**,
+  sin datos nuevos: en la vista prístina del catálogo (sin categoría, búsqueda
+  ni orden) se montan las bandas de landing — hero con titular + fila de
+  LANZAMIENTO con scroll horizontal (los 4 primeros productos del orden de
+  catálogo, imágenes cortadas en los bordes, `overflow-x` + `scroll-snap`
+  accesible por teclado, sin JS) — y el resto va en rejilla normal de 3. Con
+  filtros/búsqueda activos: catálogo funcional directo, sin bandas.
+- **Barra sticky inferior con ESTADO REAL DE STOCK desde D1** (la gracia
+  comercial): miniatura + punto verde + `Disponible · N en stock · precio` del
+  primer producto con stock del listado, y CTA a la ficha. `position: sticky;
+  bottom: 0` como último elemento del catálogo (acompaña el scroll y atraca
+  antes del footer, sin JS). `pl-28` despeja el widget «Tema» (fixed
+  bottom-left) hasta que el margen del contenedor lo deja fuera (≥1450px).
+- **Banda "Safety & Security" traducida al negocio real**: dos tarjetas
+  hairline (Envío / Garantías) cuyo contenido sale de `shop.config.ts` (zonas y
+  tarifas del seed, notas legales) — nada inventado. Con el detalle de la
+  referencia: filetes de la lista SOLO en la columna derecha.
+- **Componentes** en `src/components/themes/launch/`: `Catalog` (orquestador +
+  entrada en el registro `catalogViews`), `FeatureScroller`, `Filters` (chips
+  verdes), `ProductGrid` (3 col hairline, `data-launch-add`) y `StickyBar`.
+- **Gotcha de modo oscuro documentado al verificar**: el `<body>` de Base.astro
+  aún lleva `bg-white text-gray-900` fijos (compat pre-Logic2B UI), así que un
+  titular sin clase de color hereda gris oscuro también en `.dark`. Convención
+  para temas: color explícito semántico (`text-foreground`) en todo texto y
+  superficie propia dark-aware (el wrapper del catálogo lleva `bg-background`).
+- **Verificado** con `wrangler dev` (catálogo prístino y filtrado, ficha,
+  carrito, checkout) a 1280px y 375px y en modo oscuro (`.dark` forzada).
+  `pnpm check` en verde (108 tests, 0 errores). Sin dependencias nuevas.
+  `status` a `'ready'` → 4 temas en el selector.
+
 ### Estado de los temas
 
 | # | Tema | Referencia | Estado |
@@ -155,7 +192,7 @@ caen a **Base** (no se duplican): el carácter vive en el catálogo.
 | 04 | Guide | Pour over | ⬜ pendiente |
 | 05 | Specs | ACF-01 | ⬜ pendiente |
 | 06 | Minimal | propro | ✅ listo (2026-07-21) |
-| 07 | Launch | P1 | ⬜ pendiente |
+| 07 | Launch | P1 | ✅ listo (2026-07-21) |
 
 ### Orden sugerido de desarrollo
 

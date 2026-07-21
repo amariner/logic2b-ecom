@@ -1,0 +1,67 @@
+---
+/**
+ * LAUNCH · StickyBar — la barra inferior de la referencia P1, la gracia
+ * comercial del tema: miniatura del producto estrella, punto de estado y
+ * DISPONIBILIDAD REAL desde D1 (el stock viene ya en la fila del producto; no
+ * hay lógica de negocio aquí, solo presentación).
+ *
+ * `position: sticky; bottom: 0` como último elemento del catálogo: acompaña
+ * durante todo el scroll y "atraca" en su sitio antes del footer, sin JS.
+ */
+import { formatEurCents } from '../../../lib/format';
+
+type StarProduct = {
+  slug: string;
+  name: string;
+  price_cents: number;
+  image: string;
+  stock: number;
+};
+
+interface Props {
+  product: StarProduct;
+}
+
+const { product } = Astro.props;
+const available = product.stock > 0;
+---
+
+<aside
+  class="sticky bottom-0 z-40 border-t border-border bg-background/95 backdrop-blur"
+  aria-label="Disponibilidad del producto destacado"
+  style="border-top-width: max(var(--border-width), 1px);"
+>
+  {/* pl-28 despeja el widget flotante «Tema» de la demo (fixed bottom-left);
+      a partir de 1450px el margen del contenedor centrado ya lo deja fuera. */}
+  <div class="mx-auto flex max-w-6xl items-center gap-3 py-3 pl-28 pr-4 sm:gap-4 min-[1450px]:pl-4">
+    {/* En móvil el hueco es para el estado, no para la miniatura. */}
+    <a href={`/demo/tienda/${product.slug}`} class="hidden shrink-0 sm:block">
+      <img
+        src={product.image}
+        alt=""
+        width="96"
+        height="96"
+        loading="lazy"
+        class="h-11 w-11 object-cover sm:h-12 sm:w-12"
+        style="border-radius: var(--radius-card);"
+      />
+    </a>
+    <p class="min-w-0 flex-1 truncate text-sm text-foreground">
+      <span
+        aria-hidden="true"
+        class:list={['mr-2 inline-block h-2 w-2 rounded-full align-middle', available ? 'bg-brand' : 'bg-muted-foreground']}
+      ></span>
+      <span class="font-medium">{product.name}</span>
+      <span class="text-muted-foreground">
+        {available
+          ? ` — Disponible · ${product.stock} en stock · ${formatEurCents(product.price_cents)}`
+          : ' — Agotado temporalmente'}
+      </span>
+    </p>
+    <a
+      href={`/demo/tienda/${product.slug}`}
+      class="shrink-0 whitespace-nowrap border border-border px-4 py-2 text-sm font-medium text-foreground transition-colors hover:border-brand hover:bg-brand hover:text-brand-fg"
+      style="border-radius: var(--radius-btn);"
+    >Ver producto <span aria-hidden="true">→</span></a>
+  </div>
+</aside>

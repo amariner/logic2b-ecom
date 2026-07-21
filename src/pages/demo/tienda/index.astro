@@ -6,6 +6,7 @@ import { formatEurCents } from '../../../lib/format';
 import { resolveActiveTheme } from '../../../lib/active-theme';
 import MinimalCatalog from '../../../components/themes/minimal/Catalog.astro';
 import EditorialCatalog from '../../../components/themes/editorial/Catalog.astro';
+import LaunchCatalog from '../../../components/themes/launch/Catalog.astro';
 
 export const prerender = false;
 
@@ -46,6 +47,7 @@ const active = resolveActiveTheme(Astro.cookies);
 const catalogViews = {
   minimal: MinimalCatalog,
   editorial: EditorialCatalog,
+  launch: LaunchCatalog,
 } as const;
 const ThemedCatalog = catalogViews[active.id as keyof typeof catalogViews] ?? null;
 ---

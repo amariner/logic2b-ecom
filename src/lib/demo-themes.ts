@@ -388,7 +388,7 @@ export const demoThemes: DemoTheme[] = [
     reference: { name: 'P1', file: '07-launch.webp' },
     sample: '/images/temas/launch.webp',
     bestFor: ['Catálogo corto de alto valor', 'Producto estrella', 'Preventa y reservas'],
-    status: 'planned',
+    status: 'ready',
     vars: {
       '--color-brand': '#15803d',
       '--color-brand-dark': '#166534',

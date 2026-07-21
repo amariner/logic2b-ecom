@@ -1,0 +1,96 @@
+---
+/**
+ * LAUNCH · InfoCards — la banda "Safety & Security" de la referencia P1,
+ * traducida al negocio real de la tienda: dos tarjetas con filete hairline
+ * (envío y garantías) cuyo contenido sale de `shop.config.ts` — nada inventado,
+ * nada hardcodeado por tienda.
+ *
+ * Detalles de la referencia que importan (docs/TEMAS.md § 5):
+ *  · cabecera de tarjeta con título a la izquierda y párrafo a la derecha,
+ *    filete debajo;
+ *  · cuerpo en 2 columnas: ilustración sobre gris a la izquierda, lista a la
+ *    derecha con bullet `○` hueco;
+ *  · los filetes entre items SOLO abarcan la columna derecha, no la tarjeta.
+ */
+import { shopConfig } from '../../../../shop.config';
+import { formatEurCents } from '../../../lib/format';
+
+const rateByZone = new Map(shopConfig.shipping.seedRates.map((r) => [r.zone, r]));
+const shippingItems = shopConfig.shipping.zones.map((zone) => {
+  const rate = rateByZone.get(zone.id);
+  if (!rate) return `${zone.label} — consultar tarifa`;
+  const freeOver = rate.free_over_cents
+    ? ` · gratis desde ${formatEurCents(rate.free_over_cents)}`
+    : '';
+  return `${zone.label} — ${rate.label} · ${formatEurCents(rate.price_cents)}${freeOver}`;
+});
+
+const trustItems = [
+  shopConfig.legal.returnsNote,
+  'Pago con tarjeta gestionado por Stripe: los datos nunca pasan por nuestra tienda.',
+  `Atención directa del comercio en ${shopConfig.email}.`,
+];
+
+const cards = [
+  {
+    title: 'Envío',
+    blurb: 'Tarifa plana por zona, calculada al momento en el checkout con tu código postal.',
+    icon: 'truck',
+    items: shippingItems,
+  },
+  {
+    title: 'Garantías',
+    blurb: 'Compra tranquila: pago seguro y devoluciones sin letra pequeña.',
+    icon: 'shield',
+    items: trustItems,
+  },
+] as const;
+---
+
+<div class="grid gap-6 lg:grid-cols-2">
+  {cards.map((card) => (
+    <section
+      class="bg-background p-6 sm:p-8"
+      style="border: var(--border-width) solid var(--color-border); border-radius: var(--radius-card);"
+      aria-label={card.title}
+    >
+      <div
+        class="flex flex-col justify-between gap-3 pb-5 sm:flex-row sm:items-start sm:gap-8"
+        style="border-bottom: var(--border-width) solid var(--color-border);"
+      >
+        <h3 class="font-display text-2xl text-foreground">{card.title}</h3>
+        <p class="max-w-xs text-sm leading-relaxed text-muted-foreground sm:text-right">{card.blurb}</p>
+      </div>
+
+      <div class="mt-6 grid gap-6 sm:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
+        <div
+          class="hidden place-items-center bg-surface-product p-8 sm:grid"
+          style="border-radius: var(--radius-card);"
+          aria-hidden="true"
+        >
+          {card.icon === 'truck' ? (
+            <svg class="h-20 w-20 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke-width="1" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 18.75a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 0 1-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 0 0-3.213-9.193 2.056 2.056 0 0 0-1.58-.86H14.25M16.5 18.75h-2.25m0-11.177v-.958c0-.568-.422-1.048-.987-1.106a48.554 48.554 0 0 0-10.026 0 1.106 1.106 0 0 0-.987 1.106v7.635m12-6.677v6.677m0 4.5v-4.5m0 0h-12" />
+            </svg>
+          ) : (
+            <svg class="h-20 w-20 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke-width="1" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285Z" />
+            </svg>
+          )}
+        </div>
+
+        <ul>
+          {card.items.map((item, i) => (
+            <li
+              class="flex items-baseline gap-3 py-3 text-sm leading-relaxed text-foreground"
+              style={i > 0 ? 'border-top: var(--border-width) solid var(--color-border);' : undefined}
+            >
+              <span aria-hidden="true" class="mt-0.5 inline-block h-2 w-2 shrink-0 rounded-full border border-muted-foreground"></span>
+              {item}
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+  ))}
+</div>
