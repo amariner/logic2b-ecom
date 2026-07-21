@@ -1,0 +1,104 @@
+---
+/**
+ * GUIDE · ProductGrid — rejilla uniforme de 4 columnas de tarjetas MUY
+ * redondeadas y elevadas (`card: 'elevated'`, `--radius-card: 1rem`), con la
+ * densidad aireada del tema.
+ *
+ * Anatomía de tarjeta (referencia Pour over):
+ *  · Fila superior: nombre en mono MAYÚSCULAS con tracking a la izquierda y la
+ *    numeración `# 008` en mono a la derecha.
+ *  · Centro: producto con aire generoso sobre `--surface-product`.
+ *  · Fila inferior: pastilla amarilla `NUEVO` (solo en algunas) + precio, y el
+ *    botón de compra a la derecha.
+ *
+ * La numeración y la pastilla son PRESENTACIÓN derivada de datos que ya existen
+ * (orden de catálogo y `created_at` del seed). No hay campos nuevos en D1.
+ *
+ * El botón usa `data-guide-add` (no `data-add-to-cart`) para no colisionar con
+ * el handler genérico del catálogo Base.
+ */
+import { formatEurCents } from '../../../lib/format';
+
+type GridProduct = {
+  slug: string;
+  name: string;
+  price_cents: number;
+  image: string;
+  stock: number;
+};
+
+interface Props {
+  products: GridProduct[];
+  /** Slugs marcados como novedad (los `created_at` más recientes del listado). */
+  newSlugs: ReadonlySet<string>;
+}
+
+const { products, newSlugs } = Astro.props;
+
+// Numeración descendente sobre el orden de catálogo, como la referencia
+// (la primera tarjeta lleva el número más alto). Tres dígitos.
+const total = products.length;
+const refFor = (index: number): string => String(total - index).padStart(3, '0');
+---
+
+<ul class="grid grid-cols-2 lg:grid-cols-4" style="gap: var(--grid-gap);">
+  {products.map((prod, index) => (
+    <li
+      class="group flex flex-col bg-card px-4 pb-4 pt-3.5 shadow-sm transition-shadow hover:shadow-md"
+      style="border-radius: var(--radius-card);"
+    >
+      <div class="flex items-baseline justify-between gap-2 font-accent text-[11px] uppercase tracking-[0.14em]">
+        <h2 class="min-w-0 truncate text-foreground">
+          <a href={`/demo/tienda/${prod.slug}`} class="hover:underline underline-offset-4">{prod.name}</a>
+        </h2>
+        <span class="shrink-0 tabular-nums text-muted-foreground" aria-hidden="true">
+          #&nbsp;{refFor(index)}
+        </span>
+      </div>
+
+      <a href={`/demo/tienda/${prod.slug}`} class="mt-4 block overflow-hidden bg-surface-product p-5" style="border-radius: var(--radius-card);">
+        <img
+          src={prod.image}
+          alt={prod.name}
+          width="800"
+          height="800"
+          loading="lazy"
+          class="aspect-square w-full object-contain transition-transform duration-500 group-hover:scale-[1.03]"
+        />
+      </a>
+
+      <div class="mt-4 flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
+        <div class="flex items-center gap-2.5">
+          {newSlugs.has(prod.slug) && (
+            <span class="rounded-full bg-brand px-2.5 py-1 font-accent text-[10px] font-semibold uppercase tracking-[0.14em] text-brand-fg">
+              Nuevo
+            </span>
+          )}
+          <span class="font-accent text-xs text-muted-foreground">{formatEurCents(prod.price_cents)}</span>
+        </div>
+
+        <button
+          type="button"
+          data-guide-add={prod.slug}
+          disabled={prod.stock === 0}
+          aria-label={`Añadir ${prod.name} al carrito`}
+          class="shrink-0 border border-border px-3.5 py-1.5 text-xs font-medium text-foreground transition-colors hover:border-brand hover:bg-brand hover:text-brand-fg disabled:cursor-not-allowed disabled:border-border disabled:text-muted-foreground disabled:hover:bg-transparent disabled:hover:text-muted-foreground"
+          style="border-radius: var(--radius-btn);"
+        >{prod.stock === 0 ? 'Agotado' : 'Añadir'}</button>
+      </div>
+    </li>
+  ))}
+</ul>
+
+<script>
+  import { addToCart } from '../../../lib/cart-client';
+
+  for (const btn of document.querySelectorAll<HTMLButtonElement>('[data-guide-add]')) {
+    btn.addEventListener('click', () => {
+      addToCart(btn.dataset.guideAdd ?? '');
+      const prev = btn.textContent;
+      btn.textContent = 'Añadido ✓';
+      window.setTimeout(() => (btn.textContent = prev), 900);
+    });
+  }
+</script>

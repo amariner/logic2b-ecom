@@ -197,3 +197,17 @@
     outline-offset: 2px;
   }
 }
+
+/* TEMA GUIDE — el amarillo del acento es un color de RELLENO, no de texto:
+   sobre blanco no llega a AA ni de lejos. En las superficies que el tema NO
+   redefine (ficha, carrito, checkout, gracias), el texto que Base pinta con el
+   acento pasa a tinta; el subrayado conserva la afordancia del enlace.
+
+   Las superficies rellenas (`bg-brand` + `text-brand-fg`) no se tocan: ahí el
+   par sí cumple contraste, y es donde el amarillo tiene que verse.
+
+   Va SIN capa a propósito: dentro de `@layer base` perdería contra la capa de
+   utilidades de Tailwind, que es la que pinta `.text-brand`. */
+[data-store-theme='guide'] :is(.text-brand, .hover\:text-brand-dark:hover) {
+  color: var(--color-foreground);
+}

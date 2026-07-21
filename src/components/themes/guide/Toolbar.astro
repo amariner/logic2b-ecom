@@ -1,0 +1,67 @@
+---
+/**
+ * GUIDE · Toolbar — recuento, búsqueda y orden en una pastilla discreta sobre la
+ * rejilla. La categoría NO vive aquí: es la nav de radio buttons del hero
+ * (Filters.astro). Mismos parámetros de URL que la tienda Base.
+ */
+interface Props {
+  count: number;
+  activeCategory?: string | undefined;
+  sort: string;
+  search?: string | undefined;
+}
+
+const { count, activeCategory, sort, search } = Astro.props;
+
+const sortOptions = [
+  { id: 'featured', label: 'Destacados' },
+  { id: 'price-asc', label: 'Precio ↑' },
+  { id: 'price-desc', label: 'Precio ↓' },
+  { id: 'name', label: 'Nombre A-Z' },
+];
+---
+
+<div
+  class="flex flex-wrap items-center justify-between gap-x-6 gap-y-3 bg-card px-5 py-3.5 shadow-sm"
+  style="border-radius: var(--radius-card);"
+>
+  <p class="font-accent text-xs uppercase tracking-[0.18em] text-muted-foreground">
+    {count} {count === 1 ? 'pieza' : 'piezas'}
+  </p>
+
+  <div class="flex flex-wrap items-center gap-x-5 gap-y-3 text-xs text-muted-foreground">
+    <form method="get" role="search" class="flex items-center">
+      {activeCategory && <input type="hidden" name="categoria" value={activeCategory} />}
+      {sort !== 'featured' && <input type="hidden" name="orden" value={sort} />}
+      <input
+        type="search"
+        name="q"
+        value={search}
+        maxlength="60"
+        placeholder="Buscar…"
+        aria-label="Buscar en el catálogo"
+        class="w-32 border border-border bg-background px-3.5 py-1.5 text-xs text-foreground transition-[width,border-color] placeholder:text-muted-foreground focus:w-44 focus:border-foreground focus:outline-none"
+        style="border-radius: var(--radius-btn);"
+      />
+    </form>
+
+    <form method="get" class="flex items-center gap-1.5">
+      {activeCategory && <input type="hidden" name="categoria" value={activeCategory} />}
+      {search && <input type="hidden" name="q" value={search} />}
+      <label for="orden" class="whitespace-nowrap">Ordenar</label>
+      <div class="relative flex items-center">
+        <select
+          id="orden"
+          name="orden"
+          onchange="this.form.submit()"
+          class="cursor-pointer appearance-none bg-transparent pr-4 text-xs font-medium text-foreground focus:outline-none"
+        >
+          {sortOptions.map((opt) => (
+            <option value={opt.id} selected={opt.id === sort}>{opt.label}</option>
+          ))}
+        </select>
+        <span aria-hidden="true" class="pointer-events-none absolute right-0">⌄</span>
+      </div>
+    </form>
+  </div>
+</div>

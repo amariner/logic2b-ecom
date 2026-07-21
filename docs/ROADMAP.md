@@ -51,7 +51,7 @@ reconciliación se conserva abajo por contexto.
 | 5 | Landing comercial + /arquitectura + SEO técnico | ✅ Hecho | 2026-07-17 | Dirección B elegida (escaparate editorial). Cero JS en landing. Sitemap+JSON-LD OK |
 | 6 | Deploy ecom.logic2b.com + cron reset + README + docs/CLIENTE.md | ✅ Hecho | 2026-07-18 | **Desplegado y en vivo en https://ecom.logic2b.com** (Worker `ecom-logic2b`, D1 remota `ecom-demo` id `7ae9b06d…`, custom domain + cron reset activos). Pagos en **modo simulado** (sin Stripe) |
 | 7 | bootstrap.sh + checklist demo→cliente real | ✅ Hecho | 2026-07-18 | `scripts/bootstrap.sh` (local probado end-to-end; `--remote` aprovisiona Cloudflare) + `docs/PRODUCCION.md` |
-| 9 | Catálogo de estilos (8 temas) | 🟡 En curso | 2026-07-21 | Arquitectura + `/estilos` + **temas 06 Minimal, 01 Editorial y 07 Launch desarrollados** (4 listos con Base; registro de catálogo por tema generalizado). Resto, uno por sesión. Ver «Fase 9» y `docs/TEMAS.md` |
+| 9 | Catálogo de estilos (8 temas) | 🟡 En curso | 2026-07-21 | Arquitectura + `/estilos` + **temas 06 Minimal, 01 Editorial, 07 Launch y 04 Guide desarrollados** (5 listos con Base; registro de catálogo por tema generalizado). Resto, uno por sesión. Ver «Fase 9» y `docs/TEMAS.md` |
 | 10 | Documentación para el cliente | ⬜ Pendiente | — | Ver «Fase 10». Es material de venta y de entrega, no docs técnicas |
 | 8 | Pulido de la demo (backlog abajo) | 🟡 En curso | 2026-07-19 | Backlog técnico agotado; solo quedan decisiones y pasos locales de Andreu (ver «Decisiones pendientes» y `docs/PROMPT_CLOUD.md`). Últimas tandas: novena (race de idempotencia en el pago, PII enumerable en `/demo/gracias`, cancelación de pedido pagado sin devolver stock), décima (la misma race en el PATCH de admin, campos vacíos guardados como 0, login sin rate limit), undécima (diagrama móvil de `/arquitectura`, hedge del plazo de entrega, tokens de tema en `/demo/reset`, terminología «envío»), duodécima (aviso de corte en pedidos del admin, cabeceras sin wrap a 375px, leftover «portes», token de radio del carrito, contraste del botón eliminar, H1 en valenciano, checklist de producción) y decimotercera (misma race de idempotencia en `checkout.session.expired`, divisa hardcodeada a EUR fuera de Stripe, cobertura de test de `quoteCart`/PATCH admin/emails) y decimocuarta (config parcial de Stripe → cobro sin cumplimiento, emails duplicados bajo concurrencia, `payment_status` del webhook, color de marca centralizado en `shop.config.ts`, contraste/tema en carrito y checkout) — ver sección «Fase 8» |
 
@@ -181,6 +181,56 @@ claro. Nav `top` → header/footer caen a Base, como Editorial.
   `pnpm check` en verde (108 tests, 0 errores). Sin dependencias nuevas.
   `status` a `'ready'` → 4 temas en el selector.
 
+### 2026-07-21 — Tema 04 · Guide (editorial amable, primer acento claro)
+
+Cuarto tema con componentes. Reproduce la referencia *Pour over*
+(`04-guide.webp`): **editorial AMABLE**. Fondo de página gris claro y TODO en
+tarjetas muy redondeadas (`--radius-card: 1rem`, `card: 'elevated'`,
+`density: 'airy'`, 4 columnas). Nav `top` → header/footer caen a Base.
+
+- **Primer tema que valida el acento CLARO.** Amarillo `#f5c518` con
+  `--color-brand-fg: #1a1a1a` — el token existe precisamente por este tema.
+  Nunca blanco sobre el amarillo.
+- **Hallazgo de accesibilidad (aplica a cualquier tema de acento claro):** el
+  par relleno acento/texto pasa AA (es lo que mide el test), pero Base usa
+  además el acento como **color de TEXTO** (`.text-brand`: categoría de la
+  ficha, enlaces de `/demo/gracias`…). Amarillo sobre blanco es ~1,7:1:
+  ilegible. Se resuelve con una regla con scope `[data-store-theme='guide']` en
+  `global.css` que pasa ese texto a tinta; el subrayado conserva la afordancia
+  del enlace y las superficies rellenas no se tocan. **Va SIN capa a
+  propósito**: dentro de `@layer base` perdería contra la capa de utilidades de
+  Tailwind, que es la que pinta `.text-brand`. Street (verde neón) necesitará lo
+  mismo.
+- **Componentes** en `src/components/themes/guide/`: `Catalog` (orquestador +
+  entrada en el registro `catalogViews`), `Hero` (tarjeta grande con el **vacío
+  central deliberado**, sin rellenar), `Filters` (la nav de categorías como
+  **radio buttons en 2 columnas** — enlaces reales con `aria-current` contra
+  `?categoria=`, no inputs falsos), `Toolbar` (recuento/búsqueda/orden) y
+  `ProductGrid`.
+- **Tarjeta de producto**: fila superior con nombre en **mono mayúsculas con
+  tracking** + numeración `# 060` en mono (descendente sobre el orden de
+  catálogo, como la referencia); centro con aire sobre `--surface-product`; y
+  fila inferior con pastilla amarilla **NUEVO** + precio y el botón de compra
+  (`data-guide-add`, para no colisionar con el handler genérico de Base).
+- **La pastilla NUEVO sale de datos reales, sin tocar el esquema**: las altas
+  más recientes por `created_at`, **desempatadas por `id`**. El desempate no es
+  cosmético: el seed escribe los 60 productos en la misma transacción y todos
+  comparten timestamp, así que sin él la pastilla caía siempre en los primeros
+  del orden de catálogo, que no significa nada. Con datos reales de cliente los
+  `created_at` sí varían y manda el primer criterio.
+- **Compromiso de recursos pendiente (decisión consciente):** la referencia usa
+  **ilustración de línea** en lugar de fotografía, y es lo que más define el
+  tema. La demo monta la estructura completa con las **fotos reales** sobre
+  `--surface-product`. La ilustración de línea queda como **asset por cliente**,
+  ya presupuestado así en `/estilos` — no se ha generado un sistema de
+  ilustraciones sin consultarlo.
+- **Verificado** con `wrangler dev` (catálogo prístino, filtrado por categoría +
+  orden, búsqueda sin resultados, ficha, carrito con cálculo de portes real y
+  checkout) a 1440px y 375px y en modo oscuro (`.dark` forzada; el gotcha del
+  `<body>` se evita con color semántico explícito y `bg-muted` en el wrapper).
+  `pnpm check` en verde (108 tests, 0 errores). Sin dependencias nuevas.
+  `status` a `'ready'` → 5 temas en el selector.
+
 ### Estado de los temas
 
 | # | Tema | Referencia | Estado |
@@ -189,7 +239,7 @@ claro. Nav `top` → header/footer caen a Base, como Editorial.
 | 01 | Editorial | Teenage Engineering | ✅ listo (2026-07-21) |
 | 02 | Industrial | TAGARNO | ⬜ pendiente |
 | 03 | Natural | All Natural / AFF | ⬜ pendiente |
-| 04 | Guide | Pour over | ⬜ pendiente |
+| 04 | Guide | Pour over | ✅ listo (2026-07-21) |
 | 05 | Specs | ACF-01 | ⬜ pendiente |
 | 06 | Minimal | propro | ✅ listo (2026-07-21) |
 | 07 | Launch | P1 | ✅ listo (2026-07-21) |

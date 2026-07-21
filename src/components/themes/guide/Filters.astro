@@ -1,0 +1,64 @@
+---
+/**
+ * GUIDE · Filters — la nav de categorías como «radio buttons» en dos columnas,
+ * dentro de la tarjeta del hero (referencia Pour over).
+ *
+ * Son NAVEGACIÓN REAL, no inputs de formulario falsos: enlaces con `aria-current`
+ * contra los mismos parámetros de URL que la tienda Base (`categoria`, `orden`,
+ * `q`). El círculo relleno marca el activo; el hueco, el resto.
+ */
+import { shopConfig } from '../../../../shop.config';
+
+interface Props {
+  activeCategory?: string | undefined;
+  sort: string;
+  search?: string | undefined;
+}
+
+const { activeCategory, sort, search } = Astro.props;
+
+const linkFor = (catId?: string): string => {
+  const params = new URLSearchParams();
+  if (catId) params.set('categoria', catId);
+  if (sort && sort !== 'featured') params.set('orden', sort);
+  if (search) params.set('q', search);
+  const qs = params.toString();
+  return `/demo/tienda${qs ? `?${qs}` : ''}`;
+};
+
+const options = [
+  { id: undefined, label: 'Todo' },
+  ...shopConfig.categories.map((cat) => ({ id: cat.id as string | undefined, label: cat.label })),
+];
+---
+
+<nav aria-label="Categorías">
+  <ul class="grid grid-cols-2 gap-x-6 gap-y-3 sm:gap-x-8">
+    {options.map((opt) => {
+      const isActive = (opt.id ?? undefined) === (activeCategory ?? undefined);
+      return (
+        <li>
+          <a
+            href={linkFor(opt.id)}
+            aria-current={isActive ? 'page' : undefined}
+            class:list={[
+              'group flex items-center gap-2.5 text-sm transition-colors',
+              isActive ? 'text-foreground' : 'text-muted-foreground hover:text-foreground',
+            ]}
+          >
+            <span
+              aria-hidden="true"
+              class:list={[
+                'flex h-4 w-4 shrink-0 items-center justify-center rounded-full border transition-colors',
+                isActive ? 'border-foreground' : 'border-border group-hover:border-foreground',
+              ]}
+            >
+              {isActive && <span class="h-2 w-2 rounded-full bg-foreground"></span>}
+            </span>
+            <span class="truncate">{opt.label}</span>
+          </a>
+        </li>
+      );
+    })}
+  </ul>
+</nav>

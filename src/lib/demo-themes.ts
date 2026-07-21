@@ -285,7 +285,7 @@ export const demoThemes: DemoTheme[] = [
     reference: { name: 'Pour over', file: '04-guide.webp' },
     sample: '/images/temas/guide.webp',
     bestFor: ['Café y especialidad', 'Producto que necesita explicación', 'Contenido + venta'],
-    status: 'planned',
+    status: 'ready',
     vars: {
       '--color-brand': '#f5c518',
       '--color-brand-dark': '#d9a800',

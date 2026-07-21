@@ -1,0 +1,96 @@
+---
+/**
+ * GUIDE · Catalog — vista completa del catálogo para el tema, montada por la
+ * página (src/pages/demo/tienda/index.astro) a través del registro `catalogViews`.
+ *
+ * Referencia Pour over: editorial AMABLE. Fondo de página gris claro y TODO en
+ * tarjetas muy redondeadas — hero, barra de herramientas y cada producto. La
+ * navegación de categorías vive dentro del hero como radio buttons.
+ *
+ * Backend compartido: mismos `categoria`/`orden`/`q` y el mismo carrito. Aquí
+ * solo cambia la presentación.
+ */
+import { shopConfig } from '../../../../shop.config';
+import Hero from './Hero.astro';
+import Toolbar from './Toolbar.astro';
+import ProductGrid from './ProductGrid.astro';
+
+type GridProduct = {
+  id: number;
+  slug: string;
+  name: string;
+  price_cents: number;
+  image: string;
+  stock: number;
+  created_at: string;
+};
+
+interface Props {
+  products: GridProduct[];
+  category?: string | undefined;
+  sort: string;
+  search?: string | undefined;
+}
+
+const { products, category, sort, search } = Astro.props;
+
+const categoryLabel = shopConfig.categories.find((cat) => cat.id === category)?.label;
+
+// Pastilla «NUEVO»: las altas más recientes del catálogo. Presentación derivada
+// de datos que YA existen — sin campos nuevos en D1.
+//
+// Se ordena por `created_at` y se desempata por `id` (orden de inserción)
+// porque el seed de la demo escribe los 60 productos en la misma transacción y
+// todos comparten timestamp: sin el desempate la pastilla caería siempre en los
+// primeros del orden de catálogo, que no significa nada. Con datos reales de un
+// cliente los `created_at` sí varían y manda el primer criterio.
+const NEW_BADGE_MAX = 6;
+const newSlugs = new Set(
+  [...products]
+    .sort((a, b) => b.created_at.localeCompare(a.created_at) || b.id - a.id)
+    .slice(0, Math.min(NEW_BADGE_MAX, Math.ceil(products.length / 3)))
+    .map((prod) => prod.slug),
+);
+---
+
+<div class="bg-muted">
+  <main class="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-8">
+    <Hero
+      activeCategory={category}
+      categoryLabel={categoryLabel}
+      sort={sort}
+      search={search}
+    />
+
+    <div class="mt-4">
+      <Toolbar count={products.length} activeCategory={category} sort={sort} search={search} />
+    </div>
+
+    <h2 class="sr-only">Productos</h2>
+
+    <div class="mt-4">
+      {products.length > 0 ? (
+        <ProductGrid products={products} newSlugs={newSlugs} />
+      ) : (
+        <div
+          class="bg-card px-6 py-20 text-center shadow-sm"
+          style="border-radius: var(--radius-card);"
+        >
+          <p class="font-display text-2xl text-foreground">
+            {search ? `Nada por aquí para «${search}»` : 'No hay productos en esta categoría'}
+          </p>
+          <p class="mx-auto mt-2 max-w-md text-sm leading-relaxed text-muted-foreground">
+            {search
+              ? 'Prueba con otra palabra (por ejemplo «aceite», «miel» o «queso») o vuelve al catálogo completo.'
+              : 'Puede que el comercio la haya vaciado temporalmente. El resto del catálogo sigue disponible.'}
+          </p>
+          <a
+            href="/demo/tienda"
+            class="mt-6 inline-block bg-brand px-6 py-2.5 text-sm font-medium text-brand-fg transition hover:bg-brand-dark"
+            style="border-radius: var(--radius-btn);"
+          >Ver todo el catálogo</a>
+        </div>
+      )}
+    </div>
+  </main>
+</div>
