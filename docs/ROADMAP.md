@@ -51,7 +51,7 @@ reconciliación se conserva abajo por contexto.
 | 5 | Landing comercial + /arquitectura + SEO técnico | ✅ Hecho | 2026-07-17 | Dirección B elegida (escaparate editorial). Cero JS en landing. Sitemap+JSON-LD OK |
 | 6 | Deploy ecom.logic2b.com + cron reset + README + docs/CLIENTE.md | ✅ Hecho | 2026-07-18 | **Desplegado y en vivo en https://ecom.logic2b.com** (Worker `ecom-logic2b`, D1 remota `ecom-demo` id `7ae9b06d…`, custom domain + cron reset activos). Pagos en **modo simulado** (sin Stripe) |
 | 7 | bootstrap.sh + checklist demo→cliente real | ✅ Hecho | 2026-07-18 | `scripts/bootstrap.sh` (local probado end-to-end; `--remote` aprovisiona Cloudflare) + `docs/PRODUCCION.md` |
-| 9 | Catálogo de estilos (7 temas) | 🟡 En curso | 2026-07-20 | Arquitectura + documentación + `/estilos` hechos. Los 7 temas se desarrollan uno por sesión. Ver «Fase 9» y `docs/TEMAS.md` |
+| 9 | Catálogo de estilos (8 temas) | 🟡 En curso | 2026-07-21 | Arquitectura + `/estilos` + **tema 06 Minimal desarrollado** (primer tema con componentes; 2 listos con Base). Resto, uno por sesión. Ver «Fase 9» y `docs/TEMAS.md` |
 | 10 | Documentación para el cliente | ⬜ Pendiente | — | Ver «Fase 10». Es material de venta y de entrega, no docs técnicas |
 | 8 | Pulido de la demo (backlog abajo) | 🟡 En curso | 2026-07-19 | Backlog técnico agotado; solo quedan decisiones y pasos locales de Andreu (ver «Decisiones pendientes» y `docs/PROMPT_CLOUD.md`). Últimas tandas: novena (race de idempotencia en el pago, PII enumerable en `/demo/gracias`, cancelación de pedido pagado sin devolver stock), décima (la misma race en el PATCH de admin, campos vacíos guardados como 0, login sin rate limit), undécima (diagrama móvil de `/arquitectura`, hedge del plazo de entrega, tokens de tema en `/demo/reset`, terminología «envío»), duodécima (aviso de corte en pedidos del admin, cabeceras sin wrap a 375px, leftover «portes», token de radio del carrito, contraste del botón eliminar, H1 en valenciano, checklist de producción) y decimotercera (misma race de idempotencia en `checkout.session.expired`, divisa hardcodeada a EUR fuera de Stripe, cobertura de test de `quoteCart`/PATCH admin/emails) y decimocuarta (config parcial de Stripe → cobro sin cumplimiento, emails duplicados bajo concurrencia, `payment_status` del webhook, color de marca centralizado en `shop.config.ts`, contraste/tema en carrito y checkout) — ver sección «Fase 8» |
 
@@ -81,6 +81,34 @@ reconciliación se conserva abajo por contexto.
 - **Selector de la tienda** limitado a `readyThemes`: un tema `planned` cambiaría
   tokens pero no estructura, y daría una idea falsa del estilo.
 
+### 2026-07-21 — Tema 06 · Minimal (primer tema con componentes)
+
+Primer tema que redefine **estructura**, no solo tokens. Reproduce la referencia
+*propro* (`06-minimal.webp`): nav lateral izquierdo con bullet en el activo y
+**CART dentro del sidebar**, rejilla de 2 columnas con imágenes grandes sobre
+gris, **sin filetes** (`--border-width: 0`), footer oscuro a sangre y mucho aire.
+
+- **Decisión de arquitectura (fija el patrón para los 7 restantes):** la marca
+  (color/tipografía) se sigue aplicando en **cliente** (selector + script
+  anti-flash), pero la **estructura se resuelve en SERVIDOR**. El selector
+  escribe además una **cookie de presentación** (`ecom-demo-theme-id`); Shop.astro
+  (ya SSR) la lee con `src/lib/active-theme.ts` (`resolveActiveTheme`) y monta los
+  componentes del tema con **fallback a Base**. Un cambio estructural recarga; los
+  tokens cambian en vivo. **No toca D1, precios, envíos, checkout, webhook ni
+  emails** — es solo capa de presentación.
+- **Componentes** en `src/components/themes/minimal/`: `Header` (sidebar+CART),
+  `Footer` (banda oscura `bg-foreground text-background`, sin color hardcodeado),
+  `ProductGrid` (2 col, lee `--surface-product`/`--grid-gap`/`--radius-card`) y
+  `Filters` (toolbar `Catalog (N) · Ordenar · categorías`; la línea inferior LEE
+  `--border-width`). El resto de superficies (ficha, carrito, checkout) caen a
+  Base con el chrome del tema; un CSS con scope `[data-store-theme="minimal"]` en
+  `global.css` neutraliza los filetes heredados.
+- `carrito.astro` y `checkout.astro` pasan a `prerender = false` para resolver el
+  tema por cookie como el resto de la tienda.
+- **Verificado** con `wrangler dev`: catálogo, ficha, carrito y checkout con el
+  tema activo, a 1280px y 375px, y en modo oscuro (tokens semánticos). `pnpm
+  check` en verde (108 tests, 0 errores de tipos). Sin dependencias nuevas.
+
 ### Estado de los temas
 
 | # | Tema | Referencia | Estado |
@@ -91,7 +119,7 @@ reconciliación se conserva abajo por contexto.
 | 03 | Natural | All Natural / AFF | ⬜ pendiente |
 | 04 | Guide | Pour over | ⬜ pendiente |
 | 05 | Specs | ACF-01 | ⬜ pendiente |
-| 06 | Minimal | propro | ⬜ pendiente |
+| 06 | Minimal | propro | ✅ listo (2026-07-21) |
 | 07 | Launch | P1 | ⬜ pendiente |
 
 ### Orden sugerido de desarrollo

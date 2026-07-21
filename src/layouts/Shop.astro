@@ -1,12 +1,18 @@
 ---
 /**
- * Layout de la tienda demo: noindex, banner de modo demo discreto,
- * header sticky con navegación y contador de carrito. Estética limpia tipo Shopify.
+ * Layout de la tienda demo: noindex, banner de modo demo discreto y CHROME del
+ * tema activo. La marca (color/tipografía) se aplica en cliente vía el selector
+ * + el script anti-flash; la ESTRUCTURA (nav superior vs. lateral, footer) se
+ * resuelve en SERVIDOR desde la cookie de presentación (`resolveActiveTheme`) y
+ * monta los componentes del tema con fallback a Base. El backend es UNO solo.
  */
 import Base from './Base.astro';
 import SiteHeader from '../components/SiteHeader.astro';
+import MinimalHeader from '../components/themes/minimal/Header.astro';
+import MinimalFooter from '../components/themes/minimal/Footer.astro';
 import { shopConfig } from '../../shop.config';
 import { readyThemes } from '../lib/demo-themes';
+import { resolveActiveTheme } from '../lib/active-theme';
 
 const nav = [
   { href: '/demo/tienda', label: 'Tienda' },
@@ -19,6 +25,10 @@ interface Props {
 }
 
 const { title, description } = Astro.props;
+
+// Tema activo (SSR). `nav: 'sidebar'` → chrome del tema; el resto cae a Base.
+const active = resolveActiveTheme(Astro.cookies);
+const useSidebar = active.layout.nav === 'sidebar';
 ---
 
 <Base title={`${title} — ${shopConfig.name}`} description={description} noindex>
@@ -48,103 +58,137 @@ const { title, description } = Astro.props;
       /* localStorage corrupto o bloqueado: se queda el tema por defecto */
     }
   </script>
-  <div class="bg-foreground px-4 py-1.5 text-center text-xs text-background/80">
-    <strong class="font-semibold text-background">Demo</strong> — tienda ficticia del
-    <a href="/" class="underline decoration-background/40 underline-offset-2 hover:text-background">LogicEcom</a>.
-    El pago está simulado: nada es real.
-  </div>
 
-  <SiteHeader homeHref="/demo/tienda" wordmark={shopConfig.name} showMark={false} nav={nav}>
-    <a
-      slot="actions"
-      href="/demo/carrito"
-      aria-label="Carrito"
-      class="relative inline-flex items-center gap-1.5 rounded-btn bg-muted px-4 py-2 text-sm font-medium text-foreground transition hover:bg-secondary"
-    >
-      <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" aria-hidden="true">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 0 0-16.536-1.84M7.5 14.25 5.106 5.272M6 20.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm12.75 0a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z" />
-      </svg>
-      <span class="hidden sm:inline">Carrito</span>
-      <span data-cart-badge class="hidden rounded-full bg-brand px-1.5 py-0.5 text-xs font-bold text-white">0</span>
-    </a>
-  </SiteHeader>
-
-  <slot />
-
-  <footer class="mt-20 border-t border-border bg-muted">
-    <div class="mx-auto max-w-6xl px-4 py-10 text-sm text-muted-foreground">
-      <p class="font-display text-base text-foreground">{shopConfig.name}</p>
-      <p class="mt-3 max-w-2xl leading-relaxed">{shopConfig.legalName}. {shopConfig.legal.shippingNote} {shopConfig.legal.returnsNote}</p>
-      <p class="mt-4">Demo de <a href="/" class="underline underline-offset-2 hover:text-foreground">LogicEcom</a> · <a href="/demo/reset" class="underline underline-offset-2 hover:text-foreground">Restaurar datos de la demo</a></p>
+  <div data-store-theme={active.id} class:list={[useSidebar && 'bg-surface-sunken']}>
+    <div class="bg-foreground px-4 py-1.5 text-center text-xs text-background/80">
+      <strong class="font-semibold text-background">Demo</strong> — tienda ficticia del
+      <a href="/" class="underline decoration-background/40 underline-offset-2 hover:text-background">LogicEcom</a>.
+      El pago está simulado: nada es real.
     </div>
-  </footer>
 
-  {/* Selector de temas: pieza de venta. Demuestra que la marca del kit son unos
-      pocos tokens de configuración; en un proyecto real este widget no existe. */}
-  <div data-theme-widget class="fixed bottom-4 left-4 z-50">
-    <div
-      data-theme-panel
-      hidden
-      class="absolute bottom-full left-0 mb-3 w-72 rounded-2xl border border-border bg-popover p-4 shadow-xl shadow-black/10"
-    >
-      <p class="font-display text-base text-foreground">Hazla tuya</p>
-      <p class="mt-1 text-xs leading-relaxed text-muted-foreground">
-        Cada tienda del kit define su marca en un único fichero de configuración.
-        Prueba cómo se vería la tuya:
-      </p>
-      <ul class="mt-3 space-y-2">
-        {/* Solo los temas YA desarrollados: aplicar uno "planned" cambiaría los
-            tokens pero no la estructura, y daría una idea falsa del estilo. El
-            catálogo completo, con los pendientes, vive en /estilos. */}
-        {readyThemes.map((theme) => (
-          <li>
-            <button
-              type="button"
-              data-theme-choice={theme.id}
-              aria-pressed="false"
-              style={`border-radius: ${theme.vars['--radius-btn']}; font-family: ${theme.vars['--font-display']};`}
-              class="flex w-full items-center gap-3 border border-border px-3.5 py-2.5 text-left transition hover:border-foreground data-[selected]:border-foreground data-[selected]:ring-1 data-[selected]:ring-foreground"
-            >
-              <span
-                class="h-6 w-6 shrink-0 rounded-full border border-border"
-                style={`background: ${theme.vars['--color-brand']};`}
-                aria-hidden="true"
-              ></span>
-              <span class="flex-1">
-                <span class="block text-sm font-semibold text-foreground">{theme.label}</span>
-                <span class="block font-sans text-[11px] leading-tight text-muted-foreground">{theme.hint}</span>
-              </span>
-            </button>
-          </li>
-        ))}
-      </ul>
+    {useSidebar ? (
+      <Fragment>
+        {/* Hoja blanca insertada sobre gris claro, con nav lateral a la izquierda. */}
+        <div class="mx-auto max-w-[1400px] bg-background">
+          <div class="md:grid md:grid-cols-[13rem_minmax(0,1fr)]">
+            <MinimalHeader />
+            <div class="min-w-0"><slot /></div>
+          </div>
+        </div>
+        <MinimalFooter />
+      </Fragment>
+    ) : (
+      <Fragment>
+        <SiteHeader homeHref="/demo/tienda" wordmark={shopConfig.name} showMark={false} nav={nav}>
+          <a
+            slot="actions"
+            href="/demo/carrito"
+            aria-label="Carrito"
+            class="relative inline-flex items-center gap-1.5 rounded-btn bg-muted px-4 py-2 text-sm font-medium text-foreground transition hover:bg-secondary"
+          >
+            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 0 0-16.536-1.84M7.5 14.25 5.106 5.272M6 20.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm12.75 0a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z" />
+            </svg>
+            <span class="hidden sm:inline">Carrito</span>
+            <span data-cart-badge class="hidden rounded-full bg-brand px-1.5 py-0.5 text-xs font-bold text-white">0</span>
+          </a>
+        </SiteHeader>
+
+        <slot />
+
+        <footer class="mt-20 border-t border-border bg-muted">
+          <div class="mx-auto max-w-6xl px-4 py-10 text-sm text-muted-foreground">
+            <p class="font-display text-base text-foreground">{shopConfig.name}</p>
+            <p class="mt-3 max-w-2xl leading-relaxed">{shopConfig.legalName}. {shopConfig.legal.shippingNote} {shopConfig.legal.returnsNote}</p>
+            <p class="mt-4">Demo de <a href="/" class="underline underline-offset-2 hover:text-foreground">LogicEcom</a> · <a href="/demo/reset" class="underline underline-offset-2 hover:text-foreground">Restaurar datos de la demo</a></p>
+          </div>
+        </footer>
+      </Fragment>
+    )}
+
+    {/* Selector de temas: pieza de venta. Demuestra que la marca del kit son unos
+        pocos tokens de configuración; en un proyecto real este widget no existe.
+        `data-server-theme` = tema ya renderizado por el SSR: el cliente compara
+        para decidir si un cambio necesita recargar (cambio estructural) o no. */}
+    <div data-theme-widget data-server-theme={active.id} class="fixed bottom-4 left-4 z-50">
+      <div
+        data-theme-panel
+        hidden
+        class="absolute bottom-full left-0 mb-3 w-72 rounded-2xl border border-border bg-popover p-4 shadow-xl shadow-black/10"
+      >
+        <p class="font-display text-base text-foreground">Hazla tuya</p>
+        <p class="mt-1 text-xs leading-relaxed text-muted-foreground">
+          Cada tienda del kit define su marca en un único fichero de configuración.
+          Prueba cómo se vería la tuya:
+        </p>
+        <ul class="mt-3 space-y-2">
+          {/* Solo los temas YA desarrollados: aplicar uno "planned" cambiaría los
+              tokens pero no la estructura, y daría una idea falsa del estilo. El
+              catálogo completo, con los pendientes, vive en /estilos. */}
+          {readyThemes.map((theme) => (
+            <li>
+              <button
+                type="button"
+                data-theme-choice={theme.id}
+                aria-pressed="false"
+                style={`border-radius: ${theme.vars['--radius-btn']}; font-family: ${theme.vars['--font-display']};`}
+                class="flex w-full items-center gap-3 border border-border px-3.5 py-2.5 text-left transition hover:border-foreground data-[selected]:border-foreground data-[selected]:ring-1 data-[selected]:ring-foreground"
+              >
+                <span
+                  class="h-6 w-6 shrink-0 rounded-full border border-border"
+                  style={`background: ${theme.vars['--color-brand']};`}
+                  aria-hidden="true"
+                ></span>
+                <span class="flex-1">
+                  <span class="block text-sm font-semibold text-foreground">{theme.label}</span>
+                  <span class="block font-sans text-[11px] leading-tight text-muted-foreground">{theme.hint}</span>
+                </span>
+              </button>
+            </li>
+          ))}
+        </ul>
+      </div>
+      <button
+        type="button"
+        data-theme-toggle
+        aria-expanded="false"
+        aria-label="Personalizar el diseño de la demo"
+        class="flex items-center gap-2 rounded-btn border border-border bg-popover px-4 py-2.5 text-sm font-semibold text-foreground shadow-lg shadow-black/10 transition hover:border-foreground"
+      >
+        <svg class="h-4 w-4 text-brand" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9.53 16.122a3 3 0 0 0-5.78 1.128 2.25 2.25 0 0 1-2.4 2.245 4.5 4.5 0 0 0 8.4-2.245c0-.399-.078-.78-.22-1.128Zm0 0a15.998 15.998 0 0 0 3.388-1.62m-5.043-.025a15.994 15.994 0 0 1 1.622-3.395m3.42 3.42a15.995 15.995 0 0 0 4.764-4.648l3.876-5.814a1.151 1.151 0 0 0-1.597-1.597L14.146 6.32a15.996 15.996 0 0 0-4.649 4.763m3.42 3.42a6.776 6.776 0 0 0-3.42-3.42" />
+        </svg>
+        Tema
+      </button>
     </div>
-    <button
-      type="button"
-      data-theme-toggle
-      aria-expanded="false"
-      aria-label="Personalizar el diseño de la demo"
-      class="flex items-center gap-2 rounded-btn border border-border bg-popover px-4 py-2.5 text-sm font-semibold text-foreground shadow-lg shadow-black/10 transition hover:border-foreground"
-    >
-      <svg class="h-4 w-4 text-brand" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" aria-hidden="true">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M9.53 16.122a3 3 0 0 0-5.78 1.128 2.25 2.25 0 0 1-2.4 2.245 4.5 4.5 0 0 0 8.4-2.245c0-.399-.078-.78-.22-1.128Zm0 0a15.998 15.998 0 0 0 3.388-1.62m-5.043-.025a15.994 15.994 0 0 1 1.622-3.395m3.42 3.42a15.995 15.995 0 0 0 4.764-4.648l3.876-5.814a1.151 1.151 0 0 0-1.597-1.597L14.146 6.32a15.996 15.996 0 0 0-4.649 4.763m3.42 3.42a6.776 6.776 0 0 0-3.42-3.42" />
-      </svg>
-      Tema
-    </button>
   </div>
 
   <script>
-    import { bindCartBadge } from '../lib/cart-client';
+    import { bindCartBadge, cartCount } from '../lib/cart-client';
     import { DEMO_THEME_KEY, applyTheme, defaultTheme, demoThemes } from '../lib/demo-themes';
+    import { THEME_COOKIE } from '../lib/active-theme';
 
     const badge = document.querySelector<HTMLElement>('[data-cart-badge]');
     if (badge) bindCartBadge(badge);
+
+    // CART (n) del sidebar Minimal: el número se muestra SIEMPRE (incluido 0),
+    // a diferencia del badge de Base (que se oculta cuando el carrito va vacío).
+    const countEls = [...document.querySelectorAll<HTMLElement>('[data-cart-count]')];
+    if (countEls.length > 0) {
+      const renderCount = (): void => {
+        const n = String(cartCount());
+        for (const el of countEls) el.textContent = n;
+      };
+      renderCount();
+      document.addEventListener('cart:changed', renderCount);
+    }
 
     // — Selector de temas —
     const widget = document.querySelector<HTMLElement>('[data-theme-widget]');
     const toggle = document.querySelector<HTMLButtonElement>('[data-theme-toggle]');
     const panel = document.querySelector<HTMLElement>('[data-theme-panel]');
     const choices = [...document.querySelectorAll<HTMLButtonElement>('[data-theme-choice]')];
+    const serverThemeId = widget?.dataset.serverTheme ?? defaultTheme.id;
 
     const markSelected = (id: string): void => {
       for (const btn of choices) {
@@ -161,6 +205,21 @@ const { title, description } = Astro.props;
       } catch {
         return defaultTheme.id;
       }
+    };
+
+    // Firma estructural: si cambia respecto a lo ya renderizado por el SSR, hay
+    // que recargar para montar el chrome del tema (nav lateral, footer…).
+    const layoutSig = (id: string): string => {
+      const t = demoThemes.find((x) => x.id === id);
+      return t ? JSON.stringify(t.layout) : '';
+    };
+
+    const persistCookie = (id: string): void => {
+      // Cookie de presentación leída por el SSR (resolveActiveTheme).
+      document.cookie =
+        id === defaultTheme.id
+          ? `${THEME_COOKIE}=; path=/; max-age=0; samesite=lax`
+          : `${THEME_COOKIE}=${id}; path=/; max-age=31536000; samesite=lax`;
     };
 
     const setOpen = (open: boolean): void => {
@@ -188,7 +247,10 @@ const { title, description } = Astro.props;
         } catch {
           /* almacenamiento bloqueado: el tema durará lo que dure la página */
         }
+        persistCookie(theme.id);
         markSelected(theme.id);
+        // Cambio estructural → recargar para que el SSR monte el chrome nuevo.
+        if (layoutSig(theme.id) !== layoutSig(serverThemeId)) location.reload();
       });
     }
 

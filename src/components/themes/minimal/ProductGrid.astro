@@ -1,0 +1,47 @@
+---
+/**
+ * MINIMAL · ProductGrid — dos columnas de imagen grande sobre gris claro, con
+ * mucha calle entre celdas (`--grid-gap`). Sin filetes, sin botón de compra en
+ * la rejilla (la referencia va directa a la ficha al pulsar la tarjeta). Nombre
+ * y precio pequeños, a la izquierda, sin énfasis. El aire y la foto mandan.
+ */
+import { formatEurCents } from '../../../lib/format';
+
+type GridProduct = {
+  slug: string;
+  name: string;
+  price_cents: number;
+  image: string;
+  stock: number;
+};
+
+interface Props {
+  products: GridProduct[];
+}
+
+const { products } = Astro.props;
+---
+
+<ul class="grid grid-cols-2" style="gap: var(--grid-gap);">
+  {products.map((prod) => (
+    <li class="group">
+      <a href={`/demo/tienda/${prod.slug}`} class="block">
+        <div class="overflow-hidden bg-surface-product" style="border-radius: var(--radius-card);">
+          <img
+            src={prod.image}
+            alt={prod.name}
+            width="800"
+            height="800"
+            loading="lazy"
+            class="aspect-[4/5] w-full object-cover transition duration-500 group-hover:scale-[1.02]"
+          />
+        </div>
+        <div class="pt-4">
+          <h2 class="text-xs leading-snug text-muted-foreground">{prod.name}</h2>
+          <p class="mt-1 text-xs text-foreground">{formatEurCents(prod.price_cents)}</p>
+          {prod.stock === 0 && <p class="mt-1 text-[11px] text-destructive">Agotado</p>}
+        </div>
+      </a>
+    </li>
+  ))}
+</ul>

@@ -1,0 +1,87 @@
+---
+/**
+ * MINIMAL · Filters — la barra de catálogo de la referencia: a la izquierda
+ * `CATALOG ( N items )` y el desplegable `SORTING BY`; a la derecha, las
+ * categorías en mayúsculas con la activa en negrita. Sin filetes (la línea
+ * inferior LEE `--border-width`, que en Minimal vale 0 → invisible).
+ *
+ * Filtra y ordena contra los MISMOS parámetros de URL que la tienda Base
+ * (`categoria`, `orden`, `q`): el backend no cambia, solo la presentación.
+ */
+import { shopConfig } from '../../../../shop.config';
+
+interface Props {
+  count: number;
+  activeCategory?: string | undefined;
+  sort: string;
+  search?: string | undefined;
+}
+
+const { count, activeCategory, sort, search } = Astro.props;
+
+const sortOptions = [
+  { id: 'featured', label: 'Destacados' },
+  { id: 'price-asc', label: 'Precio ↑' },
+  { id: 'price-desc', label: 'Precio ↓' },
+  { id: 'name', label: 'Nombre A-Z' },
+];
+
+const linkFor = (catId?: string): string => {
+  const params = new URLSearchParams();
+  if (catId) params.set('categoria', catId);
+  if (sort && sort !== 'featured') params.set('orden', sort);
+  if (search) params.set('q', search);
+  const qs = params.toString();
+  return `/demo/tienda${qs ? `?${qs}` : ''}`;
+};
+---
+
+<div
+  class="flex flex-col gap-6 pb-8 lg:flex-row lg:items-center lg:justify-between"
+  style="border-bottom: var(--border-width) solid var(--color-border);"
+>
+  <div class="flex items-center gap-4 text-[11px] uppercase tracking-[0.14em]">
+    <span class="font-semibold text-foreground">Catalog</span>
+    <span class="text-muted-foreground">( {count} {count === 1 ? 'artículo' : 'artículos'} )</span>
+
+    <form method="get" class="ml-4 flex items-center gap-1.5 text-muted-foreground">
+      {activeCategory && <input type="hidden" name="categoria" value={activeCategory} />}
+      {search && <input type="hidden" name="q" value={search} />}
+      <label for="orden" class="whitespace-nowrap">Ordenar</label>
+      <div class="relative flex items-center">
+        <select
+          id="orden"
+          name="orden"
+          onchange="this.form.submit()"
+          class="cursor-pointer appearance-none bg-transparent pr-4 uppercase tracking-[0.14em] text-foreground focus:outline-none"
+        >
+          {sortOptions.map((opt) => (
+            <option value={opt.id} selected={opt.id === sort}>{opt.label}</option>
+          ))}
+        </select>
+        <span aria-hidden="true" class="pointer-events-none absolute right-0 text-muted-foreground">⌄</span>
+      </div>
+    </form>
+  </div>
+
+  <nav aria-label="Categorías" class="-mx-1 overflow-x-auto lg:overflow-visible">
+    <ul class="flex items-center gap-4 whitespace-nowrap px-1 text-[11px] uppercase tracking-[0.14em]">
+      <li>
+        <a
+          href={linkFor()}
+          aria-current={!activeCategory ? 'page' : undefined}
+          class:list={['transition-colors hover:text-foreground', activeCategory ? 'text-muted-foreground' : 'font-semibold text-foreground']}
+        >Todo</a>
+      </li>
+      {shopConfig.categories.map((cat) => (
+        <li>
+          <a
+            href={linkFor(cat.id)}
+            aria-current={activeCategory === cat.id ? 'page' : undefined}
+            class:list={['transition-colors hover:text-foreground', activeCategory === cat.id ? 'font-semibold text-foreground' : 'text-muted-foreground']}
+          >{cat.label}</a>
+        </li>
+      ))}
+    </ul>
+  </nav>
+</div>

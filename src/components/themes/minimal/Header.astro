@@ -1,0 +1,66 @@
+---
+/**
+ * MINIMAL · Header — el "header" de este tema es un NAV LATERAL izquierdo.
+ *
+ * Wordmark arriba, secciones en mayúsculas pequeñas con tracking y un bullet
+ * relleno en la activa, y CART al pie (rasgo del tema: el carrito vive en el
+ * sidebar, no en una barra superior). Sin filetes. En móvil colapsa a una barra
+ * superior horizontal desplazable.
+ *
+ * COLLECTIONS / ABOUT US / CONTACTS replican el juego de la referencia (propro)
+ * apuntando a destinos REALES de la demo — no inventamos páginas.
+ */
+import { shopConfig } from '../../../../shop.config';
+
+const pathname = Astro.url.pathname;
+const onCatalog = pathname.startsWith('/demo/tienda');
+
+const items = [
+  { href: '/demo/tienda', label: 'CATALOG', active: onCatalog },
+  { href: '/demo/tienda', label: 'COLLECTIONS', active: false },
+  { href: '/', label: 'ABOUT US', active: false },
+  { href: '/#contacto', label: 'CONTACTS', active: false },
+] as const;
+---
+
+<aside
+  class="flex flex-row items-center gap-x-6 overflow-x-auto px-5 py-5 text-foreground md:sticky md:top-0 md:h-auto md:w-52 md:flex-col md:items-start md:gap-0 md:overflow-visible md:px-8 md:py-10"
+>
+  <a
+    href="/demo/tienda"
+    class="shrink-0 font-display text-lg leading-tight tracking-tight text-foreground md:mb-14"
+    aria-label={shopConfig.name}
+  >{shopConfig.name}</a>
+
+  <nav aria-label="Secciones" class="shrink-0 md:w-full">
+    <ul
+      class="flex flex-row items-center gap-5 text-[11px] font-medium uppercase tracking-[0.14em] text-muted-foreground md:flex-col md:items-start md:gap-4"
+    >
+      {items.map((it) => (
+        <li>
+          <a
+            href={it.href}
+            aria-current={it.active ? 'page' : undefined}
+            class:list={[
+              'inline-flex items-center gap-2 whitespace-nowrap transition-colors hover:text-foreground',
+              it.active && 'text-foreground',
+            ]}
+          >
+            <span
+              aria-hidden="true"
+              class:list={['h-1.5 w-1.5 rounded-full', it.active ? 'bg-foreground' : 'bg-transparent']}
+            ></span>
+            {it.label}
+          </a>
+        </li>
+      ))}
+    </ul>
+  </nav>
+
+  <a
+    href="/demo/carrito"
+    class="shrink-0 whitespace-nowrap text-[11px] font-medium uppercase tracking-[0.14em] text-muted-foreground transition-colors hover:text-foreground md:mt-16"
+  >
+    Cart (<span data-cart-count>0</span>)
+  </a>
+</aside>

@@ -172,6 +172,15 @@
     border-color: var(--color-border);
     outline-color: color-mix(in oklab, var(--color-ring) 50%, transparent);
   }
+
+  /* TEMA MINIMAL — «sin filetes». Sus componentes propios ya no dibujan borde
+     (leen --border-width: 0); esto neutraliza además los filetes de 1px que
+     heredan de Base las superficies que el tema NO redefine (ficha, carrito,
+     checkout). Solo el color: se mantiene el ancho para no descolocar el layout. */
+  [data-store-theme='minimal'] :is(.border, .border-t, .border-b, .border-l, .border-r),
+  [data-store-theme='minimal'] .divide-border > * {
+    border-color: transparent;
+  }
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);

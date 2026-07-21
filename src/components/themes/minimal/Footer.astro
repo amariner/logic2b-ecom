@@ -1,0 +1,51 @@
+---
+/**
+ * MINIMAL · Footer — oscuro y a SANGRE (más ancho que la hoja blanca).
+ *
+ * Usa los tokens semánticos `bg-foreground text-background` (convención de banda
+ * oscura del proyecto): sin colores hardcodeados y adapta al modo. Copyright y
+ * legales a la izquierda; dos columnas de enlaces en mayúsculas a la derecha.
+ */
+import { shopConfig } from '../../../../shop.config';
+
+const cats = shopConfig.categories.slice(0, 5);
+---
+
+<footer class="bg-foreground text-background">
+  <div
+    class="mx-auto grid max-w-[1400px] gap-10 px-6 py-14 sm:grid-cols-2 md:px-10 lg:grid-cols-[1.4fr_1fr_1fr]"
+  >
+    <div class="text-xs leading-relaxed text-background/60">
+      <p class="font-display text-sm text-background">{shopConfig.name}</p>
+      <p class="mt-3 max-w-xs">© 2026 {shopConfig.legalName}.</p>
+      <p class="mt-3 max-w-xs">{shopConfig.legal.shippingNote} {shopConfig.legal.returnsNote}</p>
+      <p class="mt-5">
+        <a
+          href="/demo/reset"
+          class="uppercase tracking-[0.14em] text-background/60 underline-offset-4 transition-colors hover:text-background hover:underline"
+        >Restaurar demo</a>
+      </p>
+    </div>
+
+    <nav aria-label="Categorías" class="text-[11px] uppercase tracking-[0.14em]">
+      <ul class="space-y-3">
+        {cats.map((c) => (
+          <li>
+            <a href={`/demo/tienda?categoria=${c.id}`} class="text-background/60 transition-colors hover:text-background">
+              {c.label}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+
+    <nav aria-label="LogicEcom" class="text-[11px] uppercase tracking-[0.14em]">
+      <ul class="space-y-3">
+        <li><a href="/demo/tienda" class="text-background/60 transition-colors hover:text-background">Catálogo</a></li>
+        <li><a href="/demo/admin" class="text-background/60 transition-colors hover:text-background">Panel del comercio</a></li>
+        <li><a href="/arquitectura" class="text-background/60 transition-colors hover:text-background">Arquitectura</a></li>
+        <li><a href="/" class="text-background/60 transition-colors hover:text-background">LogicEcom</a></li>
+      </ul>
+    </nav>
+  </div>
+</footer>

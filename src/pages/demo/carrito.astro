@@ -1,8 +1,10 @@
 ---
 import Shop from '../../layouts/Shop.astro';
 
-// Página estática: el contenido del carrito vive en localStorage y se
-// presupuesta contra /api/cart/quote (precios SIEMPRE del servidor).
+// El contenido del carrito vive en localStorage y se presupuesta contra
+// /api/cart/quote (precios SIEMPRE del servidor). SSR para que el chrome del
+// tema activo (nav lateral, footer) se resuelva por cookie como en el resto.
+export const prerender = false;
 ---
 
 <Shop title="Carrito" description="Tu carrito de la compra">

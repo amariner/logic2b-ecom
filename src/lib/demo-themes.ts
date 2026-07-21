@@ -354,7 +354,7 @@ export const demoThemes: DemoTheme[] = [
     reference: { name: 'propro', file: '06-minimal.webp' },
     sample: '/images/temas/minimal.webp',
     bestFor: ['Mobiliario e interiorismo', 'Moda', 'Producto que se vende por la foto'],
-    status: 'planned',
+    status: 'ready',
     vars: {
       '--color-brand': '#1a1a1a',
       '--color-brand-dark': '#000000',

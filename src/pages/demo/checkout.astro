@@ -1,5 +1,9 @@
 ---
 import Shop from '../../layouts/Shop.astro';
+
+// SSR para que el chrome del tema activo se resuelva por cookie (como el resto
+// de la tienda). El pago sigue simulado; el backend no cambia.
+export const prerender = false;
 ---
 
 <Shop title="Checkout" description="Datos de envío y pago">
