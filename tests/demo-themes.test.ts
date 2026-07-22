@@ -48,8 +48,10 @@ describe('catálogo de estilos', () => {
     }
   });
 
-  it('cada tema no-base declara la referencia visual de la que sale', () => {
-    for (const theme of demoThemes.filter((t) => t.id !== defaultTheme.id)) {
+  it('cada tema no-base LISTO declara la referencia visual de la que sale', () => {
+    // Un tema recién scaffoldeado (`pnpm new:theme`, status 'planned') aún no
+    // tiene referencia asignada; la exige el paso a 'ready'.
+    for (const theme of demoThemes.filter((t) => t.id !== defaultTheme.id && t.status === 'ready')) {
       expect(theme.reference, theme.id).not.toBeNull();
       // El fichero de referencia se resuelve en public/images/referencias/.
       expect(theme.reference?.file, theme.id).toMatch(/^\d{2}-[a-z]+\.webp$/);

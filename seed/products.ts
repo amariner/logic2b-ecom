@@ -13,6 +13,11 @@ export type SeedProduct = {
   category: string;
   /** Tienda del escaparate. Por defecto, la genérica. */
   collection?: string;
+  /**
+   * Ruta de imagen explícita. Si falta: la genérica usa el placeholder por
+   * categoría; una colección usa `/images/collections/<id>/<slug>.webp`.
+   */
+  image?: string;
   /** Activo en tienda. Por defecto 1; 0 para demostrar un producto desactivado. */
   active?: number;
 

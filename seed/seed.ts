@@ -4,6 +4,7 @@
  */
 
 import { shopConfig } from '../shop.config.ts';
+import { collectionSeedProducts } from './collections/index.ts';
 import { demoOrderStatements } from './demo-orders.ts';
 import { imageVariants } from './image-variants.ts';
 import { seedProducts, type SeedProduct } from './products.ts';
@@ -48,13 +49,19 @@ export function seedStatements(): string[] {
   ];
 
   const perCategory: Record<string, number> = {};
-  for (const prod of seedProducts) {
-    // Reparto round-robin de las variantes de foto dentro de cada categoría.
+  for (const prod of [...seedProducts, ...collectionSeedProducts]) {
+    const collection = prod.collection ?? DEFAULT_COLLECTION;
+    // Imagen: explícita > por-slug (colecciones) > placeholder por categoría
+    // con reparto round-robin de variantes (tienda genérica).
     const index = perCategory[prod.category] ?? 0;
     perCategory[prod.category] = index + 1;
     const variant = (index % (imageVariants[prod.category] ?? 1)) + 1;
     const suffix = variant === 1 ? '' : `-${variant}`;
-    const image = `/images/products/${prod.category}${suffix}.webp`;
+    const image =
+      prod.image ??
+      (collection === DEFAULT_COLLECTION
+        ? `/images/products/${prod.category}${suffix}.webp`
+        : `/images/collections/${collection}/${prod.slug}.webp`);
     assertCompareAtPrice(prod);
     const specsJson = prod.specs === undefined ? undefined : JSON.stringify(prod.specs);
     statements.push(
@@ -62,7 +69,7 @@ export function seedStatements(): string[] {
         `collection, subtitle, compare_at_price_cents, specs_json) VALUES (` +
         `${sqlString(prod.slug)}, ${sqlString(prod.name)}, ${sqlString(prod.description)}, ` +
         `${prod.price_cents}, ${prod.stock}, ${sqlString(image)}, ${sqlString(prod.category)}, ${prod.active ?? 1}, ` +
-        `${sqlString(prod.collection ?? DEFAULT_COLLECTION)}, ${sqlNullable(prod.subtitle)}, ` +
+        `${sqlString(collection)}, ${sqlNullable(prod.subtitle)}, ` +
         `${prod.compare_at_price_cents ?? 'NULL'}, ${sqlNullable(specsJson)})`,
     );
   }

@@ -52,7 +52,7 @@ reconciliación se conserva abajo por contexto.
 | 6 | Deploy ecom.logic2b.com + cron reset + README + docs/CLIENTE.md | ✅ Hecho | 2026-07-18 | **Desplegado y en vivo en https://ecom.logic2b.com** (Worker `ecom-logic2b`, D1 remota `ecom-demo` id `7ae9b06d…`, custom domain + cron reset activos). Pagos en **modo simulado** (sin Stripe) |
 | 7 | bootstrap.sh + checklist demo→cliente real | ✅ Hecho | 2026-07-18 | `scripts/bootstrap.sh` (local probado end-to-end; `--remote` aprovisiona Cloudflare) + `docs/PRODUCCION.md` |
 | 9 | Catálogo de estilos (8 temas) | 🟡 En curso | 2026-07-21 | Arquitectura + `/estilos` + **temas 06 Minimal, 01 Editorial, 07 Launch y 04 Guide desarrollados** (5 listos con Base; registro de catálogo por tema generalizado). **Replanteada como Fase 9B** (ver abajo): de «una tienda, 8 pieles» a «8 tiendas, un motor» |
-| 9B | 8 tiendas distintas sobre un solo motor | 🟡 En curso | 2026-07-21 | **9B.0, 9B.1 y 9B.2 hechos.** Migración 0002 (colecciones + capacidades opcionales), `shop.config` partido en motor/colección, guardarraíl del precio de oferta, y demo genérica con fixtures de backoffice en todos los estados. 144 tests. Ver «Fase 9B» |
+| 9B | 8 tiendas distintas sobre un solo motor | 🟡 En curso | 2026-07-22 | **9B.0–9B.3 hechos.** Migración 0002, `shop.config` partido, guardarraíl del precio de oferta, fixtures del backoffice (desplegadas en prod el 22), y scaffold `pnpm new:theme` + `docs/CHECKLIST_TEMA.md`. 149 tests. Ver «Fase 9B» |
 | 10 | Documentación para el cliente | ⬜ Pendiente | — | Ver «Fase 10». Es material de venta y de entrega, no docs técnicas |
 | 8 | Pulido de la demo (backlog abajo) | 🟡 En curso | 2026-07-19 | Backlog técnico agotado; solo quedan decisiones y pasos locales de Andreu (ver «Decisiones pendientes» y `docs/PROMPT_CLOUD.md`). Últimas tandas: novena (race de idempotencia en el pago, PII enumerable en `/demo/gracias`, cancelación de pedido pagado sin devolver stock), décima (la misma race en el PATCH de admin, campos vacíos guardados como 0, login sin rate limit), undécima (diagrama móvil de `/arquitectura`, hedge del plazo de entrega, tokens de tema en `/demo/reset`, terminología «envío»), duodécima (aviso de corte en pedidos del admin, cabeceras sin wrap a 375px, leftover «portes», token de radio del carrito, contraste del botón eliminar, H1 en valenciano, checklist de producción) y decimotercera (misma race de idempotencia en `checkout.session.expired`, divisa hardcodeada a EUR fuera de Stripe, cobertura de test de `quoteCart`/PATCH admin/emails) y decimocuarta (config parcial de Stripe → cobro sin cumplimiento, emails duplicados bajo concurrencia, `payment_status` del webhook, color de marca centralizado en `shop.config.ts`, contraste/tema en carrito y checkout) — ver sección «Fase 8» |
 
@@ -191,13 +191,47 @@ para poder enseñarlo en una llamada de venta sin fabricar el estado a mano.
   y 375px: panel (5 estados, tracking, factura, timeline), bandeja de emails,
   ficha con subtítulo/oferta/specs, agotado, categoría vacía y búsqueda vacía.
   Sin dependencias nuevas.
-- **Pendiente de despliegue**: el nuevo seed vive en el worker; para que el reset
-  en producción (botón + cron) genere estas fixtures hace falta desplegar primero.
-  Se deja para el OK de Andreu (la rama aún no está en `main`).
+- **Desplegado el 2026-07-22**: Andreu mergeó la rama a `main`; `pnpm deploy` +
+  reset disparado en producción. Las fixtures del backoffice ya están en vivo en
+  ecom.logic2b.com (verificado: `/api/demo/reset` → ok, tienda 200).
+
+### 9B.3 — Scaffold y checklist de tema (2026-07-22)
+
+Hacer barato repetir 8 veces, sin que el scaffold pueda tocar el motor.
+
+- **`pnpm new:theme <id>`** (`scripts/new-theme.mjs`, sin dependencias): genera
+  `src/components/themes/<id>/{Catalog,ProductGrid,Filters,ProductDetail}.astro`,
+  `src/collections/<id>.ts`, `seed/collections/<id>.ts` (stub de 3 productos con
+  slugs namespaceados por prefijo), `public/images/collections/<id>/.gitkeep` y
+  `docs/temas/<id>.md` (ficha de entrega con la serie de coste). **Idempotente**:
+  re-ejecutarlo no pisa nada (verificado con doble ejecución).
+- **Parches por marcador** (`// new-theme:*`): registra la colección en
+  `src/lib/collections.ts`, el seed en `seed/collections/index.ts` (agregador
+  nuevo) y, **solo si falta**, la entrada del tema en `demo-themes.ts` con los 14
+  tokens de Base y `status: 'planned'`. Los marcadores los fija
+  `tests/new-theme-scaffold.test.ts` para que un refactor no los borre en silencio.
+- **Guardarraíl del propio scaffold**: lista blanca de rutas — se niega a escribir
+  fuera del kit de tema (nada de `src/lib/` salvo la línea de registro, ni
+  `src/pages/api/`, ni `migrations/`). El test también fija que el guardarraíl siga.
+- **Cableado del seed por colección (motor, una vez):** `seed/seed.ts` consume
+  `seed/collections/index.ts`; `SeedProduct` gana `image?` opcional y los
+  productos de colección resuelven su imagen a
+  `/images/collections/<id>/<slug>.webp` (la genérica sigue con placeholders por
+  categoría). Una sesión de tema ya no toca `seed.ts` ni los tests del seed.
+- **Tests del motor ajustados a colecciones** (una vez, para siempre): el test de
+  variantes de imagen ignora las imágenes por-slug de colección, el recuento de
+  sentencias suma `collectionSeedProducts`, y la referencia visual solo se exige a
+  temas `ready` (un tema recién scaffoldeado nace `planned` sin referencia).
+- **`docs/CHECKLIST_TEMA.md`**: checklist real de sesión de tema, derivado de las
+  4 hechas — fidelidad de réplica, namespacing de slugs, tokens sin hardcodear,
+  gotchas (body de Base, acento claro, `pnpm build` con wrangler dev, reseed), y
+  cierre con ficha de coste y parada para OK.
+- **Verificado**: scaffold de un tema de prueba (`probeta`) → `pnpm check` en
+  verde CON el stub montado (**149 tests**, 0 errores, build OK) → retirado. El
+  generador de seed compila con el agregador vacío. Sin dependencias nuevas.
 
 ### Pendiente en la Fase 9B
 
-- **9B.3** — Scaffold de tema (`pnpm new:theme <id>`) y checklist de entrega.
 - **9B.4** — Rutas `/demo/tiendas/[collection]/…`, carrito/checkout/gracias
   compartidos bajo la colección, borrado del selector con cookie y de
   `active-theme.ts`, y re-hospedaje de los 4 temas existentes **con pasada de

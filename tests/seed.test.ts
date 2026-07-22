@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { shopConfig } from '../shop.config';
 import { demoCollection } from '../src/collections/demo';
+import { collectionSeedProducts } from '../seed/collections/index';
 import { demoOrderStatements } from '../seed/demo-orders';
 import { seedProducts } from '../seed/products';
 import { seedStatements } from '../seed/seed';
@@ -46,7 +47,14 @@ describe('integridad del seed', () => {
 
   it('cada imagen referenciada por el seed corresponde a una variante declarada', async () => {
     const { imageVariants } = await import('../seed/image-variants');
-    const stmts = seedStatements().filter((stmt) => stmt.includes('INSERT INTO products'));
+    const allProducts = seedStatements().filter((stmt) => stmt.includes('INSERT INTO products'));
+    // Los productos de colección (9B.3) llevan imagen propia por slug, no
+    // variantes de placeholder: /images/collections/<id>/<slug>.webp.
+    const collectionStmts = allProducts.filter((stmt) => stmt.includes('/images/collections/'));
+    for (const stmt of collectionStmts) {
+      expect(stmt).toMatch(/\/images\/collections\/[a-z0-9-]+\/[a-z0-9-]+\.webp/);
+    }
+    const stmts = allProducts.filter((stmt) => !stmt.includes('/images/collections/'));
     for (const stmt of stmts) {
       const match = stmt.match(/\/images\/products\/([a-z]+)(?:-(\d+))?\.webp/);
       expect(match, `imagen no reconocida en: ${stmt}`).not.toBeNull();
@@ -69,8 +77,9 @@ describe('integridad del seed', () => {
   it('genera SQL con limpieza previa y sin comillas sin escapar', () => {
     const stmts = seedStatements();
     expect(stmts[0]).toContain('DELETE FROM');
-    // 6 DELETE + 60 productos + 4 tarifas + las fixtures de pedidos de demo (9B.2)
-    expect(stmts.length).toBe(6 + 60 + 4 + demoOrderStatements().length);
+    // 6 DELETE + 60 productos genéricos + productos de colecciones (9B.3) +
+    // 4 tarifas + las fixtures de pedidos de demo (9B.2)
+    expect(stmts.length).toBe(6 + 60 + collectionSeedProducts.length + 4 + demoOrderStatements().length);
     for (const stmt of stmts) {
       // apóstrofes escapados como '' — nunca un quote suelto dentro de un valor
       expect(() => stmt).not.toThrow();

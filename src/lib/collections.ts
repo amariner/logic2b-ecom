@@ -13,6 +13,7 @@
  * tabla entera.
  */
 import { demoCollection } from '../collections/demo';
+// new-theme:imports — no borrar: `pnpm new:theme <id>` añade aquí su import.
 import type { CollectionCategory, CollectionConfig } from '../collections/types';
 
 export type { CollectionCategory, CollectionConfig };
@@ -24,7 +25,10 @@ export type { CollectionCategory, CollectionConfig };
  * con su identidad y su catálogo. Lo que ya está fijado aquí es la FORMA — el
  * registro resuelve N colecciones sin tocar nada más.
  */
-export const collections: readonly CollectionConfig[] = [demoCollection];
+export const collections: readonly CollectionConfig[] = [
+  demoCollection,
+  // new-theme:entries — no borrar: `pnpm new:theme <id>` añade aquí su entrada.
+];
 
 /** Colección de la demo transaccional (carrito, checkout, panel, emails). */
 export const DEFAULT_COLLECTION_ID = demoCollection.id;

@@ -446,6 +446,7 @@ export const demoThemes: DemoTheme[] = [
       annotations: true, darkFooter: true,
     },
   },
+  // new-theme:themes — no borrar: `pnpm new:theme <id>` añade aquí el tema si falta.
 ];
 
 export const defaultTheme = demoThemes[0]!;
