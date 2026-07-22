@@ -15,6 +15,7 @@ import MinimalFooter from '../components/themes/minimal/Footer.astro';
 import { shopConfig } from '../../shop.config';
 import {
   DEFAULT_COLLECTION_ID,
+  collections,
   defaultCollection,
   storePaths,
   type CollectionConfig,
@@ -34,6 +35,17 @@ const theme: DemoTheme = getTheme(collection.themeId) ?? defaultTheme;
 const paths = storePaths(collection.id);
 const isDefaultStore = collection.id === DEFAULT_COLLECTION_ID;
 const useSidebar = theme.layout.nav === 'sidebar';
+const immersive = theme.layout.nav === 'immersive';
+
+// Conmutador de tiendas: navegación por URL entre las tiendas del escaparate
+// (cada tienda ES su URL — sin cookie). Vector abre la lista como tienda
+// destacada; la genérica va al final como «demo completa» (panel + emails).
+const SWITCHER_ORDER = ['launch', 'iris', 'minimal', 'editorial', 'guide'];
+const switcherStores = [...collections].sort((a, b) => {
+  const rank = (id: string) =>
+    id === DEFAULT_COLLECTION_ID ? 99 : ((i) => (i === -1 ? 50 : i))(SWITCHER_ORDER.indexOf(id));
+  return rank(a.id) - rank(b.id);
+});
 
 // Tokens del tema aplicados en el wrapper (heredan por cascada). Base no
 // necesita nada: sus valores son los de global.css.
@@ -59,13 +71,18 @@ const nav = isDefaultStore
     style={themeStyle}
     class:list={[useSidebar && 'bg-surface-sunken']}
   >
-    <div class="bg-foreground px-4 py-1.5 text-center text-xs text-background/80">
+    {/* relative z-30: los temas inmersivos ponen un vídeo fijo por debajo. */}
+    <div class="relative z-30 bg-foreground px-4 py-1.5 text-center text-xs text-background/80">
       <strong class="font-semibold text-background">Demo</strong> — tienda ficticia del
       <a href="/" class="underline decoration-background/40 underline-offset-2 hover:text-background">LogicEcom</a>.
       El pago está simulado: nada es real.
     </div>
 
-    {useSidebar ? (
+    {/* Tema inmersivo (Iris): pinta su propio header sobre el hero; sin
+        SiteHeader ni footer estándar. El banner de demo de arriba se queda. */}
+    {immersive ? (
+      <slot />
+    ) : useSidebar ? (
       <Fragment>
         {/* Hoja blanca insertada sobre gris claro, con nav lateral a la izquierda. */}
         <div class="mx-auto max-w-[1400px] bg-background">
@@ -104,6 +121,41 @@ const nav = isDefaultStore
         </footer>
       </Fragment>
     )}
+
+    {/* Conmutador de tiendas: pieza de venta del escaparate. Navegación por
+        URL (sin cookie ni estado): cada tienda es su URL. <details> sin JS. */}
+    <details data-store-switcher class="group fixed bottom-4 left-4 z-50">
+      <summary
+        class="flex cursor-pointer select-none items-center gap-2 rounded-full border border-border bg-popover px-4 py-2.5 text-sm font-semibold text-foreground shadow-lg shadow-black/10 transition hover:border-foreground [&::-webkit-details-marker]:hidden"
+      >
+        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 21v-7.5a.75.75 0 0 1 .75-.75h3a.75.75 0 0 1 .75.75V21m-4.5 0H2.36m11.14 0H18m0 0h3.64m-1.39 0V9.349M3.75 21V9.349m0 0a3.001 3.001 0 0 0 3.75-.615A2.993 2.993 0 0 0 9.75 9.75c.896 0 1.7-.393 2.25-1.016a2.993 2.993 0 0 0 2.25 1.016c.896 0 1.7-.393 2.25-1.015a3.001 3.001 0 0 0 3.75.614m-16.5 0a3.004 3.004 0 0 1-.621-4.72l1.189-1.19A1.5 1.5 0 0 1 5.378 3h13.243a1.5 1.5 0 0 1 1.06.44l1.19 1.189a3 3 0 0 1-.621 4.72M6.75 18h3.75a.75.75 0 0 0 .75-.75V13.5a.75.75 0 0 0-.75-.75H6.75a.75.75 0 0 0-.75.75v3.75c0 .414.336.75.75.75Z" />
+        </svg>
+        Tiendas
+      </summary>
+      <div class="absolute bottom-full left-0 mb-3 w-72 rounded-2xl border border-border bg-popover p-4 shadow-xl shadow-black/10">
+        <p class="font-display text-base text-foreground">Un motor, muchas tiendas</p>
+        <p class="mt-1 text-xs leading-relaxed text-muted-foreground">
+          Cada tienda es una demo real sobre el mismo backend. Cambia de una a otra:
+        </p>
+        <ul class="mt-3 space-y-1.5">
+          {switcherStores.map((store) => (
+            <li>
+              <a
+                href={storePaths(store.id).catalog}
+                aria-current={store.id === collection.id ? 'page' : undefined}
+                class="flex items-baseline justify-between gap-3 rounded-xl border border-transparent px-3 py-2 transition hover:border-border hover:bg-muted aria-[current=page]:border-foreground"
+              >
+                <span class="text-sm font-semibold text-foreground">{store.name}</span>
+                <span class="truncate text-[11px] text-muted-foreground">
+                  {store.id === DEFAULT_COLLECTION_ID ? 'demo completa · panel' : store.tagline}
+                </span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </details>
   </div>
 
   <script>

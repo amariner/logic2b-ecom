@@ -269,6 +269,32 @@ Hacer barato repetir 8 veces, sin que el scaffold pueda tocar el motor.
   las 4 tiendas en su URL con su tema, catálogo, fotos, carrito con quote real y
   namespacing. Sin dependencias nuevas.
 
+### 9B.4b — Conmutador de tiendas, Vector como demo destacada y tema Iris (2026-07-22)
+
+- **Conmutador «Tiendas»** en `Shop.astro`: `<details>` flotante sin JS que
+  navega POR URL entre las tiendas del registro (sin cookie — la decisión 6 de
+  9B.0 sigue intacta). Vector abre la lista; la genérica va la última como
+  «demo completa · panel».
+- **Vector es la demo destacada**: el CTA principal de la landing («Entra en la
+  tienda demo») apunta a `/demo/tiendas/launch`. La tienda genérica sigue
+  siendo la colección por defecto del MOTOR (admin, APIs, recorrido) — solo
+  cambia el escaparate de entrada.
+- **Tema 09 · Iris importado de `logic2b-norte`** (spec propio «Orven»):
+  tienda inmersiva de eyewear con **vídeo escrutado fotograma a fotograma con
+  el scroll** (blob + lerp + un seek en vuelo), hero editorial con ficha en
+  cristal esmerilado y slider de catálogo con revelado por parallax. Adaptado
+  al contrato del kit: 6 productos reales en D1 (colección `iris`, insignia =
+  `subtitle`), carrito real (`data-iris-add`, namespaceado), enlaces por
+  `paths`, `prefers-reduced-motion`, y assets autoalojados
+  (`/images/collections/iris/`, vídeo H.264 2 MB + 6 webp).
+- **Motor (una vez):** `ThemeLayout.nav` gana el valor `'immersive'` — el tema
+  pinta su propio header y el layout no monta SiteHeader ni footer; el banner
+  de demo pasa a `z-30` para que ningún vídeo fijo lo tape. Etiqueta nueva en
+  `/estilos`.
+- **Verificado en navegador**: scrub del vídeo con el scroll, catálogo con
+  productos reales, añadir al carrito (`ecom-cart:iris` aislado), conmutador
+  con las 6 tiendas y banner de demo visible. `pnpm check` en verde (148).
+
 ### Pendiente en la Fase 9B
 
 - **Pasada de fidelidad fina** de los 4 temas contra su captura (se re-hospedaron

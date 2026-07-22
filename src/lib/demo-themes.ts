@@ -83,8 +83,12 @@ export type ThemeLayout = {
    *    `grid-auto-flow: dense` (que reordena y rompe el orden de catálogo).
    */
   gridStyle: 'uniform' | 'irregular';
-  /** Dónde vive la navegación de catálogo. */
-  nav: 'top' | 'sidebar';
+  /**
+   * Dónde vive la navegación de catálogo.
+   *  · `immersive` — el tema pinta su PROPIO header sobre el hero (Iris) y el
+   *    layout no monta ni SiteHeader ni footer estándar.
+   */
+  nav: 'top' | 'sidebar' | 'immersive';
   /**
    * Cabecera del catálogo.
    *  · `none`      — directo a la rejilla.
@@ -442,6 +446,36 @@ export const demoThemes: DemoTheme[] = [
       gridCols: 5, gridStyle: 'uniform', nav: 'top', hero: 'fullbleed',
       card: 'plain', filters: 'chips', density: 'compact',
       annotations: true, darkFooter: true,
+    },
+  },
+  {
+    id: 'iris',
+    label: 'Iris',
+    hint: 'Cinemática: vídeo escrutado con el scroll, negro absoluto y magenta.',
+    reference: { name: 'Orven (spec propio, logic2b-norte)', file: '09-iris.webp' },
+    sample: null,
+    bestFor: ['Eyewear y óptica', 'Producto premium', 'Lanzamientos de alto impacto'],
+    status: 'ready',
+    vars: {
+      '--color-brand': '#E6074E',
+      '--color-brand-dark': '#c1063f',
+      '--color-brand-fg': '#ffffff',
+      '--font-display': "'Inter Tight', ui-sans-serif, system-ui, sans-serif",
+      '--font-accent': MONO,
+      '--tracking-display': '-0.04em',
+      '--weight-display': '500',
+      '--radius-btn': '9999px',
+      '--radius-card': '1.125rem',
+      '--border-width': '0px',
+      '--surface-product': '#F7F5F5',
+      '--surface-sunken': '#fafafa',
+      '--space-density': '1',
+      '--grid-gap': '0.625rem',
+    },
+    layout: {
+      gridCols: 3, gridStyle: 'uniform', nav: 'immersive', hero: 'fullbleed',
+      card: 'plain', filters: 'dropdown', density: 'regular',
+      annotations: false, darkFooter: false,
     },
   },
   // new-theme:themes — no borrar: `pnpm new:theme <id>` añade aquí el tema si falta.

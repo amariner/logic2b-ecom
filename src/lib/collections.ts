@@ -17,6 +17,7 @@ import { minimalCollection } from '../collections/minimal';
 import { editorialCollection } from '../collections/editorial';
 import { guideCollection } from '../collections/guide';
 import { launchCollection } from '../collections/launch';
+import { irisCollection } from '../collections/iris';
 // new-theme:imports — no borrar: `pnpm new:theme <id>` añade aquí su import.
 import type { CollectionCategory, CollectionConfig } from '../collections/types';
 
@@ -35,6 +36,7 @@ export const collections: readonly CollectionConfig[] = [
   editorialCollection,
   guideCollection,
   launchCollection,
+  irisCollection,
   // new-theme:entries — no borrar: `pnpm new:theme <id>` añade aquí su entrada.
 ];
 
