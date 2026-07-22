@@ -7,13 +7,14 @@
  * legales a la izquierda; dos columnas de enlaces en mayúsculas a la derecha.
  */
 import { shopConfig } from '../../../../shop.config';
-import type { CollectionConfig } from '../../../lib/collections';
+import type { CollectionConfig, StorePaths } from '../../../lib/collections';
 
 interface Props {
   collection: CollectionConfig;
+  paths: StorePaths;
 }
 
-const { collection } = Astro.props;
+const { collection, paths } = Astro.props;
 
 const cats = collection.categories.slice(0, 5);
 ---
@@ -38,7 +39,7 @@ const cats = collection.categories.slice(0, 5);
       <ul class="space-y-3">
         {cats.map((c) => (
           <li>
-            <a href={`/demo/tienda?categoria=${c.id}`} class="text-background/60 transition-colors hover:text-background">
+            <a href={`${paths.catalog}?categoria=${c.id}`} class="text-background/60 transition-colors hover:text-background">
               {c.label}
             </a>
           </li>
@@ -48,7 +49,7 @@ const cats = collection.categories.slice(0, 5);
 
     <nav aria-label="LogicEcom" class="text-[11px] uppercase tracking-[0.14em]">
       <ul class="space-y-3">
-        <li><a href="/demo/tienda" class="text-background/60 transition-colors hover:text-background">Catálogo</a></li>
+        <li><a href={paths.catalog} class="text-background/60 transition-colors hover:text-background">Catálogo</a></li>
         <li><a href="/demo/admin" class="text-background/60 transition-colors hover:text-background">Panel del comercio</a></li>
         <li><a href="/arquitectura" class="text-background/60 transition-colors hover:text-background">Arquitectura</a></li>
         <li><a href="/" class="text-background/60 transition-colors hover:text-background">LogicEcom</a></li>

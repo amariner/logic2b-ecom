@@ -10,20 +10,21 @@
  * COLLECTIONS / ABOUT US / CONTACTS replican el juego de la referencia (propro)
  * apuntando a destinos REALES de la demo — no inventamos páginas.
  */
-import type { CollectionConfig } from '../../../lib/collections';
+import type { CollectionConfig, StorePaths } from '../../../lib/collections';
 
 interface Props {
   collection: CollectionConfig;
+  paths: StorePaths;
 }
 
-const { collection } = Astro.props;
+const { collection, paths } = Astro.props;
 
 const pathname = Astro.url.pathname;
-const onCatalog = pathname.startsWith('/demo/tienda');
+const onCatalog = pathname.startsWith(paths.catalog);
 
 const items = [
-  { href: '/demo/tienda', label: 'CATALOG', active: onCatalog },
-  { href: '/demo/tienda', label: 'COLLECTIONS', active: false },
+  { href: paths.catalog, label: 'CATALOG', active: onCatalog },
+  { href: paths.catalog, label: 'COLLECTIONS', active: false },
   { href: '/', label: 'ABOUT US', active: false },
   { href: '/#contacto', label: 'CONTACTS', active: false },
 ] as const;
@@ -33,7 +34,7 @@ const items = [
   class="flex flex-row items-center gap-x-6 overflow-x-auto px-5 py-5 text-foreground md:sticky md:top-0 md:h-auto md:w-52 md:flex-col md:items-start md:gap-0 md:overflow-visible md:px-8 md:py-10"
 >
   <a
-    href="/demo/tienda"
+    href={paths.catalog}
     class="shrink-0 font-display text-lg leading-tight tracking-tight text-foreground md:mb-14"
     aria-label={collection.name}
   >{collection.name}</a>
@@ -64,7 +65,7 @@ const items = [
   </nav>
 
   <a
-    href="/demo/carrito"
+    href={paths.cart}
     class="shrink-0 whitespace-nowrap text-[11px] font-medium uppercase tracking-[0.14em] text-muted-foreground transition-colors hover:text-foreground md:mt-16"
   >
     Cart (<span data-cart-count>0</span>)

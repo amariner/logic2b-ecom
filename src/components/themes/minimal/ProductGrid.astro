@@ -1,4 +1,5 @@
 ---
+import type { StorePaths } from '../../../lib/collections';
 /**
  * MINIMAL · ProductGrid — dos columnas de imagen grande sobre gris claro, con
  * mucha calle entre celdas (`--grid-gap`). Sin filetes, sin botón de compra en
@@ -16,16 +17,17 @@ type GridProduct = {
 };
 
 interface Props {
+  paths: StorePaths;
   products: GridProduct[];
 }
 
-const { products } = Astro.props;
+const { paths, products } = Astro.props;
 ---
 
 <ul class="grid grid-cols-2" style="gap: var(--grid-gap);">
   {products.map((prod) => (
     <li class="group">
-      <a href={`/demo/tienda/${prod.slug}`} class="block">
+      <a href={paths.product(prod.slug)} class="block">
         <div class="overflow-hidden bg-surface-product" style="border-radius: var(--radius-card);">
           <img
             src={prod.image}

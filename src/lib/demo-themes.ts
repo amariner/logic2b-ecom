@@ -33,8 +33,6 @@
 
 import { shopConfig } from '../../shop.config';
 
-export const DEMO_THEME_KEY = 'ecom-demo-theme';
-
 /**
  * Variables que un tema puede sobreescribir. Lista cerrada y verificada por
  * test: si añades una aquí, todos los temas deben declararla.
@@ -451,20 +449,9 @@ export const demoThemes: DemoTheme[] = [
 
 export const defaultTheme = demoThemes[0]!;
 
-/** Temas ya desarrollados (los que el selector puede aplicar de verdad). */
+/** Temas ya desarrollados (los que /estilos enseña como listos). */
 export const readyThemes = demoThemes.filter((t) => t.status === 'ready');
 
 export function getTheme(id: string): DemoTheme | undefined {
   return demoThemes.find((t) => t.id === id);
-}
-
-/** Aplica (o limpia, con el tema por defecto) las variables del preset en :root. */
-export function applyTheme(theme: DemoTheme, root: HTMLElement = document.documentElement): void {
-  for (const key of THEME_VARS) {
-    if (theme.id === defaultTheme.id) {
-      root.style.removeProperty(key);
-    } else {
-      root.style.setProperty(key, theme.vars[key]);
-    }
-  }
 }

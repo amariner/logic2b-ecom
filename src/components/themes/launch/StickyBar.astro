@@ -1,4 +1,5 @@
 ---
+import type { StorePaths } from '../../../lib/collections';
 /**
  * LAUNCH · StickyBar — la barra inferior de la referencia P1, la gracia
  * comercial del tema: miniatura del producto estrella, punto de estado y
@@ -19,10 +20,11 @@ type StarProduct = {
 };
 
 interface Props {
+  paths: StorePaths;
   product: StarProduct;
 }
 
-const { product } = Astro.props;
+const { paths, product } = Astro.props;
 const available = product.stock > 0;
 ---
 
@@ -35,7 +37,7 @@ const available = product.stock > 0;
       a partir de 1450px el margen del contenedor centrado ya lo deja fuera. */}
   <div class="mx-auto flex max-w-6xl items-center gap-3 py-3 pl-28 pr-4 sm:gap-4 min-[1450px]:pl-4">
     {/* En móvil el hueco es para el estado, no para la miniatura. */}
-    <a href={`/demo/tienda/${product.slug}`} class="hidden shrink-0 sm:block">
+    <a href={paths.product(product.slug)} class="hidden shrink-0 sm:block">
       <img
         src={product.image}
         alt=""
@@ -59,7 +61,7 @@ const available = product.stock > 0;
       </span>
     </p>
     <a
-      href={`/demo/tienda/${product.slug}`}
+      href={paths.product(product.slug)}
       class="shrink-0 whitespace-nowrap border border-border px-4 py-2 text-sm font-medium text-foreground transition-colors hover:border-brand hover:bg-brand hover:text-brand-fg"
       style="border-radius: var(--radius-btn);"
     >Ver producto <span aria-hidden="true">→</span></a>

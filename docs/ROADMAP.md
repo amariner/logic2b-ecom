@@ -52,7 +52,7 @@ reconciliación se conserva abajo por contexto.
 | 6 | Deploy ecom.logic2b.com + cron reset + README + docs/CLIENTE.md | ✅ Hecho | 2026-07-18 | **Desplegado y en vivo en https://ecom.logic2b.com** (Worker `ecom-logic2b`, D1 remota `ecom-demo` id `7ae9b06d…`, custom domain + cron reset activos). Pagos en **modo simulado** (sin Stripe) |
 | 7 | bootstrap.sh + checklist demo→cliente real | ✅ Hecho | 2026-07-18 | `scripts/bootstrap.sh` (local probado end-to-end; `--remote` aprovisiona Cloudflare) + `docs/PRODUCCION.md` |
 | 9 | Catálogo de estilos (8 temas) | 🟡 En curso | 2026-07-21 | Arquitectura + `/estilos` + **temas 06 Minimal, 01 Editorial, 07 Launch y 04 Guide desarrollados** (5 listos con Base; registro de catálogo por tema generalizado). **Replanteada como Fase 9B** (ver abajo): de «una tienda, 8 pieles» a «8 tiendas, un motor» |
-| 9B | 8 tiendas distintas sobre un solo motor | 🟡 En curso | 2026-07-22 | **9B.0–9B.3 hechos.** Migración 0002, `shop.config` partido, guardarraíl del precio de oferta, fixtures del backoffice (desplegadas en prod el 22), y scaffold `pnpm new:theme` + `docs/CHECKLIST_TEMA.md`. 149 tests. Ver «Fase 9B» |
+| 9B | 8 tiendas distintas sobre un solo motor | 🟡 En curso | 2026-07-22 | **9B.0–9B.4 hechos.** Rutas por colección, selector/cookie eliminados, carrito namespaceado, y 4 tiendas reales (Forma Interior, Módulo Audio, Cafetal, Vector) con catálogo y fotos propias. 148 tests. Ver «Fase 9B» |
 | 10 | Documentación para el cliente | ⬜ Pendiente | — | Ver «Fase 10». Es material de venta y de entrega, no docs técnicas |
 | 8 | Pulido de la demo (backlog abajo) | 🟡 En curso | 2026-07-19 | Backlog técnico agotado; solo quedan decisiones y pasos locales de Andreu (ver «Decisiones pendientes» y `docs/PROMPT_CLOUD.md`). Últimas tandas: novena (race de idempotencia en el pago, PII enumerable en `/demo/gracias`, cancelación de pedido pagado sin devolver stock), décima (la misma race en el PATCH de admin, campos vacíos guardados como 0, login sin rate limit), undécima (diagrama móvil de `/arquitectura`, hedge del plazo de entrega, tokens de tema en `/demo/reset`, terminología «envío»), duodécima (aviso de corte en pedidos del admin, cabeceras sin wrap a 375px, leftover «portes», token de radio del carrito, contraste del botón eliminar, H1 en valenciano, checklist de producción) y decimotercera (misma race de idempotencia en `checkout.session.expired`, divisa hardcodeada a EUR fuera de Stripe, cobertura de test de `quoteCart`/PATCH admin/emails) y decimocuarta (config parcial de Stripe → cobro sin cumplimiento, emails duplicados bajo concurrencia, `payment_status` del webhook, color de marca centralizado en `shop.config.ts`, contraste/tema en carrito y checkout) — ver sección «Fase 8» |
 
@@ -230,16 +230,52 @@ Hacer barato repetir 8 veces, sin que el scaffold pueda tocar el motor.
   verde CON el stub montado (**149 tests**, 0 errores, build OK) → retirado. El
   generador de seed compila con el agregador vacío. Sin dependencias nuevas.
 
+### 9B.4 — Rutas por colección + 4 tiendas con catálogo y fotos (2026-07-22)
+
+**Cada tienda es su URL.** El modelo de cookie desaparece del todo.
+
+- **Rutas nuevas** `/demo/tiendas/[collection]/{,[slug],carrito,checkout,gracias}`
+  — colección SIEMPRE del segmento de URL validado contra el registro (404 si no
+  existe). `/demo/tienda…` se queda como tienda genérica con la MISMA
+  implementación: las 5 páginas se extraen a `src/components/store/*Page.astro`
+  compartidas, y las rutas son wrappers finos.
+- **Borrado**: `src/lib/active-theme.ts`, la cookie `ecom-demo-theme-id`, el
+  widget selector y el script anti-flash de `Shop.astro` (y su test), el registro
+  `catalogViews` de la página (vive ahora en `CatalogPage`). Los tokens del tema
+  se aplican **en SSR** como estilo inline del wrapper — sin localStorage.
+- **Carrito namespaceado por colección** (`ecom-cart:<id>`; la genérica conserva
+  su clave histórica). `cart-client` lee la colección del atributo
+  `data-store-collection` que pinta el layout. Verificado: añadir en Vector no
+  contamina el carrito de la Botiga.
+- **Checkout por tienda**: `/api/checkout/session` acepta `collection` opcional,
+  validada contra el registro, y construye success/cancel/redirect hacia el
+  gracias/carrito de ESA tienda (id desconocido → tienda genérica, nunca URL del
+  input).
+- **Temas parametrizados por `paths`** (los 14 componentes): ni un
+  `/demo/tienda` hardcodeado queda en `src/components/themes/`. Copy de los
+  temas pasado a datos de colección (hero de Guide, header de Editorial, hero de
+  Launch); estados vacíos genéricos.
+- **4 tiendas REALES con identidad, catálogo y fotos** (nombres provisionales,
+  Andreu puede vetar): **Forma Interior** (minimal · mobiliario, 8),
+  **Módulo Audio** (editorial · audio y objeto, 10), **Cafetal** (guide · café,
+  8 — ilustración de línea), **Vector** (launch · patinete + accesorios, 5, con
+  specs y oferta en el cargador). Launch reordena la landing por el orden de
+  categorías de la colección (la estrella primero) — presentación, no motor.
+- **Imaginería**: 31 piezas de producto generadas con Higgsfield en esta sesión
+  local (~70 créditos; quedaban 716 al empezar), optimizadas a WebP 800×800 en
+  `public/images/collections/<id>/<slug>.webp`. Falta: heroes/editorial y las 4
+  tiendas restantes.
+- **Verificado**: `pnpm check` en verde (**148 tests**, 0 errores). En navegador:
+  las 4 tiendas en su URL con su tema, catálogo, fotos, carrito con quote real y
+  namespacing. Sin dependencias nuevas.
+
 ### Pendiente en la Fase 9B
 
-- **9B.4** — Rutas `/demo/tiendas/[collection]/…`, carrito/checkout/gracias
-  compartidos bajo la colección, borrado del selector con cookie y de
-  `active-theme.ts`, y re-hospedaje de los 4 temas existentes **con pasada de
-  fidelidad contra su screenshot** (se construyeron contra la descripción, no como
-  réplica).
-- **9B.5** — Imaginería en sesión LOCAL (el CDN de Higgsfield está bloqueado en
-  cloud). ~94 piezas finales, 140–190 generaciones con retries. **Falta cerrar
-  créditos disponibles con Andreu.**
+- **Pasada de fidelidad fina** de los 4 temas contra su captura (se re-hospedaron
+  en 9B.4; quedan detalles de composición por clavar) + fichas de entrega
+  (`docs/temas/*.md`) al cerrar cada uno.
+- **9B.5** — Resto de imaginería en sesión LOCAL: heroes/editorial de las 4
+  tiendas hechas + catálogo y fotos de las 4 restantes.
 - **9B.6** — Un tema por sesión, con su catálogo y sus fotos.
 - **9B.7** — `/estilos` enlazando a las 8 tiendas reales.
 - **9B.8** — Reescribir `docs/TEMAS.md` con el contrato nuevo (hoy describe el

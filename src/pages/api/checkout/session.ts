@@ -4,6 +4,7 @@ import { shopConfig } from '../../../../shop.config';
 import { applyPaidMutation, generateOrderNumber, generateSimulatedSessionToken } from '../../../lib/orders';
 import { isSimulatedPayment } from '../../../lib/payment-mode';
 import { buildPaidMutation, type OrderItemForPayment } from '../../../lib/payment-transition';
+import { DEFAULT_COLLECTION_ID, resolveCollection, storePaths } from '../../../lib/collections';
 import { quoteCart } from '../../../lib/quote';
 import { deliverPendingEmails } from '../../../lib/send-email';
 import { stripeClient } from '../../../lib/stripe';
@@ -15,6 +16,10 @@ const checkoutRequestSchema = z.object({
     .array(z.object({ slug: z.string().min(1).max(120), qty: z.number().int().min(1).max(99) }))
     .min(1)
     .max(50),
+  // Tienda desde la que se compra (9B.4): decide SOLO adónde se vuelve tras el
+  // pago (gracias/carrito de esa tienda). Se valida contra el registro — un id
+  // desconocido cae a la tienda genérica, nunca a una URL construida del input.
+  collection: z.string().trim().max(40).optional(),
   customer: z.object({
     name: z.string().trim().min(2).max(120),
     email: z.string().trim().email().max(200),
@@ -43,6 +48,8 @@ export const POST: APIRoute = async ({ request, locals }) => {
     return Response.json({ error: 'Datos inválidos', details: parsed.error.flatten() }, { status: 400 });
   }
   const { lines, customer } = parsed.data;
+  const storeCollection = resolveCollection(parsed.data.collection);
+  const paths = storePaths(storeCollection?.id ?? DEFAULT_COLLECTION_ID);
 
   // Revalidar TODO contra D1: precios, stock y cobertura de envío (§7.4)
   const quote = await quoteCart(env.DB, { lines, postal_code: customer.postal_code });
@@ -80,7 +87,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
   // simulación lo sintetizamos con un token aleatorio independiente del nº de
   // pedido: /demo/gracias no requiere login y lo usa para exponer nombre/email/total.
   let sessionId = `sim_${generateSimulatedSessionToken()}`;
-  let redirectUrl = `${origin}/demo/gracias?session_id=${sessionId}`;
+  let redirectUrl = `${origin}${paths.thanks}?session_id=${sessionId}`;
 
   if (!simulate) {
     const stripe = stripeClient(env.STRIPE_SECRET_KEY!);
@@ -110,8 +117,8 @@ export const POST: APIRoute = async ({ request, locals }) => {
       line_items: lineItems,
       customer_email: customer.email,
       metadata: { order_number: orderNumber },
-      success_url: `${origin}/demo/gracias?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${origin}/demo/carrito`,
+      success_url: `${origin}${paths.thanks}?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${origin}${paths.cart}`,
     });
     sessionId = session.id;
     redirectUrl = session.url ?? redirectUrl;

@@ -10,8 +10,16 @@
  */
 import type { SeedProduct } from '../products.ts';
 
+import { minimalSeedProducts } from './minimal.ts';
+import { editorialSeedProducts } from './editorial.ts';
+import { guideSeedProducts } from './guide.ts';
+import { launchSeedProducts } from './launch.ts';
 // new-theme:seed-imports — no borrar: `pnpm new:theme <id>` añade aquí su import.
 
 export const collectionSeedProducts: readonly SeedProduct[] = [
+  ...minimalSeedProducts,
+  ...editorialSeedProducts,
+  ...guideSeedProducts,
+  ...launchSeedProducts,
   // new-theme:seed-entries — no borrar: `pnpm new:theme <id>` añade aquí su spread.
 ];

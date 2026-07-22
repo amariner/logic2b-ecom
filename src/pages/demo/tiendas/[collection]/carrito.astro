@@ -1,0 +1,15 @@
+---
+import CartPage from '../../../../components/store/CartPage.astro';
+import { resolveCollection } from '../../../../lib/collections';
+import { notFoundResponse } from '../../../../lib/not-found';
+
+export const prerender = false;
+
+const collection = resolveCollection(Astro.params.collection);
+const notFound = collection ? null : await notFoundResponse(Astro.locals.runtime.env, Astro.url);
+if (!collection || notFound) {
+  return notFound;
+}
+---
+
+<CartPage collection={collection} />

@@ -1,0 +1,29 @@
+---
+/**
+ * GUIDE · ProductDetail — ficha de producto del tema.
+ *
+ * HOY la ficha la sirve Base para todos los temas (hereda tokens por CSS vars);
+ * este componente existe para cuando el tema necesite redefinir su ESTRUCTURA.
+ * Se cablea en la ruta de ficha (9B.4). Si con Base + tokens basta: bórralo y
+ * anótalo en la ficha de entrega (docs/temas/guide.md).
+ */
+interface Props {
+  product: {
+    slug: string;
+    name: string;
+    description: string;
+    price_cents: number;
+    image: string;
+    stock: number;
+    subtitle?: string | null;
+    compare_at_price_cents?: number | null;
+  };
+}
+
+const { product } = Astro.props;
+---
+
+{/* TODO(tema guide): estructura propia de ficha, o borrar este stub. */}
+<article class="text-foreground">
+  <h1 class="font-display">{product.name}</h1>
+</article>

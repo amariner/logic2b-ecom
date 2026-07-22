@@ -1,0 +1,20 @@
+---
+/**
+ * Catálogo de una tienda del ESCAPARATE DE ESTILOS (9B.4). La colección sale
+ * del segmento de URL validado contra el registro: id desconocido → 404, nunca
+ * un fallback a otra tienda.
+ */
+import CatalogPage from '../../../../components/store/CatalogPage.astro';
+import { resolveCollection } from '../../../../lib/collections';
+import { notFoundResponse } from '../../../../lib/not-found';
+
+export const prerender = false;
+
+const collection = resolveCollection(Astro.params.collection);
+const notFound = collection ? null : await notFoundResponse(Astro.locals.runtime.env, Astro.url);
+if (!collection || notFound) {
+  return notFound;
+}
+---
+
+<CatalogPage collection={collection} db={Astro.locals.runtime.env.DB} url={Astro.url} />

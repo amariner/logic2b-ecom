@@ -16,7 +16,7 @@
  *
  * La barra sticky inferior con el ESTADO REAL DE STOCK (D1) acompaña siempre.
  */
-import type { CollectionConfig } from '../../../lib/collections';
+import type { CollectionConfig, StorePaths } from '../../../lib/collections';
 import Filters from './Filters.astro';
 import ProductGrid from './ProductGrid.astro';
 import FeatureScroller from './FeatureScroller.astro';
@@ -33,6 +33,7 @@ type GridProduct = {
 };
 
 interface Props {
+  paths: StorePaths;
   products: GridProduct[];
   collection: CollectionConfig;
   category?: string | undefined;
@@ -40,17 +41,27 @@ interface Props {
   search?: string | undefined;
 }
 
-const { products, collection, category, sort, search } = Astro.props;
+const { paths, products, collection, category, sort, search } = Astro.props;
 
 // Composición de landing solo en la vista prístina del catálogo.
 const landing = !category && !search && sort === 'featured' && products.length > 0;
 const FEATURED_COUNT = 4;
-const featured = landing ? products.slice(0, FEATURED_COUNT) : [];
-const gridProducts = landing ? products.slice(FEATURED_COUNT) : products;
 
-// Producto estrella de la barra sticky: el primero del orden de catálogo con
+// En la landing, el orden manda el de las CATEGORÍAS de la colección (el
+// producto estrella va en la primera), no el alfabético del orden `featured`.
+const categoryRank = new Map(collection.categories.map((cat, i) => [cat.id, i]));
+type Ranked = GridProduct & { category?: string };
+const landingProducts = landing
+  ? [...(products as Ranked[])].sort(
+      (a, b) => (categoryRank.get(a.category ?? '') ?? 99) - (categoryRank.get(b.category ?? '') ?? 99),
+    )
+  : products;
+const featured = landing ? landingProducts.slice(0, FEATURED_COUNT) : [];
+const gridProducts = landing ? landingProducts.slice(FEATURED_COUNT) : products;
+
+// Producto estrella de la barra sticky: el primero del orden de landing con
 // stock (o el primero a secas, para poder enseñar también el estado "agotado").
-const star = products.find((p) => p.stock > 0) ?? products[0];
+const star = landingProducts.find((p) => p.stock > 0) ?? landingProducts[0];
 ---
 
 <div class="bg-background">
@@ -58,7 +69,7 @@ const star = products.find((p) => p.stock > 0) ?? products[0];
     <section class="bg-muted">
       <div class="mx-auto max-w-6xl px-4 pb-16 pt-14 sm:px-6">
         <h1 class="max-w-3xl font-display text-4xl leading-tight text-foreground sm:text-5xl lg:text-6xl">
-          La nueva temporada del Maestrat. Pocas piezas, muy escogidas.
+          {collection.tagline}. {collection.description}
         </h1>
         <a
           href="#catalogo"
@@ -72,7 +83,7 @@ const star = products.find((p) => p.stock > 0) ?? products[0];
         </a>
 
         <h2 class="sr-only">Novedades del lanzamiento</h2>
-        <FeatureScroller products={featured} />
+        <FeatureScroller paths={paths} products={featured} />
       </div>
     </section>
   )}
@@ -85,12 +96,12 @@ const star = products.find((p) => p.stock > 0) ?? products[0];
     )}
 
     <div class="mt-7">
-      <Filters collection={collection} count={products.length} activeCategory={category} sort={sort} search={search} />
+      <Filters paths={paths} collection={collection} count={products.length} activeCategory={category} sort={sort} search={search} />
     </div>
 
     <div class="mt-8">
       {gridProducts.length > 0 ? (
-        <ProductGrid products={gridProducts} />
+        <ProductGrid paths={paths} products={gridProducts} />
       ) : (
         <div
           class="px-6 py-20 text-center"
@@ -101,11 +112,11 @@ const star = products.find((p) => p.stock > 0) ?? products[0];
           </p>
           <p class="mx-auto mt-2 max-w-md text-sm leading-relaxed text-muted-foreground">
             {search
-              ? 'Prueba con otra palabra (por ejemplo «aceite», «miel» o «queso») o vuelve al catálogo completo.'
+              ? 'Prueba con otra palabra o vuelve al catálogo completo.'
               : 'Puede que el comercio la haya vaciado temporalmente. El resto del catálogo sigue disponible.'}
           </p>
           <a
-            href="/demo/tienda"
+            href={paths.catalog}
             class="mt-6 inline-block bg-brand px-6 py-2.5 text-sm font-medium text-brand-fg transition hover:bg-brand-dark"
             style="border-radius: var(--radius-btn);"
           >Ver todo el catálogo</a>
@@ -123,5 +134,5 @@ const star = products.find((p) => p.stock > 0) ?? products[0];
     </section>
   )}
 
-  {star && <StickyBar product={star} />}
+  {star && <StickyBar paths={paths} product={star} />}
 </div>

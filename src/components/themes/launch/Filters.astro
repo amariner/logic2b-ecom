@@ -5,9 +5,10 @@
  * Filtra contra los MISMOS parámetros de URL que la tienda Base (`categoria`,
  * `orden`, `q`): el backend es UNO, aquí solo cambia la presentación.
  */
-import type { CollectionConfig } from '../../../lib/collections';
+import type { CollectionConfig, StorePaths } from '../../../lib/collections';
 
 interface Props {
+  paths: StorePaths;
   collection: CollectionConfig;
   count: number;
   activeCategory?: string | undefined;
@@ -15,7 +16,7 @@ interface Props {
   search?: string | undefined;
 }
 
-const { collection, count, activeCategory, sort, search } = Astro.props;
+const { paths, collection, count, activeCategory, sort, search } = Astro.props;
 
 const sortOptions = [
   { id: 'featured', label: 'Destacados' },
@@ -30,7 +31,7 @@ const linkFor = (catId?: string): string => {
   if (sort && sort !== 'featured') params.set('orden', sort);
   if (search) params.set('q', search);
   const qs = params.toString();
-  return `/demo/tienda${qs ? `?${qs}` : ''}`;
+  return `${paths.catalog}${qs ? `?${qs}` : ''}`;
 };
 
 const chipBase = 'shrink-0 border px-3.5 py-1.5 text-xs font-medium transition-colors';

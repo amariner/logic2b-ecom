@@ -13,6 +13,10 @@
  * tabla entera.
  */
 import { demoCollection } from '../collections/demo';
+import { minimalCollection } from '../collections/minimal';
+import { editorialCollection } from '../collections/editorial';
+import { guideCollection } from '../collections/guide';
+import { launchCollection } from '../collections/launch';
 // new-theme:imports — no borrar: `pnpm new:theme <id>` añade aquí su import.
 import type { CollectionCategory, CollectionConfig } from '../collections/types';
 
@@ -27,6 +31,10 @@ export type { CollectionCategory, CollectionConfig };
  */
 export const collections: readonly CollectionConfig[] = [
   demoCollection,
+  minimalCollection,
+  editorialCollection,
+  guideCollection,
+  launchCollection,
   // new-theme:entries — no borrar: `pnpm new:theme <id>` añade aquí su entrada.
 ];
 
@@ -63,6 +71,40 @@ export function resolveCategory(
 /** Etiqueta legible de una categoría dentro de su colección. Cae al id si no está. */
 export function categoryLabel(collection: CollectionConfig, categoryId: string): string {
   return collection.categories.find((cat) => cat.id === categoryId)?.label ?? categoryId;
+}
+
+/**
+ * Rutas de UNA tienda. La genérica conserva sus URLs históricas (/demo/tienda…,
+ * enlazadas desde la landing, /arquitectura y /dossier); cada colección del
+ * escaparate vive bajo /demo/tiendas/<id>/. Misma implementación en ambas: lo
+ * único que cambia es el prefijo.
+ */
+export type StorePaths = {
+  catalog: string;
+  product: (slug: string) => string;
+  cart: string;
+  checkout: string;
+  thanks: string;
+};
+
+export function storePaths(collectionId: string): StorePaths {
+  if (collectionId === DEFAULT_COLLECTION_ID) {
+    return {
+      catalog: '/demo/tienda',
+      product: (slug) => `/demo/tienda/${slug}`,
+      cart: '/demo/carrito',
+      checkout: '/demo/checkout',
+      thanks: '/demo/gracias',
+    };
+  }
+  const base = `/demo/tiendas/${collectionId}`;
+  return {
+    catalog: base,
+    product: (slug) => `${base}/${slug}`,
+    cart: `${base}/carrito`,
+    checkout: `${base}/checkout`,
+    thanks: `${base}/gracias`,
+  };
 }
 
 /**

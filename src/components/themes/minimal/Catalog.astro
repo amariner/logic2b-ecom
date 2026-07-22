@@ -4,7 +4,7 @@
  * página (src/pages/demo/tienda/index.astro) a través del registro de temas.
  * Barra `Catalog (N) · Ordenar · categorías` + rejilla de 2 columnas con aire.
  */
-import type { CollectionConfig } from '../../../lib/collections';
+import type { CollectionConfig, StorePaths } from '../../../lib/collections';
 import Filters from './Filters.astro';
 import ProductGrid from './ProductGrid.astro';
 
@@ -17,6 +17,7 @@ type GridProduct = {
 };
 
 interface Props {
+  paths: StorePaths;
   products: GridProduct[];
   collection: CollectionConfig;
   category?: string | undefined;
@@ -24,21 +25,21 @@ interface Props {
   search?: string | undefined;
 }
 
-const { products, collection, category, sort, search } = Astro.props;
+const { paths, products, collection, category, sort, search } = Astro.props;
 ---
 
 <main class="px-5 py-6 md:px-2 md:py-10">
-  <Filters collection={collection} count={products.length} activeCategory={category} sort={sort} search={search} />
+  <Filters paths={paths} collection={collection} count={products.length} activeCategory={category} sort={sort} search={search} />
   <div class="mt-8">
     {products.length > 0 ? (
-      <ProductGrid products={products} />
+      <ProductGrid paths={paths} products={products} />
     ) : (
       <div class="py-20 text-center">
         <p class="font-display text-lg">
           {search ? `Nada por aquí para «${search}»` : 'No hay productos en esta categoría'}
         </p>
         <a
-          href="/demo/tienda"
+          href={paths.catalog}
           class="mt-4 inline-block text-[11px] uppercase tracking-[0.14em] text-muted-foreground underline underline-offset-4 transition-colors hover:text-foreground"
         >Ver todo el catálogo</a>
       </div>

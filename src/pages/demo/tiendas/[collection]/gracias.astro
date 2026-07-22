@@ -1,0 +1,21 @@
+---
+import ThanksPage from '../../../../components/store/ThanksPage.astro';
+import { resolveCollection } from '../../../../lib/collections';
+import { notFoundResponse } from '../../../../lib/not-found';
+import { getOrderBySessionId } from '../../../../lib/thanks';
+
+export const prerender = false;
+
+const collection = resolveCollection(Astro.params.collection);
+const notFound = collection ? null : await notFoundResponse(Astro.locals.runtime.env, Astro.url);
+if (!collection || notFound) {
+  return notFound;
+}
+
+const order = await getOrderBySessionId(
+  Astro.locals.runtime.env.DB,
+  Astro.url.searchParams.get('session_id'),
+);
+---
+
+<ThanksPage collection={collection} order={order} />

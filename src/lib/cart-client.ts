@@ -6,12 +6,23 @@
 
 export type CartLine = { slug: string; qty: number };
 
-const STORAGE_KEY = 'ecom-demo-cart';
 const MAX_QTY = 99;
+
+/**
+ * Carrito NAMESPACEADO POR COLECCIÓN (9B.4): cada tienda del escaparate tiene
+ * el suyo — un prospecto no debe ver zapatillas en el carrito del café. El
+ * layout (Shop.astro) marca la colección activa con `data-store-collection` en
+ * su wrapper; la genérica conserva su clave histórica para no vaciar carritos.
+ */
+function storageKey(): string {
+  const id =
+    document.querySelector('[data-store-collection]')?.getAttribute('data-store-collection') ?? 'demo';
+  return id === 'demo' ? 'ecom-demo-cart' : `ecom-cart:${id}`;
+}
 
 export function readCart(): CartLine[] {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
+    const raw = localStorage.getItem(storageKey());
     if (raw === null) return [];
     const parsed: unknown = JSON.parse(raw);
     if (!Array.isArray(parsed)) return [];
@@ -29,7 +40,7 @@ export function readCart(): CartLine[] {
 }
 
 function writeCart(lines: CartLine[]): void {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(lines));
+  localStorage.setItem(storageKey(), JSON.stringify(lines));
   document.dispatchEvent(new CustomEvent('cart:changed', { detail: { count: cartCount() } }));
 }
 

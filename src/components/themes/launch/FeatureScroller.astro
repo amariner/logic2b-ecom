@@ -1,4 +1,5 @@
 ---
+import type { StorePaths } from '../../../lib/collections';
 /**
  * LAUNCH · FeatureScroller — la fila de features de la referencia P1: items
  * numerados (01…) cuyas imágenes se CORTAN en ambos bordes del viewport,
@@ -20,10 +21,11 @@ type FeatureProduct = {
 };
 
 interface Props {
+  paths: StorePaths;
   products: FeatureProduct[];
 }
 
-const { products } = Astro.props;
+const { paths, products } = Astro.props;
 ---
 
 <div
@@ -35,7 +37,7 @@ const { products } = Astro.props;
   <ol class="flex w-max gap-8 pb-2 sm:gap-10">
     {products.map((prod, i) => (
       <li class="w-[16rem] shrink-0 snap-start sm:w-[19rem]">
-        <a href={`/demo/tienda/${prod.slug}`} class="group block">
+        <a href={paths.product(prod.slug)} class="group block">
           <div class="overflow-hidden bg-surface-product" style="border-radius: var(--radius-card);">
             <img
               src={prod.image}

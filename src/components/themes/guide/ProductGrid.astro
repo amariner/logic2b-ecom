@@ -1,4 +1,5 @@
 ---
+import type { StorePaths } from '../../../lib/collections';
 /**
  * GUIDE · ProductGrid — rejilla uniforme de 4 columnas de tarjetas MUY
  * redondeadas y elevadas (`card: 'elevated'`, `--radius-card: 1rem`), con la
@@ -28,12 +29,13 @@ type GridProduct = {
 };
 
 interface Props {
+  paths: StorePaths;
   products: GridProduct[];
   /** Slugs marcados como novedad (los `created_at` más recientes del listado). */
   newSlugs: ReadonlySet<string>;
 }
 
-const { products, newSlugs } = Astro.props;
+const { paths, products, newSlugs } = Astro.props;
 
 // Numeración descendente sobre el orden de catálogo, como la referencia
 // (la primera tarjeta lleva el número más alto). Tres dígitos.
@@ -49,14 +51,14 @@ const refFor = (index: number): string => String(total - index).padStart(3, '0')
     >
       <div class="flex items-baseline justify-between gap-2 font-accent text-[11px] uppercase tracking-[0.14em]">
         <h2 class="min-w-0 truncate text-foreground">
-          <a href={`/demo/tienda/${prod.slug}`} class="hover:underline underline-offset-4">{prod.name}</a>
+          <a href={paths.product(prod.slug)} class="hover:underline underline-offset-4">{prod.name}</a>
         </h2>
         <span class="shrink-0 tabular-nums text-muted-foreground" aria-hidden="true">
           #&nbsp;{refFor(index)}
         </span>
       </div>
 
-      <a href={`/demo/tienda/${prod.slug}`} class="mt-4 block overflow-hidden bg-surface-product p-5" style="border-radius: var(--radius-card);">
+      <a href={paths.product(prod.slug)} class="mt-4 block overflow-hidden bg-surface-product p-5" style="border-radius: var(--radius-card);">
         <img
           src={prod.image}
           alt={prod.name}

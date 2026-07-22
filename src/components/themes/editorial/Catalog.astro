@@ -9,7 +9,7 @@
  * referencia. Va `aria-hidden`: es decoración, un lector de pantalla leyéndolo
  * sería ruido puro (nota de docs/TEMAS.md).
  */
-import type { CollectionConfig } from '../../../lib/collections';
+import type { CollectionConfig, StorePaths } from '../../../lib/collections';
 import CatalogHeader from './CatalogHeader.astro';
 import Filters from './Filters.astro';
 import ProductGrid from './ProductGrid.astro';
@@ -23,6 +23,7 @@ type GridProduct = {
 };
 
 interface Props {
+  paths: StorePaths;
   products: GridProduct[];
   collection: CollectionConfig;
   category?: string | undefined;
@@ -30,7 +31,7 @@ interface Props {
   search?: string | undefined;
 }
 
-const { products, collection, category, sort, search } = Astro.props;
+const { paths, products, collection, category, sort, search } = Astro.props;
 ---
 
 <main class="relative mx-auto max-w-6xl px-4 py-10 lg:px-8">
@@ -41,15 +42,15 @@ const { products, collection, category, sort, search } = Astro.props;
     style="rotate: 180deg;"
   >del maestrat · del maestrat · del maestrat</span>
 
-  <CatalogHeader />
+  <CatalogHeader collection={collection} />
 
   <div class="mt-8">
-    <Filters collection={collection} count={products.length} activeCategory={category} sort={sort} search={search} />
+    <Filters paths={paths} collection={collection} count={products.length} activeCategory={category} sort={sort} search={search} />
   </div>
 
   <div class="mt-8">
     {products.length > 0 ? (
-      <ProductGrid products={products} />
+      <ProductGrid paths={paths} products={products} />
     ) : (
       <div
         class="px-6 py-20 text-center"
@@ -60,11 +61,11 @@ const { products, collection, category, sort, search } = Astro.props;
         </p>
         <p class="mx-auto mt-2 max-w-md text-sm leading-relaxed text-muted-foreground">
           {search
-            ? 'Prueba con otra palabra (por ejemplo «aceite», «miel» o «queso») o vuelve al catálogo completo.'
+            ? 'Prueba con otra palabra o vuelve al catálogo completo.'
             : 'Puede que el comercio la haya vaciado temporalmente. El resto del catálogo sigue disponible.'}
         </p>
         <a
-          href="/demo/tienda"
+          href={paths.catalog}
           class="mt-6 inline-block rounded-btn bg-brand px-6 py-2.5 font-accent text-[11px] uppercase tracking-[0.12em] text-brand-fg transition hover:bg-brand-dark"
         >Ver todo el catálogo</a>
       </div>

@@ -1,4 +1,5 @@
 ---
+import type { StorePaths } from '../../../lib/collections';
 /**
  * LAUNCH · ProductGrid — rejilla uniforme de 3 columnas con aire (density
  * 'airy'), tarjeta con filete hairline (lee `--border-width`) y esquinas del
@@ -19,10 +20,11 @@ type GridProduct = {
 };
 
 interface Props {
+  paths: StorePaths;
   products: GridProduct[];
 }
 
-const { products } = Astro.props;
+const { paths, products } = Astro.props;
 ---
 
 <ul class="grid grid-cols-2 lg:grid-cols-3" style="gap: var(--grid-gap);">
@@ -31,7 +33,7 @@ const { products } = Astro.props;
       class="group flex flex-col overflow-hidden bg-background"
       style="border: var(--border-width) solid var(--color-border); border-radius: var(--radius-card);"
     >
-      <a href={`/demo/tienda/${prod.slug}`} class="block">
+      <a href={paths.product(prod.slug)} class="block">
         <div class="relative overflow-hidden bg-surface-product">
           <img
             src={prod.image}
@@ -49,7 +51,7 @@ const { products } = Astro.props;
         </div>
       </a>
       <div class="flex flex-1 items-end justify-between gap-3 p-4">
-        <a href={`/demo/tienda/${prod.slug}`} class="min-w-0">
+        <a href={paths.product(prod.slug)} class="min-w-0">
           <h2 class="truncate text-sm font-normal text-foreground">{prod.name}</h2>
           <p class="mt-0.5 text-sm text-muted-foreground">{formatEurCents(prod.price_cents)}</p>
         </a>

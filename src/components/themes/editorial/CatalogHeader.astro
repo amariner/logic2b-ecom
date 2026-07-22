@@ -9,6 +9,13 @@
  * Debajo, una tira mono con el «recorrido de la demo» (compra → panel → emails):
  * es guía de la demo, no del producto real; en editorial encaja como anotación.
  */
+import type { CollectionConfig } from '../../../lib/collections';
+
+interface Props {
+  collection: CollectionConfig;
+}
+
+const { collection } = Astro.props;
 ---
 
 <header class="relative">
@@ -17,20 +24,19 @@
     aria-hidden="true"
     class="pointer-events-none absolute right-0 top-0 hidden select-none text-right font-accent text-[11px] lowercase tracking-[0.08em] text-muted-foreground sm:block"
   >
-    <span class="block">fresco.</span>
-    <span class="mt-1 block translate-x-[-1.5rem]">local.</span>
-    <span class="mt-1 block">de temporada.</span>
+    <span class="block">compacto.</span>
+    <span class="mt-1 block translate-x-[-1.5rem]">preciso.</span>
+    <span class="mt-1 block">de bolsillo.</span>
   </div>
 
   <p class="font-accent text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
     Tienda<sup class="text-brand">(01)</sup>
   </p>
   <h1 class="mt-3 max-w-2xl font-display text-4xl leading-[1.05] sm:text-5xl">
-    Productos de la tierra
+    {collection.tagline}
   </h1>
   <p class="mt-3 max-w-xl text-sm leading-relaxed text-muted-foreground">
-    Aceites, embutidos, mieles, vinos, conservas y quesos del Maestrat.
-    Composición en rejilla suiza — cada referencia en su celda.
+    {collection.description}
   </p>
 
   <div

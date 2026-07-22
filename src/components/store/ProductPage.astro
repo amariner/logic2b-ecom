@@ -1,0 +1,175 @@
+---
+/**
+ * Ficha de producto de UNA tienda — página compartida (9B.4).
+ * La ficha es la vista Base para todos los temas (hereda los tokens por CSS
+ * vars); un tema que necesite redefinir su estructura entrará por registro,
+ * como el catálogo.
+ */
+import Shop from '../../layouts/Shop.astro';
+import { shopConfig } from '../../../shop.config';
+import { parseSpecs, type ProductRow } from '../../lib/db';
+import { categoryLabel as labelForCategory, storePaths, type CollectionConfig } from '../../lib/collections';
+import { formatEurCents, jsonLdScript } from '../../lib/format';
+
+interface Props {
+  collection: CollectionConfig;
+  product: ProductRow;
+  related: { slug: string; name: string; price_cents: number; image: string; stock: number }[];
+  site: URL | undefined;
+}
+
+const { collection, product, related, site } = Astro.props;
+const paths = storePaths(collection.id);
+
+const categoryLabel = labelForCategory(collection, product.category);
+
+const specs = parseSpecs(product.specs_json);
+const hasOffer =
+  product.compare_at_price_cents !== null && product.compare_at_price_cents > product.price_cents;
+
+// Schema Product+Offer válido: parte del argumento de venta (aunque la demo sea noindex).
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Product',
+  name: product.name,
+  description: product.description,
+  image: new URL(product.image, site).href,
+  sku: product.slug,
+  category: categoryLabel,
+  offers: {
+    '@type': 'Offer',
+    priceCurrency: shopConfig.currency.toUpperCase(),
+    price: (product.price_cents / 100).toFixed(2),
+    availability: product.stock > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+    url: new URL(paths.product(product.slug), site).href,
+  },
+};
+---
+
+<Shop title={product.name} description={product.description} collection={collection}>
+  <main class="mx-auto max-w-6xl px-4 py-10">
+    <nav class="text-sm text-muted-foreground">
+      <a href={paths.catalog} class="hover:text-foreground hover:underline">Tienda</a>
+      <span aria-hidden="true"> / </span>
+      <a href={`${paths.catalog}?categoria=${product.category}`} class="hover:text-foreground hover:underline">{categoryLabel}</a>
+    </nav>
+
+    <div class="mt-6 grid gap-8 md:grid-cols-2 md:gap-14">
+      <div class="overflow-hidden rounded-3xl bg-muted">
+        <img
+          src={product.image}
+          alt={product.name}
+          width="800"
+          height="800"
+          class="aspect-square w-full object-cover"
+        />
+      </div>
+
+      <div class="md:py-4">
+        <p class="text-sm font-medium uppercase tracking-wide text-brand">{categoryLabel}</p>
+        <h1 class="mt-2 font-display text-3xl sm:text-4xl">{product.name}</h1>
+        {product.subtitle && (
+          <p class="mt-1.5 text-sm font-medium uppercase tracking-wide text-muted-foreground">{product.subtitle}</p>
+        )}
+        <p class="mt-4 flex items-baseline gap-2.5">
+          <span class="text-2xl font-semibold">{formatEurCents(product.price_cents)}</span>
+          {hasOffer && (
+            <span class="text-lg font-normal text-muted-foreground line-through">{formatEurCents(product.compare_at_price_cents!)}</span>
+          )}
+        </p>
+        <p class="mt-5 leading-relaxed text-muted-foreground">{product.description}</p>
+
+        {specs.length > 0 && (
+          <dl class="mt-6 divide-y divide-border rounded-2xl border border-border text-sm">
+            {specs.map((spec) => (
+              <div class="flex justify-between gap-4 px-4 py-2.5">
+                <dt class="text-muted-foreground">{spec.label}</dt>
+                <dd class="text-right font-medium text-foreground">{spec.value}</dd>
+              </div>
+            ))}
+          </dl>
+        )}
+
+        {product.stock > 0 ? (
+          <div class="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
+            <div class="flex items-center gap-3">
+              <label class="text-sm text-muted-foreground" for="qty">Cantidad</label>
+              <input
+                id="qty"
+                type="number"
+                min="1"
+                max={Math.min(product.stock, 99)}
+                step="1"
+                value="1"
+                class="w-20 rounded-btn border border-border px-4 py-2.5 text-center"
+              />
+            </div>
+            <button
+              type="button"
+              data-add-to-cart={product.slug}
+              class="flex-1 rounded-btn bg-brand px-8 py-3 font-semibold text-brand-fg shadow-lg shadow-brand/20 transition hover:bg-brand-dark active:scale-[.98] sm:flex-none"
+            >Añadir al carrito</button>
+          </div>
+        ) : (
+          <p class="mt-8 inline-block rounded-btn bg-red-50 px-4 py-2 font-medium text-destructive">Agotado temporalmente</p>
+        )}
+
+        <dl class="mt-10 space-y-2 border-t border-border pt-5 text-sm text-muted-foreground">
+          <div class="flex gap-2"><dt class="font-medium text-foreground">Envío:</dt> <dd>{shopConfig.legal.shippingNote}</dd></div>
+          <div class="flex gap-2"><dt class="font-medium text-foreground">Devoluciones:</dt> <dd>{shopConfig.legal.returnsNote}</dd></div>
+          {product.stock > 0 && product.stock <= 10 && (
+            <div class="flex gap-2"><dt class="font-medium text-foreground">Stock:</dt> <dd>quedan {product.stock} unidades</dd></div>
+          )}
+        </dl>
+      </div>
+    </div>
+
+    {related.length > 0 && (
+      <section class="mt-16">
+        <div class="flex items-baseline justify-between">
+          <h2 class="font-display text-2xl">Más {categoryLabel.toLowerCase()}</h2>
+          <a href={`${paths.catalog}?categoria=${product.category}`} class="text-sm text-brand underline underline-offset-2 hover:text-brand-dark">Ver todos</a>
+        </div>
+        <ul class="mt-5 grid grid-cols-2 gap-x-4 gap-y-6 sm:grid-cols-4 sm:gap-x-6">
+          {related.map((rel) => (
+            <li class="group">
+              <a href={paths.product(rel.slug)} class="flex flex-col">
+                <div class="overflow-hidden rounded-2xl bg-muted">
+                  <img
+                    src={rel.image}
+                    alt={rel.name}
+                    width="800"
+                    height="800"
+                    loading="lazy"
+                    class="aspect-square w-full object-cover transition duration-300 group-hover:scale-[1.04]"
+                  />
+                </div>
+                <p class="pt-2.5 text-sm font-medium leading-snug text-foreground">{rel.name}</p>
+                <p class="pt-1 text-sm font-semibold">{formatEurCents(rel.price_cents)}</p>
+                {rel.stock === 0 && <p class="text-xs font-medium text-destructive">Agotado</p>}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </section>
+    )}
+  </main>
+
+  <script type="application/ld+json" set:html={jsonLdScript(jsonLd)} is:inline />
+
+  <script>
+    import { addToCart } from '../../lib/cart-client';
+
+    const btn = document.querySelector<HTMLButtonElement>('[data-add-to-cart]');
+    const qtyInput = document.querySelector<HTMLInputElement>('#qty');
+    btn?.addEventListener('click', () => {
+      // Redondear hacia abajo: un valor no entero (p. ej. "2.5") no debe colarse
+      // en el carrito — readCart() lo descartaría en silencio más adelante.
+      const qty = Math.max(1, Math.floor(Number(qtyInput?.value ?? 1)) || 1);
+      addToCart(btn.dataset.addToCart ?? '', qty);
+      const prev = btn.textContent;
+      btn.textContent = 'Añadido ✓';
+      setTimeout(() => (btn.textContent = prev), 900);
+    });
+  </script>
+</Shop>

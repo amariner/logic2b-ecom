@@ -1,0 +1,207 @@
+---
+/**
+ * Catálogo de UNA tienda — página compartida (9B.4).
+ *
+ * La montan tanto /demo/tienda (tienda genérica, colección fija) como
+ * /demo/tiendas/[collection]/ (escaparate de estilos, colección por URL).
+ * El tema sale de `collection.themeId`; los temas con catálogo propio se
+ * resuelven por el registro `catalogViews` y el resto cae a la vista Base.
+ */
+import Shop from '../../layouts/Shop.astro';
+import { getActiveProducts, isSortOption } from '../../lib/db';
+import { DEFAULT_COLLECTION_ID, resolveCategory, storePaths, type CollectionConfig } from '../../lib/collections';
+import { formatEurCents } from '../../lib/format';
+import MinimalCatalog from '../themes/minimal/Catalog.astro';
+import EditorialCatalog from '../themes/editorial/Catalog.astro';
+import LaunchCatalog from '../themes/launch/Catalog.astro';
+import GuideCatalog from '../themes/guide/Catalog.astro';
+
+interface Props {
+  collection: CollectionConfig;
+  db: D1Database;
+  url: URL;
+}
+
+const { collection, db, url } = Astro.props;
+const paths = storePaths(collection.id);
+
+const category = resolveCategory(collection, url.searchParams.get('categoria'));
+const rawSort = url.searchParams.get('orden') ?? 'featured';
+const sort = isSortOption(rawSort) ? rawSort : 'featured';
+const search = (url.searchParams.get('q') ?? '').trim().slice(0, 60);
+
+const products = await getActiveProducts(db, collection.id, {
+  category,
+  sort,
+  search: search || undefined,
+});
+
+const sortOptions = [
+  { id: 'featured', label: 'Destacados' },
+  { id: 'price-asc', label: 'Precio: menor a mayor' },
+  { id: 'price-desc', label: 'Precio: mayor a menor' },
+  { id: 'name', label: 'Nombre A-Z' },
+];
+
+const linkFor = (cat?: string, ord?: string): string => {
+  const params = new URLSearchParams();
+  if (cat) params.set('categoria', cat);
+  if (ord && ord !== 'featured') params.set('orden', ord);
+  if (search) params.set('q', search);
+  const qs = params.toString();
+  return `${paths.catalog}${qs ? `?${qs}` : ''}`;
+};
+
+// REGISTRO de vistas de catálogo por TEMA: un tema que redefine el catálogo
+// expone UN `Catalog.astro`; los que no están caen a la vista Base de abajo.
+const catalogViews = {
+  minimal: MinimalCatalog,
+  editorial: EditorialCatalog,
+  launch: LaunchCatalog,
+  guide: GuideCatalog,
+} as const;
+const ThemedCatalog = catalogViews[collection.themeId as keyof typeof catalogViews] ?? null;
+---
+
+<Shop title="Tienda" description={collection.description} collection={collection}>
+  {ThemedCatalog && (
+    <ThemedCatalog paths={paths} products={products} collection={collection} category={category} sort={sort} search={search} />
+  )}
+
+  {!ThemedCatalog && (
+  <main class="mx-auto max-w-6xl px-4 py-10">
+    {collection.id === DEFAULT_COLLECTION_ID && (
+    <div class="mb-8 flex flex-wrap items-center gap-x-2 gap-y-1 rounded-2xl bg-muted px-5 py-3 text-sm text-muted-foreground">
+      <span class="font-semibold text-foreground">Recorrido de la demo:</span>
+      <span><span class="font-semibold text-brand">1</span> compra algo</span>
+      <span aria-hidden="true">→</span>
+      <span><span class="font-semibold text-brand">2</span> gestiona el pedido en el <a href="/demo/admin" class="underline underline-offset-2 hover:text-foreground">panel</a></span>
+      <span aria-hidden="true">→</span>
+      <span><span class="font-semibold text-brand">3</span> mira los <a href="/demo/admin/emails" class="underline underline-offset-2 hover:text-foreground">emails</a> que se habrían enviado</span>
+    </div>
+    )}
+
+    <h1 class="font-display text-3xl sm:text-4xl">{collection.tagline}</h1>
+    <p class="mt-2 max-w-2xl text-muted-foreground">{collection.description}</p>
+
+    <div class="mt-8 flex flex-wrap items-center justify-between gap-4">
+      <nav class="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0" aria-label="Categorías">
+        <a
+          href={linkFor(undefined, sort)}
+          class:list={['shrink-0 rounded-btn px-4 py-2 text-sm font-medium transition', !category ? 'bg-foreground text-background' : 'bg-muted text-muted-foreground hover:bg-secondary']}
+        >Todo</a>
+        {collection.categories.map((cat) => (
+          <a
+            href={linkFor(cat.id, sort)}
+            class:list={['shrink-0 rounded-btn px-4 py-2 text-sm font-medium transition', category === cat.id ? 'bg-foreground text-background' : 'bg-muted text-muted-foreground hover:bg-secondary']}
+          >{cat.label}</a>
+        ))}
+      </nav>
+
+      <div class="flex flex-wrap items-center gap-3">
+        <form method="get" action={paths.catalog} role="search" class="relative">
+          {category && <input type="hidden" name="categoria" value={category} />}
+          {sort !== 'featured' && <input type="hidden" name="orden" value={sort} />}
+          <svg class="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-4.34-4.34m1.34-5.16a6.5 6.5 0 1 1-13 0 6.5 6.5 0 0 1 13 0Z" />
+          </svg>
+          <input
+            type="search"
+            name="q"
+            value={search}
+            maxlength="60"
+            placeholder="Buscar producto…"
+            aria-label="Buscar en el catálogo"
+            class="w-44 rounded-btn border border-border bg-card py-1.5 pl-9 pr-3 text-sm transition focus:w-56 focus:border-foreground focus:outline-none sm:w-52"
+          />
+        </form>
+
+        <form method="get" action={paths.catalog} class="text-sm">
+          {category && <input type="hidden" name="categoria" value={category} />}
+          {search && <input type="hidden" name="q" value={search} />}
+          <label class="text-muted-foreground" for="orden">Ordenar:</label>
+          <select id="orden" name="orden" class="ml-1 rounded-btn border border-border bg-card px-3 py-1.5" onchange="this.form.submit()">
+            {sortOptions.map((opt) => (
+              <option value={opt.id} selected={opt.id === sort}>{opt.label}</option>
+            ))}
+          </select>
+        </form>
+      </div>
+    </div>
+
+    {search && products.length > 0 && (
+      <p class="mt-6 text-sm text-muted-foreground">
+        {products.length} {products.length === 1 ? 'resultado' : 'resultados'} para «{search}»
+        · <a href={category ? `${paths.catalog}?categoria=${category}` : paths.catalog} class="text-brand underline underline-offset-2 hover:text-brand-dark">quitar búsqueda</a>
+      </p>
+    )}
+
+    <ul class="mt-8 grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 sm:gap-x-6 lg:grid-cols-4">
+      {products.map((prod) => (
+        <li class="group flex flex-col">
+          <a href={paths.product(prod.slug)} class="flex flex-1 flex-col">
+            <div class="overflow-hidden rounded-2xl bg-muted">
+              <img
+                src={prod.image}
+                alt={prod.name}
+                width="800"
+                height="800"
+                loading="lazy"
+                class="aspect-square w-full object-cover transition duration-300 group-hover:scale-[1.04]"
+              />
+            </div>
+            <div class="flex flex-1 flex-col gap-0.5 pt-3">
+              <h2 class="text-sm font-medium leading-snug text-foreground">{prod.name}</h2>
+              <p class="mt-auto flex items-baseline gap-1.5 pt-1">
+                <span class="text-base font-semibold">{formatEurCents(prod.price_cents)}</span>
+                {prod.compare_at_price_cents !== null && prod.compare_at_price_cents > prod.price_cents && (
+                  <span class="text-xs font-normal text-muted-foreground line-through">{formatEurCents(prod.compare_at_price_cents)}</span>
+                )}
+              </p>
+              {prod.stock === 0 && <p class="text-xs font-medium text-destructive">Agotado</p>}
+            </div>
+          </a>
+          <div class="pt-2.5">
+            <button
+              type="button"
+              data-add-to-cart={prod.slug}
+              disabled={prod.stock === 0}
+              class="w-full rounded-btn border border-border bg-card px-3 py-2 text-sm font-semibold text-foreground transition hover:border-foreground hover:bg-foreground hover:text-background active:scale-[.98] disabled:cursor-not-allowed disabled:border-border disabled:bg-muted disabled:text-muted-foreground"
+            >Añadir al carrito</button>
+          </div>
+        </li>
+      ))}
+    </ul>
+
+    {products.length === 0 && (
+      <div class="mt-8 rounded-2xl bg-muted px-6 py-16 text-center">
+        <p class="font-display text-xl">
+          {search ? `Nada por aquí para «${search}»` : 'No hay productos en esta categoría'}
+        </p>
+        <p class="mx-auto mt-2 max-w-md text-sm leading-relaxed text-muted-foreground">
+          {search
+            ? 'Prueba con otra palabra o vuelve al catálogo completo.'
+            : 'Puede que el comercio la haya vaciado temporalmente. El resto del catálogo sigue disponible.'}
+        </p>
+        <a
+          href={paths.catalog}
+          class="mt-6 inline-block rounded-btn bg-foreground px-6 py-2.5 text-sm font-semibold text-background transition hover:bg-foreground/90"
+        >Ver todo el catálogo</a>
+      </div>
+    )}
+  </main>
+  )}
+
+  <script>
+    import { addToCart } from '../../lib/cart-client';
+
+    document.querySelectorAll<HTMLButtonElement>('[data-add-to-cart]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        addToCart(btn.dataset.addToCart ?? '');
+        const prev = btn.textContent;
+        btn.textContent = 'Añadido ✓';
+        setTimeout(() => (btn.textContent = prev), 900);
+      });
+    });
+  </script>
+</Shop>

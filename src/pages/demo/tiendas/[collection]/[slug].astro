@@ -1,0 +1,30 @@
+---
+/**
+ * Ficha de producto de una tienda del escaparate (9B.4). Colección y producto
+ * validados; un slug de OTRA colección no resuelve aquí (404).
+ */
+import ProductPage from '../../../../components/store/ProductPage.astro';
+import { getProductBySlug } from '../../../../lib/db';
+import { resolveCollection } from '../../../../lib/collections';
+import { notFoundResponse } from '../../../../lib/not-found';
+
+export const prerender = false;
+
+const collection = resolveCollection(Astro.params.collection);
+const { slug = '' } = Astro.params;
+const product = collection
+  ? await getProductBySlug(Astro.locals.runtime.env.DB, collection.id, slug)
+  : null;
+const notFound = collection && product ? null : await notFoundResponse(Astro.locals.runtime.env, Astro.url);
+if (!collection || !product || notFound) {
+  return notFound;
+}
+
+const { results: related } = await Astro.locals.runtime.env.DB.prepare(
+  'SELECT slug, name, price_cents, image, stock FROM products WHERE collection = ? AND category = ? AND slug != ? AND active = 1 ORDER BY id LIMIT 4',
+)
+  .bind(collection.id, product.category, product.slug)
+  .all<{ slug: string; name: string; price_cents: number; image: string; stock: number }>();
+---
+
+<ProductPage collection={collection} product={product} related={related} site={Astro.site} />

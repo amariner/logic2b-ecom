@@ -10,7 +10,7 @@
  * Backend compartido: mismos `categoria`/`orden`/`q` y el mismo carrito. Aquí
  * solo cambia la presentación.
  */
-import type { CollectionConfig } from '../../../lib/collections';
+import type { CollectionConfig, StorePaths } from '../../../lib/collections';
 import Hero from './Hero.astro';
 import Toolbar from './Toolbar.astro';
 import ProductGrid from './ProductGrid.astro';
@@ -26,6 +26,7 @@ type GridProduct = {
 };
 
 interface Props {
+  paths: StorePaths;
   products: GridProduct[];
   collection: CollectionConfig;
   category?: string | undefined;
@@ -33,7 +34,7 @@ interface Props {
   search?: string | undefined;
 }
 
-const { products, collection, category, sort, search } = Astro.props;
+const { paths, products, collection, category, sort, search } = Astro.props;
 
 const categoryLabel = collection.categories.find((cat) => cat.id === category)?.label;
 
@@ -57,6 +58,7 @@ const newSlugs = new Set(
 <div class="bg-muted">
   <main class="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-8">
     <Hero
+      paths={paths}
       collection={collection}
       activeCategory={category}
       categoryLabel={categoryLabel}
@@ -72,7 +74,7 @@ const newSlugs = new Set(
 
     <div class="mt-4">
       {products.length > 0 ? (
-        <ProductGrid products={products} newSlugs={newSlugs} />
+        <ProductGrid paths={paths} products={products} newSlugs={newSlugs} />
       ) : (
         <div
           class="bg-card px-6 py-20 text-center shadow-sm"
@@ -83,11 +85,11 @@ const newSlugs = new Set(
           </p>
           <p class="mx-auto mt-2 max-w-md text-sm leading-relaxed text-muted-foreground">
             {search
-              ? 'Prueba con otra palabra (por ejemplo «aceite», «miel» o «queso») o vuelve al catálogo completo.'
+              ? 'Prueba con otra palabra o vuelve al catálogo completo.'
               : 'Puede que el comercio la haya vaciado temporalmente. El resto del catálogo sigue disponible.'}
           </p>
           <a
-            href="/demo/tienda"
+            href={paths.catalog}
             class="mt-6 inline-block bg-brand px-6 py-2.5 text-sm font-medium text-brand-fg transition hover:bg-brand-dark"
             style="border-radius: var(--radius-btn);"
           >Ver todo el catálogo</a>
