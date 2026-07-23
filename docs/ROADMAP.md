@@ -53,7 +53,8 @@ reconciliación se conserva abajo por contexto.
 | 7 | bootstrap.sh + checklist demo→cliente real | ✅ Hecho | 2026-07-18 | `scripts/bootstrap.sh` (local probado end-to-end; `--remote` aprovisiona Cloudflare) + `docs/PRODUCCION.md` |
 | 9 | Catálogo de estilos (8 temas) | 🟡 En curso | 2026-07-21 | Arquitectura + `/estilos` + **temas 06 Minimal, 01 Editorial, 07 Launch y 04 Guide desarrollados** (5 listos con Base; registro de catálogo por tema generalizado). **Replanteada como Fase 9B** (ver abajo): de «una tienda, 8 pieles» a «8 tiendas, un motor» |
 | 9B | 8 tiendas distintas sobre un solo motor | 🟡 En curso | 2026-07-22 | **9B.0–9B.4 hechos.** Rutas por colección, selector/cookie eliminados, carrito namespaceado, y 4 tiendas reales (Forma Interior, Módulo Audio, Cafetal, Vector) con catálogo y fotos propias. 148 tests. Ver «Fase 9B» |
-| 10 | Documentación para el cliente | ⬜ Pendiente | — | Ver «Fase 10». Es material de venta y de entrega, no docs técnicas |
+| 10 | Documentación para el cliente | ⬜ Pendiente | — | Ver «Fase 10». Es material de venta y de entrega, no docs técnicas. **Su ejecución está planificada como bloque F11.7 del plan de Fase 11** |
+| 11 | Landing V2 «nivel Awwwards» + negocio + funnel + docs | 🟢 Lista para ejecutar | 2026-07-23 | **Plan maestro completo en [`docs/PLAN_FASE11_LANDING_V2.md`](PLAN_FASE11_LANDING_V2.md)**: bloques F11.0–F11.8 ejecutables por sesiones independientes. **Decisiones D1–D6 APROBADAS por Andreu (2026-07-23)**: JS propio ≤15 KB sin deps, capturas con browser tools en local, dirección C «Ocho tiendas, un motor», escalera de precios (Lite 590 / Kit 1.900+39 / A medida 3.400+59), WhatsApp+email, Lite publicado sin construir. Prompt de arranque: [`docs/PROMPT_FASE11.md`](PROMPT_FASE11.md). Integra 9B.5/9B.6 (imaginería y temas restantes) como prerequisito del hero |
 | 8 | Pulido de la demo (backlog abajo) | 🟡 En curso | 2026-07-19 | Backlog técnico agotado; solo quedan decisiones y pasos locales de Andreu (ver «Decisiones pendientes» y `docs/PROMPT_CLOUD.md`). Últimas tandas: novena (race de idempotencia en el pago, PII enumerable en `/demo/gracias`, cancelación de pedido pagado sin devolver stock), décima (la misma race en el PATCH de admin, campos vacíos guardados como 0, login sin rate limit), undécima (diagrama móvil de `/arquitectura`, hedge del plazo de entrega, tokens de tema en `/demo/reset`, terminología «envío»), duodécima (aviso de corte en pedidos del admin, cabeceras sin wrap a 375px, leftover «portes», token de radio del carrito, contraste del botón eliminar, H1 en valenciano, checklist de producción) y decimotercera (misma race de idempotencia en `checkout.session.expired`, divisa hardcodeada a EUR fuera de Stripe, cobertura de test de `quoteCart`/PATCH admin/emails) y decimocuarta (config parcial de Stripe → cobro sin cumplimiento, emails duplicados bajo concurrencia, `payment_status` del webhook, color de marca centralizado en `shop.config.ts`, contraste/tema en carrito y checkout) — ver sección «Fase 8» |
 
 ## Repo y entornos
@@ -623,6 +624,8 @@ un cliente potencial entienda qué compra sin que le traduzcamos nada.
 - [ ] ⬜ Pagos reales en la demo con claves test de Stripe (tarjeta 4242): más impactante que la simulación. Requiere claves de Andreu + webhook.
 
 ## Decisiones tomadas
+
+- 2026-07-23: **Equipo de 7 roles documentado** en `.claude/skills/equipo/` (arquitecto, fullstack, backend, product, frontend, ux-ui, seo) y mandato permanente en `CLAUDE.md` §16: toda tarea sustantiva aplica los roles afectados y cierra con sign-off del consejo. Pedido por Andreu antes de arrancar la Fase 11.
 
 - 2026-07-17: `CLAUDE.md` = copia del prompt maestro; este ROADMAP es la fuente de verdad del estado.
 

@@ -198,3 +198,23 @@ No escribas código todavía. Primero:
 3. Señálame las **3 decisiones** que más te preocupan o donde ves ambigüedad.
 
 Cuando dé el OK, arranca la Fase 0.
+
+---
+
+## 16. EL EQUIPO DE ROLES (añadido 2026-07-23)
+
+Este proyecto se trabaja **como un equipo senior de 7 roles a la vez**:
+arquitecto de software, fullstack con visión global, backend, product designer,
+frontend, UX/UI y SEO. Sus cartas — responsabilidades, checklists y **vetos que
+obligan a parar y preguntar** — viven en `.claude/skills/equipo/` (skill
+`equipo`, un fichero por rol en `roles/`).
+
+En **toda tarea sustantiva** (código, diseño, contenido, precios, docs):
+
+1. Leer los roles afectados antes de empezar (tabla en el SKILL.md del equipo).
+2. Aplicar sus checklists durante el trabajo; un veto activado = parar y
+   consultar (refuerza la regla §14, no la sustituye).
+3. Cerrar la entrega con el **sign-off del consejo**: una línea por rol
+   afectado (✓ / ⚠ con motivo y destino).
+
+Desempate entre roles: principios de §2 > producto vendible > estética.
