@@ -101,9 +101,51 @@ Assets de la landing V2 (dirección C «Ocho tiendas, un motor»). **Sesión loc
 - **Verificado**: `pnpm check` en verde (148 tests, 0 errores, build OK). No se
   tocó `src/` ni el motor: solo `scripts/` y `public/images/screens/`.
 
+### F11.3 — Landing V2, sesión 1: esqueleto + hero galería (2026-07-23)
+
+Reescritura de `src/pages/index.astro` a la dirección C «Ocho tiendas, un motor».
+**Cero JS nuevo, cero dependencias.** Motor intacto.
+
+- **El hero ES la galería**: tira horizontal (scroll-snap nativo, accesible por
+  teclado) de las 6 tiendas reales, cada tarjeta con chrome de navegador, su
+  captura de F11.1 (Iris en vídeo con póster) y **el acento de SU tienda**
+  (punto + hover + borde). La galería se **deriva del registro de colecciones**
+  (`collections` + `getTheme` + `storePaths`): añadir una tienda no toca la
+  landing. El acento que muta con el scroll es el pase de motion (sesión 2); de
+  momento estático por tarjeta, que es el fallback previsto.
+- **Esqueleto §5 completo**: hero+galería · barra de prueba (0 €/mes · <0,5 s ·
+  100/100 · Stripe) · «lo que te cuesta» · **flujo del pedido en 4 pasos con las
+  capturas reales** (checkout→email→panel→envío) · comparativa + aside «Cuándo
+  NO somos tu opción» · **precios D4** (Kit 1.900 € + 39 €/mes destacado · Kit a
+  medida desde 3.400 € + 59 €/mes · Lite desde 590 € como tira secundaria) ·
+  «míralo por dentro» (panel + bandeja de emails + CTA a `/estilos`) · FAQ (con
+  «¿y si dejamos de trabajar juntos?») · **CTA WhatsApp + email** (D5).
+- **JSON-LD** `Service` con `offers` de los tres tiers (sincronizado con D4) +
+  `FAQPage` actualizado.
+- **Iris en vídeo**: elemento `<video poster preload="none">` inerte (cero bytes
+  de vídeo en la carga inicial, reduce-motion-safe); autoplay-on-scroll queda
+  para la sesión 2 (`data-store-video`).
+- **Verificado** con `wrangler dev` (Chrome headless, la pane in-app falló al
+  paint): full-page claro a 1440 y móvil a 390, y modo oscuro coherente
+  (secciones dark-ready por tokens semánticos). Imágenes con width/height
+  (CLS-safe). `pnpm check` en verde (148 tests, 0 errores, build OK).
+- **⚠ Pendientes de esta pieza** (sesión 2 / decisiones de Andreu):
+  - **Número de WhatsApp** (D5): constante `WHATSAPP` vacía en `index.astro` →
+    ahora el CTA usa solo email. Rellenarla activa el botón de WhatsApp.
+  - **Sin conmutador de modo oscuro en todo el sitio**: el `<body>` de Base es
+    `bg-white text-gray-900` fijo y ninguna página de marketing añade `.dark`.
+    El sitio renderiza en claro; la landing es dark-ready pero el oscuro no se
+    activa para el visitante. Decisión de producto/UX aparte (afecta a todo el
+    sitio, no solo a la landing).
+  - **Sesión 2 (motion + pulido)**: acento que muta con el scroll, autoplay del
+    vídeo Iris con IntersectionObserver + reduced-motion, mini-calculadora de
+    precios a 3 años, View Transitions, cifras animadas al entrar en viewport,
+    y auditoría Lighthouse 100×4.
+
 **Pendiente Fase 11** (siguientes bloques): F11.2a (imaginería Higgsfield + 4
-temas restantes), F11.5 (precios D4), F11.3 (landing V2), F11.4 (`/estilos` +
-`/arquitectura`), F11.6 (funnel), F11.7 (docs cliente), F11.8 (QA + deploy).
+temas restantes), F11.5 (precios D4 en dossier + unit economics), F11.3 sesión 2
+(motion), F11.4 (`/estilos` + `/arquitectura`), F11.6 (funnel), F11.7 (docs
+cliente), F11.8 (QA + deploy).
 
 ## Fase 9B — Ocho tiendas distintas sobre un solo motor
 

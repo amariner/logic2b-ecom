@@ -1,16 +1,134 @@
 ---
-// Landing comercial de LogicEcom — sistema Logic2B UI (Inter, tokens neutros,
-// wordmark sin isotipo) + acento de marca. Cero JS.
+// Landing comercial de LogicEcom — dirección C «Ocho tiendas, un motor».
+// Sistema Logic2B UI (Inter, tokens neutros, wordmark) + acento de marca. El
+// hero ES la galería de tiendas reales; cada tarjeta lleva el acento de SU
+// tienda. Motion y calculadora llegan en la 2ª sesión de F11.3; esta deja el
+// esqueleto completo y usable sin JS.
 import Base from '../layouts/Base.astro';
 import SiteHeader from '../components/SiteHeader.astro';
+import { collections, storePaths } from '../lib/collections';
+import { getTheme } from '../lib/demo-themes';
+
+// ── Galería del hero — derivada del registro de tiendas (clonable) ──────────
+// Orden por impacto visual, alternando acentos. Iris entra en vídeo.
+const galleryOrder = ['launch', 'editorial', 'iris', 'minimal', 'guide', 'demo'];
+const gallery = galleryOrder.map((id) => {
+  const col = collections.find((c) => c.id === id)!;
+  const theme = getTheme(col.themeId)!;
+  return {
+    id,
+    name: col.name,
+    tagline: col.tagline,
+    style: theme.label,
+    accent: theme.vars['--color-brand'],
+    href: storePaths(id).catalog,
+    img: `/images/screens/store-${id}-catalog.webp`,
+    video: id === 'iris' ? '/images/screens/iris-scrub.mp4' : null,
+    poster: id === 'iris' ? '/images/screens/iris-scrub-poster.webp' : null,
+  };
+});
+
+// ── Contacto (D5) ───────────────────────────────────────────────────────────
+// TODO(Andreu): número de WhatsApp de negocio en formato internacional sin «+»
+// ni espacios (p. ej. 34612345678). Mientras esté vacío, el CTA usa solo email.
+const WHATSAPP = '';
+const EMAIL = 'hola@logic2b.com';
+const whatsappHref = WHATSAPP
+  ? `https://wa.me/${WHATSAPP}?text=${encodeURIComponent('Hola, me interesa una tienda online con LogicEcom.')}`
+  : null;
+const emailHref = `mailto:${EMAIL}?subject=${encodeURIComponent('Mi tienda online con LogicEcom')}`;
 
 const nav = [
-  { href: '/arquitectura', label: 'Cómo funciona' },
   { href: '/estilos', label: 'Estilos' },
+  { href: '/arquitectura', label: 'Cómo funciona' },
   { href: '#precios', label: 'Precios' },
   { href: '#contacto', label: 'Contacto' },
 ];
 
+// ── Flujo del pedido, con capturas reales del producto ──────────────────────
+const flow = [
+  {
+    n: '01',
+    title: 'El cliente compra',
+    body: 'Sin crear cuenta. El porte se calcula por código postal y el pago va directo a Stripe: la tarjeta nunca toca la tienda.',
+    img: '/images/screens/flow-checkout.webp',
+    alt: 'Checkout de la demo con el porte calculado y el total',
+  },
+  {
+    n: '02',
+    title: 'Te llega el email',
+    body: 'Confirmación al cliente y aviso a ti, con tu marca y tu dominio. En la demo se ven en una bandeja simulada.',
+    img: '/images/screens/panel-email-open.webp',
+    alt: 'Email de confirmación de pedido renderizado en la bandeja',
+  },
+  {
+    n: '03',
+    title: 'Lo gestionas en el panel',
+    body: 'Un pedido, su dirección, sus líneas y su historial. Marcas «enviado» y pegas el número de seguimiento.',
+    img: '/images/screens/panel-order-detail.webp',
+    alt: 'Detalle de un pedido con dirección, tracking y línea de tiempo',
+  },
+  {
+    n: '04',
+    title: 'Etiqueta y en camino',
+    body: 'Exportas la dirección a Packlink o SendCloud en un clic, imprimes la etiqueta y el cliente recibe el aviso solo.',
+    img: '/images/screens/panel-orders.webp',
+    alt: 'Listado de pedidos con los estados y la exportación a Packlink',
+  },
+];
+
+// ── Comparativa ─────────────────────────────────────────────────────────────
+const comparison = [
+  { concept: 'Cuota mensual de plataforma', shopify: '36 €/mes', woo: '0 € (más hosting ~15 €/mes)', kit: '0 €' },
+  { concept: 'Comisión extra por venta', shopify: '+2 % (sin Shopify Payments)', woo: '0 %', kit: '0 %' },
+  { concept: 'Velocidad de carga', shopify: 'Tema genérico, 2–4 s', woo: 'Depende de 20 plugins', kit: '< 0,5 s, CDN global' },
+  { concept: 'El código es tuyo', shopify: 'No, alquilas', woo: 'Sí, pero frágil', kit: 'Sí, a medida' },
+  { concept: 'Mantenimiento técnico', shopify: 'Incluido en la cuota', woo: 'Tú (o sustos)', kit: 'Nosotros' },
+];
+
+const notForYou = [
+  'Necesitas la tienda en varios idiomas desde el día uno.',
+  'Tu catálogo pasa de 500 referencias o cambia a diario.',
+  'Quieres un marketplace con varios vendedores.',
+  'Vendes por suscripción recurrente (cuotas mensuales al cliente).',
+];
+
+// ── Precios (D4) ────────────────────────────────────────────────────────────
+const tiers = [
+  {
+    name: 'Kit',
+    featured: true,
+    price: '1.900 €',
+    unit: 'pago único',
+    monthly: '+ 39 €/mes de mantenimiento',
+    points: [
+      'Uno de los estilos del catálogo, adaptado a tu marca (color, tipografía, fotos)',
+      'Catálogo cargado, pagos y envíos configurados',
+      'Tu dominio y emails con tu marca',
+      'Mantenimiento: copias, actualizaciones y hasta 2 h de cambios al mes',
+    ],
+  },
+  {
+    name: 'Kit a medida',
+    featured: false,
+    price: 'desde 3.400 €',
+    unit: 'pago único',
+    monthly: '+ 59 €/mes con prioridad',
+    points: [
+      'Dirección visual propia, nivel Iris o Módulo Audio',
+      'Sesión de arte e imaginería generada para tu tienda',
+      'Tema exclusivo, no compartido con nadie',
+      'Todo lo del Kit, con soporte prioritario',
+    ],
+  },
+];
+const lite = {
+  name: 'Kit Lite',
+  price: 'desde 590 €',
+  body: 'Hasta 10 productos con enlaces de pago de Stripe, sin panel. Para empezar a vender online con lo justo.',
+};
+
+// ── FAQ ─────────────────────────────────────────────────────────────────────
 const faqs = [
   {
     q: '¿De verdad el coste de infraestructura es 0 €/mes?',
@@ -25,8 +143,8 @@ const faqs = [
     a: 'Sí, ese es el diseño: llega el email del pedido, exportas la dirección a Packlink o SendCloud para imprimir la etiqueta, marcas "enviado" y pegas el número de seguimiento. El cliente recibe el aviso automáticamente. Se aprende en cinco minutos.',
   },
   {
-    q: '¿Y si mi catálogo cambia?',
-    a: 'Desde el panel puedes cambiar precios, stock, nombres y activar o desactivar productos al momento. Para cambios grandes (fotos nuevas, categorías) lo hacemos nosotros dentro del mantenimiento.',
+    q: '¿Y si un día dejamos de trabajar juntos?',
+    a: 'No hay secuestro: el dominio y la cuenta de Stripe están a tu nombre, y el código es tuyo. Te lo entregamos con la documentación para que cualquier desarrollador pueda continuar. Sin permanencia.',
   },
   {
     q: '¿Por qué no Shopify o WooCommerce?',
@@ -44,6 +162,11 @@ const jsonLd = [
     provider: { '@type': 'Organization', name: 'Logic2B', url: 'https://logic2b.com' },
     areaServed: 'ES',
     serviceType: 'Desarrollo de comercio electrónico',
+    offers: [
+      { '@type': 'Offer', name: 'Kit Lite', price: '590', priceCurrency: 'EUR' },
+      { '@type': 'Offer', name: 'Kit', price: '1900', priceCurrency: 'EUR' },
+      { '@type': 'Offer', name: 'Kit a medida', price: '3400', priceCurrency: 'EUR' },
+    ],
   },
   {
     '@context': 'https://schema.org',
@@ -55,28 +178,11 @@ const jsonLd = [
     })),
   },
 ];
-
-const comparison = [
-  { concept: 'Cuota mensual de plataforma', shopify: '36 €/mes', woo: '0 € (más hosting ~15 €/mes)', kit: '0 €' },
-  { concept: 'Comisión extra por venta', shopify: '+2 % (sin Shopify Payments)', woo: '0 %', kit: '0 %' },
-  { concept: 'Velocidad de carga', shopify: 'Tema genérico, 2–4 s', woo: 'Depende de 20 plugins', kit: '< 0,5 s, CDN global' },
-  { concept: 'El código es tuyo', shopify: 'No, alquilas', woo: 'Sí, pero frágil', kit: 'Sí, a medida' },
-  { concept: 'Mantenimiento técnico', shopify: 'Incluido en la cuota', woo: 'Tú (o sustos)', kit: 'Nosotros' },
-];
-
-const features = [
-  ['Catálogo y fichas de producto', 'Con el SEO técnico que Google premia: datos estructurados, carga instantánea, fotos optimizadas.'],
-  ['Carrito y pago con Stripe', 'El comprador paga sin crear cuenta. La tarjeta va directa a Stripe: máxima seguridad, cero papeleo.'],
-  ['Panel de pedidos', 'Ves los pedidos, marcas enviado, pegas el tracking. El cliente recibe cada aviso por email automáticamente.'],
-  ['Envíos sin dramas', 'Tarifas por zona con envío gratis configurable, y exportación en un clic a Packlink o SendCloud.'],
-  ['Emails transaccionales', 'Confirmación de pedido y aviso de envío con tu dominio y tu marca.'],
-  ['Tu dominio, tu código', 'Sin plantilla compartida con miles de tiendas. Diseño a medida y el repositorio es tuyo.'],
-];
 ---
 
 <Base
-  title="LogicEcom — tu tienda online sin cuotas ni comisiones de plataforma"
-  description="Tienda online a medida para comercios de 50–100 productos. Ultrarrápida, con pagos Stripe y coste de infraestructura 0 €/mes. Hecha en Castellón por Logic2B."
+  title="LogicEcom — tiendas online a medida, sin cuotas ni comisiones de plataforma"
+  description="Diseñamos tiendas online radicalmente distintas para comercios de 50–100 productos, sobre un mismo motor: ultrarrápidas, con pagos Stripe y 0 €/mes de infraestructura. Hechas en Castellón por Logic2B."
   canonicalPath="/"
   jsonLd={jsonLd}
 >
@@ -84,201 +190,286 @@ const features = [
     <SiteHeader homeHref="/" wordmark="LogicEcom" nav={nav}>
       <a
         slot="actions"
-        href="/demo/tienda"
+        href="/demo/tiendas/launch"
         class="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition hover:bg-primary/90 sm:px-5"
       >Ver la demo</a>
     </SiteHeader>
 
     <main>
-    <!-- Héroe -->
-    <section class="mx-auto max-w-6xl px-5 pb-10 pt-14 text-center sm:pb-16 sm:pt-24">
-      <p class="mx-auto mb-5 inline-block rounded-full border border-border bg-muted px-4 py-1.5 text-xs font-medium text-muted-foreground">
+    <!-- ── Héroe: galería de tiendas ─────────────────────────────────────── -->
+    <section class="mx-auto max-w-6xl px-5 pt-14 sm:pt-20">
+      <p class="mb-5 inline-block rounded-full border border-border bg-muted px-4 py-1.5 text-xs font-medium text-muted-foreground">
         Para comercios de 50–100 productos · Hecho en Castellón
       </p>
-      <h1 class="mx-auto max-w-4xl font-display text-4xl leading-[1.05] sm:text-6xl md:text-7xl">
-        Una tienda online que es <span class="text-brand">tuya</span>, no alquilada.
+      <h1 class="max-w-4xl font-display text-4xl leading-[1.05] sm:text-6xl md:text-7xl">
+        Tiendas radicalmente distintas.<br />
+        <span class="text-brand">Un motor probado. 0 €/mes.</span>
       </h1>
-      <p class="mx-auto mt-6 max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg">
-        Código a medida, pagos con Stripe y una infraestructura que cuesta
-        <strong class="text-foreground">0 € al mes</strong>. Sin cuotas de plataforma. Sin comisiones extra por venta.
+      <p class="mt-6 max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg">
+        Diseñamos tu tienda online a medida y la entregamos rápido, sin cuotas de
+        plataforma y con pagos Stripe. Las de abajo funcionan de verdad:
+        <strong class="text-foreground">entra y compra</strong>.
       </p>
-      <div class="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row sm:gap-4">
-        {/* Demo destacada: la tienda Vector (tema Launch). Desde el conmutador
-            «Tiendas» se salta al resto, incluida la genérica con panel. */}
+      <div class="mt-8 flex flex-col gap-3 sm:flex-row sm:gap-4">
         <a
           href="/demo/tiendas/launch"
-          class="w-full rounded-full bg-brand px-8 py-3.5 text-base font-semibold text-white shadow-lg shadow-brand/20 transition hover:bg-brand-dark sm:w-auto"
+          class="rounded-full bg-brand px-8 py-3.5 text-center text-base font-semibold text-white shadow-lg shadow-brand/20 transition hover:bg-brand-dark"
         >Entra en la tienda demo</a>
         <a
           href="/arquitectura"
-          class="w-full rounded-full border border-border px-8 py-3.5 text-base font-semibold text-foreground transition hover:border-foreground sm:w-auto"
+          class="rounded-full border border-border px-8 py-3.5 text-center text-base font-semibold text-foreground transition hover:border-foreground"
         >Cómo funciona por dentro</a>
       </div>
-      <p class="mt-5 text-sm text-muted-foreground">
-        La demo es real: compra, recibe el email y gestiona el pedido en el panel.
-      </p>
-
-      <!-- Imagen héroe -->
-      <div class="mx-auto mt-12 max-w-5xl overflow-hidden rounded-2xl border border-border shadow-2xl shadow-stone-900/10 sm:mt-16">
-        <img
-          src="/images/hero.webp"
-          alt="Productos gourmet de La Botiga del Maestrat, la tienda demo de LogicEcom"
-          width="1600"
-          height="893"
-          class="w-full object-cover"
-          fetchpriority="high"
-        />
-      </div>
     </section>
 
-    <!-- Cifras del problema -->
-    <section class="border-y border-border bg-muted">
-      <div class="mx-auto max-w-6xl px-5 py-14 sm:py-20">
-        <h2 class="max-w-2xl font-display text-3xl sm:text-4xl">Lo que te está costando tu tienda actual</h2>
-        <div class="mt-10 grid gap-6 sm:grid-cols-3">
-          <div class="rounded-2xl bg-card p-7 shadow-sm">
-            <p class="font-display text-5xl text-brand">432 €</p>
-            <p class="mt-3 leading-relaxed text-muted-foreground">al año solo de cuota de Shopify, vendas o no vendas.</p>
-          </div>
-          <div class="rounded-2xl bg-card p-7 shadow-sm">
-            <p class="font-display text-5xl text-brand">~2 %</p>
-            <p class="mt-3 leading-relaxed text-muted-foreground">de comisión extra en cada venta si no usas su pasarela.</p>
-          </div>
-          <div class="rounded-2xl bg-card p-7 shadow-sm">
-            <p class="font-display text-5xl text-brand">2–4 s</p>
-            <p class="mt-3 leading-relaxed text-muted-foreground">de carga con una plantilla genérica. Cada segundo son ventas que se van.</p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Qué incluye -->
-    <section class="mx-auto max-w-6xl px-5 py-14 sm:py-20">
-      <h2 class="font-display text-3xl sm:text-4xl">Todo lo que necesitas para vender</h2>
-      <p class="mt-3 max-w-2xl text-muted-foreground">Nada que no necesites. Cada pieza está pensada para un comercio real, no para una lista de features.</p>
-      <div class="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-        {features.map(([title, body]) => (
-          <div class="rounded-2xl border border-border bg-card p-6 transition hover:border-brand/30 hover:shadow-md">
-            <div class="flex h-10 w-10 items-center justify-center rounded-full bg-brand/10 text-brand">
-              <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">
-                <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
-              </svg>
-            </div>
-            <h3 class="mt-4 font-semibold">{title}</h3>
-            <p class="mt-2 text-sm leading-relaxed text-muted-foreground">{body}</p>
-          </div>
+    <!-- Tira de tiendas: scroll horizontal nativo con snap, accesible. -->
+    <section aria-labelledby="galeria-h" class="mt-10 sm:mt-14">
+      <h2 id="galeria-h" class="sr-only">Tiendas reales hechas con LogicEcom</h2>
+      <ul
+        class="flex snap-x snap-mandatory gap-5 overflow-x-auto px-5 pb-4 [scrollbar-width:thin] sm:gap-6"
+      >
+        {gallery.map((store, i) => (
+          <li class="shrink-0 snap-start">
+            <a
+              href={store.href}
+              style={`--accent:${store.accent}`}
+              class="group block w-[280px] sm:w-[360px]"
+            >
+              <div class="overflow-hidden rounded-2xl border border-border bg-card shadow-sm transition duration-300 group-hover:-translate-y-1 group-hover:shadow-xl group-hover:[border-color:var(--accent)]">
+                <!-- Chrome de navegador: da contexto de «tienda real». -->
+                <div class="flex items-center gap-2 border-b border-border px-4 py-2.5">
+                  <span class="h-2.5 w-2.5 rounded-full" style="background:var(--accent)"></span>
+                  <span class="h-2.5 w-2.5 rounded-full bg-border"></span>
+                  <span class="h-2.5 w-2.5 rounded-full bg-border"></span>
+                  <span class="ml-2 truncate font-accent text-xs text-muted-foreground">ecom.logic2b.com{store.href}</span>
+                </div>
+                <div class="aspect-[4/5] overflow-hidden bg-muted">
+                  {/* Iris: póster inerte en sesión 1 (preload=none, sin autoplay):
+                      cero bytes de vídeo al cargar y reduce-motion-safe. El
+                      autoplay-on-scroll entra en el pase de motion (sesión 2). */}
+                  {store.video ? (
+                    <video
+                      class="h-full w-full object-cover object-top"
+                      poster={store.poster}
+                      width="1280"
+                      height="720"
+                      muted
+                      loop
+                      playsinline
+                      preload="none"
+                      data-store-video
+                    >
+                      <source src={store.video} type="video/mp4" />
+                    </video>
+                  ) : (
+                    <img
+                      src={store.img}
+                      alt={`Tienda ${store.name} — estilo ${store.style}`}
+                      width="720"
+                      height="900"
+                      loading={i === 0 ? 'eager' : 'lazy'}
+                      fetchpriority={i === 0 ? 'high' : undefined}
+                      class="h-full w-full object-cover object-top"
+                    />
+                  )}
+                </div>
+              </div>
+              <div class="mt-3 flex items-baseline gap-2 px-1">
+                <span class="h-2.5 w-2.5 shrink-0 rounded-full" style="background:var(--accent)"></span>
+                <p class="font-semibold">{store.name}</p>
+                <span class="font-accent text-xs uppercase tracking-wide text-muted-foreground">{store.style}</span>
+              </div>
+              <p class="mt-1 px-1 text-sm text-muted-foreground">
+                {store.tagline}
+                <span class="text-foreground transition group-hover:[color:var(--accent)]"> →</span>
+              </p>
+            </a>
+          </li>
         ))}
+      </ul>
+      <p class="mx-auto max-w-6xl px-5 pt-1 text-sm text-muted-foreground">
+        Seis tiendas, un mismo motor. Cambian el diseño y los productos; el
+        carrito, los pagos, el panel y los envíos son los mismos.
+      </p>
+    </section>
+
+    <!-- ── Barra de prueba ───────────────────────────────────────────────── -->
+    <section class="mt-14 border-y border-border bg-foreground text-background sm:mt-20">
+      <a href="/arquitectura" class="group mx-auto flex max-w-6xl flex-wrap items-center justify-center gap-x-8 gap-y-2 px-5 py-5 text-sm">
+        <span><strong class="font-semibold">0 €/mes</strong> <span class="text-background/60">de infraestructura</span></span>
+        <span aria-hidden="true" class="text-background/25">·</span>
+        <span><strong class="font-semibold">&lt; 0,5 s</strong> <span class="text-background/60">de carga</span></span>
+        <span aria-hidden="true" class="text-background/25">·</span>
+        <span><strong class="font-semibold">100/100</strong> <span class="text-background/60">Lighthouse</span></span>
+        <span aria-hidden="true" class="text-background/25">·</span>
+        <span><strong class="font-semibold">Stripe</strong> <span class="text-background/60">para los pagos</span></span>
+        <span class="text-background/40 transition group-hover:text-background">Cómo lo conseguimos →</span>
+      </a>
+    </section>
+
+    <!-- ── Lo que te cuesta tu tienda actual ─────────────────────────────── -->
+    <section class="mx-auto max-w-6xl px-5 py-14 sm:py-20">
+      <h2 class="max-w-2xl font-display text-3xl sm:text-4xl">Lo que te está costando tu tienda actual</h2>
+      <div class="mt-10 grid gap-6 sm:grid-cols-3">
+        <div class="rounded-2xl border border-border bg-card p-7 shadow-sm">
+          <p class="font-display text-5xl text-brand">432 €</p>
+          <p class="mt-3 leading-relaxed text-muted-foreground">al año solo de cuota de Shopify, vendas o no vendas.</p>
+        </div>
+        <div class="rounded-2xl border border-border bg-card p-7 shadow-sm">
+          <p class="font-display text-5xl text-brand">~2 %</p>
+          <p class="mt-3 leading-relaxed text-muted-foreground">de comisión extra en cada venta si no usas su pasarela.</p>
+        </div>
+        <div class="rounded-2xl border border-border bg-card p-7 shadow-sm">
+          <p class="font-display text-5xl text-brand">2–4 s</p>
+          <p class="mt-3 leading-relaxed text-muted-foreground">de carga con una plantilla genérica. Cada segundo son ventas que se van.</p>
+        </div>
       </div>
     </section>
 
-    <!-- Comparativa -->
+    <!-- ── El flujo del pedido, con capturas reales ──────────────────────── -->
     <section class="border-y border-border bg-muted">
       <div class="mx-auto max-w-6xl px-5 py-14 sm:py-20">
-        <h2 class="font-display text-3xl sm:text-4xl">Las cuentas claras</h2>
-        <div class="mt-8 overflow-x-auto rounded-2xl border border-border bg-card shadow-sm">
-          <table class="w-full min-w-[640px] text-left text-sm">
-            <thead>
-              <tr class="border-b border-border text-muted-foreground">
-                <th scope="col" class="px-5 py-4 font-normal"><span class="sr-only">Concepto</span></th>
-                <th scope="col" class="px-5 py-4 font-normal">Shopify</th>
-                <th scope="col" class="px-5 py-4 font-normal">WooCommerce</th>
-                <th scope="col" class="px-5 py-4 font-semibold text-brand">LogicEcom</th>
-              </tr>
-            </thead>
-            <tbody>
-              {comparison.map((row) => (
-                <tr class="border-b border-border last:border-0">
-                  <th scope="row" class="px-5 py-4 text-left font-medium">{row.concept}</th>
-                  <td class="px-5 py-4 text-muted-foreground">{row.shopify}</td>
-                  <td class="px-5 py-4 text-muted-foreground">{row.woo}</td>
-                  <td class="px-5 py-4 font-semibold text-brand-dark">{row.kit}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-        <p class="mt-3 text-xs text-muted-foreground">
-          Precios de Shopify plan Basic y hosting WordPress típico, julio 2026. La comisión de Stripe (1,5 % + 0,25 € en tarjetas UE) la cobran todas las opciones.
+        <h2 class="max-w-2xl font-display text-3xl sm:text-4xl">Así funciona un pedido, de principio a fin</h2>
+        <p class="mt-3 max-w-2xl text-muted-foreground">
+          No es un vídeo ni un mockup: son capturas del sistema real. Esto es lo
+          que verás tú y lo que verá tu cliente.
         </p>
+        <div class="mt-10 space-y-6">
+          {flow.map((step, i) => (
+            <div class={`grid items-center gap-6 rounded-2xl border border-border bg-card p-4 shadow-sm sm:grid-cols-2 sm:gap-8 sm:p-6 ${i % 2 === 1 ? 'sm:[&>figure]:order-2' : ''}`}>
+              <figure class="overflow-hidden rounded-xl border border-border bg-muted">
+                <img
+                  src={step.img}
+                  alt={step.alt}
+                  width="1440"
+                  height="900"
+                  loading="lazy"
+                  class="w-full object-cover"
+                />
+              </figure>
+              <div class="px-2 sm:px-4">
+                <p class="font-accent text-sm text-brand">{step.n}</p>
+                <h3 class="mt-2 font-display text-2xl">{step.title}</h3>
+                <p class="mt-3 leading-relaxed text-muted-foreground">{step.body}</p>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     </section>
 
-    <!-- Demos -->
+    <!-- ── Comparativa + Cuándo NO ───────────────────────────────────────── -->
     <section class="mx-auto max-w-6xl px-5 py-14 sm:py-20">
-      <h2 class="font-display text-3xl sm:text-4xl">Tócalo antes de decidir</h2>
-      <p class="mt-3 max-w-2xl text-muted-foreground">
-        «La Botiga del Maestrat» es una tienda ficticia montada con el kit, completa y funcionando.
-        Nada de vídeos ni capturas: compra y gestiona tu propio pedido.
+      <h2 class="font-display text-3xl sm:text-4xl">Las cuentas claras</h2>
+      <div class="mt-8 overflow-x-auto rounded-2xl border border-border bg-card shadow-sm">
+        <table class="w-full min-w-[640px] text-left text-sm">
+          <thead>
+            <tr class="border-b border-border text-muted-foreground">
+              <th scope="col" class="px-5 py-4 font-normal"><span class="sr-only">Concepto</span></th>
+              <th scope="col" class="px-5 py-4 font-normal">Shopify</th>
+              <th scope="col" class="px-5 py-4 font-normal">WooCommerce</th>
+              <th scope="col" class="px-5 py-4 font-semibold text-brand">LogicEcom</th>
+            </tr>
+          </thead>
+          <tbody>
+            {comparison.map((row) => (
+              <tr class="border-b border-border last:border-0">
+                <th scope="row" class="px-5 py-4 text-left font-medium">{row.concept}</th>
+                <td class="px-5 py-4 text-muted-foreground">{row.shopify}</td>
+                <td class="px-5 py-4 text-muted-foreground">{row.woo}</td>
+                <td class="px-5 py-4 font-semibold text-brand-dark">{row.kit}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <p class="mt-3 text-xs text-muted-foreground">
+        Precios de Shopify plan Basic y hosting WordPress típico, julio 2026. La comisión de Stripe (1,5 % + 0,25 € en tarjetas UE) la cobran todas las opciones.
       </p>
-      <div class="mt-10 grid gap-5 sm:grid-cols-3">
-        <a href="/demo/tienda" class="group overflow-hidden rounded-2xl border border-border bg-card transition hover:-translate-y-1 hover:shadow-xl">
-          <img src="/images/products/aceites.webp" alt="" width="800" height="800" loading="lazy" class="aspect-[4/3] w-full object-cover" />
-          <div class="p-5">
-            <p class="font-semibold group-hover:text-brand">La tienda →</p>
-            <p class="mt-1 text-sm text-muted-foreground">Catálogo, ficha, carrito y checkout completo.</p>
-          </div>
-        </a>
-        <a href="/demo/admin" class="group overflow-hidden rounded-2xl border border-border bg-card transition hover:-translate-y-1 hover:shadow-xl">
-          <img src="/images/products/conservas.webp" alt="" width="800" height="800" loading="lazy" class="aspect-[4/3] w-full object-cover" />
-          <div class="p-5">
-            <p class="font-semibold group-hover:text-brand">El panel del comercio →</p>
-            <p class="mt-1 text-sm text-muted-foreground">Pedidos, envíos con tracking, productos y tarifas.</p>
-          </div>
-        </a>
-        <a href="/demo/admin/emails" class="group overflow-hidden rounded-2xl border border-border bg-card transition hover:-translate-y-1 hover:shadow-xl">
-          <img src="/images/products/mieles.webp" alt="" width="800" height="800" loading="lazy" class="aspect-[4/3] w-full object-cover" />
-          <div class="p-5">
-            <p class="font-semibold group-hover:text-brand">Los emails →</p>
-            <p class="mt-1 text-sm text-muted-foreground">La bandeja simulada: cada email que enviaría el sistema.</p>
-          </div>
-        </a>
+
+      <div class="mt-10 rounded-2xl border border-border bg-muted p-6 sm:p-8">
+        <h3 class="font-display text-xl">Cuándo NO somos tu mejor opción</h3>
+        <p class="mt-2 text-sm text-muted-foreground">Preferimos decírtelo antes. Si te ves en alguno de estos casos, hay herramientas que encajan mejor y te lo diremos:</p>
+        <ul class="mt-4 grid gap-2 text-sm text-muted-foreground sm:grid-cols-2">
+          {notForYou.map((item) => (
+            <li class="flex gap-2"><span aria-hidden="true" class="text-muted-foreground/60">—</span>{item}</li>
+          ))}
+        </ul>
       </div>
     </section>
 
-    <!-- Precios -->
+    <!-- ── Precios (D4) ──────────────────────────────────────────────────── -->
     <section id="precios" class="border-y border-border bg-muted">
-      <div class="mx-auto max-w-6xl px-5 py-14 sm:py-20">
+      <div class="mx-auto max-w-5xl px-5 py-14 sm:py-20">
         <h2 class="text-center font-display text-3xl sm:text-4xl">Precios sin letra pequeña</h2>
-        <div class="mx-auto mt-10 grid max-w-4xl gap-6 sm:grid-cols-2">
-          <div class="rounded-2xl border border-border bg-card p-8 shadow-sm">
-            <p class="text-sm font-medium uppercase tracking-wide text-muted-foreground">Puesta en marcha</p>
-            <p class="mt-3 font-display text-5xl">1.900 €<span class="text-lg font-normal text-muted-foreground"> pago único</span></p>
-            <ul class="mt-6 space-y-3 text-sm leading-relaxed text-muted-foreground">
-              <li class="flex gap-2"><span class="text-brand">✓</span> Diseño a medida y catálogo cargado</li>
-              <li class="flex gap-2"><span class="text-brand">✓</span> Pagos y envíos configurados</li>
-              <li class="flex gap-2"><span class="text-brand">✓</span> Dominio y emails con tu marca</li>
-              <li class="flex gap-2"><span class="text-brand">✓</span> Vendiendo en 3–4 semanas (orientativo)</li>
-            </ul>
+        <p class="mx-auto mt-3 max-w-xl text-center text-muted-foreground">
+          Un pago de puesta en marcha y un mantenimiento mensual claro. Sin cuotas de plataforma ni comisiones por venta.
+        </p>
+        <div class="mt-10 grid gap-6 sm:grid-cols-2">
+          {tiers.map((tier) => (
+            <div class={`relative rounded-2xl bg-card p-8 shadow-sm ${tier.featured ? 'border-2 border-brand shadow-lg shadow-brand/10' : 'border border-border'}`}>
+              {tier.featured && (
+                <span class="absolute -top-3 left-8 rounded-full bg-brand px-3 py-1 text-xs font-semibold text-white">El más elegido</span>
+              )}
+              <p class="text-sm font-medium uppercase tracking-wide text-muted-foreground">{tier.name}</p>
+              <p class="mt-3 font-display text-4xl sm:text-5xl">{tier.price}<span class="text-lg font-normal text-muted-foreground"> {tier.unit}</span></p>
+              <p class="mt-1 text-sm font-medium text-brand-dark">{tier.monthly}</p>
+              <ul class="mt-6 space-y-3 text-sm leading-relaxed text-muted-foreground">
+                {tier.points.map((point) => (
+                  <li class="flex gap-2"><span class="text-brand">✓</span> {point}</li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
+        <div class="mx-auto mt-6 flex flex-col items-center justify-between gap-3 rounded-2xl border border-border bg-card px-6 py-5 text-sm sm:flex-row">
+          <div>
+            <p class="font-semibold">{lite.name} · {lite.price}</p>
+            <p class="mt-1 text-muted-foreground">{lite.body}</p>
           </div>
-          <div class="relative rounded-2xl border-2 border-brand bg-card p-8 shadow-lg shadow-brand/10">
-            <p class="text-sm font-medium uppercase tracking-wide text-muted-foreground">Mantenimiento</p>
-            <p class="mt-3 font-display text-5xl">29 €<span class="text-lg font-normal text-muted-foreground">/mes</span></p>
-            <ul class="mt-6 space-y-3 text-sm leading-relaxed text-muted-foreground">
-              <li class="flex gap-2"><span class="text-brand">✓</span> Actualizaciones y copias de seguridad</li>
-              <li class="flex gap-2"><span class="text-brand">✓</span> Soporte por email</li>
-              <li class="flex gap-2"><span class="text-brand">✓</span> Pequeños cambios de contenido</li>
-              <li class="flex gap-2"><span class="text-brand">✓</span> Sin permanencia: el código es tuyo</li>
-            </ul>
-          </div>
+          <a href={emailHref} class="shrink-0 font-medium text-brand underline underline-offset-2 hover:text-brand-dark">Pregunta por el Lite</a>
         </div>
         <p class="mt-6 text-center text-sm text-muted-foreground">
-          A comparar: Shopify Basic son 432 €/año de por vida, más comisiones. Este kit se paga solo.
-        </p>
-        <p class="mt-2 text-center text-sm text-muted-foreground">
           ¿Quieres el detalle completo del servicio?
           <a href="/dossier" class="font-medium text-brand underline underline-offset-2 hover:text-brand-dark">Lee el dossier</a>, pensado para imprimir y compartir.
         </p>
-        <p class="mt-2 text-center text-sm text-muted-foreground">
-          ¿Vendes menos de 10 productos?
-          <a
-            href="mailto:hola@logic2b.com?subject=Kit%20Lite%20para%20mi%20negocio"
-            class="font-medium text-brand underline underline-offset-2 hover:text-brand-dark"
-          >Pregunta por el Kit Lite</a>, la versión de entrada.
-        </p>
       </div>
     </section>
 
-    <!-- FAQ -->
+    <!-- ── Demos + estilos ───────────────────────────────────────────────── -->
+    <section class="mx-auto max-w-6xl px-5 py-14 sm:py-20">
+      <h2 class="font-display text-3xl sm:text-4xl">Míralo por dentro</h2>
+      <p class="mt-3 max-w-2xl text-muted-foreground">
+        El panel del comercio y la bandeja de emails son parte de lo que compras. Se aprenden en cinco minutos.
+      </p>
+      <div class="mt-10 grid gap-5 sm:grid-cols-2">
+        <a href="/demo/admin" class="group overflow-hidden rounded-2xl border border-border bg-card transition hover:-translate-y-1 hover:shadow-xl">
+          <div class="aspect-[16/10] overflow-hidden border-b border-border bg-muted">
+            <img src="/images/screens/panel-order-detail.webp" alt="" width="1440" height="900" loading="lazy" class="h-full w-full object-cover object-top" />
+          </div>
+          <div class="p-5">
+            <p class="font-semibold group-hover:text-brand">El panel del comercio →</p>
+            <p class="mt-1 text-sm text-muted-foreground">Pedidos, estados, tracking, productos y tarifas de envío.</p>
+          </div>
+        </a>
+        <a href="/demo/admin/emails" class="group overflow-hidden rounded-2xl border border-border bg-card transition hover:-translate-y-1 hover:shadow-xl">
+          <div class="aspect-[16/10] overflow-hidden border-b border-border bg-muted">
+            <img src="/images/screens/panel-emails.webp" alt="" width="1440" height="900" loading="lazy" class="h-full w-full object-cover object-top" />
+          </div>
+          <div class="p-5">
+            <p class="font-semibold group-hover:text-brand">Los emails que enviaría →</p>
+            <p class="mt-1 text-sm text-muted-foreground">La bandeja simulada: cada confirmación y aviso de envío.</p>
+          </div>
+        </a>
+      </div>
+      <div class="mt-6 rounded-2xl border border-border bg-muted p-6 text-center sm:p-8">
+        <p class="font-display text-xl">¿Qué estilo encaja con lo que vendes?</p>
+        <p class="mx-auto mt-2 max-w-xl text-sm text-muted-foreground">Ocho direcciones visuales, del catálogo técnico al escaparate cinemático. Elige el punto de partida de tu tienda.</p>
+        <a href="/estilos" class="mt-4 inline-block rounded-full border border-foreground px-6 py-2.5 text-sm font-semibold transition hover:bg-foreground hover:text-background">Ver los estilos</a>
+      </div>
+    </section>
+
+    <!-- ── FAQ ───────────────────────────────────────────────────────────── -->
     <section class="mx-auto max-w-3xl px-5 py-14 sm:py-20">
       <h2 class="text-center font-display text-3xl sm:text-4xl">Preguntas frecuentes</h2>
       <div class="mt-8 space-y-3">
@@ -293,26 +484,29 @@ const features = [
         ))}
       </div>
     </section>
-
     </main>
 
-    <!-- CTA contacto -->
+    <!-- ── CTA contacto (D5: WhatsApp + email) ───────────────────────────── -->
     <section id="contacto" class="bg-foreground text-background">
       <div class="mx-auto max-w-6xl px-5 py-16 text-center sm:py-24">
         <h2 class="mx-auto max-w-2xl font-display text-3xl sm:text-5xl">¿Hablamos de tu tienda?</h2>
         <p class="mx-auto mt-5 max-w-xl leading-relaxed text-background/70">
-          Cuéntanos qué vendes y te decimos, sin compromiso, si este kit encaja contigo
-          y qué necesitaríamos para arrancar.
+          Cuéntanos qué vendes y te decimos, sin compromiso, si este kit encaja
+          contigo. Te contestamos en 24 h con dos o tres preguntas.
         </p>
-        <a
-          href="mailto:hola@logic2b.com?subject=Mi%20tienda%20online%20con%20Commerce%20Kit"
-          class="mt-9 inline-block rounded-full bg-brand px-9 py-4 font-semibold text-white transition hover:bg-brand-dark"
-        >Escríbenos: hola@logic2b.com</a>
+        <div class="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row sm:gap-4">
+          {whatsappHref && (
+            <a href={whatsappHref} class="w-full rounded-full bg-brand px-9 py-4 font-semibold text-white transition hover:bg-brand-dark sm:w-auto">Escríbenos por WhatsApp</a>
+          )}
+          <a href={emailHref} class={`w-full rounded-full px-9 py-4 font-semibold transition sm:w-auto ${whatsappHref ? 'border border-background/30 text-background hover:border-background' : 'bg-brand text-white hover:bg-brand-dark'}`}>
+            Escríbenos: {EMAIL}
+          </a>
+        </div>
       </div>
       <footer class="border-t border-background/10">
         <div class="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-2 px-5 py-6 text-sm text-background/60">
           <p>© 2026 Logic2B · Castellón</p>
-          <p><a href="/arquitectura" class="hover:text-background">Arquitectura</a> · <a href="/dossier" class="hover:text-background">Dossier</a> · <a href="/demo/tienda" class="hover:text-background">Demo</a></p>
+          <p><a href="/arquitectura" class="hover:text-background">Arquitectura</a> · <a href="/estilos" class="hover:text-background">Estilos</a> · <a href="/dossier" class="hover:text-background">Dossier</a> · <a href="/demo/tiendas/launch" class="hover:text-background">Demo</a></p>
         </div>
       </footer>
     </section>
