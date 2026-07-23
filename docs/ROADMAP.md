@@ -54,13 +54,56 @@ reconciliación se conserva abajo por contexto.
 | 9 | Catálogo de estilos (8 temas) | 🟡 En curso | 2026-07-21 | Arquitectura + `/estilos` + **temas 06 Minimal, 01 Editorial, 07 Launch y 04 Guide desarrollados** (5 listos con Base; registro de catálogo por tema generalizado). **Replanteada como Fase 9B** (ver abajo): de «una tienda, 8 pieles» a «8 tiendas, un motor» |
 | 9B | 8 tiendas distintas sobre un solo motor | 🟡 En curso | 2026-07-22 | **9B.0–9B.4 hechos.** Rutas por colección, selector/cookie eliminados, carrito namespaceado, y 4 tiendas reales (Forma Interior, Módulo Audio, Cafetal, Vector) con catálogo y fotos propias. 148 tests. Ver «Fase 9B» |
 | 10 | Documentación para el cliente | ⬜ Pendiente | — | Ver «Fase 10». Es material de venta y de entrega, no docs técnicas. **Su ejecución está planificada como bloque F11.7 del plan de Fase 11** |
-| 11 | Landing V2 «nivel Awwwards» + negocio + funnel + docs | 🟢 Lista para ejecutar | 2026-07-23 | **Plan maestro completo en [`docs/PLAN_FASE11_LANDING_V2.md`](PLAN_FASE11_LANDING_V2.md)**: bloques F11.0–F11.8 ejecutables por sesiones independientes. **Decisiones D1–D6 APROBADAS por Andreu (2026-07-23)**: JS propio ≤15 KB sin deps, capturas con browser tools en local, dirección C «Ocho tiendas, un motor», escalera de precios (Lite 590 / Kit 1.900+39 / A medida 3.400+59), WhatsApp+email, Lite publicado sin construir. Prompt de arranque: [`docs/PROMPT_FASE11.md`](PROMPT_FASE11.md). Integra 9B.5/9B.6 (imaginería y temas restantes) como prerequisito del hero |
+| 11 | Landing V2 «nivel Awwwards» + negocio + funnel + docs | 🟡 En curso | 2026-07-23 | **F11.1 (capturas) hecho** (ver «Fase 11» abajo). **Plan maestro completo en [`docs/PLAN_FASE11_LANDING_V2.md`](PLAN_FASE11_LANDING_V2.md)**: bloques F11.0–F11.8 ejecutables por sesiones independientes. **Decisiones D1–D6 APROBADAS por Andreu (2026-07-23)**: JS propio ≤15 KB sin deps, capturas con browser tools en local, dirección C «Ocho tiendas, un motor», escalera de precios (Lite 590 / Kit 1.900+39 / A medida 3.400+59), WhatsApp+email, Lite publicado sin construir. Prompt de arranque: [`docs/PROMPT_FASE11.md`](PROMPT_FASE11.md). Integra 9B.5/9B.6 (imaginería y temas restantes) como prerequisito del hero |
 | 8 | Pulido de la demo (backlog abajo) | 🟡 En curso | 2026-07-19 | Backlog técnico agotado; solo quedan decisiones y pasos locales de Andreu (ver «Decisiones pendientes» y `docs/PROMPT_CLOUD.md`). Últimas tandas: novena (race de idempotencia en el pago, PII enumerable en `/demo/gracias`, cancelación de pedido pagado sin devolver stock), décima (la misma race en el PATCH de admin, campos vacíos guardados como 0, login sin rate limit), undécima (diagrama móvil de `/arquitectura`, hedge del plazo de entrega, tokens de tema en `/demo/reset`, terminología «envío»), duodécima (aviso de corte en pedidos del admin, cabeceras sin wrap a 375px, leftover «portes», token de radio del carrito, contraste del botón eliminar, H1 en valenciano, checklist de producción) y decimotercera (misma race de idempotencia en `checkout.session.expired`, divisa hardcodeada a EUR fuera de Stripe, cobertura de test de `quoteCart`/PATCH admin/emails) y decimocuarta (config parcial de Stripe → cobro sin cumplimiento, emails duplicados bajo concurrencia, `payment_status` del webhook, color de marca centralizado en `shop.config.ts`, contraste/tema en carrito y checkout) — ver sección «Fase 8» |
 
 ## Repo y entornos
 
 - GitHub: `https://github.com/amariner/logic2b-ecom` (rama `main`).
 - Cloudflare: **en producción** — Worker `ecom-logic2b` en https://ecom.logic2b.com, D1 remota `ecom-demo` (`7ae9b06d-3664-4790-a87c-04bb4c67e97a`), cron reset cada 6 h, cuenta marinerandreu@gmail.com.
+
+## Fase 11 — Landing V2, negocio, funnel y docs
+
+> Plan maestro: [`docs/PLAN_FASE11_LANDING_V2.md`](PLAN_FASE11_LANDING_V2.md).
+> Decisiones D1–D6 aprobadas (2026-07-23). El motor NO se toca en esta fase.
+
+### F11.1 — Capturas reales de tiendas, panel y flujo (2026-07-23)
+
+Assets de la landing V2 (dirección C «Ocho tiendas, un motor»). **Sesión local**
+(wrangler dev + D1 sembrada + Chrome). Ninguna dependencia npm nueva.
+
+- **Motor de captura reproducible** — `scripts/capture-screens.mjs`: conduce el
+  Chrome del sistema por CDP con el `WebSocket` global de Node (≥21) y convierte
+  a WebP con `cwebp` (binario de sistema). Data-driven: un array de `SHOTS`
+  declara URL, viewport, auth, siembra de carrito y recorte. El **banner de demo**
+  (tienda y panel) y el **conmutador flotante** se ocultan por CSS inyectado antes
+  de capturar (cero cambios en el código de la app). Admin con cookie de sesión
+  (login `demo`); carritos sembrando `localStorage` y revalidados por el server;
+  checkout con portes disparando `/api/cart/quote` (CP 12001 → 4,90 €). Ejecutable
+  con `node scripts/capture-screens.mjs [--only=<substr>]`.
+- **30 capturas WebP + 1 clip de vídeo**, en `public/images/screens/`:
+  - 6 tiendas (launch·minimal·editorial·guide·iris·demo): escaparate (escritorio
+    página completa / móvil viewport), ficha del producto firma, y carrito con
+    líneas reales (launch, demo). **Iris** es tienda de vídeo-scrub → captura
+    estática solo como póster del hero.
+  - Panel: pedidos (5 estados), detalle con timeline+tracking, productos, envíos,
+    **bandeja de emails** (pieza estrella) y email de confirmación abierto y
+    renderizado.
+  - Flujo: checkout con portes calculados (+ móvil) y `/demo/gracias`.
+  - **Vídeo de Iris**: `iris-scrub.mp4` (720p H.264 sin audio, 6 s, 593 KB,
+    derivado de `collections/iris/hero.mp4` con ffmpeg) + `iris-scrub-poster.webp`.
+- **Pesos**: escritorio ≤150 KB y móvil ≤60 KB salvo `panel-emails-m` (~61 KB,
+  bandeja larga de texto, lazy — irrelevante). Toda la biblioteca ~1,9 MB (el
+  vídeo son 593 KB); la landing hará lazy, no carga las 30 a la vez.
+- **Receta de re-captura** documentada en
+  [`public/images/screens/README.md`](../public/images/screens/README.md) (las
+  capturas caducan con cada rediseño de tema).
+- **Verificado**: `pnpm check` en verde (148 tests, 0 errores, build OK). No se
+  tocó `src/` ni el motor: solo `scripts/` y `public/images/screens/`.
+
+**Pendiente Fase 11** (siguientes bloques): F11.2a (imaginería Higgsfield + 4
+temas restantes), F11.5 (precios D4), F11.3 (landing V2), F11.4 (`/estilos` +
+`/arquitectura`), F11.6 (funnel), F11.7 (docs cliente), F11.8 (QA + deploy).
 
 ## Fase 9B — Ocho tiendas distintas sobre un solo motor
 
