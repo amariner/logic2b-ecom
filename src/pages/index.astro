@@ -60,9 +60,8 @@ const gallery = galleryOrder.map((id) => {
 });
 
 // ── Contacto (D5) ───────────────────────────────────────────────────────────
-// TODO(Andreu): número de WhatsApp de negocio en formato internacional sin «+»
-// ni espacios (p. ej. 34612345678). Mientras esté vacío, el CTA usa solo email.
-const WHATSAPP = '';
+// Formato internacional sin «+» ni espacios. Si se vacía, el CTA cae a email.
+const WHATSAPP = '34626434316';
 const EMAIL = 'hola@logic2b.com';
 const whatsappHref = WHATSAPP
   ? `https://wa.me/${WHATSAPP}?text=${encodeURIComponent('Hola, me interesa una tienda online con LogicEcom.')}`
