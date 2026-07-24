@@ -257,11 +257,14 @@ const jsonLd = [
         plataforma y con pagos Stripe. Las de abajo funcionan de verdad:
         <strong class="text-foreground">entra y compra</strong>.
       </p>
+      {/* CTAs por temperatura (F11.6): frío = la galería de abajo; templado =
+          el recorrido guiado (?tour=1 lo hace medible como pageview propio);
+          caliente = WhatsApp al final. Nunca un solo mailto. */}
       <div class="hero-fade mt-8 flex flex-col gap-3 sm:flex-row sm:gap-4" style="--d:.24s">
         <a
-          href="/demo/tiendas/launch"
+          href="/demo/tienda?tour=1"
           class="rounded-full bg-brand px-8 py-3.5 text-center text-base font-semibold text-brand-fg shadow-lg shadow-brand/20 transition hover:bg-brand-dark"
-        >Entra en la tienda demo</a>
+        >Haz la demo en 3 minutos</a>
         <a
           href="/arquitectura"
           class="rounded-full border border-border px-8 py-3.5 text-center text-base font-semibold text-foreground transition hover:border-foreground"

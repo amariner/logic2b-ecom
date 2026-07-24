@@ -227,9 +227,33 @@ gzip + CSS scroll-driven). Motor intacto; solo `index.astro`, `Base.astro`,
   la sección de envíos.
 - Verificado en navegador (1440 full-page ambas páginas) y `pnpm check` verde.
 
+### F11.6 — Funnel de venta (2026-07-24)
+
+- **Recorrido guiado ascendido a pieza central**: el CTA primario del hero es
+  ahora «Haz la demo en 3 minutos» → `/demo/tienda?tour=1`. La cadena ya
+  existía sin JS (tira «Recorrido de la demo» del catálogo genérico → compra →
+  pasos numerados en `/demo/gracias` → panel → bandeja); lo nuevo es la entrada
+  medible y el **cierre**: la bandeja de emails (fin del recorrido) termina con
+  un CTA sobrio «Fin del recorrido… ¿hablamos?» (WhatsApp · email · precios),
+  **solo con `DEMO_MODE=true`** — en la tienda de un cliente ese panel es suyo.
+- **CTAs por temperatura** en la landing: frío = galería de tiendas; templado =
+  recorrido de 3 min; caliente = WhatsApp/email al final. Sin mailto único.
+- **Medición (4 señales, CF Web Analytics es de pageviews — sin JS de eventos):**
+  1. *entra-demo* → pageview de `/demo/tienda?tour=1` (el query lo distingue).
+  2. *completa-compra-demo* → pageview de `/demo/gracias`.
+  3. *abre-dossier* → pageview de `/dossier`.
+  4. *contacto* → **no medible sin JS** (clic a `wa.me`/`mailto`); si se quiere,
+     es un `onclick` de 3 líneas + endpoint o el paso a un formulario→D1
+     (F11.6 opcional del plan, requiere OK aparte). Documentado, no implementado.
+  Falta el token del beacon (`analytics.cfBeaconToken`, paso local de Andreu).
+- **Plantilla interna de respuesta al prospecto** en
+  `docs/plantillas/respuesta-prospecto.md` (email + WhatsApp, las «2-3
+  preguntas en 24 h» que promete la landing, regla de encaje honesto y registro
+  de demanda del Lite para D6).
+
 **Pendiente Fase 11** (siguientes bloques): F11.2a (imaginería Higgsfield + 4
-temas restantes), F11.6 (funnel), F11.7 (docs cliente), F11.8 (QA + deploy +
-Lighthouse contra producción).
+temas restantes), F11.7 (docs cliente), F11.8 (QA + deploy + Lighthouse contra
+producción).
 
 ## Fase 9B — Ocho tiendas distintas sobre un solo motor
 

@@ -5,6 +5,9 @@ export const prerender = false;
 
 type Row = { id: number; to_addr: string; subject: string; body_html: string; created_at: string };
 const db = Astro.locals.runtime.env.DB;
+// El cierre del recorrido comercial solo existe en la demo pública: en la
+// tienda de un cliente (DEMO_MODE off) este panel es SUYO y no lleva venta.
+const demoMode = Astro.locals.runtime.env.DEMO_MODE === 'true';
 const EMAIL_LIMIT = 100;
 const { results: emails } = await db
   .prepare('SELECT id, to_addr, subject, body_html, created_at FROM emails_outbox ORDER BY id DESC LIMIT ?')
@@ -48,5 +51,24 @@ const total = (await db.prepare('SELECT COUNT(*) AS n FROM emails_outbox').first
     <p class="mt-8 rounded-lg border border-stone-300 bg-white p-8 text-center text-stone-500">
       Aún no hay emails. Completa una compra en la <a href="/demo/tienda" class="underline">tienda demo</a> y verás aquí la confirmación.
     </p>
+  )}
+
+  {/* Fin del recorrido guiado (funnel F11.6). Sobrio a propósito: es el
+      registro del panel. Quien llega aquí ha visto el sistema entero. */}
+  {demoMode && (
+    <div class="mt-10 rounded-lg border border-stone-300 bg-white p-6">
+      <p class="font-semibold">Fin del recorrido: esto es todo lo que hay que aprender.</p>
+      <p class="mt-1 text-sm text-stone-600">
+        Has visto la compra, el pedido gestionado en el panel y los emails que salen
+        solos. Tu tienda funcionaría exactamente así, con tu marca y tus productos.
+      </p>
+      <p class="mt-3 text-sm font-medium">
+        <a href="https://wa.me/34626434316?text=Hola%2C%20acabo%20de%20probar%20la%20demo%20de%20LogicEcom." class="underline underline-offset-2 hover:text-stone-600">WhatsApp 626 434 316</a>
+        <span class="font-normal text-stone-400"> · </span>
+        <a href="mailto:hola@logic2b.com?subject=Mi%20tienda%20online%20con%20LogicEcom" class="underline underline-offset-2 hover:text-stone-600">hola@logic2b.com</a>
+        <span class="font-normal text-stone-400"> · </span>
+        <a href="/#precios" class="underline underline-offset-2 hover:text-stone-600">Ver precios</a>
+      </p>
+    </div>
   )}
 </Admin>
