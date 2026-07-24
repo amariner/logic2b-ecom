@@ -208,9 +208,28 @@ gzip + CSS scroll-driven). Motor intacto; solo `index.astro`, `Base.astro`,
   tema» sin rellenar): es el único coste que puede romper el modelo y se cierra
   rellenando la ficha de cada tema al construirlo (9B.6).
 
+### F11.4 — `/estilos` y `/arquitectura` al nivel de la landing (2026-07-24)
+
+- **`/estilos` demuestra en vez de describir** (cierra 9B.7): cada tema con
+  tienda viva enseña su **captura real** de F11.1 (enlazable, con zoom suave al
+  hover) y un CTA con su acento («Entra en Vector →», par acento/texto del
+  propio tema). El mapeo tema→tienda se deriva del registro de colecciones:
+  un tema nuevo aparece solo. Vector lleva encuadre propio (`object-[center_18%]`:
+  su cabecera es texto sobre blanco y recortada parecía una tarjeta vacía).
+- **Guía para elegir estilo** (pieza 10.1): tres preguntas sin jerga (¿foto o
+  datos? ¿cuántas referencias? ¿qué tono?) con respuestas enlazadas por ancla a
+  cada ficha (`#estilo-<id>`, `scroll-mt` para el header pegajoso).
+- **`/arquitectura`**: el diagrama SVG se **dibuja al entrar en viewport**
+  (`stroke-dashoffset` + `pathLength` normalizado, CSS scroll-driven, cero JS;
+  la curva discontinua del webhook se funde para no perder el punteado;
+  fallback = dibujado). Dos capturas reales con pie: la **bandeja de emails**
+  tras el flujo del webhook y el **listado de pedidos con exportación CSV** en
+  la sección de envíos.
+- Verificado en navegador (1440 full-page ambas páginas) y `pnpm check` verde.
+
 **Pendiente Fase 11** (siguientes bloques): F11.2a (imaginería Higgsfield + 4
-temas restantes), F11.4 (`/estilos` + `/arquitectura`), F11.6 (funnel), F11.7
-(docs cliente), F11.8 (QA + deploy + Lighthouse contra producción).
+temas restantes), F11.6 (funnel), F11.7 (docs cliente), F11.8 (QA + deploy +
+Lighthouse contra producción).
 
 ## Fase 9B — Ocho tiendas distintas sobre un solo motor
 
@@ -454,7 +473,9 @@ Hacer barato repetir 8 veces, sin que el scaffold pueda tocar el motor.
 - **9B.5** — Resto de imaginería en sesión LOCAL: heroes/editorial de las 4
   tiendas hechas + catálogo y fotos de las 4 restantes.
 - **9B.6** — Un tema por sesión, con su catálogo y sus fotos.
-- **9B.7** — `/estilos` enlazando a las 8 tiendas reales.
+- **9B.7** — ✅ (2026-07-24, F11.4) `/estilos` enlaza a las 6 tiendas vivas con
+  captura real y CTA por tema; los 4 temas «planned» entrarán solos al
+  registrarse su colección (el mapeo tema→tienda se deriva del registro).
 - **9B.8** — Reescribir `docs/TEMAS.md` con el contrato nuevo (hoy describe el
   modelo de «una tienda, 8 pieles» y está desfasado).
 

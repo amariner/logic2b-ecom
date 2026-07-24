@@ -12,6 +12,30 @@
 import Base from '../layouts/Base.astro';
 import SiteHeader from '../components/SiteHeader.astro';
 import { demoThemes, defaultTheme } from '../lib/demo-themes';
+import { collections, storePaths } from '../lib/collections';
+
+/**
+ * Tienda viva de cada tema (9B: un tema desarrollado = una tienda con URL).
+ * Si existe, la ficha enseña la CAPTURA REAL de esa tienda (F11.1) y enlaza
+ * directo a ella — el catálogo deja de describir y pasa a demostrar.
+ */
+/**
+ * Encuadre del recorte 16:10 sobre la captura de página completa. Por defecto
+ * arriba; Vector (launch) baja al arranque de la franja de producto — su
+ * cabecera es texto sobre blanco y recortada sola parece una tarjeta vacía.
+ */
+const CROP: Record<string, string> = { launch: 'object-[center_18%]' };
+
+const storeFor = (themeId: string) => {
+  const col = collections.find((c) => c.themeId === themeId);
+  if (!col) return null;
+  return {
+    name: col.name,
+    href: storePaths(col.id).catalog,
+    img: `/images/screens/store-${col.id}-catalog.webp`,
+    crop: CROP[col.id] ?? 'object-top',
+  };
+};
 
 /**
  * Se enseña la imaginería PROPIA de cada tema (`sample`), no la captura de
@@ -127,17 +151,102 @@ const jsonLd = [
         </div>
       </section>
 
+      <!-- Guía para elegir estilo (árbol corto, sin jerga) -->
+      <section aria-labelledby="guia-h" class="mx-auto max-w-6xl px-5 pt-14 sm:pt-20">
+        <h2 id="guia-h" class="font-display text-2xl sm:text-3xl">¿No sabes por dónde empezar? Tres preguntas</h2>
+        <div class="mt-6 grid gap-5 lg:grid-cols-3">
+          <div class="rounded-xl border border-border bg-card p-6">
+            <p class="font-semibold">1 · ¿Tu producto entra por la foto o por los datos?</p>
+            <p class="mt-2 text-sm leading-relaxed text-muted-foreground">
+              Si vende la imagen (interiorismo, moda, cosmética, café), busca un estilo que
+              deje respirar la foto. Si venden las características (técnica, componentes,
+              herramienta), busca fichas densas y comparables.
+            </p>
+            <p class="mt-3 text-sm"><span class="text-muted-foreground">Por la foto → </span>
+              <a href="#estilo-minimal" class="font-medium underline underline-offset-2">Minimal</a>,
+              <a href="#estilo-editorial" class="font-medium underline underline-offset-2">Editorial</a>,
+              <a href="#estilo-iris" class="font-medium underline underline-offset-2">Iris</a>,
+              <a href="#estilo-natural" class="font-medium underline underline-offset-2">Natural</a>
+            </p>
+            <p class="mt-1 text-sm"><span class="text-muted-foreground">Por los datos → </span>
+              <a href="#estilo-specs" class="font-medium underline underline-offset-2">Specs</a>,
+              <a href="#estilo-industrial" class="font-medium underline underline-offset-2">Industrial</a>,
+              <a href="#estilo-launch" class="font-medium underline underline-offset-2">Launch</a>
+            </p>
+          </div>
+          <div class="rounded-xl border border-border bg-card p-6">
+            <p class="font-semibold">2 · ¿Cuántas referencias vas a vender?</p>
+            <p class="mt-2 text-sm leading-relaxed text-muted-foreground">
+              No es lo mismo presentar un producto estrella que ordenar cien. La rejilla y
+              la densidad del estilo deben ir con el tamaño real de tu catálogo.
+            </p>
+            <p class="mt-3 text-sm"><span class="text-muted-foreground">Uno o pocos (1–10) → </span>
+              <a href="#estilo-launch" class="font-medium underline underline-offset-2">Launch</a>,
+              <a href="#estilo-guide" class="font-medium underline underline-offset-2">Guide</a>
+            </p>
+            <p class="mt-1 text-sm"><span class="text-muted-foreground">Catálogo medio (10–40) → </span>
+              <a href="#estilo-editorial" class="font-medium underline underline-offset-2">Editorial</a>,
+              <a href="#estilo-minimal" class="font-medium underline underline-offset-2">Minimal</a>,
+              <a href="#estilo-iris" class="font-medium underline underline-offset-2">Iris</a>
+            </p>
+            <p class="mt-1 text-sm"><span class="text-muted-foreground">Completo (50–100) → </span>
+              <a href="#estilo-natural" class="font-medium underline underline-offset-2">Natural</a>,
+              <a href="#estilo-street" class="font-medium underline underline-offset-2">Street</a>,
+              <a href="#estilo-industrial" class="font-medium underline underline-offset-2">Industrial</a>
+            </p>
+          </div>
+          <div class="rounded-xl border border-border bg-card p-6">
+            <p class="font-semibold">3 · ¿Qué tono tiene tu marca?</p>
+            <p class="mt-2 text-sm leading-relaxed text-muted-foreground">
+              El estilo debe sonar como hablas tú con tus clientes: no le pongas un
+              escaparate de laboratorio a una marca cercana, ni uno juguetón a una técnica.
+            </p>
+            <p class="mt-3 text-sm"><span class="text-muted-foreground">Sobrio y técnico → </span>
+              <a href="#estilo-industrial" class="font-medium underline underline-offset-2">Industrial</a>,
+              <a href="#estilo-specs" class="font-medium underline underline-offset-2">Specs</a>,
+              <a href="#estilo-launch" class="font-medium underline underline-offset-2">Launch</a>
+            </p>
+            <p class="mt-1 text-sm"><span class="text-muted-foreground">Cálido y cercano → </span>
+              <a href="#estilo-natural" class="font-medium underline underline-offset-2">Natural</a>,
+              <a href="#estilo-guide" class="font-medium underline underline-offset-2">Guide</a>
+            </p>
+            <p class="mt-1 text-sm"><span class="text-muted-foreground">Con carácter → </span>
+              <a href="#estilo-street" class="font-medium underline underline-offset-2">Street</a>,
+              <a href="#estilo-iris" class="font-medium underline underline-offset-2">Iris</a>,
+              <a href="#estilo-editorial" class="font-medium underline underline-offset-2">Editorial</a>
+            </p>
+          </div>
+        </div>
+        <p class="mt-4 text-sm text-muted-foreground">
+          Y si sales con dos o tres candidatos, mejor: entra en sus tiendas de muestra y
+          quédate con la que te dé envidia tener.
+        </p>
+      </section>
+
       <!-- Rejilla de estilos -->
       <section class="mx-auto max-w-6xl px-5 py-14 sm:py-20">
         <ul class="grid gap-8 sm:grid-cols-2">
           {styles.map((theme, i) => (
-            <li class="flex flex-col overflow-hidden rounded-xl border border-border bg-card">
-              {/* Referencia visual. Mientras no exista el fichero, marcador de hueco. */}
+            <li id={`estilo-${theme.id}`} class="flex scroll-mt-24 flex-col overflow-hidden rounded-xl border border-border bg-card">
+              {/* Tema con tienda viva → captura REAL enlazable; si no, la
+                  imaginería propia del tema; y si tampoco, marcador de hueco. */}
               <div
                 class="relative flex aspect-[16/10] items-end border-b border-border"
                 style={`background: ${theme.vars['--surface-sunken']};`}
               >
-                {hasSample(theme.sample) ? (
+                {storeFor(theme.id) ? (
+                  <a href={storeFor(theme.id)!.href} class="group absolute inset-0 block" aria-label={`Entra en ${storeFor(theme.id)!.name}, la tienda de muestra del estilo ${theme.label}`}>
+                    <img
+                      src={storeFor(theme.id)!.img}
+                      alt={`La tienda ${storeFor(theme.id)!.name}, construida con el estilo ${theme.label}`}
+                      loading="lazy"
+                      decoding="async"
+                      width="1440"
+                      height="900"
+                      class={`h-full w-full object-cover transition duration-300 group-hover:scale-[1.02] ${storeFor(theme.id)!.crop}`}
+                    />
+                  </a>
+                ) : hasSample(theme.sample) ? (
                   <img
                     src={theme.sample!}
                     alt={`Imaginería de producto en la estética del estilo ${theme.label}`}
@@ -155,7 +264,7 @@ const jsonLd = [
                   </div>
                 )}
                 <span
-                  class="absolute left-4 top-4 rounded-full px-2.5 py-1 text-[11px] font-semibold"
+                  class="pointer-events-none absolute left-4 top-4 rounded-full px-2.5 py-1 text-[11px] font-semibold"
                   style={`background: ${theme.vars['--color-brand']}; color: ${theme.vars['--color-brand-fg']};`}
                 >
                   {String(i + 1).padStart(2, '0')} · {theme.label}
@@ -211,6 +320,15 @@ const jsonLd = [
                   Inspirado en la dirección visual de <strong class="font-medium text-foreground">{theme.reference?.name}</strong>,
                   reconstruida sobre el sistema Logic2B UI.
                 </p>
+                {storeFor(theme.id) && (
+                  <a
+                    href={storeFor(theme.id)!.href}
+                    class="mt-4 inline-flex items-center gap-1.5 self-start rounded-full px-4 py-2 text-sm font-semibold transition hover:opacity-85"
+                    style={`background: ${theme.vars['--color-brand']}; color: ${theme.vars['--color-brand-fg']};`}
+                  >
+                    Entra en {storeFor(theme.id)!.name} <span aria-hidden="true">→</span>
+                  </a>
+                )}
               </div>
             </li>
           ))}
