@@ -54,7 +54,7 @@ reconciliación se conserva abajo por contexto.
 | 9 | Catálogo de estilos (8 temas) | 🟡 En curso | 2026-07-21 | Arquitectura + `/estilos` + **temas 06 Minimal, 01 Editorial, 07 Launch y 04 Guide desarrollados** (5 listos con Base; registro de catálogo por tema generalizado). **Replanteada como Fase 9B** (ver abajo): de «una tienda, 8 pieles» a «8 tiendas, un motor» |
 | 9B | 8 tiendas distintas sobre un solo motor | 🟡 En curso | 2026-07-22 | **9B.0–9B.4 hechos.** Rutas por colección, selector/cookie eliminados, carrito namespaceado, y 4 tiendas reales (Forma Interior, Módulo Audio, Cafetal, Vector) con catálogo y fotos propias. 148 tests. Ver «Fase 9B» |
 | 10 | Documentación para el cliente | 🟡 Casi completa | 2026-07-24 | **Ejecutada como F11.7** (ver Fase 11): `/ayuda` (noindex) con manual de 3 pasos + guías + runbook, acta de entrega e inventario de accesos en `docs/plantillas/`, dossier con «qué pasa si nos vamos», guion del vídeo. Pendiente: grabar el vídeo (Andreu) y confirmar las decisiones a/b/c asumidas |
-| 11 | Landing V2 «nivel Awwwards» + negocio + funnel + docs | 🟡 En curso | 2026-07-24 | **F11.1, F11.3 (2 sesiones), F11.4, F11.5, F11.6, F11.7 y F11.8 (primera pasada: e2e + deploy + verificación en producción) hechos** — quedan F11.2a (imaginería, LOCAL) y la cola de F11.8 (Lighthouse/a11y/OG, LOCAL). Detalle por bloque abajo. (ver «Fase 11» abajo). **Plan maestro completo en [`docs/PLAN_FASE11_LANDING_V2.md`](PLAN_FASE11_LANDING_V2.md)**: bloques F11.0–F11.8 ejecutables por sesiones independientes. **Decisiones D1–D6 APROBADAS por Andreu (2026-07-23)**: JS propio ≤15 KB sin deps, capturas con browser tools en local, dirección C «Ocho tiendas, un motor», escalera de precios (Lite 590 / Kit 1.900+39 / A medida 3.400+59), WhatsApp+email, Lite publicado sin construir. Prompt de arranque: [`docs/PROMPT_FASE11.md`](PROMPT_FASE11.md). Integra 9B.5/9B.6 (imaginería y temas restantes) como prerequisito del hero |
+| 11 | Landing V2 «nivel Awwwards» + negocio + funnel + docs | 🟡 En curso | 2026-07-24 | **F11.1, F11.3 (2 sesiones), F11.4, F11.5, F11.6, F11.7 y F11.8 (primera pasada + pase a11y/contenido desde cloud 2026-07-24) hechos** — quedan F11.2a (imaginería, LOCAL) y el resto de la cola de F11.8 (Lighthouse/OG, LOCAL). Detalle por bloque abajo. (ver «Fase 11» abajo). **Plan maestro completo en [`docs/PLAN_FASE11_LANDING_V2.md`](PLAN_FASE11_LANDING_V2.md)**: bloques F11.0–F11.8 ejecutables por sesiones independientes. **Decisiones D1–D6 APROBADAS por Andreu (2026-07-23)**: JS propio ≤15 KB sin deps, capturas con browser tools en local, dirección C «Ocho tiendas, un motor», escalera de precios (Lite 590 / Kit 1.900+39 / A medida 3.400+59), WhatsApp+email, Lite publicado sin construir. Prompt de arranque: [`docs/PROMPT_FASE11.md`](PROMPT_FASE11.md). Integra 9B.5/9B.6 (imaginería y temas restantes) como prerequisito del hero |
 | 8 | Pulido de la demo (backlog abajo) | 🟡 En curso | 2026-07-19 | Backlog técnico agotado; solo quedan decisiones y pasos locales de Andreu (ver «Decisiones pendientes» y `docs/PROMPT_CLOUD.md`). Últimas tandas: novena (race de idempotencia en el pago, PII enumerable en `/demo/gracias`, cancelación de pedido pagado sin devolver stock), décima (la misma race en el PATCH de admin, campos vacíos guardados como 0, login sin rate limit), undécima (diagrama móvil de `/arquitectura`, hedge del plazo de entrega, tokens de tema en `/demo/reset`, terminología «envío»), duodécima (aviso de corte en pedidos del admin, cabeceras sin wrap a 375px, leftover «portes», token de radio del carrito, contraste del botón eliminar, H1 en valenciano, checklist de producción) y decimotercera (misma race de idempotencia en `checkout.session.expired`, divisa hardcodeada a EUR fuera de Stripe, cobertura de test de `quoteCart`/PATCH admin/emails) y decimocuarta (config parcial de Stripe → cobro sin cumplimiento, emails duplicados bajo concurrencia, `payment_status` del webhook, color de marca centralizado en `shop.config.ts`, contraste/tema en carrito y checkout) — ver sección «Fase 8» |
 
 ## Repo y entornos
@@ -297,12 +297,63 @@ Sesión local. Ejecutado el núcleo del cierre; queda la cola «de premio».
   «continúa con el desarrollo» sincronice, planifique UN bloque con el equipo,
   ejecute, testee, documente, actualice «Próxima sesión» y suba a main.
 - **Pendiente de F11.8** (cola): Lighthouse 100×4 citable contra producción,
-  pase de teclado/lector y reduced-motion formal, verificación del OG en
-  WhatsApp, submission Awwwards (decisión de pago: Andreu).
+  verificación del OG en WhatsApp, submission Awwwards (decisión de pago:
+  Andreu). El pase formal de teclado/lector y reduced-motion de las páginas
+  comerciales se cerró el 2026-07-24 desde cloud (siguiente entrada).
+
+### F11.8 — cola: pase a11y formal + auditoría de contenido de las páginas comerciales (2026-07-24, sesión cloud)
+
+Sesión cloud que intentó F11.2a y confirmó su bloqueo real: la política de red
+del entorno deniega el CDN de Higgsfield (CONNECT 403 verificado) y también
+`ecom.logic2b.com`, así que ni imaginería ni auditoría en vivo. Se ejecutó la
+alternativa prevista: el tramo de la cola de F11.8 revisable en código, sobre
+`/`, `/estilos`, `/arquitectura` y `/dossier`, con verificación funcional en
+Chromium headless por CDP (14 checks) contra `dist/` servido en local.
+
+- **El vídeo de Iris en la galería del hero no tenía control de pausa** (WCAG
+  2.2.2, nivel A: lo que se mueve >5 s en paralelo con otro contenido necesita
+  pausa; salir del viewport no cuenta). Añadido un botón pausa/reproducir como
+  chip discreto sobre la esquina de la tarjeta: vive en el template **fuera del
+  enlace** (interactivos no se anidan) y nace `hidden` — el script solo lo
+  activa cuando asciende la imagen a vídeo, así que sin JS, con
+  `prefers-reduced-motion` o con ahorro de datos no hay ni vídeo ni botón. La
+  pausa del visitante manda sobre el autoplay del IntersectionObserver (no
+  re-arranca al re-entrar en viewport). Gotcha cazado por el camino: las clases
+  Tailwind que solo existían como literal dentro del `<script>` no salían en el
+  CSS del bundle de la página — otro motivo para que el botón viva en el
+  template. Área táctil 32px (≥24, WCAG 2.5.8), `aria-pressed` + `aria-label`
+  conmutados, glifos SVG con la clase `hidden` (el atributo `hidden` es HTML y
+  en SVG no es fiable).
+- **El `<video>` creado por el script perdía el `alt`** de la imagen a la que
+  sustituye → se copia como `aria-label` del vídeo.
+- **Decorativos que los lectores leían en voz alta**: el «+» del acordeón del
+  FAQ de la landing y los ✓/—/· de las listas del dossier y de los tiers de
+  precios (la landing ya ocultaba sus guiones; ahora todos consistentes con
+  `aria-hidden="true"`).
+- **Contenido desincronizado con el registro de temas**: la landing decía «Ocho
+  direcciones visuales» pero `/estilos` ya enseña **9** (Iris entró después del
+  copy). Ahora la landing deriva el recuento de `demoThemes` igual que hace
+  `/estilos` — un tema nuevo actualiza el copy solo.
+- **Recuento erróneo en `/estilos`**: la píldora del hero decía «6
+  desarrolladas» porque contaba el tema Base, que no aparece en la lista de la
+  página; de los 9 estilos mostrados hay 5 desarrollados. El recuento ahora se
+  hace sobre la lista visible.
+- **Auditoría sin más hallazgos**: foco visible global (`:focus-visible` con el
+  acento), toda animación de landing/arquitectura tras
+  `prefers-reduced-motion: no-preference` (count-up, rise, hero, dibujo del
+  diagrama SVG, `@view-transition`), fallbacks estáticos completos en el DOM,
+  `aria-current` en nav, jerarquía de headings correcta, sitemap/robots/canonical
+  coherentes, JSON-LD sincronizado con los precios D4 visibles (Service+offers
+  590/1900/3400 y FAQPage = copy), OG 1200×630 real, capturas y fuentes
+  referenciadas todas presentes.
+- Verificado: `pnpm check` (148 tests, 0 errores/hints) + 14 checks headless
+  (botón, ARIA, observer vs pausa, reduced-motion sin vídeo ni botón,
+  recuentos en el HTML servido) + captura visual de la tarjeta a 1440px.
 
 **Pendiente Fase 11** (siguientes bloques): F11.2a (imaginería Higgsfield + 4
-temas restantes; LOCAL), cola de F11.8 (Lighthouse + a11y formal + OG WhatsApp;
-LOCAL). El resto de bloques ejecutables desde cloud están completos.
+temas restantes; LOCAL — confirmado que cloud no puede: CDN de Higgsfield
+bloqueado por la política de red), cola de F11.8 (Lighthouse citable + OG
+WhatsApp; LOCAL). El resto de bloques ejecutables desde cloud están completos.
 
 ## Fase 9B — Ocho tiendas distintas sobre un solo motor
 
@@ -1076,12 +1127,16 @@ esta sección y sube a `main`.
 ## Próxima sesión
 
 - **Bloque:** F11.2a — imaginería Higgsfield para las 4 tiendas restantes
-  (Industrial, Natural, Specs, Playful) + desarrollo de sus temas siguiendo
+  (Industrial, Natural, Specs, Street) + desarrollo de sus temas siguiendo
   `docs/CHECKLIST_TEMA.md` (una tienda por sesión si hace falta trocearlo).
-  Requiere entorno con acceso a Higgsfield (MCP) y/o local.
-- **Alternativa si el entorno no lo permite** (cloud sin imágenes): cola de
-  F11.8 que sea viable (a11y teclado/reduced-motion revisables en código), o
-  auditoría de contenido/SEO de la landing V2 en vivo.
+  **Solo LOCAL**: el 2026-07-24 se confirmó desde cloud que la política de red
+  deniega el CDN de Higgsfield (CONNECT 403) — el MCP genera pero las imágenes
+  no se pueden descargar al repo. También está denegado `ecom.logic2b.com`
+  (nada de auditoría «en vivo» desde cloud).
+- **Alternativa si la sesión es cloud**: pase de a11y en código de las 6
+  tiendas demo vivas (launch, minimal, editorial, guide, iris, demo) con el
+  mismo método headless del 2026-07-24 — la cola cloud de las páginas
+  comerciales ya está agotada (a11y+contenido hechos; Lighthouse/OG son LOCAL).
 - Tras F11.2a: re-capturar pantallas (`scripts/capture-screens.mjs`), ampliar
   la galería del hero a 8 tiendas (se deriva sola del registro) y cerrar la
   cola de F11.8 (Lighthouse citable + OG WhatsApp).

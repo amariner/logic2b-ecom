@@ -169,17 +169,17 @@ const jsonLd = [
           <div class="rounded-2xl border border-brand/30 bg-brand/5 p-6">
             <p class="font-semibold text-brand-dark">Es para ti si…</p>
             <ul class="mt-3 space-y-2 text-sm leading-relaxed text-stone-700">
-              <li class="flex gap-2"><span class="text-brand">✓</span> Vendes entre 50 y 100 productos y quieres una tienda seria, tuya y rápida.</li>
-              <li class="flex gap-2"><span class="text-brand">✓</span> Estás pagando cuotas y comisiones de plataforma que no entiendes.</li>
-              <li class="flex gap-2"><span class="text-brand">✓</span> Quieres gestionar los pedidos tú, sin depender de nadie para el día a día.</li>
+              <li class="flex gap-2"><span aria-hidden="true" class="text-brand">✓</span> Vendes entre 50 y 100 productos y quieres una tienda seria, tuya y rápida.</li>
+              <li class="flex gap-2"><span aria-hidden="true" class="text-brand">✓</span> Estás pagando cuotas y comisiones de plataforma que no entiendes.</li>
+              <li class="flex gap-2"><span aria-hidden="true" class="text-brand">✓</span> Quieres gestionar los pedidos tú, sin depender de nadie para el día a día.</li>
             </ul>
           </div>
           <div class="rounded-2xl border border-stone-200 bg-cream p-6">
             <p class="font-semibold text-stone-700">No es para ti si…</p>
             <ul class="mt-3 space-y-2 text-sm leading-relaxed text-stone-600">
-              <li class="flex gap-2"><span>—</span> <span>Necesitas miles de referencias, multiidioma o marketplace: eso es otro proyecto (y podemos hablarlo).</span></li>
-              <li class="flex gap-2"><span>—</span> <span>Buscas la tienda más barata posible sin diseño propio: una plantilla te servirá.</span></li>
-              <li class="flex gap-2"><span>—</span> <span>Vendes menos de 10 productos: pregunta por el <a href="mailto:hola@logic2b.com?subject=Kit%20Lite%20para%20mi%20negocio" class="font-medium text-brand underline underline-offset-2">Kit Lite</a>, la versión de entrada.</span></li>
+              <li class="flex gap-2"><span aria-hidden="true">—</span> <span>Necesitas miles de referencias, multiidioma o marketplace: eso es otro proyecto (y podemos hablarlo).</span></li>
+              <li class="flex gap-2"><span aria-hidden="true">—</span> <span>Buscas la tienda más barata posible sin diseño propio: una plantilla te servirá.</span></li>
+              <li class="flex gap-2"><span aria-hidden="true">—</span> <span>Vendes menos de 10 productos: pregunta por el <a href="mailto:hola@logic2b.com?subject=Kit%20Lite%20para%20mi%20negocio" class="font-medium text-brand underline underline-offset-2">Kit Lite</a>, la versión de entrada.</span></li>
             </ul>
           </div>
         </div>
@@ -194,7 +194,7 @@ const jsonLd = [
               <h3 class="font-semibold">{block.area}</h3>
               <ul class="mt-3 grid gap-x-8 gap-y-2 text-sm leading-relaxed text-stone-600 sm:grid-cols-2">
                 {block.items.map((item) => (
-                  <li class="flex gap-2"><span class="text-brand">✓</span> <span>{item}</span></li>
+                  <li class="flex gap-2"><span aria-hidden="true" class="text-brand">✓</span> <span>{item}</span></li>
                 ))}
               </ul>
             </div>
@@ -300,9 +300,9 @@ const jsonLd = [
           respuesta, por escrito:
         </p>
         <ul class="mt-5 space-y-3 rounded-2xl border border-black/5 bg-white p-6 text-sm leading-relaxed text-stone-600 shadow-sm">
-          <li class="flex gap-2"><span class="text-brand">✓</span> <span><strong class="text-ink">Todo está a tu nombre desde el primer día</strong>: el dominio, la cuenta de Stripe (donde entra tu dinero), el alojamiento y el repositorio con el código. Nosotros solo tenemos los accesos de mantenimiento.</span></li>
-          <li class="flex gap-2"><span class="text-brand">✓</span> <span>En la entrega firmamos un <strong class="text-ink">acta con un inventario de accesos</strong>: qué cuentas existen, de quién son y quién entra en cada una. Con esa hoja, cualquier profesional puede continuar tu tienda mañana.</span></li>
-          <li class="flex gap-2"><span class="text-brand">✓</span> <span><strong class="text-ink">Sin permanencia.</strong> Si dejas el mantenimiento, te entregamos una última copia de seguridad, retiramos nuestros accesos y la tienda sigue funcionando. Sin rehenes.</span></li>
+          <li class="flex gap-2"><span aria-hidden="true" class="text-brand">✓</span> <span><strong class="text-ink">Todo está a tu nombre desde el primer día</strong>: el dominio, la cuenta de Stripe (donde entra tu dinero), el alojamiento y el repositorio con el código. Nosotros solo tenemos los accesos de mantenimiento.</span></li>
+          <li class="flex gap-2"><span aria-hidden="true" class="text-brand">✓</span> <span>En la entrega firmamos un <strong class="text-ink">acta con un inventario de accesos</strong>: qué cuentas existen, de quién son y quién entra en cada una. Con esa hoja, cualquier profesional puede continuar tu tienda mañana.</span></li>
+          <li class="flex gap-2"><span aria-hidden="true" class="text-brand">✓</span> <span><strong class="text-ink">Sin permanencia.</strong> Si dejas el mantenimiento, te entregamos una última copia de seguridad, retiramos nuestros accesos y la tienda sigue funcionando. Sin rehenes.</span></li>
         </ul>
       </section>
 
@@ -328,9 +328,9 @@ const jsonLd = [
         </p>
         <p class="mt-5 font-semibold">
           <a href="mailto:hola@logic2b.com?subject=Mi%20tienda%20online%20con%20LogicEcom" class="underline underline-offset-4 hover:text-brand">hola@logic2b.com</a>
-          <span class="mx-2 text-stone-500">·</span>
+          <span aria-hidden="true" class="mx-2 text-stone-500">·</span>
           <a href="https://wa.me/34626434316?text=Hola%2C%20me%20interesa%20una%20tienda%20online%20con%20LogicEcom." class="underline underline-offset-4 hover:text-brand">WhatsApp 626 434 316</a>
-          <span class="mx-2 text-stone-500">·</span>
+          <span aria-hidden="true" class="mx-2 text-stone-500">·</span>
           <span class="font-normal text-stone-400 print:text-stone-600">Logic2B, Castellón · logic2b.com</span>
         </p>
       </section>
