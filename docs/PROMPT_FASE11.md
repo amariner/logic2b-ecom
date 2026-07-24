@@ -52,9 +52,9 @@ están en el §10 del plan. Resumen:
 | Bloque | Qué | Restricción |
 |---|---|---|
 | F11.2a → 9B.5/9B.6 | Imaginería Higgsfield de las tiendas restantes + temas Industrial/Natural/Street/Specs | **Solo sesión LOCAL** (el CDN de Higgsfield está bloqueado en cloud). Seguir `docs/CHECKLIST_TEMA.md` |
-| F11.1 | Capturas de tiendas + panel + emails | **Solo LOCAL** (browser tools + wrangler dev). Lista exacta en §4 del plan |
-| F11.5 | Precios/negocio: aplicar D4 en landing, dossier, JSON-LD y unit economics | Puede ir ya, cloud o local |
-| F11.3 | Landing V2 (2 sesiones: esqueleto+hero, luego motion+pulido) | Necesita F11.1 hecho |
+| ~~F11.1~~ | ✅ **Hecha (2026-07-23)**: 30 capturas WebP + vídeo de Iris en `public/images/screens/`, receta de re-captura en su README | Re-capturar solo si un tema se rediseña |
+| F11.5 | Precios/negocio: D4 ya aplicado en landing + JSON-LD (F11.3 s1); queda **dossier** (hoy cita 2.944 €/3 años) + unit economics | Puede ir ya, cloud o local |
+| F11.3 | Landing V2 — **sesión 1 (esqueleto + hero galería) HECHA (2026-07-23)**. Queda la **sesión 2**: acento que muta con el scroll, autoplay del vídeo Iris (IntersectionObserver + reduced-motion), mini-calculadora 3 años, View Transitions, cifras animadas, Lighthouse 100×4 | Pendientes exactos en ROADMAP §F11.3 |
 | F11.4 | `/estilos` + `/arquitectura` v2 | Tras F11.1 |
 | F11.6 | Funnel: demo guiada 3 min, CTAs por temperatura, eventos CF Analytics | Tras F11.3 |
 | F11.7 | Docs de cliente (`/ayuda` noindex, runbook, plantillas, dossier v2) — ejecuta la Fase 10 | Independiente; solo pide capturas de F11.1 |
@@ -74,14 +74,24 @@ están en el §10 del plan. Resumen:
   resumen), commit descriptivo, sign-off del consejo, y **parar a esperar el
   OK de Andreu** antes del siguiente bloque.
 
-## Estado de partida (2026-07-23)
+## Estado de partida (actualizado 2026-07-24)
 
 - Producción en vivo en ecom.logic2b.com (Worker `ecom-logic2b`, D1 remota,
-  cron reset 6 h, pagos simulados sin claves Stripe).
+  cron reset 6 h, pagos simulados sin claves Stripe). **La landing V2 aún no
+  está desplegada** — vive en `main` pero el deploy es paso de F11.8.
 - 6 tiendas navegables: Vector (launch, demo destacada), Forma Interior
   (minimal), Módulo Audio (editorial), Cafetal (guide), Iris (inmersiva con
   vídeo scrub) y la Botiga genérica (con panel completo y fixtures 9B.2).
+- **Hecho de la Fase 11**: F11.1 (30 capturas + vídeo Iris) y F11.3 sesión 1
+  (landing V2 dirección C: hero-galería derivado del registro de colecciones,
+  esqueleto §5 completo, precios D4, JSON-LD actualizado). 148 tests en verde.
+- **Decisiones que Andreu aún debe dar** (no bloquean todo, sí su pieza):
+  número de WhatsApp de negocio (constante `WHATSAPP` vacía en `index.astro`;
+  hasta entonces el CTA es solo email) · si se activa el modo oscuro para el
+  visitante (hoy el sitio renderiza fijo en claro; la landing es dark-ready).
 - Pendientes previos que la Fase 11 absorbe: 9B.5 (imaginería), 9B.6 (4 temas
-  restantes), 9B.7 (`/estilos` → tiendas reales), 9B.8 (reescribir
-  `docs/TEMAS.md`), Fase 10 entera (→ F11.7).
+  restantes: Industrial/Natural/Street/Specs), 9B.7 (`/estilos` → tiendas
+  reales, entra en F11.4), 9B.8 (reescribir `docs/TEMAS.md`), Fase 10 entera
+  (→ F11.7).
 - Créditos Higgsfield: ~652 a fecha del plan; presupuesto estimado ~180.
+  Solo consumibles en sesión LOCAL.

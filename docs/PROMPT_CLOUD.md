@@ -1,63 +1,103 @@
 # Prompt de arranque — sesión cloud (claude.ai/code)
 
-> Copia el bloque de abajo como primer mensaje al abrir una sesión cloud sobre el repo `amariner/logic2b-ecom`.
+> Copia el bloque de abajo como primer mensaje al abrir una sesión cloud sobre
+> el repo `amariner/logic2b-ecom`. Actualizado 2026-07-24 (Fase 11 en curso).
 
 ---
 
-Eres el desarrollador principal del **Logic2B Commerce Kit**, un ecommerce ultraligero ya **desplegado y en vivo en https://ecom.logic2b.com**. Este repo es a la vez demo comercial y plantilla clonable para clientes.
+Continúa el desarrollo de **LogicEcom** (ecom.logic2b.com): demo pública +
+plantilla clonable de ecommerce ultraligero (Astro 5 + Cloudflare D1/Workers +
+Stripe) con **6 tiendas radicalmente distintas sobre un solo motor**, ya
+desplegado en producción. Estamos en la **Fase 11**: landing nivel Awwwards,
+negocio, funnel y documentación de cliente.
 
 ## Antes de tocar nada
 
-1. Lee `CLAUDE.md` (especificación completa: principios, stack, gotchas técnicos, reglas de trabajo).
-2. Lee `docs/ROADMAP.md` (estado real del proyecto y decisiones tomadas — es la fuente de verdad).
-3. Las **Fases 0–8 están completas**. No queda backlog técnico ejecutable desde cloud: lo pendiente son decisiones y pasos locales de Andreu (lista abajo).
+1. `git fetch origin main` — puede haber sesiones en paralelo empujando.
+2. Lee `CLAUDE.md` entero, **incluida la §16**: trabajas como el equipo de 7
+   roles de `.claude/skills/equipo/` (lee los roles afectados por tu bloque y
+   cierra cada entrega con el sign-off del consejo).
+3. Lee `docs/ROADMAP.md` (estado real, fuente de verdad),
+   `docs/PLAN_FASE11_LANDING_V2.md` (plan maestro) y `docs/PROMPT_FASE11.md`
+   (estado de partida y bloques al día).
 
-## Estado actual (julio 2026, tras las sesiones cloud del 18–19)
+## Estado (2026-07-24)
 
-- Fases 0–8 completas: tienda (con búsqueda, resumen de pedido en checkout, productos relacionados, micro-guía, NIF opcional, selector de temas), panel admin (auth con cookie firmada, contraseña demo «demo», backup SQL, cancelar pedido pagado con devolución de stock), landing + `/arquitectura` + dossier comercial `/dossier`, rate limiting de aplicación (incluido `/api/demo/reset`), Web Analytics cableado (falta token), deploy y docs.
-- **101 tests unitarios + E2E de 27 pasos** (`pnpm test:e2e` contra `wrangler dev`), todo en verde. Lighthouse **100 de accesibilidad en todas las páginas**; landing, `/arquitectura` y `/dossier` en 100/100/100/100.
-- Novena auditoría propia (2026-07-19): race de idempotencia en `applyPaidMutation` (dos entregas concurrentes del webhook podían duplicar decremento de stock y emails), PII enumerable en `/demo/gracias` en modo simulado, cancelación de pedido pagado sin botón ni devolución de stock, tope de cantidad por línea saltable duplicando slugs, cantidad no entera perdida en silencio en el carrito, y prefijo de nº de pedido hardcodeado (ahora en `shop.config.ts`). Todo corregido y mergeado directamente a `main` (delegación explícita de Andreu para esta sesión).
-- Décima auditoría propia (2026-07-19, misma sesión): la misma race de idempotencia estaba también en el `PATCH /api/admin/orders/:id` del panel (mismo arreglo: UPDATE guardado en solitario + comprobación de filas afectadas), vaciar un precio/stock en el admin lo guardaba como 0 sin avisar, ediciones rechazadas por el servidor dejaban el input con el valor incorrecto, `/demo/admin/login` sin rate limit, y la bandeja de emails sin aviso de corte a 100. Todo corregido y mergeado a `main`.
-- **Producción**: Cloudflare Worker `ecom-logic2b` + D1 remota `ecom-demo`, custom domain, cron de reset cada 6 h.
-- **Pagos en modo simulado** (sin claves Stripe): `src/lib/payment-mode.ts` — no lo cambies sin preguntar. Con `STRIPE_SECRET_KEY` puesta vuelve solo a Stripe Checkout real.
-- **Diseño**: estética tipo Shopify (blanco, tinta, verde `#008060`, botones pill, sans del sistema). En la tienda demo, un selector de 4 temas (`src/lib/demo-themes.ts`) sobreescribe color/tipografía/radios via variables CSS; el radio de los controles usa el token `--radius-btn` (`rounded-btn`). Imágenes de producto IA en `public/images/products/*.webp`; webfonts self-hosted en `public/fonts/`.
+- Fases 0–8 completas. Fase 9B: 6 tiendas navegables con URL, catálogo y fotos
+  propias — Vector (launch, demo destacada), Forma Interior (minimal), Módulo
+  Audio (editorial), Cafetal (guide), Iris (inmersiva con vídeo scrub) y la
+  Botiga genérica (panel completo con fixtures 9B.2).
+- Fase 11: **F11.1 hecha** (30 capturas WebP + vídeo de Iris en
+  `public/images/screens/`) y **F11.3 sesión 1 hecha** (landing V2 dirección C
+  con hero-galería, precios D4, JSON-LD). **La landing V2 no está desplegada**:
+  vive en `main`; el deploy es F11.8 y lo hace Andreu en local.
+- **148 tests** (`pnpm check`) + E2E (`pnpm test:e2e`), todo en verde.
+- Pagos en modo simulado (`src/lib/payment-mode.ts`) — no lo cambies sin
+  preguntar.
 
-## Pendiente (no arrancar sin instrucción explícita de Andreu)
+## Decisiones YA TOMADAS (2026-07-23) — no re-preguntar
 
-**Decisiones de Andreu** (ver «Decisiones pendientes» del ROADMAP):
-- Confirmar precios (1.900 € / 29 €/mes, hoy provisionales en landing y dossier).
-- Ofrecer o no la versión «Lite» (análisis en `docs/LITE.md`; en la landing ya hay línea de medición de demanda).
-- Activar pagos reales con claves TEST de Stripe (más impactante que la simulación).
+- **D1**: la landing admite **JS propio ≤15 KB, sin dependencias** (deroga la
+  regla «cero JS» de 2026-07-19). Lighthouse 100×4 innegociable. Nada de
+  GSAP/Lenis.
+- **D3**: dirección creativa **C «Ocho tiendas, un motor»** (ya implementada
+  en la sesión 1).
+- **D4**: precios — Lite desde 590 € (publicado sin construir) · Kit 1.900 € +
+  39 €/mes · Kit a medida desde 3.400 € + 59 €/mes.
+- **D5**: contacto WhatsApp + email. **Falta el número de WhatsApp** (constante
+  `WHATSAPP` vacía en `index.astro`): pedírselo a Andreu, no inventarlo.
+- **D6**: el Lite se publica como tarjeta secundaria para medir demanda.
+- Pendiente de Andreu además: si se activa el **modo oscuro** para el visitante
+  (hoy el sitio renderiza fijo en claro; la landing es dark-ready).
 
-**Pasos locales de Andreu** (bloqueados desde cloud por red/credenciales — no los reintentes):
-- `node scripts/fetch-product-images.mjs` + re-seed (las 18 fotos por producto; el CDN de Higgsfield está bloqueado desde cloud).
-- Token de Web Analytics en `shop.config.ts` (`analytics.cfBeaconToken`).
-- Regla de rate limiting en el dashboard de Cloudflare (refuerzo del limiter de aplicación ya desplegado).
-- Backup periódico D1 → R2 (crear bucket + binding en `wrangler.jsonc`; el manual ya existe en el panel).
-- Deploy (`pnpm deploy`) y Lighthouse contra producción para poder citarlo.
+## Qué bloques puede ejecutar una sesión cloud
 
-## Tu misión en esta sesión
+| Bloque | Qué |
+|---|---|
+| **F11.3 sesión 2** | Motion + pulido de la landing: acento que muta con el scroll, autoplay del vídeo Iris (IntersectionObserver + reduced-motion), mini-calculadora a 3 años, View Transitions, cifras animadas, auditoría Lighthouse 100×4 |
+| **F11.5** | Precios/negocio: dossier con la escalera D4 (hoy cita 2.944 €/3 años, desfasado) + unit economics interno |
+| **F11.4** | `/estilos` con capturas reales y enlace a cada tienda viva (cierra 9B.7) + `/arquitectura` v2 |
+| **F11.6** | Funnel: demo guiada de 3 min, CTAs por temperatura, eventos CF Analytics (tras F11.3) |
+| **F11.7** | Docs de cliente (`/ayuda` noindex, runbook, plantillas, dossier v2) — ejecuta la Fase 10 |
 
-La marcará Andreu en su mensaje. Si no la concreta, pregunta antes de tocar nada: no queda backlog por defecto. Si te pide trabajo nuevo (features, contenido, ajustes), aplica las reglas de `CLAUDE.md` §14: no inventes alcance, propón antes de implementar.
+**Bloqueado desde cloud, no lo intentes**: imaginería Higgsfield
+(F11.2a/9B.5/9B.6 — el CDN da 403 de política), re-capturas de pantalla que
+requieran producción, y el deploy. Son sesiones locales de Andreu.
 
-## Reglas de trabajo (resumen; las completas en CLAUDE.md)
+Si Andreu no concreta el bloque en su mensaje, **pregunta antes de tocar nada**.
 
-- TypeScript estricto, sin `any` sin justificar. **No añadas dependencias** sin explicar por qué y pedir OK.
-- UI y docs en español; código y commits en inglés.
-- Verificación antes de cada commit: `pnpm check` (astro check + tests + build) y, si tocas el flujo de compra o el panel, también `pnpm test:e2e`. No commitees en rojo.
-- Mobile-first: todo debe verse perfecto en 375 px.
-- La landing `/` debe seguir con **cero JavaScript** (el beacon de analytics y el selector de temas solo van en `/demo/*`).
+## Reglas de trabajo (resumen; completas en CLAUDE.md y el plan)
+
+- TypeScript estricto; código y commits en inglés, UI y docs en español.
+- **Ni una dependencia nueva sin OK.** El motor (`src/lib/`, APIs,
+  `migrations/`) NO se toca en esta fase; única excepción posible (tabla
+  `leads`, D5) con OK explícito previo.
+- `pnpm check` en verde antes de cada commit; si tocas el flujo de compra o el
+  panel, también `pnpm test:e2e`. No commitees en rojo.
+- Verificar en navegador a 1440 y 375, claro y oscuro. `prefers-reduced-motion`
+  deja siempre una página completa y digna.
 - No toques `wrangler.jsonc` (IDs de producción) ni el modo de pago simulado.
-- **No puedes desplegar desde cloud** (no hay auth de Cloudflare): trabaja en una rama, commit al final de cada tarea con mensaje descriptivo, y abre un PR hacia `main`. Andreu revisa, mergea y despliega en local con `pnpm deploy`. Un PR mergeado no se reutiliza: reinicia la rama desde `main`. Ojo: puede haber sesiones cloud en paralelo — haz `git fetch origin main` antes de abrir el PR y resuelve conflictos tú.
-- Al terminar, **actualiza `docs/ROADMAP.md`**: marca lo completado con fecha y una línea de resumen.
+- **No puedes desplegar desde cloud**: trabaja en rama, commit descriptivo al
+  cerrar cada tarea y PR hacia `main`. Andreu revisa, mergea y despliega con
+  `pnpm deploy`. Un PR mergeado no se reutiliza: reinicia la rama desde `main`.
+- Al cerrar el bloque: actualizar `docs/ROADMAP.md` (estado + fecha + resumen),
+  sign-off del consejo, y **parar a esperar el OK de Andreu**.
 
 ## Trucos de entorno cloud ya aprendidos (no los redescubras)
 
-- El egress bloquea Higgsfield/cloudfront (403 de política, no reintentar), la propia producción (`ecom.logic2b.com`) y `logic2b.com`; github.com, npm y Google Fonts sí pasan.
-- `wrangler dev` escucha solo IPv6; para Lighthouse/CDP lanza `wrangler dev --ip 127.0.0.1` y usa `--no-proxy-server` en Chrome (`/opt/pw-browsers/chromium`).
-- El `checkOrigin` de Astro 5 exige cabecera `Origin` en POST de formulario (login, reset) — los curl/fetch de scripts deben mandarla; los POST JSON no.
-- El TSX de `astro check` elimina los `return` del frontmatter: lo usado solo dentro de un `return` da falso ts(6133). Y `El.append(a, b)` en `<script>` de `.astro` da falso ts(2345): usa `appendChild`.
+- El egress bloquea Higgsfield/cloudfront (403 de política, no reintentar), la
+  propia producción (`ecom.logic2b.com`) y `logic2b.com`; github.com, npm y
+  Google Fonts sí pasan.
+- `wrangler dev` escucha solo IPv6; para Lighthouse/CDP lanza
+  `wrangler dev --ip 127.0.0.1` y usa `--no-proxy-server` en Chrome
+  (`/opt/pw-browsers/chromium`).
+- El `checkOrigin` de Astro 5 exige cabecera `Origin` en POST de formulario
+  (login, reset) — los curl/fetch de scripts deben mandarla; los POST JSON no.
+- El TSX de `astro check` elimina los `return` del frontmatter: lo usado solo
+  dentro de un `return` da falso ts(6133). Y `El.append(a, b)` en `<script>`
+  de `.astro` da falso ts(2345): usa `appendChild`.
 
 ## Al empezar
 
-Devuélveme primero: (1) qué vas a atacar en esta sesión y en qué orden, (2) cualquier duda de alcance. Después arranca con lo primero.
+Devuélveme primero: (1) qué vas a atacar en esta sesión y en qué orden,
+(2) cualquier duda de alcance. Después arranca con lo primero.
