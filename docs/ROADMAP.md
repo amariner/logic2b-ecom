@@ -189,10 +189,28 @@ gzip + CSS scroll-driven). Motor intacto; solo `index.astro`, `Base.astro`,
   foco visible). Receta de verificación en el scratchpad de la sesión
   (`verify-landing.mjs`, patrón de `scripts/capture-screens.mjs`).
 
+### F11.5 — Precios D4 en dossier + unit economics + WhatsApp D5 (2026-07-24)
+
+- **CTA de WhatsApp activado** (D5): número de negocio 626 434 316 en la
+  constante `WHATSAPP` de `index.astro` (botón primario del CTA final) y en el
+  contacto del dossier (imprimible, con el número visible).
+- **`/dossier` a la escalera D4**: Kit 1.900 € + 39 €/mes (destacado, con las
+  «hasta 2 h de cambios al mes» explícitas — el anti-scope-creep de § 6.2), Kit
+  a medida desde 3.400 € + 59 €/mes, Kit Lite desde 590 € como tira secundaria.
+  Comparativa recalculada: **3.304 € a 3 años** (antes citaba 2.944 € con los
+  29 €/mes antiguos). JSON-LD del dossier con `offers` de los tres tiers,
+  sincronizado con la landing.
+- **Unit economics escritos** (interno) en `PLAN_FASE11_LANDING_V2.md` § 11:
+  ingresos por tier, costes (infra 0, imaginería ~50 créd., dominio),
+  mantenimiento a 19,5 €/h efectivos si se consume entero (validar consumo real
+  con los 3 primeros clientes) y escenario año 1 conservador. ⚠ La casilla de
+  **horas de producción por tema sigue vacía** (`docs/temas/*.md` § «Coste del
+  tema» sin rellenar): es el único coste que puede romper el modelo y se cierra
+  rellenando la ficha de cada tema al construirlo (9B.6).
+
 **Pendiente Fase 11** (siguientes bloques): F11.2a (imaginería Higgsfield + 4
-temas restantes), F11.5 (precios D4 en dossier + unit economics), F11.4
-(`/estilos` + `/arquitectura`), F11.6 (funnel), F11.7 (docs cliente), F11.8
-(QA + deploy + Lighthouse contra producción).
+temas restantes), F11.4 (`/estilos` + `/arquitectura`), F11.6 (funnel), F11.7
+(docs cliente), F11.8 (QA + deploy + Lighthouse contra producción).
 
 ## Fase 9B — Ocho tiendas distintas sobre un solo motor
 

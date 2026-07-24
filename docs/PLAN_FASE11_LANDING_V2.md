@@ -369,7 +369,45 @@ F11.0 Decisiones D1–D6 (Andreu)  ← BLOQUEA TODO
 Mínimo viable si se quiere acortar: F11.0 → F11.1 (solo 6 tiendas actuales) →
 F11.3 → F11.8. La galería del hero admite crecer de 6 a 8 tiendas sin rediseño.
 
-## 11. Qué NO entra (anti-scope-creep)
+## 11. Unit economics del Kit (INTERNO — F11.5, 2026-07-24; no va a la web)
+
+Cuenta honesta por cliente, con los precios D4 ya publicados en landing y dossier:
+
+**Ingresos por cliente Kit**
+- Setup 1.900 € + mantenimiento 39 €/mes → **3.304 € a 3 años** (la cifra que
+  cita la landing y su calculadora).
+- Kit a medida: desde 3.400 € + 59 €/mes → desde 5.524 € a 3 años.
+- Lite (desde 590 €, sin construir — D6): solo mide demanda; sin cuenta propia
+  hasta que exista.
+
+**Costes por cliente Kit**
+- Infraestructura: **0 €/mes** (planes gratuitos de Cloudflare; el modelo entero
+  depende de esto y es la ventaja estructural frente a agencias con hosting).
+- Imaginería: ~50 créditos Higgsfield por tienda (~2,3 créd./imagen observado
+  en Fase 8/9B) — coste marginal en euros ≈ despreciable con el plan actual.
+- Dominio: ~12 €/año solo si se adelanta (lo normal: a nombre y cargo del cliente).
+- **Producción (horas por tema): SERIE REAL PENDIENTE.** Las fichas
+  `docs/temas/*.md` § «Coste del tema» están sin rellenar; rellenarlas al cerrar
+  cada tema nuevo (9B.6) es prerequisito para cerrar esta cuenta con datos y no
+  con fe. Es el único coste que puede romper el modelo: si adaptar un tema del
+  catálogo pasa de ~2-3 jornadas, el Kit a 1.900 € deja de ser rentable como
+  producto y vuelve a ser servicio.
+
+**Mantenimiento (el negocio real es el MRR)**
+- 39 €/mes con «hasta 2 h de cambios» explícitas: a tope de consumo son
+  ~19,5 €/h efectivos — asumible solo si el consumo medio real queda en ≤1 h/mes.
+  Validar con los 3 primeros clientes; si la media supera 1,5 h/mes, subir el
+  tier o acotar el tipo de cambio incluido (decisión de Andreu llegado el caso).
+- El tier de 59 €/mes (a medida, con prioridad) protege el margen del cliente
+  que más pide.
+
+**Escenario año 1 (conservador, coherente con § 6.3)**
+- 8–12 clientes Kit → 15.200–22.800 € en setups + MRR al cierre de
+  312–468 €/mes (~3.700–5.600 €/año de run-rate).
+- Riesgos de la cuenta: consumo del mantenimiento por encima de 2 h (scope
+  creep clásico — el copy ya lo acota), y horas de producción sin medir (arriba).
+
+## 12. Qué NO entra (anti-scope-creep)
 
 - Ni blog, ni multiidioma, ni CMS, ni testimonios inventados (cuando haya un
   cliente real, su caso sustituye a la tienda genérica en la galería).
