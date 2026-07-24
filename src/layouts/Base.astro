@@ -10,7 +10,14 @@ import { shopConfig } from '../../shop.config';
 // global.css (que queda como fallback). Es CSS, no JS: la landing sigue cero-JS.
 // En /demo/* el selector de temas sobreescribe con estilo inline en el elemento
 // (mayor precedencia aún), así que sigue mandando sobre esto.
-const brandTokens = `html:root{--color-brand:${shopConfig.brand.color};--color-brand-dark:${shopConfig.brand.colorDark}}`;
+//
+// @view-transition: crossfade entre documentos (/ ↔ /estilos ↔ demos) en
+// navegadores que lo soportan. CSS puro — sin router de cliente ni JS — y solo
+// si el visitante no pide reduced-motion. Una sola implementación para todo el
+// sitio: en las páginas sobrias (admin) queda como fundido discreto.
+const brandTokens =
+  `html:root{--color-brand:${shopConfig.brand.color};--color-brand-dark:${shopConfig.brand.colorDark}}` +
+  '@media (prefers-reduced-motion:no-preference){@view-transition{navigation:auto}}';
 
 interface Props {
   title: string;
@@ -37,6 +44,16 @@ const ogImage = new URL('/images/og.jpg', Astro.site).href;
     {description && <meta name="description" content={description} />}
     {noindex && <meta name="robots" content="noindex,follow" />}
     {canonical && <link rel="canonical" href={canonical} />}
+    {/* Inter latino es la fuente base de todo el sitio: precargarla arranca la
+        descarga en paralelo con el CSS (el subset latin-ext casi nunca hace
+        falta en castellano y no se precarga). */}
+    <link
+      rel="preload"
+      href="/fonts/inter-latin-wght-normal.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
     <link rel="icon" href="/favicon.ico" sizes="48x48" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />

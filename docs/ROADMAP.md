@@ -54,7 +54,7 @@ reconciliación se conserva abajo por contexto.
 | 9 | Catálogo de estilos (8 temas) | 🟡 En curso | 2026-07-21 | Arquitectura + `/estilos` + **temas 06 Minimal, 01 Editorial, 07 Launch y 04 Guide desarrollados** (5 listos con Base; registro de catálogo por tema generalizado). **Replanteada como Fase 9B** (ver abajo): de «una tienda, 8 pieles» a «8 tiendas, un motor» |
 | 9B | 8 tiendas distintas sobre un solo motor | 🟡 En curso | 2026-07-22 | **9B.0–9B.4 hechos.** Rutas por colección, selector/cookie eliminados, carrito namespaceado, y 4 tiendas reales (Forma Interior, Módulo Audio, Cafetal, Vector) con catálogo y fotos propias. 148 tests. Ver «Fase 9B» |
 | 10 | Documentación para el cliente | ⬜ Pendiente | — | Ver «Fase 10». Es material de venta y de entrega, no docs técnicas. **Su ejecución está planificada como bloque F11.7 del plan de Fase 11** |
-| 11 | Landing V2 «nivel Awwwards» + negocio + funnel + docs | 🟡 En curso | 2026-07-23 | **F11.1 (capturas) hecho** (ver «Fase 11» abajo). **Plan maestro completo en [`docs/PLAN_FASE11_LANDING_V2.md`](PLAN_FASE11_LANDING_V2.md)**: bloques F11.0–F11.8 ejecutables por sesiones independientes. **Decisiones D1–D6 APROBADAS por Andreu (2026-07-23)**: JS propio ≤15 KB sin deps, capturas con browser tools en local, dirección C «Ocho tiendas, un motor», escalera de precios (Lite 590 / Kit 1.900+39 / A medida 3.400+59), WhatsApp+email, Lite publicado sin construir. Prompt de arranque: [`docs/PROMPT_FASE11.md`](PROMPT_FASE11.md). Integra 9B.5/9B.6 (imaginería y temas restantes) como prerequisito del hero |
+| 11 | Landing V2 «nivel Awwwards» + negocio + funnel + docs | 🟡 En curso | 2026-07-24 | **F11.1 (capturas) y F11.3 (landing V2: esqueleto + motion, 2 sesiones) hechos** (ver «Fase 11» abajo). **Plan maestro completo en [`docs/PLAN_FASE11_LANDING_V2.md`](PLAN_FASE11_LANDING_V2.md)**: bloques F11.0–F11.8 ejecutables por sesiones independientes. **Decisiones D1–D6 APROBADAS por Andreu (2026-07-23)**: JS propio ≤15 KB sin deps, capturas con browser tools en local, dirección C «Ocho tiendas, un motor», escalera de precios (Lite 590 / Kit 1.900+39 / A medida 3.400+59), WhatsApp+email, Lite publicado sin construir. Prompt de arranque: [`docs/PROMPT_FASE11.md`](PROMPT_FASE11.md). Integra 9B.5/9B.6 (imaginería y temas restantes) como prerequisito del hero |
 | 8 | Pulido de la demo (backlog abajo) | 🟡 En curso | 2026-07-19 | Backlog técnico agotado; solo quedan decisiones y pasos locales de Andreu (ver «Decisiones pendientes» y `docs/PROMPT_CLOUD.md`). Últimas tandas: novena (race de idempotencia en el pago, PII enumerable en `/demo/gracias`, cancelación de pedido pagado sin devolver stock), décima (la misma race en el PATCH de admin, campos vacíos guardados como 0, login sin rate limit), undécima (diagrama móvil de `/arquitectura`, hedge del plazo de entrega, tokens de tema en `/demo/reset`, terminología «envío»), duodécima (aviso de corte en pedidos del admin, cabeceras sin wrap a 375px, leftover «portes», token de radio del carrito, contraste del botón eliminar, H1 en valenciano, checklist de producción) y decimotercera (misma race de idempotencia en `checkout.session.expired`, divisa hardcodeada a EUR fuera de Stripe, cobertura de test de `quoteCart`/PATCH admin/emails) y decimocuarta (config parcial de Stripe → cobro sin cumplimiento, emails duplicados bajo concurrencia, `payment_status` del webhook, color de marca centralizado en `shop.config.ts`, contraste/tema en carrito y checkout) — ver sección «Fase 8» |
 
 ## Repo y entornos
@@ -137,15 +137,62 @@ Reescritura de `src/pages/index.astro` a la dirección C «Ocho tiendas, un moto
     El sitio renderiza en claro; la landing es dark-ready pero el oscuro no se
     activa para el visitante. Decisión de producto/UX aparte (afecta a todo el
     sitio, no solo a la landing).
-  - **Sesión 2 (motion + pulido)**: acento que muta con el scroll, autoplay del
-    vídeo Iris con IntersectionObserver + reduced-motion, mini-calculadora de
-    precios a 3 años, View Transitions, cifras animadas al entrar en viewport,
-    y auditoría Lighthouse 100×4.
+  - ~~Sesión 2 (motion + pulido)~~ → **hecha el 2026-07-24**, ver F11.3 sesión 2.
+
+### F11.3 — Landing V2, sesión 2: motion y pulido (2026-07-24)
+
+Motion nivel premio sin dependencias (D1: un único script vanilla inline ~2 KB
+gzip + CSS scroll-driven). Motor intacto; solo `index.astro`, `Base.astro`,
+`SiteHeader.astro` y `global.css` (fuentes/selection, presentación compartida).
+
+- **Acento mutante**: el acento de la landing muta al de la tienda activa de la
+  galería (la tarjeta más cercana al centro de la tira; listener de scroll +
+  rAF). Los pares AA se **precalculan en build** por tienda: texto sobre blanco
+  ≥ 4,5:1 con cadena acento → acento oscuro → tinta, e invertida para fondo
+  oscuro (dark-ready). Guide muta a tinta como texto — el mismo criterio que ya
+  aplica su tienda. Remaps con scope `[data-landing]` fuera de `@layer`; los
+  botones `bg-brand` pasan a `text-brand-fg`. Sin JS: acento estático por
+  tarjeta (el fallback previsto).
+- **Iris**: la tarjeta se sirve como `<img>` lazy del póster y el script la
+  asciende a `<video preload="none">` con IntersectionObserver (play al 40 %
+  visible, pause al salir). Con reduced-motion o Save-Data se queda la imagen.
+  El clip (593 KB) no baja ni un byte hasta que la tarjeta se ve.
+- **Cifras count-up en CSS puro**: `@property <integer>` + `animation-timeline:
+  view()` + `counter()`; el texto real queda en el DOM como fallback (Firefox,
+  reduced-motion, impresión) y es lo que leen los lectores. Tarjetas con entrada
+  `rise` solo-transform (sin opacity: axe audita el estado inicial y el texto
+  perdería contraste).
+- **Mini-calculadora a 3 años** (D4): slider 1.000–10.000 €/mes → Shopify Basic
+  (36 €/mes + 2 % sin su pasarela) vs Kit (3.304 €), con veredicto honesto (a
+  poco volumen dice que Shopify sale más barata). Fallback sin JS: tabla de 3
+  escenarios con las mismas cuentas. ⚠ El dossier aún cita 2.944 €/3 años
+  (29 €/mes antiguos) — se actualiza en F11.5.
+- **View Transitions cross-document CSS puras** (`@view-transition`, sin router
+  de cliente): / ↔ /estilos ↔ demos con crossfade y header persistente
+  (`view-transition-name` en `SiteHeader`); guardadas por reduced-motion.
+  `::selection` con el acento activo y scrollbar de la galería acentuada.
+- **Fuentes**: fallback métrico de Inter (`size-adjust` sobre Arial/Roboto) +
+  preload del woff2 latino → **CLS 0** (antes 0,05 por el swap).
+- **Lighthouse local (wrangler dev, preset móvil): 98 / 100 / 100 / 100** con
+  TBT 0 ms, CLS 0, FCP 0,8 s. El LCP *simulado* queda en 2,3 s (lantern encadena
+  el TTFB de 468 ms de miniflare y las capturas del hero pre-LCP al H1) pero el
+  **LCP observado es 0,26 s**. Hallazgo clave: animar `font-weight` de la Inter
+  variable en el H1 costaba **2,1 s de TBT** (re-shaping por frame) → eliminado;
+  la entrada del hero es solo-transform. El gate 100×4 se cierra contra
+  producción en F11.8 (TTFB real de CDN + HTTP/2); si allí no llega, la palanca
+  documentada es adelgazar las 3 capturas pre-LCP de la galería (decisión de
+  Andreu: calidad del escaparate vs el punto de perf).
+- **Verificado**: `pnpm check` (148 tests, 0 errores) + **E2E 27 pasos** en
+  verde (se tocó CSS/layout compartido); CDP a 1440 y 375, claro y oscuro
+  (dark-ready con acentos invertidos comprobados), reduced-motion (página
+  completa y estática, Iris como imagen), teclado (galería = enlaces nativos,
+  foco visible). Receta de verificación en el scratchpad de la sesión
+  (`verify-landing.mjs`, patrón de `scripts/capture-screens.mjs`).
 
 **Pendiente Fase 11** (siguientes bloques): F11.2a (imaginería Higgsfield + 4
-temas restantes), F11.5 (precios D4 en dossier + unit economics), F11.3 sesión 2
-(motion), F11.4 (`/estilos` + `/arquitectura`), F11.6 (funnel), F11.7 (docs
-cliente), F11.8 (QA + deploy).
+temas restantes), F11.5 (precios D4 en dossier + unit economics), F11.4
+(`/estilos` + `/arquitectura`), F11.6 (funnel), F11.7 (docs cliente), F11.8
+(QA + deploy + Lighthouse contra producción).
 
 ## Fase 9B — Ocho tiendas distintas sobre un solo motor
 

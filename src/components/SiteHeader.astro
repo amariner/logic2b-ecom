@@ -33,7 +33,9 @@ const {
 } = Astro.props;
 ---
 
-<header class="sticky top-0 z-50 w-full border-b border-border bg-background/80 backdrop-blur">
+{/* view-transition-name: el header persiste (no se funde) al navegar entre
+    páginas que lo comparten (/ ↔ /estilos ↔ /arquitectura) — continuidad sin JS. */}
+<header class="sticky top-0 z-50 w-full border-b border-border bg-background/80 backdrop-blur [view-transition-name:site-header]">
   <div class="mx-auto flex h-14 w-full max-w-6xl items-center gap-6 px-4 sm:px-6">
     <a href={homeHref} class="flex items-center gap-2 text-foreground" aria-label={wordmark ?? 'Inicio'}>
       <Logo size={20} wordmark={wordmark} mark={showMark} />
