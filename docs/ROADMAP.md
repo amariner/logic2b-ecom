@@ -53,7 +53,7 @@ reconciliación se conserva abajo por contexto.
 | 7 | bootstrap.sh + checklist demo→cliente real | ✅ Hecho | 2026-07-18 | `scripts/bootstrap.sh` (local probado end-to-end; `--remote` aprovisiona Cloudflare) + `docs/PRODUCCION.md` |
 | 9 | Catálogo de estilos (8 temas) | 🟡 En curso | 2026-07-21 | Arquitectura + `/estilos` + **temas 06 Minimal, 01 Editorial, 07 Launch y 04 Guide desarrollados** (5 listos con Base; registro de catálogo por tema generalizado). **Replanteada como Fase 9B** (ver abajo): de «una tienda, 8 pieles» a «8 tiendas, un motor» |
 | 9B | 8 tiendas distintas sobre un solo motor | 🟡 En curso | 2026-07-22 | **9B.0–9B.4 hechos.** Rutas por colección, selector/cookie eliminados, carrito namespaceado, y 4 tiendas reales (Forma Interior, Módulo Audio, Cafetal, Vector) con catálogo y fotos propias. 148 tests. Ver «Fase 9B» |
-| 10 | Documentación para el cliente | ⬜ Pendiente | — | Ver «Fase 10». Es material de venta y de entrega, no docs técnicas. **Su ejecución está planificada como bloque F11.7 del plan de Fase 11** |
+| 10 | Documentación para el cliente | 🟡 Casi completa | 2026-07-24 | **Ejecutada como F11.7** (ver Fase 11): `/ayuda` (noindex) con manual de 3 pasos + guías + runbook, acta de entrega e inventario de accesos en `docs/plantillas/`, dossier con «qué pasa si nos vamos», guion del vídeo. Pendiente: grabar el vídeo (Andreu) y confirmar las decisiones a/b/c asumidas |
 | 11 | Landing V2 «nivel Awwwards» + negocio + funnel + docs | 🟡 En curso | 2026-07-24 | **F11.1 (capturas) y F11.3 (landing V2: esqueleto + motion, 2 sesiones) hechos** (ver «Fase 11» abajo). **Plan maestro completo en [`docs/PLAN_FASE11_LANDING_V2.md`](PLAN_FASE11_LANDING_V2.md)**: bloques F11.0–F11.8 ejecutables por sesiones independientes. **Decisiones D1–D6 APROBADAS por Andreu (2026-07-23)**: JS propio ≤15 KB sin deps, capturas con browser tools en local, dirección C «Ocho tiendas, un motor», escalera de precios (Lite 590 / Kit 1.900+39 / A medida 3.400+59), WhatsApp+email, Lite publicado sin construir. Prompt de arranque: [`docs/PROMPT_FASE11.md`](PROMPT_FASE11.md). Integra 9B.5/9B.6 (imaginería y temas restantes) como prerequisito del hero |
 | 8 | Pulido de la demo (backlog abajo) | 🟡 En curso | 2026-07-19 | Backlog técnico agotado; solo quedan decisiones y pasos locales de Andreu (ver «Decisiones pendientes» y `docs/PROMPT_CLOUD.md`). Últimas tandas: novena (race de idempotencia en el pago, PII enumerable en `/demo/gracias`, cancelación de pedido pagado sin devolver stock), décima (la misma race en el PATCH de admin, campos vacíos guardados como 0, login sin rate limit), undécima (diagrama móvil de `/arquitectura`, hedge del plazo de entrega, tokens de tema en `/demo/reset`, terminología «envío»), duodécima (aviso de corte en pedidos del admin, cabeceras sin wrap a 375px, leftover «portes», token de radio del carrito, contraste del botón eliminar, H1 en valenciano, checklist de producción) y decimotercera (misma race de idempotencia en `checkout.session.expired`, divisa hardcodeada a EUR fuera de Stripe, cobertura de test de `quoteCart`/PATCH admin/emails) y decimocuarta (config parcial de Stripe → cobro sin cumplimiento, emails duplicados bajo concurrencia, `payment_status` del webhook, color de marca centralizado en `shop.config.ts`, contraste/tema en carrito y checkout) — ver sección «Fase 8» |
 
@@ -251,9 +251,33 @@ gzip + CSS scroll-driven). Motor intacto; solo `index.astro`, `Base.astro`,
   preguntas en 24 h» que promete la landing, regla de encaje honesto y registro
   de demanda del Lite para D6).
 
+### F11.7 — Documentación de cliente (ejecuta la Fase 10) (2026-07-24)
+
+> ⚠ Decisiones (a)(b)(c) del plan § 8 **asumidas con la recomendación escrita**
+> (a: `/ayuda` noindex en la propia tienda · b: castellano solo · c: manual
+> genérico sin apéndices por estilo de momento). Confirmar con Andreu.
+
+- **`/ayuda`** (noindex, fuera del sitemap —es allowlist—, registro sobrio del
+  panel, parametrizada por `shop.config` → clonable): manual del pedido en
+  **3 pasos con las capturas reales** de F11.1, guía de producto (la foto que
+  vende, nombre/precio/stock), guía de envíos (tarifas, umbral gratis como
+  promoción), runbook **«Qué hacer cuando…»** (6 situaciones: pedido que no
+  llega, reembolso, pendiente eterno, tracking equivocado, cancelar pagado,
+  agotado) y **«Qué puedes tocar sin miedo (y qué no)»**. Cero jerga (el listón:
+  nada de webhooks). Enlace «Ayuda» en la cabecera del panel.
+- **Plantillas de entrega** en `docs/plantillas/`: **acta de entrega**
+  (checklist de lo entregado, formación, propiedad y mantenimiento, firmas) e
+  **inventario de accesos** (tabla titular/cuenta/acceso, sin contraseñas,
+  reglas de la casa y baja con retirada de accesos). Markdown imprimible.
+- **Dossier v2**: sección «**Qué pasa si un día nos vamos**» (todo a nombre del
+  cliente + acta/inventario + sin permanencia) — el anti-secuestro como
+  argumento de venta (Fase 10.3).
+- **Guion del vídeo de 3 min** (`docs/plantillas/guion-video-panel.md`): 10
+  líneas con plano y frase; la grabación es de Andreu (paso local).
+
 **Pendiente Fase 11** (siguientes bloques): F11.2a (imaginería Higgsfield + 4
-temas restantes), F11.7 (docs cliente), F11.8 (QA + deploy + Lighthouse contra
-producción).
+temas restantes; LOCAL), F11.8 (QA + deploy + Lighthouse contra producción;
+LOCAL). El resto de bloques ejecutables desde cloud están completos.
 
 ## Fase 9B — Ocho tiendas distintas sobre un solo motor
 
