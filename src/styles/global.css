@@ -23,6 +23,18 @@
   src: url("/fonts/inter-latin-ext-wght-normal.woff2") format("woff2-variations");
   unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
 }
+/* Fallback de Inter con métricas ajustadas (Arial con size-adjust): el texto
+   del sistema ocupa lo mismo que Inter → el swap de la webfont no desplaza
+   nada (CLS 0 medido en Lighthouse; antes 0,05 por «web font loaded»). */
+@font-face {
+  font-family: "Inter Fallback";
+  src: local("Arial"), local("Helvetica Neue"), local("Roboto");
+  size-adjust: 107.4%;
+  ascent-override: 90.2%;
+  descent-override: 22.48%;
+  line-gap-override: 0%;
+}
+
 @font-face {
   font-family: 'Fraunces';
   font-style: normal; font-weight: 400 700; font-display: swap;
@@ -36,7 +48,7 @@
 
 :root {
   /* Tipografía base */
-  --font-sans: "Inter Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Inter Variable", "Inter Fallback", ui-sans-serif, system-ui, sans-serif;
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 
   /* Tokens neutros Logic2B UI — CLARO (oklch, chroma 0) */
@@ -195,6 +207,12 @@
   :focus-visible {
     outline: 2px solid var(--color-brand);
     outline-offset: 2px;
+  }
+  /* La selección de texto lleva el acento activo (tema o tienda de la galería).
+     --color-brand-fg garantiza el par legible (Guide selecciona en tinta). */
+  ::selection {
+    background-color: var(--color-brand);
+    color: var(--color-brand-fg);
   }
 }
 

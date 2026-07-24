@@ -105,11 +105,13 @@ const benefits = [
             <text x="320" y="252" text-anchor="middle" fill="#1a1a1a" font-weight="600">Webhook firmado</text>
             <text x="320" y="270" text-anchor="middle" fill="#78716c" font-size="11">pagado → stock → email</text>
 
-            <line x1="160" y1="46" x2="240" y2="46" stroke="#008060" stroke-width="1.5" marker-end="url(#arrow)"></line>
-            <line x1="395" y1="46" x2="475" y2="46" stroke="#008060" stroke-width="1.5" marker-end="url(#arrow)"></line>
-            <line x1="320" y1="72" x2="320" y2="125" stroke="#008060" stroke-width="1.5" marker-end="url(#arrow)"></line>
-            <line x1="320" y1="182" x2="320" y2="225" stroke="#008060" stroke-width="1.5" marker-end="url(#arrow)"></line>
-            <path d="M 395 256 C 560 256 555 130 555 77" fill="none" stroke="#008060" stroke-width="1.5" stroke-dasharray="4 3" marker-end="url(#arrow)"></path>
+            {/* pathLength=1 normaliza el trazo: la animación CSS «dibuja» las
+                flechas al entrar en viewport (fallback: dibujadas de serie). */}
+            <line class="draw" pathLength="1" x1="160" y1="46" x2="240" y2="46" stroke="#008060" stroke-width="1.5" marker-end="url(#arrow)"></line>
+            <line class="draw" pathLength="1" x1="395" y1="46" x2="475" y2="46" stroke="#008060" stroke-width="1.5" marker-end="url(#arrow)"></line>
+            <line class="draw" pathLength="1" x1="320" y1="72" x2="320" y2="125" stroke="#008060" stroke-width="1.5" marker-end="url(#arrow)"></line>
+            <line class="draw" pathLength="1" x1="320" y1="182" x2="320" y2="225" stroke="#008060" stroke-width="1.5" marker-end="url(#arrow)"></line>
+            <path class="draw-fade" d="M 395 256 C 560 256 555 130 555 77" fill="none" stroke="#008060" stroke-width="1.5" stroke-dasharray="4 3" marker-end="url(#arrow)"></path>
           </g>
         </svg>
       </div>
@@ -119,6 +121,21 @@ const benefits = [
         <li>Stripe nos confirma el pago con un <strong class="text-ink">webhook firmado criptográficamente</strong>. Solo entonces el pedido pasa a «pagado», se descuenta el stock y se envía el email de confirmación — todo en una única transacción.</li>
         <li>Si Stripe reenvía la confirmación (pasa a menudo), el sistema la reconoce y no duplica nada: el webhook es <strong class="text-ink">idempotente</strong>.</li>
       </ol>
+      <figure class="mt-6 overflow-hidden rounded-2xl border border-black/5 bg-white shadow-sm">
+        <img
+          src="/images/screens/panel-emails.webp"
+          alt="La bandeja de emails del panel: cada confirmación de pedido y aviso de envío que el sistema ha generado"
+          width="1440"
+          height="900"
+          loading="lazy"
+          decoding="async"
+          class="w-full"
+        />
+        <figcaption class="border-t border-black/5 bg-cream px-5 py-3 text-sm text-stone-600">
+          El resultado visible del webhook: la bandeja de emails de la demo, con cada
+          confirmación y aviso generados por pedidos reales de prueba.
+        </figcaption>
+      </figure>
 
       <h2 class="mt-14 font-display text-2xl sm:text-3xl">El modelo de datos completo</h2>
       <p class="mt-3 leading-relaxed text-stone-600">
@@ -148,6 +165,21 @@ const benefits = [
         número de seguimiento en el panel. El cliente recibe su aviso automáticamente.
         Menos piezas, menos averías, y el mejor precio de etiqueta en cada momento.
       </p>
+      <figure class="mt-6 overflow-hidden rounded-2xl border border-black/5 bg-white shadow-sm">
+        <img
+          src="/images/screens/panel-orders.webp"
+          alt="El listado de pedidos del panel con sus estados y el botón de exportar CSV para Packlink o SendCloud"
+          width="1440"
+          height="900"
+          loading="lazy"
+          decoding="async"
+          class="w-full"
+        />
+        <figcaption class="border-t border-black/5 bg-cream px-5 py-3 text-sm text-stone-600">
+          El panel real de la demo: pedidos con sus estados y la exportación CSV para
+          imprimir etiquetas en Packlink o SendCloud.
+        </figcaption>
+      </figure>
 
       <h2 class="mt-14 font-display text-2xl sm:text-3xl">Lo que esto significa para ti</h2>
       <div class="mt-6 grid gap-5 sm:grid-cols-3">
@@ -184,3 +216,32 @@ const benefits = [
     </footer>
   </div>
 </Base>
+
+<style is:global>
+  /* El diagrama se dibuja al entrar en viewport (CSS scroll-driven, cero JS).
+     Fallback completo: sin soporte o con reduced-motion queda dibujado. */
+  @media screen and (prefers-reduced-motion: no-preference) {
+    @supports (animation-timeline: view()) {
+      .draw {
+        stroke-dasharray: 1;
+        stroke-dashoffset: 1;
+        animation: arch-draw linear both;
+        animation-timeline: view();
+        animation-range: entry 30% contain 40%;
+      }
+      /* La curva del webhook es discontinua (dasharray propio): se funde en
+         vez de dibujarse para no perder el punteado. */
+      .draw-fade {
+        animation: arch-fade linear both;
+        animation-timeline: view();
+        animation-range: entry 60% contain 50%;
+      }
+    }
+  }
+  @keyframes arch-draw {
+    to { stroke-dashoffset: 0; }
+  }
+  @keyframes arch-fade {
+    from { opacity: 0; }
+  }
+</style>

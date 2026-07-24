@@ -1,0 +1,242 @@
+---
+/**
+ * /ayuda — manual de operación PARA EL COMERCIO (Fase 10 / F11.7).
+ *
+ * Registro sobrio del panel, a propósito: esto no vende, enseña a operar.
+ * En la DEMO además es material comercial visible («esto es todo lo que hay
+ * que aprender»). noindex: es documentación, no página de captación.
+ *
+ * El listón del ROADMAP: si algo de aquí necesita explicar qué es un webhook,
+ * está mal escrito. Cero jerga.
+ */
+import Base from '../layouts/Base.astro';
+import { shopConfig } from '../../shop.config';
+
+const toc = [
+  ['pedido', 'Un pedido, en 3 pasos'],
+  ['productos', 'Tus productos: fotos, precios y stock'],
+  ['envios', 'Los envíos y sus tarifas'],
+  ['cuando', 'Qué hacer cuando…'],
+  ['romper', 'Qué puedes tocar sin miedo (y qué no)'],
+] as const;
+
+const steps = [
+  {
+    n: '1',
+    title: 'Te llega un pedido',
+    img: '/images/screens/panel-orders.webp',
+    alt: 'El listado de pedidos del panel, con el pedido nuevo arriba en estado «Pagado»',
+    body: 'Recibes un email de aviso con el número de pedido. En el panel, el pedido aparece arriba del todo con el estado «Pagado» — el dinero ya está cobrado por Stripe antes de que tú veas nada. Ábrelo: verás los productos, las cantidades y la dirección completa del cliente.',
+  },
+  {
+    n: '2',
+    title: 'Prepara el paquete y la etiqueta',
+    img: '/images/screens/panel-shipping.webp',
+    alt: 'La sección de envíos del panel con el botón de exportar CSV para Packlink o SendCloud',
+    body: 'Crea la etiqueta en tu plataforma de envíos (Packlink PRO, SendCloud o la que uses). Opción rápida: copia la dirección desde el detalle del pedido. Opción en lote: botón «Exportar CSV» en Envíos — descarga todos los pedidos pagados listos para importar allí e imprimir etiquetas. Pega la etiqueta y entrega el paquete (o pide recogida desde la misma plataforma).',
+  },
+  {
+    n: '3',
+    title: 'Marca «Enviado» y pega el seguimiento',
+    img: '/images/screens/panel-order-detail.webp',
+    alt: 'El detalle de un pedido con el transportista, el número de seguimiento y su historial',
+    body: 'En el detalle del pedido: elige el transportista, pega el número de seguimiento que te dio la plataforma y pulsa «Marcar enviado». El cliente recibe automáticamente un email con su seguimiento. No tienes que escribir nada.',
+  },
+];
+
+const runbook = [
+  {
+    q: 'El cliente dice que no le llega el pedido',
+    a: 'Abre el pedido y copia su número de seguimiento: la web del transportista te dice dónde está el paquete y esa misma información es la que le das al cliente. Si el transportista lo da por perdido, reclama a tu plataforma de envíos (Packlink/SendCloud gestionan la incidencia) y decide con el cliente: reenvío o devolución del dinero.',
+  },
+  {
+    q: 'Quiero devolver el dinero de un pedido',
+    a: 'Los cobros viven en Stripe: entra en tu panel de Stripe → Pagos → busca el pedido → «Reembolsar». Después, en tu panel, abre el pedido y márcalo como cancelado: el stock vuelve solo al catálogo. El orden importa: primero el dinero, luego el estado.',
+  },
+  {
+    q: 'Un pedido lleva mucho rato en «Pendiente»',
+    a: 'Significa que alguien empezó a pagar y no terminó (pasa constantemente: carritos abandonados). No hay nada que hacer — no se ha cobrado nada y el stock no se ha descontado. Si el cliente te dice que SÍ pagó y sigue en pendiente más de unos minutos, escríbenos.',
+  },
+  {
+    q: 'Me equivoqué de número de seguimiento',
+    a: 'Abre el pedido, corrige el número y vuelve a guardar: el panel manda al cliente un nuevo email con el seguimiento bueno. No pasa nada por el email anterior — mejor un aviso de más que un cliente perdido.',
+  },
+  {
+    q: 'Quiero cancelar un pedido ya pagado',
+    a: 'Primero reembolsa en Stripe (arriba). Después, en el detalle del pedido, «Cancelar pedido»: el estado cambia, el stock de sus productos vuelve al catálogo y queda registrado en el historial del pedido.',
+  },
+  {
+    q: 'Se ha agotado un producto',
+    a: 'No tienes que hacer nada: con stock 0 la web muestra «agotado» y no deja comprarlo. Cuando repongas, actualiza el stock en Productos y vuelve a estar a la venta al momento.',
+  },
+];
+
+const canTouch = [
+  'Precios y stock: en Productos, al momento. Los pedidos ya hechos conservan su precio.',
+  'Activar o desactivar un producto (por ejemplo, fuera de temporada).',
+  'Tarifas y umbral de envío gratis, en Envíos.',
+  'Estados de los pedidos y números de seguimiento.',
+  'La copia de seguridad: descárgala de vez en cuando desde Pedidos. No rompe nada.',
+];
+
+const askUs = [
+  'Textos de las páginas (inicio, legales, condiciones): los cambiamos nosotros con tu mantenimiento.',
+  'Fotos nuevas, categorías nuevas o secciones nuevas.',
+  'Cualquier cosa del dominio, los emails o el diseño.',
+  'Si algo se ve raro o da error: no toques, escríbenos y lo miramos.',
+];
+---
+
+<Base
+  title={`Ayuda del panel — ${shopConfig.name}`}
+  description="Manual de operación de tu tienda: pedidos en 3 pasos, productos, envíos y qué hacer en cada situación."
+  noindex
+>
+  <div class="min-h-screen bg-stone-100 text-stone-900">
+    <header class="border-b border-stone-300 bg-white">
+      <div class="mx-auto flex max-w-3xl items-center justify-between px-5 py-4">
+        <p class="font-bold">{shopConfig.name} <span class="font-normal text-stone-500">· ayuda</span></p>
+        <a href="/demo/admin" class="text-sm text-stone-500 hover:text-stone-900">Ir al panel →</a>
+      </div>
+    </header>
+
+    <main class="mx-auto max-w-3xl px-5 pb-20">
+      <h1 class="mt-10 text-3xl font-bold">Tu tienda, sin misterios</h1>
+      <p class="mt-3 leading-relaxed text-stone-600">
+        Todo lo que hay que saber para operar tu tienda está en esta página. La
+        versión corta: <strong class="text-stone-900">cada pedido son 3 pasos</strong> y el
+        resto lo hace el sistema solo. Para cualquier otra cosa está tu
+        mantenimiento: <a href="mailto:hola@logic2b.com" class="underline underline-offset-2">hola@logic2b.com</a>.
+      </p>
+
+      <nav aria-label="Contenido" class="mt-6 rounded-lg border border-stone-300 bg-white p-5 text-sm">
+        <p class="font-semibold">En esta página</p>
+        <ol class="mt-2 list-decimal space-y-1 pl-5 text-stone-600">
+          {toc.map(([id, label]) => (
+            <li><a href={`#${id}`} class="underline underline-offset-2 hover:text-stone-900">{label}</a></li>
+          ))}
+        </ol>
+      </nav>
+
+      <!-- 1 · Manual de 3 pasos -->
+      <section id="pedido" class="mt-12 scroll-mt-6">
+        <h2 class="text-2xl font-bold">Un pedido, en 3 pasos</h2>
+        <p class="mt-2 text-stone-600">
+          Cuando alguien compra, el pago ya está cobrado antes de que tú veas nada.
+          Tu único trabajo es <strong class="text-stone-900">enviar el paquete</strong>.
+        </p>
+        <div class="mt-6 space-y-6">
+          {steps.map((step) => (
+            <div class="overflow-hidden rounded-lg border border-stone-300 bg-white">
+              <div class="flex items-start gap-4 p-5">
+                <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-stone-900 font-bold text-white" aria-hidden="true">{step.n}</span>
+                <div>
+                  <h3 class="font-semibold">{step.title}</h3>
+                  <p class="mt-1.5 text-sm leading-relaxed text-stone-600">{step.body}</p>
+                </div>
+              </div>
+              <img src={step.img} alt={step.alt} width="1440" height="900" loading="lazy" decoding="async" class="w-full border-t border-stone-200" />
+            </div>
+          ))}
+        </div>
+        <p class="mt-4 rounded-lg border border-stone-300 bg-white p-4 text-sm text-stone-600">
+          <strong class="text-stone-900">¿Cuándo cobro?</strong> Stripe transfiere el dinero a tu cuenta
+          bancaria automáticamente, por defecto cada pocos días. Su comisión (~1,5 % + 0,25 € por
+          pedido europeo) es la única que existe: la tienda no cobra ninguna.
+        </p>
+      </section>
+
+      <!-- 2 · Productos -->
+      <section id="productos" class="mt-12 scroll-mt-6">
+        <h2 class="text-2xl font-bold">Tus productos: fotos, precios y stock</h2>
+        <p class="mt-2 text-stone-600">
+          En <strong class="text-stone-900">Productos</strong> cambias nombre, precio, stock y si un
+          producto está a la venta. Todo se aplica al momento. Lo que más vende no se
+          edita en el panel: es la foto.
+        </p>
+        <div class="mt-5 grid gap-4 sm:grid-cols-2">
+          <div class="rounded-lg border border-stone-300 bg-white p-5 text-sm">
+            <p class="font-semibold">La foto que vende</p>
+            <ul class="mt-2 list-disc space-y-1.5 pl-5 leading-relaxed text-stone-600">
+              <li><strong class="text-stone-900">Fondo limpio y luz natural.</strong> El producto solo, sin cosas alrededor; mejor cerca de una ventana que con flash.</li>
+              <li><strong class="text-stone-900">Formato cuadrado u horizontal</strong>, con aire alrededor del producto: la web la recorta bien en cualquier pantalla.</li>
+              <li><strong class="text-stone-900">Misma receta para todas</strong>: mismo fondo, misma luz y mismo encuadre. Diez fotos coherentes venden más que veinte distintas.</li>
+              <li>Nos las pasas y nosotros las optimizamos: no subas nada, no hay que «preparar» ficheros.</li>
+            </ul>
+          </div>
+          <div class="rounded-lg border border-stone-300 bg-white p-5 text-sm">
+            <p class="font-semibold">Nombre, precio y descripción</p>
+            <ul class="mt-2 list-disc space-y-1.5 pl-5 leading-relaxed text-stone-600">
+              <li><strong class="text-stone-900">Nombre que se busca</strong>: «Aceite de oliva virgen extra 500 ml», no «El oro del Maestrat».</li>
+              <li><strong class="text-stone-900">El precio incluye IVA</strong>: es lo que paga el cliente, sin sorpresas en el checkout.</li>
+              <li>Descripción corta y concreta: qué es, cuánto trae, para qué está bueno. Dos o tres frases bastan.</li>
+              <li>Si dudas con el stock, pon de menos: es mejor reponer que anular un pedido cobrado.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- 3 · Envíos -->
+      <section id="envios" class="mt-12 scroll-mt-6">
+        <h2 class="text-2xl font-bold">Los envíos y sus tarifas</h2>
+        <p class="mt-2 text-stone-600">
+          El cliente paga el envío según su código postal: cada zona tiene su tarifa y su
+          umbral de <strong class="text-stone-900">envío gratis a partir de X €</strong>. Las dos cosas se
+          editan en la sección <strong class="text-stone-900">Envíos</strong> del panel y se aplican al momento.
+        </p>
+        <ul class="mt-4 space-y-2 rounded-lg border border-stone-300 bg-white p-5 text-sm leading-relaxed text-stone-600">
+          <li><strong class="text-stone-900">Subir o bajar una tarifa</strong> solo afecta a los pedidos nuevos; los ya hechos conservan el porte que pagaron.</li>
+          <li><strong class="text-stone-900">El umbral de envío gratis es tu mejor promoción</strong>: ponlo un poco por encima de tu ticket medio y el cliente añade «una cosa más» para llegar.</li>
+          <li><strong class="text-stone-900">La etiqueta la imprimes en tu plataforma de envíos</strong> (Packlink, SendCloud…), donde el precio del transportista es mejor que en ventanilla. La tienda te prepara el fichero con un clic.</li>
+        </ul>
+      </section>
+
+      <!-- 4 · Runbook -->
+      <section id="cuando" class="mt-12 scroll-mt-6">
+        <h2 class="text-2xl font-bold">Qué hacer cuando…</h2>
+        <p class="mt-2 text-stone-600">Las seis situaciones reales de una tienda, con su solución en dos líneas.</p>
+        <div class="mt-5 space-y-3">
+          {runbook.map((item) => (
+            <details class="rounded-lg border border-stone-300 bg-white px-5 py-3">
+              <summary class="cursor-pointer text-sm font-semibold">{item.q}</summary>
+              <p class="mt-2 text-sm leading-relaxed text-stone-600">{item.a}</p>
+            </details>
+          ))}
+        </div>
+      </section>
+
+      <!-- 5 · Qué puedes tocar -->
+      <section id="romper" class="mt-12 scroll-mt-6">
+        <h2 class="text-2xl font-bold">Qué puedes tocar sin miedo (y qué no)</h2>
+        <div class="mt-5 grid gap-4 sm:grid-cols-2">
+          <div class="rounded-lg border border-stone-300 bg-white p-5 text-sm">
+            <p class="font-semibold text-stone-900">Tuyo, del día a día</p>
+            <ul class="mt-2 space-y-1.5 leading-relaxed text-stone-600">
+              {canTouch.map((item) => (
+                <li class="flex gap-2"><span class="text-stone-400" aria-hidden="true">✓</span> <span>{item}</span></li>
+              ))}
+            </ul>
+          </div>
+          <div class="rounded-lg border border-stone-300 bg-white p-5 text-sm">
+            <p class="font-semibold text-stone-900">Nuestro, pídelo y lo hacemos</p>
+            <ul class="mt-2 space-y-1.5 leading-relaxed text-stone-600">
+              {askUs.map((item) => (
+                <li class="flex gap-2"><span class="text-stone-400" aria-hidden="true">→</span> <span>{item}</span></li>
+              ))}
+            </ul>
+            <p class="mt-3 border-t border-stone-200 pt-3 text-stone-600">
+              Tu mantenimiento incluye hasta 2 horas de cambios al mes:
+              <a href="mailto:hola@logic2b.com" class="underline underline-offset-2">hola@logic2b.com</a>.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <p class="mt-12 border-t border-stone-300 pt-6 text-sm text-stone-500">
+        Mantenido por Logic2B (Castellón) como parte de tu cuota. Si algo de esta
+        página no se entiende a la primera, dínoslo: reescribirla es trabajo nuestro,
+        no tuyo.
+      </p>
+    </main>
+  </div>
+</Base>

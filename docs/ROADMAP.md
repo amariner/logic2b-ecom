@@ -53,8 +53,8 @@ reconciliación se conserva abajo por contexto.
 | 7 | bootstrap.sh + checklist demo→cliente real | ✅ Hecho | 2026-07-18 | `scripts/bootstrap.sh` (local probado end-to-end; `--remote` aprovisiona Cloudflare) + `docs/PRODUCCION.md` |
 | 9 | Catálogo de estilos (8 temas) | 🟡 En curso | 2026-07-21 | Arquitectura + `/estilos` + **temas 06 Minimal, 01 Editorial, 07 Launch y 04 Guide desarrollados** (5 listos con Base; registro de catálogo por tema generalizado). **Replanteada como Fase 9B** (ver abajo): de «una tienda, 8 pieles» a «8 tiendas, un motor» |
 | 9B | 8 tiendas distintas sobre un solo motor | 🟡 En curso | 2026-07-22 | **9B.0–9B.4 hechos.** Rutas por colección, selector/cookie eliminados, carrito namespaceado, y 4 tiendas reales (Forma Interior, Módulo Audio, Cafetal, Vector) con catálogo y fotos propias. 148 tests. Ver «Fase 9B» |
-| 10 | Documentación para el cliente | ⬜ Pendiente | — | Ver «Fase 10». Es material de venta y de entrega, no docs técnicas. **Su ejecución está planificada como bloque F11.7 del plan de Fase 11** |
-| 11 | Landing V2 «nivel Awwwards» + negocio + funnel + docs | 🟡 En curso | 2026-07-23 | **F11.1 (capturas) hecho** (ver «Fase 11» abajo). **Plan maestro completo en [`docs/PLAN_FASE11_LANDING_V2.md`](PLAN_FASE11_LANDING_V2.md)**: bloques F11.0–F11.8 ejecutables por sesiones independientes. **Decisiones D1–D6 APROBADAS por Andreu (2026-07-23)**: JS propio ≤15 KB sin deps, capturas con browser tools en local, dirección C «Ocho tiendas, un motor», escalera de precios (Lite 590 / Kit 1.900+39 / A medida 3.400+59), WhatsApp+email, Lite publicado sin construir. Prompt de arranque: [`docs/PROMPT_FASE11.md`](PROMPT_FASE11.md). Integra 9B.5/9B.6 (imaginería y temas restantes) como prerequisito del hero |
+| 10 | Documentación para el cliente | 🟡 Casi completa | 2026-07-24 | **Ejecutada como F11.7** (ver Fase 11): `/ayuda` (noindex) con manual de 3 pasos + guías + runbook, acta de entrega e inventario de accesos en `docs/plantillas/`, dossier con «qué pasa si nos vamos», guion del vídeo. Pendiente: grabar el vídeo (Andreu) y confirmar las decisiones a/b/c asumidas |
+| 11 | Landing V2 «nivel Awwwards» + negocio + funnel + docs | 🟡 En curso | 2026-07-24 | **F11.1, F11.3 (2 sesiones), F11.4, F11.5, F11.6 y F11.7 hechos** — quedan F11.2a (imaginería, LOCAL) y F11.8 (QA+deploy, LOCAL). Detalle por bloque abajo. (ver «Fase 11» abajo). **Plan maestro completo en [`docs/PLAN_FASE11_LANDING_V2.md`](PLAN_FASE11_LANDING_V2.md)**: bloques F11.0–F11.8 ejecutables por sesiones independientes. **Decisiones D1–D6 APROBADAS por Andreu (2026-07-23)**: JS propio ≤15 KB sin deps, capturas con browser tools en local, dirección C «Ocho tiendas, un motor», escalera de precios (Lite 590 / Kit 1.900+39 / A medida 3.400+59), WhatsApp+email, Lite publicado sin construir. Prompt de arranque: [`docs/PROMPT_FASE11.md`](PROMPT_FASE11.md). Integra 9B.5/9B.6 (imaginería y temas restantes) como prerequisito del hero |
 | 8 | Pulido de la demo (backlog abajo) | 🟡 En curso | 2026-07-19 | Backlog técnico agotado; solo quedan decisiones y pasos locales de Andreu (ver «Decisiones pendientes» y `docs/PROMPT_CLOUD.md`). Últimas tandas: novena (race de idempotencia en el pago, PII enumerable en `/demo/gracias`, cancelación de pedido pagado sin devolver stock), décima (la misma race en el PATCH de admin, campos vacíos guardados como 0, login sin rate limit), undécima (diagrama móvil de `/arquitectura`, hedge del plazo de entrega, tokens de tema en `/demo/reset`, terminología «envío»), duodécima (aviso de corte en pedidos del admin, cabeceras sin wrap a 375px, leftover «portes», token de radio del carrito, contraste del botón eliminar, H1 en valenciano, checklist de producción) y decimotercera (misma race de idempotencia en `checkout.session.expired`, divisa hardcodeada a EUR fuera de Stripe, cobertura de test de `quoteCart`/PATCH admin/emails) y decimocuarta (config parcial de Stripe → cobro sin cumplimiento, emails duplicados bajo concurrencia, `payment_status` del webhook, color de marca centralizado en `shop.config.ts`, contraste/tema en carrito y checkout) — ver sección «Fase 8» |
 
 ## Repo y entornos
@@ -137,15 +137,147 @@ Reescritura de `src/pages/index.astro` a la dirección C «Ocho tiendas, un moto
     El sitio renderiza en claro; la landing es dark-ready pero el oscuro no se
     activa para el visitante. Decisión de producto/UX aparte (afecta a todo el
     sitio, no solo a la landing).
-  - **Sesión 2 (motion + pulido)**: acento que muta con el scroll, autoplay del
-    vídeo Iris con IntersectionObserver + reduced-motion, mini-calculadora de
-    precios a 3 años, View Transitions, cifras animadas al entrar en viewport,
-    y auditoría Lighthouse 100×4.
+  - ~~Sesión 2 (motion + pulido)~~ → **hecha el 2026-07-24**, ver F11.3 sesión 2.
+
+### F11.3 — Landing V2, sesión 2: motion y pulido (2026-07-24)
+
+Motion nivel premio sin dependencias (D1: un único script vanilla inline ~2 KB
+gzip + CSS scroll-driven). Motor intacto; solo `index.astro`, `Base.astro`,
+`SiteHeader.astro` y `global.css` (fuentes/selection, presentación compartida).
+
+- **Acento mutante**: el acento de la landing muta al de la tienda activa de la
+  galería (la tarjeta más cercana al centro de la tira; listener de scroll +
+  rAF). Los pares AA se **precalculan en build** por tienda: texto sobre blanco
+  ≥ 4,5:1 con cadena acento → acento oscuro → tinta, e invertida para fondo
+  oscuro (dark-ready). Guide muta a tinta como texto — el mismo criterio que ya
+  aplica su tienda. Remaps con scope `[data-landing]` fuera de `@layer`; los
+  botones `bg-brand` pasan a `text-brand-fg`. Sin JS: acento estático por
+  tarjeta (el fallback previsto).
+- **Iris**: la tarjeta se sirve como `<img>` lazy del póster y el script la
+  asciende a `<video preload="none">` con IntersectionObserver (play al 40 %
+  visible, pause al salir). Con reduced-motion o Save-Data se queda la imagen.
+  El clip (593 KB) no baja ni un byte hasta que la tarjeta se ve.
+- **Cifras count-up en CSS puro**: `@property <integer>` + `animation-timeline:
+  view()` + `counter()`; el texto real queda en el DOM como fallback (Firefox,
+  reduced-motion, impresión) y es lo que leen los lectores. Tarjetas con entrada
+  `rise` solo-transform (sin opacity: axe audita el estado inicial y el texto
+  perdería contraste).
+- **Mini-calculadora a 3 años** (D4): slider 1.000–10.000 €/mes → Shopify Basic
+  (36 €/mes + 2 % sin su pasarela) vs Kit (3.304 €), con veredicto honesto (a
+  poco volumen dice que Shopify sale más barata). Fallback sin JS: tabla de 3
+  escenarios con las mismas cuentas. ⚠ El dossier aún cita 2.944 €/3 años
+  (29 €/mes antiguos) — se actualiza en F11.5.
+- **View Transitions cross-document CSS puras** (`@view-transition`, sin router
+  de cliente): / ↔ /estilos ↔ demos con crossfade y header persistente
+  (`view-transition-name` en `SiteHeader`); guardadas por reduced-motion.
+  `::selection` con el acento activo y scrollbar de la galería acentuada.
+- **Fuentes**: fallback métrico de Inter (`size-adjust` sobre Arial/Roboto) +
+  preload del woff2 latino → **CLS 0** (antes 0,05 por el swap).
+- **Lighthouse local (wrangler dev, preset móvil): 98 / 100 / 100 / 100** con
+  TBT 0 ms, CLS 0, FCP 0,8 s. El LCP *simulado* queda en 2,3 s (lantern encadena
+  el TTFB de 468 ms de miniflare y las capturas del hero pre-LCP al H1) pero el
+  **LCP observado es 0,26 s**. Hallazgo clave: animar `font-weight` de la Inter
+  variable en el H1 costaba **2,1 s de TBT** (re-shaping por frame) → eliminado;
+  la entrada del hero es solo-transform. El gate 100×4 se cierra contra
+  producción en F11.8 (TTFB real de CDN + HTTP/2); si allí no llega, la palanca
+  documentada es adelgazar las 3 capturas pre-LCP de la galería (decisión de
+  Andreu: calidad del escaparate vs el punto de perf).
+- **Verificado**: `pnpm check` (148 tests, 0 errores) + **E2E 27 pasos** en
+  verde (se tocó CSS/layout compartido); CDP a 1440 y 375, claro y oscuro
+  (dark-ready con acentos invertidos comprobados), reduced-motion (página
+  completa y estática, Iris como imagen), teclado (galería = enlaces nativos,
+  foco visible). Receta de verificación en el scratchpad de la sesión
+  (`verify-landing.mjs`, patrón de `scripts/capture-screens.mjs`).
+
+### F11.5 — Precios D4 en dossier + unit economics + WhatsApp D5 (2026-07-24)
+
+- **CTA de WhatsApp activado** (D5): número de negocio 626 434 316 en la
+  constante `WHATSAPP` de `index.astro` (botón primario del CTA final) y en el
+  contacto del dossier (imprimible, con el número visible).
+- **`/dossier` a la escalera D4**: Kit 1.900 € + 39 €/mes (destacado, con las
+  «hasta 2 h de cambios al mes» explícitas — el anti-scope-creep de § 6.2), Kit
+  a medida desde 3.400 € + 59 €/mes, Kit Lite desde 590 € como tira secundaria.
+  Comparativa recalculada: **3.304 € a 3 años** (antes citaba 2.944 € con los
+  29 €/mes antiguos). JSON-LD del dossier con `offers` de los tres tiers,
+  sincronizado con la landing.
+- **Unit economics escritos** (interno) en `PLAN_FASE11_LANDING_V2.md` § 11:
+  ingresos por tier, costes (infra 0, imaginería ~50 créd., dominio),
+  mantenimiento a 19,5 €/h efectivos si se consume entero (validar consumo real
+  con los 3 primeros clientes) y escenario año 1 conservador. ⚠ La casilla de
+  **horas de producción por tema sigue vacía** (`docs/temas/*.md` § «Coste del
+  tema» sin rellenar): es el único coste que puede romper el modelo y se cierra
+  rellenando la ficha de cada tema al construirlo (9B.6).
+
+### F11.4 — `/estilos` y `/arquitectura` al nivel de la landing (2026-07-24)
+
+- **`/estilos` demuestra en vez de describir** (cierra 9B.7): cada tema con
+  tienda viva enseña su **captura real** de F11.1 (enlazable, con zoom suave al
+  hover) y un CTA con su acento («Entra en Vector →», par acento/texto del
+  propio tema). El mapeo tema→tienda se deriva del registro de colecciones:
+  un tema nuevo aparece solo. Vector lleva encuadre propio (`object-[center_18%]`:
+  su cabecera es texto sobre blanco y recortada parecía una tarjeta vacía).
+- **Guía para elegir estilo** (pieza 10.1): tres preguntas sin jerga (¿foto o
+  datos? ¿cuántas referencias? ¿qué tono?) con respuestas enlazadas por ancla a
+  cada ficha (`#estilo-<id>`, `scroll-mt` para el header pegajoso).
+- **`/arquitectura`**: el diagrama SVG se **dibuja al entrar en viewport**
+  (`stroke-dashoffset` + `pathLength` normalizado, CSS scroll-driven, cero JS;
+  la curva discontinua del webhook se funde para no perder el punteado;
+  fallback = dibujado). Dos capturas reales con pie: la **bandeja de emails**
+  tras el flujo del webhook y el **listado de pedidos con exportación CSV** en
+  la sección de envíos.
+- Verificado en navegador (1440 full-page ambas páginas) y `pnpm check` verde.
+
+### F11.6 — Funnel de venta (2026-07-24)
+
+- **Recorrido guiado ascendido a pieza central**: el CTA primario del hero es
+  ahora «Haz la demo en 3 minutos» → `/demo/tienda?tour=1`. La cadena ya
+  existía sin JS (tira «Recorrido de la demo» del catálogo genérico → compra →
+  pasos numerados en `/demo/gracias` → panel → bandeja); lo nuevo es la entrada
+  medible y el **cierre**: la bandeja de emails (fin del recorrido) termina con
+  un CTA sobrio «Fin del recorrido… ¿hablamos?» (WhatsApp · email · precios),
+  **solo con `DEMO_MODE=true`** — en la tienda de un cliente ese panel es suyo.
+- **CTAs por temperatura** en la landing: frío = galería de tiendas; templado =
+  recorrido de 3 min; caliente = WhatsApp/email al final. Sin mailto único.
+- **Medición (4 señales, CF Web Analytics es de pageviews — sin JS de eventos):**
+  1. *entra-demo* → pageview de `/demo/tienda?tour=1` (el query lo distingue).
+  2. *completa-compra-demo* → pageview de `/demo/gracias`.
+  3. *abre-dossier* → pageview de `/dossier`.
+  4. *contacto* → **no medible sin JS** (clic a `wa.me`/`mailto`); si se quiere,
+     es un `onclick` de 3 líneas + endpoint o el paso a un formulario→D1
+     (F11.6 opcional del plan, requiere OK aparte). Documentado, no implementado.
+  Falta el token del beacon (`analytics.cfBeaconToken`, paso local de Andreu).
+- **Plantilla interna de respuesta al prospecto** en
+  `docs/plantillas/respuesta-prospecto.md` (email + WhatsApp, las «2-3
+  preguntas en 24 h» que promete la landing, regla de encaje honesto y registro
+  de demanda del Lite para D6).
+
+### F11.7 — Documentación de cliente (ejecuta la Fase 10) (2026-07-24)
+
+> ⚠ Decisiones (a)(b)(c) del plan § 8 **asumidas con la recomendación escrita**
+> (a: `/ayuda` noindex en la propia tienda · b: castellano solo · c: manual
+> genérico sin apéndices por estilo de momento). Confirmar con Andreu.
+
+- **`/ayuda`** (noindex, fuera del sitemap —es allowlist—, registro sobrio del
+  panel, parametrizada por `shop.config` → clonable): manual del pedido en
+  **3 pasos con las capturas reales** de F11.1, guía de producto (la foto que
+  vende, nombre/precio/stock), guía de envíos (tarifas, umbral gratis como
+  promoción), runbook **«Qué hacer cuando…»** (6 situaciones: pedido que no
+  llega, reembolso, pendiente eterno, tracking equivocado, cancelar pagado,
+  agotado) y **«Qué puedes tocar sin miedo (y qué no)»**. Cero jerga (el listón:
+  nada de webhooks). Enlace «Ayuda» en la cabecera del panel.
+- **Plantillas de entrega** en `docs/plantillas/`: **acta de entrega**
+  (checklist de lo entregado, formación, propiedad y mantenimiento, firmas) e
+  **inventario de accesos** (tabla titular/cuenta/acceso, sin contraseñas,
+  reglas de la casa y baja con retirada de accesos). Markdown imprimible.
+- **Dossier v2**: sección «**Qué pasa si un día nos vamos**» (todo a nombre del
+  cliente + acta/inventario + sin permanencia) — el anti-secuestro como
+  argumento de venta (Fase 10.3).
+- **Guion del vídeo de 3 min** (`docs/plantillas/guion-video-panel.md`): 10
+  líneas con plano y frase; la grabación es de Andreu (paso local).
 
 **Pendiente Fase 11** (siguientes bloques): F11.2a (imaginería Higgsfield + 4
-temas restantes), F11.5 (precios D4 en dossier + unit economics), F11.3 sesión 2
-(motion), F11.4 (`/estilos` + `/arquitectura`), F11.6 (funnel), F11.7 (docs
-cliente), F11.8 (QA + deploy).
+temas restantes; LOCAL), F11.8 (QA + deploy + Lighthouse contra producción;
+LOCAL). El resto de bloques ejecutables desde cloud están completos.
 
 ## Fase 9B — Ocho tiendas distintas sobre un solo motor
 
@@ -389,7 +521,9 @@ Hacer barato repetir 8 veces, sin que el scaffold pueda tocar el motor.
 - **9B.5** — Resto de imaginería en sesión LOCAL: heroes/editorial de las 4
   tiendas hechas + catálogo y fotos de las 4 restantes.
 - **9B.6** — Un tema por sesión, con su catálogo y sus fotos.
-- **9B.7** — `/estilos` enlazando a las 8 tiendas reales.
+- **9B.7** — ✅ (2026-07-24, F11.4) `/estilos` enlaza a las 6 tiendas vivas con
+  captura real y CTA por tema; los 4 temas «planned» entrarán solos al
+  registrarse su colección (el mapeo tema→tienda se deriva del registro).
 - **9B.8** — Reescribir `docs/TEMAS.md` con el contrato nuevo (hoy describe el
   modelo de «una tienda, 8 pieles» y está desfasado).
 

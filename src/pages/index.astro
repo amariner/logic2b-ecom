@@ -2,12 +2,36 @@
 // Landing comercial de LogicEcom — dirección C «Ocho tiendas, un motor».
 // Sistema Logic2B UI (Inter, tokens neutros, wordmark) + acento de marca. El
 // hero ES la galería de tiendas reales; cada tarjeta lleva el acento de SU
-// tienda. Motion y calculadora llegan en la 2ª sesión de F11.3; esta deja el
-// esqueleto completo y usable sin JS.
+// tienda, y el acento de la landing muta al de la tienda activa al recorrerla
+// (script único de motion, D1: vanilla ≤15 KB; sin JS queda el acento estático).
 import Base from '../layouts/Base.astro';
 import SiteHeader from '../components/SiteHeader.astro';
 import { collections, storePaths } from '../lib/collections';
 import { getTheme } from '../lib/demo-themes';
+
+// ── Acento AA-safe por tienda (calculado en BUILD, no en cliente) ───────────
+// Un acento claro (Guide) pasa AA como relleno pero es ilegible como TEXTO
+// (hallazgo 9B, ver global.css). Cuando el acento de la landing muta, el texto
+// usa el primer color del tema que lee bien sobre blanco; tinta como último
+// recurso. Sobre fondo oscuro (dark-ready) la cadena se invierte.
+const srgbToLinear = (channel: number): number => {
+  const c = channel / 255;
+  return c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
+};
+const luminance = (hex: string): number => {
+  const n = parseInt(hex.slice(1), 16);
+  return (
+    0.2126 * srgbToLinear((n >> 16) & 255) +
+    0.7152 * srgbToLinear((n >> 8) & 255) +
+    0.0722 * srgbToLinear(n & 255)
+  );
+};
+/** Contraste WCAG del color frente a blanco (fondo real de la landing). */
+const onWhite = (hex: string): number => 1.05 / (luminance(hex) + 0.05);
+/** Contraste frente al fondo oscuro del sistema (oklch 14.5% ≈ L 0.0144). */
+const onDark = (hex: string): number => (luminance(hex) + 0.05) / (0.0144 + 0.05);
+const textSafe = (contrast: (hex: string) => number, fallback: string, ...candidates: string[]): string =>
+  candidates.find((c) => contrast(c) >= 4.5) ?? fallback;
 
 // ── Galería del hero — derivada del registro de tiendas (clonable) ──────────
 // Orden por impacto visual, alternando acentos. Iris entra en vídeo.
@@ -15,12 +39,19 @@ const galleryOrder = ['launch', 'editorial', 'iris', 'minimal', 'guide', 'demo']
 const gallery = galleryOrder.map((id) => {
   const col = collections.find((c) => c.id === id)!;
   const theme = getTheme(col.themeId)!;
+  const accent = theme.vars['--color-brand'];
+  const accentDark = theme.vars['--color-brand-dark'];
   return {
     id,
     name: col.name,
     tagline: col.tagline,
     style: theme.label,
-    accent: theme.vars['--color-brand'],
+    accent,
+    accentDark,
+    accentFg: theme.vars['--color-brand-fg'],
+    accentText: textSafe(onWhite, '#1a1a1a', accent, accentDark),
+    accentTextDark: textSafe(onWhite, '#1a1a1a', accentDark, accent),
+    accentTextDm: textSafe(onDark, '#fafafa', accent, accentDark),
     href: storePaths(id).catalog,
     img: `/images/screens/store-${id}-catalog.webp`,
     video: id === 'iris' ? '/images/screens/iris-scrub.mp4' : null,
@@ -29,9 +60,8 @@ const gallery = galleryOrder.map((id) => {
 });
 
 // ── Contacto (D5) ───────────────────────────────────────────────────────────
-// TODO(Andreu): número de WhatsApp de negocio en formato internacional sin «+»
-// ni espacios (p. ej. 34612345678). Mientras esté vacío, el CTA usa solo email.
-const WHATSAPP = '';
+// Formato internacional sin «+» ni espacios. Si se vacía, el CTA cae a email.
+const WHATSAPP = '34626434316';
 const EMAIL = 'hola@logic2b.com';
 const whatsappHref = WHATSAPP
   ? `https://wa.me/${WHATSAPP}?text=${encodeURIComponent('Hola, me interesa una tienda online con LogicEcom.')}`
@@ -128,6 +158,22 @@ const lite = {
   body: 'Hasta 10 productos con enlaces de pago de Stripe, sin panel. Para empezar a vender online con lo justo.',
 };
 
+// ── Mini-calculadora a 3 años (D4) ──────────────────────────────────────────
+// Kit: setup + 36 mensualidades. Shopify: cuota Basic + 2 % de comisión por
+// venta sin su pasarela (mismas cifras que la comparativa de arriba). Las
+// comisiones de la pasarela (Stripe / Shopify Payments) las pagan ambas y no
+// entran. Sin JS se muestran los 3 escenarios estáticos; el slider los sustituye.
+const KIT_3Y = 1900 + 39 * 36; // 3.304 €
+const shopify3y = (salesPerMonth: number): number => 36 * 36 + Math.round(salesPerMonth * 0.02 * 36);
+// Separador de miles con punto SIEMPRE (Intl es-ES no agrupa por debajo de
+// 10.000 y la landing ya escribe «1.900 €»). Misma función en el script.
+const euros = (n: number): string => `${n.toString().replace(/\B(?=(\d{3})+$)/g, '.')} €`;
+const calcScenarios = [2000, 4000, 6000].map((sales) => ({
+  sales,
+  shopify: shopify3y(sales),
+  diff: shopify3y(sales) - KIT_3Y,
+}));
+
 // ── FAQ ─────────────────────────────────────────────────────────────────────
 const faqs = [
   {
@@ -186,7 +232,8 @@ const jsonLd = [
   canonicalPath="/"
   jsonLd={jsonLd}
 >
-  <div class="bg-background text-foreground">
+  {/* data-landing: raíz donde el script de motion muta las variables de acento. */}
+  <div class="bg-background text-foreground" data-landing>
     <SiteHeader homeHref="/" wordmark="LogicEcom" nav={nav}>
       <a
         slot="actions"
@@ -201,20 +248,23 @@ const jsonLd = [
       <p class="mb-5 inline-block rounded-full border border-border bg-muted px-4 py-1.5 text-xs font-medium text-muted-foreground">
         Para comercios de 50–100 productos · Hecho en Castellón
       </p>
-      <h1 class="max-w-4xl font-display text-4xl leading-[1.05] sm:text-6xl md:text-7xl">
+      <h1 class="hero-title max-w-4xl font-display text-4xl leading-[1.05] sm:text-6xl md:text-7xl">
         Tiendas radicalmente distintas.<br />
         <span class="text-brand">Un motor probado. 0 €/mes.</span>
       </h1>
-      <p class="mt-6 max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg">
+      <p class="hero-fade mt-6 max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg" style="--d:.12s">
         Diseñamos tu tienda online a medida y la entregamos rápido, sin cuotas de
         plataforma y con pagos Stripe. Las de abajo funcionan de verdad:
         <strong class="text-foreground">entra y compra</strong>.
       </p>
-      <div class="mt-8 flex flex-col gap-3 sm:flex-row sm:gap-4">
+      {/* CTAs por temperatura (F11.6): frío = la galería de abajo; templado =
+          el recorrido guiado (?tour=1 lo hace medible como pageview propio);
+          caliente = WhatsApp al final. Nunca un solo mailto. */}
+      <div class="hero-fade mt-8 flex flex-col gap-3 sm:flex-row sm:gap-4" style="--d:.24s">
         <a
-          href="/demo/tiendas/launch"
-          class="rounded-full bg-brand px-8 py-3.5 text-center text-base font-semibold text-white shadow-lg shadow-brand/20 transition hover:bg-brand-dark"
-        >Entra en la tienda demo</a>
+          href="/demo/tienda?tour=1"
+          class="rounded-full bg-brand px-8 py-3.5 text-center text-base font-semibold text-brand-fg shadow-lg shadow-brand/20 transition hover:bg-brand-dark"
+        >Haz la demo en 3 minutos</a>
         <a
           href="/arquitectura"
           class="rounded-full border border-border px-8 py-3.5 text-center text-base font-semibold text-foreground transition hover:border-foreground"
@@ -226,13 +276,20 @@ const jsonLd = [
     <section aria-labelledby="galeria-h" class="mt-10 sm:mt-14">
       <h2 id="galeria-h" class="sr-only">Tiendas reales hechas con LogicEcom</h2>
       <ul
-        class="flex snap-x snap-mandatory gap-5 overflow-x-auto px-5 pb-4 [scrollbar-width:thin] sm:gap-6"
+        data-gallery
+        class="flex snap-x snap-mandatory gap-5 overflow-x-auto px-5 pb-4 [scrollbar-color:var(--color-brand)_transparent] [scrollbar-width:thin] sm:gap-6"
       >
         {gallery.map((store, i) => (
           <li class="shrink-0 snap-start">
             <a
               href={store.href}
               style={`--accent:${store.accent}`}
+              data-accent={store.accent}
+              data-accent-dark={store.accentDark}
+              data-accent-fg={store.accentFg}
+              data-accent-text={store.accentText}
+              data-accent-text-dark={store.accentTextDark}
+              data-accent-text-dm={store.accentTextDm}
               class="group block w-[280px] sm:w-[360px]"
             >
               <div class="overflow-hidden rounded-2xl border border-border bg-card shadow-sm transition duration-300 group-hover:-translate-y-1 group-hover:shadow-xl group-hover:[border-color:var(--accent)]">
@@ -244,34 +301,22 @@ const jsonLd = [
                   <span class="ml-2 truncate font-accent text-xs text-muted-foreground">ecom.logic2b.com{store.href}</span>
                 </div>
                 <div class="aspect-[4/5] overflow-hidden bg-muted">
-                  {/* Iris: póster inerte en sesión 1 (preload=none, sin autoplay):
-                      cero bytes de vídeo al cargar y reduce-motion-safe. El
-                      autoplay-on-scroll entra en el pase de motion (sesión 2). */}
-                  {store.video ? (
-                    <video
-                      class="h-full w-full object-cover object-top"
-                      poster={store.poster}
-                      width="1280"
-                      height="720"
-                      muted
-                      loop
-                      playsinline
-                      preload="none"
-                      data-store-video
-                    >
-                      <source src={store.video} type="video/mp4" />
-                    </video>
-                  ) : (
-                    <img
-                      src={store.img}
-                      alt={`Tienda ${store.name} — estilo ${store.style}`}
-                      width="720"
-                      height="900"
-                      loading={i === 0 ? 'eager' : 'lazy'}
-                      fetchpriority={i === 0 ? 'high' : undefined}
-                      class="h-full w-full object-cover object-top"
-                    />
-                  )}
+                  {/* Iris se sirve como IMAGEN (el póster, lazy) y el script la
+                      asciende a <video> con autoplay-on-scroll. Sin JS, con
+                      reduced-motion o con ahorro de datos queda la imagen: más
+                      ligera que un <video poster> (el póster no es lazy) y con
+                      alt real. El clip solo baja cuando la tarjeta se ve. */}
+                  <img
+                    src={store.video ? store.poster : store.img}
+                    alt={`Tienda ${store.name} — estilo ${store.style}`}
+                    width={store.video ? 1280 : 720}
+                    height={store.video ? 720 : 900}
+                    loading={i === 0 ? 'eager' : 'lazy'}
+                    fetchpriority={i === 0 ? 'high' : undefined}
+                    class="h-full w-full object-cover object-top"
+                    data-video-src={store.video ?? undefined}
+                    data-video-poster={store.video ? store.poster : undefined}
+                  />
                 </div>
               </div>
               <div class="mt-3 flex items-baseline gap-2 px-1">
@@ -303,24 +348,36 @@ const jsonLd = [
         <span><strong class="font-semibold">100/100</strong> <span class="text-background/60">Lighthouse</span></span>
         <span aria-hidden="true" class="text-background/25">·</span>
         <span><strong class="font-semibold">Stripe</strong> <span class="text-background/60">para los pagos</span></span>
-        <span class="text-background/40 transition group-hover:text-background">Cómo lo conseguimos →</span>
+        <span class="text-background/60 transition group-hover:text-background">Cómo lo conseguimos →</span>
       </a>
     </section>
 
     <!-- ── Lo que te cuesta tu tienda actual ─────────────────────────────── -->
     <section class="mx-auto max-w-6xl px-5 py-14 sm:py-20">
       <h2 class="max-w-2xl font-display text-3xl sm:text-4xl">Lo que te está costando tu tienda actual</h2>
+      {/* Cifras animadas al entrar en viewport: count-up CSS puro (registro
+          @property + animation-timeline: view()). El texto real queda en el DOM
+          como fallback estático (Firefox, reduced-motion) y para lectores. */}
       <div class="mt-10 grid gap-6 sm:grid-cols-3">
-        <div class="rounded-2xl border border-border bg-card p-7 shadow-sm">
-          <p class="font-display text-5xl text-brand">432 €</p>
+        <div class="rise rounded-2xl border border-border bg-card p-7 shadow-sm">
+          <p class="stat font-display text-5xl text-brand" style="--stat:432">
+            <span class="stat-static">432 €</span>
+            <span class="stat-count" aria-hidden="true" data-suffix=" €"></span>
+          </p>
           <p class="mt-3 leading-relaxed text-muted-foreground">al año solo de cuota de Shopify, vendas o no vendas.</p>
         </div>
-        <div class="rounded-2xl border border-border bg-card p-7 shadow-sm">
-          <p class="font-display text-5xl text-brand">~2 %</p>
+        <div class="rise rounded-2xl border border-border bg-card p-7 shadow-sm">
+          <p class="stat font-display text-5xl text-brand" style="--stat:2">
+            <span class="stat-static">~2 %</span>
+            <span class="stat-count" aria-hidden="true" data-prefix="~" data-suffix=" %"></span>
+          </p>
           <p class="mt-3 leading-relaxed text-muted-foreground">de comisión extra en cada venta si no usas su pasarela.</p>
         </div>
-        <div class="rounded-2xl border border-border bg-card p-7 shadow-sm">
-          <p class="font-display text-5xl text-brand">2–4 s</p>
+        <div class="rise rounded-2xl border border-border bg-card p-7 shadow-sm">
+          <p class="stat font-display text-5xl text-brand" style="--stat:4">
+            <span class="stat-static">2–4 s</span>
+            <span class="stat-count" aria-hidden="true" data-prefix="2–" data-suffix=" s"></span>
+          </p>
           <p class="mt-3 leading-relaxed text-muted-foreground">de carga con una plantilla genérica. Cada segundo son ventas que se van.</p>
         </div>
       </div>
@@ -336,7 +393,7 @@ const jsonLd = [
         </p>
         <div class="mt-10 space-y-6">
           {flow.map((step, i) => (
-            <div class={`grid items-center gap-6 rounded-2xl border border-border bg-card p-4 shadow-sm sm:grid-cols-2 sm:gap-8 sm:p-6 ${i % 2 === 1 ? 'sm:[&>figure]:order-2' : ''}`}>
+            <div class={`rise grid items-center gap-6 rounded-2xl border border-border bg-card p-4 shadow-sm sm:grid-cols-2 sm:gap-8 sm:p-6 ${i % 2 === 1 ? 'sm:[&>figure]:order-2' : ''}`}>
               <figure class="overflow-hidden rounded-xl border border-border bg-muted">
                 <img
                   src={step.img}
@@ -409,7 +466,7 @@ const jsonLd = [
           {tiers.map((tier) => (
             <div class={`relative rounded-2xl bg-card p-8 shadow-sm ${tier.featured ? 'border-2 border-brand shadow-lg shadow-brand/10' : 'border border-border'}`}>
               {tier.featured && (
-                <span class="absolute -top-3 left-8 rounded-full bg-brand px-3 py-1 text-xs font-semibold text-white">El más elegido</span>
+                <span class="absolute -top-3 left-8 rounded-full bg-brand px-3 py-1 text-xs font-semibold text-brand-fg">El más elegido</span>
               )}
               <p class="text-sm font-medium uppercase tracking-wide text-muted-foreground">{tier.name}</p>
               <p class="mt-3 font-display text-4xl sm:text-5xl">{tier.price}<span class="text-lg font-normal text-muted-foreground"> {tier.unit}</span></p>
@@ -421,6 +478,68 @@ const jsonLd = [
               </ul>
             </div>
           ))}
+        </div>
+        {/* ── Mini-calculadora a 3 años (D4) ─────────────────────────────────
+            Con JS: slider de ventas/mes → coste a 3 años Kit vs Shopify Basic.
+            Sin JS: 3 escenarios estáticos con las mismas cuentas. Honestidad
+            incluida: a poco volumen, la cuota de Shopify sale más barata. */}
+        <div class="mt-6 rounded-2xl border border-border bg-card p-6 sm:p-8">
+          <h3 class="font-display text-xl">Las cuentas a 3 años, con tus números</h3>
+          <div data-calc-static class="mt-5 overflow-x-auto">
+            <table class="w-full min-w-[440px] text-left text-sm">
+              <thead>
+                <tr class="border-b border-border text-muted-foreground">
+                  <th scope="col" class="py-2 pr-4 font-normal">Si vendes al mes</th>
+                  <th scope="col" class="py-2 pr-4 font-normal">Shopify Basic</th>
+                  <th scope="col" class="py-2 pr-4 font-normal">Kit completo</th>
+                  <th scope="col" class="py-2 font-normal">Diferencia</th>
+                </tr>
+              </thead>
+              <tbody>
+                {calcScenarios.map((s) => (
+                  <tr class="border-b border-border last:border-0">
+                    <th scope="row" class="py-2.5 pr-4 text-left font-medium">{euros(s.sales)}</th>
+                    <td class="py-2.5 pr-4 text-muted-foreground">{euros(s.shopify)}</td>
+                    <td class="py-2.5 pr-4 text-muted-foreground">{euros(KIT_3Y)}</td>
+                    <td class={`py-2.5 font-semibold ${s.diff > 0 ? 'text-brand-dark' : 'text-muted-foreground'}`}>
+                      {s.diff > 0 ? `ahorras ${euros(s.diff)}` : `Shopify, ${euros(-s.diff)} menos`}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <div data-calc hidden class="mt-5">
+            <label for="calc-sales" class="text-sm font-medium">
+              Si vendes <span data-out-sales class="font-semibold text-brand-dark">4.000 €</span> al mes online…
+            </label>
+            <input
+              id="calc-sales"
+              type="range"
+              min="1000"
+              max="10000"
+              step="500"
+              value="4000"
+              class="mt-3 w-full accent-brand"
+            />
+            <div class="mt-5 grid gap-4 sm:grid-cols-2">
+              <div class="rounded-xl border border-border bg-muted px-5 py-4">
+                <p class="text-xs uppercase tracking-wide text-muted-foreground">Shopify Basic, 3 años</p>
+                <p data-out-shopify class="mt-1 font-display text-3xl">—</p>
+              </div>
+              <div class="rounded-xl border-2 border-brand px-5 py-4">
+                <p class="text-xs uppercase tracking-wide text-muted-foreground">Kit completo, 3 años</p>
+                <p class="mt-1 font-display text-3xl">{euros(KIT_3Y)}</p>
+              </div>
+            </div>
+            <p data-out-verdict aria-live="polite" class="mt-4 text-sm font-medium">—</p>
+          </div>
+          <p class="mt-4 text-xs leading-relaxed text-muted-foreground">
+            Shopify: cuota Basic (36 €/mes) + 2 % de comisión por venta sin su pasarela; la plantilla
+            y las horas de montarla no están contadas. Kit: 1.900 € con el diseño a medida incluido
+            + 39 €/mes de mantenimiento con hasta 2 h de cambios. La comisión de la pasarela de pago
+            la pagan las dos opciones y no entra en la cuenta.
+          </p>
         </div>
         <div class="mx-auto mt-6 flex flex-col items-center justify-between gap-3 rounded-2xl border border-border bg-card px-6 py-5 text-sm sm:flex-row">
           <div>
@@ -443,7 +562,7 @@ const jsonLd = [
         El panel del comercio y la bandeja de emails son parte de lo que compras. Se aprenden en cinco minutos.
       </p>
       <div class="mt-10 grid gap-5 sm:grid-cols-2">
-        <a href="/demo/admin" class="group overflow-hidden rounded-2xl border border-border bg-card transition hover:-translate-y-1 hover:shadow-xl">
+        <a href="/demo/admin" class="rise group overflow-hidden rounded-2xl border border-border bg-card transition hover:-translate-y-1 hover:shadow-xl">
           <div class="aspect-[16/10] overflow-hidden border-b border-border bg-muted">
             <img src="/images/screens/panel-order-detail.webp" alt="" width="1440" height="900" loading="lazy" class="h-full w-full object-cover object-top" />
           </div>
@@ -452,7 +571,7 @@ const jsonLd = [
             <p class="mt-1 text-sm text-muted-foreground">Pedidos, estados, tracking, productos y tarifas de envío.</p>
           </div>
         </a>
-        <a href="/demo/admin/emails" class="group overflow-hidden rounded-2xl border border-border bg-card transition hover:-translate-y-1 hover:shadow-xl">
+        <a href="/demo/admin/emails" class="rise group overflow-hidden rounded-2xl border border-border bg-card transition hover:-translate-y-1 hover:shadow-xl">
           <div class="aspect-[16/10] overflow-hidden border-b border-border bg-muted">
             <img src="/images/screens/panel-emails.webp" alt="" width="1440" height="900" loading="lazy" class="h-full w-full object-cover object-top" />
           </div>
@@ -496,9 +615,9 @@ const jsonLd = [
         </p>
         <div class="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row sm:gap-4">
           {whatsappHref && (
-            <a href={whatsappHref} class="w-full rounded-full bg-brand px-9 py-4 font-semibold text-white transition hover:bg-brand-dark sm:w-auto">Escríbenos por WhatsApp</a>
+            <a href={whatsappHref} class="w-full rounded-full bg-brand px-9 py-4 font-semibold text-brand-fg transition hover:bg-brand-dark sm:w-auto">Escríbenos por WhatsApp</a>
           )}
-          <a href={emailHref} class={`w-full rounded-full px-9 py-4 font-semibold transition sm:w-auto ${whatsappHref ? 'border border-background/30 text-background hover:border-background' : 'bg-brand text-white hover:bg-brand-dark'}`}>
+          <a href={emailHref} class={`w-full rounded-full px-9 py-4 font-semibold transition sm:w-auto ${whatsappHref ? 'border border-background/30 text-background hover:border-background' : 'bg-brand text-brand-fg hover:bg-brand-dark'}`}>
             Escríbenos: {EMAIL}
           </a>
         </div>
@@ -512,3 +631,217 @@ const jsonLd = [
     </section>
   </div>
 </Base>
+
+<style is:global>
+  /* ── Motion de la landing (F11.3 sesión 2) — CSS primero, JS después ────
+     Todo lo de aquí degrada a página completa y estática: sin soporte de
+     scroll-driven animations o con prefers-reduced-motion, no se anima nada
+     y el contenido real ya está en el DOM. */
+
+  /* Acento mutante: el script fija --accent-text* con la tienda activa de la
+     galería; el texto acentuado usa la variante AA-safe precalculada en build.
+     Sin JS (o antes de interactuar) cae al acento por defecto. Fuera de
+     @layer para ganar a las utilidades (patrón del tema Guide en global.css). */
+  [data-landing] .text-brand {
+    color: var(--accent-text, var(--color-brand));
+  }
+  [data-landing] :is(.text-brand-dark, .hover\:text-brand-dark:hover) {
+    color: var(--accent-text-dark, var(--color-brand-dark));
+  }
+  /* Dark-ready: sobre fondo oscuro la cadena AA se invierte (un acento tinta,
+     como el de Forma Interior, sería invisible). Hoy el sitio pinta en claro;
+     esto protege la página el día que el modo oscuro se active. */
+  .dark [data-landing] :is(.text-brand, .text-brand-dark, .hover\:text-brand-dark:hover) {
+    color: var(--accent-text-dm, var(--color-brand));
+  }
+  /* El cambio de acento se funde: color, no movimiento. */
+  [data-landing] :is(.text-brand, .text-brand-dark, .bg-brand, .border-brand) {
+    transition-property: color, background-color, border-color;
+    transition-duration: 0.3s;
+  }
+
+  /* Cifras count-up en CSS puro: un <integer> registrado interpola y
+     counter() lo pinta. El texto real (.stat-static) es el fallback y lo que
+     leen los lectores de pantalla. */
+  @property --stat-n {
+    syntax: "<integer>";
+    inherits: false;
+    initial-value: 0;
+  }
+  @keyframes stat-count {
+    from { --stat-n: 0; }
+    to { --stat-n: var(--stat, 0); }
+  }
+  /* Solo transform: nada de opacity en tarjetas (axe audita el estado inicial
+     y el texto perdería contraste) y nada de font-weight/opacity en el H1 —
+     animar el peso de la variable re-shapea el texto en main thread y costó
+     2,1 s de TBT en Lighthouse (medido); el H1 es además el LCP. */
+  @keyframes rise-in {
+    from { transform: translateY(1.25rem); }
+  }
+  @keyframes hero-title-in {
+    from { transform: translateY(0.5rem); }
+  }
+  @keyframes hero-fade-in {
+    from { opacity: 0.02; transform: translateY(0.4rem); }
+  }
+  .stat-count { display: none; }
+
+  /* Solo pantalla: en impresión todo queda estático y completo. */
+  @media screen and (prefers-reduced-motion: no-preference) {
+    /* Entrada del hero: una vez, al cargar. El peso variable de Inter se asienta
+       de 320 a 600 — tipografía display animada sin cargar nada nuevo. */
+    .hero-title { animation: hero-title-in 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+    .hero-fade { animation: hero-fade-in 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) both; animation-delay: var(--d, 0s); }
+
+    @supports (animation-timeline: view()) {
+      .stat-static {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip-path: inset(50%);
+      }
+      .stat { position: relative; }
+      .stat-count {
+        display: inline-block;
+        counter-reset: stat-n var(--stat-n);
+        animation: stat-count linear both;
+        animation-timeline: view();
+        animation-range: entry 20% cover 45%;
+      }
+      .stat-count::before { content: attr(data-prefix); }
+      .stat-count::after { content: counter(stat-n) attr(data-suffix); }
+
+      /* Entrada suave de tarjetas conducida por el scroll (scrubbed). */
+      .rise {
+        animation: rise-in linear both;
+        animation-timeline: view();
+        animation-range: entry 5% entry 45%;
+      }
+    }
+  }
+</style>
+
+<script>
+  // Script único de la landing (decisión D1: vanilla, sin dependencias, ≤15 KB;
+  // este pesa ~2 KB). Tres piezas, todas mejora progresiva: el acento que muta
+  // con la tienda activa, el autoplay del vídeo de Iris y la calculadora.
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // 1 · El acento de la landing muta al de la tienda activa de la galería.
+  //     «Activa» = la tarjeta más cercana al centro de la tira. Los valores
+  //     (acento real, par de texto AA-safe, texto sobre acento) vienen
+  //     precalculados del servidor en data-attrs; aquí solo se copian a
+  //     variables CSS del contenedor.
+  const root = document.querySelector<HTMLElement>('[data-landing]');
+  const gallery = document.querySelector<HTMLElement>('[data-gallery]');
+  if (root && gallery) {
+    const cards = [...gallery.querySelectorAll<HTMLElement>('[data-accent]')];
+    const MAP: ReadonlyArray<readonly [string, string]> = [
+      ['accent', '--color-brand'],
+      ['accentDark', '--color-brand-dark'],
+      ['accentFg', '--color-brand-fg'],
+      ['accentText', '--accent-text'],
+      ['accentTextDark', '--accent-text-dark'],
+      ['accentTextDm', '--accent-text-dm'],
+    ];
+    let active: HTMLElement | null = null;
+    let raf = 0;
+    const pick = () => {
+      raf = 0;
+      const box = gallery.getBoundingClientRect();
+      const mid = box.left + box.width / 2;
+      let best: HTMLElement | null = null;
+      let dist = Infinity;
+      for (const card of cards) {
+        const r = card.getBoundingClientRect();
+        const d = Math.abs(r.left + r.width / 2 - mid);
+        if (d < dist) {
+          dist = d;
+          best = card;
+        }
+      }
+      if (best && best !== active) {
+        active = best;
+        for (const [key, cssVar] of MAP) {
+          const value = best.dataset[key];
+          if (value) root.style.setProperty(cssVar, value);
+        }
+      }
+    };
+    gallery.addEventListener(
+      'scroll',
+      () => {
+        raf ||= requestAnimationFrame(pick);
+      },
+      { passive: true },
+    );
+  }
+
+  // 2 · Iris: la tarjeta se sirve como imagen (póster) y aquí se asciende a
+  //     <video preload="none"> que reproduce solo mientras se ve. Nunca con
+  //     reduced-motion ni con ahorro de datos: esos visitantes se quedan la
+  //     imagen. El clip no baja ni un byte hasta que la tarjeta es visible.
+  const saveData =
+    (navigator as Navigator & { connection?: { saveData?: boolean } }).connection?.saveData === true;
+  if (!reduced && !saveData) {
+    for (const img of document.querySelectorAll<HTMLImageElement>('img[data-video-src]')) {
+      const video = document.createElement('video');
+      video.className = img.className;
+      video.poster = img.dataset.videoPoster ?? '';
+      video.width = img.width;
+      video.height = img.height;
+      video.muted = true;
+      video.loop = true;
+      video.playsInline = true;
+      video.preload = 'none';
+      const source = document.createElement('source');
+      source.src = img.dataset.videoSrc ?? '';
+      source.type = 'video/mp4';
+      video.appendChild(source);
+      img.replaceWith(video);
+      new IntersectionObserver(
+        (entries) => {
+          for (const entry of entries) {
+            const v = entry.target as HTMLVideoElement;
+            if (entry.isIntersecting) v.play().catch(() => {});
+            else v.pause();
+          }
+        },
+        { threshold: 0.4 },
+      ).observe(video);
+    }
+  }
+
+  // 3 · Calculadora a 3 años. Mismas cuentas que la tabla estática (que queda
+  //     como fallback sin JS): Shopify = 36 €/mes + 2 % de las ventas; Kit =
+  //     1.900 € + 39 €/mes. Números en el pie de la sección.
+  const calc = document.querySelector<HTMLElement>('[data-calc]');
+  const calcStatic = document.querySelector<HTMLElement>('[data-calc-static]');
+  const range = calc?.querySelector<HTMLInputElement>('input[type=range]');
+  const outSales = calc?.querySelector<HTMLElement>('[data-out-sales]');
+  const outShopify = calc?.querySelector<HTMLElement>('[data-out-shopify]');
+  const outVerdict = calc?.querySelector<HTMLElement>('[data-out-verdict]');
+  if (calc && calcStatic && range && outSales && outShopify && outVerdict) {
+    const KIT_3Y = 1900 + 39 * 36;
+    // Punto de miles siempre (coherente con «1.900 €» del copy; Intl es-ES no
+    // agrupa por debajo de 10.000).
+    const euros = (n: number) => `${n.toString().replace(/\B(?=(\d{3})+$)/g, '.')} €`;
+    const update = () => {
+      const sales = Number(range.value);
+      const shopify = 36 * 36 + Math.round(sales * 0.02 * 36);
+      const diff = shopify - KIT_3Y;
+      outSales.textContent = euros(sales);
+      outShopify.textContent = euros(shopify);
+      outVerdict.textContent =
+        diff >= 0
+          ? `Con el Kit te ahorras ${euros(diff)} en 3 años — y el diseño a medida va incluido.`
+          : `A este volumen, la cuota de Shopify sale ${euros(-diff)} más barata; el Kit compensa por el diseño a medida y las 2 h de cambios al mes.`;
+    };
+    range.addEventListener('input', update);
+    update();
+    calc.hidden = false;
+    calcStatic.hidden = true;
+  }
+</script>
