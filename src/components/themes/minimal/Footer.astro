@@ -17,6 +17,12 @@ interface Props {
 const { collection, paths } = Astro.props;
 
 const cats = collection.categories.slice(0, 5);
+
+// El pie enlaza a la propia página en la que estás (catálogo y su categoría
+// activa): sin `aria-current` el lector los lee como destinos cualesquiera.
+const pathname = Astro.url.pathname;
+const activeCategory = Astro.url.searchParams.get('categoria');
+const onCatalog = pathname.replace(/\/+$/, '') === paths.catalog.replace(/\/+$/, '');
 ---
 
 <footer class="bg-foreground text-background">
@@ -39,7 +45,11 @@ const cats = collection.categories.slice(0, 5);
       <ul class="space-y-3">
         {cats.map((c) => (
           <li>
-            <a href={`${paths.catalog}?categoria=${c.id}`} class="text-background/60 transition-colors hover:text-background">
+            <a
+              href={`${paths.catalog}?categoria=${c.id}`}
+              aria-current={onCatalog && activeCategory === c.id ? 'page' : undefined}
+              class="text-background/60 transition-colors hover:text-background"
+            >
               {c.label}
             </a>
           </li>
@@ -49,7 +59,7 @@ const cats = collection.categories.slice(0, 5);
 
     <nav aria-label="LogicEcom" class="text-[11px] uppercase tracking-[0.14em]">
       <ul class="space-y-3">
-        <li><a href={paths.catalog} class="text-background/60 transition-colors hover:text-background">Catálogo</a></li>
+        <li><a href={paths.catalog} aria-current={onCatalog && !activeCategory ? 'page' : undefined} class="text-background/60 transition-colors hover:text-background">Catálogo</a></li>
         <li><a href="/demo/admin" class="text-background/60 transition-colors hover:text-background">Panel del comercio</a></li>
         <li><a href="/arquitectura" class="text-background/60 transition-colors hover:text-background">Arquitectura</a></li>
         <li><a href="/" class="text-background/60 transition-colors hover:text-background">LogicEcom</a></li>

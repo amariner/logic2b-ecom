@@ -37,7 +37,9 @@ const available = product.stock > 0;
       a partir de 1450px el margen del contenedor centrado ya lo deja fuera. */}
   <div class="mx-auto flex max-w-6xl items-center gap-3 py-3 pl-28 pr-4 sm:gap-4 min-[1450px]:pl-4">
     {/* En móvil el hueco es para el estado, no para la miniatura. */}
-    <a href={paths.product(product.slug)} class="hidden shrink-0 sm:block">
+    {/* La miniatura es decorativa (alt=""), así que el enlace se quedaba sin
+        nombre accesible: el lector anunciaba solo «enlace». */}
+    <a href={paths.product(product.slug)} aria-label={`Ver ${product.name}`} class="hidden shrink-0 sm:block">
       <img
         src={product.image}
         alt=""

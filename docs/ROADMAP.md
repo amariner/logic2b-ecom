@@ -1129,14 +1129,73 @@ esta sección y sube a `main`.
 - **Bloque:** F11.2a — imaginería Higgsfield para las 4 tiendas restantes
   (Industrial, Natural, Specs, Street) + desarrollo de sus temas siguiendo
   `docs/CHECKLIST_TEMA.md` (una tienda por sesión si hace falta trocearlo).
-  **Solo LOCAL**: el 2026-07-24 se confirmó desde cloud que la política de red
-  deniega el CDN de Higgsfield (CONNECT 403) — el MCP genera pero las imágenes
-  no se pueden descargar al repo. También está denegado `ecom.logic2b.com`
-  (nada de auditoría «en vivo» desde cloud).
-- **Alternativa si la sesión es cloud**: pase de a11y en código de las 6
-  tiendas demo vivas (launch, minimal, editorial, guide, iris, demo) con el
-  mismo método headless del 2026-07-24 — la cola cloud de las páginas
-  comerciales ya está agotada (a11y+contenido hechos; Lighthouse/OG son LOCAL).
+  **Solo LOCAL**: re-confirmado el 2026-07-25 desde cloud que la política de red
+  deniega el CDN de Higgsfield (todos los dominios, 000) — el MCP genera pero
+  las imágenes no se pueden descargar al repo. También está denegado
+  `ecom.logic2b.com` (nada de auditoría «en vivo» desde cloud).
+- **Alternativa si la sesión es cloud**: la cola de a11y de las 6 tiendas demo
+  se cerró el 2026-07-25 (entrada de abajo) y `scripts/a11y-audit.mjs` las deja
+  en 66/66 verdes. Lo que queda ejecutable desde cloud es **pasar el mismo
+  auditor por las superficies de panel** (`/demo/admin`, detalle de pedido,
+  productos, envíos, emails, login) añadiéndolas a `SURFACES` con cookie de
+  sesión: el Lighthouse del admin se hizo a mano en 2026-07-19 y desde entonces
+  el panel no tiene red de seguridad automática.
 - Tras F11.2a: re-capturar pantallas (`scripts/capture-screens.mjs`), ampliar
   la galería del hero a 8 tiendas (se deriva sola del registro) y cerrar la
   cola de F11.8 (Lighthouse citable + OG WhatsApp).
+
+### F11.8b — auditor de accesibilidad de las tiendas y pase de las 6 vivas (2026-07-25, sesión cloud)
+
+Bloque cloud previsto en «Próxima sesión». Se construye `scripts/a11y-audit.mjs`
+(mismo motor CDP que `capture-screens.mjs`, **cero dependencias**: axe-core sería
+dependencia de cliente y aquí solo hacen falta las reglas que este repo puede
+romper). Barre las 6 tiendas × catálogo/ficha/carrito/checkout × 1440/375/oscuro/
+reduced-motion = **66 superficies**, con 14 reglas (contraste AA computado sobre
+el fondo efectivo, nombre accesible, jerarquía, landmarks, ids, interactivos
+anidados, área táctil con las excepciones *inline* y *spacing* de WCAG 2.5.8,
+labels, foco visible, overflow-x, reduced-motion, `aria-current`, `aria-hidden`
+enfocable). Primera pasada: **51 errores y 24 avisos**. Cierre: **66/66 en verde**.
+
+Lo que estaba roto de verdad:
+
+- **Iris: el botón «DESCUBRIR» del hero era invisible** (1.00:1, acento sobre
+  acento). Causa: `.iris :where(a) { color: inherit }` queda en (0,3,0) tras el
+  scoping de Astro y gana a `.iris-product-card__btn` (0,2,0), así que se perdía
+  su `color:#fff`. Arreglado envolviendo la normalización **entera** en
+  `:where(...)` → especificidad 0. Es un patrón, no un caso: cualquier tema con
+  una regla general de `a`/`button` tiene la misma trampa (queda en el checklist).
+- **Iris: copy pequeño en acento sin AA** — 4.12:1 el subtítulo del hero sobre
+  negro y 2.92:1 el de la tarjeta. El acento se queda donde pasa (el H1, que es
+  texto grande con 4.12 ≥ 3.0, y los rellenos) y el copy pequeño va en blanco.
+  `#888` de la descripción de ficha → `#767676` (4.54:1, el gris más claro que
+  llega a AA sobre blanco).
+- **Iris: texto del hero sobre el vídeo.** Esto el auditor NO lo ve (fondo =
+  imagen). Medido sobre píxeles reales con el texto oculto: media 4,93:1 pero
+  **1:1 en las zonas claras del fotograma**. Velo inferior en `.iris-hero::before`
+  y re-medido siguiendo el bbox vivo de la caption en cada posición de scrub:
+  peor caso **5,62:1** en todos los fotogramas en los que está en pantalla.
+- **Iris sin landmark `main`** (el tema es inmersivo y no monta el SiteHeader).
+- **`select#orden` sin foco visible en 4 temas**: `focus:outline-none` (utilidad
+  de Tailwind, capa utilities) pisaba el `:focus-visible` de marca de
+  `global.css`. Retirado en las 7 superficies donde estaba — el anillo de marca
+  solo sale con teclado, que es justo lo que se quería.
+- **Carrito: la CTA «Tramitar pedido» era ilegible** (blanco sobre `bg-muted`,
+  1.1:1) mientras el pedido no fuese tramitable — que es el estado en el que
+  aterriza un carrito recién llenado, antes de meter el CP. El color de texto
+  ahora se conmuta con el fondo.
+- **Minimal sin H1** y **desbordamiento horizontal a 375** en Minimal y Launch
+  (el formulario de orden no cabía y no envolvía).
+- **`aria-current` ausente** en el nav de tienda, en las categorías de la
+  genérica y en el pie de Minimal.
+- **Launch: el enlace de la miniatura de la barra fija no tenía nombre**
+  (su única cría es una imagen decorativa).
+
+Dos correcciones al propio auditor, cazadas por desconfiar de sus verdes: el
+sembrado de `localStorage` no cuajaba (se escribía sobre `about:blank`, origen
+opaco) y **se estaba auditando el carrito vacío en las 6 tiendas**; y el área
+táctil marcaba falsos positivos hasta implementar la excepción de espaciado.
+Se añadió `carrito@activo`, que rellena el CP, espera la cotización y **falla si
+no alcanza el estado esperado** en vez de auditar otra pantalla y cantar ✓.
+
+Verificado: 66/66 superficies, `pnpm check` (148 tests, 0 errores), E2E de compra
+completo (27 checks) y revisión visual a 1440 y 375.

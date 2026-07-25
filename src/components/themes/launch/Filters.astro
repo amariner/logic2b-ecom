@@ -63,7 +63,10 @@ const chipOn = 'border-brand bg-brand text-brand-fg';
     </ul>
   </nav>
 
-  <div class="flex shrink-0 items-center gap-4 text-xs text-muted-foreground">
+  {/* `shrink-0` sin `flex-wrap` sacaba la fila (buscador + orden) fuera del
+      viewport a 375 y dejaba la página con scroll horizontal. Envuelve en
+      móvil; a partir de sm vuelve a ser una sola línea que no se encoge. */}
+  <div class="flex flex-wrap items-center gap-4 text-xs text-muted-foreground sm:flex-nowrap sm:shrink-0">
     <span class="whitespace-nowrap">{count} {count === 1 ? 'producto' : 'productos'}</span>
 
     <form method="get" role="search" class="relative flex items-center">
@@ -76,7 +79,7 @@ const chipOn = 'border-brand bg-brand text-brand-fg';
         maxlength="60"
         placeholder="Buscar…"
         aria-label="Buscar en el catálogo"
-        class="w-32 border border-border bg-background px-3 py-1.5 text-xs text-foreground transition-[width,border-color] placeholder:text-muted-foreground focus:w-44 focus:border-foreground focus:outline-none"
+        class="w-32 border border-border bg-background px-3 py-1.5 text-xs text-foreground transition-[width,border-color] placeholder:text-muted-foreground focus:w-44 focus:border-foreground"
         style="border-radius: var(--radius-btn);"
       />
     </form>
@@ -90,7 +93,7 @@ const chipOn = 'border-brand bg-brand text-brand-fg';
           id="orden"
           name="orden"
           onchange="this.form.submit()"
-          class="cursor-pointer appearance-none bg-transparent pr-4 text-xs font-medium text-foreground focus:outline-none"
+          class="cursor-pointer appearance-none bg-transparent pr-4 text-xs font-medium text-foreground"
         >
           {sortOptions.map((opt) => (
             <option value={opt.id} selected={opt.id === sort}>{opt.label}</option>

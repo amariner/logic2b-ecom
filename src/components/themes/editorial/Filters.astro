@@ -76,7 +76,7 @@ const chipOn = 'border-brand bg-brand text-brand-fg';
         maxlength="60"
         placeholder="Buscar…"
         aria-label="Buscar en el catálogo"
-        class="w-28 border border-border bg-background px-2.5 py-1.5 font-accent text-[11px] uppercase tracking-[0.1em] text-foreground transition-[width,border-color] placeholder:text-muted-foreground focus:w-40 focus:border-foreground focus:outline-none"
+        class="w-28 border border-border bg-background px-2.5 py-1.5 font-accent text-[11px] uppercase tracking-[0.1em] text-foreground transition-[width,border-color] placeholder:text-muted-foreground focus:w-40 focus:border-foreground"
         style="border-radius: var(--radius-btn);"
       />
     </form>
@@ -90,7 +90,7 @@ const chipOn = 'border-brand bg-brand text-brand-fg';
           id="orden"
           name="orden"
           onchange="this.form.submit()"
-          class="cursor-pointer appearance-none bg-transparent pr-4 font-accent text-[11px] uppercase tracking-[0.1em] text-foreground focus:outline-none"
+          class="cursor-pointer appearance-none bg-transparent pr-4 font-accent text-[11px] uppercase tracking-[0.1em] text-foreground"
         >
           {sortOptions.map((opt) => (
             <option value={opt.id} selected={opt.id === sort}>{opt.label}</option>
