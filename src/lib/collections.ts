@@ -20,6 +20,7 @@ import { launchCollection } from '../collections/launch';
 import { irisCollection } from '../collections/iris';
 import { streetCollection } from '../collections/street';
 import { industrialCollection } from '../collections/industrial';
+import { naturalCollection } from '../collections/natural';
 // new-theme:imports — no borrar: `pnpm new:theme <id>` añade aquí su import.
 import type { CollectionCategory, CollectionConfig } from '../collections/types';
 
@@ -41,6 +42,7 @@ export const collections: readonly CollectionConfig[] = [
   irisCollection,
   streetCollection,
   industrialCollection,
+  naturalCollection,
   // new-theme:entries — no borrar: `pnpm new:theme <id>` añade aquí su entrada.
 ];
 

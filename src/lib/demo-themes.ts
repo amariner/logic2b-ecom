@@ -261,7 +261,7 @@ export const demoThemes: DemoTheme[] = [
     reference: { name: 'All Natural / AFF', file: '03-natural.webp' },
     sample: '/images/temas/natural.webp',
     bestFor: ['Cosmética y cuidado personal', 'Alimentación', 'Marcas DTC'],
-    status: 'planned',
+    status: 'ready',
     vars: {
       '--color-brand': '#14594a',
       '--color-brand-dark': '#0e4035',

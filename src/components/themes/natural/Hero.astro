@@ -1,0 +1,92 @@
+---
+/**
+ * NATURAL · Hero — la cabecera PARTIDA de la referencia AFF
+ * (`layout.hero === 'split'`): a la izquierda, plancha blanca con el título y
+ * dos líneas de descripción; a la derecha, foto de estilo de vida A SANGRE
+ * ocupando ~55 % del ancho.
+ *
+ * El título es el H1 de la página y CAMBIA con el ámbito: «Todo el catálogo»,
+ * la categoría filtrada o la búsqueda. Un H1 fijo mentiría sobre lo que se está
+ * viendo, y el H1 es lo primero que anuncia un lector de pantalla.
+ *
+ * El texto NO va sobre la foto: van en columnas separadas. Es la decisión que
+ * evita el problema que el auditor no sabe ver (contraste sobre imagen, el caso
+ * de Iris) — y además es lo que hace la referencia.
+ */
+interface Props {
+  title: string;
+  note: string;
+  image: string;
+}
+
+const { title, note, image } = Astro.props;
+---
+
+<section class="nat-hero">
+  <div class="nat-hero__copy">
+    <h1 class="nat-hero__title">{title}</h1>
+    <p class="nat-hero__note">{note}</p>
+  </div>
+
+  <div class="nat-hero__media">
+    {/* Decorativa: la foto no aporta información que no esté en el texto de al
+        lado, así que `alt=""` evita que un lector lea una descripción redundante. */}
+    <img src={image} alt="" width="1280" height="720" class="nat-hero__img" />
+  </div>
+</section>
+
+<style>
+  .nat-hero {
+    display: grid;
+    /* Móvil: texto arriba, foto debajo. El H1 va primero también en el DOM. */
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  /* Centrado vertical: en la referencia el bloque de texto cae hacia la mitad de
+     la plancha blanca, no pegado al borde inferior. Con `flex-end` quedaba un
+     vacío de 300 px arriba que en la captura del escaparate se leía como un
+     error de maquetación. */
+  .nat-hero__copy {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    background-color: var(--color-background);
+    padding: clamp(2rem, 5vw, 3.5rem) clamp(1rem, 4vw, 2rem);
+  }
+
+  .nat-hero__title {
+    font-family: var(--font-display);
+    font-size: clamp(1.5rem, 1.1rem + 1.6vw, 2rem);
+    font-weight: var(--weight-display);
+    letter-spacing: var(--tracking-display);
+    line-height: 1.15;
+    color: var(--color-foreground);
+  }
+
+  .nat-hero__note {
+    margin-top: 0.625rem;
+    max-width: 26rem;
+    font-size: 0.8125rem;
+    line-height: 1.6;
+    color: var(--color-muted-foreground);
+  }
+
+  .nat-hero__media {
+    background-color: var(--surface-product);
+  }
+
+  .nat-hero__img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+  }
+
+  @media (min-width: 64rem) {
+    /* 45 / 55 como en la referencia, y la foto llega al borde derecho de la
+       ventana: el catálogo del tema va a sangre, sin `max-width`. */
+    .nat-hero { grid-template-columns: 45fr 55fr; }
+    .nat-hero__img { aspect-ratio: auto; min-height: 20rem; }
+  }
+</style>

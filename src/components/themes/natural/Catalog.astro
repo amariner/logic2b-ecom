@@ -1,0 +1,195 @@
+---
+/**
+ * NATURAL · Catalog — vista completa del catálogo para el tema. La página delega
+ * aquí vía el registro `catalogViews` de CatalogPage.astro.
+ *
+ * Orden de la referencia AFF: cabecera (la del motor) → hero partido → fila de
+ * orden alineada a la derecha → barra lateral de filtros + rejilla de 4 → pie
+ * claro (el del motor). Es el DTC clásico bien hecho, y eso es virtud: convierte.
+ *
+ * A SANGRE, sin `max-width`: en la referencia la foto del hero llega al borde
+ * derecho de la ventana y la rejilla ocupa todo el ancho útil.
+ *
+ * DOS COSAS DE LA REFERENCIA QUE NO SE REPLICAN, A PROPÓSITO (CLAUDE.md § 14):
+ *
+ *  1. La cabecera de tres zonas (nav a la izquierda, wordmark centrado, acciones
+ *     a la derecha). Con `nav: 'top'` la cabecera es la del MOTOR (`SiteHeader`).
+ *     Replicarla obligaría a irse a `immersive` y dejar carrito, checkout y ficha
+ *     SIN cabecera — el peaje que ya pagan Iris y Street. No se paga otra vez.
+ *  2. El panel lateral deslizante de producto/carrito. Es estructura de FICHA, y
+ *     hoy la ficha la sirve Base para los nueve temas; un panel propio sería un
+ *     registro nuevo en el motor. Se anota en la ficha de entrega como candidato,
+ *     no se cuela en una sesión de tema.
+ */
+import type { CollectionConfig, StorePaths } from '../../../lib/collections';
+import { categoryLabel } from '../../../lib/collections';
+import Hero from './Hero.astro';
+import Filters from './Filters.astro';
+import ProductGrid from './ProductGrid.astro';
+
+type GridProduct = {
+  slug: string;
+  name: string;
+  price_cents: number;
+  image: string;
+  stock: number;
+  category: string;
+  compare_at_price_cents?: number | null;
+};
+
+interface Props {
+  paths: StorePaths;
+  products: GridProduct[];
+  collection: CollectionConfig;
+  category?: string | undefined;
+  sort: string;
+  search?: string | undefined;
+}
+
+const { paths, products, collection, category, sort, search } = Astro.props;
+
+// El H1 dice lo que se está viendo. La categoría manda sobre la búsqueda porque
+// es la que cambia el ámbito del catálogo.
+const title = category
+  ? categoryLabel(collection, category)
+  : search
+    ? `Búsqueda: «${search}»`
+    : 'Todo el catálogo';
+
+const sortOptions = [
+  { id: 'featured', label: 'Relevancia' },
+  { id: 'price-asc', label: 'Precio: menor a mayor' },
+  { id: 'price-desc', label: 'Precio: mayor a menor' },
+  { id: 'name', label: 'Nombre A-Z' },
+];
+---
+
+<main class="nat">
+  <Hero title={title} note={collection.description} image="/images/collections/natural/hero.webp" />
+
+  <div class="nat-body">
+    <Filters
+      paths={paths}
+      collection={collection}
+      count={products.length}
+      activeCategory={category}
+      sort={sort}
+      search={search}
+    />
+
+    <div class="nat-main">
+      {/* `Sort by Relevance ⌄` de la referencia: alineado a la derecha sobre la
+          rejilla. `<form method="get">` con submit nativo en `change` — funciona
+          sin JS propio y con teclado. */}
+      <form class="nat-sort" method="get" action={paths.catalog}>
+        {category && <input type="hidden" name="categoria" value={category} />}
+        {search && <input type="hidden" name="q" value={search} />}
+        <label class="nat-sort__label" for="orden">Ordenar por</label>
+        <select id="orden" name="orden" class="nat-sort__select" onchange="this.form.submit()">
+          {sortOptions.map((opt) => (
+            <option value={opt.id} selected={opt.id === sort}>{opt.label}</option>
+          ))}
+        </select>
+      </form>
+
+      {products.length > 0 ? (
+        <ProductGrid paths={paths} products={products} collection={collection} />
+      ) : (
+        <div class="nat-empty">
+          <h2 class="nat-empty__title">
+            {search ? `Nada por aquí para «${search}»` : 'No hay productos en esta categoría'}
+          </h2>
+          <p class="nat-empty__note">
+            {search
+              ? 'Prueba con otra palabra o vuelve al catálogo completo.'
+              : 'Puede que el comercio la haya vaciado temporalmente. El resto del catálogo sigue disponible.'}
+          </p>
+          <a class="nat-empty__cta" href={paths.catalog}>Ver todo el catálogo</a>
+        </div>
+      )}
+    </div>
+  </div>
+</main>
+
+<style>
+  /* El <body> de Base lleva `bg-white text-gray-900` fijos: la superficie
+     dark-aware se pone aquí, no se «arregla» tocando Base. */
+  .nat {
+    display: block;
+    background-color: var(--color-background);
+    padding-bottom: clamp(3rem, 8vw, 5rem);
+  }
+
+  .nat-body {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1.5rem;
+    padding: clamp(1.5rem, 4vw, 2.5rem) clamp(1rem, 4vw, 2rem) 0;
+  }
+
+  .nat-sort {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    padding-bottom: 1rem;
+  }
+
+  .nat-sort__label {
+    font-size: 0.75rem;
+    color: var(--color-muted-foreground);
+  }
+
+  .nat-sort__select {
+    border: var(--border-width) solid var(--color-border);
+    border-radius: var(--radius-btn);
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-size: 0.8125rem;
+    /* 32 px de alto: excepción de espaciado de WCAG 2.5.8 (más de 24 px libres
+       alrededor). Y sin `focus:outline-none`: el anillo de marca se queda. */
+    padding: 0.375rem 0.625rem;
+    cursor: pointer;
+  }
+
+  .nat-empty {
+    padding: clamp(3rem, 10vw, 6rem) 1rem;
+    text-align: center;
+  }
+
+  .nat-empty__title {
+    font-family: var(--font-display);
+    font-size: 1.125rem;
+    font-weight: var(--weight-display);
+    color: var(--color-foreground);
+  }
+
+  .nat-empty__note {
+    margin: 0.5rem auto 0;
+    max-width: 28rem;
+    font-size: 0.875rem;
+    line-height: 1.6;
+    color: var(--color-muted-foreground);
+  }
+
+  .nat-empty__cta {
+    display: inline-block;
+    margin-top: 1.5rem;
+    border-radius: var(--radius-btn);
+    background-color: var(--color-foreground);
+    color: var(--color-background);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    padding: 0.625rem 1.25rem;
+  }
+
+  .nat-empty__cta:hover { background-color: var(--color-brand); color: var(--color-brand-fg); }
+
+  @media (min-width: 64rem) {
+    /* Columna de filtros estrecha, como en la referencia. */
+    .nat-body {
+      grid-template-columns: 9.5rem minmax(0, 1fr);
+      gap: 2.5rem;
+    }
+  }
+</style>

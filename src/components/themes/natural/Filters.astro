@@ -1,0 +1,254 @@
+---
+/**
+ * NATURAL · Filters — la BARRA LATERAL de filtros de la referencia AFF
+ * (`layout.filters === 'sidebar'`): cabecera `Filtros (n)`, buscador y acordeón
+ * de categorías con casillas cuadradas.
+ *
+ * Las «casillas» son ENLACES, no `<input type="checkbox">`. En la referencia son
+ * decorativas; aquí filtran de verdad contra `?categoria=`, y un enlace es lo
+ * honesto: navega, se puede abrir en otra pestaña y no necesita JS. La casilla se
+ * dibuja con `::before` y el estado activo lo lleva `aria-current="page"`, que es
+ * lo que oye un lector de pantalla.
+ *
+ * Filtra contra los MISMOS parámetros de URL que la tienda Base (`categoria`,
+ * `orden`, `q`): el backend no cambia, solo la presentación. Cada enlace conserva
+ * el orden y la búsqueda activos.
+ *
+ * CUATRO FACETAS DE LA REFERENCIA QUE NO SE REPLICAN (CLAUDE.md § 14):
+ * `Collections`, `Type`, `Price` y `Size`. El catálogo tiene UN eje de
+ * clasificación (`products.category`); las otras tres serían casillas que no
+ * filtran nada — un adorno mentiroso en la pieza que vendemos como «esto
+ * funciona de verdad». Añadirlas de verdad es esquema y motor: se para y se
+ * pregunta, no se simula.
+ *
+ * OJO: nada de `focus:outline-none` aquí. En cuatro temas pisó el anillo de foco
+ * de marca de global.css y el auditor lo cazó (F11.8b).
+ */
+import type { CollectionConfig, StorePaths } from '../../../lib/collections';
+
+interface Props {
+  paths: StorePaths;
+  collection: CollectionConfig;
+  count: number;
+  activeCategory?: string | undefined;
+  sort: string;
+  search?: string | undefined;
+}
+
+const { paths, collection, count, activeCategory, sort, search } = Astro.props;
+
+/** Enlace de categoría que CONSERVA el orden y la búsqueda activos. */
+const linkFor = (cat?: string): string => {
+  const params = new URLSearchParams();
+  if (cat) params.set('categoria', cat);
+  if (sort !== 'featured') params.set('orden', sort);
+  if (search) params.set('q', search);
+  const qs = params.toString();
+  return `${paths.catalog}${qs ? `?${qs}` : ''}`;
+};
+
+// Recuento de filtros ACTIVOS, como el `Filter (0)` de la referencia. Cuenta la
+// búsqueda además de la categoría: las dos acotan lo que se está viendo.
+const activeFilters = (activeCategory ? 1 : 0) + (search ? 1 : 0);
+---
+
+<aside class="nat-side" aria-label="Filtros del catálogo">
+  <div class="nat-side__head">
+    <p class="nat-side__title">Filtros ({activeFilters})</p>
+    {activeFilters > 0 && (
+      <a class="nat-side__clear" href={paths.catalog}>Limpiar</a>
+    )}
+  </div>
+
+  <form class="nat-side__search" method="get" action={paths.catalog} role="search">
+    {sort !== 'featured' && <input type="hidden" name="orden" value={sort} />}
+    <label class="sr-only" for="q">Buscar en el catálogo</label>
+    <input
+      id="q"
+      class="nat-side__input"
+      type="search"
+      name="q"
+      value={search}
+      maxlength="60"
+      placeholder="Buscar producto"
+    />
+    <button class="nat-side__submit" type="submit">Buscar</button>
+  </form>
+
+  <details class="nat-side__group" open>
+    <summary class="nat-side__summary">Categoría</summary>
+    <ul class="nat-side__list">
+      <li>
+        <a class="nat-side__opt" href={linkFor()} aria-current={!activeCategory ? 'page' : undefined}>
+          Todo <span class="nat-side__n">{count}</span>
+        </a>
+      </li>
+      {collection.categories.map((cat) => (
+        <li>
+          <a
+            class="nat-side__opt"
+            href={linkFor(cat.id)}
+            aria-current={activeCategory === cat.id ? 'page' : undefined}
+          >{cat.label}</a>
+        </li>
+      ))}
+    </ul>
+  </details>
+</aside>
+
+<style>
+  .nat-side {
+    font-family: var(--font-display);
+  }
+
+  .nat-side__head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding-bottom: 0.625rem;
+    border-bottom: var(--border-width) solid var(--color-border);
+  }
+
+  .nat-side__title {
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: var(--color-foreground);
+  }
+
+  .nat-side__clear {
+    font-size: 0.75rem;
+    color: var(--color-muted-foreground);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  .nat-side__clear:hover { color: var(--color-foreground); }
+
+  .nat-side__search {
+    display: flex;
+    gap: 0.375rem;
+    padding: 0.75rem 0;
+  }
+
+  .nat-side__input {
+    flex: 1;
+    min-width: 0;
+    border: var(--border-width) solid var(--color-border);
+    border-radius: var(--radius-btn);
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-size: 0.8125rem;
+    /* 32 px de alto: por debajo de 44 pero dentro de la excepción de espaciado de
+       WCAG 2.5.8 — hay más de 24 px libres alrededor de cada control. */
+    padding: 0.375rem 0.625rem;
+  }
+
+  .nat-side__submit {
+    border: var(--border-width) solid var(--color-foreground);
+    border-radius: var(--radius-btn);
+    background-color: var(--color-foreground);
+    color: var(--color-background);
+    font-size: 0.75rem;
+    font-weight: 500;
+    padding: 0.375rem 0.625rem;
+    transition: background-color 0.15s, border-color 0.15s;
+  }
+
+  .nat-side__submit:hover {
+    background-color: var(--color-brand);
+    border-color: var(--color-brand);
+    color: var(--color-brand-fg);
+  }
+
+  .nat-side__group {
+    border-top: var(--border-width) solid var(--color-border);
+    padding: 0.625rem 0;
+  }
+
+  /* Chevron propio (el marcador nativo no se puede colocar a la derecha) que gira
+     al abrir, como los acordeones de la referencia. */
+  .nat-side__summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    list-style: none;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: var(--color-foreground);
+  }
+
+  .nat-side__summary::-webkit-details-marker { display: none; }
+
+  .nat-side__summary::after {
+    content: '';
+    width: 0.4375rem;
+    height: 0.4375rem;
+    margin-right: 0.125rem;
+    border-right: 1px solid currentColor;
+    border-bottom: 1px solid currentColor;
+    transform: rotate(45deg) translate(-0.125rem, -0.125rem);
+    transition: transform 0.15s;
+  }
+
+  .nat-side__group[open] .nat-side__summary::after {
+    transform: rotate(-135deg) translate(-0.125rem, -0.125rem);
+  }
+
+  .nat-side__list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.125rem 1rem;
+    padding-top: 0.5rem;
+  }
+
+  /* Casilla CUADRADA dibujada con ::before, como en la referencia. Se marca al
+     estar activa; el estado audible lo da `aria-current`. */
+  .nat-side__opt {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    /* 28 px de alto: excepción de espaciado de WCAG 2.5.8, la misma que aplica
+       el auditor a los controles de esta densidad. */
+    padding: 0.3125rem 0;
+    font-size: 0.8125rem;
+    color: var(--color-muted-foreground);
+  }
+
+  .nat-side__opt::before {
+    content: '';
+    flex: none;
+    width: 0.75rem;
+    height: 0.75rem;
+    border: var(--border-width) solid var(--color-border);
+    background-color: var(--color-background);
+  }
+
+  .nat-side__opt:hover { color: var(--color-foreground); }
+
+  .nat-side__opt[aria-current='page'] {
+    color: var(--color-foreground);
+  }
+
+  .nat-side__opt[aria-current='page']::before {
+    background-color: var(--color-brand);
+    border-color: var(--color-brand);
+  }
+
+  .nat-side__n {
+    font-size: 0.75rem;
+    color: var(--color-muted-foreground);
+  }
+
+  /* Escritorio: columna estrecha, opciones apiladas. En móvil la lista envuelve
+     en horizontal (arriba) para no comerse media pantalla antes de la rejilla —
+     mismo contenido, sin estado dependiente del breakpoint (que sin JS no se
+     puede tener) y sin duplicar el bloque. */
+  @media (min-width: 64rem) {
+    .nat-side__list {
+      flex-direction: column;
+      gap: 0;
+    }
+  }
+</style>

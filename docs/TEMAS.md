@@ -511,13 +511,13 @@ nítida con sombra definida, tonos coral/rojo. Energía de revista deportiva.
 | # | Tema | Acento | Cols | Rejilla | Nav | Hero | Tarjeta | Filtros | Densidad | Estado |
 |---|------|--------|------|---------|-----|------|---------|---------|----------|--------|
 | — | Base | `#008060` | 4 | uniform | top | none | plain | chips | regular | ✅ |
-| 01 | Editorial | `#d42f08` | 4 | **irregular** | top | none | hairline | chips | compact | ⏳ |
+| 01 | Editorial | `#d42f08` | 4 | **irregular** | top | none | hairline | chips | compact | ✅ |
 | 02 | Industrial | `#1b4dff` | 4 | **irregular** | top | none | divided | dropdown | compact | ✅ |
-| 03 | Natural | `#14594a` | 4 | uniform | top | **split** | plain | **sidebar** | regular | ⏳ |
-| 04 | Guide | `#f5c518` | 4 | uniform | top | **card** | elevated | chips | airy | ⏳ |
+| 03 | Natural | `#14594a` | 4 | uniform | top | **split** | plain | **sidebar** | regular | ✅ |
+| 04 | Guide | `#f5c518` | 4 | uniform | top | **card** | elevated | chips | airy | ✅ |
 | 05 | Specs | `#c2410c` | 3 | **irregular** | top | none | divided | dropdown | compact | ⏳ |
-| 06 | Minimal | `#1a1a1a` | 2 | uniform | **sidebar** | none | plain | dropdown | airy | ⏳ |
-| 07 | Launch | `#15803d` | 3 | uniform | top | none | hairline | chips | airy | ⏳ |
+| 06 | Minimal | `#1a1a1a` | 2 | uniform | **sidebar** | none | plain | dropdown | airy | ✅ |
+| 07 | Launch | `#15803d` | 3 | uniform | top | none | hairline | chips | airy | ✅ |
 | 08 | Street | `#c3f53c` | **5** | uniform | **immersive** | **fullbleed** | plain | chips | compact | ✅ |
 
 ---

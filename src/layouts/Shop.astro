@@ -50,7 +50,7 @@ const darkFooter = theme.layout.darkFooter;
 // Conmutador de tiendas: navegación por URL entre las tiendas del escaparate
 // (cada tienda ES su URL — sin cookie). Vector abre la lista como tienda
 // destacada; la genérica va al final como «demo completa» (panel + emails).
-const SWITCHER_ORDER = ['launch', 'iris', 'street', 'industrial', 'minimal', 'editorial', 'guide'];
+const SWITCHER_ORDER = ['launch', 'iris', 'street', 'industrial', 'natural', 'minimal', 'editorial', 'guide'];
 const switcherStores = [...collections].sort((a, b) => {
   const rank = (id: string) =>
     id === DEFAULT_COLLECTION_ID ? 99 : ((i) => (i === -1 ? 50 : i))(SWITCHER_ORDER.indexOf(id));

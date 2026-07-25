@@ -52,9 +52,9 @@ reconciliación se conserva abajo por contexto.
 | 6 | Deploy ecom.logic2b.com + cron reset + README + docs/CLIENTE.md | ✅ Hecho | 2026-07-18 | **Desplegado y en vivo en https://ecom.logic2b.com** (Worker `ecom-logic2b`, D1 remota `ecom-demo` id `7ae9b06d…`, custom domain + cron reset activos). Pagos en **modo simulado** (sin Stripe) |
 | 7 | bootstrap.sh + checklist demo→cliente real | ✅ Hecho | 2026-07-18 | `scripts/bootstrap.sh` (local probado end-to-end; `--remote` aprovisiona Cloudflare) + `docs/PRODUCCION.md` |
 | 9 | Catálogo de estilos (8 temas) | 🟡 En curso | 2026-07-21 | Arquitectura + `/estilos` + **temas 06 Minimal, 01 Editorial, 07 Launch y 04 Guide desarrollados** (5 listos con Base; registro de catálogo por tema generalizado). **Replanteada como Fase 9B** (ver abajo): de «una tienda, 8 pieles» a «8 tiendas, un motor» |
-| 9B | 8 tiendas distintas sobre un solo motor | 🟡 En curso | 2026-07-25 | **9B.0–9B.4 hechos.** Rutas por colección, selector/cookie eliminados, carrito namespaceado. **8 de 10 tiendas vivas** (Forma Interior, Módulo Audio, Cafetal, Vector, Iris, ASFALTO, **METRIA** y La Botiga) con catálogo, tema e imaginería propios; faltan Natural y Specs, que van como F11.2a. 148 tests. Ver «Fase 9B» |
+| 9B | 8 tiendas distintas sobre un solo motor | 🟡 En curso | 2026-07-25 | **9B.0–9B.4 hechos.** Rutas por colección, selector/cookie eliminados, carrito namespaceado. **9 de 10 tiendas vivas** (Forma Interior, Módulo Audio, Cafetal, Vector, Iris, ASFALTO, METRIA, **ROMER** y La Botiga) con catálogo, tema e imaginería propios; falta Specs, que va como F11.2a. 148 tests. Ver «Fase 9B» |
 | 10 | Documentación para el cliente | 🟡 Casi completa | 2026-07-24 | **Ejecutada como F11.7** (ver Fase 11): `/ayuda` (noindex) con manual de 3 pasos + guías + runbook, acta de entrega e inventario de accesos en `docs/plantillas/`, dossier con «qué pasa si nos vamos», guion del vídeo. Pendiente: grabar el vídeo (Andreu) y confirmar las decisiones a/b/c asumidas |
-| 11 | Landing V2 «nivel Awwwards» + negocio + funnel + docs | 🟡 En curso | 2026-07-24 | **F11.1, F11.3 (2 sesiones), F11.4, F11.5, F11.6, F11.7 y F11.8 (primera pasada + pase a11y/contenido desde cloud 2026-07-24) hechos**, más F11.8b (auditor de a11y, cloud), F11.2a-1 (tienda ASFALTO / tema Street) y **F11.2a-2 (tienda METRIA / tema Industrial, local 2026-07-25)** — de F11.2a quedan 2 tiendas (Natural y Specs; LOCAL) y el resto de la cola de F11.8 (Lighthouse/OG, LOCAL). Detalle por bloque abajo. (ver «Fase 11» abajo). **Plan maestro completo en [`docs/PLAN_FASE11_LANDING_V2.md`](PLAN_FASE11_LANDING_V2.md)**: bloques F11.0–F11.8 ejecutables por sesiones independientes. **Decisiones D1–D6 APROBADAS por Andreu (2026-07-23)**: JS propio ≤15 KB sin deps, capturas con browser tools en local, dirección C «Ocho tiendas, un motor», escalera de precios (Lite 590 / Kit 1.900+39 / A medida 3.400+59), WhatsApp+email, Lite publicado sin construir. Prompt de arranque: [`docs/PROMPT_FASE11.md`](PROMPT_FASE11.md). Integra 9B.5/9B.6 (imaginería y temas restantes) como prerequisito del hero |
+| 11 | Landing V2 «nivel Awwwards» + negocio + funnel + docs | 🟡 En curso | 2026-07-24 | **F11.1, F11.3 (2 sesiones), F11.4, F11.5, F11.6, F11.7 y F11.8 (primera pasada + pase a11y/contenido desde cloud 2026-07-24) hechos**, más F11.8b (auditor de a11y, cloud), F11.2a-1 (tienda ASFALTO / tema Street), F11.2a-2 (tienda METRIA / tema Industrial) y **F11.2a-3 (tienda ROMER / tema Natural, local 2026-07-25)** — de F11.2a queda 1 tienda (Specs; LOCAL) y el resto de la cola de F11.8 (Lighthouse/OG, LOCAL). Detalle por bloque abajo. (ver «Fase 11» abajo). **Plan maestro completo en [`docs/PLAN_FASE11_LANDING_V2.md`](PLAN_FASE11_LANDING_V2.md)**: bloques F11.0–F11.8 ejecutables por sesiones independientes. **Decisiones D1–D6 APROBADAS por Andreu (2026-07-23)**: JS propio ≤15 KB sin deps, capturas con browser tools en local, dirección C «Ocho tiendas, un motor», escalera de precios (Lite 590 / Kit 1.900+39 / A medida 3.400+59), WhatsApp+email, Lite publicado sin construir. Prompt de arranque: [`docs/PROMPT_FASE11.md`](PROMPT_FASE11.md). Integra 9B.5/9B.6 (imaginería y temas restantes) como prerequisito del hero |
 | 8 | Pulido de la demo (backlog abajo) | 🟡 En curso | 2026-07-19 | Backlog técnico agotado; solo quedan decisiones y pasos locales de Andreu (ver «Decisiones pendientes» y `docs/PROMPT_CLOUD.md`). Últimas tandas: novena (race de idempotencia en el pago, PII enumerable en `/demo/gracias`, cancelación de pedido pagado sin devolver stock), décima (la misma race en el PATCH de admin, campos vacíos guardados como 0, login sin rate limit), undécima (diagrama móvil de `/arquitectura`, hedge del plazo de entrega, tokens de tema en `/demo/reset`, terminología «envío»), duodécima (aviso de corte en pedidos del admin, cabeceras sin wrap a 375px, leftover «portes», token de radio del carrito, contraste del botón eliminar, H1 en valenciano, checklist de producción) y decimotercera (misma race de idempotencia en `checkout.session.expired`, divisa hardcodeada a EUR fuera de Stripe, cobertura de test de `quoteCart`/PATCH admin/emails) y decimocuarta (config parcial de Stripe → cobro sin cumplimiento, emails duplicados bajo concurrencia, `payment_status` del webhook, color de marca centralizado en `shop.config.ts`, contraste/tema en carrito y checkout) — ver sección «Fase 8» |
 
 ## Repo y entornos
@@ -1129,37 +1129,96 @@ esta sección y sube a `main`.
 
 ## Próxima sesión
 
-- **Bloque:** F11.2a — sigue abierto, quedan **2 tiendas**: Natural y Specs
-  (Industrial se cerró el 2026-07-25, entrada abajo). Una por sesión, siguiendo
-  `docs/CHECKLIST_TEMA.md`. **El orden de riesgo de `TEMAS.md § 7` manda:
-  Natural → Specs.** Las dos piden capacidades de producto que la migración 0002
-  ya dejó puestas (`compare_at_price_cents` para las ofertas de Natural,
-  `specs_json` para las filas de ficha de Specs), así que el riesgo de datos de
-  `TEMAS.md § 8` está **cerrado**: es trabajo de presentación.
+- **Bloque:** F11.2a — queda **UNA tienda**: **Specs** (Natural se cerró el
+  2026-07-25, entrada abajo). Siguiendo `docs/CHECKLIST_TEMA.md`. Specs es el
+  último del orden de riesgo de `TEMAS.md § 7` y el que más datos pide, pero la
+  migración 0002 ya dejó puesto `specs_json` (y el seed de La Botiga y METRIA ya
+  lo usan), así que el riesgo de datos de `TEMAS.md § 8` está **cerrado**: es
+  trabajo de presentación. Referencia *ACF-01*, rejilla de 3 **irregular**,
+  tarjeta `divided`, filtros `dropdown`, densidad compacta y acento `#c2410c`.
+  Ojo a `compact` en móvil (riesgo 5 de § 8): la densidad es de escritorio.
   **Solo LOCAL**: re-confirmado el 2026-07-25 desde cloud que la política de red
   deniega el CDN de Higgsfield (todos los dominios, 000) — el MCP genera pero
   las imágenes no se pueden descargar al repo. También está denegado
   `ecom.logic2b.com` (nada de auditoría «en vivo» desde cloud).
-  **Receta ya probada dos veces:** generar con `marketing_studio_image` (tope de
+  **Receta ya probada tres veces:** generar con `marketing_studio_image` (tope de
   8 trabajos concurrentes), recoger las URL con `job_display` y bajar/convertir
-  con un script tipo `scripts/fetch-industrial-images.mjs` — usa `cwebp`, así que
-  no hace falta `sharp` ni ninguna dependencia nueva. **Y pedir el fondo de forma
-  explícita**: en Industrial tres imágenes salieron con gris de estudio y hubo que
-  regenerarlas porque la rejilla sin gap las delataba.
-  **Ojo con `compare_at_price_cents` en Natural**: es SOLO presentación, jamás
-  entra en precio ni en envío, y hay guardia estática que muerde
-  (`tests/pricing-guard.test.ts`).
-- **Alternativa si la sesión es cloud**: lo ejecutable desde cloud es **pasar el
-  auditor de a11y por las superficies de panel** (`/demo/admin`, detalle de
-  pedido, productos, envíos, emails, login) añadiéndolas a `SURFACES` de
-  `scripts/a11y-audit.mjs` con cookie de sesión. El Lighthouse del admin se hizo
-  a mano en 2026-07-19 y desde entonces el panel no tiene red de seguridad
-  automática; las 8 tiendas sí (88/88 en verde).
-- Tras F11.2a: ampliar la galería del hero a las 10 tiendas (METRIA ya entró; se
-  deriva del registro, pero el ORDEN es explícito en `galleryOrder` de
-  `index.astro` y en `SWITCHER_ORDER` de `Shop.astro` — hay que añadir cada
-  tienda nueva a los dos) y cerrar la cola de F11.8 (Lighthouse citable + OG
-  WhatsApp).
+  con un script tipo `scripts/fetch-natural-images.mjs` — usa `cwebp`, así que no
+  hace falta `sharp` ni ninguna dependencia nueva. **Pedir el fondo explícito y
+  con el código del token** (`--surface-product`), y contar con que **algún
+  trabajo vuelve `failed`** sin culpa del prompt: se relanza y ya (pasó 1 de 13
+  en Natural).
+- **Si la sesión es local, hay dos cosas más que solo se pueden hacer aquí** y
+  que ya son la cola entera de F11.8: el **Lighthouse citable** y el **OG de
+  WhatsApp**.
+- **Alternativa si la sesión es cloud**: lo ejecutable desde cloud sigue siendo
+  **pasar el auditor de a11y por las superficies de panel** (`/demo/admin`,
+  detalle de pedido, productos, envíos, emails, login) añadiéndolas a `SURFACES`
+  de `scripts/a11y-audit.mjs` con cookie de sesión. El Lighthouse del admin se
+  hizo a mano en 2026-07-19 y desde entonces el panel no tiene red de seguridad
+  automática; las 9 tiendas sí (**99/99 en verde**).
+- **Recordatorio de registro** (lo que se olvida y deja la tienda a medias): cada
+  tienda nueva entra en CINCO sitios con orden explícito — `catalogViews`
+  (`CatalogPage.astro`), `STORES` de `a11y-audit.mjs`, `STORES`+`FICHAS` de
+  `capture-screens.mjs` (y **ejecutarlo**), `SWITCHER_ORDER` (`Shop.astro`) y
+  `galleryOrder` (`index.astro`). Con Specs dentro, la galería del hero queda
+  completa con las 10.
+
+### F11.2a-3 — tienda ROMER, tema Natural (2026-07-25, sesión local)
+
+Tercera de las 4 tiendas que faltaban. **Novena tienda viva del escaparate.**
+Ficha de entrega completa en [`docs/temas/natural.md`](temas/natural.md).
+
+**Tienda.** ROMER, cosmética natural (DTC): 12 productos en 4 categorías, slugs
+`nat-*`, **cuatro con `compare_at_price_cents`** — el precio anterior tachado y
+la pastilla `-30 %` son el rasgo de la referencia y salen de la columna que la
+migración 0002 ya había dejado puesta. **El porcentaje se calcula de los dos
+precios**, no se escribe: si el seed cambia un precio, la pastilla cambia sola y
+nunca puede mentir. Uno a `stock: 0` y dos a stock bajo. 12 productos no es un
+número redondo por casualidad: con 4 columnas uniformes son 3 filas exactas.
+
+**Tema.** Réplica de *All Natural (AFF)*, el DTC clásico bien hecho —y eso es
+virtud, porque convierte: hero **partido** (plancha blanca 45 % + foto de estilo
+de vida a sangre 55 %), **barra lateral de filtros** con acordeón y casillas
+cuadradas, `Ordenar por ⌄` alineado a la derecha, rejilla uniforme de 4 y tarjeta
+con **nombre a la izquierda y precio a la derecha en la misma línea**, categoría
+en versalitas debajo.
+
+**Cero motor.** Ni un token nuevo ni una línea de lógica compartida: los 14
+tokens del tema estaban declarados desde 2026-07-20 y ninguno hubo que corregirlo
+mirando la captura. Es la primera tienda de la serie que no roza el motor **ni
+para bien** (Industrial destapó `darkFooter` y el `self-start` de la ficha).
+
+**La exclusión que importa** (CLAUDE.md § 14). La referencia tiene cuatro
+facetas de filtro (`Collections`, `Type`, `Price`, `Size`) y el catálogo tiene
+**un** eje de clasificación. Dibujarlas es trivial —son casillas— y por eso es la
+tentación: cuatro acordeones llenos quedan mejor en una captura que uno. Serían
+casillas que no filtran nada en la pieza que vendemos como «esto funciona de
+verdad». No entran. Tampoco la pastilla `New` (no hay fecha de alta), la cabecera
+de tres zonas (es del motor; replicarla obligaba a `immersive` y a dejar carrito,
+checkout y ficha sin cabecera por tercera vez) ni el panel lateral deslizante
+(es estructura de FICHA, o sea registro nuevo en el motor: queda anotado como
+candidato).
+
+**Lo que cazó el auditor: 48 errores de una sola causa.** La tarjeta tenía **dos
+enlaces al mismo producto** —el de la foto oculto con `aria-hidden` +
+`tabindex="-1"`— y el auditor tenía razón: un `<a href>` sigue siendo enfocable
+por programa aunque salga del orden de tabulación, y un producto que suena dos
+veces en un lector es justo lo que la regla persigue. Arreglado con **área
+extendida**: la foto es un `<img>` a secas y el enlace del nombre estira un
+`::after` transparente sobre toda la tarjeta. Una parada de teclado y un nombre
+accesible por producto. **Gotcha que viene con el patrón y vale para los temas
+que quedan:** el botón de compra necesita `z-index` por encima de ese `::after` o
+el área extendida se lo come y «Añadir» acaba navegando a la ficha. Verificado
+con hover y clic REALES en Chrome headless, no razonando sobre la cascada.
+
+**Verificado:** 11/11 superficies de Natural en verde, **99/99 del barrido
+completo** (las 8 tiendas anteriores no regresan), `pnpm check` (148 tests, 0
+errores de tipos), E2E de compra completo, catálogo filtrado y búsqueda sin
+resultados, y revisión a 1440, 375 y modo oscuro. Natural entra además en el
+conmutador de tiendas, en la galería del hero de la landing y en
+`capture-screens.mjs` (3 capturas nuevas), que es lo que `/estilos` necesita para
+no enseñar una imagen rota.
 
 ### F11.2a-2 — tienda METRIA, tema Industrial (2026-07-25, sesión local)
 

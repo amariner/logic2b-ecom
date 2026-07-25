@@ -1,0 +1,343 @@
+---
+/**
+ * NATURAL · ProductGrid — la rejilla uniforme de 4 columnas de la referencia AFF
+ * y, sobre todo, SU TARJETA, que es el rasgo del tema:
+ *
+ *   · caja de imagen sobre gris cálido (`--surface-product`);
+ *   · pastillas arriba a la DERECHA;
+ *   · nombre a la izquierda y precio a la derecha EN LA MISMA LÍNEA;
+ *   · debajo, la categoría en versalitas gris;
+ *   · en oferta, precio anterior tachado en gris + precio rebajado en tinta.
+ *
+ * El % de la pastilla se CALCULA de los dos precios (`compare_at_price_cents`
+ * frente a `price_cents`), no se escribe a mano: si el seed cambia un precio, la
+ * pastilla cambia sola y nunca puede mentir.
+ *
+ * DOS PASTILLAS DE LA REFERENCIA, SOLO UNA REPLICADA (CLAUDE.md § 14): la de
+ * oferta sí, porque sale de un dato real; la de `New` no, porque no hay fecha de
+ * alta en el modelo que la sostenga sin inventarla (mismo criterio que Industrial).
+ *
+ * COMPRAR AL VUELO. En la referencia la tarjeta no tiene botón: se compra desde
+ * el panel lateral, que es estructura de FICHA y hoy la sirve Base para todos los
+ * temas. Para no dejar la rejilla sin acción se añade el botón negro a ancho
+ * completo de la referencia —el mismo `Add to cart`— revelado sobre la foto.
+ * Se oculta con `visibility: hidden`, NO con `opacity: 0`: con opacity seguiría
+ * siendo destino de tabulación y blanco de clic invisible, y el auditor lo canta
+ * con razón (1,00:1). Teclado por `:focus-within`, táctil por
+ * `@media (hover: none), (pointer: coarse)`. «Agotado» nunca se esconde.
+ *
+ * UN SOLO ENLACE POR TARJETA, con área extendida. La foto también se clica, pero
+ * NO es un segundo `<a>`: el enlace del nombre estira un `::after` transparente
+ * sobre toda la tarjeta. La primera versión sí tenía dos enlaces al mismo
+ * producto (el de la foto oculto con `aria-hidden` + `tabindex="-1"`) y el
+ * auditor cantó 48 errores de `aria-hidden-focusable` — con razón: un `<a href>`
+ * sigue siendo enfocable por programa aunque salga del orden de tabulación, y un
+ * producto que suena dos veces en un lector es exactamente lo que la regla
+ * persigue. Así hay una parada de teclado y un nombre accesible por producto.
+ *
+ * El botón necesita `z-index` por encima de ese `::after`: si no, el área
+ * extendida se lo come y «Añadir» acabaría navegando a la ficha.
+ */
+import { formatEurCents } from '../../../lib/format';
+import { categoryLabel } from '../../../lib/collections';
+import type { CollectionConfig, StorePaths } from '../../../lib/collections';
+
+type GridProduct = {
+  slug: string;
+  name: string;
+  price_cents: number;
+  image: string;
+  stock: number;
+  category: string;
+  compare_at_price_cents?: number | null;
+};
+
+interface Props {
+  paths: StorePaths;
+  products: GridProduct[];
+  collection: CollectionConfig;
+}
+
+const { paths, products, collection } = Astro.props;
+
+/**
+ * Oferta y descuento resueltos AQUÍ, no en la plantilla.
+ *
+ * Gotcha de Astro: un `<` o `<=` dentro de una expresión JSX se parsea como
+ * apertura de etiqueta y rompe el build. Las comparaciones van en el frontmatter.
+ */
+const offerFor = (prod: GridProduct): { was: number; off: number } | null => {
+  const was = prod.compare_at_price_cents ?? 0;
+  if (was <= prod.price_cents) return null;
+  return { was, off: Math.round((1 - prod.price_cents / was) * 100) };
+};
+---
+
+<ul class="nat-grid">
+  {products.map((prod, i) => {
+    const offer = offerFor(prod);
+    return (
+    <li class="nat-card">
+      <div class="nat-card__frame">
+        <img
+          src={prod.image}
+          alt=""
+          width="800"
+          height="800"
+          loading={i === 0 ? 'eager' : 'lazy'}
+          class="nat-card__img"
+        />
+
+        <div class="nat-card__badges">
+          {prod.stock === 0 && <span class="nat-card__badge nat-card__badge--out">Agotado</span>}
+          {offer && prod.stock > 0 && <span class="nat-card__badge nat-card__badge--off">-{offer.off} %</span>}
+        </div>
+
+        <button
+          type="button"
+          data-natural-add={prod.slug}
+          disabled={prod.stock === 0}
+          aria-label={prod.stock === 0 ? `${prod.name}: agotado` : `Añadir ${prod.name} a la bolsa`}
+          class:list={['nat-card__add', prod.stock === 0 && 'nat-card__add--out']}
+        >{prod.stock === 0 ? 'Sin stock' : 'Añadir a la bolsa'}</button>
+      </div>
+
+      <div class="nat-card__body">
+        <div class="nat-card__row">
+          <h2 class="nat-card__name">
+            <a class="nat-card__link" href={paths.product(prod.slug)}>{prod.name}</a>
+          </h2>
+          <p class="nat-card__price">
+            {offer && <span class="nat-card__was">{formatEurCents(offer.was)}</span>}
+            <span class:list={['nat-card__now', offer && 'nat-card__now--off']}>{formatEurCents(prod.price_cents)}</span>
+          </p>
+        </div>
+        <p class="nat-card__cat">{categoryLabel(collection, prod.category)}</p>
+      </div>
+    </li>
+    );
+  })}
+</ul>
+
+<style>
+  .nat-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: calc(var(--grid-gap) * 2) var(--grid-gap);
+  }
+
+  /* Contexto del área extendida del enlace (`.nat-card__link::after`). */
+  .nat-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Contexto de posicionamiento del botón revelado y de las pastillas. El botón
+     tiene que estar FUERA del enlace: un interactivo dentro de otro es un error
+     de a11y (y el auditor lo caza). */
+  .nat-card__frame {
+    position: relative;
+    border-radius: var(--radius-card);
+    overflow: hidden;
+    background-color: var(--surface-product);
+  }
+
+  .nat-card__img {
+    display: block;
+    width: 100%;
+    aspect-ratio: 1;
+    /* `contain`: la imaginería del tema es bote + caja sobre gris cálido, el
+       MISMO gris de `--surface-product`, así que no hay letterbox visible y
+       recortar cortaría la caja. */
+    object-fit: contain;
+  }
+
+  .nat-card__badges {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.25rem;
+  }
+
+  /* Pastilla blanca con filete fino, como en la referencia. Superficie
+     `--color-background` (no `#fff` literal) para que en modo oscuro siga siendo
+     una pastilla legible en vez de un recorte blanco. */
+  .nat-card__badge {
+    border: var(--border-width) solid var(--color-border);
+    border-radius: 9999px;
+    background-color: var(--color-background);
+    padding: 0.1875rem 0.5rem;
+    font-size: 0.6875rem;
+    font-weight: 500;
+    line-height: 1.2;
+    letter-spacing: 0.01em;
+    color: var(--color-foreground);
+  }
+
+  /* Texto ROJO sobre la pastilla, el rasgo de la referencia. `--color-destructive`
+     y no un rojo literal: en claro es un rojo oscuro (4,8:1 sobre blanco) y en
+     oscuro uno claro, así que el par se mantiene legible en los dos modos. */
+  .nat-card__badge--off { color: var(--color-destructive); }
+
+  .nat-card__badge--out {
+    background-color: var(--color-foreground);
+    border-color: var(--color-foreground);
+    color: var(--color-background);
+  }
+
+  /* El `Add to cart` negro a ancho completo de la referencia, revelado sobre la
+     foto. Ver la nota de cabecera: `visibility`, no solo `opacity`. */
+  .nat-card__add {
+    position: absolute;
+    left: 0.5rem;
+    right: 0.5rem;
+    bottom: 0.5rem;
+    border-radius: var(--radius-btn);
+    background-color: var(--color-foreground);
+    color: var(--color-background);
+    padding: 0.625rem 0.75rem;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+    visibility: hidden;
+    opacity: 0;
+    transform: translateY(0.25rem);
+    transition: opacity 0.18s, transform 0.18s, background-color 0.15s;
+    /* Por encima del área extendida del enlace: si no, el `::after` se lo come y
+       «Añadir» acabaría navegando a la ficha en vez de añadir al carrito. */
+    z-index: 2;
+  }
+
+  .nat-card:hover .nat-card__add,
+  .nat-card:focus-within .nat-card__add {
+    visibility: visible;
+    opacity: 1;
+    transform: none;
+  }
+
+  .nat-card__add:hover { background-color: var(--color-brand); color: var(--color-brand-fg); }
+
+  /* Agotado NO se esconde: el estado tiene que leerse sin pasar el ratón. */
+  .nat-card__add--out {
+    visibility: visible;
+    opacity: 1;
+    transform: none;
+    background-color: var(--color-background);
+    color: var(--color-muted-foreground);
+    border: var(--border-width) solid var(--color-border);
+    cursor: not-allowed;
+  }
+
+  .nat-card__add--out:hover {
+    background-color: var(--color-background);
+    color: var(--color-muted-foreground);
+  }
+
+  /* Sin hover no hay revelado posible: en táctil, botón siempre visible. Se
+     preguntan las DOS condiciones porque no todos los navegadores informan igual. */
+  @media (hover: none), (pointer: coarse) {
+    .nat-card__add {
+      visibility: visible;
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .nat-card__add { transition: none; transform: none; }
+  }
+
+  .nat-card__body {
+    padding-top: 0.625rem;
+  }
+
+  /* Área extendida: el enlace del nombre cubre la tarjeta entera, así la foto se
+     clica sin ser un segundo `<a>`. El anillo de foco sigue dibujándose sobre el
+     texto del nombre, que es donde el usuario de teclado espera verlo. */
+  .nat-card__link {
+    color: inherit;
+  }
+
+  .nat-card__link::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+  }
+
+  .nat-card__link:hover { text-decoration: underline; text-underline-offset: 2px; }
+
+  /* Nombre a la izquierda, precio a la derecha, MISMA línea. `baseline` para que
+     el tachado y el precio vivo se apoyen en la misma raya que el nombre. */
+  .nat-card__row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.75rem;
+  }
+
+  .nat-card__name {
+    font-family: var(--font-display);
+    font-size: 0.875rem;
+    font-weight: 400;
+    line-height: 1.35;
+    letter-spacing: var(--tracking-display);
+    color: var(--color-foreground);
+  }
+
+  .nat-card__price {
+    display: flex;
+    align-items: baseline;
+    gap: 0.375rem;
+    font-size: 0.875rem;
+    white-space: nowrap;
+  }
+
+  .nat-card__was {
+    font-size: 0.75rem;
+    color: var(--color-muted-foreground);
+    text-decoration: line-through;
+  }
+
+  .nat-card__now { color: var(--color-foreground); }
+
+  /* El precio rebajado va en tinta, como en la referencia: el rojo se queda en la
+     pastilla. Solo cambia el peso para que gane al tachado. */
+  .nat-card__now--off { font-weight: 600; }
+
+  /* Categoría en versalitas gris. El tamaño sube a 0,6875rem (la referencia usa
+     ~9 px) para no bajar de lo legible con `letter-spacing` alto. */
+  .nat-card__cat {
+    margin-top: 0.1875rem;
+    font-size: 0.6875rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-muted-foreground);
+  }
+
+  @media (min-width: 48rem) {
+    .nat-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  }
+
+  @media (min-width: 64rem) {
+    .nat-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  }
+</style>
+
+<script>
+  import { addToCart } from '../../../lib/cart-client';
+
+  // `data-natural-add`, no `data-add-to-cart`: el handler genérico del catálogo
+  // Base también está en la página y los duplicaría.
+  for (const btn of document.querySelectorAll<HTMLButtonElement>('[data-natural-add]')) {
+    btn.addEventListener('click', () => {
+      addToCart(btn.dataset.naturalAdd ?? '');
+      const prev = btn.textContent;
+      btn.textContent = 'Añadido ✓';
+      window.setTimeout(() => (btn.textContent = prev), 900);
+    });
+  }
+</script>

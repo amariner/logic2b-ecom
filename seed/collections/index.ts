@@ -17,6 +17,7 @@ import { launchSeedProducts } from './launch.ts';
 import { irisSeedProducts } from './iris.ts';
 import { streetSeedProducts } from './street.ts';
 import { industrialSeedProducts } from './industrial.ts';
+import { naturalSeedProducts } from './natural.ts';
 // new-theme:seed-imports — no borrar: `pnpm new:theme <id>` añade aquí su import.
 
 export const collectionSeedProducts: readonly SeedProduct[] = [
@@ -27,5 +28,6 @@ export const collectionSeedProducts: readonly SeedProduct[] = [
   ...irisSeedProducts,
   ...streetSeedProducts,
   ...industrialSeedProducts,
+  ...naturalSeedProducts,
   // new-theme:seed-entries — no borrar: `pnpm new:theme <id>` añade aquí su spread.
 ];

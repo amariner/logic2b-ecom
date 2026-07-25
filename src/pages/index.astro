@@ -35,7 +35,7 @@ const textSafe = (contrast: (hex: string) => number, fallback: string, ...candid
 
 // ── Galería del hero — derivada del registro de tiendas (clonable) ──────────
 // Orden por impacto visual, alternando acentos. Iris entra en vídeo.
-const galleryOrder = ['launch', 'editorial', 'iris', 'street', 'industrial', 'minimal', 'guide', 'demo'];
+const galleryOrder = ['launch', 'editorial', 'iris', 'street', 'industrial', 'natural', 'minimal', 'guide', 'demo'];
 const gallery = galleryOrder.map((id) => {
   const col = collections.find((c) => c.id === id)!;
   const theme = getTheme(col.themeId)!;
@@ -58,6 +58,13 @@ const gallery = galleryOrder.map((id) => {
     poster: id === 'iris' ? '/images/screens/iris-scrub-poster.webp' : null,
   };
 });
+
+// El recuento del pie de la galería se DERIVA de la galería. Escrito a mano
+// decía «Seis tiendas» cuando ya había nueve: un número obsoleto en la única
+// página indexable es de las cosas que más caras salen de mantener a mano.
+const NUMERALS = ['Cero', 'Una', 'Dos', 'Tres', 'Cuatro', 'Cinco', 'Seis', 'Siete', 'Ocho', 'Nueve', 'Diez'];
+// Abre frase, así que va en mayúscula; por encima de diez, la cifra.
+const galleryCount = `${NUMERALS[gallery.length] ?? gallery.length} tienda${gallery.length === 1 ? '' : 's'}`;
 
 // ── Contacto (D5) ───────────────────────────────────────────────────────────
 // Formato internacional sin «+» ni espacios. Si se vacía, el CTA cae a email.
@@ -355,7 +362,7 @@ const jsonLd = [
         ))}
       </ul>
       <p class="mx-auto max-w-6xl px-5 pt-1 text-sm text-muted-foreground">
-        Seis tiendas, un mismo motor. Cambian el diseño y los productos; el
+        {galleryCount}, un mismo motor. Cambian el diseño y los productos; el
         carrito, los pagos, el panel y los envíos son los mismos.
       </p>
     </section>
