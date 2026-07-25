@@ -35,7 +35,7 @@ const textSafe = (contrast: (hex: string) => number, fallback: string, ...candid
 
 // ── Galería del hero — derivada del registro de tiendas (clonable) ──────────
 // Orden por impacto visual, alternando acentos. Iris entra en vídeo.
-const galleryOrder = ['launch', 'editorial', 'iris', 'minimal', 'guide', 'demo'];
+const galleryOrder = ['launch', 'editorial', 'iris', 'street', 'minimal', 'guide', 'demo'];
 const gallery = galleryOrder.map((id) => {
   const col = collections.find((c) => c.id === id)!;
   const theme = getTheme(col.themeId)!;

@@ -1,0 +1,202 @@
+---
+/**
+ * STREET · Filters — chips (`layout.filters: 'chips'`) con el verde neón en la
+ * categoría activa, más búsqueda y orden discretos.
+ *
+ * Filtra contra los MISMOS parámetros de URL que la tienda Base (`categoria`,
+ * `orden`, `q`): el backend es UNO, aquí solo cambia la piel.
+ *
+ * Gotcha del catálogo (cazado en el pase de a11y de F11.8b): NADA de
+ * `focus:outline-none` en el `select` — esa utilidad de Tailwind pisa el
+ * `:focus-visible` de marca de global.css y deja el orden sin foco visible.
+ */
+import type { CollectionConfig, StorePaths } from '../../../lib/collections';
+
+interface Props {
+  paths: StorePaths;
+  collection: CollectionConfig;
+  count: number;
+  activeCategory?: string | undefined;
+  sort: string;
+  search?: string | undefined;
+}
+
+const { paths, collection, count, activeCategory, sort, search } = Astro.props;
+
+const sortOptions = [
+  { id: 'featured', label: 'Destacados' },
+  { id: 'price-asc', label: 'Precio ↑' },
+  { id: 'price-desc', label: 'Precio ↓' },
+  { id: 'name', label: 'Nombre A-Z' },
+];
+
+const linkFor = (catId?: string): string => {
+  const params = new URLSearchParams();
+  if (catId) params.set('categoria', catId);
+  if (sort && sort !== 'featured') params.set('orden', sort);
+  if (search) params.set('q', search);
+  const qs = params.toString();
+  return `${paths.catalog}${qs ? `?${qs}` : ''}`;
+};
+---
+
+<div class="street-filters">
+  <nav class="street-filters__nav" aria-label="Categorías">
+    <ul class="street-filters__chips">
+      <li>
+        <a
+          href={linkFor()}
+          aria-current={!activeCategory ? 'page' : undefined}
+          class="street-chip"
+        >Todo</a>
+      </li>
+      {collection.categories.map((cat) => (
+        <li>
+          <a
+            href={linkFor(cat.id)}
+            aria-current={activeCategory === cat.id ? 'page' : undefined}
+            class="street-chip"
+          >{cat.label}</a>
+        </li>
+      ))}
+    </ul>
+  </nav>
+
+  <div class="street-filters__tools">
+    <span class="street-filters__count">{count} {count === 1 ? 'producto' : 'productos'}</span>
+
+    <form method="get" role="search" class="street-filters__form">
+      {activeCategory && <input type="hidden" name="categoria" value={activeCategory} />}
+      {sort !== 'featured' && <input type="hidden" name="orden" value={sort} />}
+      <input
+        type="search"
+        name="q"
+        value={search}
+        maxlength="60"
+        placeholder="Buscar…"
+        aria-label="Buscar en el catálogo"
+        class="street-filters__search"
+      />
+    </form>
+
+    <form method="get" class="street-filters__form">
+      {activeCategory && <input type="hidden" name="categoria" value={activeCategory} />}
+      {search && <input type="hidden" name="q" value={search} />}
+      <label for="orden" class="street-filters__label">Ordenar</label>
+      <select id="orden" name="orden" onchange="this.form.submit()" class="street-filters__select">
+        {sortOptions.map((opt) => (
+          <option value={opt.id} selected={opt.id === sort}>{opt.label}</option>
+        ))}
+      </select>
+    </form>
+  </div>
+</div>
+
+<style>
+  .street-filters {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  @media (min-width: 1024px) {
+    .street-filters {
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+    }
+  }
+
+  .street-filters__nav {
+    margin-inline: -0.25rem;
+    overflow-x: auto;
+  }
+
+  @media (min-width: 1024px) {
+    .street-filters__nav { overflow-x: visible; }
+  }
+
+  .street-filters__chips {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding-inline: 0.25rem;
+  }
+
+  @media (min-width: 1024px) {
+    .street-filters__chips { flex-wrap: wrap; }
+  }
+
+  .street-chip {
+    display: inline-flex;
+    align-items: center;
+    flex-shrink: 0;
+    min-height: 2.25rem;
+    padding: 0.375rem 0.875rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-btn);
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--color-muted-foreground);
+    white-space: nowrap;
+    transition: border-color 0.15s, color 0.15s, background-color 0.15s;
+  }
+
+  .street-chip:hover {
+    border-color: var(--color-foreground);
+    color: var(--color-foreground);
+  }
+
+  /* El acento es CLARO: el par de relleno correcto es brand + brand-fg (tinta).
+     Nunca blanco sobre el verde. */
+  .street-chip[aria-current='page'] {
+    background: var(--color-brand);
+    border-color: var(--color-brand);
+    color: var(--color-brand-fg);
+  }
+
+  .street-filters__tools {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1rem;
+    font-size: 0.75rem;
+    color: var(--color-muted-foreground);
+  }
+
+  .street-filters__count { white-space: nowrap; }
+
+  .street-filters__form {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+  }
+
+  .street-filters__search {
+    width: 8rem;
+    min-height: 2.25rem;
+    padding: 0.375rem 0.75rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-btn);
+    background: var(--color-background);
+    color: var(--color-foreground);
+    font-size: 0.75rem;
+    transition: width 0.2s, border-color 0.15s;
+  }
+
+  .street-filters__search:focus {
+    width: 11rem;
+    border-color: var(--color-foreground);
+  }
+
+  .street-filters__label { white-space: nowrap; }
+
+  .street-filters__select {
+    min-height: 2.25rem;
+    background: transparent;
+    color: var(--color-foreground);
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+</style>

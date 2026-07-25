@@ -52,9 +52,9 @@ reconciliación se conserva abajo por contexto.
 | 6 | Deploy ecom.logic2b.com + cron reset + README + docs/CLIENTE.md | ✅ Hecho | 2026-07-18 | **Desplegado y en vivo en https://ecom.logic2b.com** (Worker `ecom-logic2b`, D1 remota `ecom-demo` id `7ae9b06d…`, custom domain + cron reset activos). Pagos en **modo simulado** (sin Stripe) |
 | 7 | bootstrap.sh + checklist demo→cliente real | ✅ Hecho | 2026-07-18 | `scripts/bootstrap.sh` (local probado end-to-end; `--remote` aprovisiona Cloudflare) + `docs/PRODUCCION.md` |
 | 9 | Catálogo de estilos (8 temas) | 🟡 En curso | 2026-07-21 | Arquitectura + `/estilos` + **temas 06 Minimal, 01 Editorial, 07 Launch y 04 Guide desarrollados** (5 listos con Base; registro de catálogo por tema generalizado). **Replanteada como Fase 9B** (ver abajo): de «una tienda, 8 pieles» a «8 tiendas, un motor» |
-| 9B | 8 tiendas distintas sobre un solo motor | 🟡 En curso | 2026-07-22 | **9B.0–9B.4 hechos.** Rutas por colección, selector/cookie eliminados, carrito namespaceado, y 4 tiendas reales (Forma Interior, Módulo Audio, Cafetal, Vector) con catálogo y fotos propias. 148 tests. Ver «Fase 9B» |
+| 9B | 8 tiendas distintas sobre un solo motor | 🟡 En curso | 2026-07-25 | **9B.0–9B.4 hechos.** Rutas por colección, selector/cookie eliminados, carrito namespaceado. **7 de 10 tiendas vivas** (Forma Interior, Módulo Audio, Cafetal, Vector, Iris, **ASFALTO** y La Botiga) con catálogo, tema e imaginería propios; faltan Industrial, Natural y Specs, que van como F11.2a. 148 tests. Ver «Fase 9B» |
 | 10 | Documentación para el cliente | 🟡 Casi completa | 2026-07-24 | **Ejecutada como F11.7** (ver Fase 11): `/ayuda` (noindex) con manual de 3 pasos + guías + runbook, acta de entrega e inventario de accesos en `docs/plantillas/`, dossier con «qué pasa si nos vamos», guion del vídeo. Pendiente: grabar el vídeo (Andreu) y confirmar las decisiones a/b/c asumidas |
-| 11 | Landing V2 «nivel Awwwards» + negocio + funnel + docs | 🟡 En curso | 2026-07-24 | **F11.1, F11.3 (2 sesiones), F11.4, F11.5, F11.6, F11.7 y F11.8 (primera pasada + pase a11y/contenido desde cloud 2026-07-24) hechos** — quedan F11.2a (imaginería, LOCAL) y el resto de la cola de F11.8 (Lighthouse/OG, LOCAL). Detalle por bloque abajo. (ver «Fase 11» abajo). **Plan maestro completo en [`docs/PLAN_FASE11_LANDING_V2.md`](PLAN_FASE11_LANDING_V2.md)**: bloques F11.0–F11.8 ejecutables por sesiones independientes. **Decisiones D1–D6 APROBADAS por Andreu (2026-07-23)**: JS propio ≤15 KB sin deps, capturas con browser tools en local, dirección C «Ocho tiendas, un motor», escalera de precios (Lite 590 / Kit 1.900+39 / A medida 3.400+59), WhatsApp+email, Lite publicado sin construir. Prompt de arranque: [`docs/PROMPT_FASE11.md`](PROMPT_FASE11.md). Integra 9B.5/9B.6 (imaginería y temas restantes) como prerequisito del hero |
+| 11 | Landing V2 «nivel Awwwards» + negocio + funnel + docs | 🟡 En curso | 2026-07-24 | **F11.1, F11.3 (2 sesiones), F11.4, F11.5, F11.6, F11.7 y F11.8 (primera pasada + pase a11y/contenido desde cloud 2026-07-24) hechos**, más F11.8b (auditor de a11y, cloud) y **F11.2a-1 (tienda ASFALTO / tema Street, local 2026-07-25)** — de F11.2a quedan 3 tiendas (Industrial, Natural, Specs; LOCAL) y el resto de la cola de F11.8 (Lighthouse/OG, LOCAL). Detalle por bloque abajo. (ver «Fase 11» abajo). **Plan maestro completo en [`docs/PLAN_FASE11_LANDING_V2.md`](PLAN_FASE11_LANDING_V2.md)**: bloques F11.0–F11.8 ejecutables por sesiones independientes. **Decisiones D1–D6 APROBADAS por Andreu (2026-07-23)**: JS propio ≤15 KB sin deps, capturas con browser tools en local, dirección C «Ocho tiendas, un motor», escalera de precios (Lite 590 / Kit 1.900+39 / A medida 3.400+59), WhatsApp+email, Lite publicado sin construir. Prompt de arranque: [`docs/PROMPT_FASE11.md`](PROMPT_FASE11.md). Integra 9B.5/9B.6 (imaginería y temas restantes) como prerequisito del hero |
 | 8 | Pulido de la demo (backlog abajo) | 🟡 En curso | 2026-07-19 | Backlog técnico agotado; solo quedan decisiones y pasos locales de Andreu (ver «Decisiones pendientes» y `docs/PROMPT_CLOUD.md`). Últimas tandas: novena (race de idempotencia en el pago, PII enumerable en `/demo/gracias`, cancelación de pedido pagado sin devolver stock), décima (la misma race en el PATCH de admin, campos vacíos guardados como 0, login sin rate limit), undécima (diagrama móvil de `/arquitectura`, hedge del plazo de entrega, tokens de tema en `/demo/reset`, terminología «envío»), duodécima (aviso de corte en pedidos del admin, cabeceras sin wrap a 375px, leftover «portes», token de radio del carrito, contraste del botón eliminar, H1 en valenciano, checklist de producción) y decimotercera (misma race de idempotencia en `checkout.session.expired`, divisa hardcodeada a EUR fuera de Stripe, cobertura de test de `quoteCart`/PATCH admin/emails) y decimocuarta (config parcial de Stripe → cobro sin cumplimiento, emails duplicados bajo concurrencia, `payment_status` del webhook, color de marca centralizado en `shop.config.ts`, contraste/tema en carrito y checkout) — ver sección «Fase 8» |
 
 ## Repo y entornos
@@ -1126,23 +1126,93 @@ esta sección y sube a `main`.
 
 ## Próxima sesión
 
-- **Bloque:** F11.2a — imaginería Higgsfield para las 4 tiendas restantes
-  (Industrial, Natural, Specs, Street) + desarrollo de sus temas siguiendo
-  `docs/CHECKLIST_TEMA.md` (una tienda por sesión si hace falta trocearlo).
+- **Bloque:** F11.2a — sigue abierto, quedan **3 tiendas**: Industrial, Natural
+  y Specs (Street se cerró el 2026-07-25, entrada abajo). Una por sesión,
+  siguiendo `docs/CHECKLIST_TEMA.md`. **El orden de riesgo de `TEMAS.md § 7`
+  manda: Industrial → Natural → Specs.** Las tres piden capacidades de producto
+  que la migración 0002 ya dejó puestas (`subtitle`, `compare_at_price_cents`,
+  `specs_json`), así que el riesgo de datos que documentaba `TEMAS.md § 8` está
+  cerrado: es trabajo de presentación.
   **Solo LOCAL**: re-confirmado el 2026-07-25 desde cloud que la política de red
   deniega el CDN de Higgsfield (todos los dominios, 000) — el MCP genera pero
   las imágenes no se pueden descargar al repo. También está denegado
   `ecom.logic2b.com` (nada de auditoría «en vivo» desde cloud).
-- **Alternativa si la sesión es cloud**: la cola de a11y de las 6 tiendas demo
-  se cerró el 2026-07-25 (entrada de abajo) y `scripts/a11y-audit.mjs` las deja
-  en 66/66 verdes. Lo que queda ejecutable desde cloud es **pasar el mismo
-  auditor por las superficies de panel** (`/demo/admin`, detalle de pedido,
-  productos, envíos, emails, login) añadiéndolas a `SURFACES` con cookie de
-  sesión: el Lighthouse del admin se hizo a mano en 2026-07-19 y desde entonces
-  el panel no tiene red de seguridad automática.
-- Tras F11.2a: re-capturar pantallas (`scripts/capture-screens.mjs`), ampliar
-  la galería del hero a 8 tiendas (se deriva sola del registro) y cerrar la
-  cola de F11.8 (Lighthouse citable + OG WhatsApp).
+  **Receta ya probada en Street:** generar con `marketing_studio_image` (tope de
+  8 trabajos concurrentes), recoger las URL con `job_display` y bajar/convertir
+  con un script tipo `scripts/fetch-street-images.mjs` — usa `cwebp`, así que no
+  hace falta `sharp` ni ninguna dependencia nueva.
+- **Alternativa si la sesión es cloud**: lo ejecutable desde cloud es **pasar el
+  auditor de a11y por las superficies de panel** (`/demo/admin`, detalle de
+  pedido, productos, envíos, emails, login) añadiéndolas a `SURFACES` de
+  `scripts/a11y-audit.mjs` con cookie de sesión. El Lighthouse del admin se hizo
+  a mano en 2026-07-19 y desde entonces el panel no tiene red de seguridad
+  automática; las 7 tiendas sí (77/77 en verde).
+- Tras F11.2a: ampliar la galería del hero a las 10 tiendas (Street ya entró; se
+  deriva del registro, pero el ORDEN es explícito en `galleryOrder` de
+  `index.astro` y en `SWITCHER_ORDER` de `Shop.astro` — hay que añadir cada
+  tienda nueva a los dos) y cerrar la cola de F11.8 (Lighthouse citable + OG
+  WhatsApp).
+
+### F11.2a-1 — tienda ASFALTO, tema Street (2026-07-25, sesión local)
+
+Primera de las 4 tiendas que faltaban. **Séptima tienda viva del escaparate.**
+Ficha de entrega completa en [`docs/temas/street.md`](temas/street.md).
+
+**Imaginería (lo que solo se puede hacer en local).** 16 imágenes generadas con
+Higgsfield `marketing_studio_image` y bajadas con `scripts/fetch-street-images.mjs`
+—nuevo, **sin dependencias npm**: convierte con `cwebp`, el binario de sistema que
+ya usa `capture-screens.mjs`, en vez de con `sharp` como el script viejo—. 12
+fotos de producto 800×800 (coral sobre gris cálido, luz editorial, sombra
+definida: la receta de `TEMAS.md § 5`), 1 hero a sangre de 1920 y 3 tarjetas
+editoriales de categoría en 4:5. El CDN admite 8 trabajos concurrentes; las URL
+se recogen con `job_display`. **Las URL del CDN caducan**: el script las lleva
+apuntadas para poder rehacer la descarga.
+
+**Tienda.** ASFALTO, running y streetwear urbano: 12 productos en 4 categorías,
+slugs `str-*`, **2 productos a `stock: 0`** para que el «Agotado» de la rejilla
+salga de D1 y no de una etiqueta pintada.
+
+**Tema.** Réplica de *Up There Athletics*: ticker verde neón en marquesina (CSS
+puro, para con `prefers-reduced-motion`, y las repeticiones van `aria-hidden`
+porque son textura), hero a sangre, header **debajo** del hero, 3 tarjetas
+editoriales, rejilla densa de 5 (→4→3→2 por breakpoints explícitos), banda Club
+House con carteles tipográficos en CSS y pie casi negro.
+
+**Decisión de motor consultada.** El header debajo del hero choca con
+`Shop.astro`, que monta el `SiteHeader` antes del slot. Se paró (veto del
+arquitecto) y Andreu eligió entre tres opciones: **tema inmersivo**, la
+capacidad que ya existía para Iris. El tema pinta su propio chrome y **el motor
+no se toca**. Coste aceptado: carrito, checkout y ficha de esta tienda van sin
+cabecera, igual que Iris.
+
+**Tres cosas que no se replican, a propósito** (CLAUDE.md § 14): el contador
+`1/3` con flechas del hero sería un carrusel falso; el `Read Full Article` de
+las notas no lleva a ningún sitio porque no hay CMS; y el alta de newsletter del
+pie no tiene lista detrás. Cada una se sustituye por algo que sí funciona.
+
+**Lo que cazó el auditor** (`--only=street`, primera pasada: 8 errores):
+
+- Las tarjetas de categoría daban **1,08:1**. No era un falso positivo evitable:
+  el auditor calcula el fondo efectivo recorriendo `background-color`, y la
+  plancha era un degradado (`background-image`) sobre un pseudo-elemento del
+  padre — invisible para él. Se rehízo como `background-color` **sólido** del
+  bloque de texto. Ahora lo que mide y lo que se ve coinciden. **Patrón, no
+  caso**: cualquier tema que ponga copy sobre foto tiene que darle al auditor un
+  fondo que pueda leer.
+- Salto de jerarquía h1 → h3 (falta un h2 de sección; va `sr-only`).
+- El pie enlaza al propio catálogo sin `aria-current`.
+
+Y dos gotchas de CSS/Astro que valen para los temas que quedan:
+`-webkit-text-stroke` con `currentColor` sobre `color: transparent` deja el
+trazo invisible; y un comentario `{/* */}` como hermano dentro de
+`{cond && ( … )}` rompe el build de Astro.
+
+**Verificado:** 11/11 superficies de Street en verde, **77/77 del barrido
+completo** (las 6 tiendas anteriores no regresaron), `pnpm check` (148 tests, 0
+errores de tipos), E2E de compra completo, y revisión a 1440, 375 y modo oscuro.
+Street entra además en el conmutador de tiendas, en la galería del hero de la
+landing y en `capture-screens.mjs` (3 capturas nuevas), que era lo que `/estilos`
+necesitaba para no enseñar una imagen rota.
 
 ### F11.8b — auditor de accesibilidad de las tiendas y pase de las 6 vivas (2026-07-25, sesión cloud)
 

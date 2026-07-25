@@ -47,8 +47,9 @@ const DESKTOP = { w: 1440, h: 900, dsf: 1, mobile: false };
 const MOBILE = { w: 375, h: 812, dsf: 1, mobile: true };
 
 // ── Superficies ────────────────────────────────────────────────────────────
-// Las 6 tiendas vivas. `demo` (La Botiga) conserva las rutas históricas.
+// Las 7 tiendas vivas. `demo` (La Botiga) conserva las rutas históricas.
 const STORES = [
+  { id: 'street', label: 'ASFALTO', prefix: '/demo/tiendas/street', slug: 'str-vuelta-9', cartKey: 'ecom-cart:street' },
   { id: 'launch', label: 'Vector', prefix: '/demo/tiendas/launch', slug: 'lau-vector-one', cartKey: 'ecom-cart:launch' },
   { id: 'minimal', label: 'Forma Interior', prefix: '/demo/tiendas/minimal', slug: 'min-butaca-arc', cartKey: 'ecom-cart:minimal' },
   { id: 'editorial', label: 'Módulo Audio', prefix: '/demo/tiendas/editorial', slug: 'edi-radio-r2', cartKey: 'ecom-cart:editorial' },

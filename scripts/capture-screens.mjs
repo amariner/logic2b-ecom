@@ -82,6 +82,10 @@ const STORES = [
   { id: 'editorial', label: 'Módulo Audio', catalog: '/demo/tiendas/editorial', full: true },
   { id: 'guide', label: 'Cafetal', catalog: '/demo/tiendas/guide', full: true },
   { id: 'iris', label: 'Iris', catalog: '/demo/tiendas/iris', full: false },
+  // Street es la tienda más alta del escaparate (hero a sangre + tarjetas
+  // editoriales + rejilla de 12 + Club House + pie negro): sin `maxH` el clip
+  // sale tan largo que en la landing se ve una tira de píxeles.
+  { id: 'street', label: 'ASFALTO', catalog: '/demo/tiendas/street', full: true, maxH: 1700 },
   { id: 'demo', label: 'La Botiga', catalog: '/demo/tienda', full: true, maxH: 1700 },
 ];
 
@@ -105,6 +109,7 @@ const FICHAS = [
   { id: 'editorial', slug: 'edi-radio-r2', prefix: '/demo/tiendas/editorial' },
   { id: 'guide', slug: 'cof-molinillo-manual', prefix: '/demo/tiendas/guide' },
   { id: 'iris', slug: 'iri-sport-pro', prefix: '/demo/tiendas/iris' },
+  { id: 'street', slug: 'str-vuelta-9', prefix: '/demo/tiendas/street' },
   { id: 'demo', slug: 'aove-coupage-750', prefix: '/demo/tienda' },
 ];
 for (const f of FICHAS) {

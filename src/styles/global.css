@@ -229,3 +229,12 @@
 [data-store-theme='guide'] :is(.text-brand, .hover\:text-brand-dark:hover) {
   color: var(--color-foreground);
 }
+
+/* TEMA STREET — mismo caso que Guide: el verde neón (#c3f53c) da 1,4:1 sobre
+   blanco. Es color de relleno (el ticker, el chip activo, el cartel del Club
+   House), nunca de texto. Street es además `immersive`, así que TODA superficie
+   que el tema no repinta (ficha, carrito, checkout, gracias) la sirve Base con
+   estos tokens: sin esta regla, ahí el acento saldría en texto. */
+[data-store-theme='street'] :is(.text-brand, .hover\:text-brand-dark:hover) {
+  color: var(--color-foreground);
+}

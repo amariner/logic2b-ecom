@@ -25,7 +25,10 @@
       guardia estática que muerde (`tests/pricing-guard.test.ts`).
 - [ ] Imágenes en `public/images/collections/<id>/<slug>.webp` (WebP optimizado;
       generación SOLO en sesión local — el CDN de Higgsfield está bloqueado en
-      cloud).
+      cloud). Receta probada: `marketing_studio_image` (tope 8 trabajos a la
+      vez) → URL con `job_display` → descarga y conversión con un script tipo
+      `scripts/fetch-street-images.mjs`, que usa `cwebp` y **no añade
+      dependencias**. Las URL del CDN caducan: deja los ids apuntados.
 
 ## 2. Tokens y estructura
 
@@ -67,6 +70,12 @@
   recuadro, no la media (Iris daba 4,93:1 de media y 1:1 en las zonas claras).
   Si el fondo se mueve (scrub, autoplay), medir **varios fotogramas** siguiendo
   la posición viva del texto — un recuadro fijo mide otra cosa.
+- **Dale al auditor un fondo que pueda leer.** Calcula el fondo efectivo
+  recorriendo el `background-color` computado de los ancestros: un degradado es
+  `background-image` y le resulta INVISIBLE. Si pones copy sobre una plancha, la
+  plancha va como `background-color` sólido del bloque de texto — no como
+  degradado en un `::before` del padre, o cantará 1:1 donde en pantalla hay 13:1
+  (Street). Los degradados, para las zonas sin texto.
 - **Reglas generales del tema que pisan a las de componente.** `.tema :where(a)`
   se queda en (0,3,0) tras el scoping de Astro y gana a `.tema-x__btn` (0,2,0):
   así se perdía el `color:#fff` del botón del hero de Iris y el rótulo salía
@@ -79,6 +88,11 @@
       ficheros tocados y si hizo falta rozar el motor (**debe ser NO**; si fue
       sí, va al ROADMAP como deuda de motor).
 - [ ] Estado del tema a `'ready'` en `demo-themes.ts` solo si está completo.
+- [ ] **La tienda entra en los cinco sitios donde el orden es explícito**, o
+      queda a medias: `catalogViews` (`CatalogPage.astro`), `STORES` de
+      `scripts/a11y-audit.mjs`, `STORES`+`FICHAS` de `capture-screens.mjs` (y
+      ejecutarlo: `/estilos` enseña la captura y sin ella sale rota),
+      `SWITCHER_ORDER` (`Shop.astro`) y `galleryOrder` (`index.astro`).
 - [ ] Actualizar `docs/ROADMAP.md` (estado + resumen con fecha).
 - [ ] Commit en inglés, resumen breve y **parar para OK de Andreu**.
 

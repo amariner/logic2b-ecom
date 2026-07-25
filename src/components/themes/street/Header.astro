@@ -1,0 +1,107 @@
+---
+/**
+ * STREET · Header — la barra que en la referencia va DEBAJO del hero: wordmark
+ * y navegación a la izquierda, acciones a la derecha.
+ *
+ * El tema es `nav: 'immersive'`, así que `Shop.astro` no monta el SiteHeader y
+ * esta cabecera es la única. Se queda pegada al hacer scroll (en la referencia
+ * el header sobrevive al hero), y el contador del carrito lo alimenta el script
+ * compartido del layout vía `data-cart-count`.
+ */
+import type { CollectionConfig, StorePaths } from '../../../lib/collections';
+
+interface Props {
+  collection: CollectionConfig;
+  paths: StorePaths;
+  /** Ruta actual, para marcar el enlace activo con `aria-current`. */
+  currentPath: string;
+}
+
+const { collection, paths, currentPath } = Astro.props;
+
+const norm = (href: string): string => href.replace(/\/+$/, '') || '/';
+const links = [
+  { href: paths.catalog, label: 'Tienda' },
+  { href: '#club', label: 'Club House' },
+];
+---
+
+<header class="street-header">
+  <div class="street-header__row">
+    <a class="street-header__wordmark" href={paths.catalog}>{collection.name}</a>
+
+    <nav class="street-header__nav" aria-label="Principal">
+      {links.map((link) => (
+        <a
+          href={link.href}
+          aria-current={norm(link.href) === norm(currentPath) ? 'page' : undefined}
+          class="street-header__link"
+        >{link.label}</a>
+      ))}
+    </nav>
+
+    <a class="street-header__cart" href={paths.cart}>
+      Carrito (<span data-cart-count>0</span>)
+    </a>
+  </div>
+</header>
+
+<style>
+  .street-header {
+    position: sticky;
+    top: 0;
+    z-index: 40;
+    background: var(--color-background);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .street-header__row {
+    display: flex;
+    align-items: center;
+    gap: clamp(1rem, 3vw, 2.5rem);
+    padding: 0.875rem clamp(1rem, 4vw, 3rem);
+  }
+
+  .street-header__wordmark {
+    font-family: var(--font-display);
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    font-size: 1.0625rem;
+    color: var(--color-foreground);
+  }
+
+  .street-header__nav {
+    display: flex;
+    align-items: center;
+    gap: clamp(0.75rem, 2vw, 1.75rem);
+    margin-right: auto;
+  }
+
+  .street-header__link {
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: var(--color-muted-foreground);
+    padding-block: 0.5rem;
+    transition: color 0.15s;
+  }
+
+  .street-header__link:hover,
+  .street-header__link[aria-current='page'] {
+    color: var(--color-foreground);
+  }
+
+  .street-header__cart {
+    font-family: var(--font-accent);
+    font-size: 0.75rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--color-foreground);
+    padding: 0.5rem 0;
+    white-space: nowrap;
+  }
+
+  .street-header__cart:hover {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+</style>

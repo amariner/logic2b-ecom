@@ -1,0 +1,166 @@
+---
+/**
+ * STREET · Footer — pie casi negro con columnas de enlaces en mayúsculas
+ * monoespaciadas, alta de newsletter y «arriba» a la derecha (referencia).
+ *
+ * La newsletter de la referencia es un formulario real de captación. Aquí NO se
+ * finge: la demo no tiene lista de correo y un input que no hace nada es peor
+ * que no tenerlo. Se sustituye por la nota honesta de que esto es una demo, que
+ * además es coherente con el banner del layout.
+ */
+import { shopConfig } from '../../../../shop.config';
+import type { CollectionConfig, StorePaths } from '../../../lib/collections';
+
+interface Props {
+  collection: CollectionConfig;
+  paths: StorePaths;
+  /** Ruta actual: el pie enlaza al propio catálogo y hay que marcarlo. */
+  currentPath: string;
+}
+
+const { collection, paths, currentPath } = Astro.props;
+
+// Solo la RUTA: los filtros del catálogo viajan en query string y no cambian
+// de página, así que «Todo el catálogo» es la página actual y las categorías no.
+const norm = (href: string): string => (href.split('?')[0] ?? '').replace(/\/+$/, '') || '/';
+const here = norm(currentPath);
+const isCurrent = (href: string): boolean => !href.includes('?') && norm(href) === here;
+
+const columns = [
+  {
+    title: 'Tienda',
+    links: [
+      { href: paths.catalog, label: 'Todo el catálogo' },
+      ...collection.categories.map((cat) => ({
+        href: `${paths.catalog}?categoria=${cat.id}`,
+        label: cat.label,
+      })),
+    ],
+  },
+  {
+    title: 'Ayuda',
+    links: [
+      { href: paths.cart, label: 'Carrito' },
+      { href: '/demo/reset', label: 'Restaurar la demo' },
+    ],
+  },
+  {
+    title: 'LogicEcom',
+    links: [
+      { href: '/', label: 'Qué es esto' },
+      { href: '/estilos', label: 'Catálogo de estilos' },
+      { href: '/arquitectura', label: 'Cómo funciona' },
+    ],
+  },
+];
+---
+
+<footer class="street-footer">
+  <div class="street-footer__grid">
+    {columns.map((col) => (
+      <nav class="street-footer__col" aria-label={col.title}>
+        <p class="street-footer__title">{col.title}</p>
+        <ul class="street-footer__list">
+          {col.links.map((link) => (
+            <li>
+              <a
+                class="street-footer__link"
+                href={link.href}
+                aria-current={isCurrent(link.href) ? 'page' : undefined}
+              >{link.label}</a>
+            </li>
+          ))}
+        </ul>
+      </nav>
+    ))}
+
+    <div class="street-footer__col">
+      <p class="street-footer__title">{collection.name}</p>
+      <p class="street-footer__note">
+        Tienda ficticia. El pago está simulado y los emails se quedan en la
+        bandeja de la demo: no se envía nada.
+      </p>
+    </div>
+  </div>
+
+  <div class="street-footer__bar">
+    <p class="street-footer__legal">{shopConfig.legalName} · {shopConfig.legal.shippingNote}</p>
+    <a class="street-footer__top" href="#top">Arriba ↑</a>
+  </div>
+</footer>
+
+<style>
+  .street-footer {
+    background: #111111;
+    color: #d4d4d4;
+    margin-top: clamp(3rem, 8vw, 6rem);
+  }
+
+  .street-footer__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+    gap: clamp(1.75rem, 4vw, 3rem);
+    padding: clamp(2.5rem, 6vw, 4rem) clamp(1rem, 4vw, 3rem);
+  }
+
+  .street-footer__title {
+    font-family: var(--font-accent);
+    font-size: 0.6875rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    /* #d4d4d4 sobre #111 = 11,3:1. El título va en blanco puro para separarlo
+       de los enlaces sin bajar de AA en ninguno de los dos. */
+    color: #ffffff;
+  }
+
+  .street-footer__list {
+    margin-top: 0.875rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .street-footer__link {
+    font-size: 0.8125rem;
+    color: #d4d4d4;
+    transition: color 0.15s;
+  }
+
+  .street-footer__link:hover,
+  .street-footer__link[aria-current='page'] {
+    color: #ffffff;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  .street-footer__note {
+    margin-top: 0.875rem;
+    font-size: 0.8125rem;
+    line-height: 1.6;
+    color: #d4d4d4;
+    max-width: 22rem;
+  }
+
+  .street-footer__bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    border-top: 1px solid #2e2e2e;
+    padding: 1.125rem clamp(1rem, 4vw, 3rem);
+  }
+
+  .street-footer__legal,
+  .street-footer__top {
+    font-family: var(--font-accent);
+    font-size: 0.6875rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #d4d4d4;
+  }
+
+  .street-footer__top:hover {
+    color: #ffffff;
+  }
+</style>

@@ -424,7 +424,7 @@ export const demoThemes: DemoTheme[] = [
     reference: { name: 'Up There Athletics', file: '08-street.webp' },
     sample: '/images/temas/street.webp',
     bestFor: ['Moda y streetwear', 'Calzado deportivo', 'Marcas con drops y campañas'],
-    status: 'planned',
+    status: 'ready',
     vars: {
       // Verde neón del ticker. Acento CLARO → texto en tinta encima.
       '--color-brand': '#c3f53c',
@@ -443,7 +443,11 @@ export const demoThemes: DemoTheme[] = [
       '--grid-gap': '0.75rem',
     },
     layout: {
-      gridCols: 5, gridStyle: 'uniform', nav: 'top', hero: 'fullbleed',
+      // `immersive`, no `top`: en la referencia el header va DEBAJO del hero a
+      // sangre, y `Shop.astro` monta el SiteHeader ANTES del slot. El tema pinta
+      // su propio chrome (ticker, hero, header y pie negro) — misma capacidad
+      // que usa Iris, sin tocar el motor. Decidido con Andreu el 2026-07-25.
+      gridCols: 5, gridStyle: 'uniform', nav: 'immersive', hero: 'fullbleed',
       card: 'plain', filters: 'chips', density: 'compact',
       annotations: true, darkFooter: true,
     },

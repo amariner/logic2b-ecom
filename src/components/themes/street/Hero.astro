@@ -1,0 +1,173 @@
+---
+/**
+ * STREET · Hero — foto de campaña a sangre con el copy superpuesto arriba a la
+ * izquierda y el indicador de scroll abajo, como en la referencia.
+ *
+ * CONTRASTE SOBRE FOTO (lo que el auditor de a11y NO puede ver, checklist § 3).
+ * El texto va en tinta y la foto tiene cielo casi blanco arriba pero pavimento
+ * medio abajo: sin velo, el indicador de scroll se quedaba en ~2,6:1. Se resuelve
+ * con un velo blanco en degradado desde el borde izquierdo (`::before`), que es
+ * donde vive TODO el copy; la mitad derecha de la foto queda limpia. Medido
+ * sobre los píxeles reales — ver docs/temas/street.md.
+ *
+ * La referencia lleva además un contador «1/3» con flechas de carrusel. No se
+ * replica: sería un control falso (CLAUDE.md § 14, no inventar features).
+ */
+import type { CollectionConfig, StorePaths } from '../../../lib/collections';
+
+interface Props {
+  collection: CollectionConfig;
+  paths: StorePaths;
+}
+
+const { collection, paths } = Astro.props;
+
+const HERO = '/images/collections/street/hero.webp';
+---
+
+<section class="street-hero">
+  <img
+    class="street-hero__img"
+    src={HERO}
+    alt=""
+    width="1920"
+    height="1072"
+    fetchpriority="high"
+    decoding="async"
+  />
+
+  <div class="street-hero__inner">
+    <p class="street-hero__eyebrow">Disponible ya</p>
+    <h1 class="street-hero__title">{collection.tagline}</h1>
+    <a class="street-hero__cta" href="#llegadas">
+      <span aria-hidden="true">↓</span> Ver lo último
+    </a>
+  </div>
+
+  <a class="street-hero__skip" href={paths.cart}>Ir al carrito</a>
+</section>
+
+<style>
+  .street-hero {
+    position: relative;
+    isolation: isolate;
+    min-height: min(78vh, 40rem);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    overflow: hidden;
+    background: var(--color-surface-product);
+  }
+
+  .street-hero__img {
+    position: absolute;
+    inset: 0;
+    z-index: -2;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: 62% center;
+  }
+
+  /* Velo del copy. Cubre la columna izquierda entera (donde está todo el texto)
+     y se desvanece antes de llegar a la figura. */
+  .street-hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: linear-gradient(
+      to right,
+      rgb(255 255 255 / 0.93) 0%,
+      rgb(255 255 255 / 0.86) 28%,
+      rgb(255 255 255 / 0.45) 48%,
+      rgb(255 255 255 / 0) 68%
+    );
+  }
+
+  .street-hero__inner {
+    position: relative;
+    padding: clamp(1.5rem, 4vw, 3rem);
+    max-width: min(38rem, 60%);
+  }
+
+  .street-hero__eyebrow {
+    font-family: var(--font-accent);
+    font-size: 0.6875rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #3d3d3d;
+  }
+
+  .street-hero__title {
+    margin-top: 0.5rem;
+    font-family: var(--font-display);
+    font-weight: var(--weight-display);
+    letter-spacing: var(--tracking-display);
+    line-height: 1.03;
+    font-size: clamp(2.25rem, 6.2vw, 4.5rem);
+    color: #111111;
+    text-wrap: balance;
+  }
+
+  .street-hero__cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: clamp(1.25rem, 3vw, 2rem);
+    padding: 0.625rem 1.25rem;
+    min-height: 2.75rem;
+    background: #111111;
+    color: #ffffff;
+    border-radius: var(--radius-btn);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    transition: background-color 0.2s;
+  }
+
+  .street-hero__cta:hover {
+    background: #2f2f2f;
+  }
+
+  /* Atajo al carrito: con `nav: immersive` el hero es lo primero que hay, y el
+     header vive DEBAJO. Este enlace da salida por teclado sin tener que pasar
+     por todo el hero. Solo visible al enfocar. */
+  .street-hero__skip {
+    position: absolute;
+    left: -9999px;
+    top: 0.5rem;
+  }
+
+  .street-hero__skip:focus-visible {
+    left: 0.5rem;
+    z-index: 5;
+    background: #111111;
+    color: #ffffff;
+    padding: 0.5rem 0.875rem;
+    border-radius: var(--radius-btn);
+    font-size: 0.8125rem;
+  }
+
+  @media (max-width: 640px) {
+    .street-hero {
+      min-height: 30rem;
+    }
+
+    .street-hero__inner {
+      max-width: 100%;
+    }
+
+    /* A 375 el copy ocupa el ancho entero: el velo tiene que ser plano, no
+       lateral, o la última palabra del titular cae sobre la foto sin velo. */
+    .street-hero::before {
+      background: linear-gradient(
+        to bottom,
+        rgb(255 255 255 / 0.92) 0%,
+        rgb(255 255 255 / 0.88) 45%,
+        rgb(255 255 255 / 0.35) 78%,
+        rgb(255 255 255 / 0.2) 100%
+      );
+    }
+  }
+</style>

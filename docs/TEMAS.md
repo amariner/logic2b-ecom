@@ -455,6 +455,13 @@ estudio limpia, sombra suave. Paleta monocroma.
 campañas.
 
 > **Tema nuevo (2026-07-20).** No estaba en la primera tanda de referencias.
+>
+> **✅ Entregado el 2026-07-25** como tienda **ASFALTO**. Ficha completa en
+> [`docs/temas/street.md`](temas/street.md), con lo que se replicó, lo que
+> deliberadamente NO (contador de carrusel, «Read Full Article» y newsletter:
+> serían funcionalidad fingida) y los gotchas. Ojo a un cambio respecto a lo que
+> dice esta ficha: el tema acabó en **`nav: 'immersive'`**, no `'top'` — era la
+> única forma de poner el header debajo del hero sin tocar `Shop.astro`.
 
 **Estructura observada**
 - **Ticker verde neón** en lo más alto: banda estrecha con texto repetido en
@@ -511,7 +518,7 @@ nítida con sombra definida, tonos coral/rojo. Energía de revista deportiva.
 | 05 | Specs | `#c2410c` | 3 | **irregular** | top | none | divided | dropdown | compact | ⏳ |
 | 06 | Minimal | `#1a1a1a` | 2 | uniform | **sidebar** | none | plain | dropdown | airy | ⏳ |
 | 07 | Launch | `#15803d` | 3 | uniform | top | none | hairline | chips | airy | ⏳ |
-| 08 | Street | `#c3f53c` | **5** | uniform | top | **fullbleed** | plain | chips | compact | ⏳ |
+| 08 | Street | `#c3f53c` | **5** | uniform | **immersive** | **fullbleed** | plain | chips | compact | ✅ |
 
 ---
 

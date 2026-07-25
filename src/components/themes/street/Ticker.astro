@@ -1,0 +1,74 @@
+---
+/**
+ * STREET · Ticker — la banda verde neón en marquesina de lo más alto de la
+ * referencia (Up There Athletics).
+ *
+ * Accesibilidad (nota de docs/TEMAS.md § 5, riesgo abierto 4): movimiento
+ * infinito sin escape es un problema real. Tres decisiones:
+ *  · `prefers-reduced-motion: reduce` PARA la animación (no la ralentiza).
+ *  · El texto se anuncia UNA vez; las repeticiones que hacen la cinta continua
+ *    son `aria-hidden` — para un lector de pantalla serían ruido puro.
+ *  · Es un aviso comercial, no navegación: no lleva enlaces dentro.
+ *
+ * El acento es CLARO (#c3f53c): el texto va en tinta (`--color-brand-fg`), que
+ * es exactamente para lo que existe ese token.
+ */
+interface Props {
+  message: string;
+}
+
+const { message } = Astro.props;
+
+// 6 copias: la cinta debe cubrir el viewport más ancho sin que se vea el corte.
+const REPEATS = 6;
+---
+
+<div class="street-ticker" role="status">
+  <span class="sr-only">{message}</span>
+  <div class="street-ticker__track" aria-hidden="true">
+    {Array.from({ length: REPEATS }).map(() => (
+      <span class="street-ticker__item">{message}</span>
+    ))}
+    {Array.from({ length: REPEATS }).map(() => (
+      <span class="street-ticker__item">{message}</span>
+    ))}
+  </div>
+</div>
+
+<style>
+  .street-ticker {
+    position: relative;
+    overflow: hidden;
+    background: var(--color-brand);
+    color: var(--color-brand-fg);
+    font-family: var(--font-accent);
+    font-size: 0.6875rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding-block: 0.375rem;
+  }
+
+  .street-ticker__track {
+    display: flex;
+    width: max-content;
+    animation: street-ticker-scroll 40s linear infinite;
+  }
+
+  .street-ticker__item {
+    padding-inline: 1.5rem;
+    white-space: nowrap;
+  }
+
+  /* La cinta es el contenido duplicado: se desplaza exactamente la mitad y
+     vuelve al origen, así que el salto es invisible. */
+  @keyframes street-ticker-scroll {
+    from { transform: translate3d(0, 0, 0); }
+    to { transform: translate3d(-50%, 0, 0); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .street-ticker__track {
+      animation: none;
+    }
+  }
+</style>

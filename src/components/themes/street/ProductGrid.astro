@@ -1,0 +1,210 @@
+---
+/**
+ * STREET · ProductGrid — la rejilla densa de 5 columnas de la referencia:
+ * imagen pequeña sobre gris muy claro y, debajo, antetítulo diminuto
+ * (`marca / categoría`), nombre, precio y «Agotado».
+ *
+ * «Agotado» es ESTADO REAL DE STOCK de D1 (nota de docs/TEMAS.md § 5), no una
+ * etiqueta decorativa: el botón se deshabilita con él.
+ *
+ * El salto de 5 a 2 columnas en móvil es el más agresivo del catálogo; se hace
+ * por breakpoints explícitos (5 → 4 → 3 → 2), no por `auto-fit`, para que la
+ * fila no se descuadre en tamaños intermedios.
+ *
+ * El botón usa `data-street-add` para no colisionar con el handler genérico de
+ * Base.
+ */
+import { formatEurCents } from '../../../lib/format';
+import { categoryLabel as labelForCategory, type CollectionConfig, type StorePaths } from '../../../lib/collections';
+
+type GridProduct = {
+  slug: string;
+  name: string;
+  price_cents: number;
+  image: string;
+  stock: number;
+  category: string;
+};
+
+interface Props {
+  paths: StorePaths;
+  collection: CollectionConfig;
+  products: GridProduct[];
+}
+
+const { paths, collection, products } = Astro.props;
+---
+
+<ul class="street-grid">
+  {products.map((prod) => (
+    <li class="street-card">
+      <div class="street-card__media">
+        <img
+          src={prod.image}
+          alt=""
+          width="800"
+          height="800"
+          loading="lazy"
+          class="street-card__img"
+        />
+      </div>
+
+      <p class="street-card__eyebrow">
+        {collection.name} / {labelForCategory(collection, prod.category)}
+      </p>
+
+      <h3 class="street-card__name">
+        <a class="street-card__link" href={paths.product(prod.slug)}>{prod.name}</a>
+      </h3>
+
+      <p class="street-card__price">
+        {formatEurCents(prod.price_cents)}
+        {prod.stock === 0 && <span class="street-card__sold">Agotado</span>}
+      </p>
+
+      <button
+        type="button"
+        data-street-add={prod.slug}
+        disabled={prod.stock === 0}
+        aria-label={`Añadir ${prod.name} al carrito`}
+        class="street-card__add"
+      >{prod.stock === 0 ? 'Sin stock' : 'Añadir'}</button>
+    </li>
+  ))}
+</ul>
+
+<style>
+  .street-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--grid-gap) calc(var(--grid-gap) * 1.2);
+  }
+
+  @media (min-width: 640px) { .street-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+  @media (min-width: 900px) { .street-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+  @media (min-width: 1200px) { .street-grid { grid-template-columns: repeat(5, minmax(0, 1fr)); } }
+
+  .street-card {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+
+  /* La imagen NO es un enlace propio: duplicaría el destino del nombre y el
+     lector leería dos veces el mismo sitio. La zona de clic la da el enlace
+     estirado del nombre (`.street-card__link::after`), que es el único
+     interactivo con nombre accesible de la tarjeta. */
+  .street-card__media {
+    display: block;
+    background: var(--color-surface-product);
+    border-radius: var(--radius-card);
+    overflow: hidden;
+  }
+
+  .street-card__img {
+    display: block;
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    object-fit: cover;
+    transition: transform 0.4s ease;
+  }
+
+  .street-card:hover .street-card__img {
+    transform: scale(1.03);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .street-card__img { transition: none; }
+    .street-card:hover .street-card__img { transform: none; }
+  }
+
+  .street-card__eyebrow {
+    margin-top: 0.625rem;
+    font-family: var(--font-accent);
+    font-size: 0.625rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--color-muted-foreground);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .street-card__name {
+    margin-top: 0.1875rem;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    line-height: 1.3;
+    color: var(--color-foreground);
+  }
+
+  .street-card__link::after {
+    /* Toda la tarjeta es zona de clic sin anidar interactivos: el enlace del
+       nombre se estira por encima de la celda. El botón de compra se pone por
+       encima con `position: relative`. */
+    content: '';
+    position: absolute;
+    inset: 0;
+  }
+
+  .street-card { position: relative; }
+
+  .street-card__price {
+    margin-top: 0.25rem;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.4375rem;
+    font-size: 0.8125rem;
+    color: var(--color-foreground);
+  }
+
+  .street-card__sold {
+    font-family: var(--font-accent);
+    font-size: 0.625rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--color-muted-foreground);
+  }
+
+  .street-card__add {
+    position: relative;
+    z-index: 1;
+    margin-top: 0.625rem;
+    align-self: flex-start;
+    min-height: 2rem;
+    padding: 0.375rem 0.875rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-btn);
+    background: var(--color-background);
+    color: var(--color-foreground);
+    font-size: 0.75rem;
+    font-weight: 600;
+    transition: background-color 0.15s, border-color 0.15s, color 0.15s;
+  }
+
+  .street-card__add:hover:not(:disabled) {
+    background: var(--color-brand);
+    border-color: var(--color-brand);
+    color: var(--color-brand-fg);
+  }
+
+  .street-card__add:disabled {
+    cursor: not-allowed;
+    color: var(--color-muted-foreground);
+    border-color: var(--color-border);
+  }
+</style>
+
+<script>
+  import { addToCart } from '../../../lib/cart-client';
+
+  for (const btn of document.querySelectorAll<HTMLButtonElement>('[data-street-add]')) {
+    btn.addEventListener('click', () => {
+      addToCart(btn.dataset.streetAdd ?? '');
+      const prev = btn.textContent;
+      btn.textContent = 'Añadido ✓';
+      window.setTimeout(() => (btn.textContent = prev), 900);
+    });
+  }
+</script>

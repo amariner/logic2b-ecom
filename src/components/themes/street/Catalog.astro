@@ -1,0 +1,221 @@
+---
+/**
+ * STREET · Catalog — vista completa del catálogo del tema (ref. Up There
+ * Athletics). La monta `CatalogPage.astro` por el registro de vistas por tema.
+ *
+ * `nav: 'immersive'`: `Shop.astro` no monta chrome, así que este componente es
+ * responsable de TODO el marco de la página — ticker, hero a sangre, header
+ * (que en la referencia va DEBAJO del hero) y pie casi negro.
+ *
+ * Igual que Launch, la composición de revista solo sale en la VISTA PRÍSTINA
+ * (sin categoría, sin búsqueda, orden por defecto). En cuanto el visitante
+ * filtra, la página se convierte en un catálogo funcional: chips + rejilla, sin
+ * bandas editoriales de por medio. Filtrar es una intención concreta y meterle
+ * carteles delante sería trabajar en su contra.
+ */
+import type { CollectionConfig, StorePaths } from '../../../lib/collections';
+import Ticker from './Ticker.astro';
+import Hero from './Hero.astro';
+import Header from './Header.astro';
+import Footer from './Footer.astro';
+import CategoryCards from './CategoryCards.astro';
+import ClubHouse from './ClubHouse.astro';
+import Filters from './Filters.astro';
+import ProductGrid from './ProductGrid.astro';
+
+type GridProduct = {
+  slug: string;
+  name: string;
+  price_cents: number;
+  image: string;
+  stock: number;
+  category: string;
+};
+
+interface Props {
+  paths: StorePaths;
+  products: GridProduct[];
+  collection: CollectionConfig;
+  category?: string | undefined;
+  sort: string;
+  search?: string | undefined;
+}
+
+const { paths, products, collection, category, sort, search } = Astro.props;
+
+const editorial = !category && !search && sort === 'featured' && products.length > 0;
+
+const TICKER = 'Envío en 48 h · Devoluciones gratis 30 días · Pedidos antes de las 14:00 salen hoy';
+---
+
+<div id="top" class="street">
+  <Ticker message={TICKER} />
+
+  {editorial && <Hero collection={collection} paths={paths} />}
+
+  <Header collection={collection} paths={paths} currentPath={Astro.url.pathname} />
+
+  <main class="street__main">
+    {/* El titular de «Colecciones» es solo para lectores: la referencia no lo
+        enseña, pero sin él el esquema salta de h1 a los h3 de las tarjetas. */}
+    {editorial && (
+      <section class="street__band" aria-labelledby="street-collections">
+        <h2 class="sr-only" id="street-collections">Colecciones</h2>
+        <CategoryCards collection={collection} paths={paths} />
+      </section>
+    )}
+
+    <section class="street__band" id="llegadas" aria-labelledby="street-arrivals">
+      <header class="street__section-head">
+        <span class="street__glyph" aria-hidden="true">⚡</span>
+        {editorial ? (
+          <h2 class="street__section-title" id="street-arrivals">Lo último</h2>
+        ) : (
+          <h1 class="street__section-title" id="street-arrivals">Catálogo</h1>
+        )}
+      </header>
+
+      <div class="street__filters">
+        <Filters
+          paths={paths}
+          collection={collection}
+          count={products.length}
+          activeCategory={category}
+          sort={sort}
+          search={search}
+        />
+      </div>
+
+      {search && products.length > 0 && (
+        <p class="street__result-note">
+          {products.length} {products.length === 1 ? 'resultado' : 'resultados'} para «{search}» ·{' '}
+          <a
+            class="street__result-link"
+            href={category ? `${paths.catalog}?categoria=${category}` : paths.catalog}
+          >quitar búsqueda</a>
+        </p>
+      )}
+
+      <div class="street__grid-wrap">
+        {products.length > 0 ? (
+          <ProductGrid paths={paths} collection={collection} products={products} />
+        ) : (
+          <div class="street__empty">
+            <p class="street__empty-title">
+              {search ? `Nada por aquí para «${search}»` : 'No hay productos en esta categoría'}
+            </p>
+            <p class="street__empty-body">
+              {search
+                ? 'Prueba con otra palabra o vuelve al catálogo completo.'
+                : 'Puede que el comercio la haya vaciado temporalmente. El resto del catálogo sigue disponible.'}
+            </p>
+            <a class="street__empty-cta" href={paths.catalog}>Ver todo el catálogo</a>
+          </div>
+        )}
+      </div>
+    </section>
+
+    {editorial && <ClubHouse collection={collection} paths={paths} products={products.slice(-2)} />}
+  </main>
+
+  <Footer collection={collection} paths={paths} currentPath={Astro.url.pathname} />
+</div>
+
+<style>
+  .street {
+    background: var(--color-background);
+    color: var(--color-foreground);
+  }
+
+  .street__main {
+    padding-inline: clamp(1rem, 4vw, 3rem);
+    padding-bottom: clamp(2rem, 5vw, 4rem);
+  }
+
+  .street__band {
+    margin-top: clamp(1.75rem, 4vw, 3rem);
+    /* El header del tema es sticky: sin esto, «Ver lo último» deja el titular
+       de la sección debajo de la barra. */
+    scroll-margin-top: 4.5rem;
+  }
+
+  .street__section-head {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.375rem;
+  }
+
+  .street__glyph {
+    font-size: 1.125rem;
+    color: var(--color-muted-foreground);
+  }
+
+  .street__section-title {
+    font-family: var(--font-display);
+    font-weight: var(--weight-display);
+    letter-spacing: var(--tracking-display);
+    font-size: clamp(1.75rem, 3.4vw, 2.5rem);
+    color: var(--color-foreground);
+  }
+
+  .street__filters {
+    margin-top: clamp(1.25rem, 2.5vw, 2rem);
+  }
+
+  .street__result-note {
+    margin-top: 1rem;
+    font-size: 0.8125rem;
+    color: var(--color-muted-foreground);
+  }
+
+  .street__result-link {
+    color: var(--color-foreground);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  .street__grid-wrap {
+    margin-top: clamp(1.25rem, 2.5vw, 2rem);
+  }
+
+  .street__empty {
+    padding: clamp(3rem, 8vw, 5rem) 1.5rem;
+    text-align: center;
+    background: var(--color-surface-sunken);
+    border-radius: var(--radius-card);
+  }
+
+  .street__empty-title {
+    font-family: var(--font-display);
+    font-weight: var(--weight-display);
+    letter-spacing: var(--tracking-display);
+    font-size: clamp(1.25rem, 2.4vw, 1.625rem);
+    color: var(--color-foreground);
+  }
+
+  .street__empty-body {
+    margin: 0.5rem auto 0;
+    max-width: 28rem;
+    font-size: 0.875rem;
+    line-height: 1.6;
+    color: var(--color-muted-foreground);
+  }
+
+  .street__empty-cta {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.5rem;
+    margin-top: 1.5rem;
+    padding: 0.5rem 1.5rem;
+    background: var(--color-brand);
+    color: var(--color-brand-fg);
+    border-radius: var(--radius-btn);
+    font-size: 0.8125rem;
+    font-weight: 600;
+  }
+
+  .street__empty-cta:hover {
+    background: var(--color-brand-dark);
+  }
+</style>
