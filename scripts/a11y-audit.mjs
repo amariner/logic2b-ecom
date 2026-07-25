@@ -18,6 +18,12 @@
  *   2. npx wrangler dev --port 8787          (en otra terminal)
  *   3. node scripts/a11y-audit.mjs           [--only=<substr>] [--json]
  *
+ * OJO con el puerto: si el servidor lo arrancaron las browser tools desde
+ * `.claude/launch.json` NO está en 8787 (`wrangler-preview` usa 8788 y
+ * `wrangler-dev` 8799). Pásalo con BASE_URL en vez de arrancar un segundo
+ * wrangler contra la misma D1 local:
+ *   BASE_URL=http://127.0.0.1:8788 node scripts/a11y-audit.mjs
+ *
  * Salida: informe por superficie. Exit code 1 si hay hallazgos de severidad
  * `error` (los `warn` se listan pero no rompen).
  */

@@ -11,6 +11,10 @@
  * USO:
  *   1. pnpm db:reset && pnpm build            (fixtures prístinas + dist)
  *   2. npx wrangler dev --port 8799 --local   (en otra terminal)
+ *      — o, si ya lo arrancaron las browser tools con la configuración
+ *        `wrangler-preview` de .claude/launch.json, apunta ahí en vez de
+ *        levantar un segundo wrangler contra la misma D1 local:
+ *        BASE_URL=http://127.0.0.1:8788 node scripts/capture-screens.mjs
  *   3. node scripts/capture-screens.mjs        [--only=<substr>] [--no-webp]
  *
  * Salida: public/images/screens/<nombre>.webp  (+ .png intermedio si --keep-png)
