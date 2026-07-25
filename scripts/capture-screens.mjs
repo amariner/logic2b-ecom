@@ -86,6 +86,7 @@ const STORES = [
   // editoriales + rejilla de 12 + Club House + pie negro): sin `maxH` el clip
   // sale tan largo que en la landing se ve una tira de píxeles.
   { id: 'street', label: 'ASFALTO', catalog: '/demo/tiendas/street', full: true, maxH: 1700 },
+  { id: 'industrial', label: 'METRIA', catalog: '/demo/tiendas/industrial', full: true },
   { id: 'demo', label: 'La Botiga', catalog: '/demo/tienda', full: true, maxH: 1700 },
 ];
 
@@ -110,6 +111,7 @@ const FICHAS = [
   { id: 'guide', slug: 'cof-molinillo-manual', prefix: '/demo/tiendas/guide' },
   { id: 'iris', slug: 'iri-sport-pro', prefix: '/demo/tiendas/iris' },
   { id: 'street', slug: 'str-vuelta-9', prefix: '/demo/tiendas/street' },
+  { id: 'industrial', slug: 'ind-mv-320', prefix: '/demo/tiendas/industrial' },
   { id: 'demo', slug: 'aove-coupage-750', prefix: '/demo/tienda' },
 ];
 for (const f of FICHAS) {

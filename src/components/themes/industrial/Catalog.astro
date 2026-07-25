@@ -1,0 +1,145 @@
+---
+/**
+ * INDUSTRIAL · Catalog — vista completa del catálogo para el tema. La página
+ * delega aquí vía el registro `catalogViews` de CatalogPage.astro.
+ *
+ * Orden de la referencia TAGARNO: cabecera (la del motor) → barra de miga azul a
+ * ancho completo → barra técnica de filtros → rejilla de tabla → franja azul a
+ * ancho completo → pie negro (el del motor, variante `layout.darkFooter`).
+ *
+ * A SANGRE, sin `max-width`: en la referencia la rejilla llega a los dos bordes
+ * de la ventana y es lo que le da el aire de tabla de catálogo de fabricante.
+ *
+ * TRES COSAS DE LA REFERENCIA QUE NO SE REPLICAN, A PROPÓSITO (CLAUDE.md § 14):
+ *
+ *  1. El «Load more» azul a ancho completo. No hay paginación: el catálogo de
+ *     esta tienda entra entero en una pantalla y un botón que no carga nada es
+ *     un adorno mentiroso. La franja azul se queda —es el remate visual— pero
+ *     hace algo real: con filtro o búsqueda activa ENLAZA al catálogo completo,
+ *     y sin filtro dice cuántas referencias hay. El número sale de D1.
+ *  2. La hamburguesa ☰ y la hora local del comercio. Viven en la cabecera, que
+ *     con `nav: 'top'` es la del MOTOR (`SiteHeader`), no del tema. Meterlas
+ *     obligaría a irse a `immersive` y dejar carrito, checkout y ficha sin
+ *     cabecera — el peaje que ya pagan Iris y Street. No se paga una tercera vez.
+ *  3. La pastilla azul `New`. No hay fecha de alta que la sostenga sin inventar
+ *     un dato. Se sustituye por «Últimas N», que sale del stock real de D1.
+ */
+import type { CollectionConfig, StorePaths } from '../../../lib/collections';
+import { categoryLabel } from '../../../lib/collections';
+import Breadcrumb from './Breadcrumb.astro';
+import Filters from './Filters.astro';
+import ProductGrid from './ProductGrid.astro';
+
+type GridProduct = {
+  slug: string;
+  name: string;
+  price_cents: number;
+  image: string;
+  stock: number;
+  subtitle?: string | null;
+};
+
+interface Props {
+  paths: StorePaths;
+  products: GridProduct[];
+  collection: CollectionConfig;
+  category?: string | undefined;
+  sort: string;
+  search?: string | undefined;
+}
+
+const { paths, products, collection, category, sort, search } = Astro.props;
+
+// Nivel actual de la miga: la categoría manda sobre la búsqueda porque es la que
+// cambia el ámbito del catálogo.
+const crumb = category
+  ? categoryLabel(collection, category)
+  : search
+    ? `Búsqueda: «${search}»`
+    : 'Todo';
+
+const filtered = Boolean(category || search);
+---
+
+<Breadcrumb paths={paths} current={crumb} linkRoot={filtered} />
+
+<main>
+  <Filters
+    paths={paths}
+    collection={collection}
+    count={products.length}
+    activeCategory={category}
+    sort={sort}
+    search={search}
+  />
+
+  {products.length > 0 ? (
+    <ProductGrid paths={paths} products={products} />
+  ) : (
+    <div class="ind-empty">
+      <h2 class="ind-empty__title">
+        {search ? `Sin referencias para «${search}»` : 'Sin referencias en esta categoría'}
+      </h2>
+      <p class="ind-empty__note">
+        {search
+          ? 'Prueba con otra palabra, con el código de referencia o vuelve al catálogo completo.'
+          : 'Puede que el comercio la haya vaciado temporalmente. El resto del catálogo sigue disponible.'}
+      </p>
+    </div>
+  )}
+
+  {/* Franja azul a ancho completo: el remate de la referencia, con función real. */}
+  {filtered ? (
+    <a class="ind-band ind-band--link" href={paths.catalog}>Ver el catálogo completo</a>
+  ) : (
+    <p class="ind-band">
+      {products.length} {products.length === 1 ? 'referencia' : 'referencias'} en catálogo
+    </p>
+  )}
+</main>
+
+<style>
+  .ind-empty {
+    padding: clamp(3rem, 10vw, 6rem) clamp(1rem, 4vw, 2rem);
+    text-align: center;
+    border-bottom: var(--border-width) solid var(--color-border);
+  }
+
+  .ind-empty__title {
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+    font-weight: var(--weight-display);
+    color: var(--color-foreground);
+  }
+
+  .ind-empty__note {
+    margin: 0.5rem auto 0;
+    max-width: 28rem;
+    font-size: 0.875rem;
+    line-height: 1.6;
+    color: var(--color-muted-foreground);
+  }
+
+  .ind-band {
+    display: block;
+    /* `background-color` sólido, no degradado: el auditor de a11y lee el fondo
+       efectivo recorriendo `background-color` y un degradado le es invisible. */
+    background-color: var(--color-brand);
+    color: var(--color-brand-fg);
+    padding: 0.875rem 1rem;
+    text-align: center;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+  }
+
+  .ind-band--link {
+    transition: background-color 0.15s;
+  }
+
+  .ind-band--link:hover {
+    background-color: var(--color-brand-dark);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+</style>

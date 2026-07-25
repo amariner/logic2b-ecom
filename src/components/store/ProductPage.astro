@@ -55,7 +55,11 @@ const jsonLd = {
     </nav>
 
     <div class="mt-6 grid gap-8 md:grid-cols-2 md:gap-14">
-      <div class="overflow-hidden rounded-3xl bg-muted">
+      {/* `self-start`: sin esto la caja se ESTIRA al alto de la columna derecha
+          y deja un bloque gris muerto bajo la foto en cuanto esa columna crece
+          (primer producto con ficha técnica que lo destapa: MV-320 de METRIA).
+          La imagen es cuadrada; la caja no tiene por qué ser más alta. */}
+      <div class="self-start overflow-hidden rounded-3xl bg-muted">
         <img
           src={product.image}
           alt={product.name}

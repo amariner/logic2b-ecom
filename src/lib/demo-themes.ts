@@ -219,18 +219,26 @@ export const demoThemes: DemoTheme[] = [
     reference: { name: 'TAGARNO', file: '02-industrial.webp' },
     sample: '/images/temas/industrial.webp',
     bestFor: ['B2B y maquinaria', 'Suministro industrial', 'Catálogos con ficha técnica'],
-    status: 'planned',
+    status: 'ready',
     vars: {
+      // Azul eléctrico de la referencia. #ffffff encima da 5,91:1 (AA).
       '--color-brand': '#1b4dff',
       '--color-brand-dark': '#1339cc',
       '--color-brand-fg': '#ffffff',
       '--font-display': SYSTEM_SANS,
-      '--font-accent': MONO,
+      // Sans, no mono: `layout.annotations` es false y en la referencia no hay
+      // ni una etiqueta monoespaciada. Un token que apunta a algo que el tema no
+      // usa es configuración muerta.
+      '--font-accent': SYSTEM_SANS,
       '--tracking-display': '0em',
       '--weight-display': '600',
-      '--radius-btn': '0rem',
+      // Radio 0 en todo SALVO pastillas de badge y botón (nota de la referencia).
+      '--radius-btn': '0.25rem',
       '--radius-card': '0rem',
       '--border-width': '1px',
+      // Blanco puro: la rejilla no tiene gap, así que la caja de imagen y la
+      // celda tienen que ser el MISMO blanco para que el filete sea lo único
+      // que separa. Por eso la imaginería se generó sobre blanco puro.
       '--surface-product': '#ffffff',
       '--surface-sunken': '#f4f4f4',
       '--space-density': '0.85',

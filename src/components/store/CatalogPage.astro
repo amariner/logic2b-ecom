@@ -17,6 +17,7 @@ import LaunchCatalog from '../themes/launch/Catalog.astro';
 import GuideCatalog from '../themes/guide/Catalog.astro';
 import IrisCatalog from '../themes/iris/Catalog.astro';
 import StreetCatalog from '../themes/street/Catalog.astro';
+import IndustrialCatalog from '../themes/industrial/Catalog.astro';
 
 interface Props {
   collection: CollectionConfig;
@@ -63,6 +64,7 @@ const catalogViews = {
   guide: GuideCatalog,
   iris: IrisCatalog,
   street: StreetCatalog,
+  industrial: IndustrialCatalog,
 } as const;
 const ThemedCatalog = catalogViews[collection.themeId as keyof typeof catalogViews] ?? null;
 ---

@@ -76,11 +76,35 @@
   plancha va como `background-color` sólido del bloque de texto — no como
   degradado en un `::before` del padre, o cantará 1:1 donde en pantalla hay 13:1
   (Street). Los degradados, para las zonas sin texto.
+- **Un control que solo aparece al pasar el ratón se oculta con
+  `visibility: hidden`, no con `opacity: 0`.** Con opacity sigue siendo destino
+  de tabulación y blanco de clic invisible, y el auditor lo canta con razón
+  (contraste 1,00:1: texto a alfa 0 sobre su propio fondo — multiplica el alfa
+  del texto por la `opacity` del elemento). Con `visibility` no existe hasta que
+  se revela, y el teclado sigue llegando por `:focus-within` del contenedor
+  (enfocas el enlace de la tarjeta → el botón se hace visible → el siguiente
+  tabulador entra). Y el equivalente táctil va con
+  `@media (hover: none), (pointer: coarse)`, las dos condiciones (Industrial).
 - **Reglas generales del tema que pisan a las de componente.** `.tema :where(a)`
   se queda en (0,3,0) tras el scoping de Astro y gana a `.tema-x__btn` (0,2,0):
   así se perdía el `color:#fff` del botón del hero de Iris y el rótulo salía
   acento sobre acento. Las normalizaciones del tema van **enteras** dentro de
   `:where(...)` para que su especificidad sea 0.
+
+### Gotchas de Astro y CSS ya pagados (no volver a descubrirlos)
+
+- **`<=` o `<` dentro de una expresión JSX rompe el build**: Astro lo parsea como
+  apertura de etiqueta («Unable to assign attributes when using <> Fragment
+  shorthand»). Cualquier comparación así va en el frontmatter, no en la
+  plantilla (Industrial).
+- **Un comentario `{/* */}` como hermano dentro de `{cond && ( … )}`** también
+  rompe el build (Street).
+- **`aspect-ratio` no manda sobre un flex item cuyo hijo lleva `height: 100%`**:
+  el alto lo acaba fijando el contenido (una imagen 800×800) y la relación de
+  aspecto no llega a aplicarse. La imagen va `position: absolute; inset: 0` para
+  salir del flujo (Industrial).
+- **`-webkit-text-stroke` con `currentColor` sobre `color: transparent`** deja el
+  trazo invisible (Street).
 
 ## 4. Cierre
 

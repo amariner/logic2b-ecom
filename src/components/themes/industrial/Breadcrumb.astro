@@ -1,0 +1,72 @@
+---
+/**
+ * INDUSTRIAL · Breadcrumb — barra de miga a ANCHO COMPLETO en azul eléctrico con
+ * texto blanco, justo debajo de la cabecera. Es el rasgo que más identifica la
+ * referencia TAGARNO: separa el chrome del catálogo con una franja de color.
+ *
+ * Es navegación real: el segundo nivel es la categoría (o la búsqueda) activa y
+ * va sin enlace, con `aria-current`. Y «Catálogo» SOLO es un enlace cuando lleva
+ * a otro sitio — sin filtro es esta misma página, y un enlace a la página en la
+ * que ya estás es justo lo que el auditor caza (regla `aria-current`).
+ *
+ * Contraste: #ffffff sobre #1b4dff = 5,91:1 (AA para texto normal). El fondo se
+ * declara con `background-color` sólido para que el auditor pueda LEERLO.
+ */
+import type { StorePaths } from '../../../lib/collections';
+
+interface Props {
+  paths: StorePaths;
+  /** Etiqueta del nivel actual: la categoría, «Todo» o la búsqueda. */
+  current: string;
+  /** ¿Hay filtro o búsqueda? Entonces «Catálogo» sí lleva a otra vista. */
+  linkRoot: boolean;
+}
+
+const { paths, current, linkRoot } = Astro.props;
+---
+
+<nav class="ind-crumb" aria-label="Migas de pan">
+  <ol class="ind-crumb__list">
+    <li>
+      {linkRoot
+        ? <a class="ind-crumb__link" href={paths.catalog}>Catálogo</a>
+        : <span class="ind-crumb__link">Catálogo</span>}
+    </li>
+    <li aria-hidden="true" class="ind-crumb__sep">/</li>
+    <li><span class="ind-crumb__current" aria-current="page">{current}</span></li>
+  </ol>
+</nav>
+
+<style>
+  .ind-crumb {
+    background-color: var(--color-brand);
+    color: var(--color-brand-fg);
+  }
+
+  .ind-crumb__list {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem clamp(1rem, 4vw, 2rem);
+    font-size: 0.75rem;
+    letter-spacing: 0.04em;
+  }
+
+  .ind-crumb__link,
+  .ind-crumb__current,
+  .ind-crumb__sep {
+    color: var(--color-brand-fg);
+  }
+
+  a.ind-crumb__link:hover {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  /* Sin `opacity` en el separador: bajarla al 70 % lo dejaría en ~3,4:1 y el
+     auditor mide color computado, no intención decorativa. */
+
+  .ind-crumb__current {
+    font-weight: 600;
+  }
+</style>

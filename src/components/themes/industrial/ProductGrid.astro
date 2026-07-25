@@ -1,0 +1,320 @@
+---
+/**
+ * INDUSTRIAL · ProductGrid — la rejilla de TABLA TÉCNICA de la referencia
+ * TAGARNO: celdas que se TOCAN (`--grid-gap: 0`) separadas solo por filete, con
+ * una celda que ocupa DOS columnas.
+ *
+ * Filete sin doblarse: cada celda pinta su filete DERECHO e INFERIOR, y la
+ * rejilla se desplaza 1 px a la derecha dentro de un contenedor con
+ * `overflow: hidden` para comerse el filete de la última columna. Así no hay
+ * doble línea en las esquinas ni marco exterior (el gotcha de docs/TEMAS.md § 2).
+ *
+ * Rejilla IRREGULAR (`gridStyle: 'irregular'`): composición EXPLÍCITA por
+ * índice, no `grid-auto-flow: dense` (que reordenaría el catálogo). Las celdas
+ * 0 y 5 ocupan 2 columnas SOLO a partir de 4 columnas (lg): 10 productos × 1 +
+ * 2 dobles = 12 unidades = 3 filas exactas, sin hueco. Y con el catálogo
+ * filtrado tampoco lo hay: en una rejilla de 4, el doble del índice 0 arranca en
+ * la columna 1 y el del 5 en la columna 3 — nunca parten fila.
+ *
+ * Tarjeta `divided`: caja de imagen y bloque de datos separados por filete.
+ * `object-fit: contain` en todas: la imaginería del tema es producto sobre
+ * BLANCO PURO, así que la caja no recorta nada y el «letterbox» no se ve.
+ *
+ * Comprar al vuelo: el botón azul aparece al pasar el ratón por la celda, como
+ * en la referencia. Con puntero grueso (`hover: none`) va SIEMPRE visible — un
+ * hover-para-comprar sin equivalente táctil dejaría la tienda sin botón en
+ * móvil (riesgo 4 de docs/TEMAS.md § 8). Con teclado sale por `:focus-within`.
+ */
+import { formatEurCents } from '../../../lib/format';
+import type { StorePaths } from '../../../lib/collections';
+
+type GridProduct = {
+  slug: string;
+  name: string;
+  price_cents: number;
+  image: string;
+  stock: number;
+  subtitle?: string | null;
+};
+
+interface Props {
+  paths: StorePaths;
+  products: GridProduct[];
+}
+
+const { paths, products } = Astro.props;
+
+/** Umbral de «últimas unidades». Sale de D1 (stock real), no es decoración. */
+const LOW_STOCK = 4;
+
+/**
+ * Pastilla de estado, resuelta AQUÍ y no en la plantilla.
+ *
+ * Gotcha de Astro: un `<=` dentro de una expresión JSX se parsea como apertura
+ * de etiqueta («Unable to assign attributes when using <> Fragment shorthand»).
+ * Cualquier comparación con `<` o `<=` va en el frontmatter.
+ */
+const badgeFor = (stock: number): { label: string; out: boolean } | null => {
+  if (stock === 0) return { label: 'Agotado', out: true };
+  if (stock <= LOW_STOCK) return { label: `Últimas ${stock}`, out: false };
+  return null;
+};
+
+/**
+ * Índices que ocupan dos columnas. Ver la nota de tesela de arriba.
+ *
+ * 0 y 5, no dos cualesquiera: con el orden por defecto (`featured` = categoría,
+ * id) esos dos puestos los ocupan el monitor y la mesa Z-90, que son los dos
+ * productos ANCHOS del catálogo — los que llenan una celda del doble de ancho.
+ * Ordenando por precio o por nombre caen en otros; es la misma propiedad que ya
+ * tiene la rejilla irregular de Editorial y no deja hueco en ningún caso.
+ */
+const WIDE = new Set([0, 5]);
+---
+
+<div class="ind-grid-wrap">
+  <ul class="ind-grid">
+    {products.map((prod, i) => {
+      const badge = badgeFor(prod.stock);
+      return (
+      <li class:list={['ind-cell', WIDE.has(i) && 'ind-cell--wide']}>
+        <a class="ind-cell__link" href={paths.product(prod.slug)}>
+          <div class="ind-cell__media">
+            <img
+              src={prod.image}
+              alt={prod.name}
+              width="800"
+              height="800"
+              loading={i === 0 ? 'eager' : 'lazy'}
+              class="ind-cell__img"
+            />
+            {badge && (
+              <span class:list={['ind-cell__badge', badge.out && 'ind-cell__badge--out']}>{badge.label}</span>
+            )}
+          </div>
+
+          <div class="ind-cell__head">
+            <h2 class="ind-cell__name">{prod.name}</h2>
+            {prod.subtitle && <p class="ind-cell__spec">{prod.subtitle}</p>}
+          </div>
+        </a>
+
+        <div class="ind-cell__foot">
+          <p class="ind-cell__price">{formatEurCents(prod.price_cents)}</p>
+          <button
+            type="button"
+            data-industrial-add={prod.slug}
+            disabled={prod.stock === 0}
+            aria-label={prod.stock === 0 ? `${prod.name}: agotado` : `Añadir ${prod.name} al carrito`}
+            class:list={['ind-cell__add', prod.stock === 0 && 'ind-cell__add--out']}
+          >{prod.stock === 0 ? 'Sin stock' : 'Añadir'}</button>
+        </div>
+      </li>
+      );
+    })}
+  </ul>
+</div>
+
+<style>
+  .ind-grid-wrap {
+    overflow: hidden;
+    border-top: var(--border-width) solid var(--color-border);
+  }
+
+  .ind-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--grid-gap);
+    /* Se come el filete derecho de la última columna. */
+    margin-right: calc(-1 * var(--border-width));
+  }
+
+  .ind-cell {
+    display: flex;
+    flex-direction: column;
+    background-color: var(--color-background);
+    border-right: var(--border-width) solid var(--color-border);
+    border-bottom: var(--border-width) solid var(--color-border);
+    transition: background-color 0.15s;
+  }
+
+  /* La referencia va de gris casi imperceptible a blanco al pasar el ratón.
+     Aquí es al revés (de fondo de página a `muted`) porque el fondo tiene que
+     funcionar TAMBIÉN en modo oscuro, donde `muted` es más claro que el fondo:
+     en los dos modos la celda se ilumina, que es la señal que importa. */
+  .ind-cell:hover {
+    background-color: var(--color-muted);
+  }
+
+  .ind-cell__link {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-width: 0;
+    color: inherit;
+  }
+
+  /* Caja CUADRADA, no de alto fijo. Con `contain` en una caja no cuadrada la
+     imagen se queda corta a los lados y el poco gris que traen algunas fotos se
+     ve como un recuadro contra la celda blanca. Cuadrada, una imagen 800×800 la
+     llena EXACTA: no hay letterbox que delate nada. La celda doble usa
+     `aspect-ratio: 2` para que su alto siga siendo el mismo y la fila cuadre. */
+  .ind-cell__media {
+    position: relative;
+    aspect-ratio: 1;
+    background-color: var(--surface-product);
+  }
+
+  /* ABSOLUTA, no en el flujo. Siendo hija normal, la caja es un flex item en
+     columna y su alto lo acababa fijando la imagen (800×800 con `height: 100%`
+     sobre un padre de alto automático), así que `aspect-ratio: 2` de la celda
+     doble no llegaba a mandar nunca y la fila salía del doble de alta. Fuera del
+     flujo, el alto lo decide la relación de aspecto y solo ella. */
+  .ind-cell__img {
+    position: absolute;
+    inset: 0;
+    height: 100%;
+    width: 100%;
+    /* `contain`: la imaginería es producto sobre blanco puro y la celda doble no
+       es cuadrada. Recortar cortaría el instrumento por la mitad. */
+    object-fit: contain;
+  }
+
+  .ind-cell__badge {
+    position: absolute;
+    top: 0.5rem;
+    left: 0.5rem;
+    /* La pastilla es la única forma con radio del tema (`--radius-card` es 0). */
+    border-radius: 9999px;
+    padding: 0.125rem 0.5rem;
+    font-size: 0.625rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    /* #ffffff sobre #1b4dff = 5,91:1. */
+    background-color: var(--color-brand);
+    color: var(--color-brand-fg);
+  }
+
+  .ind-cell__badge--out {
+    background-color: var(--color-foreground);
+    color: var(--color-background);
+  }
+
+  .ind-cell__head {
+    flex: 1;
+    padding: 0.625rem 0.75rem 0;
+    border-top: var(--border-width) solid var(--color-border);
+  }
+
+  .ind-cell__name {
+    font-family: var(--font-display);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    line-height: 1.3;
+    color: var(--color-foreground);
+  }
+
+  /* Subtítulo técnico en gris: el rasgo de tarjeta de la referencia
+     («330x magnification»). Sale de la columna `subtitle` de D1. */
+  .ind-cell__spec {
+    margin-top: 0.125rem;
+    font-size: 0.75rem;
+    line-height: 1.35;
+    color: var(--color-muted-foreground);
+  }
+
+  .ind-cell__foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    padding: 0.625rem 0.75rem 0.75rem;
+  }
+
+  .ind-cell__price {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--color-foreground);
+    white-space: nowrap;
+  }
+
+  .ind-cell__add {
+    border-radius: var(--radius-btn);
+    background-color: var(--color-brand);
+    color: var(--color-brand-fg);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    /* 32 px de alto y 24 px de separación libre: excepción de espaciado de
+       WCAG 2.5.8, la misma que aplica el auditor. */
+    padding: 0.4375rem 0.75rem;
+    white-space: nowrap;
+    /* Oculto con `visibility`, NO solo con `opacity`. Con opacity 0 el botón
+       seguía siendo un destino de tabulación y un blanco de clic INVISIBLE, y el
+       auditor lo cazaba con razón (contraste 1,00:1: texto a alfa 0 sobre su
+       propio fondo). Con `visibility: hidden` no existe hasta que se revela.
+       El teclado sigue llegando: al enfocar el enlace de la tarjeta salta
+       `:focus-within` de la celda, el botón se hace visible y el siguiente
+       tabulador entra en él. */
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity 0.15s, background-color 0.15s;
+  }
+
+  .ind-cell:hover .ind-cell__add,
+  .ind-cell:focus-within .ind-cell__add {
+    visibility: visible;
+    opacity: 1;
+  }
+
+  .ind-cell__add:hover { background-color: var(--color-brand-dark); }
+
+  /* Agotado NO se esconde: el estado tiene que leerse sin pasar el ratón. */
+  .ind-cell__add--out {
+    visibility: visible;
+    opacity: 1;
+    background-color: transparent;
+    color: var(--color-muted-foreground);
+    border: var(--border-width) solid var(--color-border);
+    cursor: not-allowed;
+  }
+
+  .ind-cell__add--out:hover { background-color: transparent; }
+
+  /* Sin hover no hay hover-para-comprar: en táctil, botón siempre visible. Se
+     preguntan las DOS cosas porque no todos los navegadores informan igual. */
+  @media (hover: none), (pointer: coarse) {
+    .ind-cell__add {
+      visibility: visible;
+      opacity: 1;
+    }
+  }
+
+  @media (min-width: 40rem) {
+    .ind-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  }
+
+  @media (min-width: 64rem) {
+    .ind-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    /* Rejilla irregular: solo con 4 columnas. Ver la nota de tesela de arriba. */
+    .ind-cell--wide { grid-column: span 2; }
+    /* Doble de ancha, mismo alto: la fila sigue cuadrando al píxel. */
+    .ind-cell--wide .ind-cell__media { aspect-ratio: 2; }
+  }
+</style>
+
+<script>
+  import { addToCart } from '../../../lib/cart-client';
+
+  // `data-industrial-add`, no `data-add-to-cart`: el handler genérico del
+  // catálogo Base también está en la página y los duplicaría.
+  for (const btn of document.querySelectorAll<HTMLButtonElement>('[data-industrial-add]')) {
+    btn.addEventListener('click', () => {
+      addToCart(btn.dataset.industrialAdd ?? '');
+      const prev = btn.textContent;
+      btn.textContent = 'Añadido ✓';
+      window.setTimeout(() => (btn.textContent = prev), 900);
+    });
+  }
+</script>

@@ -37,10 +37,20 @@ const isDefaultStore = collection.id === DEFAULT_COLLECTION_ID;
 const useSidebar = theme.layout.nav === 'sidebar';
 const immersive = theme.layout.nav === 'immersive';
 
+// Pie oscuro a sangre. Lo pide el DESCRIPTOR del tema (`layout.darkFooter`), que
+// estaba declarado y documentado desde 2026-07-20 y el motor IGNORABA. Se paga
+// aquí, una vez y para los 9 temas: es el MISMO pie y el mismo contenido, solo
+// cambia la superficie. Decidido al cerrar Industrial (2026-07-25) — la
+// alternativa era irse a `immersive` y dejar carrito, checkout y ficha sin
+// cabecera, como Iris y Street, y habría sido la tercera tienda pagando ese
+// peaje. Los colores van explícitos (no tokens): un pie negro es negro también
+// en modo oscuro, igual que el de Street.
+const darkFooter = theme.layout.darkFooter;
+
 // Conmutador de tiendas: navegación por URL entre las tiendas del escaparate
 // (cada tienda ES su URL — sin cookie). Vector abre la lista como tienda
 // destacada; la genérica va al final como «demo completa» (panel + emails).
-const SWITCHER_ORDER = ['launch', 'iris', 'street', 'minimal', 'editorial', 'guide'];
+const SWITCHER_ORDER = ['launch', 'iris', 'street', 'industrial', 'minimal', 'editorial', 'guide'];
 const switcherStores = [...collections].sort((a, b) => {
   const rank = (id: string) =>
     id === DEFAULT_COLLECTION_ID ? 99 : ((i) => (i === -1 ? 50 : i))(SWITCHER_ORDER.indexOf(id));
@@ -118,11 +128,14 @@ const activeHref = nav.find((link) => (link.href.replace(/\/+$/, '') || '/') ===
 
         <slot />
 
-        <footer class="mt-20 border-t border-border bg-muted">
-          <div class="mx-auto max-w-6xl px-4 py-10 text-sm text-muted-foreground">
-            <p class="font-display text-base text-foreground">{collection.name}</p>
+        {/* Color y superficie del pie van en el <style> de abajo, no en
+            utilidades: así la variante oscura no tiene que pisar clases de
+            Tailwind (la trampa de especificidad de docs/CHECKLIST_TEMA.md § 3). */}
+        <footer class:list={['shop-footer', darkFooter && 'shop-footer--dark']}>
+          <div class="shop-footer__body mx-auto max-w-6xl px-4 py-10 text-sm">
+            <p class="shop-footer__name font-display text-base">{collection.name}</p>
             <p class="mt-3 max-w-2xl leading-relaxed">{shopConfig.legalName}. {shopConfig.legal.shippingNote} {shopConfig.legal.returnsNote}</p>
-            <p class="mt-4">Demo de <a href="/" class="underline underline-offset-2 hover:text-foreground">LogicEcom</a> · <a href="/demo/reset" class="underline underline-offset-2 hover:text-foreground">Restaurar datos de la demo</a></p>
+            <p class="mt-4">Demo de <a href="/" class="shop-footer__link underline underline-offset-2">LogicEcom</a> · <a href="/demo/reset" class="shop-footer__link underline underline-offset-2">Restaurar datos de la demo</a></p>
           </div>
         </footer>
       </Fragment>
@@ -163,6 +176,30 @@ const activeHref = nav.find((link) => (link.href.replace(/\/+$/, '') || '/') ===
       </div>
     </details>
   </div>
+
+  <style>
+    /* Pie estándar (claro con filete). Lo que antes eran utilidades. */
+    .shop-footer {
+      margin-top: 5rem;
+      border-top: 1px solid var(--color-border);
+      background: var(--color-muted);
+    }
+    .shop-footer__body { color: var(--color-muted-foreground); }
+    .shop-footer__name { color: var(--color-foreground); }
+    .shop-footer__link:hover { color: var(--color-foreground); }
+
+    /* Variante oscura (`layout.darkFooter`). Colores explícitos y verificados:
+       #d4d4d4 sobre #111111 = 11,3:1 y #ffffff sobre #111111 = 18,9:1. Se
+       declara con `background` (no con un degradado en un ::before) para que el
+       auditor de a11y pueda LEER el fondo efectivo. */
+    .shop-footer--dark {
+      background: #111111;
+      border-top-color: #2e2e2e;
+    }
+    .shop-footer--dark .shop-footer__body { color: #d4d4d4; }
+    .shop-footer--dark .shop-footer__name,
+    .shop-footer--dark .shop-footer__link:hover { color: #ffffff; }
+  </style>
 
   <script>
     import { bindCartBadge, cartCount } from '../lib/cart-client';

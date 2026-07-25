@@ -1,0 +1,188 @@
+---
+/**
+ * INDUSTRIAL · Filters — barra técnica de catálogo: a la izquierda el H1 con el
+ * recuento de referencias; a la derecha DOS desplegables (categoría y orden) y
+ * la búsqueda. `layout.filters === 'dropdown'`: en un catálogo B2B con ficha
+ * técnica los chips de colores no pegan, un selector sí.
+ *
+ * Filtra contra los MISMOS parámetros de URL que la tienda Base (`categoria`,
+ * `orden`, `q`): el backend no cambia, solo la presentación. Los `<select>` van
+ * dentro de un `<form method="get">` y se envían con `onchange`, así que
+ * funcionan sin JS propio (submit nativo) — y con el teclado, igual.
+ *
+ * OJO: nada de `focus:outline-none` aquí. En cuatro temas pisó el anillo de foco
+ * de marca de global.css y el auditor lo cazó (F11.8b).
+ */
+import type { CollectionConfig, StorePaths } from '../../../lib/collections';
+
+interface Props {
+  paths: StorePaths;
+  collection: CollectionConfig;
+  count: number;
+  activeCategory?: string | undefined;
+  sort: string;
+  search?: string | undefined;
+}
+
+const { paths, collection, count, activeCategory, sort, search } = Astro.props;
+
+const sortOptions = [
+  { id: 'featured', label: 'Destacados' },
+  { id: 'price-asc', label: 'Precio: menor a mayor' },
+  { id: 'price-desc', label: 'Precio: mayor a menor' },
+  { id: 'name', label: 'Nombre A-Z' },
+];
+---
+
+<div class="ind-bar">
+  <h1 class="ind-bar__title">
+    <span class="sr-only">{collection.name} — </span>Catálogo
+    <span class="ind-bar__count">{count} {count === 1 ? 'referencia' : 'referencias'}</span>
+  </h1>
+
+  <div class="ind-bar__controls">
+    {/* Categoría y orden viajan en el MISMO formulario: cambiar una conserva la
+        otra sin campos ocultos duplicados. La búsqueda va aparte porque se
+        envía con Enter o con su botón, no con `change`. */}
+    <form method="get" action={paths.catalog} class="ind-bar__form">
+      {search && <input type="hidden" name="q" value={search} />}
+
+      <label class="ind-bar__label" for="categoria">Categoría</label>
+      <select id="categoria" name="categoria" class="ind-bar__select" onchange="this.form.submit()">
+        <option value="" selected={!activeCategory}>Todas</option>
+        {collection.categories.map((cat) => (
+          <option value={cat.id} selected={activeCategory === cat.id}>{cat.label}</option>
+        ))}
+      </select>
+
+      <label class="ind-bar__label" for="orden">Orden</label>
+      <select id="orden" name="orden" class="ind-bar__select" onchange="this.form.submit()">
+        {sortOptions.map((opt) => (
+          <option value={opt.id} selected={opt.id === sort}>{opt.label}</option>
+        ))}
+      </select>
+    </form>
+
+    <form method="get" action={paths.catalog} role="search" class="ind-bar__search">
+      {activeCategory && <input type="hidden" name="categoria" value={activeCategory} />}
+      {sort !== 'featured' && <input type="hidden" name="orden" value={sort} />}
+      <label class="sr-only" for="q">Buscar en el catálogo</label>
+      <input
+        id="q"
+        type="search"
+        name="q"
+        value={search}
+        maxlength="60"
+        placeholder="Referencia o descripción"
+        class="ind-bar__input"
+      />
+      <button type="submit" class="ind-bar__submit">Buscar</button>
+    </form>
+  </div>
+</div>
+
+<style>
+  .ind-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem 1.5rem;
+    padding: 0.875rem clamp(1rem, 4vw, 2rem);
+    border-bottom: var(--border-width) solid var(--color-border);
+  }
+
+  .ind-bar__title {
+    display: flex;
+    align-items: baseline;
+    gap: 0.625rem;
+    font-family: var(--font-display);
+    font-size: 0.9375rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    color: var(--color-foreground);
+  }
+
+  .ind-bar__count {
+    font-size: 0.75rem;
+    font-weight: 400;
+    letter-spacing: 0;
+    text-transform: none;
+    color: var(--color-muted-foreground);
+  }
+
+  .ind-bar__controls {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem 1.25rem;
+  }
+
+  .ind-bar__form,
+  .ind-bar__search {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .ind-bar__label {
+    font-size: 0.6875rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-muted-foreground);
+  }
+
+  .ind-bar__select,
+  .ind-bar__input {
+    /* Radio 0: la forma aquí es de campo de formulario técnico, no de botón. */
+    border: var(--border-width) solid var(--color-border);
+    border-radius: 0;
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-size: 0.8125rem;
+    /* 34 px de alto: por debajo de 44 pero dentro de la excepción de espaciado
+       de WCAG 2.5.8 — hay más de 24 px libres alrededor de cada control. */
+    padding: 0.4375rem 0.625rem;
+  }
+
+  .ind-bar__select { cursor: pointer; }
+
+  .ind-bar__input { min-width: 12rem; }
+
+  .ind-bar__submit {
+    border: var(--border-width) solid var(--color-foreground);
+    border-radius: 0;
+    background-color: var(--color-foreground);
+    color: var(--color-background);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    padding: 0.5rem 0.875rem;
+    transition: background-color 0.15s, border-color 0.15s;
+  }
+
+  .ind-bar__submit:hover {
+    background-color: var(--color-brand);
+    border-color: var(--color-brand);
+    color: var(--color-brand-fg);
+  }
+
+  /* A 375 px la barra se apila y los controles ocupan el ancho: sin esto el
+     formulario desbordaba en horizontal (lo mismo que el auditor cazó en
+     Minimal y Launch). */
+  @media (max-width: 40rem) {
+    .ind-bar,
+    .ind-bar__controls,
+    .ind-bar__form,
+    .ind-bar__search {
+      width: 100%;
+    }
+    .ind-bar__input,
+    .ind-bar__select {
+      flex: 1;
+      min-width: 0;
+    }
+  }
+</style>
