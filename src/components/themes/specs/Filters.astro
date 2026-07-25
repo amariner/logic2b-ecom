@@ -1,0 +1,161 @@
+---
+/**
+ * SPECS · Filters — la barra de controles `dropdown` (`layout.filters`).
+ *
+ * En la referencia ACF-01 no hay filtros a la vista: es un portfolio. Aquí sí
+ * hacen falta, así que se resuelven en el registro que la hoja admite sin
+ * romperse — una franja fina de controles mono entre filetes, no una barra
+ * lateral ni una fila de chips.
+ *
+ * UN SOLO `<form method="get">` con los TRES controles (búsqueda, categoría y
+ * orden) y un botón de envío visible. Los `<select>` se autoenvían al cambiar
+ * por comodidad, pero el botón está ahí de verdad: sin JS la barra sigue
+ * filtrando. Mismos parámetros de URL que la tienda Base (`q`, `categoria`,
+ * `orden`): el backend no cambia, solo la presentación.
+ *
+ * OJO: nada de `focus:outline-none`. En cuatro temas pisó el anillo de foco de
+ * marca de global.css y el auditor lo cazó (F11.8b).
+ */
+import type { CollectionConfig, StorePaths } from '../../../lib/collections';
+
+interface Props {
+  paths: StorePaths;
+  collection: CollectionConfig;
+  activeCategory?: string | undefined;
+  sort: string;
+  search?: string | undefined;
+}
+
+const { paths, collection, activeCategory, sort, search } = Astro.props;
+
+const sortOptions = [
+  { id: 'featured', label: 'Referencia' },
+  { id: 'price-asc', label: 'Precio ascendente' },
+  { id: 'price-desc', label: 'Precio descendente' },
+  { id: 'name', label: 'Denominación A-Z' },
+];
+
+const hasFilters = Boolean(activeCategory) || Boolean(search) || sort !== 'featured';
+---
+
+<form class="spe-bar" method="get" action={paths.catalog} role="search">
+  <div class="spe-field spe-field--search">
+    <label class="spe-field__label" for="q">Buscar</label>
+    <input
+      id="q"
+      class="spe-field__input"
+      type="search"
+      name="q"
+      value={search ?? ''}
+      placeholder="Referencia o denominación"
+      maxlength="60"
+    />
+  </div>
+
+  <div class="spe-field">
+    <label class="spe-field__label" for="categoria">Grupo</label>
+    <select id="categoria" class="spe-field__select" name="categoria" onchange="this.form.submit()">
+      <option value="" selected={!activeCategory}>Todos</option>
+      {collection.categories.map((cat) => (
+        <option value={cat.id} selected={cat.id === activeCategory}>{cat.label}</option>
+      ))}
+    </select>
+  </div>
+
+  <div class="spe-field">
+    <label class="spe-field__label" for="orden">Orden</label>
+    <select id="orden" class="spe-field__select" name="orden" onchange="this.form.submit()">
+      {sortOptions.map((opt) => (
+        <option value={opt.id} selected={opt.id === sort}>{opt.label}</option>
+      ))}
+    </select>
+  </div>
+
+  <div class="spe-bar__actions">
+    <button type="submit" class="spe-bar__submit">Aplicar</button>
+    {hasFilters && <a class="spe-bar__clear" href={paths.catalog}>Limpiar</a>}
+  </div>
+</form>
+
+<style>
+  .spe-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 0.75rem var(--grid-gap);
+    border-bottom: var(--border-width) solid var(--color-border);
+    padding-bottom: calc(0.75rem * var(--space-density));
+  }
+
+  .spe-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    min-width: 0;
+  }
+
+  .spe-field--search {
+    flex: 1 1 14rem;
+  }
+
+  .spe-field__label {
+    font-family: var(--font-accent);
+    font-size: 0.625rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--color-muted-foreground);
+  }
+
+  .spe-field__input,
+  .spe-field__select {
+    border: var(--border-width) solid var(--color-border);
+    border-radius: var(--radius-btn);
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    padding: 0.4375rem 0.625rem;
+    font-size: 0.8125rem;
+    line-height: 1.3;
+    /* 2,25rem = 36 px de alto mínimo: la excepción de espaciado de WCAG 2.5.8
+       cubre el resto, pero un control de formulario no debería apurarla. */
+    min-height: 2.25rem;
+    width: 100%;
+  }
+
+  .spe-bar__actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .spe-bar__submit {
+    border: var(--border-width) solid var(--color-foreground);
+    border-radius: var(--radius-btn);
+    background-color: var(--color-foreground);
+    color: var(--color-background);
+    padding: 0.4375rem 1rem;
+    min-height: 2.25rem;
+    font-family: var(--font-accent);
+    font-size: 0.625rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    transition: background-color 0.15s, color 0.15s;
+  }
+
+  .spe-bar__submit:hover {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+  }
+
+  .spe-bar__clear {
+    font-size: 0.75rem;
+    color: var(--color-muted-foreground);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  .spe-bar__clear:hover { color: var(--color-foreground); }
+
+  @media (prefers-reduced-motion: reduce) {
+    .spe-bar__submit { transition: none; }
+  }
+</style>

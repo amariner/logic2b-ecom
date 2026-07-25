@@ -92,6 +92,7 @@ const STORES = [
   { id: 'street', label: 'ASFALTO', catalog: '/demo/tiendas/street', full: true, maxH: 1700 },
   { id: 'industrial', label: 'METRIA', catalog: '/demo/tiendas/industrial', full: true },
   { id: 'natural', label: 'Romer', catalog: '/demo/tiendas/natural', full: true },
+  { id: 'specs', label: 'Kalibre', catalog: '/demo/tiendas/specs', full: true },
   { id: 'demo', label: 'La Botiga', catalog: '/demo/tienda', full: true, maxH: 1700 },
 ];
 
@@ -118,6 +119,7 @@ const FICHAS = [
   { id: 'street', slug: 'str-vuelta-9', prefix: '/demo/tiendas/street' },
   { id: 'industrial', slug: 'ind-mv-320', prefix: '/demo/tiendas/industrial' },
   { id: 'natural', slug: 'nat-serum-niacinamida', prefix: '/demo/tiendas/natural' },
+  { id: 'specs', slug: 'spe-platina-base', prefix: '/demo/tiendas/specs' },
   { id: 'demo', slug: 'aove-coupage-750', prefix: '/demo/tienda' },
 ];
 for (const f of FICHAS) {

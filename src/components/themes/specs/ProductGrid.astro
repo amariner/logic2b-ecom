@@ -1,0 +1,339 @@
+---
+/**
+ * SPECS · ProductGrid — el rasgo del tema, y son dos cosas:
+ *
+ * 1. LA REJILLA IRREGULAR (`layout.gridStyle === 'irregular'`). La referencia
+ *    ACF-01 no es una retícula uniforme: son filas de 2 celdas anchas, 4
+ *    estrechas y 3 medianas. Es COMPOSICIÓN FIJA, no `grid-auto-flow` — se
+ *    calcula aquí, en el frontmatter, sobre 12 columnas.
+ *
+ *    El ciclo es 2 → 4 → 3 (= 9, el catálogo entero de KALIBRE sin hueco final),
+ *    pero el catálogo se filtra y se busca, así que el plan se adapta: cuando
+ *    quedan 4 elementos o menos, esa es la última fila y se reparte entera en
+ *    vez de dejar un hueco. Un resultado suelto ocupa media fila, no las 12
+ *    columnas: una tarjeta a sangre con una foto gigante no es lo que enseña
+ *    esta hoja.
+ *
+ * 2. LA TARJETA `divided`, cuyo ORDEN es lo distintivo de la referencia:
+ *       ● Nombre  ── filete ──
+ *       Peso      /   1,301 g
+ *       Material  /   Maillechort
+ *       Acabado   /   Perlado
+ *       [ imagen ]
+ *    Es decir: LAS SPECS VAN ARRIBA DE LA IMAGEN. Salen de `specs_json` (D1,
+ *    migración 0002) leído con `parseSpecs`, que descarta en silencio cualquier
+ *    fila malformada: una ficha técnica rota no puede tumbar el catálogo.
+ *
+ * LO QUE LA REFERENCIA NO TIENE Y AQUÍ HACE FALTA: precio y botón. La referencia
+ * es un portfolio, no una tienda. Se resuelven DENTRO del mismo registro
+ * tabular —el precio como una fila de spec más, bajo la imagen— para no romper
+ * la hoja con una pastilla comercial pegada encima.
+ *
+ * UN SOLO ENLACE POR TARJETA, con área extendida (`::after` transparente sobre
+ * la tarjeta entera): la lección de Natural, donde dos `<a>` al mismo producto
+ * dieron 48 errores de `aria-hidden-focusable`. Y el botón lleva `z-index` por
+ * encima de ese `::after`, o el área extendida se come el clic y «Añadir»
+ * acabaría navegando a la ficha.
+ *
+ * El acento (`#c2410c`) NO entra aquí: en la referencia el único color de la
+ * página es el guion de plegado del grupo. La rejilla es gris entera.
+ */
+import { formatEurCents } from '../../../lib/format';
+import { parseSpecs } from '../../../lib/db';
+import type { StorePaths } from '../../../lib/collections';
+
+type GridProduct = {
+  slug: string;
+  name: string;
+  price_cents: number;
+  image: string;
+  stock: number;
+  category: string;
+  specs_json?: string | null;
+};
+
+interface Props {
+  paths: StorePaths;
+  products: GridProduct[];
+}
+
+const { paths, products } = Astro.props;
+
+/**
+ * Plan de la rejilla: un `span` sobre 12 columnas por producto.
+ *
+ * Ciclo 2 → 4 → 3 mientras quede material de sobra; en cuanto quedan 4 o menos,
+ * esa es la última fila y se reparte entera. `TAIL_SPAN` fija el reparto de esa
+ * cola: un resultado suelto ocupa 6 (media fila), no 12.
+ */
+const ROW_CYCLE = [2, 4, 3] as const;
+const TAIL_SPAN: Record<number, number> = { 1: 6, 2: 6, 3: 4, 4: 3 };
+
+const gridSpans = (total: number): number[] => {
+  const spans: number[] = [];
+  let left = total;
+  let step = 0;
+  while (left > 4) {
+    const cells = ROW_CYCLE[step % ROW_CYCLE.length] ?? 3;
+    for (let i = 0; i < cells; i += 1) spans.push(12 / cells);
+    left -= cells;
+    step += 1;
+  }
+  const tail = TAIL_SPAN[left] ?? 3;
+  for (let i = 0; i < left; i += 1) spans.push(tail);
+  return spans;
+};
+
+const spans = gridSpans(products.length);
+
+// La lectura defensiva de `specs_json` vive en el frontmatter, no en la plantilla.
+const rowsFor = (prod: GridProduct) => parseSpecs(prod.specs_json ?? null);
+---
+
+<ul class="spe-grid">
+  {products.map((prod, i) => (
+    <li class="spe-cell" style={`--span:${spans[i] ?? 4}`}>
+      <article class="spe-card">
+        <h3 class="spe-card__name">
+          <a class="spe-card__link" href={paths.product(prod.slug)}>{prod.name}</a>
+        </h3>
+
+        <dl class="spe-card__specs">
+          {rowsFor(prod).map((row) => (
+            <div class="spe-spec">
+              <dt class="spe-spec__label">{row.label}</dt>
+              <span class="spe-spec__sep" aria-hidden="true">/</span>
+              <dd class="spe-spec__value">{row.value}</dd>
+            </div>
+          ))}
+        </dl>
+
+        <div class="spe-card__frame">
+          <img
+            src={prod.image}
+            alt=""
+            width="800"
+            height="800"
+            loading={i === 0 ? 'eager' : 'lazy'}
+            class="spe-card__img"
+          />
+        </div>
+
+        <div class="spe-spec spe-spec--price">
+          <span class="spe-spec__label">Precio</span>
+          <span class="spe-spec__sep" aria-hidden="true">/</span>
+          <span class="spe-spec__value spe-spec__value--price">{formatEurCents(prod.price_cents)}</span>
+        </div>
+
+        <button
+          type="button"
+          data-specs-add={prod.slug}
+          disabled={prod.stock === 0}
+          aria-label={prod.stock === 0 ? `${prod.name}: agotado` : `Añadir ${prod.name} al pedido`}
+          class:list={['spe-card__add', prod.stock === 0 && 'spe-card__add--out']}
+        >{prod.stock === 0 ? 'Agotado' : 'Añadir al pedido'}</button>
+      </article>
+    </li>
+  ))}
+</ul>
+
+<style>
+  /* 12 columnas: el `--span` de cada celda lo calcula el frontmatter. */
+  .spe-grid {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    gap: calc(var(--grid-gap) * 1.5) var(--grid-gap);
+  }
+
+  /* Móvil y tablet NO heredan la composición irregular: `compact` es una
+     densidad de escritorio (riesgo 5 de TEMAS § 8) y una celda de 3/12 en un
+     móvil dejaría la tabla de specs en dos palabras por línea. */
+  .spe-cell { grid-column: span 12; }
+
+  /* Contexto del área extendida del enlace (`.spe-card__link::after`). */
+  .spe-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    border-top: var(--border-width) solid var(--color-foreground);
+    padding-top: calc(0.5rem * var(--space-density));
+  }
+
+  /* `● Nombre`: el bullet es decorativo y se DIBUJA, no se escribe — así no
+     suena en un lector de pantalla ni depende de una fuente con ese glifo. */
+  .spe-card__name {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    font-family: var(--font-display);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    line-height: 1.3;
+    letter-spacing: var(--tracking-display);
+    color: var(--color-foreground);
+    padding-bottom: calc(0.5rem * var(--space-density));
+    border-bottom: var(--border-width) solid var(--color-border);
+  }
+
+  .spe-card__name::before {
+    content: '';
+    flex: none;
+    width: 0.3125rem;
+    height: 0.3125rem;
+    border-radius: 9999px;
+    background-color: var(--color-foreground);
+    transform: translateY(-0.15em);
+  }
+
+  /* Área extendida: la tarjeta entera se clica sin que la foto sea un segundo
+     `<a>`. El anillo de foco sigue saliendo sobre el texto del nombre. */
+  .spe-card__link { color: inherit; }
+
+  .spe-card__link::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+  }
+
+  .spe-card__link:hover { text-decoration: underline; text-underline-offset: 2px; }
+
+  .spe-card__specs { display: block; }
+
+  /* La fila de la referencia: etiqueta a la izquierda, `/` flotando hacia la
+     mitad y valor en mono a la derecha. */
+  .spe-spec {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    padding: calc(0.3125rem * var(--space-density)) 0;
+    border-bottom: var(--border-width) solid var(--color-border);
+    font-size: 0.6875rem;
+    line-height: 1.4;
+  }
+
+  .spe-spec__label {
+    flex: none;
+    color: var(--color-muted-foreground);
+  }
+
+  /* El separador se lleva el espacio sobrante y queda centrado, como en la
+     captura. Decorativo: va con `aria-hidden` en el marcado. */
+  .spe-spec__sep {
+    flex: 1 1 auto;
+    text-align: center;
+    color: var(--color-border);
+  }
+
+  .spe-spec__value {
+    flex: none;
+    margin-inline-start: 0;
+    font-family: var(--font-accent);
+    font-size: 0.625rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    text-align: right;
+    color: var(--color-foreground);
+  }
+
+  .spe-card__frame {
+    margin-top: calc(0.75rem * var(--space-density));
+    background-color: var(--surface-product);
+  }
+
+  .spe-card__img {
+    display: block;
+    width: 100%;
+    /* APAISADA, no cuadrada: en la captura las cajas de imagen son ~4:3 en las
+       tres filas. Con cuadrado las celdas anchas se estiran y la hoja deja de
+       caber de un vistazo, que es justo lo que vende este tema.
+
+       `cover`, NO `contain`. El resto de temas usan `contain` porque su
+       imaginería sale con el fondo EXACTO del token y el letterbox es
+       invisible; aquí no ocurrió: pese a pedir `#e8e8e8` explícito, el
+       generador devolvió un gris de estudio distinto en cada pieza (208–229) y
+       CON DEGRADADO vertical, así que ningún valor de `--surface-product`
+       casaría y el letterbox se veía como un recuadro más claro dentro de la
+       celda. Con `cover` no hay costura, y recorta el 12,5 % de arriba y abajo
+       de una fuente cuadrada — margen de sobra: las piezas ocupan el centro. */
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+  }
+
+  /* El precio cierra la hoja: mismo registro tabular, con el filete arriba para
+     que apoye contra la caja de imagen. */
+  .spe-spec--price {
+    margin-top: auto;
+    border-bottom: 0;
+    border-top: var(--border-width) solid var(--color-border);
+  }
+
+  .spe-spec__value--price {
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+  }
+
+  .spe-card__add {
+    margin-top: calc(0.5rem * var(--space-density));
+    border: var(--border-width) solid var(--color-foreground);
+    border-radius: var(--radius-btn);
+    background-color: var(--color-foreground);
+    color: var(--color-background);
+    padding: calc(0.5rem * var(--space-density)) 0.5rem;
+    font-family: var(--font-accent);
+    font-size: 0.625rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    transition: background-color 0.15s, color 0.15s;
+    /* Por encima del área extendida del enlace, o «Añadir» navegaría a la ficha. */
+    position: relative;
+    z-index: 2;
+  }
+
+  .spe-card__add:hover {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+  }
+
+  /* Agotado se lee sin interactuar: es estado de D1, no adorno. */
+  .spe-card__add--out {
+    background-color: var(--color-background);
+    border-color: var(--color-border);
+    color: var(--color-muted-foreground);
+    cursor: not-allowed;
+  }
+
+  .spe-card__add--out:hover {
+    background-color: var(--color-background);
+    color: var(--color-muted-foreground);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .spe-card__add { transition: none; }
+  }
+
+  @media (min-width: 40rem) {
+    .spe-cell { grid-column: span 6; }
+  }
+
+  /* Solo en escritorio entra la composición irregular de la referencia. */
+  @media (min-width: 64rem) {
+    .spe-cell { grid-column: span var(--span); }
+  }
+</style>
+
+<script>
+  import { addToCart } from '../../../lib/cart-client';
+
+  // `data-specs-add`, no `data-add-to-cart`: el handler genérico del catálogo
+  // Base también está en la página y los duplicaría.
+  for (const btn of document.querySelectorAll<HTMLButtonElement>('[data-specs-add]')) {
+    btn.addEventListener('click', () => {
+      addToCart(btn.dataset.specsAdd ?? '');
+      const prev = btn.textContent;
+      btn.textContent = 'Añadido ✓';
+      window.setTimeout(() => (btn.textContent = prev), 900);
+    });
+  }
+</script>

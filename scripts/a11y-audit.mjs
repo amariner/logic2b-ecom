@@ -58,6 +58,7 @@ const STORES = [
   { id: 'street', label: 'ASFALTO', prefix: '/demo/tiendas/street', slug: 'str-vuelta-9', cartKey: 'ecom-cart:street' },
   { id: 'industrial', label: 'METRIA', prefix: '/demo/tiendas/industrial', slug: 'ind-mv-320', cartKey: 'ecom-cart:industrial' },
   { id: 'natural', label: 'Romer', prefix: '/demo/tiendas/natural', slug: 'nat-crema-rostro', cartKey: 'ecom-cart:natural' },
+  { id: 'specs', label: 'Kalibre', prefix: '/demo/tiendas/specs', slug: 'spe-platina-base', cartKey: 'ecom-cart:specs' },
   { id: 'launch', label: 'Vector', prefix: '/demo/tiendas/launch', slug: 'lau-vector-one', cartKey: 'ecom-cart:launch' },
   { id: 'minimal', label: 'Forma Interior', prefix: '/demo/tiendas/minimal', slug: 'min-butaca-arc', cartKey: 'ecom-cart:minimal' },
   { id: 'editorial', label: 'Módulo Audio', prefix: '/demo/tiendas/editorial', slug: 'edi-radio-r2', cartKey: 'ecom-cart:editorial' },

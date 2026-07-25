@@ -1,0 +1,268 @@
+---
+/**
+ * SPECS · Catalog — vista completa del catálogo para el tema. La página delega
+ * aquí vía el registro `catalogViews` de CatalogPage.astro.
+ *
+ * Orden de la referencia ACF-01: cabecera (la del motor) → rótulo enorme a la
+ * izquierda + párrafo diminuto en gris a la derecha + filete → barra de
+ * controles → cabecera de grupo (`ACF-01` · `n componentes` · guion de plegado)
+ * → rejilla irregular → pie (el del motor). La página entera es una HOJA DE
+ * ESPECIFICACIONES; ese es el tema.
+ *
+ * EL GUION NARANJA ES UN CONTROL DE VERDAD. En la captura es el plegado del
+ * acordeón del grupo, y aquí lo es: `<details open>` + `<summary>` nativos, cero
+ * JS y cero dependencias. Se dibuja como una barra con `background-color`
+ * (`aria-hidden`), no como un carácter `—`: así es un elemento gráfico de
+ * interfaz (3:1) y no texto pequeño en acento, que es lo que NO llega a AA en
+ * modo oscuro (#c2410c sobre casi negro se queda en 3,8:1). Es el único color
+ * de toda la página, igual que en la referencia.
+ *
+ * H1 → H2 → H3 sin saltos: el rótulo enorme es el H1 y dice lo que se está
+ * viendo; `ACF-01` es el H2 del grupo (la familia de piezas, que no cambia al
+ * filtrar); cada tarjeta es un H3.
+ *
+ * ANCHO CONTENIDO, no a sangre: la referencia es literalmente una hoja de papel
+ * centrada sobre el fondo, con márgenes generosos a los lados.
+ */
+import type { CollectionConfig, StorePaths } from '../../../lib/collections';
+import { categoryLabel } from '../../../lib/collections';
+import Filters from './Filters.astro';
+import ProductGrid from './ProductGrid.astro';
+
+type GridProduct = {
+  slug: string;
+  name: string;
+  price_cents: number;
+  image: string;
+  stock: number;
+  category: string;
+  specs_json?: string | null;
+};
+
+interface Props {
+  paths: StorePaths;
+  products: GridProduct[];
+  collection: CollectionConfig;
+  category?: string | undefined;
+  sort: string;
+  search?: string | undefined;
+}
+
+const { paths, products, collection, category, sort, search } = Astro.props;
+
+// El H1 dice lo que se está viendo. La categoría manda sobre la búsqueda porque
+// es la que cambia el ámbito del catálogo.
+const title = category
+  ? categoryLabel(collection, category)
+  : search
+    ? `Búsqueda: «${search}»`
+    : 'Componentes';
+
+// `9 items` de la referencia, contado de lo que hay en pantalla.
+const countLabel = products.length === 1 ? '1 componente' : `${products.length} componentes`;
+---
+
+<main class="spe">
+  <div class="spe-sheet">
+    <header class="spe-head">
+      <h1 class="spe-head__title">{title}</h1>
+      <p class="spe-head__note">{collection.description}</p>
+    </header>
+
+    <Filters
+      paths={paths}
+      collection={collection}
+      activeCategory={category}
+      sort={sort}
+      search={search}
+    />
+
+    {products.length > 0 ? (
+      <details class="spe-group" open>
+        <summary class="spe-group__head">
+          <h2 class="spe-group__code">ACF-01</h2>
+          <span class="spe-group__count">{countLabel}</span>
+          <span class="spe-group__toggle" aria-hidden="true"></span>
+        </summary>
+
+        <div class="spe-group__body">
+          <ProductGrid paths={paths} products={products} />
+        </div>
+      </details>
+    ) : (
+      <div class="spe-empty">
+        <h2 class="spe-empty__title">
+          {search ? `Sin resultados para «${search}»` : 'No hay componentes en este grupo'}
+        </h2>
+        <p class="spe-empty__note">
+          {search
+            ? 'Prueba con otra referencia o vuelve al despiece completo.'
+            : 'Puede que el taller lo haya vaciado temporalmente. El resto del despiece sigue disponible.'}
+        </p>
+        <a class="spe-empty__cta" href={paths.catalog}>Ver el despiece completo</a>
+      </div>
+    )}
+  </div>
+</main>
+
+<style>
+  /* El <body> de Base lleva `bg-white text-gray-900` fijos: la superficie
+     dark-aware se pone aquí, no se «arregla» tocando Base.
+     `--color-muted` y NO `--surface-sunken`: ese token es un gris claro FIJO
+     (#fafafa), así que en modo oscuro dejaba la hoja negra flotando sobre un
+     fondo claro. El auditor no lo ve —mide texto, y todo el texto vive sobre la
+     hoja—, así que esto solo se caza mirando. */
+  .spe {
+    display: block;
+    background-color: var(--color-muted);
+    padding: clamp(1.5rem, 4vw, 3.5rem) clamp(1rem, 4vw, 3rem) clamp(3rem, 8vw, 5rem);
+  }
+
+  /* La «hoja» de la referencia: plancha centrada con márgenes generosos. El
+     filete es lo que la separa del fondo ahora que los dos grises son vecinos
+     en claro; y es dark-aware, que es de lo que iba el arreglo. */
+  .spe-sheet {
+    margin-inline: auto;
+    max-width: 78rem;
+    border: var(--border-width) solid var(--color-border);
+    background-color: var(--color-background);
+    padding: clamp(1.5rem, 4vw, 3.5rem) clamp(1.25rem, 3vw, 3rem) clamp(2.5rem, 5vw, 4rem);
+  }
+
+  .spe-head {
+    display: grid;
+    gap: 1rem;
+    align-items: start;
+    border-bottom: var(--border-width) solid var(--color-foreground);
+    padding-bottom: clamp(1.25rem, 3vw, 2.5rem);
+    margin-bottom: calc(1.25rem * var(--space-density));
+  }
+
+  /* Rótulo enorme y MUY apretado, el rasgo de la captura. */
+  .spe-head__title {
+    font-family: var(--font-display);
+    font-size: clamp(2.75rem, 8vw, 5.5rem);
+    font-weight: var(--weight-display);
+    letter-spacing: var(--tracking-display);
+    line-height: 0.95;
+    color: var(--color-foreground);
+  }
+
+  /* Párrafo diminuto justificado en gris, arriba a la derecha. */
+  .spe-head__note {
+    font-size: 0.6875rem;
+    line-height: 1.6;
+    text-align: justify;
+    color: var(--color-muted-foreground);
+    max-width: 24rem;
+  }
+
+  .spe-group {
+    margin-top: calc(1.5rem * var(--space-density));
+  }
+
+  .spe-group__head {
+    display: flex;
+    align-items: baseline;
+    gap: 0.75rem;
+    cursor: pointer;
+    padding-bottom: calc(0.75rem * var(--space-density));
+    /* El marcador nativo estorba: el control visible es el guion de la derecha. */
+    list-style: none;
+  }
+
+  .spe-group__head::-webkit-details-marker { display: none; }
+
+  .spe-group__code {
+    font-family: var(--font-display);
+    font-size: clamp(1.5rem, 3.5vw, 2.5rem);
+    font-weight: var(--weight-display);
+    letter-spacing: var(--tracking-display);
+    line-height: 1;
+    color: var(--color-foreground);
+  }
+
+  .spe-group__count {
+    font-family: var(--font-accent);
+    font-size: 0.625rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--color-muted-foreground);
+  }
+
+  /* EL ÚNICO COLOR DE LA PÁGINA. Barra dibujada, no un carácter: es un elemento
+     gráfico de interfaz (umbral 3:1), no texto pequeño en acento. */
+  .spe-group__toggle {
+    margin-inline-start: auto;
+    flex: none;
+    width: 1.25rem;
+    height: 0.125rem;
+    background-color: var(--color-brand);
+    transition: transform 0.18s;
+  }
+
+  /* Plegado: el guion se convierte en un `|`. Mismo elemento, giro de 90°. */
+  .spe-group:not([open]) .spe-group__toggle {
+    transform: rotate(90deg);
+  }
+
+  .spe-group__body {
+    border-top: var(--border-width) solid var(--color-foreground);
+    padding-top: calc(1rem * var(--space-density));
+  }
+
+  .spe-empty {
+    border-top: var(--border-width) solid var(--color-foreground);
+    margin-top: calc(1.5rem * var(--space-density));
+    padding-top: calc(1.5rem * var(--space-density));
+  }
+
+  .spe-empty__title {
+    font-family: var(--font-display);
+    font-size: clamp(1.25rem, 3vw, 1.75rem);
+    font-weight: var(--weight-display);
+    letter-spacing: var(--tracking-display);
+    color: var(--color-foreground);
+  }
+
+  .spe-empty__note {
+    margin-top: 0.5rem;
+    font-size: 0.8125rem;
+    color: var(--color-muted-foreground);
+    max-width: 34rem;
+  }
+
+  .spe-empty__cta {
+    display: inline-block;
+    margin-top: 1.25rem;
+    border: var(--border-width) solid var(--color-foreground);
+    border-radius: var(--radius-btn);
+    background-color: var(--color-foreground);
+    color: var(--color-background);
+    padding: 0.5rem 1rem;
+    font-family: var(--font-accent);
+    font-size: 0.625rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .spe-empty__cta:hover {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .spe-group__toggle { transition: none; }
+  }
+
+  /* Rótulo a la izquierda y párrafo a la derecha solo cuando hay sitio: en móvil
+     el párrafo justificado bajo un titular de 8vw se lee mejor apilado. */
+  @media (min-width: 48rem) {
+    .spe-head {
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 2rem;
+    }
+
+    .spe-head__note { justify-self: end; }
+  }
+</style>

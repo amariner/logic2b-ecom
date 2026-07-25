@@ -330,7 +330,7 @@ export const demoThemes: DemoTheme[] = [
     reference: { name: 'ACF-01', file: '05-specs.webp' },
     sample: '/images/temas/specs.webp',
     bestFor: ['Relojería y precisión', 'Componentes', 'Producto con muchos datos'],
-    status: 'planned',
+    status: 'ready',
     vars: {
       '--color-brand': '#c2410c',
       '--color-brand-dark': '#9a3412',
