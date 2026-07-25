@@ -62,6 +62,12 @@ const nav = isDefaultStore
       { href: '/demo/admin', label: 'Panel del comercio' },
     ] as const)
   : ([{ href: paths.catalog, label: 'Tienda' }] as const);
+
+// `aria-current="page"` en el enlace de nav que apunta a la página actual: sin
+// esto el lector no distingue el destino en el que ya estás. Se compara solo la
+// ruta (los filtros de catálogo viajan en query string y no cambian la página).
+const currentPath = Astro.url.pathname.replace(/\/+$/, '') || '/';
+const activeHref = nav.find((link) => (link.href.replace(/\/+$/, '') || '/') === currentPath)?.href;
 ---
 
 <Base title={`${title} — ${collection.name}`} description={description} noindex>
@@ -95,7 +101,7 @@ const nav = isDefaultStore
       </Fragment>
     ) : (
       <Fragment>
-        <SiteHeader homeHref={paths.catalog} wordmark={collection.name} showMark={false} nav={nav}>
+        <SiteHeader homeHref={paths.catalog} wordmark={collection.name} showMark={false} nav={nav} activeHref={activeHref}>
           <a
             slot="actions"
             href={paths.cart}

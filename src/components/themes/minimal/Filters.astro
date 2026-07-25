@@ -42,11 +42,19 @@ const linkFor = (catId?: string): string => {
   class="flex flex-col gap-6 pb-8 lg:flex-row lg:items-center lg:justify-between"
   style="border-bottom: var(--border-width) solid var(--color-border);"
 >
-  <div class="flex items-center gap-4 text-[11px] uppercase tracking-[0.14em]">
-    <span class="font-semibold text-foreground">Catalog</span>
+  {/* Sin `flex-wrap` el formulario de orden desbordaba a 375 (el `ml-4` fijo
+      no cabía junto al rótulo y el recuento). */}
+  <div class="flex flex-wrap items-center gap-x-4 gap-y-2 text-[11px] uppercase tracking-[0.14em]">
+    {/* El tema no tiene bloque de cabecera (la referencia es un catálogo pelado),
+        así que el H1 de la página es esta etiqueta: mismo aspecto, pero la
+        página deja de quedarse sin encabezado de primer nivel. El nombre de la
+        tienda va delante solo para el lector, que no ve el nav lateral. */}
+    <h1 class="font-semibold text-foreground">
+      <span class="sr-only">{collection.name} — </span>Catalog
+    </h1>
     <span class="text-muted-foreground">( {count} {count === 1 ? 'artículo' : 'artículos'} )</span>
 
-    <form method="get" class="ml-4 flex items-center gap-1.5 text-muted-foreground">
+    <form method="get" class="flex items-center gap-1.5 text-muted-foreground sm:ml-4">
       {activeCategory && <input type="hidden" name="categoria" value={activeCategory} />}
       {search && <input type="hidden" name="q" value={search} />}
       <label for="orden" class="whitespace-nowrap">Ordenar</label>
@@ -55,7 +63,7 @@ const linkFor = (catId?: string): string => {
           id="orden"
           name="orden"
           onchange="this.form.submit()"
-          class="cursor-pointer appearance-none bg-transparent pr-4 uppercase tracking-[0.14em] text-foreground focus:outline-none"
+          class="cursor-pointer appearance-none bg-transparent pr-4 uppercase tracking-[0.14em] text-foreground"
         >
           {sortOptions.map((opt) => (
             <option value={opt.id} selected={opt.id === sort}>{opt.label}</option>

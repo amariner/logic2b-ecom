@@ -69,6 +69,11 @@ const hero = products[0];
     </div>
   </header>
 
+  {/* El tema es inmersivo: pinta su propio chrome y el layout no monta el
+      SiteHeader, así que el landmark `main` tiene que salir de aquí. Es un
+      envoltorio sin estilos: `.iris-scroll-track` y `.iris-products` siguen
+      resolviendo su z-index contra `.iris` (main no crea contexto de apilado). */}
+  <main class="iris-main">
   <div class="iris-scroll-track">
     <section class="iris-hero iris-grid">
       <div class="iris-title-caption">
@@ -130,6 +135,7 @@ const hero = products[0];
       ))}
     </div>
   </section>
+  </main>
 </div>
 
 <script>
@@ -309,8 +315,14 @@ const hero = products[0];
     -webkit-font-smoothing: antialiased;
   }
   .iris :global(*), .iris :global(*::before), .iris :global(*::after) { box-sizing: border-box; }
-  .iris :where(button) { font: inherit; }
-  .iris :where(a) { color: inherit; text-decoration: none; }
+  /* Normalización de controles. Va envuelta en :where() a propósito: con
+     `.iris :where(a)` el scoping de Astro deja la regla en (0,3,0) y GANA a
+     cualquier regla de componente `.iris-x__btn` (0,2,0) — así se perdía el
+     `color: #fff` del botón del hero y el rótulo salía acento sobre acento
+     (invisible). Con la regla entera en :where() la especificidad es 0 y
+     cualquier componente la sobreescribe. */
+  :where(.iris button) { font: inherit; }
+  :where(.iris a) { color: inherit; text-decoration: none; }
   .iris h1, .iris h2, .iris p { margin: 0; }
 
   /* ——— Vídeo de fondo ——— */
@@ -348,6 +360,9 @@ const hero = products[0];
   .iris-header__col--end .iris-header__line { text-align: right; }
 
   /* ——— Hero (móvil: hoja apilada abajo) ——— */
+  /* Bloque normal a propósito: `.iris` no es flex ni grid, así que envolver no
+     mueve nada. Nada de `display: contents` — hay lectores que se dejan por el
+     camino la semántica del landmark cuando la caja desaparece. */
   .iris-scroll-track { position: relative; z-index: 1; height: 420vh; }
   .iris-grid { display: grid; grid-template-columns: 1fr; gap: 16px; padding-inline: var(--ir-margin); }
   .iris-hero {
@@ -359,11 +374,31 @@ const hero = products[0];
     padding-top: calc(var(--ir-header-h) + 8px);
     padding-bottom: max(20px, env(safe-area-inset-bottom));
   }
-  .iris-title-caption { display: flex; flex-direction: column; gap: 10px; max-width: 100%; }
+  /* Velo inferior. El hero es un vídeo con scrub: el titular y el subtítulo
+     caen sobre fotogramas que van de negro a blanco puro, así que sin velo el
+     texto quedaba en 1:1 sobre las zonas claras (el contraste medido daba
+     4.93:1, pero el peor caso era invisible). La opacidad está calculada para
+     que el blanco alcance AA incluso sobre el fotograma más claro; se desvanece
+     hacia arriba, así que la imagen se lee entera y la firma no se toca. */
+  .iris-hero::before {
+    content: '';
+    position: absolute;
+    inset: auto 0 0 0;
+    height: 46%;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.72) 0%, rgba(0, 0, 0, 0.5) 45%, rgba(0, 0, 0, 0) 100%);
+    pointer-events: none;
+    z-index: 0;
+  }
+  .iris-title-caption { position: relative; z-index: 1; display: flex; flex-direction: column; gap: 10px; max-width: 100%; }
+  .iris-product-card { position: relative; z-index: 1; }
   .iris-title { font-weight: 500; font-size: clamp(52px, 17vw, 72px); line-height: 0.92; letter-spacing: -0.05em; }
+  /* El acento heredado de `.iris` da 4.12:1 sobre negro: le vale al titular
+     (texto grande, umbral 3.0) pero NO a este párrafo. El acento se queda en
+     el H1 y en los rellenos —la firma del tema— y el copy pequeño va en
+     blanco. Misma regla en la tarjeta del hero y en la descripción de ficha. */
   .iris-title-caption__text {
     font-size: 14px; line-height: 1.35; letter-spacing: -0.03em;
-    max-width: 28em; opacity: 0.95;
+    max-width: 28em; opacity: 0.95; color: var(--ir-white);
   }
 
   .iris-product-card {
@@ -380,7 +415,7 @@ const hero = products[0];
     display: flex; flex-direction: column; justify-content: space-between;
     align-items: stretch; gap: 8px; flex: 1; min-width: 0;
   }
-  .iris-product-card__text { font-size: 13px; line-height: 1.3; letter-spacing: -0.03em; color: var(--ir-accent); }
+  .iris-product-card__text { font-size: 13px; line-height: 1.3; letter-spacing: -0.03em; color: var(--ir-white); }
   .iris-product-card__btn {
     display: inline-flex; align-items: center; justify-content: center; align-self: flex-end;
     min-height: 40px; padding: 8px 18px;
@@ -426,7 +461,9 @@ const hero = products[0];
   .iris-card__info { padding: 12px 4px 4px; display: flex; flex-direction: column; gap: 14px; }
   .iris-card__copy { text-decoration: none; display: flex; flex-direction: column; gap: 4px; }
   .iris-card__name { font-size: 14px; font-weight: 500; color: #000; letter-spacing: -0.01em; }
-  .iris-card__desc { font-size: 13px; font-weight: 400; color: #888; line-height: 1.4; letter-spacing: -0.01em; }
+  /* #888 sobre blanco se queda en 3.54:1; #767676 es el gris más claro que
+     alcanza 4.5:1 sobre blanco, así que la jerarquía visual no se mueve. */
+  .iris-card__desc { font-size: 13px; font-weight: 400; color: #767676; line-height: 1.4; letter-spacing: -0.01em; }
   .iris-card__bottom { display: flex; justify-content: space-between; align-items: center; }
   .iris-card__price { font-size: 14px; font-weight: 500; color: #000; }
   .iris-card__cart {

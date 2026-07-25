@@ -88,13 +88,17 @@ const ThemedCatalog = catalogViews[collection.themeId as keyof typeof catalogVie
 
     <div class="mt-8 flex flex-wrap items-center justify-between gap-4">
       <nav class="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0" aria-label="Categorías">
+        {/* La categoría activa se marcaba solo por color: `aria-current` la
+            hace audible además de visible (mismo patrón que el tema Minimal). */}
         <a
           href={linkFor(undefined, sort)}
+          aria-current={!category ? 'page' : undefined}
           class:list={['shrink-0 rounded-btn px-4 py-2 text-sm font-medium transition', !category ? 'bg-foreground text-background' : 'bg-muted text-muted-foreground hover:bg-secondary']}
         >Todo</a>
         {collection.categories.map((cat) => (
           <a
             href={linkFor(cat.id, sort)}
+            aria-current={category === cat.id ? 'page' : undefined}
             class:list={['shrink-0 rounded-btn px-4 py-2 text-sm font-medium transition', category === cat.id ? 'bg-foreground text-background' : 'bg-muted text-muted-foreground hover:bg-secondary']}
           >{cat.label}</a>
         ))}
@@ -114,7 +118,7 @@ const ThemedCatalog = catalogViews[collection.themeId as keyof typeof catalogVie
             maxlength="60"
             placeholder="Buscar producto…"
             aria-label="Buscar en el catálogo"
-            class="w-44 rounded-btn border border-border bg-card py-1.5 pl-9 pr-3 text-sm transition focus:w-56 focus:border-foreground focus:outline-none sm:w-52"
+            class="w-44 rounded-btn border border-border bg-card py-1.5 pl-9 pr-3 text-sm transition focus:w-56 focus:border-foreground sm:w-52"
           />
         </form>
 

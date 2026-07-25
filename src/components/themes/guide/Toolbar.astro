@@ -40,7 +40,7 @@ const sortOptions = [
         maxlength="60"
         placeholder="Buscar…"
         aria-label="Buscar en el catálogo"
-        class="w-32 border border-border bg-background px-3.5 py-1.5 text-xs text-foreground transition-[width,border-color] placeholder:text-muted-foreground focus:w-44 focus:border-foreground focus:outline-none"
+        class="w-32 border border-border bg-background px-3.5 py-1.5 text-xs text-foreground transition-[width,border-color] placeholder:text-muted-foreground focus:w-44 focus:border-foreground"
         style="border-radius: var(--radius-btn);"
       />
     </form>
@@ -54,7 +54,7 @@ const sortOptions = [
           id="orden"
           name="orden"
           onchange="this.form.submit()"
-          class="cursor-pointer appearance-none bg-transparent pr-4 text-xs font-medium text-foreground focus:outline-none"
+          class="cursor-pointer appearance-none bg-transparent pr-4 text-xs font-medium text-foreground"
         >
           {sortOptions.map((opt) => (
             <option value={opt.id} selected={opt.id === sort}>{opt.label}</option>

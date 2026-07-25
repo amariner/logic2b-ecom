@@ -52,13 +52,17 @@ const paths = storePaths(collection.id);
 
       <p data-cart-problems class="mt-4 hidden rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-destructive"></p>
 
+      {/* El color del texto se conmuta junto al fondo (ver el script): con
+          `text-brand-fg` fijo el rótulo era blanco sobre `bg-muted` gris claro
+          — 1.1:1, invisible mientras el carrito no fuese tramitable, que es
+          justo el estado en el que aterriza un carrito recién llenado. */}
       <div class="mt-6 flex justify-end">
         <a
           href={paths.checkout}
           data-checkout-link
           aria-disabled="true"
           tabindex="-1"
-          class="pointer-events-none w-full rounded-btn bg-muted px-8 py-3.5 text-center font-semibold text-brand-fg transition sm:w-auto"
+          class="pointer-events-none w-full rounded-btn bg-muted px-8 py-3.5 text-center font-semibold text-muted-foreground transition sm:w-auto"
         >Tramitar pedido</a>
       </div>
     </div>
@@ -226,7 +230,9 @@ const paths = storePaths(collection.id);
       const ready = quote.purchasable && quote.total_cents !== null;
       checkout.classList.toggle('pointer-events-none', !ready);
       checkout.classList.toggle('bg-muted', !ready);
+      checkout.classList.toggle('text-muted-foreground', !ready);
       checkout.classList.toggle('bg-brand', ready);
+      checkout.classList.toggle('text-brand-fg', ready);
       checkout.classList.toggle('hover:bg-brand-dark', ready);
       checkout.setAttribute('aria-disabled', String(!ready));
       checkout.tabIndex = ready ? 0 : -1;

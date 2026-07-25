@@ -54,7 +54,24 @@
 - [ ] Navegador: catálogo (prístino y filtrado), búsqueda sin resultados, ficha,
       carrito con portes reales, checkout — a **1440px, 375px y modo oscuro**
       (`.dark` forzada en `<html>`).
+- [ ] `node scripts/a11y-audit.mjs --only=<id>` en verde (contra `wrangler dev`).
+      Barre catálogo/ficha/carrito/checkout a 1440, 375, oscuro y reduced-motion.
 - [ ] `pnpm check` en verde (types + tests + build).
+
+### Lo que el auditor NO puede ver (revisión a ojo, siempre)
+
+- **Texto sobre foto o vídeo.** El contraste no es computable desde el DOM y el
+  auditor lo salta. Si el tema pone copy encima de imaginería, necesita velo
+  (`::before` con gradiente) o plancha, y hay que **medirlo sobre los píxeles
+  reales**, no estimarlo: capturar con el texto oculto y mirar el peor píxel del
+  recuadro, no la media (Iris daba 4,93:1 de media y 1:1 en las zonas claras).
+  Si el fondo se mueve (scrub, autoplay), medir **varios fotogramas** siguiendo
+  la posición viva del texto — un recuadro fijo mide otra cosa.
+- **Reglas generales del tema que pisan a las de componente.** `.tema :where(a)`
+  se queda en (0,3,0) tras el scoping de Astro y gana a `.tema-x__btn` (0,2,0):
+  así se perdía el `color:#fff` del botón del hero de Iris y el rótulo salía
+  acento sobre acento. Las normalizaciones del tema van **enteras** dentro de
+  `:where(...)` para que su especificidad sea 0.
 
 ## 4. Cierre
 
