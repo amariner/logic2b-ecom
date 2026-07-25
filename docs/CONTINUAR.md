@@ -34,8 +34,11 @@
 6. **Documentar** — actualizar `docs/ROADMAP.md`: estado del bloque con fecha y
    resumen, y **reescribir la sección «Próxima sesión»** para que el siguiente
    chat sepa qué toca sin pensar.
-7. **Integrar** — commit descriptivo en inglés + push a `origin/main` (en
-   cloud: PR según la mecánica del entorno). El repo queda limpio.
+7. **Integrar** — commit descriptivo en inglés + push a `origin/main`. En
+   cloud: abrir el PR según la mecánica del entorno y **mergearlo a `main` en
+   la misma sesión** — Andreu delegó explícitamente (2026-07-25) el permiso de
+   mergear a `main` y subir a GitHub sin esperar revisión, siempre con
+   `pnpm check` en verde. El repo queda limpio.
 8. **Cerrar** — resumen con el sign-off del consejo (formato del SKILL.md) y,
    si el bloque afecta a producción y la sesión es local, `pnpm deploy` +
    verificación + reset de la demo (`POST /api/demo/reset`).

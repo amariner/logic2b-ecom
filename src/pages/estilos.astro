@@ -60,7 +60,9 @@ const nav = [
 ];
 
 const styles = demoThemes.filter((t) => t.id !== defaultTheme.id);
-const readyCount = demoThemes.filter((t) => t.status === 'ready').length;
+// Solo cuenta los estilos QUE SE VEN en esta página (Base queda fuera de la
+// lista, así que tampoco entra en el recuento de desarrollados).
+const readyCount = styles.filter((t) => t.status === 'ready').length;
 
 const layoutLabels: Record<string, string> = {
   // rejilla

@@ -7,7 +7,7 @@
 import Base from '../layouts/Base.astro';
 import SiteHeader from '../components/SiteHeader.astro';
 import { collections, storePaths } from '../lib/collections';
-import { getTheme } from '../lib/demo-themes';
+import { demoThemes, defaultTheme, getTheme } from '../lib/demo-themes';
 
 // ── Acento AA-safe por tienda (calculado en BUILD, no en cliente) ───────────
 // Un acento claro (Guide) pasa AA como relleno pero es ilegible como TEXTO
@@ -67,6 +67,10 @@ const whatsappHref = WHATSAPP
   ? `https://wa.me/${WHATSAPP}?text=${encodeURIComponent('Hola, me interesa una tienda online con LogicEcom.')}`
   : null;
 const emailHref = `mailto:${EMAIL}?subject=${encodeURIComponent('Mi tienda online con LogicEcom')}`;
+
+// Recuento del catálogo de estilos, derivado del registro (igual que hace
+// /estilos): un tema nuevo actualiza este copy solo.
+const styleCount = demoThemes.filter((t) => t.id !== defaultTheme.id).length;
 
 const nav = [
   { href: '/estilos', label: 'Estilos' },
@@ -280,7 +284,7 @@ const jsonLd = [
         class="flex snap-x snap-mandatory gap-5 overflow-x-auto px-5 pb-4 [scrollbar-color:var(--color-brand)_transparent] [scrollbar-width:thin] sm:gap-6"
       >
         {gallery.map((store, i) => (
-          <li class="shrink-0 snap-start">
+          <li class="relative shrink-0 snap-start">
             <a
               href={store.href}
               style={`--accent:${store.accent}`}
@@ -329,6 +333,24 @@ const jsonLd = [
                 <span class="text-foreground transition group-hover:[color:var(--accent)]"> →</span>
               </p>
             </a>
+            {store.video && (
+              // Pausa del clip (WCAG 2.2.2). Vive FUERA del enlace (interactivos
+              // no se anidan) y nace oculto: el script lo activa solo si asciende
+              // la imagen a vídeo (con reduced-motion o ahorro de datos no hay
+              // ni vídeo ni botón).
+              <button
+                type="button"
+                hidden
+                data-video-toggle
+                aria-pressed="false"
+                aria-label="Pausar la animación"
+                class="absolute right-3 top-14 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-black/60 text-white transition hover:bg-black/80"
+              >
+                <svg data-glyph-pause viewBox="0 0 16 16" width="14" height="14" fill="currentColor" aria-hidden="true"><rect x="3" y="2" width="4" height="12" rx="1" /><rect x="9" y="2" width="4" height="12" rx="1" /></svg>
+                {/* hidden va como CLASE: el atributo hidden es HTML y en SVG no es fiable. */}
+                <svg data-glyph-play class="hidden" viewBox="0 0 16 16" width="14" height="14" fill="currentColor" aria-hidden="true"><path d="M4.5 2.5v11a.7.7 0 0 0 1.07.6l8.6-5.5a.7.7 0 0 0 0-1.2l-8.6-5.5a.7.7 0 0 0-1.07.6z" /></svg>
+              </button>
+            )}
           </li>
         ))}
       </ul>
@@ -473,7 +495,7 @@ const jsonLd = [
               <p class="mt-1 text-sm font-medium text-brand-dark">{tier.monthly}</p>
               <ul class="mt-6 space-y-3 text-sm leading-relaxed text-muted-foreground">
                 {tier.points.map((point) => (
-                  <li class="flex gap-2"><span class="text-brand">✓</span> {point}</li>
+                  <li class="flex gap-2"><span aria-hidden="true" class="text-brand">✓</span> {point}</li>
                 ))}
               </ul>
             </div>
@@ -583,7 +605,7 @@ const jsonLd = [
       </div>
       <div class="mt-6 rounded-2xl border border-border bg-muted p-6 text-center sm:p-8">
         <p class="font-display text-xl">¿Qué estilo encaja con lo que vendes?</p>
-        <p class="mx-auto mt-2 max-w-xl text-sm text-muted-foreground">Ocho direcciones visuales, del catálogo técnico al escaparate cinemático. Elige el punto de partida de tu tienda.</p>
+        <p class="mx-auto mt-2 max-w-xl text-sm text-muted-foreground">{styleCount} direcciones visuales, del catálogo técnico al escaparate cinemático. Elige el punto de partida de tu tienda.</p>
         <a href="/estilos" class="mt-4 inline-block rounded-full border border-foreground px-6 py-2.5 text-sm font-semibold transition hover:bg-foreground hover:text-background">Ver los estilos</a>
       </div>
     </section>
@@ -596,7 +618,7 @@ const jsonLd = [
           <details class="group rounded-2xl border border-border bg-card px-6 py-4 open:shadow-sm">
             <summary class="flex cursor-pointer list-none items-center justify-between gap-4 font-semibold marker:content-none">
               {faq.q}
-              <span class="text-xl leading-none text-brand transition group-open:rotate-45">+</span>
+              <span aria-hidden="true" class="text-xl leading-none text-brand transition group-open:rotate-45">+</span>
             </summary>
             <p class="mt-3 text-sm leading-relaxed text-muted-foreground">{faq.a}</p>
           </details>
@@ -783,6 +805,9 @@ const jsonLd = [
   //     <video preload="none"> que reproduce solo mientras se ve. Nunca con
   //     reduced-motion ni con ahorro de datos: esos visitantes se quedan la
   //     imagen. El clip no baja ni un byte hasta que la tarjeta es visible.
+  //     WCAG 2.2.2: todo lo que se mueve >5 s necesita pausa — el botón está
+  //     en el template (oculto, fuera del enlace) y aquí solo se activa cuando
+  //     el vídeo existe. Una pausa del visitante manda sobre el observer.
   const saveData =
     (navigator as Navigator & { connection?: { saveData?: boolean } }).connection?.saveData === true;
   if (!reduced && !saveData) {
@@ -796,16 +821,35 @@ const jsonLd = [
       video.loop = true;
       video.playsInline = true;
       video.preload = 'none';
+      video.setAttribute('aria-label', img.alt);
       const source = document.createElement('source');
       source.src = img.dataset.videoSrc ?? '';
       source.type = 'video/mp4';
       video.appendChild(source);
       img.replaceWith(video);
+
+      let userPaused = false;
+      const toggle = video.closest('li')?.querySelector<HTMLButtonElement>('[data-video-toggle]');
+      if (toggle) {
+        const glyphPause = toggle.querySelector<SVGElement>('[data-glyph-pause]');
+        const glyphPlay = toggle.querySelector<SVGElement>('[data-glyph-play]');
+        toggle.addEventListener('click', () => {
+          userPaused = !userPaused;
+          if (userPaused) video.pause();
+          else video.play().catch(() => {});
+          glyphPause?.classList.toggle('hidden', userPaused);
+          glyphPlay?.classList.toggle('hidden', !userPaused);
+          toggle.setAttribute('aria-label', userPaused ? 'Reproducir la animación' : 'Pausar la animación');
+          toggle.setAttribute('aria-pressed', String(userPaused));
+        });
+        toggle.hidden = false;
+      }
+
       new IntersectionObserver(
         (entries) => {
           for (const entry of entries) {
             const v = entry.target as HTMLVideoElement;
-            if (entry.isIntersecting) v.play().catch(() => {});
+            if (entry.isIntersecting && !userPaused) v.play().catch(() => {});
             else v.pause();
           }
         },
