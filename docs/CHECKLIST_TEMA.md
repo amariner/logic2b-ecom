@@ -85,6 +85,18 @@
   (enfocas el enlace de la tarjeta → el botón se hace visible → el siguiente
   tabulador entra). Y el equivalente táctil va con
   `@media (hover: none), (pointer: coarse)`, las dos condiciones (Industrial).
+- **Una tarjeta, UN enlace.** Poner un `<a>` en la foto y otro en el nombre hace
+  que cada producto suene DOS veces en un lector de pantalla, y esconder el de la
+  foto con `aria-hidden` + `tabindex="-1"` no arregla nada: un `<a href>` sigue
+  siendo enfocable por programa y el auditor lo canta (48 errores en Natural). Se
+  resuelve con **área extendida**: la foto es un `<img>` a secas y el enlace del
+  nombre estira un `::after` transparente (`position: absolute; inset: 0`) sobre
+  toda la tarjeta, que va `position: relative`. **Y el botón de compra necesita
+  `z-index` por encima de ese `::after`**, o el área extendida se come el clic y
+  «Añadir» acaba navegando a la ficha. Eso se verifica con hover y clic REALES en
+  headless (`Input.dispatchMouseEvent` + `elementFromPoint`), no razonando sobre
+  la cascada — y no con las browser tools si el panel está oculto, porque
+  entonces no hay hit-testing y `elementFromPoint` devuelve `null` siempre.
 - **Reglas generales del tema que pisan a las de componente.** `.tema :where(a)`
   se queda en (0,3,0) tras el scoping de Astro y gana a `.tema-x__btn` (0,2,0):
   así se perdía el `color:#fff` del botón del hero de Iris y el rótulo salía

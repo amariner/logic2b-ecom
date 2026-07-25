@@ -41,7 +41,18 @@
    `pnpm check` en verde. El repo queda limpio.
 8. **Cerrar** — resumen con el sign-off del consejo (formato del SKILL.md) y,
    si el bloque afecta a producción y la sesión es local, `pnpm deploy` +
-   verificación + reset de la demo (`POST /api/demo/reset`).
+   verificación + reset de la demo (`POST /api/demo/reset`). **El reset en
+   producción necesita cabecera `Origin`**, o Astro lo rechaza con 403 «Cross-site
+   POST form submissions are forbidden» (protección CSRF, no un fallo de
+   `DEMO_MODE`):
+
+   ```
+   curl -X POST https://ecom.logic2b.com/api/demo/reset \
+     -H "Origin: https://ecom.logic2b.com"
+   ```
+
+   Sin ese reset, una tienda recién desplegada sale con el catálogo VACÍO hasta
+   que pase el cron de 6 h: la D1 remota sigue con el seed anterior.
 
 ## Próxima sesión (mantener SIEMPRE al día — también existe en ROADMAP)
 
