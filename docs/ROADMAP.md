@@ -54,7 +54,7 @@ reconciliación se conserva abajo por contexto.
 | 9 | Catálogo de estilos (8 temas) | 🟡 En curso | 2026-07-21 | Arquitectura + `/estilos` + **temas 06 Minimal, 01 Editorial, 07 Launch y 04 Guide desarrollados** (5 listos con Base; registro de catálogo por tema generalizado). **Replanteada como Fase 9B** (ver abajo): de «una tienda, 8 pieles» a «8 tiendas, un motor» |
 | 9B | 8 tiendas distintas sobre un solo motor | 🟡 En curso | 2026-07-25 | **9B.0–9B.4 hechos.** Rutas por colección, selector/cookie eliminados, carrito namespaceado. **Las 10 tiendas vivas** (Forma Interior, Módulo Audio, Cafetal, Vector, Iris, ASFALTO, METRIA, ROMER, **KALIBRE** y La Botiga) con catálogo, tema e imaginería propios. **Fase 9B completa.** 148 tests. Ver «Fase 9B» |
 | 10 | Documentación para el cliente | 🟡 Casi completa | 2026-07-24 | **Ejecutada como F11.7** (ver Fase 11): `/ayuda` (noindex) con manual de 3 pasos + guías + runbook, acta de entrega e inventario de accesos en `docs/plantillas/`, dossier con «qué pasa si nos vamos», guion del vídeo. Pendiente: grabar el vídeo (Andreu) y confirmar las decisiones a/b/c asumidas |
-| 11 | Landing V2 «nivel Awwwards» + negocio + funnel + docs | 🟡 En curso | 2026-07-24 | **F11.1, F11.3 (2 sesiones), F11.4, F11.5, F11.6, F11.7 y F11.8 (primera pasada + pase a11y/contenido desde cloud 2026-07-24) hechos**, más F11.8b (auditor de a11y, cloud), F11.2a-1 (tienda ASFALTO / tema Street), F11.2a-2 (tienda METRIA / tema Industrial) F11.2a-3 (tienda ROMER / tema Natural) y **F11.2a-4 (tienda KALIBRE / tema Specs, local 2026-07-25) — con la que F11.2a queda CERRADA (10/10 tiendas)**; solo queda el resto de la cola de F11.8 (Lighthouse/OG, LOCAL). Detalle por bloque abajo. (ver «Fase 11» abajo). **Plan maestro completo en [`docs/PLAN_FASE11_LANDING_V2.md`](PLAN_FASE11_LANDING_V2.md)**: bloques F11.0–F11.8 ejecutables por sesiones independientes. **Decisiones D1–D6 APROBADAS por Andreu (2026-07-23)**: JS propio ≤15 KB sin deps, capturas con browser tools en local, dirección C «Ocho tiendas, un motor», escalera de precios (Lite 590 / Kit 1.900+39 / A medida 3.400+59), WhatsApp+email, Lite publicado sin construir. Prompt de arranque: [`docs/PROMPT_FASE11.md`](PROMPT_FASE11.md). Integra 9B.5/9B.6 (imaginería y temas restantes) como prerequisito del hero |
+| 11 | Landing V2 «nivel Awwwards» + negocio + funnel + docs | 🟡 En curso | 2026-07-24 | **F11.1, F11.3 (2 sesiones), F11.4, F11.5, F11.6, F11.7 y F11.8 (primera pasada + pase a11y/contenido desde cloud 2026-07-24) hechos**, más F11.8b (auditor de a11y, cloud), F11.2a-1 (tienda ASFALTO / tema Street), F11.2a-2 (tienda METRIA / tema Industrial) F11.2a-3 (tienda ROMER / tema Natural) y **F11.2a-4 (tienda KALIBRE / tema Specs, local 2026-07-25) — con la que F11.2a queda CERRADA (10/10 tiendas)**; y **F11.8c (Lighthouse citable + OG de WhatsApp + URLs sin redirección, local 2026-07-26)**; de la cola de F11.8 solo queda repetir la tanda de Lighthouse con red estable y la submission a Awwwards (decisión de pago: Andreu). Detalle por bloque abajo. (ver «Fase 11» abajo). **Plan maestro completo en [`docs/PLAN_FASE11_LANDING_V2.md`](PLAN_FASE11_LANDING_V2.md)**: bloques F11.0–F11.8 ejecutables por sesiones independientes. **Decisiones D1–D6 APROBADAS por Andreu (2026-07-23)**: JS propio ≤15 KB sin deps, capturas con browser tools en local, dirección C «Ocho tiendas, un motor», escalera de precios (Lite 590 / Kit 1.900+39 / A medida 3.400+59), WhatsApp+email, Lite publicado sin construir. Prompt de arranque: [`docs/PROMPT_FASE11.md`](PROMPT_FASE11.md). Integra 9B.5/9B.6 (imaginería y temas restantes) como prerequisito del hero |
 | 8 | Pulido de la demo (backlog abajo) | 🟡 En curso | 2026-07-19 | Backlog técnico agotado; solo quedan decisiones y pasos locales de Andreu (ver «Decisiones pendientes» y `docs/PROMPT_CLOUD.md`). Últimas tandas: novena (race de idempotencia en el pago, PII enumerable en `/demo/gracias`, cancelación de pedido pagado sin devolver stock), décima (la misma race en el PATCH de admin, campos vacíos guardados como 0, login sin rate limit), undécima (diagrama móvil de `/arquitectura`, hedge del plazo de entrega, tokens de tema en `/demo/reset`, terminología «envío»), duodécima (aviso de corte en pedidos del admin, cabeceras sin wrap a 375px, leftover «portes», token de radio del carrito, contraste del botón eliminar, H1 en valenciano, checklist de producción) y decimotercera (misma race de idempotencia en `checkout.session.expired`, divisa hardcodeada a EUR fuera de Stripe, cobertura de test de `quoteCart`/PATCH admin/emails) y decimocuarta (config parcial de Stripe → cobro sin cumplimiento, emails duplicados bajo concurrencia, `payment_status` del webhook, color de marca centralizado en `shop.config.ts`, contraste/tema en carrito y checkout) — ver sección «Fase 8» |
 
 ## Repo y entornos
@@ -1138,8 +1138,14 @@ el 2026-07-25, entrada abajo). Ya no quedan temas por construir.
   cookie de sesión. El Lighthouse del admin se hizo a mano en 2026-07-19 y desde
   entonces el panel no tiene red de seguridad automática; las 10 tiendas sí
   (**110/110 en verde**). Es lo único gordo que queda ejecutable sin red local.
-- **Bloque si la sesión es LOCAL:** la cola entera de F11.8, que solo se puede
-  hacer aquí — el **Lighthouse citable** y el **OG de WhatsApp**.
+- **Bloque si la sesión es LOCAL:** **repetir la tanda de Lighthouse con red
+  estable** (`pnpm audit:lh -- --runs=3 --write`) y publicar la tabla definitiva
+  en [`docs/LIGHTHOUSE.md`](LIGHTHOUSE.md). El 2026-07-26 se midió y se optimizó
+  (entrada F11.8c abajo), pero el enlace de casa se cayó a mitad —documentos de
+  8–24 s— y la mediana de la landing en móvil quedó sin cerrar: la única pasada
+  con red sana dio 100/100/100/100. Es media hora de reloj, sin escribir código.
+  Lo único que queda vivo de la cola de F11.8 es eso y la submission a Awwwards
+  (decisión de pago: Andreu).
 - **Recordatorio de red** (por si vuelve a hacer falta imaginería): el CDN de
   Higgsfield y `ecom.logic2b.com` están **denegados desde cloud** (000). En
   local, el sandbox también bloquea la red: `curl`/`git` de red necesitan
@@ -1153,6 +1159,72 @@ el 2026-07-25, entrada abajo). Ya no quedan temas por construir.
   2. El **panel lateral deslizante de producto** que pedían Natural y Specs
      sigue siendo candidato a registro nuevo del motor (hoy la ficha la sirve
      Base para los 10 temas). No entra en una sesión de tema.
+
+### F11.8c — Lighthouse citable, OG de WhatsApp y URLs sin salto (2026-07-26, sesión local)
+
+Cola de F11.8. Dos entregables (auditoría citable + verificación del OG) que al
+ejecutarse destaparon tres defectos reales de producción.
+
+**El sitio anunciaba URLs que redirigían.** Sitemap, `canonical`, `og:url` y los
+12 enlaces internos apuntaban a `/arquitectura` (sin barra), y el Worker
+respondía **307** hacia `/arquitectura/`. Un salto por visita y por rastreo, en
+las cuatro páginas indexables. Arreglado por el lado que **no cambia ninguna URL
+indexada**: `build.format: 'file'` en `astro.config.mjs` — Astro emite
+`arquitectura.html` en vez de `arquitectura/index.html` y los assets del Worker
+sirven 200 directo en la forma que ya anunciaba el sitemap. La alternativa
+(añadir la barra a todo) habría cambiado la URL canónica de las cuatro páginas
+y exigido plan de 301. Verificado: las 4 a 200 sin salto, `/demo/*` intacto
+(son server-rendered), 404 correcto.
+
+**La tarjeta que se comparte por WhatsApp vendía otro producto.** El OG decía
+«Logic2B. Commerce Kit» sobre una foto de embutidos —la demo gourmet— cuando el
+`og:title` y la landing entera ya venden **LogicEcom, un motor y diez tiendas**.
+Nueva tarjeta generada por [`scripts/make-og.mjs`](../scripts/make-og.mjs)
+(Chrome headless por CDP, cero dependencias, mismo patrón que
+`capture-screens.mjs`): marca correcta, el H1 real de la landing y tres
+catálogos de tiendas distintas apilados. 111 KB, 1200×630, legible a 400 px de
+ancho, que es como llega a un chat. **Gotcha que cuesta semanas si se olvida:**
+WhatsApp cachea la preview por URL de imagen, así que `Base.astro` sirve
+`og.jpg?v=2` y ese número **hay que subirlo cada vez que se regenere**.
+
+**La landing no era 100 en móvil.** Medido con el auditor nuevo
+[`scripts/lighthouse.mjs`](../scripts/lighthouse.mjs) (`pnpm audit:lh`,
+mediana de 3 pasadas, Lighthouse por `npx` para no meterlo en `package.json`):
+7 de 8 superficies daban 100×4 y la landing en móvil **97**. Tres causas, las
+tres medidas antes de tocar nada:
+
+1. **La animación de entrada del H1 costaba ~0,5 s de LCP.** El H1 es el
+   elemento LCP y Chrome no lo da por pintado hasta que se queda quieto;
+   comprobado forzando `prefers-reduced-motion` (LCP 1,9 s → 1,4 s). Duración
+   0,7 s → **0,35 s**: el gesto se mantiene, el LCP baja.
+2. **En móvil se descargaban capturas de 900 px para pintarlas a 280.** Nuevas
+   variantes `-560` (las genera ya `capture-screens.mjs`) servidas con `srcset`
+   + `sizes`; la galería del héroe pasa de ~350 KB a ~150 KB y la página de
+   **448 KiB a 309 KiB**.
+3. **`loading="lazy"` en un carrusel horizontal salía caro.** Las tarjetas
+   quedan fuera de pantalla por el lado y el navegador las bajaba tarde: una
+   llegaba a los **19 s** y hundía el Speed Index. Con las variantes de 560 la
+   galería entera cabe en lo que antes pesaban tres tarjetas, así que va
+   `eager`.
+
+Tras los tres: landing en móvil **100/100/100/100, LCP 1,2 s, SI 2,3 s**.
+
+⚠ **La mediana citable quedó sin cerrar.** A mitad de la tanda final el enlace
+de red de casa se degradó (documentos de 8–24 s, ping con picos de 1,4 s) y
+Lighthouse achaca eso a la página: pasadas de 90 que no dicen nada del sitio. El
+script aprendió a detectarlo —descarta y repite la pasada cuando el HTML tarda
+más de 3 s, y **nunca descarta por nota baja**— pero con esa red no hay tabla
+publicable. La landing dio 100×4 en la única pasada con red sana. Repetir la
+tanda es lo que queda en «Próxima sesión».
+
+**Verificado:** `pnpm check` (148 tests, 0 errores de tipos), E2E completo (27
+checks) contra `wrangler dev`, revisión en navegador a 1440 y 375 con el
+`srcset` eligiendo bien en cada uno (560 en móvil, 900 en escritorio de alta
+densidad), despliegue a producción y reset de la demo.
+
+**Deuda que este bloque destapó y no tocó:** las variantes `-900` y `-560` de
+las capturas **no estaban en git** —el repo referenciaba imágenes que solo
+existían en el disco de quien desplegó— y entran en este commit.
 
 ### F11.2a-4 — tienda KALIBRE, tema Specs (2026-07-25, sesión local)
 

@@ -53,9 +53,14 @@ const gallery = galleryOrder.map((id) => {
     accentTextDark: textSafe(onWhite, '#1a1a1a', accentDark, accent),
     accentTextDm: textSafe(onDark, '#fafafa', accent, accentDark),
     href: storePaths(id).catalog,
-    img: `/images/screens/store-${id}-catalog.webp`,
+    // Dos anchos con `srcset`: la tarjeta pinta a 280 CSS px en móvil y 360 en
+    // escritorio, así que 560 es lo que se lleva casi siempre y 900 queda para
+    // pantallas de alta densidad. Servir solo 900 costaba ~200 KB de galería.
+    img: `/images/screens/store-${id}-catalog-560.webp`,
+    img900: `/images/screens/store-${id}-catalog-900.webp`,
     video: id === 'iris' ? '/images/screens/iris-scrub.mp4' : null,
-    poster: id === 'iris' ? '/images/screens/iris-scrub-poster.webp' : null,
+    poster: id === 'iris' ? '/images/screens/iris-scrub-poster-560.webp' : null,
+    poster900: id === 'iris' ? '/images/screens/iris-scrub-poster.webp' : null,
   };
 });
 
@@ -92,28 +97,28 @@ const flow = [
     n: '01',
     title: 'El cliente compra',
     body: 'Sin crear cuenta. El porte se calcula por código postal y el pago va directo a Stripe: la tarjeta nunca toca la tienda.',
-    img: '/images/screens/flow-checkout.webp',
+    img: '/images/screens/flow-checkout-900.webp',
     alt: 'Checkout de la demo con el porte calculado y el total',
   },
   {
     n: '02',
     title: 'Te llega el email',
     body: 'Confirmación al cliente y aviso a ti, con tu marca y tu dominio. En la demo se ven en una bandeja simulada.',
-    img: '/images/screens/panel-email-open.webp',
+    img: '/images/screens/panel-email-open-900.webp',
     alt: 'Email de confirmación de pedido renderizado en la bandeja',
   },
   {
     n: '03',
     title: 'Lo gestionas en el panel',
     body: 'Un pedido, su dirección, sus líneas y su historial. Marcas «enviado» y pegas el número de seguimiento.',
-    img: '/images/screens/panel-order-detail.webp',
+    img: '/images/screens/panel-order-detail-900.webp',
     alt: 'Detalle de un pedido con dirección, tracking y línea de tiempo',
   },
   {
     n: '04',
     title: 'Etiqueta y en camino',
     body: 'Exportas la dirección a Packlink o SendCloud en un clic, imprimes la etiqueta y el cliente recibe el aviso solo.',
-    img: '/images/screens/panel-orders.webp',
+    img: '/images/screens/panel-orders-900.webp',
     alt: 'Listado de pedidos con los estados y la exportación a Packlink',
   },
 ];
@@ -316,14 +321,24 @@ const jsonLd = [
                       asciende a <video> con autoplay-on-scroll. Sin JS, con
                       reduced-motion o con ahorro de datos queda la imagen: más
                       ligera que un <video poster> (el póster no es lazy) y con
-                      alt real. El clip solo baja cuando la tarjeta se ve. */}
+                      alt real. El clip solo baja cuando la tarjeta se ve.
+                      La primera tarjeta va eager pero SIN fetchpriority high:
+                      en móvil la galería queda bajo el fold y esa prioridad
+                      le robaba ancho de banda a la fuente del H1 (el LCP). */}
                   <img
                     src={store.video ? store.poster : store.img}
+                    srcset={`${store.video ? store.poster : store.img} 560w, ${store.video ? store.poster900 : store.img900} 900w`}
+                    sizes="(min-width: 640px) 360px, 280px"
                     alt={`Tienda ${store.name} — estilo ${store.style}`}
                     width={store.video ? 1280 : 720}
                     height={store.video ? 720 : 900}
-                    loading={i === 0 ? 'eager' : 'lazy'}
-                    fetchpriority={i === 0 ? 'high' : undefined}
+                    {/* Sin `lazy`: la galería es un carrusel horizontal, así que
+                        sus tarjetas quedan fuera de pantalla por el lado y el
+                        navegador las bajaba tarde y a trompicones — medido, una
+                        llegaba a los 19 s y hundía el Speed Index móvil. Con las
+                        variantes de 560 las nueve suman ~150 KB, menos de lo que
+                        pesaban tres a 900. */}
+                    loading="eager"
                     class="h-full w-full object-cover object-top"
                     data-video-src={store.video ?? undefined}
                     data-video-poster={store.video ? store.poster : undefined}
@@ -593,7 +608,7 @@ const jsonLd = [
       <div class="mt-10 grid gap-5 sm:grid-cols-2">
         <a href="/demo/admin" class="rise group overflow-hidden rounded-2xl border border-border bg-card transition hover:-translate-y-1 hover:shadow-xl">
           <div class="aspect-[16/10] overflow-hidden border-b border-border bg-muted">
-            <img src="/images/screens/panel-order-detail.webp" alt="" width="1440" height="900" loading="lazy" class="h-full w-full object-cover object-top" />
+            <img src="/images/screens/panel-order-detail-900.webp" alt="" width="1440" height="900" loading="lazy" class="h-full w-full object-cover object-top" />
           </div>
           <div class="p-5">
             <p class="font-semibold group-hover:text-brand">El panel del comercio →</p>
@@ -602,7 +617,7 @@ const jsonLd = [
         </a>
         <a href="/demo/admin/emails" class="rise group overflow-hidden rounded-2xl border border-border bg-card transition hover:-translate-y-1 hover:shadow-xl">
           <div class="aspect-[16/10] overflow-hidden border-b border-border bg-muted">
-            <img src="/images/screens/panel-emails.webp" alt="" width="1440" height="900" loading="lazy" class="h-full w-full object-cover object-top" />
+            <img src="/images/screens/panel-emails-900.webp" alt="" width="1440" height="900" loading="lazy" class="h-full w-full object-cover object-top" />
           </div>
           <div class="p-5">
             <p class="font-semibold group-hover:text-brand">Los emails que enviaría →</p>
@@ -720,7 +735,10 @@ const jsonLd = [
   @media screen and (prefers-reduced-motion: no-preference) {
     /* Entrada del hero: una vez, al cargar. El peso variable de Inter se asienta
        de 320 a 600 — tipografía display animada sin cargar nada nuevo. */
-    .hero-title { animation: hero-title-in 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+    /* 0,35 s y no 0,7: el H1 es el elemento LCP y Chrome no lo da por pintado
+       hasta que la animación lo deja quieto — medido, 0,7 s costaba ~0,5 s de
+       LCP móvil y con ello el 100 de rendimiento. El gesto se mantiene. */
+    .hero-title { animation: hero-title-in 0.35s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
     .hero-fade { animation: hero-fade-in 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) both; animation-delay: var(--d, 0s); }
 
     @supports (animation-timeline: view()) {

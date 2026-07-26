@@ -6,6 +6,9 @@ dist/
 # Cloudflare local
 .wrangler/
 
+# informes de Lighthouse (~800 KB por pasada); el resumen citable va en docs/
+.lighthouse/
+
 # secretos — jamás en el repo
 .dev.vars
 .env

@@ -31,7 +31,11 @@ interface Props {
 
 const { title, description = '', noindex = false, canonicalPath, jsonLd = [] } = Astro.props;
 const canonical = canonicalPath ? new URL(canonicalPath, Astro.site).href : null;
-const ogImage = new URL('/images/og.jpg', Astro.site).href;
+/* La tarjeta la genera `scripts/make-og.mjs`. El sufijo `?v=N` es obligatorio
+   al regenerarla: WhatsApp y las redes cachean la preview por URL de imagen y
+   sin cambiarla seguirían enseñando la anterior durante semanas. Subir el
+   número cada vez que cambie el diseño de la tarjeta. */
+const ogImage = new URL('/images/og.jpg?v=2', Astro.site).href;
 ---
 
 <!doctype html>

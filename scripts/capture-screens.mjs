@@ -58,6 +58,14 @@ const WEBP = {
   mobile: { width: 780, q: 68 },
 };
 
+// Las tarjetas de la landing (`card: true`) se sirven con `srcset` en dos
+// anchos. `-900` cubre el peor caso —tarjeta de 520 CSS px en pantalla de alta
+// densidad—; `-560` es el que se lleva el móvil de verdad (tarjeta de 280 CSS
+// px, DPR 1,75 del perfil de Lighthouse) y pesa un tercio. Con las nueve
+// tiendas del héroe la diferencia es ~200 KB de galería, que se notaban en el
+// Speed Index móvil.
+const CARD_WIDTHS = [900, 560];
+
 /**
  * Oculta el chrome de demo (banner superior + conmutador flotante) que no debe
  * aparecer en ninguna captura de la landing. Se inyecta antes de capturar.
@@ -96,14 +104,14 @@ const STORES = [
   { id: 'demo', label: 'La Botiga', catalog: '/demo/tienda', full: true, maxH: 1700 },
 ];
 
-/** @typedef {{name:string,url:string,vp?:object,media?:'light'|'dark',auth?:boolean,scrollY?:number,full?:boolean,settle?:number,eval?:string,storage?:{key:string,value:string},group:'desktop'|'mobile'}} Shot */
+/** @typedef {{name:string,url:string,vp?:object,media?:'light'|'dark',auth?:boolean,scrollY?:number,full?:boolean,settle?:number,eval?:string,storage?:{key:string,value:string},group:'desktop'|'mobile',card?:boolean}} Shot */
 
 /** @type {Shot[]} */
 const SHOTS = [];
 
 for (const s of STORES) {
   // Escaparate (versátil: la landing recorta/enmarca por CSS). Iris = viewport.
-  SHOTS.push({ name: `store-${s.id}-catalog`, url: s.catalog, vp: DESKTOP, full: s.full, maxH: s.maxH, group: 'desktop' });
+  SHOTS.push({ name: `store-${s.id}-catalog`, url: s.catalog, vp: DESKTOP, full: s.full, maxH: s.maxH, group: 'desktop', card: true });
   // Móvil: framing de pantalla (viewport), no página completa.
   SHOTS.push({ name: `store-${s.id}-catalog-m`, url: s.catalog, vp: MOBILE, group: 'mobile' });
 }
@@ -183,12 +191,12 @@ const DEMO_CART = JSON.stringify([
 
 // Superficies de panel (admin, con cookie). Recortadas al área útil (sin banner).
 const PANEL_SHOTS = [
-  { name: 'panel-orders', url: '/demo/admin', vp: DESKTOP, auth: true, full: true, maxH: 1500, group: 'desktop' },
-  { name: 'panel-order-detail', url: '/demo/admin/pedidos/3', vp: DESKTOP, auth: true, full: true, maxH: 2000, group: 'desktop' },
+  { name: 'panel-orders', url: '/demo/admin', vp: DESKTOP, auth: true, full: true, maxH: 1500, group: 'desktop', card: true },
+  { name: 'panel-order-detail', url: '/demo/admin/pedidos/3', vp: DESKTOP, auth: true, full: true, maxH: 2000, group: 'desktop', card: true },
   { name: 'panel-products', url: '/demo/admin/productos', vp: DESKTOP, auth: true, full: true, maxH: 1500, group: 'desktop' },
   { name: 'panel-shipping', url: '/demo/admin/envios', vp: DESKTOP, auth: true, full: true, maxH: 1400, group: 'desktop' },
-  { name: 'panel-emails', url: '/demo/admin/emails', vp: DESKTOP, auth: true, full: true, maxH: 1600, group: 'desktop' },
-  { name: 'panel-email-open', url: '/demo/admin/emails', vp: DESKTOP, auth: true, full: true, maxH: 1500, eval: OPEN_CONFIRMATION, group: 'desktop' },
+  { name: 'panel-emails', url: '/demo/admin/emails', vp: DESKTOP, auth: true, full: true, maxH: 1600, group: 'desktop', card: true },
+  { name: 'panel-email-open', url: '/demo/admin/emails', vp: DESKTOP, auth: true, full: true, maxH: 1500, eval: OPEN_CONFIRMATION, group: 'desktop', card: true },
   { name: 'panel-emails-m', url: '/demo/admin/emails', vp: MOBILE, auth: true, q: 60, group: 'mobile' },
 ];
 SHOTS.push(...PANEL_SHOTS);
@@ -202,6 +210,7 @@ const FLOW_SHOTS = [
     full: true,
     maxH: 1900,
     group: 'desktop',
+    card: true,
     storage: { key: 'ecom-demo-cart', value: DEMO_CART },
     eval: FILL_CHECKOUT,
   },
@@ -406,6 +415,13 @@ async function main() {
       const q = shot.q ?? cfg.q;
       const webp = join(OUT_DIR, `${shot.name}.webp`);
       await execFileP('cwebp', ['-quiet', '-q', String(q), '-resize', String(cfg.width), '0', png, '-o', webp]);
+      if (shot.card) {
+        // Variantes para las tarjetas de la landing (ver CARD_WIDTHS arriba).
+        for (const w of CARD_WIDTHS) {
+          const card = join(OUT_DIR, `${shot.name}-${w}.webp`);
+          await execFileP('cwebp', ['-quiet', '-q', w === 900 ? '82' : '70', '-resize', String(w), '0', png, '-o', card]);
+        }
+      }
       if (!KEEP_PNG) await rm(png, { force: true });
       finalPath = webp;
     }
