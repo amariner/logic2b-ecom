@@ -6,19 +6,20 @@
 
 | Página | Dispositivo | Rendimiento | Accesibilidad | Buenas prácticas | SEO | LCP | CLS | TBT |
 |---|---|---|---|---|---|---|---|---|
-| Landing | Móvil | 98 | 100 | 100 | 100 | 1.8 s | 0.00 | 0 ms |
-| Landing | Escritorio | 99 | 100 | 100 | 100 | 0.8 s | 0.00 | 0 ms |
-| Arquitectura | Móvil | 100 | 100 | 100 | 100 | 1.3 s | 0.00 | 0 ms |
-| Arquitectura | Escritorio | 100 | 100 | 100 | 100 | 0.4 s | 0.00 | 0 ms |
-| Estilos | Móvil | 100 | 100 | 100 | 100 | 1.2 s | 0.00 | 0 ms |
+| Landing | Móvil | 100 | 100 | 100 | 100 | 1.3 s | 0.00 | 0 ms |
+| Landing | Escritorio | 100 | 100 | 100 | 100 | 0.4 s | 0.00 | 0 ms |
+| Arquitectura | Móvil | 100 | 100 | 100 | 100 | 1.2 s | 0.00 | 0 ms |
+| Arquitectura | Escritorio | 100 | 100 | 100 | 100 | 0.3 s | 0.00 | 0 ms |
+| Estilos | Móvil | 100 | 100 | 100 | 100 | 1.3 s | 0.00 | 0 ms |
 | Estilos | Escritorio | 100 | 100 | 100 | 100 | 0.4 s | 0.00 | 0 ms |
-| Dossier | Móvil | 100 | 100 | 100 | 100 | 1.2 s | 0.00 | 0 ms |
-| Dossier | Escritorio | 100 | 100 | 100 | 100 | 0.4 s | 0.00 | 0 ms |
+| Dossier | Móvil | 98 | 100 | 100 | 100 | 1.3 s | 0.00 | 0 ms |
+| Dossier | Escritorio | 100 | 100 | 100 | 100 | 0.3 s | 0.00 | 0 ms |
 
 Móvil es el perfil por defecto de Lighthouse (Moto G Power emulado, 4G
 lenta con CPU 4× más lenta); escritorio usa el preset `desktop`. La
 emulación móvil es deliberadamente pesimista: es el suelo, no la media.
 
-Esta tabla la reescribe el script en cada `--write`. **El porqué de cada nota
-que no sea 100 vive en el ROADMAP** (entradas F11.8c y F11.8d), no aquí: lo que
-se escriba a mano en este fichero se pierde en la siguiente tanda.
+Esta tabla la reescribe el script en cada `--write`. **El porqué de cada
+nota que no sea 100 vive en el ROADMAP** (entradas F11.8c y F11.8d), no
+aquí: lo que se escriba a mano en este fichero se pierde en la siguiente
+tanda.

@@ -54,7 +54,7 @@ reconciliación se conserva abajo por contexto.
 | 9 | Catálogo de estilos (8 temas) | 🟡 En curso | 2026-07-21 | Arquitectura + `/estilos` + **temas 06 Minimal, 01 Editorial, 07 Launch y 04 Guide desarrollados** (5 listos con Base; registro de catálogo por tema generalizado). **Replanteada como Fase 9B** (ver abajo): de «una tienda, 8 pieles» a «8 tiendas, un motor» |
 | 9B | 8 tiendas distintas sobre un solo motor | 🟡 En curso | 2026-07-25 | **9B.0–9B.4 hechos.** Rutas por colección, selector/cookie eliminados, carrito namespaceado. **Las 10 tiendas vivas** (Forma Interior, Módulo Audio, Cafetal, Vector, Iris, ASFALTO, METRIA, ROMER, **KALIBRE** y La Botiga) con catálogo, tema e imaginería propios. **Fase 9B completa.** 148 tests. Ver «Fase 9B» |
 | 10 | Documentación para el cliente | 🟡 Casi completa | 2026-07-24 | **Ejecutada como F11.7** (ver Fase 11): `/ayuda` (noindex) con manual de 3 pasos + guías + runbook, acta de entrega e inventario de accesos en `docs/plantillas/`, dossier con «qué pasa si nos vamos», guion del vídeo. Pendiente: grabar el vídeo (Andreu) y confirmar las decisiones a/b/c asumidas |
-| 11 | Landing V2 «nivel Awwwards» + negocio + funnel + docs | 🟡 En curso | 2026-07-24 | **F11.1, F11.3 (2 sesiones), F11.4, F11.5, F11.6, F11.7 y F11.8 (primera pasada + pase a11y/contenido desde cloud 2026-07-24) hechos**, más F11.8b (auditor de a11y, cloud), F11.2a-1 (tienda ASFALTO / tema Street), F11.2a-2 (tienda METRIA / tema Industrial) F11.2a-3 (tienda ROMER / tema Natural) y **F11.2a-4 (tienda KALIBRE / tema Specs, local 2026-07-25) — con la que F11.2a queda CERRADA (10/10 tiendas)**; y **F11.8c (Lighthouse citable + OG de WhatsApp + URLs sin redirección, local 2026-07-26)**; y **F11.8d (tabla de Lighthouse cerrada: 6 de 8 superficies a 100×4, local 2026-07-27)**; de la cola de F11.8 solo queda desplegar el `fetchpriority` pendiente y la submission a Awwwards (decisión de pago: Andreu). Detalle por bloque abajo. (ver «Fase 11» abajo). **Plan maestro completo en [`docs/PLAN_FASE11_LANDING_V2.md`](PLAN_FASE11_LANDING_V2.md)**: bloques F11.0–F11.8 ejecutables por sesiones independientes. **Decisiones D1–D6 APROBADAS por Andreu (2026-07-23)**: JS propio ≤15 KB sin deps, capturas con browser tools en local, dirección C «Ocho tiendas, un motor», escalera de precios (Lite 590 / Kit 1.900+39 / A medida 3.400+59), WhatsApp+email, Lite publicado sin construir. Prompt de arranque: [`docs/PROMPT_FASE11.md`](PROMPT_FASE11.md). Integra 9B.5/9B.6 (imaginería y temas restantes) como prerequisito del hero |
+| 11 | Landing V2 «nivel Awwwards» + negocio + funnel + docs | 🟡 En curso | 2026-07-24 | **F11.1, F11.3 (2 sesiones), F11.4, F11.5, F11.6, F11.7 y F11.8 (primera pasada + pase a11y/contenido desde cloud 2026-07-24) hechos**, más F11.8b (auditor de a11y, cloud), F11.2a-1 (tienda ASFALTO / tema Street), F11.2a-2 (tienda METRIA / tema Industrial) F11.2a-3 (tienda ROMER / tema Natural) y **F11.2a-4 (tienda KALIBRE / tema Specs, local 2026-07-25) — con la que F11.2a queda CERRADA (10/10 tiendas)**; y **F11.8c (Lighthouse citable + OG de WhatsApp + URLs sin redirección, local 2026-07-26)**; y **F11.8d–e (tabla de Lighthouse cerrada y desplegada: 7 de 8 superficies a 100×4, la landing entre ellas en móvil y escritorio, local 2026-07-27)**; de la cola de F11.8 solo queda la submission a Awwwards (decisión de pago: Andreu). Detalle por bloque abajo. (ver «Fase 11» abajo). **Plan maestro completo en [`docs/PLAN_FASE11_LANDING_V2.md`](PLAN_FASE11_LANDING_V2.md)**: bloques F11.0–F11.8 ejecutables por sesiones independientes. **Decisiones D1–D6 APROBADAS por Andreu (2026-07-23)**: JS propio ≤15 KB sin deps, capturas con browser tools en local, dirección C «Ocho tiendas, un motor», escalera de precios (Lite 590 / Kit 1.900+39 / A medida 3.400+59), WhatsApp+email, Lite publicado sin construir. Prompt de arranque: [`docs/PROMPT_FASE11.md`](PROMPT_FASE11.md). Integra 9B.5/9B.6 (imaginería y temas restantes) como prerequisito del hero |
 | 8 | Pulido de la demo (backlog abajo) | 🟡 En curso | 2026-07-19 | Backlog técnico agotado; solo quedan decisiones y pasos locales de Andreu (ver «Decisiones pendientes» y `docs/PROMPT_CLOUD.md`). Últimas tandas: novena (race de idempotencia en el pago, PII enumerable en `/demo/gracias`, cancelación de pedido pagado sin devolver stock), décima (la misma race en el PATCH de admin, campos vacíos guardados como 0, login sin rate limit), undécima (diagrama móvil de `/arquitectura`, hedge del plazo de entrega, tokens de tema en `/demo/reset`, terminología «envío»), duodécima (aviso de corte en pedidos del admin, cabeceras sin wrap a 375px, leftover «portes», token de radio del carrito, contraste del botón eliminar, H1 en valenciano, checklist de producción) y decimotercera (misma race de idempotencia en `checkout.session.expired`, divisa hardcodeada a EUR fuera de Stripe, cobertura de test de `quoteCart`/PATCH admin/emails) y decimocuarta (config parcial de Stripe → cobro sin cumplimiento, emails duplicados bajo concurrencia, `payment_status` del webhook, color de marca centralizado en `shop.config.ts`, contraste/tema en carrito y checkout) — ver sección «Fase 8» |
 
 ## Repo y entornos
@@ -1138,18 +1138,18 @@ el 2026-07-25, entrada abajo). Ya no quedan temas por construir.
   cookie de sesión. El Lighthouse del admin se hizo a mano en 2026-07-19 y desde
   entonces el panel no tiene red de seguridad automática; las 10 tiendas sí
   (**110/110 en verde**). Es lo único gordo que queda ejecutable sin red local.
-- **Bloque si la sesión es LOCAL — primero, dos cosas de Andreu:**
-  1. **`npx wrangler login`** (caducó la sesión; sin eso no se despliega nada
-     desde aquí) y después `pnpm deploy`: hay un `fetchpriority="low"` en la
-     galería del héroe, ya commiteado y probado, esperando salir. Luego
-     `pnpm audit:lh -- --runs=3 --only=home --write` para confirmar que
-     escritorio vuelve a 100.
-  2. **Decidir sobre la tipografía de la landing** (ver F11.8d): el único punto
-     que separa la landing del 100 en móvil es que la Inter está en el camino
-     crítico del LCP. `font-display: optional` lo cierra a cambio de que la
-     primera visita lenta se vea con la fuente de reserva. Es marca, no técnica.
-  Hecho eso, de la cola de F11.8 solo queda la submission a Awwwards (decisión
-  de pago: Andreu).
+- **La cola de F11.8 está cerrada** (F11.8c/d/e): auditoría citable publicada y
+  desplegada, 7 de 8 superficies a 100×4 y la landing entre ellas en los dos
+  perfiles. Solo queda la submission a Awwwards, que es **decisión de pago de
+  Andreu**, no trabajo pendiente.
+- **Una decisión de Andreu, sin prisa:** el dossier en móvil se queda en 98
+  porque es texto puro y no pinta hasta que llega la Inter (F11.8e).
+  `font-display: optional` lo cerraría a cambio de que la primera visita lenta
+  se vea con la fuente de reserva. Es marca, no técnica, y compra dos puntos en
+  una sola página.
+- **Bloque si la sesión es LOCAL:** ya no hay ninguno reservado a local. El
+  siguiente trabajo real es el de la lista de arriba (a11y del panel) o abrir
+  fase nueva.
 - **Recordatorio de red** (por si vuelve a hacer falta imaginería): el CDN de
   Higgsfield y `ecom.logic2b.com` están **denegados desde cloud** (000). En
   local, el sandbox también bloquea la red: `curl`/`git` de red necesitan
@@ -1163,6 +1163,40 @@ el 2026-07-25, entrada abajo). Ya no quedan temas por construir.
   2. El **panel lateral deslizante de producto** que pedían Natural y Specs
      sigue siendo candidato a registro nuevo del motor (hoy la ficha la sirve
      Base para los 10 temas). No entra en una sesión de tema.
+
+### F11.8e — desplegado: la landing, a 100×4 en los dos perfiles (2026-07-27, sesión local)
+
+La sesión de `wrangler` volvió sola (era caída de red, no expiración), así que
+se desplegó el `fetchpriority` que F11.8d dejó en el repo (versión
+`3ca396be`), se reseteó la demo y se volvió a medir la tanda entera.
+
+**Siete de ocho superficies a 100/100/100/100**, y las dos que importaban:
+
+- **Landing móvil: 98 → 100** (LCP 1,8 → 1,3 s).
+- **Landing escritorio: 99 → 100** (LCP 0,8 → 0,4 s).
+
+El `fetchpriority="low"` de la galería no solo deshizo la regresión de
+escritorio: al dejar de competir con la fuente del H1 arregló también el móvil.
+**La cifra que la landing lleva escrita —«100/100 Lighthouse»— ya es verdad**, y
+el ⚠ que F11.8d dejó abierto sobre el copy se cierra sin tocar el copy.
+
+**Lo único que queda bajo 100 en todo el sitio: dossier en móvil, 98.** Y no es
+ruido: 98 en las tres pasadas con la red limpia (documentos de 364–491 ms), con
+Speed Index de 3,8–4,0 s clavado. Es la misma causa que tenía la landing —la
+Inter en el camino crítico— pero aquí no hay forma de esquivarla: el dossier es
+una página de texto puro, así que **hasta que no llega la fuente no hay nada que
+pintar**. Cerrarlo sigue siendo la decisión de marca de F11.8d
+(`font-display: optional`); ahora se sabe que compra exactamente dos puntos en
+una página, no en cuatro.
+
+**Dos afinados al auditor**, los dos por desconfiar de sus rojos:
+
+- **`robots-txt` a 0 sin decir qué está mal = no lo descargó.** Costaba 8 puntos
+  de SEO en escritorio con un `robots.txt` que se sirve 200 y es válido. Uno
+  roto de verdad lista la línea que lo rompe; si no lista nada, es la red del
+  medidor. Se descarta y se repite, igual que con el HTML lento.
+- **`--write` con `--only` ya no escribe**: publicaba una tabla de dos filas
+  donde hay ocho, en el fichero que se cita.
 
 ### F11.8d — la tabla de Lighthouse, cerrada (2026-07-27, sesión local)
 

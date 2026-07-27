@@ -78,6 +78,13 @@ function runOnce(page, form, i, attempts = 3) {
       console.log(`   ↻ el documento tardó ${(res.docMs / 1000).toFixed(1)} s en llegar: red del medidor, se repite`);
       return runOnce(page, form, i, attempts - 1);
     }
+    // Un `robots-txt` a 0 SIN hallazgos que enseñar significa que Lighthouse no
+    // llegó a descargarlo — otra vez la red del medidor, no un robots roto (uno
+    // roto de verdad lista qué línea lo está). Cuesta 8 puntos de SEO.
+    if (res.robotsUnfetched && attempts > 1) {
+      console.log('   ↻ no pudo descargar robots.txt (y no señala ningún error en él): red del medidor, se repite');
+      return runOnce(page, form, i, attempts - 1);
+    }
     return res;
   } catch (err) {
     if (attempts <= 1) throw err;
@@ -106,8 +113,10 @@ function lighthouse(page, form, base) {
   // Con varios `--output`, Lighthouse añade su propia extensión al path dado.
   const r = JSON.parse(readFileSync(`${base}.report.json`, 'utf8'));
   const doc = r.audits['network-requests'].details.items.find((x) => x.resourceType === 'Document');
+  const robots = r.audits['robots-txt'];
   return {
     docMs: doc ? doc.networkEndTime : 0,
+    robotsUnfetched: robots?.score === 0 && !(robots.details?.items?.length > 0),
     scores: Object.fromEntries(CATS.map(([k]) => [k, Math.round(r.categories[k].score * 100)])),
     lcp: r.audits['largest-contentful-paint'].numericValue,
     cls: r.audits['cumulative-layout-shift'].numericValue,
@@ -159,7 +168,13 @@ for (const page of PAGES) {
   }
 }
 
-if (WRITE) {
+// `--write` con `--only` publicaría una tabla con dos filas donde hay ocho, y
+// el fichero es el que se cita: mejor no escribir nada que escribir de menos.
+if (WRITE && ONLY) {
+  console.log('\n⚠ --write ignorado: con --only la tabla saldría incompleta. Lanza la tanda entera para publicar.');
+}
+
+if (WRITE && !ONLY) {
   const stamp = new Date().toISOString().slice(0, 10);
   const md = [
     '# Lighthouse — páginas indexables',
