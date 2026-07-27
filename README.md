@@ -65,7 +65,7 @@ Chrome del sistema por CDP o llaman a binarios que ya están (`cwebp`, `dwebp`,
 | Comando | Para qué | Cuándo se re-ejecuta |
 |---|---|---|
 | `pnpm audit:lh` | Lighthouse de las 4 páginas indexables × móvil/escritorio, **mediana de 3 pasadas**. Escribe [`docs/LIGHTHOUSE.md`](docs/LIGHTHOUSE.md) con `--write` | Tras cada deploy que toque `/`, `/arquitectura`, `/estilos` o `/dossier` |
-| `node scripts/a11y-audit.mjs` | 14 reglas WCAG 2.2 AA sobre las superficies de tienda (10 tiendas × catálogo/ficha/carrito/checkout × 1440/375/oscuro/reduced-motion) | Tras tocar cualquier tema; `--only=<id>` para una tienda |
+| `node scripts/a11y-audit.mjs` | 14 reglas WCAG 2.2 AA sobre **124 superficies**: las 10 tiendas (catálogo/ficha/carrito/checkout × 1440/375/oscuro/reduced-motion) y las 7 pantallas del panel × 1440/375, entrando con el login real | Tras tocar cualquier tema o el panel; `--only=<id>` para una tienda, `--only=admin` para el backoffice |
 | `node scripts/capture-screens.mjs` | Capturas de la landing y `/estilos`, en WebP y en los dos anchos (`-560`/`-900`) que la galería sirve por `srcset` | Al añadir o rediseñar una tienda |
 | `node scripts/make-og.mjs` | La tarjeta que se ve al compartir el enlace (`public/images/og.jpg`) | Al cambiar marca o posicionamiento — **y subiendo el `?v=N` de `Base.astro`**, o WhatsApp seguirá enseñando la vieja |
 

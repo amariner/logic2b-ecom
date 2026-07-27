@@ -29,10 +29,13 @@
 4. **Ejecutar** — desarrollo del bloque, respetando CLAUDE.md §2 y §14.
 5. **Testear** — `pnpm check` (tests+tipos+build) siempre; `pnpm test:e2e`
    contra `pnpm preview` si se tocó compra/admin; `node scripts/a11y-audit.mjs`
-   si se tocó una tienda; `pnpm audit:lh` **contra producción, después de
-   desplegar**, si se tocó `/`, `/arquitectura`, `/estilos` o `/dossier`;
+   si se tocó una tienda o el panel; `pnpm audit:lh` **contra producción, después
+   de desplegar**, si se tocó `/`, `/arquitectura`, `/estilos` o `/dossier`;
    verificación en navegador si se tocó UI. Nota: el check de rate-limit del
-   e2e solo es fiable en local (en producción el contador es por isolate).
+   e2e solo es fiable en local (en producción el contador es por isolate), y
+   **deja la ventana del login cerrada durante 60 s**: si el a11y del panel va
+   detrás, avisa y reintenta solo. Un único servidor local: `astro dev` y
+   `wrangler dev` a la vez se pelean por la D1 y el segundo se cuelga.
 6. **Documentar** — actualizar `docs/ROADMAP.md`: estado del bloque con fecha y
    resumen, y **reescribir la sección «Próxima sesión»** para que el siguiente
    chat sepa qué toca sin pensar.

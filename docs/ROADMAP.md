@@ -1132,12 +1132,18 @@ esta sección y sube a `main`.
 **F11.2a está CERRADA**: las 10 tiendas del escaparate están vivas (Specs cerró
 el 2026-07-25, entrada abajo). Ya no quedan temas por construir.
 
-- **Bloque si la sesión es CLOUD:** **pasar el auditor de a11y por las
-  superficies de panel** (`/demo/admin`, detalle de pedido, productos, envíos,
-  emails, login), añadiéndolas a `SURFACES` de `scripts/a11y-audit.mjs` con
-  cookie de sesión. El Lighthouse del admin se hizo a mano en 2026-07-19 y desde
-  entonces el panel no tiene red de seguridad automática; las 10 tiendas sí
-  (**110/110 en verde**). Es lo único gordo que queda ejecutable sin red local.
+- **El panel ya tiene red de seguridad** (F11.9, entrada abajo): el auditor
+  cubre **124 superficies** —las 110 de tienda más 14 del panel— y las 124 están
+  en verde. Ya no queda ningún bloque grande pendiente de a11y.
+- **Candidatos para la siguiente sesión** (ninguno reservado a local ni a cloud,
+  elige el primero que quepa):
+  1. **Pasar el auditor por la landing y las páginas comerciales** (`/`,
+     `/arquitectura`, `/estilos`, `/dossier`, `/ayuda`, `/demo/gracias`,
+     `/demo/reset`, `404`). Es lo que queda sin cubrir: hoy solo las miden
+     Lighthouse (que da 100 de a11y, pero con muchas menos reglas) y el ojo.
+     Mismo patrón que F11.9, sin login de por medio.
+  2. **Mirar a ojo Street en modo oscuro** (`--color-surface-sunken`, punto 1 de
+     la lista de Specs de abajo): el auditor no lo ve porque solo mide texto.
 - **La cola de F11.8 está cerrada** (F11.8c/d/e): auditoría citable publicada y
   desplegada, 7 de 8 superficies a 100×4 y la landing entre ellas en los dos
   perfiles. Solo queda la submission a Awwwards, que es **decisión de pago de
@@ -1147,9 +1153,6 @@ el 2026-07-25, entrada abajo). Ya no quedan temas por construir.
   `font-display: optional` lo cerraría a cambio de que la primera visita lenta
   se vea con la fuente de reserva. Es marca, no técnica, y compra dos puntos en
   una sola página.
-- **Bloque si la sesión es LOCAL:** ya no hay ninguno reservado a local. El
-  siguiente trabajo real es el de la lista de arriba (a11y del panel) o abrir
-  fase nueva.
 - **Recordatorio de red** (por si vuelve a hacer falta imaginería): el CDN de
   Higgsfield y `ecom.logic2b.com` están **denegados desde cloud** (000). En
   local, el sandbox también bloquea la red: `curl`/`git` de red necesitan
@@ -1163,6 +1166,69 @@ el 2026-07-25, entrada abajo). Ya no quedan temas por construir.
   2. El **panel lateral deslizante de producto** que pedían Natural y Specs
      sigue siendo candidato a registro nuevo del motor (hoy la ficha la sirve
      Base para los 10 temas). No entra en una sesión de tema.
+
+### F11.9 — el panel entra en el auditor de a11y, y el auditor aprende a leer colores (2026-07-27, sesión local)
+
+Bloque previsto en «Próxima sesión»: meter las pantallas del backoffice en
+`scripts/a11y-audit.mjs`, que hasta ahora solo barría tiendas. Se añaden **14
+superficies** (login, pedidos, detalle de pedido pagado, detalle de pedido
+enviado, productos, envíos, emails × 1440/375), y el barrido pasa de 110 a
+**124 superficies, todas en verde**.
+
+Dos decisiones de diseño del auditor, las dos por no repetir errores ya pagados:
+
+- **El panel entra con el POST real del login**, no sembrando la cookie a mano:
+  así el propio login queda probado de paso. Se entra una vez por tanda.
+- **Los ids de pedido se resuelven en vivo por estado**, nunca se fijan. La D1
+  local acumula los pedidos que deja el E2E, así que un id hardcodeado audita
+  hoy un pedido pagado y mañana uno cancelado — otra pantalla, con el ✓ igual de
+  verde. Se piden por estado porque cada uno tiene su interfaz: `paid` es el que
+  enseña el formulario de envío (`#carrier` + `#tracking`) y `shipped` el que
+  trae tracking y timeline.
+
+**El hallazgo gordo no estaba en el panel, estaba en el auditor.** La primera
+pasada dio 14 errores, todos «ratio 1.00:1, blanco sobre blanco» — sobre un
+botón que en pantalla es negro. Causa: **Chrome NO normaliza a `rgb()` en
+`getComputedStyle`**. Un color escrito en `oklch()` —toda la paleta de Tailwind
+v4 y los tokens de Logic2B UI— sale tal cual (`oklch(0.216 0.006 56.043)`), la
+regex de `rgba?()` devolvía `null`, `effectiveBg` seguía subiendo por los
+ancestros y acababa en el blanco de reserva.
+
+Eso no era solo ruido: en un sentido daba **falsos positivos** (texto blanco
+sobre fondo oscuro → «1.00:1»), y en el otro **falsos negativos** — texto
+oscuro sobre fondo oscuro se medía contra blanco y **pasaba**. El auditor
+llevaba desde F11.8b midiendo con ese punto ciego.
+
+Arreglado sin dependencia nueva y sin reimplementar la matemática de OKLab: se
+pinta el color en un canvas de 1×1 y se lee el píxel, que es la conversión del
+propio navegador. Vale para `oklch`, `lab`, `color()` y `color-mix`. Se conserva
+la vía rápida de `rgba()` para no premultiplicar alfa, y `parseColor` ahora
+devuelve `null` **menos** veces que antes, así que no introduce saltos silenciosos.
+Re-barridas las 110 superficies de tienda con el parser arreglado: **siguen en
+verde**, ninguna escondía un fallo detrás del punto ciego.
+
+Lo que sí estaba roto en el panel, una vez el auditor supo medir:
+
+- **El separador «·» de la bandeja de emails** en `text-stone-400`: 2,59:1 sobre
+  blanco. Pasa a `text-stone-500` (**4,79:1**) y además `aria-hidden`, que es lo
+  que es — decoración entre tres enlaces, no contenido que un lector deba cantar.
+- **`aria-current` ausente en las dos navegaciones del panel**: la de secciones
+  (`Admin.astro`) y la de filtros por estado (`index.astro`). 10 avisos.
+
+**Un tercer arreglo, este de robustez:** el E2E termina probando el rate limit
+del login con 11 intentos fallidos, así que encadenar `pnpm test:e2e` y esta
+tanda dejaba 12 rojos de «no se pudo entrar al panel» que no eran del panel. El
+auditor ahora distingue el `?limited=1`, lo dice, espera los 65 s de la ventana
+y reintenta una vez. Verificado a propósito disparando el límite a mano.
+
+**Verificado:** 124/124 superficies en verde (astro dev y build de wrangler),
+`pnpm check` (148 tests, 0 errores de tipos), E2E completo (27 checks) y
+revisión en navegador del panel a 1440 y 375.
+
+**Gotcha de entorno, para la próxima:** no levantar `astro dev` y `wrangler dev`
+a la vez contra la misma D1 local. Se pelean por el sqlite y el segundo acaba
+**colgado sirviendo 000 incluso en rutas estáticas** — parece un fallo de
+código y es contención. Un servidor, y a los scripts se les pasa `BASE_URL`.
 
 ### F11.8e — desplegado: la landing, a 100×4 en los dos perfiles (2026-07-27, sesión local)
 

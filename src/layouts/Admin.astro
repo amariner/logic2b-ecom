@@ -41,6 +41,7 @@ const nav = [
           {nav.map((item) => (
             <a
               href={item.href}
+              aria-current={active === item.id ? 'page' : undefined}
               class:list={[
                 'shrink-0 rounded px-3 py-1.5',
                 active === item.id ? 'bg-stone-900 text-white' : 'text-stone-600 hover:bg-stone-100',

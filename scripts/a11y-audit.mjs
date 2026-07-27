@@ -1,6 +1,6 @@
 /**
- * Auditor de accesibilidad de las superficies de tienda — Chrome headless vía
- * CDP, SIN dependencias nuevas.
+ * Auditor de accesibilidad de las superficies de tienda Y del panel — Chrome
+ * headless vía CDP, SIN dependencias nuevas.
  * ============================================================================
  *
  * Mismo motor que `scripts/capture-screens.mjs` (WebSocket global de Node +
@@ -13,10 +13,19 @@
  * conocido), nombre accesible, jerarquía, área táctil, overflow a 375 y
  * reduced-motion.
  *
+ * Cubre 124 superficies: las 10 tiendas (catálogo/ficha/carrito/checkout ×
+ * 1440/375/oscuro/reduced-motion) y las 7 pantallas del panel × 1440/375. El
+ * panel entra con el POST real del login y la cookie de sesión; sus ids de
+ * pedido se resuelven en vivo por estado, nunca se fijan a mano.
+ *
  * USO:
  *   1. pnpm db:reset && pnpm build
  *   2. npx wrangler dev --port 8787          (en otra terminal)
  *   3. node scripts/a11y-audit.mjs           [--only=<substr>] [--json]
+ *
+ * NO levantes dos servidores (astro dev + wrangler) contra la misma D1 local:
+ * se pelean por el sqlite y el segundo acaba colgado sirviendo 000. Usa uno y
+ * apúntale con BASE_URL.
  *
  * OJO con el puerto: si el servidor lo arrancaron las browser tools desde
  * `.claude/launch.json` NO está en 8787 (`wrangler-preview` usa 8788 y
@@ -88,7 +97,55 @@ const ACTIVATE_CTA = `(async () => {
   return 'sigue-deshabilitado';
 })()`;
 
-/** @typedef {{name:string,url:string,vp:object,dark?:boolean,reducedMotion?:boolean,storage?:{key:string,value:string},eval?:string,expect?:string}} Surface */
+// ── Panel de administración ────────────────────────────────────────────────
+// El panel vive tras la cookie de sesión firmada, así que la tanda entra UNA
+// vez (`auth`) y la cookie viaja sola en el resto de navegaciones del mismo
+// perfil de Chrome. Se hace con el POST real del formulario, no sembrando la
+// cookie a mano: así el propio login queda probado de paso.
+const ADMIN_LOGIN = String.raw`(async () => {
+  const r = await fetch('/demo/admin/login', {
+    method: 'POST',
+    body: new URLSearchParams({ password: 'demo' }),
+    credentials: 'same-origin',
+  });
+  const u = new URL(r.url);
+  if (u.pathname.startsWith('/demo/admin') && !u.pathname.includes('/login')) return 'ok';
+  // El E2E termina probando el rate limit del login con 11 intentos fallidos:
+  // si la tanda de a11y va detrás, la ventana de 60 s sigue abierta y el POST
+  // acaba en el login con ?limited=1. No es un fallo del panel, es la cola del
+  // test anterior — se distingue para poder reintentar en vez de dar 12 rojos.
+  if (u.searchParams.has('limited')) return 'limitado';
+  return 'fallo ' + r.status + ' → ' + u.pathname + u.search;
+})()`;
+
+/**
+ * Resuelve en vivo el primer pedido en un estado dado. Los ids NO se fijan a
+ * mano: la D1 local acumula los pedidos que dejan los E2E, así que un id
+ * hardcodeado audita hoy un pedido pagado y mañana uno cancelado — otra
+ * pantalla, con el ✓ igual de verde. Se pide por estado porque cada uno tiene
+ * su interfaz: `paid` es el que enseña el formulario de envío y `shipped` el
+ * que trae tracking y timeline completo.
+ */
+const FIRST_ORDER_OF = (estado) => String.raw`(async () => {
+  const r = await fetch('/demo/admin?estado=${estado}', { credentials: 'same-origin' });
+  if (!r.ok) return 'ERROR: el listado respondió ' + r.status;
+  const m = (await r.text()).match(/\/demo\/admin\/pedidos\/\d+/);
+  return m ? m[0] : 'ERROR: no hay ningún pedido en estado ${estado}';
+})()`;
+
+// El panel no tiene modo oscuro a propósito (registro sobrio, cero `dark:` en
+// sus plantillas), así que no se audita: emular oscuro no cambiaría un píxel.
+const ADMIN_PAGES = [
+  { id: 'login', url: '/demo/admin/login', anon: true },
+  { id: 'pedidos', url: '/demo/admin' },
+  { id: 'pedido-pagado', resolve: FIRST_ORDER_OF('paid') },
+  { id: 'pedido-enviado', resolve: FIRST_ORDER_OF('shipped') },
+  { id: 'productos', url: '/demo/admin/productos' },
+  { id: 'envios', url: '/demo/admin/envios' },
+  { id: 'emails', url: '/demo/admin/emails' },
+];
+
+/** @typedef {{name:string,url?:string,vp:object,dark?:boolean,reducedMotion?:boolean,storage?:{key:string,value:string},eval?:string,expect?:string,auth?:boolean,resolve?:string}} Surface */
 
 /** @type {Surface[]} */
 const SURFACES = [];
@@ -108,6 +165,12 @@ for (const s of STORES) {
   SURFACES.push({ name: `${s.id}:carrito@activo`, url: cartUrl, vp: DESKTOP, storage: cartSeed, eval: ACTIVATE_CTA, expect: 'activo' });
   SURFACES.push({ name: `${s.id}:checkout`, url: checkoutUrl, vp: DESKTOP, storage: cartSeed });
   SURFACES.push({ name: `${s.id}:catalogo@motion`, url: s.prefix, vp: DESKTOP, reducedMotion: true });
+}
+
+for (const p of ADMIN_PAGES) {
+  const base = { url: p.url, resolve: p.resolve, auth: !p.anon };
+  SURFACES.push({ ...base, name: `admin:${p.id}`, vp: DESKTOP });
+  SURFACES.push({ ...base, name: `admin:${p.id}@375`, vp: MOBILE });
 }
 
 // ─────────────────────────────────────────────────────────────────────────
@@ -146,11 +209,51 @@ const AUDIT_JS = String.raw`(() => {
   }
 
   // ── Color ────────────────────────────────────────────────────────────────
+  // OJO: Chrome NO normaliza a rgb() en getComputedStyle. Un color escrito en
+  // oklch() —toda la paleta de Tailwind v4 y los tokens de Logic2B UI— sale de
+  // getComputedStyle tal cual: 'oklch(0.216 0.006 56.043)'. Con solo la regex
+  // de rgba() eso devolvía null, effectiveBg seguía subiendo por los ancestros
+  // y acababa en el blanco de reserva: el panel entero medía "blanco sobre
+  // blanco, 1.00:1" teniendo botones negros. Falso positivo en un sentido y,
+  // peor, falso NEGATIVO en el otro (texto oscuro sobre fondo oscuro se medía
+  // contra blanco y pasaba).
+  //
+  // La conversión la hace el propio navegador: se pinta el color en un canvas
+  // de 1×1 y se lee el píxel. Vale para cualquier sintaxis que Chrome entienda
+  // (oklch, lab, color(), color-mix) sin añadir dependencia y sin reimplementar
+  // la matemática de OKLab.
+  const canvasCtx = document.createElement('canvas').getContext('2d', { willReadFrequently: true });
+  const colorCache = new Map();
+  function viaCanvas(str) {
+    if (colorCache.has(str)) return colorCache.get(str);
+    let out = null;
+    try {
+      canvasCtx.clearRect(0, 0, 1, 1);
+      // Sembrar un color válido conocido: si el navegador no entiende la
+      // cadena, el setter la ignora en silencio y leeríamos el color anterior.
+      canvasCtx.fillStyle = '#000000';
+      canvasCtx.fillStyle = str;
+      if (canvasCtx.fillStyle !== '#000000' || /^(#000000|black|rgb\(0,? ?0,? ?0\))$/i.test(str.trim())) {
+        canvasCtx.fillRect(0, 0, 1, 1);
+        const d = canvasCtx.getImageData(0, 0, 1, 1).data;
+        out = { r: d[0], g: d[1], b: d[2], a: d[3] / 255 };
+      }
+    } catch (e) { out = null; }
+    colorCache.set(str, out);
+    return out;
+  }
   function parseColor(str) {
-    const m = str && str.match(/rgba?\(([^)]+)\)/);
-    if (!m) return null;
-    const p = m[1].split(/[\s,\/]+/).filter(Boolean).map(Number);
-    return { r: p[0], g: p[1], b: p[2], a: p.length > 3 ? p[3] : 1 };
+    if (!str) return null;
+    // Vía rápida para la sintaxis legacy: exacta y sin premultiplicar alfa.
+    const m = str.match(/^rgba?\(([^)]+)\)$/);
+    if (m) {
+      const p = m[1].split(/[\s,\/]+/).filter(Boolean).map(Number);
+      if (p.length >= 3 && p.every(Number.isFinite)) {
+        return { r: p[0], g: p[1], b: p[2], a: p.length > 3 ? p[3] : 1 };
+      }
+    }
+    if (str === 'transparent') return { r: 0, g: 0, b: 0, a: 0 };
+    return viaCanvas(str);
   }
   const over = (fg, bg) => ({
     r: fg.r * fg.a + bg.r * (1 - fg.a),
@@ -521,6 +624,29 @@ async function main() {
   const report = [];
   let errors = 0;
   let warns = 0;
+  let loggedIn = false;
+
+  /** Entra al panel una sola vez por tanda; devuelve el motivo si no lo logra. */
+  const ensureLogin = async () => {
+    if (loggedIn) return null;
+    const attempt = async () => {
+      await S('Page.navigate', { url: `${BASE}/demo/admin/login` });
+      await new Promise((r) => globalThis.setTimeout(r, 900));
+      const res = await S('Runtime.evaluate', { expression: ADMIN_LOGIN, awaitPromise: true, returnByValue: true });
+      return String(res.result.value ?? res.exceptionDetails?.text);
+    };
+    let value = await attempt();
+    if (value === 'limitado') {
+      // Un solo reintento tras la ventana de 60 s: suficiente para encadenar
+      // `pnpm test:e2e` y esta tanda sin repetirla a mano.
+      console.log('· login limitado por el rate limit (cola del E2E): esperando 65 s y reintentando…');
+      await new Promise((r) => globalThis.setTimeout(r, 65_000));
+      value = await attempt();
+    }
+    if (value !== 'ok') return value;
+    loggedIn = true;
+    return null;
+  };
 
   for (const surface of surfaces) {
     await S('Emulation.setDeviceMetricsOverride', {
@@ -559,7 +685,29 @@ async function main() {
       }
     }
 
-    await S('Page.navigate', { url: BASE + surface.url });
+    if (surface.auth) {
+      const fail = await ensureLogin();
+      if (fail) {
+        console.error(`✗ ${surface.name} — no se pudo entrar al panel (${fail})`);
+        errors++;
+        continue;
+      }
+    }
+
+    let url = surface.url;
+    if (surface.resolve) {
+      // La resolución va DESPUÉS del login: el listado del que sale el id
+      // también está protegido.
+      const res = await S('Runtime.evaluate', { expression: surface.resolve, awaitPromise: true, returnByValue: true });
+      url = res.result.value ?? res.exceptionDetails?.text;
+      if (typeof url !== 'string' || !url.startsWith('/')) {
+        console.error(`✗ ${surface.name} — no se pudo resolver la URL (${url})`);
+        errors++;
+        continue;
+      }
+    }
+
+    await S('Page.navigate', { url: BASE + url });
     await new Promise((r) => globalThis.setTimeout(r, 900));
     await S('Runtime.evaluate', { expression: SETTLE_JS, awaitPromise: true });
 
@@ -585,7 +733,7 @@ async function main() {
     const w = findings.length - e;
     errors += e;
     warns += w;
-    report.push({ surface: surface.name, url: surface.url, findings });
+    report.push({ surface: surface.name, url, findings });
 
     if (!AS_JSON) {
       const mark = e ? '✗' : w ? '·' : '✓';

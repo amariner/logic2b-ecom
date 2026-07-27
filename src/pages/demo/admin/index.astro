@@ -66,11 +66,11 @@ const statusBadge: Record<string, string> = {
   </div>
 
   <nav class="mt-4 flex flex-wrap gap-2 text-sm" aria-label="Filtro por estado">
-    <a href="/demo/admin" class:list={['rounded-full border px-3 py-1', !status ? 'border-stone-900 bg-stone-900 text-white' : 'border-stone-300 bg-white hover:border-stone-500']}>
+    <a href="/demo/admin" aria-current={!status ? 'page' : undefined} class:list={['rounded-full border px-3 py-1', !status ? 'border-stone-900 bg-stone-900 text-white' : 'border-stone-300 bg-white hover:border-stone-500']}>
       Todos ({counts.reduce((sum, c) => sum + c.n, 0)})
     </a>
     {ORDER_STATUSES.map((st) => (
-      <a href={`/demo/admin?estado=${st}`} class:list={['rounded-full border px-3 py-1', status === st ? 'border-stone-900 bg-stone-900 text-white' : 'border-stone-300 bg-white hover:border-stone-500']}>
+      <a href={`/demo/admin?estado=${st}`} aria-current={status === st ? 'page' : undefined} class:list={['rounded-full border px-3 py-1', status === st ? 'border-stone-900 bg-stone-900 text-white' : 'border-stone-300 bg-white hover:border-stone-500']}>
         {statusLabel[st]} ({countFor(st)})
       </a>
     ))}
