@@ -111,6 +111,11 @@
   plantilla (Industrial).
 - **Un comentario `{/* */}` como hermano dentro de `{cond && ( … )}`** también
   rompe el build (Street).
+- **Y un `{/* */}` DENTRO de la lista de atributos de un elemento** compila y
+  despliega tan tranquilo, pero revienta `astro check` con «Unterminated string
+  literal» **apuntando tres líneas más abajo**, al cierre del elemento. Los
+  comentarios de un atributo van encima de la etiqueta, nunca entre atributos
+  (F11.8d).
 - **`aspect-ratio` no manda sobre un flex item cuyo hijo lleva `height: 100%`**:
   el alto lo acaba fijando el contenido (una imagen 800×800) y la relación de
   aspecto no llega a aplicarse. La imagen va `position: absolute; inset: 0` para
@@ -129,6 +134,13 @@
       `scripts/a11y-audit.mjs`, `STORES`+`FICHAS` de `capture-screens.mjs` (y
       ejecutarlo: `/estilos` enseña la captura y sin ella sale rota),
       `SWITCHER_ORDER` (`Shop.astro`) y `galleryOrder` (`index.astro`).
+- [ ] **Las capturas de la galería del héroe van en dos anchos** (`-560` y
+      `-900`): las genera `capture-screens.mjs` sola con `card: true`, pero si
+      se añaden a mano hay que hacer las dos — la landing las sirve con
+      `srcset` y le falta una en cuanto se olvide (F11.8c).
+- [ ] `node scripts/lighthouse.mjs --runs=3 --only=home --write` si la tienda
+      entra en la galería del héroe: nueve capturas más pesan, y la landing es
+      la página que se cita.
 - [ ] Actualizar `docs/ROADMAP.md` (estado + resumen con fecha).
 - [ ] Commit en inglés, resumen breve y **parar para OK de Andreu**.
 

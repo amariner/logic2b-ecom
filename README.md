@@ -56,6 +56,25 @@ pnpm test:e2e    # BASE_URL=… para apuntar a otro despliegue con DEMO_MODE
 
 El panel de la demo (`/demo/admin`) pide login: contraseña `demo` (se muestra en la propia página de acceso).
 
+### Auditorías y assets generados
+
+Cuatro scripts de `scripts/`, **ninguno con dependencias npm**: conducen el
+Chrome del sistema por CDP o llaman a binarios que ya están (`cwebp`, `dwebp`,
+`sips`). Todos aceptan `BASE_URL=` para apuntar a otro servidor.
+
+| Comando | Para qué | Cuándo se re-ejecuta |
+|---|---|---|
+| `pnpm audit:lh` | Lighthouse de las 4 páginas indexables × móvil/escritorio, **mediana de 3 pasadas**. Escribe [`docs/LIGHTHOUSE.md`](docs/LIGHTHOUSE.md) con `--write` | Tras cada deploy que toque `/`, `/arquitectura`, `/estilos` o `/dossier` |
+| `node scripts/a11y-audit.mjs` | 14 reglas WCAG 2.2 AA sobre las superficies de tienda (10 tiendas × catálogo/ficha/carrito/checkout × 1440/375/oscuro/reduced-motion) | Tras tocar cualquier tema; `--only=<id>` para una tienda |
+| `node scripts/capture-screens.mjs` | Capturas de la landing y `/estilos`, en WebP y en los dos anchos (`-560`/`-900`) que la galería sirve por `srcset` | Al añadir o rediseñar una tienda |
+| `node scripts/make-og.mjs` | La tarjeta que se ve al compartir el enlace (`public/images/og.jpg`) | Al cambiar marca o posicionamiento — **y subiendo el `?v=N` de `Base.astro`**, o WhatsApp seguirá enseñando la vieja |
+
+Los dos auditores devuelven exit code 1 si algo falla, así que sirven en un
+pipeline. `audit:lh` descarta y repite sola las pasadas en las que la red del
+que mide se cae (un HTML que tarda 8 s da un 90 que no dice nada de la página);
+nunca descarta por nota baja. Los informes HTML quedan en `.lighthouse/`
+(ignorado por git).
+
 ### Probar el checkout Stripe end-to-end
 
 1. Claves **test** de Stripe en `.dev.vars` (`STRIPE_SECRET_KEY=sk_test_…`).
@@ -121,9 +140,13 @@ migrations/           # esquema D1
 src/lib/              # lógica pura (precios, portes, transiciones) — 100% testeada
 src/pages/            # landing (/), /arquitectura, /demo/* (noindex), /api/*
 src/worker.ts         # entry point del Worker: fetch de Astro + cron de reset
+src/collections/      # una tienda del escaparate = colección + tema, sin motor
 scripts/bootstrap.sh  # arranque local y aprovisionamiento Cloudflare (--remote)
+scripts/*.mjs         # auditores y generadores de assets (tabla de arriba)
 docs/CLIENTE.md       # manual de 1 página para el comercio
 docs/PRODUCCION.md    # checklist de demo → tienda de cliente real
+docs/LIGHTHOUSE.md    # notas de Lighthouse citables (las regenera el script)
+docs/CHECKLIST_TEMA.md # receta y gotchas ya pagados de una sesión de tema
 docs/ROADMAP.md       # estado del proyecto y decisiones
 ```
 

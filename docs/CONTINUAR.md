@@ -28,9 +28,11 @@
    qué se va a hacer y por qué.
 4. **Ejecutar** — desarrollo del bloque, respetando CLAUDE.md §2 y §14.
 5. **Testear** — `pnpm check` (tests+tipos+build) siempre; `pnpm test:e2e`
-   contra `pnpm preview` si se tocó compra/admin; verificación en navegador si
-   se tocó UI. Nota: el check de rate-limit del e2e solo es fiable en local
-   (en producción el contador es por isolate).
+   contra `pnpm preview` si se tocó compra/admin; `node scripts/a11y-audit.mjs`
+   si se tocó una tienda; `pnpm audit:lh` **contra producción, después de
+   desplegar**, si se tocó `/`, `/arquitectura`, `/estilos` o `/dossier`;
+   verificación en navegador si se tocó UI. Nota: el check de rate-limit del
+   e2e solo es fiable en local (en producción el contador es por isolate).
 6. **Documentar** — actualizar `docs/ROADMAP.md`: estado del bloque con fecha y
    resumen, y **reescribir la sección «Próxima sesión»** para que el siguiente
    chat sepa qué toca sin pensar.
@@ -53,6 +55,13 @@
 
    Sin ese reset, una tienda recién desplegada sale con el catálogo VACÍO hasta
    que pase el cron de 6 h: la D1 remota sigue con el seed anterior.
+
+   **Si `wrangler` contesta «es necesario CLOUDFLARE_API_TOKEN en un entorno no
+   interactivo», no falta un secreto: ha caducado la sesión OAuth.** Se arregla
+   con `npx wrangler login`, que abre navegador — **lo tiene que hacer Andreu**.
+   Mientras tanto la sesión puede seguir: se commitea igual y el bloque queda
+   con el despliegue pendiente anotado, pero **la documentación debe describir
+   lo que hay servido, no lo que hay en el repo** (pasó en F11.8d).
 
 ## Próxima sesión (mantener SIEMPRE al día — también existe en ROADMAP)
 
