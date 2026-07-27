@@ -181,6 +181,11 @@ if (WRITE) {
     'lenta con CPU 4× más lenta); escritorio usa el preset `desktop`. La',
     'emulación móvil es deliberadamente pesimista: es el suelo, no la media.',
     '',
+    'Esta tabla la reescribe el script en cada `--write`. **El porqué de cada',
+    'nota que no sea 100 vive en el ROADMAP** (entradas F11.8c y F11.8d), no',
+    'aquí: lo que se escriba a mano en este fichero se pierde en la siguiente',
+    'tanda.',
+    '',
   ].join('\n');
   writeFileSync(join(ROOT, 'docs/LIGHTHOUSE.md'), md);
   console.log('\n→ docs/LIGHTHOUSE.md actualizado');

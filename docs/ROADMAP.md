@@ -54,7 +54,7 @@ reconciliación se conserva abajo por contexto.
 | 9 | Catálogo de estilos (8 temas) | 🟡 En curso | 2026-07-21 | Arquitectura + `/estilos` + **temas 06 Minimal, 01 Editorial, 07 Launch y 04 Guide desarrollados** (5 listos con Base; registro de catálogo por tema generalizado). **Replanteada como Fase 9B** (ver abajo): de «una tienda, 8 pieles» a «8 tiendas, un motor» |
 | 9B | 8 tiendas distintas sobre un solo motor | 🟡 En curso | 2026-07-25 | **9B.0–9B.4 hechos.** Rutas por colección, selector/cookie eliminados, carrito namespaceado. **Las 10 tiendas vivas** (Forma Interior, Módulo Audio, Cafetal, Vector, Iris, ASFALTO, METRIA, ROMER, **KALIBRE** y La Botiga) con catálogo, tema e imaginería propios. **Fase 9B completa.** 148 tests. Ver «Fase 9B» |
 | 10 | Documentación para el cliente | 🟡 Casi completa | 2026-07-24 | **Ejecutada como F11.7** (ver Fase 11): `/ayuda` (noindex) con manual de 3 pasos + guías + runbook, acta de entrega e inventario de accesos en `docs/plantillas/`, dossier con «qué pasa si nos vamos», guion del vídeo. Pendiente: grabar el vídeo (Andreu) y confirmar las decisiones a/b/c asumidas |
-| 11 | Landing V2 «nivel Awwwards» + negocio + funnel + docs | 🟡 En curso | 2026-07-24 | **F11.1, F11.3 (2 sesiones), F11.4, F11.5, F11.6, F11.7 y F11.8 (primera pasada + pase a11y/contenido desde cloud 2026-07-24) hechos**, más F11.8b (auditor de a11y, cloud), F11.2a-1 (tienda ASFALTO / tema Street), F11.2a-2 (tienda METRIA / tema Industrial) F11.2a-3 (tienda ROMER / tema Natural) y **F11.2a-4 (tienda KALIBRE / tema Specs, local 2026-07-25) — con la que F11.2a queda CERRADA (10/10 tiendas)**; y **F11.8c (Lighthouse citable + OG de WhatsApp + URLs sin redirección, local 2026-07-26)**; de la cola de F11.8 solo queda repetir la tanda de Lighthouse con red estable y la submission a Awwwards (decisión de pago: Andreu). Detalle por bloque abajo. (ver «Fase 11» abajo). **Plan maestro completo en [`docs/PLAN_FASE11_LANDING_V2.md`](PLAN_FASE11_LANDING_V2.md)**: bloques F11.0–F11.8 ejecutables por sesiones independientes. **Decisiones D1–D6 APROBADAS por Andreu (2026-07-23)**: JS propio ≤15 KB sin deps, capturas con browser tools en local, dirección C «Ocho tiendas, un motor», escalera de precios (Lite 590 / Kit 1.900+39 / A medida 3.400+59), WhatsApp+email, Lite publicado sin construir. Prompt de arranque: [`docs/PROMPT_FASE11.md`](PROMPT_FASE11.md). Integra 9B.5/9B.6 (imaginería y temas restantes) como prerequisito del hero |
+| 11 | Landing V2 «nivel Awwwards» + negocio + funnel + docs | 🟡 En curso | 2026-07-24 | **F11.1, F11.3 (2 sesiones), F11.4, F11.5, F11.6, F11.7 y F11.8 (primera pasada + pase a11y/contenido desde cloud 2026-07-24) hechos**, más F11.8b (auditor de a11y, cloud), F11.2a-1 (tienda ASFALTO / tema Street), F11.2a-2 (tienda METRIA / tema Industrial) F11.2a-3 (tienda ROMER / tema Natural) y **F11.2a-4 (tienda KALIBRE / tema Specs, local 2026-07-25) — con la que F11.2a queda CERRADA (10/10 tiendas)**; y **F11.8c (Lighthouse citable + OG de WhatsApp + URLs sin redirección, local 2026-07-26)**; y **F11.8d (tabla de Lighthouse cerrada: 6 de 8 superficies a 100×4, local 2026-07-27)**; de la cola de F11.8 solo queda desplegar el `fetchpriority` pendiente y la submission a Awwwards (decisión de pago: Andreu). Detalle por bloque abajo. (ver «Fase 11» abajo). **Plan maestro completo en [`docs/PLAN_FASE11_LANDING_V2.md`](PLAN_FASE11_LANDING_V2.md)**: bloques F11.0–F11.8 ejecutables por sesiones independientes. **Decisiones D1–D6 APROBADAS por Andreu (2026-07-23)**: JS propio ≤15 KB sin deps, capturas con browser tools en local, dirección C «Ocho tiendas, un motor», escalera de precios (Lite 590 / Kit 1.900+39 / A medida 3.400+59), WhatsApp+email, Lite publicado sin construir. Prompt de arranque: [`docs/PROMPT_FASE11.md`](PROMPT_FASE11.md). Integra 9B.5/9B.6 (imaginería y temas restantes) como prerequisito del hero |
 | 8 | Pulido de la demo (backlog abajo) | 🟡 En curso | 2026-07-19 | Backlog técnico agotado; solo quedan decisiones y pasos locales de Andreu (ver «Decisiones pendientes» y `docs/PROMPT_CLOUD.md`). Últimas tandas: novena (race de idempotencia en el pago, PII enumerable en `/demo/gracias`, cancelación de pedido pagado sin devolver stock), décima (la misma race en el PATCH de admin, campos vacíos guardados como 0, login sin rate limit), undécima (diagrama móvil de `/arquitectura`, hedge del plazo de entrega, tokens de tema en `/demo/reset`, terminología «envío»), duodécima (aviso de corte en pedidos del admin, cabeceras sin wrap a 375px, leftover «portes», token de radio del carrito, contraste del botón eliminar, H1 en valenciano, checklist de producción) y decimotercera (misma race de idempotencia en `checkout.session.expired`, divisa hardcodeada a EUR fuera de Stripe, cobertura de test de `quoteCart`/PATCH admin/emails) y decimocuarta (config parcial de Stripe → cobro sin cumplimiento, emails duplicados bajo concurrencia, `payment_status` del webhook, color de marca centralizado en `shop.config.ts`, contraste/tema en carrito y checkout) — ver sección «Fase 8» |
 
 ## Repo y entornos
@@ -1138,14 +1138,18 @@ el 2026-07-25, entrada abajo). Ya no quedan temas por construir.
   cookie de sesión. El Lighthouse del admin se hizo a mano en 2026-07-19 y desde
   entonces el panel no tiene red de seguridad automática; las 10 tiendas sí
   (**110/110 en verde**). Es lo único gordo que queda ejecutable sin red local.
-- **Bloque si la sesión es LOCAL:** **repetir la tanda de Lighthouse con red
-  estable** (`pnpm audit:lh -- --runs=3 --write`) y publicar la tabla definitiva
-  en [`docs/LIGHTHOUSE.md`](LIGHTHOUSE.md). El 2026-07-26 se midió y se optimizó
-  (entrada F11.8c abajo), pero el enlace de casa se cayó a mitad —documentos de
-  8–24 s— y la mediana de la landing en móvil quedó sin cerrar: la única pasada
-  con red sana dio 100/100/100/100. Es media hora de reloj, sin escribir código.
-  Lo único que queda vivo de la cola de F11.8 es eso y la submission a Awwwards
-  (decisión de pago: Andreu).
+- **Bloque si la sesión es LOCAL — primero, dos cosas de Andreu:**
+  1. **`npx wrangler login`** (caducó la sesión; sin eso no se despliega nada
+     desde aquí) y después `pnpm deploy`: hay un `fetchpriority="low"` en la
+     galería del héroe, ya commiteado y probado, esperando salir. Luego
+     `pnpm audit:lh -- --runs=3 --only=home --write` para confirmar que
+     escritorio vuelve a 100.
+  2. **Decidir sobre la tipografía de la landing** (ver F11.8d): el único punto
+     que separa la landing del 100 en móvil es que la Inter está en el camino
+     crítico del LCP. `font-display: optional` lo cierra a cambio de que la
+     primera visita lenta se vea con la fuente de reserva. Es marca, no técnica.
+  Hecho eso, de la cola de F11.8 solo queda la submission a Awwwards (decisión
+  de pago: Andreu).
 - **Recordatorio de red** (por si vuelve a hacer falta imaginería): el CDN de
   Higgsfield y `ecom.logic2b.com` están **denegados desde cloud** (000). En
   local, el sandbox también bloquea la red: `curl`/`git` de red necesitan
@@ -1159,6 +1163,42 @@ el 2026-07-25, entrada abajo). Ya no quedan temas por construir.
   2. El **panel lateral deslizante de producto** que pedían Natural y Specs
      sigue siendo candidato a registro nuevo del motor (hoy la ficha la sirve
      Base para los 10 temas). No entra en una sesión de tema.
+
+### F11.8d — la tabla de Lighthouse, cerrada (2026-07-27, sesión local)
+
+Lo que quedaba de F11.8c: repetir la tanda con red sana y publicar medianas. Ya
+está en [`docs/LIGHTHOUSE.md`](LIGHTHOUSE.md), 3 pasadas por superficie, red del
+medidor limpia esta vez (documentos de 200–630 ms; el guardia del script solo
+saltó dos veces, a 3,4 s, y repitió).
+
+**Seis de las ocho superficies dan 100/100/100/100.** Las dos que no son la
+landing: **98 en móvil** (osciló 97–100) y **99 en escritorio** (99–100). Las
+otras tres páginas —arquitectura, estilos, dossier— dan 100 limpio en los dos
+perfiles, con LCP de 1,2–1,3 s en móvil y 0,4 s en escritorio, CLS 0 y TBT 0 en
+las ocho.
+
+**Por qué la landing se queda a dos puntos, medido y no supuesto:**
+
+- **Móvil: la webfont está en el camino crítico del LCP.** El elemento LCP es el
+  H1 del héroe y su `Render Delay` es de **1050 ms clavados en las tres
+  pasadas** — no es ruido. Observado, la página pinta a 1095 ms y la Inter llega
+  a 1053: el texto sale justo cuando aterriza la fuente. El modelo de
+  Lighthouse, que estrangula esa cadena, lo convierte en un LCP simulado de
+  1,8 s. Con la animación del H1 ya en 0,35 s (F11.8c) esto es lo que queda, y
+  bajarlo más significa tocar la tipografía: `font-display: optional` daría el
+  100 a cambio de que la primera visita lenta se vea con la Arial de reserva
+  toda la carga. **Es una decisión de marca, no técnica → Andreu.**
+- **Escritorio: lo rompió el arreglo de móvil.** Poner la galería en `eager`
+  (F11.8c) arregló el Speed Index móvil pero puso las nueve capturas a competir
+  con la fuente del H1: 100 → 99, con el LCP subiendo de 0,5 s a 0,8 s. Arreglo
+  aplicado en este commit: **`fetchpriority="low"`** en las tarjetas — bajan
+  igual durante la carga, pero detrás de lo que pinta.
+
+⚠ **El `fetchpriority` está en el repo pero NO en producción.** La sesión de
+`wrangler` caducó a mitad de bloque («necesario CLOUDFLARE_API_TOKEN en un
+entorno no interactivo») y `wrangler login` abre navegador, así que no se puede
+desplegar desde aquí. **Andreu: `npx wrangler login` y luego `pnpm deploy`.** La
+tabla publicada describe lo que hay servido ahora mismo, que es lo honesto.
 
 ### F11.8c — Lighthouse citable, OG de WhatsApp y URLs sin salto (2026-07-26, sesión local)
 

@@ -295,7 +295,7 @@ const jsonLd = [
         data-gallery
         class="flex snap-x snap-mandatory gap-5 overflow-x-auto px-5 pb-4 [scrollbar-color:var(--color-brand)_transparent] [scrollbar-width:thin] sm:gap-6"
       >
-        {gallery.map((store, i) => (
+        {gallery.map((store) => (
           <li class="relative shrink-0 snap-start">
             <a
               href={store.href}
@@ -322,9 +322,14 @@ const jsonLd = [
                       reduced-motion o con ahorro de datos queda la imagen: más
                       ligera que un <video poster> (el póster no es lazy) y con
                       alt real. El clip solo baja cuando la tarjeta se ve.
-                      La primera tarjeta va eager pero SIN fetchpriority high:
-                      en móvil la galería queda bajo el fold y esa prioridad
-                      le robaba ancho de banda a la fuente del H1 (el LCP). */}
+                      Las tarjetas van `eager` pero en prioridad BAJA. Sin
+                      `eager`, al ser un carrusel horizontal quedan fuera de
+                      pantalla por el lado y el navegador las bajaba tarde y a
+                      trompicones — medido, una llegaba a los 19 s y hundía el
+                      Speed Index móvil (con las variantes de 560 las nueve
+                      suman ~150 KB, menos de lo que pesaban tres a 900). Y sin
+                      `fetchpriority="low"` compiten con la fuente del H1, que
+                      es el LCP: escritorio 100 → 99, medido. */}
                   <img
                     src={store.video ? store.poster : store.img}
                     srcset={`${store.video ? store.poster : store.img} 560w, ${store.video ? store.poster900 : store.img900} 900w`}
@@ -332,13 +337,8 @@ const jsonLd = [
                     alt={`Tienda ${store.name} — estilo ${store.style}`}
                     width={store.video ? 1280 : 720}
                     height={store.video ? 720 : 900}
-                    {/* Sin `lazy`: la galería es un carrusel horizontal, así que
-                        sus tarjetas quedan fuera de pantalla por el lado y el
-                        navegador las bajaba tarde y a trompicones — medido, una
-                        llegaba a los 19 s y hundía el Speed Index móvil. Con las
-                        variantes de 560 las nueve suman ~150 KB, menos de lo que
-                        pesaban tres a 900. */}
                     loading="eager"
+                    fetchpriority="low"
                     class="h-full w-full object-cover object-top"
                     data-video-src={store.video ?? undefined}
                     data-video-poster={store.video ? store.poster : undefined}
