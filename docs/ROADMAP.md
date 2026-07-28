@@ -5,6 +5,11 @@
 > como proveedor, en el copyright y en la firma. El isotipo se retira de la
 > cabecera — el producto se presenta como wordmark tipográfico.
 
+> **Renombrado 2026-07-28 (decidido, pendiente de ejecutar en F12.1):** el
+> producto pasa a llamarse **Logic2B Ecommerce** — el nombre hace visible el
+> paraguas de la agencia (mandato de Andreu, ver Fase 12). Hasta que F12.1 se
+> ejecute, el código y la UI siguen diciendo «LogicEcom».
+
 > **Documento de continuidad.** Cada sesión de trabajo con Claude Code debe:
 > 1. Leer este fichero al empezar (junto con `CLAUDE.md`).
 > 2. Actualizar el estado de la fase al terminar, con fecha y resumen de lo hecho.
@@ -56,11 +61,44 @@ reconciliación se conserva abajo por contexto.
 | 10 | Documentación para el cliente | 🟡 Casi completa | 2026-07-24 | **Ejecutada como F11.7** (ver Fase 11): `/ayuda` (noindex) con manual de 3 pasos + guías + runbook, acta de entrega e inventario de accesos en `docs/plantillas/`, dossier con «qué pasa si nos vamos», guion del vídeo. Pendiente: grabar el vídeo (Andreu) y confirmar las decisiones a/b/c asumidas |
 | 11 | Landing V2 «nivel Awwwards» + negocio + funnel + docs | 🟡 En curso | 2026-07-24 | **F11.1, F11.3 (2 sesiones), F11.4, F11.5, F11.6, F11.7 y F11.8 (primera pasada + pase a11y/contenido desde cloud 2026-07-24) hechos**, más F11.8b (auditor de a11y, cloud), F11.2a-1 (tienda ASFALTO / tema Street), F11.2a-2 (tienda METRIA / tema Industrial) F11.2a-3 (tienda ROMER / tema Natural) y **F11.2a-4 (tienda KALIBRE / tema Specs, local 2026-07-25) — con la que F11.2a queda CERRADA (10/10 tiendas)**; y **F11.8c (Lighthouse citable + OG de WhatsApp + URLs sin redirección, local 2026-07-26)**; y **F11.8d–e (tabla de Lighthouse cerrada y desplegada: 7 de 8 superficies a 100×4, la landing entre ellas en móvil y escritorio, local 2026-07-27)**; de la cola de F11.8 solo queda la submission a Awwwards (decisión de pago: Andreu). Detalle por bloque abajo. (ver «Fase 11» abajo). **Plan maestro completo en [`docs/PLAN_FASE11_LANDING_V2.md`](PLAN_FASE11_LANDING_V2.md)**: bloques F11.0–F11.8 ejecutables por sesiones independientes. **Decisiones D1–D6 APROBADAS por Andreu (2026-07-23)**: JS propio ≤15 KB sin deps, capturas con browser tools en local, dirección C «Ocho tiendas, un motor», escalera de precios (Lite 590 / Kit 1.900+39 / A medida 3.400+59), WhatsApp+email, Lite publicado sin construir. Prompt de arranque: [`docs/PROMPT_FASE11.md`](PROMPT_FASE11.md). Integra 9B.5/9B.6 (imaginería y temas restantes) como prerequisito del hero |
 | 8 | Pulido de la demo (backlog abajo) | 🟡 En curso | 2026-07-19 | Backlog técnico agotado; solo quedan decisiones y pasos locales de Andreu (ver «Decisiones pendientes» y `docs/PROMPT_CLOUD.md`). Últimas tandas: novena (race de idempotencia en el pago, PII enumerable en `/demo/gracias`, cancelación de pedido pagado sin devolver stock), décima (la misma race en el PATCH de admin, campos vacíos guardados como 0, login sin rate limit), undécima (diagrama móvil de `/arquitectura`, hedge del plazo de entrega, tokens de tema en `/demo/reset`, terminología «envío»), duodécima (aviso de corte en pedidos del admin, cabeceras sin wrap a 375px, leftover «portes», token de radio del carrito, contraste del botón eliminar, H1 en valenciano, checklist de producción) y decimotercera (misma race de idempotencia en `checkout.session.expired`, divisa hardcodeada a EUR fuera de Stripe, cobertura de test de `quoteCart`/PATCH admin/emails) y decimocuarta (config parcial de Stripe → cobro sin cumplimiento, emails duplicados bajo concurrencia, `payment_status` del webhook, color de marca centralizado en `shop.config.ts`, contraste/tema en carrito y checkout) — ver sección «Fase 8» |
+| 12 | Logic2B Ecommerce: renombrado, reposicionamiento y docs de dos visiones | 🟡 Planificada | 2026-07-28 | **Mandato de Andreu (2026-07-28)**: renombrado a **Logic2B Ecommerce**, argumento de venta reposicionado (a medida fácil · MVP que crece sin migrar · equipo, no plataforma · detrás está Logic2B) y documentación para dos visiones (CEO/agencia y gestor). **Plan maestro en [`docs/PLAN_FASE12_LOGIC2B_ECOMMERCE.md`](PLAN_FASE12_LOGIC2B_ECOMMERCE.md)**: bloques F12.0–F12.6, decisiones D7/D8 en la mesa de Andreu. Ver «Fase 12» abajo |
 
 ## Repo y entornos
 
 - GitHub: `https://github.com/amariner/logic2b-ecom` (rama `main`).
 - Cloudflare: **en producción** — Worker `ecom-logic2b` en https://ecom.logic2b.com, D1 remota `ecom-demo` (`7ae9b06d-3664-4790-a87c-04bb4c67e97a`), cron reset cada 6 h, cuenta marinerandreu@gmail.com.
+
+## Fase 12 — Logic2B Ecommerce: renombrado, reposicionamiento y las dos visiones
+
+> Plan maestro: [`docs/PLAN_FASE12_LOGIC2B_ECOMMERCE.md`](PLAN_FASE12_LOGIC2B_ECOMMERCE.md).
+> Mandato de Andreu (2026-07-28). El motor NO se toca en esta fase.
+
+**El mandato, en corto:** (1) el producto pasa a llamarse **Logic2B
+Ecommerce** — el nombre hace visible que detrás hay una agencia, no un SaaS
+suelto; (2) el argumento de venta deja de liderarlo el precio: ahora es
+**«nunca había sido tan fácil ni tan asequible un ecommerce a medida»**, la
+**escalabilidad** (se empieza por un MVP básico y funcional y se le añaden
+funcionalidades y servicios a medida que el proyecto crece) y que **la cuota
+paga a un equipo que asiste continuamente —desarrollo y marketing con los
+servicios de Logic2B—, no a una plataforma que te apaña**; (3) la
+documentación crece hasta servir a **dos visiones**: la de negocio (un CEO de
+ecommerce que decide, una agencia que nos subcontrata) y la de operación (el
+gestor de la tienda).
+
+El argumentario canónico (pilares P1–P4, fuente de verdad de todo el copy), el
+mapa audiencia→documento y las decisiones reservadas a Andreu (D7: qué promete
+la mensualidad; D8: página `/agencias` y marca blanca) están en el plan.
+Bloques, un bloque por sesión:
+
+| Bloque | Qué es | Estado |
+|---|---|---|
+| F12.0 | Red de seguridad: el auditor a11y entra en las 8 páginas comerciales + ojo a Street en dark | ⬜ |
+| F12.1 | Renombrado LogicEcom → Logic2B Ecommerce (22 ficheros, wordmark, OG, JSON-LD, docs) | ⬜ |
+| F12.2 | La landing cuenta el argumento nuevo (hero P1, sección nueva «crece sin migrar» P2, precios reencuadrados P3, FAQ+JSON-LD) | ⬜ |
+| F12.3 | Dossier V2: business case para el decisor (camino MVP→escala, qué compra la mensualidad) | ⬜ |
+| F12.4 | La visión de la agencia: `docs/AGENCIAS.md` (+ `/agencias` si D8a = sí) | ⬜ |
+| F12.5 | La visión del gestor ampliada: `/ayuda` con escenarios reales y «tu primer mes» | ⬜ |
+| F12.6 | Consolidación: barridos completos, Lighthouse en producción, OG, índice `docs/README.md` por audiencia | ⬜ |
 
 ## Fase 11 — Landing V2, negocio, funnel y docs
 
@@ -1129,43 +1167,38 @@ esta sección y sube a `main`.
 
 ## Próxima sesión
 
-**F11.2a está CERRADA**: las 10 tiendas del escaparate están vivas (Specs cerró
-el 2026-07-25, entrada abajo). Ya no quedan temas por construir.
+**Mandato nuevo de Andreu (2026-07-28), y manda sobre todo lo demás:**
+renombrado a **Logic2B Ecommerce**, reposicionamiento del argumento de venta
+(a medida fácil · MVP que crece sin migrar · un equipo, no una plataforma ·
+detrás está Logic2B) y documentación de **dos visiones** (CEO/agencia y
+gestor). **Plan maestro completo en
+[`docs/PLAN_FASE12_LOGIC2B_ECOMMERCE.md`](PLAN_FASE12_LOGIC2B_ECOMMERCE.md)**
+— bloques F12.0–F12.6, un bloque por sesión.
 
-- **El panel ya tiene red de seguridad** (F11.9, entrada abajo): el auditor
-  cubre **124 superficies** —las 110 de tienda más 14 del panel— y las 124 están
-  en verde. Ya no queda ningún bloque grande pendiente de a11y.
-- **Candidatos para la siguiente sesión** (ninguno reservado a local ni a cloud,
-  elige el primero que quepa):
-  1. **Pasar el auditor por la landing y las páginas comerciales** (`/`,
-     `/arquitectura`, `/estilos`, `/dossier`, `/ayuda`, `/demo/gracias`,
-     `/demo/reset`, `404`). Es lo que queda sin cubrir: hoy solo las miden
-     Lighthouse (que da 100 de a11y, pero con muchas menos reglas) y el ojo.
-     Mismo patrón que F11.9, sin login de por medio.
-  2. **Mirar a ojo Street en modo oscuro** (`--color-surface-sunken`, punto 1 de
-     la lista de Specs de abajo): el auditor no lo ve porque solo mide texto.
-- **La cola de F11.8 está cerrada** (F11.8c/d/e): auditoría citable publicada y
-  desplegada, 7 de 8 superficies a 100×4 y la landing entre ellas en los dos
-  perfiles. Solo queda la submission a Awwwards, que es **decisión de pago de
-  Andreu**, no trabajo pendiente.
-- **Una decisión de Andreu, sin prisa:** el dossier en móvil se queda en 98
-  porque es texto puro y no pinta hasta que llega la Inter (F11.8e).
-  `font-display: optional` lo cerraría a cambio de que la primera visita lenta
-  se vea con la fuente de reserva. Es marca, no técnica, y compra dos puntos en
-  una sola página.
+- **Bloque que toca: F12.0** — el auditor de a11y entra en las 8 páginas
+  comerciales (`/`, `/arquitectura`, `/estilos`, `/dossier`, `/ayuda`,
+  `/demo/gracias`, `/demo/reset`, `404`, a 1440/375 y dark donde aplique) +
+  mirada a ojo a Street en modo oscuro (`--color-surface-sunken` en su
+  `Catalog.astro`; el auditor no lo ve porque solo mide texto). Absorbe los
+  dos candidatos que dejó F11.9: es la red de seguridad ANTES de que
+  F12.1–F12.3 reescriban marca y copy en media web.
+- **Después, en orden:** F12.1 renombrado → F12.2 landing → F12.3 dossier →
+  F12.4 agencias · F12.5 gestor (cualquier orden) → F12.6 consolidación.
+- **Decisiones de Andreu en cola** (tabla con propuestas en el plan): **D7**
+  qué promete exactamente la mensualidad — bloquea el cierre de F12.2/F12.3;
+  el copy con promesas de servicio se le presenta SIEMPRE antes de desplegar
+  (veto de product) · **D8** página `/agencias` pública y marca blanca —
+  bloquea el cierre de F12.4 · y las anteriores siguen vivas: submission a
+  **Awwwards** (de pago) y `font-display: optional` para el 98 del dossier
+  móvil.
 - **Recordatorio de red** (por si vuelve a hacer falta imaginería): el CDN de
   Higgsfield y `ecom.logic2b.com` están **denegados desde cloud** (000). En
   local, el sandbox también bloquea la red: `curl`/`git` de red necesitan
   `dangerouslyDisableSandbox` (memoria `github-bloqueado-por-sandbox`).
-- **Dos cosas que Specs dejó apuntadas y NO son deuda urgente:**
-  1. `--surface-sunken` y `--surface-product` son grises **fijos** a propósito;
-     valen para una caja de producto y **no** para el fondo de una página (en
-     oscuro deja la plancha negra sobre fondo claro, y el auditor no lo ve
-     porque solo mide texto). **Street usa `--color-surface-sunken` en su
-     `Catalog.astro`** — merece una mirada a ojo en modo oscuro.
-  2. El **panel lateral deslizante de producto** que pedían Natural y Specs
-     sigue siendo candidato a registro nuevo del motor (hoy la ficha la sirve
-     Base para los 10 temas). No entra en una sesión de tema.
+- **No urgente, que no se pierda:** el **panel lateral deslizante de producto**
+  que pedían Natural y Specs sigue siendo candidato a registro nuevo del motor
+  (hoy la ficha la sirve Base para los 10 temas). No entra en una sesión de
+  tema.
 
 ### F11.9 — el panel entra en el auditor de a11y, y el auditor aprende a leer colores (2026-07-27, sesión local)
 
