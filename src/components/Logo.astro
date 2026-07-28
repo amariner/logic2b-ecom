@@ -2,7 +2,7 @@
 /**
  * Wordmark del producto + isotipo Logic2B opcional.
  *
- * El isotipo está RETIRADO por defecto (decisión 2026-07-20): LogicEcom se
+ * El isotipo está RETIRADO por defecto (decisión 2026-07-20): Logic2B Ecommerce se
  * presenta como wordmark tipográfico puro. El SVG se conserva porque la marca
  * de agencia (Logic2B) lo sigue usando; para reactivarlo basta `mark={true}`.
  */
@@ -16,7 +16,7 @@ interface Props {
   class?: string;
 }
 
-const { size = 20, wordmark = 'LogicEcom', mark = false, class: className = '' } = Astro.props;
+const { size = 20, wordmark = 'Logic2B Ecommerce', mark = false, class: className = '' } = Astro.props;
 ---
 
 <span class={`inline-flex items-center gap-2 ${className}`}>

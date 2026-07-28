@@ -7,7 +7,7 @@
  * es el canal de venta real (rol SEO). Se genera desde este script y no a mano
  * para que se pueda REHACER cuando cambie el posicionamiento: la anterior se
  * quedó diciendo «Logic2B. Commerce Kit» sobre una foto de embutidos cuando la
- * landing ya vendía LogicEcom y diez tiendas.
+ * landing ya vendía Logic2B Ecommerce y diez tiendas.
  *
  * El plano se escribe aquí en HTML y se fotografía a 1200×630 (el tamaño que
  * anuncian `og:image:width/height`). Usa la Inter del propio sitio y el verde
@@ -90,7 +90,7 @@ const HTML = `<!doctype html>
   .s2 { top: 412px; }
 </style>
 <div class="left">
-  <p class="brand">Logic<i>Ecom</i></p>
+  <p class="brand">Logic2B <i>Ecommerce</i></p>
   <h1>Tiendas radicalmente distintas.<b>Un motor probado. 0 €/mes.</b></h1>
   <p class="sub">Tu tienda online a medida, sin cuotas de plataforma.<br>Pagos con Stripe · Hecho en Castellón.</p>
   <p class="pill">ecom.logic2b.com — demo real navegable</p>

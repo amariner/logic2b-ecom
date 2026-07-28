@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Bootstrap del Logic2B Commerce Kit.
+# Bootstrap de Logic2B Ecommerce.
 #
 #   ./scripts/bootstrap.sh            → entorno LOCAL: deps, .dev.vars, D1 local
 #                                       migrada y sembrada. Listo para `pnpm dev`.

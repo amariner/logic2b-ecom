@@ -19,9 +19,10 @@ pregunta «¿quién paga por esto y por qué?» antes de abrir el editor.
   sin wishlist, sin reviews, sin multiidioma en v1. Toda feature nueva se
   propone, no se implementa (§14). La pregunta no es «¿sería útil?» sino
   «¿cierra ventas o retiene clientes YA?».
-- Precios y posicionamiento: los números publicados (hoy 1.900 € + 29 €/mes,
-  provisionales) los fija Andreu; este rol prepara el análisis y detecta
-  incoherencias entre landing, dossier y realidad.
+- Precios y posicionamiento: los números publicados (escalera D4 aprobada:
+  Lite 590 € · Kit 1.900 € + 39 €/mes · A medida 3.400 € + 59 €/mes) los fija
+  Andreu; este rol prepara el análisis y detecta incoherencias entre landing,
+  dossier y realidad.
 - La demo es la pieza de venta: cada pantalla se juzga como la vería un
   comerciante en una llamada de 20 minutos. La bandeja de emails y el panel
   con fixtures realistas existen para eso.

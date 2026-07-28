@@ -1,5 +1,5 @@
 ---
-// Landing comercial de LogicEcom — dirección C «Ocho tiendas, un motor».
+// Landing comercial de Logic2B Ecommerce — dirección C «Ocho tiendas, un motor».
 // Sistema Logic2B UI (Inter, tokens neutros, wordmark) + acento de marca. El
 // hero ES la galería de tiendas reales; cada tarjeta lleva el acento de SU
 // tienda, y el acento de la landing muta al de la tienda activa al recorrerla
@@ -76,9 +76,9 @@ const galleryCount = `${NUMERALS[gallery.length] ?? gallery.length} tienda${gall
 const WHATSAPP = '34626434316';
 const EMAIL = 'hola@logic2b.com';
 const whatsappHref = WHATSAPP
-  ? `https://wa.me/${WHATSAPP}?text=${encodeURIComponent('Hola, me interesa una tienda online con LogicEcom.')}`
+  ? `https://wa.me/${WHATSAPP}?text=${encodeURIComponent('Hola, me interesa una tienda online con Logic2B Ecommerce.')}`
   : null;
-const emailHref = `mailto:${EMAIL}?subject=${encodeURIComponent('Mi tienda online con LogicEcom')}`;
+const emailHref = `mailto:${EMAIL}?subject=${encodeURIComponent('Mi tienda online con Logic2B Ecommerce')}`;
 
 // Recuento del catálogo de estilos, derivado del registro (igual que hace
 // /estilos): un tema nuevo actualiza este copy solo.
@@ -218,7 +218,7 @@ const jsonLd = [
   {
     '@context': 'https://schema.org',
     '@type': 'Service',
-    name: 'LogicEcom',
+    name: 'Logic2B Ecommerce',
     description:
       'Tienda online a medida para comercios de 50 a 100 productos: ultrarrápida, sin cuotas mensuales de plataforma y con coste de infraestructura cero.',
     provider: { '@type': 'Organization', name: 'Logic2B', url: 'https://logic2b.com' },
@@ -243,14 +243,14 @@ const jsonLd = [
 ---
 
 <Base
-  title="LogicEcom — tiendas online a medida, sin cuotas ni comisiones de plataforma"
+  title="Logic2B Ecommerce — tiendas online a medida, sin cuotas de plataforma"
   description="Diseñamos tiendas online radicalmente distintas para comercios de 50–100 productos, sobre un mismo motor: ultrarrápidas, con pagos Stripe y 0 €/mes de infraestructura. Hechas en Castellón por Logic2B."
   canonicalPath="/"
   jsonLd={jsonLd}
 >
   {/* data-landing: raíz donde el script de motion muta las variables de acento. */}
   <div class="bg-background text-foreground" data-landing>
-    <SiteHeader homeHref="/" wordmark="LogicEcom" nav={nav}>
+    <SiteHeader homeHref="/" wordmark="Logic2B Ecommerce" nav={nav}>
       <a
         slot="actions"
         href="/demo/tiendas/launch"
@@ -290,7 +290,7 @@ const jsonLd = [
 
     <!-- Tira de tiendas: scroll horizontal nativo con snap, accesible. -->
     <section aria-labelledby="galeria-h" class="mt-10 sm:mt-14">
-      <h2 id="galeria-h" class="sr-only">Tiendas reales hechas con LogicEcom</h2>
+      <h2 id="galeria-h" class="sr-only">Tiendas reales hechas con Logic2B Ecommerce</h2>
       <ul
         data-gallery
         class="flex snap-x snap-mandatory gap-5 overflow-x-auto px-5 pb-4 [scrollbar-color:var(--color-brand)_transparent] [scrollbar-width:thin] sm:gap-6"
@@ -469,7 +469,7 @@ const jsonLd = [
               <th scope="col" class="px-5 py-4 font-normal"><span class="sr-only">Concepto</span></th>
               <th scope="col" class="px-5 py-4 font-normal">Shopify</th>
               <th scope="col" class="px-5 py-4 font-normal">WooCommerce</th>
-              <th scope="col" class="px-5 py-4 font-semibold text-brand">LogicEcom</th>
+              <th scope="col" class="px-5 py-4 font-semibold text-brand">Logic2B Ecommerce</th>
             </tr>
           </thead>
           <tbody>

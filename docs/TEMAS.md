@@ -1,4 +1,4 @@
-# CATÁLOGO DE ESTILOS — LogicEcom
+# CATÁLOGO DE ESTILOS — Logic2B Ecommerce
 
 > Documento de referencia para desarrollar los temas. Cada tema se desarrolla en
 > su propia sesión; **lee este fichero completo antes de empezar uno**.
@@ -10,7 +10,7 @@
 
 ## 1. Qué es esto y por qué existe
 
-LogicEcom vende una tienda **a medida**. El problema comercial es que «a medida»
+Logic2B Ecommerce vende una tienda **a medida**. El problema comercial es que «a medida»
 suena caro y abstracto: el cliente no puede imaginarse su tienda. El catálogo de
 estilos resuelve eso — son 8 direcciones visuales completas, cada una derivada de
 una referencia real de ecommerce, entre las que el cliente elige un punto de

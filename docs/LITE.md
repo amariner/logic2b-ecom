@@ -1,4 +1,4 @@
-# Commerce Kit «Lite» — exploración (pendiente de decisión)
+# Logic2B Ecommerce «Lite» — exploración (pendiente de decisión)
 
 > Documento de análisis pedido por el backlog de la Fase 8 («explorar, no implementar
 > sin OK»). Nada de esto está construido. Decisión y precios: Andreu.

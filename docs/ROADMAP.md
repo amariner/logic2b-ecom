@@ -1,14 +1,15 @@
-# ROADMAP — LogicEcom (ecom.logic2b.com)
+# ROADMAP — Logic2B Ecommerce (ecom.logic2b.com)
 
 > **Renombrado 2026-07-20:** el producto pasa a llamarse **LogicEcom**
 > (antes «Logic2B Commerce Kit»). **Logic2B** sigue siendo la agencia: aparece
 > como proveedor, en el copyright y en la firma. El isotipo se retira de la
 > cabecera — el producto se presenta como wordmark tipográfico.
 
-> **Renombrado 2026-07-28 (decidido, pendiente de ejecutar en F12.1):** el
-> producto pasa a llamarse **Logic2B Ecommerce** — el nombre hace visible el
-> paraguas de la agencia (mandato de Andreu, ver Fase 12). Hasta que F12.1 se
-> ejecute, el código y la UI siguen diciendo «LogicEcom».
+> **Renombrado 2026-07-28 — EJECUTADO en F12.1:** el producto se llama
+> **Logic2B Ecommerce**; el nombre hace visible el paraguas de la agencia
+> (mandato de Andreu, ver Fase 12). Código, UI, metas, JSON-LD y OG ya lo
+> dicen. Las entradas históricas de este ROADMAP y los prompts de fases
+> pasadas conservan el nombre viejo a propósito: son historia.
 
 > **Documento de continuidad.** Cada sesión de trabajo con Claude Code debe:
 > 1. Leer este fichero al empezar (junto con `CLAUDE.md`).
@@ -1192,22 +1193,32 @@ gestor). **Plan maestro completo en
 [`docs/PLAN_FASE12_LOGIC2B_ECOMMERCE.md`](PLAN_FASE12_LOGIC2B_ECOMMERCE.md)**
 — bloques F12.0–F12.6, un bloque por sesión.
 
-- **Bloque que toca: F12.1 — el renombrado a Logic2B Ecommerce.** 22 ficheros
-  inventariados en el plan: wordmark (`Logo`/`SiteHeader`), titles/metas y
-  JSON-LD (`Service.name`), OG regeneradas (`scripts/make-og.mjs`), footers de
-  los temas minimal y street, docs, nota en `CLAUDE.md`, carta de product
-  (cifra 29→39 de D4). Sin cambios de URL → sin 301. UX-UI: el wordmark nuevo
-  es más largo — revisar cabecera y footer a 375 y el layout de las OG. Al
-  cierre: `grep -ri logicecom` limpio en superficies vivas (el histórico del
-  ROADMAP se conserva), `pnpm check` + barrido a11y (123) en verde, deploy +
-  reset + `pnpm audit:lh` contra producción.
+- **Bloque que toca: F12.2 — la landing cuenta el argumento nuevo.**
+  Reescritura de copy de `src/pages/index.astro` sobre el esqueleto actual
+  (sección a sección en el plan, §3): hero desde P1, «lo que te cuesta tu
+  tienda actual» pivotado a P3 («a dónde va tu dinero»), «las cuentas claras»
+  reencuadrada, **sección nueva «Empieza pequeño, crece sin migrar» (P2)** con
+  el catálogo de evolución y la doctrina del backend mínimo, «míralo por
+  dentro» con esa misma doctrina, precios con las **mismas cifras D4**
+  reencuadradas por P3 (el concepto D7 ya está decidido; las cifras de
+  Crece/Acelera se insertan cuando Andreu las fije), y 2–3 FAQ nuevas
+  sincronizadas con el `FAQPage`. **Gate obligatorio (veto de product): el
+  copy final se presenta a Andreu ANTES de desplegar** — son promesas de
+  servicio. Cierre: OK de Andreu · a11y verde · JSON-LD validando ·
+  Lighthouse 100×4 en `/` tras el deploy.
+- **F12.1 está CERRADO** (2026-07-28, entrada abajo): renombrado ejecutado en
+  las 23 superficies vivas, OG regenerada (`?v=3`), a11y 123/123, `pnpm check`
+  verde. **Pendiente de despliegue** (sesión OAuth de wrangler caducada): lo
+  primero de la próxima sesión local es `pnpm deploy` + reset + verificar el
+  nombre nuevo servido, y `pnpm audit:lh` contra producción (las 4 indexables
+  cambian de `<title>`).
 - **F12.0 está CERRADO y desplegado** (2026-07-28, entrada abajo): 123
   superficies en verde y sin avisos — 19 comerciales nuevas, las 20 `@dark`
   fantasma retiradas, pie de `/ayuda` arreglado, regla 13 sin falsos
   positivos de anclas, y Street en oscuro descartado con motivo (no existe
   modo oscuro al que temer).
-- **Después, en orden:** F12.2 landing → F12.3 dossier → F12.4 agencias ·
-  F12.5 gestor (cualquier orden) → F12.6 consolidación.
+- **Después, en orden:** F12.3 dossier → F12.4 agencias · F12.5 gestor
+  (cualquier orden) → F12.6 consolidación.
 - **Decisiones de Andreu en cola:** **D7** — concepto DECIDIDO (2026-07-28):
   una sola cuota personalizada (mantenimiento + asistencia + seguimiento) que
   se sustituye al subir de tramo, nunca se apila; **solo faltan las cifras**,
@@ -1235,6 +1246,61 @@ gestor). **Plan maestro completo en
   2. El **panel lateral deslizante de producto** que pedían Natural y Specs
      sigue siendo candidato a registro nuevo del motor (hoy la ficha la sirve
      Base para los 10 temas). No entra en una sesión de tema.
+
+### F12.1 — el renombrado: LogicEcom → Logic2B Ecommerce (2026-07-28, sesión local)
+
+El nombre nuevo **es** mensaje (P4 del argumentario): producto y agencia bajo
+el mismo techo. Se ejecuta antes que la reescritura de copy (F12.2–F12.3) para
+no escribir dos veces los mismos textos.
+
+**23 superficies vivas renombradas**, en tres tandas para no romper nada:
+
+1. **Contextos URL-encoded primero** (`mailto:` y `wa.me` de landing, dossier y
+   la bandeja de emails): ahí el nombre viaja como `Logic2B%20Ecommerce`. Un
+   `sed` global con espacio habría roto los enlaces de contacto, que son el
+   canal de venta real.
+2. **El resto del código y la UI**: wordmark por defecto de `Logo.astro` y
+   `SiteHeader.astro`, footers de Shop, minimal y street, `og:image:alt`,
+   `demo-themes.ts`, cabecera del dump de `backup.ts`, y los titles/metas y
+   JSON-LD de `/`, `/arquitectura`, `/estilos`, `/dossier`, `/404`.
+3. **Docs y meta**: `README.md`, `package.json`, `CLAUDE.md` (nota de
+   renombrado, igual que la de 2026-07-20), `bootstrap.sh`, `docs/LITE.md`,
+   `docs/TEMAS.md`, la plantilla del guion de vídeo y la skill del equipo.
+
+**Lo histórico no se toca**: las entradas pasadas de este ROADMAP, los prompts
+de fases cerradas y el comentario de `0001_init.sql` conservan el nombre viejo
+a propósito. Los nombres de los tramos (Kit Lite · Kit · Kit a medida) tampoco
+cambian: son de Andreu (D4).
+
+Tres decisiones de la sesión, no mecánicas:
+
+- **SEO — el title de `/arquitectura` perdía sentido.** Era «Arquitectura de
+  LogicEcom … | Logic2B»; con el nombre nuevo el sufijo repetía la marca dos
+  veces. Queda «Arquitectura de Logic2B Ecommerce — así funciona por dentro».
+  Y el de `/` se acorta («…sin cuotas ni comisiones de plataforma» → «…sin
+  cuotas de plataforma»): el nombre nuevo son 7 caracteres más y el título se
+  iba a 83; la intención de búsqueda («tienda online a medida») se conserva
+  intacta, que es lo que manda el rol.
+- **OG regenerada** con `Logic2B <i>Ecommerce</i>` (mismo bitono verde de la
+  marca) y **`?v=2` → `?v=3`** en `Base.astro`: sin subir la versión, WhatsApp
+  seguiría enseñando la tarjeta vieja durante semanas. 113 KB, verificada a
+  ojo — el nombre largo cabe de sobra en la banda de marca.
+- **Higiene de la carta de product**: citaba «1.900 € + 29 €/mes,
+  provisionales», cifras anteriores a D4. Ahora cita la escalera aprobada
+  (Lite 590 · Kit 1.900 + 39/mes · A medida 3.400 + 59/mes). No es un cambio
+  de precio: es sincronizar el doc con una decisión ya tomada.
+
+**Sin cambios de URL → sin 301, sin riesgo SEO.** El dominio ya era
+`ecom.logic2b.com`.
+
+**Verificado:** `grep -ri logicecom` limpio en todo lo vivo · `pnpm check`
+(148 tests, 0 errores de tipos, build OK) · **barrido a11y 123/123 en verde,
+0 avisos** (el wordmark es el nombre accesible de la marca en cabecera y pies,
+así que el auditor sí lo mira) · revisión en navegador del wordmark largo:
+cabecera a 375 (wordmark + CTA sin apretarse) y a 1440 (con el nav completo),
+columna «LOGIC2B ECOMMERCE» del pie de Street a 375, y la columna de la tabla
+comparativa de la landing (envuelve a dos líneas dentro de su contenedor con
+scroll; el documento no desborda). Consola limpia.
 
 ### F12.0 — la red de seguridad llega a las páginas comerciales, y el auditor deja de contar cobertura fantasma (2026-07-28, sesión local)
 

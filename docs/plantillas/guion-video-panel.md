@@ -5,7 +5,7 @@
 > bonitos). Pantalla completa, sin cara, voz cercana, cero jerga. Un take por
 > línea; si una línea no cabe en ~15 segundos, se corta, no se acelera.
 
-1. **[Portada — tienda abierta]** «Esta es una tienda hecha con LogicEcom. Y este
+1. **[Portada — tienda abierta]** «Esta es una tienda hecha con Logic2B Ecommerce. Y este
    vídeo dura lo que se tarda en aprender a llevarla: tres minutos.»
 2. **[Compra rápida: producto → carrito → pago]** «Un cliente compra. Paga con
    tarjeta en una página segura de Stripe — el dinero va directo a tu cuenta.»

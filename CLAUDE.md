@@ -1,7 +1,14 @@
-# PROMPT MAESTRO — Logic2B Commerce Kit (demo en ecom.logic2b.com)
+# PROMPT MAESTRO — Logic2B Ecommerce (demo en ecom.logic2b.com)
 
 > Pega este documento completo como primer mensaje en Claude Code, dentro de una carpeta vacía.
 > Luego guárdalo como `CLAUDE.md` en la raíz del repo para que persista entre sesiones.
+
+> **Nombre del producto (renombrados 2026-07-20 y 2026-07-28):** el producto se
+> llama **Logic2B Ecommerce** — antes «LogicEcom», y antes de eso «Logic2B
+> Commerce Kit». El nombre es mensaje: producto y agencia bajo el mismo techo.
+> **Logic2B** sigue siendo la agencia (proveedor en el JSON-LD, copyright y
+> firma). En el cuerpo de este documento «Commerce Kit» se conserva como
+> histórico; en el código y la UI el nombre vivo es el nuevo.
 
 ---
 

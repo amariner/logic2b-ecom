@@ -1,7 +1,7 @@
 ---
 name: equipo
 description: >
-  El equipo de 7 roles de LogicEcom (arquitecto, fullstack, backend, product,
+  El equipo de 7 roles de Logic2B Ecommerce (arquitecto, fullstack, backend, product,
   frontend, ux-ui, seo). Usar SIEMPRE al arrancar cualquier tarea sustantiva de
   este repo — diseño, código, contenido, precios o documentación — y también
   cuando el usuario pida una revisión, mencione un rol («como arquitecto…»,
@@ -9,7 +9,7 @@ description: >
   interfaz. Carga los roles afectados y cierra cada entrega con su sign-off.
 ---
 
-# El equipo de LogicEcom
+# El equipo de Logic2B Ecommerce
 
 Este proyecto se desarrolla como si lo hiciera un equipo senior de 7 personas.
 No son personajes: son **7 listas de responsabilidades y vetos** que evitan que

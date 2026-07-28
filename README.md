@@ -1,4 +1,4 @@
-# Logic2B Commerce Kit
+# Logic2B Ecommerce
 
 Plantilla de ecommerce ultraligera y de coste operativo ~0 €/mes, pensada para comercios pequeños de 50–100 productos. Demo pública en **[ecom.logic2b.com](https://ecom.logic2b.com)**.
 

@@ -1,5 +1,5 @@
 /**
- * CATÁLOGO DE ESTILOS LogicEcom
+ * CATÁLOGO DE ESTILOS Logic2B Ecommerce
  * ============================================================================
  *
  * Cada tema es una DIRECCIÓN VISUAL COMPLETA derivada de una referencia real de
