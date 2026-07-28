@@ -13,10 +13,14 @@
  * conocido), nombre accesible, jerarquía, área táctil, overflow a 375 y
  * reduced-motion.
  *
- * Cubre 124 superficies: las 10 tiendas (catálogo/ficha/carrito/checkout ×
- * 1440/375/oscuro/reduced-motion) y las 7 pantallas del panel × 1440/375. El
- * panel entra con el POST real del login y la cookie de sesión; sus ids de
- * pedido se resuelven en vivo por estado, nunca se fijan a mano.
+ * Cubre 123 superficies: las 10 tiendas (catálogo/ficha/carrito/checkout ×
+ * 1440/375/reduced-motion), las 7 pantallas del panel × 1440/375 y las 9
+ * páginas comerciales/utilitarias × 1440/375 (la landing también con
+ * reduced-motion). El panel entra con el POST real del login y la cookie de
+ * sesión; sus ids de pedido se resuelven en vivo por estado, nunca se fijan a
+ * mano. Las variantes @dark se retiraron en F12.0: NADA del código responde a
+ * prefers-color-scheme, así que eran cobertura fantasma (ver el comentario en
+ * el bucle de tiendas).
  *
  * USO:
  *   1. pnpm db:reset && pnpm build
@@ -154,12 +158,16 @@ for (const s of STORES) {
   const checkoutUrl = s.legacy ? '/demo/checkout' : `${s.prefix}/checkout`;
   const cartSeed = { key: s.cartKey, value: JSON.stringify([{ slug: s.slug, qty: 2 }]) };
 
+  // Sin variantes @dark: NADA en el código responde a prefers-color-scheme
+  // (el `.dark` de global.css es un juego de tokens por clase que ningún
+  // script aplica — herencia del selector de temas que 9B eliminó). Verificado
+  // a ojo en F12.0: la emulación de oscuro pinta píxel por píxel lo mismo que
+  // el claro, así que esas 20 superficies eran cobertura fantasma. Si algún
+  // día una tienda estrena modo oscuro real, devuélvele aquí su @dark.
   SURFACES.push({ name: `${s.id}:catalogo`, url: s.prefix, vp: DESKTOP });
   SURFACES.push({ name: `${s.id}:catalogo@375`, url: s.prefix, vp: MOBILE });
-  SURFACES.push({ name: `${s.id}:catalogo@dark`, url: s.prefix, vp: DESKTOP, dark: true });
   SURFACES.push({ name: `${s.id}:ficha`, url: `${s.prefix}/${s.slug}`, vp: DESKTOP });
   SURFACES.push({ name: `${s.id}:ficha@375`, url: `${s.prefix}/${s.slug}`, vp: MOBILE });
-  SURFACES.push({ name: `${s.id}:ficha@dark`, url: `${s.prefix}/${s.slug}`, vp: DESKTOP, dark: true });
   SURFACES.push({ name: `${s.id}:carrito`, url: cartUrl, vp: DESKTOP, storage: cartSeed });
   SURFACES.push({ name: `${s.id}:carrito@375`, url: cartUrl, vp: MOBILE, storage: cartSeed });
   SURFACES.push({ name: `${s.id}:carrito@activo`, url: cartUrl, vp: DESKTOP, storage: cartSeed, eval: ACTIVATE_CTA, expect: 'activo' });
@@ -172,6 +180,31 @@ for (const p of ADMIN_PAGES) {
   SURFACES.push({ ...base, name: `admin:${p.id}`, vp: DESKTOP });
   SURFACES.push({ ...base, name: `admin:${p.id}@375`, vp: MOBILE });
 }
+
+// ── Páginas comerciales y utilitarias (F12.0) ─────────────────────────────
+// Las públicas de venta y las utilitarias de la demo: hasta ahora solo las
+// medía Lighthouse (100 de a11y, pero con muchas menos reglas que esta
+// batería). Sin login y sin @dark (ver el bucle de tiendas). La landing añade
+// variante reduced-motion: es la única con motion scroll-driven propio.
+// `/demo/gracias` entra dos veces: con el pedido sembrado BM-DEMO-1001 —el
+// mismo contrato con el seed que usa capture-screens.mjs— y en su estado
+// vacío (sin session_id). El 404 se audita navegando a una ruta inexistente.
+const SITE_PAGES = [
+  { id: 'landing', url: '/' },
+  { id: 'arquitectura', url: '/arquitectura' },
+  { id: 'estilos', url: '/estilos' },
+  { id: 'dossier', url: '/dossier' },
+  { id: 'ayuda', url: '/ayuda' },
+  { id: 'gracias', url: '/demo/gracias?session_id=sim_sess_BM-DEMO-1001' },
+  { id: 'gracias-vacia', url: '/demo/gracias' },
+  { id: 'reset', url: '/demo/reset' },
+  { id: '404', url: '/esta-ruta-no-existe' },
+];
+for (const p of SITE_PAGES) {
+  SURFACES.push({ name: `site:${p.id}`, url: p.url, vp: DESKTOP });
+  SURFACES.push({ name: `site:${p.id}@375`, url: p.url, vp: MOBILE });
+}
+SURFACES.push({ name: 'site:landing@motion', url: '/', vp: DESKTOP, reducedMotion: true });
 
 // ─────────────────────────────────────────────────────────────────────────
 // La batería, como fuente inyectable. Se ejecuta DENTRO de la página.
@@ -488,13 +521,18 @@ const AUDIT_JS = String.raw`(() => {
   // ── 13. aria-current en la navegación ────────────────────────────────────
   // Se compara ruta + query: en este repo la categoría activa viaja en la query
   // ("?categoria=…"), así que mirar solo el pathname marcaría como «actual»
-  // cualquier enlace de categoría del pie.
+  // cualquier enlace de categoría del pie. Los enlaces con hash quedan fuera
+  // (F12.0): un ancla a una sección ("#precios" en la landing, el TOC de
+  // /ayuda) no es un autoenlace de página — ponerle aria-current="page" sería
+  // mentir, y el aria-current="location" de un scrollspy exigiría un JS que
+  // estas páginas no tienen.
   const navs = [...document.querySelectorAll('nav')].filter(visible);
   const hereUrl = location.pathname + location.search;
   for (const nav of navs) {
     const links = [...nav.querySelectorAll('a[href]')].filter(visible);
     const here = links.filter((a) => {
       const u = new URL(a.href, location.href);
+      if (u.hash) return false;
       return u.pathname + u.search === hereUrl;
     });
     if (here.length && !here.some((a) => a.hasAttribute('aria-current'))) {

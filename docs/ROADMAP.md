@@ -109,7 +109,7 @@ sirve a ambos; prerequisito técnico del tramo Acelera) y la pantalla
 
 | Bloque | Qué es | Estado |
 |---|---|---|
-| F12.0 | Red de seguridad: el auditor a11y entra en las 8 páginas comerciales + ojo a Street en dark | ⬜ |
+| F12.0 | Red de seguridad: el auditor a11y entra en las páginas comerciales + ojo a Street | ✅ 2026-07-28 — 19 superficies nuevas, 20 fantasma retiradas → **123 en verde**; desplegado (entrada abajo) |
 | F12.1 | Renombrado LogicEcom → Logic2B Ecommerce (22 ficheros, wordmark, OG, JSON-LD, docs) | ⬜ |
 | F12.2 | La landing cuenta el argumento nuevo (hero P1, sección nueva «crece sin migrar» P2, precios reencuadrados P3, FAQ+JSON-LD) | ⬜ |
 | F12.3 | Dossier V2: business case para el decisor (camino MVP→escala, qué compra la mensualidad) | ⬜ |
@@ -1192,15 +1192,22 @@ gestor). **Plan maestro completo en
 [`docs/PLAN_FASE12_LOGIC2B_ECOMMERCE.md`](PLAN_FASE12_LOGIC2B_ECOMMERCE.md)**
 — bloques F12.0–F12.6, un bloque por sesión.
 
-- **Bloque que toca: F12.0** — el auditor de a11y entra en las 8 páginas
-  comerciales (`/`, `/arquitectura`, `/estilos`, `/dossier`, `/ayuda`,
-  `/demo/gracias`, `/demo/reset`, `404`, a 1440/375 y dark donde aplique) +
-  mirada a ojo a Street en modo oscuro (`--color-surface-sunken` en su
-  `Catalog.astro`; el auditor no lo ve porque solo mide texto). Absorbe los
-  dos candidatos que dejó F11.9: es la red de seguridad ANTES de que
-  F12.1–F12.3 reescriban marca y copy en media web.
-- **Después, en orden:** F12.1 renombrado → F12.2 landing → F12.3 dossier →
-  F12.4 agencias · F12.5 gestor (cualquier orden) → F12.6 consolidación.
+- **Bloque que toca: F12.1 — el renombrado a Logic2B Ecommerce.** 22 ficheros
+  inventariados en el plan: wordmark (`Logo`/`SiteHeader`), titles/metas y
+  JSON-LD (`Service.name`), OG regeneradas (`scripts/make-og.mjs`), footers de
+  los temas minimal y street, docs, nota en `CLAUDE.md`, carta de product
+  (cifra 29→39 de D4). Sin cambios de URL → sin 301. UX-UI: el wordmark nuevo
+  es más largo — revisar cabecera y footer a 375 y el layout de las OG. Al
+  cierre: `grep -ri logicecom` limpio en superficies vivas (el histórico del
+  ROADMAP se conserva), `pnpm check` + barrido a11y (123) en verde, deploy +
+  reset + `pnpm audit:lh` contra producción.
+- **F12.0 está CERRADO y desplegado** (2026-07-28, entrada abajo): 123
+  superficies en verde y sin avisos — 19 comerciales nuevas, las 20 `@dark`
+  fantasma retiradas, pie de `/ayuda` arreglado, regla 13 sin falsos
+  positivos de anclas, y Street en oscuro descartado con motivo (no existe
+  modo oscuro al que temer).
+- **Después, en orden:** F12.2 landing → F12.3 dossier → F12.4 agencias ·
+  F12.5 gestor (cualquier orden) → F12.6 consolidación.
 - **Decisiones de Andreu en cola:** **D7** — concepto DECIDIDO (2026-07-28):
   una sola cuota personalizada (mantenimiento + asistencia + seguimiento) que
   se sustituye al subir de tramo, nunca se apila; **solo faltan las cifras**,
@@ -1215,7 +1222,10 @@ gestor). **Plan maestro completo en
 - **Recordatorio de red** (por si vuelve a hacer falta imaginería): el CDN de
   Higgsfield y `ecom.logic2b.com` están **denegados desde cloud** (000). En
   local, el sandbox también bloquea la red: `curl`/`git` de red necesitan
-  `dangerouslyDisableSandbox` (memoria `github-bloqueado-por-sandbox`).
+  `dangerouslyDisableSandbox` (memoria `github-bloqueado-por-sandbox`). Y el
+  `astro dev` que arrancan las browser tools escucha **solo en IPv6**: a los
+  scripts se les pasa `BASE_URL=http://localhost:4321` — con `127.0.0.1` da
+  000 y el auditor cree que el servidor está caído.
 - **No urgente, que no se pierda:**
   1. **Cola del motor apuntada por Andreu (2026-07-28)**: feeds de catálogo
      **Google Merchant + Meta** (un solo feed en formato Google sirve a los
@@ -1225,6 +1235,59 @@ gestor). **Plan maestro completo en
   2. El **panel lateral deslizante de producto** que pedían Natural y Specs
      sigue siendo candidato a registro nuevo del motor (hoy la ficha la sirve
      Base para los 10 temas). No entra en una sesión de tema.
+
+### F12.0 — la red de seguridad llega a las páginas comerciales, y el auditor deja de contar cobertura fantasma (2026-07-28, sesión local)
+
+Primer bloque de la Fase 12: antes de que F12.1–F12.3 reescriban marca y copy
+en media web, el auditor tenía que estar mirando. Se añade el grupo
+`SITE_PAGES` a `scripts/a11y-audit.mjs`: las 9 públicas (`/`, `/arquitectura`,
+`/estilos`, `/dossier`, `/ayuda`, `/demo/gracias` **con pedido sembrado Y en
+estado vacío**, `/demo/reset`, y el 404 real navegando a una ruta inexistente)
+× 1440/375, más la landing con reduced-motion — **19 superficies nuevas, sin
+login de por medio**.
+
+**El hallazgo gordo, otra vez en el auditor y no en las páginas.** Al decidir
+si las comerciales llevaban variante `@dark` se descubrió que **NADA en el
+código responde a `prefers-color-scheme`**: el `.dark` de `global.css` es un
+juego de tokens por clase que ningún script aplica — herencia del selector de
+temas que 9B eliminó. Verificado a ojo en el navegador: emular oscuro pinta
+píxel por píxel lo mismo que el claro. Las 20 superficies `@dark` de tiendas
+(catálogo y ficha × 10) llevaban desde F11.8b auditando dos veces los mismos
+píxeles: **cobertura fantasma** que inflaba la cifra (124) y daba una
+seguridad de dark mode que no existe. Retiradas — el barrido queda en **123
+superficies reales** (90 de tienda + 14 del panel + 19 comerciales), con el
+comentario en el bucle para devolverles su `@dark` si algún día una tienda
+estrena modo oscuro de verdad.
+
+Lo que sí estaba roto, una vez mirado:
+
+- **El pie de `/ayuda`** («Mantenido por Logic2B…») en `text-stone-500` sobre
+  `bg-stone-100`: 4,39:1. Pasa a `text-stone-600` (~7:1).
+- **Falso positivo de la regla 13 (`aria-current`)**: comparaba ruta+query,
+  así que un ancla de sección («#precios» en la landing, el TOC de `/ayuda`)
+  contaba como «enlace a la página actual». Marcarlas con
+  `aria-current="page"` sería mentir (no son autoenlaces de página) y el
+  `aria-current="location"` de un scrollspy exigiría un JS que estas páginas
+  no tienen. La regla ahora excluye enlaces con hash; los casos reales (las
+  navegaciones del panel que F11.9 arregló) siguen cubiertos.
+
+**El vistazo a Street en oscuro (candidato 2 que dejó F11.9): descartado con
+motivo.** No hay modo oscuro en el que `--color-surface-sunken` pueda chocar;
+Street además redefine el token a su gusto (`#efefef`) y solo lo usa en el
+estado vacío del catálogo — hoy inalcanzable con el seed completo: una
+categoría falsa en la URL cae con elegancia al catálogo entero. Si el modo
+oscuro llega algún día, la mirada vuelve con él.
+
+**Verificado:** 123/123 en verde, 0 errores y 0 avisos (astro dev) · `pnpm
+check` (148 tests, 0 errores de tipos, build OK) · `/ayuda` revisada en
+navegador (consola limpia, imágenes 200). **Desplegado** (versión `48b2fb50`),
+demo reseteada y fix comprobado servido en producción. `audit:lh` no tocaba:
+las 4 indexables de la tabla citable no se han modificado.
+
+**Gotcha de entorno nuevo:** el `astro dev` que arrancan las browser tools
+escucha **solo en IPv6** — `BASE_URL=http://localhost:4321`; con
+`http://127.0.0.1:4321` el ping da 000 y el auditor cree que el servidor está
+caído.
 
 ### F11.9 — el panel entra en el auditor de a11y, y el auditor aprende a leer colores (2026-07-27, sesión local)
 
