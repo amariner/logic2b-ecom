@@ -93,8 +93,19 @@ nunca se apila) — cifras pendientes de Andreu, con benchmark y escalera
 propuesta (Base 39 · Crece 279 · Acelera 590) en
 [`docs/ANALISIS_MENSUALIDAD.md`](ANALISIS_MENSUALIDAD.md) —; y `/agencias` es
 un GO **con marca blanca** (nosotros el desarrollo, la agencia lo demás;
-captar todo cliente de ecommerce, directo o de otra agencia). Bloques, un
-bloque por sesión:
+captar todo cliente de ecommerce, directo o de otra agencia).
+
+**Mandato añadido (2026-07-28, misma sesión):** entra en el argumentario la
+**doctrina del backend mínimo** — tu panel: pedidos, envíos y productos, nada
+más; las mil configuraciones (mercados, divisas, impuestos) y las
+integraciones corren de nuestro lado; lo fuera de lo común se pide y se
+resuelve, mucho mejor que plugins y suscripciones que no aportan. El sistema
+se presenta como **integrable** (feeds Google Merchant/Meta, mailing para
+campañas, transportistas, facturación) pero en v1 se queda minimalista como
+muestra. Y quedan en la **cola del motor** (post-F12, espec en el plan):
+**feeds de catálogo Google Merchant + Meta** (un solo feed en formato Google
+sirve a ambos; prerequisito técnico del tramo Acelera) y la pantalla
+«Integraciones» del panel demo. Bloques, un bloque por sesión:
 
 | Bloque | Qué es | Estado |
 |---|---|---|
@@ -1205,10 +1216,15 @@ gestor). **Plan maestro completo en
   Higgsfield y `ecom.logic2b.com` están **denegados desde cloud** (000). En
   local, el sandbox también bloquea la red: `curl`/`git` de red necesitan
   `dangerouslyDisableSandbox` (memoria `github-bloqueado-por-sandbox`).
-- **No urgente, que no se pierda:** el **panel lateral deslizante de producto**
-  que pedían Natural y Specs sigue siendo candidato a registro nuevo del motor
-  (hoy la ficha la sirve Base para los 10 temas). No entra en una sesión de
-  tema.
+- **No urgente, que no se pierda:**
+  1. **Cola del motor apuntada por Andreu (2026-07-28)**: feeds de catálogo
+     **Google Merchant + Meta** (un solo feed en formato Google sirve a los
+     dos; prerequisito del tramo Acelera) y pantalla «Integraciones» del
+     panel demo. Espec completa en el plan de F12, sección «la cola del
+     motor». Se ejecutan después de F12, cada uno con su sesión y sus tests.
+  2. El **panel lateral deslizante de producto** que pedían Natural y Specs
+     sigue siendo candidato a registro nuevo del motor (hoy la ficha la sirve
+     Base para los 10 temas). No entra en una sesión de tema.
 
 ### F11.9 — el panel entra en el auditor de a11y, y el auditor aprende a leer colores (2026-07-27, sesión local)
 

@@ -60,6 +60,29 @@ escalera se implementa por salir en el copy (§14: se propone, no se
 implementa). El copy debe decir «se añade cuando tu tienda lo pida», nunca
 prometer fechas ni incluirlas en la cuota sin decisión D7.
 
+### La doctrina del backend mínimo (mandato añadido 2026-07-28)
+
+El panel es mínimo **a propósito**, y eso se cuenta como ventaja, no como
+carencia. Tres frases que deben sonar igual en landing, dossier y `/ayuda`:
+
+1. **Tu panel: pedidos, envíos y productos. Nada más.** Se aprende en cinco
+   minutos porque no hay nada que configurar.
+2. **Las mil configuraciones corren de nuestro lado.** Mercados, divisas,
+   impuestos, integraciones — lo que en Shopify son pantallas de ajustes
+   infinitas, aquí es trabajo nuestro, invisible para el gestor.
+3. **Lo fuera de lo común, nos lo pides y lo resolvemos.** Mucho mejor que ir
+   añadiendo plugins, adaptarlos y pagar suscripciones que no aportan gran
+   cosa.
+
+Y la sensación de **integrable**: el sistema se presenta como conectable a
+plataformas existentes — **feeds de catálogo para Google Merchant y Meta**,
+plataformas de mailing para campañas, transportistas (Packlink/SendCloud, cuyo
+export CSV ya existe y es el precedente del patrón), facturación — pero en v1
+se queda en modo minimalista como muestra: **lo básico lo cumple, y lo cumple
+muy bien**. Cada integración se activa desde nuestro lado cuando la tienda lo
+pide (es P2 aplicado al backend). La primera real ya está en cola: los feeds
+(ver «la cola del motor», al final de §3).
+
 ---
 
 ## 2. Las tres audiencias y su documento
@@ -140,8 +163,14 @@ sección:
   cliente tipo — MVP funcional al arrancar; catálogo de evolución (cuentas de
   cliente, multiidioma, buscador, promos y descuentos, integración de
   transportistas, email marketing, contenido SEO, campañas…) presentado como
-  «se añade cuando tu tienda lo pida». Cierra con P4: desarrollo y marketing
-  del mismo equipo.
+  «se añade cuando tu tienda lo pida». Las **integraciones** (feeds Google
+  Merchant/Meta, mailing para campañas, transportistas, facturación) se
+  cuentan aquí con la doctrina del backend mínimo: se activan de nuestro
+  lado, sin plugins que adaptar ni suscripciones que no aportan. Cierra con
+  P4: desarrollo y marketing del mismo equipo.
+- **«Míralo por dentro»:** la sobriedad del panel se cuenta con la doctrina —
+  tu panel es pedidos, envíos y productos; mercados, divisas e integraciones
+  corren de nuestro lado.
 - **Precios:** mismas cifras D4, reencuadre P3 (título tipo «Un equipo
   detrás, no una plataforma»; la mensualidad explicada como asistencia
   continua). El concepto D7 ya está decidido —cuota única que se sustituye,
@@ -171,6 +200,10 @@ para quien decide (CEO o gerente):
   cosa.
 - «Cómo trabajamos», «Qué necesitamos de ti» y «Qué pasa si un día nos vamos»
   se conservan (son la honestidad que vende) y se ajustan al argumentario.
+- La **doctrina del backend mínimo** entra en «Cómo trabajamos» y en «Qué
+  compra tu mensualidad»: el gestor solo gestiona pedidos y envíos; las
+  configuraciones y las integraciones corren de nuestro lado, y lo fuera de
+  lo común se pide y se resuelve.
 - **Gate:** mismo que F12.2 — promesas de servicio pasan por Andreu.
 - **Roles:** product (manda), seo, ux-ui.
 - **Cierre:** OK de Andreu · a11y y Lighthouse del dossier en verde (el 98 de
@@ -213,6 +246,9 @@ página.
 `/ayuda` es buena base; le falta profundidad de día a día. El listón del ICP
 sigue: *si hay que explicarle qué es un webhook, está mal hecho.*
 
+- Reforzar **«Qué puedes tocar sin miedo (y qué no)»** con la doctrina del
+  backend mínimo: tú, pedidos, envíos y productos; lo raro nos lo pides y lo
+  resolvemos nosotros.
 - Ampliar **«Qué hacer cuando…»** con los escenarios reales que faltan:
   cancelar un pedido pagado (y qué pasa con el stock), gestionar una
   devolución, producto agotado que sigue recibiendo visitas, cambiar precios
@@ -238,6 +274,30 @@ sigue: *si hay que explicarle qué es un webhook, está mal hecho.*
 - **Roles:** fullstack (manda), seo, product.
 - **Cierre:** todo verde · índice publicado · «Próxima sesión» apuntando a lo
   que venga después.
+
+### La cola del motor que nace de esta fase (NO es un bloque F12 — el motor no se toca aquí)
+
+Pendientes de motor apuntados por Andreu el 2026-07-28, para ejecutar
+**después** de F12 (o cuando una campaña o un cliente lo pidan), cada uno con
+su sesión y sus tests:
+
+- **Feeds de catálogo para Google Merchant y Meta.** Un endpoint por tienda
+  en formato Google Shopping (RSS 2.0 con namespace `g:`); **Meta Commerce
+  acepta el formato de Google, así que UN solo feed sirve a las dos
+  plataformas**. Se genera desde D1 (productos activos: nombre, descripción,
+  precio EUR desde céntimos, imagen absoluta, `availability` según stock,
+  `condition=new`, link a la ficha, `identifier_exists=no` mientras el
+  catálogo no lleve GTIN/marca — cero cambios de esquema). Excluido del
+  sitemap; tests contra la lista de atributos obligatorios. **Sinergia
+  directa con el tramo Acelera de la mensualidad**: el feed es el
+  prerequisito técnico de las campañas de Shopping/Meta Ads — construirlo es
+  habilitar ese tramo.
+- **Pantalla «Integraciones» del panel demo** (sobria, estilo del admin): las
+  URLs de los feeds copiables + tarjetas «te lo conectamos» (mailing para
+  campañas, transportistas, facturación) con la doctrina como copy. Es la
+  materialización visual de «integrable pero mínimo a propósito»: enseña la
+  sensación sin construir cada integración. Feature nueva → su sesión se
+  aprueba como manda §14.
 
 ---
 
