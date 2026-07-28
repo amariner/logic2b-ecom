@@ -26,6 +26,10 @@
 4. **Renombrado:** el producto pasa de **LogicEcom** a **Logic2B Ecommerce**.
    El nombre en sí ya cuenta el punto 3: esto es un servicio de Logic2B, no un
    SaaS suelto.
+5. **Captarlo todo** (añadido el mismo día, al resolver D8): la intención es
+   poder captar **cualquier** cliente de ecommerce — pequeño o grande, directo
+   o cliente de otra agencia (marca blanca). La escalera (Lite → Kit → A
+   medida) y el canal agencias son las dos vías de entrada.
 
 ---
 
@@ -40,7 +44,7 @@ enseñable** (la demo, el panel, la tabla Lighthouse, este repo).
 |---|---|---|---|
 | P1 | **A medida, por fin fácil** | «Nunca había sido tan fácil —ni tan asequible— tener un ecommerce a medida.» | Las 10 tiendas radicalmente distintas sobre un motor; demo navegable; plazos y precio cerrados. |
 | P2 | **Empiezas MVP, creces sin migrar** | «Tu tienda arranca básica y funcional. Cuando el negocio pida más, se le añade — sin cambiar de plataforma ni empezar de cero.» | El minimalismo v1 de CLAUDE.md §2 **es** el MVP; lo excluido a propósito (cuentas, multiidioma, reviews, buscador, transportistas, promos…) es la escalera de evolución. |
-| P3 | **Un equipo, no una plataforma** | «Tu cuota no paga servidores ni licencias: paga a las personas que llevan tu tienda.» | Coste de infraestructura 0 € demostrado; `/ayuda`, el panel y el runbook enseñan el acompañamiento; «qué pasa si nos vamos» (dossier) enseña la honestidad. |
+| P3 | **Un equipo, no una plataforma** | «Tu cuota no paga servidores ni licencias: paga a las personas que llevan tu tienda.» Y su forma anti-stacking (D7): «Una cuota. Un equipo. Sin suscripción por un lado, mantenimiento por otro, SEO por otro y contenidos por otro.» | Coste de infraestructura 0 € demostrado; la cuenta del stacking con fuentes en [`docs/ANALISIS_MENSUALIDAD.md`](ANALISIS_MENSUALIDAD.md); `/ayuda`, el panel y el runbook enseñan el acompañamiento; «qué pasa si nos vamos» (dossier) enseña la honestidad. |
 | P4 | **Detrás está Logic2B** | «Desarrollo y marketing bajo el mismo techo: la agencia que hace tu tienda es la que la posiciona.» | Logic2B como agencia de desarrollo y SEO (Castellón); el renombrado hace visible el paraguas; servicios de marketing como continuación natural. |
 
 **Jerarquía del mensaje:** P1 abre (el hero), P2 da futuro, P3 explica la
@@ -140,7 +144,10 @@ sección:
   del mismo equipo.
 - **Precios:** mismas cifras D4, reencuadre P3 (título tipo «Un equipo
   detrás, no una plataforma»; la mensualidad explicada como asistencia
-  continua). Pendiente de D7 para el detalle de qué incluye.
+  continua). El concepto D7 ya está decidido —cuota única que se sustituye,
+  nunca se apila— así que el reencuadre no espera a nada; las cifras de los
+  tramos Crece/Acelera se insertan cuando Andreu las fije
+  ([`ANALISIS_MENSUALIDAD.md`](ANALISIS_MENSUALIDAD.md)).
 - **FAQ:** añadir 2–3 preguntas del argumentario («¿Y si mañana necesito X?»,
   «¿Qué incluye la mensualidad?», «¿Trabajáis con agencias?») y sincronizar el
   `FAQPage` JSON-LD.
@@ -182,11 +189,20 @@ página.
     necesitamos de ti» del dossier);
   - límites claros: qué no hacemos, cuándo no somos su opción (la honestidad
     comercial también aquí);
-  - marca: cómo aparece Logic2B en tienda y panel — y si cabe marca blanca,
-    que es **decisión D8b de Andreu**, no promesa nuestra.
-- **Sin precios de partner en v1** salvo que Andreu los fije (van con D8).
-- Si **D8a = sí**: página `/agencias` indexable → checklist completo de seo
-  (title/meta/canonical/sitemap/OG propio/JSON-LD) y a11y desde el nacimiento.
+  - marca: **marca blanca decidida (D8, 2026-07-28)** — nosotros nos
+    encargamos del desarrollo; la agencia pone su marca y lleva al cliente y
+    el marketing. El doc define hasta dónde llega la marca blanca (tienda,
+    panel, emails) y qué queda de Logic2B de cara al cliente final (nada, si
+    el partner lo pide).
+- **Sin precios de partner en v1** hasta que Andreu los fije (**D8c**, sin
+  prisa; se preparará un análisis como el de la mensualidad cuando toque).
+- **La página `/agencias` es un GO (D8a = sí)**: indexable → checklist
+  completo de seo (title/meta/canonical/sitemap/OG propio/JSON-LD) y a11y
+  desde el nacimiento. Intención de búsqueda: «desarrollo ecommerce marca
+  blanca / white label para agencias».
+- De paso, actualizar la carta de product (`.claude/skills/equipo/roles/product.md`)
+  con el canal agencias y la ambición de captación — hoy solo recoge el ICP
+  directo.
 - **Roles:** product (manda), seo (si nace página), fullstack (coherencia con
   lo que el motor de verdad permite).
 - **Cierre:** doc completo y coherente con dossier y landing · decisión D8
@@ -227,10 +243,10 @@ sigue: *si hay que explicarle qué es un webhook, está mal hecho.*
 
 ## 4. Decisiones reservadas a Andreu
 
-| # | Decisión | Se necesita antes de | Propuesta del equipo (para decir sí o ajustar) |
+| # | Decisión | Estado | Detalle |
 |---|---|---|---|
-| D7 | **Qué promete exactamente la mensualidad** en el copy: ¿solo mantenimiento + asistencia, o incluye bolsa de evolución? ¿El marketing va aparte como servicios Logic2B? | Cerrar el copy de F12.2/F12.3 | Mensualidad = mantenimiento + asistencia continua + pequeñas evoluciones; marketing (SEO continuo, campañas, contenido) como servicios Logic2B contratables aparte, presentados en la misma conversación (P4) |
-| D8 | **Agencias:** (a) ¿página `/agencias` pública e indexable o solo doc que se envía? (b) ¿ofrecemos marca blanca del panel/tienda? | Cerrar F12.4 | (a) Sí a la página — es una búsqueda real («desarrollo ecommerce white label») y P4 la respalda; (b) marca blanca solo en el email y el panel, wordmark Logic2B en la tienda — pero es negocio puro: lo fija Andreu |
+| D7 | **Qué promete la mensualidad** | ✅ Concepto decidido (2026-07-28) · ⬜ faltan cifras | **Una sola cuota personalizada** que cubre mantenimiento, asistencia y seguimiento — nunca el patrón del mercado de «suscripción + mantenimiento + SEO + contenido», cada cosa por su lado. Al subir de tramo la cuota **se sustituye, no se apila**. Benchmark con fuentes y escalera propuesta (Base 39 · Crece 279 · Acelera 590) en [`docs/ANALISIS_MENSUALIDAD.md`](ANALISIS_MENSUALIDAD.md) — cifras a confirmar por Andreu; no bloquean el reencuadre del copy, solo los números finales |
+| D8 | **Agencias: página y marca blanca** | ✅ Decidido (2026-07-28) | Sí a `/agencias` (indexable) y **sí a marca blanca**: nosotros el desarrollo — motor, construcción, mantenimiento técnico —, la agencia lo demás (cliente, diseño si quiere, marketing). Ambición declarada: **captar todo cliente de ecommerce, pequeño o grande, directo o de otra agencia**. Queda **D8c** (tarifas de partner), sin prisa |
 | — | Pendientes anteriores que siguen vivas: submission a **Awwwards** (de pago) y `font-display: optional` para el 98 del dossier móvil | Cuando quieras | — |
 
 ## 5. Qué NO cambia (los raíles)
@@ -242,6 +258,10 @@ sigue: *si hay que explicarle qué es un webhook, está mal hecho.*
 - **Coste 0 € de infraestructura** y cero dependencias nuevas.
 - **El mapa de indexación**: nada nuevo se publica sin decidir su lado
   (checklist seo); `/demo/*` sigue noindex.
+- **La ambición de captación no rompe la honestidad técnica**: el motor v1
+  sirve catálogos pequeños–medianos (50–100 refs). «Grande» entra por «A
+  medida» y con propuesta previa (§14) — la landing nunca promete lo que el
+  motor aún no da.
 - **JS propio ≤15 KB** y Lighthouse 100×4 como criterio de cierre en
   indexables.
 

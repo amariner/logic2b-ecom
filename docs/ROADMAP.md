@@ -85,10 +85,16 @@ documentación crece hasta servir a **dos visiones**: la de negocio (un CEO de
 ecommerce que decide, una agencia que nos subcontrata) y la de operación (el
 gestor de la tienda).
 
-El argumentario canónico (pilares P1–P4, fuente de verdad de todo el copy), el
-mapa audiencia→documento y las decisiones reservadas a Andreu (D7: qué promete
-la mensualidad; D8: página `/agencias` y marca blanca) están en el plan.
-Bloques, un bloque por sesión:
+El argumentario canónico (pilares P1–P4, fuente de verdad de todo el copy) y el
+mapa audiencia→documento están en el plan. **D7 y D8 se decidieron en concepto
+el mismo 2026-07-28**: la mensualidad es **una sola cuota personalizada**
+(mantenimiento + asistencia + seguimiento, que se sustituye al subir de tramo,
+nunca se apila) — cifras pendientes de Andreu, con benchmark y escalera
+propuesta (Base 39 · Crece 279 · Acelera 590) en
+[`docs/ANALISIS_MENSUALIDAD.md`](ANALISIS_MENSUALIDAD.md) —; y `/agencias` es
+un GO **con marca blanca** (nosotros el desarrollo, la agencia lo demás;
+captar todo cliente de ecommerce, directo o de otra agencia). Bloques, un
+bloque por sesión:
 
 | Bloque | Qué es | Estado |
 |---|---|---|
@@ -96,7 +102,7 @@ Bloques, un bloque por sesión:
 | F12.1 | Renombrado LogicEcom → Logic2B Ecommerce (22 ficheros, wordmark, OG, JSON-LD, docs) | ⬜ |
 | F12.2 | La landing cuenta el argumento nuevo (hero P1, sección nueva «crece sin migrar» P2, precios reencuadrados P3, FAQ+JSON-LD) | ⬜ |
 | F12.3 | Dossier V2: business case para el decisor (camino MVP→escala, qué compra la mensualidad) | ⬜ |
-| F12.4 | La visión de la agencia: `docs/AGENCIAS.md` (+ `/agencias` si D8a = sí) | ⬜ |
+| F12.4 | La visión de la agencia: `docs/AGENCIAS.md` + página `/agencias` (D8: GO, con marca blanca) | ⬜ |
 | F12.5 | La visión del gestor ampliada: `/ayuda` con escenarios reales y «tu primer mes» | ⬜ |
 | F12.6 | Consolidación: barridos completos, Lighthouse en producción, OG, índice `docs/README.md` por audiencia | ⬜ |
 
@@ -1184,13 +1190,17 @@ gestor). **Plan maestro completo en
   F12.1–F12.3 reescriban marca y copy en media web.
 - **Después, en orden:** F12.1 renombrado → F12.2 landing → F12.3 dossier →
   F12.4 agencias · F12.5 gestor (cualquier orden) → F12.6 consolidación.
-- **Decisiones de Andreu en cola** (tabla con propuestas en el plan): **D7**
-  qué promete exactamente la mensualidad — bloquea el cierre de F12.2/F12.3;
-  el copy con promesas de servicio se le presenta SIEMPRE antes de desplegar
-  (veto de product) · **D8** página `/agencias` pública y marca blanca —
-  bloquea el cierre de F12.4 · y las anteriores siguen vivas: submission a
-  **Awwwards** (de pago) y `font-display: optional` para el 98 del dossier
-  móvil.
+- **Decisiones de Andreu en cola:** **D7** — concepto DECIDIDO (2026-07-28):
+  una sola cuota personalizada (mantenimiento + asistencia + seguimiento) que
+  se sustituye al subir de tramo, nunca se apila; **solo faltan las cifras**,
+  con benchmark y escalera propuesta (Base 39 · Crece 279 · Acelera 590) en
+  [`docs/ANALISIS_MENSUALIDAD.md`](ANALISIS_MENSUALIDAD.md) — no bloquea el
+  reencuadre del copy, solo los números finales · **D8** — DECIDIDO: página
+  `/agencias` sí y marca blanca sí (nosotros el desarrollo, la agencia lo
+  demás); queda **D8c** (tarifas de partner), sin prisa · el copy con
+  promesas de servicio se presenta SIEMPRE a Andreu antes de desplegar (veto
+  de product) · y las anteriores siguen vivas: submission a **Awwwards** (de
+  pago) y `font-display: optional` para el 98 del dossier móvil.
 - **Recordatorio de red** (por si vuelve a hacer falta imaginería): el CDN de
   Higgsfield y `ecom.logic2b.com` están **denegados desde cloud** (000). En
   local, el sandbox también bloquea la red: `curl`/`git` de red necesitan
