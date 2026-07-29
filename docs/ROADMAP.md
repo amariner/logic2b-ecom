@@ -1206,12 +1206,13 @@ gestor). **Plan maestro completo en
   copy final se presenta a Andreu ANTES de desplegar** — son promesas de
   servicio. Cierre: OK de Andreu · a11y verde · JSON-LD validando ·
   Lighthouse 100×4 en `/` tras el deploy.
-- **F12.1 está CERRADO** (2026-07-28, entrada abajo): renombrado ejecutado en
-  las 23 superficies vivas, OG regenerada (`?v=3`), a11y 123/123, `pnpm check`
-  verde. **Pendiente de despliegue** (sesión OAuth de wrangler caducada): lo
-  primero de la próxima sesión local es `pnpm deploy` + reset + verificar el
-  nombre nuevo servido, y `pnpm audit:lh` contra producción (las 4 indexables
-  cambian de `<title>`).
+- **F12.1 está CERRADO y desplegado** (2026-07-28, entrada abajo): renombrado
+  en las 23 superficies vivas, OG regenerada (`?v=3`), a11y 123/123, `pnpm
+  check` verde, producción sirviendo el nombre nuevo y demo reseteada.
+  **Deuda menor que hereda F12.2:** `docs/LIGHTHOUSE.md` sigue con la tanda
+  del 2026-07-27 — la de esta sesión salió con la red del medidor a
+  trompicones y no se publicó (ver entrada). Al desplegar F12.2 toca
+  `pnpm audit:lh --write` con red estable.
 - **F12.0 está CERRADO y desplegado** (2026-07-28, entrada abajo): 123
   superficies en verde y sin avisos — 19 comerciales nuevas, las 20 `@dark`
   fantasma retiradas, pie de `/ayuda` arreglado, regla 13 sin falsos
@@ -1301,6 +1302,22 @@ cabecera a 375 (wordmark + CTA sin apretarse) y a 1440 (con el nav completo),
 columna «LOGIC2B ECOMMERCE» del pie de Street a 375, y la columna de la tabla
 comparativa de la landing (envuelve a dos líneas dentro de su contenedor con
 scroll; el documento no desborda). Consola limpia.
+
+**Desplegado y comprobado en producción**: los cuatro `<title>` nuevos servidos
+en `/`, `/arquitectura`, `/dossier` y `/estilos`, `og.jpg?v=3` en 200 (113 KB)
+y demo reseteada (`POST /api/demo/reset` con `Origin`). El primer `pnpm deploy`
+murió con «The request to Cloudflare's API timed out» —red, no credenciales—;
+el reintento entró.
+
+**Lighthouse: medido, no publicado.** La tanda contra producción dio 100 en
+accesibilidad, buenas prácticas y SEO en las ocho combinaciones, con LCP, CLS y
+TBT iguales al baseline del 2026-07-27 (1.3 s / 0.00 / 0 ms en móvil), pero el
+rendimiento osciló entre 96 y 100 entre pasadas y el propio script reintentó
+tres descargas por lentitud («el documento tardó 6,4 s en llegar»). Es ruido de
+la red del medidor: el renombrado solo cambia texto. `docs/LIGHTHOUSE.md`
+**no** se reescribe —la tabla es citable en la landing y no se publica con
+cifras de una red inestable—; la próxima tanda con `--write` va con el deploy
+de F12.2.
 
 ### F12.0 — la red de seguridad llega a las páginas comerciales, y el auditor deja de contar cobertura fantasma (2026-07-28, sesión local)
 
