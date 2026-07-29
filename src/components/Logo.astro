@@ -5,6 +5,10 @@
  * El isotipo está RETIRADO por defecto (decisión 2026-07-20): Logic2B Ecommerce se
  * presenta como wordmark tipográfico puro. El SVG se conserva porque la marca
  * de agencia (Logic2B) lo sigue usando; para reactivarlo basta `mark={true}`.
+ *
+ * El slot `wordmark` permite sustituir el texto plano por marcado propio —lo
+ * usa `SiteHeader` para la marca partida (Logic2B → agencia, Ecommerce →
+ * home)— sin duplicar la tipografía del wordmark en dos sitios.
  */
 interface Props {
   /** Alto/ancho del isotipo en px. */
@@ -15,6 +19,8 @@ interface Props {
   mark?: boolean;
   class?: string;
 }
+
+const hasWordmarkSlot = Astro.slots.has('wordmark');
 
 const { size = 20, wordmark = 'Logic2B Ecommerce', mark = false, class: className = '' } = Astro.props;
 ---
@@ -27,5 +33,11 @@ const { size = 20, wordmark = 'Logic2B Ecommerce', mark = false, class: classNam
       </svg>
     )
   }
-  {wordmark ? <span class="font-display text-[15px] font-semibold tracking-tight">{wordmark}</span> : null}
+  {
+    hasWordmarkSlot || wordmark ? (
+      <span class="font-display text-[15px] font-semibold tracking-tight">
+        {hasWordmarkSlot ? <slot name="wordmark" /> : wordmark}
+      </span>
+    ) : null
+  }
 </span>

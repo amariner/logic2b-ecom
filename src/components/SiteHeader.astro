@@ -22,6 +22,14 @@ interface Props {
   showMark?: boolean;
   /** href del enlace de nav activo (se resalta en foreground). */
   activeHref?: string | undefined;
+  /**
+   * Marca partida (solo para el wordmark del producto): «Logic2B» enlaza a la
+   * agencia y «Ecommerce» a la home del producto. Es el nombre contando lo que
+   * significa — producto y agencia bajo el mismo techo— y de paso lleva
+   * tráfico a logic2b.com. Las tiendas de la demo NO lo usan: ahí el wordmark
+   * es el nombre del comercio y enlaza a su catálogo.
+   */
+  splitBrand?: boolean;
 }
 
 const {
@@ -30,16 +38,43 @@ const {
   nav = [],
   showMark = false,
   activeHref,
+  splitBrand = false,
 } = Astro.props;
+
+/** La agencia. Enlace externo real, no una ruta de este sitio. */
+const AGENCY_HREF = 'https://logic2b.com';
+
+/**
+ * Con la marca partida hay DOS enlaces hermanos, nunca uno dentro de otro
+ * (ancla anidada = HTML inválido y error del auditor). El de home se
+ * autoseñala con `aria-current` cuando ya estamos en ella. El lockup es fijo
+ * —«Logic2B» + «Ecommerce»—: no es un wordmark cualquiera, es LA marca.
+ */
+const onHome = Astro.url.pathname === homeHref;
 ---
 
 {/* view-transition-name: el header persiste (no se funde) al navegar entre
     páginas que lo comparten (/ ↔ /estilos ↔ /arquitectura) — continuidad sin JS. */}
 <header class="sticky top-0 z-50 w-full border-b border-border bg-background/80 backdrop-blur [view-transition-name:site-header]">
   <div class="mx-auto flex h-14 w-full max-w-6xl items-center gap-6 px-4 sm:px-6">
-    <a href={homeHref} class="flex items-center gap-2 text-foreground" aria-label={wordmark ?? 'Inicio'}>
-      <Logo size={20} wordmark={wordmark} mark={showMark} />
-    </a>
+    {
+      splitBrand ? (
+        <Logo size={20} wordmark={null} mark={showMark} class="wordmark text-foreground">
+          <Fragment slot="wordmark">
+            <a href={AGENCY_HREF} class="wm-agency">
+              Logic<span class="wm-2b">2B</span>
+            </a>{' '}
+            <a href={homeHref} class="wm-product" aria-current={onHome ? 'page' : undefined}>
+              Ecommerce
+            </a>
+          </Fragment>
+        </Logo>
+      ) : (
+        <a href={homeHref} class="flex items-center gap-2 text-foreground" aria-label={wordmark ?? 'Inicio'}>
+          <Logo size={20} wordmark={wordmark} mark={showMark} />
+        </a>
+      )
+    }
 
     {
       nav.length > 0 && (

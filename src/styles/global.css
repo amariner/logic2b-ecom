@@ -35,6 +35,45 @@
   line-gap-override: 0%;
 }
 
+/* ── Poppins: la tipografía de marca de Logic2B (traída de logic2b-norte) ────
+   Titulares del producto y wordmark, para que Logic2B Ecommerce y logic2b.com
+   se lean como la misma casa. Poppins no es variable: cada peso es un archivo,
+   así que solo viaja el 600 (todos los titulares usan --weight-display: 600).
+   Las TIENDAS de la demo no la descargan: cada tema pisa --font-display. */
+@font-face {
+  font-family: 'Poppins';
+  font-style: normal; font-weight: 600; font-display: swap;
+  src: url('/fonts/poppins-600-latin.woff2') format('woff2');
+}
+/* Fallback con métricas ajustadas, mismo truco que "Inter Fallback": mientras
+   Poppins carga, Arial ocupa el mismo alto y ancho y el swap no desplaza nada
+   (Poppins es más ancha que Arial y bastante más alta de caja). */
+@font-face {
+  font-family: 'Poppins Fallback';
+  src: local("Arial"), local("Helvetica Neue"), local("Roboto");
+  size-adjust: 112%;
+  ascent-override: 93.75%;
+  descent-override: 31.25%;
+  line-gap-override: 8.93%;
+}
+/* El lockup «Logic2B»: dos subsets minúsculos (< 1 kB cada uno) heredados de
+   logic2b-norte, uno por peso, cada uno con SOLO sus code points — el
+   `unicode-range` evita que las dos caras se peleen por los mismos glifos.
+   SemiBold para «Logic», ExtraBold para el «2B»: el salto de peso ES el logo,
+   y con negrita sintética el trazo sale sucio en pantallas hidpi. */
+@font-face {
+  font-family: 'Poppins Logo';
+  font-style: normal; font-weight: 600; font-display: swap;
+  src: url('/fonts/poppins-600-logo.woff2') format('woff2');
+  unicode-range: U+4C, U+63, U+67, U+69, U+6F;
+}
+@font-face {
+  font-family: 'Poppins Logo';
+  font-style: normal; font-weight: 800; font-display: swap;
+  src: url('/fonts/poppins-800-logo.woff2') format('woff2');
+  unicode-range: U+30-32, U+42;
+}
+
 @font-face {
   font-family: 'Fraunces';
   font-style: normal; font-weight: 400 700; font-display: swap;
@@ -85,7 +124,10 @@
   --color-brand-fg: #ffffff;        /* texto SOBRE el acento (Guide lo pone en tinta) */
 
   /* Tipografía */
-  --font-display: var(--font-sans);
+  /* Titulares en Poppins: la fuente de marca de logic2b.com. El cuerpo sigue
+     en Inter (mejor lectura en párrafo largo y ya está descargada). Cada tema
+     de la demo pisa este token con la suya, así que las tiendas no cambian. */
+  --font-display: 'Poppins', 'Poppins Fallback', var(--font-sans);
   --font-accent: var(--font-mono);
   --tracking-display: -0.02em;
   --weight-display: 600;
@@ -202,6 +244,45 @@
     font-family: var(--font-display);
     font-weight: var(--weight-display);
     letter-spacing: var(--tracking-display);
+  }
+  /* Poppins es la fuente del PRODUCTO (landing, dossier, panel), no la de la
+     tienda del cliente. Los 9 temas pisan --font-display con el suyo, pero el
+     tema Base hereda de global.css (Shop.astro no emite tokens para él): sin
+     esta línea, cambiar la marca le cambiaría la cara a la tienda genérica.
+     Base es «Logic2B UI puro» y eso significa Inter. */
+  [data-store-theme='base'] {
+    --font-display: var(--font-sans);
+  }
+  /* ── El lockup de marca «Logic2B Ecommerce» ──────────────────────────────
+     Calcado de logic2b-norte para que las dos webs de la casa lleven EL MISMO
+     logo: Poppins, cuerpo 1.2rem, tracking positivo (el titular lo lleva
+     negativo; el logo no) y el salto 600 → 800 en el «2B», que es lo que hace
+     el lockup. Vive aquí y no en un `<style>` de SiteHeader porque el wordmark
+     lo pinta `Logo.astro` y el scoping de Astro no cruza de componente.
+     Son dos enlaces: «Logic2B» va a la agencia, «Ecommerce» a la home. */
+  .wordmark .wm-agency,
+  .wordmark .wm-product {
+    font-family: 'Poppins Logo', 'Poppins', 'Poppins Fallback', var(--font-sans);
+    font-size: 1.2rem;
+    font-weight: 600;
+    letter-spacing: 0.015em;
+    line-height: 1;
+    transition: color 150ms;
+  }
+  .wordmark .wm-2b {
+    font-weight: 800;
+  }
+  /* «Ecommerce» en gris fuerte: separa producto de agencia sin romper el
+     lockup, y queda MÁS oscuro que el gris del nav para que lea como marca y
+     no como un enlace más (7,6:1 sobre blanco). */
+  .wordmark .wm-product {
+    color: var(--color-neutral-600);
+  }
+  .wordmark .wm-agency:hover {
+    color: var(--color-neutral-600);
+  }
+  .wordmark .wm-product:hover {
+    color: var(--color-foreground);
   }
   /* Foco visible con el acento activo (teclado) */
   :focus-visible {

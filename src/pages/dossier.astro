@@ -130,12 +130,16 @@ const jsonLd = [
   title="Dossier del servicio — Logic2B Ecommerce"
   description="Qué incluye exactamente Logic2B Ecommerce, cómo trabajamos, qué necesitamos de ti y cuánto cuesta. El detalle completo del servicio, listo para imprimir."
   canonicalPath="/dossier"
+  preloadDisplayFont
   jsonLd={jsonLd}
 >
   <div class="bg-paper text-ink">
     <header class="sticky top-0 z-40 border-b border-black/5 bg-white/85 backdrop-blur-md print:hidden">
       <div class="mx-auto flex h-16 max-w-4xl items-center justify-between px-5">
-        <a href="/" class="font-display text-lg">Logic2B<span class="text-brand">.</span></a>
+        <span class="wordmark">
+          <a href="https://logic2b.com" class="wm-agency">Logic<span class="wm-2b">2B</span></a>
+          <a href="/" class="wm-product">Ecommerce</a>
+        </span>
         <nav class="flex items-center gap-3 text-sm sm:gap-6">
           <a href="/" class="text-stone-600 hover:text-ink">Inicio</a>
           <a href="/arquitectura" class="hidden text-stone-600 hover:text-ink sm:block">Cómo funciona</a>

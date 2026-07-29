@@ -27,9 +27,22 @@ interface Props {
   canonicalPath?: string | undefined;
   /** JSON-LD ya serializable; se emite tal cual. */
   jsonLd?: object[] | undefined;
+  /**
+   * Precargar Poppins (titulares de marca). Solo las páginas del producto la
+   * usan: las tiendas de la demo pisan `--font-display` con la fuente de su
+   * tema y descargarla ahí serían 8 kB tirados en la pieza de venta.
+   */
+  preloadDisplayFont?: boolean | undefined;
 }
 
-const { title, description = '', noindex = false, canonicalPath, jsonLd = [] } = Astro.props;
+const {
+  title,
+  description = '',
+  noindex = false,
+  canonicalPath,
+  jsonLd = [],
+  preloadDisplayFont = false,
+} = Astro.props;
 const canonical = canonicalPath ? new URL(canonicalPath, Astro.site).href : null;
 /* La tarjeta la genera `scripts/make-og.mjs`. El sufijo `?v=N` es obligatorio
    al regenerarla: WhatsApp y las redes cachean la preview por URL de imagen y
@@ -58,6 +71,11 @@ const ogImage = new URL('/images/og.jpg?v=3', Astro.site).href;
       type="font/woff2"
       crossorigin
     />
+    {/* El H1 es el LCP de las comerciales: sin precarga, Poppins llega después
+        del primer pintado y el titular cambia de cara a la vista. */}
+    {preloadDisplayFont && (
+      <link rel="preload" href="/fonts/poppins-600-latin.woff2" as="font" type="font/woff2" crossorigin />
+    )}
     <link rel="icon" href="/favicon.ico" sizes="48x48" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />

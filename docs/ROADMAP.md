@@ -1208,7 +1208,10 @@ gestor). **Plan maestro completo en
   Lighthouse 100×4 en `/` tras el deploy.
 - **F12.1 está CERRADO y desplegado** (2026-07-28, entrada abajo): renombrado
   en las 23 superficies vivas, OG regenerada (`?v=3`), a11y 123/123, `pnpm
-  check` verde, producción sirviendo el nombre nuevo y demo reseteada.
+  check` verde, producción sirviendo el nombre nuevo y demo reseteada. **Lo
+  añadido después del deploy —marca partida (Logic2B → agencia · Ecommerce →
+  home) y Poppins como tipografía de titulares, traída de `logic2b-norte`—
+  está en el repo pero NO servido: entra con el deploy de F12.2.**
   **Deuda menor que hereda F12.2:** `docs/LIGHTHOUSE.md` sigue con la tanda
   del 2026-07-27 — la de esta sesión salió con la red del medidor a
   trompicones y no se publicó (ver entrada). Al desplegar F12.2 toca
@@ -1308,6 +1311,47 @@ en `/`, `/arquitectura`, `/dossier` y `/estilos`, `og.jpg?v=3` en 200 (113 KB)
 y demo reseteada (`POST /api/demo/reset` con `Origin`). El primer `pnpm deploy`
 murió con «The request to Cloudflare's API timed out» —red, no credenciales—;
 el reintento entró.
+
+**Añadido después del despliegue (misma sesión, a petición de Andreu): la
+marca partida y la tipografía de la casa.** El wordmark deja de ser una
+palabra y pasa a ser un lockup con dos destinos: **«Logic2B» → logic2b.com**
+(la agencia) y **«Ecommerce» → la home del producto**, en gris fuerte
+(`neutral-600`, 7,6:1). Son **dos enlaces hermanos**, nunca uno dentro de otro
+—ancla anidada es HTML inválido y error del auditor—, lo que obligó a que
+`Logo.astro` acepte un slot `wordmark` en vez de recibir solo texto. Va detrás
+del prop `splitBrand`, apagado por defecto: las tiendas montan la misma
+cabecera pero ahí el wordmark es el nombre del comercio.
+
+El estilo se **trae tal cual de `logic2b-norte`** para que las dos webs de la
+casa lleven el mismo logo: Poppins, cuerpo 1.2rem, tracking +0.015em y el
+salto **600 → 800 en el «2B»**. Con él viajan los dos subsets de logo (< 1 kB
+cada uno, con `unicode-range` propio para que las dos caras no se peleen por
+los mismos glifos) y **Poppins 600 latino (8 kB) como fuente de titulares** de
+todo el producto: `--font-display` deja de ser Inter. Detalles que costaron
+una vuelta:
+
+- **El scoping de Astro no cruza de componente.** El `<style>` de `SiteHeader`
+  generaba `.wordmark[data-astro-cid-…]`, pero la clase aterriza en el `<span>`
+  que pinta `Logo`, que lleva OTRO cid. Las reglas del lockup viven ahora en
+  `global.css`, junto a `.font-display`.
+- **Cambiar `--font-display` es tocar un token base** (veto de ux-ui): el tema
+  **Base de las tiendas no emite tokens propios** —«sus valores son los de
+  global.css», dice `Shop.astro`—, así que la tienda genérica se habría
+  llevado la fuente de marca. Se le fija Inter con
+  `[data-store-theme='base']`: Poppins es del producto, no del cliente. Las
+  otras 9 tiendas ya pisaban el token y no se enteran.
+- **Sin CLS y sin peso muerto**: fallback con métricas ajustadas
+  («Poppins Fallback», mismo truco que «Inter Fallback»), precarga solo en las
+  cuatro comerciales vía `preloadDisplayFont` (las tiendas no la descargan —
+  verificado: `document.fonts` vacío de Poppins en la Base) y **CLS 0 medido**
+  en la landing. Cobertura de acentos y signos castellanos comprobada glifo a
+  glifo.
+- Las cabeceras propias de `/arquitectura` y `/dossier` —que seguían con el
+  wordmark viejo «Logic2B.»— pasan al lockup nuevo.
+
+Reverificado con los cambios: `pnpm check` (148 tests, 0 errores) y **123/123
+del barrido a11y, 0 avisos**. **Sin desplegar todavía**: entra con el próximo
+deploy.
 
 **Lighthouse: medido, no publicado.** La tanda contra producción dio 100 en
 accesibilidad, buenas prácticas y SEO en las ocho combinaciones, con LCP, CLS y

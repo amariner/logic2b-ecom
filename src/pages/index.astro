@@ -246,11 +246,12 @@ const jsonLd = [
   title="Logic2B Ecommerce — tiendas online a medida, sin cuotas de plataforma"
   description="Diseñamos tiendas online radicalmente distintas para comercios de 50–100 productos, sobre un mismo motor: ultrarrápidas, con pagos Stripe y 0 €/mes de infraestructura. Hechas en Castellón por Logic2B."
   canonicalPath="/"
+  preloadDisplayFont
   jsonLd={jsonLd}
 >
   {/* data-landing: raíz donde el script de motion muta las variables de acento. */}
   <div class="bg-background text-foreground" data-landing>
-    <SiteHeader homeHref="/" wordmark="Logic2B Ecommerce" nav={nav}>
+    <SiteHeader homeHref="/" wordmark="Logic2B Ecommerce" splitBrand nav={nav}>
       <a
         slot="actions"
         href="/demo/tiendas/launch"
