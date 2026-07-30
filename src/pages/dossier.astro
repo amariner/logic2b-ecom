@@ -4,11 +4,56 @@
 // que la landing. Los precios son los publicados en la landing.
 import Base from '../layouts/Base.astro';
 
+// ── El camino MVP → tienda que crece (P2) ───────────────────────────────────
+// Se VENDE, no se construye (§14): sin fechas prometidas y sin dar por
+// incluida en la cuota ninguna función de la columna «después».
+const path = [
+  {
+    k: 'Mes 1',
+    title: 'La tienda que vende',
+    body: 'Se entrega el MVP completo y operativo: catálogo, carrito, pagos con Stripe, envíos, emails y panel. No es una versión recortada — es todo lo que un comercio necesita para vender, sin lo que no necesita todavía.',
+  },
+  {
+    k: 'Los primeros meses',
+    title: 'Se afina con datos reales',
+    body: 'Con las primeras ventas se ve qué funciona: qué se busca y no se encuentra, dónde se abandona el carrito, qué producto merece mejor foto. Los ajustes entran en el mantenimiento; nadie diseña a ciegas.',
+  },
+  {
+    k: 'Cuando el negocio lo pida',
+    title: 'Se añade, no se migra',
+    body: 'Cuentas de cliente, promociones y descuentos, multiidioma, transportistas integrados, feeds de catálogo, email marketing… Cada pieza se construye sobre la misma tienda, con presupuesto propio y sin tocar lo que ya funciona.',
+  },
+  {
+    k: 'A cualquier escala',
+    title: 'El techo no lo pone la plataforma',
+    body: 'La arquitectura sirve un expositor de 10 referencias y un catálogo industrial. Cuando el catálogo crece de verdad, el trabajo está en búsqueda con índice, facetas y sincronización de inventario — no en cambiar de plataforma. Las cuentas, en /arquitectura.',
+  },
+];
+
+// ── Qué compra la mensualidad (P3 · concepto D7) ────────────────────────────
+// Una sola cuota que se sustituye al subir de tramo, nunca se apila. El
+// marketing de Logic2B se presenta como continuación natural (P4) y SEPARADO
+// de la cuota: mientras D7 no fije lo contrario, no se promete incluido.
+const monthly = [
+  {
+    title: 'Que siga en pie',
+    body: 'Copias de seguridad, actualizaciones, vigilancia de que los pagos y los emails salen. El día que algo se rompe —y algún día pasa— hay alguien a quien escribir que ya conoce tu tienda.',
+  },
+  {
+    title: 'Que alguien te atienda',
+    body: 'Asistencia personalizada de las personas que la construyeron: dudas del panel, cambios de contenido (hasta 2 h/mes en el Kit), una mano cuando llega la campaña de Navidad. No un ticket en una cola.',
+  },
+  {
+    title: 'Que evolucione contigo',
+    body: 'Seguimiento del proyecto: qué está pidiendo tu tienda, qué merece la pena construir después y qué no. Las ampliaciones se presupuestan aparte; el criterio para elegirlas va incluido.',
+  },
+];
+
 const included = [
   {
     area: 'La tienda que ve tu cliente',
     items: [
-      'Catálogo con categorías, búsqueda y ordenación, listo para 50–100 productos.',
+      'Catálogo con categorías, buscador y ordenación, del expositor pequeño al catálogo grande.',
       'Ficha de producto con foto optimizada, precio, stock y datos estructurados (schema Product) que Google entiende.',
       'Carrito y checkout como invitado: nadie tiene que crearse una cuenta para comprarte.',
       'Pago en la página segura de Stripe: la tarjeta nunca pasa por tu web (cero papeleo PCI).',
@@ -90,7 +135,15 @@ const faqs = [
   },
   {
     q: '¿Y si mi catálogo crece o cambia?',
-    a: 'Precios, stock, nombres y productos activos los cambias tú desde el panel al momento. Cambios grandes (fotos nuevas, categorías, secciones) entran en el mantenimiento. Si creces hasta necesitar funciones nuevas, el código es a medida: se amplía, no se tira.',
+    a: 'Precios, stock, nombres y productos activos los cambias tú desde el panel al momento. Cambios grandes (fotos nuevas, categorías, secciones) entran en el mantenimiento. Si creces hasta necesitar funciones nuevas, el código es a medida: se amplía, no se tira. Y el tamaño no es el límite: la misma arquitectura sirve 10 referencias o un millón.',
+  },
+  {
+    q: '¿Qué incluye exactamente la mensualidad y qué no?',
+    a: 'Incluye mantenimiento (copias, actualizaciones, vigilancia), asistencia personalizada y seguimiento del proyecto; en el Kit, además, hasta 2 h de cambios de contenido al mes. No incluye construir funciones nuevas ni campañas de marketing: eso se presupuesta aparte y se decide contigo. Es una sola cuota: si tu tienda sube de nivel de servicio, se sustituye por la nueva, nunca se apila una suscripción encima de otra.',
+  },
+  {
+    q: '¿Y el marketing? ¿Tenemos que buscar otra agencia?',
+    a: 'No hace falta: Logic2B es agencia de desarrollo y SEO, así que el posicionamiento, las campañas y el contenido los puede llevar el mismo equipo que construyó la tienda, con presupuesto propio. Trabajar con quien ya conoce tu tienda por dentro ahorra la mitad de las reuniones.',
   },
   {
     q: '¿Qué pasa si dejo el mantenimiento?',
@@ -98,7 +151,7 @@ const faqs = [
   },
   {
     q: '¿Por qué no Shopify o WooCommerce?',
-    a: 'Para 50–100 productos, Shopify son 36 €/mes de por vida más ~2 % extra por venta si no usas su pasarela, sobre una plantilla compartida. WooCommerce es «gratis» pero vives pendiente de hosting y plugins. Aquí el código es tuyo, a medida, sin cuotas de plataforma y más rápido que ambos.',
+    a: 'Shopify son 36 €/mes de por vida más ~2 % extra por venta si no usas su pasarela, sobre una plantilla compartida. WooCommerce es «gratis» pero vives pendiente de hosting y plugins. Aquí el código es tuyo, a medida, sin cuotas de plataforma y más rápido que ambos. Y la diferencia de fondo: esa cuota paga una plataforma; la nuestra paga a las personas que llevan tu tienda.',
   },
   {
     q: '¿Tienda en varios idiomas?',
@@ -112,7 +165,7 @@ const jsonLd = [
     '@type': 'Service',
     name: 'Logic2B Ecommerce',
     description:
-      'Tienda online a medida para comercios de 50 a 100 productos: ultrarrápida, sin cuotas mensuales de plataforma y con coste de infraestructura cero.',
+      'Tienda online a medida que arranca como MVP y escala de 10 referencias a un millón sin cambiar de plataforma: ultrarrápida, sin cuotas de plataforma, con coste de infraestructura cero y la asistencia continua del equipo de Logic2B.',
     provider: { '@type': 'Organization', name: 'Logic2B', url: 'https://logic2b.com' },
     areaServed: 'ES',
     serviceType: 'Desarrollo de comercio electrónico',
@@ -128,7 +181,7 @@ const jsonLd = [
 
 <Base
   title="Dossier del servicio — Logic2B Ecommerce"
-  description="Qué incluye exactamente Logic2B Ecommerce, cómo trabajamos, qué necesitamos de ti y cuánto cuesta. El detalle completo del servicio, listo para imprimir."
+  description="El detalle completo: qué se entrega el primer mes, cómo crece tu tienda sin migrar, qué compra exactamente tu mensualidad y cuánto cuesta. Listo para imprimir y compartir."
   canonicalPath="/dossier"
   preloadDisplayFont
   jsonLd={jsonLd}
@@ -145,7 +198,7 @@ const jsonLd = [
           <a href="/arquitectura" class="hidden text-stone-600 hover:text-ink sm:block">Cómo funciona</a>
           <a
             href="/demo/tienda"
-            class="rounded-full bg-ink px-4 py-2 text-sm font-semibold text-white transition hover:bg-black sm:px-5"
+            class="rounded-btn bg-ink px-4 py-2 text-sm font-semibold text-white transition hover:bg-black sm:px-5"
           >Ver la demo</a>
         </nav>
       </div>
@@ -155,12 +208,13 @@ const jsonLd = [
       <!-- Portada -->
       <p class="text-sm font-medium uppercase tracking-wide text-brand">Dossier del servicio</p>
       <h1 class="mt-3 max-w-3xl font-display text-4xl leading-[1.05] sm:text-5xl">
-        Tu tienda online, a medida y sin cuotas: el detalle completo.
+        Tu tienda a medida: qué se entrega, cómo crece y qué compras cada mes.
       </h1>
       <p class="mt-5 max-w-2xl text-base leading-relaxed text-stone-600 sm:text-lg">
         Este documento explica exactamente qué incluye <strong class="text-ink">Logic2B Ecommerce</strong>,
-        cómo trabajamos, qué necesitamos de ti y cuánto cuesta. Sin letra pequeña: es lo mismo que
-        firmarías en el presupuesto.
+        cómo evoluciona tu tienda sin cambiar de plataforma, qué compra tu mensualidad, qué
+        necesitamos de ti y cuánto cuesta. Sin letra pequeña: es lo mismo que firmarías en el
+        presupuesto.
       </p>
       <p class="mt-3 text-sm text-stone-500 print:hidden">
         Guárdalo o compártelo: esta página está pensada para imprimirse en PDF (Ctrl/Cmd + P).
@@ -173,15 +227,17 @@ const jsonLd = [
           <div class="rounded-2xl border border-brand/30 bg-brand/5 p-6">
             <p class="font-semibold text-brand-dark">Es para ti si…</p>
             <ul class="mt-3 space-y-2 text-sm leading-relaxed text-stone-700">
-              <li class="flex gap-2"><span aria-hidden="true" class="text-brand">✓</span> Vendes entre 50 y 100 productos y quieres una tienda seria, tuya y rápida.</li>
+              <li class="flex gap-2"><span aria-hidden="true" class="text-brand">✓</span> Quieres una tienda seria, tuya y rápida — con 20 referencias o con miles.</li>
               <li class="flex gap-2"><span aria-hidden="true" class="text-brand">✓</span> Estás pagando cuotas y comisiones de plataforma que no entiendes.</li>
               <li class="flex gap-2"><span aria-hidden="true" class="text-brand">✓</span> Quieres gestionar los pedidos tú, sin depender de nadie para el día a día.</li>
+              <li class="flex gap-2"><span aria-hidden="true" class="text-brand">✓</span> Prefieres empezar por lo esencial y añadir cuando el negocio lo pida.</li>
             </ul>
           </div>
           <div class="rounded-2xl border border-stone-200 bg-cream p-6">
             <p class="font-semibold text-stone-700">No es para ti si…</p>
             <ul class="mt-3 space-y-2 text-sm leading-relaxed text-stone-600">
-              <li class="flex gap-2"><span aria-hidden="true">—</span> <span>Necesitas miles de referencias, multiidioma o marketplace: eso es otro proyecto (y podemos hablarlo).</span></li>
+              <li class="flex gap-2"><span aria-hidden="true">—</span> <span>Quieres un marketplace con varios vendedores, o vender por suscripción recurrente: eso es otro proyecto (y podemos hablarlo).</span></li>
+              <li class="flex gap-2"><span aria-hidden="true">—</span> <span>Tu catálogo cambia a diario y necesita sincronizarse solo con un ERP: se puede construir, pero no es el proyecto que describe este dossier.</span></li>
               <li class="flex gap-2"><span aria-hidden="true">—</span> <span>Buscas la tienda más barata posible sin diseño propio: una plantilla te servirá.</span></li>
               <li class="flex gap-2"><span aria-hidden="true">—</span> <span>Vendes menos de 10 productos: pregunta por el <a href="mailto:hola@logic2b.com?subject=Kit%20Lite%20para%20mi%20negocio" class="font-medium text-brand underline underline-offset-2">Kit Lite</a>, la versión de entrada.</span></li>
             </ul>
@@ -189,9 +245,41 @@ const jsonLd = [
         </div>
       </section>
 
+      <!-- El camino: de MVP a tienda que crece (P2) -->
+      <section class="mt-14">
+        <h2 class="font-display text-2xl sm:text-3xl">El camino: de MVP a tienda que crece</h2>
+        <p class="mt-2 max-w-2xl leading-relaxed text-stone-600">
+          Tu tienda arranca básica y funcional, y crece cuando el negocio lo pide —
+          sin cambiar de plataforma ni empezar de cero. Este es el recorrido de un
+          proyecto tipo. <strong class="text-ink">No hay fechas prometidas</strong>:
+          cada paso se decide contigo, cuando toca.
+        </p>
+        <ol class="mt-6 space-y-3">
+          {path.map((stage) => (
+            <li class="flex flex-col gap-1 rounded-2xl border border-black/5 bg-white p-6 shadow-sm sm:flex-row sm:gap-6">
+              <p class="shrink-0 font-medium uppercase tracking-wide text-brand sm:w-48 sm:text-sm">{stage.k}</p>
+              <div>
+                <h3 class="font-semibold">{stage.title}</h3>
+                <p class="mt-1.5 text-sm leading-relaxed text-stone-600">{stage.body}</p>
+              </div>
+            </li>
+          ))}
+        </ol>
+        <p class="mt-4 text-sm leading-relaxed text-stone-600">
+          Lo que no entra en el primer mes no está «quitado»: está
+          <strong class="text-ink">esperando a que tu tienda lo justifique</strong>.
+          Es la diferencia entre pagar por funciones que no usas y construir las que
+          te hacen falta.
+        </p>
+      </section>
+
       <!-- Qué incluye -->
       <section class="mt-14">
-        <h2 class="font-display text-2xl sm:text-3xl">Qué incluye, exactamente</h2>
+        <h2 class="font-display text-2xl sm:text-3xl">Qué incluye el primer mes, exactamente</h2>
+        <p class="mt-2 max-w-2xl leading-relaxed text-stone-600">
+          El MVP no es una versión recortada: es una tienda completa y operativa
+          desde el día que se publica.
+        </p>
         <div class="mt-6 space-y-6">
           {included.map((block) => (
             <div class="rounded-2xl border border-black/5 bg-white p-6 shadow-sm">
@@ -207,7 +295,8 @@ const jsonLd = [
         <p class="mt-4 text-sm text-stone-500">
           ¿Quieres verlo por dentro? La <a href="/demo/tienda" class="text-brand underline underline-offset-2 hover:text-brand-dark">demo</a> es
           este mismo kit funcionando: compra, gestiona el pedido en el panel y mira los emails que enviaría.
-          En <a href="/arquitectura" class="text-brand underline underline-offset-2 hover:text-brand-dark">/arquitectura</a> está la explicación técnica.
+          En <a href="/arquitectura" class="text-brand underline underline-offset-2 hover:text-brand-dark">/arquitectura</a> está la explicación técnica,
+          incluidas las cuentas de hasta dónde escala el catálogo.
         </p>
       </section>
 
@@ -227,6 +316,18 @@ const jsonLd = [
             </li>
           ))}
         </ol>
+        <div class="mt-6 rounded-2xl border border-black/5 bg-cream p-6">
+          <h3 class="font-semibold">Tu panel es simple a propósito</h3>
+          <p class="mt-2 text-sm leading-relaxed text-stone-600">
+            Pedidos, envíos y productos. Nada más — se aprende en cinco minutos
+            porque no hay nada que configurar. Las mil configuraciones que en otras
+            plataformas son pantallas de ajustes infinitas (mercados, divisas,
+            impuestos, integraciones) <strong class="text-ink">corren de nuestro
+            lado</strong>, invisibles para quien gestiona la tienda. Y lo fuera de lo
+            común nos lo pides y lo resolvemos: mejor que ir añadiendo plugins,
+            adaptarlos y pagar suscripciones que no aportan gran cosa.
+          </p>
+        </div>
       </section>
 
       <!-- Qué necesitamos -->
@@ -242,11 +343,48 @@ const jsonLd = [
         </dl>
       </section>
 
+      <!-- Qué compra tu mensualidad (P3 · concepto D7) -->
+      <section class="mt-14">
+        <h2 class="font-display text-2xl sm:text-3xl">Qué compra tu mensualidad</h2>
+        <p class="mt-2 max-w-2xl leading-relaxed text-stone-600">
+          La infraestructura cuesta 0 €: la tienda corre en los planes gratuitos de
+          Cloudflare y eso se puede comprobar. Así que tu cuota no paga servidores ni
+          licencias — <strong class="text-ink">paga a las personas que llevan tu
+          tienda</strong>. Esto es lo que compra:
+        </p>
+        <div class="mt-6 grid gap-5 sm:grid-cols-3">
+          {monthly.map((item) => (
+            <div class="rounded-2xl border border-black/5 bg-white p-6 shadow-sm">
+              <h3 class="font-semibold">{item.title}</h3>
+              <p class="mt-2 text-sm leading-relaxed text-stone-600">{item.body}</p>
+            </div>
+          ))}
+        </div>
+        <div class="mt-5 rounded-2xl border border-brand/30 bg-brand/5 p-6">
+          <p class="font-semibold text-brand-dark">Una cuota, no una pila de suscripciones</p>
+          <p class="mt-2 text-sm leading-relaxed text-stone-700">
+            Lo habitual en el mercado es acabar pagando la suscripción de la
+            plataforma por un lado, el mantenimiento por otro, el SEO por otro y los
+            contenidos por otro. Aquí es <strong class="text-ink">una sola cuota</strong>:
+            si tu tienda sube de nivel de servicio, la cuota se sustituye por la
+            nueva. Nunca se apila una encima de otra.
+          </p>
+        </div>
+        <p class="mt-4 text-sm leading-relaxed text-stone-600">
+          <strong class="text-ink">Lo que no incluye, dicho claro:</strong> construir
+          funciones nuevas y las campañas de marketing se presupuestan aparte. La
+          ventaja es que no hace falta buscar a nadie más —
+          <a href="https://logic2b.com" class="text-brand underline underline-offset-2 hover:text-brand-dark">Logic2B</a>
+          es agencia de desarrollo y SEO, así que el posicionamiento y las campañas
+          los lleva el mismo equipo que conoce tu tienda por dentro.
+        </p>
+      </section>
+
       <!-- Precios (escalera D4: Lite · Kit · Kit a medida) -->
       <section class="mt-14">
         <h2 class="font-display text-2xl sm:text-3xl">Cuánto cuesta</h2>
         <p class="mt-2 max-w-2xl text-stone-600">
-          Un pago único de puesta en marcha y un mantenimiento mensual claro, sin
+          Un pago único de puesta en marcha y una sola cuota mensual, sin
           permanencia. Tres formas de empezar según lo que necesites.
         </p>
         <div class="mt-6 grid gap-5 sm:grid-cols-2">
@@ -254,9 +392,10 @@ const jsonLd = [
             <p class="text-sm font-medium uppercase tracking-wide text-stone-500">Kit · el más elegido</p>
             <p class="mt-2 font-display text-4xl">1.900 €<span class="text-base font-normal text-stone-500"> + 39 €/mes</span></p>
             <p class="mt-4 text-sm leading-relaxed text-stone-600">
-              Todo lo del apartado «Qué incluye», partiendo de uno de los estilos del
-              catálogo adaptado a tu marca: color, tipografía y fotos. El mantenimiento
-              cubre copias de seguridad, actualizaciones, soporte por email y
+              Todo lo del apartado «Qué incluye el primer mes», partiendo de uno de los
+              estilos del catálogo adaptado a tu marca: color, tipografía y fotos. La
+              cuota cubre lo del apartado anterior —mantenimiento, asistencia y
+              seguimiento— con
               <strong class="text-ink">hasta 2 horas de cambios de contenido al mes</strong>.
             </p>
           </div>

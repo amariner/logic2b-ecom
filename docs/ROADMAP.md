@@ -125,7 +125,7 @@ tienda conservan su radio propio. Bloques, un bloque por sesión:
 | F12.0 | Red de seguridad: el auditor a11y entra en las páginas comerciales + ojo a Street | ✅ 2026-07-28 — 19 superficies nuevas, 20 fantasma retiradas → **123 en verde**; desplegado (entrada abajo) |
 | F12.1 | Renombrado LogicEcom → Logic2B Ecommerce (22 ficheros, wordmark, OG, JSON-LD, docs) | ✅ 2026-07-28 — desplegado (entrada abajo) |
 | F12.2 | La landing cuenta el argumento nuevo (hero P1 + frase estrella, sección nueva «crece sin migrar» P2, precios reencuadrados P3/D7, franja P4, FAQ+JSON-LD) | ✅ 2026-07-30 — en el repo; **deploy pendiente del OK de Andreu al copy** (entrada abajo) |
-| F12.3 | Dossier V2: business case para el decisor (camino MVP→escala, qué compra la mensualidad) | ⬜ |
+| F12.3 | Dossier V2: business case para el decisor (camino MVP→escala, qué compra la mensualidad) | ✅ 2026-07-30 — en el repo; **deploy pendiente del OK de Andreu al copy** (entrada abajo) |
 | F12.4 | La visión de la agencia: `docs/AGENCIAS.md` + página `/agencias` (D8: GO, con marca blanca) | ⬜ |
 | F12.5 | La visión del gestor ampliada: `/ayuda` con escenarios reales y «tu primer mes» | ⬜ |
 | F12.6 | Consolidación: barridos completos, Lighthouse en producción, OG, índice `docs/README.md` por audiencia | ⬜ |
@@ -1215,12 +1215,14 @@ gestor). **Plan maestro completo en
   demo con cabecera `Origin`. Con el deploy salen también la marca partida y
   Poppins (en repo desde F12.1) y la alineación header/botones con
   logic2b.com (2026-07-30).
-- **Bloque que toca después: F12.3 — Dossier V2, la visión del decisor.**
-  Reescritura de `/dossier` bajo el argumentario P1–P4 (plan §3): el business
-  case del camino MVP→escala, qué compra exactamente la mensualidad (concepto
-  D7), la frase estrella como marco y la honestidad de siempre («qué pasa si
-  nos vamos»). Mismo gate: copy con promesas → OK de Andreu antes de
-  desplegar.
+  **F12.3 va en el mismo deploy**: el dossier reescrito espera el mismo OK.
+- **Bloque que toca después: F12.4 — la visión de la agencia que nos
+  subcontrata.** Es la audiencia sin cubrir (plan §3). Primero el documento
+  `docs/AGENCIAS.md` —modelo de colaboración, proceso, plazos, entregables,
+  qué necesitamos de la agencia, marca blanca (D8 ya es GO)— y después la
+  página `/agencias` indexable, decidiendo su sitio en el mapa de indexación
+  y su enlace desde la landing. **D8c (tarifas de partner) sigue siendo de
+  Andreu**: el documento se escribe sin cifras de partner hasta que las fije.
 - **F12.0 está CERRADO y desplegado** (2026-07-28, entrada abajo): 123
   superficies en verde y sin avisos — 19 comerciales nuevas, las 20 `@dark`
   fantasma retiradas, pie de `/ayuda` arreglado, regla 13 sin falsos
@@ -1255,6 +1257,52 @@ gestor). **Plan maestro completo en
   2. El **panel lateral deslizante de producto** que pedían Natural y Specs
      sigue siendo candidato a registro nuevo del motor (hoy la ficha la sirve
      Base para los 10 temas). No entra en una sesión de tema.
+
+### F12.3 — Dossier V2: la visión del decisor (2026-07-30, sesión local)
+
+`/dossier` pasa de «ficha de servicio con precios» a **business case** para
+quien decide. Misma sesión que F12.2, ejecutado tras ella.
+
+- **Sección NUEVA «El camino: de MVP a tienda que crece» (P2):** cuatro
+  etapas de un proyecto tipo — Mes 1 (el MVP completo, no una versión
+  recortada) · los primeros meses (se afina con datos reales de venta) ·
+  cuando el negocio lo pida (se añade, no se migra) · a cualquier escala (el
+  techo no lo pone la plataforma). **Sin fechas prometidas** y con la
+  aclaración de que lo que no entra el primer mes «está esperando a que tu
+  tienda lo justifique», no quitado.
+- **Sección NUEVA «Qué compra tu mensualidad» (P3 · concepto D7):** tres
+  bloques — que siga en pie (mantenimiento) · que alguien te atienda
+  (asistencia personalizada, no un ticket en una cola) · que evolucione
+  contigo (seguimiento y criterio). Recuadro anti-stacking con la regla D7
+  («una cuota que se sustituye, nunca se apila») y el párrafo de honestidad
+  «lo que NO incluye»: funciones nuevas y campañas se presupuestan aparte,
+  con el marketing de Logic2B como continuación natural (P4), no como
+  incluido.
+- **Doctrina del backend mínimo** en «Cómo trabajamos»: recuadro «tu panel es
+  simple a propósito» — pedidos, envíos y productos; las mil configuraciones
+  corren de nuestro lado; lo fuera de lo común se pide y se resuelve.
+- **«Para quién es (y para quién no)» actualizado al claim nuevo:** fuera
+  «entre 50 y 100 productos» y fuera «miles de referencias» como
+  descalificador (contradecía el techo del millón); dentro «con 20
+  referencias o con miles», la sincronización ERP diaria y el marketplace
+  como los límites reales.
+- «Qué incluye» → «Qué incluye **el primer mes**», precios reencuadrados a la
+  cuota única, FAQ 8 → 11 (mensualidad, marketing/agencia, catálogo que
+  crece), meta description y `Service` JSON-LD al argumento nuevo, CTA del
+  header al canto corporativo.
+- **Corrección de honestidad cazada al escribir este bloque:** el copy de
+  F12.2 vendía el **buscador** como función futura, pero el catálogo YA lo
+  tiene (`role="search"` con parámetro `q` en `CatalogPage.astro`). Retirado
+  de la escalera y de la FAQ de la landing; en `/arquitectura` se precisa que
+  a gran escala lo que hace falta es **búsqueda con índice propio y facetas**,
+  no un buscador donde no hay. `/estilos` abre su guía de tamaño de catálogo
+  («Completo 50–100» → «50 o más»), que dejaba huérfano al catálogo grande.
+- Verificado: `pnpm check` verde (148 tests, 0 errores de tipos) · a11y
+  `--only=site:` 19/19 sin hallazgos · navegador sin errores de consola ·
+  barrido de claims obsoletos («50–100», «500 referencias») sin resultados en
+  superficies comerciales.
+- **NO desplegado:** mismo gate de product que F12.2 — el copy espera el OK
+  de Andreu.
 
 ### F12.2 — la landing cuenta el argumento nuevo (2026-07-30, sesión local)
 
