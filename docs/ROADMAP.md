@@ -106,13 +106,25 @@ campañas, transportistas, facturación) pero en v1 se queda minimalista como
 muestra. Y quedan en la **cola del motor** (post-F12, espec en el plan):
 **feeds de catálogo Google Merchant + Meta** (un solo feed en formato Google
 sirve a ambos; prerequisito técnico del tramo Acelera) y la pantalla
-«Integraciones» del panel demo. Bloques, un bloque por sesión:
+«Integraciones» del panel demo.
+
+**Mandato añadido (2026-07-30, sesión local):** la escalabilidad se cuenta con
+una **frase estrella decidida por Andreu** — techo de **un millón** de
+referencias y forma «los dos extremos como iguales»: **«10 productos o un
+millón: tu tienda nunca se queda pequeña»**. El suelo (10) protege a los
+minoristas; el techo vende la escala. El claim se respalda con una sección
+técnica en `/arquitectura` (una referencia ≈ 1–2 KB, D1 admite 10 GB; los
+catálogos industriales entran por el tramo «A medida», raíl de honestidad §5
+del plan intacto). Además la imagen corporativa se alinea con logic2b.com:
+header al carril de `logic2b-norte` (1440px, gutter `clamp(24px,4vw,32px)`) y
+botones comerciales al canto 10px (`--r-btn` de la agencia); los temas de
+tienda conservan su radio propio. Bloques, un bloque por sesión:
 
 | Bloque | Qué es | Estado |
 |---|---|---|
 | F12.0 | Red de seguridad: el auditor a11y entra en las páginas comerciales + ojo a Street | ✅ 2026-07-28 — 19 superficies nuevas, 20 fantasma retiradas → **123 en verde**; desplegado (entrada abajo) |
-| F12.1 | Renombrado LogicEcom → Logic2B Ecommerce (22 ficheros, wordmark, OG, JSON-LD, docs) | ⬜ |
-| F12.2 | La landing cuenta el argumento nuevo (hero P1, sección nueva «crece sin migrar» P2, precios reencuadrados P3, FAQ+JSON-LD) | ⬜ |
+| F12.1 | Renombrado LogicEcom → Logic2B Ecommerce (22 ficheros, wordmark, OG, JSON-LD, docs) | ✅ 2026-07-28 — desplegado (entrada abajo) |
+| F12.2 | La landing cuenta el argumento nuevo (hero P1 + frase estrella, sección nueva «crece sin migrar» P2, precios reencuadrados P3/D7, franja P4, FAQ+JSON-LD) | ✅ 2026-07-30 — en el repo; **deploy pendiente del OK de Andreu al copy** (entrada abajo) |
 | F12.3 | Dossier V2: business case para el decisor (camino MVP→escala, qué compra la mensualidad) | ⬜ |
 | F12.4 | La visión de la agencia: `docs/AGENCIAS.md` + página `/agencias` (D8: GO, con marca blanca) | ⬜ |
 | F12.5 | La visión del gestor ampliada: `/ayuda` con escenarios reales y «tu primer mes» | ⬜ |
@@ -1193,29 +1205,22 @@ gestor). **Plan maestro completo en
 [`docs/PLAN_FASE12_LOGIC2B_ECOMMERCE.md`](PLAN_FASE12_LOGIC2B_ECOMMERCE.md)**
 — bloques F12.0–F12.6, un bloque por sesión.
 
-- **Bloque que toca: F12.2 — la landing cuenta el argumento nuevo.**
-  Reescritura de copy de `src/pages/index.astro` sobre el esqueleto actual
-  (sección a sección en el plan, §3): hero desde P1, «lo que te cuesta tu
-  tienda actual» pivotado a P3 («a dónde va tu dinero»), «las cuentas claras»
-  reencuadrada, **sección nueva «Empieza pequeño, crece sin migrar» (P2)** con
-  el catálogo de evolución y la doctrina del backend mínimo, «míralo por
-  dentro» con esa misma doctrina, precios con las **mismas cifras D4**
-  reencuadradas por P3 (el concepto D7 ya está decidido; las cifras de
-  Crece/Acelera se insertan cuando Andreu las fije), y 2–3 FAQ nuevas
-  sincronizadas con el `FAQPage`. **Gate obligatorio (veto de product): el
-  copy final se presenta a Andreu ANTES de desplegar** — son promesas de
-  servicio. Cierre: OK de Andreu · a11y verde · JSON-LD validando ·
-  Lighthouse 100×4 en `/` tras el deploy.
-- **F12.1 está CERRADO y desplegado** (2026-07-28, entrada abajo): renombrado
-  en las 23 superficies vivas, OG regenerada (`?v=3`), a11y 123/123, `pnpm
-  check` verde, producción sirviendo el nombre nuevo y demo reseteada. **Lo
-  añadido después del deploy —marca partida (Logic2B → agencia · Ecommerce →
-  home) y Poppins como tipografía de titulares, traída de `logic2b-norte`—
-  está en el repo pero NO servido: entra con el deploy de F12.2.**
-  **Deuda menor que hereda F12.2:** `docs/LIGHTHOUSE.md` sigue con la tanda
-  del 2026-07-27 — la de esta sesión salió con la red del medidor a
-  trompicones y no se publicó (ver entrada). Al desplegar F12.2 toca
-  `pnpm audit:lh --write` con red estable.
+- **PRIMERO: cerrar el ciclo de F12.2 (2026-07-30).** El copy nuevo de la
+  landing está **en el repo y verificado, pero NO desplegado**: el gate de
+  product manda — **Andreu tiene que dar el OK al copy** (promesas de
+  servicio: frase estrella con techo de un millón, cuota «se sustituye, no se
+  apila», FAQ de agencias). En cuanto llegue el OK, en sesión local:
+  `pnpm deploy` → verificación en producción → `pnpm audit:lh --write` con
+  red estable (la deuda de `docs/LIGHTHOUSE.md` viene de F12.1) → reset de la
+  demo con cabecera `Origin`. Con el deploy salen también la marca partida y
+  Poppins (en repo desde F12.1) y la alineación header/botones con
+  logic2b.com (2026-07-30).
+- **Bloque que toca después: F12.3 — Dossier V2, la visión del decisor.**
+  Reescritura de `/dossier` bajo el argumentario P1–P4 (plan §3): el business
+  case del camino MVP→escala, qué compra exactamente la mensualidad (concepto
+  D7), la frase estrella como marco y la honestidad de siempre («qué pasa si
+  nos vamos»). Mismo gate: copy con promesas → OK de Andreu antes de
+  desplegar.
 - **F12.0 está CERRADO y desplegado** (2026-07-28, entrada abajo): 123
   superficies en verde y sin avisos — 19 comerciales nuevas, las 20 `@dark`
   fantasma retiradas, pie de `/ayuda` arreglado, regla 13 sin falsos
@@ -1250,6 +1255,63 @@ gestor). **Plan maestro completo en
   2. El **panel lateral deslizante de producto** que pedían Natural y Specs
      sigue siendo candidato a registro nuevo del motor (hoy la ficha la sirve
      Base para los 10 temas). No entra en una sesión de tema.
+
+### F12.2 — la landing cuenta el argumento nuevo (2026-07-30, sesión local)
+
+La reescritura de copy de `src/pages/index.astro` sobre el esqueleto de F11,
+con el mandato comercial del día: énfasis en captación, la escalabilidad como
+valor estrella y el enlace con los servicios de la casa. **Dos decisiones las
+tomó Andreu en la sesión** (AskUserQuestion): techo de **un millón** y forma
+«los dos extremos como iguales» → la frase estrella es **«10 productos o un
+millón: tu tienda nunca se queda pequeña»**.
+
+- **Hero:** H1 nuevo «Tu tienda online a medida. 10 productos o un millón.»
+  (intención de búsqueda «tienda online a medida» conservada — seo);
+  subclaim desde la frase madre de P1 + P2; el badge pasa de «50–100
+  productos» (contradecía el techo nuevo) a «Un servicio de Logic2B» (P4).
+- **«A dónde va el dinero de tu tienda actual»** (antes «lo que te está
+  costando»): mismas cifras, cierre P3 nuevo — «la pregunta no es cuánto
+  pago, es a quién le pago».
+- **Sección NUEVA «10 productos o un millón» (P2):** escalera de 3 pasos
+  (Hoy: el MVP que vende · Cuando lo pida: se le añade sin migrar · A
+  cualquier escala) + bloque «Conectada a lo que ya usas — sin plugins» con
+  la doctrina del backend mínimo (feeds Google Merchant/Meta, mailing,
+  transportistas, facturación — «se activan de nuestro lado») y el cierre P4.
+  Vigilancia de product respetada: «cuando el negocio la justifica», sin
+  fechas y sin meterlo en la cuota.
+- **Precios:** H2 «Un equipo detrás, no una plataforma»; mismas cifras D4;
+  la mensualidad como mantenimiento + asistencia personalizada + seguimiento
+  y la regla D7 explícita («se sustituye, nunca se apila»).
+- **«Cuándo NO somos tu opción»:** fuera el techo de «500 referencias»
+  (contradecía el claim nuevo); dentro «catálogo que cambia a diario con
+  sincronización ERP», que sigue siendo verdad.
+- **Franja NUEVA «Detrás está Logic2B» (P4):** los 4 servicios del menú de
+  logic2b.com (diseño web, sistemas, marketing, automatización IA) + la
+  auditoría gratuita, enlazados — cierra el círculo con norte, que ya enlaza
+  a ecom desde su header.
+- **FAQ 5 → 8:** nuevas «¿Y si mañana necesito algo que la tienda no hace?»,
+  «¿Qué incluye exactamente la mensualidad?» (concepto D7) y «¿Trabajáis con
+  agencias?» (D8, marca blanca); la de Shopify pierde el «50–100 productos».
+  `FAQPage` derivado del array → sincronizado solo (8=8 verificado en DOM).
+- **Meta description y `Service` JSON-LD** reescritos al argumento nuevo;
+  mismas offers D4.
+- **`/arquitectura`:** sección nueva «¿Hasta dónde escala? De 10 referencias
+  a un millón» — las cuentas verificables (~1–2 KB/referencia, 10 GB por
+  base D1) y la parte honesta: a esa escala el trabajo es buscador, facetas
+  y sincronización, y eso entra por el tramo «A medida» sobre el mismo motor
+  (raíl §5 del plan intacto).
+- **Marca (petición directa de Andreu, misma sesión):** header al carril de
+  logic2b-norte (1440px, gutter `clamp(24px,4vw,32px)`) y CTAs comerciales
+  al canto corporativo 10px vía `rounded-btn`. Gotcha cazado: el tema Base
+  de la tienda dependía del fallback global (pill) — ahora `Shop.astro`
+  inyecta las vars de TODOS los temas, Base incluido, y cada tienda conserva
+  su radio. El CTA por tema de `/estilos` pinta ahora su `--radius-btn` real.
+- Verificado: `pnpm check` verde (148 tests, 0 errores de tipos, build OK) ·
+  a11y `--only=site:` 19/19 superficies sin hallazgos contra `astro dev` ·
+  JSON-LD = copy visible · navegador (hero, escalera, franja P4,
+  `/arquitectura`) sin errores de consola.
+- **NO desplegado:** el gate de product manda — el copy se presentó a Andreu
+  al cierre de la sesión y el deploy espera su OK (ver «Próxima sesión»).
 
 ### F12.1 — el renombrado: LogicEcom → Logic2B Ecommerce (2026-07-28, sesión local)
 

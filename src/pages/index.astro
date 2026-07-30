@@ -134,9 +134,38 @@ const comparison = [
 
 const notForYou = [
   'Necesitas la tienda en varios idiomas desde el día uno.',
-  'Tu catálogo pasa de 500 referencias o cambia a diario.',
+  'Tu catálogo cambia a diario y necesita sincronización automática con un ERP.',
   'Quieres un marketplace con varios vendedores.',
   'Vendes por suscripción recurrente (cuotas mensuales al cliente).',
+];
+
+// ── La escalera de evolución (P2) — se VENDE, no se construye (§14) ─────────
+// Lo excluido a propósito del MVP es el catálogo de crecimiento. Sin fechas y
+// sin incluirlo en la cuota: «se añade cuando tu tienda lo pida».
+const ladder = [
+  {
+    k: 'Hoy',
+    title: 'El MVP que vende',
+    body: 'Catálogo, carrito, pagos con Stripe, panel de pedidos y envíos. Lo esencial, bien hecho: tu tienda se entrega rápido y funciona desde el primer día.',
+  },
+  {
+    k: 'Cuando lo pida',
+    title: 'Se le añade, sin migrar',
+    body: 'Cuentas de cliente, buscador, promociones, multiidioma, transportistas integrados, email marketing, contenido SEO… Cada pieza se añade sobre la misma tienda cuando el negocio la justifica — nunca pagas por adelantado funciones que no usas.',
+  },
+  {
+    k: 'A cualquier escala',
+    title: '10 referencias o un millón',
+    body: 'La misma arquitectura sirve un expositor de barrio y un catálogo industrial. Nunca llega el día de «esta plataforma se nos ha quedado pequeña»: no hay migración, hay evolución.',
+  },
+];
+
+// ── Los servicios de la casa (P4) — mismos destinos que el menú de logic2b.com
+const agencyServices = [
+  { href: 'https://logic2b.com/diseno-web', title: 'Diseño web', body: 'Webs corporativas que convierten' },
+  { href: 'https://logic2b.com/sistemas', title: 'Sistemas de gestión', body: 'Paneles, reservas y CRM a medida' },
+  { href: 'https://logic2b.com/marketing', title: 'Marketing online', body: 'SEO, SEM y automatización' },
+  { href: 'https://logic2b.com/automatizacion-ia', title: 'Automatización IA', body: 'Agentes, chatbots e integraciones' },
 ];
 
 // ── Precios (D4) ────────────────────────────────────────────────────────────
@@ -151,7 +180,7 @@ const tiers = [
       'Uno de los estilos del catálogo, adaptado a tu marca (color, tipografía, fotos)',
       'Catálogo cargado, pagos y envíos configurados',
       'Tu dominio y emails con tu marca',
-      'Mantenimiento: copias, actualizaciones y hasta 2 h de cambios al mes',
+      'Tu equipo cada mes: copias, actualizaciones, asistencia y hasta 2 h de cambios',
     ],
   },
   {
@@ -210,7 +239,19 @@ const faqs = [
   },
   {
     q: '¿Por qué no Shopify o WooCommerce?',
-    a: 'Para 50–100 productos pagas 36 €/mes de cuota más ~2 % de comisión extra por venta, o mantienes un WordPress con plugins que se rompen. Aquí el código es tuyo, a medida, sin cuotas de plataforma y más rápido que ambos.',
+    a: 'En Shopify pagas 36 €/mes de cuota más ~2 % de comisión extra por venta, y en WooCommerce mantienes un WordPress con plugins que se rompen. Aquí el código es tuyo, a medida, sin cuotas de plataforma y más rápido que ambos.',
+  },
+  {
+    q: '¿Y si mañana necesito algo que la tienda no hace?',
+    a: 'Nos lo pides y lo resolvemos de nuestro lado, sobre tu misma tienda: cuentas de cliente, buscador, promociones, integraciones… Tu tienda arranca como un MVP a propósito y crece cuando el negocio lo pide — sin plugins que adaptar, sin suscripciones que no aportan y sin migrar de plataforma.',
+  },
+  {
+    q: '¿Qué incluye exactamente la mensualidad?',
+    a: 'Una sola cuota que cubre mantenimiento (copias, actualizaciones, vigilancia), asistencia personalizada de las personas que hicieron tu tienda y seguimiento del proyecto. En el Kit incluye además hasta 2 h de cambios al mes. Si tu tienda sube de nivel de servicio, la cuota se sustituye por la nueva — nunca se apila una suscripción encima de otra.',
+  },
+  {
+    q: '¿Trabajáis con agencias?',
+    a: 'Sí, también en marca blanca: nosotros ponemos el motor, la construcción y el mantenimiento técnico; tu agencia lleva al cliente, el diseño si quiere y el marketing. Escríbenos y te contamos el modelo de colaboración.',
   },
 ];
 
@@ -220,7 +261,7 @@ const jsonLd = [
     '@type': 'Service',
     name: 'Logic2B Ecommerce',
     description:
-      'Tienda online a medida para comercios de 50 a 100 productos: ultrarrápida, sin cuotas mensuales de plataforma y con coste de infraestructura cero.',
+      'Tienda online a medida que arranca como MVP y escala de 10 referencias a un millón sin cambiar de plataforma: ultrarrápida, sin cuotas de plataforma, con coste de infraestructura cero y la asistencia continua del equipo de Logic2B.',
     provider: { '@type': 'Organization', name: 'Logic2B', url: 'https://logic2b.com' },
     areaServed: 'ES',
     serviceType: 'Desarrollo de comercio electrónico',
@@ -244,7 +285,7 @@ const jsonLd = [
 
 <Base
   title="Logic2B Ecommerce — tiendas online a medida, sin cuotas de plataforma"
-  description="Diseñamos tiendas online radicalmente distintas para comercios de 50–100 productos, sobre un mismo motor: ultrarrápidas, con pagos Stripe y 0 €/mes de infraestructura. Hechas en Castellón por Logic2B."
+  description="Tu tienda online a medida: 10 productos o un millón. Arranca como MVP, crece sin cambiar de plataforma y detrás va un equipo, no una plataforma. Pagos Stripe, 0 €/mes de infraestructura. Hecha en Castellón por Logic2B."
   canonicalPath="/"
   preloadDisplayFont
   jsonLd={jsonLd}
@@ -263,15 +304,16 @@ const jsonLd = [
     <!-- ── Héroe: galería de tiendas ─────────────────────────────────────── -->
     <section class="mx-auto max-w-6xl px-5 pt-14 sm:pt-20">
       <p class="mb-5 inline-block rounded-full border border-border bg-muted px-4 py-1.5 text-xs font-medium text-muted-foreground">
-        Para comercios de 50–100 productos · Hecho en Castellón
+        Un servicio de Logic2B · Hecho en Castellón
       </p>
       <h1 class="hero-title max-w-4xl font-display text-4xl leading-[1.05] sm:text-6xl md:text-7xl">
-        Tiendas radicalmente distintas.<br />
-        <span class="text-brand">Un motor probado. 0 €/mes.</span>
+        Tu tienda online a medida.<br />
+        <span class="text-brand">10 productos o un millón.</span>
       </h1>
       <p class="hero-fade mt-6 max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg" style="--d:.12s">
-        Diseñamos tu tienda online a medida y la entregamos rápido, sin cuotas de
-        plataforma y con pagos Stripe. Las de abajo funcionan de verdad:
+        Nunca había sido tan fácil —ni tan asequible— un ecommerce a medida:
+        arrancas con un MVP básico y funcional, y tu tienda crece sin cambiar de
+        plataforma. Las de abajo funcionan de verdad:
         <strong class="text-foreground">entra y compra</strong>.
       </p>
       {/* CTAs por temperatura (F11.6): frío = la galería de abajo; templado =
@@ -399,7 +441,7 @@ const jsonLd = [
 
     <!-- ── Lo que te cuesta tu tienda actual ─────────────────────────────── -->
     <section class="mx-auto max-w-6xl px-5 py-14 sm:py-20">
-      <h2 class="max-w-2xl font-display text-3xl sm:text-4xl">Lo que te está costando tu tienda actual</h2>
+      <h2 class="max-w-2xl font-display text-3xl sm:text-4xl">A dónde va el dinero de tu tienda actual</h2>
       {/* Cifras animadas al entrar en viewport: count-up CSS puro (registro
           @property + animation-timeline: view()). El texto real queda en el DOM
           como fallback estático (Firefox, reduced-motion) y para lectores. */}
@@ -409,14 +451,14 @@ const jsonLd = [
             <span class="stat-static">432 €</span>
             <span class="stat-count" aria-hidden="true" data-suffix=" €"></span>
           </p>
-          <p class="mt-3 leading-relaxed text-muted-foreground">al año solo de cuota de Shopify, vendas o no vendas.</p>
+          <p class="mt-3 leading-relaxed text-muted-foreground">al año de cuota de Shopify, vendas o no vendas. Alquilas una plataforma; no paga a nadie que te ayude.</p>
         </div>
         <div class="rise rounded-2xl border border-border bg-card p-7 shadow-sm">
           <p class="stat font-display text-5xl text-brand" style="--stat:2">
             <span class="stat-static">~2 %</span>
             <span class="stat-count" aria-hidden="true" data-prefix="~" data-suffix=" %"></span>
           </p>
-          <p class="mt-3 leading-relaxed text-muted-foreground">de comisión extra en cada venta si no usas su pasarela.</p>
+          <p class="mt-3 leading-relaxed text-muted-foreground">de comisión extra en cada venta si no usas su pasarela. Un peaje, no un servicio.</p>
         </div>
         <div class="rise rounded-2xl border border-border bg-card p-7 shadow-sm">
           <p class="stat font-display text-5xl text-brand" style="--stat:4">
@@ -426,6 +468,11 @@ const jsonLd = [
           <p class="mt-3 leading-relaxed text-muted-foreground">de carga con una plantilla genérica. Cada segundo son ventas que se van.</p>
         </div>
       </div>
+      <p class="mt-8 max-w-2xl text-lg leading-relaxed">
+        La pregunta no es «¿cuánto pago?», es <strong>«¿a quién le pago?»</strong>.
+        Aquí tu cuota no va a una plataforma que te apaña:
+        <span class="text-brand-dark font-semibold">paga a un equipo que lleva tu tienda</span>.
+      </p>
     </section>
 
     <!-- ── El flujo del pedido, con capturas reales ──────────────────────── -->
@@ -463,6 +510,10 @@ const jsonLd = [
     <!-- ── Comparativa + Cuándo NO ───────────────────────────────────────── -->
     <section class="mx-auto max-w-6xl px-5 py-14 sm:py-20">
       <h2 class="font-display text-3xl sm:text-4xl">Las cuentas claras</h2>
+      <p class="mt-3 max-w-2xl text-muted-foreground">
+        La diferencia no es solo cuánto pagas: es a quién le pagas y qué hace esa
+        persona por tu tienda.
+      </p>
       <div class="mt-8 overflow-x-auto rounded-2xl border border-border bg-card shadow-sm">
         <table class="w-full min-w-[640px] text-left text-sm">
           <thead>
@@ -500,12 +551,48 @@ const jsonLd = [
       </div>
     </section>
 
-    <!-- ── Precios (D4) ──────────────────────────────────────────────────── -->
+    <!-- ── Empieza pequeño, crece sin migrar (P2) ────────────────────────── -->
+    <section aria-labelledby="escalera-h" class="mx-auto max-w-6xl px-5 py-14 sm:py-20">
+      <h2 id="escalera-h" class="max-w-3xl font-display text-3xl sm:text-4xl">
+        10 productos o un millón: <span class="text-brand">tu tienda nunca se queda pequeña</span>
+      </h2>
+      <p class="mt-3 max-w-2xl text-muted-foreground">
+        Tu tienda arranca básica y funcional. Cuando el negocio pida más, se le
+        añade — sin cambiar de plataforma ni empezar de cero.
+      </p>
+      <div class="mt-10 grid gap-6 sm:grid-cols-3">
+        {ladder.map((step) => (
+          <div class="rise rounded-2xl border border-border bg-card p-7 shadow-sm">
+            <p class="font-accent text-sm uppercase tracking-wide text-brand">{step.k}</p>
+            <h3 class="mt-2 font-display text-2xl">{step.title}</h3>
+            <p class="mt-3 text-sm leading-relaxed text-muted-foreground">{step.body}</p>
+          </div>
+        ))}
+      </div>
+      <div class="mt-6 rounded-2xl border border-border bg-muted p-6 sm:p-8">
+        <h3 class="font-display text-xl">Conectada a lo que ya usas — sin plugins</h3>
+        <p class="mt-2 max-w-3xl text-sm leading-relaxed text-muted-foreground">
+          Feeds de catálogo para Google Merchant y Meta, plataformas de mailing
+          para tus campañas, transportistas como Packlink o SendCloud,
+          facturación… Cada integración se activa <strong class="text-foreground">de
+          nuestro lado</strong> cuando tu tienda la pide: nada de plugins que
+          adaptar ni suscripciones que no aportan. Tu panel sigue igual de simple.
+        </p>
+        <p class="mt-4 text-sm leading-relaxed text-muted-foreground">
+          Y el marketing no es de otra empresa:
+          <strong class="text-foreground">la agencia que hace tu tienda es la que la posiciona</strong>.
+        </p>
+      </div>
+    </section>
+
+    <!-- ── Precios (D4, reencuadre D7) ───────────────────────────────────── -->
     <section id="precios" class="border-y border-border bg-muted">
       <div class="mx-auto max-w-5xl px-5 py-14 sm:py-20">
-        <h2 class="text-center font-display text-3xl sm:text-4xl">Precios sin letra pequeña</h2>
+        <h2 class="text-center font-display text-3xl sm:text-4xl">Un equipo detrás, no una plataforma</h2>
         <p class="mx-auto mt-3 max-w-xl text-center text-muted-foreground">
-          Un pago de puesta en marcha y un mantenimiento mensual claro. Sin cuotas de plataforma ni comisiones por venta.
+          Un pago de puesta en marcha y una sola cuota mensual: mantenimiento,
+          asistencia personalizada y seguimiento, de las personas que hicieron tu
+          tienda. Sin cuotas de plataforma ni comisiones por venta.
         </p>
         <div class="mt-10 grid gap-6 sm:grid-cols-2">
           {tiers.map((tier) => (
@@ -586,6 +673,11 @@ const jsonLd = [
             la pagan las dos opciones y no entra en la cuenta.
           </p>
         </div>
+        <p class="mx-auto mt-6 max-w-xl text-center text-sm text-muted-foreground">
+          Una sola cuota, siempre: si tu tienda sube de nivel de servicio, la
+          cuota <strong class="text-foreground">se sustituye</strong> por la nueva.
+          Nunca una suscripción apilada encima de otra.
+        </p>
         <div class="mx-auto mt-6 flex flex-col items-center justify-between gap-3 rounded-2xl border border-border bg-card px-6 py-5 text-sm sm:flex-row">
           <div>
             <p class="font-semibold">{lite.name} · {lite.price}</p>
@@ -604,7 +696,10 @@ const jsonLd = [
     <section class="mx-auto max-w-6xl px-5 py-14 sm:py-20">
       <h2 class="font-display text-3xl sm:text-4xl">Míralo por dentro</h2>
       <p class="mt-3 max-w-2xl text-muted-foreground">
-        El panel del comercio y la bandeja de emails son parte de lo que compras. Se aprenden en cinco minutos.
+        Tu panel: pedidos, envíos y productos. Nada más — se aprende en cinco
+        minutos porque no hay nada que configurar. Las mil configuraciones
+        (mercados, impuestos, integraciones) corren de nuestro lado, invisibles
+        para ti.
       </p>
       <div class="mt-10 grid gap-5 sm:grid-cols-2">
         <a href="/demo/admin" class="rise group overflow-hidden rounded-2xl border border-border bg-card transition hover:-translate-y-1 hover:shadow-xl">
@@ -630,6 +725,36 @@ const jsonLd = [
         <p class="font-display text-xl">¿Qué estilo encaja con lo que vendes?</p>
         <p class="mx-auto mt-2 max-w-xl text-sm text-muted-foreground">{styleCount} direcciones visuales, del catálogo técnico al escaparate cinemático. Elige el punto de partida de tu tienda.</p>
         <a href="/estilos" class="mt-4 inline-block rounded-btn border border-foreground px-6 py-2.5 text-sm font-semibold transition hover:bg-foreground hover:text-background">Ver los estilos</a>
+      </div>
+    </section>
+
+    <!-- ── Detrás está Logic2B (P4) ──────────────────────────────────────── -->
+    <section aria-labelledby="casa-h" class="border-y border-border bg-muted">
+      <div class="mx-auto max-w-6xl px-5 py-14 sm:py-20">
+        <h2 id="casa-h" class="font-display text-3xl sm:text-4xl">Detrás está Logic2B</h2>
+        <p class="mt-3 max-w-2xl text-muted-foreground">
+          Logic2B Ecommerce es un servicio de
+          <a href="https://logic2b.com" class="font-medium text-foreground underline underline-offset-2 hover:text-brand-dark">Logic2B</a>,
+          la agencia de desarrollo web y SEO de Castellón. Tu tienda no se queda
+          sola: el mismo equipo que la construye puede llevarte el marketing, el
+          posicionamiento y lo que venga después — desarrollo y marketing bajo el
+          mismo techo.
+        </p>
+        <ul class="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {agencyServices.map((service) => (
+            <li>
+              <a href={service.href} class="rise group flex h-full flex-col gap-1 rounded-2xl border border-border bg-card p-5 shadow-sm transition hover:-translate-y-1 hover:shadow-lg">
+                <p class="font-semibold group-hover:text-brand-dark">{service.title} <span aria-hidden="true">↗</span></p>
+                <p class="text-sm text-muted-foreground">{service.body}</p>
+              </a>
+            </li>
+          ))}
+        </ul>
+        <p class="mt-6 text-sm text-muted-foreground">
+          ¿Prefieres empezar por saber dónde estás? Pide la
+          <a href="https://logic2b.com/auditoria" class="font-medium text-brand underline underline-offset-2 hover:text-brand-dark">auditoría gratuita</a>
+          de tu web o tienda actual.
+        </p>
       </div>
     </section>
 
