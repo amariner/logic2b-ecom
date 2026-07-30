@@ -109,7 +109,7 @@ const jsonLd = [
       <a
         slot="actions"
         href="/demo/tienda"
-        class="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition hover:bg-primary/90 sm:px-5"
+        class="rounded-btn bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition hover:bg-primary/90 sm:px-5"
       >Ver la demo</a>
     </SiteHeader>
 
@@ -326,8 +326,8 @@ const jsonLd = [
                 {storeFor(theme.id) && (
                   <a
                     href={storeFor(theme.id)!.href}
-                    class="mt-4 inline-flex items-center gap-1.5 self-start rounded-full px-4 py-2 text-sm font-semibold transition hover:opacity-85"
-                    style={`background: ${theme.vars['--color-brand']}; color: ${theme.vars['--color-brand-fg']};`}
+                    class="mt-4 inline-flex items-center gap-1.5 self-start px-4 py-2 text-sm font-semibold transition hover:opacity-85"
+                    style={`background: ${theme.vars['--color-brand']}; color: ${theme.vars['--color-brand-fg']}; border-radius: ${theme.vars['--radius-btn']};`}
                   >
                     Entra en {storeFor(theme.id)!.name} <span aria-hidden="true">→</span>
                   </a>
@@ -351,11 +351,11 @@ const jsonLd = [
           <div class="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
             <a
               href="/demo/tienda"
-              class="rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground transition hover:bg-primary/90"
+              class="rounded-btn bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground transition hover:bg-primary/90"
             >Entra en la tienda demo</a>
             <a
               href="/#contacto"
-              class="rounded-full border border-border px-6 py-3 text-sm font-semibold text-foreground transition hover:border-foreground"
+              class="rounded-btn border border-border px-6 py-3 text-sm font-semibold text-foreground transition hover:border-foreground"
             >Cuéntanos tu proyecto</a>
           </div>
         </div>

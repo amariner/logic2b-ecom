@@ -255,7 +255,7 @@ const jsonLd = [
       <a
         slot="actions"
         href="/demo/tiendas/launch"
-        class="rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition hover:bg-primary/90 sm:px-5"
+        class="rounded-btn bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition hover:bg-primary/90 sm:px-5"
       >Ver la demo</a>
     </SiteHeader>
 
@@ -280,11 +280,11 @@ const jsonLd = [
       <div class="hero-fade mt-8 flex flex-col gap-3 sm:flex-row sm:gap-4" style="--d:.24s">
         <a
           href="/demo/tienda?tour=1"
-          class="rounded-full bg-brand px-8 py-3.5 text-center text-base font-semibold text-brand-fg shadow-lg shadow-brand/20 transition hover:bg-brand-dark"
+          class="rounded-btn bg-brand px-8 py-3.5 text-center text-base font-semibold text-brand-fg shadow-lg shadow-brand/20 transition hover:bg-brand-dark"
         >Haz la demo en 3 minutos</a>
         <a
           href="/arquitectura"
-          class="rounded-full border border-border px-8 py-3.5 text-center text-base font-semibold text-foreground transition hover:border-foreground"
+          class="rounded-btn border border-border px-8 py-3.5 text-center text-base font-semibold text-foreground transition hover:border-foreground"
         >Cómo funciona por dentro</a>
       </div>
     </section>
@@ -629,7 +629,7 @@ const jsonLd = [
       <div class="mt-6 rounded-2xl border border-border bg-muted p-6 text-center sm:p-8">
         <p class="font-display text-xl">¿Qué estilo encaja con lo que vendes?</p>
         <p class="mx-auto mt-2 max-w-xl text-sm text-muted-foreground">{styleCount} direcciones visuales, del catálogo técnico al escaparate cinemático. Elige el punto de partida de tu tienda.</p>
-        <a href="/estilos" class="mt-4 inline-block rounded-full border border-foreground px-6 py-2.5 text-sm font-semibold transition hover:bg-foreground hover:text-background">Ver los estilos</a>
+        <a href="/estilos" class="mt-4 inline-block rounded-btn border border-foreground px-6 py-2.5 text-sm font-semibold transition hover:bg-foreground hover:text-background">Ver los estilos</a>
       </div>
     </section>
 
@@ -660,9 +660,9 @@ const jsonLd = [
         </p>
         <div class="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row sm:gap-4">
           {whatsappHref && (
-            <a href={whatsappHref} class="w-full rounded-full bg-brand px-9 py-4 font-semibold text-brand-fg transition hover:bg-brand-dark sm:w-auto">Escríbenos por WhatsApp</a>
+            <a href={whatsappHref} class="w-full rounded-btn bg-brand px-9 py-4 font-semibold text-brand-fg transition hover:bg-brand-dark sm:w-auto">Escríbenos por WhatsApp</a>
           )}
-          <a href={emailHref} class={`w-full rounded-full px-9 py-4 font-semibold transition sm:w-auto ${whatsappHref ? 'border border-background/30 text-background hover:border-background' : 'bg-brand text-brand-fg hover:bg-brand-dark'}`}>
+          <a href={emailHref} class={`w-full rounded-btn px-9 py-4 font-semibold transition sm:w-auto ${whatsappHref ? 'border border-background/30 text-background hover:border-background' : 'bg-brand text-brand-fg hover:bg-brand-dark'}`}>
             Escríbenos: {EMAIL}
           </a>
         </div>

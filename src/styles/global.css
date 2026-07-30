@@ -133,7 +133,10 @@
   --weight-display: 600;
 
   /* Forma */
-  --radius-btn: 9999px;
+  /* 10px = --r-btn de logic2b.com (logic2b-norte): el canto de botón
+     corporativo en landing, /arquitectura, /estilos y 404. Cada tema de
+     tienda lo pisa con el suyo (el tema Base vuelve al pill 9999px). */
+  --radius-btn: 10px;
   --radius-card: 0.75rem;
   --border-width: 1px;
 

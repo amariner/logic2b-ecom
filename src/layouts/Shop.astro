@@ -57,14 +57,13 @@ const switcherStores = [...collections].sort((a, b) => {
   return rank(a.id) - rank(b.id);
 });
 
-// Tokens del tema aplicados en el wrapper (heredan por cascada). Base no
-// necesita nada: sus valores son los de global.css.
-const themeStyle =
-  theme.id === defaultTheme.id
-    ? undefined
-    : Object.entries(theme.vars)
-        .map(([k, v]) => `${k}: ${v}`)
-        .join('; ');
+// Tokens del tema aplicados en el wrapper (heredan por cascada). También para
+// Base: desde que :root lleva el canto corporativo (10px, logic2b.com), el
+// fallback de global.css ya NO equivale al tema Base — su pill (9999px) solo
+// vive en sus propias vars, así que se inyectan siempre.
+const themeStyle = Object.entries(theme.vars)
+  .map(([k, v]) => `${k}: ${v}`)
+  .join('; ');
 
 const nav = isDefaultStore
   ? ([
