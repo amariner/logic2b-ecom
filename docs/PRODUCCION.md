@@ -70,3 +70,31 @@ El envío ya está implementado (`src/lib/send-email.ts`): la outbox es la fuent
       cliente y comprobar el enlace pegado en WhatsApp de verdad.
 - [ ] Rich Results Test de Google en una ficha (schema `Product` + `Offer` válido).
 - [ ] Entregar `docs/CLIENTE.md` al comercio y hacer juntos un pedido de prueba.
+
+## 9. Los leads del formulario de la landing (F13)
+
+El formulario «Iniciar proyecto» (cabecera, arriba y cierre de la landing)
+escribe en la tabla **`contact_requests`**, no en `emails_outbox`. Motivo: la
+bandeja de la demo es pública, se vacía en cada reset de 6 h y no se entrega con
+`DEMO_MODE=true` — que es exactamente como corre `ecom.logic2b.com`. Por lo
+mismo, `contact_requests` queda FUERA de la copia de seguridad descargable
+(`src/lib/backup.ts`) y fuera del reset: son datos personales de gente real.
+
+**Leer los leads pendientes:**
+
+```bash
+npx wrangler d1 execute ecom-demo --remote --command "SELECT created_at, name, email, phone, sells, catalog, source, needs FROM contact_requests ORDER BY id DESC"
+```
+
+**Aviso por email (pendiente de activar):** con `RESEND_API_KEY` puesto como
+secreto, cada lead dispara además un aviso a `hola@logic2b.com` y la fila queda
+con `notified = 1`. Sin la clave, `notified` se queda en 0 y el único sitio donde
+vive el lead es la tabla — hay que mirarla a mano. Activarlo es:
+
+```bash
+npx wrangler secret put RESEND_API_KEY
+```
+
+Ojo: el remitente sale de `shopConfig.email`, que hoy es el de la tienda
+ficticia. Para que Resend acepte el envío hay que apuntarlo a un dominio
+verificado de Logic2B antes de dar el aviso por bueno.
