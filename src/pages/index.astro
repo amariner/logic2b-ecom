@@ -6,23 +6,30 @@
 // página cambiaba de color mientras se lee y la marca se diluía). Cada tarjeta
 // conserva el acento de SU tienda, que es donde el color significa algo.
 //
-// El CTA es el formulario de proyecto: aparece arriba, abajo y en el diálogo de
-// la cabecera, siempre con los mismos campos (lib/contact.ts).
+// F13.2 — cambio de ARGUMENTO, no solo de copy:
+//   · Fuera el «0 €/mes de infraestructura». El modelo pasa a ser una cuota que
+//     ARRANCA BAJA Y CRECE CON EL TRÁFICO: cobramos poco mientras el tráfico es
+//     poco, cobramos por traerlo (SEO, GEO y campañas) y subimos cuando el
+//     tráfico —y las ventas— suben. Ganamos a la vez que el cliente.
+//   · Fuera la comparativa de coste con Shopify (cuota de plataforma, comisión
+//     por venta y calculadora a 3 años): nosotros también podemos cobrar
+//     comisión, así que ese argumento ya no es honesto.
+//   · Stripe deja de ser «la» pasarela: es una de las que se integran.
 import Base from '../layouts/Base.astro';
 import SiteHeader from '../components/SiteHeader.astro';
 import HeaderActions from '../components/HeaderActions.astro';
 import ProjectDialog from '../components/ProjectDialog.astro';
 import ProjectForm from '../components/ProjectForm.astro';
+import LogoMarquee from '../components/LogoMarquee.astro';
 import { collections, storePaths } from '../lib/collections';
 import { demoThemes, defaultTheme, getTheme } from '../lib/demo-themes';
-import { landingNav, MAIN_DEMO_HREF } from '../lib/nav';
+import { landingNav, MAIN_DEMO_HREF, DEMO_ADMIN_HREF } from '../lib/nav';
 import { AGENCY_EMAIL, AGENCY_WHATSAPP } from '../lib/contact';
 
 // ── Galería del hero — derivada del registro de tiendas (clonable) ──────────
 // La Botiga del Maestrat (`demo`) abre la fila: es la tienda del recorrido
 // completo —carrito, pago simulado, panel y emails— y por tanto la que hay que
-// enseñar primero en una llamada de venta. Las demás son el escaparate de
-// estilos. Iris entra en vídeo.
+// enseñar primero en una llamada de venta. Iris entra en vídeo.
 const galleryOrder = ['demo', 'launch', 'editorial', 'iris', 'street', 'industrial', 'natural', 'specs', 'minimal', 'guide'];
 const gallery = galleryOrder.map((id) => {
   const col = collections.find((c) => c.id === id)!;
@@ -45,13 +52,6 @@ const gallery = galleryOrder.map((id) => {
   };
 });
 
-// El recuento del pie de la galería se DERIVA de la galería. Escrito a mano
-// decía «Seis tiendas» cuando ya había nueve: un número obsoleto en la única
-// página indexable es de las cosas que más caras salen de mantener a mano.
-const NUMERALS = ['Cero', 'Una', 'Dos', 'Tres', 'Cuatro', 'Cinco', 'Seis', 'Siete', 'Ocho', 'Nueve', 'Diez'];
-// Abre frase, así que va en mayúscula; por encima de diez, la cifra.
-const galleryCount = `${NUMERALS[gallery.length] ?? gallery.length} tienda${gallery.length === 1 ? '' : 's'}`;
-
 // ── Contacto ────────────────────────────────────────────────────────────────
 // El canal principal es el formulario; WhatsApp y email quedan de alternativa
 // para quien prefiere escribir directamente.
@@ -60,16 +60,16 @@ const whatsappHref = AGENCY_WHATSAPP
   : null;
 const emailHref = `mailto:${AGENCY_EMAIL}?subject=${encodeURIComponent('Mi tienda online con Logic2B Ecommerce')}`;
 
-// Recuento del catálogo de estilos, derivado del registro (igual que hace
-// /estilos): un tema nuevo actualiza este copy solo.
-const styleCount = demoThemes.filter((t) => t.id !== defaultTheme.id).length;
+// Recuento del catálogo de temas, derivado del registro (igual que hace
+// /temas): un tema nuevo actualiza este copy solo.
+const themeCount = demoThemes.filter((t) => t.id !== defaultTheme.id).length;
 
 // ── Flujo del pedido, con capturas reales del producto ──────────────────────
 const flow = [
   {
     n: '01',
     title: 'El cliente compra',
-    body: 'Sin crear cuenta. El porte se calcula por código postal y el pago va a Stripe: la tarjeta nunca toca la tienda.',
+    body: 'Sin crear cuenta. El porte se calcula por código postal y el pago va a la pasarela: la tarjeta nunca toca la tienda.',
     img: '/images/screens/flow-checkout-900.webp',
     alt: 'Checkout de la demo con el porte calculado y el total',
   },
@@ -97,12 +97,16 @@ const flow = [
 ];
 
 // ── Comparativa ─────────────────────────────────────────────────────────────
+// Sin filas de dinero (cuota de plataforma, comisión por venta): nuestro modelo
+// también puede llevar comisión, así que comparar por ahí sería vender humo.
+// Lo que sí se compara es lo que de verdad nos separa: el producto y quién
+// responde por él.
 const comparison = [
-  { concept: 'Cuota mensual de plataforma', shopify: '36 €/mes', woo: '0 € (más hosting ~15 €/mes)', kit: '0 €' },
-  { concept: 'Comisión extra por venta', shopify: '+2 % (sin Shopify Payments)', woo: '0 %', kit: '0 %' },
+  { concept: 'El diseño de tu tienda', shopify: 'Plantilla que también usan otros', woo: 'Plantilla más plugins', kit: 'A medida, solo tuyo' },
   { concept: 'Velocidad de carga', shopify: 'Tema genérico, 2–4 s', woo: 'Depende de 20 plugins', kit: '< 0,5 s, CDN global' },
   { concept: 'El código es tuyo', shopify: 'No, alquilas', woo: 'Sí, pero frágil', kit: 'Sí, a medida' },
   { concept: 'Mantenimiento técnico', shopify: 'Incluido en la cuota', woo: 'Tú (o sustos)', kit: 'Nosotros' },
+  { concept: 'Quién trae las visitas', shopify: 'Tú, o una agencia aparte', woo: 'Tú, o una agencia aparte', kit: 'Nosotros: SEO, GEO y campañas' },
 ];
 
 const notForYou = [
@@ -117,12 +121,12 @@ const ladder = [
   {
     k: 'Hoy',
     title: 'El MVP que vende',
-    body: 'Catálogo, carrito, pagos con Stripe, panel de pedidos y envíos. Lo esencial, bien hecho: tu tienda se entrega rápido y funciona desde el primer día.',
+    body: 'Catálogo, carrito, pagos, panel de pedidos y envíos. Lo esencial, bien hecho: tu tienda se entrega rápido y funciona desde el primer día.',
   },
   {
     k: 'Cuando lo pida',
     title: 'Se le añade, sin migrar',
-    body: 'Cuentas de cliente, promociones, multiidioma, transportistas integrados, feeds para Google y Meta… Cada pieza se activa de nuestro lado cuando el negocio la justifica: nunca pagas por adelantado funciones que no usas.',
+    body: 'Cuentas de cliente, promociones, multiidioma, más pasarelas de pago, transportistas integrados, feeds para Google y Meta… Cada pieza se activa de nuestro lado cuando el negocio la justifica.',
   },
   {
     k: 'A cualquier escala',
@@ -131,16 +135,20 @@ const ladder = [
   },
 ];
 
-// ── Precios (D4) ────────────────────────────────────────────────────────────
+// ── Precios ─────────────────────────────────────────────────────────────────
+// El pago de puesta en marcha es cerrado; la cuota ARRANCA en el mínimo y sube
+// por tramos de tráfico. Los tramos concretos se cierran en la propuesta, no
+// aquí: publicar una tabla de tramos sin haberla validado sería inventarse
+// precios (§14).
 const tiers = [
   {
     name: 'Kit',
     featured: true,
     price: '1.900 €',
-    unit: 'pago único',
-    monthly: '+ 39 €/mes de mantenimiento',
+    unit: 'puesta en marcha',
+    monthly: 'desde 39 €/mes, según el tráfico de tu tienda',
     points: [
-      'Uno de los estilos del catálogo, adaptado a tu marca (color, tipografía, fotos)',
+      'Uno de los temas del catálogo, adaptado a tu marca (color, tipografía, fotos)',
       'Catálogo cargado, pagos y envíos configurados',
       'Tu dominio y emails con tu marca',
       'Tu equipo cada mes: copias, actualizaciones, asistencia y hasta 2 h de cambios',
@@ -150,8 +158,8 @@ const tiers = [
     name: 'Kit a medida',
     featured: false,
     price: 'desde 3.400 €',
-    unit: 'pago único',
-    monthly: '+ 59 €/mes con prioridad',
+    unit: 'puesta en marcha',
+    monthly: 'desde 59 €/mes, con prioridad',
     points: [
       'Dirección visual propia, nivel Iris o Módulo Audio',
       'Sesión de arte e imaginería generada para tu tienda',
@@ -163,50 +171,34 @@ const tiers = [
 const lite = {
   name: 'Kit Lite',
   price: 'desde 590 €',
-  body: 'Hasta 10 productos con enlaces de pago de Stripe, sin panel. Para empezar a vender online con lo justo.',
+  body: 'Hasta 10 productos con enlaces de pago, sin panel. Para empezar a vender online con lo justo.',
 };
-
-// ── Mini-calculadora a 3 años (D4) ──────────────────────────────────────────
-// Kit: setup + 36 mensualidades. Shopify: cuota Basic + 2 % de comisión por
-// venta sin su pasarela (mismas cifras que la comparativa de arriba). Las
-// comisiones de la pasarela (Stripe / Shopify Payments) las pagan ambas y no
-// entran. Sin JS se muestran los 3 escenarios estáticos; el slider los sustituye.
-const KIT_3Y = 1900 + 39 * 36; // 3.304 €
-const shopify3y = (salesPerMonth: number): number => 36 * 36 + Math.round(salesPerMonth * 0.02 * 36);
-// Separador de miles con punto SIEMPRE (Intl es-ES no agrupa por debajo de
-// 10.000 y la landing ya escribe «1.900 €»). Misma función en el script.
-const euros = (n: number): string => `${n.toString().replace(/\B(?=(\d{3})+$)/g, '.')} €`;
-const calcScenarios = [2000, 4000, 6000].map((sales) => ({
-  sales,
-  shopify: shopify3y(sales),
-  diff: shopify3y(sales) - KIT_3Y,
-}));
 
 // ── FAQ ─────────────────────────────────────────────────────────────────────
 const faqs = [
   {
-    q: '¿De verdad el coste de infraestructura es 0 €/mes?',
-    a: 'Sí. La tienda corre entera en los planes gratuitos de Cloudflare (hosting, base de datos, CDN global). Los únicos costes variables son el dominio (~12 €/año) y la comisión de Stripe por venta (1,5 % + 0,25 € en tarjetas europeas), que cobra Stripe, no nosotros.',
+    q: '¿Cómo funciona eso de que la cuota crece con el tráfico?',
+    a: 'La cuota arranca en el mínimo mientras tu tienda tiene poco tráfico, y sube por tramos a medida que ese tráfico crece. No es una penalización: traer visitas es precisamente nuestro trabajo (SEO, GEO y campañas), así que solo cobramos más cuando lo hemos hecho bien y tu tienda vende más. El tramo exacto se cierra en la propuesta, con tus números delante.',
   },
   {
     q: '¿Qué pasa con los pagos? ¿Es seguro?',
-    a: 'El pago ocurre en la página de Stripe, el mismo procesador que usan Amazon o Zara. El número de tarjeta nunca pasa por la tienda: cero superficie de ataque, cero papeleo PCI. En las demos de este sitio el pago está simulado: puedes recorrer el proceso entero, pero no se cobra nada.',
+    a: 'El pago ocurre en la página de la pasarela —Stripe, PayPal o la que mejor encaje con tu negocio—, nunca en tu tienda. El número de tarjeta no pasa por ella: cero superficie de ataque, cero papeleo PCI. En las demos de este sitio el pago está simulado: puedes recorrer el proceso entero, pero no se cobra nada.',
   },
   {
     q: '¿Y si un día dejamos de trabajar juntos?',
-    a: 'No hay secuestro: el dominio y la cuenta de Stripe están a tu nombre, y el código es tuyo. Te lo entregamos con la documentación para que cualquier desarrollador pueda continuar. Sin permanencia.',
+    a: 'No hay secuestro: el dominio y las cuentas de pago están a tu nombre, y el código es tuyo. Te lo entregamos con la documentación para que cualquier desarrollador pueda continuar. Sin permanencia.',
   },
   {
     q: '¿Por qué no Shopify o WooCommerce?',
-    a: 'En Shopify pagas 36 €/mes de cuota más ~2 % de comisión extra por venta, y en WooCommerce mantienes un WordPress con plugins que se rompen. Aquí el código es tuyo, a medida, sin cuotas de plataforma y más rápido que ambos.',
+    a: 'Porque con ellos tu tienda se parece a las demás y el marketing lo tienes que buscar aparte. Aquí el diseño es a medida y tuyo, la tienda carga en menos de medio segundo, y quien la construye es quien la posiciona: una sola conversación en lugar de tres proveedores señalándose entre ellos.',
   },
   {
     q: '¿Y si mañana necesito algo que la tienda no hace?',
-    a: 'Nos lo pides y lo resolvemos de nuestro lado, sobre tu misma tienda: cuentas de cliente, promociones, multiidioma, integraciones… Tu tienda arranca como un MVP a propósito y crece cuando el negocio lo pide — sin plugins que adaptar y sin migrar de plataforma.',
+    a: 'Nos lo pides y lo resolvemos de nuestro lado, sobre tu misma tienda: cuentas de cliente, promociones, multiidioma, otra pasarela de pago, integraciones… Tu tienda arranca como un MVP a propósito y crece cuando el negocio lo pide — sin plugins que adaptar y sin migrar de plataforma.',
   },
   {
     q: '¿Qué incluye exactamente la mensualidad?',
-    a: 'Una sola cuota que cubre mantenimiento (copias, actualizaciones, vigilancia), asistencia personalizada de las personas que hicieron tu tienda y seguimiento del proyecto. En el Kit incluye además hasta 2 h de cambios al mes. Si tu tienda sube de nivel de servicio, la cuota se sustituye por la nueva — nunca se apila una suscripción encima de otra.',
+    a: 'Mantenimiento (copias, actualizaciones, vigilancia), asistencia personalizada de las personas que hicieron tu tienda, seguimiento del proyecto y el trabajo de posicionamiento. En el Kit incluye además hasta 2 h de cambios al mes. Es una sola cuota: si tu tienda sube de tramo, la cuota se sustituye por la nueva — nunca se apila una suscripción encima de otra.',
   },
   {
     q: '¿Trabajáis con agencias?',
@@ -220,7 +212,7 @@ const jsonLd = [
     '@type': 'Service',
     name: 'Logic2B Ecommerce',
     description:
-      'Tienda online a medida que arranca como MVP y escala de 10 referencias a un millón sin cambiar de plataforma: ultrarrápida, sin cuotas de plataforma, con coste de infraestructura cero y la asistencia continua del equipo de Logic2B.',
+      'Tienda online a medida que arranca como MVP y escala de 10 referencias a un millón sin cambiar de plataforma: ultrarrápida, con diseño propio y con el posicionamiento (SEO, GEO y campañas) del mismo equipo que la construye.',
     provider: { '@type': 'Organization', name: 'Logic2B', url: 'https://logic2b.com' },
     areaServed: 'ES',
     serviceType: 'Desarrollo de comercio electrónico',
@@ -243,8 +235,8 @@ const jsonLd = [
 ---
 
 <Base
-  title="Logic2B Ecommerce — tiendas online a medida, sin cuotas de plataforma"
-  description="Tu tienda online a medida: 10 productos o un millón. Arranca como MVP, crece sin cambiar de plataforma y detrás va un equipo, no una plataforma. Pagos Stripe, 0 €/mes de infraestructura. Hecha en Castellón por Logic2B."
+  title="Logic2B Ecommerce — tiendas online a medida, con el marketing incluido"
+  description="Tu tienda online a medida: 10 productos o un millón. Arranca como MVP, crece sin cambiar de plataforma y la cuota crece contigo: cobramos más cuando tu tráfico y tus ventas suben. Hecha en Castellón por Logic2B."
   canonicalPath="/"
   preloadDisplayFont
   jsonLd={jsonLd}
@@ -273,7 +265,7 @@ const jsonLd = [
       </p>
       <div class="hero-fade mt-8 flex flex-col gap-3 sm:flex-row sm:gap-4" style="--d:.24s">
         <a
-          href="/#proyecto"
+          href="/#contacto"
           data-open-project
           class="rounded-btn bg-brand px-8 py-3.5 text-center text-base font-semibold text-brand-fg shadow-lg shadow-brand/20 transition hover:bg-brand-dark"
         >Iniciar proyecto</a>
@@ -317,7 +309,7 @@ const jsonLd = [
                     src={store.video ? store.poster : store.img}
                     srcset={`${store.video ? store.poster : store.img} 560w, ${store.video ? store.poster900 : store.img900} 900w`}
                     sizes="(min-width: 640px) 360px, 280px"
-                    alt={`Tienda ${store.name} — estilo ${store.style}`}
+                    alt={`Tienda ${store.name} — tema ${store.style}`}
                     width={store.video ? 1280 : 720}
                     height={store.video ? 720 : 900}
                     loading="eager"
@@ -360,42 +352,13 @@ const jsonLd = [
         ))}
       </ul>
       <p class="mx-auto max-w-6xl px-5 pt-1 text-sm text-muted-foreground">
-        {galleryCount} de demostración, un mismo motor. Cambian el diseño y los
-        productos; el carrito, los pagos, el panel y los envíos son los mismos.
-        <strong class="text-foreground">Son demos: el pago está simulado y no se
-        cobra nada.</strong>
+        Cada tienda parte de un tema distinto y el motor es el mismo.
+        <a href="/temas" class="font-medium text-brand underline underline-offset-2 hover:text-brand-dark">Mira los {themeCount} temas y elige el punto de partida del tuyo →</a>
       </p>
     </section>
 
-    <!-- ── Barra de prueba ───────────────────────────────────────────────── -->
-    <section class="mt-14 border-y border-border bg-foreground text-background sm:mt-20">
-      <a href="/arquitectura" class="group mx-auto flex max-w-6xl flex-wrap items-center justify-center gap-x-8 gap-y-2 px-5 py-5 text-sm">
-        <span><strong class="font-semibold">0 €/mes</strong> <span class="text-background/60">de infraestructura</span></span>
-        <span aria-hidden="true" class="text-background/25">·</span>
-        <span><strong class="font-semibold">&lt; 0,5 s</strong> <span class="text-background/60">de carga</span></span>
-        <span aria-hidden="true" class="text-background/25">·</span>
-        <span><strong class="font-semibold">100/100</strong> <span class="text-background/60">Lighthouse</span></span>
-        <span aria-hidden="true" class="text-background/25">·</span>
-        <span><strong class="font-semibold">Stripe</strong> <span class="text-background/60">para los pagos</span></span>
-        <span class="text-background/60 transition group-hover:text-background">Cómo lo conseguimos →</span>
-      </a>
-    </section>
-
-    <!-- ── Formulario, arriba (F13) ──────────────────────────────────────── -->
-    {/* El ancla #proyecto es también el destino sin JS del CTA de la cabecera. */}
-    <section id="proyecto" aria-labelledby="proyecto-h" class="mx-auto max-w-4xl scroll-mt-20 px-5 py-14 sm:py-20">
-      <div class="rounded-2xl border border-border bg-card p-6 shadow-sm sm:p-9">
-        <h2 id="proyecto-h" class="font-display text-3xl sm:text-4xl">Empecemos por tu proyecto</h2>
-        <p class="mt-3 max-w-2xl leading-relaxed text-muted-foreground">
-          Todo proyecto arranca igual: un MVP sencillo que funciona desde el
-          primer día y crece contigo. Cuéntanos qué vendes y te decimos, sin
-          compromiso, si encajamos — y con qué presupuesto y plazo.
-        </p>
-        <div class="mt-8">
-          <ProjectForm idPrefix="top" source="arriba" />
-        </div>
-      </div>
-    </section>
+    <!-- ── Tecnología e integraciones ────────────────────────────────────── -->
+    <LogoMarquee />
 
     <!-- ── El flujo del pedido, con capturas reales ──────────────────────── -->
     <section class="border-y border-border bg-muted">
@@ -419,6 +382,18 @@ const jsonLd = [
             </div>
           ))}
         </div>
+        {/* El panel salió del menú: este es su sitio, justo donde se acaba de
+            explicar para qué sirve. */}
+        <div class="mt-8 flex flex-col items-center gap-3 text-center sm:flex-row sm:justify-between sm:text-left">
+          <p class="text-muted-foreground">
+            Los pasos 02, 03 y 04 pasan en tu panel. Ábrelo y trastéalo: es la
+            demo real, sin registro.
+          </p>
+          <a
+            href={DEMO_ADMIN_HREF}
+            class="shrink-0 rounded-btn bg-foreground px-7 py-3 text-sm font-semibold text-background transition hover:bg-foreground/90"
+          >Entrar en el panel de la demo →</a>
+        </div>
       </div>
     </section>
 
@@ -426,9 +401,9 @@ const jsonLd = [
     <section class="mx-auto max-w-6xl px-5 py-14 sm:py-20">
       <h2 class="font-display text-3xl sm:text-4xl">Las cuentas claras</h2>
       <p class="mt-3 max-w-2xl text-muted-foreground">
-        La pregunta no es «¿cuánto pago?», es <strong class="text-foreground">«¿a
-        quién le pago?»</strong>. Tu cuota no alquila una plataforma: paga a un
-        equipo que lleva tu tienda.
+        La pregunta no es «¿cuánto pago?», es <strong class="text-foreground">«¿qué
+        me llevo y quién responde?»</strong>. Esto es lo que cambia frente a
+        montar la tienda en una plataforma de alquiler.
       </p>
       <div class="mt-8 overflow-x-auto rounded-2xl border border-border bg-card shadow-sm">
         <table class="w-full min-w-[640px] text-left text-sm">
@@ -452,9 +427,6 @@ const jsonLd = [
           </tbody>
         </table>
       </div>
-      <p class="mt-3 text-xs text-muted-foreground">
-        Precios de Shopify plan Basic y hosting WordPress típico, julio 2026. La comisión de Stripe (1,5 % + 0,25 € en tarjetas UE) la cobran todas las opciones.
-      </p>
 
       <div class="mt-10 rounded-2xl border border-border bg-muted p-6 sm:p-8">
         <h3 class="font-display text-xl">Cuándo NO somos tu mejor opción</h3>
@@ -489,15 +461,48 @@ const jsonLd = [
       </div>
     </section>
 
-    <!-- ── Precios (D4) ──────────────────────────────────────────────────── -->
+    <!-- ── Precios ───────────────────────────────────────────────────────── -->
     <section id="precios" class="scroll-mt-14 border-y border-border bg-muted">
       <div class="mx-auto max-w-5xl px-5 py-14 sm:py-20">
-        <h2 class="text-center font-display text-3xl sm:text-4xl">Un equipo detrás, no una plataforma</h2>
-        <p class="mx-auto mt-3 max-w-xl text-center text-muted-foreground">
-          Un pago de puesta en marcha y una sola cuota mensual: mantenimiento,
-          asistencia personalizada y seguimiento, de las personas que hicieron tu
-          tienda. Sin cuotas de plataforma ni comisiones por venta.
+        <h2 class="text-center font-display text-3xl sm:text-4xl">Ganamos cuando tú ganas</h2>
+        <p class="mx-auto mt-3 max-w-2xl text-center text-muted-foreground">
+          Un pago de puesta en marcha y una cuota que arranca en el mínimo. A
+          partir de ahí sube por tramos, según el tráfico de tu tienda — y traer
+          ese tráfico es justo nuestro trabajo.
         </p>
+
+        {/* El argumento del modelo, antes que los números: sin esto, «la cuota
+            sube» se lee como una letra pequeña en vez de como lo que es. */}
+        <div class="mt-10 grid gap-5 sm:grid-cols-3">
+          <div class="rise rounded-2xl border border-border bg-card p-6 shadow-sm">
+            <p class="font-accent text-sm uppercase tracking-wide text-brand">Al principio</p>
+            <h3 class="mt-2 font-display text-xl">Pagas poco</h3>
+            <p class="mt-2 text-sm leading-relaxed text-muted-foreground">
+              Tu tienda acaba de nacer y casi no tiene visitas. La cuota está en
+              el mínimo: no tendría ningún sentido cobrarte como a una tienda
+              consolidada.
+            </p>
+          </div>
+          <div class="rise rounded-2xl border border-border bg-card p-6 shadow-sm">
+            <p class="font-accent text-sm uppercase tracking-wide text-brand">Mientras tanto</p>
+            <h3 class="mt-2 font-display text-xl">Trabajamos el tráfico</h3>
+            <p class="mt-2 text-sm leading-relaxed text-muted-foreground">
+              Posicionamiento en Google, visibilidad en los asistentes de IA
+              (GEO) y campañas cuando compensen. Es la parte que hace que una
+              tienda deje de estar vacía.
+            </p>
+          </div>
+          <div class="rise rounded-2xl border border-border bg-card p-6 shadow-sm">
+            <p class="font-accent text-sm uppercase tracking-wide text-brand">Cuando funciona</p>
+            <h3 class="mt-2 font-display text-xl">Subimos los dos</h3>
+            <p class="mt-2 text-sm leading-relaxed text-muted-foreground">
+              Más tráfico es más ventas para ti y un tramo más arriba para
+              nosotros. Solo cobramos más cuando el trabajo ya ha dado
+              resultado: nuestro incentivo y el tuyo apuntan al mismo sitio.
+            </p>
+          </div>
+        </div>
+
         <div class="mt-10 grid gap-6 sm:grid-cols-2">
           {tiers.map((tier) => (
             <div class={`relative rounded-2xl bg-card p-8 shadow-sm ${tier.featured ? 'border-2 border-brand shadow-lg shadow-brand/10' : 'border border-border'}`}>
@@ -515,74 +520,16 @@ const jsonLd = [
             </div>
           ))}
         </div>
-        {/* ── Mini-calculadora a 3 años (D4) ─────────────────────────────────
-            Con JS: slider de ventas/mes → coste a 3 años Kit vs Shopify Basic.
-            Sin JS: 3 escenarios estáticos con las mismas cuentas. Honestidad
-            incluida: a poco volumen, la cuota de Shopify sale más barata. */}
-        <div class="mt-6 rounded-2xl border border-border bg-card p-6 sm:p-8">
-          <h3 class="font-display text-xl">Las cuentas a 3 años, con tus números</h3>
-          <div data-calc-static class="mt-5 overflow-x-auto">
-            <table class="w-full min-w-[440px] text-left text-sm">
-              <thead>
-                <tr class="border-b border-border text-muted-foreground">
-                  <th scope="col" class="py-2 pr-4 font-normal">Si vendes al mes</th>
-                  <th scope="col" class="py-2 pr-4 font-normal">Shopify Basic</th>
-                  <th scope="col" class="py-2 pr-4 font-normal">Kit completo</th>
-                  <th scope="col" class="py-2 font-normal">Diferencia</th>
-                </tr>
-              </thead>
-              <tbody>
-                {calcScenarios.map((s) => (
-                  <tr class="border-b border-border last:border-0">
-                    <th scope="row" class="py-2.5 pr-4 text-left font-medium">{euros(s.sales)}</th>
-                    <td class="py-2.5 pr-4 text-muted-foreground">{euros(s.shopify)}</td>
-                    <td class="py-2.5 pr-4 text-muted-foreground">{euros(KIT_3Y)}</td>
-                    <td class={`py-2.5 font-semibold ${s.diff > 0 ? 'text-brand-dark' : 'text-muted-foreground'}`}>
-                      {s.diff > 0 ? `ahorras ${euros(s.diff)}` : `Shopify, ${euros(-s.diff)} menos`}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-          <div data-calc hidden class="mt-5">
-            <label for="calc-sales" class="text-sm font-medium">
-              Si vendes <span data-out-sales class="font-semibold text-brand-dark">4.000 €</span> al mes online…
-            </label>
-            <input
-              id="calc-sales"
-              type="range"
-              min="1000"
-              max="10000"
-              step="500"
-              value="4000"
-              class="mt-3 w-full accent-brand"
-            />
-            <div class="mt-5 grid gap-4 sm:grid-cols-2">
-              <div class="rounded-xl border border-border bg-muted px-5 py-4">
-                <p class="text-xs uppercase tracking-wide text-muted-foreground">Shopify Basic, 3 años</p>
-                <p data-out-shopify class="mt-1 font-display text-3xl">—</p>
-              </div>
-              <div class="rounded-xl border-2 border-brand px-5 py-4">
-                <p class="text-xs uppercase tracking-wide text-muted-foreground">Kit completo, 3 años</p>
-                <p class="mt-1 font-display text-3xl">{euros(KIT_3Y)}</p>
-              </div>
-            </div>
-            <p data-out-verdict aria-live="polite" class="mt-4 text-sm font-medium">—</p>
-          </div>
-          <p class="mt-4 text-xs leading-relaxed text-muted-foreground">
-            Shopify: cuota Basic (36 €/mes) + 2 % de comisión por venta sin su pasarela; la plantilla
-            y las horas de montarla no están contadas. Kit: 1.900 € con el diseño a medida incluido
-            + 39 €/mes de mantenimiento con hasta 2 h de cambios. La comisión de la pasarela de pago
-            la pagan las dos opciones y no entra en la cuenta.
-          </p>
-        </div>
+        <p class="mx-auto mt-6 max-w-2xl text-center text-sm text-muted-foreground">
+          El tramo que te toca sale de tus números, no de una tabla genérica: lo
+          cerramos en la propuesta y queda por escrito antes de empezar.
+        </p>
         <div class="mx-auto mt-6 flex flex-col items-center justify-between gap-3 rounded-2xl border border-border bg-card px-6 py-5 text-sm sm:flex-row">
           <div>
             <p class="font-semibold">{lite.name} · {lite.price}</p>
             <p class="mt-1 text-muted-foreground">{lite.body}</p>
           </div>
-          <a href="/#proyecto" data-open-project class="shrink-0 font-medium text-brand underline underline-offset-2 hover:text-brand-dark">Pregunta por el Lite</a>
+          <a href="/#contacto" data-open-project class="shrink-0 font-medium text-brand underline underline-offset-2 hover:text-brand-dark">Pregunta por el Lite</a>
         </div>
         <p class="mt-6 text-center text-sm text-muted-foreground">
           ¿Quieres el detalle completo del servicio?
@@ -610,7 +557,7 @@ const jsonLd = [
             <p class="mt-1 text-sm text-muted-foreground">Catálogo, ficha, carrito y checkout completo con pago simulado.</p>
           </div>
         </a>
-        <a href="/demo/admin" class="rise group overflow-hidden rounded-2xl border border-border bg-card transition hover:-translate-y-1 hover:shadow-xl">
+        <a href={DEMO_ADMIN_HREF} class="rise group overflow-hidden rounded-2xl border border-border bg-card transition hover:-translate-y-1 hover:shadow-xl">
           <div class="aspect-[16/10] overflow-hidden border-b border-border bg-muted">
             <img src="/images/screens/panel-order-detail-900.webp" alt="" width="1440" height="900" loading="lazy" class="h-full w-full object-cover object-top" />
           </div>
@@ -630,9 +577,9 @@ const jsonLd = [
         </a>
       </div>
       <div class="mt-6 rounded-2xl border border-border bg-muted p-6 text-center sm:p-8">
-        <p class="font-display text-xl">¿Qué estilo encaja con lo que vendes?</p>
-        <p class="mx-auto mt-2 max-w-xl text-sm text-muted-foreground">{styleCount} direcciones visuales, del catálogo técnico al escaparate cinemático. Elige el punto de partida de tu tienda.</p>
-        <a href="/estilos" class="mt-4 inline-block rounded-btn border border-foreground px-6 py-2.5 text-sm font-semibold transition hover:bg-foreground hover:text-background">Ver los estilos</a>
+        <p class="font-display text-xl">¿Qué tema encaja con lo que vendes?</p>
+        <p class="mx-auto mt-2 max-w-xl text-sm text-muted-foreground">{themeCount} direcciones visuales, del catálogo técnico al escaparate cinemático. Elige el punto de partida de tu tienda.</p>
+        <a href="/temas" class="mt-4 inline-block rounded-btn border border-foreground px-6 py-2.5 text-sm font-semibold transition hover:bg-foreground hover:text-background">Ver los temas</a>
       </div>
     </section>
 
@@ -645,8 +592,7 @@ const jsonLd = [
           <a href="https://logic2b.com" class="font-medium text-foreground underline underline-offset-2 hover:text-brand-dark">Logic2B</a>,
           la agencia de desarrollo web y SEO de Castellón: diseño web, sistemas
           de gestión, marketing online y automatización con IA. Tu tienda no se
-          queda sola — el mismo equipo que la construye puede llevarte el
-          posicionamiento y lo que venga después.
+          queda sola — el mismo equipo que la construye es el que la posiciona.
         </p>
         <p class="mt-4 text-sm text-muted-foreground">
           ¿Prefieres empezar por saber dónde estás? Pide la
@@ -673,13 +619,13 @@ const jsonLd = [
     </section>
     </main>
 
-    <!-- ── Formulario, cierre (F13) ──────────────────────────────────────── -->
+    <!-- ── Formulario de cierre ──────────────────────────────────────────── -->
     <section id="contacto" class="scroll-mt-14 bg-foreground text-background">
       <div class="mx-auto max-w-4xl px-5 py-16 sm:py-20">
         <h2 class="font-display text-3xl sm:text-4xl">¿Hablamos de tu tienda?</h2>
         <p class="mt-4 max-w-xl leading-relaxed text-background/70">
-          Los mismos cuatro datos de arriba. Te contestamos en 24 h laborables
-          con dos o tres preguntas — y si no encajamos, te lo decimos.
+          Cuéntanos qué vendes y te contestamos en 24 h laborables con dos o tres
+          preguntas — y si no encajamos, te lo decimos.
         </p>
         <div class="mt-9">
           <ProjectForm idPrefix="end" source="cierre" inverted />
@@ -700,10 +646,10 @@ const jsonLd = [
           <p>© 2026 Logic2B · Castellón</p>
           <p>
             <a href="/arquitectura" class="hover:text-background">Cómo funciona</a> ·
-            <a href="/estilos" class="hover:text-background">Estilos</a> ·
+            <a href="/temas" class="hover:text-background">Temas</a> ·
             <a href="/dossier" class="hover:text-background">Dossier</a> ·
             <a href={MAIN_DEMO_HREF} class="hover:text-background">Demo de tienda</a> ·
-            <a href="/demo/admin" class="hover:text-background">Panel demo</a>
+            <a href={DEMO_ADMIN_HREF} class="hover:text-background">Panel demo</a>
           </p>
         </div>
       </footer>
@@ -754,17 +700,17 @@ const jsonLd = [
 
 <script>
   // Script de la landing (decisión D1: vanilla, sin dependencias, ≤15 KB).
-  // Dos piezas, ambas mejora progresiva: el autoplay del vídeo de Iris y la
-  // calculadora. El formulario lo gobierna ProjectDialog.astro.
+  // Una sola pieza: el autoplay del vídeo de Iris. El formulario lo gobierna
+  // ProjectDialog.astro y la franja de logos es CSS puro.
   const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  // 1 · Iris: la tarjeta se sirve como imagen (póster) y aquí se asciende a
-  //     <video preload="none"> que reproduce solo mientras se ve. Nunca con
-  //     reduced-motion ni con ahorro de datos: esos visitantes se quedan la
-  //     imagen. El clip no baja ni un byte hasta que la tarjeta es visible.
-  //     WCAG 2.2.2: todo lo que se mueve >5 s necesita pausa — el botón está
-  //     en el template (oculto, fuera del enlace) y aquí solo se activa cuando
-  //     el vídeo existe. Una pausa del visitante manda sobre el observer.
+  // Iris: la tarjeta se sirve como imagen (póster) y aquí se asciende a
+  // <video preload="none"> que reproduce solo mientras se ve. Nunca con
+  // reduced-motion ni con ahorro de datos: esos visitantes se quedan la imagen.
+  // El clip no baja ni un byte hasta que la tarjeta es visible. WCAG 2.2.2:
+  // todo lo que se mueve >5 s necesita pausa — el botón está en el template
+  // (oculto, fuera del enlace) y aquí solo se activa cuando el vídeo existe.
+  // Una pausa del visitante manda sobre el observer.
   const saveData =
     (navigator as Navigator & { connection?: { saveData?: boolean } }).connection?.saveData === true;
   if (!reduced && !saveData) {
@@ -813,36 +759,5 @@ const jsonLd = [
         { threshold: 0.4 },
       ).observe(video);
     }
-  }
-
-  // 2 · Calculadora a 3 años. Mismas cuentas que la tabla estática (que queda
-  //     como fallback sin JS): Shopify = 36 €/mes + 2 % de las ventas; Kit =
-  //     1.900 € + 39 €/mes. Números en el pie de la sección.
-  const calc = document.querySelector<HTMLElement>('[data-calc]');
-  const calcStatic = document.querySelector<HTMLElement>('[data-calc-static]');
-  const range = calc?.querySelector<HTMLInputElement>('input[type=range]');
-  const outSales = calc?.querySelector<HTMLElement>('[data-out-sales]');
-  const outShopify = calc?.querySelector<HTMLElement>('[data-out-shopify]');
-  const outVerdict = calc?.querySelector<HTMLElement>('[data-out-verdict]');
-  if (calc && calcStatic && range && outSales && outShopify && outVerdict) {
-    const KIT_3Y = 1900 + 39 * 36;
-    // Punto de miles siempre (coherente con «1.900 €» del copy; Intl es-ES no
-    // agrupa por debajo de 10.000).
-    const euros = (n: number) => `${n.toString().replace(/\B(?=(\d{3})+$)/g, '.')} €`;
-    const update = () => {
-      const sales = Number(range.value);
-      const shopify = 36 * 36 + Math.round(sales * 0.02 * 36);
-      const diff = shopify - KIT_3Y;
-      outSales.textContent = euros(sales);
-      outShopify.textContent = euros(shopify);
-      outVerdict.textContent =
-        diff >= 0
-          ? `Con el Kit te ahorras ${euros(diff)} en 3 años — y el diseño a medida va incluido.`
-          : `A este volumen, la cuota de Shopify sale ${euros(-diff)} más barata; el Kit compensa por el diseño a medida y las 2 h de cambios al mes.`;
-    };
-    range.addEventListener('input', update);
-    update();
-    calc.hidden = false;
-    calcStatic.hidden = true;
   }
 </script>

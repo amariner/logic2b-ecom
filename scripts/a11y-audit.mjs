@@ -192,7 +192,7 @@ for (const p of ADMIN_PAGES) {
 const SITE_PAGES = [
   { id: 'landing', url: '/' },
   { id: 'arquitectura', url: '/arquitectura' },
-  { id: 'estilos', url: '/estilos' },
+  { id: 'estilos', url: '/temas' },
   { id: 'dossier', url: '/dossier' },
   { id: 'ayuda', url: '/ayuda' },
   { id: 'gracias', url: '/demo/gracias?session_id=sim_sess_BM-DEMO-1001' },

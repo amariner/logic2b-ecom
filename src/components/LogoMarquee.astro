@@ -1,0 +1,129 @@
+---
+/**
+ * Franja de tecnología e integraciones — sustituye a la antigua barra de cifras.
+ *
+ * Los logos se pintan con `mask-image` sobre `currentColor`: así los quince
+ * llegan del mismo color, sin la ensalada de azules y verdes de las marcas, y
+ * la franja se lee como una sola pieza. Es también la razón de usar ficheros
+ * SVG monocromo (simple-icons) en vez de los logos oficiales a color.
+ *
+ * El desplazamiento es CSS puro: la lista se duplica y se anima el contenedor
+ * media vuelta, así que el bucle no tiene costura. Con `prefers-reduced-motion`
+ * se para y la franja queda desplazable a mano — completa, no rota.
+ *
+ * Honestidad (product): el rótulo distingue lo que USAMOS de aquello con lo que
+ * CONECTAMOS. Ninguna de estas marcas nos patrocina ni nos certifica.
+ */
+
+/** Lo que mueve la tienda por dentro. */
+const stack = [
+  { file: 'cloudflare', name: 'Cloudflare' },
+  { file: 'astro', name: 'Astro' },
+  { file: 'typescript', name: 'TypeScript' },
+  { file: 'tailwindcss', name: 'Tailwind CSS' },
+];
+
+/** Pasarelas y plataformas a las que se conecta la tienda. */
+const integrations = [
+  { file: 'stripe', name: 'Stripe' },
+  { file: 'paypal', name: 'PayPal' },
+  { file: 'googleads', name: 'Google Ads' },
+  { file: 'googleanalytics', name: 'Google Analytics' },
+  { file: 'meta', name: 'Meta' },
+  { file: 'instagram', name: 'Instagram' },
+  { file: 'tiktok', name: 'TikTok' },
+  { file: 'mailchimp', name: 'Mailchimp' },
+  { file: 'whatsapp', name: 'WhatsApp' },
+  { file: 'amazon', name: 'Amazon' },
+  { file: 'ebay', name: 'eBay' },
+];
+
+const logos = [...stack, ...integrations];
+---
+
+<section aria-labelledby="stack-h" class="border-y border-border bg-foreground text-background">
+  <div class="mx-auto max-w-6xl px-5 pt-8">
+    <h2 id="stack-h" class="text-center text-sm text-background/60">
+      Construida sobre tecnología de primera línea y conectada con las
+      plataformas donde ya está tu cliente.
+    </h2>
+  </div>
+
+  {/* La lista real es la primera; la copia existe solo para que el bucle no
+      tenga salto y va oculta a la accesibilidad. */}
+  <div class="marquee mt-6 pb-9">
+    <ul class="marquee-track">
+      {logos.map((logo) => (
+        <li class="marquee-item">
+          <span class="logo" style={`--src:url(/images/logos/${logo.file}.svg)`} role="img" aria-label={logo.name}></span>
+        </li>
+      ))}
+    </ul>
+    <ul class="marquee-track" aria-hidden="true">
+      {logos.map((logo) => (
+        <li class="marquee-item">
+          <span class="logo" style={`--src:url(/images/logos/${logo.file}.svg)`}></span>
+        </li>
+      ))}
+    </ul>
+  </div>
+</section>
+
+<style>
+  .marquee {
+    display: flex;
+    overflow-x: auto;
+    /* Los bordes se desvanecen: el corte seco delataba el truco de la copia. */
+    mask-image: linear-gradient(90deg, transparent, #000 6rem, #000 calc(100% - 6rem), transparent);
+    scrollbar-width: none;
+  }
+  .marquee::-webkit-scrollbar {
+    display: none;
+  }
+  .marquee-track {
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    gap: clamp(2.5rem, 6vw, 4.5rem);
+    padding-inline: clamp(1.25rem, 3vw, 2.25rem);
+    list-style: none;
+  }
+  .marquee-item {
+    flex-shrink: 0;
+  }
+  /* El logo es una máscara pintada con el color del texto: quince marcas, un
+     solo tono. `background` y no `fill` porque el SVG entra como máscara. */
+  .logo {
+    display: block;
+    width: clamp(1.5rem, 3.2vw, 1.75rem);
+    height: clamp(1.5rem, 3.2vw, 1.75rem);
+    background: currentColor;
+    opacity: 0.75;
+    mask-image: var(--src);
+    mask-repeat: no-repeat;
+    mask-position: center;
+    mask-size: contain;
+    -webkit-mask-image: var(--src);
+    -webkit-mask-repeat: no-repeat;
+    -webkit-mask-position: center;
+    -webkit-mask-size: contain;
+  }
+
+  @keyframes marquee-slide {
+    to {
+      transform: translateX(-100%);
+    }
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .marquee-track {
+      animation: marquee-slide 42s linear infinite;
+    }
+  }
+  /* Sin movimiento, la franja sigue siendo recorrible a mano y la copia
+     duplicada estorba: se esconde. */
+  @media (prefers-reduced-motion: reduce) {
+    .marquee-track[aria-hidden='true'] {
+      display: none;
+    }
+  }
+</style>

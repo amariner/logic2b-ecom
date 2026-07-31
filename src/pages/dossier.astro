@@ -13,7 +13,7 @@ const path = [
   {
     k: 'Mes 1',
     title: 'La tienda que vende',
-    body: 'Se entrega el MVP completo y operativo: catálogo, carrito, pagos con Stripe, envíos, emails y panel. No es una versión recortada — es todo lo que un comercio necesita para vender, sin lo que no necesita todavía.',
+    body: 'Se entrega el MVP completo y operativo: catálogo, carrito, pagos, envíos, emails y panel. No es una versión recortada — es todo lo que un comercio necesita para vender, sin lo que no necesita todavía.',
   },
   {
     k: 'Los primeros meses',
@@ -58,7 +58,7 @@ const included = [
       'Catálogo con categorías, buscador y ordenación, del expositor pequeño al catálogo grande.',
       'Ficha de producto con foto optimizada, precio, stock y datos estructurados (schema Product) que Google entiende.',
       'Carrito y checkout como invitado: nadie tiene que crearse una cuenta para comprarte.',
-      'Pago en la página segura de Stripe: la tarjeta nunca pasa por tu web (cero papeleo PCI).',
+      'Pago en la página segura de la pasarela (Stripe, PayPal o la que encaje): la tarjeta nunca pasa por tu web, y tú no tocas papeleo PCI.',
       'Cálculo de envío por zona con umbral de envío gratis configurable.',
       'Página de confirmación y email de pedido con tu marca.',
     ],
@@ -81,7 +81,7 @@ const included = [
       'Lighthouse 100/100/100/100: rendimiento, accesibilidad, buenas prácticas y SEO.',
       'SEO técnico de serie: sitemap, canonicals, Open Graph, datos estructurados validables.',
       'Emails transaccionales con tu dominio (confirmación de pedido y aviso de envío).',
-      'Infraestructura en los planes gratuitos de Cloudflare: 0 €/mes, sin servidores que mantener.',
+      'Infraestructura que escala sola y sin servidores que mantener: el gasto acompaña al tráfico, no va por delante.',
       'El repositorio de código es tuyo. Si un día te vas, te lo llevas todo.',
     ],
   },
@@ -101,7 +101,7 @@ const process = [
   {
     step: '3',
     title: 'Catálogo, pagos y envíos',
-    body: 'Cargamos el catálogo completo, conectamos tu cuenta de Stripe y configuramos zonas y tarifas de envío con sus umbrales de envío gratis.',
+    body: 'Cargamos el catálogo completo, conectamos tu cuenta de la pasarela de pago y configuramos zonas y tarifas de envío con sus umbrales de envío gratis.',
   },
   {
     step: '4',
@@ -114,18 +114,18 @@ const needs = [
   ['Fotos de producto', 'Las que tengas; si hacen falta mejores, te orientamos sobre cómo hacerlas o con quién.'],
   ['Lista de productos', 'Nombre, precio, descripción corta y stock en una hoja de cálculo que te pasamos.'],
   ['Tu dominio', 'Si ya lo tienes, lo conectamos; si no, te ayudamos a registrarlo (~12 €/año).'],
-  ['Cuenta de Stripe', 'Gratis. Te guiamos en el alta: se hace online en una tarde con tus datos fiscales.'],
+  ['Cuenta de la pasarela de pago', 'Gratis darse de alta (Stripe, PayPal…). Te guiamos: se hace online en una tarde con tus datos fiscales.'],
   ['Textos legales', 'Aviso legal, privacidad y condiciones de venta: te damos las plantillas base para tu gestoría.'],
 ];
 
 const faqs = [
   {
-    q: '¿De verdad el coste de infraestructura es 0 €/mes?',
-    a: 'Sí. La tienda corre entera en los planes gratuitos de Cloudflare (hosting, base de datos, CDN global). Los únicos costes variables son el dominio (~12 €/año) y la comisión de Stripe por venta (1,5 % + 0,25 € en tarjetas europeas), que cobra Stripe, no nosotros.',
+    q: '¿Por qué la cuota crece con el tráfico?',
+    a: 'Porque así nuestro interés y el tuyo son el mismo. Mientras tu tienda tiene pocas visitas pagas el mínimo; nosotros trabajamos el posicionamiento (SEO, GEO) y las campañas; y cuando ese trabajo trae tráfico —y ventas— la cuota sube de tramo. Nunca cobramos más por adelantado: cobramos más después de que funcione. El tramo se fija en la propuesta, con tus números.',
   },
   {
     q: '¿Es seguro el pago?',
-    a: 'El pago ocurre en la página de Stripe, el mismo procesador que usan Amazon o Zara. El número de tarjeta nunca pasa por la tienda: cero superficie de ataque, cero papeleo PCI para ti.',
+    a: 'El pago ocurre en la página de la pasarela —Stripe, PayPal o la que mejor encaje contigo—, nunca en tu tienda. El número de tarjeta no pasa por ella: cero superficie de ataque, cero papeleo PCI para ti.',
   },
   {
     q: '¿Podré gestionarlo yo sin saber de informática?',
@@ -153,7 +153,7 @@ const faqs = [
   },
   {
     q: '¿Por qué no Shopify o WooCommerce?',
-    a: 'Shopify son 36 €/mes de por vida más ~2 % extra por venta si no usas su pasarela, sobre una plantilla compartida. WooCommerce es «gratis» pero vives pendiente de hosting y plugins. Aquí el código es tuyo, a medida, sin cuotas de plataforma y más rápido que ambos. Y la diferencia de fondo: esa cuota paga una plataforma; la nuestra paga a las personas que llevan tu tienda.',
+    a: 'Con ellos tu tienda se parece a las demás y el marketing lo buscas aparte: la plataforma te da software, no un equipo. Aquí el diseño es a medida y tuyo, el código también, la tienda carga en menos de medio segundo, y quien la construye es quien la posiciona. La diferencia de fondo: allí pagas por usar una plataforma; aquí pagas a las personas que llevan tu tienda y que trabajan para que reciba más visitas.',
   },
   {
     q: '¿Tienda en varios idiomas?',
@@ -167,7 +167,7 @@ const jsonLd = [
     '@type': 'Service',
     name: 'Logic2B Ecommerce',
     description:
-      'Tienda online a medida que arranca como MVP y escala de 10 referencias a un millón sin cambiar de plataforma: ultrarrápida, sin cuotas de plataforma, con coste de infraestructura cero y la asistencia continua del equipo de Logic2B.',
+      'Tienda online a medida que arranca como MVP y escala de 10 referencias a un millón sin cambiar de plataforma: ultrarrápida, con diseño propio y con el posicionamiento y la asistencia continua del equipo de Logic2B.',
     provider: { '@type': 'Organization', name: 'Logic2B', url: 'https://logic2b.com' },
     areaServed: 'ES',
     serviceType: 'Desarrollo de comercio electrónico',
@@ -204,7 +204,7 @@ const jsonLd = [
               <a href={link.href} class="hidden text-stone-600 hover:text-ink lg:block">{link.label}</a>
             ))}
           <a
-            href="/#proyecto"
+            href="/#contacto"
             data-open-project
             class="rounded-btn bg-ink px-4 py-2 text-sm font-semibold text-white transition hover:bg-black sm:px-5"
           >Iniciar proyecto</a>
@@ -371,10 +371,11 @@ const jsonLd = [
       <section class="mt-14">
         <h2 class="font-display text-2xl sm:text-3xl">Qué compra tu mensualidad</h2>
         <p class="mt-2 max-w-2xl leading-relaxed text-stone-600">
-          La infraestructura cuesta 0 €: la tienda corre en los planes gratuitos de
-          Cloudflare y eso se puede comprobar. Así que tu cuota no paga servidores ni
-          licencias — <strong class="text-ink">paga a las personas que llevan tu
-          tienda</strong>. Esto es lo que compra:
+          Tu cuota no paga licencias de plataforma ni servidores encendidos sin usar:
+          <strong class="text-ink">paga a las personas que llevan tu tienda</strong> y
+          el trabajo de traerle visitas. Empieza en el mínimo y sube por tramos según
+          el tráfico — es decir, según lo bien que estemos haciendo esa parte. Esto es
+          lo que compra:
         </p>
         <div class="mt-6 grid gap-5 sm:grid-cols-3">
           {monthly.map((item) => (
@@ -414,7 +415,7 @@ const jsonLd = [
         <div class="mt-6 grid gap-5 sm:grid-cols-2">
           <div class="rounded-2xl border-2 border-brand bg-white p-7 shadow-lg shadow-brand/10">
             <p class="text-sm font-medium uppercase tracking-wide text-stone-500">Kit · el más elegido</p>
-            <p class="mt-2 font-display text-4xl">1.900 €<span class="text-base font-normal text-stone-500"> + 39 €/mes</span></p>
+            <p class="mt-2 font-display text-4xl">1.900 €<span class="text-base font-normal text-stone-500"> + desde 39 €/mes</span></p>
             <p class="mt-4 text-sm leading-relaxed text-stone-600">
               Todo lo del apartado «Qué incluye el primer mes», partiendo de uno de los
               estilos del catálogo adaptado a tu marca: color, tipografía y fotos. La
@@ -425,7 +426,7 @@ const jsonLd = [
           </div>
           <div class="rounded-2xl border border-black/5 bg-white p-7 shadow-sm">
             <p class="text-sm font-medium uppercase tracking-wide text-stone-500">Kit a medida</p>
-            <p class="mt-2 font-display text-4xl">desde 3.400 €<span class="text-base font-normal text-stone-500"> + 59 €/mes</span></p>
+            <p class="mt-2 font-display text-4xl">desde 3.400 €<span class="text-base font-normal text-stone-500"> + desde 59 €/mes</span></p>
             <p class="mt-4 text-sm leading-relaxed text-stone-600">
               Dirección visual propia, creada para tu marca: sesión de arte, imaginería
               generada para tu catálogo y un tema exclusivo que no se comparte con
@@ -435,9 +436,9 @@ const jsonLd = [
         </div>
         <div class="mt-5 flex flex-col justify-between gap-3 rounded-2xl bg-cream px-6 py-5 text-sm sm:flex-row sm:items-center">
           <div>
-            <p class="font-semibold">Kit Lite · desde 590 € + 0 €/mes</p>
+            <p class="font-semibold">Kit Lite · desde 590 €, sin mensualidad</p>
             <p class="mt-1 text-stone-600">
-              Hasta 10 productos con enlaces de pago de Stripe, sin panel. Para empezar
+              Hasta 10 productos con enlaces de pago, sin panel. Para empezar
               a vender online con lo justo y crecer al Kit cuando toque.
             </p>
           </div>
@@ -447,15 +448,13 @@ const jsonLd = [
           >Pregunta por el Lite</a>
         </div>
         <p class="mt-4 text-sm leading-relaxed text-stone-600">
-          Costes que no dependen de nosotros: dominio (~12 €/año) y comisión de Stripe por venta
-          (1,5 % + 0,25 € en tarjetas europeas), que pagarías igual en cualquier plataforma. No hay
-          ninguna otra cuota: la infraestructura corre en los planes gratuitos de Cloudflare.
+          La mensualidad indicada es el tramo de entrada. Sube por tramos a medida que crece el
+          tráfico de tu tienda, que es el trabajo que hacemos por ti: se te comunica antes de
+          aplicarse y queda por escrito en la propuesta.
         </p>
         <p class="mt-3 text-sm leading-relaxed text-stone-600">
-          Para comparar: solo la cuota de Shopify Basic son 1.296 € en 3 años (más ~2 % extra por venta
-          si no usas su pasarela), sobre una plantilla que no es tuya. El Kit son 3.304 € en 3 años
-          —1.900 € de puesta en marcha y 39 €/mes— con diseño a medida, mantenimiento con horas de
-          cambios incluidas y el código en propiedad.
+          Costes que no dependen de nosotros: el dominio (~12 €/año) y la comisión que cobre la
+          pasarela de pago por venta, que pagarías igual en cualquier plataforma.
         </p>
       </section>
 
@@ -467,7 +466,7 @@ const jsonLd = [
           respuesta, por escrito:
         </p>
         <ul class="mt-5 space-y-3 rounded-2xl border border-black/5 bg-white p-6 text-sm leading-relaxed text-stone-600 shadow-sm">
-          <li class="flex gap-2"><span aria-hidden="true" class="text-brand">✓</span> <span><strong class="text-ink">Todo está a tu nombre desde el primer día</strong>: el dominio, la cuenta de Stripe (donde entra tu dinero), el alojamiento y el repositorio con el código. Nosotros solo tenemos los accesos de mantenimiento.</span></li>
+          <li class="flex gap-2"><span aria-hidden="true" class="text-brand">✓</span> <span><strong class="text-ink">Todo está a tu nombre desde el primer día</strong>: el dominio, la cuenta de la pasarela de pago (donde entra tu dinero), el alojamiento y el repositorio con el código. Nosotros solo tenemos los accesos de mantenimiento.</span></li>
           <li class="flex gap-2"><span aria-hidden="true" class="text-brand">✓</span> <span>En la entrega firmamos un <strong class="text-ink">acta con un inventario de accesos</strong>: qué cuentas existen, de quién son y quién entra en cada una. Con esa hoja, cualquier profesional puede continuar tu tienda mañana.</span></li>
           <li class="flex gap-2"><span aria-hidden="true" class="text-brand">✓</span> <span><strong class="text-ink">Sin permanencia.</strong> Si dejas el mantenimiento, te entregamos una última copia de seguridad, retiramos nuestros accesos y la tienda sigue funcionando. Sin rehenes.</span></li>
         </ul>
@@ -509,7 +508,7 @@ const jsonLd = [
         <p>
           <a href="/" class="hover:text-ink">Inicio</a> ·
           <a href="/arquitectura" class="hover:text-ink">Cómo funciona</a> ·
-          <a href="/estilos" class="hover:text-ink">Estilos</a> ·
+          <a href="/temas" class="hover:text-ink">Estilos</a> ·
           <a href="/demo/tienda" class="hover:text-ink">Demo de tienda</a> ·
           <a href="/demo/admin" class="hover:text-ink">Panel demo</a>
         </p>

@@ -1,0 +1,4 @@
+# El catálogo de estilos pasó a llamarse «temas» (2026-07-31). La URL vieja
+# estuvo en el sitemap y puede estar indexada o enlazada desde fuera: 301, no
+# 404. Formato de Cloudflare Pages/Workers assets.
+/estilos /temas 301

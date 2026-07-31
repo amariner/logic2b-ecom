@@ -3,7 +3,7 @@
  * Diálogo «Iniciar proyecto» — el CTA principal de la cabecera.
  *
  * `<dialog>` nativo: modal, foco atrapado y Esc de serie, sin dependencias ni
- * CSS de terceros. Sin JS el CTA es un ancla normal a `#proyecto` (el mismo
+ * CSS de terceros. Sin JS el CTA es un ancla normal a `#contacto` (el mismo
  * formulario, ya presente en la página), así que nada depende del diálogo.
  *
  * El script vive aquí y gobierna TODOS los formularios de la página: los tres
@@ -41,7 +41,7 @@ import ProjectForm from './ProjectForm.astro';
 
 <script>
   // ── Apertura del diálogo ──────────────────────────────────────────────────
-  // Cualquier elemento con [data-open-project] lo abre. Son anclas a #proyecto:
+  // Cualquier elemento con [data-open-project] lo abre. Son anclas a #contacto:
   // sin JS llevan al formulario de la página, con JS abren el modal.
   const dialog = document.querySelector<HTMLDialogElement>('[data-project-dialog]');
   if (dialog && typeof dialog.showModal === 'function') {

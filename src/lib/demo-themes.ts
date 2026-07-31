@@ -109,7 +109,7 @@ export type ThemeLayout = {
   darkFooter: boolean;
 };
 
-/** Estado de desarrollo — lo pinta el catálogo público en /estilos. */
+/** Estado de desarrollo — lo pinta el catálogo público en /temas. */
 export type ThemeStatus = 'ready' | 'planned';
 
 export type DemoTheme = {
@@ -125,7 +125,7 @@ export type DemoTheme = {
   reference: { name: string; file: string } | null;
   /**
    * Imaginería PROPIA en la estética del tema (generada con Higgsfield).
-   * Esto sí es lo que se enseña en /estilos: comunica el aire del estilo sin
+   * Esto sí es lo que se enseña en /temas: comunica el aire del estilo sin
    * republicar el trabajo de nadie. Fichero en public/images/temas/.
    */
   sample: string | null;
@@ -495,7 +495,7 @@ export const demoThemes: DemoTheme[] = [
 
 export const defaultTheme = demoThemes[0]!;
 
-/** Temas ya desarrollados (los que /estilos enseña como listos). */
+/** Temas ya desarrollados (los que /temas enseña como listos). */
 export const readyThemes = demoThemes.filter((t) => t.status === 'ready');
 
 export function getTheme(id: string): DemoTheme | undefined {

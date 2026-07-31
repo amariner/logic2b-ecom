@@ -27,7 +27,7 @@ const tables = [
 ];
 
 const benefits = [
-  ['Factura de infraestructura: 0 €', 'Todo cabe en los planes gratuitos de Cloudflare; solo pagas dominio y la comisión estándar de Stripe.'],
+  ['El coste sigue al tráfico', 'La tienda no paga servidores encendidos sin usar: el gasto acompaña a las visitas que recibe, y las visitas son justo lo que trabajamos por ti.'],
   ['Sin cuellos de botella', 'Si sales en la radio y entran 5.000 personas a la vez, la tienda ni se entera: es HTML servido desde 300 ciudades.'],
   ['Sin rehenes', 'El código está en un repositorio a tu nombre. Si mañana quieres irte, te lo llevas todo.'],
 ];
@@ -59,7 +59,7 @@ const benefits = [
             ))}
           <a href={MAIN_DEMO_HREF} class="text-stone-600 hover:text-ink">Ver la demo</a>
           <a
-            href="/#proyecto"
+            href="/#contacto"
             data-open-project
             class="rounded-btn bg-ink px-4 py-2 text-sm font-semibold text-white transition hover:bg-black sm:px-5"
           >Iniciar proyecto</a>
@@ -97,8 +97,9 @@ const benefits = [
         (300+ ciudades, la tuya incluida). Por eso carga en menos de medio segundo:
         no hay servidor pensando, solo ficheros viajando desde muy cerca del comprador.
         Las únicas piezas dinámicas son el carrito, el pago y el panel — funciones
-        pequeñas que despiertan solo cuando se usan y se cobran por uso (uso que en
-        una tienda de este tamaño cabe en el plan gratuito).
+        pequeñas que despiertan solo cuando se usan y se cobran por uso: una
+        tienda que empieza gasta muy poco, y el gasto sube al ritmo del tráfico
+        en vez de por adelantado.
       </p>
 
       <h2 class="mt-14 font-display text-2xl sm:text-3xl">El flujo de una compra</h2>
@@ -145,7 +146,7 @@ const benefits = [
       </div>
       <ol class="mt-6 list-decimal space-y-3 pl-5 leading-relaxed text-stone-600">
         <li>El carrito vive en el navegador del comprador, pero <strong class="text-ink">solo guarda referencias</strong>. Los precios se recalculan siempre en el servidor contra la base de datos: manipular el carrito no sirve de nada.</li>
-        <li>Al pagar, la API revalida stock y precios y crea una sesión de <strong class="text-ink">Stripe Checkout</strong>. El comprador paga en la página de Stripe: el número de tarjeta jamás pasa por nuestra infraestructura.</li>
+        <li>Al pagar, la API revalida stock y precios y crea la sesión en la pasarela — en la demo, <strong class="text-ink">Stripe Checkout</strong>. El comprador paga en la página de la pasarela: el número de tarjeta jamás pasa por nuestra infraestructura. PayPal u otra pasarela encajan en el mismo hueco; lo que se describe aquí no cambia.</li>
         <li>Stripe nos confirma el pago con un <strong class="text-ink">webhook firmado criptográficamente</strong>. Solo entonces el pedido pasa a «pagado», se descuenta el stock y se envía el email de confirmación — todo en una única transacción.</li>
         <li>Si Stripe reenvía la confirmación (pasa a menudo), el sistema la reconoce y no duplica nada: el webhook es <strong class="text-ink">idempotente</strong>.</li>
       </ol>
@@ -259,7 +260,7 @@ const benefits = [
         <p>© 2026 Logic2B · Castellón</p>
         <p>
           <a href="/" class="hover:text-ink">Inicio</a> ·
-          <a href="/estilos" class="hover:text-ink">Estilos</a> ·
+          <a href="/temas" class="hover:text-ink">Estilos</a> ·
           <a href="/dossier" class="hover:text-ink">Dossier</a> ·
           <a href={MAIN_DEMO_HREF} class="hover:text-ink">Demo de tienda</a> ·
           <a href="/demo/admin" class="hover:text-ink">Panel demo</a>
