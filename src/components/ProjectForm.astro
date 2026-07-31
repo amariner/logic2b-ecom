@@ -1,0 +1,90 @@
+---
+/**
+ * Formulario «Iniciar proyecto» — la conversión de la landing.
+ *
+ * Aparece tres veces con los MISMOS campos (cabecera en diálogo, arriba de la
+ * landing y cierre). Un solo esquema (`lib/contact.ts`), un solo email.
+ *
+ * Funciona SIN JS: es un `<form method="post">` de verdad contra
+ * `/api/contact`, que redirige a `/proyecto-recibido`. Con JS, el script de la
+ * landing lo envía por `fetch` y pinta la confirmación en el sitio.
+ */
+import { CATALOG_SIZES } from '../lib/contact';
+
+interface Props {
+  /** Prefijo único de los `id` — el formulario se repite en la misma página. */
+  idPrefix: string;
+  /** Qué CTA lo abrió; viaja en el email para saber qué convierte. */
+  source: string;
+  /** Sobre fondo oscuro (sección de cierre). */
+  inverted?: boolean;
+}
+const { idPrefix, source, inverted = false } = Astro.props;
+
+const field = inverted
+  ? // Sobre fondo oscuro el placeholder necesita bastante más luz de la que
+    // pide el ojo: por debajo de ~55 % de opacidad no llega a AA.
+    'w-full rounded-btn border border-background/40 bg-background/10 px-4 py-2.5 text-sm text-background placeholder:text-background/60 focus:border-background focus:outline-none'
+  : 'w-full rounded-btn border border-border bg-background px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:border-brand focus:outline-none';
+const label = inverted ? 'text-sm font-medium text-background' : 'text-sm font-medium text-foreground';
+const hint = inverted ? 'text-xs text-background/60' : 'text-xs text-muted-foreground';
+---
+
+<form
+  method="post"
+  action="/api/contact"
+  data-project-form
+  class="grid gap-4 text-left sm:grid-cols-2"
+>
+  <input type="hidden" name="source" value={source} />
+  {/* Trampa anti-bot: fuera de pantalla, sin tabulación y sin autocompletar. */}
+  <p class="hidden" aria-hidden="true">
+    <label for={`${idPrefix}-website`}>No rellenes este campo</label>
+    <input id={`${idPrefix}-website`} type="text" name="website" tabindex="-1" autocomplete="off" />
+  </p>
+
+  <div class="grid gap-1.5">
+    <label class={label} for={`${idPrefix}-name`}>Tu nombre</label>
+    <input id={`${idPrefix}-name`} class={field} type="text" name="name" required minlength="2" maxlength="80" autocomplete="name" />
+  </div>
+  <div class="grid gap-1.5">
+    <label class={label} for={`${idPrefix}-email`}>Email</label>
+    <input id={`${idPrefix}-email`} class={field} type="email" name="email" required maxlength="120" autocomplete="email" />
+  </div>
+  <div class="grid gap-1.5">
+    <label class={label} for={`${idPrefix}-phone`}>Teléfono <span class={hint}>(opcional)</span></label>
+    <input id={`${idPrefix}-phone`} class={field} type="tel" name="phone" maxlength="30" autocomplete="tel" />
+  </div>
+  <div class="grid gap-1.5">
+    <label class={label} for={`${idPrefix}-sells`}>¿Qué vendes?</label>
+    <input id={`${idPrefix}-sells`} class={field} type="text" name="sells" maxlength="120" placeholder="Aceite, ropa, recambios…" />
+  </div>
+  <div class="grid gap-1.5 sm:col-span-2">
+    <label class={label} for={`${idPrefix}-catalog`}>¿Cuántos productos tendrá?</label>
+    <select id={`${idPrefix}-catalog`} class={field} name="catalog">
+      {CATALOG_SIZES.map((size) => <option value={size.value}>{size.label}</option>)}
+    </select>
+  </div>
+  <div class="grid gap-1.5 sm:col-span-2">
+    <label class={label} for={`${idPrefix}-needs`}>¿Qué necesita tu proyecto?</label>
+    <textarea
+      id={`${idPrefix}-needs`}
+      class={`${field} min-h-28 resize-y`}
+      name="needs"
+      required
+      minlength="10"
+      maxlength="2000"
+      placeholder="Si tienes tienda hoy, dónde; qué te falta; para cuándo la quieres."></textarea>
+  </div>
+
+  <div class="sm:col-span-2">
+    <button
+      type="submit"
+      class={`w-full rounded-btn px-6 py-3 text-sm font-semibold transition ${
+        inverted ? 'bg-brand text-brand-fg hover:bg-brand-dark' : 'bg-primary text-primary-foreground hover:bg-primary/90'
+      }`}
+    >Enviar y hablamos</button>
+    <p class={`mt-2 ${hint}`}>Te contestamos en 24 h laborables. Sin compromiso y sin llamadas comerciales.</p>
+    <p data-form-status role="status" aria-live="polite" class="mt-2 text-sm font-medium"></p>
+  </div>
+</form>

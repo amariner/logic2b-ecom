@@ -263,10 +263,16 @@
      el lockup. Vive aquí y no en un `<style>` de SiteHeader porque el wordmark
      lo pinta `Logo.astro` y el scoping de Astro no cruza de componente.
      Son dos enlaces: «Logic2B» va a la agencia, «Ecommerce» a la home. */
+  /* El lockup no se parte NUNCA en dos líneas: la cabecera mide 56 px fijos y
+     un wordmark en dos líneas se sale de la caja. En móvil se encoge un poco
+     para convivir con el CTA. */
+  .wordmark {
+    white-space: nowrap;
+  }
   .wordmark .wm-agency,
   .wordmark .wm-product {
     font-family: 'Poppins Logo', 'Poppins', 'Poppins Fallback', var(--font-sans);
-    font-size: 1.2rem;
+    font-size: clamp(1rem, 4.2vw, 1.2rem);
     font-weight: 600;
     letter-spacing: 0.015em;
     line-height: 1;

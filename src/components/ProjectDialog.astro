@@ -1,0 +1,107 @@
+---
+/**
+ * Diálogo «Iniciar proyecto» — el CTA principal de la cabecera.
+ *
+ * `<dialog>` nativo: modal, foco atrapado y Esc de serie, sin dependencias ni
+ * CSS de terceros. Sin JS el CTA es un ancla normal a `#proyecto` (el mismo
+ * formulario, ya presente en la página), así que nada depende del diálogo.
+ *
+ * El script vive aquí y gobierna TODOS los formularios de la página: los tres
+ * envían por `fetch` y confirman en el sitio; sin JS, envío nativo.
+ */
+import ProjectForm from './ProjectForm.astro';
+---
+
+<dialog
+  data-project-dialog
+  aria-labelledby="project-dialog-h"
+  class="w-[min(38rem,calc(100vw-2rem))] rounded-2xl border border-border bg-card p-0 text-foreground backdrop:bg-foreground/50 backdrop:backdrop-blur-sm"
+>
+  <div class="p-6 sm:p-8">
+    <div class="flex items-start justify-between gap-4">
+      <div>
+        <h2 id="project-dialog-h" class="font-display text-2xl">Cuéntanos tu proyecto</h2>
+        <p class="mt-2 text-sm text-muted-foreground">
+          Empezamos por un MVP sencillo que funcione desde el primer día y crezca
+          contigo. Dinos qué vendes y te decimos si encajamos.
+        </p>
+      </div>
+      <button
+        type="button"
+        data-close-dialog
+        aria-label="Cerrar"
+        class="-mr-2 -mt-1 shrink-0 rounded-btn px-2 py-1 text-xl leading-none text-muted-foreground transition hover:text-foreground"
+      >×</button>
+    </div>
+    <div class="mt-6">
+      <ProjectForm idPrefix="dlg" source="cabecera" />
+    </div>
+  </div>
+</dialog>
+
+<script>
+  // ── Apertura del diálogo ──────────────────────────────────────────────────
+  // Cualquier elemento con [data-open-project] lo abre. Son anclas a #proyecto:
+  // sin JS llevan al formulario de la página, con JS abren el modal.
+  const dialog = document.querySelector<HTMLDialogElement>('[data-project-dialog]');
+  if (dialog && typeof dialog.showModal === 'function') {
+    for (const trigger of document.querySelectorAll<HTMLElement>('[data-open-project]')) {
+      trigger.addEventListener('click', (event) => {
+        event.preventDefault();
+        dialog.showModal();
+        dialog.querySelector<HTMLInputElement>('input[name=name]')?.focus();
+      });
+    }
+    dialog
+      .querySelector<HTMLButtonElement>('[data-close-dialog]')
+      ?.addEventListener('click', () => dialog.close());
+    // Clic en el backdrop (el propio <dialog> fuera de su caja) cierra.
+    dialog.addEventListener('click', (event) => {
+      if (event.target === dialog) dialog.close();
+    });
+  }
+
+  // ── Envío sin recargar ────────────────────────────────────────────────────
+  // Mismo endpoint que el envío nativo; solo cambia el content-type y que la
+  // confirmación se pinta donde estaba el formulario.
+  for (const form of document.querySelectorAll<HTMLFormElement>('[data-project-form]')) {
+    const status = form.querySelector<HTMLElement>('[data-form-status]');
+    const button = form.querySelector<HTMLButtonElement>('button[type=submit]');
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      if (!form.reportValidity()) return;
+      if (button) {
+        button.disabled = true;
+        button.textContent = 'Enviando…';
+      }
+      if (status) {
+        status.textContent = '';
+        status.className = 'mt-2 text-sm font-medium';
+      }
+      try {
+        const response = await fetch('/api/contact', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify(Object.fromEntries(new FormData(form))),
+        });
+        if (!response.ok) throw new Error(await response.text());
+        form.reset();
+        if (status) {
+          status.textContent = '¡Recibido! Te contestamos en 24 h laborables.';
+          status.className = 'mt-2 text-sm font-medium text-brand-dark';
+        }
+      } catch {
+        if (status) {
+          status.textContent =
+            'No hemos podido enviarlo. Escríbenos a hola@logic2b.com y lo vemos igual.';
+          status.className = 'mt-2 text-sm font-medium text-destructive';
+        }
+      } finally {
+        if (button) {
+          button.disabled = false;
+          button.textContent = 'Enviar y hablamos';
+        }
+      }
+    });
+  }
+</script>

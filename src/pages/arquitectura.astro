@@ -1,6 +1,9 @@
 ---
-// Página técnica de confianza: cómo funciona el sistema por dentro. Cero JS.
+// Página técnica de confianza: cómo funciona el sistema por dentro.
+// El único JS es el del diálogo «Iniciar proyecto» (compartido con la landing).
 import Base from '../layouts/Base.astro';
+import ProjectDialog from '../components/ProjectDialog.astro';
+import { landingNav, MAIN_DEMO_HREF } from '../lib/nav';
 
 const jsonLd = [
   {
@@ -45,13 +48,21 @@ const benefits = [
           <a href="https://logic2b.com" class="wm-agency">Logic<span class="wm-2b">2B</span></a>
           <a href="/" class="wm-product">Ecommerce</a>
         </span>
-        <nav class="flex items-center gap-3 text-sm sm:gap-6">
-          <a href="/#precios" class="hidden text-stone-600 hover:text-ink sm:block">Precios</a>
-          <a href="/#contacto" class="text-stone-600 hover:text-ink">Contacto</a>
+        {/* Mismo menú que el resto del sitio (lib/nav.ts): antes cada página
+            comercial llevaba su propia lista y no se llegaba al panel ni al
+            dossier desde aquí. */}
+        <nav class="flex items-center gap-3 text-sm sm:gap-5">
+          {landingNav
+            .filter((link) => link.href !== '/arquitectura')
+            .map((link) => (
+              <a href={link.href} class="hidden text-stone-600 hover:text-ink lg:block">{link.label}</a>
+            ))}
+          <a href={MAIN_DEMO_HREF} class="text-stone-600 hover:text-ink">Ver la demo</a>
           <a
-            href="/demo/tienda"
+            href="/#proyecto"
+            data-open-project
             class="rounded-btn bg-ink px-4 py-2 text-sm font-semibold text-white transition hover:bg-black sm:px-5"
-          >Ver la demo</a>
+          >Iniciar proyecto</a>
         </nav>
       </div>
     </header>
@@ -66,6 +77,19 @@ const benefits = [
         Nada de humo: esta es la arquitectura exacta de cada tienda que entregamos,
         la misma que mueve la demo.
       </p>
+      {/* Lo primero, antes de cualquier diagrama: qué se entrega el día uno. */}
+      <div class="mt-8 rounded-2xl border border-brand/30 bg-brand/5 p-6">
+        <p class="font-display text-xl text-brand-dark">Todo proyecto empieza sencillo</p>
+        <p class="mt-3 leading-relaxed text-stone-700">
+          Cada tienda arranca como un <strong class="text-ink">MVP</strong>: una
+          tienda mínima pero completa y en producción, que encaja igual en una
+          bodega de 20 referencias que en un distribuidor industrial. Después
+          crece sobre lo que el ecommerce pida de verdad. Nuestro punto fuerte es
+          justo ese, <strong class="text-ink">hacer las cosas sencillas desde el
+          principio</strong> — y lo que viene debajo explica por qué eso también
+          es lo más barato de mantener.
+        </p>
+      </div>
 
       <h2 class="mt-14 font-display text-2xl sm:text-3xl">El principio: casi todo es estático</h2>
       <p class="mt-3 leading-relaxed text-stone-600">
@@ -233,9 +257,16 @@ const benefits = [
     <footer class="border-t border-black/5">
       <div class="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-2 px-5 py-6 text-sm text-stone-500">
         <p>© 2026 Logic2B · Castellón</p>
-        <p><a href="/" class="hover:text-ink">Inicio</a> · <a href="/demo/tienda" class="hover:text-ink">Demo</a></p>
+        <p>
+          <a href="/" class="hover:text-ink">Inicio</a> ·
+          <a href="/estilos" class="hover:text-ink">Estilos</a> ·
+          <a href="/dossier" class="hover:text-ink">Dossier</a> ·
+          <a href={MAIN_DEMO_HREF} class="hover:text-ink">Demo de tienda</a> ·
+          <a href="/demo/admin" class="hover:text-ink">Panel demo</a>
+        </p>
       </div>
     </footer>
+    <ProjectDialog />
   </div>
 </Base>
 

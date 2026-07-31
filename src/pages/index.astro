@@ -1,57 +1,38 @@
 ---
-// Landing comercial de Logic2B Ecommerce — dirección C «Ocho tiendas, un motor».
-// Sistema Logic2B UI (Inter, tokens neutros, wordmark) + acento de marca. El
-// hero ES la galería de tiendas reales; cada tarjeta lleva el acento de SU
-// tienda, y el acento de la landing muta al de la tienda activa al recorrerla
-// (script único de motion, D1: vanilla ≤15 KB; sin JS queda el acento estático).
+// Landing comercial de Logic2B Ecommerce — página de CONVERSIÓN.
+//
+// F13: el acento de la landing es el verde de marca y NO muta (antes cambiaba
+// al de la tienda que pasaba por el centro de la galería: bonito, pero la
+// página cambiaba de color mientras se lee y la marca se diluía). Cada tarjeta
+// conserva el acento de SU tienda, que es donde el color significa algo.
+//
+// El CTA es el formulario de proyecto: aparece arriba, abajo y en el diálogo de
+// la cabecera, siempre con los mismos campos (lib/contact.ts).
 import Base from '../layouts/Base.astro';
 import SiteHeader from '../components/SiteHeader.astro';
+import HeaderActions from '../components/HeaderActions.astro';
+import ProjectDialog from '../components/ProjectDialog.astro';
+import ProjectForm from '../components/ProjectForm.astro';
 import { collections, storePaths } from '../lib/collections';
 import { demoThemes, defaultTheme, getTheme } from '../lib/demo-themes';
-
-// ── Acento AA-safe por tienda (calculado en BUILD, no en cliente) ───────────
-// Un acento claro (Guide) pasa AA como relleno pero es ilegible como TEXTO
-// (hallazgo 9B, ver global.css). Cuando el acento de la landing muta, el texto
-// usa el primer color del tema que lee bien sobre blanco; tinta como último
-// recurso. Sobre fondo oscuro (dark-ready) la cadena se invierte.
-const srgbToLinear = (channel: number): number => {
-  const c = channel / 255;
-  return c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
-};
-const luminance = (hex: string): number => {
-  const n = parseInt(hex.slice(1), 16);
-  return (
-    0.2126 * srgbToLinear((n >> 16) & 255) +
-    0.7152 * srgbToLinear((n >> 8) & 255) +
-    0.0722 * srgbToLinear(n & 255)
-  );
-};
-/** Contraste WCAG del color frente a blanco (fondo real de la landing). */
-const onWhite = (hex: string): number => 1.05 / (luminance(hex) + 0.05);
-/** Contraste frente al fondo oscuro del sistema (oklch 14.5% ≈ L 0.0144). */
-const onDark = (hex: string): number => (luminance(hex) + 0.05) / (0.0144 + 0.05);
-const textSafe = (contrast: (hex: string) => number, fallback: string, ...candidates: string[]): string =>
-  candidates.find((c) => contrast(c) >= 4.5) ?? fallback;
+import { landingNav, MAIN_DEMO_HREF } from '../lib/nav';
+import { AGENCY_EMAIL, AGENCY_WHATSAPP } from '../lib/contact';
 
 // ── Galería del hero — derivada del registro de tiendas (clonable) ──────────
-// Orden por impacto visual, alternando acentos. Iris entra en vídeo.
-const galleryOrder = ['launch', 'editorial', 'iris', 'street', 'industrial', 'natural', 'specs', 'minimal', 'guide', 'demo'];
+// La Botiga del Maestrat (`demo`) abre la fila: es la tienda del recorrido
+// completo —carrito, pago simulado, panel y emails— y por tanto la que hay que
+// enseñar primero en una llamada de venta. Las demás son el escaparate de
+// estilos. Iris entra en vídeo.
+const galleryOrder = ['demo', 'launch', 'editorial', 'iris', 'street', 'industrial', 'natural', 'specs', 'minimal', 'guide'];
 const gallery = galleryOrder.map((id) => {
   const col = collections.find((c) => c.id === id)!;
   const theme = getTheme(col.themeId)!;
-  const accent = theme.vars['--color-brand'];
-  const accentDark = theme.vars['--color-brand-dark'];
   return {
     id,
     name: col.name,
     tagline: col.tagline,
     style: theme.label,
-    accent,
-    accentDark,
-    accentFg: theme.vars['--color-brand-fg'],
-    accentText: textSafe(onWhite, '#1a1a1a', accent, accentDark),
-    accentTextDark: textSafe(onWhite, '#1a1a1a', accentDark, accent),
-    accentTextDm: textSafe(onDark, '#fafafa', accent, accentDark),
+    accent: theme.vars['--color-brand'],
     href: storePaths(id).catalog,
     // Dos anchos con `srcset`: la tarjeta pinta a 280 CSS px en móvil y 360 en
     // escritorio, así que 560 es lo que se lleva casi siempre y 900 queda para
@@ -71,53 +52,45 @@ const NUMERALS = ['Cero', 'Una', 'Dos', 'Tres', 'Cuatro', 'Cinco', 'Seis', 'Siet
 // Abre frase, así que va en mayúscula; por encima de diez, la cifra.
 const galleryCount = `${NUMERALS[gallery.length] ?? gallery.length} tienda${gallery.length === 1 ? '' : 's'}`;
 
-// ── Contacto (D5) ───────────────────────────────────────────────────────────
-// Formato internacional sin «+» ni espacios. Si se vacía, el CTA cae a email.
-const WHATSAPP = '34626434316';
-const EMAIL = 'hola@logic2b.com';
-const whatsappHref = WHATSAPP
-  ? `https://wa.me/${WHATSAPP}?text=${encodeURIComponent('Hola, me interesa una tienda online con Logic2B Ecommerce.')}`
+// ── Contacto ────────────────────────────────────────────────────────────────
+// El canal principal es el formulario; WhatsApp y email quedan de alternativa
+// para quien prefiere escribir directamente.
+const whatsappHref = AGENCY_WHATSAPP
+  ? `https://wa.me/${AGENCY_WHATSAPP}?text=${encodeURIComponent('Hola, me interesa una tienda online con Logic2B Ecommerce.')}`
   : null;
-const emailHref = `mailto:${EMAIL}?subject=${encodeURIComponent('Mi tienda online con Logic2B Ecommerce')}`;
+const emailHref = `mailto:${AGENCY_EMAIL}?subject=${encodeURIComponent('Mi tienda online con Logic2B Ecommerce')}`;
 
 // Recuento del catálogo de estilos, derivado del registro (igual que hace
 // /estilos): un tema nuevo actualiza este copy solo.
 const styleCount = demoThemes.filter((t) => t.id !== defaultTheme.id).length;
-
-const nav = [
-  { href: '/estilos', label: 'Estilos' },
-  { href: '/arquitectura', label: 'Cómo funciona' },
-  { href: '#precios', label: 'Precios' },
-  { href: '#contacto', label: 'Contacto' },
-];
 
 // ── Flujo del pedido, con capturas reales del producto ──────────────────────
 const flow = [
   {
     n: '01',
     title: 'El cliente compra',
-    body: 'Sin crear cuenta. El porte se calcula por código postal y el pago va directo a Stripe: la tarjeta nunca toca la tienda.',
+    body: 'Sin crear cuenta. El porte se calcula por código postal y el pago va a Stripe: la tarjeta nunca toca la tienda.',
     img: '/images/screens/flow-checkout-900.webp',
     alt: 'Checkout de la demo con el porte calculado y el total',
   },
   {
     n: '02',
     title: 'Te llega el email',
-    body: 'Confirmación al cliente y aviso a ti, con tu marca y tu dominio. En la demo se ven en una bandeja simulada.',
+    body: 'Confirmación al cliente y aviso a ti, con tu marca y tu dominio.',
     img: '/images/screens/panel-email-open-900.webp',
     alt: 'Email de confirmación de pedido renderizado en la bandeja',
   },
   {
     n: '03',
     title: 'Lo gestionas en el panel',
-    body: 'Un pedido, su dirección, sus líneas y su historial. Marcas «enviado» y pegas el número de seguimiento.',
+    body: 'Un pedido, su dirección, sus líneas y su historial. Marcas «enviado» y pegas el seguimiento.',
     img: '/images/screens/panel-order-detail-900.webp',
     alt: 'Detalle de un pedido con dirección, tracking y línea de tiempo',
   },
   {
     n: '04',
     title: 'Etiqueta y en camino',
-    body: 'Exportas la dirección a Packlink o SendCloud en un clic, imprimes la etiqueta y el cliente recibe el aviso solo.',
+    body: 'Exportas la dirección a Packlink o SendCloud, imprimes la etiqueta y el cliente recibe el aviso solo.',
     img: '/images/screens/panel-orders-900.webp',
     alt: 'Listado de pedidos con los estados y la exportación a Packlink',
   },
@@ -139,9 +112,7 @@ const notForYou = [
   'Vendes por suscripción recurrente (cuotas mensuales al cliente).',
 ];
 
-// ── La escalera de evolución (P2) — se VENDE, no se construye (§14) ─────────
-// Lo excluido a propósito del MVP es el catálogo de crecimiento. Sin fechas y
-// sin incluirlo en la cuota: «se añade cuando tu tienda lo pida».
+// ── La escalera de evolución — se VENDE, no se construye (§14) ──────────────
 const ladder = [
   {
     k: 'Hoy',
@@ -151,21 +122,13 @@ const ladder = [
   {
     k: 'Cuando lo pida',
     title: 'Se le añade, sin migrar',
-    body: 'Cuentas de cliente, promociones y descuentos, multiidioma, transportistas integrados, email marketing, contenido SEO… Cada pieza se añade sobre la misma tienda cuando el negocio la justifica — nunca pagas por adelantado funciones que no usas.',
+    body: 'Cuentas de cliente, promociones, multiidioma, transportistas integrados, feeds para Google y Meta… Cada pieza se activa de nuestro lado cuando el negocio la justifica: nunca pagas por adelantado funciones que no usas.',
   },
   {
     k: 'A cualquier escala',
     title: '10 referencias o un millón',
     body: 'La misma arquitectura sirve un expositor de barrio y un catálogo industrial. Nunca llega el día de «esta plataforma se nos ha quedado pequeña»: no hay migración, hay evolución.',
   },
-];
-
-// ── Los servicios de la casa (P4) — mismos destinos que el menú de logic2b.com
-const agencyServices = [
-  { href: 'https://logic2b.com/diseno-web', title: 'Diseño web', body: 'Webs corporativas que convierten' },
-  { href: 'https://logic2b.com/sistemas', title: 'Sistemas de gestión', body: 'Paneles, reservas y CRM a medida' },
-  { href: 'https://logic2b.com/marketing', title: 'Marketing online', body: 'SEO, SEM y automatización' },
-  { href: 'https://logic2b.com/automatizacion-ia', title: 'Automatización IA', body: 'Agentes, chatbots e integraciones' },
 ];
 
 // ── Precios (D4) ────────────────────────────────────────────────────────────
@@ -227,11 +190,7 @@ const faqs = [
   },
   {
     q: '¿Qué pasa con los pagos? ¿Es seguro?',
-    a: 'El pago ocurre en la página de Stripe, el mismo procesador que usan Amazon o Zara. El número de tarjeta nunca pasa por la tienda: cero superficie de ataque, cero papeleo PCI.',
-  },
-  {
-    q: '¿Puedo gestionar los pedidos yo mismo?',
-    a: 'Sí, ese es el diseño: llega el email del pedido, exportas la dirección a Packlink o SendCloud para imprimir la etiqueta, marcas "enviado" y pegas el número de seguimiento. El cliente recibe el aviso automáticamente. Se aprende en cinco minutos.',
+    a: 'El pago ocurre en la página de Stripe, el mismo procesador que usan Amazon o Zara. El número de tarjeta nunca pasa por la tienda: cero superficie de ataque, cero papeleo PCI. En las demos de este sitio el pago está simulado: puedes recorrer el proceso entero, pero no se cobra nada.',
   },
   {
     q: '¿Y si un día dejamos de trabajar juntos?',
@@ -243,7 +202,7 @@ const faqs = [
   },
   {
     q: '¿Y si mañana necesito algo que la tienda no hace?',
-    a: 'Nos lo pides y lo resolvemos de nuestro lado, sobre tu misma tienda: cuentas de cliente, promociones, multiidioma, integraciones… Tu tienda arranca como un MVP a propósito y crece cuando el negocio lo pide — sin plugins que adaptar, sin suscripciones que no aportan y sin migrar de plataforma.',
+    a: 'Nos lo pides y lo resolvemos de nuestro lado, sobre tu misma tienda: cuentas de cliente, promociones, multiidioma, integraciones… Tu tienda arranca como un MVP a propósito y crece cuando el negocio lo pide — sin plugins que adaptar y sin migrar de plataforma.',
   },
   {
     q: '¿Qué incluye exactamente la mensualidad?',
@@ -290,14 +249,9 @@ const jsonLd = [
   preloadDisplayFont
   jsonLd={jsonLd}
 >
-  {/* data-landing: raíz donde el script de motion muta las variables de acento. */}
-  <div class="bg-background text-foreground" data-landing>
-    <SiteHeader homeHref="/" wordmark="Logic2B Ecommerce" splitBrand nav={nav}>
-      <a
-        slot="actions"
-        href="/demo/tiendas/launch"
-        class="rounded-btn bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition hover:bg-primary/90 sm:px-5"
-      >Ver la demo</a>
+  <div class="bg-background text-foreground">
+    <SiteHeader homeHref="/" wordmark="Logic2B Ecommerce" splitBrand nav={landingNav}>
+      <Fragment slot="actions"><HeaderActions /></Fragment>
     </SiteHeader>
 
     <main>
@@ -312,45 +266,33 @@ const jsonLd = [
       </h1>
       <p class="hero-fade mt-6 max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg" style="--d:.12s">
         Nunca había sido tan fácil —ni tan asequible— un ecommerce a medida:
-        arrancas con un MVP básico y funcional, y tu tienda crece sin cambiar de
-        plataforma. Las de abajo funcionan de verdad:
-        <strong class="text-foreground">entra y compra</strong>.
+        arrancas con un MVP sencillo y funcional, y tu tienda crece sin cambiar
+        de plataforma. Abajo tienes las
+        <strong class="text-foreground">demos navegables</strong>: recorre el
+        catálogo, el carrito y el panel del comercio.
       </p>
-      {/* CTAs por temperatura (F11.6): frío = la galería de abajo; templado =
-          el recorrido guiado (?tour=1 lo hace medible como pageview propio);
-          caliente = WhatsApp al final. Nunca un solo mailto. */}
       <div class="hero-fade mt-8 flex flex-col gap-3 sm:flex-row sm:gap-4" style="--d:.24s">
         <a
-          href="/demo/tienda?tour=1"
+          href="/#proyecto"
+          data-open-project
           class="rounded-btn bg-brand px-8 py-3.5 text-center text-base font-semibold text-brand-fg shadow-lg shadow-brand/20 transition hover:bg-brand-dark"
-        >Haz la demo en 3 minutos</a>
+        >Iniciar proyecto</a>
         <a
-          href="/arquitectura"
+          href={`${MAIN_DEMO_HREF}?tour=1`}
           class="rounded-btn border border-border px-8 py-3.5 text-center text-base font-semibold text-foreground transition hover:border-foreground"
-        >Cómo funciona por dentro</a>
+        >Haz la demo en 3 minutos</a>
       </div>
     </section>
 
     <!-- Tira de tiendas: scroll horizontal nativo con snap, accesible. -->
     <section aria-labelledby="galeria-h" class="mt-10 sm:mt-14">
-      <h2 id="galeria-h" class="sr-only">Tiendas reales hechas con Logic2B Ecommerce</h2>
+      <h2 id="galeria-h" class="sr-only">Tiendas de demostración hechas con Logic2B Ecommerce</h2>
       <ul
-        data-gallery
         class="flex snap-x snap-mandatory gap-5 overflow-x-auto px-5 pb-4 [scrollbar-color:var(--color-brand)_transparent] [scrollbar-width:thin] sm:gap-6"
       >
         {gallery.map((store) => (
           <li class="relative shrink-0 snap-start">
-            <a
-              href={store.href}
-              style={`--accent:${store.accent}`}
-              data-accent={store.accent}
-              data-accent-dark={store.accentDark}
-              data-accent-fg={store.accentFg}
-              data-accent-text={store.accentText}
-              data-accent-text-dark={store.accentTextDark}
-              data-accent-text-dm={store.accentTextDm}
-              class="group block w-[280px] sm:w-[360px]"
-            >
+            <a href={store.href} style={`--accent:${store.accent}`} class="group block w-[280px] sm:w-[360px]">
               <div class="overflow-hidden rounded-2xl border border-border bg-card shadow-sm transition duration-300 group-hover:-translate-y-1 group-hover:shadow-xl group-hover:[border-color:var(--accent)]">
                 <!-- Chrome de navegador: da contexto de «tienda real». -->
                 <div class="flex items-center gap-2 border-b border-border px-4 py-2.5">
@@ -369,10 +311,8 @@ const jsonLd = [
                       `eager`, al ser un carrusel horizontal quedan fuera de
                       pantalla por el lado y el navegador las bajaba tarde y a
                       trompicones — medido, una llegaba a los 19 s y hundía el
-                      Speed Index móvil (con las variantes de 560 las nueve
-                      suman ~150 KB, menos de lo que pesaban tres a 900). Y sin
-                      `fetchpriority="low"` compiten con la fuente del H1, que
-                      es el LCP: escritorio 100 → 99, medido. */}
+                      Speed Index móvil. Y sin `fetchpriority="low"` compiten
+                      con la fuente del H1, que es el LCP: escritorio 100 → 99. */}
                   <img
                     src={store.video ? store.poster : store.img}
                     srcset={`${store.video ? store.poster : store.img} 560w, ${store.video ? store.poster900 : store.img900} 900w`}
@@ -420,8 +360,10 @@ const jsonLd = [
         ))}
       </ul>
       <p class="mx-auto max-w-6xl px-5 pt-1 text-sm text-muted-foreground">
-        {galleryCount}, un mismo motor. Cambian el diseño y los productos; el
-        carrito, los pagos, el panel y los envíos son los mismos.
+        {galleryCount} de demostración, un mismo motor. Cambian el diseño y los
+        productos; el carrito, los pagos, el panel y los envíos son los mismos.
+        <strong class="text-foreground">Son demos: el pago está simulado y no se
+        cobra nada.</strong>
       </p>
     </section>
 
@@ -439,40 +381,20 @@ const jsonLd = [
       </a>
     </section>
 
-    <!-- ── Lo que te cuesta tu tienda actual ─────────────────────────────── -->
-    <section class="mx-auto max-w-6xl px-5 py-14 sm:py-20">
-      <h2 class="max-w-2xl font-display text-3xl sm:text-4xl">A dónde va el dinero de tu tienda actual</h2>
-      {/* Cifras animadas al entrar en viewport: count-up CSS puro (registro
-          @property + animation-timeline: view()). El texto real queda en el DOM
-          como fallback estático (Firefox, reduced-motion) y para lectores. */}
-      <div class="mt-10 grid gap-6 sm:grid-cols-3">
-        <div class="rise rounded-2xl border border-border bg-card p-7 shadow-sm">
-          <p class="stat font-display text-5xl text-brand" style="--stat:432">
-            <span class="stat-static">432 €</span>
-            <span class="stat-count" aria-hidden="true" data-suffix=" €"></span>
-          </p>
-          <p class="mt-3 leading-relaxed text-muted-foreground">al año de cuota de Shopify, vendas o no vendas. Alquilas una plataforma; no paga a nadie que te ayude.</p>
-        </div>
-        <div class="rise rounded-2xl border border-border bg-card p-7 shadow-sm">
-          <p class="stat font-display text-5xl text-brand" style="--stat:2">
-            <span class="stat-static">~2 %</span>
-            <span class="stat-count" aria-hidden="true" data-prefix="~" data-suffix=" %"></span>
-          </p>
-          <p class="mt-3 leading-relaxed text-muted-foreground">de comisión extra en cada venta si no usas su pasarela. Un peaje, no un servicio.</p>
-        </div>
-        <div class="rise rounded-2xl border border-border bg-card p-7 shadow-sm">
-          <p class="stat font-display text-5xl text-brand" style="--stat:4">
-            <span class="stat-static">2–4 s</span>
-            <span class="stat-count" aria-hidden="true" data-prefix="2–" data-suffix=" s"></span>
-          </p>
-          <p class="mt-3 leading-relaxed text-muted-foreground">de carga con una plantilla genérica. Cada segundo son ventas que se van.</p>
+    <!-- ── Formulario, arriba (F13) ──────────────────────────────────────── -->
+    {/* El ancla #proyecto es también el destino sin JS del CTA de la cabecera. */}
+    <section id="proyecto" aria-labelledby="proyecto-h" class="mx-auto max-w-4xl scroll-mt-20 px-5 py-14 sm:py-20">
+      <div class="rounded-2xl border border-border bg-card p-6 shadow-sm sm:p-9">
+        <h2 id="proyecto-h" class="font-display text-3xl sm:text-4xl">Empecemos por tu proyecto</h2>
+        <p class="mt-3 max-w-2xl leading-relaxed text-muted-foreground">
+          Todo proyecto arranca igual: un MVP sencillo que funciona desde el
+          primer día y crece contigo. Cuéntanos qué vendes y te decimos, sin
+          compromiso, si encajamos — y con qué presupuesto y plazo.
+        </p>
+        <div class="mt-8">
+          <ProjectForm idPrefix="top" source="arriba" />
         </div>
       </div>
-      <p class="mt-8 max-w-2xl text-lg leading-relaxed">
-        La pregunta no es «¿cuánto pago?», es <strong>«¿a quién le pago?»</strong>.
-        Aquí tu cuota no va a una plataforma que te apaña:
-        <span class="text-brand-dark font-semibold">paga a un equipo que lleva tu tienda</span>.
-      </p>
     </section>
 
     <!-- ── El flujo del pedido, con capturas reales ──────────────────────── -->
@@ -483,23 +405,16 @@ const jsonLd = [
           No es un vídeo ni un mockup: son capturas del sistema real. Esto es lo
           que verás tú y lo que verá tu cliente.
         </p>
-        <div class="mt-10 space-y-6">
-          {flow.map((step, i) => (
-            <div class={`rise grid items-center gap-6 rounded-2xl border border-border bg-card p-4 shadow-sm sm:grid-cols-2 sm:gap-8 sm:p-6 ${i % 2 === 1 ? 'sm:[&>figure]:order-2' : ''}`}>
-              <figure class="overflow-hidden rounded-xl border border-border bg-muted">
-                <img
-                  src={step.img}
-                  alt={step.alt}
-                  width="1440"
-                  height="900"
-                  loading="lazy"
-                  class="w-full object-cover"
-                />
+        <div class="mt-10 grid gap-5 sm:grid-cols-2">
+          {flow.map((step) => (
+            <div class="rise overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
+              <figure class="aspect-[16/10] overflow-hidden border-b border-border bg-muted">
+                <img src={step.img} alt={step.alt} width="1440" height="900" loading="lazy" class="h-full w-full object-cover object-top" />
               </figure>
-              <div class="px-2 sm:px-4">
+              <div class="p-5 sm:p-6">
                 <p class="font-accent text-sm text-brand">{step.n}</p>
-                <h3 class="mt-2 font-display text-2xl">{step.title}</h3>
-                <p class="mt-3 leading-relaxed text-muted-foreground">{step.body}</p>
+                <h3 class="mt-1 font-display text-xl">{step.title}</h3>
+                <p class="mt-2 text-sm leading-relaxed text-muted-foreground">{step.body}</p>
               </div>
             </div>
           ))}
@@ -511,8 +426,9 @@ const jsonLd = [
     <section class="mx-auto max-w-6xl px-5 py-14 sm:py-20">
       <h2 class="font-display text-3xl sm:text-4xl">Las cuentas claras</h2>
       <p class="mt-3 max-w-2xl text-muted-foreground">
-        La diferencia no es solo cuánto pagas: es a quién le pagas y qué hace esa
-        persona por tu tienda.
+        La pregunta no es «¿cuánto pago?», es <strong class="text-foreground">«¿a
+        quién le pago?»</strong>. Tu cuota no alquila una plataforma: paga a un
+        equipo que lleva tu tienda.
       </p>
       <div class="mt-8 overflow-x-auto rounded-2xl border border-border bg-card shadow-sm">
         <table class="w-full min-w-[640px] text-left text-sm">
@@ -551,14 +467,16 @@ const jsonLd = [
       </div>
     </section>
 
-    <!-- ── Empieza pequeño, crece sin migrar (P2) ────────────────────────── -->
-    <section aria-labelledby="escalera-h" class="mx-auto max-w-6xl px-5 py-14 sm:py-20">
+    <!-- ── Empieza pequeño, crece sin migrar ─────────────────────────────── -->
+    <section aria-labelledby="escalera-h" class="mx-auto max-w-6xl px-5 pb-14 sm:pb-20">
       <h2 id="escalera-h" class="max-w-3xl font-display text-3xl sm:text-4xl">
         10 productos o un millón: <span class="text-brand">tu tienda nunca se queda pequeña</span>
       </h2>
       <p class="mt-3 max-w-2xl text-muted-foreground">
         Tu tienda arranca básica y funcional. Cuando el negocio pida más, se le
-        añade — sin cambiar de plataforma ni empezar de cero.
+        añade — sin plugins que adaptar y sin migrar de plataforma. Y el
+        marketing no es de otra empresa: la agencia que hace tu tienda es la que
+        la posiciona.
       </p>
       <div class="mt-10 grid gap-6 sm:grid-cols-3">
         {ladder.map((step) => (
@@ -569,24 +487,10 @@ const jsonLd = [
           </div>
         ))}
       </div>
-      <div class="mt-6 rounded-2xl border border-border bg-muted p-6 sm:p-8">
-        <h3 class="font-display text-xl">Conectada a lo que ya usas — sin plugins</h3>
-        <p class="mt-2 max-w-3xl text-sm leading-relaxed text-muted-foreground">
-          Feeds de catálogo para Google Merchant y Meta, plataformas de mailing
-          para tus campañas, transportistas como Packlink o SendCloud,
-          facturación… Cada integración se activa <strong class="text-foreground">de
-          nuestro lado</strong> cuando tu tienda la pide: nada de plugins que
-          adaptar ni suscripciones que no aportan. Tu panel sigue igual de simple.
-        </p>
-        <p class="mt-4 text-sm leading-relaxed text-muted-foreground">
-          Y el marketing no es de otra empresa:
-          <strong class="text-foreground">la agencia que hace tu tienda es la que la posiciona</strong>.
-        </p>
-      </div>
     </section>
 
-    <!-- ── Precios (D4, reencuadre D7) ───────────────────────────────────── -->
-    <section id="precios" class="border-y border-border bg-muted">
+    <!-- ── Precios (D4) ──────────────────────────────────────────────────── -->
+    <section id="precios" class="scroll-mt-14 border-y border-border bg-muted">
       <div class="mx-auto max-w-5xl px-5 py-14 sm:py-20">
         <h2 class="text-center font-display text-3xl sm:text-4xl">Un equipo detrás, no una plataforma</h2>
         <p class="mx-auto mt-3 max-w-xl text-center text-muted-foreground">
@@ -673,17 +577,12 @@ const jsonLd = [
             la pagan las dos opciones y no entra en la cuenta.
           </p>
         </div>
-        <p class="mx-auto mt-6 max-w-xl text-center text-sm text-muted-foreground">
-          Una sola cuota, siempre: si tu tienda sube de nivel de servicio, la
-          cuota <strong class="text-foreground">se sustituye</strong> por la nueva.
-          Nunca una suscripción apilada encima de otra.
-        </p>
         <div class="mx-auto mt-6 flex flex-col items-center justify-between gap-3 rounded-2xl border border-border bg-card px-6 py-5 text-sm sm:flex-row">
           <div>
             <p class="font-semibold">{lite.name} · {lite.price}</p>
             <p class="mt-1 text-muted-foreground">{lite.body}</p>
           </div>
-          <a href={emailHref} class="shrink-0 font-medium text-brand underline underline-offset-2 hover:text-brand-dark">Pregunta por el Lite</a>
+          <a href="/#proyecto" data-open-project class="shrink-0 font-medium text-brand underline underline-offset-2 hover:text-brand-dark">Pregunta por el Lite</a>
         </div>
         <p class="mt-6 text-center text-sm text-muted-foreground">
           ¿Quieres el detalle completo del servicio?
@@ -692,16 +591,25 @@ const jsonLd = [
       </div>
     </section>
 
-    <!-- ── Demos + estilos ───────────────────────────────────────────────── -->
+    <!-- ── Demos: tienda, panel y emails ─────────────────────────────────── -->
     <section class="mx-auto max-w-6xl px-5 py-14 sm:py-20">
       <h2 class="font-display text-3xl sm:text-4xl">Míralo por dentro</h2>
       <p class="mt-3 max-w-2xl text-muted-foreground">
         Tu panel: pedidos, envíos y productos. Nada más — se aprende en cinco
         minutos porque no hay nada que configurar. Las mil configuraciones
         (mercados, impuestos, integraciones) corren de nuestro lado, invisibles
-        para ti.
+        para ti. Entra sin registrarte: todas las demos son abiertas.
       </p>
-      <div class="mt-10 grid gap-5 sm:grid-cols-2">
+      <div class="mt-10 grid gap-5 sm:grid-cols-3">
+        <a href={MAIN_DEMO_HREF} class="rise group overflow-hidden rounded-2xl border border-border bg-card transition hover:-translate-y-1 hover:shadow-xl">
+          <div class="aspect-[16/10] overflow-hidden border-b border-border bg-muted">
+            <img src="/images/screens/store-demo-catalog-900.webp" alt="" width="1440" height="900" loading="lazy" class="h-full w-full object-cover object-top" />
+          </div>
+          <div class="p-5">
+            <p class="font-semibold group-hover:text-brand">La tienda: La Botiga del Maestrat →</p>
+            <p class="mt-1 text-sm text-muted-foreground">Catálogo, ficha, carrito y checkout completo con pago simulado.</p>
+          </div>
+        </a>
         <a href="/demo/admin" class="rise group overflow-hidden rounded-2xl border border-border bg-card transition hover:-translate-y-1 hover:shadow-xl">
           <div class="aspect-[16/10] overflow-hidden border-b border-border bg-muted">
             <img src="/images/screens/panel-order-detail-900.webp" alt="" width="1440" height="900" loading="lazy" class="h-full w-full object-cover object-top" />
@@ -728,29 +636,19 @@ const jsonLd = [
       </div>
     </section>
 
-    <!-- ── Detrás está Logic2B (P4) ──────────────────────────────────────── -->
+    <!-- ── Detrás está Logic2B ───────────────────────────────────────────── -->
     <section aria-labelledby="casa-h" class="border-y border-border bg-muted">
-      <div class="mx-auto max-w-6xl px-5 py-14 sm:py-20">
-        <h2 id="casa-h" class="font-display text-3xl sm:text-4xl">Detrás está Logic2B</h2>
-        <p class="mt-3 max-w-2xl text-muted-foreground">
+      <div class="mx-auto max-w-6xl px-5 py-12 sm:py-16">
+        <h2 id="casa-h" class="font-display text-2xl sm:text-3xl">Detrás está Logic2B</h2>
+        <p class="mt-3 max-w-3xl leading-relaxed text-muted-foreground">
           Logic2B Ecommerce es un servicio de
           <a href="https://logic2b.com" class="font-medium text-foreground underline underline-offset-2 hover:text-brand-dark">Logic2B</a>,
-          la agencia de desarrollo web y SEO de Castellón. Tu tienda no se queda
-          sola: el mismo equipo que la construye puede llevarte el marketing, el
-          posicionamiento y lo que venga después — desarrollo y marketing bajo el
-          mismo techo.
+          la agencia de desarrollo web y SEO de Castellón: diseño web, sistemas
+          de gestión, marketing online y automatización con IA. Tu tienda no se
+          queda sola — el mismo equipo que la construye puede llevarte el
+          posicionamiento y lo que venga después.
         </p>
-        <ul class="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {agencyServices.map((service) => (
-            <li>
-              <a href={service.href} class="rise group flex h-full flex-col gap-1 rounded-2xl border border-border bg-card p-5 shadow-sm transition hover:-translate-y-1 hover:shadow-lg">
-                <p class="font-semibold group-hover:text-brand-dark">{service.title} <span aria-hidden="true">↗</span></p>
-                <p class="text-sm text-muted-foreground">{service.body}</p>
-              </a>
-            </li>
-          ))}
-        </ul>
-        <p class="mt-6 text-sm text-muted-foreground">
+        <p class="mt-4 text-sm text-muted-foreground">
           ¿Prefieres empezar por saber dónde estás? Pide la
           <a href="https://logic2b.com/auditoria" class="font-medium text-brand underline underline-offset-2 hover:text-brand-dark">auditoría gratuita</a>
           de tu web o tienda actual.
@@ -775,73 +673,52 @@ const jsonLd = [
     </section>
     </main>
 
-    <!-- ── CTA contacto (D5: WhatsApp + email) ───────────────────────────── -->
-    <section id="contacto" class="bg-foreground text-background">
-      <div class="mx-auto max-w-6xl px-5 py-16 text-center sm:py-24">
-        <h2 class="mx-auto max-w-2xl font-display text-3xl sm:text-5xl">¿Hablamos de tu tienda?</h2>
-        <p class="mx-auto mt-5 max-w-xl leading-relaxed text-background/70">
-          Cuéntanos qué vendes y te decimos, sin compromiso, si este kit encaja
-          contigo. Te contestamos en 24 h con dos o tres preguntas.
+    <!-- ── Formulario, cierre (F13) ──────────────────────────────────────── -->
+    <section id="contacto" class="scroll-mt-14 bg-foreground text-background">
+      <div class="mx-auto max-w-4xl px-5 py-16 sm:py-20">
+        <h2 class="font-display text-3xl sm:text-4xl">¿Hablamos de tu tienda?</h2>
+        <p class="mt-4 max-w-xl leading-relaxed text-background/70">
+          Los mismos cuatro datos de arriba. Te contestamos en 24 h laborables
+          con dos o tres preguntas — y si no encajamos, te lo decimos.
         </p>
-        <div class="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row sm:gap-4">
-          {whatsappHref && (
-            <a href={whatsappHref} class="w-full rounded-btn bg-brand px-9 py-4 font-semibold text-brand-fg transition hover:bg-brand-dark sm:w-auto">Escríbenos por WhatsApp</a>
-          )}
-          <a href={emailHref} class={`w-full rounded-btn px-9 py-4 font-semibold transition sm:w-auto ${whatsappHref ? 'border border-background/30 text-background hover:border-background' : 'bg-brand text-brand-fg hover:bg-brand-dark'}`}>
-            Escríbenos: {EMAIL}
-          </a>
+        <div class="mt-9">
+          <ProjectForm idPrefix="end" source="cierre" inverted />
         </div>
+        <p class="mt-8 text-sm text-background/60">
+          ¿Prefieres escribir tú?
+          {whatsappHref && (
+            <>
+              <a href={whatsappHref} class="font-medium text-background underline underline-offset-2">WhatsApp</a>
+              {' · '}
+            </>
+          )}
+          <a href={emailHref} class="font-medium text-background underline underline-offset-2">{AGENCY_EMAIL}</a>
+        </p>
       </div>
       <footer class="border-t border-background/10">
         <div class="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-2 px-5 py-6 text-sm text-background/60">
           <p>© 2026 Logic2B · Castellón</p>
-          <p><a href="/arquitectura" class="hover:text-background">Arquitectura</a> · <a href="/estilos" class="hover:text-background">Estilos</a> · <a href="/dossier" class="hover:text-background">Dossier</a> · <a href="/demo/tiendas/launch" class="hover:text-background">Demo</a></p>
+          <p>
+            <a href="/arquitectura" class="hover:text-background">Cómo funciona</a> ·
+            <a href="/estilos" class="hover:text-background">Estilos</a> ·
+            <a href="/dossier" class="hover:text-background">Dossier</a> ·
+            <a href={MAIN_DEMO_HREF} class="hover:text-background">Demo de tienda</a> ·
+            <a href="/demo/admin" class="hover:text-background">Panel demo</a>
+          </p>
         </div>
       </footer>
     </section>
+
+    <ProjectDialog />
   </div>
 </Base>
 
 <style is:global>
-  /* ── Motion de la landing (F11.3 sesión 2) — CSS primero, JS después ────
+  /* ── Motion de la landing — CSS primero, JS después ─────────────────────
      Todo lo de aquí degrada a página completa y estática: sin soporte de
      scroll-driven animations o con prefers-reduced-motion, no se anima nada
      y el contenido real ya está en el DOM. */
 
-  /* Acento mutante: el script fija --accent-text* con la tienda activa de la
-     galería; el texto acentuado usa la variante AA-safe precalculada en build.
-     Sin JS (o antes de interactuar) cae al acento por defecto. Fuera de
-     @layer para ganar a las utilidades (patrón del tema Guide en global.css). */
-  [data-landing] .text-brand {
-    color: var(--accent-text, var(--color-brand));
-  }
-  [data-landing] :is(.text-brand-dark, .hover\:text-brand-dark:hover) {
-    color: var(--accent-text-dark, var(--color-brand-dark));
-  }
-  /* Dark-ready: sobre fondo oscuro la cadena AA se invierte (un acento tinta,
-     como el de Forma Interior, sería invisible). Hoy el sitio pinta en claro;
-     esto protege la página el día que el modo oscuro se active. */
-  .dark [data-landing] :is(.text-brand, .text-brand-dark, .hover\:text-brand-dark:hover) {
-    color: var(--accent-text-dm, var(--color-brand));
-  }
-  /* El cambio de acento se funde: color, no movimiento. */
-  [data-landing] :is(.text-brand, .text-brand-dark, .bg-brand, .border-brand) {
-    transition-property: color, background-color, border-color;
-    transition-duration: 0.3s;
-  }
-
-  /* Cifras count-up en CSS puro: un <integer> registrado interpola y
-     counter() lo pinta. El texto real (.stat-static) es el fallback y lo que
-     leen los lectores de pantalla. */
-  @property --stat-n {
-    syntax: "<integer>";
-    inherits: false;
-    initial-value: 0;
-  }
-  @keyframes stat-count {
-    from { --stat-n: 0; }
-    to { --stat-n: var(--stat, 0); }
-  }
   /* Solo transform: nada de opacity en tarjetas (axe audita el estado inicial
      y el texto perdería contraste) y nada de font-weight/opacity en el H1 —
      animar el peso de la variable re-shapea el texto en main thread y costó
@@ -855,12 +732,9 @@ const jsonLd = [
   @keyframes hero-fade-in {
     from { opacity: 0.02; transform: translateY(0.4rem); }
   }
-  .stat-count { display: none; }
 
   /* Solo pantalla: en impresión todo queda estático y completo. */
   @media screen and (prefers-reduced-motion: no-preference) {
-    /* Entrada del hero: una vez, al cargar. El peso variable de Inter se asienta
-       de 320 a 600 — tipografía display animada sin cargar nada nuevo. */
     /* 0,35 s y no 0,7: el H1 es el elemento LCP y Chrome no lo da por pintado
        hasta que la animación lo deja quieto — medido, 0,7 s costaba ~0,5 s de
        LCP móvil y con ello el 100 de rendimiento. El gesto se mantiene. */
@@ -868,24 +742,6 @@ const jsonLd = [
     .hero-fade { animation: hero-fade-in 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) both; animation-delay: var(--d, 0s); }
 
     @supports (animation-timeline: view()) {
-      .stat-static {
-        position: absolute;
-        width: 1px;
-        height: 1px;
-        overflow: hidden;
-        clip-path: inset(50%);
-      }
-      .stat { position: relative; }
-      .stat-count {
-        display: inline-block;
-        counter-reset: stat-n var(--stat-n);
-        animation: stat-count linear both;
-        animation-timeline: view();
-        animation-range: entry 20% cover 45%;
-      }
-      .stat-count::before { content: attr(data-prefix); }
-      .stat-count::after { content: counter(stat-n) attr(data-suffix); }
-
       /* Entrada suave de tarjetas conducida por el scroll (scrubbed). */
       .rise {
         animation: rise-in linear both;
@@ -897,62 +753,12 @@ const jsonLd = [
 </style>
 
 <script>
-  // Script único de la landing (decisión D1: vanilla, sin dependencias, ≤15 KB;
-  // este pesa ~2 KB). Tres piezas, todas mejora progresiva: el acento que muta
-  // con la tienda activa, el autoplay del vídeo de Iris y la calculadora.
+  // Script de la landing (decisión D1: vanilla, sin dependencias, ≤15 KB).
+  // Dos piezas, ambas mejora progresiva: el autoplay del vídeo de Iris y la
+  // calculadora. El formulario lo gobierna ProjectDialog.astro.
   const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  // 1 · El acento de la landing muta al de la tienda activa de la galería.
-  //     «Activa» = la tarjeta más cercana al centro de la tira. Los valores
-  //     (acento real, par de texto AA-safe, texto sobre acento) vienen
-  //     precalculados del servidor en data-attrs; aquí solo se copian a
-  //     variables CSS del contenedor.
-  const root = document.querySelector<HTMLElement>('[data-landing]');
-  const gallery = document.querySelector<HTMLElement>('[data-gallery]');
-  if (root && gallery) {
-    const cards = [...gallery.querySelectorAll<HTMLElement>('[data-accent]')];
-    const MAP: ReadonlyArray<readonly [string, string]> = [
-      ['accent', '--color-brand'],
-      ['accentDark', '--color-brand-dark'],
-      ['accentFg', '--color-brand-fg'],
-      ['accentText', '--accent-text'],
-      ['accentTextDark', '--accent-text-dark'],
-      ['accentTextDm', '--accent-text-dm'],
-    ];
-    let active: HTMLElement | null = null;
-    let raf = 0;
-    const pick = () => {
-      raf = 0;
-      const box = gallery.getBoundingClientRect();
-      const mid = box.left + box.width / 2;
-      let best: HTMLElement | null = null;
-      let dist = Infinity;
-      for (const card of cards) {
-        const r = card.getBoundingClientRect();
-        const d = Math.abs(r.left + r.width / 2 - mid);
-        if (d < dist) {
-          dist = d;
-          best = card;
-        }
-      }
-      if (best && best !== active) {
-        active = best;
-        for (const [key, cssVar] of MAP) {
-          const value = best.dataset[key];
-          if (value) root.style.setProperty(cssVar, value);
-        }
-      }
-    };
-    gallery.addEventListener(
-      'scroll',
-      () => {
-        raf ||= requestAnimationFrame(pick);
-      },
-      { passive: true },
-    );
-  }
-
-  // 2 · Iris: la tarjeta se sirve como imagen (póster) y aquí se asciende a
+  // 1 · Iris: la tarjeta se sirve como imagen (póster) y aquí se asciende a
   //     <video preload="none"> que reproduce solo mientras se ve. Nunca con
   //     reduced-motion ni con ahorro de datos: esos visitantes se quedan la
   //     imagen. El clip no baja ni un byte hasta que la tarjeta es visible.
@@ -1009,7 +815,7 @@ const jsonLd = [
     }
   }
 
-  // 3 · Calculadora a 3 años. Mismas cuentas que la tabla estática (que queda
+  // 2 · Calculadora a 3 años. Mismas cuentas que la tabla estática (que queda
   //     como fallback sin JS): Shopify = 36 €/mes + 2 % de las ventas; Kit =
   //     1.900 € + 39 €/mes. Números en el pie de la sección.
   const calc = document.querySelector<HTMLElement>('[data-calc]');

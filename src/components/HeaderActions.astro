@@ -1,0 +1,20 @@
+---
+/**
+ * Acciones de la cabecera comercial: enlace a la demo principal + CTA.
+ *
+ * El botón negro es el CTA de conversión («Iniciar proyecto»): con JS abre el
+ * diálogo del formulario, sin JS es un ancla al mismo formulario de la página.
+ * A su izquierda, la demo — la prueba de que el producto existe.
+ */
+import { MAIN_DEMO_HREF } from '../lib/nav';
+---
+
+<a
+  href={MAIN_DEMO_HREF}
+  class="hidden whitespace-nowrap rounded-btn px-3 py-2 text-sm font-medium text-muted-foreground transition hover:text-foreground sm:inline-block"
+>Ver la demo</a>
+<a
+  href="/#proyecto"
+  data-open-project
+  class="whitespace-nowrap rounded-btn bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition hover:bg-primary/90 sm:px-5"
+>Iniciar proyecto</a>

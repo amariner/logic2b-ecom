@@ -42,7 +42,7 @@ Un saludo,
 > presupuesto genérico: ¿qué vendes y a quién? ¿cuántos productos tendría la
 > tienda, más o menos? y si tienes 2-3 fotos de producto que te gusten,
 > mándamelas por aquí. Con eso te propongo estilo, plazo y precio cerrado.
-> Mientras, prueba la demo (3 min, se compra de verdad):
+> Mientras, prueba la demo (3 min, recorrido completo y simulado):
 > https://ecom.logic2b.com/demo/tienda?tour=1
 
 ---

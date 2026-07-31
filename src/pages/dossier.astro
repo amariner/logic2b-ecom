@@ -3,6 +3,8 @@
 // imprimirlo en PDF (Ctrl/Cmd+P). Indexable, cero JS, mismo lenguaje visual
 // que la landing. Los precios son los publicados en la landing.
 import Base from '../layouts/Base.astro';
+import ProjectDialog from '../components/ProjectDialog.astro';
+import { landingNav } from '../lib/nav';
 
 // ── El camino MVP → tienda que crece (P2) ───────────────────────────────────
 // Se VENDE, no se construye (§14): sin fechas prometidas y sin dar por
@@ -193,13 +195,19 @@ const jsonLd = [
           <a href="https://logic2b.com" class="wm-agency">Logic<span class="wm-2b">2B</span></a>
           <a href="/" class="wm-product">Ecommerce</a>
         </span>
-        <nav class="flex items-center gap-3 text-sm sm:gap-6">
+        {/* Mismo menú que el resto del sitio (lib/nav.ts). */}
+        <nav class="flex items-center gap-3 text-sm sm:gap-5">
           <a href="/" class="text-stone-600 hover:text-ink">Inicio</a>
-          <a href="/arquitectura" class="hidden text-stone-600 hover:text-ink sm:block">Cómo funciona</a>
+          {landingNav
+            .filter((link) => link.href !== '/dossier')
+            .map((link) => (
+              <a href={link.href} class="hidden text-stone-600 hover:text-ink lg:block">{link.label}</a>
+            ))}
           <a
-            href="/demo/tienda"
+            href="/#proyecto"
+            data-open-project
             class="rounded-btn bg-ink px-4 py-2 text-sm font-semibold text-white transition hover:bg-black sm:px-5"
-          >Ver la demo</a>
+          >Iniciar proyecto</a>
         </nav>
       </div>
     </header>
@@ -216,7 +224,23 @@ const jsonLd = [
         necesitamos de ti y cuánto cuesta. Sin letra pequeña: es lo mismo que firmarías en el
         presupuesto.
       </p>
-      <p class="mt-3 text-sm text-stone-500 print:hidden">
+      {/* Lo primero que hay que entender del servicio: se empieza sencillo.
+          Va antes que cualquier tabla porque es la decisión que ahorra dinero
+          al cliente y la que explica todas las demás. */}
+      <div class="mt-8 rounded-2xl border border-brand/30 bg-brand/5 p-6 sm:p-7">
+        <p class="font-display text-xl text-brand-dark">Todo proyecto empieza igual: sencillo</p>
+        <p class="mt-3 max-w-3xl text-sm leading-relaxed text-stone-700">
+          No montamos primero la tienda perfecta. Montamos un
+          <strong class="text-ink">MVP</strong> —una tienda mínima pero completa
+          y en producción— que sirve igual a una bodega con 20 referencias que a
+          un distribuidor industrial. A partir de ahí crece sobre lo que tu
+          ecommerce pida de verdad, no sobre lo que alguien supuso al principio.
+          Ese es nuestro punto fuerte: <strong class="text-ink">hacer las cosas
+          sencillas desde el primer día</strong>. Lo barato no es el precio: es
+          no construir lo que no vas a usar.
+        </p>
+      </div>
+      <p class="mt-6 text-sm text-stone-500 print:hidden">
         Guárdalo o compártelo: esta página está pensada para imprimirse en PDF (Ctrl/Cmd + P).
       </p>
 
@@ -482,9 +506,16 @@ const jsonLd = [
     <footer class="border-t border-black/5 print:hidden">
       <div class="mx-auto flex max-w-4xl flex-wrap items-center justify-between gap-2 px-5 py-6 text-sm text-stone-500">
         <p>© 2026 Logic2B · Castellón</p>
-        <p><a href="/" class="hover:text-ink">Inicio</a> · <a href="/arquitectura" class="hover:text-ink">Arquitectura</a> · <a href="/demo/tienda" class="hover:text-ink">Demo</a></p>
+        <p>
+          <a href="/" class="hover:text-ink">Inicio</a> ·
+          <a href="/arquitectura" class="hover:text-ink">Cómo funciona</a> ·
+          <a href="/estilos" class="hover:text-ink">Estilos</a> ·
+          <a href="/demo/tienda" class="hover:text-ink">Demo de tienda</a> ·
+          <a href="/demo/admin" class="hover:text-ink">Panel demo</a>
+        </p>
       </div>
     </footer>
+    <div class="print:hidden"><ProjectDialog /></div>
   </div>
 
   <style>

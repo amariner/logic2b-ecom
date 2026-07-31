@@ -11,6 +11,9 @@
  */
 import Base from '../layouts/Base.astro';
 import SiteHeader from '../components/SiteHeader.astro';
+import HeaderActions from '../components/HeaderActions.astro';
+import ProjectDialog from '../components/ProjectDialog.astro';
+import { landingNav, MAIN_DEMO_HREF } from '../lib/nav';
 import { demoThemes, defaultTheme } from '../lib/demo-themes';
 import { collections, storePaths } from '../lib/collections';
 
@@ -51,13 +54,6 @@ const sampleFiles = new Set(
   ),
 );
 const hasSample = (sample: string | null): boolean => Boolean(sample) && sampleFiles.has(sample!);
-
-const nav = [
-  { href: '/arquitectura', label: 'Cómo funciona' },
-  { href: '/estilos', label: 'Estilos' },
-  { href: '/#precios', label: 'Precios' },
-  { href: '/#contacto', label: 'Contacto' },
-];
 
 const styles = demoThemes.filter((t) => t.id !== defaultTheme.id);
 // Solo cuenta los estilos QUE SE VEN en esta página (Base queda fuera de la
@@ -105,12 +101,8 @@ const jsonLd = [
   jsonLd={jsonLd}
 >
   <div class="bg-background text-foreground">
-    <SiteHeader homeHref="/" wordmark="Logic2B Ecommerce" splitBrand nav={nav} activeHref="/estilos">
-      <a
-        slot="actions"
-        href="/demo/tienda"
-        class="rounded-btn bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition hover:bg-primary/90 sm:px-5"
-      >Ver la demo</a>
+    <SiteHeader homeHref="/" wordmark="Logic2B Ecommerce" splitBrand nav={landingNav} activeHref="/estilos">
+      <Fragment slot="actions"><HeaderActions /></Fragment>
     </SiteHeader>
 
     <main>
@@ -367,9 +359,13 @@ const jsonLd = [
         <p>© 2026 Logic2B · Castellón</p>
         <p>
           <a href="/" class="underline underline-offset-2 hover:text-foreground">Logic2B Ecommerce</a> ·
-          <a href="/arquitectura" class="underline underline-offset-2 hover:text-foreground">Arquitectura</a>
+          <a href="/arquitectura" class="underline underline-offset-2 hover:text-foreground">Cómo funciona</a> ·
+          <a href="/dossier" class="underline underline-offset-2 hover:text-foreground">Dossier</a> ·
+          <a href={MAIN_DEMO_HREF} class="underline underline-offset-2 hover:text-foreground">Demo de tienda</a> ·
+          <a href="/demo/admin" class="underline underline-offset-2 hover:text-foreground">Panel demo</a>
         </p>
       </div>
     </footer>
+    <ProjectDialog />
   </div>
 </Base>

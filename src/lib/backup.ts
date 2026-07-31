@@ -14,6 +14,9 @@ export const BACKUP_TABLES = [
   'order_items',
   'order_events',
   'emails_outbox',
+  // `contact_requests` NO entra a propósito: son datos personales de leads
+  // reales y esta copia se descarga desde el panel, que en la demo pública es
+  // accesible con la contraseña que la propia demo enseña. Ver migración 0003.
 ] as const;
 
 function sqlValue(value: string | number | null): string {

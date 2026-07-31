@@ -79,9 +79,11 @@ const onHome = Astro.url.pathname === homeHref;
       )
     }
 
+    {/* `lg` y no `md`: el menú comercial son cinco entradas más dos acciones;
+        en tablet no caben en la línea de 56 px y se partían en dos. */}
     {
       nav.length > 0 && (
-        <nav class="hidden flex-1 items-center gap-5 text-sm text-muted-foreground md:flex">
+        <nav class="hidden flex-1 items-center gap-5 whitespace-nowrap text-sm text-muted-foreground lg:flex">
           {nav.map((link) => (
             <a
               href={link.href}
