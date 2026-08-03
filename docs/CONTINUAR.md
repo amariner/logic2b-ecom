@@ -20,8 +20,10 @@
 1. **Sincronizar** — `git fetch` + `git status` (hay sesiones cloud empujando a
    `origin/main`). Nunca trabajar sobre una base desactualizada.
 2. **Revisar con el equipo** — cargar la skill `equipo`, leer el ROADMAP
-   (tabla de fases + «Próxima sesión» abajo) y los roles afectados por el
-   bloque candidato.
+   (tabla de fases + «Próxima sesión»),
+   [`REVISION_CODEX_2026-08-03.md`](REVISION_CODEX_2026-08-03.md) mientras
+   conserve bloques C14 pendientes, y los roles afectados por el bloque
+   candidato.
 3. **Planificar la sesión** — elegir **UN bloque** (el que marque «Próxima
    sesión» en el ROADMAP, o el primer pendiente ejecutable en este entorno:
    los marcados LOCAL necesitan wrangler/Chrome/red local). Anunciar en el chat
@@ -68,5 +70,7 @@
 
 ## Próxima sesión (mantener SIEMPRE al día — también existe en ROADMAP)
 
-La sección canónica vive al final de `docs/ROADMAP.md` («Próxima sesión»).
-Este fichero solo define el protocolo; el estado vive en el ROADMAP.
+La sección canónica vive en `docs/ROADMAP.md` («Próxima sesión»). Desde la
+revisión del 2026-08-03, el detalle ejecutable de la prioridad vigente vive en
+[`REVISION_CODEX_2026-08-03.md`](REVISION_CODEX_2026-08-03.md): **C14.1 es el
+primer bloque**. Este fichero solo define el protocolo.
