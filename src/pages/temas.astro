@@ -35,7 +35,8 @@ const storeFor = (themeId: string) => {
   return {
     name: col.name,
     href: storePaths(col.id).catalog,
-    img: `/images/screens/store-${col.id}-catalog.webp`,
+    img: `/images/screens/store-${col.id}-catalog-900.webp`,
+    srcset: `/images/screens/store-${col.id}-catalog-560.webp 560w, /images/screens/store-${col.id}-catalog-900.webp 900w`,
     crop: CROP[col.id] ?? 'object-top',
   };
 };
@@ -233,11 +234,13 @@ const jsonLd = [
                   <a href={storeFor(theme.id)!.href} class="group absolute inset-0 block" aria-label={`Entra en ${storeFor(theme.id)!.name}, la tienda de muestra del tema ${theme.label}`}>
                     <img
                       src={storeFor(theme.id)!.img}
+                      srcset={storeFor(theme.id)!.srcset}
+                      sizes="(min-width: 640px) 50vw, 100vw"
                       alt={`La tienda ${storeFor(theme.id)!.name}, construida con el tema ${theme.label}`}
                       loading="lazy"
                       decoding="async"
-                      width="1440"
-                      height="900"
+                      width="900"
+                      height="563"
                       class={`h-full w-full object-cover transition duration-300 group-hover:scale-[1.02] ${storeFor(theme.id)!.crop}`}
                     />
                   </a>

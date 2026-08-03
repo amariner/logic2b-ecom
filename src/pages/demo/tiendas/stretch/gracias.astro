@@ -1,0 +1,15 @@
+---
+import Shop from '../../../../layouts/Shop.astro';
+import { stretchCollection } from '../../../../collections/stretch';
+---
+
+<Shop title="Gracias" description="Pedido demo STRETCH" collection={stretchCollection}>
+  <main class="grid min-h-screen place-items-center bg-black px-5 text-white">
+    <div class="max-w-2xl text-center">
+      <p class="text-[10px] uppercase tracking-[.2em] text-white/45">Pedido confirmado / Demo</p>
+      <h1 class="mt-7 text-7xl font-light leading-[.88] tracking-[-.07em] md:text-9xl">Tu ritual<br/>empieza aquí.</h1>
+      <p class="mx-auto mt-8 max-w-md text-white/55">El recorrido de la tienda ha terminado. No se ha realizado ningún cobro ni guardado ningún dato.</p>
+      <a href="/demo/tiendas/stretch" class="mt-10 inline-block rounded-full bg-white px-8 py-4 text-[10px] uppercase tracking-widest text-black">Volver a STRETCH</a>
+    </div>
+  </main>
+</Shop>

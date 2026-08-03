@@ -1,0 +1,23 @@
+---
+import Shop from '../../../../layouts/Shop.astro';
+import { stretchCollection } from '../../../../collections/stretch';
+---
+
+<Shop title="Checkout" description="Checkout visual STRETCH" collection={stretchCollection}>
+  <main class="min-h-screen bg-[#f9f4f0] px-5 py-8 text-black">
+    <div class="mx-auto max-w-xl">
+      <a href="/demo/tiendas/stretch" class="text-lg font-bold uppercase tracking-[.2em]">STRETCH</a>
+      <p class="mt-16 text-[10px] uppercase tracking-[.16em] text-black/60">Entrega / Demo</p>
+      <h1 class="mt-4 text-6xl font-light tracking-[-.06em]">Tus datos.</h1>
+      <form data-stretch-checkout class="mt-10 space-y-4">
+        <input aria-label="Nombre y apellidos" required autocomplete="name" placeholder="Nombre y apellidos" class="w-full rounded-lg border border-black/15 bg-white px-4 py-4">
+        <input aria-label="Email" required type="email" autocomplete="email" placeholder="Email" class="w-full rounded-lg border border-black/15 bg-white px-4 py-4">
+        <input aria-label="Dirección" required autocomplete="street-address" placeholder="Dirección" class="w-full rounded-lg border border-black/15 bg-white px-4 py-4">
+        <div class="grid grid-cols-2 gap-4"><input aria-label="Código postal" required autocomplete="postal-code" placeholder="Código postal" class="rounded-lg border border-black/15 bg-white px-4 py-4"><input aria-label="Ciudad" required autocomplete="address-level2" placeholder="Ciudad" class="rounded-lg border border-black/15 bg-white px-4 py-4"></div>
+        <button class="w-full rounded-full bg-black px-6 py-4 text-[10px] uppercase tracking-widest text-white">Completar pedido demo</button>
+        <p class="text-center text-xs text-black/60">No se solicitarán datos de tarjeta ni se realizará ningún cobro.</p>
+      </form>
+    </div>
+  </main>
+  <script>document.querySelector('[data-stretch-checkout]')?.addEventListener('submit', (event) => { event.preventDefault(); localStorage.removeItem('stretch-demo-cart'); window.location.assign('/demo/tiendas/stretch/gracias'); });</script>
+</Shop>

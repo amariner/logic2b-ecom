@@ -1,0 +1,23 @@
+---
+import Shop from '../../../../layouts/Shop.astro';
+import { noddoProductBySlug } from '../../../../collections/noddo-products';
+import { noddoCollection } from '../../../../collections/noddo';
+export const prerender = false;
+const product = noddoProductBySlug.get(Astro.params.slug ?? '');
+if (!product) return new Response(null, { status: 404 });
+---
+<Shop title={product.name} description={product.description} collection={noddoCollection}>
+  <main class="min-h-screen bg-[#f7f7f5] text-[#111]">
+    <header class="flex items-center justify-between border-b border-black/10 px-5 py-5 md:px-8"><a href="/demo/tiendas/noddo" class="text-xl font-black tracking-[-.08em]">NODDO®</a><nav class="flex items-center gap-6 text-[11px] uppercase tracking-[.12em]"><a href="/demo/tiendas/noddo">Product line</a><a href="/demo/tiendas/noddo/carrito" class="rounded-full border border-black px-4 py-2">Cart <span data-noddo-count>0</span></a></nav></header>
+    <div class="grid min-h-[calc(100vh-81px)] md:grid-cols-[1.25fr_.75fr]">
+      <div class="flex items-center justify-center bg-[#ececea] p-6 md:p-12"><img src={product.image} alt={product.name} width="1200" height="1200" class="max-h-[76vh] w-full object-contain" onerror={`this.src='/images/collections/noddo/reference-crops/thermo-20.jpg'`} /></div>
+      <article class="flex flex-col justify-between p-7 md:p-12"><div><p class="font-mono text-[10px] uppercase tracking-[.18em] text-black/60">{product.category} / NODDO</p><h1 class="mt-6 text-5xl font-medium leading-[.85] tracking-[-.07em] md:text-7xl">{product.name}</h1><p class="mt-5 text-xl">{product.price}</p><p class="mt-10 max-w-md leading-relaxed text-black/60">{product.description}</p><dl class="mt-10 divide-y divide-black/10 border-y border-black/10 text-sm">{product.specs.map(([label,value])=><div class="flex justify-between py-3"><dt class="text-black/60">{label}</dt><dd>{value}</dd></div>)}</dl></div><div class="mt-10"><button type="button" data-noddo-add={product.slug} class="w-full rounded-full bg-black px-6 py-4 text-sm uppercase tracking-[.12em] text-white">Añadir al carrito</button><p class="mt-4 text-center text-xs text-black/60">Demo visual · no se realizará ningún cobro</p></div></article>
+    </div>
+  </main>
+  <script is:inline define:vars={{ slug: product.slug, productName: product.name, price: product.price, image: product.image }}>
+    const key='noddo-demo-cart';
+    const read=()=>{try{return JSON.parse(localStorage.getItem(key)||'[]')}catch{return[]}};
+    const update=()=>document.querySelectorAll('[data-noddo-count]').forEach(el=>el.textContent=String(read().reduce((sum,item)=>sum+item.qty,0)));
+    const addButton=document.querySelector('[data-noddo-add]');addButton?.addEventListener('click',()=>{const cart=read();const found=cart.find(item=>item.slug===slug);if(found)found.qty+=1;else cart.push({slug,name:productName,price,image,qty:1});localStorage.setItem(key,JSON.stringify(cart));addButton.textContent='Añadido ✓';update()});update();
+  </script>
+</Shop>

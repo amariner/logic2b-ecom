@@ -66,7 +66,7 @@ const DESKTOP = { w: 1440, h: 900, dsf: 1, mobile: false };
 const MOBILE = { w: 375, h: 812, dsf: 1, mobile: true };
 
 // ── Superficies ────────────────────────────────────────────────────────────
-// Las 7 tiendas vivas. `demo` (La Botiga) conserva las rutas históricas.
+// Las 14 tiendas vivas. `demo` (La Botiga) conserva las rutas históricas.
 const STORES = [
   { id: 'street', label: 'ASFALTO', prefix: '/demo/tiendas/street', slug: 'str-vuelta-9', cartKey: 'ecom-cart:street' },
   { id: 'industrial', label: 'METRIA', prefix: '/demo/tiendas/industrial', slug: 'ind-mv-320', cartKey: 'ecom-cart:industrial' },
@@ -77,6 +77,25 @@ const STORES = [
   { id: 'editorial', label: 'Módulo Audio', prefix: '/demo/tiendas/editorial', slug: 'edi-radio-r2', cartKey: 'ecom-cart:editorial' },
   { id: 'guide', label: 'Cafetal', prefix: '/demo/tiendas/guide', slug: 'cof-molinillo-manual', cartKey: 'ecom-cart:guide' },
   { id: 'iris', label: 'Iris', prefix: '/demo/tiendas/iris', slug: 'iri-sport-pro', cartKey: 'ecom-cart:iris' },
+  // Estas cuatro carcasas visuales tienen un carrito de muestra independiente
+  // de D1. Se siembra la forma real que leen sus páginas, no un `{slug, qty}`
+  // del motor, y se omite el estado de portes porque no hay cotización remota.
+  {
+    id: 'noddo', label: 'NODDO', prefix: '/demo/tiendas/noddo', slug: 'power-node', cartKey: 'noddo-demo-cart', canQuote: false,
+    cartValue: JSON.stringify([{ slug: 'power-node', name: 'Power Node', price: '129,00 €', image: '/images/collections/noddo/generated/power-node.jpg', qty: 2 }]),
+  },
+  {
+    id: 'sitega', label: 'Sitēga', prefix: '/demo/tiendas/sitega', slug: 'basin-soft', cartKey: 'sitega-demo-cart', canQuote: false,
+    cartValue: JSON.stringify([{ slug: 'basin-soft', name: 'Soft 01', price: '289,00 €', image: '/images/collections/sitega/basin-soft.jpg', qty: 2 }]),
+  },
+  {
+    id: 'forma', label: 'Forma', prefix: '/demo/tiendas/forma', slug: 'clear-01', cartKey: 'forma-demo-cart', canQuote: false,
+    cartValue: JSON.stringify([{ slug: 'clear-01', name: 'Clear 01', price: '165,00 €', image: '/images/collections/forma/frame-clear.jpg', qty: 2 }]),
+  },
+  {
+    id: 'stretch', label: 'STRETCH', prefix: '/demo/tiendas/stretch', slug: 'illuminating-cleansing-gel', cartKey: 'stretch-demo-cart', canQuote: false,
+    cartValue: JSON.stringify([{ slug: 'illuminating-cleansing-gel', name: 'Gel limpiador iluminador', price: '36,00 €', image: '/images/collections/stretch/cleanser.jpg', qty: 2 }]),
+  },
   { id: 'demo', label: 'La Botiga', prefix: '/demo/tienda', slug: 'aove-coupage-750', cartKey: 'ecom-demo-cart', legacy: true },
 ];
 
@@ -156,7 +175,7 @@ const SURFACES = [];
 for (const s of STORES) {
   const cartUrl = s.legacy ? '/demo/carrito' : `${s.prefix}/carrito`;
   const checkoutUrl = s.legacy ? '/demo/checkout' : `${s.prefix}/checkout`;
-  const cartSeed = { key: s.cartKey, value: JSON.stringify([{ slug: s.slug, qty: 2 }]) };
+  const cartSeed = { key: s.cartKey, value: s.cartValue ?? JSON.stringify([{ slug: s.slug, qty: 2 }]) };
 
   // Sin variantes @dark: NADA en el código responde a prefers-color-scheme
   // (el `.dark` de global.css es un juego de tokens por clase que ningún
@@ -170,7 +189,9 @@ for (const s of STORES) {
   SURFACES.push({ name: `${s.id}:ficha@375`, url: `${s.prefix}/${s.slug}`, vp: MOBILE });
   SURFACES.push({ name: `${s.id}:carrito`, url: cartUrl, vp: DESKTOP, storage: cartSeed });
   SURFACES.push({ name: `${s.id}:carrito@375`, url: cartUrl, vp: MOBILE, storage: cartSeed });
-  SURFACES.push({ name: `${s.id}:carrito@activo`, url: cartUrl, vp: DESKTOP, storage: cartSeed, eval: ACTIVATE_CTA, expect: 'activo' });
+  if (s.canQuote !== false) {
+    SURFACES.push({ name: `${s.id}:carrito@activo`, url: cartUrl, vp: DESKTOP, storage: cartSeed, eval: ACTIVATE_CTA, expect: 'activo' });
+  }
   SURFACES.push({ name: `${s.id}:checkout`, url: checkoutUrl, vp: DESKTOP, storage: cartSeed });
   SURFACES.push({ name: `${s.id}:catalogo@motion`, url: s.prefix, vp: DESKTOP, reducedMotion: true });
 }
@@ -236,7 +257,7 @@ const AUDIT_JS = String.raw`(() => {
     if (!el.isConnected) return false;
     const cs = getComputedStyle(el);
     if (cs.display === 'none' || cs.visibility === 'hidden' || cs.contentVisibility === 'hidden') return false;
-    if (el.closest('[hidden]') || el.closest('[aria-hidden="true"]')) return false;
+    if (el.closest('[hidden]') || el.closest('[aria-hidden="true"]') || el.closest('[inert]')) return false;
     const r = el.getBoundingClientRect();
     return r.width > 0 && r.height > 0;
   }
@@ -792,7 +813,16 @@ async function main() {
     }
   }
 
-  child.kill();
+  // Esperar al cierre evita que la siguiente tanda intente borrar un perfil
+  // de Chrome que el proceso anterior todavía está terminando de escribir.
+  await new Promise((resolve) => {
+    if (child.exitCode !== null || child.signalCode !== null) {
+      resolve();
+      return;
+    }
+    child.once('exit', resolve);
+    child.kill();
+  });
   process.exit(errors ? 1 : 0);
 }
 

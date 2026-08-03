@@ -12,7 +12,7 @@
 
 Logic2B Ecommerce vende una tienda **a medida**. El problema comercial es que «a medida»
 suena caro y abstracto: el cliente no puede imaginarse su tienda. El catálogo de
-estilos resuelve eso — son 8 direcciones visuales completas, cada una derivada de
+estilos resuelve eso — son 13 direcciones visuales completas, cada una derivada de
 una referencia real de ecommerce, entre las que el cliente elige un punto de
 partida.
 
@@ -26,10 +26,30 @@ y no se tocan al desarrollar un tema**.
 
 Si desarrollando un tema aparece la necesidad de cambiar lógica de negocio, es
 señal de que algo se ha modelado mal en la capa de presentación. **Parar y
-replantear, no bifurcar el backend.** Ocho backends es exactamente el fracaso que
+replantear, no bifurcar el backend.** Diez backends es exactamente el fracaso que
 este diseño existe para evitar.
 
-La demo desplegada sigue siendo **una sola**, con un tema activo.
+### Dos recorridos que no deben confundirse
+
+El escaparate tiene dos tipos de demo y ambos pueden evolucionar en paralelo:
+
+1. **Demos visuales de tema** (`/demo/tiendas/<id>`). Son carcasas de diseño.
+   Pueden utilizar productos estáticos, imágenes propias y estado local para
+   reproducir con fidelidad una dirección visual. Sus productos **no tienen que
+   existir en D1 ni aparecer en el panel**.
+2. **Demo funcional del motor** (`/demo/tienda`, `/demo/admin` y
+   `/demo/admin/emails`). Usa su catálogo genérico y demuestra compra, pedidos,
+   stock, envíos y emails. Es independiente de los productos de cada carcasa.
+
+Esta separación es deliberada: permite desarrollar temas en paralelo sin
+convertir cada dirección visual en una migración de backend. No se debe simular
+que un producto está en el panel si no lo está.
+
+Todas las superficies de tema deben conservar `DemoJourneyBanner`, montado por
+`Shop.astro`. La franja comunica que todos los temas comparten el mismo motor y
+ofrece un único acceso al `Gestor tienda` (`/demo/admin`). Un tema inmersivo no
+puede ocultarla con CSS. Si crea páginas standalone (ficha, carrito, checkout o gracias), debe
+envolverlas también en `Shop.astro` para heredar la franja y el selector.
 
 ---
 
@@ -43,7 +63,7 @@ tema = vars (14 tokens CSS) + layout (descriptor estructural) + componentes
 
 Lista **cerrada** (`THEME_VARS`). Un tema no puede tocar nada más: eso es lo que
 impide que un tema degenere en un fork del CSS. Si un tema necesita una variable
-nueva, se añade a `THEME_VARS`, **a los 9 temas** y al script anti-flash de
+nueva, se añade a `THEME_VARS`, **a todos los temas** y al script anti-flash de
 `Shop.astro` (hay tests que lo obligan).
 
 | Grupo | Variable | Para qué |
@@ -127,6 +147,9 @@ que se enseña es material propio generado con Higgsfield.
 7. **Verificar en navegador** con `wrangler dev`: catálogo, ficha, carrito,
    checkout.
 8. **Responsive y modo oscuro.** La base los soporta; el tema no debe romperlos.
+9. **Comprobar el puente de demo.** La franja debe verse en catálogo, ficha,
+   carrito y checkout y mostrar el enlace `Gestor tienda` a `/demo/admin`.
+   Los productos de cada tema pueden ser independientes.
 
 ---
 
@@ -148,7 +171,7 @@ lógica editorial con nuestra tipografía y nuestros grises.
 
 ---
 
-## 5. Los ocho temas
+## 5. Los doce temas
 
 > Cada ficha enlaza **la imagen que hay que abrir** antes de tocar código.
 
@@ -506,6 +529,70 @@ nítida con sombra definida, tonos coral/rojo. Energía de revista deportiva.
 
 ---
 
+### 09 · Iris — *cinemática de producto*
+
+📎 **Referencia: [`09-iris.webp`](../public/images/referencias/09-iris.webp)**
+
+**Para quién:** óptica, producto premium y lanzamientos de alto impacto.
+
+Tema inmersivo con vídeo controlado por scroll, negro absoluto, magenta y
+catálogo de tres columnas. Su implementación y límites están documentados en
+[`docs/temas/iris.md`](temas/iris.md).
+
+---
+
+### 10 · Tema Noddo — *O&D Product Line*
+
+📎 **Referencia: [`10-noddo.webp`](../public/images/referencias/10-noddo.webp)**
+
+**Para quién:** tecnología doméstica, diseño industrial y objetos conectados.
+
+Carcasa monocroma a ancho completo con composición irregular y siete productos
+estáticos. Las fichas, carrito y checkout se simulan en el navegador; no se
+acoplan a D1. `DemoJourneyBanner` enlaza con la demo funcional independiente.
+Ficha completa: [`docs/temas/noddo.md`](temas/noddo.md).
+
+---
+
+### 11 · Sitēga — *sanitarios y grifería*
+
+📎 **Referencia: [`11-sitega.webp`](../public/images/referencias/11-sitega.webp)**
+
+**Para quién:** baño e interiorismo, cerámica y piedra, marcas arquitectónicas.
+
+Hoja blanca sobre gris, navegación tipográfica, titulares editoriales en ruso,
+mosaico irregular de lavabos y grifería, bloque negro de colecciones y footer a
+sangre. El catálogo visual usa ocho productos propios y el recorrido demo local
+mantiene la misma frontera de presentación/backend que NODDO.
+
+Ficha completa: [`docs/temas/sitega.md`](temas/sitega.md).
+
+### 12 · Forma — *gafas y accesorios*
+
+📎 **Referencia: [`12-forma.webp`](../public/images/referencias/12-forma.webp)**
+
+**Para quién:** ópticas independientes, marcas de accesorios, diseño y moda.
+
+Galería editorial de retratos, monturas y taller. El catálogo local incluye seis
+productos de óptica y solar, con fichas, carrito y checkout demo propios.
+
+Ficha completa: [`docs/temas/forma.md`](temas/forma.md).
+
+### 13 · STRETCH — *skincare audiovisual*
+
+📎 **Referencia: [`13-stretch.webp`](../public/images/referencias/13-stretch.webp)**
+
+**Para quién:** cosmética y skincare, bienestar y marcas sostenibles.
+
+Hero dividido a pantalla completa con imagen y vídeo, navegación inmersiva,
+carrusel horizontal de siete productos y cierre en tres categorías audiovisuales.
+Las fichas, carrito y checkout usan estado local y conservan el recorrido común
+hacia el gestor de tienda.
+
+Ficha completa: [`docs/temas/stretch.md`](temas/stretch.md).
+
+---
+
 ## 6. Tabla resumen
 
 | # | Tema | Acento | Cols | Rejilla | Nav | Hero | Tarjeta | Filtros | Densidad | Estado |
@@ -519,6 +606,11 @@ nítida con sombra definida, tonos coral/rojo. Energía de revista deportiva.
 | 06 | Minimal | `#1a1a1a` | 2 | uniform | **sidebar** | none | plain | dropdown | airy | ✅ |
 | 07 | Launch | `#15803d` | 3 | uniform | top | none | hairline | chips | airy | ✅ |
 | 08 | Street | `#c3f53c` | **5** | uniform | **immersive** | **fullbleed** | plain | chips | compact | ✅ |
+| 09 | Iris | `#E6074E` | 3 | uniform | **immersive** | **fullbleed** | plain | dropdown | regular | ✅ |
+| 10 | Tema Noddo | `#111111` | 3 | **irregular** | **immersive** | **fullbleed** | plain | chips | compact | ✅ |
+| 11 | Sitēga | `#111111` | 4 | **irregular** | **immersive** | **fullbleed** | plain | chips | airy | ✅ |
+| 12 | Forma | `#171717` | 4 | **irregular** | **immersive** | **fullbleed** | plain | chips | airy | ✅ |
+| 13 | STRETCH | `#171717` | 4 | uniform | **immersive** | **fullbleed** | divided | chips | airy | ✅ |
 
 ---
 
@@ -554,7 +646,7 @@ en los que tocan datos.
 2. **Coste de imaginería.** Cada tema quiere su propia estética de producto.
    *Guide* además pide ilustración de línea. Es el capítulo más caro.
 
-3. **Deriva de componentes.** 8 temas × 6 componentes = 48 ficheros si se
+3. **Deriva de componentes.** 12 temas × 6 componentes = 72 ficheros si se
    implementa todo. Mitigación: **herencia de Base, implementar solo lo que el
    tema redefine**. Vigilar en cada sesión.
 

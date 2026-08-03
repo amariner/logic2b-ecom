@@ -1,0 +1,291 @@
+---
+import type { CollectionConfig, StorePaths } from '../../../lib/collections';
+import { noddoProductBySlug } from '../../../collections/noddo-products';
+
+interface Props {
+  paths: StorePaths;
+  products: unknown[];
+  collection: CollectionConfig;
+  category?: string | undefined;
+  sort: string;
+  search?: string | undefined;
+}
+
+const root = '/images/collections/noddo/generated';
+const cards = [
+  { id: 'power', slug:'power-node', image: `${root}/power-node.jpg`, alt: 'Sistema vertical de adquisición de datos', kind: 'intelligence', className: 'noddo-card--tall' },
+  { id: 'dock', slug:'dock-line', image: `${root}/dock-line.jpg`, alt: 'Estación de carga vista de perfil', kind: 'furniture', className: '' },
+  { id: 'sensor', slug:'sense-cylinder', image: `${root}/sense-cylinder.jpg`, alt: 'Sensor doméstico cilíndrico', kind: 'intelligence', className: '' },
+  { id: 'wall', slug:'wall-control', image: `${root}/wall-control.jpg`, alt: 'Control mural inteligente', kind: 'service', className: '' },
+] as const;
+---
+
+<main class="noddo-shell bg-background text-foreground">
+  <header data-noddo-scroll-header class="noddo-scroll-header" inert>
+    <a href="#inicio" class="noddo-wordmark noddo-wordmark--dark">NODDO®</a>
+    <nav class="noddo-scroll-nav" aria-label="Navegación de NODDO">
+      <a href="#catalogo">Product line</a>
+      <a href="/demo/tiendas/noddo/carrito" class="noddo-cart-link">Cart <span data-noddo-count>0</span></a>
+      <button type="button" data-noddo-menu-toggle class="noddo-menu-button noddo-menu-button--dark" aria-label="Abrir menú" aria-expanded="false" aria-controls="noddo-menu">
+        <span></span><span></span>
+      </button>
+    </nav>
+  </header>
+
+  <div id="noddo-menu" data-noddo-menu class="noddo-menu" role="dialog" aria-modal="true" aria-label="Menú principal" hidden>
+    <button type="button" data-noddo-menu-close class="noddo-menu-backdrop" aria-label="Cerrar menú"></button>
+    <div class="noddo-menu-panel">
+      <div class="noddo-menu-head">
+        <a href="#inicio" class="noddo-wordmark noddo-wordmark--dark" data-noddo-menu-link>NODDO®</a>
+        <button type="button" data-noddo-menu-close class="noddo-menu-close" aria-label="Cerrar menú">×</button>
+      </div>
+      <nav class="noddo-menu-links" aria-label="Secciones">
+        <a href="#inicio" data-noddo-menu-link><span>01</span>Home page</a>
+        <a href="#catalogo" data-noddo-menu-link><span>02</span>Product line</a>
+        <a href="#intelligence" data-noddo-menu-link><span>03</span>Intelligence</a>
+        <a href="#servicios" data-noddo-menu-link><span>04</span>Services</a>
+        <a href="#contacto" data-noddo-menu-link><span>05</span>Contact</a>
+      </nav>
+      <div class="noddo-menu-foot"><p>Objects that think<br/>in silence.</p><a href="/demo/tiendas/noddo/carrito">Cart <span data-noddo-count>0</span> →</a></div>
+    </div>
+  </div>
+
+  <section id="inicio" class="w-full">
+    <div class="relative min-h-[560px] overflow-hidden bg-[#777] text-white sm:min-h-0">
+      <img src={`${root}/hero.jpg`} alt="Estación doméstica NODDO" width="1800" height="1012" class="block aspect-[1.775] min-h-[560px] w-full object-cover sm:min-h-0" />
+      <div class="absolute inset-0 bg-gradient-to-t from-black/45 via-transparent to-black/10"></div>
+      <header class="noddo-hero-header">
+        <a href="#inicio" class="noddo-wordmark rounded-sm bg-[#111] px-2 py-1">NODDO®</a>
+        <button type="button" data-noddo-menu-toggle class="noddo-menu-button" aria-label="Abrir menú" aria-expanded="false" aria-controls="noddo-menu">
+          <span></span><span></span>
+        </button>
+      </header>
+      <p aria-hidden="true" class="absolute left-[36%] top-[5%] hidden rounded-sm bg-[#111] px-1.5 py-1 font-mono text-[9px] leading-none sm:block">companies<br/>providing related<br/>home services<br/>through NODDO<br/>gateway<br/>mainly composed<br/>five parts</p>
+      <p class="absolute left-[37%] top-[53%] rounded-sm bg-[#111] px-2 py-1 text-sm sm:text-xl">Docking station is summarized<br/>and packaged</p>
+      <h1 class="absolute bottom-[2%] left-[3%] rounded-sm bg-[#111] px-2 py-1 text-[clamp(3.5rem,10vw,9rem)] font-light leading-none tracking-[-.07em]">Product line</h1>
+      <p aria-hidden="true" class="absolute bottom-[8%] right-[5%] hidden rounded-sm bg-[#111] px-2 py-1 text-6xl font-light sm:block">N&D</p>
+      <a href="#catalogo" aria-label="Bajar al catálogo" class="absolute bottom-3 right-3 grid h-9 w-9 place-items-center rounded-full bg-white text-lg text-black shadow-md transition hover:scale-105 sm:hidden">↓</a>
+    </div>
+  </section>
+
+  <section id="catalogo" class="w-full px-4 pt-5 sm:px-6 lg:px-8">
+    <nav aria-label="Familias de producto" class="grid grid-cols-[2.5rem_repeat(5,minmax(0,1fr))] gap-1 rounded-lg bg-[#f2f2f2] p-1 text-[9px] sm:text-[11px]">
+      <button type="button" data-noddo-filter="all" aria-pressed="true" class="noddo-filter grid min-h-10 place-items-center rounded-md bg-white text-black" aria-label="Ver todo">⌘</button>
+      <button type="button" data-noddo-filter="intelligence" aria-pressed="false" class="noddo-filter rounded-md bg-black px-1 text-white">Intelligence</button>
+      <button type="button" data-noddo-filter="furniture" aria-pressed="false" class="noddo-filter rounded-md bg-white px-1 text-black/60">Furniture</button>
+      <button type="button" data-noddo-filter="service" aria-pressed="false" class="noddo-filter rounded-md bg-white px-1 text-black/60">Digital service</button>
+      <button type="button" data-noddo-filter="self" aria-pressed="false" class="noddo-filter rounded-md bg-white px-1 text-black/60">Self-developed</button>
+      <button type="button" data-noddo-filter="gallery" aria-pressed="false" class="noddo-filter rounded-md bg-white px-1 text-black/60">Galleries</button>
+    </nav>
+
+    <div class="mt-7 grid grid-cols-2 gap-1.5 sm:grid-cols-3 sm:grid-rows-2">
+      {cards.map((card) => (
+        <article data-noddo-card data-kind={card.kind} class:list={['group relative overflow-hidden rounded-md bg-[#eee]', card.className]}>
+          <img src={card.image} alt={card.alt} loading="lazy" class="h-full w-full object-cover transition duration-700 group-hover:scale-[1.015]" />
+          <a href={`/demo/tiendas/noddo/${card.slug}`} class="absolute inset-0" aria-label={`Ver ${noddoProductBySlug.get(card.slug)?.name ?? card.alt}`}></a>
+        </article>
+      ))}
+      <div aria-hidden="true" class="hidden items-center justify-center bg-background sm:flex"><span class="font-display text-7xl font-light text-black/10">07</span></div>
+    </div>
+
+    <div class="mt-1.5 flex items-end justify-between text-[10px]"><p aria-hidden="true" class="text-black/45">Intelligent products</p><p class="text-base text-black">Intelligent products</p></div>
+
+    <article data-noddo-card data-kind="intelligence" class="group relative mt-1.5 overflow-hidden rounded-md bg-[#eee]">
+      <img src={`${root}/thermo-20.jpg`} alt="Termostato inteligente de 20 grados" loading="lazy" class="block aspect-[2.02] w-full object-cover transition duration-700 group-hover:scale-[1.01]" />
+      <a href="/demo/tiendas/noddo/thermo-20" class="absolute inset-0" aria-label="Ver Thermo 20 grados"></a>
+    </article>
+
+    <div class="mt-1.5 grid gap-1.5 sm:grid-cols-[.72fr_1.3fr]">
+      <article data-noddo-card data-kind="self" class="group relative overflow-hidden rounded-md bg-[#eee]">
+        <img src={`${root}/air-tower.jpg`} alt="Torre portátil de ventilación" loading="lazy" class="block h-full min-h-72 w-full object-cover transition duration-700 group-hover:scale-[1.015]" />
+        <a href="/demo/tiendas/noddo/air-tower" class="absolute inset-0" aria-label="Ver Air Tower"></a>
+      </article>
+      <article data-noddo-card data-kind="furniture" class="group relative overflow-hidden rounded-md bg-[#eee]">
+        <img src={`${root}/dual-control.jpg`} alt="Controlador doméstico de dos mandos" loading="lazy" class="block h-full min-h-72 w-full object-cover transition duration-700 group-hover:scale-[1.015]" />
+        <a href="/demo/tiendas/noddo/dual-control" class="absolute inset-0" aria-label="Ver Dual Control"></a>
+      </article>
+    </div>
+  </section>
+
+  <section id="intelligence" class="grid min-h-[620px] w-full items-center px-4 py-24 sm:grid-cols-[.38fr_1fr] sm:px-6 lg:px-8">
+    <div aria-hidden="true" class="hidden self-end pb-24 font-accent text-[9px] leading-tight text-black/35 sm:block">Digital design<br/>beyond daily utility</div>
+    <div>
+      <h2 class="font-display text-[clamp(5rem,12vw,10rem)] leading-[.7] tracking-[-.075em]">Intelligence</h2>
+      <div class="ml-auto mt-12 aspect-[1.8] max-w-[370px] bg-black p-8 text-white">
+        <p class="text-xl">Physical entities</p><div class="mt-6 h-[65%] border-t border-white/50 noddo-lines"></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="servicios" class="grid min-h-[560px] w-full gap-10 px-4 py-20 sm:grid-cols-[.55fr_1fr] sm:px-6 lg:px-8">
+    <p aria-hidden="true" class="self-center font-accent text-[9px] leading-tight text-black/35">Wireless sensors<br/>output control<br/>collection<br/>docking station<br/>companies<br/>providers<br/>related home<br/>services</p>
+    <div class="flex flex-col justify-center"><p class="mb-24 max-w-xs text-[10px] text-black/60">Es un sistema compuesto por piezas físicas, automatizaciones locales y servicios domésticos conectados.</p><h2 class="max-w-xl font-display text-4xl leading-[.92] tracking-[-.05em] sm:text-6xl">Companies providing related home services through</h2><img src={`${root}/hero.jpg`} alt="Detalle de la estación" class="mt-8 h-24 w-40 object-cover object-center" /></div>
+  </section>
+
+  <footer id="contacto" class="w-full border-t border-border px-4 sm:px-6 lg:px-8">
+    <div class="grid min-h-72 gap-8 py-12 sm:grid-cols-[.75fr_.5fr_1fr]"><p class="text-3xl font-black tracking-[-.08em]">NODDO</p><div class="font-accent text-[9px]">Available<br/><br/><span class="text-black/60">Representation<br/>closely linked</span></div><div><p aria-hidden="true" class="font-display text-4xl leading-none text-black/10">Furniture Smart<br/>Product Line</p><nav class="mt-6 text-[9px] text-black/60"><a href="#inicio" class="block min-h-6 py-1">Home page</a><a href="#catalogo" class="block min-h-6 py-1">Product line</a><a href="#servicios" class="block min-h-6 py-1">Services</a></nav></div></div>
+    <form data-noddo-contact class="flex border-t border-border py-6"><label for="noddo-email" class="sr-only">Email</label><input id="noddo-email" type="email" required placeholder="Contact us" class="min-w-0 flex-1 rounded-lg border border-border bg-transparent px-4 py-3 text-sm outline-none focus:border-black"/><button type="submit" class="-ml-12 grid h-10 w-10 self-center place-items-center rounded-full bg-black text-white" aria-label="Enviar contacto">→</button></form>
+  </footer>
+
+</main>
+
+<style>
+  :global(body.noddo-menu-open) { overflow: hidden; }
+  .noddo-shell { width: 100%; overflow: clip; }
+  #catalogo, #intelligence, #servicios, #contacto { scroll-margin-top: 74px; }
+  .noddo-hero-header {
+    position: absolute;
+    inset: 0 0 auto;
+    z-index: 20;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: clamp(1.25rem, 2.25vw, 2rem) clamp(1.25rem, 3vw, 3rem);
+  }
+  .noddo-wordmark {
+    color: #fff;
+    font-size: clamp(1.15rem, 1.8vw, 1.65rem);
+    font-weight: 900;
+    letter-spacing: -.08em;
+    line-height: 1;
+  }
+  .noddo-wordmark--dark { color: #111; }
+  .noddo-menu-button {
+    display: grid;
+    width: 2.75rem;
+    height: 2.75rem;
+    place-content: center;
+    gap: .28rem;
+    border: 1px solid rgba(255,255,255,.55);
+    border-radius: 999px;
+    background: rgba(255,255,255,.94);
+    color: #111;
+    transition: transform .25s ease, background .25s ease;
+  }
+  .noddo-menu-button:hover { transform: rotate(5deg) scale(1.04); background: #fff; }
+  .noddo-menu-button span { display: block; width: .95rem; height: 1px; background: currentColor; }
+  .noddo-menu-button--dark { width: 2.35rem; height: 2.35rem; border-color: rgba(0,0,0,.25); background: transparent; }
+  .noddo-scroll-header {
+    position: fixed;
+    inset: 0 0 auto;
+    z-index: 70;
+    display: flex;
+    height: 76px;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 clamp(1.25rem, 3vw, 3rem);
+    border-bottom: 1px solid rgba(0,0,0,.1);
+    background: rgba(247,247,245,.96);
+    backdrop-filter: blur(18px);
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(-100%);
+    transition: transform .38s cubic-bezier(.22,1,.36,1), opacity .25s ease;
+  }
+  .noddo-scroll-header.is-visible { opacity: 1; pointer-events: auto; transform: translateY(0); }
+  .noddo-scroll-nav { display: flex; align-items: center; gap: clamp(1rem, 2.5vw, 2.25rem); font-size: .7rem; letter-spacing: .12em; text-transform: uppercase; }
+  .noddo-scroll-nav > a:not(.noddo-cart-link) { border-bottom: 1px solid transparent; padding: .65rem 0; }
+  .noddo-scroll-nav > a:not(.noddo-cart-link):hover { border-color: #111; }
+  .noddo-cart-link { border: 1px solid #111; border-radius: 999px; padding: .62rem 1rem; }
+  .noddo-menu { position: fixed; inset: 0; z-index: 100; display: flex; justify-content: flex-end; }
+  .noddo-menu[hidden] { display: none; }
+  .noddo-menu-backdrop { position: absolute; inset: 0; cursor: default; background: rgba(0,0,0,.45); backdrop-filter: blur(4px); }
+  .noddo-menu-panel {
+    position: relative;
+    display: flex;
+    width: min(100%, 32rem);
+    min-height: 100%;
+    flex-direction: column;
+    padding: 1.4rem clamp(1.4rem, 4vw, 3rem) 2.25rem;
+    background: #f7f7f5;
+    color: #111;
+    box-shadow: -2rem 0 5rem rgba(0,0,0,.15);
+    animation: noddo-menu-in .38s cubic-bezier(.22,1,.36,1) both;
+  }
+  .noddo-menu-head { display: flex; align-items: center; justify-content: space-between; }
+  .noddo-menu-close { display: grid; width: 2.75rem; height: 2.75rem; place-items: center; border: 1px solid rgba(0,0,0,.25); border-radius: 999px; font-size: 1.6rem; font-weight: 300; line-height: 1; }
+  .noddo-menu-links { display: flex; flex: 1; flex-direction: column; justify-content: center; padding: 3rem 0; }
+  .noddo-menu-links a { display: flex; align-items: baseline; gap: 1.25rem; border-bottom: 1px solid rgba(0,0,0,.12); padding: .65rem 0; font-size: clamp(2.5rem, 5vw, 4.75rem); font-weight: 400; letter-spacing: -.065em; line-height: .95; }
+  .noddo-menu-links a:first-child { border-top: 1px solid rgba(0,0,0,.12); }
+  .noddo-menu-links a:hover { padding-left: .35rem; }
+  .noddo-menu-links span { width: 1.3rem; color: rgba(0,0,0,.35); font-family: monospace; font-size: .62rem; letter-spacing: 0; }
+  .noddo-menu-foot { display: flex; align-items: end; justify-content: space-between; gap: 2rem; color: rgba(0,0,0,.45); font-family: monospace; font-size: .68rem; line-height: 1.25; text-transform: uppercase; }
+  .noddo-menu-foot a { color: #111; letter-spacing: .1em; }
+  .noddo-card--tall { grid-row: span 2 / span 2; }
+  .noddo-lines { background: repeating-linear-gradient(145deg, transparent 0 17px, #fff 18px 21px); }
+  @keyframes noddo-menu-in { from { opacity: 0; transform: translateX(4rem); } to { opacity: 1; transform: translateX(0); } }
+  @media (max-width: 639px) {
+    .noddo-card--tall { grid-row: auto; }
+    .noddo-scroll-nav > a:not(.noddo-cart-link) { display: none; }
+    .noddo-cart-link { padding: .55rem .8rem; }
+    .noddo-menu-panel { width: 100%; }
+    .noddo-menu-links a { font-size: clamp(2.3rem, 12vw, 4rem); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .noddo-scroll-header, .noddo-menu-panel, .noddo-menu-button { animation: none; transition: none; }
+  }
+</style>
+
+<script>
+  const scrollHeader = document.querySelector<HTMLElement>('[data-noddo-scroll-header]');
+  const hero = document.querySelector<HTMLElement>('#inicio');
+  const menu = document.querySelector<HTMLElement>('[data-noddo-menu]');
+  const menuToggles = [...document.querySelectorAll<HTMLButtonElement>('[data-noddo-menu-toggle]')];
+  const menuClosers = [...document.querySelectorAll<HTMLButtonElement>('[data-noddo-menu-close]')];
+  const menuLinks = [...document.querySelectorAll<HTMLAnchorElement>('[data-noddo-menu-link]')];
+  let menuTrigger: HTMLButtonElement | null = null;
+
+  const updateScrollHeader = (): void => {
+    if (!scrollHeader || !hero) return;
+    const visible = window.scrollY > Math.min(hero.offsetHeight * .36, 300);
+    scrollHeader.classList.toggle('is-visible', visible);
+    scrollHeader.inert = !visible;
+  };
+
+  const setMenu = (open: boolean, trigger?: HTMLButtonElement): void => {
+    if (!menu) return;
+    if (open && trigger) menuTrigger = trigger;
+    menu.hidden = !open;
+    document.body.classList.toggle('noddo-menu-open', open);
+    menuToggles.forEach((button) => button.setAttribute('aria-expanded', String(open)));
+    if (open) menu.querySelector<HTMLButtonElement>('[data-noddo-menu-close]')?.focus();
+    else menuTrigger?.focus();
+  };
+
+  menuToggles.forEach((button) => button.addEventListener('click', () => setMenu(true, button)));
+  menuClosers.forEach((button) => button.addEventListener('click', () => setMenu(false)));
+  menuLinks.forEach((link) => link.addEventListener('click', () => setMenu(false)));
+  document.addEventListener('keydown', (event) => { if (event.key === 'Escape' && menu && !menu.hidden) setMenu(false); });
+  window.addEventListener('scroll', updateScrollHeader, { passive: true });
+  window.addEventListener('resize', updateScrollHeader);
+  updateScrollHeader();
+
+  const updateNoddoCartCount = (): void => {
+    let count = 0;
+    try {
+      const cart = JSON.parse(localStorage.getItem('noddo-demo-cart') ?? '[]') as Array<{ qty?: number }>;
+      count = cart.reduce((sum, item) => sum + (Number(item.qty) || 0), 0);
+    } catch { count = 0; }
+    document.querySelectorAll<HTMLElement>('[data-noddo-count]').forEach((element) => { element.textContent = String(count); });
+  };
+  window.addEventListener('storage', updateNoddoCartCount);
+  updateNoddoCartCount();
+
+  const filters = [...document.querySelectorAll<HTMLButtonElement>('[data-noddo-filter]')];
+  const cards = [...document.querySelectorAll<HTMLElement>('[data-noddo-card]')];
+  filters.forEach((filter) => filter.addEventListener('click', () => {
+    const kind = filter.dataset.noddoFilter ?? 'all';
+    filters.forEach((item) => {
+      const active = item === filter;
+      item.setAttribute('aria-pressed', String(active));
+      item.classList.toggle('bg-black', active && kind !== 'all');
+      item.classList.toggle('text-white', active && kind !== 'all');
+      item.classList.toggle('text-black/35', !active);
+    });
+    cards.forEach((card) => card.classList.toggle('hidden', kind !== 'all' && card.dataset.kind !== kind));
+  }));
+
+  document.querySelector<HTMLFormElement>('[data-noddo-contact]')?.addEventListener('submit', (event) => {
+    event.preventDefault(); const button = (event.currentTarget as HTMLFormElement).querySelector('button'); if (button) button.textContent = '✓';
+  });
+</script>

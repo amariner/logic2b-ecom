@@ -1,0 +1,20 @@
+---
+interface Props {
+  product: {
+    slug: string;
+    name: string;
+    price: string;
+    category: string;
+    description: string;
+    image: string;
+    specs: readonly [string, string][];
+  };
+}
+
+const { product } = Astro.props as Props;
+---
+
+<article class="grid min-h-[calc(100vh-80px)] bg-white md:grid-cols-[1.2fr_.8fr]">
+  <div class="flex min-h-[58vh] items-center justify-center bg-[#ececea] p-5 sm:p-8 md:min-h-0 md:p-14"><img src={product.image} alt={product.name} width="1200" height="1200" loading="eager" decoding="async" class="aspect-square max-h-[78vh] w-full object-contain" /></div>
+  <div class="flex flex-col justify-between p-7 md:p-14"><div><p class="text-[9px] uppercase tracking-[.18em] text-black/60">{product.category} / SITĒGA</p><h1 class="mt-6 font-display text-6xl font-light leading-[.82] tracking-[-.075em] md:text-8xl">{product.name}</h1><p class="mt-6 text-xl">{product.price}</p><p class="mt-10 max-w-md text-sm leading-relaxed text-black/60">{product.description}</p><dl class="mt-10 divide-y divide-black/10 border-y border-black/10 text-sm">{product.specs.map(([label,value])=><div class="flex justify-between py-3"><dt class="text-black/60">{label}</dt><dd>{value}</dd></div>)}</dl></div><div class="mt-10"><button type="button" data-sitega-add={product.slug} class="w-full rounded-full bg-black px-6 py-4 text-[10px] uppercase tracking-[.15em] text-white">Añadir al carrito</button><p class="mt-4 text-center text-xs text-black/60">Demo visual · no se realizará ningún cobro</p></div></div>
+</article>

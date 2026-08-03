@@ -1,0 +1,12 @@
+export type StretchProduct={slug:string;name:string;category:string;subcategory?:string;price:string;oldPrice?:string;description:string;image:string;specs:readonly [string,string][]};
+const root='/images/collections/stretch';
+export const stretchProducts:readonly StretchProduct[]=[
+  {slug:'illuminating-cleansing-gel',name:'Gel limpiador iluminador',category:'ILUMINAR',price:'36,00 €',description:'Limpieza suave que elimina impurezas sin alterar la barrera cutánea.',image:`${root}/cleanser.jpg`,specs:[['Tipo de piel','Todas'],['Contenido','150 ml'],['Origen','Vegano']]},
+  {slug:'unifying-serum-spray',name:'Sérum unificador en spray',category:'UNIFICAR',subcategory:'AFINAR POROS',price:'34,00 €',description:'Bruma concentrada para afinar poros y equilibrar el tono.',image:`${root}/serum.jpg`,specs:[['Tipo de piel','Mixta'],['Contenido','50 ml'],['Uso','Mañana y noche']]},
+  {slug:'super-glow-set',name:'Set Super Glow',category:'LUZ NATURAL',price:'92,00 €',oldPrice:'99,00 €',description:'Rutina completa para recuperar luminosidad y elasticidad.',image:`${root}/glow-set.jpg`,specs:[['Incluye','3 productos'],['Rutina','Completa'],['Ahorro','7 €']]},
+  {slug:'radiance-day-oil',name:'Aceite de día Radiance',category:'PROTEGER',subcategory:'ILUMINAR',price:'59,00 €',description:'Aceite protector de rápida absorción con acabado radiante.',image:`${root}/day-oil.jpg`,specs:[['Tipo de piel','Seca'],['Contenido','30 ml'],['Acabado','Radiante']]},
+  {slug:'deep-moisture-cream',name:'Crema hidratante intensa',category:'HIDRATAR',subcategory:'NUTRIR',price:'48,00 €',description:'Hidratación nutritiva y duradera para pieles exigentes.',image:`${root}/cleanser.jpg`,specs:[['Tipo de piel','Seca'],['Contenido','50 ml'],['Textura','Crema rica']]},
+  {slug:'night-repair-elixir',name:'Elixir reparador nocturno',category:'RENOVAR',price:'72,00 €',oldPrice:'79,00 €',description:'Tratamiento nocturno concentrado para renovar y calmar.',image:`${root}/serum.jpg`,specs:[['Tipo de piel','Todas'],['Contenido','30 ml'],['Uso','Noche']]},
+  {slug:'gentle-exfoliating-toner',name:'Tónico exfoliante suave',category:'ALISAR',subcategory:'REFINAR',price:'42,00 €',description:'Exfoliación progresiva que alisa y refina la textura.',image:`${root}/glow-set.jpg`,specs:[['Tipo de piel','Mixta'],['Contenido','120 ml'],['Frecuencia','3 veces por semana']]},
+];
+export const stretchProductBySlug=new Map(stretchProducts.map((product)=>[product.slug,product]));

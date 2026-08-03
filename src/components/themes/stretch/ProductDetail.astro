@@ -1,0 +1,53 @@
+---
+import type { StretchProduct } from '../../../collections/stretch-products';
+
+interface Props { product: StretchProduct }
+const { product } = Astro.props as Props;
+---
+
+<article class="grid min-h-[calc(100vh-78px)] bg-[#f9f4f0] text-black lg:grid-cols-2">
+  <div class="relative min-h-[58vh] overflow-hidden bg-[#eee8e2] lg:min-h-0">
+    <img
+      src={product.image}
+      alt={product.name}
+      width="1195"
+      height="1600"
+      loading="eager"
+      decoding="async"
+      class="absolute inset-0 h-full w-full object-cover"
+    />
+    <span class="absolute bottom-5 left-5 rounded-full bg-[#f9f4f0]/90 px-4 py-2 text-[10px] uppercase tracking-[.15em] backdrop-blur-sm">
+      Fórmula consciente
+    </span>
+  </div>
+
+  <div class="flex flex-col justify-between px-6 py-10 sm:px-10 lg:px-14 lg:py-14 xl:px-20">
+    <div>
+      <p class="text-[10px] uppercase tracking-[.18em] text-black/60">{product.category} / STRETCH</p>
+      <h1 class="mt-7 max-w-xl text-5xl font-light leading-[.94] tracking-[-.055em] sm:text-6xl xl:text-7xl">{product.name}</h1>
+      <div class="mt-7 flex items-baseline gap-3 text-lg">
+        {product.oldPrice && <del class="text-black/60">{product.oldPrice}</del>}
+        <strong class="font-medium">{product.price}</strong>
+      </div>
+      <p class="mt-10 max-w-lg text-sm leading-7 text-black/60">{product.description}</p>
+      <dl class="mt-10 divide-y divide-black/10 border-y border-black/10 text-sm">
+        {product.specs.map(([label, value]) => (
+          <div class="flex items-center justify-between gap-6 py-4">
+            <dt class="text-black/60">{label}</dt>
+            <dd class="text-right">{value}</dd>
+          </div>
+        ))}
+      </dl>
+    </div>
+
+    <div class="mt-12">
+      <button type="button" data-stretch-add={product.slug} class="stretch-product-button w-full rounded-full bg-black px-6 py-4 text-[11px] uppercase tracking-[.15em] text-white transition hover:-translate-y-0.5 hover:bg-[#282828]">
+        Añadir al carrito
+      </button>
+      <div class="mt-5 flex justify-between gap-4 text-[10px] uppercase tracking-[.12em] text-black/60">
+        <span>Envío gratuito +50 €</span>
+        <span>Pago demo seguro</span>
+      </div>
+    </div>
+  </div>
+</article>

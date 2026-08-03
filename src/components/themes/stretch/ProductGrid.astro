@@ -1,0 +1,44 @@
+---
+/**
+ * STRETCH · ProductGrid — rejilla de producto del tema.
+ *
+ * TODO(tema stretch): replicar la composición de la referencia. Reglas:
+ *  · cero color/tamaño hardcodeado: leer tokens (--grid-gap, --surface-product,
+ *    --radius-card, --border-width…);
+ *  · botón de compra con data-attribute PROPIO (data-stretch-add) para no
+ *    colisionar con el handler genérico de Base;
+ *  · clases de Tailwind como literales (el escáner no ve clases dinámicas).
+ */
+type GridProduct = {
+  slug: string;
+  name: string;
+  price_cents: number;
+  image: string;
+  stock: number;
+};
+
+interface Props {
+  products: GridProduct[];
+}
+
+const { products } = Astro.props;
+
+const fmt = (cents: number) =>
+  new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(cents / 100);
+---
+
+<ul class="grid grid-cols-2 gap-[var(--grid-gap)] md:grid-cols-3">
+  {products.map((p) => (
+    <li>
+      <a href={`/demo/tienda/${p.slug}`} class="group block">
+        <div class="overflow-hidden rounded-[var(--radius-card)] bg-[var(--surface-product)]">
+          <img src={p.image} alt={p.name} loading="lazy" class="aspect-square w-full object-cover" />
+        </div>
+        <div class="mt-3 flex items-baseline justify-between gap-2">
+          <span class="font-display text-sm text-foreground">{p.name}</span>
+          <span class="text-sm text-muted-foreground">{fmt(p.price_cents)}</span>
+        </div>
+      </a>
+    </li>
+  ))}
+</ul>

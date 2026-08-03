@@ -22,6 +22,10 @@ import { streetCollection } from '../collections/street';
 import { industrialCollection } from '../collections/industrial';
 import { naturalCollection } from '../collections/natural';
 import { specsCollection } from '../collections/specs';
+import { noddoCollection } from '../collections/noddo';
+import { sitegaCollection } from '../collections/sitega';
+import { formaCollection } from '../collections/forma';
+import { stretchCollection } from '../collections/stretch';
 // new-theme:imports — no borrar: `pnpm new:theme <id>` añade aquí su import.
 import type { CollectionCategory, CollectionConfig } from '../collections/types';
 
@@ -45,6 +49,10 @@ export const collections: readonly CollectionConfig[] = [
   industrialCollection,
   naturalCollection,
   specsCollection,
+  noddoCollection,
+  sitegaCollection,
+  formaCollection,
+  stretchCollection,
   // new-theme:entries — no borrar: `pnpm new:theme <id>` añade aquí su entrada.
 ];
 

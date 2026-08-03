@@ -47,6 +47,40 @@ const ONLY = args.find((a) => a.startsWith('--only='))?.slice('--only='.length);
 const NO_WEBP = args.includes('--no-webp');
 const KEEP_PNG = args.includes('--keep-png');
 
+// `cwebp` era una dependencia implícita del entorno local. En equipos donde no
+// está instalado usamos Pillow (ya disponible en el runtime de desarrollo) para
+// que un tema nuevo pueda generar sus miniaturas sin bloquear la sesión.
+let imageConverter = 'cwebp';
+async function detectImageConverter() {
+  try {
+    await execFileP('cwebp', ['-version']);
+  } catch {
+    await execFileP('python3', ['-c', 'from PIL import Image']);
+    imageConverter = 'pillow';
+  }
+}
+
+const PILLOW_WEBP = `
+import sys
+from PIL import Image
+source, target, width, quality = sys.argv[1:]
+with Image.open(source) as image:
+    image = image.convert('RGB')
+    width = int(width)
+    if width > 0 and image.width != width:
+        height = round(image.height * width / image.width)
+        image = image.resize((width, height), Image.Resampling.LANCZOS)
+    image.save(target, 'WEBP', quality=int(quality), method=6)
+`;
+
+async function convertToWebp(source, target, width, quality) {
+  if (imageConverter === 'cwebp') {
+    await execFileP('cwebp', ['-quiet', '-q', String(quality), '-resize', String(width), '0', source, '-o', target]);
+    return;
+  }
+  await execFileP('python3', ['-c', PILLOW_WEBP, source, target, String(width), String(quality)]);
+}
+
 // ── Viewports ────────────────────────────────────────────────────────────
 const DESKTOP = { w: 1440, h: 900, dsf: 2, mobile: false };
 const MOBILE = { w: 390, h: 844, dsf: 2, mobile: true };
@@ -71,7 +105,7 @@ const CARD_WIDTHS = [900, 560];
  * aparecer en ninguna captura de la landing. Se inyecta antes de capturar.
  */
 const HIDE_DEMO_CHROME = `(() => {
-  document.querySelectorAll('[data-store-switcher]').forEach((el) => { el.style.display = 'none'; });
+  document.querySelectorAll('[data-store-switcher], [data-demo-journey], astro-dev-toolbar').forEach((el) => { el.style.display = 'none'; });
   const needles = ['pago está simulado', 'tienda ficticia', 'Modo demo', 'Panel de demostración', 'Cloudflare Access'];
   const nodes = Array.from(document.querySelectorAll('body *'));
   for (const el of nodes) {
@@ -80,6 +114,11 @@ const HIDE_DEMO_CHROME = `(() => {
       el.style.display = 'none';
     }
   }
+})()`;
+
+const REVEAL_STRETCH = `(async () => {
+  document.querySelectorAll('[data-stretch-reveal], [data-stretch-product]').forEach((element) => element.classList.add('is-visible'));
+  await new Promise((resolve) => setTimeout(resolve, 1100));
 })()`;
 
 // ── Lista de capturas ──────────────────────────────────────────────────────
@@ -101,6 +140,10 @@ const STORES = [
   { id: 'industrial', label: 'METRIA', catalog: '/demo/tiendas/industrial', full: true },
   { id: 'natural', label: 'Romer', catalog: '/demo/tiendas/natural', full: true },
   { id: 'specs', label: 'Kalibre', catalog: '/demo/tiendas/specs', full: true },
+  { id: 'noddo', label: 'NODDO', catalog: '/demo/tiendas/noddo', full: true, maxH: 2400 },
+  { id: 'sitega', label: 'Sitēga', catalog: '/demo/tiendas/sitega', full: true, maxH: 3000 },
+  { id: 'forma', label: 'Forma', catalog: '/demo/tiendas/forma', full: true, maxH: 3000 },
+  { id: 'stretch', label: 'STRETCH', catalog: '/demo/tiendas/stretch', full: true, maxH: 3000, eval: REVEAL_STRETCH },
   { id: 'demo', label: 'La Botiga', catalog: '/demo/tienda', full: true, maxH: 1700 },
 ];
 
@@ -111,9 +154,9 @@ const SHOTS = [];
 
 for (const s of STORES) {
   // Escaparate (versátil: la landing recorta/enmarca por CSS). Iris = viewport.
-  SHOTS.push({ name: `store-${s.id}-catalog`, url: s.catalog, vp: DESKTOP, full: s.full, maxH: s.maxH, group: 'desktop', card: true });
+  SHOTS.push({ name: `store-${s.id}-catalog`, url: s.catalog, vp: DESKTOP, full: s.full, maxH: s.maxH, eval: s.eval, group: 'desktop', card: true });
   // Móvil: framing de pantalla (viewport), no página completa.
-  SHOTS.push({ name: `store-${s.id}-catalog-m`, url: s.catalog, vp: MOBILE, group: 'mobile' });
+  SHOTS.push({ name: `store-${s.id}-catalog-m`, url: s.catalog, vp: MOBILE, eval: s.eval, group: 'mobile' });
 }
 
 // Ficha de producto: el producto firma de cada tienda. `product(slug)` respeta
@@ -128,6 +171,10 @@ const FICHAS = [
   { id: 'industrial', slug: 'ind-mv-320', prefix: '/demo/tiendas/industrial' },
   { id: 'natural', slug: 'nat-serum-niacinamida', prefix: '/demo/tiendas/natural' },
   { id: 'specs', slug: 'spe-platina-base', prefix: '/demo/tiendas/specs' },
+  { id: 'noddo', slug: 'power-node', prefix: '/demo/tiendas/noddo' },
+  { id: 'sitega', slug: 'basin-soft', prefix: '/demo/tiendas/sitega' },
+  { id: 'forma', slug: 'clear-01', prefix: '/demo/tiendas/forma' },
+  { id: 'stretch', slug: 'illuminating-cleansing-gel', prefix: '/demo/tiendas/stretch' },
   { id: 'demo', slug: 'aove-coupage-750', prefix: '/demo/tienda' },
 ];
 for (const f of FICHAS) {
@@ -341,6 +388,7 @@ async function main() {
   }
 
   await mkdir(OUT_DIR, { recursive: true });
+  if (!NO_WEBP) await detectImageConverter();
   const cookie = SHOTS.some((s) => s.auth) ? await adminCookie() : null;
 
   const { child, wsUrl } = await launchChrome();
@@ -414,12 +462,12 @@ async function main() {
       const cfg = WEBP[shot.group] ?? WEBP.desktop;
       const q = shot.q ?? cfg.q;
       const webp = join(OUT_DIR, `${shot.name}.webp`);
-      await execFileP('cwebp', ['-quiet', '-q', String(q), '-resize', String(cfg.width), '0', png, '-o', webp]);
+      await convertToWebp(png, webp, cfg.width, q);
       if (shot.card) {
         // Variantes para las tarjetas de la landing (ver CARD_WIDTHS arriba).
         for (const w of CARD_WIDTHS) {
           const card = join(OUT_DIR, `${shot.name}-${w}.webp`);
-          await execFileP('cwebp', ['-quiet', '-q', w === 900 ? '82' : '70', '-resize', String(w), '0', png, '-o', card]);
+          await convertToWebp(png, card, w, w === 900 ? 82 : 70);
         }
       }
       if (!KEEP_PNG) await rm(png, { force: true });

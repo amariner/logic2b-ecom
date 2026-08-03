@@ -1,0 +1,37 @@
+---
+/**
+ * STRETCH · Filters — filtros del catálogo del tema.
+ *
+ * TODO(tema stretch): darle la forma de la referencia (chips, sidebar, radios…).
+ * Contrato: filtra contra los MISMOS parámetros ?categoria= / ?orden= / ?q=
+ * de la tienda Base — la lógica de filtrado es motor, aquí solo cambia la piel.
+ */
+import type { CollectionConfig } from '../../../lib/collections';
+
+interface Props {
+  collection: CollectionConfig;
+  count: number;
+  activeCategory?: string | undefined;
+  sort: string;
+  search?: string | undefined;
+}
+
+const { collection, count, activeCategory } = Astro.props;
+const base = '/demo/tienda';
+---
+
+<nav aria-label="Categorías" class="flex flex-wrap items-center gap-2">
+  <span class="text-xs uppercase tracking-widest text-muted-foreground">Catálogo ({count})</span>
+  <a
+    href={base}
+    aria-current={!activeCategory ? 'page' : undefined}
+    class="rounded-[var(--radius-btn)] border-[length:var(--border-width)] border-border px-3 py-1 text-sm text-foreground aria-[current=page]:bg-brand aria-[current=page]:text-brand-fg"
+  >Todo</a>
+  {collection.categories.map((cat) => (
+    <a
+      href={`${base}?categoria=${cat.id}`}
+      aria-current={activeCategory === cat.id ? 'page' : undefined}
+      class="rounded-[var(--radius-btn)] border-[length:var(--border-width)] border-border px-3 py-1 text-sm text-foreground aria-[current=page]:bg-brand aria-[current=page]:text-brand-fg"
+    >{cat.label}</a>
+  ))}
+</nav>

@@ -38,6 +38,11 @@
 - [ ] Componentes en `src/components/themes/<id>/` — **cero color/tamaño
       hardcodeado**: todo lee tokens. Clases Tailwind como **literales**.
 - [ ] Botones de compra con data-attribute propio (`data-<id>-add`).
+- [ ] **Puente hacia la demo funcional visible.** Todas las páginas del tema se
+      montan con `Shop.astro` y conservan `DemoJourneyBanner`: una carcasa puede
+      tener productos estáticos distintos de D1, pero siempre muestra el enlace
+      `Gestor tienda` hacia `/demo/admin`. Ningún CSS del tema
+      puede ocultar `[data-demo-journey]`.
 - [ ] Texto siempre con color semántico explícito (`text-foreground` /
       `text-muted-foreground`) y superficie dark-aware (`bg-background` /
       `bg-muted`): el `<body>` de Base lleva `bg-white text-gray-900` fijos y NO
@@ -57,6 +62,9 @@
 - [ ] Navegador: catálogo (prístino y filtrado), búsqueda sin resultados, ficha,
       carrito con portes reales, checkout — a **1440px, 375px y modo oscuro**
       (`.dark` forzada en `<html>`).
+- [ ] Recorrido comercial: desde la franja se entiende que el tema es una
+      propuesta de presentación sobre el mismo motor y se puede abrir el
+      `Gestor tienda`, aunque los catálogos de muestra no coincidan.
 - [ ] `node scripts/a11y-audit.mjs --only=<id>` en verde (contra `wrangler dev`).
       Barre catálogo/ficha/carrito/checkout a 1440, 375, oscuro y reduced-motion.
 - [ ] `pnpm check` en verde (types + tests + build).

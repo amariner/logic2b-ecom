@@ -20,6 +20,10 @@ import StreetCatalog from '../themes/street/Catalog.astro';
 import IndustrialCatalog from '../themes/industrial/Catalog.astro';
 import NaturalCatalog from '../themes/natural/Catalog.astro';
 import SpecsCatalog from '../themes/specs/Catalog.astro';
+import NoddoCatalog from '../themes/noddo/Catalog.astro';
+import SitegaCatalog from '../themes/sitega/Catalog.astro';
+import FormaCatalog from '../themes/forma/Catalog.astro';
+import StretchCatalog from '../themes/stretch/Catalog.astro';
 
 interface Props {
   collection: CollectionConfig;
@@ -69,6 +73,10 @@ const catalogViews = {
   industrial: IndustrialCatalog,
   natural: NaturalCatalog,
   specs: SpecsCatalog,
+  noddo: NoddoCatalog,
+  sitega: SitegaCatalog,
+  forma: FormaCatalog,
+  stretch: StretchCatalog,
 } as const;
 const ThemedCatalog = catalogViews[collection.themeId as keyof typeof catalogViews] ?? null;
 ---

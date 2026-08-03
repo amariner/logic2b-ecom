@@ -1,0 +1,27 @@
+---
+/**
+ * Franja común de orientación para todas las demos.
+ *
+ * Las tiendas de temas pueden ser escaparates puramente visuales y usar un
+ * catálogo distinto al de D1. Este banner hace explícita esa frontera y lleva
+ * al observador hacia la demo transaccional y su backoffice compartido.
+ */
+interface Props {
+  themeName: string;
+}
+
+const { themeName } = Astro.props;
+---
+
+<aside data-demo-journey class="relative z-[90] border-b border-white/10 bg-[#111] text-white">
+  <div class="mx-auto flex min-h-10 max-w-[1440px] flex-col justify-center gap-2 px-4 py-2 text-[11px] leading-snug sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
+    <p class="max-w-3xl text-white/70">
+      <strong class="font-semibold text-white">Tema {themeName}</strong>
+      {' '}— cada propuesta cambia la presentación; el motor de tienda funciona igual detrás de todas.
+    </p>
+
+    <nav aria-label="Recorrido de la demo" class="flex shrink-0 flex-wrap items-center gap-x-4 gap-y-1 font-medium">
+      <a href="/demo/admin" class="underline decoration-white/35 underline-offset-2 hover:decoration-white">Gestor tienda</a>
+    </nav>
+  </div>
+</aside>

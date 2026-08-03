@@ -1,0 +1,22 @@
+---
+import Shop from '../../../../layouts/Shop.astro';
+import { formaCollection } from '../../../../collections/forma';
+import { formaProductBySlug } from '../../../../collections/forma-products';
+import FormaProductDetail from '../../../../components/themes/forma/ProductDetail.astro';
+
+export const prerender = false;
+const product = formaProductBySlug.get(Astro.params.slug ?? '');
+if (!product) return new Response(null, { status: 404 });
+---
+
+<Shop title={product.name} description={product.description} collection={formaCollection}>
+  <main class="bg-[#f7f7f5] text-[#111]"><header class="flex items-center justify-between border-b border-black/10 px-5 py-5 md:px-10"><a href="/demo/tiendas/forma" class="text-xl font-medium tracking-[-.06em]">Forma</a><nav class="flex items-center gap-5 text-[10px] uppercase tracking-[.12em]"><a href="/demo/tiendas/forma">Catálogo</a><a href="/demo/tiendas/forma/carrito" class="rounded-full border border-black px-4 py-2">Carrito <span data-forma-count>0</span></a></nav></header><FormaProductDetail product={product} /></main>
+  <script is:inline define:vars={{ slug: product.slug, productName: product.name, price: product.price, image: product.image }}>
+    const key='forma-demo-cart';
+    const read=()=>{try{return JSON.parse(localStorage.getItem(key)||'[]')}catch{return[]}};
+    const update=()=>document.querySelectorAll('[data-forma-count]').forEach(el=>el.textContent=String(read().reduce((sum,item)=>sum+item.qty,0)));
+    const addButton=document.querySelector('[data-forma-add]');
+    addButton?.addEventListener('click',()=>{const cart=read();const found=cart.find(item=>item.slug===slug);if(found)found.qty+=1;else cart.push({slug,name:productName,price,image,qty:1});localStorage.setItem(key,JSON.stringify(cart));addButton.textContent='Añadido ✓';update()});
+    update();
+  </script>
+</Shop>
