@@ -1,14 +1,17 @@
 ---
-import Shop from '../../../../layouts/Shop.astro';
+import CartPage from '../../../../components/store/CartPage.astro';
 import { formaCollection } from '../../../../collections/forma';
+import '../../../../components/themes/forma/commerce.css';
 ---
 
-<Shop title="Carrito" description="Carrito visual Forma" collection={formaCollection}>
-  <main class="min-h-screen bg-[#f7f7f5] px-5 py-8 text-[#111] md:px-10"><header class="flex items-center justify-between border-b border-black/10 pb-6"><a href="/demo/tiendas/forma" class="text-xl font-medium tracking-[-.06em]">Forma</a><a href="/demo/tiendas/forma" class="text-[10px] uppercase tracking-[.12em]">Seguir viendo</a></header><div class="mx-auto max-w-4xl py-14"><p class="text-[10px] uppercase tracking-widest text-black/60">Carrito / Demo</p><h1 class="mt-3 font-display text-6xl font-light tracking-[-.07em]">Tus productos.</h1><div data-forma-cart class="mt-12"></div><div data-forma-empty class="hidden py-20 text-center text-black/60">Tu carrito está vacío.</div><div data-forma-summary class="mt-10 hidden border-t border-black/10 pt-6"><div class="flex justify-between text-xl"><span>Total demo</span><strong data-forma-total></strong></div><a href="/demo/tiendas/forma/checkout" class="mt-8 block rounded-full bg-black px-6 py-4 text-center text-[10px] uppercase tracking-widest text-white">Continuar compra</a></div></div></main>
-  <script>
-    type CartItem={slug:string;name:string;price:string;image:string;qty:number};
-    const key='forma-demo-cart'; const root=document.querySelector<HTMLElement>('[data-forma-cart]'); const empty=document.querySelector<HTMLElement>('[data-forma-empty]'); const summary=document.querySelector<HTMLElement>('[data-forma-summary]'); const totalElement=document.querySelector<HTMLElement>('[data-forma-total]');
-    const cart=(()=>{try{return JSON.parse(localStorage.getItem(key)||'[]') as CartItem[]}catch{return[] as CartItem[]}})();
-    if(!cart.length) empty?.classList.remove('hidden'); else if(root&&summary&&totalElement){root.innerHTML=cart.map((item)=>`<article class="flex items-center gap-5 border-b border-black/10 py-5"><img src="${item.image}" alt="" class="h-24 w-32 bg-[#ececea] object-contain"><div class="flex-1"><h2 class="text-xl">${item.name}</h2><p class="text-sm text-black/60">${item.price}</p></div><span>× ${item.qty}</span></article>`).join(''); summary.classList.remove('hidden'); const total=cart.reduce((sum,item)=>sum+Number(item.price.replace('.','').replace(',','.').replace(' €',''))*item.qty,0); totalElement.textContent=new Intl.NumberFormat('es-ES',{style:'currency',currency:'EUR'}).format(total)}
-  </script>
-</Shop>
+<CartPage collection={formaCollection}>
+  <Fragment slot="heading">
+    <header class="forma-commerce-header">
+      <a href="/demo/tiendas/forma" class="text-xl font-medium tracking-[-.06em]">Forma</a>
+      <a href="/demo/tiendas/forma" class="text-[10px] uppercase tracking-[.12em]">Seguir viendo</a>
+    </header>
+    <p class="mt-14 text-[10px] uppercase tracking-widest text-black/60">Carrito / Demo</p>
+    <h1 class="mt-3 font-display text-6xl font-light tracking-[-.07em]">Tus productos.</h1>
+  </Fragment>
+  <p slot="empty">Tu carrito está vacío.</p>
+</CartPage>

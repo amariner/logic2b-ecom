@@ -4,9 +4,9 @@
  *   pnpm preview            # terminal 1 (o cualquier deploy con DEMO_MODE)
  *   pnpm test:e2e           # terminal 2  (BASE_URL para apuntar a otro sitio)
  *
- * Cubre: reset → quote → checkout simulado (con NIF opcional) → pedido pagado
- * → stock decrementado → login admin → CSV → marcar enviado → email de aviso
- * en la bandeja → APIs admin cerradas sin sesión. Sin dependencias.
+ * Cubre: reset → compra genérica → compra Forma sobre el mismo motor → stock
+ * decrementado → login admin → CSV → marcar enviado → email de aviso en la
+ * bandeja → APIs admin cerradas sin sesión. Sin dependencias.
  */
 const BASE = process.env.BASE_URL ?? 'http://localhost:8787';
 const ORIGIN = { origin: new URL(BASE).origin };
@@ -84,13 +84,68 @@ const quote2 = await json(
 const stockAfter = quote2?.lines?.find((l) => l.slug === 'aove-picual-500')?.available_stock;
 check('stock decrementado tras el pago', stockAfter === stockBefore - 2, `${stockBefore} → ${stockAfter}`);
 
-// ── 4. Admin cerrado sin sesión ──────────────────────────────────────
+// ── 4. Forma recorre el mismo motor de extremo a extremo ────────────
+const FORMA_LINES = [{ slug: 'for-clear-01', qty: 2 }];
+const formaQuoteRes = await fetch(`${BASE}/api/cart/quote`, {
+  method: 'POST',
+  headers: { 'content-type': 'application/json' },
+  body: JSON.stringify({ lines: FORMA_LINES, postal_code: '12001' }),
+});
+const formaQuote = await json(formaQuoteRes);
+check('Forma: quote responde', formaQuoteRes.ok && formaQuote?.purchasable === true, `HTTP ${formaQuoteRes.status}`);
+check('Forma: el servidor fija el subtotal', formaQuote?.subtotal_cents === 33000, `subtotal ${formaQuote?.subtotal_cents}`);
+const formaStockBefore = formaQuote?.lines?.find((line) => line.slug === 'for-clear-01')?.available_stock;
+check('Forma: quote expone stock D1', typeof formaStockBefore === 'number', String(formaStockBefore));
+
+const formaCheckoutRes = await fetch(`${BASE}/api/checkout/session`, {
+  method: 'POST',
+  headers: { 'content-type': 'application/json' },
+  body: JSON.stringify({
+    lines: FORMA_LINES,
+    collection: 'forma',
+    customer: {
+      name: 'Forma E2E',
+      email: 'forma-e2e@example.com',
+      street: 'C/ Taller 12',
+      city: 'Castelló',
+      postal_code: '12001',
+    },
+  }),
+});
+const formaCheckout = await json(formaCheckoutRes);
+check('Forma: checkout crea el pedido', formaCheckoutRes.ok && typeof formaCheckout?.order_number === 'string', `HTTP ${formaCheckoutRes.status}`);
+check(
+  'Forma: checkout vuelve a su página de gracias',
+  String(formaCheckout?.url ?? '').includes('/demo/tiendas/forma/gracias?session_id=sim_'),
+  formaCheckout?.url,
+);
+
+const formaSessionId = new URL(formaCheckout.url).searchParams.get('session_id');
+const formaGracias = await fetch(`${BASE}/demo/tiendas/forma/gracias?session_id=${formaSessionId}`);
+const formaGraciasHtml = await formaGracias.text();
+check('Forma: gracias muestra el pedido real', formaGracias.ok && formaGraciasHtml.includes(formaCheckout.order_number));
+check(
+  'Forma: gracias muestra total y destinatario reales',
+  formaGraciasHtml.includes('330,00') && formaGraciasHtml.includes('forma-e2e@example.com'),
+);
+
+const formaQuoteAfter = await json(
+  await fetch(`${BASE}/api/cart/quote`, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ lines: [{ slug: 'for-clear-01', qty: 1 }] }),
+  }),
+);
+const formaStockAfter = formaQuoteAfter?.lines?.find((line) => line.slug === 'for-clear-01')?.available_stock;
+check('Forma: el pago decrementa stock', formaStockAfter === formaStockBefore - 2, `${formaStockBefore} → ${formaStockAfter}`);
+
+// ── 5. Admin cerrado sin sesión ──────────────────────────────────────
 const noAuth = await fetch(`${BASE}/api/admin/orders/export.csv`);
 check('API admin sin sesión → 401', noAuth.status === 401, `HTTP ${noAuth.status}`);
 const adminRedirect = await fetch(`${BASE}/demo/admin`, { redirect: 'manual' });
 check('panel sin sesión redirige al login', adminRedirect.status === 302 && String(adminRedirect.headers.get('location')).includes('/demo/admin/login'));
 
-// ── 5. Login y CSV ───────────────────────────────────────────────────
+// ── 6. Login y CSV ───────────────────────────────────────────────────
 const login = await fetch(`${BASE}/demo/admin/login`, {
   method: 'POST',
   redirect: 'manual',
@@ -111,7 +166,7 @@ check(
   backup.ok && backupText.includes('INSERT INTO products') && backupText.includes(checkout.order_number),
 );
 
-// ── 6. Marcar enviado → email de aviso en la bandeja ─────────────────
+// ── 7. Marcar enviado → email de aviso en la bandeja ─────────────────
 const orderIdMatch = (await (await fetch(`${BASE}/demo/admin`, { headers: { cookie } })).text()).match(
   new RegExp(`/demo/admin/pedidos/(\\d+)"[^>]*>${checkout.order_number}`),
 );
@@ -132,7 +187,7 @@ const emailsHtml = await (await fetch(`${BASE}/demo/admin/emails`, { headers: { 
 check('bandeja con confirmación de pedido', emailsHtml.includes(checkout.order_number));
 check('bandeja con aviso de envío (tracking)', emailsHtml.includes('E2E123') || emailsHtml.includes('camino'));
 
-// ── 7. Validación de la API de productos del admin ───────────────────
+// ── 8. Validación de la API de productos del admin ───────────────────
 const productosHtml = await (await fetch(`${BASE}/demo/admin/productos`, { headers: { cookie } })).text();
 const productIdMatch = productosHtml.match(/data-field="name" data-id="(\d+)"/);
 const productId = productIdMatch?.[1];
@@ -180,7 +235,7 @@ check(
   JSON.stringify(quoteAfterStockPatch?.lines?.[0]),
 );
 
-// ── 8. Rate limit del login (10/min por IP; ya gastamos 1 en el paso 5) ──
+// ── 9. Rate limit del login (10/min por IP; ya gastamos 1 en el paso 6) ──
 let lastLoginRes;
 for (let i = 0; i < 9; i++) {
   lastLoginRes = await fetch(`${BASE}/demo/admin/login`, {

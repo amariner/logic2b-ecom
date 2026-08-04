@@ -174,7 +174,7 @@ const FICHAS = [
   { id: 'specs', slug: 'spe-platina-base', prefix: '/demo/tiendas/specs' },
   { id: 'noddo', slug: 'power-node', prefix: '/demo/tiendas/noddo' },
   { id: 'sitega', slug: 'basin-soft', prefix: '/demo/tiendas/sitega' },
-  { id: 'forma', slug: 'clear-01', prefix: '/demo/tiendas/forma' },
+  { id: 'forma', slug: 'for-clear-01', prefix: '/demo/tiendas/forma' },
   { id: 'stretch', slug: 'illuminating-cleansing-gel', prefix: '/demo/tiendas/stretch' },
   { id: 'arce', slug: 'arc-silla-alba', prefix: '/demo/tiendas/arce' },
   { id: 'demo', slug: 'aove-coupage-750', prefix: '/demo/tienda' },

@@ -17,7 +17,7 @@ Este repositorio es dos cosas a la vez:
 | Estilos | Tailwind CSS v4 |
 | Pagos | Stripe Checkout alojado (la tarjeta nunca toca nuestro servidor) |
 | Emails | Resend (en demo: capturados en D1, visibles en `/demo/admin/emails`) |
-| Tests | Vitest (101: precios, envío, transiciones, webhook/idempotencia de pago, entrega de emails, auth, rate limit, backup, JSON-LD, HTML escaping, CSV) + E2E de 27 pasos |
+| Tests | Vitest (172: precios, envío, transiciones, webhook/idempotencia de pago, entrega de emails, auth, rate limit, backup, JSON-LD, HTML escaping, CSV y contrato de storefront) + E2E de 35 pasos |
 
 ## Requisitos
 
@@ -48,7 +48,7 @@ Verificación completa (tipos + tests + build):
 pnpm check
 ```
 
-E2E del flujo de compra simulado (contra un `pnpm preview` en marcha; 27 comprobaciones: quote, checkout, stock, auth del panel, CSV, envío con tracking, emails, backup, validación de la API de productos y rate limit del login):
+E2E del flujo de compra simulado (contra un `pnpm preview` en marcha; 35 comprobaciones: recorrido genérico y Forma sobre el mismo motor, quote, checkout, stock, auth del panel, CSV, envío con tracking, emails, backup, validación de la API de productos y rate limit del login):
 
 ```bash
 pnpm test:e2e    # BASE_URL=… para apuntar a otro despliegue con DEMO_MODE

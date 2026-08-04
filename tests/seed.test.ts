@@ -48,11 +48,12 @@ describe('integridad del seed', () => {
   it('cada imagen referenciada por el seed corresponde a una variante declarada', async () => {
     const { imageVariants } = await import('../seed/image-variants');
     const allProducts = seedStatements().filter((stmt) => stmt.includes('INSERT INTO products'));
-    // Los productos de colección (9B.3) llevan imagen propia por slug, no
-    // variantes de placeholder: /images/collections/<id>/<slug>.webp.
+    // Los productos de colección (9B.3) llevan un asset local propio, no una
+    // variante del placeholder genérico. El nombre puede conservar el del
+    // render editorial original cuando el seed declara `image` explícitamente.
     const collectionStmts = allProducts.filter((stmt) => stmt.includes('/images/collections/'));
     for (const stmt of collectionStmts) {
-      expect(stmt).toMatch(/\/images\/collections\/[a-z0-9-]+\/[a-z0-9-]+\.webp/);
+      expect(stmt).toMatch(/\/images\/collections\/[a-z0-9-]+\/[a-z0-9-]+\.(?:webp|jpe?g|png)/);
     }
     const stmts = allProducts.filter((stmt) => !stmt.includes('/images/collections/'));
     for (const stmt of stmts) {

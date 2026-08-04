@@ -25,7 +25,7 @@ const isDefaultStore = collection.id === DEFAULT_COLLECTION_ID;
 ---
 
 <Shop title="Gracias" description="Confirmación de pedido" collection={collection}>
-  <main class="mx-auto max-w-xl px-4 py-16 text-center" data-commerce-surface="thanks">
+  <main class="mx-auto max-w-xl px-4 py-16 text-center" data-commerce-surface="thanks" data-order-confirmed={order ? 'true' : 'false'}>
     {order ? (
       <div data-commerce-part="success">
         <slot name="success">
@@ -81,6 +81,6 @@ const isDefaultStore = collection.id === DEFAULT_COLLECTION_ID;
   <script>
     import { clearCart } from '../../lib/cart-client';
     // El pedido ya está registrado en servidor; el carrito local ya no aplica.
-    if (document.querySelector('main strong')) clearCart();
+    if (document.querySelector('[data-commerce-surface="thanks"]')?.getAttribute('data-order-confirmed') === 'true') clearCart();
   </script>
 </Shop>

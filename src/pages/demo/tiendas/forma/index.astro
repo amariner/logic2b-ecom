@@ -1,14 +1,8 @@
 ---
-/** Forma es una carcasa editorial estática: su catálogo no consulta D1. */
-import Shop from '../../../../layouts/Shop.astro';
-import FormaCatalog from '../../../../components/themes/forma/Catalog.astro';
+import CatalogPage from '../../../../components/store/CatalogPage.astro';
 import { formaCollection } from '../../../../collections/forma';
-import { storePaths } from '../../../../lib/collections';
 
 export const prerender = false;
-const paths = storePaths(formaCollection.id);
 ---
 
-<Shop title="Forma" description={formaCollection.description} collection={formaCollection}>
-  <FormaCatalog paths={paths} products={[]} collection={formaCollection} sort="featured" />
-</Shop>
+<CatalogPage collection={formaCollection} db={Astro.locals.runtime.env.DB} url={Astro.url} />

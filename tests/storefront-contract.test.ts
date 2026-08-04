@@ -29,7 +29,7 @@ const routeModules = import.meta.glob<string>('../src/pages/demo/tiendas/**/*.as
   import: 'default',
 });
 
-const LEGACY_THEMES = ['forma', 'noddo', 'sitega', 'stretch'] as const;
+const LEGACY_THEMES = ['noddo', 'sitega', 'stretch'] as const;
 
 type LegacyTheme = (typeof LEGACY_THEMES)[number];
 type Debt = {
@@ -142,6 +142,27 @@ describe('rutas canónicas del motor', () => {
     expect(dynamicCheckoutRoute).toContain('CheckoutPage');
     expect(dynamicThanksRoute).toContain('ThanksPage');
     expect(dynamicThanksRoute).toContain('getOrderBySessionId');
+  });
+
+  it('Forma compone el mismo motor de extremo a extremo', () => {
+    const product = sourceForThemePage('forma', '[slug].astro');
+    const cart = sourceForThemePage('forma', 'carrito.astro');
+    const checkout = sourceForThemePage('forma', 'checkout.astro');
+    const thanks = sourceForThemePage('forma', 'gracias.astro');
+
+    expect(product).toContain('ProductPage');
+    expect(product).toContain('getProductBySlug');
+    expect(cart).toContain('CartPage');
+    expect(checkout).toContain('CheckoutPage');
+    expect(thanks).toContain('ThanksPage');
+    expect(thanks).toContain('getOrderBySessionId');
+    expect(debtForTheme('forma')).toEqual({
+      customCartKey: false,
+      textPriceArithmetic: false,
+      productMap: false,
+      checkoutWithoutEngine: false,
+      duplicatedSubmit: false,
+    });
   });
 });
 

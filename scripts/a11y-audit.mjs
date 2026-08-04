@@ -77,7 +77,8 @@ const STORES = [
   { id: 'editorial', label: 'Módulo Audio', prefix: '/demo/tiendas/editorial', slug: 'edi-radio-r2', cartKey: 'ecom-cart:editorial' },
   { id: 'guide', label: 'Cafetal', prefix: '/demo/tiendas/guide', slug: 'cof-molinillo-manual', cartKey: 'ecom-cart:guide' },
   { id: 'iris', label: 'Iris', prefix: '/demo/tiendas/iris', slug: 'iri-sport-pro', cartKey: 'ecom-cart:iris' },
-  // Estas cuatro carcasas visuales tienen un carrito de muestra independiente
+  { id: 'forma', label: 'Forma', prefix: '/demo/tiendas/forma', slug: 'for-clear-01', cartKey: 'ecom-cart:forma' },
+  // Estas tres carcasas visuales tienen un carrito de muestra independiente
   // de D1. Se siembra la forma real que leen sus páginas, no un `{slug, qty}`
   // del motor, y se omite el estado de portes porque no hay cotización remota.
   {
@@ -87,10 +88,6 @@ const STORES = [
   {
     id: 'sitega', label: 'Sitēga', prefix: '/demo/tiendas/sitega', slug: 'basin-soft', cartKey: 'sitega-demo-cart', canQuote: false,
     cartValue: JSON.stringify([{ slug: 'basin-soft', name: 'Soft 01', price: '289,00 €', image: '/images/collections/sitega/basin-soft.jpg', qty: 2 }]),
-  },
-  {
-    id: 'forma', label: 'Forma', prefix: '/demo/tiendas/forma', slug: 'clear-01', cartKey: 'forma-demo-cart', canQuote: false,
-    cartValue: JSON.stringify([{ slug: 'clear-01', name: 'Clear 01', price: '165,00 €', image: '/images/collections/forma/frame-clear.jpg', qty: 2 }]),
   },
   {
     id: 'stretch', label: 'STRETCH', prefix: '/demo/tiendas/stretch', slug: 'illuminating-cleansing-gel', cartKey: 'stretch-demo-cart', canQuote: false,

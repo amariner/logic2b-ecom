@@ -89,7 +89,7 @@ local; demo local reseteada al terminar.
 
 ### C14.2 — Migrar una tienda verticalmente
 
-**Es el bloque de la próxima sesión.**
+**✅ Cerrado el 2026-08-04.**
 
 Migrar **Forma** primero: ficha → añadir al carrito compartido → quote de
 envío → checkout simulado/Stripe según entorno → pedido → gracias. Forma es la
@@ -104,7 +104,17 @@ Criterios de cierre:
 - E2E completo, auditor a11y de Forma y `pnpm check` verdes;
 - capturas 1440/375 revisadas.
 
+Resultado: Forma conserva su catálogo y ficha editoriales, pero sus seis
+productos, precios, stock y especificaciones salen ya de D1. Ficha, carrito,
+checkout y gracias componen las cuatro superficies compartidas; desaparecen
+`forma-products.ts`, `forma-demo-cart`, la suma de precios textuales y el
+checkout independiente. El E2E añade una compra Forma real hasta pedido y
+decremento de stock. Verificado con `pnpm check` (172/172), E2E de 35 pasos,
+auditor Forma (9 superficies, 0 errores/avisos) y capturas 1440/375 revisadas.
+
 ### C14.3 — Migrar Noddo, Sitēga y Stretch
+
+**Es el bloque de la próxima sesión.**
 
 Aplicar el patrón de Forma sin copiar lógica. Si una necesidad visual obliga a
 tocar negocio, parar: es una carencia del contrato del tema, no permiso para
@@ -199,7 +209,7 @@ Al recibir **«continúa desarrollando el proyecto»**:
 1. sincronizar Git y comprobar que este documento sigue vigente;
 2. leer `CLAUDE.md`, `docs/CONTINUAR.md`, la sección «Próxima sesión» del
    roadmap y este documento;
-3. ejecutar solo el primer bloque C14 pendiente (ahora C14.2);
+3. ejecutar solo el primer bloque C14 pendiente (ahora C14.3);
 4. verificar según el protocolo;
 5. actualizar este archivo y el roadmap antes de commit/push;
 6. no declarar Fase 9B cerrada hasta completar C14.3.

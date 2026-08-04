@@ -1,6 +1,16 @@
 ---
-import Shop from '../../../../layouts/Shop.astro';
+import CheckoutPage from '../../../../components/store/CheckoutPage.astro';
 import { formaCollection } from '../../../../collections/forma';
+import '../../../../components/themes/forma/commerce.css';
 ---
 
-<Shop title="Checkout" description="Checkout visual Forma" collection={formaCollection}><main class="min-h-screen bg-[#f7f7f5] px-5 py-8 text-[#111]"><div class="mx-auto max-w-xl"><a href="/demo/tiendas/forma" class="text-xl font-medium tracking-[-.06em]">Forma</a><p class="mt-16 text-[10px] uppercase tracking-widest text-black/60">Compra / Demo</p><h1 class="mt-3 font-display text-6xl font-light tracking-[-.07em]">Envío.</h1><form data-forma-checkout class="mt-10 space-y-4"><input aria-label="Nombre y apellidos" required autocomplete="name" placeholder="Nombre y apellidos" class="w-full rounded-lg border border-black/15 bg-white px-4 py-4"><input aria-label="Email" required type="email" autocomplete="email" placeholder="Email" class="w-full rounded-lg border border-black/15 bg-white px-4 py-4"><input aria-label="Dirección" required autocomplete="street-address" placeholder="Dirección" class="w-full rounded-lg border border-black/15 bg-white px-4 py-4"><div class="grid grid-cols-2 gap-4"><input aria-label="Código postal" required autocomplete="postal-code" placeholder="Código postal" class="rounded-lg border border-black/15 bg-white px-4 py-4"><input aria-label="Ciudad" required autocomplete="address-level2" placeholder="Ciudad" class="rounded-lg border border-black/15 bg-white px-4 py-4"></div><button class="w-full rounded-full bg-black px-6 py-4 text-[10px] uppercase tracking-widest text-white">Completar pedido demo</button><p class="text-center text-xs text-black/60">No se solicitarán datos de tarjeta ni se realizará ningún cobro.</p></form></div></main><script>document.querySelector('[data-forma-checkout]')?.addEventListener('submit',(event)=>{event.preventDefault();localStorage.removeItem('forma-demo-cart');window.location.assign('/demo/tiendas/forma/gracias')})</script></Shop>
+<CheckoutPage collection={formaCollection}>
+  <Fragment slot="heading">
+    <a href="/demo/tiendas/forma" class="text-xl font-medium tracking-[-.06em]">Forma</a>
+    <p class="mt-16 text-[10px] uppercase tracking-widest text-black/60">Compra / Demo</p>
+    <h1 class="mt-3 font-display text-6xl font-light tracking-[-.07em]">Envío.</h1>
+  </Fragment>
+  <p slot="intro" class="mt-3 text-sm text-black/60">El total se valida en servidor. La demo registra el pedido sin solicitar datos de tarjeta.</p>
+  <Fragment slot="submit-label">Completar pedido demo</Fragment>
+  <p slot="footnote" class="mt-3 text-center text-xs text-black/60">No se solicitarán datos de tarjeta ni se realizará ningún cobro.</p>
+</CheckoutPage>
