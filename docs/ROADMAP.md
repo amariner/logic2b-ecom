@@ -58,7 +58,7 @@ reconciliación se conserva abajo por contexto.
 | 6 | Deploy ecom.logic2b.com + cron reset + README + docs/CLIENTE.md | ✅ Hecho | 2026-07-18 | **Desplegado y en vivo en https://ecom.logic2b.com** (Worker `ecom-logic2b`, D1 remota `ecom-demo` id `7ae9b06d…`, custom domain + cron reset activos). Pagos en **modo simulado** (sin Stripe) |
 | 7 | bootstrap.sh + checklist demo→cliente real | ✅ Hecho | 2026-07-18 | `scripts/bootstrap.sh` (local probado end-to-end; `--remote` aprovisiona Cloudflare) + `docs/PRODUCCION.md` |
 | 9 | Catálogo de estilos (8 temas) | 🟡 En curso | 2026-07-21 | Arquitectura + `/estilos` + **temas 06 Minimal, 01 Editorial, 07 Launch y 04 Guide desarrollados** (5 listos con Base; registro de catálogo por tema generalizado). **Replanteada como Fase 9B** (ver abajo): de «una tienda, 8 pieles» a «8 tiendas, un motor» |
-| 9B | 8 tiendas distintas sobre un solo motor | 🟡 En curso | 2026-08-03 | **9B.0–9B.4 hechos.** Rutas por colección, selector/cookie eliminados, carrito namespaceado. **Las 14 tiendas vivas** (Forma Interior, Módulo Audio, Cafetal, Vector, Iris, ASFALTO, METRIA, ROMER, KALIBRE, NODDO, Sitēga, Forma, STRETCH y La Botiga) con catálogo, tema e imaginería propios. Las cuatro últimas se incorporan como carcasas visuales independientes con recorrido local y puente al motor. **Fase 9B completa.** 158 tests. Ver «Fase 9B» |
+| 9B/C14 | Tiendas distintas sobre un solo motor | 🔴 Reabierta | 2026-08-03 | **9B.0–9B.4 anteriores hechos, pero la promesa “un motor” no está cerrada.** NODDO, Sitēga, Forma y STRETCH usan carritos `localStorage`, totales en cliente y checkouts visuales independientes; no existe todavía el supuesto puente al quote/checkout/pedido compartido. Prioridad C14.1–C14.4 en [`REVISION_CODEX_2026-08-03.md`](REVISION_CODEX_2026-08-03.md). 158 tests actuales. No declarar completa hasta C14.3. |
 | 10 | Documentación para el cliente | 🟡 Casi completa | 2026-07-24 | **Ejecutada como F11.7** (ver Fase 11): `/ayuda` (noindex) con manual de 3 pasos + guías + runbook, acta de entrega e inventario de accesos en `docs/plantillas/`, dossier con «qué pasa si nos vamos», guion del vídeo. Pendiente: grabar el vídeo (Andreu) y confirmar las decisiones a/b/c asumidas |
 | 11 | Landing V2 «nivel Awwwards» + negocio + funnel + docs | 🟡 En curso | 2026-07-24 | **F11.1, F11.3 (2 sesiones), F11.4, F11.5, F11.6, F11.7 y F11.8 (primera pasada + pase a11y/contenido desde cloud 2026-07-24) hechos**, más F11.8b (auditor de a11y, cloud), F11.2a-1 (tienda ASFALTO / tema Street), F11.2a-2 (tienda METRIA / tema Industrial) F11.2a-3 (tienda ROMER / tema Natural) y **F11.2a-4 (tienda KALIBRE / tema Specs, local 2026-07-25) — con la que F11.2a queda CERRADA (10/10 tiendas)**; y **F11.8c (Lighthouse citable + OG de WhatsApp + URLs sin redirección, local 2026-07-26)**; y **F11.8d–e (tabla de Lighthouse cerrada y desplegada: 7 de 8 superficies a 100×4, la landing entre ellas en móvil y escritorio, local 2026-07-27)**; de la cola de F11.8 solo queda la submission a Awwwards (decisión de pago: Andreu). Detalle por bloque abajo. (ver «Fase 11» abajo). **Plan maestro completo en [`docs/PLAN_FASE11_LANDING_V2.md`](PLAN_FASE11_LANDING_V2.md)**: bloques F11.0–F11.8 ejecutables por sesiones independientes. **Decisiones D1–D6 APROBADAS por Andreu (2026-07-23)**: JS propio ≤15 KB sin deps, capturas con browser tools en local, dirección C «Ocho tiendas, un motor», escalera de precios (Lite 590 / Kit 1.900+39 / A medida 3.400+59), WhatsApp+email, Lite publicado sin construir. Prompt de arranque: [`docs/PROMPT_FASE11.md`](PROMPT_FASE11.md). Integra 9B.5/9B.6 (imaginería y temas restantes) como prerequisito del hero |
 | 8 | Pulido de la demo (backlog abajo) | 🟡 En curso | 2026-07-19 | Backlog técnico agotado; solo quedan decisiones y pasos locales de Andreu (ver «Decisiones pendientes» y `docs/PROMPT_CLOUD.md`). Últimas tandas: novena (race de idempotencia en el pago, PII enumerable en `/demo/gracias`, cancelación de pedido pagado sin devolver stock), décima (la misma race en el PATCH de admin, campos vacíos guardados como 0, login sin rate limit), undécima (diagrama móvil de `/arquitectura`, hedge del plazo de entrega, tokens de tema en `/demo/reset`, terminología «envío»), duodécima (aviso de corte en pedidos del admin, cabeceras sin wrap a 375px, leftover «portes», token de radio del carrito, contraste del botón eliminar, H1 en valenciano, checklist de producción) y decimotercera (misma race de idempotencia en `checkout.session.expired`, divisa hardcodeada a EUR fuera de Stripe, cobertura de test de `quoteCart`/PATCH admin/emails) y decimocuarta (config parcial de Stripe → cobro sin cumplimiento, emails duplicados bajo concurrencia, `payment_status` del webhook, color de marca centralizado en `shop.config.ts`, contraste/tema en carrito y checkout) — ver sección «Fase 8» |
@@ -1196,6 +1196,27 @@ ejecuta el bloque de «Próxima sesión» de abajo, testea, documenta, actualiza
 esta sección y sube a `main`.
 
 ## Próxima sesión
+
+### Prioridad vigente desde la revisión Codex del 2026-08-03
+
+**Esta prioridad manda sobre el orden F12 escrito debajo.** La revisión integral
+detectó que NODDO, Sitēga, Forma y STRETCH son carcasas visuales con carrito,
+total y checkout propios en el navegador: no usan el motor compartido. Esto
+contradice la tesis comercial y la invariante de precios en servidor.
+
+La próxima sesión ejecuta **C14.1 — diseñar y asegurar con tests la unificación
+funcional**, descrita con ficheros, pasos y criterios de cierre en
+[`docs/REVISION_CODEX_2026-08-03.md`](REVISION_CODEX_2026-08-03.md). Después:
+C14.2 migra Forma verticalmente; C14.3 migra las otras tres; C14.4 reconcilia
+documentación, producción y rendimiento. **No añadir más temas ni empezar
+F12.4 antes de cerrar al menos C14.1.**
+
+Estado verificado al abrir esta cola: `main`/`origin/main` en `005595c`,
+`pnpm check` verde con 158/158 tests, y las 32 superficies a11y de los cuatro
+temas en verde. El defecto es de arquitectura/producto, no un fallo capturado
+por los tests existentes.
+
+### Cola F12 conservada (retomar después de C14 o cuando el bloque lo indique)
 
 **Mandato nuevo de Andreu (2026-07-28), y manda sobre todo lo demás:**
 renombrado a **Logic2B Ecommerce**, reposicionamiento del argumento de venta
