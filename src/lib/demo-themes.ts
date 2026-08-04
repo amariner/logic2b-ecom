@@ -389,6 +389,40 @@ export const demoThemes: DemoTheme[] = [
   },
 
   // ---------------------------------------------------------------------------
+  // 14 · ARCE — mobiliario cálido, portada editorial y catálogo de piezas
+  // ---------------------------------------------------------------------------
+  {
+    id: 'arce',
+    label: 'Arce',
+    hint: 'Interiorismo cálido: hero partido, campañas editoriales y catálogo en capas.',
+    reference: { name: 'Mobiliario editorial', file: '14-arce.webp' },
+    sample: null,
+    bestFor: ['Mobiliario contemporáneo', 'Interiorismo', 'Marcas de hogar'],
+    status: 'ready',
+    vars: {
+      '--color-brand': '#1e1e1e',
+      '--color-brand-dark': '#000000',
+      '--color-brand-fg': '#ffffff',
+      '--font-display': "Fraunces, Georgia, 'Times New Roman', serif",
+      '--font-accent': SYSTEM_SANS,
+      '--tracking-display': '-0.045em',
+      '--weight-display': '400',
+      '--radius-btn': '0rem',
+      '--radius-card': '0rem',
+      '--border-width': '1px',
+      '--surface-product': '#f2f1ed',
+      '--surface-sunken': '#f8f8f6',
+      '--space-density': '1.15',
+      '--grid-gap': '0.75rem',
+    },
+    layout: {
+      gridCols: 3, gridStyle: 'uniform', nav: 'immersive', hero: 'fullbleed',
+      card: 'plain', filters: 'chips', density: 'airy',
+      annotations: false, darkFooter: false,
+    },
+  },
+
+  // ---------------------------------------------------------------------------
   // 07 · LAUNCH — ref. P1
   // ---------------------------------------------------------------------------
   {

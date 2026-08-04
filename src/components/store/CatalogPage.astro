@@ -24,6 +24,7 @@ import NoddoCatalog from '../themes/noddo/Catalog.astro';
 import SitegaCatalog from '../themes/sitega/Catalog.astro';
 import FormaCatalog from '../themes/forma/Catalog.astro';
 import StretchCatalog from '../themes/stretch/Catalog.astro';
+import ArceCatalog from '../themes/arce/Catalog.astro';
 
 interface Props {
   collection: CollectionConfig;
@@ -77,6 +78,7 @@ const catalogViews = {
   sitega: SitegaCatalog,
   forma: FormaCatalog,
   stretch: StretchCatalog,
+  arce: ArceCatalog,
 } as const;
 const ThemedCatalog = catalogViews[collection.themeId as keyof typeof catalogViews] ?? null;
 ---

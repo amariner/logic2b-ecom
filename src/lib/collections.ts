@@ -26,6 +26,7 @@ import { noddoCollection } from '../collections/noddo';
 import { sitegaCollection } from '../collections/sitega';
 import { formaCollection } from '../collections/forma';
 import { stretchCollection } from '../collections/stretch';
+import { arceCollection } from '../collections/arce';
 // new-theme:imports — no borrar: `pnpm new:theme <id>` añade aquí su import.
 import type { CollectionCategory, CollectionConfig } from '../collections/types';
 
@@ -53,6 +54,7 @@ export const collections: readonly CollectionConfig[] = [
   sitegaCollection,
   formaCollection,
   stretchCollection,
+  arceCollection,
   // new-theme:entries — no borrar: `pnpm new:theme <id>` añade aquí su entrada.
 ];
 
