@@ -2,25 +2,17 @@
 import ProductPage from '../../../../components/store/ProductPage.astro';
 import FormaProductDetail from '../../../../components/themes/forma/ProductDetail.astro';
 import { formaCollection } from '../../../../collections/forma';
-import { getProductBySlug } from '../../../../lib/db';
+import { getDemoProduct, getDemoRelated } from '../../../../lib/demo-catalog';
 import { categoryLabel, storePaths } from '../../../../lib/collections';
 import { notFoundResponse } from '../../../../lib/not-found';
 
 export const prerender = false;
-const product = await getProductBySlug(
-  Astro.locals.runtime.env.DB,
-  formaCollection.id,
-  Astro.params.slug ?? '',
-);
+const product = getDemoProduct(formaCollection.id, Astro.params.slug ?? '');
 const notFound = product ? null : await notFoundResponse(Astro.locals.runtime.env, Astro.url);
 if (!product || notFound) return notFound;
 
 const paths = storePaths(formaCollection.id);
-const { results: related } = await Astro.locals.runtime.env.DB.prepare(
-  'SELECT slug, name, price_cents, image, stock FROM products WHERE collection = ? AND category = ? AND slug != ? AND active = 1 ORDER BY id LIMIT 4',
-)
-  .bind(formaCollection.id, product.category, product.slug)
-  .all<{ slug: string; name: string; price_cents: number; image: string; stock: number }>();
+const related = getDemoRelated(product);
 ---
 
 <ProductPage collection={formaCollection} product={product} related={related} site={Astro.site}>

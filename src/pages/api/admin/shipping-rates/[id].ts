@@ -13,6 +13,9 @@ const patchSchema = z
 
 export const PATCH: APIRoute = async ({ params, request, locals }) => {
   const env = locals.runtime.env;
+  if (env.DEMO_MODE === 'true') {
+    return Response.json({ error: 'El panel público es una muestra de solo lectura.' }, { status: 403 });
+  }
   const id = Number(params.id);
   if (!Number.isInteger(id) || id <= 0) {
     return Response.json({ error: 'id inválido' }, { status: 400 });

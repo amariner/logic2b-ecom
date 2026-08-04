@@ -1,6 +1,7 @@
 ---
 import Admin from '../../../layouts/Admin.astro';
 import { formatEurCents } from '../../../lib/format';
+import { MAIN_DEMO_HREF } from '../../../lib/nav';
 import { ORDER_STATUSES } from '../../../lib/order-transitions';
 
 export const prerender = false;
@@ -113,7 +114,7 @@ const statusBadge: Record<string, string> = {
     </table>
     {orders.length === 0 && (
       <p class="p-8 text-center text-stone-500">
-        No hay pedidos{status ? ' en este estado' : ''} todavía. Haz una compra en la <a href="/demo/tienda" class="underline">tienda demo</a>.
+        No hay pedidos{status ? ' en este estado' : ''} todavía. <a href={MAIN_DEMO_HREF} class="underline">Ver la demo ARCE</a>.
       </p>
     )}
   </div>

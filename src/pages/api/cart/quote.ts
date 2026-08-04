@@ -4,6 +4,12 @@ import { quoteCart, quoteRequestSchema } from '../../../lib/quote';
 export const prerender = false;
 
 export const POST: APIRoute = async ({ request, locals }) => {
+  if (locals.runtime.env.DEMO_MODE === 'true') {
+    return Response.json(
+      { error: 'La demo pública calcula el carrito localmente y no expone cotización remota.' },
+      { status: 410 },
+    );
+  }
   let body: unknown;
   try {
     body = await request.json();

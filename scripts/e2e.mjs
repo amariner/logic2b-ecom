@@ -1,12 +1,8 @@
 /**
- * E2E del flujo de compra simulado contra un `wrangler dev` en marcha.
+ * E2E de aislamiento de la demo pública contra un `wrangler dev` en marcha.
  *
- *   pnpm preview            # terminal 1 (o cualquier deploy con DEMO_MODE)
- *   pnpm test:e2e           # terminal 2  (BASE_URL para apuntar a otro sitio)
- *
- * Cubre: reset → compra genérica → compra Forma sobre el mismo motor → stock
- * decrementado → login admin → CSV → marcar enviado → email de aviso en la
- * bandeja → APIs admin cerradas sin sesión. Sin dependencias.
+ * Verifica que los escaparates cargan, que quote/checkout/reset no aceptan
+ * peticiones en DEMO_MODE y que el panel enseña fixtures sin permitir writes.
  */
 const BASE = process.env.BASE_URL ?? 'http://localhost:8787';
 const ORIGIN = { origin: new URL(BASE).origin };
@@ -26,242 +22,110 @@ async function json(res) {
   }
 }
 
-// ── 0. Estado limpio ─────────────────────────────────────────────────
-const reset = await fetch(`${BASE}/api/demo/reset`, { method: 'POST', headers: { origin: ORIGIN.origin } });
-check('reset de la demo', reset.ok, `HTTP ${reset.status}`);
+// ── 1. Escaparate principal: HTML y simulación local ─────────────────
+const catalog = await fetch(`${BASE}/demo/tiendas/arce`);
+const catalogHtml = await catalog.text();
+check('ARCE es la demo principal disponible', catalog.ok && catalogHtml.includes('Butaca Alba'));
+check('ARCE enlaza su ficha local', catalogHtml.includes('/demo/tiendas/arce/arc-silla-alba'));
 
-// ── 1. Quote con CP peninsular ───────────────────────────────────────
-const LINES = [
-  { slug: 'aove-picual-500', qty: 2 },
-  { slug: 'miel-romero-500', qty: 1 },
-];
-const quoteRes = await fetch(`${BASE}/api/cart/quote`, {
+const product = await fetch(`${BASE}/demo/tiendas/arce/arc-silla-alba`);
+const productHtml = await product.text();
+check('ficha ARCE disponible', product.ok && productHtml.includes('680,00'));
+check('ficha conserva acción local de carrito', productHtml.includes('data-commerce-action="add-to-cart"'));
+
+for (const [surface, path] of [
+  ['cart', '/demo/tiendas/arce/carrito'],
+  ['checkout', '/demo/tiendas/arce/checkout'],
+  ['thanks', '/demo/tiendas/arce/gracias'],
+]) {
+  const response = await fetch(`${BASE}${path}`);
+  const html = await response.text();
+  check(`${surface} ARCE disponible`, response.ok && html.includes(`data-commerce-surface="${surface}"`));
+}
+
+// ── 2. Ningún endpoint público escribe o consulta comercio en la demo ──
+const quote = await fetch(`${BASE}/api/cart/quote`, {
   method: 'POST',
   headers: { 'content-type': 'application/json' },
-  body: JSON.stringify({ lines: LINES, postal_code: '12001' }),
+  body: JSON.stringify({ lines: [{ slug: 'arc-silla-alba', qty: 1 }], postal_code: '12001' }),
 });
-const quote = await json(quoteRes);
-check('quote responde', quoteRes.ok && quote?.purchasable === true, `HTTP ${quoteRes.status}`);
-check('quote recalcula en servidor', quote?.subtotal_cents === 890 * 2 + 750, `subtotal ${quote?.subtotal_cents}`);
-const stockBefore = quote?.lines?.find((l) => l.slug === 'aove-picual-500')?.available_stock;
-check('quote expone stock', typeof stockBefore === 'number', String(stockBefore));
+check('quote remota cerrada en DEMO_MODE', quote.status === 410, `HTTP ${quote.status}`);
 
-// ── 2. Checkout simulado con datos de factura ────────────────────────
-const checkoutRes = await fetch(`${BASE}/api/checkout/session`, {
+const checkout = await fetch(`${BASE}/api/checkout/session`, {
   method: 'POST',
   headers: { 'content-type': 'application/json' },
-  body: JSON.stringify({
-    lines: LINES,
-    customer: {
-      name: 'Prova E2E',
-      email: 'e2e@example.com',
-      street: 'C/ Mayor 1',
-      city: 'Castelló',
-      postal_code: '12001',
-      nif: 'B12345678',
-      company: 'Prova SL',
-    },
-  }),
+  body: '{}',
 });
-const checkout = await json(checkoutRes);
-check('checkout crea el pedido', checkoutRes.ok && typeof checkout?.order_number === 'string', `HTTP ${checkoutRes.status}`);
-check('checkout simulado redirige a gracias', String(checkout?.url ?? '').includes('/demo/gracias?session_id=sim_'), checkout?.url);
+check('checkout remoto cerrado en DEMO_MODE', checkout.status === 410, `HTTP ${checkout.status}`);
 
-const sessionId = new URL(checkout.url).searchParams.get('session_id');
-const gracias = await fetch(`${BASE}/demo/gracias?session_id=${sessionId}`);
-const graciasHtml = await gracias.text();
-check('gracias muestra el pedido', gracias.ok && graciasHtml.includes(checkout.order_number));
-check('gracias guía el recorrido de la demo', graciasHtml.includes('Sigue el recorrido de la demo'));
-
-// ── 3. El pago simulado decrementa stock ─────────────────────────────
-const quote2 = await json(
-  await fetch(`${BASE}/api/cart/quote`, {
-    method: 'POST',
-    headers: { 'content-type': 'application/json' },
-    body: JSON.stringify({ lines: [{ slug: 'aove-picual-500', qty: 1 }] }),
-  }),
-);
-const stockAfter = quote2?.lines?.find((l) => l.slug === 'aove-picual-500')?.available_stock;
-check('stock decrementado tras el pago', stockAfter === stockBefore - 2, `${stockBefore} → ${stockAfter}`);
-
-// ── 4. Forma recorre el mismo motor de extremo a extremo ────────────
-const FORMA_LINES = [{ slug: 'for-clear-01', qty: 2 }];
-const formaQuoteRes = await fetch(`${BASE}/api/cart/quote`, {
+const reset = await fetch(`${BASE}/api/demo/reset`, {
   method: 'POST',
-  headers: { 'content-type': 'application/json' },
-  body: JSON.stringify({ lines: FORMA_LINES, postal_code: '12001' }),
+  headers: ORIGIN,
 });
-const formaQuote = await json(formaQuoteRes);
-check('Forma: quote responde', formaQuoteRes.ok && formaQuote?.purchasable === true, `HTTP ${formaQuoteRes.status}`);
-check('Forma: el servidor fija el subtotal', formaQuote?.subtotal_cents === 33000, `subtotal ${formaQuote?.subtotal_cents}`);
-const formaStockBefore = formaQuote?.lines?.find((line) => line.slug === 'for-clear-01')?.available_stock;
-check('Forma: quote expone stock D1', typeof formaStockBefore === 'number', String(formaStockBefore));
+check('reset público retirado', reset.status === 410, `HTTP ${reset.status}`);
 
-const formaCheckoutRes = await fetch(`${BASE}/api/checkout/session`, {
-  method: 'POST',
-  headers: { 'content-type': 'application/json' },
-  body: JSON.stringify({
-    lines: FORMA_LINES,
-    collection: 'forma',
-    customer: {
-      name: 'Forma E2E',
-      email: 'forma-e2e@example.com',
-      street: 'C/ Taller 12',
-      city: 'Castelló',
-      postal_code: '12001',
-    },
-  }),
-});
-const formaCheckout = await json(formaCheckoutRes);
-check('Forma: checkout crea el pedido', formaCheckoutRes.ok && typeof formaCheckout?.order_number === 'string', `HTTP ${formaCheckoutRes.status}`);
-check(
-  'Forma: checkout vuelve a su página de gracias',
-  String(formaCheckout?.url ?? '').includes('/demo/tiendas/forma/gracias?session_id=sim_'),
-  formaCheckout?.url,
-);
-
-const formaSessionId = new URL(formaCheckout.url).searchParams.get('session_id');
-const formaGracias = await fetch(`${BASE}/demo/tiendas/forma/gracias?session_id=${formaSessionId}`);
-const formaGraciasHtml = await formaGracias.text();
-check('Forma: gracias muestra el pedido real', formaGracias.ok && formaGraciasHtml.includes(formaCheckout.order_number));
-check(
-  'Forma: gracias muestra total y destinatario reales',
-  formaGraciasHtml.includes('330,00') && formaGraciasHtml.includes('forma-e2e@example.com'),
-);
-
-const formaQuoteAfter = await json(
-  await fetch(`${BASE}/api/cart/quote`, {
-    method: 'POST',
-    headers: { 'content-type': 'application/json' },
-    body: JSON.stringify({ lines: [{ slug: 'for-clear-01', qty: 1 }] }),
-  }),
-);
-const formaStockAfter = formaQuoteAfter?.lines?.find((line) => line.slug === 'for-clear-01')?.available_stock;
-check('Forma: el pago decrementa stock', formaStockAfter === formaStockBefore - 2, `${formaStockBefore} → ${formaStockAfter}`);
-
-// ── 5. Admin cerrado sin sesión ──────────────────────────────────────
+// ── 3. Panel protegido y con identidad/fixtures independientes ───────
 const noAuth = await fetch(`${BASE}/api/admin/orders/export.csv`);
 check('API admin sin sesión → 401', noAuth.status === 401, `HTTP ${noAuth.status}`);
 const adminRedirect = await fetch(`${BASE}/demo/admin`, { redirect: 'manual' });
-check('panel sin sesión redirige al login', adminRedirect.status === 302 && String(adminRedirect.headers.get('location')).includes('/demo/admin/login'));
+check(
+  'panel sin sesión redirige al login',
+  adminRedirect.status === 302 && String(adminRedirect.headers.get('location')).includes('/demo/admin/login'),
+);
 
-// ── 6. Login y CSV ───────────────────────────────────────────────────
 const login = await fetch(`${BASE}/demo/admin/login`, {
   method: 'POST',
   redirect: 'manual',
-  headers: { 'content-type': 'application/x-www-form-urlencoded', ...{ origin: ORIGIN.origin } },
+  headers: { 'content-type': 'application/x-www-form-urlencoded', ...ORIGIN },
   body: 'password=demo',
 });
 const cookie = String(login.headers.get('set-cookie') ?? '').split(';')[0];
 check('login demo devuelve cookie de sesión', login.status === 303 && cookie.startsWith('admin_session='));
 
-const csv = await fetch(`${BASE}/api/admin/orders/export.csv`, { headers: { cookie } });
-const csvText = await csv.text();
-check('CSV incluye el pedido pagado', csv.ok && csvText.includes(checkout.order_number));
+const adminHtml = await (await fetch(`${BASE}/demo/admin`, { headers: { cookie } })).text();
+check('panel usa la identidad Logic2B Getion', adminHtml.includes('Logic2B Getion'));
+check('panel declara fixtures independientes', adminHtml.includes('independientes de los escaparates'));
+check('panel vuelve a ARCE', adminHtml.includes('href="/demo/tiendas/arce"'));
 
-const backup = await fetch(`${BASE}/api/admin/backup.sql`, { headers: { cookie } });
-const backupText = await backup.text();
-check(
-  'copia de seguridad SQL con catálogo y pedido',
-  backup.ok && backupText.includes('INSERT INTO products') && backupText.includes(checkout.order_number),
-);
+const productsHtml = await (await fetch(`${BASE}/demo/admin/productos`, { headers: { cookie } })).text();
+const productId = productsHtml.match(/data-field="name" data-id="(\d+)"/)?.[1];
+check('productos son visibles como fixtures', productId !== undefined && productsHtml.includes('solo lectura'));
+check('controles de producto están deshabilitados', productsHtml.includes('disabled'));
 
-// ── 7. Marcar enviado → email de aviso en la bandeja ─────────────────
-const orderIdMatch = (await (await fetch(`${BASE}/demo/admin`, { headers: { cookie } })).text()).match(
-  new RegExp(`/demo/admin/pedidos/(\\d+)"[^>]*>${checkout.order_number}`),
-);
-check('el panel lista el pedido', orderIdMatch !== null);
-const orderId = orderIdMatch?.[1];
+const shippingHtml = await (await fetch(`${BASE}/demo/admin/envios`, { headers: { cookie } })).text();
+const rateId = shippingHtml.match(/data-field="price" data-id="(\d+)"/)?.[1];
+check('tarifas son fixtures de solo lectura', rateId !== undefined && shippingHtml.includes('solo lectura'));
 
-const ship = await fetch(`${BASE}/api/admin/orders/${orderId}`, {
-  method: 'PATCH',
-  headers: { 'content-type': 'application/json', cookie },
-  body: JSON.stringify({ status: 'shipped', tracking_carrier: 'SEUR', tracking_number: 'E2E123' }),
-});
-check('transición a enviado', ship.ok, `HTTP ${ship.status}`);
-
-const detailHtml = await (await fetch(`${BASE}/demo/admin/pedidos/${orderId}`, { headers: { cookie } })).text();
-check('detalle muestra los datos de factura', detailHtml.includes('B12345678') && detailHtml.includes('Prova SL'));
-
-const emailsHtml = await (await fetch(`${BASE}/demo/admin/emails`, { headers: { cookie } })).text();
-check('bandeja con confirmación de pedido', emailsHtml.includes(checkout.order_number));
-check('bandeja con aviso de envío (tracking)', emailsHtml.includes('E2E123') || emailsHtml.includes('camino'));
-
-// ── 8. Validación de la API de productos del admin ───────────────────
-const productosHtml = await (await fetch(`${BASE}/demo/admin/productos`, { headers: { cookie } })).text();
-const productIdMatch = productosHtml.match(/data-field="name" data-id="(\d+)"/);
-const productId = productIdMatch?.[1];
-check('el panel de productos expone al menos un id', productId !== undefined);
-
-const emptyPatch = await fetch(`${BASE}/api/admin/products/${productId}`, {
-  method: 'PATCH',
-  headers: { 'content-type': 'application/json', cookie },
-  body: '{}',
-});
-check('PATCH producto vacío → 400 (nada que actualizar)', emptyPatch.status === 400, `HTTP ${emptyPatch.status}`);
-
-const negativePricePatch = await fetch(`${BASE}/api/admin/products/${productId}`, {
-  method: 'PATCH',
-  headers: { 'content-type': 'application/json', cookie },
-  body: JSON.stringify({ price_cents: -1 }),
-});
-check('PATCH producto con precio negativo → 400', negativePricePatch.status === 400, `HTTP ${negativePricePatch.status}`);
-
-const unknownIdPatch = await fetch(`${BASE}/api/admin/products/999999`, {
-  method: 'PATCH',
-  headers: { 'content-type': 'application/json', cookie },
-  body: JSON.stringify({ stock: 5 }),
-});
-check('PATCH producto inexistente → 404', unknownIdPatch.status === 404, `HTTP ${unknownIdPatch.status}`);
-
-const stockPatch = await fetch(`${BASE}/api/admin/products/${productId}`, {
-  method: 'PATCH',
-  headers: { 'content-type': 'application/json', cookie },
-  body: JSON.stringify({ stock: 0 }),
-});
-check('PATCH producto con stock 0 → 200', stockPatch.ok, `HTTP ${stockPatch.status}`);
-const productSlugMatch = productosHtml.match(/Nombre de ([a-z0-9-]+)"/);
-const productSlug = productSlugMatch?.[1];
-const quoteAfterStockPatch = await json(
-  await fetch(`${BASE}/api/cart/quote`, {
-    method: 'POST',
-    headers: { 'content-type': 'application/json' },
-    body: JSON.stringify({ lines: [{ slug: productSlug, qty: 1 }] }),
-  }),
-);
-check(
-  'el stock a 0 se refleja en la siguiente quote',
-  quoteAfterStockPatch?.lines?.[0]?.status === 'out-of-stock',
-  JSON.stringify(quoteAfterStockPatch?.lines?.[0]),
-);
-
-// ── 9. Rate limit del login (10/min por IP; ya gastamos 1 en el paso 6) ──
-let lastLoginRes;
-for (let i = 0; i < 9; i++) {
-  lastLoginRes = await fetch(`${BASE}/demo/admin/login`, {
-    method: 'POST',
-    redirect: 'manual',
-    headers: { 'content-type': 'application/x-www-form-urlencoded', ...{ origin: ORIGIN.origin } },
-    body: 'password=incorrecta',
-  });
+const orderId = adminHtml.match(/\/demo\/admin\/pedidos\/(\d+)"/)?.[1];
+check('panel contiene pedidos ficticios sembrados', orderId !== undefined);
+if (orderId) {
+  const detailHtml = await (await fetch(`${BASE}/demo/admin/pedidos/${orderId}`, { headers: { cookie } })).text();
+  check('detalle identifica el pedido como ficticio', detailHtml.includes('Pedido ficticio de ejemplo'));
+  check('detalle no ofrece acciones mutables', !detailHtml.includes('<form data-ship-form'));
 }
-// Contraseña incorrecta: la página se re-renderiza con el error (200), no redirige.
-check('9 intentos fallidos más (10 en total) todavía no bloquean', lastLoginRes.status === 200, `HTTP ${lastLoginRes.status}`);
-const lockedOutRes = await fetch(`${BASE}/demo/admin/login`, {
-  method: 'POST',
-  redirect: 'manual',
-  headers: { 'content-type': 'application/x-www-form-urlencoded', ...{ origin: ORIGIN.origin } },
-  body: 'password=demo',
-});
-check(
-  'el 11º intento en la ventana → redirige con ?limited=1',
-  lockedOutRes.status === 303 && String(lockedOutRes.headers.get('location')).includes('limited=1'),
-  `HTTP ${lockedOutRes.status} location=${lockedOutRes.headers.get('location')}`,
-);
 
-// ── Resultado ────────────────────────────────────────────────────────
+// ── 4. El backoffice público rechaza mutaciones aunque haya sesión ───
+for (const [label, path, body] of [
+  ['producto', `/api/admin/products/${productId ?? 1}`, { stock: 0 }],
+  ['tarifa', `/api/admin/shipping-rates/${rateId ?? 1}`, { price_cents: 0 }],
+  ['pedido', `/api/admin/orders/${orderId ?? 1}`, { status: 'shipped' }],
+]) {
+  const response = await fetch(`${BASE}${path}`, {
+    method: 'PATCH',
+    headers: { 'content-type': 'application/json', cookie },
+    body: JSON.stringify(body),
+  });
+  const responseBody = await json(response);
+  check(`mutación de ${label} rechazada`, response.status === 403 && responseBody?.error?.includes('solo lectura'));
+}
+
+const csv = await fetch(`${BASE}/api/admin/orders/export.csv`, { headers: { cookie } });
+check('CSV de fixtures sigue disponible', csv.ok && (await csv.text()).includes('BM-'));
+const backup = await fetch(`${BASE}/api/admin/backup.sql`, { headers: { cookie } });
+check('backup de fixtures sigue disponible', backup.ok && (await backup.text()).includes('INSERT INTO products'));
+
 if (failures > 0) {
   console.error(`\nE2E: ${failures} comprobaciones fallidas`);
   process.exit(1);
 }
-console.log('\nE2E: flujo completo de compra verificado ✔');
+console.log('\nE2E: aislamiento de demos y panel verificado ✔');

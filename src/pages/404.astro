@@ -1,6 +1,7 @@
 ---
 // Página 404 propia (sustituye a la genérica del Worker). Cero JS.
 import Base from '../layouts/Base.astro';
+import { MAIN_DEMO_HREF } from '../lib/nav';
 ---
 
 <Base title="Página no encontrada — Logic2B Ecommerce" noindex={true}>
@@ -9,7 +10,7 @@ import Base from '../layouts/Base.astro';
       <div class="mx-auto flex h-16 max-w-6xl items-center justify-between px-5">
         <a href="/" class="font-display text-lg">Logic2B<span class="text-brand">.</span></a>
         <a
-          href="/demo/tienda"
+          href={MAIN_DEMO_HREF}
           class="rounded-btn bg-ink px-4 py-2 text-sm font-semibold text-white transition hover:bg-black sm:px-5"
         >Ver la demo</a>
       </div>
@@ -24,7 +25,7 @@ import Base from '../layouts/Base.astro';
       </p>
       <div class="mt-8 flex flex-col gap-3 sm:flex-row sm:gap-4">
         <a href="/" class="rounded-btn bg-brand px-7 py-3 font-semibold text-white transition hover:bg-brand-dark">Ir a la página principal</a>
-        <a href="/demo/tienda" class="rounded-btn border border-stone-300 px-7 py-3 font-semibold text-ink transition hover:border-ink">Entrar en la tienda demo</a>
+        <a href={MAIN_DEMO_HREF} class="rounded-btn border border-stone-300 px-7 py-3 font-semibold text-ink transition hover:border-ink">Entrar en la tienda demo</a>
       </div>
       <p class="mt-6 text-sm text-stone-500">
         ¿Buscabas el panel? <a href="/demo/admin" class="text-brand underline hover:text-brand-dark">Está aquí</a>.

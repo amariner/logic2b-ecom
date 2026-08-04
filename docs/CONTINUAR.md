@@ -8,8 +8,9 @@
 
 - Este MVP es una **demo/muestra**: todo fake a propósito. **No** configurar
   Resend, claves reales de Stripe, analítica ni nada que no aporte a la
-  demostración. Pagos simulados y emails en `emails_outbox` son el estado final
-  deseado de la demo.
+  demostración. Los escaparates simulan carrito, envío y confirmación solo en
+  el navegador; no llaman al backend ni crean pedidos. El panel usa fixtures
+  independientes y es de solo lectura.
 - Claude **toma las decisiones operativas** (qué bloque toca, cómo ejecutarlo);
   solo paran la sesión los **vetos** de los roles (`.claude/skills/equipo/`) y
   las decisiones reservadas a Andreu (precios, promesas de servicio, gastar
@@ -48,18 +49,10 @@
    `pnpm check` en verde. El repo queda limpio.
 8. **Cerrar** — resumen con el sign-off del consejo (formato del SKILL.md) y,
    si el bloque afecta a producción y la sesión es local, `pnpm deploy` +
-   verificación + reset de la demo (`POST /api/demo/reset`). **El reset en
-   producción necesita cabecera `Origin`**, o Astro lo rechaza con 403 «Cross-site
-   POST form submissions are forbidden» (protección CSRF, no un fallo de
-   `DEMO_MODE`):
-
-   ```
-   curl -X POST https://ecom.logic2b.com/api/demo/reset \
-     -H "Origin: https://ecom.logic2b.com"
-   ```
-
-   Sin ese reset, una tienda recién desplegada sale con el catálogo VACÍO hasta
-   que pase el cron de 6 h: la D1 remota sigue con el seed anterior.
+   smoke test. `/api/demo/reset` está retirado y responde `410`: el visitante
+   solo puede limpiar su recorrido local desde `/demo/reset`. Si cambian los
+   fixtures del panel, se actualiza D1 mediante el cron interno o Wrangler,
+   nunca mediante una petición pública.
 
    **Si `wrangler` contesta «es necesario CLOUDFLARE_API_TOKEN en un entorno no
    interactivo», no falta un secreto: ha caducado la sesión OAuth.** Se arregla
@@ -70,8 +63,7 @@
 
 ## Próxima sesión (mantener SIEMPRE al día — también existe en ROADMAP)
 
-La sección canónica vive en `docs/ROADMAP.md` («Próxima sesión»). Desde la
-revisión del 2026-08-03, el detalle ejecutable de la prioridad vigente vive en
-[`REVISION_CODEX_2026-08-03.md`](REVISION_CODEX_2026-08-03.md): **C14.1 y C14.2
-están cerrados; C14.3 (migración de NODDO, Sitēga y STRETCH) es el primer bloque pendiente**.
-Este fichero solo define el protocolo.
+La sección canónica vive en `docs/ROADMAP.md` («Próxima sesión»). La revisión
+del 2026-08-03 queda como histórico: la decisión de producto del 2026-08-04
+establece demos locales sin backend y panel de fixtures de solo lectura. Este
+fichero solo define el protocolo.

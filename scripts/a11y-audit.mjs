@@ -13,10 +13,10 @@
  * conocido), nombre accesible, jerarquía, área táctil, overflow a 375 y
  * reduced-motion.
  *
- * Cubre 123 superficies: las 10 tiendas (catálogo/ficha/carrito/checkout ×
- * 1440/375/reduced-motion), las 7 pantallas del panel × 1440/375 y las 9
- * páginas comerciales/utilitarias × 1440/375 (la landing también con
- * reduced-motion). El panel entra con el POST real del login y la cookie de
+ * Cubre todas las tiendas registradas (catálogo/ficha/carrito/checkout ×
+ * 1440/375/reduced-motion), el panel × 1440/375 y las páginas
+ * comerciales/utilitarias × 1440/375 (la landing también con reduced-motion).
+ * El panel entra con el POST real del login y la cookie de
  * sesión; sus ids de pedido se resuelven en vivo por estado, nunca se fijan a
  * mano. Las variantes @dark se retiraron en F12.0: NADA del código responde a
  * prefers-color-scheme, así que eran cobertura fantasma (ver el comentario en
@@ -80,7 +80,7 @@ const STORES = [
   { id: 'forma', label: 'Forma', prefix: '/demo/tiendas/forma', slug: 'for-clear-01', cartKey: 'ecom-cart:forma' },
   // Estas tres carcasas visuales tienen un carrito de muestra independiente
   // de D1. Se siembra la forma real que leen sus páginas, no un `{slug, qty}`
-  // del motor, y se omite el estado de portes porque no hay cotización remota.
+  // común, y se omite el estado de portes porque usan su propia simulación.
   {
     id: 'noddo', label: 'NODDO', prefix: '/demo/tiendas/noddo', slug: 'power-node', cartKey: 'noddo-demo-cart', canQuote: false,
     cartValue: JSON.stringify([{ slug: 'power-node', name: 'Power Node', price: '129,00 €', image: '/images/collections/noddo/generated/power-node.jpg', qty: 2 }]),
@@ -98,7 +98,7 @@ const STORES = [
 ];
 
 /**
- * Rellena el código postal del carrito y espera a que vuelva la cotización:
+ * Rellena el código postal del carrito y espera al cálculo local:
  * con portes calculados la CTA pasa a su estado ACTIVO (`bg-brand` +
  * `text-brand-fg`), que es el par de color que cada tema puede romper. Sin
  * esto solo se auditaría el botón deshabilitado.
@@ -494,7 +494,12 @@ const AUDIT_JS = String.raw`(() => {
   // ── 10. Foco visible ─────────────────────────────────────────────────────
   // Comprueba que el primer control real recibe un indicador de foco propio y
   // no un "outline: none" sin sustituto.
-  const focusables = [...document.querySelectorAll(CONTROLS)].filter(visible).slice(0, 12);
+  const focusables = [...document.querySelectorAll(CONTROLS)]
+    .filter((el) => visible(el) && !(el instanceof HTMLButtonElement && el.disabled) &&
+      !(el instanceof HTMLInputElement && el.disabled) &&
+      !(el instanceof HTMLSelectElement && el.disabled) &&
+      !(el instanceof HTMLTextAreaElement && el.disabled))
+    .slice(0, 12);
   for (const el of focusables) {
     el.focus({ preventScroll: true });
     const cs = getComputedStyle(el);
@@ -561,7 +566,15 @@ const AUDIT_JS = String.raw`(() => {
 
   // ── 14. Idioma del contenido vs marcado ──────────────────────────────────
   for (const el of document.querySelectorAll('[aria-hidden="true"]')) {
-    if (el.matches(CONTROLS) || el.querySelector(CONTROLS)) {
+    const controls = [
+      ...(el.matches(CONTROLS) ? [el] : []),
+      ...el.querySelectorAll(CONTROLS),
+    ];
+    const hasFocusable = controls.some((control) => {
+      const disabled = 'disabled' in control && control.disabled;
+      return !disabled && control.tabIndex >= 0;
+    });
+    if (hasFocusable) {
       add('aria-hidden-focusable', 'error', 'aria-hidden con contenido enfocable dentro', el);
     }
   }

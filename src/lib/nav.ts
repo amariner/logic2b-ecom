@@ -21,8 +21,9 @@ export const landingNav = [
   { href: '/dossier', label: 'Dossier' },
 ] as const;
 
-/** La demo transaccional completa: catálogo, carrito, pago y panel. */
-export const MAIN_DEMO_HREF = '/demo/tienda';
+/** Escaparate principal de la demo comercial. */
+export const MAIN_DEMO_HREF = '/demo/tiendas/arce';
+export const MAIN_DEMO_NAME = 'ARCE';
 
 /** El panel del comercio dentro de la demo. */
 export const DEMO_ADMIN_HREF = '/demo/admin';

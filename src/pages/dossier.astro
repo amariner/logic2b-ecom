@@ -4,7 +4,7 @@
 // que la landing. Los precios son los publicados en la landing.
 import Base from '../layouts/Base.astro';
 import ProjectDialog from '../components/ProjectDialog.astro';
-import { landingNav } from '../lib/nav';
+import { landingNav, MAIN_DEMO_HREF } from '../lib/nav';
 
 // ── El camino MVP → tienda que crece (P2) ───────────────────────────────────
 // Se VENDE, no se construye (§14): sin fechas prometidas y sin dar por
@@ -317,8 +317,8 @@ const jsonLd = [
           ))}
         </div>
         <p class="mt-4 text-sm text-stone-500">
-          ¿Quieres verlo por dentro? La <a href="/demo/tienda" class="text-brand underline underline-offset-2 hover:text-brand-dark">demo</a> es
-          este mismo kit funcionando: compra, gestiona el pedido en el panel y mira los emails que enviaría.
+          ¿Quieres verlo por dentro? La <a href={MAIN_DEMO_HREF} class="text-brand underline underline-offset-2 hover:text-brand-dark">demo</a> permite
+          simular la compra sin enviar nada; el panel y los emails usan ejemplos ficticios independientes.
           En <a href="/arquitectura" class="text-brand underline underline-offset-2 hover:text-brand-dark">/arquitectura</a> está la explicación técnica,
           incluidas las cuentas de hasta dónde escala el catálogo.
         </p>
@@ -509,7 +509,7 @@ const jsonLd = [
           <a href="/" class="hover:text-ink">Inicio</a> ·
           <a href="/arquitectura" class="hover:text-ink">Cómo funciona</a> ·
           <a href="/temas" class="hover:text-ink">Estilos</a> ·
-          <a href="/demo/tienda" class="hover:text-ink">Demo de tienda</a> ·
+          <a href={MAIN_DEMO_HREF} class="hover:text-ink">Demo de tienda</a> ·
           <a href="/demo/admin" class="hover:text-ink">Panel demo</a>
         </p>
       </div>

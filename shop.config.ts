@@ -15,10 +15,9 @@
  * `src/collections/<id>.ts`. Ocho `shop.config` serían ocho motores; por eso el
  * catálogo de categorías salió de aquí y ya no vuelve.
  *
- * `name`/`legalName` son la identidad del OPERADOR: es lo que firma los emails y
- * lo que rotula el backoffice, que es único. En un proyecto real hay una sola
- * colección y coincide con el nombre de su tienda; en la demo, el backoffice se
- * llama como la tienda genérica.
+ * `name`/`legalName` son la identidad del OPERADOR: es lo que firma los emails.
+ * `backofficeName` rotula exclusivamente el panel demo, para que su identidad
+ * no dependa de ninguno de los escaparates visuales.
  */
 
 export type ShippingZone = {
@@ -34,6 +33,7 @@ export const shopConfig = {
   /** Identidad */
   name: 'La Botiga del Maestrat',
   legalName: 'La Botiga del Maestrat S.L. (tienda ficticia de demostración)',
+  backofficeName: 'Logic2B Getion',
   email: 'hola@botigadelmaestrat.demo',
   baseUrl: 'https://ecom.logic2b.com',
   currency: 'eur' as const,

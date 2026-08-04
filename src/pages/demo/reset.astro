@@ -2,39 +2,39 @@
 import Shop from '../../layouts/Shop.astro';
 ---
 
-<Shop title="Restaurar demo" description="Restaura el estado inicial de la demo">
+<Shop title="Reiniciar recorrido" description="Borra el estado local de las demos">
   <main class="mx-auto max-w-xl px-4 py-16 text-center">
-    <h1 class="font-display text-3xl tracking-tight">Restaurar la demo</h1>
+    <h1 class="font-display text-3xl tracking-tight">Reiniciar el recorrido</h1>
     <p class="mt-3 text-muted-foreground">
-      Vuelve al estado inicial: catálogo completo, sin pedidos ni emails.
-      (En producción esto no existe; la demo pública se restaura sola cada 6 horas.)
+      Borra únicamente los carritos y confirmaciones guardados en este navegador.
+      No realiza ninguna petición ni modifica el panel de ejemplo.
     </p>
     <button
       type="button"
       data-reset
       class="mt-6 rounded-btn bg-brand px-7 py-3 font-semibold text-white transition hover:bg-brand-dark disabled:bg-muted"
-    >Restaurar datos ahora</button>
+    >Borrar recorrido local</button>
     <p data-reset-status class="mt-3 h-5 text-sm text-muted-foreground"></p>
   </main>
 
   <script>
-    import { clearCart } from '../../lib/cart-client';
-
     const btn = document.querySelector<HTMLButtonElement>('[data-reset]')!;
     const statusEl = document.querySelector<HTMLElement>('[data-reset-status]')!;
     btn.addEventListener('click', () => {
       btn.disabled = true;
-      statusEl.textContent = 'Restaurando…';
-      void fetch('/api/demo/reset', { method: 'POST' }).then((res) => {
-        if (res.ok) {
-          clearCart();
-          statusEl.textContent = 'Listo. Redirigiendo a la tienda…';
-          setTimeout(() => window.location.assign('/demo/tienda'), 800);
-        } else {
-          btn.disabled = false;
-          statusEl.textContent = 'No se pudo restaurar.';
+      statusEl.textContent = 'Borrando estado local…';
+      for (let index = localStorage.length - 1; index >= 0; index--) {
+        const key = localStorage.key(index);
+        if (key === 'ecom-demo-cart' || key === 'ecom-demo-cp' || key?.startsWith('ecom-cart:')) {
+          localStorage.removeItem(key);
         }
-      });
+      }
+      for (let index = sessionStorage.length - 1; index >= 0; index--) {
+        const key = sessionStorage.key(index);
+        if (key?.startsWith('ecom-demo-order:')) sessionStorage.removeItem(key);
+      }
+      statusEl.textContent = 'Listo. Redirigiendo a ARCE…';
+      setTimeout(() => window.location.assign('/demo/tiendas/arce'), 500);
     });
   </script>
 </Shop>

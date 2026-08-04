@@ -8,7 +8,8 @@
  * resuelven por el registro `catalogViews` y el resto cae a la vista Base.
  */
 import Shop from '../../layouts/Shop.astro';
-import { getActiveProducts, isSortOption } from '../../lib/db';
+import { isSortOption } from '../../lib/db';
+import { getDemoProducts } from '../../lib/demo-catalog';
 import { DEFAULT_COLLECTION_ID, resolveCategory, storePaths, type CollectionConfig } from '../../lib/collections';
 import { formatEurCents } from '../../lib/format';
 import MinimalCatalog from '../themes/minimal/Catalog.astro';
@@ -28,11 +29,10 @@ import ArceCatalog from '../themes/arce/Catalog.astro';
 
 interface Props {
   collection: CollectionConfig;
-  db: D1Database;
   url: URL;
 }
 
-const { collection, db, url } = Astro.props;
+const { collection, url } = Astro.props;
 const paths = storePaths(collection.id);
 
 const category = resolveCategory(collection, url.searchParams.get('categoria'));
@@ -40,7 +40,7 @@ const rawSort = url.searchParams.get('orden') ?? 'featured';
 const sort = isSortOption(rawSort) ? rawSort : 'featured';
 const search = (url.searchParams.get('q') ?? '').trim().slice(0, 60);
 
-const products = await getActiveProducts(db, collection.id, {
+const products = getDemoProducts(collection.id, {
   category,
   sort,
   search: search || undefined,
@@ -92,12 +92,12 @@ const ThemedCatalog = catalogViews[collection.themeId as keyof typeof catalogVie
   <main class="mx-auto max-w-6xl px-4 py-10">
     {collection.id === DEFAULT_COLLECTION_ID && (
     <div class="mb-8 flex flex-wrap items-center gap-x-2 gap-y-1 rounded-2xl bg-muted px-5 py-3 text-sm text-muted-foreground">
-      <span class="font-semibold text-foreground">Recorrido de la demo:</span>
-      <span><span class="font-semibold text-brand">1</span> compra algo</span>
+      <span class="font-semibold text-foreground">Recorrido visual:</span>
+      <span><span class="font-semibold text-brand">1</span> añade un producto</span>
       <span aria-hidden="true">→</span>
-      <span><span class="font-semibold text-brand">2</span> gestiona el pedido en el <a href="/demo/admin" class="underline underline-offset-2 hover:text-foreground">panel</a></span>
+      <span><span class="font-semibold text-brand">2</span> simula el checkout</span>
       <span aria-hidden="true">→</span>
-      <span><span class="font-semibold text-brand">3</span> mira los <a href="/demo/admin/emails" class="underline underline-offset-2 hover:text-foreground">emails</a> que se habrían enviado</span>
+      <span><span class="font-semibold text-brand">3</span> termina sin enviar ni guardar nada</span>
     </div>
     )}
 

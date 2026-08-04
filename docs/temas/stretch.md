@@ -11,7 +11,7 @@
 
 - `src/components/themes/stretch/Catalog.astro`: hero audiovisual, navegación responsive, slider, pestañas y carrusel horizontal.
 - `src/components/themes/stretch/ProductDetail.astro`: ficha visual de producto.
-- `src/pages/demo/tiendas/stretch/`: recorrido funcional completo de la demo.
+- `src/pages/demo/tiendas/stretch/`: recorrido visual completo, solo local.
 
 ## Verificación
 

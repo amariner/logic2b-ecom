@@ -1,4 +1,11 @@
-# Revisión integral y plan de continuación — 2026-08-03
+# Revisión integral y plan de continuación — 2026-08-03 (histórico)
+
+> **Superado por decisión de producto del 2026-08-04.** Andreu decidió que
+> todas las tiendas públicas son demos visuales sin backend: calculan el
+> recorrido en el navegador y nunca crean pedidos, descuentan stock ni envían
+> emails. El panel usa fixtures independientes de solo lectura. Por tanto,
+> C14.3 queda cancelado y este documento conserva únicamente el razonamiento
+> histórico previo a esa decisión.
 
 > Fuente de verdad operativa creada tras sincronizar `main` con GitHub en el
 > commit `005595c`. Esta revisión manda sobre cualquier estado anterior que dé
@@ -112,9 +119,10 @@ checkout independiente. El E2E añade una compra Forma real hasta pedido y
 decremento de stock. Verificado con `pnpm check` (172/172), E2E de 35 pasos,
 auditor Forma (9 superficies, 0 errores/avisos) y capturas 1440/375 revisadas.
 
-### C14.3 — Migrar Noddo, Sitēga y Stretch
+### C14.3 — Migrar Noddo, Sitēga y Stretch — ⛔ cancelado 2026-08-04
 
-**Es el bloque de la próxima sesión.**
+Cancelado por la decisión de aislar todas las demos del backend. Noddo, Sitēga
+y Stretch deben conservar recorridos locales y no crear pedidos.
 
 Aplicar el patrón de Forma sin copiar lógica. Si una necesidad visual obliga a
 tocar negocio, parar: es una carencia del contrato del tema, no permiso para
@@ -128,7 +136,7 @@ Criterios de cierre:
 - E2E de compra y 32/32 superficies a11y verdes;
 - `pnpm check` verde.
 
-### C14.4 — Reconciliar producto, documentación y producción
+### C14.4 — Reconciliar producto, documentación y producción — ✅ absorbido
 
 1. Cambiar cualquier copy que aún distinga implícitamente tiendas funcionales
    y conceptos visuales, una vez que todas sean funcionales.

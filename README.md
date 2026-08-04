@@ -4,7 +4,7 @@ Plantilla de ecommerce ultraligera y de coste operativo ~0 €/mes, pensada para
 
 Este repositorio es dos cosas a la vez:
 
-1. **Demo comercial** — landing de venta del servicio + tienda ficticia navegable ("La Botiga del Maestrat") con **pago simulado** (sin claves de Stripe el checkout marca el pedido como pagado al instante; con claves test vuelve solo a Stripe Checkout), panel de pedidos con login y bandeja de emails simulada.
+1. **Demo comercial** — landing de venta del servicio + escaparate principal navegable (**ARCE**) y panel de gestión de ejemplo con login y datos simulados.
 2. **Plantilla clonable** — para arrancar la tienda de un cliente real: editar `shop.config.ts`, reemplazar el seed, poner claves reales de Stripe y desplegar.
 
 ## Stack
@@ -16,8 +16,8 @@ Este repositorio es dos cosas a la vez:
 | Base de datos | Cloudflare D1 (SQLite) |
 | Estilos | Tailwind CSS v4 |
 | Pagos | Stripe Checkout alojado (la tarjeta nunca toca nuestro servidor) |
-| Emails | Resend (en demo: capturados en D1, visibles en `/demo/admin/emails`) |
-| Tests | Vitest (172: precios, envío, transiciones, webhook/idempotencia de pago, entrega de emails, auth, rate limit, backup, JSON-LD, HTML escaping, CSV y contrato de storefront) + E2E de 35 pasos |
+| Emails | Resend en una tienda real; la demo solo enseña fixtures independientes en `/demo/admin/emails` |
+| Tests | Vitest (174: comercio local, precios, envío, transiciones, webhook/idempotencia de pago, entrega de emails, auth, rate limit, backup, JSON-LD, HTML escaping, CSV y contrato de storefront) + E2E de 27 pasos |
 
 ## Requisitos
 
@@ -48,7 +48,7 @@ Verificación completa (tipos + tests + build):
 pnpm check
 ```
 
-E2E del flujo de compra simulado (contra un `pnpm preview` en marcha; 35 comprobaciones: recorrido genérico y Forma sobre el mismo motor, quote, checkout, stock, auth del panel, CSV, envío con tracking, emails, backup, validación de la API de productos y rate limit del login):
+E2E de aislamiento de la demo (contra un `pnpm preview` en marcha; 27 comprobaciones: ARCE, simulación local, endpoints de comercio cerrados, auth del panel, fixtures, CSV/backup y rechazo de mutaciones):
 
 ```bash
 pnpm test:e2e    # BASE_URL=… para apuntar a otro despliegue con DEMO_MODE
@@ -65,7 +65,7 @@ Chrome del sistema por CDP o llaman a binarios que ya están (`cwebp`, `dwebp`,
 | Comando | Para qué | Cuándo se re-ejecuta |
 |---|---|---|
 | `pnpm audit:lh` | Lighthouse de las 4 páginas indexables × móvil/escritorio, **mediana de 3 pasadas**. Escribe [`docs/LIGHTHOUSE.md`](docs/LIGHTHOUSE.md) con `--write` | Tras cada deploy que toque `/`, `/arquitectura`, `/estilos` o `/dossier` |
-| `node scripts/a11y-audit.mjs` | 14 reglas WCAG 2.2 AA sobre **124 superficies**: las 10 tiendas (catálogo/ficha/carrito/checkout × 1440/375/oscuro/reduced-motion) y las 7 pantallas del panel × 1440/375, entrando con el login real | Tras tocar cualquier tema o el panel; `--only=<id>` para una tienda, `--only=admin` para el backoffice |
+| `node scripts/a11y-audit.mjs` | 14 reglas WCAG 2.2 AA sobre todas las tiendas, el panel y las páginas comerciales en escritorio/móvil, entrando al backoffice con el login real | Tras tocar cualquier tema o el panel; `--only=<id>` para una tienda, `--only=admin` para el backoffice |
 | `node scripts/capture-screens.mjs` | Capturas de la landing y `/estilos`, en WebP y en los dos anchos (`-560`/`-900`) que la galería sirve por `srcset` | Al añadir o rediseñar una tienda |
 | `node scripts/make-og.mjs` | La tarjeta que se ve al compartir el enlace (`public/images/og.jpg`) | Al cambiar marca o posicionamiento — **y subiendo el `?v=N` de `Base.astro`**, o WhatsApp seguirá enseñando la vieja |
 
@@ -75,11 +75,15 @@ que mide se cae (un HTML que tarda 8 s da un 90 que no dice nada de la página);
 nunca descarta por nota baja. Los informes HTML quedan en `.lighthouse/`
 (ignorado por git).
 
-### Probar el checkout Stripe end-to-end
+### Probar el checkout Stripe end-to-end en una copia real
+
+La demo pública no admite este recorrido: con `DEMO_MODE=true`, quote y checkout
+remotos responden `410` y nunca crean pedidos. Para validar el motor de una
+tienda real hay que usar una copia con `DEMO_MODE=false`.
 
 1. Claves **test** de Stripe en `.dev.vars` (`STRIPE_SECRET_KEY=sk_test_…`).
 2. En otra terminal: `stripe listen --forward-to localhost:4321/api/webhooks/stripe` y copiar el `whsec_…` que imprime a `STRIPE_WEBHOOK_SECRET` en `.dev.vars`.
-3. Comprar con la tarjeta de prueba `4242 4242 4242 4242`. El webhook marca el pedido como pagado, descuenta stock y escribe el email de confirmación en `/demo/admin/emails`.
+3. Comprar con la tarjeta de prueba `4242 4242 4242 4242`. El webhook marca el pedido como pagado, descuenta stock y escribe el email de confirmación.
 
 ### Probar el Worker real (incluido el cron de reset)
 

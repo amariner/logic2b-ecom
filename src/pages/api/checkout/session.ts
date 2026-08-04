@@ -36,6 +36,12 @@ const checkoutRequestSchema = z.object({
 
 export const POST: APIRoute = async ({ request, locals }) => {
   const env = locals.runtime.env;
+  if (env.DEMO_MODE === 'true') {
+    return Response.json(
+      { error: 'La demo pública no crea pedidos ni sesiones de pago.' },
+      { status: 410 },
+    );
+  }
 
   let body: unknown;
   try {

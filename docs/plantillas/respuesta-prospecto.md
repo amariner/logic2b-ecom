@@ -27,9 +27,9 @@ Con eso te contesto con una propuesta concreta: qué estilo del
 cerrado (los públicos: [ecom.logic2b.com/#precios](https://ecom.logic2b.com/#precios)).
 
 Mientras tanto, si no lo has hecho ya, haz la prueba de 3 minutos:
-[compra en la demo](https://ecom.logic2b.com/demo/tienda?tour=1), gestiona tu
-pedido en el panel y mira el email que se genera solo. Es exactamente lo que
-tendrías, con tu marca.
+[recorre la demo](https://ecom.logic2b.com/demo/tiendas/arce?tour=1). La compra
+se simula en tu navegador y el panel enseña, por separado, pedidos y emails
+ficticios como los que tendría tu tienda.
 
 Un saludo,
 [firma] · Logic2B, Castellón · 626 434 316
@@ -43,7 +43,7 @@ Un saludo,
 > tienda, más o menos? y si tienes 2-3 fotos de producto que te gusten,
 > mándamelas por aquí. Con eso te propongo estilo, plazo y precio cerrado.
 > Mientras, prueba la demo (3 min, recorrido completo y simulado):
-> https://ecom.logic2b.com/demo/tienda?tour=1
+> https://ecom.logic2b.com/demo/tiendas/arce?tour=1
 
 ---
 

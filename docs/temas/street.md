@@ -20,7 +20,7 @@ sesión local. Réplica de la referencia *Up There Athletics*.
 | 3 tarjetas editoriales de categoría | ✅ enlazan a categorías reales |
 | Cabecera de sección centrada con glifo | ✅ `⚡ Lo último`, `❋ Club House` |
 | Rejilla densa de 5 columnas | ✅ 5 → 4 → 3 → 2 por breakpoints explícitos |
-| `Sold Out` | ✅ **stock real de D1** (2 productos a 0 en el seed) |
+| `Sold Out` | ✅ stock del fixture embebido (2 productos a 0 en el seed) |
 | Sección Club House tipo revista | ✅ carteles tipográficos en CSS + notas |
 | Footer casi negro con columnas mono | ✅ |
 | Contador `1/3` + flechas del hero | ❌ **no se replica**: sería un carrusel falso |
@@ -97,7 +97,7 @@ Dos superficies llevan texto sobre foto. Resueltas con velo, no estimadas:
 - ☑ `pnpm check` en verde (0 errores de tipos, 148 tests)
 - ☑ `node scripts/a11y-audit.mjs --only=street` → **11/11 superficies en verde**
 - ☑ Barrido completo de las 7 tiendas → **77/77 en verde** (sin regresión)
-- ☑ `pnpm test:e2e` → flujo completo de compra verificado
+- ☑ `pnpm test:e2e` → aislamiento y recorrido local verificados
 - ☑ 1440 px · 375 px (sin desbordamiento horizontal) · modo oscuro
 - ☑ Catálogo prístino, filtrado, búsqueda sin resultados, ficha, carrito con
-  portes reales y checkout
+  portes simulados y checkout

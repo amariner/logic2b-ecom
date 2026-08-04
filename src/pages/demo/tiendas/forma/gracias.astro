@@ -1,34 +1,23 @@
 ---
 import ThanksPage from '../../../../components/store/ThanksPage.astro';
 import { formaCollection } from '../../../../collections/forma';
-import { formatEurCents } from '../../../../lib/format';
-import { getOrderBySessionId } from '../../../../lib/thanks';
 import '../../../../components/themes/forma/commerce.css';
 
 export const prerender = false;
-
-const order = await getOrderBySessionId(
-  Astro.locals.runtime.env.DB,
-  Astro.url.searchParams.get('session_id'),
-);
 ---
 
-<ThanksPage collection={formaCollection} order={order}>
-  {order && (
+<ThanksPage collection={formaCollection}>
     <div slot="success" class="text-center">
-      <p class="text-[10px] uppercase tracking-[.2em] text-white/60">Pedido {order.order_number} confirmado / Demo</p>
+      <p class="text-[10px] uppercase tracking-[.2em] text-white/60">Referencia <span data-demo-order-number></span> / Demo local</p>
       <h1 class="mt-6 font-display text-7xl font-light leading-[.82] tracking-[-.08em] md:text-9xl">Listo.<br/>en calma.</h1>
       <p class="mx-auto mt-8 max-w-md text-white/70">
-        El pedido demo por <strong class="text-white">{formatEurCents(order.total_cents)}</strong> ya aparece en el panel y la confirmación está en la bandeja simulada de {order.email}. No se ha realizado ningún cobro.
+        Has completado una simulación por <strong class="text-white" data-demo-total></strong>. No se ha creado ningún pedido, descontado stock ni enviado nada a <span data-demo-email></span>.
       </p>
     </div>
-  )}
-  {!order && (
     <div slot="missing" class="text-center">
-      <p class="text-[10px] uppercase tracking-[.2em] text-white/60">Pedido no encontrado</p>
+      <p class="text-[10px] uppercase tracking-[.2em] text-white/60">Simulación no iniciada</p>
       <h1 class="mt-6 font-display text-6xl font-light tracking-[-.07em]">Aún no.</h1>
-      <p class="mx-auto mt-6 max-w-md text-white/70">Si acabas de confirmar el pedido, espera unos segundos y vuelve a cargar.</p>
+      <p class="mx-auto mt-6 max-w-md text-white/70">Completa el recorrido local de Forma para ver esta pantalla.</p>
     </div>
-  )}
   <Fragment slot="back-label">Volver a Forma</Fragment>
 </ThanksPage>

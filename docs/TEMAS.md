@@ -18,31 +18,22 @@ partida.
 
 ### La regla que no se rompe
 
-> **Un tema es exclusivamente capa de presentación. El backend es UNO para todos.**
+> **Un tema es presentación y simulación local. Ninguna demo pública usa el backend.**
 
-D1, `lib/pricing.ts`, `lib/shipping.ts`, `lib/quote.ts`, `/api/cart/quote`,
-`/api/checkout/session`, el webhook de Stripe y `emails_outbox` son **compartidos
-y no se tocan al desarrollar un tema**.
+El catálogo se deriva del seed y se embebe en la página; carrito, portes y
+confirmación viven en `localStorage`/`sessionStorage`. En `DEMO_MODE`,
+`/api/cart/quote` y `/api/checkout/session` están retirados: no se crea ningún
+pedido, no se descuenta stock y no se envía ningún email.
 
-Si desarrollando un tema aparece la necesidad de cambiar lógica de negocio, es
-señal de que algo se ha modelado mal en la capa de presentación. **Parar y
-replantear, no bifurcar el backend.** Diez backends es exactamente el fracaso que
-este diseño existe para evitar.
+El panel `/demo/admin` es otra muestra independiente: lee fixtures de D1 y es
+de solo lectura. Nunca debe reflejar una acción realizada en un escaparate.
 
-### Un solo recorrido funcional con muchas presentaciones
+### Un solo contrato local con muchas presentaciones
 
-Cada demo de tema (`/demo/tiendas/<id>`) es una tienda completa: su catálogo se
-lee de D1, su carrito guarda solo `slug` y cantidad mediante `cart-client`, el
-presupuesto sale de `/api/cart/quote`, el pedido de `/api/checkout/session` y la
-confirmación consulta el pedido por el identificador de sesión. La demo genérica
-(`/demo/tienda`) utiliza exactamente el mismo recorrido.
-
-La fuente canónica de producto y precio es siempre
-`seed/collections/<id>.ts` → D1, con `price_cents` entero. Un tema no puede
-mantener un segundo mapa con precios formateados para calcular un carrito o
-simular un checkout. Los arrays de composición visual pueden decidir orden,
-encuadre o copy editorial, pero enlazan por `slug` a los productos recibidos de
-D1 y nunca deciden dinero, stock ni estado del pedido.
+Cada tema (`/demo/tiendas/<id>`) conserva su dirección visual sobre el mismo
+contrato de superficies. La demo principal es ARCE. Los importes demo parten de
+`price_cents` del seed y se calculan localmente solo para ilustrar el recorrido;
+no son una autorización de cobro ni una fuente de datos para el backend.
 
 Todas las superficies conservan `DemoJourneyBanner`, montado por `Shop.astro`,
 y se componen con `ProductPage`, `CartPage`, `CheckoutPage` y `ThanksPage`. La
@@ -128,8 +119,8 @@ componentes compartidos exponen:
   `PRODUCT_COMMERCE_SELECTORS` para cantidad y añadir al carrito.
 
 El tema puede usar esos hooks y slots para cambiar composición, jerarquía y
-tono. El componente compartido conserva el script, `cart-client`, los endpoints
-y la lectura del pedido. Si un diseño no cabe en estos puntos de extensión, se
+tono. El componente compartido conserva el script, el carrito local, el cálculo
+demo y la confirmación efímera. Si un diseño no cabe en estos puntos de extensión, se
 amplía el contrato compartido para todos; nunca se crea una ruta de compra
 paralela dentro del tema.
 
@@ -155,8 +146,8 @@ que se enseña es material propio generado con Higgsfield.
    captura; al implementar suelen necesitar ajuste. Cambiarlos ahí, nunca
    hardcodear color en un componente.
 3. **Crear `src/components/themes/<id>/`** con solo lo que el tema redefine.
-4. **Conectar contra el backend compartido.** Mismos endpoints. Cero lógica de
-   precio, stock o envío en el componente.
+4. **Conectar a la simulación local compartida.** Ningún endpoint de comercio;
+   cero escritura de pedido, stock o email.
 5. **Pasar `status` a `'ready'`** — entra solo en el selector y en `/estilos`.
 6. **`pnpm check`** en verde (incluido el test de contraste).
 7. **Verificar en navegador** con `wrangler dev`: catálogo, ficha, carrito,
@@ -265,9 +256,8 @@ técnica.
 - Radio 0 en todo salvo pastillas de badge/botón.
 
 **Notas de implementación**
-- El subtítulo técnico **necesita un campo que hoy no existe**. Opciones:
-  recortar `description`, o columna nueva. Si es migración de D1 → **consultar
-  antes** (backend compartido).
+- El subtítulo técnico **necesita un campo que hoy no existe**. En la demo se
+  deriva del seed; una tienda real puede modelarlo después.
 - La rejilla sin gap con filete: filete a derecha y abajo, y quitarlo en el borde
   exterior. Cuidado con el doble filete en las esquinas.
 - La hora local es un detalle de marca B2B; si se implementa, que sea la del
@@ -313,8 +303,8 @@ dramática. Estética de catálogo de fabricante.
   filete, y botón **negro a ancho completo** `Add to cart`.
 
 **Notas de implementación**
-- El descuento implica **precio de oferta, que hoy no existe** en el modelo
-  (`compare_at_price`). Si se añade, es migración de D1 → **consultar antes**.
+- El descuento usa `compare_at_price_cents` del seed únicamente como dato visual
+  de la demo.
 - El panel deslizante debe ir sin framework: `<dialog>` o detalle progresivo.
 - Único tema junto con Minimal que no usa chips de filtro.
 
@@ -389,13 +379,10 @@ sombra ni relleno, sobre blanco azulado. **No fotografía, no textura de papel.*
 - Todo en escala de grises salvo el guion naranja.
 
 **Notas de implementación**
-- Las filas de especificación necesitan **datos estructurados por producto que
-  hoy no existen**. Opciones: JSON en columna nueva, tabla `product_specs`, o
-  —más barato— derivarlas del seed sin tocar el esquema. Si toca D1 →
-  **consultar antes**.
+- Las filas de especificación se derivan del seed sin tocar el backend demo.
 - La rejilla irregular es **composición fija por breakpoint**, no
   `grid-auto-flow`.
-- **Es el tema con más riesgo de tocar backend.** Planificarlo con eso en mente.
+- **No debe tocar el backend.** Si faltan datos, ampliar el fixture embebido.
 
 **Recursos:** componente sobre gris medio uniforme, macro técnico, greyscale
 total, sombra mínima. Estética de despiece de ingeniería.
@@ -471,8 +458,8 @@ encuadre muy generoso, vista frontal.
   `Configure Now →` con filete y flecha.
 
 **Notas de implementación**
-- La barra sticky es lo distintivo: debe mostrar **estado real de stock desde
-  D1**, no un texto fijo. Ahí está la gracia comercial.
+- La barra sticky es lo distintivo: muestra el estado de stock del fixture
+  embebido, sin consultar ni modificar D1.
 - Con `gridCols: 3` y este planteamiento, **encaja mal con 60 productos**. Es
   para catálogos cortos; si el cliente tiene 100 SKUs, este no es su tema.
 - El scroll horizontal: `overflow-x: auto` con `scroll-snap`, accesible por
@@ -534,7 +521,7 @@ campañas.
   es un problema de accesibilidad real.
 - El header bajo el hero rompe el patrón de `SiteHeader`: es el único tema con
   `hero: 'fullbleed'`. Verificar que el sticky sigue funcionando al hacer scroll.
-- `Sold Out` es **estado real de stock desde D1**, no una etiqueta decorativa.
+- `Sold Out` deriva del stock del fixture embebido, no de una etiqueta manual.
 - La sección Club House pide contenido editorial que la demo no tiene. Se puede
   resolver con bloques del seed; **no crear un CMS**.
 - 5 columnas a 375px → 2. Es el salto más agresivo del catálogo.
@@ -564,7 +551,7 @@ catálogo de tres columnas. Su implementación y límites están documentados en
 
 Carcasa monocroma a ancho completo con composición irregular y siete productos
 estáticos. Las fichas, carrito y checkout se simulan en el navegador; no se
-acoplan a D1. `DemoJourneyBanner` enlaza con la demo funcional independiente.
+acoplan a D1. `DemoJourneyBanner` enlaza con el panel ficticio independiente.
 Ficha completa: [`docs/temas/noddo.md`](temas/noddo.md).
 
 ---
@@ -578,7 +565,7 @@ Ficha completa: [`docs/temas/noddo.md`](temas/noddo.md).
 Hoja blanca sobre gris, navegación tipográfica, titulares editoriales en ruso,
 mosaico irregular de lavabos y grifería, bloque negro de colecciones y footer a
 sangre. El catálogo visual usa ocho productos propios y el recorrido demo local
-mantiene la misma frontera de presentación/backend que NODDO.
+mantiene la misma frontera: simulación local y panel ficticio independiente.
 
 Ficha completa: [`docs/temas/sitega.md`](temas/sitega.md).
 
@@ -655,8 +642,8 @@ en los que tocan datos.
    - *Natural* → precio de oferta (`compare_at_price`).
    - *Specs* → filas de especificación estructuradas.
 
-   Cualquiera es **migración de D1**, o sea backend compartido. **Consultar antes
-   de implementar.** Alternativa barata: derivarlos del seed sin tocar el esquema.
+   En las demos deben derivarse del seed sin tocar D1. Si se necesitan en una
+   tienda real, su modelo se diseña fuera del escaparate público.
 
 2. **Coste de imaginería.** Cada tema quiere su propia estética de producto.
    *Guide* además pide ilustración de línea. Es el capítulo más caro.

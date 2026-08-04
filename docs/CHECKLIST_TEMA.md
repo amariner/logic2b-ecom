@@ -18,11 +18,9 @@
 - [ ] `src/collections/<id>.ts`: nombre de tienda (**confirmado por Andreu**),
       tagline, description y categorías reales.
 - [ ] `seed/collections/<id>.ts`: catálogo completo (reparto de
-      `ROADMAP § 9B.0`), slugs **namespaceados** (`str-`, `ind-`…) — slug es
-      UNIQUE GLOBAL en D1.
-- [ ] **Una sola fuente de producto y precio:** el catálogo y la ficha reciben
-      filas D1 del seed. No crear `src/collections/<id>-products.ts`, precios en
-      texto ni mapas paralelos para la compra.
+      `ROADMAP § 9B.0`), slugs **namespaceados** (`str-`, `ind-`…).
+- [ ] **Una sola fuente de producto y precio demo:** catálogo y ficha derivan
+      del seed embebido. No consultar D1 desde el escaparate.
 - [ ] `compare_at_price_cents` solo si el tema enseña ofertas, siempre
       `> price_cents` (lo valida el seed). **Jamás entra en precio/envío**: hay
       guardia estática que muerde (`tests/pricing-guard.test.ts`).
@@ -43,11 +41,11 @@
 - [ ] En un catálogo con script propio, el botón usa un data-attribute del tema
       (`data-<id>-add`) y llama a `cart-client`. En el slot de ficha usa los
       selectores compartidos `PRODUCT_COMMERCE_SELECTORS`.
-- [ ] **Recorrido funcional compartido.** Ficha, carrito, checkout y gracias se
+- [ ] **Recorrido local compartido.** Ficha, carrito, checkout y gracias se
       componen con `ProductPage`, `CartPage`, `CheckoutPage` y `ThanksPage`.
       Para personalizar se usan los slots y hooks `data-commerce-*` definidos
       en `src/lib/storefront-contract.ts`; nunca una clave `<tema>-demo-cart`,
-      una suma de precios en cliente o un submit simulado propio.
+      llamadas a APIs de comercio ni escrituras de pedido/stock/email.
 - [ ] Todas las páginas se montan con `Shop.astro` y conservan
       `DemoJourneyBanner` y el enlace `Gestor tienda` hacia `/demo/admin`.
       Ningún CSS del tema puede ocultar `[data-demo-journey]`.
@@ -68,11 +66,11 @@
 - [ ] Si se resiembra: **parar `wrangler dev` antes** de `pnpm db:reset` (si no,
       rompe el binding de D1 y todo da 500).
 - [ ] Navegador: catálogo (prístino y filtrado), búsqueda sin resultados, ficha,
-      carrito con portes reales, checkout — a **1440px, 375px y modo oscuro**
+      carrito con portes simulados localmente, checkout — a **1440px, 375px y modo oscuro**
       (`.dark` forzada en `<html>`).
-- [ ] Recorrido comercial completo: añadir desde el tema → quote con envío →
-      checkout → pedido real de demo → gracias → `Gestor tienda`; el
-      producto, total y estado coinciden en todas las superficies.
+- [ ] Recorrido visual completo: añadir desde el tema → cálculo local de envío →
+      checkout → confirmación efímera. Verificar que no aparece ningún pedido
+      nuevo en `Gestor tienda`, que usa fixtures independientes.
 - [ ] `node scripts/a11y-audit.mjs --only=<id>` en verde (contra `wrangler dev`).
       Barre catálogo/ficha/carrito/checkout a 1440, 375, oscuro y reduced-motion.
 - [ ] `pnpm check` en verde (types + tests + build).

@@ -1,89 +1,56 @@
-/**
- * Guardarraíl de «N tiendas, un motor» (C14.1).
- *
- * La lista LEGACY_THEMES es deuda finita, no una arquitectura alternativa. El
- * test falla si aparece una quinta excepción o si una migración no reduce la
- * lista. C14.2 elimina Forma; C14.3 elimina las tres restantes y la lista.
- */
+/** Guardarraíl: demos públicas locales, backend ficticio independiente. */
 import { describe, expect, it } from 'vitest';
 import cartPageSource from '../src/components/store/CartPage.astro?raw';
+import catalogPageSource from '../src/components/store/CatalogPage.astro?raw';
 import checkoutPageSource from '../src/components/store/CheckoutPage.astro?raw';
 import productPageSource from '../src/components/store/ProductPage.astro?raw';
 import thanksPageSource from '../src/components/store/ThanksPage.astro?raw';
-import dynamicCartRoute from '../src/pages/demo/tiendas/[collection]/carrito.astro?raw';
-import dynamicCheckoutRoute from '../src/pages/demo/tiendas/[collection]/checkout.astro?raw';
 import dynamicProductRoute from '../src/pages/demo/tiendas/[collection]/[slug].astro?raw';
 import dynamicThanksRoute from '../src/pages/demo/tiendas/[collection]/gracias.astro?raw';
+import quoteApiSource from '../src/pages/api/cart/quote.ts?raw';
+import checkoutApiSource from '../src/pages/api/checkout/session.ts?raw';
+import resetApiSource from '../src/pages/api/demo/reset.ts?raw';
+import orderPatchSource from '../src/pages/api/admin/orders/[id].ts?raw';
+import productPatchSource from '../src/pages/api/admin/products/[id].ts?raw';
+import shippingPatchSource from '../src/pages/api/admin/shipping-rates/[id].ts?raw';
 import {
+  BLOCKED_DEMO_ENDPOINTS,
   COMMERCE_ENGINE,
-  COMMERCE_ENDPOINTS,
   COMMERCE_PARTS,
   COMMERCE_PRESENTATION_SLOTS,
   COMMERCE_SURFACES,
   PRODUCT_COMMERCE_SELECTORS,
 } from '../src/lib/storefront-contract';
 
-const routeModules = import.meta.glob<string>('../src/pages/demo/tiendas/**/*.astro', {
+const storefrontRoutes = import.meta.glob<string>('../src/pages/demo/{tienda,tiendas}/**/*.astro', {
+  eager: true,
+  query: '?raw',
+  import: 'default',
+});
+const storefrontComponents = import.meta.glob<string>('../src/components/{store,themes}/**/*.{astro,ts}', {
   eager: true,
   query: '?raw',
   import: 'default',
 });
 
-const LEGACY_THEMES = ['noddo', 'sitega', 'stretch'] as const;
-
-type LegacyTheme = (typeof LEGACY_THEMES)[number];
-type Debt = {
-  customCartKey: boolean;
-  textPriceArithmetic: boolean;
-  productMap: boolean;
-  checkoutWithoutEngine: boolean;
-  duplicatedSubmit: boolean;
-};
-
-function sourcesForTheme(theme: string): string[] {
-  const marker = `/tiendas/${theme}/`;
-  return Object.entries(routeModules)
-    .filter(([path]) => path.includes(marker))
-    .map(([, source]) => source);
-}
-
-function sourceForThemePage(theme: string, page: string): string {
-  const suffix = `/tiendas/${theme}/${page}`;
-  return Object.entries(routeModules).find(([path]) => path.endsWith(suffix))?.[1] ?? '';
-}
-
-function debtForTheme(theme: string): Debt {
-  const sources = sourcesForTheme(theme);
-  const joined = sources.join('\n');
-  const checkout = sourceForThemePage(theme, 'checkout.astro');
-  return {
-    customCartKey: joined.includes(`${theme}-demo-cart`),
-    textPriceArithmetic: joined.includes('price.replace('),
-    productMap: joined.includes(`collections/${theme}-products`),
-    checkoutWithoutEngine:
-      checkout.length > 0 &&
-      !checkout.includes('CheckoutPage.astro') &&
-      !checkout.includes(COMMERCE_ENDPOINTS.checkout),
-    duplicatedSubmit:
-      checkout.includes("addEventListener('submit'") &&
-      checkout.includes('window.location.assign') &&
-      !checkout.includes(COMMERCE_ENDPOINTS.checkout),
-  };
-}
-
-describe('contrato tipado de las superficies de comercio', () => {
-  it('fija un único origen de producto, precio, carrito, quote, checkout y pedido', () => {
+describe('contrato de las demos de tienda', () => {
+  it('fija catálogo embebido y recorrido efímero sin backend', () => {
     expect(COMMERCE_ENGINE).toEqual({
-      productSource: 'd1-seed',
+      productSource: 'embedded-seed',
       priceField: 'price_cents',
-      cartState: 'cart-client',
-      quoteEndpoint: '/api/cart/quote',
-      checkoutEndpoint: '/api/checkout/session',
-      orderSource: 'd1-session-id',
+      cartState: 'namespaced-local-storage',
+      quoteSource: 'local-demo-commerce',
+      checkoutSource: 'session-storage',
+      orderSource: 'ephemeral-session-storage',
+      backendSource: 'independent-read-only-fixtures',
+    });
+    expect(BLOCKED_DEMO_ENDPOINTS).toEqual({
+      quote: '/api/cart/quote',
+      checkout: '/api/checkout/session',
     });
   });
 
-  it('declara las cuatro superficies y sus slots solo de presentación', () => {
+  it('mantiene las cuatro superficies y sus slots de presentación', () => {
     expect(COMMERCE_SURFACES).toEqual(['product', 'cart', 'checkout', 'thanks']);
     expect(COMMERCE_PRESENTATION_SLOTS.product).toEqual(['presentation']);
     expect(COMMERCE_PRESENTATION_SLOTS.cart).toEqual(['heading', 'empty']);
@@ -104,27 +71,30 @@ describe('contrato tipado de las superficies de comercio', () => {
   } as const;
 
   for (const surface of COMMERCE_SURFACES) {
-    it(`${surface} expone hooks estables para que el tema no duplique lógica`, () => {
+    it(`${surface} conserva hooks estables de presentación`, () => {
       const source = sharedSources[surface];
       expect(source).toContain(`data-commerce-surface="${surface}"`);
       for (const part of COMMERCE_PARTS[surface]) {
-        expect(source, `${surface} no expone data-commerce-part="${part}"`).toContain(
-          `data-commerce-part="${part}"`,
-        );
+        expect(source).toContain(`data-commerce-part="${part}"`);
       }
       for (const slot of COMMERCE_PRESENTATION_SLOTS[surface]) {
-        expect(source, `${surface} no expone el slot ${slot}`).toContain(`name="${slot}"`);
+        expect(source).toContain(`name="${slot}"`);
       }
     });
   }
 
-  it('carrito y checkout consumen los endpoints compartidos', () => {
-    expect(cartPageSource).toContain('COMMERCE_ENDPOINTS.quote');
-    expect(checkoutPageSource).toContain('COMMERCE_ENDPOINTS.quote');
-    expect(checkoutPageSource).toContain('COMMERCE_ENDPOINTS.checkout');
+  it('carrito, checkout y gracias solo usan estado local', () => {
+    expect(cartPageSource).toContain('buildDemoQuote');
+    expect(checkoutPageSource).toContain('buildDemoQuote');
+    expect(checkoutPageSource).toContain('sessionStorage.setItem');
+    expect(thanksPageSource).toContain('sessionStorage.getItem');
+    for (const source of [cartPageSource, checkoutPageSource, thanksPageSource]) {
+      expect(source).not.toContain("fetch('");
+      expect(source).not.toContain('COMMERCE_ENDPOINTS');
+    }
   });
 
-  it('el slot visual de ficha conserva las acciones del motor compartido', () => {
+  it('la ficha conserva acciones locales de carrito', () => {
     expect(PRODUCT_COMMERCE_SELECTORS).toEqual({
       addToCart: '[data-commerce-action="add-to-cart"]',
       quantity: '[data-commerce-input="quantity"]',
@@ -134,59 +104,36 @@ describe('contrato tipado de las superficies de comercio', () => {
   });
 });
 
-describe('rutas canónicas del motor', () => {
-  it('ficha, carrito, checkout y gracias componen los cuatro componentes compartidos', () => {
-    expect(dynamicProductRoute).toContain('ProductPage');
-    expect(dynamicProductRoute).toContain('getProductBySlug');
-    expect(dynamicCartRoute).toContain('CartPage');
-    expect(dynamicCheckoutRoute).toContain('CheckoutPage');
+describe('aislamiento de las rutas públicas', () => {
+  it('catálogo, ficha y confirmación no consultan D1 ni pedidos', () => {
+    expect(Object.keys(storefrontRoutes).length).toBeGreaterThan(20);
+    expect(Object.keys(storefrontComponents).length).toBeGreaterThan(30);
+    expect(catalogPageSource).toContain('getDemoProducts');
+    expect(dynamicProductRoute).toContain('getDemoProduct');
     expect(dynamicThanksRoute).toContain('ThanksPage');
-    expect(dynamicThanksRoute).toContain('getOrderBySessionId');
+    for (const [path, source] of Object.entries({ ...storefrontRoutes, ...storefrontComponents })) {
+      expect(source, path).not.toContain('runtime.env.DB');
+      expect(source, path).not.toContain('getProductBySlug');
+      expect(source, path).not.toContain('getOrderBySessionId');
+      expect(source, path).not.toContain(BLOCKED_DEMO_ENDPOINTS.quote);
+      expect(source, path).not.toContain(BLOCKED_DEMO_ENDPOINTS.checkout);
+    }
   });
 
-  it('Forma compone el mismo motor de extremo a extremo', () => {
-    const product = sourceForThemePage('forma', '[slug].astro');
-    const cart = sourceForThemePage('forma', 'carrito.astro');
-    const checkout = sourceForThemePage('forma', 'checkout.astro');
-    const thanks = sourceForThemePage('forma', 'gracias.astro');
-
-    expect(product).toContain('ProductPage');
-    expect(product).toContain('getProductBySlug');
-    expect(cart).toContain('CartPage');
-    expect(checkout).toContain('CheckoutPage');
-    expect(thanks).toContain('ThanksPage');
-    expect(thanks).toContain('getOrderBySessionId');
-    expect(debtForTheme('forma')).toEqual({
-      customCartKey: false,
-      textPriceArithmetic: false,
-      productMap: false,
-      checkoutWithoutEngine: false,
-      duplicatedSubmit: false,
-    });
-  });
-});
-
-describe('deuda de migración cerrada y visible', () => {
-  it('ninguna tienda nueva puede crear un segundo motor', () => {
-    const legacy = Object.keys(routeModules)
-      .map((path) => path.match(/\/tiendas\/([^/]+)\//)?.[1])
-      .filter((theme): theme is string => Boolean(theme) && theme !== '[collection]')
-      .filter((theme, index, themes) => themes.indexOf(theme) === index)
-      .filter((theme) => Object.values(debtForTheme(theme)).some(Boolean))
-      .sort();
-
-    expect(legacy).toEqual([...LEGACY_THEMES].sort());
+  it('los endpoints transaccionales y el reset están cerrados en DEMO_MODE', () => {
+    for (const source of [quoteApiSource, checkoutApiSource]) {
+      expect(source).toContain("DEMO_MODE === 'true'");
+      expect(source).toContain('status: 410');
+    }
+    expect(resetApiSource).not.toContain('seedStatements');
+    expect(resetApiSource).toContain('status: 410');
   });
 
-  for (const theme of LEGACY_THEMES) {
-    it(`${theme} conserva exactamente las cinco señales que debe eliminar su migración`, () => {
-      expect(debtForTheme(theme satisfies LegacyTheme)).toEqual({
-        customCartKey: true,
-        textPriceArithmetic: true,
-        productMap: true,
-        checkoutWithoutEngine: true,
-        duplicatedSubmit: true,
-      });
-    });
-  }
+  it('el panel público rechaza todas las mutaciones', () => {
+    for (const source of [orderPatchSource, productPatchSource, shippingPatchSource]) {
+      expect(source).toContain("DEMO_MODE === 'true'");
+      expect(source).toContain('solo lectura');
+      expect(source).toContain('status: 403');
+    }
+  });
 });

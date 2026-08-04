@@ -14,8 +14,10 @@ import {
   defaultCollection,
   resolveCategory,
   resolveCollection,
+  storePaths,
 } from '../src/lib/collections';
 import { demoThemes } from '../src/lib/demo-themes';
+import { MAIN_DEMO_HREF } from '../src/lib/nav';
 
 describe('registro de colecciones', () => {
   it('no está vacío y los ids son únicos', () => {
@@ -43,6 +45,11 @@ describe('registro de colecciones', () => {
   it('la colección por defecto está registrada', () => {
     expect(resolveCollection(DEFAULT_COLLECTION_ID)).not.toBeNull();
     expect(defaultCollection().id).toBe(DEFAULT_COLLECTION_ID);
+  });
+
+  it('ARCE es el escaparate principal de la demo comercial', () => {
+    expect(MAIN_DEMO_HREF).toBe(storePaths('arce').catalog);
+    expect(resolveCollection('arce')?.name).toBe('ARCE');
   });
 });
 

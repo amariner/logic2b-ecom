@@ -115,7 +115,7 @@ etiqueta decorativa.
 ## Verificación (docs/CHECKLIST_TEMA.md)
 
 - ☑ `pnpm check` en verde (148 tests, 0 errores de tipos, build)
-- ☑ `pnpm test:e2e`: flujo completo de compra verificado
+- ☑ `pnpm test:e2e`: aislamiento y recorrido local verificados
 - ☑ `node scripts/a11y-audit.mjs --only=natural` → **11/11 superficies**
 - ☑ Barrido completo → **99/99 superficies** (las 8 tiendas anteriores no regresan)
 - ☑ 1440 px · 375 px · modo oscuro (`.dark` forzada)

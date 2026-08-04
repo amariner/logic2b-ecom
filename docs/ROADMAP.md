@@ -1230,24 +1230,29 @@ esta sección y sube a `main`.
 
 ## Próxima sesión
 
-### Prioridad vigente desde la revisión Codex del 2026-08-03
+### C15.1 — aislamiento seguro de todas las demos — ✅ cerrado 2026-08-04
 
-**Esta prioridad manda sobre el orden F12 escrito debajo.** La revisión integral
-detectó que NODDO, Sitēga, Forma y STRETCH son carcasas visuales con carrito,
-total y checkout propios en el navegador: no usan el motor compartido. Esto
-contradice la tesis comercial y la invariante de precios en servidor.
+Decisión directa de Andreu: los escaparates son ejemplos, no tiendas
+funcionales. ARCE queda como demo principal; catálogo y precios demo se embeben
+desde el seed, carrito/portes/confirmación se simulan en el navegador y no se
+crean pedidos, no se descuenta stock ni se envían emails. En `DEMO_MODE`, quote,
+checkout y reset públicos responden `410`.
 
-**C14.1 y C14.2 quedaron cerrados el 2026-08-04.** La próxima sesión ejecuta
-**C14.3 — migrar NODDO, Sitēga y STRETCH** aplicando el patrón ya probado en
-Forma: producto D1 → `cart-client` → quote → checkout compartido → pedido →
-gracias, conservando cada dirección visual mediante hooks/slots. Deben
-desaparecer sus tres mapas estáticos, claves `*-demo-cart`, sumas textuales y
-checkouts independientes. Criterios completos en
-[`docs/REVISION_CODEX_2026-08-03.md`](REVISION_CODEX_2026-08-03.md).
+El backoffice pasa a llamarse **Logic2B Getion**, enlaza a ARCE y conserva una
+base de fixtures independiente. Productos, envíos y pedidos son de solo lectura;
+las tres APIs de mutación rechazan con `403` incluso con sesión autenticada.
 
-Verificación obligatoria de C14.3: `pnpm check`, E2E completo y 32/32
-superficies a11y verdes. Después C14.4 reconcilia documentación, producción y
-rendimiento. **No añadir más temas ni empezar F12.4 antes de cerrar C14.3.**
+Verificación: `pnpm check` (174/174 tests, tipos y build) y E2E de aislamiento
+(27/27) en verde. Auditoría global: todas las tiendas y el panel sin hallazgos;
+19/19 superficies públicas en verde. La revisión del 2026-08-03 queda archivada
+y C14.3 cancelado.
+
+### Siguiente bloque
+
+Retomar **F12.4 — página para agencias / marca blanca**, respetando la nueva
+frontera: cualquier demo que se enseñe será local y el panel siempre usará
+fixtures independientes. Si la sesión toca UI, repetir auditor a11y y revisión
+visual; si toca una página indexable, Lighthouse después del deploy.
 
 ### Cola F12 conservada (retomar después de C14 o cuando el bloque lo indique)
 

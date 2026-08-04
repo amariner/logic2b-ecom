@@ -1,6 +1,7 @@
 /**
  * Carrito del lado cliente: SOLO slugs y cantidades en localStorage.
- * Los precios se piden siempre al servidor (/api/cart/quote).
+ * En los escaparates públicos, los precios salen del catálogo inmutable
+ * embebido y nunca se envían al servidor.
  * Vanilla TS — se importa desde <script> de Astro (islas sin framework).
  */
 

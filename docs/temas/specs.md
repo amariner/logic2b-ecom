@@ -123,7 +123,7 @@ presentación puro, porque la migración 0002 ya había pagado la factura.
 - ☑ `node scripts/a11y-audit.mjs --only=specs` → **11/11**, verde a la primera
 - ☑ Barrido completo → **110/110** (las 9 tiendas anteriores no regresan)
 - ☑ `pnpm check` → 148 tests, 0 errores de tipos
-- ☑ E2E de compra completo (27 checks)
+- ☑ E2E de aislamiento y recorrido local (27 checks)
 - ☑ Clic REAL en el botón «Añadir»: añade al carrito y **no navega** a la ficha
   (el `z-index` sobre el área extendida hace su trabajo)
 - ☑ Rejilla verificada bajo filtro: 2 productos → `6 6`; 3 → `4 4 4`; búsqueda

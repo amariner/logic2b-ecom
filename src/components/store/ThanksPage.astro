@@ -1,86 +1,73 @@
 ---
 /**
- * Confirmación post-pago de UNA tienda — página compartida (9B.4).
+ * Cierre visual de la compra simulada. Lee una referencia efímera de
+ * sessionStorage; no consulta pedidos ni persiste datos en el backend.
  */
 import Shop from '../../layouts/Shop.astro';
-import { DEFAULT_COLLECTION_ID, storePaths, type CollectionConfig } from '../../lib/collections';
-import { formatEurCents } from '../../lib/format';
-
-type OrderRow = {
-  order_number: string;
-  customer_name: string;
-  email: string;
-  status: string;
-  total_cents: number;
-};
+import { storePaths, type CollectionConfig } from '../../lib/collections';
 
 interface Props {
   collection: CollectionConfig;
-  order: OrderRow | null;
 }
 
-const { collection, order } = Astro.props;
+const { collection } = Astro.props;
 const paths = storePaths(collection.id);
-const isDefaultStore = collection.id === DEFAULT_COLLECTION_ID;
 ---
 
 <Shop title="Gracias" description="Confirmación de pedido" collection={collection}>
-  <main class="mx-auto max-w-xl px-4 py-16 text-center" data-commerce-surface="thanks" data-order-confirmed={order ? 'true' : 'false'}>
-    {order ? (
-      <div data-commerce-part="success">
+  <main class="mx-auto max-w-xl px-4 py-16 text-center" data-commerce-surface="thanks" data-collection-id={collection.id}>
+      <div data-commerce-part="success" data-demo-success class="hidden">
         <slot name="success">
         <p class="text-5xl" aria-hidden="true">🧺</p>
-        <h1 class="mt-4 font-display text-3xl text-foreground sm:text-4xl">¡Gracias, {order.customer_name.split(' ')[0]}!</h1>
+        <h1 class="mt-4 font-display text-3xl text-foreground sm:text-4xl">Simulación completada, <span data-demo-customer></span></h1>
         <p class="mt-3 text-muted-foreground">
-          Tu pedido <strong>{order.order_number}</strong> por {formatEurCents(order.total_cents)} está
-          {order.status === 'paid' ? ' confirmado' : ' registrándose (el pago se está procesando)'}.
+          Referencia local <strong data-demo-order-number></strong> · <span data-demo-total></span>.
         </p>
-        <p class="mt-2 text-sm text-muted-foreground">Hemos enviado la confirmación a {order.email}.</p>
-
-        {isDefaultStore && (
-          <div class="mt-8 rounded-2xl bg-muted p-6 text-left">
-            <p class="text-sm font-semibold uppercase tracking-wide text-brand">Sigue el recorrido de la demo</p>
-            <ol class="mt-4 space-y-4 text-sm leading-relaxed text-muted-foreground">
-              <li class="flex gap-3">
-                <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-brand font-bold text-brand-fg" aria-hidden="true">✓</span>
-                <span><strong>Pedido simulado creado.</strong> No se ha cobrado nada: es una demo. Pero el pedido existe en el sistema con su stock descontado, su estado «pagado» y su historial.</span>
-              </li>
-              <li class="flex gap-3">
-                <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-foreground font-bold text-background" aria-hidden="true">2</span>
-                <span>
-                  <strong>Gestiónalo como el comercio:</strong> entra en el
-                  <a href="/demo/admin" class="text-brand underline underline-offset-2 hover:text-brand-dark">panel de pedidos</a>
-                  (contraseña <span class="font-mono">demo</span>) y márcalo como enviado con un tracking inventado.
-                </span>
-              </li>
-              <li class="flex gap-3">
-                <span class="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-foreground font-bold text-background" aria-hidden="true">3</span>
-                <span>
-                  <strong>Mira los emails</strong> que el sistema habría enviado (confirmación y aviso de envío) en la
-                  <a href="/demo/admin/emails" class="text-brand underline underline-offset-2 hover:text-brand-dark">bandeja simulada</a>.
-                </span>
-              </li>
-            </ol>
-          </div>
-        )}
+        <p class="mt-2 text-sm text-muted-foreground">
+          Es una demostración visual: no se ha creado ningún pedido, no se ha descontado stock y no se ha enviado nada a <span data-demo-email></span>.
+        </p>
         </slot>
       </div>
-    ) : (
-      <div data-commerce-part="missing">
+      <div data-commerce-part="missing" data-demo-missing class="hidden">
         <slot name="missing">
-          <h1 class="font-display text-3xl text-foreground">No encontramos ese pedido</h1>
-          <p class="mt-3 text-muted-foreground">Si acabas de pagar, dale unos segundos y recarga.</p>
+          <h1 class="font-display text-3xl text-foreground">No hay una simulación activa</h1>
+          <p class="mt-3 text-muted-foreground">Añade un producto y completa el recorrido para ver este estado.</p>
         </slot>
       </div>
-    )}
     <div data-commerce-part="actions">
       <a href={paths.catalog} class="mt-8 inline-block rounded-btn bg-brand px-7 py-3 font-semibold text-brand-fg transition hover:bg-brand-dark"><slot name="back-label">Volver a la tienda</slot></a>
     </div>
   </main>
 
   <script>
-    import { clearCart } from '../../lib/cart-client';
-    // El pedido ya está registrado en servidor; el carrito local ya no aplica.
-    if (document.querySelector('[data-commerce-surface="thanks"]')?.getAttribute('data-order-confirmed') === 'true') clearCart();
+    import { demoOrderStorageKey, type DemoOrder } from '../../lib/demo-commerce';
+    import { formatEurCents as eur } from '../../lib/format';
+
+    const surface = document.querySelector<HTMLElement>('[data-commerce-surface="thanks"]')!;
+    const collectionId = surface.dataset.collectionId ?? 'demo';
+    let order: DemoOrder | null = null;
+    try {
+      const raw = sessionStorage.getItem(demoOrderStorageKey(collectionId));
+      const parsed = raw ? JSON.parse(raw) as Partial<DemoOrder> : null;
+      if (
+        parsed &&
+        typeof parsed.order_number === 'string' &&
+        typeof parsed.customer_name === 'string' &&
+        typeof parsed.email === 'string' &&
+        typeof parsed.total_cents === 'number'
+      ) order = parsed as DemoOrder;
+    } catch {
+      order = null;
+    }
+
+    if (order) {
+      surface.querySelector<HTMLElement>('[data-demo-success]')?.classList.remove('hidden');
+      surface.querySelectorAll<HTMLElement>('[data-demo-order-number]').forEach((el) => (el.textContent = order!.order_number));
+      surface.querySelectorAll<HTMLElement>('[data-demo-customer]').forEach((el) => (el.textContent = order!.customer_name.split(' ')[0] ?? ''));
+      surface.querySelectorAll<HTMLElement>('[data-demo-total]').forEach((el) => (el.textContent = eur(order!.total_cents)));
+      surface.querySelectorAll<HTMLElement>('[data-demo-email]').forEach((el) => (el.textContent = order!.email));
+    } else {
+      surface.querySelector<HTMLElement>('[data-demo-missing]')?.classList.remove('hidden');
+    }
   </script>
 </Shop>

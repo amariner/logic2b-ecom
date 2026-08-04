@@ -1,11 +1,13 @@
 ---
 /**
  * Carrito de UNA tienda — página compartida (9B.4). El contenido vive en
- * localStorage (namespaceado por colección) y se presupuesta contra
- * /api/cart/quote: precios SIEMPRE del servidor.
+ * localStorage (namespaceado por colección). Precios, stock y envío se simulan
+ * en el navegador desde un catálogo inmutable embebido: no hay llamadas API.
  */
 import Shop from '../../layouts/Shop.astro';
 import { storePaths, type CollectionConfig } from '../../lib/collections';
+import { demoJson, getDemoProductSummaries } from '../../lib/demo-catalog';
+import { shopConfig } from '../../../shop.config';
 
 interface Props {
   collection: CollectionConfig;
@@ -13,6 +15,13 @@ interface Props {
 
 const { collection } = Astro.props;
 const paths = storePaths(collection.id);
+const demoCommerceJson = demoJson({
+  products: getDemoProductSummaries(collection.id),
+  shipping: {
+    zones: shopConfig.shipping.zones,
+    rates: shopConfig.shipping.seedRates,
+  },
+});
 ---
 
 <Shop title="Carrito" description="Tu carrito de la compra" collection={collection}>
@@ -70,32 +79,32 @@ const paths = storePaths(collection.id);
     </div>
   </main>
 
+  <script is:inline type="application/json" data-demo-commerce set:html={demoCommerceJson}></script>
+
   <script>
     import { readCart, setQty } from '../../lib/cart-client';
+    import {
+      buildDemoQuote,
+      DEMO_POSTAL_STORAGE_KEY,
+      type DemoQuoteLine,
+      type DemoShippingConfig,
+    } from '../../lib/demo-commerce';
+    import type { DemoProductSummary } from '../../lib/demo-catalog';
     import { formatEurCents as eur } from '../../lib/format';
-    import { COMMERCE_ENDPOINTS } from '../../lib/storefront-contract';
-
-    type QuoteLine = {
-      slug: string; name: string; image: string; unit_price_cents: number; qty: number;
-      line_total_cents: number; available_stock: number;
-      status: 'ok' | 'not-found' | 'out-of-stock' | 'insufficient-stock';
-    };
-    type Quote = {
-      lines: QuoteLine[]; subtotal_cents: number; shipping_cents: number | null;
-      total_cents: number | null; purchasable: boolean;
-      shipping: { zone: string; label: string; free_over_cents: number | null } | null;
-    };
 
     const $ = <T extends HTMLElement>(sel: string): T => document.querySelector<T>(sel)!;
-    const CP_KEY = 'ecom-demo-cp';
-
-    const problemText: Record<Exclude<QuoteLine['status'], 'ok'>, (l: QuoteLine) => string> = {
-      'not-found': (l) => `«${l.slug}» ya no está disponible; elimínalo para continuar.`,
-      'out-of-stock': (l) => `«${l.name}» está agotado; elimínalo para continuar.`,
-      'insufficient-stock': (l) => `De «${l.name}» solo quedan ${l.available_stock} unidades; ajusta la cantidad.`,
+    const payload = JSON.parse($<HTMLScriptElement>('[data-demo-commerce]').textContent ?? '{}') as {
+      products: DemoProductSummary[];
+      shipping: DemoShippingConfig;
     };
 
-    async function refresh(): Promise<void> {
+    const problemText: Record<Exclude<DemoQuoteLine['status'], 'ok'>, (line: DemoQuoteLine) => string> = {
+      'not-found': (l) => `«${l.slug}» ya no está disponible; elimínalo para continuar.`,
+      'out-of-stock': (l) => `«${l.name}» está agotado; elimínalo para continuar.`,
+      'insufficient-stock': (l) => `De «${l.name}» solo quedan ${l.stock} unidades; ajusta la cantidad.`,
+    };
+
+    function refresh(): void {
       const lines = readCart();
       const empty = $('[data-cart-empty]');
       const loading = $('[data-cart-loading]');
@@ -108,17 +117,8 @@ const paths = storePaths(collection.id);
         return;
       }
 
-      const postal = (localStorage.getItem(CP_KEY) ?? '').trim();
-      const res = await fetch(COMMERCE_ENDPOINTS.quote, {
-        method: 'POST',
-        headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ lines, ...(postal ? { postal_code: postal } : {}) }),
-      });
-      if (!res.ok) {
-        loading.textContent = 'No se pudo calcular el carrito. Recarga la página.';
-        return;
-      }
-      const quote = (await res.json()) as Quote;
+      const postal = (localStorage.getItem(DEMO_POSTAL_STORAGE_KEY) ?? '').trim();
+      const quote = buildDemoQuote(payload.products, lines, postal, payload.shipping);
 
       loading.classList.add('hidden');
       empty.classList.add('hidden');
@@ -145,7 +145,7 @@ const paths = storePaths(collection.id);
         nameEl.textContent = line.name;
         const priceEl = document.createElement('p');
         priceEl.className = 'text-sm text-muted-foreground';
-        priceEl.textContent = bad ? '' : eur(line.unit_price_cents);
+        priceEl.textContent = bad ? '' : eur(line.price_cents);
         info.appendChild(nameEl);
         info.appendChild(priceEl);
 
@@ -184,13 +184,13 @@ const paths = storePaths(collection.id);
           // Redondear hacia abajo: un valor no entero se colaría en localStorage
           // y luego readCart() lo descartaría en silencio (línea "perdida").
           setQty(input.dataset.qty ?? '', Math.max(0, Math.floor(Number(input.value)) || 0));
-          void refresh();
+          refresh();
         });
       });
       list.querySelectorAll<HTMLButtonElement>('[data-remove]').forEach((btn) => {
         btn.addEventListener('click', () => {
           setQty(btn.dataset.remove ?? '', 0);
-          void refresh();
+          refresh();
         });
       });
 
@@ -207,8 +207,8 @@ const paths = storePaths(collection.id);
         }
       } else {
         shippingEl.textContent = quote.shipping_cents === 0 ? 'Gratis' : eur(quote.shipping_cents);
-        shippingLabel.textContent = quote.shipping ? `(${quote.shipping.label})` : '';
-        const freeOver = quote.shipping?.free_over_cents;
+        shippingLabel.textContent = quote.shipping_label ? `(${quote.shipping_label})` : '';
+        const freeOver = quote.free_over_cents;
         if (typeof freeOver === 'number' && quote.shipping_cents > 0) {
           cpFeedback.textContent = `Envío gratis a partir de ${eur(freeOver)}.`;
           cpFeedback.className = 'mt-2 text-sm text-muted-foreground';
@@ -222,7 +222,7 @@ const paths = storePaths(collection.id);
       const problemsEl = $('[data-cart-problems]');
       if (problems.length > 0) {
         problemsEl.textContent = problems
-          .map((line) => problemText[line.status as Exclude<QuoteLine['status'], 'ok'>](line))
+          .map((line) => problemText[line.status as keyof typeof problemText](line))
           .join(' ');
         problemsEl.classList.remove('hidden');
       } else {
@@ -246,18 +246,18 @@ const paths = storePaths(collection.id);
     });
 
     const cpInput = $('#cp') as unknown as HTMLInputElement;
-    cpInput.value = localStorage.getItem(CP_KEY) ?? '';
+    cpInput.value = localStorage.getItem(DEMO_POSTAL_STORAGE_KEY) ?? '';
     $('[data-apply-cp]').addEventListener('click', () => {
-      localStorage.setItem(CP_KEY, cpInput.value.trim());
-      void refresh();
+      localStorage.setItem(DEMO_POSTAL_STORAGE_KEY, cpInput.value.trim());
+      refresh();
     });
     cpInput.addEventListener('keydown', (ev) => {
       if (ev.key === 'Enter') {
-        localStorage.setItem(CP_KEY, cpInput.value.trim());
-        void refresh();
+        localStorage.setItem(DEMO_POSTAL_STORAGE_KEY, cpInput.value.trim());
+        refresh();
       }
     });
 
-    void refresh();
+    refresh();
   </script>
 </Shop>

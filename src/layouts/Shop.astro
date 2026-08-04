@@ -6,7 +6,7 @@
  * selector: sale de la COLECCIÓN (prop), que a su vez sale del segmento de URL
  * validado contra el registro. Los tokens del tema se aplican en SSR como
  * variables CSS inline en el wrapper — sin localStorage, sin anti-flash, sin
- * recarga estructural. El backend es UNO solo para todas.
+ * recarga estructural. Las demos no consultan el backend.
  */
 import Base from './Base.astro';
 import SiteHeader from '../components/SiteHeader.astro';
@@ -120,7 +120,7 @@ const activeHref = nav.find((link) => (link.href.replace(/\/+$/, '') || '/') ===
           <div class="shop-footer__body mx-auto max-w-6xl px-4 py-10 text-sm">
             <p class="shop-footer__name font-display text-base">{collection.name}</p>
             <p class="mt-3 max-w-2xl leading-relaxed">{shopConfig.legalName}. {shopConfig.legal.shippingNote} {shopConfig.legal.returnsNote}</p>
-            <p class="mt-4">Demo de <a href="/" class="shop-footer__link underline underline-offset-2">Logic2B Ecommerce</a> · <a href="/demo/reset" class="shop-footer__link underline underline-offset-2">Restaurar datos de la demo</a></p>
+            <p class="mt-4">Demo de <a href="/" class="shop-footer__link underline underline-offset-2">Logic2B Ecommerce</a> · <a href="/demo/reset" class="shop-footer__link underline underline-offset-2">Reiniciar recorrido local</a></p>
           </div>
         </footer>
       </Fragment>

@@ -143,7 +143,7 @@ celda doble usa `aspect-ratio: 2` para que su alto siga cuadrando con la fila.
 - ☑ `pnpm check` en verde (astro check + 148 tests + build)
 - ☑ `node scripts/a11y-audit.mjs --only=industrial` → **11/11**
 - ☑ Barrido completo del auditor → **88/88** (sin regresión en las otras 7)
-- ☑ `pnpm test:e2e` → flujo completo de compra + panel (27 comprobaciones)
+- ☑ `pnpm test:e2e` → aislamiento de compra y panel (27 comprobaciones)
 - ☑ 1440px · 375px · modo oscuro · catálogo prístino, filtrado y sin resultados
 - ☑ `capture-screens.mjs` con las 3 capturas nuevas (`/estilos` y la galería del
   hero de la landing ya no enseñan un hueco)

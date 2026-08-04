@@ -4,7 +4,7 @@
  * las tiendas del escaparate (/demo/tiendas/<id>/<slug>).
  */
 import ProductPage from '../../../components/store/ProductPage.astro';
-import { getProductBySlug } from '../../../lib/db';
+import { getDemoProduct, getDemoRelated } from '../../../lib/demo-catalog';
 import { defaultCollection } from '../../../lib/collections';
 import { notFoundResponse } from '../../../lib/not-found';
 
@@ -13,20 +13,14 @@ export const prerender = false;
 const collection = defaultCollection();
 
 const { slug = '' } = Astro.params;
-const product = await getProductBySlug(Astro.locals.runtime.env.DB, collection.id, slug);
+const product = getDemoProduct(collection.id, slug);
 // Producto borrado o desactivado: servimos la 404 propia con su estado real.
 const notFound = product ? null : await notFoundResponse(Astro.locals.runtime.env, Astro.url);
 if (!product || notFound) {
   return notFound;
 }
 
-// Hasta 4 productos más de la misma categoría (venta cruzada + enlazado interno).
-// Acotado a la colección: la venta cruzada nunca salta de tienda.
-const { results: related } = await Astro.locals.runtime.env.DB.prepare(
-  'SELECT slug, name, price_cents, image, stock FROM products WHERE collection = ? AND category = ? AND slug != ? AND active = 1 ORDER BY id LIMIT 4',
-)
-  .bind(collection.id, product.category, product.slug)
-  .all<{ slug: string; name: string; price_cents: number; image: string; stock: number }>();
+const related = getDemoRelated(product);
 ---
 
 <ProductPage collection={collection} product={product} related={related} site={Astro.site} />
