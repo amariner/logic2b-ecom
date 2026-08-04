@@ -87,7 +87,7 @@
 
 :root {
   /* Tipografía base */
-  --font-sans: "Inter Variable", "Inter Fallback", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Inter Fallback", ui-sans-serif, system-ui, sans-serif;
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 
   /* Tokens neutros Logic2B UI — CLARO (oklch, chroma 0) */
@@ -147,6 +147,15 @@
   /* Ritmo */
   --space-density: 1;
   --grid-gap: 1.5rem;
+}
+
+/* En móvil evitamos que la variable de Inter (47 kB) compita con el CSS antes
+   del primer texto. El fallback tiene métricas calibradas, así que no cambia
+   el layout; a partir de tablet se conserva Inter como tipografía principal. */
+@media (min-width: 640px) {
+  :root {
+    --font-sans: "Inter Variable", "Inter Fallback", ui-sans-serif, system-ui, sans-serif;
+  }
 }
 
 .dark {

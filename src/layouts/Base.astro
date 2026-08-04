@@ -62,8 +62,8 @@ const ogImage = new URL('/images/og.jpg?v=3', Astro.site).href;
     {noindex && <meta name="robots" content="noindex,follow" />}
     {canonical && <link rel="canonical" href={canonical} />}
     {/* Inter usa font-display:optional y un fallback con métricas ajustadas.
-        No se precarga: bajo red móvil sus 47 kB competían con el CSS y
-        retrasaban FCP/LCP; el texto puede pintarse de inmediato sin CLS. */}
+        No se precarga y en móvil se usa directamente el fallback: sus 47 kB
+        competían con el CSS y retrasaban FCP/LCP sin aportar layout distinto. */}
     {/* El H1 es el LCP de las comerciales: sin precarga, Poppins llega después
         del primer pintado y el titular cambia de cara a la vista. */}
     {preloadDisplayFont && (
