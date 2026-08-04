@@ -72,5 +72,6 @@
 
 La sección canónica vive en `docs/ROADMAP.md` («Próxima sesión»). Desde la
 revisión del 2026-08-03, el detalle ejecutable de la prioridad vigente vive en
-[`REVISION_CODEX_2026-08-03.md`](REVISION_CODEX_2026-08-03.md): **C14.1 es el
-primer bloque**. Este fichero solo define el protocolo.
+[`REVISION_CODEX_2026-08-03.md`](REVISION_CODEX_2026-08-03.md): **C14.1 está
+cerrado y C14.2 (migración vertical de Forma) es el primer bloque pendiente**.
+Este fichero solo define el protocolo.

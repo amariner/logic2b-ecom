@@ -45,10 +45,7 @@ Ficheros de entrada del problema:
 
 ## 3. Próximos bloques — orden obligatorio
 
-### C14.1 — Diseñar la unificación funcional
-
-**Es el bloque de la próxima sesión.** No empezar F12.4 ni añadir más temas
-antes de cerrarlo.
+### C14.1 — Diseñar la unificación funcional — ✅ cerrado 2026-08-04
 
 Objetivo: definir y dejar testeado el contrato que permite que los cuatro temas
 usen el mismo carrito, quote, checkout, pedido y gracias que el resto, sin
@@ -79,7 +76,20 @@ Criterios de cierre:
 - `pnpm check` verde;
 - roadmap actualizado indicando qué tienda migra primero.
 
+Resultado: `src/lib/storefront-contract.ts` fija por tipos las cuatro
+superficies, sus hooks/slots de presentación y las fuentes inmutables del motor
+(D1/`price_cents`, `cart-client`, quote, checkout y pedido por sesión). Los
+componentes compartidos exponen el contrato sin cambiar su UI. La nueva suite
+`tests/storefront-contract.test.ts` verifica las rutas canónicas y acota las
+cinco señales de bifurcación a una lista cerrada de cuatro temas; cualquier
+quinta excepción rompe el check. Documentación de temas corregida: ya no se
+aceptan carcasas con producto/checkout paralelo. Verificado con `pnpm check`
+(172/172 tests, tipos y build) y E2E completo de 27 pasos contra el Worker
+local; demo local reseteada al terminar.
+
 ### C14.2 — Migrar una tienda verticalmente
+
+**Es el bloque de la próxima sesión.**
 
 Migrar **Forma** primero: ficha → añadir al carrito compartido → quote de
 envío → checkout simulado/Stripe según entorno → pedido → gracias. Forma es la
@@ -189,8 +199,7 @@ Al recibir **«continúa desarrollando el proyecto»**:
 1. sincronizar Git y comprobar que este documento sigue vigente;
 2. leer `CLAUDE.md`, `docs/CONTINUAR.md`, la sección «Próxima sesión» del
    roadmap y este documento;
-3. ejecutar solo el primer bloque C14 pendiente;
+3. ejecutar solo el primer bloque C14 pendiente (ahora C14.2);
 4. verificar según el protocolo;
 5. actualizar este archivo y el roadmap antes de commit/push;
 6. no declarar Fase 9B cerrada hasta completar C14.3.
-

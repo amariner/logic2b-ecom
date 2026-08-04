@@ -29,27 +29,25 @@ señal de que algo se ha modelado mal en la capa de presentación. **Parar y
 replantear, no bifurcar el backend.** Diez backends es exactamente el fracaso que
 este diseño existe para evitar.
 
-### Dos recorridos que no deben confundirse
+### Un solo recorrido funcional con muchas presentaciones
 
-El escaparate tiene dos tipos de demo y ambos pueden evolucionar en paralelo:
+Cada demo de tema (`/demo/tiendas/<id>`) es una tienda completa: su catálogo se
+lee de D1, su carrito guarda solo `slug` y cantidad mediante `cart-client`, el
+presupuesto sale de `/api/cart/quote`, el pedido de `/api/checkout/session` y la
+confirmación consulta el pedido por el identificador de sesión. La demo genérica
+(`/demo/tienda`) utiliza exactamente el mismo recorrido.
 
-1. **Demos visuales de tema** (`/demo/tiendas/<id>`). Son carcasas de diseño.
-   Pueden utilizar productos estáticos, imágenes propias y estado local para
-   reproducir con fidelidad una dirección visual. Sus productos **no tienen que
-   existir en D1 ni aparecer en el panel**.
-2. **Demo funcional del motor** (`/demo/tienda`, `/demo/admin` y
-   `/demo/admin/emails`). Usa su catálogo genérico y demuestra compra, pedidos,
-   stock, envíos y emails. Es independiente de los productos de cada carcasa.
+La fuente canónica de producto y precio es siempre
+`seed/collections/<id>.ts` → D1, con `price_cents` entero. Un tema no puede
+mantener un segundo mapa con precios formateados para calcular un carrito o
+simular un checkout. Los arrays de composición visual pueden decidir orden,
+encuadre o copy editorial, pero enlazan por `slug` a los productos recibidos de
+D1 y nunca deciden dinero, stock ni estado del pedido.
 
-Esta separación es deliberada: permite desarrollar temas en paralelo sin
-convertir cada dirección visual en una migración de backend. No se debe simular
-que un producto está en el panel si no lo está.
-
-Todas las superficies de tema deben conservar `DemoJourneyBanner`, montado por
-`Shop.astro`. La franja comunica que todos los temas comparten el mismo motor y
-ofrece un único acceso al `Gestor tienda` (`/demo/admin`). Un tema inmersivo no
-puede ocultarla con CSS. Si crea páginas standalone (ficha, carrito, checkout o gracias), debe
-envolverlas también en `Shop.astro` para heredar la franja y el selector.
+Todas las superficies conservan `DemoJourneyBanner`, montado por `Shop.astro`,
+y se componen con `ProductPage`, `CartPage`, `CheckoutPage` y `ThanksPage`. La
+franja ofrece el acceso al `Gestor tienda` (`/demo/admin`) y ningún tema puede
+ocultarla con CSS.
 
 ---
 
@@ -117,6 +115,23 @@ Footer.astro   ProductDetail.astro Filters.astro
 
 Los que un tema no redefina **caen al tema Base**. No hay obligación de
 implementar los seis.
+
+### 2.4 Contrato de ficha, carrito, checkout y gracias
+
+La frontera ejecutable vive en `src/lib/storefront-contract.ts`. Los cuatro
+componentes compartidos exponen:
+
+- `data-commerce-surface` para identificar la superficie;
+- `data-commerce-part` para estilizar sus bloques sin copiarlos;
+- slots tipados para copy o marcado puramente visual;
+- en el slot completo de ficha, los selectores tipados
+  `PRODUCT_COMMERCE_SELECTORS` para cantidad y añadir al carrito.
+
+El tema puede usar esos hooks y slots para cambiar composición, jerarquía y
+tono. El componente compartido conserva el script, `cart-client`, los endpoints
+y la lectura del pedido. Si un diseño no cabe en estos puntos de extensión, se
+amplía el contrato compartido para todos; nunca se crea una ruta de compra
+paralela dentro del tema.
 
 ### 2.4 Los dos tipos de imagen
 

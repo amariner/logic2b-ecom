@@ -20,6 +20,9 @@
 - [ ] `seed/collections/<id>.ts`: catálogo completo (reparto de
       `ROADMAP § 9B.0`), slugs **namespaceados** (`str-`, `ind-`…) — slug es
       UNIQUE GLOBAL en D1.
+- [ ] **Una sola fuente de producto y precio:** el catálogo y la ficha reciben
+      filas D1 del seed. No crear `src/collections/<id>-products.ts`, precios en
+      texto ni mapas paralelos para la compra.
 - [ ] `compare_at_price_cents` solo si el tema enseña ofertas, siempre
       `> price_cents` (lo valida el seed). **Jamás entra en precio/envío**: hay
       guardia estática que muerde (`tests/pricing-guard.test.ts`).
@@ -37,12 +40,17 @@
 - [ ] Descriptor `layout` fiel a la referencia.
 - [ ] Componentes en `src/components/themes/<id>/` — **cero color/tamaño
       hardcodeado**: todo lee tokens. Clases Tailwind como **literales**.
-- [ ] Botones de compra con data-attribute propio (`data-<id>-add`).
-- [ ] **Puente hacia la demo funcional visible.** Todas las páginas del tema se
-      montan con `Shop.astro` y conservan `DemoJourneyBanner`: una carcasa puede
-      tener productos estáticos distintos de D1, pero siempre muestra el enlace
-      `Gestor tienda` hacia `/demo/admin`. Ningún CSS del tema
-      puede ocultar `[data-demo-journey]`.
+- [ ] En un catálogo con script propio, el botón usa un data-attribute del tema
+      (`data-<id>-add`) y llama a `cart-client`. En el slot de ficha usa los
+      selectores compartidos `PRODUCT_COMMERCE_SELECTORS`.
+- [ ] **Recorrido funcional compartido.** Ficha, carrito, checkout y gracias se
+      componen con `ProductPage`, `CartPage`, `CheckoutPage` y `ThanksPage`.
+      Para personalizar se usan los slots y hooks `data-commerce-*` definidos
+      en `src/lib/storefront-contract.ts`; nunca una clave `<tema>-demo-cart`,
+      una suma de precios en cliente o un submit simulado propio.
+- [ ] Todas las páginas se montan con `Shop.astro` y conservan
+      `DemoJourneyBanner` y el enlace `Gestor tienda` hacia `/demo/admin`.
+      Ningún CSS del tema puede ocultar `[data-demo-journey]`.
 - [ ] Texto siempre con color semántico explícito (`text-foreground` /
       `text-muted-foreground`) y superficie dark-aware (`bg-background` /
       `bg-muted`): el `<body>` de Base lleva `bg-white text-gray-900` fijos y NO
@@ -62,9 +70,9 @@
 - [ ] Navegador: catálogo (prístino y filtrado), búsqueda sin resultados, ficha,
       carrito con portes reales, checkout — a **1440px, 375px y modo oscuro**
       (`.dark` forzada en `<html>`).
-- [ ] Recorrido comercial: desde la franja se entiende que el tema es una
-      propuesta de presentación sobre el mismo motor y se puede abrir el
-      `Gestor tienda`, aunque los catálogos de muestra no coincidan.
+- [ ] Recorrido comercial completo: añadir desde el tema → quote con envío →
+      checkout → pedido real de demo → gracias → `Gestor tienda`; el
+      producto, total y estado coinciden en todas las superficies.
 - [ ] `node scripts/a11y-audit.mjs --only=<id>` en verde (contra `wrangler dev`).
       Barre catálogo/ficha/carrito/checkout a 1440, 375, oscuro y reduced-motion.
 - [ ] `pnpm check` en verde (types + tests + build).

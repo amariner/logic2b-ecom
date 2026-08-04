@@ -20,6 +20,7 @@ interface Props {
 
 const { collection, product, related, site } = Astro.props;
 const paths = storePaths(collection.id);
+const hasCustomPresentation = Astro.slots.has('presentation');
 
 const categoryLabel = labelForCategory(collection, product.category);
 
@@ -47,7 +48,12 @@ const jsonLd = {
 ---
 
 <Shop title={product.name} description={product.description} collection={collection}>
-  <main class="mx-auto max-w-6xl px-4 py-10">
+  <main
+    class:list={[!hasCustomPresentation && 'mx-auto max-w-6xl px-4 py-10']}
+    data-commerce-surface="product"
+    data-commerce-part="body"
+  >
+    {hasCustomPresentation ? <slot name="presentation" /> : <>
     <nav class="text-sm text-muted-foreground">
       <a href={paths.catalog} class="hover:text-foreground hover:underline">Tienda</a>
       <span aria-hidden="true"> / </span>
@@ -59,7 +65,7 @@ const jsonLd = {
           y deja un bloque gris muerto bajo la foto en cuanto esa columna crece
           (primer producto con ficha técnica que lo destapa: MV-320 de METRIA).
           La imagen es cuadrada; la caja no tiene por qué ser más alta. */}
-      <div class="self-start overflow-hidden rounded-3xl bg-muted">
+      <div class="self-start overflow-hidden rounded-3xl bg-muted" data-commerce-part="media">
         <img
           src={product.image}
           alt={product.name}
@@ -69,7 +75,7 @@ const jsonLd = {
         />
       </div>
 
-      <div class="md:py-4">
+      <div class="md:py-4" data-commerce-part="details">
         <p class="text-sm font-medium uppercase tracking-wide text-brand">{categoryLabel}</p>
         <h1 class="mt-2 font-display text-3xl sm:text-4xl">{product.name}</h1>
         {product.subtitle && (
@@ -95,11 +101,12 @@ const jsonLd = {
         )}
 
         {product.stock > 0 ? (
-          <div class="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
+          <div class="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center" data-commerce-part="purchase">
             <div class="flex items-center gap-3">
               <label class="text-sm text-muted-foreground" for="qty">Cantidad</label>
               <input
                 id="qty"
+                data-commerce-input="quantity"
                 type="number"
                 min="1"
                 max={Math.min(product.stock, 99)}
@@ -110,7 +117,8 @@ const jsonLd = {
             </div>
             <button
               type="button"
-              data-add-to-cart={product.slug}
+              data-commerce-action="add-to-cart"
+              data-product-slug={product.slug}
               class="flex-1 rounded-btn bg-brand px-8 py-3 font-semibold text-brand-fg shadow-lg shadow-brand/20 transition hover:bg-brand-dark active:scale-[.98] sm:flex-none"
             >Añadir al carrito</button>
           </div>
@@ -129,7 +137,7 @@ const jsonLd = {
     </div>
 
     {related.length > 0 && (
-      <section class="mt-16">
+      <section class="mt-16" data-commerce-part="related">
         <div class="flex items-baseline justify-between">
           <h2 class="font-display text-2xl">Más {categoryLabel.toLowerCase()}</h2>
           <a href={`${paths.catalog}?categoria=${product.category}`} class="text-sm text-brand underline underline-offset-2 hover:text-brand-dark">Ver todos</a>
@@ -157,20 +165,22 @@ const jsonLd = {
         </ul>
       </section>
     )}
+    </>}
   </main>
 
   <script type="application/ld+json" set:html={jsonLdScript(jsonLd)} is:inline />
 
   <script>
     import { addToCart } from '../../lib/cart-client';
+    import { PRODUCT_COMMERCE_SELECTORS } from '../../lib/storefront-contract';
 
-    const btn = document.querySelector<HTMLButtonElement>('[data-add-to-cart]');
-    const qtyInput = document.querySelector<HTMLInputElement>('#qty');
+    const btn = document.querySelector<HTMLButtonElement>(PRODUCT_COMMERCE_SELECTORS.addToCart);
+    const qtyInput = document.querySelector<HTMLInputElement>(PRODUCT_COMMERCE_SELECTORS.quantity);
     btn?.addEventListener('click', () => {
       // Redondear hacia abajo: un valor no entero (p. ej. "2.5") no debe colarse
       // en el carrito — readCart() lo descartaría en silencio más adelante.
       const qty = Math.max(1, Math.floor(Number(qtyInput?.value ?? 1)) || 1);
-      addToCart(btn.dataset.addToCart ?? '', qty);
+      addToCart(btn.dataset.productSlug ?? '', qty);
       const prev = btn.textContent;
       btn.textContent = 'Añadido ✓';
       setTimeout(() => (btn.textContent = prev), 900);
