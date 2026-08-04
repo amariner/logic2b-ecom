@@ -1247,6 +1247,11 @@ Verificación: `pnpm check` (174/174 tests, tipos y build) y E2E de aislamiento
 19/19 superficies públicas en verde. La revisión del 2026-08-03 queda archivada
 y C14.3 cancelado.
 
+Desplegado en producción y repetido el E2E 27/27 contra
+`https://ecom.logic2b.com`. Lighthouse de las cuatro indexables queda en
+100/100/100/100 móvil y escritorio; para recuperar el 100 móvil, Inter deja de
+bloquear el primer texto por debajo de 640 px (fallback métrico, LCP 1,0–1,1 s).
+
 ### Siguiente bloque
 
 Retomar **F12.4 — página para agencias / marca blanca**, respetando la nueva
