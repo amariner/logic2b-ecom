@@ -61,16 +61,9 @@ const ogImage = new URL('/images/og.jpg?v=3', Astro.site).href;
     {description && <meta name="description" content={description} />}
     {noindex && <meta name="robots" content="noindex,follow" />}
     {canonical && <link rel="canonical" href={canonical} />}
-    {/* Inter latino es la fuente base de todo el sitio: precargarla arranca la
-        descarga en paralelo con el CSS (el subset latin-ext casi nunca hace
-        falta en castellano y no se precarga). */}
-    <link
-      rel="preload"
-      href="/fonts/inter-latin-wght-normal.woff2"
-      as="font"
-      type="font/woff2"
-      crossorigin
-    />
+    {/* Inter usa font-display:optional y un fallback con métricas ajustadas.
+        No se precarga: bajo red móvil sus 47 kB competían con el CSS y
+        retrasaban FCP/LCP; el texto puede pintarse de inmediato sin CLS. */}
     {/* El H1 es el LCP de las comerciales: sin precarga, Poppins llega después
         del primer pintado y el titular cambia de cara a la vista. */}
     {preloadDisplayFont && (

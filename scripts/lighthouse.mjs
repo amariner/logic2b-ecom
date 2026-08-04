@@ -105,7 +105,10 @@ function lighthouse(page, form, base) {
       '--output=json',
       '--output=html',
       `--output-path=${base}`,
-      '--chrome-flags=--headless=new --no-sandbox',
+      // Chrome puede heredar un proxy del sistema con credenciales caducadas
+      // aunque Node/curl salgan directos; en ese caso Lighthouse aborta antes
+      // de medir con ERR_INVALID_AUTH_CREDENTIALS.
+      '--chrome-flags=--headless=new --no-sandbox --no-proxy-server',
       '--quiet',
     ],
     { stdio: ['ignore', 'ignore', 'inherit'] },
