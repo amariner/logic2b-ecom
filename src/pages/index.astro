@@ -270,10 +270,58 @@ const jsonLd = [
         <a href="/precios">Ver cómo funciona el escalado <span aria-hidden="true">→</span></a>
       </div>
       <div class="airtable-scale-visual" aria-label="Evolución desde el lanzamiento hasta la escala">
-        <span class="airtable-scale-line" aria-hidden="true"></span>
-        <div><i>01</i><strong>Lanzamiento</strong><small>Lo esencial para vender</small></div>
-        <div><i>02</i><strong>Tracción</strong><small>Más visibilidad</small></div>
-        <div><i>03</i><strong>Escala</strong><small>Más capacidad</small></div>
+        <div class="scale-visual-head">
+          <div>
+            <span class="scale-live"><i aria-hidden="true"></i>Evolución del negocio</span>
+            <strong>Más tráfico. Más funciones. La misma base.</strong>
+          </div>
+          <span class="scale-no-migration">Sin migraciones <i aria-hidden="true">✓</i></span>
+        </div>
+
+        <div class="scale-visual-chart">
+          <svg class="scale-growth-curve" viewBox="0 0 1000 300" preserveAspectRatio="none" aria-hidden="true">
+            <defs>
+              <linearGradient id="scale-area" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="#64b5f6" stop-opacity=".28"></stop>
+                <stop offset="1" stop-color="#64b5f6" stop-opacity="0"></stop>
+              </linearGradient>
+            </defs>
+            <path d="M20 275C150 270 180 250 260 231S390 208 470 170 610 148 690 106 840 83 980 22V300H20Z" fill="url(#scale-area)"></path>
+            <path d="M20 275C150 270 180 250 260 231S390 208 470 170 610 148 690 106 840 83 980 22" fill="none" stroke="#8ac9ff" stroke-width="3" stroke-linecap="round"></path>
+          </svg>
+          <article class="scale-stage">
+            <span class="scale-stage-number">01</span>
+            <i class="scale-stage-dot" aria-hidden="true"></i>
+            <strong>Lanzamiento</strong>
+            <span class="scale-stage-capability">Tienda · pagos</span>
+          </article>
+          <article class="scale-stage">
+            <span class="scale-stage-number">02</span>
+            <i class="scale-stage-dot" aria-hidden="true"></i>
+            <strong>Tracción</strong>
+            <span class="scale-stage-capability">SEO · GEO</span>
+          </article>
+          <article class="scale-stage">
+            <span class="scale-stage-number">03</span>
+            <i class="scale-stage-dot" aria-hidden="true"></i>
+            <strong>Crecimiento</strong>
+            <span class="scale-stage-capability">Nuevas funciones</span>
+          </article>
+          <article class="scale-stage scale-stage-current">
+            <span class="scale-stage-number">04</span>
+            <i class="scale-stage-dot" aria-hidden="true"></i>
+            <strong>Escala</strong>
+            <span class="scale-stage-capability">IA · automatización</span>
+          </article>
+        </div>
+
+        <div class="scale-foundation">
+          <div class="scale-foundation-title">
+            <span aria-hidden="true">∞</span>
+            <div><small>Core Logic2B</small><strong>Una plataforma todo el camino</strong></div>
+          </div>
+          <span class="scale-foundation-note">Código propio · Datos estructurados · Modular</span>
+        </div>
       </div>
     </section>
 
@@ -363,7 +411,7 @@ const jsonLd = [
         </div>
       </div>
       <div class="logic2b-capabilities" aria-label="Servicios de Logic2B">
-        <span>Web</span><i aria-hidden="true"></i><span>Ecommerce</span><i aria-hidden="true"></i><span>Software</span><i aria-hidden="true"></i><span>UI/UX</span><i aria-hidden="true"></i><span>Marketing</span><i aria-hidden="true"></i><span>IA</span>
+        <span>Diseño</span><span>Ecommerce</span><span>Desarrollo</span><span>IA</span>
       </div>
     </section>
 
@@ -784,13 +832,9 @@ const jsonLd = [
   }
   .airtable-landing .airtable-scale-visual {
     position: relative;
-    display: grid;
-    min-height: 390px;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    align-items: end;
-    gap: 0.8rem;
+    min-height: 520px;
     overflow: hidden;
-    padding: 2rem;
+    padding: 1rem;
     border-radius: 1.5rem;
     background: var(--air-ink);
     color: white;
@@ -806,49 +850,196 @@ const jsonLd = [
     content: '';
     filter: blur(10px);
   }
-  .airtable-landing .airtable-scale-visual > div {
+  .airtable-landing .scale-visual-head {
     position: relative;
+    z-index: 3;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.8rem 0.85rem 1.2rem;
+  }
+  .airtable-landing .scale-visual-head > div {
+    display: grid;
+    gap: 0.55rem;
+  }
+  .airtable-landing .scale-live {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    color: rgba(255,255,255,0.52);
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+  }
+  .airtable-landing .scale-live i {
+    width: 0.42rem;
+    height: 0.42rem;
+    border-radius: 50%;
+    background: #8fc861;
+    box-shadow: 0 0 0 0.28rem rgba(143,200,97,0.12);
+  }
+  .airtable-landing .scale-visual-head strong {
+    max-width: 25rem;
+    font-size: clamp(0.9rem, 1.5vw, 1.1rem);
+    font-weight: 650;
+  }
+  .airtable-landing .scale-no-migration {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.55rem 0.7rem;
+    border: 1px solid rgba(255,255,255,0.14);
+    border-radius: 999px;
+    background: rgba(255,255,255,0.06);
+    color: rgba(255,255,255,0.7);
+    font-size: 0.63rem;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+  .airtable-landing .scale-no-migration i {
+    display: grid;
+    width: 1rem;
+    height: 1rem;
+    place-items: center;
+    border-radius: 50%;
+    background: #b9e495;
+    color: var(--air-ink);
+    font-size: 0.62rem;
+    font-style: normal;
+  }
+  .airtable-landing .scale-visual-chart {
+    position: absolute;
     z-index: 1;
+    right: 1rem;
+    bottom: 7.4rem;
+    left: 1rem;
+    display: grid;
+    min-height: 330px;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    align-items: end;
+    gap: 0.55rem;
+  }
+  .airtable-landing .scale-growth-curve {
+    position: absolute;
+    z-index: 0;
+    width: 100%;
+    height: 88%;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    pointer-events: none;
+  }
+  .airtable-landing .scale-stage {
+    position: relative;
+    z-index: 2;
     display: flex;
     min-width: 0;
     height: 9rem;
     flex-direction: column;
     justify-content: flex-end;
-    padding: 1.15rem;
-    border: 1px solid rgba(255,255,255,0.18);
-    border-radius: 1rem;
-    background: rgba(255,255,255,0.09);
+    padding: 0.85rem;
+    border: 1px solid rgba(255,255,255,0.14);
+    border-radius: 0.85rem;
+    background: rgba(24,29,38,0.76);
+    backdrop-filter: blur(7px);
   }
-  .airtable-landing .airtable-scale-visual > div:nth-of-type(2) { height: 13rem; }
-  .airtable-landing .airtable-scale-visual > div:nth-of-type(3) {
-    height: 17rem;
-    background: rgba(255,255,255,0.16);
+  .airtable-landing .scale-stage:nth-of-type(2) { height: 12rem; }
+  .airtable-landing .scale-stage:nth-of-type(3) { height: 15rem; }
+  .airtable-landing .scale-stage:nth-of-type(4) { height: 18rem; }
+  .airtable-landing .scale-stage-current {
+    border-color: rgba(138,201,255,0.48);
+    background: rgba(68,93,124,0.66);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.08);
   }
-  .airtable-landing .airtable-scale-visual i {
+  .airtable-landing .scale-stage-number {
     margin-bottom: auto;
-    color: rgba(255,255,255,0.54);
-    font-size: 0.68rem;
-    font-style: normal;
+    color: rgba(255,255,255,0.42);
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 0.58rem;
     font-weight: 700;
   }
-  .airtable-landing .airtable-scale-visual strong {
-    font-size: clamp(0.88rem, 1.4vw, 1.1rem);
-  }
-  .airtable-landing .airtable-scale-visual small {
-    margin-top: 0.35rem;
-    color: rgba(255,255,255,0.62);
-    font-size: 0.7rem;
-  }
-  .airtable-landing .airtable-scale-line {
+  .airtable-landing .scale-stage-dot {
     position: absolute;
-    z-index: 0;
-    width: 70%;
-    height: 2px;
-    right: 12%;
-    bottom: 49%;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.36));
-    transform: rotate(-14deg);
-    transform-origin: right;
+    width: 0.5rem;
+    height: 0.5rem;
+    right: 0.75rem;
+    top: 0.75rem;
+    border: 1px solid rgba(255,255,255,0.5);
+    border-radius: 50%;
+  }
+  .airtable-landing .scale-stage-current .scale-stage-dot {
+    border-color: #b9e495;
+    background: #b9e495;
+    box-shadow: 0 0 0 0.35rem rgba(185,228,149,0.1);
+  }
+  .airtable-landing .scale-stage strong {
+    overflow-wrap: anywhere;
+    font-size: clamp(0.72rem, 1.1vw, 0.92rem);
+  }
+  .airtable-landing .scale-stage-capability {
+    align-self: flex-start;
+    margin-top: 0.55rem;
+    padding: 0.28rem 0.42rem;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.09);
+    color: rgba(255,255,255,0.62);
+    font-size: 0.52rem;
+    font-weight: 650;
+    white-space: nowrap;
+  }
+  .airtable-landing .scale-foundation {
+    position: absolute;
+    z-index: 4;
+    right: 1rem;
+    bottom: 1rem;
+    left: 1rem;
+    display: flex;
+    min-height: 5.4rem;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.8rem 1rem;
+    border: 1px solid rgba(138,201,255,0.2);
+    border-radius: 0.9rem;
+    background: rgba(7,18,35,0.94);
+    box-shadow: 0 -12px 30px rgba(7,18,35,0.28);
+  }
+  .airtable-landing .scale-foundation-title {
+    display: flex;
+    min-width: 0;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  .airtable-landing .scale-foundation-title > span {
+    display: grid;
+    width: 2.2rem;
+    height: 2.2rem;
+    flex: 0 0 auto;
+    place-items: center;
+    border-radius: 0.65rem;
+    background: #8ac9ff;
+    color: #071223;
+    font-size: 1.25rem;
+    font-weight: 800;
+  }
+  .airtable-landing .scale-foundation-title > div { display: grid; gap: 0.18rem; }
+  .airtable-landing .scale-foundation-title small {
+    color: #8ac9ff;
+    font-size: 0.5rem;
+    font-weight: 700;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+  }
+  .airtable-landing .scale-foundation-title strong {
+    font-size: 0.7rem;
+    white-space: nowrap;
+  }
+  .airtable-landing .scale-foundation-note {
+    color: rgba(255,255,255,0.52);
+    font-size: 0.52rem;
+    white-space: nowrap;
   }
   .airtable-landing .airtable-demos a {
     overflow: hidden;
@@ -960,20 +1151,12 @@ const jsonLd = [
     overflow: hidden;
     border-block: 1px solid rgba(255,255,255,0.09);
     background:
-      radial-gradient(circle at 78% 15%, rgba(0,153,255,0.15), transparent 28rem),
+      radial-gradient(circle at 78% 15%, rgba(0,153,255,0.08), transparent 26rem),
       #08090a;
     color: #f7f8f8;
   }
   .airtable-landing .airtable-casa::before {
-    position: absolute;
-    width: 34rem;
-    height: 34rem;
-    left: -20rem;
-    bottom: -25rem;
-    border: 1px solid rgba(0,153,255,0.24);
-    border-radius: 50%;
-    content: '';
-    box-shadow: 0 0 0 6rem rgba(0,153,255,0.025), 0 0 0 12rem rgba(0,153,255,0.018);
+    content: none;
   }
   .airtable-landing .airtable-casa-inner {
     position: relative;
@@ -1009,7 +1192,7 @@ const jsonLd = [
     font-weight: 800;
   }
   .airtable-landing .logic2b-kicker {
-    margin-top: clamp(2.5rem, 5vw, 4.5rem);
+    margin-top: clamp(2rem, 4vw, 3.25rem);
     color: #6f747c;
     font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
     font-size: 0.67rem;
@@ -1021,7 +1204,7 @@ const jsonLd = [
     margin-top: 1rem;
     color: #f7f8f8;
     font-family: 'Poppins', 'Space Grotesk', sans-serif;
-    font-size: clamp(2.6rem, 5.4vw, 5rem);
+    font-size: clamp(2.6rem, 4.8vw, 4.35rem);
     font-weight: 600;
     letter-spacing: -0.045em;
     line-height: 0.98;
@@ -1054,13 +1237,13 @@ const jsonLd = [
   .airtable-landing .logic2b-system {
     position: relative;
     display: grid;
-    min-height: 470px;
+    min-height: 410px;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 0.85rem;
-    padding: 0.85rem;
-    border: 1px solid rgba(255,255,255,0.1);
+    gap: 0.55rem;
+    padding: 0.55rem;
+    border: 1px solid rgba(255,255,255,0.07);
     border-radius: 1.5rem;
-    background: rgba(255,255,255,0.025);
+    background: rgba(255,255,255,0.015);
   }
   .airtable-landing .logic2b-system article {
     position: relative;
@@ -1070,14 +1253,14 @@ const jsonLd = [
     flex-direction: column;
     justify-content: flex-end;
     padding: clamp(1.15rem, 2.5vw, 1.8rem);
-    border: 1px solid rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.055);
     border-radius: 1rem;
-    background: rgba(255,255,255,0.035);
+    background: rgba(255,255,255,0.02);
     transition: border-color 180ms ease, background 180ms ease;
   }
   .airtable-landing .logic2b-system article:hover {
-    border-color: rgba(0,153,255,0.48);
-    background: rgba(0,153,255,0.055);
+    border-color: rgba(0,153,255,0.28);
+    background: rgba(0,153,255,0.035);
   }
   .airtable-landing .logic2b-system article > span {
     margin-bottom: auto;
@@ -1101,15 +1284,15 @@ const jsonLd = [
     position: absolute;
     z-index: 3;
     display: grid;
-    width: 5.4rem;
-    height: 5.4rem;
+    width: 4.5rem;
+    height: 4.5rem;
     left: 50%;
     top: 50%;
     place-items: center;
-    border: 0.65rem solid #08090a;
+    border: 0.5rem solid #08090a;
     border-radius: 50%;
     background: #f7f8f8;
-    box-shadow: 0 0 0 1px rgba(0,153,255,0.28), 0 0 42px rgba(0,153,255,0.18);
+    box-shadow: 0 0 0 1px rgba(0,153,255,0.2), 0 0 24px rgba(0,153,255,0.1);
     transform: translate(-50%, -50%);
   }
   .airtable-landing .logic2b-core .logic2b-mark {
@@ -1119,7 +1302,7 @@ const jsonLd = [
   .airtable-landing .logic2b-system-line {
     position: absolute;
     z-index: 0;
-    background: linear-gradient(90deg, transparent, rgba(0,153,255,0.4), transparent);
+    background: linear-gradient(90deg, transparent, rgba(0,153,255,0.22), transparent);
   }
   .airtable-landing .logic2b-system-line-a {
     width: calc(100% - 2rem);
@@ -1132,7 +1315,7 @@ const jsonLd = [
     height: calc(100% - 2rem);
     left: 50%;
     top: 1rem;
-    background: linear-gradient(transparent, rgba(0,153,255,0.4), transparent);
+    background: linear-gradient(transparent, rgba(0,153,255,0.22), transparent);
   }
   .airtable-landing .logic2b-capabilities {
     position: relative;
@@ -1140,9 +1323,9 @@ const jsonLd = [
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: clamp(0.9rem, 2.8vw, 2.5rem);
+    gap: clamp(1.5rem, 4vw, 4rem);
     overflow: hidden;
-    padding: 1.25rem clamp(24px, 4vw, 32px);
+    padding: 1rem clamp(24px, 4vw, 32px);
     border-top: 1px solid rgba(255,255,255,0.09);
     color: #747981;
     font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
@@ -1150,13 +1333,6 @@ const jsonLd = [
     letter-spacing: 0.11em;
     text-transform: uppercase;
     white-space: nowrap;
-  }
-  .airtable-landing .logic2b-capabilities i {
-    width: 0.25rem;
-    height: 0.25rem;
-    flex: 0 0 auto;
-    border-radius: 50%;
-    background: #0099ff;
   }
   .airtable-landing .airtable-faq details { box-shadow: none; }
   .airtable-landing .airtable-contact {
@@ -1238,17 +1414,62 @@ const jsonLd = [
       gap: 2rem;
     }
     .airtable-landing .airtable-scale-visual {
-      min-height: 300px;
-      gap: 0.5rem;
-      padding: 1rem;
-    }
-    .airtable-landing .airtable-scale-visual > div {
-      height: 7rem;
+      min-height: 0;
       padding: 0.75rem;
     }
-    .airtable-landing .airtable-scale-visual > div:nth-of-type(2) { height: 10rem; }
-    .airtable-landing .airtable-scale-visual > div:nth-of-type(3) { height: 13rem; }
-    .airtable-landing .airtable-scale-visual small { display: none; }
+    .airtable-landing .scale-visual-head {
+      display: grid;
+      align-items: flex-start;
+      justify-content: stretch;
+      gap: 0.75rem;
+      padding: 0.55rem 0.45rem 1rem;
+    }
+    .airtable-landing .scale-visual-head strong {
+      max-width: 13rem;
+      font-size: 0.8rem;
+    }
+    .airtable-landing .scale-no-migration {
+      justify-self: start;
+      padding: 0.4rem 0.5rem;
+      font-size: 0.55rem;
+    }
+    .airtable-landing .scale-visual-chart {
+      position: relative;
+      right: auto;
+      bottom: auto;
+      left: auto;
+      min-height: 0;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      align-items: stretch;
+      margin-top: 0.25rem;
+    }
+    .airtable-landing .scale-growth-curve { display: none; }
+    .airtable-landing .scale-stage,
+    .airtable-landing .scale-stage:nth-of-type(2),
+    .airtable-landing .scale-stage:nth-of-type(3),
+    .airtable-landing .scale-stage:nth-of-type(4) {
+      height: auto;
+      min-height: 8.5rem;
+      padding: 0.75rem;
+    }
+    .airtable-landing .scale-stage strong { font-size: 0.88rem; }
+    .airtable-landing .scale-stage-capability {
+      font-size: 0.48rem;
+      white-space: normal;
+    }
+    .airtable-landing .scale-foundation {
+      position: relative;
+      right: auto;
+      bottom: auto;
+      left: auto;
+      display: grid;
+      margin-top: 0.6rem;
+    }
+    .airtable-landing .scale-foundation-title strong { white-space: normal; }
+    .airtable-landing .scale-foundation-note {
+      padding-left: 2.95rem;
+      white-space: normal;
+    }
     .airtable-landing .airtable-demo-grid { grid-template-columns: 1fr; }
     .airtable-landing .airtable-demos .airtable-demo-store,
     .airtable-landing .airtable-demos .airtable-demo-orders,
