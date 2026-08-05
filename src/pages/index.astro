@@ -21,6 +21,9 @@ import HeaderActions from '../components/HeaderActions.astro';
 import ProjectDialog from '../components/ProjectDialog.astro';
 import ProjectForm from '../components/ProjectForm.astro';
 import LogoMarquee from '../components/LogoMarquee.astro';
+import ThemeRail from '../components/ThemeRail.astro';
+import FlowInterface from '../components/FlowInterface.astro';
+import DemoInterface from '../components/DemoInterface.astro';
 import { collections, storePaths } from '../lib/collections';
 import { demoThemes, defaultTheme, getTheme } from '../lib/demo-themes';
 import { landingNav, MAIN_DEMO_HREF, MAIN_DEMO_NAME, DEMO_ADMIN_HREF } from '../lib/nav';
@@ -67,141 +70,59 @@ const themeCount = demoThemes.filter((t) => t.id !== defaultTheme.id).length;
 const flow = [
   {
     n: '01',
-    title: 'El cliente compra',
-    body: 'Sin crear cuenta. El porte se calcula por código postal y el pago va a la pasarela: la tarjeta nunca toca la tienda.',
-    img: '/images/screens/flow-checkout-900.webp',
-    alt: 'Checkout de la demo con el porte calculado y el total',
+    title: 'Web a medida',
+    body: 'Diseñamos y desarrollamos una web a medida de tu negocio. Sin plantillas genéricas: cada pantalla, función y proceso responde a una necesidad concreta.',
+    alt: 'Escaparate ARCE diseñado a medida por Logic2B Ecommerce',
+    visualLabel: 'Diseño exclusivo',
+    visual: 'storefront',
+    tone: 'terracotta',
   },
   {
     n: '02',
-    title: 'Te llega el email',
-    body: 'Confirmación al cliente y aviso a ti, con tu marca y tu dominio.',
-    img: '/images/screens/panel-email-open-900.webp',
-    alt: 'Email de confirmación de pedido renderizado en la bandeja',
+    title: 'Gestión sencilla',
+    body: 'Simplificamos el panel para que gestionar productos, pedidos y contenidos sea rápido. Tú ves lo esencial; la complejidad técnica queda de nuestro lado.',
+    alt: 'Panel sencillo de gestión de pedidos de Logic2B Ecommerce',
+    visualLabel: 'Panel de gestión',
+    visual: 'management',
+    tone: 'lime',
   },
   {
     n: '03',
-    title: 'Lo gestionas en el panel',
-    body: 'Un pedido, su dirección, sus líneas y su historial. Marcas «enviado» y pegas el seguimiento.',
-    img: '/images/screens/panel-order-detail-900.webp',
-    alt: 'Detalle de un pedido con dirección, tracking y línea de tiempo',
+    title: 'Crece contigo',
+    body: 'Añadimos nuevas funciones cuando el negocio las necesita y trabajamos el SEO, el GEO y las campañas para hacer crecer tu tráfico, sin migraciones ni volver a empezar.',
+    alt: 'Módulo de envíos añadido al panel de Logic2B Ecommerce',
+    visualLabel: 'Funciones modulares',
+    visual: 'growth',
+    tone: 'sky',
   },
   {
     n: '04',
-    title: 'Etiqueta y en camino',
-    body: 'Exportas la dirección a Packlink o SendCloud, imprimes la etiqueta y el cliente recibe el aviso solo.',
-    img: '/images/screens/panel-orders-900.webp',
-    alt: 'Listado de pedidos con los estados y la exportación a Packlink',
+    title: 'Nativa para IA',
+    body: 'La plataforma nace con datos estructurados y una arquitectura preparada para conectarse con asistentes, automatizaciones y modelos de lenguaje.',
+    alt: 'Catálogo estructurado preparado para integraciones y modelos de inteligencia artificial',
+    visualLabel: 'Arquitectura preparada para IA',
+    visual: 'ai',
+    tone: 'forest',
   },
-];
-
-// ── Comparativa ─────────────────────────────────────────────────────────────
-// Sin filas de dinero (cuota de plataforma, comisión por venta): nuestro modelo
-// también puede llevar comisión, así que comparar por ahí sería vender humo.
-// Lo que sí se compara es lo que de verdad nos separa: el producto y quién
-// responde por él.
-const comparison = [
-  { concept: 'El diseño de tu tienda', shopify: 'Plantilla que también usan otros', woo: 'Plantilla más plugins', kit: 'A medida, solo tuyo' },
-  { concept: 'Velocidad de carga', shopify: 'Tema genérico, 2–4 s', woo: 'Depende de 20 plugins', kit: '< 0,5 s, CDN global' },
-  { concept: 'El código es tuyo', shopify: 'No, alquilas', woo: 'Sí, pero frágil', kit: 'Sí, a medida' },
-  { concept: 'Mantenimiento técnico', shopify: 'Incluido en la cuota', woo: 'Tú (o sustos)', kit: 'Nosotros' },
-  { concept: 'Quién trae las visitas', shopify: 'Tú, o una agencia aparte', woo: 'Tú, o una agencia aparte', kit: 'Nosotros: SEO, GEO y campañas' },
-];
-
-const notForYou = [
-  'Necesitas la tienda en varios idiomas desde el día uno.',
-  'Tu catálogo cambia a diario y necesita sincronización automática con un ERP.',
-  'Quieres un marketplace con varios vendedores.',
-  'Vendes por suscripción recurrente (cuotas mensuales al cliente).',
-];
-
-// ── La escalera de evolución — se VENDE, no se construye (§14) ──────────────
-const ladder = [
-  {
-    k: 'Hoy',
-    title: 'El MVP que vende',
-    body: 'Catálogo, carrito, pagos, panel de pedidos y envíos. Lo esencial, bien hecho: tu tienda se entrega rápido y funciona desde el primer día.',
-  },
-  {
-    k: 'Cuando lo pida',
-    title: 'Se le añade, sin migrar',
-    body: 'Cuentas de cliente, promociones, multiidioma, más pasarelas de pago, transportistas integrados, feeds para Google y Meta… Cada pieza se activa de nuestro lado cuando el negocio la justifica.',
-  },
-  {
-    k: 'A cualquier escala',
-    title: '10 referencias o un millón',
-    body: 'La misma arquitectura sirve un expositor de barrio y un catálogo industrial. Nunca llega el día de «esta plataforma se nos ha quedado pequeña»: no hay migración, hay evolución.',
-  },
-];
-
-// ── Precios ─────────────────────────────────────────────────────────────────
-// El pago de puesta en marcha es cerrado; la cuota ARRANCA en el mínimo y sube
-// por tramos de tráfico. Los tramos concretos se cierran en la propuesta, no
-// aquí: publicar una tabla de tramos sin haberla validado sería inventarse
-// precios (§14).
-const tiers = [
-  {
-    name: 'Kit',
-    featured: true,
-    price: '1.900 €',
-    unit: 'puesta en marcha',
-    monthly: 'desde 39 €/mes, según el tráfico de tu tienda',
-    points: [
-      'Uno de los temas del catálogo, adaptado a tu marca (color, tipografía, fotos)',
-      'Catálogo cargado, pagos y envíos configurados',
-      'Tu dominio y emails con tu marca',
-      'Tu equipo cada mes: copias, actualizaciones, asistencia y hasta 2 h de cambios',
-    ],
-  },
-  {
-    name: 'Kit a medida',
-    featured: false,
-    price: 'desde 3.400 €',
-    unit: 'puesta en marcha',
-    monthly: 'desde 59 €/mes, con prioridad',
-    points: [
-      'Dirección visual propia, nivel Iris o Módulo Audio',
-      'Sesión de arte e imaginería generada para tu tienda',
-      'Tema exclusivo, no compartido con nadie',
-      'Todo lo del Kit, con soporte prioritario',
-    ],
-  },
-];
-const lite = {
-  name: 'Kit Lite',
-  price: 'desde 590 €',
-  body: 'Hasta 10 productos con enlaces de pago, sin panel. Para empezar a vender online con lo justo.',
-};
+] as const;
 
 // ── FAQ ─────────────────────────────────────────────────────────────────────
 const faqs = [
   {
-    q: '¿Cómo funciona eso de que la cuota crece con el tráfico?',
-    a: 'La cuota arranca en el mínimo mientras tu tienda tiene poco tráfico, y sube por tramos a medida que ese tráfico crece. No es una penalización: traer visitas es precisamente nuestro trabajo (SEO, GEO y campañas), así que solo cobramos más cuando lo hemos hecho bien y tu tienda vende más. El tramo exacto se cierra en la propuesta, con tus números delante.',
-  },
-  {
     q: '¿Qué pasa con los pagos? ¿Es seguro?',
-    a: 'El pago ocurre en la página de la pasarela —Stripe, PayPal o la que mejor encaje con tu negocio—, nunca en tu tienda. El número de tarjeta no pasa por ella: cero superficie de ataque, cero papeleo PCI. En las demos de este sitio el pago está simulado: puedes recorrer el proceso entero, pero no se cobra nada.',
+    a: 'El pago ocurre en la pasarela elegida. Los datos de tarjeta nunca pasan por tu tienda ni por nuestros servidores.',
   },
   {
     q: '¿Y si un día dejamos de trabajar juntos?',
-    a: 'No hay secuestro: el dominio y las cuentas de pago están a tu nombre, y el código es tuyo. Te lo entregamos con la documentación para que cualquier desarrollador pueda continuar. Sin permanencia.',
-  },
-  {
-    q: '¿Por qué no Shopify o WooCommerce?',
-    a: 'Porque con ellos tu tienda se parece a las demás y el marketing lo tienes que buscar aparte. Aquí el diseño es a medida y tuyo, la tienda carga en menos de medio segundo, y quien la construye es quien la posiciona: una sola conversación en lugar de tres proveedores señalándose entre ellos.',
+    a: 'El dominio, las cuentas de pago y el código son tuyos. Te lo entregamos documentado y sin permanencia.',
   },
   {
     q: '¿Y si mañana necesito algo que la tienda no hace?',
-    a: 'Nos lo pides y lo resolvemos de nuestro lado, sobre tu misma tienda: cuentas de cliente, promociones, multiidioma, otra pasarela de pago, integraciones… Tu tienda arranca como un MVP a propósito y crece cuando el negocio lo pide — sin plugins que adaptar y sin migrar de plataforma.',
-  },
-  {
-    q: '¿Qué incluye exactamente la mensualidad?',
-    a: 'Mantenimiento (copias, actualizaciones, vigilancia), asistencia personalizada de las personas que hicieron tu tienda, seguimiento del proyecto y el trabajo de posicionamiento. En el Kit incluye además hasta 2 h de cambios al mes. Es una sola cuota: si tu tienda sube de tramo, la cuota se sustituye por la nueva — nunca se apila una suscripción encima de otra.',
+    a: 'La añadimos sobre la misma plataforma. Tu tienda evoluciona sin acumular plugins y sin volver a empezar.',
   },
   {
     q: '¿Trabajáis con agencias?',
-    a: 'Sí, también en marca blanca: nosotros ponemos el motor, la construcción y el mantenimiento técnico; tu agencia lleva al cliente, el diseño si quiere y el marketing. Escríbenos y te contamos el modelo de colaboración.',
+    a: 'Sí, también en marca blanca. Nosotros podemos ocuparnos del producto y el mantenimiento técnico.',
   },
 ];
 
@@ -240,146 +161,90 @@ const jsonLd = [
   preloadDisplayFont
   jsonLd={jsonLd}
 >
-  <div class="bg-background text-foreground">
+  <div class="airtable-landing bg-background text-foreground">
+    <div class="airtable-announcement" role="status">
+      <span>Una tienda a medida que crece contigo.</span>
+      <a href="/precios">Descubre el modelo de crecimiento <span aria-hidden="true">→</span></a>
+    </div>
     <SiteHeader homeHref="/" wordmark="Logic2B Ecommerce" splitBrand nav={landingNav}>
       <Fragment slot="actions"><HeaderActions /></Fragment>
     </SiteHeader>
 
     <main>
-    <!-- ── Héroe: galería de tiendas ─────────────────────────────────────── -->
-    <section class="mx-auto max-w-6xl px-5 pt-14 sm:pt-20">
-      <p class="mb-5 inline-block rounded-full border border-border bg-muted px-4 py-1.5 text-xs font-medium text-muted-foreground">
-        Un servicio de Logic2B · Hecho en Castellón
-      </p>
-      <h1 class="hero-title max-w-4xl font-display text-4xl leading-[1.05] sm:text-6xl md:text-7xl">
-        Tu tienda online a medida.<br />
-        <span class="text-brand">10 productos o un millón.</span>
-      </h1>
-      <p class="hero-fade mt-6 max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg" style="--d:.12s">
-        Nunca había sido tan fácil —ni tan asequible— un ecommerce a medida:
-        arrancas con un MVP sencillo y funcional, y tu tienda crece sin cambiar
-        de plataforma. Abajo tienes las
-        <strong class="text-foreground">demos navegables</strong>: recorre el
-        catálogo, el carrito y el panel del comercio.
-      </p>
-      <div class="hero-fade mt-8 flex flex-col gap-3 sm:flex-row sm:gap-4" style="--d:.24s">
-        <a
-          href="/#contacto"
-          data-open-project
-          class="rounded-btn bg-brand px-8 py-3.5 text-center text-base font-semibold text-brand-fg shadow-lg shadow-brand/20 transition hover:bg-brand-dark"
-        >Iniciar proyecto</a>
-        <a
-          href={`${MAIN_DEMO_HREF}?tour=1`}
-          class="rounded-btn border border-border px-8 py-3.5 text-center text-base font-semibold text-foreground transition hover:border-foreground"
-        >Haz la demo en 3 minutos</a>
+    <!-- ── Héroe + rail de temas ─────────────────────────────────────────── -->
+    <section class="airtable-hero mx-auto max-w-6xl px-5 pt-14 sm:pt-20">
+      <div class="airtable-hero-layout">
+        <div class="airtable-hero-copy">
+          <p class="airtable-eyebrow">Un servicio de Logic2B · Hecho en Castellón</p>
+          <h1 class="hero-title font-display">Tu tienda online a medida</h1>
+          <p class="hero-fade" style="--d:.12s">
+            Una tienda propia, rápida y lista para crecer contigo. Empieza con lo esencial y añade lo que el negocio necesite.
+          </p>
+          <form class="airtable-email-gate hero-fade" data-email-gate style="--d:.24s">
+            <label class="sr-only" for="hero-email">Tu correo electrónico</label>
+            <input id="hero-email" type="email" name="email" required autocomplete="email" placeholder="Empieza a vender ya" />
+            <button type="submit" aria-label="Continuar con mi correo">→</button>
+          </form>
+          <p class="airtable-email-note">Sin compromiso. Te respondemos en 24 h laborables.</p>
+          <button type="button" data-open-project data-email-trigger class="sr-only" tabindex="-1">Abrir formulario</button>
+        </div>
+        <ThemeRail stores={gallery} />
       </div>
-    </section>
-
-    <!-- Tira de tiendas: scroll horizontal nativo con snap, accesible. -->
-    <section aria-labelledby="galeria-h" class="mt-10 sm:mt-14">
-      <h2 id="galeria-h" class="sr-only">Tiendas de demostración hechas con Logic2B Ecommerce</h2>
-      <ul
-        class="flex snap-x snap-mandatory gap-5 overflow-x-auto px-5 pb-4 [scrollbar-color:var(--color-brand)_transparent] [scrollbar-width:thin] sm:gap-6"
-      >
-        {gallery.map((store) => (
-          <li class="relative shrink-0 snap-start">
-            <a href={store.href} style={`--accent:${store.accent}`} class="group block w-[280px] sm:w-[360px]">
-              <div class="overflow-hidden rounded-2xl border border-border bg-card shadow-sm transition duration-300 group-hover:-translate-y-1 group-hover:shadow-xl group-hover:[border-color:var(--accent)]">
-                <!-- Chrome de navegador: da contexto de «tienda real». -->
-                <div class="flex items-center gap-2 border-b border-border px-4 py-2.5">
-                  <span class="h-2.5 w-2.5 rounded-full" style="background:var(--accent)"></span>
-                  <span class="h-2.5 w-2.5 rounded-full bg-border"></span>
-                  <span class="h-2.5 w-2.5 rounded-full bg-border"></span>
-                  <span class="ml-2 truncate font-accent text-xs text-muted-foreground">ecom.logic2b.com{store.href}</span>
-                </div>
-                <div class="aspect-[4/5] overflow-hidden bg-muted">
-                  {/* Iris se sirve como IMAGEN (el póster, lazy) y el script la
-                      asciende a <video> con autoplay-on-scroll. Sin JS, con
-                      reduced-motion o con ahorro de datos queda la imagen: más
-                      ligera que un <video poster> (el póster no es lazy) y con
-                      alt real. El clip solo baja cuando la tarjeta se ve.
-                      Las tarjetas van `eager` pero en prioridad BAJA. Sin
-                      `eager`, al ser un carrusel horizontal quedan fuera de
-                      pantalla por el lado y el navegador las bajaba tarde y a
-                      trompicones — medido, una llegaba a los 19 s y hundía el
-                      Speed Index móvil. Y sin `fetchpriority="low"` compiten
-                      con la fuente del H1, que es el LCP: escritorio 100 → 99. */}
-                  <img
-                    src={store.video ? store.poster : store.img}
-                    srcset={`${store.video ? store.poster : store.img} 560w, ${store.video ? store.poster900 : store.img900} 900w`}
-                    sizes="(min-width: 640px) 360px, 280px"
-                    alt={`Tienda ${store.name} — tema ${store.style}`}
-                    width={store.video ? 1280 : 720}
-                    height={store.video ? 720 : 900}
-                    loading="eager"
-                    fetchpriority="low"
-                    class="h-full w-full object-cover object-top"
-                    data-video-src={store.video ?? undefined}
-                    data-video-poster={store.video ? store.poster : undefined}
-                  />
-                </div>
-              </div>
-              <div class="mt-3 flex items-baseline gap-2 px-1">
-                <span class="h-2.5 w-2.5 shrink-0 rounded-full" style="background:var(--accent)"></span>
-                <p class="font-semibold">{store.name}</p>
-                <span class="font-accent text-xs uppercase tracking-wide text-muted-foreground">{store.style}</span>
-              </div>
-              <p class="mt-1 px-1 text-sm text-muted-foreground">
-                {store.tagline}
-                <span class="text-foreground transition group-hover:[color:var(--accent)]"> →</span>
-              </p>
-            </a>
-            {store.video && (
-              // Pausa del clip (WCAG 2.2.2). Vive FUERA del enlace (interactivos
-              // no se anidan) y nace oculto: el script lo activa solo si asciende
-              // la imagen a vídeo (con reduced-motion o ahorro de datos no hay
-              // ni vídeo ni botón).
-              <button
-                type="button"
-                hidden
-                data-video-toggle
-                aria-pressed="false"
-                aria-label="Pausar la animación"
-                class="absolute right-3 top-14 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-black/60 text-white transition hover:bg-black/80"
-              >
-                <svg data-glyph-pause viewBox="0 0 16 16" width="14" height="14" fill="currentColor" aria-hidden="true"><rect x="3" y="2" width="4" height="12" rx="1" /><rect x="9" y="2" width="4" height="12" rx="1" /></svg>
-                {/* hidden va como CLASE: el atributo hidden es HTML y en SVG no es fiable. */}
-                <svg data-glyph-play class="hidden" viewBox="0 0 16 16" width="14" height="14" fill="currentColor" aria-hidden="true"><path d="M4.5 2.5v11a.7.7 0 0 0 1.07.6l8.6-5.5a.7.7 0 0 0 0-1.2l-8.6-5.5a.7.7 0 0 0-1.07.6z" /></svg>
-              </button>
-            )}
-          </li>
-        ))}
-      </ul>
-      <p class="mx-auto max-w-6xl px-5 pt-1 text-sm text-muted-foreground">
-        Cada tienda parte de un tema distinto y el motor es el mismo.
-        <a href="/temas" class="font-medium text-brand underline underline-offset-2 hover:text-brand-dark">Mira los {themeCount} temas y elige el punto de partida del tuyo →</a>
-      </p>
     </section>
 
     <!-- ── Tecnología e integraciones ────────────────────────────────────── -->
     <LogoMarquee />
 
     <!-- ── El flujo del pedido, con capturas reales ──────────────────────── -->
-    <section class="border-y border-border bg-muted">
+    <section class="airtable-features border-y border-border bg-muted">
       <div class="mx-auto max-w-6xl px-5 py-14 sm:py-20">
-        <h2 class="max-w-2xl font-display text-3xl sm:text-4xl">Así funciona un pedido, de principio a fin</h2>
+        <h2 class="max-w-2xl font-display text-3xl sm:text-4xl">Así de simple</h2>
         <p class="mt-3 max-w-2xl text-muted-foreground">
-          No es un vídeo ni un mockup: son capturas del sistema real. Esto es lo
-          que verás tú y lo que verá tu cliente.
+          Hemos simplificado el proceso al máximo para que solo tengas lo esencial:
+          un punto de partida minimalista y limpio para que puedas escalar hasta
+          donde tú quieras.
         </p>
-        <div class="mt-10 grid gap-5 sm:grid-cols-2">
-          {flow.map((step) => (
-            <div class="rise overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
-              <figure class="aspect-[16/10] overflow-hidden border-b border-border bg-muted">
-                <img src={step.img} alt={step.alt} width="1440" height="900" loading="lazy" class="h-full w-full object-cover object-top" />
-              </figure>
-              <div class="p-5 sm:p-6">
-                <p class="font-accent text-sm text-brand">{step.n}</p>
-                <h3 class="mt-1 font-display text-xl">{step.title}</h3>
-                <p class="mt-2 text-sm leading-relaxed text-muted-foreground">{step.body}</p>
-              </div>
-            </div>
-          ))}
+        <div class="airtable-flow mt-10">
+          <nav class="airtable-flow-tabs" aria-label="Pasos de un pedido">
+            {flow.map((step, index) => (
+              <a
+                href={`#pedido-${step.n}`}
+                data-flow-tab={step.n}
+                class:list={['airtable-flow-tab', index === 0 && 'is-active']}
+                aria-current={index === 0 ? 'step' : undefined}
+              >
+                <span class="airtable-flow-tab-dot" aria-hidden="true"></span>
+                <span>{step.n}</span>
+                <span>{step.title}</span>
+              </a>
+            ))}
+          </nav>
+
+          <div class="airtable-flow-panels">
+            {flow.map((step) => (
+              <article
+                id={`pedido-${step.n}`}
+                data-flow-panel={step.n}
+                class={`airtable-flow-card airtable-flow-card-${step.tone}`}
+              >
+                <div class="airtable-flow-card-copy">
+                  <p class="airtable-flow-card-step">Paso {step.n}</p>
+                  <h3>{step.title}</h3>
+                  <p>{step.body}</p>
+                </div>
+                <figure class="airtable-flow-card-visual">
+                  <span class="airtable-flow-visual-glow" aria-hidden="true"></span>
+                  <div class="airtable-flow-screen">
+                    <div class="airtable-flow-screen-bar" aria-hidden="true">
+                      <strong>Logic2B Ecommerce</strong>
+                      <span>{step.visualLabel}</span>
+                    </div>
+                    <FlowInterface variant={step.visual} label={step.alt} />
+                  </div>
+                </figure>
+              </article>
+            ))}
+          </div>
         </div>
         {/* El panel salió del menú: este es su sitio, justo donde se acaba de
             explicar para qué sirve. */}
@@ -396,183 +261,54 @@ const jsonLd = [
       </div>
     </section>
 
-    <!-- ── Comparativa + Cuándo NO ───────────────────────────────────────── -->
-    <section class="mx-auto max-w-6xl px-5 py-14 sm:py-20">
-      <h2 class="font-display text-3xl sm:text-4xl">Las cuentas claras</h2>
-      <p class="mt-3 max-w-2xl text-muted-foreground">
-        La pregunta no es «¿cuánto pago?», es <strong class="text-foreground">«¿qué
-        me llevo y quién responde?»</strong>. Esto es lo que cambia frente a
-        montar la tienda en una plataforma de alquiler.
-      </p>
-      <div class="mt-8 overflow-x-auto rounded-2xl border border-border bg-card shadow-sm">
-        <table class="w-full min-w-[640px] text-left text-sm">
-          <thead>
-            <tr class="border-b border-border text-muted-foreground">
-              <th scope="col" class="px-5 py-4 font-normal"><span class="sr-only">Concepto</span></th>
-              <th scope="col" class="px-5 py-4 font-normal">Shopify</th>
-              <th scope="col" class="px-5 py-4 font-normal">WooCommerce</th>
-              <th scope="col" class="px-5 py-4 font-semibold text-brand">Logic2B Ecommerce</th>
-            </tr>
-          </thead>
-          <tbody>
-            {comparison.map((row) => (
-              <tr class="border-b border-border last:border-0">
-                <th scope="row" class="px-5 py-4 text-left font-medium">{row.concept}</th>
-                <td class="px-5 py-4 text-muted-foreground">{row.shopify}</td>
-                <td class="px-5 py-4 text-muted-foreground">{row.woo}</td>
-                <td class="px-5 py-4 font-semibold text-brand-dark">{row.kit}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+    <!-- ── Escalado: el detalle económico vive en /precios ──────────────── -->
+    <section class="airtable-scale-teaser mx-auto max-w-6xl px-5 py-14 sm:py-20">
+      <div class="airtable-scale-teaser-copy">
+        <p class="airtable-section-kicker">Una plataforma, todas tus etapas</p>
+        <h2>Empieza simple.<br />Escala sin migrar.</h2>
+        <p>La tienda, las funciones y el acompañamiento crecen cuando tu negocio lo necesita.</p>
+        <a href="/precios">Ver cómo funciona el escalado <span aria-hidden="true">→</span></a>
       </div>
-
-      <div class="mt-10 rounded-2xl border border-border bg-muted p-6 sm:p-8">
-        <h3 class="font-display text-xl">Cuándo NO somos tu mejor opción</h3>
-        <p class="mt-2 text-sm text-muted-foreground">Preferimos decírtelo antes. Si te ves en alguno de estos casos, hay herramientas que encajan mejor y te lo diremos:</p>
-        <ul class="mt-4 grid gap-2 text-sm text-muted-foreground sm:grid-cols-2">
-          {notForYou.map((item) => (
-            <li class="flex gap-2"><span aria-hidden="true" class="text-muted-foreground/60">—</span>{item}</li>
-          ))}
-        </ul>
-      </div>
-    </section>
-
-    <!-- ── Empieza pequeño, crece sin migrar ─────────────────────────────── -->
-    <section aria-labelledby="escalera-h" class="mx-auto max-w-6xl px-5 pb-14 sm:pb-20">
-      <h2 id="escalera-h" class="max-w-3xl font-display text-3xl sm:text-4xl">
-        10 productos o un millón: <span class="text-brand">tu tienda nunca se queda pequeña</span>
-      </h2>
-      <p class="mt-3 max-w-2xl text-muted-foreground">
-        Tu tienda arranca básica y funcional. Cuando el negocio pida más, se le
-        añade — sin plugins que adaptar y sin migrar de plataforma. Y el
-        marketing no es de otra empresa: la agencia que hace tu tienda es la que
-        la posiciona.
-      </p>
-      <div class="mt-10 grid gap-6 sm:grid-cols-3">
-        {ladder.map((step) => (
-          <div class="rise rounded-2xl border border-border bg-card p-7 shadow-sm">
-            <p class="font-accent text-sm uppercase tracking-wide text-brand">{step.k}</p>
-            <h3 class="mt-2 font-display text-2xl">{step.title}</h3>
-            <p class="mt-3 text-sm leading-relaxed text-muted-foreground">{step.body}</p>
-          </div>
-        ))}
-      </div>
-    </section>
-
-    <!-- ── Precios ───────────────────────────────────────────────────────── -->
-    <section id="precios" class="scroll-mt-14 border-y border-border bg-muted">
-      <div class="mx-auto max-w-5xl px-5 py-14 sm:py-20">
-        <h2 class="text-center font-display text-3xl sm:text-4xl">Ganamos cuando tú ganas</h2>
-        <p class="mx-auto mt-3 max-w-2xl text-center text-muted-foreground">
-          Un pago de puesta en marcha y una cuota que arranca en el mínimo. A
-          partir de ahí sube por tramos, según el tráfico de tu tienda — y traer
-          ese tráfico es justo nuestro trabajo.
-        </p>
-
-        {/* El argumento del modelo, antes que los números: sin esto, «la cuota
-            sube» se lee como una letra pequeña en vez de como lo que es. */}
-        <div class="mt-10 grid gap-5 sm:grid-cols-3">
-          <div class="rise rounded-2xl border border-border bg-card p-6 shadow-sm">
-            <p class="font-accent text-sm uppercase tracking-wide text-brand">Al principio</p>
-            <h3 class="mt-2 font-display text-xl">Pagas poco</h3>
-            <p class="mt-2 text-sm leading-relaxed text-muted-foreground">
-              Tu tienda acaba de nacer y casi no tiene visitas. La cuota está en
-              el mínimo: no tendría ningún sentido cobrarte como a una tienda
-              consolidada.
-            </p>
-          </div>
-          <div class="rise rounded-2xl border border-border bg-card p-6 shadow-sm">
-            <p class="font-accent text-sm uppercase tracking-wide text-brand">Mientras tanto</p>
-            <h3 class="mt-2 font-display text-xl">Trabajamos el tráfico</h3>
-            <p class="mt-2 text-sm leading-relaxed text-muted-foreground">
-              Posicionamiento en Google, visibilidad en los asistentes de IA
-              (GEO) y campañas cuando compensen. Es la parte que hace que una
-              tienda deje de estar vacía.
-            </p>
-          </div>
-          <div class="rise rounded-2xl border border-border bg-card p-6 shadow-sm">
-            <p class="font-accent text-sm uppercase tracking-wide text-brand">Cuando funciona</p>
-            <h3 class="mt-2 font-display text-xl">Subimos los dos</h3>
-            <p class="mt-2 text-sm leading-relaxed text-muted-foreground">
-              Más tráfico es más ventas para ti y un tramo más arriba para
-              nosotros. Solo cobramos más cuando el trabajo ya ha dado
-              resultado: nuestro incentivo y el tuyo apuntan al mismo sitio.
-            </p>
-          </div>
-        </div>
-
-        <div class="mt-10 grid gap-6 sm:grid-cols-2">
-          {tiers.map((tier) => (
-            <div class={`relative rounded-2xl bg-card p-8 shadow-sm ${tier.featured ? 'border-2 border-brand shadow-lg shadow-brand/10' : 'border border-border'}`}>
-              {tier.featured && (
-                <span class="absolute -top-3 left-8 rounded-full bg-brand px-3 py-1 text-xs font-semibold text-brand-fg">El más elegido</span>
-              )}
-              <p class="text-sm font-medium uppercase tracking-wide text-muted-foreground">{tier.name}</p>
-              <p class="mt-3 font-display text-4xl sm:text-5xl">{tier.price}<span class="text-lg font-normal text-muted-foreground"> {tier.unit}</span></p>
-              <p class="mt-1 text-sm font-medium text-brand-dark">{tier.monthly}</p>
-              <ul class="mt-6 space-y-3 text-sm leading-relaxed text-muted-foreground">
-                {tier.points.map((point) => (
-                  <li class="flex gap-2"><span aria-hidden="true" class="text-brand">✓</span> {point}</li>
-                ))}
-              </ul>
-            </div>
-          ))}
-        </div>
-        <p class="mx-auto mt-6 max-w-2xl text-center text-sm text-muted-foreground">
-          El tramo que te toca sale de tus números, no de una tabla genérica: lo
-          cerramos en la propuesta y queda por escrito antes de empezar.
-        </p>
-        <div class="mx-auto mt-6 flex flex-col items-center justify-between gap-3 rounded-2xl border border-border bg-card px-6 py-5 text-sm sm:flex-row">
-          <div>
-            <p class="font-semibold">{lite.name} · {lite.price}</p>
-            <p class="mt-1 text-muted-foreground">{lite.body}</p>
-          </div>
-          <a href="/#contacto" data-open-project class="shrink-0 font-medium text-brand underline underline-offset-2 hover:text-brand-dark">Pregunta por el Lite</a>
-        </div>
-        <p class="mt-6 text-center text-sm text-muted-foreground">
-          ¿Quieres el detalle completo del servicio?
-          <a href="/dossier" class="font-medium text-brand underline underline-offset-2 hover:text-brand-dark">Lee el dossier</a>, pensado para imprimir y compartir.
-        </p>
+      <div class="airtable-scale-visual" aria-label="Evolución desde el lanzamiento hasta la escala">
+        <span class="airtable-scale-line" aria-hidden="true"></span>
+        <div><i>01</i><strong>Lanzamiento</strong><small>Lo esencial para vender</small></div>
+        <div><i>02</i><strong>Tracción</strong><small>Más visibilidad</small></div>
+        <div><i>03</i><strong>Escala</strong><small>Más capacidad</small></div>
       </div>
     </section>
 
     <!-- ── Demos: tienda, panel y emails ─────────────────────────────────── -->
-    <section class="mx-auto max-w-6xl px-5 py-14 sm:py-20">
+    <section class="airtable-demos mx-auto max-w-6xl px-5 py-14 sm:py-20">
       <h2 class="font-display text-3xl sm:text-4xl">Míralo por dentro</h2>
       <p class="mt-3 max-w-2xl text-muted-foreground">
-        El panel de ejemplo enseña pedidos, envíos y productos con datos ficticios
-        independientes del escaparate. Se aprende en cinco
-        minutos porque no hay nada que configurar. Las mil configuraciones
-        (mercados, impuestos, integraciones) corren de nuestro lado, invisibles
-        para ti. Entra sin registrarte: todas las demos son abiertas.
+        Tienda, panel y comunicaciones. Todo abierto y sin registro.
       </p>
-      <div class="mt-10 grid gap-5 sm:grid-cols-3">
-        <a href={MAIN_DEMO_HREF} class="rise group overflow-hidden rounded-2xl border border-border bg-card transition hover:-translate-y-1 hover:shadow-xl">
-          <div class="aspect-[16/10] overflow-hidden border-b border-border bg-muted">
-            <img src="/images/screens/store-arce-catalog-900.webp" alt="" width="1440" height="900" loading="lazy" class="h-full w-full object-cover object-top" />
-          </div>
-          <div class="p-5">
-            <p class="font-semibold group-hover:text-brand">La tienda: {MAIN_DEMO_NAME} →</p>
-            <p class="mt-1 text-sm text-muted-foreground">Catálogo, ficha y recorrido de compra simulado.</p>
-          </div>
-        </a>
-        <a href={DEMO_ADMIN_HREF} class="rise group overflow-hidden rounded-2xl border border-border bg-card transition hover:-translate-y-1 hover:shadow-xl">
-          <div class="aspect-[16/10] overflow-hidden border-b border-border bg-muted">
-            <img src="/images/screens/panel-order-detail-900.webp" alt="" width="1440" height="900" loading="lazy" class="h-full w-full object-cover object-top" />
-          </div>
-          <div class="p-5">
-            <p class="font-semibold group-hover:text-brand">El panel del comercio →</p>
-            <p class="mt-1 text-sm text-muted-foreground">Fixtures de pedidos, tracking, productos y envíos, siempre en solo lectura.</p>
+      <div class="airtable-demo-grid mt-10">
+        <a href={MAIN_DEMO_HREF} class="airtable-demo-card airtable-demo-store rise group">
+          <figure><DemoInterface variant="store" label="Ficha de producto y cesta de la tienda demo" /></figure>
+          <div class="airtable-demo-copy">
+            <p class="airtable-demo-kicker">Escaparate</p>
+            <h3>Compra como tu cliente.</h3>
+            <p>Explora el catálogo, configura un producto y recorre la compra completa.</p>
+            <span>Entrar en {MAIN_DEMO_NAME} <i aria-hidden="true">→</i></span>
           </div>
         </a>
-        <a href="/demo/admin/emails" class="rise group overflow-hidden rounded-2xl border border-border bg-card transition hover:-translate-y-1 hover:shadow-xl">
-          <div class="aspect-[16/10] overflow-hidden border-b border-border bg-muted">
-            <img src="/images/screens/panel-emails-900.webp" alt="" width="1440" height="900" loading="lazy" class="h-full w-full object-cover object-top" />
+        <a href={DEMO_ADMIN_HREF} class="airtable-demo-card airtable-demo-orders rise group">
+          <figure><DemoInterface variant="orders" label="Detalle de un pedido dentro del panel de gestión" /></figure>
+          <div class="airtable-demo-copy">
+            <p class="airtable-demo-kicker">Gestión</p>
+            <h3>Controla lo importante.</h3>
+            <p>Pedidos, clientes, pagos y envíos en un panel que no necesita manual.</p>
+            <span>Abrir el panel <i aria-hidden="true">→</i></span>
           </div>
-          <div class="p-5">
-            <p class="font-semibold group-hover:text-brand">Los emails que enviaría →</p>
-            <p class="mt-1 text-sm text-muted-foreground">La bandeja simulada: cada confirmación y aviso de envío.</p>
+        </a>
+        <a href="/demo/admin/emails" class="airtable-demo-card airtable-demo-emails rise group">
+          <figure><DemoInterface variant="emails" label="Automatizaciones y vista previa de los emails transaccionales" /></figure>
+          <div class="airtable-demo-copy">
+            <p class="airtable-demo-kicker">Comunicaciones</p>
+            <h3>Cada mensaje, en su momento.</h3>
+            <p>Confirmaciones, seguimiento y avisos automáticos con tu identidad.</p>
+            <span>Ver comunicaciones <i aria-hidden="true">→</i></span>
           </div>
         </a>
       </div>
@@ -583,27 +319,56 @@ const jsonLd = [
       </div>
     </section>
 
-    <!-- ── Detrás está Logic2B ───────────────────────────────────────────── -->
-    <section aria-labelledby="casa-h" class="border-y border-border bg-muted">
-      <div class="mx-auto max-w-6xl px-5 py-12 sm:py-16">
-        <h2 id="casa-h" class="font-display text-2xl sm:text-3xl">Detrás está Logic2B</h2>
-        <p class="mt-3 max-w-3xl leading-relaxed text-muted-foreground">
-          Logic2B Ecommerce es un servicio de
-          <a href="https://logic2b.com" class="font-medium text-foreground underline underline-offset-2 hover:text-brand-dark">Logic2B</a>,
-          la agencia de desarrollo web y SEO de Castellón: diseño web, sistemas
-          de gestión, marketing online y automatización con IA. Tu tienda no se
-          queda sola — el mismo equipo que la construye es el que la posiciona.
-        </p>
-        <p class="mt-4 text-sm text-muted-foreground">
-          ¿Prefieres empezar por saber dónde estás? Pide la
-          <a href="https://logic2b.com/auditoria" class="font-medium text-brand underline underline-offset-2 hover:text-brand-dark">auditoría gratuita</a>
-          de tu web o tienda actual.
-        </p>
+    <!-- ── Logic2B: el estudio y sus cuatro capas ───────────────────────── -->
+    <section aria-labelledby="casa-h" class="airtable-casa">
+      <div class="airtable-casa-inner mx-auto max-w-6xl px-5 py-14 sm:py-20">
+        <div class="logic2b-story">
+          <div class="logic2b-lockup" aria-label="Logic2B">
+            <span class="logic2b-mark" aria-hidden="true"></span>
+            <span class="logic2b-wordmark">Logic<span>2B</span></span>
+          </div>
+          <p class="logic2b-kicker">Estudio digital · Castellón</p>
+          <h2 id="casa-h">Diseño y tecnología<br />a medida.</h2>
+          <p class="logic2b-intro">
+            Ecommerce forma parte de un equipo que conecta marca, producto,
+            tráfico y automatización. Una sola visión para hacer crecer el negocio completo.
+          </p>
+          <a href="https://logic2b.com" class="logic2b-link">Conocer Logic2B <span aria-hidden="true">→</span></a>
+        </div>
+
+        <div class="logic2b-system" aria-label="Capacidades de Logic2B">
+          <span class="logic2b-system-line logic2b-system-line-a" aria-hidden="true"></span>
+          <span class="logic2b-system-line logic2b-system-line-b" aria-hidden="true"></span>
+          <div class="logic2b-core" aria-hidden="true"><span class="logic2b-mark"></span></div>
+          <article>
+            <span>01</span>
+            <h3>Diseño</h3>
+            <p>Una identidad propia.</p>
+          </article>
+          <article>
+            <span>02</span>
+            <h3>Desarrollo</h3>
+            <p>Código y sistemas a medida.</p>
+          </article>
+          <article>
+            <span>03</span>
+            <h3>Crecimiento</h3>
+            <p>SEO, GEO y campañas.</p>
+          </article>
+          <article>
+            <span>04</span>
+            <h3>IA</h3>
+            <p>Integración y automatización.</p>
+          </article>
+        </div>
+      </div>
+      <div class="logic2b-capabilities" aria-label="Servicios de Logic2B">
+        <span>Web</span><i aria-hidden="true"></i><span>Ecommerce</span><i aria-hidden="true"></i><span>Software</span><i aria-hidden="true"></i><span>UI/UX</span><i aria-hidden="true"></i><span>Marketing</span><i aria-hidden="true"></i><span>IA</span>
       </div>
     </section>
 
     <!-- ── FAQ ───────────────────────────────────────────────────────────── -->
-    <section class="mx-auto max-w-3xl px-5 py-14 sm:py-20">
+    <section class="airtable-faq mx-auto max-w-3xl px-5 py-14 sm:py-20">
       <h2 class="text-center font-display text-3xl sm:text-4xl">Preguntas frecuentes</h2>
       <div class="mt-8 space-y-3">
         {faqs.map((faq) => (
@@ -620,7 +385,7 @@ const jsonLd = [
     </main>
 
     <!-- ── Formulario de cierre ──────────────────────────────────────────── -->
-    <section id="contacto" class="scroll-mt-14 bg-foreground text-background">
+    <section id="contacto" class="airtable-contact scroll-mt-14 bg-foreground text-background">
       <div class="mx-auto max-w-4xl px-5 py-16 sm:py-20">
         <h2 class="font-display text-3xl sm:text-4xl">¿Hablamos de tu tienda?</h2>
         <p class="mt-4 max-w-xl leading-relaxed text-background/70">
@@ -698,10 +463,1277 @@ const jsonLd = [
   }
 </style>
 
+<style is:global>
+  /* Airtable experiment: warm editorial canvas + chapter-like color blocks. */
+  .airtable-landing {
+    --air-cream: #ffffff;
+    --air-ink: #181d26;
+    --air-muted: #525965;
+    --air-border: #e0e2e6;
+    --air-terracotta: #aa2d00;
+    --air-sapphire: #254fad;
+    --air-forest: #0a2e0e;
+    --air-peach: #fcab79;
+    --air-sky: #c7e5f2;
+    min-height: 100vh;
+    width: 100%;
+    overflow-x: clip;
+    background: var(--air-cream) !important;
+    color: var(--air-ink);
+    font-family: 'Inter Variable', 'Inter Fallback', ui-sans-serif, system-ui, sans-serif;
+  }
+
+  .airtable-landing .airtable-announcement {
+    display: flex;
+    min-height: 30px;
+    align-items: center;
+    justify-content: center;
+    gap: 0.45rem;
+    padding: 0.35rem 1rem;
+    background: #eef4fc;
+    color: var(--air-muted);
+    font-size: 0.7rem;
+    letter-spacing: 0.01em;
+    text-align: center;
+  }
+  .airtable-landing .airtable-announcement a {
+    color: #1b61c9;
+    font-weight: 600;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  .airtable-landing > header {
+    border-color: var(--air-border) !important;
+    background: rgba(255, 255, 255, 0.92) !important;
+    box-shadow: 0 8px 24px rgba(15, 48, 106, 0.06);
+  }
+  .airtable-landing > header nav {
+    gap: 1rem;
+    font-size: 0.75rem;
+  }
+  .airtable-landing > header .wordmark .wm-agency,
+  .airtable-landing > header .wordmark .wm-product {
+    color: var(--air-ink);
+  }
+
+  .airtable-landing .airtable-hero {
+    max-width: 1200px;
+    padding-top: clamp(4rem, 8vw, 7rem);
+    text-align: center;
+  }
+  .airtable-landing .airtable-hero > p:first-child {
+    margin-bottom: 1.35rem;
+    border: 0;
+    background: transparent;
+    color: var(--air-muted);
+    font-size: 0.75rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .airtable-landing .airtable-hero h1 {
+    max-width: 760px;
+    margin-inline: auto;
+    color: #040e20;
+    font-family: 'Space Grotesk', 'Inter Variable', sans-serif;
+    font-size: clamp(2.7rem, 5vw, 4.3rem);
+    font-weight: 700;
+    letter-spacing: -0.055em;
+    line-height: 0.98;
+  }
+  .airtable-landing .airtable-hero h1 .text-brand {
+    color: var(--air-ink) !important;
+  }
+  .airtable-landing .airtable-hero .hero-fade {
+    max-width: 620px;
+    margin-inline: auto;
+    color: var(--air-muted) !important;
+    font-size: 1rem;
+  }
+  .airtable-landing .airtable-hero .hero-fade strong {
+    color: var(--air-ink) !important;
+  }
+  .airtable-landing .airtable-hero > div:last-child {
+    justify-content: center;
+  }
+  .airtable-landing .airtable-hero a[data-open-project],
+  .airtable-landing .airtable-hero a[href*='tour'] {
+    border-radius: 0.75rem;
+    padding: 0.8rem 1.35rem;
+    box-shadow: none;
+  }
+  .airtable-landing .airtable-hero a[data-open-project] {
+    background: var(--air-ink) !important;
+    color: white !important;
+  }
+  .airtable-landing .airtable-hero a[href*='tour'] {
+    border-color: var(--air-ink) !important;
+    background: white;
+  }
+
+  .airtable-landing .airtable-gallery {
+    max-width: 1200px;
+    margin-inline: auto;
+    margin-top: clamp(3rem, 6vw, 5rem);
+  }
+  .airtable-landing .airtable-gallery > ul {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1rem;
+    max-width: 1080px;
+    margin-inline: auto;
+    padding-inline: 1.25rem;
+    overflow: visible;
+  }
+  .airtable-landing .airtable-gallery > ul > li:first-child {
+    grid-column: 1 / -1;
+    width: min(900px, 100%);
+    margin-inline: auto;
+  }
+  .airtable-landing .airtable-gallery > ul > li > a {
+    width: 100%;
+  }
+  .airtable-landing .airtable-gallery .group > div:first-child {
+    border-color: var(--air-ink);
+    background: var(--air-ink);
+    box-shadow: 0 24px 50px rgba(15, 48, 106, 0.14);
+  }
+  .airtable-landing .airtable-gallery .group > div:first-child > div:first-child {
+    border-color: rgba(255,255,255,0.16);
+    background: var(--air-ink);
+    color: white;
+  }
+  .airtable-landing .airtable-gallery > ul > li:first-child .aspect-\[4\/5\] {
+    aspect-ratio: 16 / 9;
+    background: #101823;
+  }
+  .airtable-landing .airtable-gallery > ul > li:first-child img,
+  .airtable-landing .airtable-gallery > ul > li:first-child video {
+    object-position: top center;
+  }
+  .airtable-landing .airtable-gallery > ul > li:not(:first-child) .group > div:first-child {
+    box-shadow: none;
+  }
+  .airtable-landing .airtable-gallery > ul > li:not(:first-child) .aspect-\[4\/5\] {
+    aspect-ratio: 4 / 3;
+  }
+  .airtable-landing .airtable-gallery .group > div:first-child + div {
+    color: var(--air-ink);
+  }
+  .airtable-landing .airtable-gallery .group > div:first-child + div .text-muted-foreground {
+    color: var(--air-muted);
+  }
+  .airtable-landing .airtable-gallery .airtable-prompt {
+    position: absolute;
+    z-index: 2;
+    top: 3.2rem;
+    right: 13%;
+    left: 13%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.65rem 0.85rem;
+    border-radius: 0.45rem;
+    background: white;
+    color: var(--air-ink);
+    font-size: 0.72rem;
+    box-shadow: 0 10px 24px rgba(0,0,0,0.15);
+  }
+  .airtable-landing .airtable-prompt-dot {
+    display: grid;
+    width: 1.35rem;
+    height: 1.35rem;
+    flex: 0 0 auto;
+    place-items: center;
+    border-radius: 50%;
+    background: var(--air-ink);
+    color: white;
+  }
+  .airtable-landing .airtable-gallery > p {
+    max-width: 1080px;
+    padding-top: 1rem;
+    color: var(--air-muted);
+  }
+  .airtable-landing .airtable-gallery a.text-brand,
+  .airtable-landing .airtable-gallery a[href='/temas'] {
+    color: #1b61c9 !important;
+  }
+
+  .airtable-landing section[aria-label='Aplicaciones e integraciones'] {
+    border-color: var(--air-border) !important;
+    background: transparent !important;
+    color: var(--air-muted) !important;
+  }
+  .airtable-landing section[aria-label='Aplicaciones e integraciones'] .logo {
+    background: var(--air-ink);
+  }
+
+  .airtable-landing .airtable-features,
+  .airtable-landing .airtable-demos,
+  .airtable-landing .airtable-faq {
+    border-color: var(--air-border) !important;
+    background: var(--air-cream) !important;
+  }
+  .airtable-landing .airtable-features > div,
+  .airtable-landing .airtable-demos {
+    max-width: 1200px;
+  }
+  .airtable-landing h2,
+  .airtable-landing h3,
+  .airtable-landing summary {
+    color: var(--air-ink);
+    font-family: 'Space Grotesk', 'Inter Variable', sans-serif;
+    letter-spacing: -0.035em;
+  }
+  .airtable-landing .airtable-features h2,
+  .airtable-landing .airtable-demos h2 {
+    max-width: 720px;
+    font-size: clamp(2rem, 4vw, 3.2rem);
+    line-height: 1.05;
+  }
+  .airtable-landing .text-muted-foreground {
+    color: var(--air-muted) !important;
+  }
+  .airtable-landing .airtable-features .rise {
+    overflow: hidden;
+    border: 0;
+    border-radius: 1.5rem;
+    box-shadow: none;
+  }
+  .airtable-landing .airtable-features .rise:nth-child(1) { background: var(--air-terracotta); }
+  .airtable-landing .airtable-features .rise:nth-child(2) { background: var(--air-sky); }
+  .airtable-landing .airtable-features .rise:nth-child(3) { background: var(--air-peach); }
+  .airtable-landing .airtable-features .rise:nth-child(4) { background: var(--air-forest); }
+  .airtable-landing .airtable-features .rise figure {
+    margin: 0.75rem 0.75rem 0;
+    border: 0;
+    border-radius: 1rem;
+    background: white;
+  }
+  .airtable-landing .airtable-features .rise > div:last-child {
+    padding: 1.5rem;
+  }
+  .airtable-landing .airtable-features .rise:nth-child(1) > div:last-child,
+  .airtable-landing .airtable-features .rise:nth-child(4) > div:last-child {
+    color: white;
+  }
+  .airtable-landing .airtable-features .rise:nth-child(1) h3,
+  .airtable-landing .airtable-features .rise:nth-child(4) h3 { color: white; }
+  .airtable-landing .airtable-features .rise:nth-child(1) .text-brand,
+  .airtable-landing .airtable-features .rise:nth-child(4) .text-brand { color: rgba(255,255,255,0.72) !important; }
+  .airtable-landing .airtable-features a,
+  .airtable-landing .airtable-demos a[href='/temas'] {
+    border-color: var(--air-ink);
+    color: var(--air-ink);
+  }
+  .airtable-landing .airtable-features > div > div:last-child a {
+    background: white;
+    border-radius: 0.75rem;
+  }
+
+  .airtable-landing .airtable-demos a,
+  .airtable-landing .airtable-faq details {
+    border-color: var(--air-border);
+    border-radius: 1rem;
+    background: white;
+    box-shadow: 0 10px 28px rgba(15, 48, 106, 0.05);
+  }
+  .airtable-landing .airtable-scale-teaser {
+    display: grid;
+    grid-template-columns: minmax(260px, 0.72fr) minmax(0, 1.28fr);
+    align-items: center;
+    gap: clamp(2.5rem, 7vw, 7rem);
+    max-width: 1200px;
+  }
+  .airtable-landing .airtable-section-kicker {
+    margin-bottom: 1rem;
+    color: var(--air-muted);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+  .airtable-landing .airtable-scale-teaser h2 {
+    max-width: 34rem;
+    font-size: clamp(2.3rem, 4.6vw, 4rem);
+    line-height: 1;
+  }
+  .airtable-landing .airtable-scale-teaser-copy > p:not(.airtable-section-kicker) {
+    max-width: 29rem;
+    margin-top: 1.25rem;
+    color: var(--air-muted);
+    line-height: 1.55;
+  }
+  .airtable-landing .airtable-scale-teaser-copy > a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.7rem;
+    margin-top: 1.75rem;
+    padding-bottom: 0.28rem;
+    border-bottom: 1px solid var(--air-ink);
+    color: var(--air-ink);
+    font-size: 0.92rem;
+    font-weight: 700;
+  }
+  .airtable-landing .airtable-scale-teaser-copy > a span {
+    transition: transform 180ms ease;
+  }
+  .airtable-landing .airtable-scale-teaser-copy > a:hover span {
+    transform: translateX(0.25rem);
+  }
+  .airtable-landing .airtable-scale-visual {
+    position: relative;
+    display: grid;
+    min-height: 390px;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    align-items: end;
+    gap: 0.8rem;
+    overflow: hidden;
+    padding: 2rem;
+    border-radius: 1.5rem;
+    background: var(--air-ink);
+    color: white;
+  }
+  .airtable-landing .airtable-scale-visual::before {
+    position: absolute;
+    width: 22rem;
+    height: 22rem;
+    right: -8rem;
+    top: -10rem;
+    border-radius: 50%;
+    background: rgba(126, 190, 232, 0.28);
+    content: '';
+    filter: blur(10px);
+  }
+  .airtable-landing .airtable-scale-visual > div {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    min-width: 0;
+    height: 9rem;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 1.15rem;
+    border: 1px solid rgba(255,255,255,0.18);
+    border-radius: 1rem;
+    background: rgba(255,255,255,0.09);
+  }
+  .airtable-landing .airtable-scale-visual > div:nth-of-type(2) { height: 13rem; }
+  .airtable-landing .airtable-scale-visual > div:nth-of-type(3) {
+    height: 17rem;
+    background: rgba(255,255,255,0.16);
+  }
+  .airtable-landing .airtable-scale-visual i {
+    margin-bottom: auto;
+    color: rgba(255,255,255,0.54);
+    font-size: 0.68rem;
+    font-style: normal;
+    font-weight: 700;
+  }
+  .airtable-landing .airtable-scale-visual strong {
+    font-size: clamp(0.88rem, 1.4vw, 1.1rem);
+  }
+  .airtable-landing .airtable-scale-visual small {
+    margin-top: 0.35rem;
+    color: rgba(255,255,255,0.62);
+    font-size: 0.7rem;
+  }
+  .airtable-landing .airtable-scale-line {
+    position: absolute;
+    z-index: 0;
+    width: 70%;
+    height: 2px;
+    right: 12%;
+    bottom: 49%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.36));
+    transform: rotate(-14deg);
+    transform-origin: right;
+  }
+  .airtable-landing .airtable-demos a {
+    overflow: hidden;
+    transition: transform 180ms ease, box-shadow 180ms ease;
+  }
+  .airtable-landing .airtable-demos a:hover {
+    box-shadow: 0 18px 38px rgba(15, 48, 106, 0.12);
+  }
+  .airtable-landing .airtable-demo-grid {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    gap: 1rem;
+  }
+  .airtable-landing .airtable-demo-card {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    overflow: hidden;
+    border: 0;
+    border-radius: 1.5rem;
+    text-decoration: none;
+    box-shadow: none;
+    transition: transform 220ms ease, box-shadow 220ms ease;
+  }
+  .airtable-landing .airtable-demo-card:hover {
+    transform: translateY(-0.3rem);
+    box-shadow: 0 22px 44px rgba(15,48,106,0.13);
+  }
+  .airtable-landing .airtable-demo-card figure {
+    min-width: 0;
+    overflow: hidden;
+    margin: 0.85rem 0.85rem 0;
+    border-radius: 1rem;
+    background: white;
+  }
+  .airtable-landing .airtable-demos .airtable-demo-store {
+    grid-column: span 7;
+    background: #9c2f1f;
+    color: white;
+  }
+  .airtable-landing .airtable-demos .airtable-demo-orders {
+    grid-column: span 5;
+    background: #c7eaa8;
+    color: #17351b;
+  }
+  .airtable-landing .airtable-demos .airtable-demo-emails {
+    display: grid;
+    min-height: 31rem;
+    grid-column: 1 / -1;
+    grid-template-columns: minmax(250px, 0.34fr) minmax(0, 0.66fr);
+    align-items: center;
+    background: #c7e5f2;
+    color: #17386f;
+  }
+  .airtable-landing .airtable-demo-emails figure {
+    order: 2;
+    margin: 0.85rem;
+  }
+  .airtable-landing .airtable-demo-emails .airtable-demo-copy { order: 1; }
+  .airtable-landing .airtable-demo-copy {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: clamp(1.4rem, 3vw, 2.25rem);
+  }
+  .airtable-landing .airtable-demo-kicker {
+    margin-bottom: 0.8rem;
+    font-size: 0.68rem;
+    font-weight: 750;
+    letter-spacing: 0.1em;
+    opacity: 0.64;
+    text-transform: uppercase;
+  }
+  .airtable-landing .airtable-demo-copy h3 {
+    max-width: 27rem;
+    color: inherit;
+    font-size: clamp(1.55rem, 2.6vw, 2.5rem);
+    line-height: 1.05;
+  }
+  .airtable-landing .airtable-demo-copy > p:not(.airtable-demo-kicker) {
+    max-width: 29rem;
+    margin-top: 0.8rem;
+    font-size: 0.86rem;
+    line-height: 1.5;
+    opacity: 0.72;
+  }
+  .airtable-landing .airtable-demo-copy > span {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.65rem;
+    margin-top: 1.5rem;
+    padding-bottom: 0.25rem;
+    border-bottom: 1px solid currentColor;
+    font-size: 0.8rem;
+    font-weight: 750;
+  }
+  .airtable-landing .airtable-demo-copy i {
+    font-style: normal;
+    transition: transform 180ms ease;
+  }
+  .airtable-landing .airtable-demo-card:hover .airtable-demo-copy i {
+    transform: translateX(0.25rem);
+  }
+  .airtable-landing .airtable-demo-store .airtable-demo-copy h3 { color: white; }
+  .airtable-landing .airtable-demo-store .airtable-demo-copy > p:not(.airtable-demo-kicker) { color: rgba(255,255,255,0.82); }
+  .airtable-landing .airtable-casa {
+    position: relative;
+    overflow: hidden;
+    border-block: 1px solid rgba(255,255,255,0.09);
+    background:
+      radial-gradient(circle at 78% 15%, rgba(0,153,255,0.15), transparent 28rem),
+      #08090a;
+    color: #f7f8f8;
+  }
+  .airtable-landing .airtable-casa::before {
+    position: absolute;
+    width: 34rem;
+    height: 34rem;
+    left: -20rem;
+    bottom: -25rem;
+    border: 1px solid rgba(0,153,255,0.24);
+    border-radius: 50%;
+    content: '';
+    box-shadow: 0 0 0 6rem rgba(0,153,255,0.025), 0 0 0 12rem rgba(0,153,255,0.018);
+  }
+  .airtable-landing .airtable-casa-inner {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    grid-template-columns: minmax(280px, 0.8fr) minmax(0, 1.2fr);
+    align-items: center;
+    gap: clamp(3rem, 8vw, 8rem);
+  }
+  .airtable-landing .logic2b-lockup {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.8rem;
+  }
+  .airtable-landing .logic2b-mark {
+    display: block;
+    width: 2rem;
+    height: 2rem;
+    flex: 0 0 auto;
+    background: #0099ff;
+    -webkit-mask: url('/brand/logo-mark.svg') center / contain no-repeat;
+    mask: url('/brand/logo-mark.svg') center / contain no-repeat;
+  }
+  .airtable-landing .logic2b-wordmark {
+    color: #f7f8f8;
+    font-family: 'Poppins Logo', 'Poppins', sans-serif;
+    font-size: 1.35rem;
+    font-weight: 600;
+    letter-spacing: 0.015em;
+  }
+  .airtable-landing .logic2b-wordmark span {
+    color: #e6e8ea;
+    font-weight: 800;
+  }
+  .airtable-landing .logic2b-kicker {
+    margin-top: clamp(2.5rem, 5vw, 4.5rem);
+    color: #6f747c;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 0.67rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+  .airtable-landing .airtable-casa h2 {
+    max-width: 39rem;
+    margin-top: 1rem;
+    color: #f7f8f8;
+    font-family: 'Poppins', 'Space Grotesk', sans-serif;
+    font-size: clamp(2.6rem, 5.4vw, 5rem);
+    font-weight: 600;
+    letter-spacing: -0.045em;
+    line-height: 0.98;
+  }
+  .airtable-landing .logic2b-intro {
+    max-width: 35rem;
+    margin-top: 1.6rem;
+    color: #9aa0a8;
+    font-size: clamp(0.92rem, 1.25vw, 1.04rem);
+    line-height: 1.65;
+  }
+  .airtable-landing .logic2b-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-top: 1.8rem;
+    padding: 0.9rem 1.1rem;
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 0.65rem;
+    color: #f7f8f8;
+    font-size: 0.82rem;
+    font-weight: 700;
+    transition: border-color 180ms ease, background 180ms ease;
+  }
+  .airtable-landing .logic2b-link:hover {
+    border-color: #0099ff;
+    background: rgba(0,153,255,0.08);
+  }
+  .airtable-landing .logic2b-link span { color: #0099ff; }
+  .airtable-landing .logic2b-system {
+    position: relative;
+    display: grid;
+    min-height: 470px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.85rem;
+    padding: 0.85rem;
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 1.5rem;
+    background: rgba(255,255,255,0.025);
+  }
+  .airtable-landing .logic2b-system article {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: clamp(1.15rem, 2.5vw, 1.8rem);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 1rem;
+    background: rgba(255,255,255,0.035);
+    transition: border-color 180ms ease, background 180ms ease;
+  }
+  .airtable-landing .logic2b-system article:hover {
+    border-color: rgba(0,153,255,0.48);
+    background: rgba(0,153,255,0.055);
+  }
+  .airtable-landing .logic2b-system article > span {
+    margin-bottom: auto;
+    color: #0099ff;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 0.68rem;
+  }
+  .airtable-landing .logic2b-system h3 {
+    color: #f7f8f8;
+    font-family: 'Poppins', sans-serif;
+    font-size: clamp(1.05rem, 1.8vw, 1.45rem);
+    font-weight: 500;
+    letter-spacing: -0.025em;
+  }
+  .airtable-landing .logic2b-system article p {
+    margin-top: 0.45rem;
+    color: #8a8f98;
+    font-size: 0.76rem;
+  }
+  .airtable-landing .logic2b-core {
+    position: absolute;
+    z-index: 3;
+    display: grid;
+    width: 5.4rem;
+    height: 5.4rem;
+    left: 50%;
+    top: 50%;
+    place-items: center;
+    border: 0.65rem solid #08090a;
+    border-radius: 50%;
+    background: #f7f8f8;
+    box-shadow: 0 0 0 1px rgba(0,153,255,0.28), 0 0 42px rgba(0,153,255,0.18);
+    transform: translate(-50%, -50%);
+  }
+  .airtable-landing .logic2b-core .logic2b-mark {
+    width: 2rem;
+    height: 2rem;
+  }
+  .airtable-landing .logic2b-system-line {
+    position: absolute;
+    z-index: 0;
+    background: linear-gradient(90deg, transparent, rgba(0,153,255,0.4), transparent);
+  }
+  .airtable-landing .logic2b-system-line-a {
+    width: calc(100% - 2rem);
+    height: 1px;
+    left: 1rem;
+    top: 50%;
+  }
+  .airtable-landing .logic2b-system-line-b {
+    width: 1px;
+    height: calc(100% - 2rem);
+    left: 50%;
+    top: 1rem;
+    background: linear-gradient(transparent, rgba(0,153,255,0.4), transparent);
+  }
+  .airtable-landing .logic2b-capabilities {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: clamp(0.9rem, 2.8vw, 2.5rem);
+    overflow: hidden;
+    padding: 1.25rem clamp(24px, 4vw, 32px);
+    border-top: 1px solid rgba(255,255,255,0.09);
+    color: #747981;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 0.66rem;
+    letter-spacing: 0.11em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  .airtable-landing .logic2b-capabilities i {
+    width: 0.25rem;
+    height: 0.25rem;
+    flex: 0 0 auto;
+    border-radius: 50%;
+    background: #0099ff;
+  }
+  .airtable-landing .airtable-faq details { box-shadow: none; }
+  .airtable-landing .airtable-contact {
+    background: var(--air-ink) !important;
+  }
+  .airtable-landing .airtable-contact h2 { color: white; }
+  .airtable-landing .airtable-contact footer { border-color: rgba(255,255,255,0.16); }
+
+  @media (max-width: 700px) {
+    .airtable-landing > header > div {
+      gap: 0.5rem;
+      padding-inline: 1rem;
+    }
+    .airtable-landing > header .ml-auto {
+      min-width: 0;
+    }
+    .airtable-landing > header .wordmark .wm-agency,
+    .airtable-landing > header .wordmark .wm-product {
+      font-size: 0.92rem;
+    }
+    .airtable-landing > header [data-open-project] {
+      display: none;
+    }
+    .airtable-landing .airtable-hero,
+    .airtable-landing .airtable-hero h1,
+    .airtable-landing .airtable-hero .hero-fade {
+      width: calc(100vw - 40px) !important;
+      max-width: calc(100vw - 40px) !important;
+    }
+    .airtable-landing .airtable-hero h1 {
+      width: 100%;
+      max-width: 350px;
+      overflow-wrap: break-word;
+      font-size: 2rem;
+      line-height: 1.05;
+    }
+    .airtable-landing .airtable-hero > p:first-child {
+      display: block;
+      width: 100%;
+      max-width: 100%;
+      overflow-wrap: anywhere;
+      white-space: normal;
+      font-size: 0.68rem;
+    }
+    .airtable-landing .airtable-hero .hero-fade {
+      width: 100%;
+      max-width: 100%;
+      font-size: 0.94rem;
+    }
+    .airtable-landing .airtable-hero > div:last-child a {
+      width: 100%;
+      max-width: 320px;
+    }
+    .airtable-landing .airtable-announcement {
+      flex-wrap: wrap;
+      gap: 0.15rem 0.4rem;
+      font-size: 0.65rem;
+    }
+    .airtable-landing .airtable-gallery > ul {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.75rem;
+    }
+    .airtable-landing .airtable-announcement a {
+      display: none;
+    }
+    .airtable-landing .airtable-gallery > ul > li:first-child {
+      grid-column: 1 / -1;
+    }
+    .airtable-landing .airtable-gallery > ul > li:not(:first-child) .aspect-\[4\/5\] {
+      aspect-ratio: 1 / 1.15;
+    }
+    .airtable-landing .airtable-gallery .airtable-prompt {
+      right: 8%;
+      left: 8%;
+      font-size: 0.58rem;
+    }
+    .airtable-landing .airtable-scale-teaser {
+      grid-template-columns: 1fr;
+      gap: 2rem;
+    }
+    .airtable-landing .airtable-scale-visual {
+      min-height: 300px;
+      gap: 0.5rem;
+      padding: 1rem;
+    }
+    .airtable-landing .airtable-scale-visual > div {
+      height: 7rem;
+      padding: 0.75rem;
+    }
+    .airtable-landing .airtable-scale-visual > div:nth-of-type(2) { height: 10rem; }
+    .airtable-landing .airtable-scale-visual > div:nth-of-type(3) { height: 13rem; }
+    .airtable-landing .airtable-scale-visual small { display: none; }
+    .airtable-landing .airtable-demo-grid { grid-template-columns: 1fr; }
+    .airtable-landing .airtable-demos .airtable-demo-store,
+    .airtable-landing .airtable-demos .airtable-demo-orders,
+    .airtable-landing .airtable-demos .airtable-demo-emails {
+      display: flex;
+      min-height: 0;
+      grid-column: 1;
+      flex-direction: column;
+    }
+    .airtable-landing .airtable-demo-emails figure {
+      order: 0;
+      margin: 0.65rem 0.65rem 0;
+    }
+    .airtable-landing .airtable-demo-emails .airtable-demo-copy { order: 1; }
+    .airtable-landing .airtable-demo-card figure { margin: 0.65rem 0.65rem 0; }
+    .airtable-landing .airtable-demo-copy h3 { font-size: 1.7rem; }
+    .airtable-landing .airtable-casa-inner {
+      grid-template-columns: 1fr;
+      gap: 3rem;
+      padding-inline: 1.25rem;
+    }
+    .airtable-landing .logic2b-kicker { margin-top: 2.5rem; }
+    .airtable-landing .airtable-casa h2 { font-size: clamp(2.5rem, 13vw, 3.6rem); }
+    .airtable-landing .logic2b-system {
+      min-height: 350px;
+      gap: 0.5rem;
+      padding: 0.5rem;
+      border-radius: 1.2rem;
+    }
+    .airtable-landing .logic2b-system article {
+      min-height: 10.25rem;
+      padding: 0.9rem;
+    }
+    .airtable-landing .logic2b-system article p {
+      min-height: 2.2em;
+      font-size: 0.67rem;
+      line-height: 1.35;
+    }
+    .airtable-landing .logic2b-core {
+      width: 4.2rem;
+      height: 4.2rem;
+      border-width: 0.48rem;
+    }
+    .airtable-landing .logic2b-core .logic2b-mark { width: 1.5rem; height: 1.5rem; }
+    .airtable-landing .logic2b-capabilities {
+      justify-content: flex-start;
+      overflow-x: auto;
+      padding-inline: 1.25rem;
+      scrollbar-width: none;
+    }
+    .airtable-landing .logic2b-capabilities::-webkit-scrollbar { display: none; }
+  }
+</style>
+
+<style is:global>
+  .airtable-landing .airtable-hero {
+    padding-top: clamp(3rem, 7vw, 6rem);
+    text-align: left;
+  }
+  .airtable-landing .airtable-hero-layout {
+    display: grid;
+    grid-template-columns: minmax(280px, 0.78fr) minmax(0, 1.22fr);
+    align-items: center;
+    gap: clamp(2rem, 6vw, 6rem);
+  }
+  .airtable-landing .airtable-hero-copy {
+    position: relative;
+    z-index: 3;
+    max-width: 32rem;
+  }
+  .airtable-landing .airtable-eyebrow {
+    margin: 0 0 1.25rem;
+    color: var(--air-muted);
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+  .airtable-landing .airtable-hero h1 {
+    max-width: 30rem;
+    margin: 0;
+    font-size: clamp(3rem, 5.8vw, 5rem);
+    line-height: 0.98;
+    text-align: left;
+  }
+  .airtable-landing .airtable-hero .hero-fade {
+    max-width: 30rem;
+    margin: 1.5rem 0 0;
+    font-size: 1rem;
+    line-height: 1.5;
+    text-align: left;
+  }
+  .airtable-landing .airtable-email-gate {
+    display: flex;
+    align-items: center;
+    max-width: 30rem;
+    min-height: 4.3rem;
+    margin-top: 2rem;
+    padding: 0.35rem;
+    border: 1px solid rgba(255,255,255,0.22);
+    border-radius: 999px;
+    background: var(--air-ink);
+    box-shadow: 0 14px 32px rgba(24, 29, 38, 0.2);
+  }
+  .airtable-landing .airtable-email-gate input {
+    min-width: 0;
+    flex: 1;
+    height: 3.45rem;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    color: white;
+    font-size: 1.05rem;
+    padding-inline: 1.15rem;
+  }
+  .airtable-landing .airtable-email-gate input::placeholder {
+    color: rgba(255,255,255,0.7);
+  }
+  .airtable-landing .airtable-email-gate button {
+    display: grid;
+    width: 3.45rem;
+    height: 3.45rem;
+    flex: 0 0 auto;
+    place-items: center;
+    border-radius: 50%;
+    color: white;
+    font-size: 2.1rem;
+    line-height: 1;
+    transition: transform 180ms ease, background 180ms ease;
+  }
+  .airtable-landing .airtable-email-gate button:hover,
+  .airtable-landing .airtable-email-gate button:focus-visible {
+    background: rgba(255,255,255,0.12);
+    transform: translateX(2px);
+  }
+  .airtable-landing .airtable-email-note {
+    margin-top: 0.85rem;
+    color: var(--air-muted);
+    font-size: 0.72rem;
+  }
+  .airtable-landing .airtable-theme-rail {
+    width: 100%;
+  }
+  .airtable-landing dialog {
+    border-color: rgba(255,255,255,0.13);
+    background: #001013;
+    color: white;
+    box-shadow: 0 30px 90px rgba(0,0,0,0.4);
+  }
+  .airtable-landing dialog::backdrop {
+    background: rgba(0, 16, 19, 0.68);
+    backdrop-filter: blur(7px);
+  }
+  .airtable-landing dialog h2 { color: white; }
+  .airtable-landing dialog .text-muted-foreground { color: rgba(255,255,255,0.64) !important; }
+  .airtable-landing dialog input,
+  .airtable-landing dialog select,
+  .airtable-landing dialog textarea {
+    border-color: rgba(255,255,255,0.22) !important;
+    background: rgba(255,255,255,0.08) !important;
+    color: white !important;
+  }
+  .airtable-landing dialog input::placeholder,
+  .airtable-landing dialog textarea::placeholder { color: rgba(255,255,255,0.56) !important; }
+  .airtable-landing dialog label { color: rgba(255,255,255,0.85); }
+  .airtable-landing dialog option { color: var(--air-ink); }
+  .airtable-landing dialog button[type='submit'] { background: white !important; color: var(--air-ink) !important; }
+
+  /* Flujo vertical inspirado en el patrón editorial de Airtable. */
+  .airtable-landing .airtable-flow {
+    display: grid;
+    grid-template-columns: minmax(210px, 0.24fr) minmax(0, 1fr);
+    align-items: start;
+    gap: clamp(1.5rem, 4vw, 4rem);
+  }
+  .airtable-landing .airtable-flow-tabs {
+    position: sticky;
+    top: 6rem;
+    z-index: 5;
+    display: grid;
+    padding-top: 0.25rem;
+  }
+  .airtable-landing .airtable-flow-tab {
+    display: grid;
+    grid-template-columns: 0.6rem 2rem minmax(0, 1fr);
+    align-items: center;
+    gap: 0.45rem;
+    min-height: 4.35rem;
+    border-bottom: 1px solid var(--air-border);
+    color: #9297a0;
+    font-size: clamp(0.78rem, 1vw, 0.92rem);
+    text-decoration: none;
+    transition: color 180ms ease;
+  }
+  .airtable-landing .airtable-flow-tab:hover,
+  .airtable-landing .airtable-flow-tab.is-active {
+    color: var(--air-ink);
+  }
+  .airtable-landing .airtable-flow-tab-dot {
+    width: 0.45rem;
+    height: 0.45rem;
+    border-radius: 0.12rem;
+    background: currentColor;
+    opacity: 0;
+    transform: scale(0.5);
+    transition: opacity 180ms ease, transform 180ms ease;
+  }
+  .airtable-landing .airtable-flow-tab.is-active .airtable-flow-tab-dot {
+    opacity: 1;
+    transform: scale(1);
+  }
+  .airtable-landing .airtable-flow-tab:nth-child(1).is-active { color: var(--air-terracotta); }
+  .airtable-landing .airtable-flow-tab:nth-child(2).is-active { color: #4d7c2e; }
+  .airtable-landing .airtable-flow-tab:nth-child(3).is-active { color: #254fad; }
+  .airtable-landing .airtable-flow-tab:nth-child(4).is-active { color: var(--air-forest); }
+  .airtable-landing .airtable-flow-panels {
+    display: grid;
+    gap: 1.5rem;
+  }
+  .airtable-landing .airtable-flow-card {
+    position: relative;
+    display: grid;
+    min-height: clamp(560px, 54vw, 760px);
+    grid-template-rows: auto 1fr;
+    overflow: hidden;
+    padding: clamp(1.5rem, 4vw, 3.5rem);
+    border: 1px solid rgba(24,29,38,0.08);
+    border-radius: 1.5rem;
+    scroll-margin-top: 5.5rem;
+  }
+  .airtable-landing .airtable-flow-card-terracotta {
+    background: #9c2f1f;
+    color: white;
+  }
+  .airtable-landing .airtable-flow-card-lime {
+    background: #c7eaa8;
+    color: #17331b;
+  }
+  .airtable-landing .airtable-flow-card-sky {
+    background: #c7e5f2;
+    color: #17386f;
+  }
+  .airtable-landing .airtable-flow-card-forest {
+    background: #f5eedf;
+    color: #17351b;
+  }
+  .airtable-landing .airtable-flow-card-copy {
+    position: relative;
+    z-index: 2;
+    max-width: 46rem;
+  }
+  .airtable-landing .airtable-flow-card-step {
+    margin-bottom: 0.75rem;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.09em;
+    opacity: 0.72;
+    text-transform: uppercase;
+  }
+  .airtable-landing .airtable-flow-card-copy h3 {
+    color: inherit;
+    font-size: clamp(1.7rem, 3vw, 2.65rem);
+    line-height: 1.05;
+  }
+  .airtable-landing .airtable-flow-card-copy > p:last-child {
+    max-width: 42rem;
+    margin-top: 0.85rem;
+    font-size: clamp(0.88rem, 1.3vw, 1.05rem);
+    line-height: 1.55;
+    opacity: 0.8;
+  }
+  .airtable-landing .airtable-flow-card-visual {
+    position: relative;
+    display: flex;
+    min-height: 380px;
+    align-items: flex-end;
+    justify-content: center;
+    margin-top: clamp(2rem, 5vw, 4.5rem);
+  }
+  .airtable-landing .airtable-flow-visual-glow {
+    position: absolute;
+    width: 24rem;
+    height: 24rem;
+    right: -8rem;
+    bottom: -9rem;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.22);
+    filter: blur(28px);
+  }
+  .airtable-landing .airtable-flow-screen {
+    position: relative;
+    z-index: 1;
+    width: min(94%, 980px);
+    overflow: hidden;
+    border: 1px solid rgba(255,255,255,0.3);
+    border-radius: 1.15rem 1.15rem 0 0;
+    background: white;
+    box-shadow: 0 28px 60px rgba(15,48,106,0.14);
+  }
+  .airtable-landing .airtable-flow-screen-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    min-height: 2.7rem;
+    padding: 0.65rem 0.9rem;
+    border-bottom: 1px solid var(--air-border);
+    background: rgba(255,255,255,0.96);
+    color: var(--air-ink);
+    font-size: 0.68rem;
+  }
+  .airtable-landing .airtable-flow-screen-bar strong {
+    font-weight: 700;
+  }
+  .airtable-landing .airtable-flow-screen-bar span {
+    color: var(--air-muted);
+  }
+  .airtable-landing .airtable-flow-screen :global(.flow-interface) {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+    object-position: top;
+  }
+  .airtable-landing .airtable-flow-card-terracotta .airtable-flow-screen {
+    transform: perspective(1200px) rotateX(3deg) translateY(1rem);
+    transform-origin: bottom;
+  }
+  .airtable-landing .airtable-flow-card-lime .airtable-flow-screen {
+    width: min(98%, 1040px);
+  }
+  .airtable-landing .airtable-flow-card-sky::before,
+  .airtable-landing .airtable-flow-card-sky::after {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(54,151,197,0.28);
+    content: '';
+    filter: blur(16px);
+  }
+  .airtable-landing .airtable-flow-card-sky::before {
+    width: 12rem;
+    height: 12rem;
+    right: -4rem;
+    top: -3rem;
+  }
+  .airtable-landing .airtable-flow-card-sky::after {
+    width: 18rem;
+    height: 18rem;
+    right: 3rem;
+    bottom: -8rem;
+  }
+  .airtable-landing .airtable-flow-card-forest .airtable-flow-screen {
+    border-color: rgba(23,53,27,0.15);
+    box-shadow: 0 28px 60px rgba(23,53,27,0.11);
+  }
+  @media (max-width: 900px) {
+    .airtable-landing .airtable-hero-layout {
+      grid-template-columns: minmax(0, 1fr) minmax(280px, 0.92fr);
+      gap: 2rem;
+    }
+    .airtable-landing .airtable-hero h1 { font-size: clamp(2.75rem, 6vw, 4rem); }
+    .airtable-landing .airtable-flow {
+      grid-template-columns: minmax(165px, 0.28fr) minmax(0, 1fr);
+      gap: 1rem;
+    }
+    .airtable-landing .airtable-flow-card {
+      min-height: 560px;
+    }
+  }
+  @media (max-width: 700px) {
+    .airtable-landing .airtable-hero-layout {
+      display: block;
+    }
+    .airtable-landing .airtable-hero-copy {
+      max-width: 100%;
+    }
+    .airtable-landing .airtable-hero h1,
+    .airtable-landing .airtable-hero .hero-fade,
+    .airtable-landing .airtable-email-gate {
+      width: 100% !important;
+      max-width: 100% !important;
+    }
+    .airtable-landing .airtable-hero h1 {
+      font-size: clamp(2.45rem, 12vw, 3.4rem);
+    }
+    .airtable-landing .airtable-theme-rail {
+      margin-top: 3.5rem;
+    }
+    .airtable-landing .airtable-flow {
+      display: block;
+    }
+    .airtable-landing .airtable-flow-tabs {
+      position: sticky;
+      top: 3.5rem;
+      display: flex;
+      overflow-x: auto;
+      margin: 0 -1.25rem 1rem;
+      padding: 0.5rem 1.25rem;
+      background: rgba(255,255,255,0.94);
+      backdrop-filter: blur(12px);
+      scrollbar-width: none;
+    }
+    .airtable-landing .airtable-flow-tabs::-webkit-scrollbar { display: none; }
+    .airtable-landing .airtable-flow-tab {
+      min-width: max-content;
+      min-height: 2.8rem;
+      grid-template-columns: 0.5rem auto auto;
+      padding-right: 1rem;
+      border: 0;
+      font-size: 0.75rem;
+    }
+    .airtable-landing .airtable-flow-card {
+      min-height: 510px;
+      padding: 1.35rem;
+      border-radius: 1.2rem;
+    }
+    .airtable-landing .airtable-flow-card-visual {
+      min-height: 280px;
+      margin-top: 2rem;
+    }
+    .airtable-landing .airtable-flow-screen {
+      width: 100%;
+    }
+    .airtable-landing .airtable-flow-screen-bar span {
+      display: none;
+    }
+  }
+
+  /* El contenido comercial comparte el mismo carril que la cabecera. */
+  @media (min-width: 701px) {
+    .airtable-landing .airtable-hero,
+    .airtable-landing .airtable-features > div,
+    .airtable-landing .airtable-scale-teaser,
+    .airtable-landing .airtable-demos,
+    .airtable-landing .airtable-casa-inner {
+      width: 100%;
+      max-width: 1440px !important;
+      padding-right: clamp(24px, 4vw, 32px) !important;
+      padding-left: clamp(24px, 4vw, 32px) !important;
+    }
+  }
+</style>
+
 <script>
   // Script de la landing (decisión D1: vanilla, sin dependencias, ≤15 KB).
   // Una sola pieza: el autoplay del vídeo de Iris. El formulario lo gobierna
   // ProjectDialog.astro y la franja de logos es CSS puro.
+  const emailGate = document.querySelector<HTMLFormElement>('[data-email-gate]');
+  const emailInput = emailGate?.querySelector<HTMLInputElement>('input[name=email]');
+  const emailTrigger = document.querySelector<HTMLElement>('[data-email-trigger]');
+  emailGate?.addEventListener('submit', (event) => {
+    event.preventDefault();
+    if (!emailInput?.reportValidity()) return;
+    emailTrigger?.setAttribute('data-prefill-email', emailInput.value.trim());
+    emailTrigger?.click();
+  });
+
+  const flowTabs = Array.from(document.querySelectorAll<HTMLAnchorElement>('[data-flow-tab]'));
+  const flowPanels = Array.from(document.querySelectorAll<HTMLElement>('[data-flow-panel]'));
+  const activateFlowStep = (step: string) => {
+    for (const tab of flowTabs) {
+      const active = tab.dataset.flowTab === step;
+      tab.classList.toggle('is-active', active);
+      if (active) tab.setAttribute('aria-current', 'step');
+      else tab.removeAttribute('aria-current');
+    }
+  };
+  for (const tab of flowTabs) {
+    tab.addEventListener('click', () => activateFlowStep(tab.dataset.flowTab ?? '01'));
+  }
+  if ('IntersectionObserver' in window) {
+    const flowObserver = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter((entry) => entry.isIntersecting)
+          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+        const step = (visible?.target as HTMLElement | undefined)?.dataset.flowPanel;
+        if (step) activateFlowStep(step);
+      },
+      { rootMargin: '-18% 0px -58% 0px', threshold: [0.05, 0.2, 0.45] },
+    );
+    for (const panel of flowPanels) flowObserver.observe(panel);
+  }
+
   const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   // Iris: la tarjeta se sirve como imagen (póster) y aquí se asciende a

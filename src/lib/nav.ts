@@ -5,7 +5,8 @@
  * Vive en un módulo y no en cada página porque antes eran cuatro listas
  * distintas: `/temas` no enlazaba al dossier y los anclas iban a veces a
  * `#precios` y a veces a `/#precios` (roto desde cualquier página que no fuera
- * la portada). Una sola lista = un solo menú.
+ * la portada). Los precios viven ahora en una página propia para no interrumpir
+ * la landing con tablas y condiciones. Una sola lista = un solo menú.
  *
  * Rutas ABSOLUTAS siempre: el mismo menú se pinta desde `/` y desde
  * `/arquitectura`, así que `#precios` a secas no vale.
@@ -17,7 +18,7 @@
 export const landingNav = [
   { href: '/arquitectura', label: 'Cómo funciona' },
   { href: '/temas', label: 'Otros temas' },
-  { href: '/#precios', label: 'Precios' },
+  { href: '/precios', label: 'Precios' },
   { href: '/dossier', label: 'Dossier' },
 ] as const;
 

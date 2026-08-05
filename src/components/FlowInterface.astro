@@ -1,0 +1,357 @@
+---
+interface Props {
+  variant: 'storefront' | 'management' | 'growth' | 'ai';
+  label: string;
+}
+
+const { variant, label } = Astro.props;
+---
+
+{variant === 'storefront' && (
+  <svg class="flow-interface" viewBox="0 0 1200 675" role="img" aria-label={label}>
+    <defs>
+      <linearGradient id="storeHero" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="#202019" />
+        <stop offset="1" stop-color="#353126" />
+      </linearGradient>
+      <linearGradient id="storeClay" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#d8b096" />
+        <stop offset="1" stop-color="#a7674d" />
+      </linearGradient>
+      <filter id="storeShadow" x="-20%" y="-20%" width="140%" height="160%">
+        <feDropShadow dx="0" dy="12" stdDeviation="18" flood-color="#2d2119" flood-opacity=".11" />
+      </filter>
+    </defs>
+    <rect width="1200" height="675" fill="#f7f3ec" />
+    <rect x="0" y="0" width="1200" height="58" fill="#fffdf9" />
+    <path d="M0 58H1200" stroke="#ded8ce" />
+    <g fill="#22221d" font-family="Inter, Arial, sans-serif">
+      <text x="34" y="36" font-size="17" font-weight="750" letter-spacing="2">ALMA</text>
+      <text x="202" y="36" font-size="12" font-weight="600">Colecciones</text>
+      <text x="312" y="36" font-size="12">Espacios</text>
+      <text x="390" y="36" font-size="12">Materiales</text>
+      <text x="1031" y="36" font-size="12">Buscar</text>
+    </g>
+    <circle cx="1144" cy="29" r="15" fill="#202019" />
+    <path d="M1138 27h12l-1.5 8h-9zM1141 24a3 3 0 0 1 6 0" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" />
+
+    <rect x="28" y="84" width="1144" height="248" rx="18" fill="url(#storeHero)" />
+    <g font-family="Inter, Arial, sans-serif" fill="#f7f3ec">
+      <text x="66" y="128" font-size="11" font-weight="700" letter-spacing="2.2" opacity=".7">NUEVA COLECCIÓN · 2026</text>
+      <text x="66" y="187" font-size="43" font-weight="550" letter-spacing="-1.6">Objetos que hacen hogar.</text>
+      <text x="67" y="222" font-size="14" opacity=".7">Diseño honesto, materiales nobles y producción local.</text>
+      <rect x="66" y="257" width="137" height="42" rx="21" fill="#f7f3ec" />
+      <text x="92" y="283" fill="#25251f" font-size="12" font-weight="700">Ver colección</text>
+      <path d="M173 278h12m-4-4 4 4-4 4" fill="none" stroke="#25251f" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+    </g>
+    <circle cx="899" cy="203" r="101" fill="#e0c8a8" opacity=".95" />
+    <ellipse cx="906" cy="286" rx="145" ry="18" fill="#0b0b09" opacity=".22" />
+    <g filter="url(#storeShadow)">
+      <path d="M829 176c0-19 15-34 34-34h75c20 0 36 16 36 36v70H829z" fill="url(#storeClay)" />
+      <path d="M840 167c4-8 12-13 22-13h74c11 0 20 9 20 20v58H840z" fill="#c98f70" />
+      <rect x="811" y="234" width="180" height="39" rx="15" fill="#9c5b43" />
+      <path d="M830 268l-10 30M970 268l10 30" stroke="#4e372b" stroke-width="8" stroke-linecap="round" />
+    </g>
+    <rect x="1069" y="103" width="76" height="27" rx="13.5" fill="#fff" opacity=".14" />
+    <text x="1091" y="121" fill="#fff" font-family="Inter, Arial" font-size="10">01 / 04</text>
+
+    <g font-family="Inter, Arial, sans-serif">
+      <text x="32" y="373" fill="#24241f" font-size="19" font-weight="700">Piezas esenciales</text>
+      <text x="1100" y="373" fill="#6d685f" font-size="11">Ver todo →</text>
+    </g>
+    <g filter="url(#storeShadow)">
+      <rect x="28" y="394" width="267" height="246" rx="16" fill="#e9e3d9" />
+      <rect x="313" y="394" width="267" height="246" rx="16" fill="#ddd8c9" />
+      <rect x="598" y="394" width="267" height="246" rx="16" fill="#eae1d4" />
+      <rect x="883" y="394" width="289" height="246" rx="16" fill="#fffdf9" />
+    </g>
+    <g>
+      <ellipse cx="161" cy="572" rx="73" ry="9" fill="#66594b" opacity=".13" />
+      <path d="M114 478h94v77h-94z" fill="#a76d4c" />
+      <path d="M123 487h76v59h-76z" fill="#bf8762" />
+      <path d="M122 550l-8 42M200 550l8 42" stroke="#48372c" stroke-width="5" stroke-linecap="round" />
+      <rect x="123" y="460" width="76" height="30" rx="14" fill="#c99472" />
+      <text x="50" y="614" fill="#333129" font-family="Inter, Arial" font-size="11" font-weight="650">Butaca Duna</text>
+      <text x="241" y="614" fill="#726c63" font-family="Inter, Arial" font-size="11" text-anchor="end">890 €</text>
+    </g>
+    <g>
+      <ellipse cx="447" cy="568" rx="71" ry="8" fill="#66594b" opacity=".12" />
+      <path d="M415 471c0-19 14-32 32-32s32 13 32 32v70h-64z" fill="#c8b8a2" />
+      <path d="M405 525h84" stroke="#7b654f" stroke-width="12" stroke-linecap="round" />
+      <path d="M419 533l-7 48M475 533l7 48" stroke="#524233" stroke-width="5" stroke-linecap="round" />
+      <text x="335" y="614" fill="#333129" font-family="Inter, Arial" font-size="11" font-weight="650">Silla Umbral</text>
+      <text x="526" y="614" fill="#726c63" font-family="Inter, Arial" font-size="11" text-anchor="end">320 €</text>
+    </g>
+    <g>
+      <ellipse cx="731" cy="570" rx="69" ry="8" fill="#66594b" opacity=".12" />
+      <path d="M684 522c0-34 21-59 47-59s47 25 47 59z" fill="#e8c782" />
+      <path d="M731 459v-24" stroke="#665444" stroke-width="4" />
+      <circle cx="731" cy="430" r="8" fill="#665444" />
+      <path d="M731 522v56" stroke="#665444" stroke-width="5" />
+      <path d="M702 579h58" stroke="#665444" stroke-width="7" stroke-linecap="round" />
+      <text x="620" y="614" fill="#333129" font-family="Inter, Arial" font-size="11" font-weight="650">Lámpara Nido</text>
+      <text x="811" y="614" fill="#726c63" font-family="Inter, Arial" font-size="11" text-anchor="end">245 €</text>
+    </g>
+    <g font-family="Inter, Arial, sans-serif">
+      <text x="909" y="430" fill="#817b71" font-size="10" font-weight="700" letter-spacing="1.5">CONFIGURA TU PIEZA</text>
+      <text x="909" y="465" fill="#282821" font-size="22" font-weight="700">Mesa Linde</text>
+      <text x="909" y="488" fill="#6c675f" font-size="11">Roble macizo · Fabricación local</text>
+      <text x="909" y="526" fill="#282821" font-size="11" font-weight="650">Acabado</text>
+      <circle cx="918" cy="551" r="10" fill="#75533a" /><circle cx="948" cy="551" r="10" fill="#bd9a6d" /><circle cx="978" cy="551" r="10" fill="#39342d" />
+      <circle cx="918" cy="551" r="14" fill="none" stroke="#272721" />
+      <rect x="909" y="580" width="229" height="38" rx="19" fill="#25251f" />
+      <text x="931" y="604" fill="#fff" font-size="11" font-weight="700">Añadir al proyecto</text>
+      <text x="1118" y="604" fill="#fff" font-size="11" text-anchor="end">1.280 €</text>
+    </g>
+  </svg>
+)}
+
+{variant === 'management' && (
+  <svg class="flow-interface" viewBox="0 0 1200 675" role="img" aria-label={label}>
+    <defs>
+      <linearGradient id="manageBg" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="#fbfcf9" /><stop offset="1" stop-color="#f1f5ed" />
+      </linearGradient>
+      <linearGradient id="manageChart" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#a9d985" stop-opacity=".52" /><stop offset="1" stop-color="#a9d985" stop-opacity="0" />
+      </linearGradient>
+    </defs>
+    <rect width="1200" height="675" fill="url(#manageBg)" />
+    <rect x="0" width="184" height="675" fill="#18351e" />
+    <g font-family="Inter, Arial, sans-serif">
+      <circle cx="35" cy="34" r="13" fill="#c7eaa8" />
+      <path d="M30 34l4 4 7-9" fill="none" stroke="#18351e" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" />
+      <text x="57" y="39" fill="#fff" font-size="14" font-weight="750">Logic2B</text>
+      <text x="24" y="86" fill="#9eb3a2" font-size="9" font-weight="700" letter-spacing="1.4">GESTIÓN</text>
+      <g font-size="11">
+        <rect x="14" y="103" width="156" height="39" rx="9" fill="#31533a" />
+        <text x="48" y="128" fill="#fff" font-weight="650">Resumen</text>
+        <path d="M28 128v-9h4v9zm7 0v-15h4v15" fill="#c7eaa8" />
+        <text x="48" y="175" fill="#c5d0c7">Pedidos</text><circle cx="32" cy="171" r="5" fill="none" stroke="#94aa99" />
+        <text x="48" y="218" fill="#c5d0c7">Productos</text><path d="M27 209h10v10H27z" fill="none" stroke="#94aa99" />
+        <text x="48" y="261" fill="#c5d0c7">Clientes</text><circle cx="32" cy="252" r="4" fill="none" stroke="#94aa99" /><path d="M25 263c2-7 12-7 14 0" fill="none" stroke="#94aa99" />
+        <text x="48" y="304" fill="#c5d0c7">Contenido</text><path d="M26 294h12v11H26zM29 291h12v11" fill="none" stroke="#94aa99" />
+      </g>
+      <rect x="16" y="595" width="152" height="54" rx="12" fill="#112a17" />
+      <circle cx="40" cy="622" r="13" fill="#c7eaa8" />
+      <text x="62" y="619" fill="#fff" font-size="10" font-weight="650">Tienda activa</text>
+      <text x="62" y="635" fill="#94aa99" font-size="9">Todo funciona bien</text>
+    </g>
+
+    <g font-family="Inter, Arial, sans-serif">
+      <text x="218" y="47" fill="#1c2c20" font-size="22" font-weight="750">Buenos días, Marta</text>
+      <text x="218" y="68" fill="#718076" font-size="10">Aquí tienes lo importante de tu tienda.</text>
+      <rect x="1018" y="26" width="150" height="40" rx="10" fill="#18351e" />
+      <text x="1043" y="51" fill="#fff" font-size="11" font-weight="650">+ Nuevo producto</text>
+
+      <g>
+        <rect x="218" y="94" width="225" height="118" rx="14" fill="#fff" stroke="#dfe6dc" />
+        <text x="238" y="121" fill="#718076" font-size="10">Ventas hoy</text>
+        <text x="238" y="160" fill="#18351e" font-size="28" font-weight="750">2.840 €</text>
+        <rect x="238" y="178" width="66" height="20" rx="10" fill="#e4f4d8" />
+        <text x="251" y="192" fill="#47752d" font-size="9" font-weight="700">↑ 18,4%</text>
+        <path d="M335 177c15-3 24-20 39-14 15 7 28-10 48-30" fill="none" stroke="#6eae49" stroke-width="3" stroke-linecap="round" />
+      </g>
+      <g>
+        <rect x="459" y="94" width="225" height="118" rx="14" fill="#fff" stroke="#dfe6dc" />
+        <text x="479" y="121" fill="#718076" font-size="10">Pedidos nuevos</text>
+        <text x="479" y="160" fill="#18351e" font-size="28" font-weight="750">24</text>
+        <text x="479" y="191" fill="#718076" font-size="9">6 por preparar hoy</text>
+        <circle cx="638" cy="154" r="27" fill="none" stroke="#edf0ea" stroke-width="8" />
+        <path d="M638 127a27 27 0 1 1-24 39" fill="none" stroke="#8fc861" stroke-width="8" stroke-linecap="round" />
+      </g>
+      <g>
+        <rect x="700" y="94" width="225" height="118" rx="14" fill="#fff" stroke="#dfe6dc" />
+        <text x="720" y="121" fill="#718076" font-size="10">Ticket medio</text>
+        <text x="720" y="160" fill="#18351e" font-size="28" font-weight="750">118 €</text>
+        <text x="720" y="191" fill="#718076" font-size="9">+ 12 € este mes</text>
+        <path d="M850 180h11v-23h9v23h11v-38h9v38h11v-56h9v56" fill="#bfe19f" />
+      </g>
+      <g>
+        <rect x="941" y="94" width="227" height="118" rx="14" fill="#fff" stroke="#dfe6dc" />
+        <text x="961" y="121" fill="#718076" font-size="10">Atención</text>
+        <text x="961" y="160" fill="#18351e" font-size="28" font-weight="750">3</text>
+        <text x="961" y="191" fill="#718076" font-size="9">tareas pendientes</text>
+        <circle cx="1116" cy="153" r="26" fill="#fff4cd" />
+        <path d="M1116 139v18m0 9v1" stroke="#9b7213" stroke-width="3" stroke-linecap="round" />
+      </g>
+
+      <rect x="218" y="232" width="650" height="411" rx="16" fill="#fff" stroke="#dfe6dc" />
+      <text x="241" y="265" fill="#1c2c20" font-size="14" font-weight="700">Pedidos recientes</text>
+      <rect x="704" y="246" width="137" height="31" rx="8" fill="#f5f7f2" stroke="#dfe6dc" />
+      <text x="724" y="266" fill="#536258" font-size="9">Todos los estados⌄</text>
+      <path d="M218 292h650" stroke="#e6ebe3" />
+      <g fill="#829087" font-size="9" font-weight="650">
+        <text x="241" y="318">PEDIDO</text><text x="351" y="318">CLIENTE</text><text x="501" y="318">ESTADO</text><text x="640" y="318">TOTAL</text><text x="760" y="318">HORA</text>
+      </g>
+      <g font-size="10">
+        <path d="M218 340h650M218 397h650M218 454h650M218 511h650M218 568h650" stroke="#edf0eb" />
+        <text x="241" y="374" fill="#26342a" font-weight="650">#1048</text><text x="351" y="374" fill="#536258">Lucía Romero</text><rect x="501" y="355" width="77" height="22" rx="11" fill="#fff1ce" /><text x="515" y="370" fill="#896313" font-size="9">Preparando</text><text x="640" y="374" fill="#26342a">148,00 €</text><text x="760" y="374" fill="#829087">10:42</text>
+        <text x="241" y="431" fill="#26342a" font-weight="650">#1047</text><text x="351" y="431" fill="#536258">Diego Santos</text><rect x="501" y="412" width="64" height="22" rx="11" fill="#e4f4d8" /><text x="517" y="427" fill="#47752d" font-size="9">Enviado</text><text x="640" y="431" fill="#26342a">89,90 €</text><text x="760" y="431" fill="#829087">09:18</text>
+        <text x="241" y="488" fill="#26342a" font-weight="650">#1046</text><text x="351" y="488" fill="#536258">Noa García</text><rect x="501" y="469" width="62" height="22" rx="11" fill="#e6efff" /><text x="516" y="484" fill="#315ca7" font-size="9">Pagado</text><text x="640" y="488" fill="#26342a">215,00 €</text><text x="760" y="488" fill="#829087">Ayer</text>
+        <text x="241" y="545" fill="#26342a" font-weight="650">#1045</text><text x="351" y="545" fill="#536258">Ana Ríos</text><rect x="501" y="526" width="64" height="22" rx="11" fill="#e4f4d8" /><text x="517" y="541" fill="#47752d" font-size="9">Enviado</text><text x="640" y="545" fill="#26342a">64,50 €</text><text x="760" y="545" fill="#829087">Ayer</text>
+        <text x="241" y="602" fill="#26342a" font-weight="650">#1044</text><text x="351" y="602" fill="#536258">Pablo León</text><rect x="501" y="583" width="77" height="22" rx="11" fill="#fff1ce" /><text x="515" y="598" fill="#896313" font-size="9">Preparando</text><text x="640" y="602" fill="#26342a">179,00 €</text><text x="760" y="602" fill="#829087">Lun</text>
+      </g>
+
+      <rect x="887" y="232" width="281" height="196" rx="16" fill="#18351e" />
+      <text x="910" y="266" fill="#fff" font-size="13" font-weight="700">Tu semana, de un vistazo</text>
+      <text x="910" y="287" fill="#adc0b1" font-size="9">Ingresos de los últimos 7 días</text>
+      <path d="M910 376H1145M910 342H1145M910 308H1145" stroke="#fff" stroke-opacity=".09" />
+      <path d="M910 380C944 368 957 374 984 348s40 6 68-18 43-11 93-40v90z" fill="#8fc861" opacity=".18" />
+      <path d="M910 380C944 368 957 374 984 348s40 6 68-18 43-11 93-40" fill="none" stroke="#b9e495" stroke-width="3" stroke-linecap="round" />
+      <circle cx="1145" cy="290" r="5" fill="#d8f6c1" />
+
+      <rect x="887" y="445" width="281" height="198" rx="16" fill="#fff" stroke="#dfe6dc" />
+      <text x="910" y="478" fill="#1c2c20" font-size="13" font-weight="700">Qué toca ahora</text>
+      <g font-size="9">
+        <circle cx="920" cy="514" r="9" fill="#fff1ce" /><path d="M920 509v6l4 2" fill="none" stroke="#896313" stroke-width="1.5" stroke-linecap="round" />
+        <text x="941" y="511" fill="#26342a" font-weight="650">Preparar 6 pedidos</text><text x="941" y="526" fill="#829087">Antes de las 14:00</text>
+        <circle cx="920" cy="561" r="9" fill="#e6efff" /><path d="M916 561h8M920 557v8" stroke="#315ca7" stroke-width="1.5" />
+        <text x="941" y="558" fill="#26342a" font-weight="650">Revisar stock bajo</text><text x="941" y="573" fill="#829087">3 productos</text>
+        <circle cx="920" cy="608" r="9" fill="#e4f4d8" /><path d="M916 608l3 3 5-6" fill="none" stroke="#47752d" stroke-width="1.5" />
+        <text x="941" y="605" fill="#26342a" font-weight="650">Cobros conciliados</text><text x="941" y="620" fill="#829087">Todo al día</text>
+      </g>
+    </g>
+  </svg>
+)}
+
+{variant === 'growth' && (
+  <svg class="flow-interface" viewBox="0 0 1200 675" role="img" aria-label={label}>
+    <defs>
+      <linearGradient id="growthBg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f8fbfe" /><stop offset="1" stop-color="#ecf4fb" /></linearGradient>
+      <linearGradient id="growthArea" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4f81df" stop-opacity=".32" /><stop offset="1" stop-color="#4f81df" stop-opacity="0" /></linearGradient>
+      <filter id="growthShadow" x="-20%" y="-20%" width="150%" height="160%"><feDropShadow dx="0" dy="12" stdDeviation="16" flood-color="#17386f" flood-opacity=".08" /></filter>
+    </defs>
+    <rect width="1200" height="675" fill="url(#growthBg)" />
+    <g font-family="Inter, Arial, sans-serif">
+      <rect x="24" y="24" width="1152" height="55" rx="14" fill="#fff" stroke="#dce6f0" />
+      <circle cx="53" cy="52" r="15" fill="#17386f" /><path d="M45 56l7-12 5 8 4-5" fill="none" stroke="#c7e5f2" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
+      <text x="78" y="57" fill="#17386f" font-size="14" font-weight="750">Growth Center</text>
+      <rect x="202" y="37" width="78" height="31" rx="8" fill="#edf4ff" /><text x="219" y="57" fill="#315ca7" font-size="10" font-weight="650">Resumen</text>
+      <text x="310" y="57" fill="#69798b" font-size="10">SEO & GEO</text><text x="394" y="57" fill="#69798b" font-size="10">Campañas</text><text x="478" y="57" fill="#69798b" font-size="10">Funciones</text>
+      <rect x="1011" y="37" width="137" height="31" rx="8" fill="#17386f" /><text x="1032" y="57" fill="#fff" font-size="10" font-weight="650">+ Añadir función</text>
+
+      <rect x="24" y="99" width="742" height="356" rx="18" fill="#fff" stroke="#dce6f0" />
+      <text x="50" y="132" fill="#17386f" font-size="14" font-weight="700">Crecimiento orgánico</text>
+      <text x="50" y="153" fill="#7b8998" font-size="9">Tráfico desde buscadores y asistentes de IA</text>
+      <rect x="624" y="117" width="115" height="28" rx="8" fill="#f4f7fb" stroke="#dce6f0" /><text x="646" y="135" fill="#5f7082" font-size="9">Últimos 12 meses</text>
+      <text x="50" y="203" fill="#17386f" font-size="31" font-weight="750">+184%</text><text x="157" y="202" fill="#4f81df" font-size="10" font-weight="700">↑ 61.420 visitas</text>
+      <path d="M60 394H733M60 341H733M60 288H733M60 235H733" stroke="#e8eef5" />
+      <path d="M60 398C105 385 123 393 164 373s64-11 97-48 70 20 111-29 63-19 101-57 62 4 103-39 87-20 157-79v273H60z" fill="url(#growthArea)" />
+      <path d="M60 398C105 385 123 393 164 373s64-11 97-48 70 20 111-29 63-19 101-57 62 4 103-39 87-20 157-79" fill="none" stroke="#3f71cc" stroke-width="4" stroke-linecap="round" />
+      <circle cx="733" cy="121" r="6" fill="#3f71cc" /><circle cx="733" cy="121" r="12" fill="#3f71cc" opacity=".15" />
+      <g fill="#8190a0" font-size="8"><text x="60" y="427">SEP</text><text x="186" y="427">NOV</text><text x="312" y="427">ENE</text><text x="438" y="427">MAR</text><text x="564" y="427">MAY</text><text x="704" y="427">JUL</text></g>
+
+      <g filter="url(#growthShadow)">
+        <rect x="786" y="99" width="390" height="170" rx="18" fill="#17386f" />
+        <text x="811" y="131" fill="#fff" font-size="13" font-weight="700">Nuevas capacidades</text>
+        <text x="811" y="151" fill="#aebdd0" font-size="9">Activa solo lo que el negocio necesita.</text>
+        <rect x="811" y="176" width="102" height="65" rx="12" fill="#274a86" /><circle cx="830" cy="195" r="8" fill="#82b8ee" /><path d="M826 195h8M830 191v8" stroke="#17386f" /><text x="826" y="222" fill="#fff" font-size="9" font-weight="650">Suscripciones</text>
+        <rect x="923" y="176" width="102" height="65" rx="12" fill="#274a86" /><circle cx="942" cy="195" r="8" fill="#b2db9b" /><path d="M938 195h8" stroke="#17386f" /><text x="938" y="222" fill="#fff" font-size="9" font-weight="650">Fidelización</text>
+        <rect x="1035" y="176" width="116" height="65" rx="12" fill="#fff" /><circle cx="1054" cy="195" r="8" fill="#dceafe" /><path d="M1050 195h8M1054 191v8" stroke="#315ca7" /><text x="1050" y="222" fill="#17386f" font-size="9" font-weight="700">Nueva función</text>
+      </g>
+
+      <rect x="786" y="287" width="390" height="168" rx="18" fill="#fff" stroke="#dce6f0" />
+      <text x="811" y="320" fill="#17386f" font-size="13" font-weight="700">Visibilidad multicanal</text>
+      <text x="811" y="341" fill="#7b8998" font-size="9">Una fuente de datos, más lugares donde encontrarte.</text>
+      <g>
+        <rect x="811" y="367" width="77" height="58" rx="12" fill="#f4f7fb" /><circle cx="849" cy="388" r="10" fill="#fff" stroke="#dce6f0" /><text x="849" y="392" fill="#4285f4" font-size="11" font-weight="800" text-anchor="middle">G</text><text x="849" y="414" fill="#617285" font-size="8" text-anchor="middle">Google</text>
+        <rect x="899" y="367" width="77" height="58" rx="12" fill="#f4f7fb" /><circle cx="937" cy="388" r="10" fill="#fff" stroke="#dce6f0" /><text x="937" y="392" fill="#111" font-size="11" font-weight="800" text-anchor="middle">M</text><text x="937" y="414" fill="#617285" font-size="8" text-anchor="middle">Meta</text>
+        <rect x="987" y="367" width="77" height="58" rx="12" fill="#f4f7fb" /><circle cx="1025" cy="388" r="10" fill="#fff" stroke="#dce6f0" /><path d="M1019 388h12M1025 382v12" stroke="#6f42c1" /><text x="1025" y="414" fill="#617285" font-size="8" text-anchor="middle">Feeds</text>
+        <rect x="1075" y="367" width="76" height="58" rx="12" fill="#eaf3ff" /><circle cx="1113" cy="388" r="10" fill="#315ca7" /><path d="M1108 388l4 4 6-8" fill="none" stroke="#fff" stroke-width="1.5" /><text x="1113" y="414" fill="#315ca7" font-size="8" font-weight="650" text-anchor="middle">Sincronizado</text>
+      </g>
+
+      <rect x="24" y="475" width="1152" height="176" rx="18" fill="#fff" stroke="#dce6f0" />
+      <text x="50" y="509" fill="#17386f" font-size="13" font-weight="700">Evolución continua</text><text x="50" y="529" fill="#7b8998" font-size="9">Cada mejora se suma sobre la misma plataforma.</text>
+      <path d="M122 586H1076" stroke="#cdd9e7" stroke-width="2" stroke-dasharray="5 7" />
+      <g>
+        <circle cx="160" cy="586" r="25" fill="#17386f" /><path d="M149 589l8-11 7 7 8-12" fill="none" stroke="#c7e5f2" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" /><text x="160" y="628" fill="#516375" font-size="9" font-weight="650" text-anchor="middle">Web inicial</text>
+        <circle cx="399" cy="586" r="25" fill="#e2effc" /><path d="M389 586h20M399 576v20" stroke="#315ca7" stroke-width="2.5" /><text x="399" y="628" fill="#516375" font-size="9" font-weight="650" text-anchor="middle">Nuevas funciones</text>
+        <circle cx="638" cy="586" r="25" fill="#dff2d2" /><path d="M628 591l7-9 6 4 8-12" fill="none" stroke="#4b7a31" stroke-width="2.5" /><text x="638" y="628" fill="#516375" font-size="9" font-weight="650" text-anchor="middle">Más tráfico</text>
+        <circle cx="877" cy="586" r="25" fill="#f3e6cf" /><path d="M868 592v-13h18v13M871 579v-6h12v6" fill="none" stroke="#996a2d" stroke-width="2" /><text x="877" y="628" fill="#516375" font-size="9" font-weight="650" text-anchor="middle">Más ventas</text>
+        <circle cx="1116" cy="586" r="25" fill="#315ca7" /><path d="M1105 590l7-7 6 4 9-12" fill="none" stroke="#fff" stroke-width="2.5" /><text x="1116" y="628" fill="#315ca7" font-size="9" font-weight="700" text-anchor="middle">Siguiente nivel</text>
+      </g>
+    </g>
+  </svg>
+)}
+
+{variant === 'ai' && (
+  <svg class="flow-interface" viewBox="0 0 1200 675" role="img" aria-label={label}>
+    <defs>
+      <linearGradient id="aiBg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#faf7ef" /><stop offset="1" stop-color="#f0eadc" /></linearGradient>
+      <linearGradient id="aiCore" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#234e2a" /><stop offset="1" stop-color="#102d19" /></linearGradient>
+      <filter id="aiShadow" x="-30%" y="-30%" width="160%" height="180%"><feDropShadow dx="0" dy="14" stdDeviation="18" flood-color="#17351b" flood-opacity=".12" /></filter>
+      <marker id="arrowGreen" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0l8 4-8 4z" fill="#6b9270" /></marker>
+    </defs>
+    <rect width="1200" height="675" fill="url(#aiBg)" />
+    <g font-family="Inter, Arial, sans-serif">
+      <rect x="28" y="24" width="1144" height="57" rx="14" fill="#fffdf8" stroke="#ded8c9" />
+      <circle cx="57" cy="52" r="14" fill="#18351e" /><path d="M50 53l5 5 9-12" fill="none" stroke="#d9edc9" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
+      <text x="81" y="57" fill="#18351e" font-size="14" font-weight="750">Intelligence Layer</text>
+      <rect x="231" y="37" width="104" height="31" rx="8" fill="#edf4e8" /><text x="250" y="57" fill="#315d37" font-size="10" font-weight="650">Arquitectura</text>
+      <text x="365" y="57" fill="#7b8178" font-size="10">Datos</text><text x="419" y="57" fill="#7b8178" font-size="10">Automatizaciones</text><text x="530" y="57" fill="#7b8178" font-size="10">Asistentes</text>
+      <rect x="1022" y="37" width="122" height="31" rx="15.5" fill="#18351e" /><circle cx="1040" cy="52" r="4" fill="#a9d985" /><text x="1052" y="56" fill="#fff" font-size="9" font-weight="650">Sistema listo</text>
+
+      <text x="38" y="120" fill="#18351e" font-size="10" font-weight="750" letter-spacing="1.2">01 · DATOS ESTRUCTURADOS</text>
+      <text x="421" y="120" fill="#18351e" font-size="10" font-weight="750" letter-spacing="1.2">02 · ORQUESTACIÓN</text>
+      <text x="822" y="120" fill="#18351e" font-size="10" font-weight="750" letter-spacing="1.2">03 · INTELIGENCIA APLICADA</text>
+
+      <rect x="28" y="139" width="338" height="496" rx="18" fill="#fffdf8" stroke="#ded8c9" />
+      <text x="53" y="175" fill="#18351e" font-size="14" font-weight="700">Catálogo conectado</text><text x="53" y="196" fill="#808178" font-size="9">Cada dato tiene contexto y relaciones.</text>
+      <rect x="53" y="219" width="288" height="72" rx="12" fill="#f3eee3" />
+      <rect x="66" y="232" width="48" height="46" rx="8" fill="#d8c4a6" /><path d="M77 267h26l-3-24H80z" fill="#7f5c3f" /><path d="M82 243v-6h16v6" fill="none" stroke="#7f5c3f" stroke-width="2" />
+      <text x="129" y="245" fill="#1d3521" font-size="10" font-weight="700">Mesa Linde</text><text x="129" y="261" fill="#7e8077" font-size="8">Producto · SKU 00418</text><rect x="129" y="268" width="53" height="12" rx="6" fill="#dbead0" /><text x="138" y="277" fill="#466b3c" font-size="6.5" font-weight="700">EN STOCK</text>
+      <g font-size="8">
+        <text x="53" y="322" fill="#8c8d84" font-weight="650">PROPIEDADES</text>
+        <rect x="53" y="337" width="288" height="41" rx="8" fill="#f8f5ee" /><text x="67" y="354" fill="#7e8077">Material</text><text x="324" y="354" fill="#253929" text-anchor="end" font-weight="650">Roble macizo</text><text x="67" y="369" fill="#7e8077">Acabado</text><text x="324" y="369" fill="#253929" text-anchor="end" font-weight="650">Natural</text>
+        <rect x="53" y="388" width="288" height="41" rx="8" fill="#f8f5ee" /><text x="67" y="405" fill="#7e8077">Precio</text><text x="324" y="405" fill="#253929" text-anchor="end" font-weight="650">1.280 €</text><text x="67" y="420" fill="#7e8077">Disponibilidad</text><text x="324" y="420" fill="#253929" text-anchor="end" font-weight="650">8 unidades</text>
+        <rect x="53" y="439" width="288" height="41" rx="8" fill="#f8f5ee" /><text x="67" y="456" fill="#7e8077">Categoría</text><text x="324" y="456" fill="#253929" text-anchor="end" font-weight="650">Mesas de comedor</text><text x="67" y="471" fill="#7e8077">Colección</text><text x="324" y="471" fill="#253929" text-anchor="end" font-weight="650">Esenciales</text>
+      </g>
+      <text x="53" y="512" fill="#8c8d84" font-size="8" font-weight="650">RELACIONES</text>
+      <g font-size="7.5" font-weight="650"><rect x="53" y="528" width="86" height="27" rx="13.5" fill="#edf4e8" /><text x="68" y="545" fill="#426848">↗ 3 variantes</text><rect x="147" y="528" width="83" height="27" rx="13.5" fill="#edf4e8" /><text x="162" y="545" fill="#426848">↗ 2 espacios</text><rect x="238" y="528" width="103" height="27" rx="13.5" fill="#edf4e8" /><text x="253" y="545" fill="#426848">↗ 6 contenidos</text></g>
+      <rect x="53" y="577" width="288" height="34" rx="9" fill="#18351e" /><text x="72" y="598" fill="#fff" font-size="9" font-weight="650">Schema validado y disponible por API</text><circle cx="320" cy="594" r="7" fill="#a9d985" /><path d="M317 594l2 2 4-5" fill="none" stroke="#18351e" stroke-width="1.2" />
+
+      <g filter="url(#aiShadow)">
+        <rect x="417" y="139" width="355" height="496" rx="18" fill="url(#aiCore)" />
+      </g>
+      <text x="443" y="175" fill="#fff" font-size="14" font-weight="700">Capa de orquestación</text><text x="443" y="196" fill="#abc0ae" font-size="9">Una arquitectura común para conectar cualquier modelo.</text>
+      <circle cx="594" cy="338" r="75" fill="#fff" opacity=".05" /><circle cx="594" cy="338" r="54" fill="#d9edc9" opacity=".12" /><circle cx="594" cy="338" r="35" fill="#d9edc9" />
+      <path d="M578 339l11 11 22-27" fill="none" stroke="#18351e" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" />
+      <g fill="#294c30" stroke="#55765a">
+        <rect x="449" y="231" width="106" height="45" rx="12" /><rect x="633" y="231" width="106" height="45" rx="12" /><rect x="449" y="404" width="106" height="45" rx="12" /><rect x="633" y="404" width="106" height="45" rx="12" />
+      </g>
+      <g fill="#fff" font-size="9" font-weight="650" text-anchor="middle"><text x="502" y="259">API segura</text><text x="686" y="259">Webhooks</text><text x="502" y="432">Automatizaciones</text><text x="686" y="432">Permisos</text></g>
+      <g fill="none" stroke="#90b092" stroke-width="1.7" stroke-dasharray="5 5"><path d="M555 254C580 254 572 291 585 305" /><path d="M633 254C610 254 616 291 603 305" /><path d="M555 426C580 426 572 383 585 371" /><path d="M633 426C610 426 616 383 603 371" /></g>
+      <rect x="449" y="494" width="290" height="111" rx="14" fill="#102718" stroke="#46664b" />
+      <text x="468" y="520" fill="#a9d985" font-size="8" font-weight="700" letter-spacing="1">FLUJO ACTIVO</text>
+      <circle cx="474" cy="549" r="9" fill="#a9d985" /><text x="492" y="552" fill="#fff" font-size="9" font-weight="650">Pedido confirmado</text>
+      <path d="M474 560v17" stroke="#55765a" stroke-width="2" /><circle cx="474" cy="584" r="9" fill="#315d37" /><path d="M470 584h8M474 580v8" stroke="#d9edc9" /><text x="492" y="587" fill="#fff" font-size="9" font-weight="650">Generar seguimiento personalizado</text>
+
+      <path d="M366 337C392 337 393 337 417 337" fill="none" stroke="#6b9270" stroke-width="2" marker-end="url(#arrowGreen)" />
+      <path d="M772 337C794 337 797 337 818 337" fill="none" stroke="#6b9270" stroke-width="2" marker-end="url(#arrowGreen)" />
+
+      <rect x="818" y="139" width="354" height="496" rx="18" fill="#fffdf8" stroke="#ded8c9" />
+      <text x="843" y="175" fill="#18351e" font-size="14" font-weight="700">Asistente de negocio</text><text x="843" y="196" fill="#808178" font-size="9">Respuestas basadas en tus datos reales.</text>
+      <rect x="843" y="222" width="304" height="68" rx="13" fill="#f1ecdf" />
+      <circle cx="866" cy="246" r="11" fill="#d8c4a6" /><path d="M861 246h10M866 241v10" stroke="#755f42" />
+      <text x="886" y="244" fill="#6d7068" font-size="8">Tú</text><text x="886" y="261" fill="#253929" font-size="10" font-weight="650">¿Qué productos debo reponer esta semana?</text>
+      <rect x="843" y="304" width="304" height="201" rx="13" fill="#edf4e8" />
+      <circle cx="866" cy="329" r="11" fill="#18351e" /><path d="M861 329l4 4 7-8" fill="none" stroke="#d9edc9" stroke-width="1.6" />
+      <text x="886" y="326" fill="#426848" font-size="8" font-weight="650">Logic2B IA</text><text x="886" y="344" fill="#253929" font-size="10" font-weight="650">Hay 3 productos prioritarios.</text>
+      <g font-size="8.5"><rect x="864" y="365" width="262" height="35" rx="8" fill="#fff" /><text x="877" y="380" fill="#253929" font-weight="650">01 · Butaca Duna</text><text x="1112" y="380" fill="#8a6a22" text-anchor="end">stock: 2</text><text x="877" y="392" fill="#83867e" font-size="7">Ritmo de venta: 6/semana</text>
+      <rect x="864" y="408" width="262" height="35" rx="8" fill="#fff" /><text x="877" y="423" fill="#253929" font-weight="650">02 · Lámpara Nido</text><text x="1112" y="423" fill="#8a6a22" text-anchor="end">stock: 4</text><text x="877" y="435" fill="#83867e" font-size="7">Campaña activa desde ayer</text>
+      <rect x="864" y="451" width="262" height="35" rx="8" fill="#fff" /><text x="877" y="466" fill="#253929" font-weight="650">03 · Mesa Linde</text><text x="1112" y="466" fill="#8a6a22" text-anchor="end">stock: 1</text><text x="877" y="478" fill="#83867e" font-size="7">2 unidades en carritos abiertos</text></g>
+      <rect x="843" y="520" width="304" height="43" rx="10" fill="#18351e" /><text x="865" y="546" fill="#fff" font-size="9" font-weight="650">Crear propuesta de reposición</text><path d="M1113 541h12m-4-4 4 4-4 4" fill="none" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+      <rect x="843" y="578" width="304" height="33" rx="16.5" fill="#fff" stroke="#ded8c9" /><text x="861" y="599" fill="#99998f" font-size="8.5">Pregunta sobre ventas, catálogo o clientes…</text><circle cx="1127" cy="594" r="10" fill="#d9edc9" /><path d="M1123 594h8m-3-3 3 3-3 3" fill="none" stroke="#18351e" stroke-width="1.3" />
+    </g>
+  </svg>
+)}
+
+<style>
+  .flow-interface {
+    display: block;
+    width: 100%;
+    height: auto;
+    background: white;
+  }
+</style>

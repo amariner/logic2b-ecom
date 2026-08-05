@@ -48,6 +48,9 @@ import ProjectForm from './ProjectForm.astro';
     for (const trigger of document.querySelectorAll<HTMLElement>('[data-open-project]')) {
       trigger.addEventListener('click', (event) => {
         event.preventDefault();
+        const prefillEmail = trigger.getAttribute('data-prefill-email');
+        const emailInput = dialog.querySelector<HTMLInputElement>('input[name=email]');
+        if (prefillEmail && emailInput) emailInput.value = prefillEmail;
         dialog.showModal();
         dialog.querySelector<HTMLInputElement>('input[name=name]')?.focus();
       });
