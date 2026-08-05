@@ -41,28 +41,12 @@ const integrations = [
 const logos = [...stack, ...integrations];
 ---
 
-<section aria-labelledby="stack-h" class="border-y border-border bg-foreground text-background">
-  <div class="mx-auto max-w-6xl px-5 pt-8">
-    <h2 id="stack-h" class="text-center text-sm text-background/60">
-      Construida sobre tecnología de primera línea y conectada con las
-      plataformas donde ya está tu cliente.
-    </h2>
-  </div>
-
-  {/* La lista real es la primera; la copia existe solo para que el bucle no
-      tenga salto y va oculta a la accesibilidad. */}
-  <div class="marquee mt-6 pb-9">
+<section aria-label="Aplicaciones e integraciones" class="border-y border-border bg-foreground text-background">
+  <div class="marquee py-8">
     <ul class="marquee-track">
       {logos.map((logo) => (
         <li class="marquee-item">
           <span class="logo" style={`--src:url(/images/logos/${logo.file}.svg)`} role="img" aria-label={logo.name}></span>
-        </li>
-      ))}
-    </ul>
-    <ul class="marquee-track" aria-hidden="true">
-      {logos.map((logo) => (
-        <li class="marquee-item">
-          <span class="logo" style={`--src:url(/images/logos/${logo.file}.svg)`}></span>
         </li>
       ))}
     </ul>
@@ -109,21 +93,8 @@ const logos = [...stack, ...integrations];
     -webkit-mask-size: contain;
   }
 
-  @keyframes marquee-slide {
-    to {
-      transform: translateX(-100%);
-    }
-  }
-  @media (prefers-reduced-motion: no-preference) {
-    .marquee-track {
-      animation: marquee-slide 42s linear infinite;
-    }
-  }
-  /* Sin movimiento, la franja sigue siendo recorrible a mano y la copia
-     duplicada estorba: se esconde. */
-  @media (prefers-reduced-motion: reduce) {
-    .marquee-track[aria-hidden='true'] {
-      display: none;
-    }
+  /* La tira queda estática: en pantallas estrechas se puede recorrer a mano. */
+  .marquee-track {
+    animation: none;
   }
 </style>

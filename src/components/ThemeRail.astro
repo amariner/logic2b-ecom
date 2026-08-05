@@ -1,0 +1,276 @@
+---
+interface ThemeStore {
+  id: string;
+  name: string;
+  tagline: string;
+  style: string;
+  accent: string;
+  href: string;
+  img: string;
+  img900: string;
+  video: string | null;
+  poster: string | null;
+  poster900: string | null;
+}
+
+interface Props {
+  stores: ThemeStore[];
+}
+
+const { stores } = Astro.props;
+const left = stores.filter((_, index) => index % 2 === 0);
+const right = stores.filter((_, index) => index % 2 === 1);
+---
+
+<div class="airtable-theme-rail" aria-label="Temas visuales de Logic2B Ecommerce">
+  <div class="airtable-theme-rail-column airtable-theme-rail-column-left">
+    <div class="airtable-theme-rail-track">
+      {left.map((store) => (
+        <article class="airtable-theme-card" style={`--accent:${store.accent}`}>
+          <a href={store.href} class="airtable-theme-card-link group">
+            <div class="airtable-theme-card-media">
+              <img
+                src={store.video ? store.poster : store.img}
+                srcset={`${store.video ? store.poster : store.img} 560w, ${store.video ? store.poster900 : store.img900} 900w`}
+                sizes="(min-width: 1024px) 280px, 45vw"
+                alt={`Tienda ${store.name} — tema ${store.style}`}
+                width="720"
+                height="900"
+                loading="lazy"
+                class="h-full w-full object-cover object-top"
+                data-video-src={store.video ?? undefined}
+                data-video-poster={store.video ? store.poster : undefined}
+              />
+            </div>
+            <div class="airtable-theme-card-meta">
+              <span class="airtable-theme-card-dot" aria-hidden="true"></span>
+              <span class="airtable-theme-card-name">{store.name}</span>
+              <span class="airtable-theme-card-style">{store.style}</span>
+            </div>
+          </a>
+          {store.video && (
+            <button
+              type="button"
+              hidden
+              data-video-toggle
+              aria-pressed="false"
+              aria-label="Pausar la animación"
+              class="airtable-theme-card-toggle"
+            >Ⅱ</button>
+          )}
+        </article>
+      ))}
+      {left.map((store) => (
+        <article class="airtable-theme-card" aria-hidden="true" style={`--accent:${store.accent}`}>
+          <a href={store.href} tabindex="-1" class="airtable-theme-card-link group">
+            <div class="airtable-theme-card-media">
+              <img src={store.img} alt="" width="720" height="900" loading="lazy" class="h-full w-full object-cover object-top" />
+            </div>
+            <div class="airtable-theme-card-meta">
+              <span class="airtable-theme-card-dot" aria-hidden="true"></span>
+              <span class="airtable-theme-card-name">{store.name}</span>
+              <span class="airtable-theme-card-style">{store.style}</span>
+            </div>
+          </a>
+        </article>
+      ))}
+    </div>
+  </div>
+
+  <div class="airtable-theme-rail-column airtable-theme-rail-column-right">
+    <div class="airtable-theme-rail-track">
+      {right.map((store) => (
+        <article class="airtable-theme-card" style={`--accent:${store.accent}`}>
+          <a href={store.href} class="airtable-theme-card-link group">
+            <div class="airtable-theme-card-media">
+              <img
+                src={store.video ? store.poster : store.img}
+                srcset={`${store.video ? store.poster : store.img} 560w, ${store.video ? store.poster900 : store.img900} 900w`}
+                sizes="(min-width: 1024px) 280px, 45vw"
+                alt={`Tienda ${store.name} — tema ${store.style}`}
+                width="720"
+                height="900"
+                loading="lazy"
+                class="h-full w-full object-cover object-top"
+                data-video-src={store.video ?? undefined}
+                data-video-poster={store.video ? store.poster : undefined}
+              />
+            </div>
+            <div class="airtable-theme-card-meta">
+              <span class="airtable-theme-card-dot" aria-hidden="true"></span>
+              <span class="airtable-theme-card-name">{store.name}</span>
+              <span class="airtable-theme-card-style">{store.style}</span>
+            </div>
+          </a>
+          {store.video && (
+            <button type="button" hidden data-video-toggle aria-pressed="false" aria-label="Pausar la animación" class="airtable-theme-card-toggle">Ⅱ</button>
+          )}
+        </article>
+      ))}
+      {right.map((store) => (
+        <article class="airtable-theme-card" aria-hidden="true" style={`--accent:${store.accent}`}>
+          <a href={store.href} tabindex="-1" class="airtable-theme-card-link group">
+            <div class="airtable-theme-card-media">
+              <img src={store.img} alt="" width="720" height="900" loading="lazy" class="h-full w-full object-cover object-top" />
+            </div>
+            <div class="airtable-theme-card-meta">
+              <span class="airtable-theme-card-dot" aria-hidden="true"></span>
+              <span class="airtable-theme-card-name">{store.name}</span>
+              <span class="airtable-theme-card-style">{store.style}</span>
+            </div>
+          </a>
+        </article>
+      ))}
+    </div>
+  </div>
+
+  <a href="/temas" class="airtable-theme-rail-link">Ver todos los temas <span aria-hidden="true">↗</span></a>
+</div>
+
+<style is:global>
+  .airtable-theme-rail {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+    height: min(700px, 62vw);
+    min-height: 520px;
+    overflow: hidden;
+    padding: 0.5rem 0 2rem;
+  }
+  .airtable-theme-rail::before,
+  .airtable-theme-rail::after {
+    position: absolute;
+    z-index: 2;
+    right: 0;
+    left: 0;
+    height: 5rem;
+    content: '';
+    pointer-events: none;
+  }
+  .airtable-theme-rail::before {
+    top: 0;
+    background: linear-gradient(var(--air-cream), transparent);
+  }
+  .airtable-theme-rail::after {
+    bottom: 0;
+    background: linear-gradient(transparent, var(--air-cream));
+  }
+  .airtable-theme-rail-column {
+    overflow: hidden;
+  }
+  .airtable-theme-rail-track {
+    display: grid;
+    gap: 1rem;
+    will-change: transform;
+  }
+  .airtable-theme-rail-column-left .airtable-theme-rail-track {
+    animation: airtable-theme-rail-down 52s linear infinite;
+  }
+  .airtable-theme-rail-column-right .airtable-theme-rail-track {
+    animation: airtable-theme-rail-up 58s linear infinite;
+  }
+  .airtable-theme-card {
+    overflow: hidden;
+    border: 1px solid rgba(24, 29, 38, 0.08);
+    border-radius: 1rem;
+    background: white;
+    box-shadow: 0 2px 7px rgba(15, 48, 106, 0.035);
+  }
+  .airtable-theme-card-link {
+    display: block;
+  }
+  .airtable-theme-card-media {
+    aspect-ratio: 1 / 0.78;
+    overflow: hidden;
+    background: #f0ede6;
+  }
+  .airtable-theme-card-media img {
+    transition: transform 450ms ease;
+  }
+  .airtable-theme-card-link:hover .airtable-theme-card-media img {
+    transform: scale(1.035);
+  }
+  .airtable-theme-card-meta {
+    display: flex;
+    align-items: baseline;
+    gap: 0.45rem;
+    padding: 0.7rem 0.8rem 0.8rem;
+    color: var(--air-ink);
+  }
+  .airtable-theme-card-dot {
+    width: 0.45rem;
+    height: 0.45rem;
+    flex: 0 0 auto;
+    border-radius: 50%;
+    background: var(--accent);
+  }
+  .airtable-theme-card-name {
+    font-size: 0.76rem;
+    font-weight: 700;
+  }
+  .airtable-theme-card-style {
+    overflow: hidden;
+    color: var(--air-muted);
+    font-size: 0.64rem;
+    text-overflow: ellipsis;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  .airtable-theme-card-toggle {
+    position: absolute;
+    right: 0.5rem;
+    top: 0.5rem;
+    z-index: 3;
+    width: 1.8rem;
+    height: 1.8rem;
+    border-radius: 50%;
+    background: var(--air-ink);
+    color: white;
+  }
+  .airtable-theme-rail-link {
+    position: absolute;
+    z-index: 4;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    display: flex;
+    min-height: 6rem;
+    align-items: center;
+    justify-content: center;
+    gap: 0.45rem;
+    padding: 2.75rem 1rem 0.75rem;
+    background: linear-gradient(180deg, transparent 0%, rgba(255,255,255,0.88) 48%, #fff 78%);
+    color: var(--air-ink);
+    font-size: 0.82rem;
+    font-weight: 700;
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 4px;
+    transition: color 180ms ease;
+  }
+  .airtable-theme-rail-link:hover {
+    color: #1b61c9;
+  }
+  @keyframes airtable-theme-rail-up {
+    from { transform: translateY(0); }
+    to { transform: translateY(calc(-50% - 0.5rem)); }
+  }
+  @keyframes airtable-theme-rail-down {
+    from { transform: translateY(calc(-50% - 0.5rem)); }
+    to { transform: translateY(0); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .airtable-theme-rail-track { animation-play-state: paused !important; }
+  }
+  @media (max-width: 700px) {
+    .airtable-theme-rail {
+      height: 500px;
+      min-height: 0;
+      gap: 0.65rem;
+    }
+    .airtable-theme-rail-track { gap: 0.65rem; }
+    .airtable-theme-card-meta { padding: 0.55rem; }
+    .airtable-theme-card-style { display: none; }
+  }
+</style>
