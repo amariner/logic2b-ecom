@@ -516,6 +516,12 @@ const jsonLd = [
     --air-forest: #0a2e0e;
     --air-peach: #fcab79;
     --air-sky: #c7e5f2;
+    /* El CTA de la cabecera (bg-primary) es el mismo componente aquí y en el
+       resto de páginas comerciales: sin esto, en la portada resolvía contra el
+       gris neutro de global.css y en las demás contra la tinta del shell —
+       dos negros distintos en la pieza que más se compara al navegar. */
+    --primary: var(--air-ink);
+    --primary-foreground: #ffffff;
     min-height: 100vh;
     width: 100%;
     overflow-x: clip;

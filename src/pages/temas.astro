@@ -117,7 +117,7 @@ const jsonLd = [
 
       <!-- Qué cambia y qué no -->
       <section class="border-y border-border bg-muted/40">
-        <div class="mx-auto grid max-w-6xl gap-8 px-5 py-12 sm:grid-cols-2">
+        <div class="page-shell grid gap-8 py-12 sm:grid-cols-2">
           <div>
             <h2 class="font-display text-xl">Lo que cambia con el tema</h2>
             <p class="mt-3 text-sm leading-relaxed text-muted-foreground">
@@ -140,10 +140,10 @@ const jsonLd = [
       </section>
 
       <!-- Guía para elegir tema (árbol corto, sin jerga) -->
-      <section aria-labelledby="guia-h" class="mx-auto max-w-6xl px-5 pt-14 sm:pt-20">
+      <section aria-labelledby="guia-h" class="page-shell pt-14 sm:pt-20">
         <h2 id="guia-h" class="font-display text-2xl sm:text-3xl">¿No sabes por dónde empezar? Tres preguntas</h2>
         <div class="mt-6 grid gap-5 lg:grid-cols-3">
-          <div class="rounded-xl border border-border bg-card p-6">
+          <div class="rounded-2xl border border-border bg-card p-6">
             <p class="font-semibold">1 · ¿Tu producto entra por la foto o por los datos?</p>
             <p class="mt-2 text-sm leading-relaxed text-muted-foreground">
               Si vende la imagen (interiorismo, moda, cosmética, café), busca un tema que
@@ -162,7 +162,7 @@ const jsonLd = [
               <a href="#tema-launch" class="font-medium underline underline-offset-2">Launch</a>
             </p>
           </div>
-          <div class="rounded-xl border border-border bg-card p-6">
+          <div class="rounded-2xl border border-border bg-card p-6">
             <p class="font-semibold">2 · ¿Cuántas referencias vas a vender?</p>
             <p class="mt-2 text-sm leading-relaxed text-muted-foreground">
               No es lo mismo presentar un producto estrella que ordenar cien. La rejilla y
@@ -183,7 +183,7 @@ const jsonLd = [
               <a href="#tema-industrial" class="font-medium underline underline-offset-2">Industrial</a>
             </p>
           </div>
-          <div class="rounded-xl border border-border bg-card p-6">
+          <div class="rounded-2xl border border-border bg-card p-6">
             <p class="font-semibold">3 · ¿Qué tono tiene tu marca?</p>
             <p class="mt-2 text-sm leading-relaxed text-muted-foreground">
               El tema debe sonar como hablas tú con tus clientes: no le pongas un
@@ -212,10 +212,10 @@ const jsonLd = [
       </section>
 
       <!-- Rejilla de temas -->
-      <section class="mx-auto max-w-6xl px-5 py-14 sm:py-20">
+      <section class="page-shell py-14 sm:py-20">
         <ul class="grid gap-8 sm:grid-cols-2">
           {styles.map((theme, i) => (
-            <li id={`tema-${theme.id}`} class="flex scroll-mt-24 flex-col overflow-hidden rounded-xl border border-border bg-card">
+            <li id={`tema-${theme.id}`} class="flex scroll-mt-24 flex-col overflow-hidden rounded-2xl border border-border bg-card">
               {/* Tema con tienda viva → captura REAL enlazable; si no, la
                   imaginería propia del tema; y si tampoco, marcador de hueco. */}
               <div
@@ -327,7 +327,7 @@ const jsonLd = [
 
       <!-- Nota honesta sobre el estado -->
       <section class="border-t border-border bg-muted/40">
-        <div class="mx-auto max-w-3xl px-5 py-14 text-center">
+        <div class="mx-auto max-w-3xl px-[clamp(24px,4vw,32px)] py-14 text-center">
           <h2 class="font-display text-2xl sm:text-3xl">¿Y si ninguno es exactamente lo tuyo?</h2>
           <p class="mt-4 text-base leading-relaxed text-muted-foreground">
             Mejor. Estos son puntos de partida, no un menú cerrado: lo normal es

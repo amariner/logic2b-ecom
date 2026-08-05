@@ -69,7 +69,9 @@ const jsonLd = [{
         <p>No pagas por adelantado la complejidad que todavía no necesitas.</p>
       </div>
 
-      <div class="scale-chart" aria-label="Cuatro etapas de escalado: lanzamiento, tracción, crecimiento y escala">
+      {/* role="group": un <div> con aria-label a secas no expone su nombre a
+          los lectores de pantalla. */}
+      <div class="scale-chart" role="group" aria-label="Cuatro etapas de escalado: lanzamiento, tracción, crecimiento y escala">
         <span class="scale-chart-path" aria-hidden="true"></span>
         <article>
           <span class="scale-number">01</span>
@@ -234,9 +236,12 @@ const jsonLd = [{
   .commercial-page .scale-chart article:nth-of-type(2) { height: 14.5rem; }
   .commercial-page .scale-chart article:nth-of-type(3) { height: 18.5rem; }
   .commercial-page .scale-chart article:nth-of-type(4) { height: 22.5rem; background: rgba(255,255,255,0.14); }
+  /* Los blancos translúcidos del panel azul van al 0.72–0.75 y no más abajo:
+     por debajo, sobre la tarjeta más clara (la 4.ª, rgba(255,255,255,.14)) el
+     texto pequeño se queda en 3,5:1 y no cumple AA. */
   .commercial-page .scale-number {
     margin-bottom: auto;
-    color: rgba(255,255,255,0.46);
+    color: rgba(255,255,255,0.72);
     font-size: 0.72rem;
     font-weight: 700;
   }
@@ -255,7 +260,7 @@ const jsonLd = [{
     box-shadow: 0 0 0 7px rgba(185,228,149,0.12);
   }
   .commercial-page .scale-chart article > p {
-    color: rgba(255,255,255,0.56);
+    color: rgba(255,255,255,0.72);
     font-size: 0.68rem;
   }
   .commercial-page .scale-chart h3 {
@@ -265,7 +270,7 @@ const jsonLd = [{
   }
   .commercial-page .scale-chart small {
     margin-top: 0.42rem;
-    color: rgba(255,255,255,0.62);
+    color: rgba(255,255,255,0.75);
     font-size: 0.72rem;
   }
   .commercial-page .scale-principles {
@@ -333,7 +338,9 @@ const jsonLd = [{
     gap: 1rem;
     width: 100%;
     padding: 1rem 1.1rem;
-    border-radius: 999px;
+    /* El canto corporativo (--radius-btn: 10px), el mismo que el CTA de la
+       cabecera compartida: el mismo verbo no cambia de forma entre páginas. */
+    border-radius: var(--radius-btn);
     background: var(--c-ink);
     color: white;
     font-size: 0.82rem;

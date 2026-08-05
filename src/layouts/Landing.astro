@@ -89,13 +89,19 @@ const { title, description, noindex, canonicalPath, jsonLd, activeHref } = Astro
   }
 
   /* Titulares en Space Grotesk, como los h1/h2 de la portada. El color no se
-     fija aquí: lo hereda cada superficie (las secciones oscuras lo ponen). */
-  .commercial-page :is(h1, h2, h3, summary) {
+     fija aquí: lo hereda cada superficie (las secciones oscuras lo ponen).
+     `.font-display` entra en la lista porque varias piezas del lenguaje
+     (el numeral del 404, los titulillos de las tarjetas-capítulo, las cifras
+     de precio) son <p> y no encabezados: sin esto convivirían dos caras
+     display en la misma vista. El wordmark NO se ve afectado — lleva su
+     propia font-family ('Poppins Logo') en global.css. */
+  .commercial-page :is(h1, h2, h3, summary, .font-display) {
     font-family: 'Space Grotesk', 'Inter Variable', 'Inter Fallback', sans-serif;
     letter-spacing: -0.035em;
   }
+  /* Mismo tracking que el h1 de la portada (index.astro, .airtable-hero h1). */
   .commercial-page h1 {
-    letter-spacing: -0.045em;
+    letter-spacing: -0.055em;
   }
 
   /* Héroe de página: kicker + titular + entradilla, el patrón de la portada. */
