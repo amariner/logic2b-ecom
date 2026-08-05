@@ -17,7 +17,7 @@
  */
 export const landingNav = [
   { href: '/arquitectura', label: 'Cómo funciona' },
-  { href: '/temas', label: 'Otros temas' },
+  { href: '/temas', label: 'Temas' },
   { href: '/precios', label: 'Precios' },
   { href: '/dossier', label: 'Dossier' },
 ] as const;
@@ -28,3 +28,17 @@ export const MAIN_DEMO_NAME = 'ARCE';
 
 /** El panel del comercio dentro de la demo. */
 export const DEMO_ADMIN_HREF = '/demo/admin';
+
+/**
+ * Menú del pie, compartido por TODAS las páginas comerciales (SiteFooter).
+ * Antes había cinco pies distintos con etiquetas dispares («Temas», «Estilos»,
+ * «Otros temas»…) y listas diferentes según la página. Una sola lista = un
+ * solo pie. Aquí sí entran la demo y el panel: el pie es el mapa del sitio,
+ * no compite con las entradas que venden.
+ */
+export const footerNav = [
+  { href: '/', label: 'Inicio' },
+  ...landingNav,
+  { href: MAIN_DEMO_HREF, label: 'Demo de tienda' },
+  { href: DEMO_ADMIN_HREF, label: 'Panel demo' },
+] as const;

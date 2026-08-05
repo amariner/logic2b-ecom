@@ -17,6 +17,7 @@
 //   · Stripe deja de ser «la» pasarela: es una de las que se integran.
 import Base from '../layouts/Base.astro';
 import SiteHeader from '../components/SiteHeader.astro';
+import SiteFooter from '../components/SiteFooter.astro';
 import HeaderActions from '../components/HeaderActions.astro';
 import ProjectDialog from '../components/ProjectDialog.astro';
 import ProjectForm from '../components/ProjectForm.astro';
@@ -454,19 +455,11 @@ const jsonLd = [
           <a href={emailHref} class="font-medium text-background underline underline-offset-2">{AGENCY_EMAIL}</a>
         </p>
       </div>
-      <footer class="border-t border-background/10">
-        <div class="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-2 px-5 py-6 text-sm text-background/60">
-          <p>© 2026 Logic2B · Castellón</p>
-          <p>
-            <a href="/arquitectura" class="hover:text-background">Cómo funciona</a> ·
-            <a href="/temas" class="hover:text-background">Temas</a> ·
-            <a href="/dossier" class="hover:text-background">Dossier</a> ·
-            <a href={MAIN_DEMO_HREF} class="hover:text-background">Demo de tienda</a> ·
-            <a href={DEMO_ADMIN_HREF} class="hover:text-background">Panel demo</a>
-          </p>
-        </div>
-      </footer>
     </section>
+
+    {/* El pie compartido (SiteFooter) continúa el bloque oscuro de contacto:
+        mismo fondo tinta, mismo menú que el resto de páginas comerciales. */}
+    <SiteFooter />
 
     <ProjectDialog />
   </div>
@@ -523,6 +516,12 @@ const jsonLd = [
     --air-forest: #0a2e0e;
     --air-peach: #fcab79;
     --air-sky: #c7e5f2;
+    /* El CTA de la cabecera (bg-primary) es el mismo componente aquí y en el
+       resto de páginas comerciales: sin esto, en la portada resolvía contra el
+       gris neutro de global.css y en las demás contra la tinta del shell —
+       dos negros distintos en la pieza que más se compara al navegar. */
+    --primary: var(--air-ink);
+    --primary-foreground: #ffffff;
     min-height: 100vh;
     width: 100%;
     overflow-x: clip;
@@ -1339,7 +1338,6 @@ const jsonLd = [
     background: var(--air-ink) !important;
   }
   .airtable-landing .airtable-contact h2 { color: white; }
-  .airtable-landing .airtable-contact footer { border-color: rgba(255,255,255,0.16); }
 
   @media (max-width: 700px) {
     .airtable-landing > header > div {

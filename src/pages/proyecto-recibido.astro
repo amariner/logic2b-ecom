@@ -7,31 +7,27 @@
  * ve — la confirmación se pinta en el sitio. `noindex`: es un acuse de recibo,
  * no una página de captación.
  */
-import Base from '../layouts/Base.astro';
-import SiteHeader from '../components/SiteHeader.astro';
-import { landingNav, MAIN_DEMO_HREF } from '../lib/nav';
+import Landing from '../layouts/Landing.astro';
+import { MAIN_DEMO_HREF } from '../lib/nav';
 ---
 
-<Base title="Solicitud recibida — Logic2B Ecommerce" noindex preloadDisplayFont>
-  <div class="flex min-h-screen flex-col bg-background text-foreground">
-    <SiteHeader homeHref="/" wordmark="Logic2B Ecommerce" splitBrand nav={landingNav} />
-    <main class="mx-auto flex w-full max-w-2xl flex-1 flex-col justify-center px-5 py-20 text-center">
-      <p class="font-accent text-sm uppercase tracking-wide text-brand">Recibido</p>
-      <h1 class="mt-3 font-display text-4xl sm:text-5xl">Gracias, ya lo tenemos</h1>
-      <p class="mx-auto mt-5 max-w-lg leading-relaxed text-muted-foreground">
-        Te contestamos en 24 h laborables con dos o tres preguntas para entender
-        bien tu proyecto. Sin compromiso y sin llamadas comerciales.
-      </p>
-      <div class="mt-9 flex flex-col justify-center gap-3 sm:flex-row">
-        <a
-          href={MAIN_DEMO_HREF}
-          class="rounded-btn bg-brand px-7 py-3 text-sm font-semibold text-brand-fg transition hover:bg-brand-dark"
-        >Mientras tanto, mira la demo</a>
-        <a
-          href="/"
-          class="rounded-btn border border-border px-7 py-3 text-sm font-semibold transition hover:border-foreground"
-        >Volver a la portada</a>
-      </div>
-    </main>
-  </div>
-</Base>
+<Landing title="Solicitud recibida — Logic2B Ecommerce" noindex>
+  <main class="mx-auto flex w-full max-w-2xl flex-col justify-center px-5 py-20 text-center">
+    <p class="page-kicker">Recibido</p>
+    <h1 class="mt-3 text-4xl sm:text-5xl">Gracias, ya lo tenemos</h1>
+    <p class="mx-auto mt-5 max-w-lg leading-relaxed text-muted-foreground">
+      Te contestamos en 24 h laborables con dos o tres preguntas para entender
+      bien tu proyecto. Sin compromiso y sin llamadas comerciales.
+    </p>
+    <div class="mt-9 flex flex-col justify-center gap-3 sm:flex-row">
+      <a
+        href={MAIN_DEMO_HREF}
+        class="rounded-btn bg-foreground px-7 py-3 text-sm font-semibold text-background transition hover:bg-foreground/90"
+      >Mientras tanto, mira la demo</a>
+      <a
+        href="/"
+        class="rounded-btn border border-foreground px-7 py-3 text-sm font-semibold transition hover:bg-foreground hover:text-background"
+      >Volver a la portada</a>
+    </div>
+  </main>
+</Landing>
