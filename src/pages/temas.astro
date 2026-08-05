@@ -9,11 +9,8 @@
  * La fuente de verdad es src/lib/demo-themes.ts — esta página solo la pinta.
  * Documentación de cada tema: docs/TEMAS.md
  */
-import Base from '../layouts/Base.astro';
-import SiteHeader from '../components/SiteHeader.astro';
-import HeaderActions from '../components/HeaderActions.astro';
-import ProjectDialog from '../components/ProjectDialog.astro';
-import { landingNav, MAIN_DEMO_HREF } from '../lib/nav';
+import Landing from '../layouts/Landing.astro';
+import { MAIN_DEMO_HREF } from '../lib/nav';
 import { demoThemes, defaultTheme } from '../lib/demo-themes';
 import { collections, storePaths } from '../lib/collections';
 
@@ -94,28 +91,23 @@ const jsonLd = [
 ];
 ---
 
-<Base
+<Landing
   title="Catálogo de temas — Logic2B Ecommerce"
   description={`${styles.length} direcciones visuales completas para tu tienda online: del catálogo técnico B2B al minimalismo de mobiliario. Elige el punto de partida y lo adaptamos a tu marca.`}
   canonicalPath="/temas"
-  preloadDisplayFont
+  activeHref="/temas"
   jsonLd={jsonLd}
 >
-  <div class="bg-background text-foreground">
-    <SiteHeader homeHref="/" wordmark="Logic2B Ecommerce" splitBrand nav={landingNav} activeHref="/temas">
-      <Fragment slot="actions"><HeaderActions /></Fragment>
-    </SiteHeader>
-
     <main>
       <!-- Héroe -->
-      <section class="mx-auto max-w-6xl px-5 pb-12 pt-14 sm:pt-20">
-        <p class="mb-5 inline-block rounded-full border border-border bg-muted px-4 py-1.5 text-xs font-medium text-muted-foreground">
+      <section class="page-hero page-shell">
+        <p class="page-kicker">
           {styles.length} direcciones visuales · {readyCount} desarrollada{readyCount === 1 ? '' : 's'}
         </p>
-        <h1 class="max-w-4xl font-display text-4xl leading-[1.05] sm:text-6xl">
-          Tu tienda no tiene por qué parecerse a <span class="text-brand">ninguna otra</span>.
+        <h1>
+          Tu tienda no tiene por qué parecerse a <span>ninguna otra</span>.
         </h1>
-        <p class="mt-6 max-w-2xl text-base leading-relaxed text-muted-foreground sm:text-lg">
+        <p class="page-lead">
           «A medida» suena caro y abstracto. Esto es lo que significa en concreto:
           {' '}{styles.length} direcciones visuales completas, cada una pensada para un tipo
           de comercio distinto. Eliges la que más se parece a lo que tienes en la
@@ -346,29 +338,15 @@ const jsonLd = [
           <div class="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
             <a
               href={MAIN_DEMO_HREF}
-              class="rounded-btn bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground transition hover:bg-primary/90"
+              class="rounded-btn bg-foreground px-6 py-3 text-sm font-semibold text-background transition hover:bg-foreground/90"
             >Entra en la tienda demo</a>
             <a
               href="/#contacto"
-              class="rounded-btn border border-border px-6 py-3 text-sm font-semibold text-foreground transition hover:border-foreground"
+              data-open-project
+              class="rounded-btn border border-foreground px-6 py-3 text-sm font-semibold text-foreground transition hover:bg-foreground hover:text-background"
             >Cuéntanos tu proyecto</a>
           </div>
         </div>
       </section>
     </main>
-
-    <footer class="border-t border-border">
-      <div class="mx-auto flex max-w-6xl flex-col gap-2 px-5 py-10 text-sm text-muted-foreground sm:flex-row sm:justify-between">
-        <p>© 2026 Logic2B · Castellón</p>
-        <p>
-          <a href="/" class="underline underline-offset-2 hover:text-foreground">Logic2B Ecommerce</a> ·
-          <a href="/arquitectura" class="underline underline-offset-2 hover:text-foreground">Cómo funciona</a> ·
-          <a href="/dossier" class="underline underline-offset-2 hover:text-foreground">Dossier</a> ·
-          <a href={MAIN_DEMO_HREF} class="underline underline-offset-2 hover:text-foreground">Demo de tienda</a> ·
-          <a href="/demo/admin" class="underline underline-offset-2 hover:text-foreground">Panel demo</a>
-        </p>
-      </div>
-    </footer>
-    <ProjectDialog />
-  </div>
-</Base>
+</Landing>

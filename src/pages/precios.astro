@@ -1,9 +1,5 @@
 ---
-import Base from '../layouts/Base.astro';
-import SiteHeader from '../components/SiteHeader.astro';
-import HeaderActions from '../components/HeaderActions.astro';
-import ProjectDialog from '../components/ProjectDialog.astro';
-import { landingNav } from '../lib/nav';
+import Landing from '../layouts/Landing.astro';
 
 const starts = [
   {
@@ -47,210 +43,152 @@ const jsonLd = [{
 }];
 ---
 
-<Base
+<Landing
   title="Precios — una tienda online que escala contigo | Logic2B Ecommerce"
   description="Empieza con la tienda que necesitas hoy. La inversión y el acompañamiento crecen por tramos, sin migraciones y con las condiciones claras desde el principio."
   canonicalPath="/precios"
-  preloadDisplayFont
+  activeHref="/precios"
   jsonLd={jsonLd}
 >
-  <div class="pricing-page">
-    <SiteHeader homeHref="/" wordmark="Logic2B Ecommerce" splitBrand nav={landingNav}>
-      <Fragment slot="actions"><HeaderActions /></Fragment>
-    </SiteHeader>
+  <main>
+    <section class="page-hero page-shell">
+      <p class="page-kicker">Un modelo que crece contigo</p>
+      <h1>Empieza con lo necesario.<br /><span>Paga más solo cuando creces.</span></h1>
+      <p class="page-lead">
+        Una puesta en marcha clara y una cuota que acompaña el tráfico,
+        las funciones y el trabajo que requiere tu tienda.
+      </p>
+    </section>
 
-    <main>
-      <section class="pricing-hero page-shell">
-        <p class="pricing-kicker">Un modelo que crece contigo</p>
-        <h1>Empieza con lo necesario.<br /><span>Paga más solo cuando creces.</span></h1>
-        <p class="pricing-lead">
-          Una puesta en marcha clara y una cuota que acompaña el tráfico,
-          las funciones y el trabajo que requiere tu tienda.
-        </p>
-      </section>
-
-      <section class="scale-board page-shell" aria-labelledby="scale-title">
-        <div class="scale-board-head">
-          <div>
-            <p class="pricing-kicker">Cómo escala</p>
-            <h2 id="scale-title">La misma plataforma.<br />Más capacidad cuando hace falta.</h2>
-          </div>
-          <p>No pagas por adelantado la complejidad que todavía no necesitas.</p>
+    <section class="scale-board page-shell" aria-labelledby="scale-title">
+      <div class="scale-board-head">
+        <div>
+          <p class="page-kicker">Cómo escala</p>
+          <h2 id="scale-title">La misma plataforma.<br />Más capacidad cuando hace falta.</h2>
         </div>
-
-        <div class="scale-chart" aria-label="Cuatro etapas de escalado: lanzamiento, tracción, crecimiento y escala">
-          <span class="scale-chart-path" aria-hidden="true"></span>
-          <article>
-            <span class="scale-number">01</span>
-            <div class="scale-dot" aria-hidden="true"></div>
-            <p>Hoy</p>
-            <h3>Lanzamiento</h3>
-            <small>Cuota mínima</small>
-          </article>
-          <article>
-            <span class="scale-number">02</span>
-            <div class="scale-dot" aria-hidden="true"></div>
-            <p>Primeras visitas</p>
-            <h3>Tracción</h3>
-            <small>SEO, GEO y campañas</small>
-          </article>
-          <article>
-            <span class="scale-number">03</span>
-            <div class="scale-dot" aria-hidden="true"></div>
-            <p>Más negocio</p>
-            <h3>Crecimiento</h3>
-            <small>Más tráfico y funciones</small>
-          </article>
-          <article>
-            <span class="scale-number">04</span>
-            <div class="scale-dot" aria-hidden="true"></div>
-            <p>Tu siguiente nivel</p>
-            <h3>Escala</h3>
-            <small>Capacidad a medida</small>
-          </article>
-        </div>
-
-        <div class="scale-principles">
-          <p><span>01</span><strong>El tramo sale de datos reales</strong></p>
-          <p><span>02</span><strong>Se acuerda antes de empezar</strong></p>
-          <p><span>03</span><strong>Nunca obliga a migrar</strong></p>
-        </div>
-      </section>
-
-      <section class="starting-points page-shell" aria-labelledby="starting-title">
-        <div class="section-heading">
-          <p class="pricing-kicker">Puntos de partida</p>
-          <h2 id="starting-title">Tres formas de empezar.</h2>
-          <p>Elegimos una base y la adaptamos a lo que vendes. Sin paquetes inflados.</p>
-        </div>
-        <div class="starting-grid">
-          {starts.map((item) => (
-            <article class:list={['starting-card', item.featured && 'is-featured']}>
-              <div>
-                <p class="starting-for">{item.for}</p>
-                <h3>{item.name}</h3>
-              </div>
-              <div>
-                <p class="starting-price">{item.price}</p>
-                <p class="starting-monthly">{item.monthly}</p>
-              </div>
-              <ul>
-                {item.points.map((point) => <li><span aria-hidden="true">✓</span>{point}</li>)}
-              </ul>
-              <button type="button" data-open-project>Hablar de mi proyecto <span aria-hidden="true">→</span></button>
-            </article>
-          ))}
-        </div>
-        <p class="starting-note">
-          La propuesta fija tu punto de partida, el tramo actual y qué tendría que cambiar para pasar al siguiente.
-        </p>
-      </section>
-
-      <section class="price-logic">
-        <div class="page-shell price-logic-inner">
-          <div>
-            <p class="pricing-kicker">Qué mueve la cuota</p>
-            <h2>Solo lo que cambia de verdad.</h2>
-          </div>
-          <div class="price-factors">
-            <article><span>01</span><h3>Tráfico</h3><p>Más visitas requieren más seguimiento y optimización.</p></article>
-            <article><span>02</span><h3>Funciones</h3><p>La tienda incorpora capacidades cuando el negocio las pide.</p></article>
-            <article><span>03</span><h3>Acompañamiento</h3><p>El soporte y el trabajo de crecimiento se adaptan a tu etapa.</p></article>
-          </div>
-        </div>
-      </section>
-
-      <section class="pricing-close page-shell">
-        <p class="pricing-kicker">Tu tramo empieza aquí</p>
-        <h2>Cuéntanos qué vendes.<br />Nosotros hacemos las cuentas.</h2>
-        <p>Recibirás una propuesta clara, sin permanencia y sin costes escondidos.</p>
-        <button type="button" data-open-project>Empezar mi proyecto <span aria-hidden="true">→</span></button>
-      </section>
-    </main>
-
-    <footer class="pricing-footer">
-      <div class="page-shell">
-        <p>© 2026 Logic2B · Castellón</p>
-        <p><a href="/">Inicio</a> · <a href="/temas">Temas</a> · <a href="/dossier">Dossier</a></p>
+        <p>No pagas por adelantado la complejidad que todavía no necesitas.</p>
       </div>
-    </footer>
-    <ProjectDialog />
-  </div>
-</Base>
+
+      <div class="scale-chart" aria-label="Cuatro etapas de escalado: lanzamiento, tracción, crecimiento y escala">
+        <span class="scale-chart-path" aria-hidden="true"></span>
+        <article>
+          <span class="scale-number">01</span>
+          <div class="scale-dot" aria-hidden="true"></div>
+          <p>Hoy</p>
+          <h3>Lanzamiento</h3>
+          <small>Cuota mínima</small>
+        </article>
+        <article>
+          <span class="scale-number">02</span>
+          <div class="scale-dot" aria-hidden="true"></div>
+          <p>Primeras visitas</p>
+          <h3>Tracción</h3>
+          <small>SEO, GEO y campañas</small>
+        </article>
+        <article>
+          <span class="scale-number">03</span>
+          <div class="scale-dot" aria-hidden="true"></div>
+          <p>Más negocio</p>
+          <h3>Crecimiento</h3>
+          <small>Más tráfico y funciones</small>
+        </article>
+        <article>
+          <span class="scale-number">04</span>
+          <div class="scale-dot" aria-hidden="true"></div>
+          <p>Tu siguiente nivel</p>
+          <h3>Escala</h3>
+          <small>Capacidad a medida</small>
+        </article>
+      </div>
+
+      <div class="scale-principles">
+        <p><span>01</span><strong>El tramo sale de datos reales</strong></p>
+        <p><span>02</span><strong>Se acuerda antes de empezar</strong></p>
+        <p><span>03</span><strong>Nunca obliga a migrar</strong></p>
+      </div>
+    </section>
+
+    <section class="starting-points page-shell" aria-labelledby="starting-title">
+      <div class="section-heading">
+        <p class="page-kicker">Puntos de partida</p>
+        <h2 id="starting-title">Tres formas de empezar.</h2>
+        <p>Elegimos una base y la adaptamos a lo que vendes. Sin paquetes inflados.</p>
+      </div>
+      <div class="starting-grid">
+        {starts.map((item) => (
+          <article class:list={['starting-card', item.featured && 'is-featured']}>
+            <div>
+              <p class="starting-for">{item.for}</p>
+              <h3>{item.name}</h3>
+            </div>
+            <div>
+              <p class="starting-price">{item.price}</p>
+              <p class="starting-monthly">{item.monthly}</p>
+            </div>
+            <ul>
+              {item.points.map((point) => <li><span aria-hidden="true">✓</span>{point}</li>)}
+            </ul>
+            <button type="button" data-open-project>Hablar de mi proyecto <span aria-hidden="true">→</span></button>
+          </article>
+        ))}
+      </div>
+      <p class="starting-note">
+        La propuesta fija tu punto de partida, el tramo actual y qué tendría que cambiar para pasar al siguiente.
+      </p>
+    </section>
+
+    <section class="price-logic">
+      <div class="page-shell price-logic-inner">
+        <div>
+          <p class="page-kicker">Qué mueve la cuota</p>
+          <h2>Solo lo que cambia de verdad.</h2>
+        </div>
+        <div class="price-factors">
+          <article><span>01</span><h3>Tráfico</h3><p>Más visitas requieren más seguimiento y optimización.</p></article>
+          <article><span>02</span><h3>Funciones</h3><p>La tienda incorpora capacidades cuando el negocio las pide.</p></article>
+          <article><span>03</span><h3>Acompañamiento</h3><p>El soporte y el trabajo de crecimiento se adaptan a tu etapa.</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="pricing-close page-shell">
+      <p class="page-kicker">Tu tramo empieza aquí</p>
+      <h2>Cuéntanos qué vendes.<br />Nosotros hacemos las cuentas.</h2>
+      <p>Recibirás una propuesta clara, sin permanencia y sin costes escondidos.</p>
+      <button type="button" data-open-project>Empezar mi proyecto <span aria-hidden="true">→</span></button>
+    </section>
+  </main>
+</Landing>
 
 <style is:global>
-  .pricing-page {
-    --price-ink: #181d26;
-    --price-muted: #68707d;
-    --price-line: #dfe3e8;
+  /* Estilos propios de /precios — el lienzo, la cabecera, el pie, el diálogo
+     y los titulares los pone el shell comercial (Landing.astro). */
+  .commercial-page .scale-board {
     --price-blue: #0f306a;
-    min-height: 100vh;
-    overflow-x: clip;
-    background: #fff;
-    color: var(--price-ink);
-  }
-  .pricing-page .page-shell {
-    width: min(100%, 1440px);
-    margin-inline: auto;
-    padding-inline: clamp(24px, 4vw, 32px);
-  }
-  .pricing-page h1,
-  .pricing-page h2,
-  .pricing-page h3 {
-    color: var(--price-ink);
-    font-family: 'Space Grotesk', 'Inter Variable', sans-serif;
-    letter-spacing: -0.045em;
-  }
-  .pricing-page .pricing-kicker {
-    color: var(--price-muted);
-    font-size: 0.72rem;
-    font-weight: 750;
-    letter-spacing: 0.11em;
-    text-transform: uppercase;
-  }
-  .pricing-page .pricing-hero {
-    padding-top: clamp(5rem, 10vw, 9rem);
-    padding-bottom: clamp(5rem, 10vw, 9rem);
-  }
-  .pricing-page .pricing-hero h1 {
-    max-width: 69rem;
-    margin-top: 1.4rem;
-    font-size: clamp(3rem, 7.2vw, 6.7rem);
-    line-height: 0.96;
-  }
-  .pricing-page .pricing-hero h1 span { color: #8a9099; }
-  .pricing-page .pricing-lead {
-    max-width: 39rem;
-    margin-top: 2rem;
-    color: var(--price-muted);
-    font-size: clamp(1rem, 1.5vw, 1.2rem);
-    line-height: 1.6;
-  }
-  .pricing-page .scale-board {
     padding-block: clamp(2.5rem, 5vw, 4rem);
     border-radius: 2rem;
     background: var(--price-blue);
     color: white;
   }
-  .pricing-page .scale-board-head {
+  .commercial-page .scale-board-head {
     display: grid;
     grid-template-columns: minmax(0, 1.25fr) minmax(260px, 0.75fr);
     gap: 3rem;
     align-items: end;
   }
-  .pricing-page .scale-board .pricing-kicker { color: #a9c6f4; }
-  .pricing-page .scale-board h2 {
+  .commercial-page .scale-board .page-kicker { color: #a9c6f4; }
+  .commercial-page .scale-board h2 {
     margin-top: 0.9rem;
     color: white;
     font-size: clamp(2.1rem, 4.2vw, 4rem);
     line-height: 1.02;
   }
-  .pricing-page .scale-board-head > p {
+  .commercial-page .scale-board-head > p {
     max-width: 27rem;
     color: rgba(255,255,255,0.64);
     line-height: 1.55;
   }
-  .pricing-page .scale-chart {
+  .commercial-page .scale-chart {
     position: relative;
     display: grid;
     min-height: 390px;
@@ -259,7 +197,7 @@ const jsonLd = [{
     gap: 0.85rem;
     margin-top: 4rem;
   }
-  .pricing-page .scale-chart::before {
+  .commercial-page .scale-chart::before {
     position: absolute;
     width: 30rem;
     height: 30rem;
@@ -270,7 +208,7 @@ const jsonLd = [{
     content: '';
     filter: blur(14px);
   }
-  .pricing-page .scale-chart-path {
+  .commercial-page .scale-chart-path {
     position: absolute;
     z-index: 0;
     width: 76%;
@@ -281,7 +219,7 @@ const jsonLd = [{
     transform: rotate(-13deg);
     transform-origin: right;
   }
-  .pricing-page .scale-chart article {
+  .commercial-page .scale-chart article {
     position: relative;
     z-index: 1;
     display: flex;
@@ -293,16 +231,16 @@ const jsonLd = [{
     border-radius: 1.1rem;
     background: rgba(255,255,255,0.08);
   }
-  .pricing-page .scale-chart article:nth-of-type(2) { height: 14.5rem; }
-  .pricing-page .scale-chart article:nth-of-type(3) { height: 18.5rem; }
-  .pricing-page .scale-chart article:nth-of-type(4) { height: 22.5rem; background: rgba(255,255,255,0.14); }
-  .pricing-page .scale-number {
+  .commercial-page .scale-chart article:nth-of-type(2) { height: 14.5rem; }
+  .commercial-page .scale-chart article:nth-of-type(3) { height: 18.5rem; }
+  .commercial-page .scale-chart article:nth-of-type(4) { height: 22.5rem; background: rgba(255,255,255,0.14); }
+  .commercial-page .scale-number {
     margin-bottom: auto;
     color: rgba(255,255,255,0.46);
     font-size: 0.72rem;
     font-weight: 700;
   }
-  .pricing-page .scale-dot {
+  .commercial-page .scale-dot {
     position: absolute;
     width: 0.7rem;
     height: 0.7rem;
@@ -311,26 +249,26 @@ const jsonLd = [{
     border: 2px solid rgba(255,255,255,0.5);
     border-radius: 50%;
   }
-  .pricing-page .scale-chart article:last-child .scale-dot {
+  .commercial-page .scale-chart article:last-child .scale-dot {
     border-color: #b9e495;
     background: #b9e495;
     box-shadow: 0 0 0 7px rgba(185,228,149,0.12);
   }
-  .pricing-page .scale-chart article > p {
+  .commercial-page .scale-chart article > p {
     color: rgba(255,255,255,0.56);
     font-size: 0.68rem;
   }
-  .pricing-page .scale-chart h3 {
+  .commercial-page .scale-chart h3 {
     margin-top: 0.32rem;
     color: white;
     font-size: clamp(1rem, 1.8vw, 1.4rem);
   }
-  .pricing-page .scale-chart small {
+  .commercial-page .scale-chart small {
     margin-top: 0.42rem;
     color: rgba(255,255,255,0.62);
     font-size: 0.72rem;
   }
-  .pricing-page .scale-principles {
+  .commercial-page .scale-principles {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 1rem;
@@ -338,57 +276,57 @@ const jsonLd = [{
     padding-top: 2rem;
     border-top: 1px solid rgba(255,255,255,0.14);
   }
-  .pricing-page .scale-principles p { display: flex; gap: 0.8rem; align-items: center; }
-  .pricing-page .scale-principles span { color: #9fc9ff; font-size: 0.68rem; }
-  .pricing-page .scale-principles strong { font-size: 0.82rem; font-weight: 600; }
-  .pricing-page .starting-points { padding-block: clamp(5rem, 10vw, 9rem); }
-  .pricing-page .section-heading h2,
-  .pricing-page .price-logic h2,
-  .pricing-page .pricing-close h2 {
+  .commercial-page .scale-principles p { display: flex; gap: 0.8rem; align-items: center; }
+  .commercial-page .scale-principles span { color: #9fc9ff; font-size: 0.68rem; }
+  .commercial-page .scale-principles strong { font-size: 0.82rem; font-weight: 600; }
+  .commercial-page .starting-points { padding-block: clamp(5rem, 10vw, 9rem); }
+  .commercial-page .section-heading h2,
+  .commercial-page .price-logic h2,
+  .commercial-page .pricing-close h2 {
     margin-top: 0.9rem;
     font-size: clamp(2.2rem, 4.5vw, 4.2rem);
     line-height: 1;
   }
-  .pricing-page .section-heading > p:last-child {
+  .commercial-page .section-heading > p:last-child {
     max-width: 35rem;
     margin-top: 1.25rem;
-    color: var(--price-muted);
+    color: var(--c-muted);
   }
-  .pricing-page .starting-grid {
+  .commercial-page .starting-grid {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 1rem;
     margin-top: 3.5rem;
   }
-  .pricing-page .starting-card {
+  .commercial-page .starting-card {
     display: grid;
     min-height: 34rem;
     grid-template-rows: auto auto 1fr auto;
     gap: 2rem;
     padding: clamp(1.5rem, 3vw, 2.25rem);
-    border: 1px solid var(--price-line);
+    border: 1px solid var(--c-border);
     border-radius: 1.4rem;
     background: #fff;
   }
-  .pricing-page .starting-card.is-featured {
-    border-color: var(--price-ink);
+  .commercial-page .starting-card.is-featured {
+    border-color: var(--c-ink);
     background: #f3f7ff;
   }
-  .pricing-page .starting-for {
-    color: var(--price-muted);
+  .commercial-page .starting-for {
+    color: var(--c-muted);
     font-size: 0.7rem;
     font-weight: 700;
     letter-spacing: 0.08em;
     text-transform: uppercase;
   }
-  .pricing-page .starting-card h3 { margin-top: 0.55rem; font-size: 1.8rem; }
-  .pricing-page .starting-price { font-size: clamp(2rem, 3.3vw, 3rem); font-weight: 720; letter-spacing: -0.045em; }
-  .pricing-page .starting-monthly { margin-top: 0.4rem; color: var(--price-muted); font-size: 0.86rem; }
-  .pricing-page .starting-card ul { display: grid; align-content: start; gap: 0.75rem; color: var(--price-muted); font-size: 0.86rem; }
-  .pricing-page .starting-card li { display: flex; gap: 0.65rem; }
-  .pricing-page .starting-card li span { color: #47752d; font-weight: 800; }
-  .pricing-page .starting-card button,
-  .pricing-page .pricing-close button {
+  .commercial-page .starting-card h3 { margin-top: 0.55rem; font-size: 1.8rem; }
+  .commercial-page .starting-price { font-size: clamp(2rem, 3.3vw, 3rem); font-weight: 720; letter-spacing: -0.045em; }
+  .commercial-page .starting-monthly { margin-top: 0.4rem; color: var(--c-muted); font-size: 0.86rem; }
+  .commercial-page .starting-card ul { display: grid; align-content: start; gap: 0.75rem; color: var(--c-muted); font-size: 0.86rem; }
+  .commercial-page .starting-card li { display: flex; gap: 0.65rem; }
+  .commercial-page .starting-card li span { color: #47752d; font-weight: 800; }
+  .commercial-page .starting-card button,
+  .commercial-page .pricing-close button {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -396,66 +334,43 @@ const jsonLd = [{
     width: 100%;
     padding: 1rem 1.1rem;
     border-radius: 999px;
-    background: var(--price-ink);
+    background: var(--c-ink);
     color: white;
     font-size: 0.82rem;
     font-weight: 700;
   }
-  .pricing-page .starting-note { margin-top: 1.5rem; color: var(--price-muted); font-size: 0.82rem; text-align: center; }
-  .pricing-page .price-logic { background: #f4f0e7; }
-  .pricing-page .price-logic-inner { padding-block: clamp(5rem, 9vw, 8rem); }
-  .pricing-page .price-factors {
+  .commercial-page .starting-note { margin-top: 1.5rem; color: var(--c-muted); font-size: 0.82rem; text-align: center; }
+  .commercial-page .price-logic { background: #f4f0e7; }
+  .commercial-page .price-logic-inner { padding-block: clamp(5rem, 9vw, 8rem); }
+  .commercial-page .price-factors {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 1rem;
     margin-top: 3.5rem;
   }
-  .pricing-page .price-factors article { padding-top: 1.5rem; border-top: 1px solid #cfc8bb; }
-  .pricing-page .price-factors span { color: #9c2f1f; font-size: 0.72rem; font-weight: 750; }
-  .pricing-page .price-factors h3 { margin-top: 1rem; font-size: 1.5rem; }
-  .pricing-page .price-factors p { max-width: 18rem; margin-top: 0.7rem; color: var(--price-muted); font-size: 0.86rem; line-height: 1.55; }
-  .pricing-page .pricing-close { padding-block: clamp(6rem, 12vw, 11rem); text-align: center; }
-  .pricing-page .pricing-close h2 { max-width: 60rem; margin-inline: auto; }
-  .pricing-page .pricing-close > p:not(.pricing-kicker) { margin-top: 1.5rem; color: var(--price-muted); }
-  .pricing-page .pricing-close button { width: min(100%, 21rem); margin: 2rem auto 0; }
-  .pricing-page .pricing-footer { border-top: 1px solid var(--price-line); }
-  .pricing-page .pricing-footer > div { display: flex; justify-content: space-between; gap: 1rem; padding-block: 1.5rem; color: var(--price-muted); font-size: 0.8rem; }
-  .pricing-page dialog {
-    border-color: rgba(255,255,255,0.13);
-    background: #001013;
-    color: white;
-    box-shadow: 0 30px 90px rgba(0,0,0,0.4);
-  }
-  .pricing-page dialog::backdrop { background: rgba(0,16,19,0.68); backdrop-filter: blur(7px); }
-  .pricing-page dialog h2 { color: white; }
-  .pricing-page dialog input,
-  .pricing-page dialog select,
-  .pricing-page dialog textarea { border-color: rgba(255,255,255,0.22) !important; background: rgba(255,255,255,0.08) !important; color: white !important; }
-  .pricing-page dialog label { color: rgba(255,255,255,0.85); }
-  .pricing-page dialog option { color: var(--price-ink); }
-  .pricing-page dialog button[type='submit'] { background: white !important; color: var(--price-ink) !important; }
+  .commercial-page .price-factors article { padding-top: 1.5rem; border-top: 1px solid #cfc8bb; }
+  .commercial-page .price-factors span { color: #9c2f1f; font-size: 0.72rem; font-weight: 750; }
+  .commercial-page .price-factors h3 { margin-top: 1rem; font-size: 1.5rem; }
+  .commercial-page .price-factors p { max-width: 18rem; margin-top: 0.7rem; color: var(--c-muted); font-size: 0.86rem; line-height: 1.55; }
+  .commercial-page .pricing-close { padding-block: clamp(6rem, 12vw, 11rem); text-align: center; }
+  .commercial-page .pricing-close h2 { max-width: 60rem; margin-inline: auto; }
+  .commercial-page .pricing-close > p:not(.page-kicker) { margin-top: 1.5rem; color: var(--c-muted); }
+  .commercial-page .pricing-close button { width: min(100%, 21rem); margin: 2rem auto 0; }
 
   @media (max-width: 760px) {
-    .pricing-page > header > div { gap: 0.5rem; padding-inline: 1rem; }
-    .pricing-page > header [data-open-project] { display: none; }
-    .pricing-page > header .wordmark .wm-agency,
-    .pricing-page > header .wordmark .wm-product { font-size: 0.92rem; }
-    .pricing-page h1, .pricing-page h2 { overflow-wrap: anywhere; }
-    .pricing-page .pricing-hero h1 { font-size: clamp(2.35rem, 11vw, 3.25rem); }
-    .pricing-page .scale-board { width: calc(100% - 1rem); padding-inline: 1rem; border-radius: 1.5rem; }
-    .pricing-page .scale-board-head { grid-template-columns: 1fr; gap: 1.2rem; }
-    .pricing-page .scale-chart { min-height: 0; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: stretch; gap: 0.6rem; margin-top: 2.5rem; }
-    .pricing-page .scale-chart article,
-    .pricing-page .scale-chart article:nth-of-type(2),
-    .pricing-page .scale-chart article:nth-of-type(3),
-    .pricing-page .scale-chart article:nth-of-type(4) { height: auto; min-height: 8.5rem; padding: 0.85rem; }
-    .pricing-page .scale-chart-path { display: none; }
-    .pricing-page .scale-chart small { display: none; }
-    .pricing-page .scale-chart h3 { overflow-wrap: anywhere; font-size: 1rem; letter-spacing: -0.02em; }
-    .pricing-page .scale-principles { grid-template-columns: 1fr; }
-    .pricing-page .starting-grid, .pricing-page .price-factors { grid-template-columns: 1fr; }
-    .pricing-page .starting-card { min-height: 0; }
-    .pricing-page .pricing-close h2 { font-size: clamp(1.85rem, 9vw, 2.7rem); }
-    .pricing-page .pricing-footer > div { flex-direction: column; }
+    .commercial-page .scale-board { width: calc(100% - 1rem); padding-inline: 1rem; border-radius: 1.5rem; }
+    .commercial-page .scale-board-head { grid-template-columns: 1fr; gap: 1.2rem; }
+    .commercial-page .scale-chart { min-height: 0; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: stretch; gap: 0.6rem; margin-top: 2.5rem; }
+    .commercial-page .scale-chart article,
+    .commercial-page .scale-chart article:nth-of-type(2),
+    .commercial-page .scale-chart article:nth-of-type(3),
+    .commercial-page .scale-chart article:nth-of-type(4) { height: auto; min-height: 8.5rem; padding: 0.85rem; }
+    .commercial-page .scale-chart-path { display: none; }
+    .commercial-page .scale-chart small { display: none; }
+    .commercial-page .scale-chart h3 { overflow-wrap: anywhere; font-size: 1rem; letter-spacing: -0.02em; }
+    .commercial-page .scale-principles { grid-template-columns: 1fr; }
+    .commercial-page .starting-grid, .commercial-page .price-factors { grid-template-columns: 1fr; }
+    .commercial-page .starting-card { min-height: 0; }
+    .commercial-page .pricing-close h2 { font-size: clamp(1.85rem, 9vw, 2.7rem); }
   }
 </style>

@@ -1,10 +1,9 @@
 ---
 // Dossier comercial del servicio — pensado para enviarlo a un prospecto o
 // imprimirlo en PDF (Ctrl/Cmd+P). Indexable, cero JS, mismo lenguaje visual
-// que la landing. Los precios son los publicados en la landing.
-import Base from '../layouts/Base.astro';
-import ProjectDialog from '../components/ProjectDialog.astro';
-import { landingNav, MAIN_DEMO_HREF } from '../lib/nav';
+// que la landing (shell comercial). Los precios son los publicados en la landing.
+import Landing from '../layouts/Landing.astro';
+import { MAIN_DEMO_HREF } from '../lib/nav';
 
 // ── El camino MVP → tienda que crece (P2) ───────────────────────────────────
 // Se VENDE, no se construye (§14): sin fechas prometidas y sin dar por
@@ -181,89 +180,67 @@ const jsonLd = [
 ];
 ---
 
-<Base
+<Landing
   title="Dossier del servicio — Logic2B Ecommerce"
   description="El detalle completo: qué se entrega el primer mes, cómo crece tu tienda sin migrar, qué compra exactamente tu mensualidad y cuánto cuesta. Listo para imprimir y compartir."
   canonicalPath="/dossier"
-  preloadDisplayFont
+  activeHref="/dossier"
   jsonLd={jsonLd}
 >
-  <div class="bg-paper text-ink">
-    <header class="sticky top-0 z-40 border-b border-black/5 bg-white/85 backdrop-blur-md print:hidden">
-      <div class="mx-auto flex h-16 max-w-4xl items-center justify-between px-5">
-        <span class="wordmark">
-          <a href="https://logic2b.com" class="wm-agency">Logic<span class="wm-2b">2B</span></a>
-          <a href="/" class="wm-product">Ecommerce</a>
-        </span>
-        {/* Mismo menú que el resto del sitio (lib/nav.ts). */}
-        <nav class="flex items-center gap-3 text-sm sm:gap-5">
-          <a href="/" class="text-stone-600 hover:text-ink">Inicio</a>
-          {landingNav
-            .filter((link) => link.href !== '/dossier')
-            .map((link) => (
-              <a href={link.href} class="hidden text-stone-600 hover:text-ink lg:block">{link.label}</a>
-            ))}
-          <a
-            href="/#contacto"
-            data-open-project
-            class="rounded-btn bg-ink px-4 py-2 text-sm font-semibold text-white transition hover:bg-black sm:px-5"
-          >Iniciar proyecto</a>
-        </nav>
-      </div>
-    </header>
-
-    <main class="mx-auto max-w-4xl px-5 pb-16 pt-12 sm:pt-16">
-      <!-- Portada -->
-      <p class="text-sm font-medium uppercase tracking-wide text-brand">Dossier del servicio</p>
-      <h1 class="mt-3 max-w-3xl font-display text-4xl leading-[1.05] sm:text-5xl">
-        Tu tienda a medida: qué se entrega, cómo crece y qué compras cada mes.
-      </h1>
-      <p class="mt-5 max-w-2xl text-base leading-relaxed text-stone-600 sm:text-lg">
-        Este documento explica exactamente qué incluye <strong class="text-ink">Logic2B Ecommerce</strong>,
+  <main>
+    <!-- Portada -->
+    <section class="page-hero page-shell">
+      <p class="page-kicker">Dossier del servicio</p>
+      <h1>Tu tienda a medida: qué se entrega, cómo crece y <span>qué compras cada mes</span>.</h1>
+      <p class="page-lead">
+        Este documento explica exactamente qué incluye <strong class="text-foreground">Logic2B Ecommerce</strong>,
         cómo evoluciona tu tienda sin cambiar de plataforma, qué compra tu mensualidad, qué
         necesitamos de ti y cuánto cuesta. Sin letra pequeña: es lo mismo que firmarías en el
         presupuesto.
       </p>
+    </section>
+
+    <div class="mx-auto w-full max-w-4xl px-5 pb-16">
       {/* Lo primero que hay que entender del servicio: se empieza sencillo.
           Va antes que cualquier tabla porque es la decisión que ahorra dinero
           al cliente y la que explica todas las demás. */}
-      <div class="mt-8 rounded-2xl border border-brand/30 bg-brand/5 p-6 sm:p-7">
-        <p class="font-display text-xl text-brand-dark">Todo proyecto empieza igual: sencillo</p>
-        <p class="mt-3 max-w-3xl text-sm leading-relaxed text-stone-700">
+      <div class="chapter-sky p-6 sm:p-7">
+        <p class="font-display text-xl">Todo proyecto empieza igual: sencillo</p>
+        <p class="mt-3 max-w-3xl text-sm leading-relaxed opacity-80">
           No montamos primero la tienda perfecta. Montamos un
-          <strong class="text-ink">MVP</strong> —una tienda mínima pero completa
+          <strong>MVP</strong> —una tienda mínima pero completa
           y en producción— que sirve igual a una bodega con 20 referencias que a
           un distribuidor industrial. A partir de ahí crece sobre lo que tu
           ecommerce pida de verdad, no sobre lo que alguien supuso al principio.
-          Ese es nuestro punto fuerte: <strong class="text-ink">hacer las cosas
+          Ese es nuestro punto fuerte: <strong>hacer las cosas
           sencillas desde el primer día</strong>. Lo barato no es el precio: es
           no construir lo que no vas a usar.
         </p>
       </div>
-      <p class="mt-6 text-sm text-stone-500 print:hidden">
+      <p class="mt-6 text-sm text-muted-foreground print:hidden">
         Guárdalo o compártelo: esta página está pensada para imprimirse en PDF (Ctrl/Cmd + P).
       </p>
 
       <!-- Para quién es -->
       <section class="mt-14">
-        <h2 class="font-display text-2xl sm:text-3xl">Para quién es (y para quién no)</h2>
+        <h2 class="text-2xl sm:text-3xl">Para quién es (y para quién no)</h2>
         <div class="mt-6 grid gap-5 sm:grid-cols-2">
-          <div class="rounded-2xl border border-brand/30 bg-brand/5 p-6">
-            <p class="font-semibold text-brand-dark">Es para ti si…</p>
-            <ul class="mt-3 space-y-2 text-sm leading-relaxed text-stone-700">
-              <li class="flex gap-2"><span aria-hidden="true" class="text-brand">✓</span> Quieres una tienda seria, tuya y rápida — con 20 referencias o con miles.</li>
-              <li class="flex gap-2"><span aria-hidden="true" class="text-brand">✓</span> Estás pagando cuotas y comisiones de plataforma que no entiendes.</li>
-              <li class="flex gap-2"><span aria-hidden="true" class="text-brand">✓</span> Quieres gestionar los pedidos tú, sin depender de nadie para el día a día.</li>
-              <li class="flex gap-2"><span aria-hidden="true" class="text-brand">✓</span> Prefieres empezar por lo esencial y añadir cuando el negocio lo pida.</li>
+          <div class="rounded-2xl border border-[#c9dcf7] bg-[#eef4fc] p-6">
+            <p class="font-semibold text-[#17386f]">Es para ti si…</p>
+            <ul class="mt-3 space-y-2 text-sm leading-relaxed text-muted-foreground">
+              <li class="flex gap-2"><span aria-hidden="true" class="tick">✓</span> Quieres una tienda seria, tuya y rápida — con 20 referencias o con miles.</li>
+              <li class="flex gap-2"><span aria-hidden="true" class="tick">✓</span> Estás pagando cuotas y comisiones de plataforma que no entiendes.</li>
+              <li class="flex gap-2"><span aria-hidden="true" class="tick">✓</span> Quieres gestionar los pedidos tú, sin depender de nadie para el día a día.</li>
+              <li class="flex gap-2"><span aria-hidden="true" class="tick">✓</span> Prefieres empezar por lo esencial y añadir cuando el negocio lo pida.</li>
             </ul>
           </div>
-          <div class="rounded-2xl border border-stone-200 bg-cream p-6">
-            <p class="font-semibold text-stone-700">No es para ti si…</p>
-            <ul class="mt-3 space-y-2 text-sm leading-relaxed text-stone-600">
+          <div class="rounded-2xl border border-border bg-muted p-6">
+            <p class="font-semibold">No es para ti si…</p>
+            <ul class="mt-3 space-y-2 text-sm leading-relaxed text-muted-foreground">
               <li class="flex gap-2"><span aria-hidden="true">—</span> <span>Quieres un marketplace con varios vendedores, o vender por suscripción recurrente: eso es otro proyecto (y podemos hablarlo).</span></li>
               <li class="flex gap-2"><span aria-hidden="true">—</span> <span>Tu catálogo cambia a diario y necesita sincronizarse solo con un ERP: se puede construir, pero no es el proyecto que describe este dossier.</span></li>
               <li class="flex gap-2"><span aria-hidden="true">—</span> <span>Buscas la tienda más barata posible sin diseño propio: una plantilla te servirá.</span></li>
-              <li class="flex gap-2"><span aria-hidden="true">—</span> <span>Vendes menos de 10 productos: pregunta por el <a href="mailto:hola@logic2b.com?subject=Kit%20Lite%20para%20mi%20negocio" class="font-medium text-brand underline underline-offset-2">Kit Lite</a>, la versión de entrada.</span></li>
+              <li class="flex gap-2"><span aria-hidden="true">—</span> <span>Vendes menos de 10 productos: pregunta por el <a href="mailto:hola@logic2b.com?subject=Kit%20Lite%20para%20mi%20negocio" class="text-link">Kit Lite</a>, la versión de entrada.</span></li>
             </ul>
           </div>
         </div>
@@ -271,27 +248,27 @@ const jsonLd = [
 
       <!-- El camino: de MVP a tienda que crece (P2) -->
       <section class="mt-14">
-        <h2 class="font-display text-2xl sm:text-3xl">El camino: de MVP a tienda que crece</h2>
-        <p class="mt-2 max-w-2xl leading-relaxed text-stone-600">
+        <h2 class="text-2xl sm:text-3xl">El camino: de MVP a tienda que crece</h2>
+        <p class="mt-2 max-w-2xl leading-relaxed text-muted-foreground">
           Tu tienda arranca básica y funcional, y crece cuando el negocio lo pide —
           sin cambiar de plataforma ni empezar de cero. Este es el recorrido de un
-          proyecto tipo. <strong class="text-ink">No hay fechas prometidas</strong>:
+          proyecto tipo. <strong class="text-foreground">No hay fechas prometidas</strong>:
           cada paso se decide contigo, cuando toca.
         </p>
         <ol class="mt-6 space-y-3">
           {path.map((stage) => (
-            <li class="flex flex-col gap-1 rounded-2xl border border-black/5 bg-white p-6 shadow-sm sm:flex-row sm:gap-6">
-              <p class="shrink-0 font-medium uppercase tracking-wide text-brand sm:w-48 sm:text-sm">{stage.k}</p>
+            <li class="flex flex-col gap-1 rounded-2xl border border-border bg-card p-6 shadow-sm sm:flex-row sm:gap-6">
+              <p class="page-kicker shrink-0 sm:w-48 sm:pt-0.5">{stage.k}</p>
               <div>
                 <h3 class="font-semibold">{stage.title}</h3>
-                <p class="mt-1.5 text-sm leading-relaxed text-stone-600">{stage.body}</p>
+                <p class="mt-1.5 text-sm leading-relaxed text-muted-foreground">{stage.body}</p>
               </div>
             </li>
           ))}
         </ol>
-        <p class="mt-4 text-sm leading-relaxed text-stone-600">
+        <p class="mt-4 text-sm leading-relaxed text-muted-foreground">
           Lo que no entra en el primer mes no está «quitado»: está
-          <strong class="text-ink">esperando a que tu tienda lo justifique</strong>.
+          <strong class="text-foreground">esperando a que tu tienda lo justifique</strong>.
           Es la diferencia entre pagar por funciones que no usas y construir las que
           te hacen falta.
         </p>
@@ -299,54 +276,54 @@ const jsonLd = [
 
       <!-- Qué incluye -->
       <section class="mt-14">
-        <h2 class="font-display text-2xl sm:text-3xl">Qué incluye el primer mes, exactamente</h2>
-        <p class="mt-2 max-w-2xl leading-relaxed text-stone-600">
+        <h2 class="text-2xl sm:text-3xl">Qué incluye el primer mes, exactamente</h2>
+        <p class="mt-2 max-w-2xl leading-relaxed text-muted-foreground">
           El MVP no es una versión recortada: es una tienda completa y operativa
           desde el día que se publica.
         </p>
         <div class="mt-6 space-y-6">
           {included.map((block) => (
-            <div class="rounded-2xl border border-black/5 bg-white p-6 shadow-sm">
+            <div class="rounded-2xl border border-border bg-card p-6 shadow-sm">
               <h3 class="font-semibold">{block.area}</h3>
-              <ul class="mt-3 grid gap-x-8 gap-y-2 text-sm leading-relaxed text-stone-600 sm:grid-cols-2">
+              <ul class="mt-3 grid gap-x-8 gap-y-2 text-sm leading-relaxed text-muted-foreground sm:grid-cols-2">
                 {block.items.map((item) => (
-                  <li class="flex gap-2"><span aria-hidden="true" class="text-brand">✓</span> <span>{item}</span></li>
+                  <li class="flex gap-2"><span aria-hidden="true" class="tick">✓</span> <span>{item}</span></li>
                 ))}
               </ul>
             </div>
           ))}
         </div>
-        <p class="mt-4 text-sm text-stone-500">
-          ¿Quieres verlo por dentro? La <a href={MAIN_DEMO_HREF} class="text-brand underline underline-offset-2 hover:text-brand-dark">demo</a> permite
+        <p class="mt-4 text-sm text-muted-foreground">
+          ¿Quieres verlo por dentro? La <a href={MAIN_DEMO_HREF} class="text-link">demo</a> permite
           simular la compra sin enviar nada; el panel y los emails usan ejemplos ficticios independientes.
-          En <a href="/arquitectura" class="text-brand underline underline-offset-2 hover:text-brand-dark">/arquitectura</a> está la explicación técnica,
+          En <a href="/arquitectura" class="text-link">/arquitectura</a> está la explicación técnica,
           incluidas las cuentas de hasta dónde escala el catálogo.
         </p>
       </section>
 
       <!-- Proceso -->
       <section class="mt-14">
-        <h2 class="font-display text-2xl sm:text-3xl">Cómo trabajamos</h2>
-        <p class="mt-2 max-w-2xl text-stone-600">
-          De brief a tienda vendiendo en <strong class="text-ink">3–4 semanas</strong> (orientativo: depende
+        <h2 class="text-2xl sm:text-3xl">Cómo trabajamos</h2>
+        <p class="mt-2 max-w-2xl text-muted-foreground">
+          De brief a tienda vendiendo en <strong class="text-foreground">3–4 semanas</strong> (orientativo: depende
           sobre todo de lo rápido que tengamos fotos y catálogo).
         </p>
         <ol class="mt-6 grid gap-5 sm:grid-cols-2">
           {process.map((p) => (
-            <li class="rounded-2xl border border-black/5 bg-white p-6 shadow-sm">
-              <span class="flex h-8 w-8 items-center justify-center rounded-full bg-brand font-display text-white" aria-hidden="true">{p.step}</span>
+            <li class="rounded-2xl border border-border bg-card p-6 shadow-sm">
+              <span class="flex h-8 w-8 items-center justify-center rounded-full bg-foreground font-display text-background" aria-hidden="true">{p.step}</span>
               <h3 class="mt-3 font-semibold">{p.title}</h3>
-              <p class="mt-2 text-sm leading-relaxed text-stone-600">{p.body}</p>
+              <p class="mt-2 text-sm leading-relaxed text-muted-foreground">{p.body}</p>
             </li>
           ))}
         </ol>
-        <div class="mt-6 rounded-2xl border border-black/5 bg-cream p-6">
+        <div class="mt-6 rounded-2xl border border-border bg-muted p-6">
           <h3 class="font-semibold">Tu panel es simple a propósito</h3>
-          <p class="mt-2 text-sm leading-relaxed text-stone-600">
+          <p class="mt-2 text-sm leading-relaxed text-muted-foreground">
             Pedidos, envíos y productos. Nada más — se aprende en cinco minutos
             porque no hay nada que configurar. Las mil configuraciones que en otras
             plataformas son pantallas de ajustes infinitas (mercados, divisas,
-            impuestos, integraciones) <strong class="text-ink">corren de nuestro
+            impuestos, integraciones) <strong class="text-foreground">corren de nuestro
             lado</strong>, invisibles para quien gestiona la tienda. Y lo fuera de lo
             común nos lo pides y lo resolvemos: mejor que ir añadiendo plugins,
             adaptarlos y pagar suscripciones que no aportan gran cosa.
@@ -356,12 +333,12 @@ const jsonLd = [
 
       <!-- Qué necesitamos -->
       <section class="mt-14">
-        <h2 class="font-display text-2xl sm:text-3xl">Qué necesitamos de ti</h2>
+        <h2 class="text-2xl sm:text-3xl">Qué necesitamos de ti</h2>
         <dl class="mt-6 space-y-3">
           {needs.map(([what, detail]) => (
-            <div class="flex flex-col gap-1 rounded-2xl bg-cream px-6 py-4 sm:flex-row sm:gap-4">
+            <div class="flex flex-col gap-1 rounded-2xl bg-muted px-6 py-4 sm:flex-row sm:gap-4">
               <dt class="shrink-0 font-semibold sm:w-44">{what}</dt>
-              <dd class="text-sm leading-relaxed text-stone-600 sm:text-base">{detail}</dd>
+              <dd class="text-sm leading-relaxed text-muted-foreground sm:text-base">{detail}</dd>
             </div>
           ))}
         </dl>
@@ -369,37 +346,37 @@ const jsonLd = [
 
       <!-- Qué compra tu mensualidad (P3 · concepto D7) -->
       <section class="mt-14">
-        <h2 class="font-display text-2xl sm:text-3xl">Qué compra tu mensualidad</h2>
-        <p class="mt-2 max-w-2xl leading-relaxed text-stone-600">
+        <h2 class="text-2xl sm:text-3xl">Qué compra tu mensualidad</h2>
+        <p class="mt-2 max-w-2xl leading-relaxed text-muted-foreground">
           Tu cuota no paga licencias de plataforma ni servidores encendidos sin usar:
-          <strong class="text-ink">paga a las personas que llevan tu tienda</strong> y
+          <strong class="text-foreground">paga a las personas que llevan tu tienda</strong> y
           el trabajo de traerle visitas. Empieza en el mínimo y sube por tramos según
           el tráfico — es decir, según lo bien que estemos haciendo esa parte. Esto es
           lo que compra:
         </p>
         <div class="mt-6 grid gap-5 sm:grid-cols-3">
           {monthly.map((item) => (
-            <div class="rounded-2xl border border-black/5 bg-white p-6 shadow-sm">
+            <div class="rounded-2xl border border-border bg-card p-6 shadow-sm">
               <h3 class="font-semibold">{item.title}</h3>
-              <p class="mt-2 text-sm leading-relaxed text-stone-600">{item.body}</p>
+              <p class="mt-2 text-sm leading-relaxed text-muted-foreground">{item.body}</p>
             </div>
           ))}
         </div>
-        <div class="mt-5 rounded-2xl border border-brand/30 bg-brand/5 p-6">
-          <p class="font-semibold text-brand-dark">Una cuota, no una pila de suscripciones</p>
-          <p class="mt-2 text-sm leading-relaxed text-stone-700">
+        <div class="mt-5 rounded-2xl border border-[#c9dcf7] bg-[#eef4fc] p-6">
+          <p class="font-semibold text-[#17386f]">Una cuota, no una pila de suscripciones</p>
+          <p class="mt-2 text-sm leading-relaxed text-muted-foreground">
             Lo habitual en el mercado es acabar pagando la suscripción de la
             plataforma por un lado, el mantenimiento por otro, el SEO por otro y los
-            contenidos por otro. Aquí es <strong class="text-ink">una sola cuota</strong>:
+            contenidos por otro. Aquí es <strong class="text-foreground">una sola cuota</strong>:
             si tu tienda sube de nivel de servicio, la cuota se sustituye por la
             nueva. Nunca se apila una encima de otra.
           </p>
         </div>
-        <p class="mt-4 text-sm leading-relaxed text-stone-600">
-          <strong class="text-ink">Lo que no incluye, dicho claro:</strong> construir
+        <p class="mt-4 text-sm leading-relaxed text-muted-foreground">
+          <strong class="text-foreground">Lo que no incluye, dicho claro:</strong> construir
           funciones nuevas y las campañas de marketing se presupuestan aparte. La
           ventaja es que no hace falta buscar a nadie más —
-          <a href="https://logic2b.com" class="text-brand underline underline-offset-2 hover:text-brand-dark">Logic2B</a>
+          <a href="https://logic2b.com" class="text-link">Logic2B</a>
           es agencia de desarrollo y SEO, así que el posicionamiento y las campañas
           los lleva el mismo equipo que conoce tu tienda por dentro.
         </p>
@@ -407,52 +384,52 @@ const jsonLd = [
 
       <!-- Precios (escalera D4: Lite · Kit · Kit a medida) -->
       <section class="mt-14">
-        <h2 class="font-display text-2xl sm:text-3xl">Cuánto cuesta</h2>
-        <p class="mt-2 max-w-2xl text-stone-600">
+        <h2 class="text-2xl sm:text-3xl">Cuánto cuesta</h2>
+        <p class="mt-2 max-w-2xl text-muted-foreground">
           Un pago único de puesta en marcha y una sola cuota mensual, sin
           permanencia. Tres formas de empezar según lo que necesites.
         </p>
         <div class="mt-6 grid gap-5 sm:grid-cols-2">
-          <div class="rounded-2xl border-2 border-brand bg-white p-7 shadow-lg shadow-brand/10">
-            <p class="text-sm font-medium uppercase tracking-wide text-stone-500">Kit · el más elegido</p>
-            <p class="mt-2 font-display text-4xl">1.900 €<span class="text-base font-normal text-stone-500"> + desde 39 €/mes</span></p>
-            <p class="mt-4 text-sm leading-relaxed text-stone-600">
+          <div class="rounded-2xl border border-foreground bg-[#f3f7ff] p-7 shadow-sm">
+            <p class="page-kicker">Kit · el más elegido</p>
+            <p class="mt-2 font-display text-4xl">1.900 €<span class="text-base font-normal text-muted-foreground"> + desde 39 €/mes</span></p>
+            <p class="mt-4 text-sm leading-relaxed text-muted-foreground">
               Todo lo del apartado «Qué incluye el primer mes», partiendo de uno de los
               estilos del catálogo adaptado a tu marca: color, tipografía y fotos. La
               cuota cubre lo del apartado anterior —mantenimiento, asistencia y
               seguimiento— con
-              <strong class="text-ink">hasta 2 horas de cambios de contenido al mes</strong>.
+              <strong class="text-foreground">hasta 2 horas de cambios de contenido al mes</strong>.
             </p>
           </div>
-          <div class="rounded-2xl border border-black/5 bg-white p-7 shadow-sm">
-            <p class="text-sm font-medium uppercase tracking-wide text-stone-500">Kit a medida</p>
-            <p class="mt-2 font-display text-4xl">desde 3.400 €<span class="text-base font-normal text-stone-500"> + desde 59 €/mes</span></p>
-            <p class="mt-4 text-sm leading-relaxed text-stone-600">
+          <div class="rounded-2xl border border-border bg-card p-7 shadow-sm">
+            <p class="page-kicker">Kit a medida</p>
+            <p class="mt-2 font-display text-4xl">desde 3.400 €<span class="text-base font-normal text-muted-foreground"> + desde 59 €/mes</span></p>
+            <p class="mt-4 text-sm leading-relaxed text-muted-foreground">
               Dirección visual propia, creada para tu marca: sesión de arte, imaginería
               generada para tu catálogo y un tema exclusivo que no se comparte con
               nadie. Todo lo del Kit, con soporte prioritario.
             </p>
           </div>
         </div>
-        <div class="mt-5 flex flex-col justify-between gap-3 rounded-2xl bg-cream px-6 py-5 text-sm sm:flex-row sm:items-center">
+        <div class="mt-5 flex flex-col justify-between gap-3 rounded-2xl bg-muted px-6 py-5 text-sm sm:flex-row sm:items-center">
           <div>
             <p class="font-semibold">Kit Lite · desde 590 €, sin mensualidad</p>
-            <p class="mt-1 text-stone-600">
+            <p class="mt-1 text-muted-foreground">
               Hasta 10 productos con enlaces de pago, sin panel. Para empezar
               a vender online con lo justo y crecer al Kit cuando toque.
             </p>
           </div>
           <a
             href="mailto:hola@logic2b.com?subject=Kit%20Lite%20para%20mi%20negocio"
-            class="shrink-0 font-medium text-brand underline underline-offset-2 hover:text-brand-dark"
+            class="text-link shrink-0"
           >Pregunta por el Lite</a>
         </div>
-        <p class="mt-4 text-sm leading-relaxed text-stone-600">
+        <p class="mt-4 text-sm leading-relaxed text-muted-foreground">
           La mensualidad indicada es el tramo de entrada. Sube por tramos a medida que crece el
           tráfico de tu tienda, que es el trabajo que hacemos por ti: se te comunica antes de
           aplicarse y queda por escrito en la propuesta.
         </p>
-        <p class="mt-3 text-sm leading-relaxed text-stone-600">
+        <p class="mt-3 text-sm leading-relaxed text-muted-foreground">
           Costes que no dependen de nosotros: el dominio (~12 €/año) y la comisión que cobre la
           pasarela de pago por venta, que pagarías igual en cualquier plataforma.
         </p>
@@ -460,62 +437,48 @@ const jsonLd = [
 
       <!-- Qué pasa si nos vamos (anti-secuestro: F11.7 / Fase 10.3) -->
       <section class="mt-14">
-        <h2 class="font-display text-2xl sm:text-3xl">Qué pasa si un día nos vamos</h2>
-        <p class="mt-3 max-w-2xl leading-relaxed text-stone-600">
+        <h2 class="text-2xl sm:text-3xl">Qué pasa si un día nos vamos</h2>
+        <p class="mt-3 max-w-2xl leading-relaxed text-muted-foreground">
           Es la pregunta que nadie hace en la primera reunión y todos piensan. La
           respuesta, por escrito:
         </p>
-        <ul class="mt-5 space-y-3 rounded-2xl border border-black/5 bg-white p-6 text-sm leading-relaxed text-stone-600 shadow-sm">
-          <li class="flex gap-2"><span aria-hidden="true" class="text-brand">✓</span> <span><strong class="text-ink">Todo está a tu nombre desde el primer día</strong>: el dominio, la cuenta de la pasarela de pago (donde entra tu dinero), el alojamiento y el repositorio con el código. Nosotros solo tenemos los accesos de mantenimiento.</span></li>
-          <li class="flex gap-2"><span aria-hidden="true" class="text-brand">✓</span> <span>En la entrega firmamos un <strong class="text-ink">acta con un inventario de accesos</strong>: qué cuentas existen, de quién son y quién entra en cada una. Con esa hoja, cualquier profesional puede continuar tu tienda mañana.</span></li>
-          <li class="flex gap-2"><span aria-hidden="true" class="text-brand">✓</span> <span><strong class="text-ink">Sin permanencia.</strong> Si dejas el mantenimiento, te entregamos una última copia de seguridad, retiramos nuestros accesos y la tienda sigue funcionando. Sin rehenes.</span></li>
+        <ul class="mt-5 space-y-3 rounded-2xl border border-border bg-card p-6 text-sm leading-relaxed text-muted-foreground shadow-sm">
+          <li class="flex gap-2"><span aria-hidden="true" class="tick">✓</span> <span><strong class="text-foreground">Todo está a tu nombre desde el primer día</strong>: el dominio, la cuenta de la pasarela de pago (donde entra tu dinero), el alojamiento y el repositorio con el código. Nosotros solo tenemos los accesos de mantenimiento.</span></li>
+          <li class="flex gap-2"><span aria-hidden="true" class="tick">✓</span> <span>En la entrega firmamos un <strong class="text-foreground">acta con un inventario de accesos</strong>: qué cuentas existen, de quién son y quién entra en cada una. Con esa hoja, cualquier profesional puede continuar tu tienda mañana.</span></li>
+          <li class="flex gap-2"><span aria-hidden="true" class="tick">✓</span> <span><strong class="text-foreground">Sin permanencia.</strong> Si dejas el mantenimiento, te entregamos una última copia de seguridad, retiramos nuestros accesos y la tienda sigue funcionando. Sin rehenes.</span></li>
         </ul>
       </section>
 
       <!-- FAQ -->
       <section class="mt-14">
-        <h2 class="font-display text-2xl sm:text-3xl">Preguntas frecuentes</h2>
+        <h2 class="text-2xl sm:text-3xl">Preguntas frecuentes</h2>
         <div class="mt-6 space-y-6">
           {faqs.map((faq) => (
             <div>
               <h3 class="font-semibold">{faq.q}</h3>
-              <p class="mt-1.5 max-w-3xl text-sm leading-relaxed text-stone-600">{faq.a}</p>
+              <p class="mt-1.5 max-w-3xl text-sm leading-relaxed text-muted-foreground">{faq.a}</p>
             </div>
           ))}
         </div>
       </section>
 
       <!-- Contacto (también visible en papel) -->
-      <section class="mt-14 rounded-2xl bg-ink p-8 text-white print:rounded-none print:bg-white print:p-0 print:text-ink">
-        <h2 class="font-display text-2xl sm:text-3xl">¿Hablamos de tu tienda?</h2>
-        <p class="mt-3 max-w-xl leading-relaxed text-stone-400 print:text-stone-600">
+      <section class="mt-14 rounded-2xl bg-foreground p-8 text-background print:rounded-none print:bg-white print:p-0 print:text-foreground">
+        <h2 class="text-2xl sm:text-3xl">¿Hablamos de tu tienda?</h2>
+        <p class="mt-3 max-w-xl leading-relaxed text-background/70 print:text-muted-foreground">
           Cuéntanos qué vendes y te decimos, sin compromiso, si este kit encaja contigo y qué
           necesitaríamos para arrancar.
         </p>
         <p class="mt-5 font-semibold">
-          <a href="mailto:hola@logic2b.com?subject=Mi%20tienda%20online%20con%20Logic2B%20Ecommerce" class="underline underline-offset-4 hover:text-brand">hola@logic2b.com</a>
-          <span aria-hidden="true" class="mx-2 text-stone-500">·</span>
-          <a href="https://wa.me/34626434316?text=Hola%2C%20me%20interesa%20una%20tienda%20online%20con%20Logic2B%20Ecommerce." class="underline underline-offset-4 hover:text-brand">WhatsApp 626 434 316</a>
-          <span aria-hidden="true" class="mx-2 text-stone-500">·</span>
-          <span class="font-normal text-stone-400 print:text-stone-600">Logic2B, Castellón · logic2b.com</span>
+          <a href="mailto:hola@logic2b.com?subject=Mi%20tienda%20online%20con%20Logic2B%20Ecommerce" class="underline underline-offset-4 hover:opacity-80">hola@logic2b.com</a>
+          <span aria-hidden="true" class="mx-2 opacity-60">·</span>
+          <a href="https://wa.me/34626434316?text=Hola%2C%20me%20interesa%20una%20tienda%20online%20con%20Logic2B%20Ecommerce." class="underline underline-offset-4 hover:opacity-80">WhatsApp 626 434 316</a>
+          <span aria-hidden="true" class="mx-2 opacity-60">·</span>
+          <span class="font-normal text-background/70 print:text-muted-foreground">Logic2B, Castellón · logic2b.com</span>
         </p>
       </section>
-    </main>
-
-    <footer class="border-t border-black/5 print:hidden">
-      <div class="mx-auto flex max-w-4xl flex-wrap items-center justify-between gap-2 px-5 py-6 text-sm text-stone-500">
-        <p>© 2026 Logic2B · Castellón</p>
-        <p>
-          <a href="/" class="hover:text-ink">Inicio</a> ·
-          <a href="/arquitectura" class="hover:text-ink">Cómo funciona</a> ·
-          <a href="/temas" class="hover:text-ink">Estilos</a> ·
-          <a href={MAIN_DEMO_HREF} class="hover:text-ink">Demo de tienda</a> ·
-          <a href="/demo/admin" class="hover:text-ink">Panel demo</a>
-        </p>
-      </div>
-    </footer>
-    <div class="print:hidden"><ProjectDialog /></div>
-  </div>
+    </div>
+  </main>
 
   <style>
     /* Impresión: papel limpio, sin sombras ni fondos, tinta negra */
@@ -535,4 +498,4 @@ const jsonLd = [
       }
     }
   </style>
-</Base>
+</Landing>

@@ -1,0 +1,56 @@
+---
+/**
+ * Pie compartido de las páginas comerciales — el MISMO en todas, incluida la
+ * portada (donde continúa el bloque oscuro de contacto: mismo fondo tinta).
+ * La lista de enlaces vive en lib/nav.ts (footerNav): un solo menú, un solo
+ * sitio donde tocarlo.
+ */
+import { footerNav } from '../lib/nav';
+---
+
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    <p>© 2026 Logic2B · Castellón</p>
+    <nav aria-label="Mapa del sitio">
+      {footerNav.map((link) => <a href={link.href}>{link.label}</a>)}
+    </nav>
+  </div>
+</footer>
+
+<style>
+  /* Mismo lienzo que el cierre de la portada: tinta #181d26 (--air-ink). */
+  .site-footer {
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+    background: #181d26;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.875rem;
+  }
+  /* El mismo carril que la cabecera: 1440px + gutter clamp(24px,4vw,32px). */
+  .site-footer-inner {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem 1.5rem;
+    width: min(100%, 1440px);
+    margin-inline: auto;
+    padding: 1.5rem clamp(24px, 4vw, 32px);
+  }
+  .site-footer nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem 1.1rem;
+  }
+  .site-footer a {
+    transition: color 150ms ease;
+  }
+  .site-footer a:hover {
+    color: #ffffff;
+  }
+  /* El dossier se imprime: el pie es navegación, no papel. */
+  @media print {
+    .site-footer {
+      display: none;
+    }
+  }
+</style>

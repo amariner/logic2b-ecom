@@ -1,0 +1,241 @@
+---
+/**
+ * Shell de las páginas COMERCIALES (arquitectura, temas, precios, dossier,
+ * confirmación, 404): cabecera + pie + diálogo de proyecto + el lenguaje
+ * visual de la portada, en un solo sitio.
+ *
+ * La portada NO lo usa: es la referencia (con anuncio, héroe animado y su
+ * propia hoja) y su LCP está afinado al milímetro. Este layout replica sus
+ * valores exactos (--air-*) para que el resto del sitio se lea como ella.
+ */
+import Base from './Base.astro';
+import SiteHeader from '../components/SiteHeader.astro';
+import HeaderActions from '../components/HeaderActions.astro';
+import SiteFooter from '../components/SiteFooter.astro';
+import ProjectDialog from '../components/ProjectDialog.astro';
+import { landingNav } from '../lib/nav';
+
+interface Props {
+  title: string;
+  description?: string | undefined;
+  noindex?: boolean | undefined;
+  canonicalPath?: string | undefined;
+  jsonLd?: object[] | undefined;
+  /** href del enlace activo del menú (se resalta en la cabecera). */
+  activeHref?: string | undefined;
+}
+
+const { title, description, noindex, canonicalPath, jsonLd, activeHref } = Astro.props;
+---
+
+<Base
+  title={title}
+  description={description}
+  noindex={noindex}
+  canonicalPath={canonicalPath}
+  jsonLd={jsonLd}
+  preloadDisplayFont
+>
+  <div class="commercial-page">
+    <SiteHeader homeHref="/" wordmark="Logic2B Ecommerce" splitBrand nav={landingNav} activeHref={activeHref}>
+      <Fragment slot="actions"><HeaderActions /></Fragment>
+    </SiteHeader>
+    <slot />
+    <SiteFooter />
+    <ProjectDialog />
+  </div>
+</Base>
+
+<style is:global>
+  /* ── El lenguaje comercial, calcado de la portada ──────────────────────────
+     Mismos valores que .airtable-landing en index.astro: si se toca uno aquí,
+     tocarlo también allí (la portada mantiene su hoja propia por rendimiento). */
+  .commercial-page {
+    --c-ink: #181d26;
+    --c-muted: #525965;
+    --c-border: #e0e2e6;
+    --c-blue: #1b61c9;
+
+    /* Los tokens semánticos del sistema, tintados al lienzo comercial: las
+       utilidades (text-foreground, border-border, bg-muted…) heredan estos
+       valores aquí dentro, igual que los temas de la demo pisan :root. */
+    --background: #ffffff;
+    --foreground: var(--c-ink);
+    --card: #ffffff;
+    --card-foreground: var(--c-ink);
+    --muted: #f5f6f8;
+    --muted-foreground: var(--c-muted);
+    --border: var(--c-border);
+    --primary: var(--c-ink);
+    --primary-foreground: #ffffff;
+
+    display: flex;
+    min-height: 100vh;
+    flex-direction: column;
+    overflow-x: clip;
+    background: #ffffff;
+    color: var(--c-ink);
+  }
+  .commercial-page > main {
+    width: 100%;
+    flex: 1 0 auto;
+  }
+
+  /* Carril del contenido = el de la cabecera (y logic2b.com). */
+  .commercial-page .page-shell {
+    width: min(100%, 1440px);
+    margin-inline: auto;
+    padding-inline: clamp(24px, 4vw, 32px);
+  }
+
+  /* Titulares en Space Grotesk, como los h1/h2 de la portada. El color no se
+     fija aquí: lo hereda cada superficie (las secciones oscuras lo ponen). */
+  .commercial-page :is(h1, h2, h3, summary) {
+    font-family: 'Space Grotesk', 'Inter Variable', 'Inter Fallback', sans-serif;
+    letter-spacing: -0.035em;
+  }
+  .commercial-page h1 {
+    letter-spacing: -0.045em;
+  }
+
+  /* Héroe de página: kicker + titular + entradilla, el patrón de la portada. */
+  .commercial-page .page-hero {
+    padding-top: clamp(3.5rem, 7vw, 6rem);
+    padding-bottom: clamp(2.5rem, 5vw, 4.5rem);
+  }
+  .commercial-page .page-hero h1 {
+    max-width: 52rem;
+    margin-top: 1.4rem;
+    font-size: clamp(2.8rem, 5.8vw, 5rem);
+    line-height: 0.98;
+  }
+  .commercial-page .page-hero h1 span {
+    color: #8a9099;
+  }
+  .commercial-page .page-lead {
+    max-width: 39rem;
+    margin-top: 1.75rem;
+    color: var(--c-muted);
+    font-size: clamp(1rem, 1.5vw, 1.2rem);
+    line-height: 1.6;
+  }
+
+  .commercial-page .page-kicker {
+    color: var(--c-muted);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  /* Acentos del lenguaje: enlace azul, número/dato azul, check verde. */
+  .commercial-page .text-link {
+    color: var(--c-blue);
+    font-weight: 500;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    transition: color 150ms ease;
+  }
+  .commercial-page .text-link:hover {
+    color: #14488f;
+  }
+  .commercial-page .accent-blue {
+    color: #254fad;
+  }
+  .commercial-page .tick {
+    color: #47752d;
+    font-weight: 800;
+  }
+
+  /* Tarjeta-capítulo cielo (una de las superficies de color de la portada). */
+  .commercial-page .chapter-sky {
+    border-radius: 1.5rem;
+    background: #c7e5f2;
+    color: #17386f;
+  }
+
+  /* Cabecera: mismos retoques que aplica la portada sobre SiteHeader. */
+  .commercial-page > header {
+    border-color: var(--c-border) !important;
+    background: rgba(255, 255, 255, 0.92) !important;
+    box-shadow: 0 8px 24px rgba(15, 48, 106, 0.06);
+  }
+  .commercial-page > header nav {
+    gap: 1rem;
+    font-size: 0.75rem;
+  }
+  .commercial-page > header .wordmark .wm-agency,
+  .commercial-page > header .wordmark .wm-product {
+    color: var(--c-ink);
+  }
+
+  /* Diálogo «Iniciar proyecto»: el mismo tratamiento oscuro de la portada. */
+  .commercial-page dialog {
+    border-color: rgba(255, 255, 255, 0.13);
+    background: #001013;
+    color: white;
+    box-shadow: 0 30px 90px rgba(0, 0, 0, 0.4);
+  }
+  .commercial-page dialog::backdrop {
+    background: rgba(0, 16, 19, 0.68);
+    backdrop-filter: blur(7px);
+  }
+  .commercial-page dialog h2 {
+    color: white;
+  }
+  .commercial-page dialog .text-muted-foreground {
+    color: rgba(255, 255, 255, 0.64) !important;
+  }
+  .commercial-page dialog input,
+  .commercial-page dialog select,
+  .commercial-page dialog textarea {
+    border-color: rgba(255, 255, 255, 0.22) !important;
+    background: rgba(255, 255, 255, 0.08) !important;
+    color: white !important;
+  }
+  .commercial-page dialog input::placeholder,
+  .commercial-page dialog textarea::placeholder {
+    color: rgba(255, 255, 255, 0.56) !important;
+  }
+  .commercial-page dialog label {
+    color: rgba(255, 255, 255, 0.85);
+  }
+  .commercial-page dialog option {
+    color: var(--c-ink);
+  }
+  .commercial-page dialog button[type='submit'] {
+    background: white !important;
+    color: var(--c-ink) !important;
+  }
+
+  @media (max-width: 700px) {
+    .commercial-page > header > div {
+      gap: 0.5rem;
+      padding-inline: 1rem;
+    }
+    .commercial-page > header .ml-auto {
+      min-width: 0;
+    }
+    .commercial-page > header .wordmark .wm-agency,
+    .commercial-page > header .wordmark .wm-product {
+      font-size: 0.92rem;
+    }
+    .commercial-page > header [data-open-project] {
+      display: none;
+    }
+    .commercial-page :is(h1, h2) {
+      overflow-wrap: anywhere;
+    }
+    .commercial-page .page-hero h1 {
+      font-size: clamp(2.3rem, 11vw, 3.25rem);
+      line-height: 1.02;
+    }
+  }
+
+  /* El dossier se imprime (Ctrl/Cmd+P): cabecera fuera del papel. */
+  @media print {
+    .commercial-page > header {
+      display: none !important;
+    }
+  }
+</style>
