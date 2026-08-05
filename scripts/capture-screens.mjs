@@ -241,7 +241,9 @@ const DEMO_CART = JSON.stringify([
 // Superficies de panel (admin, con cookie). Recortadas al área útil (sin banner).
 const PANEL_SHOTS = [
   { name: 'panel-orders', url: '/demo/admin', vp: DESKTOP, auth: true, full: true, maxH: 1500, group: 'desktop', card: true },
-  { name: 'panel-order-detail', url: '/demo/admin/pedidos/3', vp: DESKTOP, auth: true, full: true, maxH: 2000, group: 'desktop', card: true },
+  // El ID autoincremental cambia al regenerar fixtures; resolvemos el enlace
+  // desde el listado por número de pedido para que la captura nunca caduque.
+  { name: 'panel-order-detail', url: '/demo/admin', followOrderNumber: 'BM-DEMO-1003', vp: DESKTOP, auth: true, full: true, maxH: 2000, group: 'desktop', card: true },
   { name: 'panel-products', url: '/demo/admin/productos', vp: DESKTOP, auth: true, full: true, maxH: 1500, group: 'desktop' },
   { name: 'panel-shipping', url: '/demo/admin/envios', vp: DESKTOP, auth: true, full: true, maxH: 1400, group: 'desktop' },
   { name: 'panel-emails', url: '/demo/admin/emails', vp: DESKTOP, auth: true, full: true, maxH: 1600, group: 'desktop', card: true },
@@ -435,6 +437,16 @@ async function main() {
     await S('Page.navigate', { url: shot.url.startsWith('http') ? shot.url : BASE + shot.url });
     await sleep(400);
     await S('Runtime.evaluate', { expression: SETTLE_JS, awaitPromise: true, returnByValue: true }).catch(() => {});
+    if (shot.followOrderNumber) {
+      const { result } = await S('Runtime.evaluate', {
+        expression: `Array.from(document.querySelectorAll('a')).find((a) => a.textContent?.trim() === ${JSON.stringify(shot.followOrderNumber)})?.href ?? ''`,
+        returnByValue: true,
+      });
+      if (!result.value) throw new Error(`No se encontró el pedido ${shot.followOrderNumber} para ${shot.name}`);
+      await S('Page.navigate', { url: result.value });
+      await sleep(400);
+      await S('Runtime.evaluate', { expression: SETTLE_JS, awaitPromise: true, returnByValue: true }).catch(() => {});
+    }
     if (shot.eval) await S('Runtime.evaluate', { expression: shot.eval, awaitPromise: true }).catch(() => {});
     await S('Runtime.evaluate', { expression: HIDE_DEMO_CHROME });
     if (typeof shot.scrollY === 'number') {
