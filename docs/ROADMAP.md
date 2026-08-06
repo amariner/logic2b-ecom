@@ -1362,6 +1362,8 @@ faltaba, sin tocar el motor ni alargar `docs/CLIENTE.md`.
 - Verificado con `pnpm check` (29 suites, 205 tests), E2E 27/27 y panel a 1440 /
   375: 14 superficies, 0 errores y 0 avisos de accesibilidad. Sin migraciones,
   dependencias ni cambios en dinero, stock o copy comercial.
+- Desplegado en producción; E2E remoto 27/27 y webhook comercial de la demo
+  cerrado con 410 antes de verificar firma o tocar D1.
 
 ### Siguiente bloque
 

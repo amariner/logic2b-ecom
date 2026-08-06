@@ -300,8 +300,9 @@ Entrega cerrada:
 4. catálogo, pedidos (lectura), fulfillment, outbox y contacto salen de SQL en
    presentación hacia casos de uso y adaptadores D1; la allowlist baja de 18 a
    9 excepciones y `presentation-sql` de 13 a 4 archivos;
-5. verificación: `pnpm check` (29 suites, 205 tests), E2E 27/27 y auditoría del
-   panel en 14 superficies con 0 errores y 0 avisos;
+5. verificación: `pnpm check` (29 suites, 205 tests), E2E 27/27 local y remoto,
+   auditoría del panel en 14 superficies con 0 errores/avisos y webhook demo
+   cerrado con 410;
 6. sin migraciones, dependencias, cambios de dinero/stock ni nueva promesa.
 
 ## 6. Siguiente bloque
