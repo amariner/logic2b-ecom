@@ -3,8 +3,8 @@
  * ============================================================================
  *
  * La landing vende «100/100 Lighthouse». Esto es lo que lo comprueba, y lo que
- * hay que volver a pasar tras cada deploy que toque `/`, `/arquitectura`,
- * `/temas` o `/dossier` (checklist del rol SEO).
+ * hay que volver a pasar tras cada deploy que toque una página indexable
+ * (checklist del rol SEO).
  *
  * Por qué `npx lighthouse@12` y no una devDependency: Lighthouse arrastra ~200
  * paquetes para algo que se ejecuta a mano tres veces al mes. Se descarga en el
@@ -42,11 +42,13 @@ const RUNS = Number(args.find((a) => a.startsWith('--runs='))?.slice('--runs='.l
 const ONLY = args.find((a) => a.startsWith('--only='))?.slice('--only='.length);
 const WRITE = args.includes('--write');
 
-/** Las 4 indexables. Sin barra final: es la forma canónica del sitio. */
+/** Páginas indexables. Sin barra final: es la forma canónica del sitio. */
 const PAGES = [
   { id: 'home', path: '/', label: 'Landing' },
   { id: 'arquitectura', path: '/arquitectura', label: 'Arquitectura' },
   { id: 'estilos', path: '/temas', label: 'Estilos' },
+  { id: 'precios', path: '/precios', label: 'Precios' },
+  { id: 'agencias', path: '/agencias', label: 'Agencias' },
   { id: 'dossier', path: '/dossier', label: 'Dossier' },
 ];
 const FORMS = ['mobile', 'desktop'];

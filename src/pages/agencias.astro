@@ -1,0 +1,480 @@
+---
+import Landing from '../layouts/Landing.astro';
+import ProjectForm from '../components/ProjectForm.astro';
+
+const responsibilities = [
+  {
+    owner: 'Tu agencia',
+    title: 'La relación y la dirección',
+    intro: 'Sigues siendo la cara del proyecto y quien mejor conoce al cliente.',
+    items: [
+      'Relación comercial y dirección de la cuenta',
+      'Estrategia, contenidos y validaciones de negocio',
+      'Diseño visual, si forma parte de vuestro servicio',
+      'Presentación del proyecto y marketing posterior',
+    ],
+  },
+  {
+    owner: 'Logic2B',
+    title: 'El producto y la parte técnica',
+    intro: 'Construimos detrás de vuestra marca y seguimos ahí después de publicar.',
+    items: [
+      'Alcance, arquitectura y desarrollo ecommerce',
+      'Catálogo, pagos, envíos, emails y panel',
+      'Rendimiento, accesibilidad y SEO técnico',
+      'Despliegue, documentación y mantenimiento',
+    ],
+  },
+] as const;
+
+const process = [
+  {
+    n: '01',
+    title: 'Encaje',
+    body: 'Revisamos catálogo, operativa, diseño e integraciones. Separamos lo que ya cubre el motor de lo que necesita trabajo específico.',
+  },
+  {
+    n: '02',
+    title: 'Propuesta',
+    body: 'Recibes alcance, entregables, responsabilidades, hitos y mantenimiento en un formato que puedes incorporar a tu propia propuesta.',
+  },
+  {
+    n: '03',
+    title: 'Construcción',
+    body: 'Trabajamos con versiones navegables y revisamos el recorrido completo: catálogo, compra, confirmación y gestión, también en móvil.',
+  },
+  {
+    n: '04',
+    title: 'Entrega',
+    body: 'Publicamos, documentamos y formamos al equipo. Si lo acordamos, continuamos como soporte técnico de marca blanca.',
+  },
+] as const;
+
+const deliverables = [
+  ['Una tienda que parece del cliente', 'Marca, interfaz y recorrido adaptados; nada de un panel de plantilla asomando por detrás.'],
+  ['Un motor que ya llega probado', 'La base común resuelve catálogo, carrito, pago, envíos y operación sin empezar de cero.'],
+  ['Una entrega que no secuestra', 'Código y datos del proyecto, documentación y cuentas críticas bajo el control acordado.'],
+  ['Un equipo que puede continuar', 'Mantenimiento y evolución con alcance y nivel de asistencia definidos por proyecto.'],
+] as const;
+
+const fit = [
+  'Quieres ofrecer ecommerce a medida sin incorporar un equipo técnico permanente.',
+  'Tu cliente valora diseño, velocidad, SEO técnico y propiedad del código.',
+  'Buscáis lanzar una primera versión clara y hacerla crecer por fases.',
+  'Hay responsables para validar catálogo, contenidos y operativa.',
+] as const;
+
+const noFit = [
+  'Solo buscas revender una plantilla sin análisis ni adaptación.',
+  'El alcance crítico todavía no está definido, pero la fecha es inamovible.',
+  'Necesitas intervenir sobre una plataforma existente sin asumir su deuda técnica.',
+  'El proyecto exige una operación compleja sin una fase previa de descubrimiento.',
+] as const;
+
+const faqs = [
+  {
+    q: '¿El cliente final tiene que saber que participa Logic2B?',
+    a: 'No. En una colaboración de marca blanca la agencia mantiene la relación y Logic2B trabaja detrás. Solo participamos en reuniones o aparecemos en materiales si la agencia lo decide.',
+  },
+  {
+    q: '¿Podéis trabajar con un diseño creado por nuestra agencia?',
+    a: 'Sí. Podemos implementar un diseño completo o trabajar desde la identidad y la dirección creativa. Antes de empezar revisamos que estén resueltos todos los estados del ecommerce, no solo la portada.',
+  },
+  {
+    q: '¿Quién mantiene la tienda después del lanzamiento?',
+    a: 'Puede hacerlo Logic2B también en marca blanca. El canal, el alcance y los tiempos de respuesta se fijan en la propuesta de cada proyecto para que la agencia sepa exactamente qué puede prometer.',
+  },
+  {
+    q: '¿Tenéis una tarifa cerrada para partners?',
+    a: 'Todavía no publicamos una tarifa genérica. Cada proyecto separa construcción, trabajo específico y mantenimiento; la agencia conoce su coste antes de presentar y decide su margen y precio final.',
+  },
+  {
+    q: '¿De quién son el código y las cuentas?',
+    a: 'El código y los datos se entregan con el proyecto. El dominio, los pagos y las cuentas críticas quedan a nombre del cliente o bajo el control acordado con la agencia; la colaboración no debe crear dependencia artificial.',
+  },
+] as const;
+
+const jsonLd = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'Service',
+    name: 'Desarrollo ecommerce en marca blanca para agencias',
+    description:
+      'Servicio de desarrollo y mantenimiento ecommerce en marca blanca para agencias de diseño, marketing y comunicación.',
+    provider: { '@type': 'Organization', name: 'Logic2B', url: 'https://logic2b.com' },
+    areaServed: 'ES',
+    serviceType: 'Desarrollo ecommerce white label para agencias',
+    audience: {
+      '@type': 'BusinessAudience',
+      audienceType: 'Agencias de diseño, marketing, branding y comunicación',
+    },
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faqs.map((faq) => ({
+      '@type': 'Question',
+      name: faq.q,
+      acceptedAnswer: { '@type': 'Answer', text: faq.a },
+    })),
+  },
+];
+---
+
+<Landing
+  title="Desarrollo ecommerce marca blanca para agencias | Logic2B"
+  description="Tu agencia lleva al cliente; Logic2B construye y mantiene el ecommerce detrás de tu marca. Desarrollo white label, código a medida y un proceso claro."
+  canonicalPath="/agencias"
+  activeHref="/agencias"
+  jsonLd={jsonLd}
+  ogImagePath="/images/og-agencias.jpg?v=1"
+  ogImageAlt="Desarrollo ecommerce en marca blanca para agencias — Logic2B"
+>
+  <main>
+    <section class="page-hero page-shell agency-hero">
+      <div>
+        <p class="page-kicker">Ecommerce white label</p>
+        <h1>Tu agencia gana el proyecto.<br /><span>Nosotros lo construimos.</span></h1>
+        <p class="page-lead">
+          Desarrollo y mantenimiento ecommerce en marca blanca para agencias que
+          quieren entregar producto a medida sin montar un equipo técnico propio.
+        </p>
+        <div class="agency-hero-actions">
+          <a href="#contacto" data-open-project class="agency-primary">Hablar de un proyecto <span aria-hidden="true">→</span></a>
+          <a href="#proceso" class="agency-secondary">Ver cómo trabajamos</a>
+        </div>
+      </div>
+      <aside class="agency-brief" aria-label="Resumen del modelo de colaboración">
+        <p>La colaboración, sin letra pequeña</p>
+        <dl>
+          <div><dt>Relación</dt><dd>La mantiene tu agencia</dd></div>
+          <div><dt>Marca</dt><dd>100 % blanca si lo pides</dd></div>
+          <div><dt>Técnica</dt><dd>La resolvemos de principio a fin</dd></div>
+          <div><dt>Activos</dt><dd>El código y los datos se entregan</dd></div>
+        </dl>
+      </aside>
+    </section>
+
+    <section class="agency-proof" aria-label="Principios del servicio">
+      <div class="page-shell">
+        <p><span aria-hidden="true">01</span> Marca blanca real</p>
+        <p><span aria-hidden="true">02</span> Motor probado</p>
+        <p><span aria-hidden="true">03</span> Código del proyecto</p>
+        <p><span aria-hidden="true">04</span> Continuidad técnica</p>
+      </div>
+    </section>
+
+    <section class="agency-section page-shell responsibilities" aria-labelledby="responsibilities-title">
+      <div class="agency-heading">
+        <p class="page-kicker">Un equipo, dos especialidades</p>
+        <h2 id="responsibilities-title">Cada parte hace lo que mejor sabe.</h2>
+        <p>Nos integramos en vuestro proceso sin competir por la cuenta ni duplicar conversaciones.</p>
+      </div>
+      <div class="responsibility-grid">
+        {responsibilities.map((column) => (
+          <article>
+            <p class="card-owner">{column.owner}</p>
+            <h3>{column.title}</h3>
+            <p class="card-intro">{column.intro}</p>
+            <ul>{column.items.map((item) => <li><span aria-hidden="true">✓</span>{item}</li>)}</ul>
+          </article>
+        ))}
+      </div>
+    </section>
+
+    <section id="proceso" class="agency-process">
+      <div class="page-shell">
+        <div class="agency-heading process-heading">
+          <p class="page-kicker">El proceso</p>
+          <h2>Visible para la agencia.<br />Invisible para el cliente.</h2>
+          <p>Sin cajas negras: sabes qué se está resolviendo y qué necesitas validar en cada momento.</p>
+        </div>
+        <ol class="process-grid">
+          {process.map((step) => (
+            <li>
+              <span>{step.n}</span>
+              <h3>{step.title}</h3>
+              <p>{step.body}</p>
+            </li>
+          ))}
+        </ol>
+      </div>
+    </section>
+
+    <section class="agency-section page-shell deliverables" aria-labelledby="deliverables-title">
+      <div class="agency-heading">
+        <p class="page-kicker">Lo que recibe el proyecto</p>
+        <h2 id="deliverables-title">A medida por fuera.<br />Sólido por dentro.</h2>
+      </div>
+      <div class="deliverable-grid">
+        {deliverables.map(([title, body], index) => (
+          <article>
+            <span aria-hidden="true">0{index + 1}</span>
+            <h3>{title}</h3>
+            <p>{body}</p>
+          </article>
+        ))}
+      </div>
+    </section>
+
+    <section class="white-label-band">
+      <div class="page-shell white-label-inner">
+        <div>
+          <p class="page-kicker">Marca blanca de verdad</p>
+          <h2>Tu cliente ve tu agencia<br />y su propia marca.</h2>
+        </div>
+        <div>
+          <p>
+            Tienda, panel, emails y documentación pueden entregarse sin presencia
+            de Logic2B. Participamos delante del cliente solo cuando tú lo decides.
+          </p>
+          <p>
+            Y no convertimos la discreción en dependencia: el código, los datos y
+            las cuentas críticas quedan bajo el control acordado para el proyecto.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="agency-section page-shell fit-section" aria-labelledby="fit-title">
+      <div class="agency-heading">
+        <p class="page-kicker">Encaje honesto</p>
+        <h2 id="fit-title">Sabemos cuándo decir sí.<br />Y cuándo no.</h2>
+      </div>
+      <div class="fit-grid">
+        <article>
+          <p class="fit-label is-positive">Encajamos si…</p>
+          <ul>{fit.map((item) => <li><span aria-hidden="true">✓</span>{item}</li>)}</ul>
+        </article>
+        <article>
+          <p class="fit-label">No somos la opción si…</p>
+          <ul>{noFit.map((item) => <li><span aria-hidden="true">×</span>{item}</li>)}</ul>
+        </article>
+      </div>
+      <p class="fit-note">Un proyecto grande no queda fuera por tamaño. Entra por análisis y propuesta a medida, no forzando el alcance del motor base.</p>
+    </section>
+
+    <section class="agency-section page-shell faq-section" aria-labelledby="faq-title">
+      <div class="agency-heading">
+        <p class="page-kicker">Preguntas de partner</p>
+        <h2 id="faq-title">Lo importante, antes de presentar.</h2>
+      </div>
+      <div class="agency-faq">
+        {faqs.map((faq) => (
+          <details>
+            <summary>{faq.q}<span aria-hidden="true">+</span></summary>
+            <p>{faq.a}</p>
+          </details>
+        ))}
+      </div>
+    </section>
+
+    <section id="contacto" class="agency-contact">
+      <div class="page-shell agency-contact-inner">
+        <div>
+          <p class="page-kicker">Primer proyecto</p>
+          <h2>Cuéntanos qué necesita tu cliente.</h2>
+          <p>
+            Con el sector, el catálogo aproximado, el estado del diseño y la fecha
+            objetivo podemos empezar por las preguntas correctas.
+          </p>
+          <p class="contact-note">Sin tarifas públicas de partner: primero alcance claro, después una propuesta que puedas integrar en la tuya.</p>
+        </div>
+        <ProjectForm idPrefix="agency" source="agencias" inverted />
+      </div>
+    </section>
+  </main>
+</Landing>
+
+<style is:global>
+  .commercial-page .agency-hero {
+    display: grid;
+    grid-template-columns: minmax(0, 1.35fr) minmax(300px, 0.65fr);
+    gap: clamp(2.5rem, 6vw, 6rem);
+    align-items: end;
+  }
+  .commercial-page .agency-hero h1 { max-width: 58rem; }
+  .commercial-page .agency-hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .75rem;
+    margin-top: 2rem;
+  }
+  .commercial-page .agency-primary,
+  .commercial-page .agency-secondary {
+    display: inline-flex;
+    min-height: 3rem;
+    align-items: center;
+    justify-content: center;
+    gap: .65rem;
+    border-radius: var(--r-btn);
+    padding: .8rem 1.15rem;
+    font-size: .9rem;
+    font-weight: 700;
+  }
+  .commercial-page .agency-primary { background: var(--c-ink); color: white; }
+  .commercial-page .agency-primary:hover { background: #303640; }
+  .commercial-page .agency-secondary { border: 1px solid var(--c-border); color: var(--c-ink); }
+  .commercial-page .agency-secondary:hover { background: var(--muted); }
+  .commercial-page .agency-brief {
+    border: 1px solid var(--c-border);
+    border-radius: 1.5rem;
+    background: #f5f6f8;
+    padding: clamp(1.4rem, 3vw, 2rem);
+  }
+  .commercial-page .agency-brief > p {
+    font-size: .75rem;
+    font-weight: 800;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+  }
+  .commercial-page .agency-brief dl { margin-top: 1.25rem; }
+  .commercial-page .agency-brief dl div {
+    display: grid;
+    grid-template-columns: 5.25rem 1fr;
+    gap: 1rem;
+    padding-block: .9rem;
+    border-top: 1px solid var(--c-border);
+  }
+  .commercial-page .agency-brief dt { color: var(--c-muted); font-size: .8rem; }
+  .commercial-page .agency-brief dd { font-weight: 650; line-height: 1.35; }
+  .commercial-page .agency-proof { border-block: 1px solid var(--c-border); }
+  .commercial-page .agency-proof .page-shell {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+  .commercial-page .agency-proof p {
+    display: flex;
+    min-height: 5rem;
+    align-items: center;
+    gap: .7rem;
+    padding: 1rem;
+    border-right: 1px solid var(--c-border);
+    font-size: .82rem;
+    font-weight: 700;
+  }
+  .commercial-page .agency-proof p:first-child { border-left: 1px solid var(--c-border); }
+  .commercial-page .agency-proof span { color: #254fad; font-size: .7rem; }
+  .commercial-page .agency-section { padding-block: clamp(4.5rem, 8vw, 7rem); }
+  .commercial-page .agency-heading { max-width: 47rem; }
+  .commercial-page .agency-heading h2,
+  .commercial-page .process-heading h2,
+  .commercial-page .white-label-inner h2,
+  .commercial-page .agency-contact h2 {
+    margin-top: .9rem;
+    font-size: clamp(2.25rem, 4.7vw, 4.4rem);
+    line-height: 1.02;
+  }
+  .commercial-page .agency-heading > p:last-child,
+  .commercial-page .process-heading > p:last-child {
+    max-width: 38rem;
+    margin-top: 1.25rem;
+    color: var(--c-muted);
+    line-height: 1.65;
+  }
+  .commercial-page .responsibility-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+    margin-top: 3rem;
+  }
+  .commercial-page .responsibility-grid article {
+    border: 1px solid var(--c-border);
+    border-radius: 1.5rem;
+    padding: clamp(1.5rem, 3vw, 2.25rem);
+  }
+  .commercial-page .responsibility-grid article:last-child { background: #c7e5f2; border-color: transparent; color: #17386f; }
+  .commercial-page .card-owner { color: #254fad; font-size: .7rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; }
+  .commercial-page .responsibility-grid h3 { margin-top: .75rem; font-size: clamp(1.5rem, 2.7vw, 2.2rem); }
+  .commercial-page .card-intro { max-width: 30rem; margin-top: .75rem; color: var(--c-muted); line-height: 1.55; }
+  .commercial-page .responsibility-grid article:last-child .card-intro { color: #31517f; }
+  .commercial-page .responsibility-grid ul { display: grid; gap: .85rem; margin-top: 2rem; }
+  .commercial-page .responsibility-grid li { display: grid; grid-template-columns: 1.1rem 1fr; gap: .55rem; line-height: 1.45; }
+  .commercial-page .responsibility-grid li span { color: #47752d; font-weight: 900; }
+  .commercial-page .agency-process { background: #f5f6f8; padding-block: clamp(4.5rem, 8vw, 7rem); }
+  .commercial-page .process-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    margin-top: 3.5rem;
+    border-top: 1px solid var(--c-border);
+  }
+  .commercial-page .process-grid li { padding: 1.6rem 1.4rem 0 0; border-right: 1px solid var(--c-border); }
+  .commercial-page .process-grid li + li { padding-left: 1.4rem; }
+  .commercial-page .process-grid li:last-child { border-right: 0; }
+  .commercial-page .process-grid span { color: #254fad; font-size: .72rem; font-weight: 800; }
+  .commercial-page .process-grid h3 { margin-top: 2.75rem; font-size: 1.45rem; }
+  .commercial-page .process-grid p { margin-top: .75rem; color: var(--c-muted); font-size: .92rem; line-height: 1.6; }
+  .commercial-page .deliverable-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0;
+    margin-top: 3rem;
+    border-top: 1px solid var(--c-border);
+    border-left: 1px solid var(--c-border);
+  }
+  .commercial-page .deliverable-grid article { min-height: 15rem; padding: 1.75rem; border-right: 1px solid var(--c-border); border-bottom: 1px solid var(--c-border); }
+  .commercial-page .deliverable-grid span { color: #254fad; font-size: .72rem; font-weight: 800; }
+  .commercial-page .deliverable-grid h3 { max-width: 25rem; margin-top: 3.5rem; font-size: clamp(1.35rem, 2.6vw, 2rem); }
+  .commercial-page .deliverable-grid p { max-width: 31rem; margin-top: .8rem; color: var(--c-muted); line-height: 1.6; }
+  .commercial-page .white-label-band { background: #181d26; color: white; padding-block: clamp(4.5rem, 8vw, 7rem); }
+  .commercial-page .white-label-inner { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(280px, .9fr); gap: clamp(2.5rem, 7vw, 7rem); align-items: start; }
+  .commercial-page .white-label-inner .page-kicker { color: #a9c6f4; }
+  .commercial-page .white-label-inner h2 { color: white; }
+  .commercial-page .white-label-inner > div:last-child { display: grid; gap: 1.25rem; padding-top: .4rem; color: rgba(255,255,255,.72); font-size: 1.05rem; line-height: 1.7; }
+  .commercial-page .fit-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; margin-top: 3rem; }
+  .commercial-page .fit-grid article { border: 1px solid var(--c-border); border-radius: 1.5rem; padding: clamp(1.5rem, 3vw, 2.25rem); }
+  .commercial-page .fit-label { font-size: .75rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+  .commercial-page .fit-label.is-positive { color: #47752d; }
+  .commercial-page .fit-grid ul { display: grid; gap: 1rem; margin-top: 1.5rem; }
+  .commercial-page .fit-grid li { display: grid; grid-template-columns: 1rem 1fr; gap: .7rem; line-height: 1.55; }
+  .commercial-page .fit-grid li span { font-weight: 900; }
+  .commercial-page .fit-grid article:first-child li span { color: #47752d; }
+  .commercial-page .fit-note { max-width: 51rem; margin: 1.5rem auto 0; color: var(--c-muted); font-size: .88rem; line-height: 1.55; text-align: center; }
+  .commercial-page .faq-section { display: grid; grid-template-columns: minmax(260px, .72fr) minmax(0, 1.28fr); gap: clamp(2.5rem, 7vw, 7rem); }
+  .commercial-page .agency-faq { border-top: 1px solid var(--c-border); }
+  .commercial-page .agency-faq details { border-bottom: 1px solid var(--c-border); }
+  .commercial-page .agency-faq summary { display: flex; min-height: 4.5rem; cursor: pointer; list-style: none; align-items: center; justify-content: space-between; gap: 1rem; padding-block: 1.1rem; font-size: 1.05rem; font-weight: 700; }
+  .commercial-page .agency-faq summary::-webkit-details-marker { display: none; }
+  .commercial-page .agency-faq summary span { color: #254fad; font-size: 1.4rem; transition: transform 150ms ease; }
+  .commercial-page .agency-faq details[open] summary span { transform: rotate(45deg); }
+  .commercial-page .agency-faq details > p { max-width: 47rem; padding: 0 2.5rem 1.5rem 0; color: var(--c-muted); line-height: 1.65; }
+  .commercial-page .agency-contact { background: #001013; color: white; padding-block: clamp(4.5rem, 8vw, 7rem); }
+  .commercial-page .agency-contact-inner { display: grid; grid-template-columns: minmax(0, .85fr) minmax(320px, 1.15fr); gap: clamp(2.5rem, 7vw, 7rem); align-items: start; }
+  .commercial-page .agency-contact .page-kicker { color: #9ac6bc; }
+  .commercial-page .agency-contact h2 { color: white; }
+  .commercial-page .agency-contact-inner > div > p:not(.page-kicker) { max-width: 34rem; margin-top: 1.25rem; color: rgba(255,255,255,.7); line-height: 1.65; }
+  .commercial-page .agency-contact .contact-note { padding-top: 1.25rem; border-top: 1px solid rgba(255,255,255,.16); font-size: .85rem; }
+
+  @media (max-width: 900px) {
+    .commercial-page .agency-hero,
+    .commercial-page .white-label-inner,
+    .commercial-page .faq-section,
+    .commercial-page .agency-contact-inner { grid-template-columns: 1fr; }
+    .commercial-page .agency-proof .page-shell,
+    .commercial-page .process-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .commercial-page .agency-proof p:nth-child(3) { border-left: 1px solid var(--c-border); }
+    .commercial-page .agency-proof p:nth-child(-n+2) { border-bottom: 1px solid var(--c-border); }
+    .commercial-page .process-grid li:nth-child(2) { border-right: 0; }
+    .commercial-page .process-grid li:nth-child(n+3) { margin-top: 2rem; border-top: 1px solid var(--c-border); }
+    .commercial-page .process-grid li:nth-child(3) { padding-left: 0; }
+  }
+  @media (max-width: 640px) {
+    .commercial-page .agency-hero-actions { display: grid; }
+    .commercial-page .agency-proof .page-shell,
+    .commercial-page .responsibility-grid,
+    .commercial-page .process-grid,
+    .commercial-page .deliverable-grid,
+    .commercial-page .fit-grid { grid-template-columns: 1fr; }
+    .commercial-page .agency-proof p { border-right: 1px solid var(--c-border); border-bottom: 1px solid var(--c-border); border-left: 1px solid var(--c-border); }
+    .commercial-page .agency-proof p:last-child { border-bottom: 0; }
+    .commercial-page .process-grid li,
+    .commercial-page .process-grid li + li { margin-top: 0; padding: 1.5rem 0; border-top: 0; border-right: 0; border-bottom: 1px solid var(--c-border); }
+    .commercial-page .process-grid h3 { margin-top: 1.5rem; }
+    .commercial-page .deliverable-grid { border-left: 0; }
+    .commercial-page .deliverable-grid article { min-height: 0; padding-inline: 0; border-right: 0; }
+    .commercial-page .deliverable-grid h3 { margin-top: 2rem; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .commercial-page .agency-faq summary span { transition: none; }
+  }
+</style>

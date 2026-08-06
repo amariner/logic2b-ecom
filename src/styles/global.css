@@ -280,6 +280,9 @@
   }
   .wordmark .wm-agency,
   .wordmark .wm-product {
+    display: inline-flex;
+    min-height: 44px;
+    align-items: center;
     font-family: 'Poppins Logo', 'Poppins', 'Poppins Fallback', var(--font-sans);
     font-size: clamp(1rem, 4.2vw, 1.2rem);
     font-weight: 600;

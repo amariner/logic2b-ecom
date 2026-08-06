@@ -12,6 +12,11 @@ pregunta «¿quién paga por esto y por qué?» antes de abrir el editor.
   *si hay que explicarle qué es un webhook, está mal hecho.*
 - **Escalera:** Lite (≤10 productos, sin construir — medir demanda) → Kit →
   Kit a medida. Análisis en `docs/LITE.md` y `docs/PLAN_FASE11_LANDING_V2.md` §6.
+- **Canal partner:** agencias de diseño, marketing, branding y comunicación
+  que necesitan entregar ecommerce sin equipo técnico propio. Logic2B trabaja
+  en marca blanca; la agencia conserva cliente, estrategia y margen. Los
+  proyectos grandes entran por análisis y propuesta a medida, nunca por una
+  promesa genérica que el motor base no sostenga.
 
 ## Responsabilidades en este repo
 

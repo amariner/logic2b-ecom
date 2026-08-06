@@ -212,6 +212,8 @@ const SITE_PAGES = [
   { id: 'landing', url: '/' },
   { id: 'arquitectura', url: '/arquitectura' },
   { id: 'estilos', url: '/temas' },
+  { id: 'precios', url: '/precios' },
+  { id: 'agencias', url: '/agencias' },
   { id: 'dossier', url: '/dossier' },
   { id: 'ayuda', url: '/ayuda' },
   { id: 'gracias', url: '/demo/gracias?session_id=sim_sess_BM-DEMO-1001' },

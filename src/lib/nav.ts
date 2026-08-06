@@ -19,6 +19,7 @@ export const landingNav = [
   { href: '/arquitectura', label: 'Cómo funciona' },
   { href: '/temas', label: 'Temas' },
   { href: '/precios', label: 'Precios' },
+  { href: '/agencias', label: 'Agencias' },
   { href: '/dossier', label: 'Dossier' },
 ] as const;
 

@@ -21,11 +21,13 @@ interface Props {
   noindex?: boolean | undefined;
   canonicalPath?: string | undefined;
   jsonLd?: object[] | undefined;
+  ogImagePath?: string | undefined;
+  ogImageAlt?: string | undefined;
   /** href del enlace activo del menú (se resalta en la cabecera). */
   activeHref?: string | undefined;
 }
 
-const { title, description, noindex, canonicalPath, jsonLd, activeHref } = Astro.props;
+const { title, description, noindex, canonicalPath, jsonLd, ogImagePath, ogImageAlt, activeHref } = Astro.props;
 ---
 
 <Base
@@ -34,6 +36,8 @@ const { title, description, noindex, canonicalPath, jsonLd, activeHref } = Astro
   noindex={noindex}
   canonicalPath={canonicalPath}
   jsonLd={jsonLd}
+  ogImagePath={ogImagePath}
+  ogImageAlt={ogImageAlt}
   preloadDisplayFont
 >
   <div class="commercial-page">

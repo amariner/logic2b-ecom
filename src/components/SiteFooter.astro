@@ -6,13 +6,19 @@
  * sitio donde tocarlo.
  */
 import { footerNav } from '../lib/nav';
+
+// Con build.format='file', Astro prerenderiza esta página como /ruta.html aunque
+// su URL canónica pública sea /ruta. Normalizar evita perder aria-current.
+const currentPath = Astro.url.pathname.replace(/\.html$/, '') || '/';
 ---
 
 <footer class="site-footer">
   <div class="site-footer-inner">
     <p>© 2026 Logic2B · Castellón</p>
     <nav aria-label="Mapa del sitio">
-      {footerNav.map((link) => <a href={link.href}>{link.label}</a>)}
+      {footerNav.map((link) => (
+        <a href={link.href} aria-current={link.href === currentPath ? 'page' : undefined}>{link.label}</a>
+      ))}
     </nav>
   </div>
 </footer>

@@ -15,6 +15,7 @@
  *
  * USO:
  *   node scripts/make-og.mjs            # → public/images/og.jpg
+ *   node scripts/make-og.mjs --agencias # → public/images/og-agencias.jpg
  *   node scripts/make-og.mjs --keep-png # deja el PNG intermedio para mirarlo
  *
  * AL REGENERARLA hay que subir el `?v=N` de `ogImage` en `src/layouts/Base.astro`:
@@ -39,6 +40,7 @@ const PUBLIC = join(ROOT, 'public');
 const CHROME =
   process.env.CHROME_BIN ?? '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
 const KEEP_PNG = process.argv.includes('--keep-png');
+const AGENCIES = process.argv.includes('--agencias');
 
 const W = 1200;
 const H = 630;
@@ -100,6 +102,24 @@ ${SHOWCASE.map((s, i) => `  <img class="s${i}" src="${f('images/screens/' + s)}"
 </div>
 `;
 
+/** Variante propia de /agencias: misma marca, mensaje y URL específicos. */
+const PAGE_HTML = AGENCIES
+  ? HTML
+      .replaceAll('#008060', '#254fad')
+      .replace(
+        'Tiendas radicalmente distintas.<b>Un motor probado. 0 €/mes.</b>',
+        'Tu agencia gana el proyecto.<b>Nosotros construimos el ecommerce.</b>',
+      )
+      .replace(
+        'Tu tienda online a medida, sin cuotas de plataforma.<br>Pagos con Stripe · Hecho en Castellón.',
+        'Desarrollo y mantenimiento en marca blanca.<br>Un equipo técnico detrás de tu agencia.',
+      )
+      .replace(
+        'ecom.logic2b.com — demo real navegable',
+        'ecom.logic2b.com/agencias — colaboración para partners',
+      )
+  : HTML;
+
 // ── CDP mínimo (mismo patrón que capture-screens.mjs) ──────────────────────
 class CDP {
   constructor(ws) {
@@ -159,7 +179,7 @@ async function launchChrome() {
 }
 
 const htmlPath = join(ROOT, '.wrangler', 'og-source.html');
-await writeFile(htmlPath, HTML);
+await writeFile(htmlPath, PAGE_HTML);
 
 const { child, wsUrl } = await launchChrome();
 try {
@@ -182,8 +202,9 @@ try {
   await sleep(1200); // fuente + 3 WebP locales
 
   const { data } = await cdp.send('Page.captureScreenshot', { format: 'png' });
-  const png = join(PUBLIC, 'images/og.png');
-  const jpg = join(PUBLIC, 'images/og.jpg');
+  const basename = AGENCIES ? 'og-agencias' : 'og';
+  const png = join(PUBLIC, `images/${basename}.png`);
+  const jpg = join(PUBLIC, `images/${basename}.jpg`);
   await writeFile(png, Buffer.from(data, 'base64'));
   // 1200×630 exactos y JPEG: WhatsApp descarta previews pesadas, y `sips`
   // (sistema) evita meter un procesador de imagen como dependencia.
@@ -191,7 +212,7 @@ try {
   await execFileP('sips', ['-s', 'format', 'jpeg', '-s', 'formatOptions', '72', png, '--out', jpg]);
   if (!KEEP_PNG) await rm(png, { force: true });
   const { size } = await stat(jpg);
-  console.log(`✓ public/images/og.jpg — ${W}×${H}, ${(size / 1024).toFixed(0)} KB`);
+  console.log(`✓ public/images/${basename}.jpg — ${W}×${H}, ${(size / 1024).toFixed(0)} KB`);
   if (size > 300 * 1024) console.log('⚠ por encima de 300 KB: WhatsApp puede no previsualizarla');
 } finally {
   child.kill();

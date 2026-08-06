@@ -62,7 +62,7 @@ reconciliación se conserva abajo por contexto.
 | 10 | Documentación para el cliente | 🟡 Casi completa | 2026-07-24 | **Ejecutada como F11.7** (ver Fase 11): `/ayuda` (noindex) con manual de 3 pasos + guías + runbook, acta de entrega e inventario de accesos en `docs/plantillas/`, dossier con «qué pasa si nos vamos», guion del vídeo. Pendiente: grabar el vídeo (Andreu) y confirmar las decisiones a/b/c asumidas |
 | 11 | Landing V2 «nivel Awwwards» + negocio + funnel + docs | 🟡 En curso | 2026-07-24 | **F11.1, F11.3 (2 sesiones), F11.4, F11.5, F11.6, F11.7 y F11.8 (primera pasada + pase a11y/contenido desde cloud 2026-07-24) hechos**, más F11.8b (auditor de a11y, cloud), F11.2a-1 (tienda ASFALTO / tema Street), F11.2a-2 (tienda METRIA / tema Industrial) F11.2a-3 (tienda ROMER / tema Natural) y **F11.2a-4 (tienda KALIBRE / tema Specs, local 2026-07-25) — con la que F11.2a queda CERRADA (10/10 tiendas)**; y **F11.8c (Lighthouse citable + OG de WhatsApp + URLs sin redirección, local 2026-07-26)**; y **F11.8d–e (tabla de Lighthouse cerrada y desplegada: 7 de 8 superficies a 100×4, la landing entre ellas en móvil y escritorio, local 2026-07-27)**; de la cola de F11.8 solo queda la submission a Awwwards (decisión de pago: Andreu). Detalle por bloque abajo. (ver «Fase 11» abajo). **Plan maestro completo en [`docs/PLAN_FASE11_LANDING_V2.md`](PLAN_FASE11_LANDING_V2.md)**: bloques F11.0–F11.8 ejecutables por sesiones independientes. **Decisiones D1–D6 APROBADAS por Andreu (2026-07-23)**: JS propio ≤15 KB sin deps, capturas con browser tools en local, dirección C «Ocho tiendas, un motor», escalera de precios (Lite 590 / Kit 1.900+39 / A medida 3.400+59), WhatsApp+email, Lite publicado sin construir. Prompt de arranque: [`docs/PROMPT_FASE11.md`](PROMPT_FASE11.md). Integra 9B.5/9B.6 (imaginería y temas restantes) como prerequisito del hero |
 | 8 | Pulido de la demo (backlog abajo) | 🟡 En curso | 2026-07-19 | Backlog técnico agotado; solo quedan decisiones y pasos locales de Andreu (ver «Decisiones pendientes» y `docs/PROMPT_CLOUD.md`). Últimas tandas: novena (race de idempotencia en el pago, PII enumerable en `/demo/gracias`, cancelación de pedido pagado sin devolver stock), décima (la misma race en el PATCH de admin, campos vacíos guardados como 0, login sin rate limit), undécima (diagrama móvil de `/arquitectura`, hedge del plazo de entrega, tokens de tema en `/demo/reset`, terminología «envío»), duodécima (aviso de corte en pedidos del admin, cabeceras sin wrap a 375px, leftover «portes», token de radio del carrito, contraste del botón eliminar, H1 en valenciano, checklist de producción) y decimotercera (misma race de idempotencia en `checkout.session.expired`, divisa hardcodeada a EUR fuera de Stripe, cobertura de test de `quoteCart`/PATCH admin/emails) y decimocuarta (config parcial de Stripe → cobro sin cumplimiento, emails duplicados bajo concurrencia, `payment_status` del webhook, color de marca centralizado en `shop.config.ts`, contraste/tema en carrito y checkout) — ver sección «Fase 8» |
-| 12 | Logic2B Ecommerce: renombrado, reposicionamiento y docs de dos visiones | 🟡 Planificada | 2026-07-28 | **Mandato de Andreu (2026-07-28)**: renombrado a **Logic2B Ecommerce**, argumento de venta reposicionado (a medida fácil · MVP que crece sin migrar · equipo, no plataforma · detrás está Logic2B) y documentación para dos visiones (CEO/agencia y gestor). **Plan maestro en [`docs/PLAN_FASE12_LOGIC2B_ECOMMERCE.md`](PLAN_FASE12_LOGIC2B_ECOMMERCE.md)**: bloques F12.0–F12.6, decisiones D7/D8 en la mesa de Andreu. Ver «Fase 12» abajo |
+| 12 | Logic2B Ecommerce: renombrado, reposicionamiento y docs de dos visiones | 🟡 En curso | 2026-08-06 | **F12.0–F12.4 cerrados:** renombrado, nuevo argumento en landing/dossier y canal agencias en marca blanca con documento + `/agencias`. Quedan F12.5 (gestor) y F12.6 (consolidación). **Plan maestro en [`docs/PLAN_FASE12_LOGIC2B_ECOMMERCE.md`](PLAN_FASE12_LOGIC2B_ECOMMERCE.md)**. |
 
 ## Repo y entornos
 
@@ -126,7 +126,7 @@ tienda conservan su radio propio. Bloques, un bloque por sesión:
 | F12.1 | Renombrado LogicEcom → Logic2B Ecommerce (22 ficheros, wordmark, OG, JSON-LD, docs) | ✅ 2026-07-28 — desplegado (entrada abajo) |
 | F12.2 | La landing cuenta el argumento nuevo (hero P1 + frase estrella, sección nueva «crece sin migrar» P2, precios reencuadrados P3/D7, franja P4, FAQ+JSON-LD) | ✅ 2026-07-30 — en el repo; **deploy pendiente del OK de Andreu al copy** (entrada abajo) |
 | F12.3 | Dossier V2: business case para el decisor (camino MVP→escala, qué compra la mensualidad) | ✅ 2026-07-30 — en el repo; **deploy pendiente del OK de Andreu al copy** (entrada abajo) |
-| F12.4 | La visión de la agencia: `docs/AGENCIAS.md` + página `/agencias` (D8: GO, con marca blanca) | ⬜ |
+| F12.4 | La visión de la agencia: `docs/AGENCIAS.md` + página `/agencias` (D8: GO, con marca blanca) | ✅ 2026-08-06 — documento, página indexable, OG propia y conversión; entrada abajo |
 | F12.5 | La visión del gestor ampliada: `/ayuda` con escenarios reales y «tu primer mes» | ⬜ |
 | F12.6 | Consolidación: barridos completos, Lighthouse en producción, OG, índice `docs/README.md` por audiencia | ⬜ |
 
@@ -1254,10 +1254,14 @@ bloquear el primer texto por debajo de 640 px (fallback métrico, LCP 1,0–1,1 
 
 ### Siguiente bloque
 
-Retomar **F12.4 — página para agencias / marca blanca**, respetando la nueva
-frontera: cualquier demo que se enseñe será local y el panel siempre usará
-fixtures independientes. Si la sesión toca UI, repetir auditor a11y y revisión
-visual; si toca una página indexable, Lighthouse después del deploy.
+Antes de F12.5, cerrar **C15.2 — recuperar el verde global de accesibilidad de
+la portada renovada**. El barrido de F12.4 encontró 28 hallazgos repetidos en
+escritorio, 375 y reduced-motion (84 en total) más un aviso táctil: textos de
+los SVG cuya superficie el auditor no interpreta, contrastes reales en las
+tarjetas/escala y el foco del email del hero. `/agencias`, `/precios`, el resto
+de páginas, las tiendas y el panel están verdes. Hay que separar falsos
+positivos de fallos reales, corregir ambos sin rebajar la batería y repetir las
+169 superficies. Después, retomar **F12.5 — visión del gestor en `/ayuda`**.
 
 ### Cola F12 conservada (retomar después de C14 o cuando el bloque lo indique)
 
@@ -1321,6 +1325,41 @@ gestor). **Plan maestro completo en
   2. El **panel lateral deslizante de producto** que pedían Natural y Specs
      sigue siendo candidato a registro nuevo del motor (hoy la ficha la sirve
      Base para los 10 temas). No entra en una sesión de tema.
+
+### F12.4 — canal agencias y desarrollo ecommerce en marca blanca (2026-08-06, sesión local)
+
+La tercera audiencia ya tiene una propuesta completa: agencias de diseño,
+marketing, branding y comunicación que quieren vender ecommerce a medida sin
+incorporar un equipo técnico permanente.
+
+- **`docs/AGENCIAS.md`:** modelo operativo completo — reparto agencia/Logic2B,
+  encaje y propuesta, construcción, lanzamiento, materiales necesarios,
+  entregables, límites y condiciones comerciales. Marca blanca real: tienda,
+  panel, emails y documentación pueden salir sin Logic2B; código, datos y
+  cuentas críticas quedan bajo el control acordado. Sin tarifas partner ni SLA
+  inventados: se fijan por proyecto.
+- **`/agencias`:** página indexable orientada a «desarrollo ecommerce marca
+  blanca para agencias», con H1 propio, reparto de responsabilidades, proceso,
+  entregables, encaje honesto, FAQ y formulario existente de captación. Cero
+  dependencias y cero cambios en el motor.
+- **SEO completo desde el nacimiento:** canonical, `Service` + `FAQPage` en
+  JSON-LD, navegación y sitemap compartidos, metadatos sociales y tarjeta OG
+  específica de 1200×630 (120 KB), reproducible con
+  `node scripts/make-og.mjs --agencias`. El layout acepta ahora tarjeta y alt
+  específicos sin romper el fallback general.
+- **Cobertura:** `/agencias` y la página de precios entran en el auditor; ambas
+  entran también en Lighthouse. El pie normaliza las rutas `.html` de la
+  prerenderización para marcar el enlace actual, y el wordmark partido alcanza
+  el mínimo táctil móvil sin cambiar su aspecto.
+- **Verificado:** `pnpm check` (174/174 tests, 0 errores de tipos, build verde),
+  `/agencias` a 1440 y 375 sin overflow, auditor 2/2 superficies sin errores ni
+  avisos y Lighthouse local 100/100/100/100 en móvil y escritorio (LCP 1,5 s y
+  0,4 s; CLS/TBT 0).
+- **Deuda encontrada, no ocultada:** el barrido global de 169 superficies deja
+  tiendas, panel y todas las páginas salvo la landing en verde, pero la portada
+  renovada aporta 28 hallazgos repetidos en tres perfiles más un aviso táctil.
+  Se convierte en C15.2 y va antes de F12.5. Dos avisos táctiles independientes
+  de Iris se corrigieron en esta misma pasada.
 
 ### F12.3 — Dossier V2: la visión del decisor (2026-07-30, sesión local)
 
