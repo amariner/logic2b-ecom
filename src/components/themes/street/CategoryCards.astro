@@ -44,9 +44,9 @@ const cards = CARDS.flatMap((card) => {
         <img class="street-cat__img" src={card.image} alt="" width="720" height="900" loading="lazy" />
         <div class="street-cat__body">
           <p class="street-cat__eyebrow">{card.eyebrow}</p>
-          <h3 class="street-cat__title">
+          <h2 class="street-cat__title">
             <a class="street-cat__link" href={`${paths.catalog}?categoria=${card.categoryId}`}>{card.label}</a>
-          </h3>
+          </h2>
         </div>
       </li>
     ))}

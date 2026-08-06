@@ -54,9 +54,6 @@ const sampleFiles = new Set(
 const hasSample = (sample: string | null): boolean => Boolean(sample) && sampleFiles.has(sample!);
 
 const styles = demoThemes.filter((t) => t.id !== defaultTheme.id);
-// Solo cuenta los temas QUE SE VEN en esta página (Base queda fuera de la
-// lista, así que tampoco entra en el recuento de desarrollados).
-const readyCount = styles.filter((t) => t.status === 'ready').length;
 
 const layoutLabels: Record<string, string> = {
   // rejilla
@@ -101,118 +98,17 @@ const jsonLd = [
     <main>
       <!-- Héroe -->
       <section class="page-hero page-shell">
-        <p class="page-kicker">
-          {styles.length} direcciones visuales · {readyCount} desarrollada{readyCount === 1 ? '' : 's'}
-        </p>
+        <p class="page-kicker">{styles.length} tiendas · un solo motor</p>
         <h1>
           Tu tienda no tiene por qué parecerse a <span>ninguna otra</span>.
         </h1>
         <p class="page-lead">
-          «A medida» suena caro y abstracto. Esto es lo que significa en concreto:
-          {' '}{styles.length} direcciones visuales completas, cada una pensada para un tipo
-          de comercio distinto. Eliges la que más se parece a lo que tienes en la
-          cabeza y la adaptamos a tu marca.
-        </p>
-      </section>
-
-      <!-- Qué cambia y qué no -->
-      <section class="border-y border-border bg-muted/40">
-        <div class="page-shell grid gap-8 py-12 sm:grid-cols-2">
-          <div>
-            <h2 class="font-display text-xl">Lo que cambia con el tema</h2>
-            <p class="mt-3 text-sm leading-relaxed text-muted-foreground">
-              La rejilla del catálogo, la densidad, el tratamiento de cada ficha de
-              producto, la tipografía de los titulares, la forma de los botones, dónde
-              vive la navegación y cómo se filtra. Es decir: <strong class="text-foreground">todo
-              lo que tu cliente ve</strong>.
-            </p>
-          </div>
-          <div>
-            <h2 class="font-display text-xl">Lo que nunca cambia</h2>
-            <p class="mt-3 text-sm leading-relaxed text-muted-foreground">
-              El motor. Pagos con Stripe, cálculo de portes, control de stock, panel de
-              pedidos, emails y exportación a Packlink son <strong class="text-foreground">exactamente
-              los mismos</strong> en todos los temas. Elegir diseño no cambia lo que la
-              tienda hace, ni su fiabilidad, ni su precio.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      <!-- Guía para elegir tema (árbol corto, sin jerga) -->
-      <section aria-labelledby="guia-h" class="page-shell pt-14 sm:pt-20">
-        <h2 id="guia-h" class="font-display text-2xl sm:text-3xl">¿No sabes por dónde empezar? Tres preguntas</h2>
-        <div class="mt-6 grid gap-5 lg:grid-cols-3">
-          <div class="rounded-2xl border border-border bg-card p-6">
-            <p class="font-semibold">1 · ¿Tu producto entra por la foto o por los datos?</p>
-            <p class="mt-2 text-sm leading-relaxed text-muted-foreground">
-              Si vende la imagen (interiorismo, moda, cosmética, café), busca un tema que
-              deje respirar la foto. Si venden las características (técnica, componentes,
-              herramienta), busca fichas densas y comparables.
-            </p>
-            <p class="mt-3 text-sm"><span class="text-muted-foreground">Por la foto → </span>
-              <a href="#tema-minimal" class="font-medium underline underline-offset-2">Minimal</a>,
-              <a href="#tema-editorial" class="font-medium underline underline-offset-2">Editorial</a>,
-              <a href="#tema-iris" class="font-medium underline underline-offset-2">Iris</a>,
-              <a href="#tema-natural" class="font-medium underline underline-offset-2">Natural</a>
-            </p>
-            <p class="mt-1 text-sm"><span class="text-muted-foreground">Por los datos → </span>
-              <a href="#tema-specs" class="font-medium underline underline-offset-2">Specs</a>,
-              <a href="#tema-industrial" class="font-medium underline underline-offset-2">Industrial</a>,
-              <a href="#tema-launch" class="font-medium underline underline-offset-2">Launch</a>
-            </p>
-          </div>
-          <div class="rounded-2xl border border-border bg-card p-6">
-            <p class="font-semibold">2 · ¿Cuántas referencias vas a vender?</p>
-            <p class="mt-2 text-sm leading-relaxed text-muted-foreground">
-              No es lo mismo presentar un producto estrella que ordenar cien. La rejilla y
-              la densidad del tema deben ir con el tamaño real de tu catálogo.
-            </p>
-            <p class="mt-3 text-sm"><span class="text-muted-foreground">Uno o pocos (1–10) → </span>
-              <a href="#tema-launch" class="font-medium underline underline-offset-2">Launch</a>,
-              <a href="#tema-guide" class="font-medium underline underline-offset-2">Guide</a>
-            </p>
-            <p class="mt-1 text-sm"><span class="text-muted-foreground">Catálogo medio (10–40) → </span>
-              <a href="#tema-editorial" class="font-medium underline underline-offset-2">Editorial</a>,
-              <a href="#tema-minimal" class="font-medium underline underline-offset-2">Minimal</a>,
-              <a href="#tema-iris" class="font-medium underline underline-offset-2">Iris</a>
-            </p>
-            <p class="mt-1 text-sm"><span class="text-muted-foreground">Completo (50 o más) → </span>
-              <a href="#tema-natural" class="font-medium underline underline-offset-2">Natural</a>,
-              <a href="#tema-street" class="font-medium underline underline-offset-2">Street</a>,
-              <a href="#tema-industrial" class="font-medium underline underline-offset-2">Industrial</a>
-            </p>
-          </div>
-          <div class="rounded-2xl border border-border bg-card p-6">
-            <p class="font-semibold">3 · ¿Qué tono tiene tu marca?</p>
-            <p class="mt-2 text-sm leading-relaxed text-muted-foreground">
-              El tema debe sonar como hablas tú con tus clientes: no le pongas un
-              escaparate de laboratorio a una marca cercana, ni uno juguetón a una técnica.
-            </p>
-            <p class="mt-3 text-sm"><span class="text-muted-foreground">Sobrio y técnico → </span>
-              <a href="#tema-industrial" class="font-medium underline underline-offset-2">Industrial</a>,
-              <a href="#tema-specs" class="font-medium underline underline-offset-2">Specs</a>,
-              <a href="#tema-launch" class="font-medium underline underline-offset-2">Launch</a>
-            </p>
-            <p class="mt-1 text-sm"><span class="text-muted-foreground">Cálido y cercano → </span>
-              <a href="#tema-natural" class="font-medium underline underline-offset-2">Natural</a>,
-              <a href="#tema-guide" class="font-medium underline underline-offset-2">Guide</a>
-            </p>
-            <p class="mt-1 text-sm"><span class="text-muted-foreground">Con carácter → </span>
-              <a href="#tema-street" class="font-medium underline underline-offset-2">Street</a>,
-              <a href="#tema-iris" class="font-medium underline underline-offset-2">Iris</a>,
-              <a href="#tema-editorial" class="font-medium underline underline-offset-2">Editorial</a>
-            </p>
-          </div>
-        </div>
-        <p class="mt-4 text-sm text-muted-foreground">
-          Y si sales con dos o tres candidatos, mejor: entra en sus tiendas de muestra y
-          quédate con la que te dé envidia tener.
+          Elige un punto de partida. Nosotros lo adaptamos a tu marca.
         </p>
       </section>
 
       <!-- Rejilla de temas -->
-      <section class="page-shell py-14 sm:py-20">
+      <section class="page-shell pb-14 pt-4 sm:pb-20 sm:pt-8">
         <ul class="grid gap-8 sm:grid-cols-2">
           {styles.map((theme, i) => (
             <li id={`tema-${theme.id}`} class="flex scroll-mt-24 flex-col overflow-hidden rounded-2xl border border-border bg-card">
@@ -267,12 +163,12 @@ const jsonLd = [
               </div>
 
               <div class="flex flex-1 flex-col p-6">
-                <h3
+                <h2
                   class="font-display text-2xl"
                   style={`letter-spacing: ${theme.vars['--tracking-display']}; font-weight: ${theme.vars['--weight-display']};`}
                 >
                   {theme.label}
-                </h3>
+                </h2>
                 <p class="mt-2 text-sm leading-relaxed text-muted-foreground">{theme.hint}</p>
 
                 <p class="mt-4 text-xs font-medium uppercase tracking-wide text-muted-foreground">

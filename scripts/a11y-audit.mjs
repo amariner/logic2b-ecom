@@ -257,6 +257,9 @@ const AUDIT_JS = String.raw`(() => {
     if (!el.isConnected) return false;
     const cs = getComputedStyle(el);
     if (cs.display === 'none' || cs.visibility === 'hidden' || cs.contentVisibility === 'hidden') return false;
+    // La clase sr-only sigue en el árbol accesible, pero está recortada y no pinta
+    // píxeles. No debe participar en las reglas visuales de contraste.
+    if (cs.clipPath === 'inset(50%)' || cs.clip === 'rect(0px, 0px, 0px, 0px)') return false;
     if (el.closest('[hidden]') || el.closest('[aria-hidden="true"]') || el.closest('[inert]')) return false;
     const r = el.getBoundingClientRect();
     return r.width > 0 && r.height > 0;
@@ -315,6 +318,18 @@ const AUDIT_JS = String.raw`(() => {
     b: fg.b * fg.a + bg.b * (1 - fg.a),
     a: 1,
   });
+  // Composición que conserva el alfa para acumular capas translúcidas hasta
+  // alcanzar el primer fondo realmente opaco.
+  const composite = (fg, bg) => {
+    const a = fg.a + bg.a * (1 - fg.a);
+    if (a <= 0) return { r: 0, g: 0, b: 0, a: 0 };
+    return {
+      r: (fg.r * fg.a + bg.r * bg.a * (1 - fg.a)) / a,
+      g: (fg.g * fg.a + bg.g * bg.a * (1 - fg.a)) / a,
+      b: (fg.b * fg.a + bg.b * bg.a * (1 - fg.a)) / a,
+      a,
+    };
+  };
   function lum(c) {
     const f = (v) => { const s = v / 255; return s <= 0.03928 ? s / 12.92 : Math.pow((s + 0.055) / 1.055, 2.4); };
     return 0.2126 * f(c.r) + 0.7152 * f(c.g) + 0.0722 * f(c.b);
@@ -333,7 +348,7 @@ const AUDIT_JS = String.raw`(() => {
       if (cs.backgroundImage && cs.backgroundImage !== 'none') return { color: null, image: true };
       const c = parseColor(cs.backgroundColor);
       if (c && c.a > 0) {
-        acc = acc ? over(acc, c) : c;
+        acc = acc ? composite(acc, c) : c;
         if (acc.a >= 0.999) return { color: acc, image: false };
       }
       node = node.parentElement;
@@ -353,6 +368,10 @@ const AUDIT_JS = String.raw`(() => {
   for (const el of document.querySelectorAll('body *')) {
     const t = ownText(el);
     if (!t || !visible(el)) continue;
+    // Un SVG con role=img es una imagen atómica: su aria-label es la
+    // alternativa. Sus rect/path de fondo son hermanos del texto, no
+    // ancestros, por lo que el DOM no permite calcular aquí su contraste.
+    if (el instanceof SVGElement && el.closest('svg[role="img"]')) continue;
     const cs = getComputedStyle(el);
     const fgRaw = parseColor(cs.color);
     if (!fgRaw) continue;

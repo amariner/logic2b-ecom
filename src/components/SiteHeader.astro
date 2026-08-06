@@ -166,13 +166,14 @@ const onHome = Astro.url.pathname === homeHref;
       align-items: center;
       justify-content: center;
       gap: 4px;
-      border: 1px solid var(--border);
-      border-radius: 999px;
-      background: var(--background);
+      padding: 0;
+      border: 0;
+      background: transparent;
       color: var(--foreground);
-      transition: background 150ms ease, border-color 150ms ease;
+      transition: opacity 150ms ease;
     }
-    .mobile-menu-toggle:hover { background: var(--muted); }
+    .mobile-menu-toggle:hover { opacity: .65; }
+    .mobile-menu-toggle:focus-visible { outline: 2px solid currentColor; outline-offset: 2px; }
     .mobile-menu-toggle span { width: 15px; height: 1.5px; background: currentColor; transition: transform 150ms ease, opacity 150ms ease; }
     .mobile-menu-toggle[aria-expanded='true'] span:nth-child(1) { transform: translateY(5.5px) rotate(45deg); }
     .mobile-menu-toggle[aria-expanded='true'] span:nth-child(2) { opacity: 0; }

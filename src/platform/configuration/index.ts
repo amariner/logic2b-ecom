@@ -1,0 +1,31 @@
+export {
+  CAPABILITY_DEFINITIONS,
+  CAPABILITY_IDS,
+  CONFIGURED_CAPABILITY_IDS,
+  type CapabilityConfigById,
+  type CapabilityDefinition,
+  type CapabilityId,
+  type ConfiguredCapabilityId,
+} from './capability-definitions';
+export {
+  CAPABILITY_FLAG_NAMES,
+  CAPABILITY_STATES,
+  CapabilityManifestError,
+  resolveCapabilityManifest,
+  validateCapabilityManifest,
+  type CapabilityFlagName,
+  type CapabilityFlags,
+  type CapabilityManifestEntries,
+  type CapabilityManifestEntry,
+  type CapabilityManifestInput,
+  type CapabilityManifestIssue,
+  type CapabilityManifestValidation,
+  type CapabilityPresetName,
+  type CapabilityState,
+  type DeploymentConfiguration,
+  type DeploymentEnvironment,
+  type DeploymentMode,
+  type ResolvedCapabilityEntry,
+  type ResolvedCapabilityManifest,
+} from './manifest';
+export { CAPABILITY_PRESETS, createPresetManifest } from './presets';

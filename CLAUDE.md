@@ -225,3 +225,44 @@ En **toda tarea sustantiva** (código, diseño, contenido, precios, docs):
    afectado (✓ / ⚠ con motivo y destino).
 
 Desempate entre roles: principios de §2 > producto vendible > estética.
+
+---
+
+## 17. FASE 13 — PLATAFORMA MODULAR (mandato 2026-08-06)
+
+Esta sección **amplía y sustituye el límite funcional de la v1 para el motor
+clonable**, sin cambiar la naturaleza de la demo pública.
+
+Andreu encarga evolucionar Logic2B Ecommerce desde el gestor mínimo hasta una
+plataforma de capacidad extrema: poder resolver operaciones equivalentes a las
+de las grandes plataformas mediante núcleo nativo, módulos activables,
+conectores o servicio gestionado. No se convierte en SaaS multiinquilino. Cada
+cliente conserva despliegue, base, secretos y observabilidad aislados, y su
+panel solo muestra lo que necesita.
+
+Fuentes de verdad obligatorias para todo trabajo F13:
+
+- `docs/plataforma/README.md` — tesis, estados y definición de paridad;
+- `docs/plataforma/MATRIZ_CAPACIDADES.md` — inventario canónico;
+- `docs/plataforma/ROADMAP.md` — orden de un bloque por sesión;
+- `docs/plataforma/WIKI_SEO.md` — documentación pública y reglas de verdad;
+- `docs/ROADMAP.md` — siguiente sesión e historia integrada.
+
+Reglas que permanecen intactas:
+
+- dinero, stock, impuestos y permisos se deciden en servidor;
+- tarjeta fuera de nuestros servidores;
+- TypeScript estricto, idempotencia, tests y accesibilidad;
+- una migración, dependencia, servicio con coste o nueva superficie PCI activa
+  los vetos del equipo;
+- ningún módulo añade rutas, navegación, tablas operativas o carga cognitiva al
+  permanecer desactivado;
+- el sitio público sigue aislado: escaparates locales y panel de fixtures de
+  solo lectura; las capacidades reales viven en el motor para despliegues de
+  cliente;
+- la wiki nunca presenta `pendiente` o `especificado` como disponible.
+
+El §14 «no inventes features fuera del alcance» pasa a significar: no saltes el
+orden del roadmap ni implementes capacidades ausentes de la matriz. Las 226
+capacidades identificadas sí forman parte del horizonte autorizado, sujetas a
+su prioridad, vía de entrega, puertas de decisión y bloque correspondiente.

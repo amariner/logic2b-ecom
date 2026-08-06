@@ -62,12 +62,51 @@ reconciliación se conserva abajo por contexto.
 | 10 | Documentación para el cliente | 🟡 Casi completa | 2026-07-24 | **Ejecutada como F11.7** (ver Fase 11): `/ayuda` (noindex) con manual de 3 pasos + guías + runbook, acta de entrega e inventario de accesos en `docs/plantillas/`, dossier con «qué pasa si nos vamos», guion del vídeo. Pendiente: grabar el vídeo (Andreu) y confirmar las decisiones a/b/c asumidas |
 | 11 | Landing V2 «nivel Awwwards» + negocio + funnel + docs | 🟡 En curso | 2026-07-24 | **F11.1, F11.3 (2 sesiones), F11.4, F11.5, F11.6, F11.7 y F11.8 (primera pasada + pase a11y/contenido desde cloud 2026-07-24) hechos**, más F11.8b (auditor de a11y, cloud), F11.2a-1 (tienda ASFALTO / tema Street), F11.2a-2 (tienda METRIA / tema Industrial) F11.2a-3 (tienda ROMER / tema Natural) y **F11.2a-4 (tienda KALIBRE / tema Specs, local 2026-07-25) — con la que F11.2a queda CERRADA (10/10 tiendas)**; y **F11.8c (Lighthouse citable + OG de WhatsApp + URLs sin redirección, local 2026-07-26)**; y **F11.8d–e (tabla de Lighthouse cerrada y desplegada: 7 de 8 superficies a 100×4, la landing entre ellas en móvil y escritorio, local 2026-07-27)**; de la cola de F11.8 solo queda la submission a Awwwards (decisión de pago: Andreu). Detalle por bloque abajo. (ver «Fase 11» abajo). **Plan maestro completo en [`docs/PLAN_FASE11_LANDING_V2.md`](PLAN_FASE11_LANDING_V2.md)**: bloques F11.0–F11.8 ejecutables por sesiones independientes. **Decisiones D1–D6 APROBADAS por Andreu (2026-07-23)**: JS propio ≤15 KB sin deps, capturas con browser tools en local, dirección C «Ocho tiendas, un motor», escalera de precios (Lite 590 / Kit 1.900+39 / A medida 3.400+59), WhatsApp+email, Lite publicado sin construir. Prompt de arranque: [`docs/PROMPT_FASE11.md`](PROMPT_FASE11.md). Integra 9B.5/9B.6 (imaginería y temas restantes) como prerequisito del hero |
 | 8 | Pulido de la demo (backlog abajo) | 🟡 En curso | 2026-07-19 | Backlog técnico agotado; solo quedan decisiones y pasos locales de Andreu (ver «Decisiones pendientes» y `docs/PROMPT_CLOUD.md`). Últimas tandas: novena (race de idempotencia en el pago, PII enumerable en `/demo/gracias`, cancelación de pedido pagado sin devolver stock), décima (la misma race en el PATCH de admin, campos vacíos guardados como 0, login sin rate limit), undécima (diagrama móvil de `/arquitectura`, hedge del plazo de entrega, tokens de tema en `/demo/reset`, terminología «envío»), duodécima (aviso de corte en pedidos del admin, cabeceras sin wrap a 375px, leftover «portes», token de radio del carrito, contraste del botón eliminar, H1 en valenciano, checklist de producción) y decimotercera (misma race de idempotencia en `checkout.session.expired`, divisa hardcodeada a EUR fuera de Stripe, cobertura de test de `quoteCart`/PATCH admin/emails) y decimocuarta (config parcial de Stripe → cobro sin cumplimiento, emails duplicados bajo concurrencia, `payment_status` del webhook, color de marca centralizado en `shop.config.ts`, contraste/tema en carrito y checkout) — ver sección «Fase 8» |
-| 12 | Logic2B Ecommerce: renombrado, reposicionamiento y docs de dos visiones | 🟡 En curso | 2026-08-06 | **F12.0–F12.4 cerrados:** renombrado, nuevo argumento en landing/dossier y canal agencias en marca blanca con documento + `/agencias`. Quedan F12.5 (gestor) y F12.6 (consolidación). **Plan maestro en [`docs/PLAN_FASE12_LOGIC2B_ECOMMERCE.md`](PLAN_FASE12_LOGIC2B_ECOMMERCE.md)**. |
+| 12 | Logic2B Ecommerce: renombrado, reposicionamiento y docs de dos visiones | 🟡 En curso | 2026-08-06 | **F12.0–F12.5 cerrados:** renombrado, nuevo argumento en landing/dossier, canal agencias en marca blanca y manual ampliado del gestor. Solo queda F12.6 (consolidación). **Plan maestro en [`docs/PLAN_FASE12_LOGIC2B_ECOMMERCE.md`](PLAN_FASE12_LOGIC2B_ECOMMERCE.md)**. |
+| 13 | Plataforma modular: del gestor mínimo a paridad extrema de capacidad | 🟡 En curso | 2026-08-06 | **R0, R1.1 y R1.2 cerrados:** investigación/matriz, arquitectura modular comprobable y capability manifest tipado con presets/validación. Siguiente: R1.3, rutas y navegación por capacidad. Fuente de verdad en [`docs/plataforma/`](plataforma/README.md). |
 
 ## Repo y entornos
 
 - GitHub: `https://github.com/amariner/logic2b-ecom` (rama `main`).
 - Cloudflare: **en producción** — Worker `ecom-logic2b` en https://ecom.logic2b.com, D1 remota `ecom-demo` (`7ae9b06d-3664-4790-a87c-04bb4c67e97a`), cron reset cada 6 h, cuenta marinerandreu@gmail.com.
+
+## Fase 13 — Plataforma modular y paridad de capacidad
+
+> Fuentes de verdad nuevas:
+> [`docs/plataforma/README.md`](plataforma/README.md) ·
+> [`INVESTIGACION_EDICIONES_2022_2026.md`](plataforma/INVESTIGACION_EDICIONES_2022_2026.md) ·
+> [`MATRIZ_CAPACIDADES.md`](plataforma/MATRIZ_CAPACIDADES.md) ·
+> [`ROADMAP.md`](plataforma/ROADMAP.md) ·
+> [`WIKI_SEO.md`](plataforma/WIKI_SEO.md) ·
+> [`PROMPT_FASE13.md`](PROMPT_FASE13.md).
+
+**Mandato de Andreu (2026-08-06):** conservar el backend mínimo como ventaja
+para cada comercio, pero escalar el motor hasta poder resolver con solvencia los
+mismos resultados de negocio que una plataforma de referencia: núcleo nativo,
+módulos activables, conectores o servicio gestionado. No se convierte en SaaS
+multiinquilino; cada cliente mantiene despliegue y datos aislados.
+
+La investigación recorrió las nueve ediciones públicas indicadas, normalizó
+aproximadamente 1.300 entradas de lanzamiento en 18 dominios y separó
+capacidades reales de anuncios regionales, iteraciones, hardware, financiación
+y servicios de terceros. La matriz resultante impide confundir «identificado»
+con «disponible» y la wiki solo podrá publicar una promesa respaldada por tests,
+una integración operativa o un alcance a medida explícito.
+
+El plan anterior permanece como historia y mantenimiento de la demo. **F12.6
+ya no bloquea el desarrollo del motor**: se conserva en el carril comercial y se
+cerrará cuando una sesión local ejecute sus auditorías de producción. El orden
+de producto pasa a la Fase 13 y se ejecuta un bloque R por sesión.
+
+### Estado F13
+
+| Bloque | Resultado | Estado |
+|---|---|---|
+| R0 | Investigación, taxonomía, matriz, roadmap y wiki SEO | ✅ 2026-08-06 |
+| R1.1 | ADR de arquitectura modular: dominios, dependencias, puertos/adaptadores y lifecycle de capacidades | ✅ 2026-08-06 — 5 ADRs + mapa + allowlist/check Vitest |
+| R1.2 | Capability manifest tipado, dependencias y presets sin UI | ✅ 2026-08-06 — 14 tests + config por despliegue + composition root puro |
+| R1.3 | Navegación y rutas por capacidad | ⬜ siguiente |
+| R1.4+ | Registro, eventos, outbox, audit log, observabilidad y resto de olas | ⬜ ver plan maestro |
 
 ## Fase 12 — Logic2B Ecommerce: renombrado, reposicionamiento y las dos visiones
 
@@ -127,7 +166,7 @@ tienda conservan su radio propio. Bloques, un bloque por sesión:
 | F12.2 | La landing cuenta el argumento nuevo (hero P1 + frase estrella, sección nueva «crece sin migrar» P2, precios reencuadrados P3/D7, franja P4, FAQ+JSON-LD) | ✅ 2026-07-30 — en el repo; **deploy pendiente del OK de Andreu al copy** (entrada abajo) |
 | F12.3 | Dossier V2: business case para el decisor (camino MVP→escala, qué compra la mensualidad) | ✅ 2026-07-30 — en el repo; **deploy pendiente del OK de Andreu al copy** (entrada abajo) |
 | F12.4 | La visión de la agencia: `docs/AGENCIAS.md` + página `/agencias` (D8: GO, con marca blanca) | ✅ 2026-08-06 — documento, página indexable, OG propia y conversión; desplegado (entrada abajo) |
-| F12.5 | La visión del gestor ampliada: `/ayuda` con escenarios reales y «tu primer mes» | ⬜ |
+| F12.5 | La visión del gestor ampliada: `/ayuda` con escenarios reales y «tu primer mes» | ✅ 2026-08-06 — backend mínimo, 10 escenarios y rutina del primer mes; entrada abajo |
 | F12.6 | Consolidación: barridos completos, Lighthouse en producción, OG, índice `docs/README.md` por audiencia | ⬜ |
 
 ## Fase 11 — Landing V2, negocio, funnel y docs
@@ -1252,16 +1291,76 @@ Desplegado en producción y repetido el E2E 27/27 contra
 100/100/100/100 móvil y escritorio; para recuperar el 100 móvil, Inter deja de
 bloquear el primer texto por debajo de 640 px (fallback métrico, LCP 1,0–1,1 s).
 
+### C15.2 — verde global de accesibilidad de la portada — ✅ cerrado 2026-08-06
+
+La portada pasa de 84 errores repetidos + 1 aviso a cero hallazgos en sus tres
+perfiles, y el barrido global queda en **0 errores · 0 avisos · 169
+superficies**.
+
+- **Auditor corregido sin rebajar la batería:** ya no mide como texto visible
+  los labels `sr-only`; compone correctamente varias capas translúcidas hasta
+  el fondo opaco; y trata los SVG con `role="img"` como imágenes atómicas con
+  alternativa accesible. Sus `<rect>` y `<text>` son hermanos en el orden de
+  pintura, así que fingir un fondo DOM producía 19 falsos «blanco sobre blanco»
+  por perfil.
+- **Hallazgos reales corregidos:** foco visible del email del hero, área táctil
+  del anuncio y contraste AA en la escala, las tres tarjetas de demo y la
+  matriz Logic2B. El paso azul del flujo recibe una tinta más oscura.
+- **Higiene global:** los seis avisos restantes eran saltos `h1 → h3` en las
+  tarjetas de Street y Launch; pasan a `h2` sin cambio visual.
+
+### F12.5 — la visión del gestor, ampliada — ✅ cerrado 2026-08-06
+
+`/ayuda` conserva el manual de tres pasos y gana la profundidad operativa que
+faltaba, sin tocar el motor ni alargar `docs/CLIENTE.md`.
+
+- **Backend mínimo explicado como ventaja:** el gestor lleva pedidos, envíos y
+  productos; dominio, impuestos, emails, diseño e integraciones corren de
+  nuestro lado. Lo fuera de lo normal se pide, no se resuelve instalando
+  añadidos.
+- **Runbook 6 → 10 escenarios:** diferencia reembolso antes de enviar y
+  devolución ya entregada (reposición manual), producto agotado que conserva
+  visitas, cambio seguro de precio, vacaciones y email en spam. El copy se
+  contrastó con las transiciones reales: cancelar un pedido pagado devuelve
+  stock; un pedido ya enviado no se puede cancelar desde el panel.
+- **«Tu primer mes»:** nada que vigilar cada día sin pedido, revisión semanal
+  de diez minutos, cierre mensual con señales reales y cuatro motivos claros
+  para escribirnos.
+- **Verificado:** `pnpm check` (174/174 tests, 0 errores de tipos, build verde),
+  `/ayuda` en escritorio y 375 sin hallazgos y barrido global 169/169 limpio.
+
+### R1.2 — capability manifest tipado — ✅ cerrado 2026-08-06
+
+- `platform.config.ts` declara el despliegue demo mediante el preset técnico
+  `minimal`; los perfiles `standard` y `advanced` quedan como fixtures
+  acumulativos, no como planes comerciales.
+- El contrato ejecutable fija seis estados, flags de rutas/navegación/jobs/
+  efectos, configuración sin secretos, dependencias y fallo temprano ante
+  combinaciones inválidas. Una demo no puede activar jobs ni efectos
+  comerciales.
+- `src/composition/create-platform.ts` materializa el composition root puro,
+  sin conectarlo todavía a Astro, D1, rutas, navegación o proveedores.
+- PLT-002 pasa a parcial. La allowlist no crece; `format.ts` conserva su deuda
+  hasta R1.12 porque retirarla ahora trasladaría el acoplamiento o exigiría un
+  refactor runtime fuera de corte.
+- Verificado con 14 tests específicos del manifest, 5 checks arquitectónicos y
+  `pnpm check` completo (28 suites, 193 tests, tipos y build), sin migraciones,
+  dependencias, UI ni deploy.
+
 ### Siguiente bloque
 
-Antes de F12.5, cerrar **C15.2 — recuperar el verde global de accesibilidad de
-la portada renovada**. El barrido de F12.4 encontró 28 hallazgos repetidos en
-escritorio, 375 y reduced-motion (84 en total) más un aviso táctil: textos de
-los SVG cuya superficie el auditor no interpreta, contrastes reales en las
-tarjetas/escala y el foco del email del hero. `/agencias`, `/precios`, el resto
-de páginas, las tiendas y el panel están verdes. Hay que separar falsos
-positivos de fallos reales, corregir ambos sin rebajar la batería y repetir las
-169 superficies. Después, retomar **F12.5 — visión del gestor en `/ayuda`**.
+**R1.3 — Navegación y rutas por capacidad.** Hacer que panel, endpoints y
+navegación consulten el manifest a través del composition root. Una capacidad
+inactiva debe desaparecer de navegación y responder 404/403 de forma coherente;
+una degradada conserva fallback seguro. Cubrir los tres presets sin cambiar
+esquema, dependencias ni contratos comerciales del preset activo. Plan y
+criterio completo en
+[`docs/plataforma/ROADMAP.md`](plataforma/ROADMAP.md#r13--navegación-y-rutas-por-capacidad).
+
+**F12.6 queda en el carril comercial, no bloquea R1.3.** Una sesión local de
+mantenimiento creará el índice general de docs, revisará OG y ejecutará
+Lighthouse contra producción en las indexables, incluidas `/precios` y
+`/agencias`.
 
 ### Cola F12 conservada (retomar después de C14 o cuando el bloque lo indique)
 

@@ -18,6 +18,7 @@ const toc = [
   ['envios', 'Los envíos y sus tarifas'],
   ['cuando', 'Qué hacer cuando…'],
   ['romper', 'Qué puedes tocar sin miedo (y qué no)'],
+  ['primer-mes', 'Tu primer mes con la tienda'],
 ] as const;
 
 const steps = [
@@ -51,7 +52,11 @@ const runbook = [
   },
   {
     q: 'Quiero devolver el dinero de un pedido',
-    a: 'Los cobros viven en Stripe: entra en tu panel de Stripe → Pagos → busca el pedido → «Reembolsar». Después, en tu panel, abre el pedido y márcalo como cancelado: el stock vuelve solo al catálogo. El orden importa: primero el dinero, luego el estado.',
+    a: 'Si todavía no lo has enviado: entra en Stripe → Pagos → busca el pedido → «Reembolsar». Después abre el pedido en tu panel y cancélalo; el stock vuelve solo al catálogo. El orden importa: primero el dinero, luego el estado.',
+  },
+  {
+    q: 'El cliente quiere devolver un producto que ya recibió',
+    a: 'Acordad primero cómo vuelve el paquete y quién paga ese envío, según tus condiciones de devolución. Cuando lo recibas y compruebes que está bien, devuelve el dinero desde Stripe. Como el pedido ya fue enviado, suma a mano en Productos las unidades que hayan vuelto en buen estado. Si la devolución es parcial o tienes dudas con el importe, escríbenos antes de reembolsar.',
   },
   {
     q: 'Un pedido lleva mucho rato en «Pendiente»',
@@ -67,23 +72,62 @@ const runbook = [
   },
   {
     q: 'Se ha agotado un producto',
-    a: 'No tienes que hacer nada: con stock 0 la web muestra «agotado» y no deja comprarlo. Cuando repongas, actualiza el stock en Productos y vuelve a estar a la venta al momento.',
+    a: 'No tienes que hacer nada: con stock 0 la ficha puede seguir recibiendo visitas, pero muestra «agotado» y no deja comprar. Déjala visible si vas a reponer; desactívala en Productos si ya no volverá. Cuando añadas stock, vuelve a estar a la venta al momento.',
+  },
+  {
+    q: 'Quiero cambiar un precio sin liarla',
+    a: 'En Productos, cambia solo el precio del artículo y guarda. Comprueba después su ficha en la tienda. El cambio afecta a las compras nuevas; los pedidos ya cobrados conservan el precio anterior. Si vas a cambiar muchos precios a la vez o preparar una promoción, pásanos la lista y lo hacemos contigo.',
+  },
+  {
+    q: 'Voy a cerrar por vacaciones',
+    a: 'Avísanos antes de anunciar las fechas. Podemos dejar un aviso claro, ampliar los plazos o detener temporalmente las compras, según lo que prefieras. No cambies las tarifas de envío para intentar cerrar la tienda: seguirían entrando pedidos de algunas zonas. Si solo dejas de vender un producto, sí puedes desactivarlo tú.',
+  },
+  {
+    q: 'Un email de la tienda llega a spam',
+    a: 'Ábrelo, márcalo como «No es spam» y guarda la dirección del remitente. Haz también una compra de prueba con otra dirección. Si varios clientes no reciben los avisos o todos van a spam, escríbenos: revisamos el envío de la tienda desde nuestro lado. No hace falta cambiar nada en el panel.',
   },
 ];
 
 const canTouch = [
+  'Pedidos: prepararlos, marcarlos como enviados y guardar su seguimiento.',
   'Precios y stock: en Productos, al momento. Los pedidos ya hechos conservan su precio.',
   'Activar o desactivar un producto (por ejemplo, fuera de temporada).',
   'Tarifas y umbral de envío gratis, en Envíos.',
-  'Estados de los pedidos y números de seguimiento.',
   'La copia de seguridad: descárgala de vez en cuando desde Pedidos. No rompe nada.',
 ];
 
 const askUs = [
   'Textos de las páginas (inicio, legales, condiciones): los cambiamos nosotros con tu mantenimiento.',
   'Fotos nuevas, categorías nuevas o secciones nuevas.',
-  'Cualquier cosa del dominio, los emails o el diseño.',
+  'Vacaciones, promociones y cambios grandes de catálogo.',
+  'Cualquier cosa del dominio, los emails, los impuestos o el diseño.',
+  'Conectar campañas, transportistas, facturación u otra herramienta.',
   'Si algo se ve raro o da error: no toques, escríbenos y lo miramos.',
+];
+
+const firstMonth = [
+  {
+    frequency: 'Cada día',
+    title: 'Nada, si no hay un pedido',
+    body: 'No necesitas entrar al panel por rutina. Cuando haya una compra recibirás un email; entonces abre el pedido, prepara el paquete y envíalo. Si no hay aviso, no hay tarea pendiente.',
+  },
+  {
+    frequency: 'Una vez por semana',
+    title: 'Diez minutos de revisión',
+    body: 'Mira si queda algún pedido pagado sin enviar, revisa los productos con poco stock y confirma en Stripe que las transferencias llegan a tu banco. Descarga una copia de seguridad después de una semana con muchos pedidos.',
+  },
+  {
+    frequency: 'Al terminar el mes',
+    title: 'Cuéntanos qué se repite',
+    body: 'Dinos qué preguntas hacen los clientes, qué producto se agota y qué tarea te roba tiempo. Ajustamos textos, envíos o la forma de trabajar antes de añadir funciones que quizá no necesitas.',
+  },
+];
+
+const callUsWhen = [
+  'Un cliente asegura que ha pagado y el pedido sigue pendiente después de unos minutos.',
+  'Los emails no llegan, varias personas los reciben como spam o algo de la tienda da error.',
+  'Vas a cerrar unos días, lanzar una promoción o cambiar muchos productos y precios.',
+  'Necesitas algo que no aparece en el panel. No busques un plugin: cuéntanos qué quieres conseguir.',
 ];
 ---
 
@@ -108,6 +152,16 @@ const askUs = [
         resto lo hace el sistema solo. Para cualquier otra cosa está tu
         mantenimiento: <a href="mailto:hola@logic2b.com" class="underline underline-offset-2">hola@logic2b.com</a>.
       </p>
+
+      <aside class="mt-6 rounded-lg bg-stone-900 p-5 text-sm leading-relaxed text-white">
+        <p class="font-semibold">Tu panel tiene pedidos, envíos y productos. Nada más.</p>
+        <p class="mt-1.5 text-stone-300">
+          Está hecho así para que puedas aprenderlo en cinco minutos. Dominio,
+          impuestos, emails, diseño y conexiones con otras herramientas corren de
+          nuestro lado. Si necesitas algo fuera de lo normal, nos lo pides y lo
+          resolvemos: no tienes que buscar, adaptar ni pagar añadidos por tu cuenta.
+        </p>
+      </aside>
 
       <nav aria-label="Contenido" class="mt-6 rounded-lg border border-stone-300 bg-white p-5 text-sm">
         <p class="font-semibold">En esta página</p>
@@ -194,7 +248,7 @@ const askUs = [
       <!-- 4 · Runbook -->
       <section id="cuando" class="mt-12 scroll-mt-6">
         <h2 class="text-2xl font-bold">Qué hacer cuando…</h2>
-        <p class="mt-2 text-stone-600">Las seis situaciones reales de una tienda, con su solución en dos líneas.</p>
+        <p class="mt-2 text-stone-600">Las situaciones reales de una tienda, explicadas sin rodeos.</p>
         <div class="mt-5 space-y-3">
           {runbook.map((item) => (
             <details class="rounded-lg border border-stone-300 bg-white px-5 py-3">
@@ -208,6 +262,10 @@ const askUs = [
       <!-- 5 · Qué puedes tocar -->
       <section id="romper" class="mt-12 scroll-mt-6">
         <h2 class="text-2xl font-bold">Qué puedes tocar sin miedo (y qué no)</h2>
+        <p class="mt-2 text-stone-600">
+          Tú llevas el día a día. Las configuraciones y los cambios poco habituales
+          los hacemos nosotros para que no tengas que aprender otra herramienta.
+        </p>
         <div class="mt-5 grid gap-4 sm:grid-cols-2">
           <div class="rounded-lg border border-stone-300 bg-white p-5 text-sm">
             <p class="font-semibold text-stone-900">Tuyo, del día a día</p>
@@ -229,6 +287,38 @@ const askUs = [
               <a href="mailto:hola@logic2b.com" class="underline underline-offset-2">hola@logic2b.com</a>.
             </p>
           </div>
+        </div>
+      </section>
+
+      <!-- 6 · Primer mes -->
+      <section id="primer-mes" class="mt-12 scroll-mt-6">
+        <h2 class="text-2xl font-bold">Tu primer mes con la tienda</h2>
+        <p class="mt-2 text-stone-600">
+          No necesitas vigilar una pantalla todo el día. Esta rutina basta para
+          empezar y nos da información real antes de cambiar nada.
+        </p>
+        <div class="mt-5 grid gap-4 sm:grid-cols-3">
+          {firstMonth.map((item) => (
+            <article class="rounded-lg border border-stone-300 bg-white p-5 text-sm">
+              <p class="text-xs font-bold uppercase tracking-wider text-stone-500">{item.frequency}</p>
+              <h3 class="mt-2 font-semibold text-stone-900">{item.title}</h3>
+              <p class="mt-2 leading-relaxed text-stone-600">{item.body}</p>
+            </article>
+          ))}
+        </div>
+
+        <div class="mt-5 rounded-lg border border-stone-300 bg-white p-5 text-sm">
+          <h3 class="font-semibold text-stone-900">Cuándo escribirnos</h3>
+          <ul class="mt-2 space-y-2 leading-relaxed text-stone-600">
+            {callUsWhen.map((item) => (
+              <li class="flex gap-2"><span class="text-stone-400" aria-hidden="true">→</span> <span>{item}</span></li>
+            ))}
+          </ul>
+          <p class="mt-4 border-t border-stone-200 pt-4 text-stone-600">
+            Escríbenos a <a href="mailto:hola@logic2b.com" class="font-semibold text-stone-900 underline underline-offset-2">hola@logic2b.com</a>
+            con el número de pedido y una captura si la tienes. No necesitas
+            diagnosticar el problema: eso es trabajo nuestro.
+          </p>
         </div>
       </section>
 

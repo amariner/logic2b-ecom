@@ -6,11 +6,12 @@
 
 ## Contexto fijo
 
-- Este MVP es una **demo/muestra**: todo fake a propósito. **No** configurar
-  Resend, claves reales de Stripe, analítica ni nada que no aporte a la
-  demostración. Los escaparates simulan carrito, envío y confirmación solo en
-  el navegador; no llaman al backend ni crean pedidos. El panel usa fixtures
-  independientes y es de solo lectura.
+- La web pública sigue siendo una **demo/muestra**: sus escaparates simulan
+  carrito, envío y confirmación en el navegador; el panel usa fixtures de solo
+  lectura. No conectar servicios reales a la demo. **El motor clonable para
+  clientes sí evoluciona desde la Fase 13**: cada capacidad queda modular y
+  desactivable, sin convertir la demo en una tienda real ni el producto en un
+  SaaS multiinquilino.
 - Claude **toma las decisiones operativas** (qué bloque toca, cómo ejecutarlo);
   solo paran la sesión los **vetos** de los roles (`.claude/skills/equipo/`) y
   las decisiones reservadas a Andreu (precios, promesas de servicio, gastar
@@ -21,14 +22,15 @@
 1. **Sincronizar** — `git fetch` + `git status` (hay sesiones cloud empujando a
    `origin/main`). Nunca trabajar sobre una base desactualizada.
 2. **Revisar con el equipo** — cargar la skill `equipo`, leer el ROADMAP
-   (tabla de fases + «Próxima sesión»),
-   [`REVISION_CODEX_2026-08-03.md`](REVISION_CODEX_2026-08-03.md) mientras
-   conserve bloques C14 pendientes, y los roles afectados por el bloque
-   candidato.
-3. **Planificar la sesión** — elegir **UN bloque** (el que marque «Próxima
-   sesión» en el ROADMAP, o el primer pendiente ejecutable en este entorno:
-   los marcados LOCAL necesitan wrangler/Chrome/red local). Anunciar en el chat
-   qué se va a hacer y por qué.
+   (tabla de fases + «Próxima sesión»), el índice
+   [`plataforma/README.md`](plataforma/README.md), la matriz y el bloque exacto
+   de [`plataforma/ROADMAP.md`](plataforma/ROADMAP.md), además de los roles
+   afectados. `REVISION_CODEX_2026-08-03.md` es histórico y ya no dirige la cola.
+3. **Planificar la sesión** — ejecutar **UN bloque**: el que marque «Próxima
+   sesión» en el ROADMAP. Desde F13, respetar el orden R y su definición de
+   terminado; no saltar a una feature vistosa si faltan sus primitivas. Los
+   bloques marcados LOCAL necesitan wrangler/Chrome/red local. Anunciar qué se
+   va a hacer y por qué.
 4. **Ejecutar** — desarrollo del bloque, respetando CLAUDE.md §2 y §14.
 5. **Testear** — `pnpm check` (tests+tipos+build) siempre; `pnpm test:e2e`
    contra `pnpm preview` si se tocó compra/admin; `node scripts/a11y-audit.mjs`

@@ -1,0 +1,13 @@
+# Architecture Decision Records
+
+Los ADRs aceptados fijan decisiones mandatadas por F13/R1.1. Cambiar una exige
+un ADR sucesor, actualización de checks y revisión del roadmap; editar el pasado
+para ocultar una decisión no es válido.
+
+| ADR | Decisión | Estado |
+|---|---|---|
+| [0001](0001-monolito-modular-y-aislamiento.md) | Monolito modular y aislamiento por despliegue | accepted |
+| [0002](0002-limites-y-direccion-de-dependencias.md) | Límites y dirección de dependencias | accepted |
+| [0003](0003-puertos-adaptadores-y-composition-root.md) | Puertos, adaptadores y composition root | accepted |
+| [0004](0004-ciclo-de-vida-de-capacidades.md) | Ciclo de vida de capacidades | accepted |
+| [0005](0005-transicion-incremental.md) | Transición incremental sin big-bang | accepted |
