@@ -126,7 +126,7 @@ tienda conservan su radio propio. Bloques, un bloque por sesión:
 | F12.1 | Renombrado LogicEcom → Logic2B Ecommerce (22 ficheros, wordmark, OG, JSON-LD, docs) | ✅ 2026-07-28 — desplegado (entrada abajo) |
 | F12.2 | La landing cuenta el argumento nuevo (hero P1 + frase estrella, sección nueva «crece sin migrar» P2, precios reencuadrados P3/D7, franja P4, FAQ+JSON-LD) | ✅ 2026-07-30 — en el repo; **deploy pendiente del OK de Andreu al copy** (entrada abajo) |
 | F12.3 | Dossier V2: business case para el decisor (camino MVP→escala, qué compra la mensualidad) | ✅ 2026-07-30 — en el repo; **deploy pendiente del OK de Andreu al copy** (entrada abajo) |
-| F12.4 | La visión de la agencia: `docs/AGENCIAS.md` + página `/agencias` (D8: GO, con marca blanca) | ✅ 2026-08-06 — documento, página indexable, OG propia y conversión; entrada abajo |
+| F12.4 | La visión de la agencia: `docs/AGENCIAS.md` + página `/agencias` (D8: GO, con marca blanca) | ✅ 2026-08-06 — documento, página indexable, OG propia y conversión; desplegado (entrada abajo) |
 | F12.5 | La visión del gestor ampliada: `/ayuda` con escenarios reales y «tu primer mes» | ⬜ |
 | F12.6 | Consolidación: barridos completos, Lighthouse en producción, OG, índice `docs/README.md` por audiencia | ⬜ |
 
@@ -1355,6 +1355,11 @@ incorporar un equipo técnico permanente.
   `/agencias` a 1440 y 375 sin overflow, auditor 2/2 superficies sin errores ni
   avisos y Lighthouse local 100/100/100/100 en móvil y escritorio (LCP 1,5 s y
   0,4 s; CLS/TBT 0).
+- **Producción:** desplegada en `https://ecom.logic2b.com/agencias`; smoke 200,
+  canonical/OG/sitemap correctos, auditor remoto 2/2 y Lighthouse remoto
+  100/100/100/100 (LCP 1,1 s móvil y 0,3 s escritorio). El auditor incorpora
+  `--no-proxy-server`, igual que Lighthouse: sin él Chrome heredaba un proxy del
+  sistema y auditaba un documento vacío aunque Node y curl sí llegasen.
 - **Deuda encontrada, no ocultada:** el barrido global de 169 superficies deja
   tiendas, panel y todas las páginas salvo la landing en verde, pero la portada
   renovada aporta 28 hallazgos repetidos en tres perfiles más un aviso táctil.

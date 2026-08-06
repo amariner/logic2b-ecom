@@ -635,6 +635,9 @@ async function launchChrome(bin) {
       '--no-default-browser-check',
       '--disable-extensions',
       '--force-color-profile=srgb',
+      // Chrome puede heredar un proxy del sistema con credenciales caducadas:
+      // Node/curl responden, pero la pestaña queda en un documento vacío.
+      '--no-proxy-server',
       '--remote-allow-origins=*',
       `--user-data-dir=${userDataDir}`,
       '--remote-debugging-port=0',
