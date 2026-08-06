@@ -13,6 +13,9 @@ export const prerender = false;
 
 export const POST: APIRoute = async ({ request, locals }) => {
   const env = locals.runtime.env;
+  if (env.DEMO_MODE === 'true') {
+    return Response.json({ error: 'La demo pública no procesa pagos ni webhooks.' }, { status: 410 });
+  }
   // Sin claves de Stripe el checkout va en modo simulado y no hay webhook que verificar.
   if (!env.STRIPE_SECRET_KEY || !env.STRIPE_WEBHOOK_SECRET) {
     return new Response('Pagos en modo simulado: webhook deshabilitado', { status: 503 });

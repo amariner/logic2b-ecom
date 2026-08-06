@@ -11,11 +11,12 @@ const ROUTE: CapabilityFlags = { routes: true, navigation: false, jobs: false, s
 const NAVIGATION: CapabilityFlags = { routes: true, navigation: true, jobs: false, sideEffects: false };
 const EFFECT: CapabilityFlags = { routes: false, navigation: false, jobs: false, sideEffects: true };
 const ROUTE_EFFECT: CapabilityFlags = { routes: true, navigation: false, jobs: false, sideEffects: true };
+const NAVIGATION_EFFECT: CapabilityFlags = { routes: true, navigation: true, jobs: false, sideEffects: true };
 
 const MINIMAL_CAPABILITIES = {
   'PLT-001': { state: 'active', flags: INTERNAL },
   'PLT-004': { state: 'active', flags: INTERNAL, config: { failFast: true } },
-  'CAT-001': { state: 'active', flags: INTERNAL },
+  'CAT-001': { state: 'active', flags: NAVIGATION },
   'PRC-001': { state: 'active', flags: INTERNAL },
   'STO-001': { state: 'active', flags: NAVIGATION },
   'STO-008': { state: 'active', flags: INTERNAL },
@@ -31,17 +32,17 @@ const STANDARD_CAPABILITIES = {
   'CHK-003': { state: 'active', flags: ROUTE_EFFECT },
   'CHK-004': { state: 'active', flags: ROUTE_EFFECT },
   'ORD-001': { state: 'active', flags: NAVIGATION },
-  'ORD-002': { state: 'active', flags: INTERNAL },
+  'ORD-002': { state: 'active', flags: ROUTE },
   'FUL-001': {
     state: 'active',
-    flags: INTERNAL,
+    flags: NAVIGATION,
     config: { strategy: 'flat-zone', supportsFreeThreshold: true },
   },
   'CUS-001': { state: 'active', flags: INTERNAL },
   'MKT-002': { state: 'active', flags: INTERNAL, config: { country: 'ES', resolver: 'postal-prefix' } },
   'MAR-003': {
     state: 'active',
-    flags: EFFECT,
+    flags: NAVIGATION_EFFECT,
     config: { demoDelivery: 'outbox', clientDelivery: 'provider' },
   },
   'AUT-001': { state: 'active', flags: INTERNAL },
@@ -63,7 +64,7 @@ const ADVANCED_CAPABILITIES = {
   ...STANDARD_CAPABILITIES,
   'CAT-002': { state: 'active', flags: INTERNAL },
   'PRC-002': { state: 'active', flags: INTERNAL },
-  'FUL-002': { state: 'active', flags: NAVIGATION },
+  'FUL-002': { state: 'active', flags: ROUTE },
   'FUL-003': { state: 'active', flags: ROUTE },
   'STO-002': { state: 'active', flags: INTERNAL },
   'MAR-001': { state: 'active', flags: ROUTE_EFFECT },
@@ -91,5 +92,38 @@ export function createPresetManifest(
     manifestVersion: 1,
     deployment: { ...deployment, profile },
     capabilities: CAPABILITY_PRESETS[profile],
+  };
+}
+
+/**
+ * La demo comercial enseña todas las superficies del panel con fixtures, pero
+ * nunca ejecuta cobros, emails, jobs ni mutaciones. No es un cuarto plan: es
+ * una composición `custom` específica de la muestra pública.
+ */
+export function createPublicDemoManifest(
+  deployment: Omit<DeploymentConfiguration, 'mode' | 'profile'>,
+): CapabilityManifestInput {
+  const capabilities = Object.fromEntries(
+    Object.entries(ADVANCED_CAPABILITIES).map(([id, entry]) => {
+      const config = id === 'INT-002'
+        ? { provider: 'resend' as const, delivery: 'capture' as const }
+        : 'config' in entry
+          ? entry.config
+          : undefined;
+      return [
+        id,
+        {
+          ...entry,
+          flags: { ...entry.flags, jobs: false, sideEffects: false },
+          ...(config === undefined ? {} : { config }),
+        },
+      ];
+    }),
+  ) as CapabilityManifestEntries;
+
+  return {
+    manifestVersion: 1,
+    deployment: { ...deployment, mode: 'demo', profile: 'custom' },
+    capabilities,
   };
 }

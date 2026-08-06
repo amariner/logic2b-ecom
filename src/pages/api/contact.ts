@@ -17,6 +17,7 @@ import type { APIRoute } from 'astro';
 import { buildContactEmail, contactSchema } from '../../lib/contact';
 import { RateLimiter } from '../../lib/rate-limit';
 import { buildResendRequest } from '../../lib/send-email';
+import { createContactService } from '../../modules/marketing';
 
 export const prerender = false;
 
@@ -58,24 +59,29 @@ export const POST: APIRoute = async ({ request, locals, clientAddress }) => {
 
   const data = parsed.data;
   const env = locals.runtime.env;
-  const inserted = await env.DB.prepare(
-    'INSERT INTO contact_requests (name, email, phone, sells, catalog, needs, source) VALUES (?, ?, ?, ?, ?, ?, ?) RETURNING id',
-  )
-    .bind(data.name, data.email, data.phone || null, data.sells || null, data.catalog || null, data.needs, data.source || null)
-    .first<{ id: number }>();
+  const contacts = createContactService(env.DB);
+  const contactId = await contacts.record({
+    name: data.name,
+    email: data.email,
+    phone: data.phone || null,
+    sells: data.sells || null,
+    catalog: data.catalog || null,
+    needs: data.needs,
+    source: data.source || null,
+  });
 
   // Aviso por email. A diferencia de los transaccionales de la tienda, este sale
   // AUNQUE DEMO_MODE esté activo: ecom.logic2b.com corre en demo y aun así los
   // leads son reales. Sin clave configurada no se envía nada y el lead queda
   // pendiente en la tabla (visible en el panel).
-  if (env.RESEND_API_KEY && inserted) {
+  if (env.RESEND_API_KEY && contactId !== null) {
     const message = buildContactEmail(data);
     const notify = async (): Promise<void> => {
       try {
         const { url, init } = buildResendRequest(message, env.RESEND_API_KEY!);
         const response = await fetch(url, init);
         if (response.ok) {
-          await env.DB.prepare('UPDATE contact_requests SET notified = 1 WHERE id = ?').bind(inserted.id).run();
+          await contacts.markNotified(contactId);
         }
       } catch {
         // El lead ya está guardado; el aviso se puede recuperar desde el panel.

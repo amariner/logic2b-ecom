@@ -6,20 +6,17 @@
 import Base from './Base.astro';
 import { shopConfig } from '../../shop.config';
 import { MAIN_DEMO_HREF } from '../lib/nav';
+import { runtimePlatform } from '../composition/runtime-platform';
+import { adminNavigationFor, type AdminNavigationId } from '../platform/configuration';
 
 interface Props {
   title: string;
-  active: 'pedidos' | 'productos' | 'envios' | 'emails';
+  active: AdminNavigationId;
 }
 
 const { title, active } = Astro.props;
 
-const nav = [
-  { id: 'pedidos', href: '/demo/admin', label: 'Pedidos' },
-  { id: 'productos', href: '/demo/admin/productos', label: 'Productos' },
-  { id: 'envios', href: '/demo/admin/envios', label: 'Envíos' },
-  { id: 'emails', href: '/demo/admin/emails', label: 'Emails' },
-] as const;
+const nav = adminNavigationFor(runtimePlatform);
 ---
 
 <Base title={`${title} — Panel · ${shopConfig.backofficeName}`} noindex>

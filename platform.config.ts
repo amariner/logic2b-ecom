@@ -1,11 +1,11 @@
-import { createPresetManifest } from './src/platform/configuration';
+import { createPublicDemoManifest } from './src/platform/configuration';
 
 /**
  * Fuente de capacidades de este despliegue. Es configuración del motor
- * clonable; R1.2 no la conecta todavía a rutas, navegación, jobs ni UI.
+ * clonable. La muestra pública conserva todas las pantallas con fixtures, sin
+ * habilitar jobs ni efectos comerciales.
  */
-export const platformManifest = createPresetManifest('minimal', {
+export const platformManifest = createPublicDemoManifest({
   id: 'logic2b-ecommerce-demo',
-  mode: 'demo',
   environment: 'production',
 });

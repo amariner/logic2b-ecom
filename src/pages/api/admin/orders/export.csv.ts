@@ -1,17 +1,8 @@
 import type { APIRoute } from 'astro';
 import { csvField } from '../../../../lib/csv';
+import { createFulfillmentAdmin } from '../../../../modules/fulfillment';
 
 export const prerender = false;
-
-type ExportRow = {
-  order_number: string;
-  customer_name: string;
-  email: string;
-  address_json: string;
-  total_cents: number;
-  status: string;
-  items_summary: string | null;
-};
 
 /**
  * Export CSV con columnas compatibles con la importación de Packlink PRO /
@@ -19,11 +10,7 @@ type ExportRow = {
  * Exporta los pedidos en estado 'paid' (pendientes de enviar).
  */
 export const GET: APIRoute = async ({ locals }) => {
-  const { results } = await locals.runtime.env.DB.prepare(
-    `SELECT o.order_number, o.customer_name, o.email, o.address_json, o.total_cents, o.status,
-            (SELECT group_concat(name_snapshot || ' x' || qty, '; ') FROM order_items WHERE order_id = o.id) AS items_summary
-     FROM orders o WHERE o.status = 'paid' ORDER BY o.created_at`,
-  ).all<ExportRow>();
+  const results = await createFulfillmentAdmin(locals.runtime.env.DB).listPendingShipments();
 
   const header = [
     'reference', 'name', 'email', 'phone', 'street', 'city', 'postal_code', 'country', 'contents', 'value_eur',

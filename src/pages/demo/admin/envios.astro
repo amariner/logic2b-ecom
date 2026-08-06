@@ -1,25 +1,25 @@
 ---
 import Admin from '../../../layouts/Admin.astro';
 import { shopConfig } from '../../../../shop.config';
+import { runtimePlatform } from '../../../composition/runtime-platform';
+import { createFulfillmentAdmin } from '../../../modules/fulfillment';
 
 export const prerender = false;
 const readOnly = Astro.locals.runtime.env.DEMO_MODE === 'true';
 
-type Row = { id: number; zone: string; label: string; price_cents: number; free_over_cents: number | null; active: number };
-const { results: rates } = await Astro.locals.runtime.env.DB.prepare(
-  'SELECT * FROM shipping_rates ORDER BY price_cents',
-).all<Row>();
+const rates = await createFulfillmentAdmin(Astro.locals.runtime.env.DB).listRates();
 
 const zoneLabel = new Map(shopConfig.shipping.zones.map((zone) => [zone.id, zone.label]));
+const canExport = runtimePlatform.hasCapabilityFlag('FUL-003', 'routes');
 ---
 
 <Admin title="Envíos" active="envios">
   <div class="flex flex-wrap items-center justify-between gap-2">
     <h1 class="text-2xl font-bold">Tarifas de envío</h1>
-    <a href="/api/admin/orders/export.csv" download
+    {canExport && <a href="/api/admin/orders/export.csv" download
       class="rounded border border-stone-400 bg-white px-4 py-1.5 text-sm font-medium hover:bg-stone-50">
       Exportar CSV para Packlink/SendCloud
-    </a>
+    </a>}
   </div>
   <p class="mt-1 text-sm text-stone-600">
     {readOnly

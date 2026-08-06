@@ -46,7 +46,10 @@ venta o servicios logísticos propios.
 - [`../../platform.config.ts`](../../platform.config.ts): manifest del
   despliegue actual, basado en un preset técnico y sin valores secretos.
 - [`../../src/platform/configuration/`](../../src/platform/configuration/):
-  contrato ejecutable de estados, flags, dependencias, config y presets R1.2.
+  contrato ejecutable de estados, flags, dependencias, presets y política de
+  acceso a rutas/navegación R1.2–R1.3.
+- [`../../src/composition/runtime-platform.ts`](../../src/composition/runtime-platform.ts):
+  fachada única que conecta el manifest del despliegue con Astro.
 
 ## Reglas de verdad
 

@@ -20,7 +20,7 @@ su alcance requiera.
 | ID | Capacidad | Vía | Prioridad | Estado | Resultado objetivo |
 |---|---|---|---|---|---|
 | PLT-001 | Despliegue aislado por cliente | núcleo | P0 | parcial | Código compartido; base, secretos, dominio y observabilidad aislados. |
-| PLT-002 | Manifest de capacidades | núcleo | P0 | parcial | Fuente tipada, presets y validación ejecutables; R1.3 conectará rutas, navegación y permisos. |
+| PLT-002 | Manifest de capacidades | núcleo | P0 | parcial | Fuente tipada que ya gobierna rutas y navegación; el registro de módulos llega en R1.4. |
 | PLT-003 | Registro de módulos y dependencias | núcleo | P0 | pendiente | Un módulo declara contratos, migraciones, eventos y dependencias permitidas. |
 | PLT-004 | Configuración validada por entorno | núcleo | P0 | parcial | Esquema tipado, valores por cliente y fallo temprano ante combinaciones inválidas. |
 | PLT-005 | Migraciones reproducibles y reversibles | núcleo | P0 | parcial | Forward migration probada, backup y procedimiento de rollback/restore. |

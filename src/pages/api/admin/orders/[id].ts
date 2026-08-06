@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { orderShippedEmail, type OrderEmailData } from '../../../../lib/emails';
 import { decideTransition, isOrderStatus } from '../../../../lib/order-transitions';
 import { deliverPendingEmails } from '../../../../lib/send-email';
+import { runtimePlatform } from '../../../../composition/runtime-platform';
 
 export const prerender = false;
 
@@ -42,6 +43,12 @@ export const PATCH: APIRoute = async ({ params, request, locals }) => {
   const parsed = patchSchema.safeParse(body);
   if (!parsed.success) {
     return Response.json({ error: 'Datos inválidos', details: parsed.error.flatten() }, { status: 400 });
+  }
+  if (
+    (parsed.data.status === 'shipped' || parsed.data.status === 'delivered') &&
+    !runtimePlatform.hasCapabilityFlag('FUL-002', 'routes')
+  ) {
+    return Response.json({ error: 'El seguimiento de envíos no está habilitado.' }, { status: 403 });
   }
 
   const order = await env.DB.prepare(

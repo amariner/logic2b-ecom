@@ -9,6 +9,7 @@ import dynamicProductRoute from '../src/pages/demo/tiendas/[collection]/[slug].a
 import dynamicThanksRoute from '../src/pages/demo/tiendas/[collection]/gracias.astro?raw';
 import quoteApiSource from '../src/pages/api/cart/quote.ts?raw';
 import checkoutApiSource from '../src/pages/api/checkout/session.ts?raw';
+import webhookApiSource from '../src/pages/api/webhooks/stripe.ts?raw';
 import resetApiSource from '../src/pages/api/demo/reset.ts?raw';
 import orderPatchSource from '../src/pages/api/admin/orders/[id].ts?raw';
 import productPatchSource from '../src/pages/api/admin/products/[id].ts?raw';
@@ -121,7 +122,7 @@ describe('aislamiento de las rutas públicas', () => {
   });
 
   it('los endpoints transaccionales y el reset están cerrados en DEMO_MODE', () => {
-    for (const source of [quoteApiSource, checkoutApiSource]) {
+    for (const source of [quoteApiSource, checkoutApiSource, webhookApiSource]) {
       expect(source).toContain("DEMO_MODE === 'true'");
       expect(source).toContain('status: 410');
     }

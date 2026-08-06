@@ -1,14 +1,12 @@
 ---
 import Admin from '../../../layouts/Admin.astro';
 import { allCategoryLabels } from '../../../lib/collections';
+import { createProductAdmin } from '../../../modules/catalog';
 
 export const prerender = false;
 const readOnly = Astro.locals.runtime.env.DEMO_MODE === 'true';
 
-type Row = { id: number; slug: string; name: string; price_cents: number; stock: number; category: string; active: number };
-const { results: products } = await Astro.locals.runtime.env.DB.prepare(
-  'SELECT id, slug, name, price_cents, stock, category, active FROM products ORDER BY category, name',
-).all<Row>();
+const products = await createProductAdmin(Astro.locals.runtime.env.DB).list();
 
 // El backoffice es UNO y ve los productos de todas las tiendas: las etiquetas
 // salen de la unión de categorías del registro de colecciones.

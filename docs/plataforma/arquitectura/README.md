@@ -1,7 +1,7 @@
 # Arquitectura modular comprobable
 
-> Fuente de verdad arquitectónica desde R1.1, actualizada al cierre de R1.2 el
-> **2026-08-06**. Fija las fronteras que R1.3–R1.5 deben respetar. No describe
+> Fuente de verdad arquitectónica desde R1.1, actualizada al cierre de R1.3 el
+> **2026-08-06**. Fija las fronteras que R1.4–R1.5 deben respetar. No describe
 > como migradas las capas que aún siguen planas.
 
 ## 1. Tres lecturas que no deben mezclarse
@@ -21,16 +21,16 @@
 |---|---|---|
 | Worker HTTP | `src/worker.ts#createExports.default.fetch` | Construye `App` de Astro y delega al handler Cloudflare. |
 | Cron | `src/worker.ts#createExports.default.scheduled` | Cada 6 h y solo con `DEMO_MODE=true`, ejecuta el seed sobre D1. |
-| Middleware | `src/middleware.ts#onRequest` | Rate limit en memoria por isolate y auth del admin demo. |
+| Middleware | `src/middleware.ts#onRequest` | Corte por capacidad, rate limit en memoria por isolate y auth del admin demo. |
 | Páginas servidor | Rutas genéricas/dinámicas y panel bajo `src/pages/demo/` con `prerender=false` | Escaparates desde fixtures locales; panel desde D1 de fixtures. Algunas envolturas fijas de NODDO, Sitēga y STRETCH se prerenderizan porque solo componen la simulación local. |
 | API pública | `cart/quote`, `checkout/session`, `contact`, `webhooks/stripe` | Runtime clonable real, aunque los escaparates públicos no lo consumen. |
 | API admin | `backup`, pedido, producto, tarifa y export CSV | Operación D1 detrás del middleware. En demo la UI de edición está deshabilitada. |
 | API retirada | `POST /api/demo/reset` | Responde 410; solo el cron interno restaura fixtures. |
 | Sitemap | `src/pages/sitemap.xml.ts` | Endpoint estático de presentación pública. |
 
-R1.2 añade un composition root puro para resolver y consultar el manifest. Aún
-no lo consumen Astro, el Worker ni los endpoints: el runtime y los registros
-manuales siguen componiendo el sistema por separado hasta R1.3–R1.4.
+R1.3 conecta el composition root mediante `runtimePlatform`: middleware,
+navegación, páginas, endpoints y acciones consultan una política común. Los
+registros de módulos/adaptadores siguen distribuidos hasta R1.4.
 
 ### `src/lib/` por responsabilidad actual
 
@@ -47,16 +47,12 @@ manuales siguen componiendo el sistema por separado hasta R1.3–R1.4.
 
 ### D1 y SQL embebido
 
-El binding entra por `locals.runtime.env.DB` en APIs/páginas y por `env.DB` en el
-cron. `src/lib/db.ts` concentra solo lecturas de catálogo y tarifa. Hay SQL
+El binding entra por casos de uso/adaptadores en las superficies migradas y por
+`locals.runtime.env.DB` en la deuda restante; el cron usa `env.DB`. Hay SQL
 fuera de infraestructura en estos archivos exactos:
 
 - endpoints: `api/admin/backup.sql.ts`, `api/admin/orders/[id].ts`,
-  `api/admin/orders/export.csv.ts`, `api/admin/products/[id].ts`,
-  `api/admin/shipping-rates/[id].ts`, `api/checkout/session.ts`,
-  `api/contact.ts` y `api/webhooks/stripe.ts`;
-- páginas: `demo/admin/{index,emails,envios,productos}.astro` y
-  `demo/admin/pedidos/[id].astro`;
+  `api/checkout/session.ts` y `api/webhooks/stripe.ts`;
 - helpers/adaptadores planos: `db.ts`, `orders.ts`, `send-email.ts`, `thanks.ts`
   y `backup.ts`;
 - composición demo: `src/worker.ts` ejecuta sentencias producidas por
@@ -219,17 +215,16 @@ R1.2 materializa `src/composition/create-platform.ts` como función pura. Recibe
 el manifest tipado, lo valida y devuelve consultas de capacidad/estado/flags.
 No elige infraestructura, no lee secretos y no cambia respuestas.
 
-R1.3 hará que rutas, navegación y adaptadores Astro consulten esa fachada. R1.4
-añadirá descriptores y elección de adaptadores. Hasta entonces, los registros y
-endpoints actuales siguen siendo composition roots distribuidos; no se
-renombran artificialmente.
+R1.3 conecta rutas, navegación y adaptadores Astro a esa fachada mediante
+`runtimePlatform`. R1.4 añadirá descriptores y elección de adaptadores; los
+registros restantes no se renombran artificialmente.
 
 ## 5. Transición incremental
 
 | Bloque | Movimiento autorizado | Lo que permanece temporalmente |
 |---|---|---|
 | R1.2 ✅ | Configuración/manifest tipados, presets y `create-platform` puros, sin UI. | Rutas, SQL, tablas, demo y registros de temas siguen iguales. |
-| R1.3 | Hacer que rutas/nav consulten fachadas/capacidades; extraer SQL de presentación a casos de uso/adaptadores al tocar cada ruta. | Mutación de pago y outbox conservan contrato y tablas. |
+| R1.3 ✅ | Rutas/nav consultan capacidades; SQL tocado pasa a casos de uso/adaptadores. | Mutación de pago y outbox conservan contrato y tablas. |
 | R1.4 | Descriptor/registro único de módulos; composition root resuelve dependencias y ciclos. Absorber registros manuales cuando el descriptor tenga datos reales. | Seeds y temas no se mueven por estética. |
 | R1.5 | Introducir sobre de evento y adaptar transiciones actuales sin cambiar efectos; retirar Stripe del webhook de presentación y el import orders→notifications. | `emails_outbox` y entrega actual siguen hasta el diseño/implementación R1.6–R1.7. |
 | R1.12 | Cerrar imports planos restantes, SQL de presentación residual y documentación de crear módulo. | Solo deuda que requiera olas R2+ por cambio de esquema. |
@@ -266,7 +261,7 @@ indicadores y los tests funcionales no mejoran.
 | Monolito y aislamiento por despliegue | ADR-0001 + `platform.config.ts`; manifest/config independiente y validado sin crear infraestructura compartida. |
 | `presentation -> application -> domain` | `layer-direction`, `domain-technology-import` y `domain-platform-global`. |
 | Grafo entre módulos y API pública | `module-dependency`, `module-private-import` y clasificación obligatoria de todo `src/lib/*.ts`. |
-| Puertos/adaptadores; SDK/SQL fuera de presentación | `restricted-sdk-import` y `presentation-sql`; excepciones exactas en `DEUDA.md`; composition root puro creado, conexión runtime pendiente de R1.3–R1.4. |
+| Puertos/adaptadores; SDK/SQL fuera de presentación | `restricted-sdk-import` y `presentation-sql`; excepciones exactas en `DEUDA.md`; runtime conectado y 9 excepciones retiradas en R1.3. |
 | Lifecycle de seis estados | ADR-0004 + `tests/capability-manifest.test.ts`: seis estados, flags, degradación, dependencias y fallo temprano ejecutables. |
 | Transición sin big-bang | allowlist sellada a las claves R1.1, cero ciclos y `pnpm check`; contratos HTTP/runtime no se editan en este bloque. |
 

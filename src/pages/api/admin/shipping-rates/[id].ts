@@ -1,5 +1,6 @@
 import type { APIRoute } from 'astro';
 import { z } from 'zod';
+import { createFulfillmentAdmin } from '../../../../modules/fulfillment';
 
 export const prerender = false;
 
@@ -32,18 +33,8 @@ export const PATCH: APIRoute = async ({ params, request, locals }) => {
     return Response.json({ error: 'Datos inválidos', details: parsed.error.flatten() }, { status: 400 });
   }
 
-  const sets: string[] = [];
-  const binds: (string | number | null)[] = [];
-  const { price_cents, free_over_cents, active } = parsed.data;
-  if (price_cents !== undefined) { sets.push('price_cents = ?'); binds.push(price_cents); }
-  if (free_over_cents !== undefined) { sets.push('free_over_cents = ?'); binds.push(free_over_cents); }
-  if (active !== undefined) { sets.push('active = ?'); binds.push(active ? 1 : 0); }
-  binds.push(id);
-
-  const result = await env.DB.prepare(`UPDATE shipping_rates SET ${sets.join(', ')} WHERE id = ?`)
-    .bind(...binds)
-    .run();
-  if (result.meta.changes === 0) {
+  const updated = await createFulfillmentAdmin(env.DB).updateRate(id, parsed.data);
+  if (!updated) {
     return Response.json({ error: 'Tarifa no encontrada' }, { status: 404 });
   }
   return Response.json({ ok: true });

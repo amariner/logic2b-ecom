@@ -154,9 +154,10 @@ describe('capability manifest (R1.2)', () => {
       id: 'logic2b-ecommerce-demo',
       mode: 'demo',
       environment: 'production',
-      profile: 'minimal',
+      profile: 'custom',
     });
-    expect(platform.capabilityState('CHK-004')).toBe('absent');
+    expect(platform.capabilityState('CHK-004')).toBe('active');
+    expect(platform.hasCapabilityFlag('CHK-004', 'sideEffects')).toBe(false);
     expect(platform.isCapabilityActive('STO-001')).toBe(true);
     expect(platform.hasCapabilityFlag('STO-001', 'navigation')).toBe(true);
     expect(platform.hasCapabilityFlag('PLT-004', 'sideEffects')).toBe(false);

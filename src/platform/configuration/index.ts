@@ -28,4 +28,15 @@ export {
   type ResolvedCapabilityEntry,
   type ResolvedCapabilityManifest,
 } from './manifest';
-export { CAPABILITY_PRESETS, createPresetManifest } from './presets';
+export { CAPABILITY_PRESETS, createPresetManifest, createPublicDemoManifest } from './presets';
+export {
+  ADMIN_NAVIGATION_ITEMS,
+  adminHomeHrefFor,
+  adminNavigationFor,
+  decideCapabilityAccess,
+  decideRouteAccess,
+  routeCapability,
+  type AccessDecision,
+  type AdminNavigationId,
+  type CapabilityAccess,
+} from './access-policy';

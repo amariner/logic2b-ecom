@@ -1,20 +1,16 @@
 ---
 import Admin from '../../../layouts/Admin.astro';
 import { MAIN_DEMO_HREF } from '../../../lib/nav';
+import { getOutbox } from '../../../modules/notifications';
 
 export const prerender = false;
 
-type Row = { id: number; to_addr: string; subject: string; body_html: string; created_at: string };
 const db = Astro.locals.runtime.env.DB;
 // El cierre del recorrido comercial solo existe en la demo pública: en la
 // tienda de un cliente (DEMO_MODE off) este panel es SUYO y no lleva venta.
 const demoMode = Astro.locals.runtime.env.DEMO_MODE === 'true';
 const EMAIL_LIMIT = 100;
-const { results: emails } = await db
-  .prepare('SELECT id, to_addr, subject, body_html, created_at FROM emails_outbox ORDER BY id DESC LIMIT ?')
-  .bind(EMAIL_LIMIT)
-  .all<Row>();
-const total = (await db.prepare('SELECT COUNT(*) AS n FROM emails_outbox').first<{ n: number }>())?.n ?? 0;
+const { emails, total } = await getOutbox(db, EMAIL_LIMIT);
 ---
 
 <Admin title="Emails" active="emails">

@@ -1,3 +1,6 @@
+import { runtimePlatform } from '../composition/runtime-platform';
+import { adminHomeHrefFor } from '../platform/configuration';
+
 /**
  * Navegación de las páginas comerciales (landing, temas, arquitectura,
  * dossier, confirmación).
@@ -28,7 +31,7 @@ export const MAIN_DEMO_HREF = '/demo/tiendas/arce';
 export const MAIN_DEMO_NAME = 'ARCE';
 
 /** El panel del comercio dentro de la demo. */
-export const DEMO_ADMIN_HREF = '/demo/admin';
+export const DEMO_ADMIN_HREF = adminHomeHrefFor(runtimePlatform);
 
 /**
  * Menú del pie, compartido por TODAS las páginas comerciales (SiteFooter).
@@ -41,5 +44,5 @@ export const footerNav = [
   { href: '/', label: 'Inicio' },
   ...landingNav,
   { href: MAIN_DEMO_HREF, label: 'Demo de tienda' },
-  { href: DEMO_ADMIN_HREF, label: 'Panel demo' },
+  ...(DEMO_ADMIN_HREF ? [{ href: DEMO_ADMIN_HREF, label: 'Panel demo' }] : []),
 ] as const;

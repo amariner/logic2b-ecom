@@ -38,7 +38,7 @@ improvisan durante la implementación.
 | Ola | Resultado | Estado |
 |---|---|---|
 | R0 | Investigación, taxonomía, matriz, roadmap y estrategia wiki | ✅ cerrado 2026-08-06 |
-| R1 | Cimientos modulares y observables | 🟡 2/12 bloques cerrados |
+| R1 | Cimientos modulares y observables | 🟡 3/12 bloques cerrados |
 | R2 | Núcleo transaccional profesional | ⬜ |
 | R3 | Operación de pedidos, inventario y fulfillment | ⬜ |
 | R4 | Precios, promociones y modelos de venta | ⬜ |
@@ -69,8 +69,8 @@ conviertan el motor en una colección de condicionales.
 |---:|---|---|---|
 | 1 | **R1.1 ADR de arquitectura modular** | Mapear dependencias actuales; definir dominios, capas, puertos/adaptadores, reglas de importación, lifecycle de módulos y esquema objetivo sin migrar D1. ADR aprobado por tests arquitectónicos propuestos. | ✅ 2026-08-06 |
 | 2 | **R1.2 Capability manifest tipado** | Manifest por cliente con flags, config y dependencias; validación de combinaciones; fixtures `minimal`, `standard`, `advanced`; sin UI todavía. | ✅ 2026-08-06 |
-| 3 | **R1.3 Navegación y rutas por capacidad** | Panel y endpoints consultan el manifest; módulo apagado responde 404/403 coherente y desaparece de navegación; tests por preset. | ⬜ siguiente |
-| 4 | **R1.4 Registro de módulos** | Descriptor estable: id, versión, dependencias, permisos, eventos, jobs, healthchecks y enlaces wiki; detector de ciclos. | ⬜ |
+| 3 | **R1.3 Navegación y rutas por capacidad** | Panel y endpoints consultan el manifest; módulo apagado responde 404/403 coherente y desaparece de navegación; tests por preset. | ✅ 2026-08-06 |
+| 4 | **R1.4 Registro de módulos** | Descriptor estable: id, versión, dependencias, permisos, eventos, jobs, healthchecks y enlaces wiki; detector de ciclos. | ⬜ siguiente |
 | 5 | **R1.5 Sobre de eventos** | Contrato `event_id`, tipo, versión, timestamp, actor, entity, correlation/causation/idempotency; eventos actuales de pedido adaptados sin cambiar comportamiento. | ⬜ |
 | 6 | **R1.6 Diseño y aprobación de outbox** | ADR, SQL exacto, retención, claim/retry/dead-letter y compatibilidad D1; pruebas contractuales antes de migrar. Puerta de decisión de esquema. | ⬜ |
 | 7 | **R1.7 Outbox transaccional** | Migración aprobada, escritura atómica en mutaciones de pago/pedido y dispatcher idempotente; fallo del consumidor no revierte el negocio. | ⬜ |
@@ -284,24 +284,33 @@ R1.3 debe hacer que rutas y navegación los consuman. La allowlist permanece en
 de moneda por storefront/notificaciones o trasladar la misma deuda; se cierra
 su salida en R1.12.
 
-## 5. Siguiente bloque
+## 5. Bloque cerrado
 
-### R1.3 — Navegación y rutas por capacidad
+### R1.3 — Navegación y rutas por capacidad — ✅ 2026-08-06
 
-En la próxima sesión:
+Entrega cerrada:
 
-1. hacer que panel, endpoints y navegación consulten el manifest únicamente a
-   través del composition root, sin duplicar decisiones de estado;
-2. retirar navegación y responder 404/403 de forma coherente para capacidades
-   `absent`, `installed`, `disabled` o `retired`;
-3. definir el comportamiento seguro y observable de una capacidad `degraded`;
-4. cubrir la superficie afectada con pruebas por preset y conservar los
-   contratos del preset activo;
-5. extraer SQL de presentación a casos de uso/adaptadores solo en las rutas
-   tocadas, reduciendo la allowlist sin mover deuda;
-6. mantener esquema D1, dependencias, pagos, demo pública y copy comercial sin
-   cambios salvo que aparezca una puerta de decisión explícita.
+1. `runtimePlatform` es la única fachada Astro; middleware, panel, enlaces y
+   acciones consultan una política tipada común;
+2. capacidades no operativas desaparecen y responden 404; capacidades activas
+   sin permiso de ruta responden 403; `degraded` conserva su fallback explícito;
+3. los presets técnicos producen navegación y acceso distintos, mientras la
+   demo usa una composición `custom` completa, de solo lectura y sin jobs ni
+   efectos comerciales;
+4. catálogo, pedidos (lectura), fulfillment, outbox y contacto salen de SQL en
+   presentación hacia casos de uso y adaptadores D1; la allowlist baja de 18 a
+   9 excepciones y `presentation-sql` de 13 a 4 archivos;
+5. verificación: `pnpm check` (29 suites, 205 tests), E2E 27/27 y auditoría del
+   panel en 14 superficies con 0 errores y 0 avisos;
+6. sin migraciones, dependencias, cambios de dinero/stock ni nueva promesa.
 
-**Criterio de cierre:** una única fuente controla exposición y acceso, ninguna
-capacidad inactiva deja navegación o efectos accesibles, los tres presets tienen
-pruebas de rutas y `pnpm check` sigue verde sin migración ni dependencia nueva.
+## 6. Siguiente bloque
+
+### R1.4 — Registro de módulos
+
+Definir un descriptor estable por módulo con id, versión, capacidades,
+dependencias, permisos, eventos, jobs, healthchecks y enlaces de wiki. El
+registro debe validar duplicados y ciclos, componer solo módulos operativos y
+absorber las listas manuales que ya tengan información real, sin inventar
+adaptadores ni activar infraestructura. `pnpm check`, pruebas por preset y
+allowlist no creciente son obligatorios; no hay migración D1 ni dependencia.

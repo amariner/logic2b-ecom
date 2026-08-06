@@ -7,6 +7,8 @@
 import { defineMiddleware } from 'astro:middleware';
 import { ADMIN_COOKIE_NAME, resolveCookieSecret, verifySessionToken } from './lib/admin-auth';
 import { RateLimiter, type RateLimitRule } from './lib/rate-limit';
+import { runtimePlatform } from './composition/runtime-platform';
+import { decideRouteAccess } from './platform/configuration';
 
 function needsAuth(pathname: string): boolean {
   if (pathname.startsWith('/api/admin')) return true;
@@ -29,6 +31,24 @@ const PUBLIC_API_RULES: Record<string, RateLimitRule> = {
 
 export const onRequest = defineMiddleware(async (context, next) => {
   const { pathname, search } = context.url;
+
+  const routeAccess = decideRouteAccess(runtimePlatform, pathname);
+  if (routeAccess && !routeAccess.allowed) {
+    if (pathname.startsWith('/api/')) {
+      return Response.json(
+        { error: routeAccess.status === 404 ? 'Recurso no disponible.' : 'Operación no habilitada.' },
+        { status: routeAccess.status, headers: { 'cache-control': 'no-store' } },
+      );
+    }
+    if (routeAccess.status === 404) {
+      const notFound = await context.rewrite('/404');
+      return new Response(notFound.body, { status: 404, headers: notFound.headers });
+    }
+    return new Response('Esta sección no está habilitada.', {
+      status: 403,
+      headers: { 'content-type': 'text/plain; charset=utf-8', 'cache-control': 'no-store' },
+    });
+  }
 
   const rule = context.request.method === 'POST' ? PUBLIC_API_RULES[pathname] : undefined;
   if (rule) {

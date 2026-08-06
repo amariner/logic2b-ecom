@@ -3,34 +3,20 @@ import Admin from '../../../layouts/Admin.astro';
 import { formatEurCents } from '../../../lib/format';
 import { MAIN_DEMO_HREF } from '../../../lib/nav';
 import { ORDER_STATUSES } from '../../../lib/order-transitions';
+import { runtimePlatform } from '../../../composition/runtime-platform';
+import { createOrderReader } from '../../../modules/orders';
 
 export const prerender = false;
 
 const rawStatus = Astro.url.searchParams.get('estado') ?? '';
 const status = (ORDER_STATUSES as readonly string[]).includes(rawStatus) ? rawStatus : undefined;
 
-type Row = {
-  id: number;
-  order_number: string;
-  customer_name: string;
-  email: string;
-  total_cents: number;
-  status: string;
-  created_at: string;
-};
-
-const db = Astro.locals.runtime.env.DB;
 const ORDER_LIMIT = 200;
-const query = status
-  ? db.prepare('SELECT id, order_number, customer_name, email, total_cents, status, created_at FROM orders WHERE status = ? ORDER BY created_at DESC LIMIT ?').bind(status, ORDER_LIMIT)
-  : db.prepare('SELECT id, order_number, customer_name, email, total_cents, status, created_at FROM orders ORDER BY created_at DESC LIMIT ?').bind(ORDER_LIMIT);
-const { results: orders } = await query.all<Row>();
-
-const counts = (
-  await db.prepare('SELECT status, count(*) AS n FROM orders GROUP BY status').all<{ status: string; n: number }>()
-).results;
+const { orders, counts } = await createOrderReader(Astro.locals.runtime.env.DB).list(status, ORDER_LIMIT);
 const countFor = (st: string): number => counts.find((c) => c.status === st)?.n ?? 0;
 const totalForView = status ? countFor(status) : counts.reduce((sum, c) => sum + c.n, 0);
+const canBackup = runtimePlatform.hasCapabilityFlag('INT-004', 'routes');
+const canExport = runtimePlatform.hasCapabilityFlag('FUL-003', 'routes');
 
 const statusLabel: Record<string, string> = {
   pending: 'Pendiente de pago',
@@ -52,17 +38,17 @@ const statusBadge: Record<string, string> = {
   <div class="flex flex-wrap items-center justify-between gap-2">
     <h1 class="text-2xl font-bold">Pedidos</h1>
     <div class="flex flex-wrap gap-2">
-      <a
+      {canBackup && <a
         href="/api/admin/backup.sql"
         class="rounded border border-stone-400 bg-white px-4 py-1.5 text-sm font-medium hover:bg-stone-50"
         download
         title="Volcado SQL completo de la base de datos, restaurable con wrangler"
-      >Copia de seguridad</a>
-      <a
+      >Copia de seguridad</a>}
+      {canExport && <a
         href="/api/admin/orders/export.csv"
         class="rounded border border-stone-400 bg-white px-4 py-1.5 text-sm font-medium hover:bg-stone-50"
         download
-      >Exportar CSV para Packlink/SendCloud</a>
+      >Exportar CSV para Packlink/SendCloud</a>}
     </div>
   </div>
 

@@ -17,8 +17,8 @@ export type Platform = Readonly<{
 }>;
 
 /**
- * Composition root puro de R1.2. Todavía no elige adaptadores ni lo consumen
- * rutas; R1.3 conectará presentación y R1.4 añadirá descriptores de módulo.
+ * Composition root puro de R1.2, conectado a presentación por R1.3. R1.4
+ * añadirá los descriptores y la selección central de módulos/adaptadores.
  */
 export function createPlatform(input: CapabilityManifestInput): Platform {
   const manifest = resolveCapabilityManifest(input);
