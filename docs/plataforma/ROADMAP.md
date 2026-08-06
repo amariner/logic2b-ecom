@@ -38,7 +38,7 @@ improvisan durante la implementación.
 | Ola | Resultado | Estado |
 |---|---|---|
 | R0 | Investigación, taxonomía, matriz, roadmap y estrategia wiki | ✅ cerrado 2026-08-06 |
-| R1 | Cimientos modulares y observables | 🟡 5/12 bloques cerrados |
+| R1 | Cimientos modulares y observables | 🟡 7/12 bloques cerrados |
 | R2 | Núcleo transaccional profesional | ⬜ |
 | R3 | Operación de pedidos, inventario y fulfillment | ⬜ |
 | R4 | Precios, promociones y modelos de venta | ⬜ |
@@ -72,8 +72,8 @@ conviertan el motor en una colección de condicionales.
 | 3 | **R1.3 Navegación y rutas por capacidad** | Panel y endpoints consultan el manifest; módulo apagado responde 404/403 coherente y desaparece de navegación; tests por preset. | ✅ 2026-08-06 |
 | 4 | **R1.4 Registro de módulos** | Descriptor estable: id, versión, dependencias, permisos, eventos, jobs, healthchecks y enlaces wiki; detector de ciclos. | ✅ 2026-08-06 |
 | 5 | **R1.5 Sobre de eventos** | Contrato `event_id`, tipo, versión, timestamp, actor, entity, correlation/causation/idempotency; eventos actuales de pedido adaptados sin cambiar comportamiento. | ✅ 2026-08-06 |
-| 6 | **R1.6 Diseño y aprobación de outbox** | ADR, SQL exacto, retención, claim/retry/dead-letter y compatibilidad D1; pruebas contractuales antes de migrar. Puerta de decisión de esquema. | 🟡 2026-08-06 — propuesta lista; espera aprobación |
-| 7 | **R1.7 Outbox transaccional** | Migración aprobada, escritura atómica en mutaciones de pago/pedido y dispatcher idempotente; fallo del consumidor no revierte el negocio. | ⬜ |
+| 6 | **R1.6 Diseño y aprobación de outbox** | ADR, SQL exacto, retención, claim/retry/dead-letter y compatibilidad D1; pruebas contractuales antes de migrar. Puerta de decisión de esquema. | ✅ 2026-08-06 |
+| 7 | **R1.7 Outbox transaccional** | Migración aprobada, escritura atómica en mutaciones de pago/pedido y dispatcher idempotente; fallo del consumidor no revierte el negocio. | ✅ 2026-08-06 |
 | 8 | **R1.8 Audit log transversal** | Actor, acción, entidad, diff redacted y correlation id; pagos, pedidos, producto y admin cubiertos; export autenticado. | ⬜ |
 | 9 | **R1.9 Observabilidad base** | Logger estructurado, errores tipados, métricas de checkout/webhook/outbox/email e IDs visibles en runbook; sin PII. | ⬜ |
 | 10 | **R1.10 Registro de integraciones** | Estado/config no secreta/health/última sync/error; secretos fuera de D1; adaptadores actuales registrados. | ⬜ |
@@ -362,9 +362,9 @@ PLT-006 pasa a `parcial`: el contrato existe y es ejecutable, pero la
 persistencia y la entrega reintentable son R1.6/R1.7. PLT-003 pasa a `parcial`
 con eventos declarados; jobs y healthchecks siguen pendientes de R1.11 y R1.10.
 
-## 6. Puerta de decisión actual
+## 6. Bloques cerrados
 
-### R1.6 — Diseño listo; aprobación pendiente
+### R1.6 — Diseño y aprobación del outbox — ✅ 2026-08-06
 
 La propuesta está completa en [ADR-0007](adr/0007-outbox-transaccional-d1.md),
 con SQL exacto fuera de `migrations/`, contrato ejecutable y pruebas sobre
@@ -374,7 +374,43 @@ filas con lease de 60 s, entrega at-least-once, siete backoffs y dead-letter al
 octavo fallo, errores redacted y retención de entregados durante 30 días; los
 pendientes y dead-letter nunca se purgan automáticamente.
 
-**Esperando aprobación de Andreu.** No existe migración 0004, escritura,
-dispatcher, cron ni cambio de runtime. Si se aprueba el esquema, se marca R1.6
-cerrado y el siguiente bloque es **R1.7 — outbox transaccional**. Si cambia una
-decisión estructural, se revisan primero ADR, SQL y contratos sin tocar D1.
+Andreu aprobó la puerta al ordenar continuar el desarrollo. ADR-0007 pasa a
+`accepted`; el DDL propuesto se conserva como evidencia y su copia exacta entra
+en `migrations/0004_event_outbox.sql`.
+
+### R1.7 — Outbox transaccional — ✅ 2026-08-06
+
+1. Pedido, hecho y entregas se confirman en una sola `DB.batch()`. El evento se
+   inserta condicionado al estado esperado y todos los efectos exigen su
+   `event_id`; una carrera perdedora aplica cero cambios sin salir del lote.
+2. El alta con id autogenerado reserva identidad antes del lote y materializa
+   `order_id` desde la fila insertada. Un fallo posterior revierte pedido,
+   líneas, timeline y evento.
+3. El dispatcher reclama 25 entregas con lease de 60 s, recupera leases
+   vencidas, aplica siete backoffs, dead-letter al octavo fallo, replay interno
+   y limpieza por lotes tras 30 días. Errores persistidos siempre redacted.
+4. Notificaciones materializa sus emails y confirma el ACK en la misma batch;
+   un Worker con lease obsoleta inserta cero mensajes. La entrega es
+   at-least-once y el efecto es idempotente.
+5. `waitUntil` dispara tras cobro/envío y un cron de cinco minutos recupera
+   retries en tiendas reales. En demo ambos quedan inertes por `DEMO_MODE` y
+   los endpoints comerciales continúan cerrados.
+6. Seed/reset y backup incluyen las tablas nuevas. La migración completa se
+   ensayó con Wrangler en una D1 aislada y las pruebas usan SQLite real para
+   atomicidad, carreras, rollback, retry, dead-letter, replay y recuperación.
+7. Verificación final: `pnpm check` en verde (35 suites, 251 tests, tipos y
+   build), migración `0004` aplicada a la D1 local y E2E 27/27 contra
+   `wrangler dev` con el esquema migrado. Migración remota y despliegue
+   `4578e360-b00d-460f-be0d-63a5a281b127` confirmados; E2E remoto 27/27.
+
+PLT-006 y PLT-007 pasan a `actual`. No hay dependencia, ruta, pantalla, PII en
+el sobre, coste fijo ni cambio en dinero/stock fuera de la unidad atómica.
+
+## 7. Siguiente bloque
+
+### R1.8 — Audit log transversal
+
+Diseñar primero el contrato de actor, acción, entidad y diff redacted; después
+registrar pagos, pedidos, producto y acciones admin con `correlation_id`, más
+export autenticado. No duplicar el outbox: el audit log es evidencia duradera,
+no mecanismo de entrega.

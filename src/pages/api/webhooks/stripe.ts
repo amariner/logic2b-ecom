@@ -1,6 +1,6 @@
 import type { APIRoute } from 'astro';
 import { createOrderOperations } from '../../../composition/order-operations';
-import { deliverPendingEmails } from '../../../lib/send-email';
+import { flushEventOutbox } from '../../../composition/outbox-dispatcher';
 import { verifyCheckoutWebhookEvent } from '../../../lib/stripe';
 
 export const prerender = false;
@@ -42,7 +42,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
     });
     if (confirmed) {
       // Producción: entrega el email de confirmación sin retrasar el 200 a Stripe.
-      locals.runtime.ctx.waitUntil(deliverPendingEmails(env.DB, env));
+      locals.runtime.ctx.waitUntil(flushEventOutbox(env.DB, env));
     }
   }
 

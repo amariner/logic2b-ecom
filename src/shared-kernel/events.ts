@@ -72,6 +72,10 @@ export interface EventIdSource {
   next(): string;
 }
 
+/** Identidad reservable antes de que una transacción conozca todos sus datos. */
+export type EventIdentity = Readonly<{ event_id: string; occurred_at: string }>;
+export type ReserveEventIdentity = () => EventIdentity;
+
 export type EmitEvent = <TType extends string, TPayload>(
   draft: EventDraft<TType, TPayload>,
 ) => EventEnvelope<TType, TPayload>;
@@ -163,27 +167,44 @@ export function causedBy(parent: EventEnvelope): Readonly<{ correlation_id: stri
   return Object.freeze({ correlation_id: parent.correlation_id, causation_id: parent.event_id });
 }
 
+/** Reserva id e instante sin I/O; permite preparar una única batch D1. */
+export function createEventIdentityFactory(
+  deps: Readonly<{ clock: EventClock; ids: EventIdSource }>,
+): ReserveEventIdentity {
+  return () => Object.freeze({
+    event_id: deps.ids.next(),
+    occurred_at: deps.clock.now().toISOString(),
+  });
+}
+
+/** Completa y valida un sobre con una identidad ya reservada. */
+export function createEventFromIdentity<TType extends string, TPayload>(
+  identity: EventIdentity,
+  draft: EventDraft<TType, TPayload>,
+): EventEnvelope<TType, TPayload> {
+  const envelope: EventEnvelope<TType, TPayload> = Object.freeze({
+    ...identity,
+    type: draft.type,
+    version: draft.version,
+    actor: Object.freeze({ ...draft.actor }),
+    entity: Object.freeze({ ...draft.entity }),
+    correlation_id: draft.correlation_id ?? identity.event_id,
+    causation_id: draft.causation_id ?? null,
+    idempotency_key: draft.idempotency_key,
+    payload: draft.payload,
+  });
+  const issues = validateEventEnvelope(envelope);
+  if (issues.length > 0) throw new EventEnvelopeError(issues);
+  return envelope;
+}
+
 /**
  * Fábrica de sobres. El reloj y la fuente de ids se inyectan para que los tests
  * sean deterministas y para que el dominio no toque nada ambiental.
  */
 export function createEventFactory(deps: Readonly<{ clock: EventClock; ids: EventIdSource }>): EmitEvent {
+  const reserve = createEventIdentityFactory(deps);
   return <TType extends string, TPayload>(draft: EventDraft<TType, TPayload>): EventEnvelope<TType, TPayload> => {
-    const eventId = deps.ids.next();
-    const envelope: EventEnvelope<TType, TPayload> = Object.freeze({
-      event_id: eventId,
-      type: draft.type,
-      version: draft.version,
-      occurred_at: deps.clock.now().toISOString(),
-      actor: Object.freeze({ ...draft.actor }),
-      entity: Object.freeze({ ...draft.entity }),
-      correlation_id: draft.correlation_id ?? eventId,
-      causation_id: draft.causation_id ?? null,
-      idempotency_key: draft.idempotency_key,
-      payload: draft.payload,
-    });
-    const issues = validateEventEnvelope(envelope);
-    if (issues.length > 0) throw new EventEnvelopeError(issues);
-    return envelope;
+    return createEventFromIdentity(reserve(), draft);
   };
 }

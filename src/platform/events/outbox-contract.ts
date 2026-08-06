@@ -1,8 +1,8 @@
 /**
  * Contrato aprobado por código para el diseño del outbox (R1.6).
  *
- * No contiene I/O ni se conecta al runtime. La migración y el dispatcher son
- * R1.7, después de aprobar el esquema propuesto en
+ * La política nació como contrato sin I/O en R1.6 y R1.7 la consume desde la
+ * migración y el dispatcher. El DDL aprobado conserva su evidencia en
  * `docs/plataforma/sql/0004_event_outbox.proposed.sql`.
  */
 

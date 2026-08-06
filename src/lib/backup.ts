@@ -13,6 +13,8 @@ export const BACKUP_TABLES = [
   'orders',
   'order_items',
   'order_events',
+  'event_outbox_events',
+  'event_outbox_deliveries',
   'emails_outbox',
   // `contact_requests` NO entra a propósito: son datos personales de leads
   // reales y esta copia se descarga desde el panel, que en la demo pública es

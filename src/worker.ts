@@ -2,9 +2,8 @@
  * Entry point personalizado del Worker (ver `workerEntryPoint` en astro.config.mjs).
  *
  * Envuelve el handler `fetch` estándar de Astro y añade un handler `scheduled`
- * para el Cron Trigger de Cloudflare (cada 6 h, ver `triggers.crons` en
- * wrangler.jsonc): restaura el estado sembrado de la demo, exactamente igual
- * que `POST /api/demo/reset`.
+ * para dos Cron Triggers de Cloudflare: reset de fixtures cada 6 h en demo y
+ * recuperación del outbox cada 5 min en una tienda real.
  */
 import type {
   ExecutionContext,
@@ -15,6 +14,10 @@ import type { SSRManifest } from 'astro';
 import { App } from 'astro/app';
 import { handle } from '@astrojs/cloudflare/handler';
 import { seedStatements } from '../seed/seed';
+import { flushEventOutbox } from './composition/outbox-dispatcher';
+
+const DEMO_RESET_CRON = '0 */6 * * *';
+const OUTBOX_CRON = '*/5 * * * *';
 
 type WorkerEnv = Env & {
   ASSETS: { fetch: (req: Request | string) => Promise<Response> };
@@ -31,11 +34,14 @@ export function createExports(manifest: SSRManifest) {
       ) {
         return handle(manifest, app, request, env, context);
       },
-      async scheduled(_controller: ScheduledController, env: WorkerEnv, _context: ExecutionContext) {
-        // Mismo guard que /api/demo/reset: si esto se desplegara por error en
-        // una tienda real (DEMO_MODE off), el cron no debe tocar datos.
-        if (env.DEMO_MODE !== 'true') return;
-        await env.DB.batch(seedStatements().map((sql) => env.DB.prepare(sql)));
+      async scheduled(controller: ScheduledController, env: WorkerEnv, context: ExecutionContext) {
+        if (controller.cron === DEMO_RESET_CRON && env.DEMO_MODE === 'true') {
+          await env.DB.batch(seedStatements().map((sql) => env.DB.prepare(sql)));
+          return;
+        }
+        if (controller.cron === OUTBOX_CRON && env.DEMO_MODE !== 'true') {
+          context.waitUntil(flushEventOutbox(env.DB, env));
+        }
       },
     },
   };

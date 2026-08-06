@@ -64,9 +64,9 @@ escritura de pedido. A cambio, notificaciones deja de depender de pedidos,
 la presentación deja de escribir SQL y R1.6 puede diseñar el outbox sobre un
 contrato ya ejecutable.
 
-Mientras no exista el outbox, la unidad de trabajo sigue siendo una única batch
-de D1 compuesta en el composition root: la transición y el mensaje que provoca
-se confirman juntos, como antes.
+R1.7 sustituye la coordinación temporal: la unidad de trabajo confirma mutación,
+hecho y entregas en una batch; el dispatcher materializa después cada efecto y
+su ACK de forma atómica.
 
 ## Invariantes
 

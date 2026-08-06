@@ -16,6 +16,7 @@ evidence:
   - test: tests/orders.test.ts
   - test: tests/admin-orders-patch.test.ts
   - test: tests/outbox-contract.test.ts
+  - test: tests/outbox-runtime.test.ts
   - document: docs/plataforma/adr/0006-sobre-de-eventos.md
   - document: docs/plataforma/adr/0007-outbox-transaccional-d1.md
 related:
@@ -28,11 +29,10 @@ draft: true
 
 > **Borrador interno. No genera ruta, sitemap ni canonical.** URL futura:
 > `/funcionalidades/eventos-dominio-ecommerce/`. No puede publicarse como
-> capacidad disponible mientras PLT-006 esté en `parcial`: hoy los hechos se
-> emiten y se proyectan al historial del pedido, pero **no se persisten como
-> registro propio ni se reentregan**. R1.6 ya deja propuesto y probado el
-> contrato del outbox, pero la migración espera aprobación y la ejecución llega
-> en R1.7. Eso es lo que falta para prometer «reintento garantizado» sin mentir.
+> capacidad disponible sin evidencia. R1.7 ya persiste cada hecho junto a la
+> mutación, lo entrega al menos una vez con deduplicación y recupera fallos con
+> lease, retry y dead-letter. La página sigue como borrador por decisión
+> editorial, no por falta de backend.
 
 ## Qué resuelve
 
@@ -75,9 +75,8 @@ conservan estos registros.
 
 ## Límites honestos
 
-- Los hechos **no se guardan todavía en una tabla propia** ni se reintentan por
-  su cuenta: hoy se confirman en la misma operación que el cambio del pedido.
-  El esquema de persistencia está diseñado, no aplicado.
+- La garantía es **at-least-once**, no exactly-once: cada consumidor debe hacer
+  idempotente su efecto. Notificaciones confirma mensaje y ACK en una batch.
 - No hay **panel de eventos** ni exportación: el historial visible sigue siendo
   el del pedido.
 - Las **automatizaciones** sobre eventos (reglas del tipo «cuando pase X, haz
@@ -85,5 +84,5 @@ conservan estos registros.
 
 ## Estado
 
-`parcial`. Publicable como página solo cuando el outbox esté operativo y el
-alcance de arriba pueda escribirse sin condicionales.
+`actual`. Backend y recuperación están probados; la publicación de esta página
+queda en el carril editorial de la wiki.

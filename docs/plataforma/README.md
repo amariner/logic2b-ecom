@@ -42,12 +42,13 @@ venta o servicios logísticos propios.
   responsables de eliminarla.
 - [`adr/`](adr/): decisiones de arquitectura modular aceptadas y propuestas.
 - [`sql/0004_event_outbox.proposed.sql`](sql/0004_event_outbox.proposed.sql):
-  esquema exacto del outbox R1.6; propuesta no aplicable hasta su aprobación.
+  evidencia exacta de la propuesta R1.6 aprobada; la migración viva es
+  [`../../migrations/0004_event_outbox.sql`](../../migrations/0004_event_outbox.sql).
 - [`wiki/arquitectura-modular-ecommerce.md`](wiki/arquitectura-modular-ecommerce.md):
   borrador interno, no indexable, de la futura página de arquitectura.
 - [`wiki/eventos-de-dominio-trazabilidad.md`](wiki/eventos-de-dominio-trazabilidad.md):
   borrador interno, no indexable, de la futura página de eventos y trazabilidad
-  (R1.5); no publicable hasta que el outbox exista.
+  (R1.5–R1.7); la capacidad ya es operativa, publicación editorial pendiente.
 - [`../../platform.config.ts`](../../platform.config.ts): manifest del
   despliegue actual, basado en un preset técnico y sin valores secretos.
 - [`../../src/platform/configuration/`](../../src/platform/configuration/):
@@ -62,8 +63,11 @@ venta o servicios logísticos propios.
   sobre de evento versionado R1.5 —identidad, actor, entidad, correlación,
   causación e idempotencia— sin PII, sin configuración y sin I/O.
 - [`../../src/platform/events/outbox-contract.ts`](../../src/platform/events/outbox-contract.ts):
-  contrato ejecutable R1.6 de estados, lease, lotes, retry y claim; sin I/O ni
-  conexión al runtime hasta R1.7.
+  contrato ejecutable de estados, lease, lotes, retry y claim.
+- [`../../src/platform/events/d1-event-outbox-repository.ts`](../../src/platform/events/d1-event-outbox-repository.ts):
+  claim, recuperación de lease, retry/dead-letter, replay y retención D1.
+- [`../../src/composition/outbox-dispatcher.ts`](../../src/composition/outbox-dispatcher.ts):
+  dispatcher que materializa cada efecto y su ACK en una única batch.
 - [`../../src/composition/order-operations.ts`](../../src/composition/order-operations.ts):
   casos de uso compuestos de escritura de pedido; único punto que une el hecho
   que emite `orders` con el consumidor de `notifications`.

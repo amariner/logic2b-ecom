@@ -1,6 +1,7 @@
 import { DatabaseSync } from 'node:sqlite';
 import { describe, expect, it } from 'vitest';
 import schema from '../docs/plataforma/sql/0004_event_outbox.proposed.sql?raw';
+import migration from '../migrations/0004_event_outbox.sql?raw';
 import {
   CLAIM_OUTBOX_DELIVERIES_SQL,
   OUTBOX_POLICY,
@@ -115,9 +116,14 @@ describe('contrato propuesto del outbox (R1.6)', () => {
     expect(() => decideOutboxFailure(0)).toThrow(RangeError);
   });
 
-  it('mantiene el SQL fuera de migrations hasta que se apruebe la puerta de esquema', () => {
+  it('conserva la propuesta R1.6 como evidencia de la puerta de esquema', () => {
     expect(schema).toContain('PROPUESTA R1.6. NO ES UNA MIGRACION APLICABLE');
     expect(schema).toContain('idempotency_key TEXT NOT NULL UNIQUE');
     expect(schema).toContain('WHERE status = \'pending\'');
+  });
+
+  it('la migración aprobada conserva exactamente el DDL ensayado en R1.6', () => {
+    const ddl = (sql: string) => sql.slice(sql.indexOf('CREATE TABLE')).trim();
+    expect(ddl(migration)).toBe(ddl(schema));
   });
 });

@@ -12,7 +12,7 @@ declare module 'node:sqlite' {
   export class StatementSync {
     all(...params: SqlValue[]): Record<string, unknown>[];
     get(...params: SqlValue[]): Record<string, unknown> | undefined;
-    run(...params: SqlValue[]): unknown;
+    run(...params: SqlValue[]): Readonly<{ changes: number; lastInsertRowid: number | bigint }>;
   }
 
   export class DatabaseSync {

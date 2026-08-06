@@ -6,7 +6,12 @@
  * Los tests inyectan sus propias fuentes y obtienen sobres deterministas.
  */
 
-import { createEventFactory, type EventClock, type EventIdSource } from '../shared-kernel/events';
+import {
+  createEventFactory,
+  createEventIdentityFactory,
+  type EventClock,
+  type EventIdSource,
+} from '../shared-kernel/events';
 
 export const systemEventClock: EventClock = { now: () => new Date() };
 
@@ -15,6 +20,12 @@ export const randomEventIdSource: EventIdSource = { next: () => crypto.randomUUI
 
 /** Fábrica que usa el runtime real. */
 export const emitPlatformEvent = createEventFactory({
+  clock: systemEventClock,
+  ids: randomEventIdSource,
+});
+
+/** Reserva la misma identidad que usa la fábrica, para altas con id D1 autogenerado. */
+export const reservePlatformEventIdentity = createEventIdentityFactory({
   clock: systemEventClock,
   ids: randomEventIdSource,
 });

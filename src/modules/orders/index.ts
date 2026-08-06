@@ -14,6 +14,7 @@ export {
   orderDeliveredEvent,
   orderPaidEvent,
   orderPlacedEvent,
+  orderPlacedEventFromIdentity,
   orderShippedEvent,
   orderTimelineEntry,
   orderTimelineNote,

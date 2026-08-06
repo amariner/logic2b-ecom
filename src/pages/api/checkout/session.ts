@@ -7,7 +7,7 @@ import { generateOrderNumber, generateSimulatedSessionToken } from '../../../lib
 import { isSimulatedPayment } from '../../../lib/payment-mode';
 import { DEFAULT_COLLECTION_ID, resolveCollection, storePaths } from '../../../collections';
 import { quoteCart } from '../../../lib/quote';
-import { deliverPendingEmails } from '../../../lib/send-email';
+import { flushEventOutbox } from '../../../composition/outbox-dispatcher';
 import { stripeClient } from '../../../lib/stripe';
 import type { NewOrderLine } from '../../../modules/orders';
 
@@ -168,7 +168,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
       causationId: placed.event.event_id,
     });
     if (confirmed) {
-      locals.runtime.ctx.waitUntil(deliverPendingEmails(env.DB, env));
+      locals.runtime.ctx.waitUntil(flushEventOutbox(env.DB, env));
     }
   }
 

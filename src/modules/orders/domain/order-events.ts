@@ -15,7 +15,14 @@
  * cadena del seed, que corre con `node seed/generate.ts` (ESM con type-stripping).
  */
 
-import type { EmitEvent, EventActor, EventDraft, EventEnvelope } from '../../../shared-kernel/events.ts';
+import {
+  createEventFromIdentity,
+  type EmitEvent,
+  type EventActor,
+  type EventDraft,
+  type EventEnvelope,
+  type EventIdentity,
+} from '../../../shared-kernel/events.ts';
 import type { OrderStatus } from '../../../lib/order-transitions.ts';
 
 /** Versión del contrato de payload de todos los eventos de pedido. */
@@ -121,6 +128,15 @@ export function orderPlacedEvent(
 ): OrderPlacedEvent {
   const payload: OrderPlacedPayload = { ...subject, from_status: null, to_status: 'pending' };
   return emit(draftFor('orders.order_placed', ORDER_ACTORS.customer, payload, options));
+}
+
+/** Completa el alta con la identidad reservada antes de que D1 asigne `order_id`. */
+export function orderPlacedEventFromIdentity(
+  identity: EventIdentity,
+  subject: OrderEventSubject,
+): OrderPlacedEvent {
+  const payload: OrderPlacedPayload = { ...subject, from_status: null, to_status: 'pending' };
+  return createEventFromIdentity(identity, draftFor('orders.order_placed', ORDER_ACTORS.customer, payload, {}));
 }
 
 export function orderPaidEvent(

@@ -2,34 +2,26 @@
  * Casos de uso de escritura de pedido, compuestos (R1.5).
  *
  * Aquí se junta lo que los módulos no pueden juntar por sí solos: `orders`
- * decide y emite el hecho, `notifications` se suscribe a ese hecho y produce los
- * mensajes, y la unidad de trabajo escribe ambos efectos en una sola batch. Es
- * el único punto que conoce a los dos módulos a la vez — el pedido sigue sin
- * saber que existen los emails.
+ * decide y emite el hecho y la unidad de trabajo confirma mutación + sobre +
+ * entregas en una sola batch. El dispatcher resuelve después los consumidores;
+ * el pedido no sabe que existen los emails.
  *
- * Lo que NO cambia respecto de la Fase 3: el UPDATE guardado va primero y en
- * solitario, y solo quien gana esa carrera aplica efectos. Dos entregas del
- * mismo webhook, o dos clics del panel, siguen produciendo un único cobro, un
- * único evento y un único aviso.
+ * Lo que NO cambia respecto de la Fase 3 es la garantía: solo quien gana la
+ * carrera aplica efectos. Ahora la guardia es la inserción condicionada del
+ * evento dentro del lote, no un UPDATE previo y separado.
  *
- * Cuando exista el outbox transaccional (R1.6/R1.7), la entrega dejará de ser
- * una lista de sentencias compuesta aquí y pasará a ser un despachador; el
- * contrato del sobre ya está preparado para eso.
+ * R1.7 usa el evento como guardia transaccional: se inserta condicionado al
+ * estado esperado, y cada efecto posterior exige ese `event_id`. Una carrera
+ * perdedora inserta cero filas y, dentro de la misma batch, aplica cero efectos.
  */
 
 import type { OrderStatus, PanelTransition } from '../lib/order-transitions';
-import {
-  createOutboxWriter,
-  orderNotificationsFor,
-  type EmailMessage,
-  type OrderEmailData,
-} from '../modules/notifications';
 import {
   buildPaidMutation,
   createOrderWriter,
   orderCancelledEvent,
   orderDeliveredEvent,
-  orderPlacedEvent,
+  orderPlacedEventFromIdentity,
   orderShippedEvent,
   orderTimelineEntry,
   type NewOrderInput,
@@ -37,12 +29,13 @@ import {
   type OrderDomainEvent,
   type OrderForPayment,
   type OrderForTransition,
-  type OrderItemForPayment,
   type OrderPaymentSource,
   type OrderPlacedEvent,
 } from '../modules/orders';
-import type { EmitEvent } from '../shared-kernel/events';
-import { emitPlatformEvent } from './event-context';
+import { createD1EventOutboxWriter } from '../platform/events';
+import type { EmitEvent, ReserveEventIdentity } from '../shared-kernel/events';
+import { emitPlatformEvent, reservePlatformEventIdentity } from './event-context';
+import { runtimePlatform } from './runtime-platform';
 
 export type ConfirmPaymentInput = Readonly<{
   /** Referencia del pedido: la sesión de la pasarela o el id ya conocido. */
@@ -64,39 +57,19 @@ export type PanelTransitionOutcome = Readonly<{
   queuedMessages: number;
 }>;
 
-function emailDataFor(
-  order: Readonly<{
-    order_number: string;
-    customer_name: string;
-    email: string;
-    subtotal_cents: number;
-    shipping_cents: number;
-    total_cents: number;
-  }>,
-  items: readonly OrderItemForPayment[],
-): OrderEmailData {
-  return {
-    order_number: order.order_number,
-    customer_name: order.customer_name,
-    email: order.email,
-    subtotal_cents: order.subtotal_cents,
-    shipping_cents: order.shipping_cents,
-    total_cents: order.total_cents,
-    items: items.map((item) => ({
-      name_snapshot: item.name_snapshot,
-      unit_price_cents: item.unit_price_cents,
-      qty: item.qty,
-    })),
-  };
+function consumersFor(eventType: string): readonly string[] {
+  return runtimePlatform.modules
+    .filter((module) => module.descriptor.subscriptions.includes(eventType))
+    .map((module) => module.descriptor.id);
 }
 
-export function createOrderOperations(db: D1Database, emit: EmitEvent = emitPlatformEvent) {
+export function createOrderOperations(
+  db: D1Database,
+  emit: EmitEvent = emitPlatformEvent,
+  reserveIdentity: ReserveEventIdentity = reservePlatformEventIdentity,
+) {
   const orders = createOrderWriter(db);
-  const outbox = createOutboxWriter(db);
-
-  /** Suscripción única del bloque: los consumidores registrados de un hecho. */
-  const messagesFor = (event: OrderDomainEvent, order: OrderEmailData): readonly EmailMessage[] =>
-    orderNotificationsFor(event, order);
+  const outbox = createD1EventOutboxWriter(db);
 
   return {
     /** Alta del pedido en `pending` con su primer hecho: nace el flujo. */
@@ -104,14 +77,19 @@ export function createOrderOperations(db: D1Database, emit: EmitEvent = emitPlat
       order: NewOrderInput,
       lines: readonly NewOrderLine[],
     ): Promise<{ orderId: number; event: OrderPlacedEvent } | null> {
-      const orderId = await orders.insertPendingOrder(order);
-      if (orderId === null) return null;
-
-      const event = orderPlacedEvent(emit, { order_id: orderId, order_number: order.order_number });
-      await orders.commit([
-        ...orders.lineStatements(orderId, lines),
-        orders.timelineStatement(orderId, orderTimelineEntry(event)),
+      const identity = reserveIdentity();
+      const timeline = { from_status: null, to_status: 'pending', note: 'Pedido creado, esperando pago' } as const;
+      const consumerIds = consumersFor('orders.order_placed');
+      const results = await orders.commitResults([
+        orders.insertPendingOrderStatement(order),
+        outbox.placedEventStatement(identity, order.order_number),
+        ...outbox.deliveryStatements(identity.event_id, identity.occurred_at, consumerIds),
+        ...orders.lineStatementsForOrderNumber(order.order_number, lines),
+        orders.timelineStatementForOrderNumber(order.order_number, timeline),
       ]);
+      const orderId = results[0]?.meta.last_row_id;
+      if (!orderId || results[0]?.meta.changes !== 1 || results[1]?.meta.changes !== 1) return null;
+      const event = orderPlacedEventFromIdentity(identity, { order_id: orderId, order_number: order.order_number });
       return { orderId, event };
     },
 
@@ -132,23 +110,21 @@ export function createOrderOperations(db: D1Database, emit: EmitEvent = emitPlat
         causationId: input.causationId ?? null,
       });
       if (order === null || mutation === null) return false;
-      if (!(await orders.claimPaid(mutation.orderId, mutation.paymentIntent))) return false;
-
-      const messages = messagesFor(mutation.event, emailDataFor(order, items));
-      await orders.commit([
-        ...orders.stockDecrementStatements(mutation.stockDecrements),
-        orders.timelineStatement(mutation.orderId, orderTimelineEntry(mutation.event)),
-        ...outbox.statementsFor(messages),
+      const consumerIds = consumersFor(mutation.event.type);
+      const results = await orders.commitResults([
+        outbox.guardedEventStatement(mutation.event, { orderId: mutation.orderId, expectedStatus: 'pending' }),
+        ...outbox.deliveryStatements(mutation.event.event_id, mutation.event.occurred_at, consumerIds),
+        orders.guardedPaidStatement(mutation.orderId, mutation.paymentIntent, mutation.event.event_id),
+        ...orders.guardedStockDecrementStatements(mutation.stockDecrements, mutation.event.event_id),
+        orders.guardedTimelineStatement(mutation.orderId, orderTimelineEntry(mutation.event), mutation.event.event_id),
       ]);
-      return true;
+      return results[0]?.meta.changes === 1;
     },
 
     /** Caducidad de la sesión de pago: cancela sin tocar stock (nunca se descontó). */
     async expirePayment(input: Readonly<{ stripeSessionId: string; causationId?: string | null }>): Promise<boolean> {
       const order = await orders.findOrderForPaymentBySession(input.stripeSessionId);
       if (order === null || order.status !== 'pending') return false;
-      if (!(await orders.claimExpired(order.id))) return false;
-
       const event = orderCancelledEvent(
         emit,
         {
@@ -159,29 +135,36 @@ export function createOrderOperations(db: D1Database, emit: EmitEvent = emitPlat
         },
         { causationId: input.causationId ?? null },
       );
-      await orders.commit([orders.timelineStatement(order.id, orderTimelineEntry(event))]);
-      return true;
+      const consumerIds = consumersFor(event.type);
+      const results = await orders.commitResults([
+        outbox.guardedEventStatement(event, { orderId: order.id, expectedStatus: 'pending' }),
+        ...outbox.deliveryStatements(event.event_id, event.occurred_at, consumerIds),
+        orders.guardedExpiredStatement(order.id, event.event_id),
+        orders.guardedTimelineStatement(order.id, orderTimelineEntry(event), event.event_id),
+      ]);
+      return results[0]?.meta.changes === 1;
     },
 
     /** Transición hecha a mano desde el panel. */
     async applyPanelTransition(input: PanelTransitionInput): Promise<PanelTransitionOutcome> {
-      const won = await orders.claimTransition({
-        orderId: input.order.id,
-        from: input.from,
-        to: input.transition.to,
-        tracking: input.transition.tracking,
-      });
-      if (!won) return { outcome: 'conflict', queuedMessages: 0 };
-
       const items = await orders.items(input.order.id);
       const event = panelTransitionEvent(emit, input);
-      const messages = messagesFor(event, emailDataFor(input.order, items));
-      await orders.commit([
-        orders.timelineStatement(input.order.id, orderTimelineEntry(event)),
-        ...(input.transition.restoreStock ? orders.stockRestoreStatements(items) : []),
-        ...outbox.statementsFor(messages),
+      const consumerIds = consumersFor(event.type);
+      const results = await orders.commitResults([
+        outbox.guardedEventStatement(event, { orderId: input.order.id, expectedStatus: input.from }),
+        ...outbox.deliveryStatements(event.event_id, event.occurred_at, consumerIds),
+        orders.guardedTransitionStatement({
+          orderId: input.order.id,
+          from: input.from,
+          to: input.transition.to,
+          tracking: input.transition.tracking,
+          eventId: event.event_id,
+        }),
+        orders.guardedTimelineStatement(input.order.id, orderTimelineEntry(event), event.event_id),
+        ...(input.transition.restoreStock ? orders.guardedStockRestoreStatements(items, event.event_id) : []),
       ]);
-      return { outcome: 'applied', queuedMessages: messages.length };
+      if (results[0]?.meta.changes !== 1) return { outcome: 'conflict', queuedMessages: 0 };
+      return { outcome: 'applied', queuedMessages: consumerIds.length };
     },
 
     findOrderForTransition: orders.findOrderForTransition,

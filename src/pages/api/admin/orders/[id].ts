@@ -2,7 +2,7 @@ import type { APIRoute } from 'astro';
 import { z } from 'zod';
 import { createOrderOperations } from '../../../../composition/order-operations';
 import { decideTransition, isOrderStatus } from '../../../../lib/order-transitions';
-import { deliverPendingEmails } from '../../../../lib/send-email';
+import { flushEventOutbox } from '../../../../composition/outbox-dispatcher';
 import { runtimePlatform } from '../../../../composition/runtime-platform';
 
 export const prerender = false;
@@ -69,7 +69,7 @@ export const PATCH: APIRoute = async ({ params, request, locals }) => {
 
   if (result.queuedMessages > 0) {
     // Producción: entrega el email de aviso sin retrasar la respuesta al panel.
-    locals.runtime.ctx.waitUntil(deliverPendingEmails(env.DB, env));
+    locals.runtime.ctx.waitUntil(flushEventOutbox(env.DB, env));
   }
   return Response.json({ ok: true, status: parsed.data.status });
 };

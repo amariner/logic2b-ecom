@@ -63,7 +63,7 @@ reconciliación se conserva abajo por contexto.
 | 11 | Landing V2 «nivel Awwwards» + negocio + funnel + docs | 🟡 En curso | 2026-07-24 | **F11.1, F11.3 (2 sesiones), F11.4, F11.5, F11.6, F11.7 y F11.8 (primera pasada + pase a11y/contenido desde cloud 2026-07-24) hechos**, más F11.8b (auditor de a11y, cloud), F11.2a-1 (tienda ASFALTO / tema Street), F11.2a-2 (tienda METRIA / tema Industrial) F11.2a-3 (tienda ROMER / tema Natural) y **F11.2a-4 (tienda KALIBRE / tema Specs, local 2026-07-25) — con la que F11.2a queda CERRADA (10/10 tiendas)**; y **F11.8c (Lighthouse citable + OG de WhatsApp + URLs sin redirección, local 2026-07-26)**; y **F11.8d–e (tabla de Lighthouse cerrada y desplegada: 7 de 8 superficies a 100×4, la landing entre ellas en móvil y escritorio, local 2026-07-27)**; de la cola de F11.8 solo queda la submission a Awwwards (decisión de pago: Andreu). Detalle por bloque abajo. (ver «Fase 11» abajo). **Plan maestro completo en [`docs/PLAN_FASE11_LANDING_V2.md`](PLAN_FASE11_LANDING_V2.md)**: bloques F11.0–F11.8 ejecutables por sesiones independientes. **Decisiones D1–D6 APROBADAS por Andreu (2026-07-23)**: JS propio ≤15 KB sin deps, capturas con browser tools en local, dirección C «Ocho tiendas, un motor», escalera de precios (Lite 590 / Kit 1.900+39 / A medida 3.400+59), WhatsApp+email, Lite publicado sin construir. Prompt de arranque: [`docs/PROMPT_FASE11.md`](PROMPT_FASE11.md). Integra 9B.5/9B.6 (imaginería y temas restantes) como prerequisito del hero |
 | 8 | Pulido de la demo (backlog abajo) | 🟡 En curso | 2026-07-19 | Backlog técnico agotado; solo quedan decisiones y pasos locales de Andreu (ver «Decisiones pendientes» y `docs/PROMPT_CLOUD.md`). Últimas tandas: novena (race de idempotencia en el pago, PII enumerable en `/demo/gracias`, cancelación de pedido pagado sin devolver stock), décima (la misma race en el PATCH de admin, campos vacíos guardados como 0, login sin rate limit), undécima (diagrama móvil de `/arquitectura`, hedge del plazo de entrega, tokens de tema en `/demo/reset`, terminología «envío»), duodécima (aviso de corte en pedidos del admin, cabeceras sin wrap a 375px, leftover «portes», token de radio del carrito, contraste del botón eliminar, H1 en valenciano, checklist de producción) y decimotercera (misma race de idempotencia en `checkout.session.expired`, divisa hardcodeada a EUR fuera de Stripe, cobertura de test de `quoteCart`/PATCH admin/emails) y decimocuarta (config parcial de Stripe → cobro sin cumplimiento, emails duplicados bajo concurrencia, `payment_status` del webhook, color de marca centralizado en `shop.config.ts`, contraste/tema en carrito y checkout) — ver sección «Fase 8» |
 | 12 | Logic2B Ecommerce: renombrado, reposicionamiento y docs de dos visiones | 🟡 En curso | 2026-08-06 | **F12.0–F12.5 cerrados:** renombrado, nuevo argumento en landing/dossier, canal agencias en marca blanca y manual ampliado del gestor. Solo queda F12.6 (consolidación). **Plan maestro en [`docs/PLAN_FASE12_LOGIC2B_ECOMMERCE.md`](PLAN_FASE12_LOGIC2B_ECOMMERCE.md)**. |
-| 13 | Plataforma modular: del gestor mínimo a paridad extrema de capacidad | 🟡 En curso | 2026-08-06 | **R0 y R1.1–R1.5 cerrados; R1.6 diseñado:** ADR, SQL y contratos del outbox listos y verificados, sin migración. Espera aprobación de esquema antes de R1.7. Fuente de verdad en [`docs/plataforma/`](plataforma/README.md). |
+| 13 | Plataforma modular: del gestor mínimo a paridad extrema de capacidad | 🟡 En curso | 2026-08-06 | **R0 y R1.1–R1.7 cerrados:** manifest/registro, eventos versionados y outbox transaccional con lease, retry/dead-letter y dispatcher idempotente. Siguiente: R1.8, audit log transversal. Fuente de verdad en [`docs/plataforma/`](plataforma/README.md). |
 
 ## Repo y entornos
 
@@ -108,8 +108,9 @@ de producto pasa a la Fase 13 y se ejecuta un bloque R por sesión.
 | R1.3 | Navegación y rutas por capacidad | ✅ 2026-08-06 — política común, 12 tests de acceso y SQL de presentación 13→4 |
 | R1.4 | Registro de módulos | ✅ 2026-08-06 — 16 descriptores, validación de ciclos/propiedad y composición por preset |
 | R1.5 | Sobre de eventos | ✅ 2026-08-06 — sobre versionado sin PII, 5 hechos de pedido, consumidor de notificaciones desacoplado, 244 tests |
-| R1.6 | Diseño y aprobación del outbox | 🟡 2026-08-06 — propuesta lista y verificada; espera aprobación de esquema |
-| R1.7+ | Outbox transaccional, audit log, observabilidad y resto de olas | ⬜ ver plan maestro |
+| R1.6 | Diseño y aprobación del outbox | ✅ 2026-08-06 — ADR-0007 y esquema aprobados |
+| R1.7 | Outbox transaccional | ✅ 2026-08-06 — migración, escritura atómica, dispatcher y recuperación |
+| R1.8+ | Audit log, observabilidad y resto de olas | ⬜ ver plan maestro |
 
 ## Fase 12 — Logic2B Ecommerce: renombrado, reposicionamiento y las dos visiones
 
@@ -1446,21 +1447,32 @@ emails, mismas respuestas HTTP.
 - Sin migración D1, sin dependencia nueva, sin cambio de respuestas ni de
   promesa comercial. `wrangler.jsonc` vuelve a `DEMO_MODE=true` tras la prueba.
 
-### Puerta de decisión actual
+### R1.6–R1.7 — outbox transaccional — ✅ cerrado 2026-08-06
 
-**R1.6 — propuesta de outbox lista; espera aprobación.** El
-[`ADR-0007`](plataforma/adr/0007-outbox-transaccional-d1.md), el
-[`SQL propuesto`](plataforma/sql/0004_event_outbox.proposed.sql) y siete pruebas
-contractuales fijan dos tablas (hecho + entrega por consumidor), deduplicación,
-claim/lease, retry/dead-letter, redacción de errores y retención. El SQL se ha
-ejecutado también con Wrangler D1 local. No se ha creado `migrations/0004`, ni
-hay escritura o dispatcher conectados al runtime.
+El esquema aprobado entra como migración aditiva: tabla de hechos inmutables y
+entrega independiente por consumidor. Pedido, evento, timeline, stock y
+entregas se confirman en una batch guardada por estado; una carrera perdedora
+aplica cero efectos. El dispatcher añade claim de 25, lease de 60 s, retry con
+siete backoffs, dead-letter al octavo fallo, replay interno, errores redacted y
+retención de 30 días. Notificaciones inserta mensajes y ACK en la misma batch.
 
-**Andreu debe aprobar el esquema antes de continuar.** Con el OK, R1.6 se cierra
-y la siguiente sesión ejecuta R1.7: migración aditiva ensayada, escritura
-atómica y dispatcher idempotente. Cualquier ajuste se hace todavía en la
-propuesta, sin tocar D1. Criterio y decisiones completas en
-[`docs/plataforma/ROADMAP.md`](plataforma/ROADMAP.md#r16--diseño-listo-aprobación-pendiente).
+Verificado sobre SQLite real con carreras, rollback completo, doble despacho,
+lease vencida, retry/dead-letter y replay; las cuatro migraciones también se
+aplicaron con Wrangler sobre una D1 temporal aislada. Seed/reset y backup ya
+incluyen las tablas. La demo no activa jobs ni efectos; las tiendas reales
+despachan vía `waitUntil` y barrido cada cinco minutos.
+
+Verificación final: `pnpm check` (35 suites, 251 tests, tipos y build),
+migración `0004` aplicada a la D1 local y E2E de aislamiento 27/27 contra
+`wrangler dev` con el esquema migrado. Migración remota y despliegue
+`4578e360-b00d-460f-be0d-63a5a281b127` confirmados; E2E remoto 27/27.
+
+### Siguiente bloque
+
+**R1.8 — audit log transversal.** Actor, acción, entidad, diff redacted y
+`correlation_id` para pagos, pedidos, producto y admin; export autenticado. El
+contrato se diseña antes de cualquier nueva migración. Criterio completo en
+[`docs/plataforma/ROADMAP.md`](plataforma/ROADMAP.md#r18--audit-log-transversal).
 
 **F12.6 queda en el carril comercial, no bloquea R1.6.** Una sesión local de
 mantenimiento creará el índice general de docs, revisará OG y ejecutará

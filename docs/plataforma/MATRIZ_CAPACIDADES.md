@@ -24,8 +24,8 @@ su alcance requiera.
 | PLT-003 | Registro de módulos y dependencias | núcleo | P0 | parcial | Registro ejecutable con propietario de capacidades, dependencias, permisos, superficies y, desde R1.5, emisores/suscriptores de eventos; jobs y healthchecks se completan en R1.11/R1.10. |
 | PLT-004 | Configuración validada por entorno | núcleo | P0 | parcial | Esquema tipado, valores por cliente y fallo temprano ante combinaciones inválidas. |
 | PLT-005 | Migraciones reproducibles y reversibles | núcleo | P0 | parcial | Forward migration probada, backup y procedimiento de rollback/restore. |
-| PLT-006 | Eventos de dominio versionados | núcleo | P0 | parcial | Sobre ejecutable con nombre, versión, actor, entidad, correlación, causación e idempotencia estables; los cinco hechos de pedido lo emiten. Falta persistirlos y entregarlos (R1.6/R1.7). |
-| PLT-007 | Outbox transaccional | núcleo | P0 | pendiente | R1.6 deja ADR, SQL y contratos probados en estado propuesto; sigue pendiente hasta aprobar y ejecutar la migración/dispatcher de R1.7. |
+| PLT-006 | Eventos de dominio versionados | núcleo | P0 | actual | Los cinco hechos de pedido se emiten, persisten sin PII y conservan identidad, versión, causa, correlación e idempotencia. |
+| PLT-007 | Outbox transaccional | núcleo | P0 | actual | Negocio, evento y entregas se confirman en una batch; claim con lease, retry/dead-letter, replay interno y dispatcher idempotente sobre D1. |
 | PLT-008 | Adaptadores sustituibles | núcleo | P0 | especificado | Pagos, email, transporte, impuestos y feeds detrás de interfaces. |
 | PLT-009 | Configuración con borrador y publicación | módulo | P1 | pendiente | Preview, diff, publicación atómica y rollback. |
 | PLT-010 | Importación/exportación de configuración | núcleo | P1 | pendiente | Reproducir un proyecto sin copiar secretos ni datos personales. |

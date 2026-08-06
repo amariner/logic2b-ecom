@@ -14,10 +14,10 @@
   // Dominio público de la demo. Wrangler aprovisiona el registro DNS + certificado
   // en la zona logic2b.com (debe estar en la misma cuenta de Cloudflare).
   "routes": [{ "pattern": "ecom.logic2b.com", "custom_domain": true }],
-  // Reset de la demo cada 6 h (handler `scheduled` en src/worker.ts).
-  // En una tienda real: eliminar este bloque.
+  // Demo: reset cada 6 h. Cliente real: barrido del outbox cada 5 min; cada
+  // handler comprueba DEMO_MODE, así el disparador ajeno queda inerte.
   "triggers": {
-    "crons": ["0 */6 * * *"]
+    "crons": ["0 */6 * * *", "*/5 * * * *"]
   },
   "d1_databases": [
     {

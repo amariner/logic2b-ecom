@@ -1,6 +1,6 @@
 # ADR-0007 — Outbox transaccional sobre D1
 
-- Estado: **proposed — espera aprobación de Andreu**
+- Estado: **accepted — aprobado por Andreu al ordenar continuar R1.7**
 - Fecha: 2026-08-06
 - Mandato: R1.6
 
@@ -128,7 +128,7 @@ puerta de decisión.
 - Un evento puede entregarse más de una vez; su efecto no puede duplicarse.
 - El outbox no contiene PII y los errores se redactan antes de persistir.
 - No aparece una ruta, pantalla, coste fijo ni dependencia nueva.
-- R1.7 no empieza hasta que Andreu apruebe esta propuesta de esquema.
+- La aprobación autoriza R1.7 sin alterar las invariantes de este ADR.
 
 ## Referencias de plataforma verificadas
 

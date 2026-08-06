@@ -78,8 +78,8 @@ runtime clonable (desde R1.5, sin SQL en presentación)
   order-operations (composition root)
     orders.domain           emite el hecho con sobre
     notifications           consume el hecho -> mensajes
-    orders.infrastructure   UPDATE guardado + UNA batch: timeline + stock + outbox
-  outbox -> send-email -> HTTP Resend
+    orders.infrastructure   UNA batch: mutación + evento + timeline + stock + entregas
+  event-outbox -> dispatcher -> emails_outbox -> send-email -> HTTP Resend
 ```
 
 El precio se revalida en D1, el cliente no envía importes, el stock se descuenta
@@ -236,7 +236,8 @@ de jobs y healthchecks siguen explícitamente vacíos hasta R1.11 y R1.10.
 | R1.2 ✅ | Configuración/manifest tipados, presets y `create-platform` puros, sin UI. | Rutas, SQL, tablas, demo y registros de temas siguen iguales. |
 | R1.3 ✅ | Rutas/nav consultan capacidades; SQL tocado pasa a casos de uso/adaptadores. | Mutación de pago y outbox conservan contrato y tablas. |
 | R1.4 ✅ | Descriptor/registro único de 16 módulos; composition root resuelve módulos operativos y el validador rechaza duplicados/ciclos. Navegación y rutas se derivan del registro. | Seeds, temas, adaptadores y contratos futuros no se mueven ni se inventan. |
-| R1.5 ✅ | Sobre versionado en `shared-kernel`; los cinco hechos de pedido lo emiten y el timeline pasa a ser su proyección; notificaciones consume eventos sin depender de pedidos; el webhook recibe un evento normalizado y las tres rutas de escritura pasan a casos de uso compuestos. | `emails_outbox` y la entrega actual siguen hasta R1.6–R1.7; el stock lo sigue escribiendo el adaptador de pedidos hasta R2.7. |
+| R1.5 ✅ | Sobre versionado en `shared-kernel`; los cinco hechos de pedido lo emiten y el timeline pasa a ser su proyección; notificaciones consume eventos sin depender de pedidos; el webhook recibe un evento normalizado y las tres rutas de escritura pasan a casos de uso compuestos. | El stock lo sigue escribiendo el adaptador de pedidos hasta R2.7. |
+| R1.6–R1.7 ✅ | ADR/esquema aprobados; mutación, evento y entregas atómicos; dispatcher con lease, retry, dead-letter, replay interno y retención. | El job canónico entra en R1.11; el barrido de 5 min es el puente mínimo documentado. |
 | R1.12 | Cerrar imports planos restantes, SQL de presentación residual y documentación de crear módulo. | Solo deuda que requiera olas R2+ por cambio de esquema. |
 
 No hay big-bang: cada caso de uso conserva tests y contrato HTTP mientras se
