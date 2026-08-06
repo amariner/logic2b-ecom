@@ -11,7 +11,7 @@
  *   seed/collections/<id>.ts          (stub de 3 productos, slugs namespaceados)
  *   public/images/collections/<id>/.gitkeep
  *   docs/temas/<id>.md                (ficha de entrega)
- *   + entrada en src/lib/collections.ts (marcadores new-theme:*)
+ *   + entrada en src/collections/index.ts (marcadores new-theme:*)
  *   + entrada en seed/collections/index.ts
  *   + entrada del tema en src/lib/demo-themes.ts SI FALTA (tokens de Base)
  *
@@ -48,7 +48,7 @@ const ALLOWED = [
   `seed/collections/index.ts`,
   `public/images/collections/${id}/`,
   `docs/temas/${id}.md`,
-  'src/lib/collections.ts',
+  'src/collections/index.ts',
   'src/lib/demo-themes.ts',
 ];
 function assertAllowed(rel) {
@@ -176,7 +176,7 @@ writeNew(
  * TODO(tema ${id}): REPLICAR la captura public/images/referencias/*-${id}.webp
  * (rejilla, gaps, filetes, escala tipográfica, orden). Ver docs/CHECKLIST_TEMA.md.
  */
-import type { CollectionConfig } from '../../../lib/collections';
+import type { CollectionConfig } from '../../../collections';
 import Filters from './Filters.astro';
 import ProductGrid from './ProductGrid.astro';
 
@@ -264,7 +264,7 @@ writeNew(
  * Contrato: filtra contra los MISMOS parámetros ?categoria= / ?orden= / ?q=
  * de la tienda Base — la lógica de filtrado es motor, aquí solo cambia la piel.
  */
-import type { CollectionConfig } from '../../../lib/collections';
+import type { CollectionConfig } from '../../../collections';
 
 interface Props {
   collection: CollectionConfig;
@@ -362,13 +362,13 @@ writeNew(
 
 // ── Parches de registro (idempotentes) ──────────────────────────────────────
 patchAtMarker(
-  'src/lib/collections.ts',
+  'src/collections/index.ts',
   '// new-theme:imports',
   `import { ${id}Collection } from '../collections/${id}';`,
   `collections/${id}'`,
 );
 patchAtMarker(
-  'src/lib/collections.ts',
+  'src/collections/index.ts',
   '// new-theme:entries',
   `${id}Collection,`,
   `${id}Collection,`,

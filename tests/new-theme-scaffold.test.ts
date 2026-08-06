@@ -7,14 +7,14 @@
  * agregador de seeds por colección.
  */
 import { describe, expect, it } from 'vitest';
-import collectionsSrc from '../src/lib/collections.ts?raw';
+import collectionsSrc from '../src/collections/index.ts?raw';
 import themesSrc from '../src/lib/demo-themes.ts?raw';
 import seedIndexSrc from '../seed/collections/index.ts?raw';
 import seedSrc from '../seed/seed.ts?raw';
 import scaffoldSrc from '../scripts/new-theme.mjs?raw';
 
 describe('marcadores del scaffold new:theme', () => {
-  it('src/lib/collections.ts conserva los marcadores de import y de entrada', () => {
+  it('src/collections/index.ts conserva los marcadores de import y de entrada', () => {
     expect(collectionsSrc).toContain('// new-theme:imports');
     expect(collectionsSrc).toContain('// new-theme:entries');
   });

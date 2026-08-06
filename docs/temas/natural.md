@@ -105,7 +105,7 @@ etiqueta decorativa.
   (`status: 'ready'`), `CatalogPage.astro` (`catalogViews`), `Shop.astro`
   (`SWITCHER_ORDER`), `index.astro` (`galleryOrder`), `a11y-audit.mjs` y
   `capture-screens.mjs` (`STORES`/`FICHAS`), `seed/collections/index.ts`,
-  `src/lib/collections.ts`.
+  `src/collections/index.ts`.
 - **¿Hizo falta rozar el motor?** **NO.** Ni un token nuevo, ni una línea de
   lógica compartida. Los tokens del tema ya estaban declarados desde 2026-07-20
   y no hubo que corregir ninguno mirando la captura.

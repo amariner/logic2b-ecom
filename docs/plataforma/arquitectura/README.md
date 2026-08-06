@@ -1,7 +1,7 @@
 # Arquitectura modular comprobable
 
-> Fuente de verdad arquitectónica desde R1.1, actualizada al cierre de R1.3 el
-> **2026-08-06**. Fija las fronteras que R1.4–R1.5 deben respetar. No describe
+> Fuente de verdad arquitectónica desde R1.1, actualizada al cierre de R1.4 el
+> **2026-08-06**. Fija las fronteras que R1.5 y siguientes deben respetar. No describe
 > como migradas las capas que aún siguen planas.
 
 ## 1. Tres lecturas que no deben mezclarse
@@ -29,16 +29,17 @@
 | Sitemap | `src/pages/sitemap.xml.ts` | Endpoint estático de presentación pública. |
 
 R1.3 conecta el composition root mediante `runtimePlatform`: middleware,
-navegación, páginas, endpoints y acciones consultan una política común. Los
-registros de módulos/adaptadores siguen distribuidos hasta R1.4.
+navegación, páginas, endpoints y acciones consultan una política común. R1.4
+añade el registro canónico de módulos y absorbe navegación/rutas; los registros
+de adaptadores e infraestructura siguen reservados a sus bloques.
 
 ### `src/lib/` por responsabilidad actual
 
 | Grupo actual | Archivos | Observación |
 |---|---|---|
 | Seguridad/plataforma | `admin-auth`, `rate-limit`, `backup` | Web Crypto y D1 aparecen en helpers planos. |
-| Catálogo | `db`, `collections`, `demo-catalog` | D1, registro de colecciones y fixtures seed comparten tipos. |
-| Presentación storefront | `demo-themes`, `nav`, `not-found`, `storefront-contract` | Registro de temas y detalles HTTP viven junto al dominio. |
+| Catálogo/demo | `db`, `demo-catalog` | D1 y fixtures seed siguen planos; el registro de escaparates ya vive con sus descriptores en `src/collections/`. |
+| Presentación storefront | `demo-themes`, `theme-catalog`, `nav`, `not-found`, `storefront-contract` | Registro de temas, descubrimiento del catálogo y detalles HTTP viven junto al dominio. |
 | Carrito/demo | `cart-client`, `demo-commerce` | Simulación pública local, deliberadamente separada del runtime D1. |
 | Precio/quote/envío | `pricing`, `shipping`, `quote` | La aritmética es pura; `quote` obtiene producto y tarifa directamente de D1. |
 | Pago/pedido | `stripe`, `payment-mode`, `payment-transition`, `orders`, `order-transitions`, `thanks` | El webhook y checkout orquestan D1, Stripe, stock, pedido y email. |
@@ -51,8 +52,8 @@ El binding entra por casos de uso/adaptadores en las superficies migradas y por
 `locals.runtime.env.DB` en la deuda restante; el cron usa `env.DB`. Hay SQL
 fuera de infraestructura en estos archivos exactos:
 
-- endpoints: `api/admin/backup.sql.ts`, `api/admin/orders/[id].ts`,
-  `api/checkout/session.ts` y `api/webhooks/stripe.ts`;
+- endpoints: `api/admin/orders/[id].ts`, `api/checkout/session.ts` y
+  `api/webhooks/stripe.ts`;
 - helpers/adaptadores planos: `db.ts`, `orders.ts`, `send-email.ts`, `thanks.ts`
   y `backup.ts`;
 - composición demo: `src/worker.ts` ejecuta sentencias producidas por
@@ -93,9 +94,10 @@ tarjeta. R1.1 no altera ninguno de esos contratos.
   escaparate; tres colecciones conservan componentes/rutas excepcionales.
 - `src/components/themes/<id>/` solo debe cambiar presentación y usar hooks del
   contrato storefront.
-- `src/lib/collections.ts`, `CatalogPage.astro`, `demo-themes.ts` y
-  `seed/collections/index.ts` son cuatro registros manuales distintos. Esa
-  duplicación es el riesgo principal para el registro único de R1.4.
+- `src/collections/index.ts`, `CatalogPage.astro`, `demo-themes.ts` y
+  `seed/collections/index.ts` son registros de escaparates/temas, no módulos de
+  plataforma. Se mantienen separados hasta que un bloque de storefront modele
+  su contrato sin confundir catálogo visual con el registro R1.4.
 - El panel público lee D1 de fixtures, pero sus controles quedan `disabled`
   cuando `DEMO_MODE=true`; las APIs operativas siguen formando parte del motor
   clonable, no del recorrido público.
@@ -105,7 +107,7 @@ tarjeta. R1.1 no altera ninguno de esos contratos.
 - `platform.config.ts`: manifest tipado de este despliegue; hoy usa el preset
   técnico `minimal` de demo y no contiene valores secretos.
 - `src/platform/configuration/`: IDs, estados, flags, dependencias, config,
-  presets y validación fail-fast materializados en R1.2.
+  presets, registro de módulos y validación fail-fast materializados en R1.2–R1.4.
 - `shop.config.ts`: configuración legacy compartida de la tienda; aún la
   importan presentación, plantillas, precios/envío y numeración.
 - `wrangler.jsonc` y `src/env.d.ts`: bindings, variables y secretos esperados.
@@ -120,14 +122,13 @@ tarjeta. R1.1 no altera ninguno de esos contratos.
 No hay ciclos en los imports estáticos locales bajo `src/` en la línea base.
 Sí hay inversiones o filtraciones localizadas:
 
-1. `collections.ts` (motor) importa todas las colecciones concretas;
-2. `demo-catalog.ts` (runtime de presentación) importa `seed/`;
-3. `format.ts` (compartido) importa configuración concreta;
-4. `payment-transition.ts` crea emails directamente en vez de producir un
+1. `demo-catalog.ts` (runtime de presentación) importa `seed/`;
+2. `format.ts` (compartido) importa configuración concreta;
+3. `payment-transition.ts` crea emails directamente en vez de producir un
    resultado consumible por notificaciones;
-5. el webhook importa tipos del SDK Stripe;
-6. rutas y páginas conocen D1 y SQL;
-7. catálogo, stock, precio, datos de pago y fulfillment comparten físicamente
+4. el webhook importa tipos del SDK Stripe;
+5. tres rutas conocen todavía D1 y SQL;
+6. catálogo, stock, precio, datos de pago y fulfillment comparten físicamente
    tablas/filas, aunque su propiedad lógica será distinta.
 
 Las excepciones exactas viven en [`DEUDA.md`](DEUDA.md) y
@@ -213,11 +214,14 @@ o, desde R1.5, a consumidores de eventos. No se implementan esos eventos en R1.1
 
 R1.2 materializa `src/composition/create-platform.ts` como función pura. Recibe
 el manifest tipado, lo valida y devuelve consultas de capacidad/estado/flags.
-No elige infraestructura, no lee secretos y no cambia respuestas.
-
 R1.3 conecta rutas, navegación y adaptadores Astro a esa fachada mediante
-`runtimePlatform`. R1.4 añadirá descriptores y elección de adaptadores; los
-registros restantes no se renombran artificialmente.
+`runtimePlatform`.
+
+R1.4 incorpora `module-registry.ts`: cada capacidad tiene un módulo propietario
+y cada descriptor declara dependencias y superficies conocidas. El composition
+root selecciona solo módulos operativos y falla si falta una dependencia. No
+elige infraestructura, no lee secretos ni inventa adaptadores; los arrays de
+eventos, jobs y healthchecks permanecen explícitamente vacíos hasta sus bloques.
 
 ## 5. Transición incremental
 
@@ -225,7 +229,7 @@ registros restantes no se renombran artificialmente.
 |---|---|---|
 | R1.2 ✅ | Configuración/manifest tipados, presets y `create-platform` puros, sin UI. | Rutas, SQL, tablas, demo y registros de temas siguen iguales. |
 | R1.3 ✅ | Rutas/nav consultan capacidades; SQL tocado pasa a casos de uso/adaptadores. | Mutación de pago y outbox conservan contrato y tablas. |
-| R1.4 | Descriptor/registro único de módulos; composition root resuelve dependencias y ciclos. Absorber registros manuales cuando el descriptor tenga datos reales. | Seeds y temas no se mueven por estética. |
+| R1.4 ✅ | Descriptor/registro único de 16 módulos; composition root resuelve módulos operativos y el validador rechaza duplicados/ciclos. Navegación y rutas se derivan del registro. | Seeds, temas, adaptadores y contratos futuros no se mueven ni se inventan. |
 | R1.5 | Introducir sobre de evento y adaptar transiciones actuales sin cambiar efectos; retirar Stripe del webhook de presentación y el import orders→notifications. | `emails_outbox` y entrega actual siguen hasta el diseño/implementación R1.6–R1.7. |
 | R1.12 | Cerrar imports planos restantes, SQL de presentación residual y documentación de crear módulo. | Solo deuda que requiera olas R2+ por cambio de esquema. |
 
@@ -261,10 +265,11 @@ indicadores y los tests funcionales no mejoran.
 | Monolito y aislamiento por despliegue | ADR-0001 + `platform.config.ts`; manifest/config independiente y validado sin crear infraestructura compartida. |
 | `presentation -> application -> domain` | `layer-direction`, `domain-technology-import` y `domain-platform-global`. |
 | Grafo entre módulos y API pública | `module-dependency`, `module-private-import` y clasificación obligatoria de todo `src/lib/*.ts`. |
-| Puertos/adaptadores; SDK/SQL fuera de presentación | `restricted-sdk-import` y `presentation-sql`; excepciones exactas en `DEUDA.md`; runtime conectado y 9 excepciones retiradas en R1.3. |
+| Puertos/adaptadores; SDK/SQL fuera de presentación | `restricted-sdk-import` y `presentation-sql`; excepciones exactas en `DEUDA.md`; allowlist reducida de 18 a 9 en R1.3 y a 7 en R1.4. |
 | Lifecycle de seis estados | ADR-0004 + `tests/capability-manifest.test.ts`: seis estados, flags, degradación, dependencias y fallo temprano ejecutables. |
+| Registro y composición de módulos | `module-registry.ts` + `tests/module-registry.test.ts`: propietario único por capacidad, semver, dependencias/ciclos, superficies y presets operativos. |
 | Transición sin big-bang | allowlist sellada a las claves R1.1, cero ciclos y `pnpm check`; contratos HTTP/runtime no se editan en este bloque. |
 
-Las reglas aún no comprobables porque su artefacto no existe (activación real,
-healthchecks y registro de módulos) tienen bloque de salida explícito; no se
-presentan como garantías ya implementadas.
+Las reglas aún no comprobables porque su artefacto no existe (activación de
+infraestructura, eventos, jobs y healthchecks reales) tienen bloque de salida
+explícito; no se presentan como garantías ya implementadas.

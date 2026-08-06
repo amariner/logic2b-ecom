@@ -108,7 +108,7 @@ Ficheros nuevos:
 - `public/images/screens/store-specs-*` — 3 capturas
 
 Ficheros tocados (solo registro): `seed/collections/index.ts`,
-`src/lib/collections.ts`, `src/components/store/CatalogPage.astro`,
+`src/collections/index.ts`, `src/components/store/CatalogPage.astro`,
 `src/layouts/Shop.astro`, `src/pages/index.astro`, `scripts/a11y-audit.mjs`,
 `scripts/capture-screens.mjs`, `src/lib/demo-themes.ts` (solo `status: 'ready'`).
 

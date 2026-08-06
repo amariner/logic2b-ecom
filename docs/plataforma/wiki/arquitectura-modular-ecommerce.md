@@ -14,6 +14,7 @@ evidence:
   - test: tests/architecture.test.ts
   - test: tests/capability-manifest.test.ts
   - test: tests/capability-access.test.ts
+  - test: tests/module-registry.test.ts
   - document: docs/plataforma/arquitectura/README.md
   - configuration: platform.config.ts
 related:
@@ -27,8 +28,8 @@ draft: true
 
 > **Borrador interno. No genera ruta, sitemap ni canonical.** URL futura:
 > `/funcionalidades/arquitectura-modular-ecommerce/`. Estado público permitido
-> hoy: **En estudio**. R1.1 fija arquitectura y checks; R1.2–R1.3 entregan el
-> manifest tipado y su corte de rutas/navegación, pero no todavía el registro.
+> hoy: **En estudio**. R1.1 fija arquitectura y checks; R1.2–R1.4 entregan el
+> manifest tipado, el corte de rutas/navegación y el registro de módulos.
 
 ## Resumen
 
@@ -36,7 +37,8 @@ Logic2B Ecommerce se diseña como un monolito modular desplegado de forma
 independiente para cada comercio. El objetivo es ampliar capacidades sin añadir
 pantallas, jobs ni configuración a quien no las necesita. Hoy existen el
 aislamiento por proyecto, un núcleo transaccional probado y una fuente tipada
-por despliegue que ya gobierna rutas y navegación. Falta el registro estable.
+por despliegue que gobierna rutas, navegación y composición de módulos. Faltan
+los contratos operativos de eventos, jobs, healthchecks e integraciones.
 
 ## Estado visible
 
@@ -54,12 +56,13 @@ R1, disponer de manifest/registro operativo y aportar evidencias por capacidad.
   temprano de combinaciones inválidas;
 - presets técnicos `minimal`, `standard` y `advanced`, composition root y una
   política común que oculta o corta rutas según el estado/flag;
+- registro validado de 16 módulos con propietario único de capacidades,
+  dependencias, permisos y superficies; composición operativa por preset;
 - demo completa mediante composición propia sin jobs, efectos comerciales ni
   mutaciones.
 
 ### Diseñado, todavía no disponible
 
-- registro de módulos y dependencias (R1.4);
 - eventos versionados, outbox, audit log, observabilidad y healthchecks
   (R1.5–R1.10).
 
@@ -76,7 +79,8 @@ condicionales, duplica reglas y hace difícil saber qué está realmente activo.
 2. El manifest ya valida dependencias y combinaciones antes de componer.
 3. El composition root ya expone estado y flags sin elegir infraestructura.
 4. Presentación y acceso ya obedecen esos flags con 404/403 coherente.
-5. R1.4 reunirá módulos y adaptadores en un registro estable.
+5. El registro reúne los módulos y sus superficies conocidas sin activar
+   adaptadores ni infraestructura.
 6. Healthchecks podrán marcar una capacidad `degraded` sin relajar seguridad.
 7. La retirada conserva exportación/retención y deja de ejecutar efectos.
 
@@ -146,4 +150,4 @@ Relacionar con módulos activables, integraciones observables y seguridad. Al
 publicar, la CTA será solicitar análisis del proyecto; no habrá CTA de
 autoactivación mientras el servicio sea gestionado por Logic2B.
 
-**Revisión:** arquitectura · 2026-08-06 · revisar tras R1.4 o en 90 días.
+**Revisión:** arquitectura · 2026-08-06 · revisar tras R1.5 o en 90 días.

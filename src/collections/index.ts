@@ -12,23 +12,23 @@
  * un id desconocido es un 404, no un catálogo vacío ni —peor— una lectura de la
  * tabla entera.
  */
-import { demoCollection } from '../collections/demo';
-import { minimalCollection } from '../collections/minimal';
-import { editorialCollection } from '../collections/editorial';
-import { guideCollection } from '../collections/guide';
-import { launchCollection } from '../collections/launch';
-import { irisCollection } from '../collections/iris';
-import { streetCollection } from '../collections/street';
-import { industrialCollection } from '../collections/industrial';
-import { naturalCollection } from '../collections/natural';
-import { specsCollection } from '../collections/specs';
-import { noddoCollection } from '../collections/noddo';
-import { sitegaCollection } from '../collections/sitega';
-import { formaCollection } from '../collections/forma';
-import { stretchCollection } from '../collections/stretch';
-import { arceCollection } from '../collections/arce';
+import { demoCollection } from './demo';
+import { minimalCollection } from './minimal';
+import { editorialCollection } from './editorial';
+import { guideCollection } from './guide';
+import { launchCollection } from './launch';
+import { irisCollection } from './iris';
+import { streetCollection } from './street';
+import { industrialCollection } from './industrial';
+import { naturalCollection } from './natural';
+import { specsCollection } from './specs';
+import { noddoCollection } from './noddo';
+import { sitegaCollection } from './sitega';
+import { formaCollection } from './forma';
+import { stretchCollection } from './stretch';
+import { arceCollection } from './arce';
 // new-theme:imports — no borrar: `pnpm new:theme <id>` añade aquí su import.
-import type { CollectionCategory, CollectionConfig } from '../collections/types';
+import type { CollectionCategory, CollectionConfig } from './types';
 
 export type { CollectionCategory, CollectionConfig };
 

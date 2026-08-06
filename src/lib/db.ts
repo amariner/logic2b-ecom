@@ -87,7 +87,7 @@ export function escapeLikePattern(term: string): string {
  * `collection` es obligatorio a propósito: así el compilador obliga a cada punto
  * de lectura a declarar de qué tienda está tirando, y ningún tema puede leer la
  * tabla entera por olvido. Debe venir ya validado contra el registro de
- * `lib/collections.ts` (que es quien lo resuelve desde la URL).
+ * `collections.ts` (que es quien lo resuelve desde la URL).
  */
 export async function getActiveProducts(
   db: D1Database,

@@ -63,7 +63,7 @@ reconciliación se conserva abajo por contexto.
 | 11 | Landing V2 «nivel Awwwards» + negocio + funnel + docs | 🟡 En curso | 2026-07-24 | **F11.1, F11.3 (2 sesiones), F11.4, F11.5, F11.6, F11.7 y F11.8 (primera pasada + pase a11y/contenido desde cloud 2026-07-24) hechos**, más F11.8b (auditor de a11y, cloud), F11.2a-1 (tienda ASFALTO / tema Street), F11.2a-2 (tienda METRIA / tema Industrial) F11.2a-3 (tienda ROMER / tema Natural) y **F11.2a-4 (tienda KALIBRE / tema Specs, local 2026-07-25) — con la que F11.2a queda CERRADA (10/10 tiendas)**; y **F11.8c (Lighthouse citable + OG de WhatsApp + URLs sin redirección, local 2026-07-26)**; y **F11.8d–e (tabla de Lighthouse cerrada y desplegada: 7 de 8 superficies a 100×4, la landing entre ellas en móvil y escritorio, local 2026-07-27)**; de la cola de F11.8 solo queda la submission a Awwwards (decisión de pago: Andreu). Detalle por bloque abajo. (ver «Fase 11» abajo). **Plan maestro completo en [`docs/PLAN_FASE11_LANDING_V2.md`](PLAN_FASE11_LANDING_V2.md)**: bloques F11.0–F11.8 ejecutables por sesiones independientes. **Decisiones D1–D6 APROBADAS por Andreu (2026-07-23)**: JS propio ≤15 KB sin deps, capturas con browser tools en local, dirección C «Ocho tiendas, un motor», escalera de precios (Lite 590 / Kit 1.900+39 / A medida 3.400+59), WhatsApp+email, Lite publicado sin construir. Prompt de arranque: [`docs/PROMPT_FASE11.md`](PROMPT_FASE11.md). Integra 9B.5/9B.6 (imaginería y temas restantes) como prerequisito del hero |
 | 8 | Pulido de la demo (backlog abajo) | 🟡 En curso | 2026-07-19 | Backlog técnico agotado; solo quedan decisiones y pasos locales de Andreu (ver «Decisiones pendientes» y `docs/PROMPT_CLOUD.md`). Últimas tandas: novena (race de idempotencia en el pago, PII enumerable en `/demo/gracias`, cancelación de pedido pagado sin devolver stock), décima (la misma race en el PATCH de admin, campos vacíos guardados como 0, login sin rate limit), undécima (diagrama móvil de `/arquitectura`, hedge del plazo de entrega, tokens de tema en `/demo/reset`, terminología «envío»), duodécima (aviso de corte en pedidos del admin, cabeceras sin wrap a 375px, leftover «portes», token de radio del carrito, contraste del botón eliminar, H1 en valenciano, checklist de producción) y decimotercera (misma race de idempotencia en `checkout.session.expired`, divisa hardcodeada a EUR fuera de Stripe, cobertura de test de `quoteCart`/PATCH admin/emails) y decimocuarta (config parcial de Stripe → cobro sin cumplimiento, emails duplicados bajo concurrencia, `payment_status` del webhook, color de marca centralizado en `shop.config.ts`, contraste/tema en carrito y checkout) — ver sección «Fase 8» |
 | 12 | Logic2B Ecommerce: renombrado, reposicionamiento y docs de dos visiones | 🟡 En curso | 2026-08-06 | **F12.0–F12.5 cerrados:** renombrado, nuevo argumento en landing/dossier, canal agencias en marca blanca y manual ampliado del gestor. Solo queda F12.6 (consolidación). **Plan maestro en [`docs/PLAN_FASE12_LOGIC2B_ECOMMERCE.md`](PLAN_FASE12_LOGIC2B_ECOMMERCE.md)**. |
-| 13 | Plataforma modular: del gestor mínimo a paridad extrema de capacidad | 🟡 En curso | 2026-08-06 | **R0 y R1.1–R1.3 cerrados:** investigación/matriz, arquitectura comprobable, manifest tipado y corte efectivo de rutas/navegación por capacidad. Siguiente: R1.4, registro de módulos. Fuente de verdad en [`docs/plataforma/`](plataforma/README.md). |
+| 13 | Plataforma modular: del gestor mínimo a paridad extrema de capacidad | 🟡 En curso | 2026-08-06 | **R0 y R1.1–R1.4 cerrados:** investigación/matriz, arquitectura comprobable, manifest tipado, corte efectivo de superficies y registro/composición de módulos. Siguiente: R1.5, sobre de eventos. Fuente de verdad en [`docs/plataforma/`](plataforma/README.md). |
 
 ## Repo y entornos
 
@@ -106,8 +106,9 @@ de producto pasa a la Fase 13 y se ejecuta un bloque R por sesión.
 | R1.1 | ADR de arquitectura modular: dominios, dependencias, puertos/adaptadores y lifecycle de capacidades | ✅ 2026-08-06 — 5 ADRs + mapa + allowlist/check Vitest |
 | R1.2 | Capability manifest tipado, dependencias y presets sin UI | ✅ 2026-08-06 — 14 tests + config por despliegue + composition root puro |
 | R1.3 | Navegación y rutas por capacidad | ✅ 2026-08-06 — política común, 12 tests de acceso y SQL de presentación 13→4 |
-| R1.4 | Registro de módulos | ⬜ siguiente |
-| R1.5+ | Eventos, outbox, audit log, observabilidad y resto de olas | ⬜ ver plan maestro |
+| R1.4 | Registro de módulos | ✅ 2026-08-06 — 16 descriptores, validación de ciclos/propiedad y composición por preset |
+| R1.5 | Sobre de eventos | ⬜ siguiente |
+| R1.6+ | Outbox, audit log, observabilidad y resto de olas | ⬜ ver plan maestro |
 
 ## Fase 12 — Logic2B Ecommerce: renombrado, reposicionamiento y las dos visiones
 
@@ -539,7 +540,7 @@ un tema.
   identidad del operador). Las **categorías salen de ahí** y pasan a
   `src/collections/<id>.ts` junto con nombre, tagline y descripción. Ocho
   `shop.config` habrían sido ocho motores.
-- **`src/lib/collections.ts`** — registro. La colección activa sale SIEMPRE del
+- **`src/collections/index.ts`** — registro. La colección activa sale SIEMPRE del
   segmento de URL validado contra el registro: un id desconocido es `null` (→ 404),
   nunca un fallback a otra tienda. `resolveCategory` valida la categoría contra su
   propia colección.
@@ -608,7 +609,7 @@ Hacer barato repetir 8 veces, sin que el scaffold pueda tocar el motor.
   `docs/temas/<id>.md` (ficha de entrega con la serie de coste). **Idempotente**:
   re-ejecutarlo no pisa nada (verificado con doble ejecución).
 - **Parches por marcador** (`// new-theme:*`): registra la colección en
-  `src/lib/collections.ts`, el seed en `seed/collections/index.ts` (agregador
+  `src/collections/index.ts`, el seed en `seed/collections/index.ts` (agregador
   nuevo) y, **solo si falta**, la entrada del tema en `demo-themes.ts` con los 14
   tokens de Base y `status: 'planned'`. Los marcadores los fija
   `tests/new-theme-scaffold.test.ts` para que un refactor no los borre en silencio.
@@ -1365,16 +1366,44 @@ faltaba, sin tocar el motor ni alargar `docs/CLIENTE.md`.
 - Desplegado en producción; E2E remoto 27/27 y webhook comercial de la demo
   cerrado con 410 antes de verificar firma o tocar D1.
 
+### R1.4 — registro de módulos — ✅ cerrado 2026-08-06
+
+- Registro canónico de 16 módulos con id/version semver, capacidades,
+  dependencias, permisos, eventos, jobs, healthchecks, enlaces wiki,
+  navegación y rutas. Cada capacidad tiene un único propietario.
+- El validador rechaza descriptores incompletos, ids/dependencias desconocidos,
+  módulos/capacidades/superficies duplicados y ciclos antes de componer.
+- `createPlatform` selecciona solo módulos activos o degradados y comprueba sus
+  dependencias. Navegación y rutas ya se derivan del registro, sin las dos
+  listas manuales anteriores.
+- El registro de escaparates deja la capa plana y el endpoint de backup delega
+  en caso de uso/adaptador D1; la allowlist baja de 9 a 7 y quedan tres rutas
+  con SQL de presentación, asignadas a R1.5.
+- Nueve pruebas específicas cubren invariantes, inmutabilidad y los presets
+  `minimal`, `standard` y `advanced`. Sin dependencia, migración ni activación
+  de infraestructura externa; eventos/jobs/healthchecks se reservan a sus
+  bloques propietarios.
+- Verificado con `pnpm check` (31 suites, 218 tests), E2E 27/27 y las 14
+  superficies del panel a 1440/375 sin errores ni avisos de accesibilidad.
+
+### `/temas` — búsqueda, filtros y densidad de rejilla — ✅ 2026-08-06
+
+- Buscador instantáneo por nombre, sector, descripción y referencia; filtro
+  horizontal por cinco familias y contador accesible de resultados.
+- Selector de dos o tres columnas en escritorio, estado vacío recuperable y
+  mejora progresiva: sin JavaScript se mantienen visibles los 14 temas.
+- Verificado en Chrome a 1440/375, incluyendo búsqueda, filtro, reset y rejilla
+  de tres columnas; auditoría de accesibilidad de ambas vistas sin hallazgos.
+
 ### Siguiente bloque
 
-**R1.4 — Registro de módulos.** Crear descriptores estables con id, versión,
-capacidades, dependencias, permisos, eventos, jobs, healthchecks y enlaces wiki;
-validar duplicados/ciclos y componer solo módulos operativos. Absorber listas
-manuales únicamente cuando el descriptor ya tenga datos reales, sin inventar
-adaptadores ni activar infraestructura. Plan y criterio completo en
-[`docs/plataforma/ROADMAP.md`](plataforma/ROADMAP.md#r14--registro-de-módulos).
+**R1.5 — Sobre de eventos.** Crear el contrato versionado con identificador,
+tipo, versión, timestamp, actor, entidad, correlation/causation e idempotency;
+adaptar los eventos actuales de pedido sin cambiar comportamiento ni diseñar a
+la vez la migración de outbox. Plan y criterio completo en
+[`docs/plataforma/ROADMAP.md`](plataforma/ROADMAP.md#r15--sobre-de-eventos).
 
-**F12.6 queda en el carril comercial, no bloquea R1.4.** Una sesión local de
+**F12.6 queda en el carril comercial, no bloquea R1.5.** Una sesión local de
 mantenimiento creará el índice general de docs, revisará OG y ejecutará
 Lighthouse contra producción en las indexables, incluidas `/precios` y
 `/agencias`.

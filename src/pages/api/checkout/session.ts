@@ -4,7 +4,7 @@ import { shopConfig } from '../../../../shop.config';
 import { applyPaidMutation, generateOrderNumber, generateSimulatedSessionToken } from '../../../lib/orders';
 import { isSimulatedPayment } from '../../../lib/payment-mode';
 import { buildPaidMutation, type OrderItemForPayment } from '../../../lib/payment-transition';
-import { DEFAULT_COLLECTION_ID, resolveCollection, storePaths } from '../../../lib/collections';
+import { DEFAULT_COLLECTION_ID, resolveCollection, storePaths } from '../../../collections';
 import { quoteCart } from '../../../lib/quote';
 import { deliverPendingEmails } from '../../../lib/send-email';
 import { stripeClient } from '../../../lib/stripe';

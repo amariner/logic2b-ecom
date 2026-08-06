@@ -12,7 +12,8 @@
 import Landing from '../layouts/Landing.astro';
 import { MAIN_DEMO_HREF } from '../lib/nav';
 import { demoThemes, defaultTheme } from '../lib/demo-themes';
-import { collections, storePaths } from '../lib/collections';
+import { collections, storePaths } from '../collections';
+import { THEME_FILTERS, themeCategoryIds, themeSearchText } from '../lib/theme-catalog';
 
 /**
  * Tienda viva de cada tema (9B: un tema desarrollado = una tienda con URL).
@@ -109,9 +110,69 @@ const jsonLd = [
 
       <!-- Rejilla de temas -->
       <section class="page-shell pb-14 pt-4 sm:pb-20 sm:pt-8">
-        <ul class="grid gap-8 sm:grid-cols-2">
+        <div data-theme-controls hidden class="mb-8 border-y border-border py-4 sm:mb-10">
+          <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+            <label class="block min-w-0 flex-1 lg:max-w-md" for="theme-search">
+              <span class="mb-2 block text-xs font-semibold uppercase tracking-wide text-muted-foreground">Buscar un estilo</span>
+              <span class="flex items-center gap-2 border-b border-foreground pb-2">
+                <svg aria-hidden="true" viewBox="0 0 24 24" class="h-4 w-4 shrink-0 fill-none stroke-current" stroke-width="1.75">
+                  <circle cx="11" cy="11" r="7"></circle>
+                  <path d="m16 16 4 4"></path>
+                </svg>
+                <input
+                  id="theme-search"
+                  data-theme-search
+                  type="search"
+                  autocomplete="off"
+                  placeholder="Estilo, sector o referencia"
+                  class="w-full bg-transparent text-sm text-foreground outline-offset-4 placeholder:text-muted-foreground focus-visible:outline focus-visible:outline-2 focus-visible:outline-foreground"
+                />
+              </span>
+            </label>
+
+            <div class="hidden shrink-0 lg:block">
+              <span class="mb-2 block text-xs font-semibold uppercase tracking-wide text-muted-foreground">Vista</span>
+              <div class="flex gap-1" role="group" aria-label="Número de columnas del catálogo">
+                <button type="button" data-theme-columns="2" aria-pressed="true" class="theme-view-button">
+                  <span class="theme-grid-icon theme-grid-icon--2" aria-hidden="true"><i></i><i></i></span>
+                  <span class="sr-only">Ver en 2 columnas</span>
+                </button>
+                <button type="button" data-theme-columns="3" aria-pressed="false" class="theme-view-button">
+                  <span class="theme-grid-icon theme-grid-icon--3" aria-hidden="true"><i></i><i></i><i></i></span>
+                  <span class="sr-only">Ver en 3 columnas</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-5 flex items-center gap-4">
+            <div class="min-w-0 flex-1 overflow-x-auto pb-1" role="group" aria-label="Filtrar temas por sector">
+              <div class="flex w-max gap-2">
+                {THEME_FILTERS.map((filter) => (
+                  <button
+                    type="button"
+                    data-theme-filter={filter.id}
+                    aria-pressed={filter.id === 'all' ? 'true' : 'false'}
+                    class="theme-filter-button"
+                  >{filter.label}</button>
+                ))}
+              </div>
+            </div>
+            <p data-theme-count class="shrink-0 text-xs tabular-nums text-muted-foreground" aria-live="polite">
+              {styles.length} temas
+            </p>
+          </div>
+        </div>
+
+        <ul data-theme-grid data-columns="2" class="grid gap-8 sm:grid-cols-2">
           {styles.map((theme, i) => (
-            <li id={`tema-${theme.id}`} class="flex scroll-mt-24 flex-col overflow-hidden rounded-2xl border border-border bg-card">
+            <li
+              id={`tema-${theme.id}`}
+              data-theme-card
+              data-theme-categories={themeCategoryIds(theme).join(' ')}
+              data-theme-search-text={themeSearchText(theme)}
+              class="flex scroll-mt-24 flex-col overflow-hidden rounded-2xl border border-border bg-card"
+            >
               {/* Tema con tienda viva → captura REAL enlazable; si no, la
                   imaginería propia del tema; y si tampoco, marcador de hueco. */}
               <div
@@ -219,6 +280,13 @@ const jsonLd = [
             </li>
           ))}
         </ul>
+        <div data-theme-empty hidden class="rounded-2xl border border-dashed border-border px-6 py-14 text-center">
+          <p class="font-display text-xl">No encontramos un tema con esos criterios.</p>
+          <p class="mt-2 text-sm text-muted-foreground">Prueba otra palabra o vuelve a ver el catálogo completo.</p>
+          <button type="button" data-theme-reset class="mt-5 rounded-btn border border-foreground px-4 py-2 text-sm font-semibold transition hover:bg-foreground hover:text-background">
+            Ver todos los temas
+          </button>
+        </div>
       </section>
 
       <!-- Nota honesta sobre el estado -->
@@ -246,3 +314,114 @@ const jsonLd = [
       </section>
     </main>
 </Landing>
+
+<style>
+  .theme-filter-button {
+    border: 1px solid var(--border);
+    border-radius: 9999px;
+    padding: 0.5rem 0.85rem;
+    color: var(--muted-foreground);
+    font-size: 0.8125rem;
+    line-height: 1rem;
+    white-space: nowrap;
+    transition: border-color 150ms ease, background-color 150ms ease, color 150ms ease;
+  }
+
+  .theme-filter-button:hover,
+  .theme-filter-button[aria-pressed='true'] {
+    border-color: var(--foreground);
+    background: var(--foreground);
+    color: var(--background);
+  }
+
+  .theme-view-button {
+    display: grid;
+    min-width: 2.5rem;
+    min-height: 2.25rem;
+    place-items: center;
+    border: 1px solid var(--border);
+    color: var(--muted-foreground);
+    transition: border-color 150ms ease, background-color 150ms ease, color 150ms ease;
+  }
+
+  .theme-view-button[aria-pressed='true'] {
+    border-color: var(--foreground);
+    background: var(--foreground);
+    color: var(--background);
+  }
+
+  .theme-grid-icon {
+    display: grid;
+    width: 1rem;
+    gap: 2px;
+  }
+
+  .theme-grid-icon--2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .theme-grid-icon--3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+  .theme-grid-icon i {
+    display: block;
+    height: 0.85rem;
+    border: 1px solid currentColor;
+  }
+
+  @media (min-width: 64rem) {
+    [data-theme-grid][data-columns='3'] { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  }
+</style>
+
+<script>
+  const controls = document.querySelector<HTMLElement>('[data-theme-controls]');
+  const grid = document.querySelector<HTMLElement>('[data-theme-grid]');
+  const search = document.querySelector<HTMLInputElement>('[data-theme-search]');
+  const cards = [...document.querySelectorAll<HTMLElement>('[data-theme-card]')];
+  const filterButtons = [...document.querySelectorAll<HTMLButtonElement>('[data-theme-filter]')];
+  const columnButtons = [...document.querySelectorAll<HTMLButtonElement>('[data-theme-columns]')];
+  const count = document.querySelector<HTMLElement>('[data-theme-count]');
+  const empty = document.querySelector<HTMLElement>('[data-theme-empty]');
+  const reset = document.querySelector<HTMLButtonElement>('[data-theme-reset]');
+
+  if (controls && grid && search && count && empty) {
+    controls.hidden = false;
+    let activeFilter = 'all';
+
+    const normalize = (value: string) => value
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLocaleLowerCase('es')
+      .trim();
+
+    const applyFilters = () => {
+      const query = normalize(search.value);
+      let visible = 0;
+      for (const card of cards) {
+        const categories = card.dataset.themeCategories?.split(' ') ?? [];
+        const matchesFilter = activeFilter === 'all' || categories.includes(activeFilter);
+        const matchesSearch = !query || (card.dataset.themeSearchText ?? '').includes(query);
+        card.hidden = !(matchesFilter && matchesSearch);
+        if (!card.hidden) visible += 1;
+      }
+      count.textContent = `${visible} ${visible === 1 ? 'tema' : 'temas'}`;
+      empty.hidden = visible !== 0;
+      grid.hidden = visible === 0;
+    };
+
+    search.addEventListener('input', applyFilters);
+    filterButtons.forEach((button) => button.addEventListener('click', () => {
+      activeFilter = button.dataset.themeFilter ?? 'all';
+      filterButtons.forEach((candidate) => candidate.setAttribute('aria-pressed', String(candidate === button)));
+      applyFilters();
+    }));
+    columnButtons.forEach((button) => button.addEventListener('click', () => {
+      grid.dataset.columns = button.dataset.themeColumns ?? '2';
+      columnButtons.forEach((candidate) => candidate.setAttribute('aria-pressed', String(candidate === button)));
+    }));
+    reset?.addEventListener('click', () => {
+      search.value = '';
+      activeFilter = 'all';
+      filterButtons.forEach((button) => button.setAttribute('aria-pressed', String(button.dataset.themeFilter === 'all')));
+      applyFilters();
+      search.focus();
+    });
+  }
+</script>

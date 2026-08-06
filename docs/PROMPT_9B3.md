@@ -93,7 +93,7 @@ documentación de cliente.)*
   ruta de cobro. **Si necesitas tocarlo, para y pregunta.**
 - **`shop.config.ts` = MOTOR** (divisa, zonas, tarifas, numeración, legal,
   identidad del operador). **`src/collections/<id>.ts` = ESCAPARATE** (nombre,
-  tagline, descripción, categorías). **`src/lib/collections.ts`** = registro; la
+  tagline, descripción, categorías). **`src/collections/index.ts`** = registro; la
   colección sale **siempre del segmento de URL** (id desconocido → 404, nunca
   cookie ni fallback). **`lib/db.ts`**: `collection` es parámetro **obligatorio**
   de `getActiveProducts`/`getProductBySlug`; `getProductsBySlugs` (carrito) queda
@@ -143,7 +143,7 @@ public/images/collections/<id>/.gitkeep
 docs/temas/<id>.md                (ficha de entrega)
 ```
 
-Y parchea (append idempotente) la entrada en `src/lib/collections.ts` y, si
+Y parchea (append idempotente) la entrada en `src/collections/index.ts` y, si
 falta, la del tema en `demo-themes.ts` con los 14 tokens copiados de Base.
 
 **Queda a mano y debe quedar:** valores de tokens, diseño real de los
@@ -215,7 +215,7 @@ el contrato nuevo y la decisión de fidelidad de § 1.1.
 |---|---|
 | D1: esquema, migraciones, `lib/db.ts` | Tokens (`vars`) y descriptor `layout` |
 | `lib/pricing.ts`, `lib/shipping.ts`, `lib/quote.ts` | Componentes en `src/components/themes/<id>/` |
-| `lib/collections.ts`, `shop.config.ts` | `src/collections/<id>.ts` |
+| `collections.ts`, `shop.config.ts` | `src/collections/<id>.ts` |
 | `/api/cart/quote`, `/api/checkout/session` | Catálogo (seed de su colección) |
 | Webhook de Stripe, `emails_outbox` | Imaginería del producto |
 | Carrito, checkout, `/demo/gracias` | Textos y copy de la tienda |

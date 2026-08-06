@@ -30,6 +30,23 @@ export {
 } from './manifest';
 export { CAPABILITY_PRESETS, createPresetManifest, createPublicDemoManifest } from './presets';
 export {
+  MODULE_DESCRIPTORS,
+  MODULE_IDS,
+  MODULE_REGISTRY,
+  ModuleRegistryError,
+  createModuleRegistry,
+  resolveOperationalModules,
+  validateModuleRegistry,
+  type ModuleDescriptor,
+  type ModuleId,
+  type ModuleNavigationItem,
+  type ModuleRegistry,
+  type ModuleRegistryIssue,
+  type ModuleRoute,
+  type ModuleVersion,
+  type OperationalModule,
+} from './module-registry';
+export {
   ADMIN_NAVIGATION_ITEMS,
   adminHomeHrefFor,
   adminNavigationFor,

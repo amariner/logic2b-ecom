@@ -34,13 +34,13 @@ const LEGACY_MODULES: Readonly<Record<string, ModuleName>> = {
   'src/lib/admin-auth.ts': 'platform/security',
   'src/lib/backup.ts': 'platform/operations',
   'src/lib/cart-client.ts': 'cart',
-  'src/lib/collections.ts': 'catalog',
   'src/lib/contact.ts': 'marketing',
   'src/lib/csv.ts': 'shared-kernel',
   'src/lib/db.ts': 'catalog',
   'src/lib/demo-catalog.ts': 'demo-support',
   'src/lib/demo-commerce.ts': 'demo-support',
   'src/lib/demo-themes.ts': 'storefront',
+  'src/lib/theme-catalog.ts': 'storefront',
   'src/lib/emails.ts': 'notifications',
   'src/lib/format.ts': 'shared-kernel',
   'src/lib/nav.ts': 'storefront',
@@ -151,6 +151,7 @@ function moduleOf(file: string): ModuleName | null {
   if (legacy) return legacy;
   if (file.startsWith('src/shared-kernel/')) return 'shared-kernel';
   if (file.startsWith('src/integrations/')) return 'integrations';
+  if (file.startsWith('src/collections/')) return 'storefront';
   const platform = file.match(/^src\/platform\/(configuration|security|operations)\//)?.[1];
   if (platform) return `platform/${platform}` as ModuleName;
   const module = file.match(/^src\/modules\/([^/]+)\//)?.[1];
@@ -193,9 +194,6 @@ function findViolations(): Violation[] {
       if (FORBIDDEN_DOMAIN_GLOBAL.test(source)) add(file, 'domain-platform-global', 'global de plataforma');
     }
 
-    if (file === 'src/lib/collections.ts' && imports.some((edge) => edge.specifier.startsWith('../collections/'))) {
-      add(file, 'legacy-inverted-import', 'motor -> colección concreta');
-    }
     if (file === 'src/lib/demo-catalog.ts' && imports.some((edge) => edge.specifier.startsWith('../../seed/'))) {
       add(file, 'legacy-inverted-import', 'runtime -> seed');
     }

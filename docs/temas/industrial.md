@@ -127,7 +127,7 @@ celda doble usa `aspect-ratio: 2` para que su alto siga cuadrando con la fila.
   `seed/collections/industrial.ts`, `scripts/fetch-industrial-images.mjs`,
   `src/components/themes/industrial/{Catalog,Breadcrumb,Filters,ProductGrid}.astro`,
   10 imágenes en `public/images/collections/industrial/`.
-- **Registros tocados:** `src/lib/collections.ts`, `seed/collections/index.ts`,
+- **Registros tocados:** `src/collections/index.ts`, `seed/collections/index.ts`,
   `src/lib/demo-themes.ts` (tokens + `status: 'ready'`), `catalogViews` de
   `CatalogPage.astro`, `STORES` de `a11y-audit.mjs`, `STORES`+`FICHAS` de
   `capture-screens.mjs`, `SWITCHER_ORDER` de `Shop.astro`, `galleryOrder` de

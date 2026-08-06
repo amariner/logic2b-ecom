@@ -1,5 +1,5 @@
 ---
-import type { CollectionConfig, StorePaths } from '../../../lib/collections';
+import type { CollectionConfig, StorePaths } from '../../../collections';
 interface Props { paths:StorePaths; collection:CollectionConfig; count:number; activeCategory?:string | undefined; sort:string; search?:string | undefined; }
 const { paths, collection, count, activeCategory } = Astro.props;
 ---

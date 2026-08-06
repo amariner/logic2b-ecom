@@ -38,7 +38,7 @@ improvisan durante la implementación.
 | Ola | Resultado | Estado |
 |---|---|---|
 | R0 | Investigación, taxonomía, matriz, roadmap y estrategia wiki | ✅ cerrado 2026-08-06 |
-| R1 | Cimientos modulares y observables | 🟡 3/12 bloques cerrados |
+| R1 | Cimientos modulares y observables | 🟡 4/12 bloques cerrados |
 | R2 | Núcleo transaccional profesional | ⬜ |
 | R3 | Operación de pedidos, inventario y fulfillment | ⬜ |
 | R4 | Precios, promociones y modelos de venta | ⬜ |
@@ -70,8 +70,8 @@ conviertan el motor en una colección de condicionales.
 | 1 | **R1.1 ADR de arquitectura modular** | Mapear dependencias actuales; definir dominios, capas, puertos/adaptadores, reglas de importación, lifecycle de módulos y esquema objetivo sin migrar D1. ADR aprobado por tests arquitectónicos propuestos. | ✅ 2026-08-06 |
 | 2 | **R1.2 Capability manifest tipado** | Manifest por cliente con flags, config y dependencias; validación de combinaciones; fixtures `minimal`, `standard`, `advanced`; sin UI todavía. | ✅ 2026-08-06 |
 | 3 | **R1.3 Navegación y rutas por capacidad** | Panel y endpoints consultan el manifest; módulo apagado responde 404/403 coherente y desaparece de navegación; tests por preset. | ✅ 2026-08-06 |
-| 4 | **R1.4 Registro de módulos** | Descriptor estable: id, versión, dependencias, permisos, eventos, jobs, healthchecks y enlaces wiki; detector de ciclos. | ⬜ siguiente |
-| 5 | **R1.5 Sobre de eventos** | Contrato `event_id`, tipo, versión, timestamp, actor, entity, correlation/causation/idempotency; eventos actuales de pedido adaptados sin cambiar comportamiento. | ⬜ |
+| 4 | **R1.4 Registro de módulos** | Descriptor estable: id, versión, dependencias, permisos, eventos, jobs, healthchecks y enlaces wiki; detector de ciclos. | ✅ 2026-08-06 |
+| 5 | **R1.5 Sobre de eventos** | Contrato `event_id`, tipo, versión, timestamp, actor, entity, correlation/causation/idempotency; eventos actuales de pedido adaptados sin cambiar comportamiento. | ⬜ siguiente |
 | 6 | **R1.6 Diseño y aprobación de outbox** | ADR, SQL exacto, retención, claim/retry/dead-letter y compatibilidad D1; pruebas contractuales antes de migrar. Puerta de decisión de esquema. | ⬜ |
 | 7 | **R1.7 Outbox transaccional** | Migración aprobada, escritura atómica en mutaciones de pago/pedido y dispatcher idempotente; fallo del consumidor no revierte el negocio. | ⬜ |
 | 8 | **R1.8 Audit log transversal** | Actor, acción, entidad, diff redacted y correlation id; pagos, pedidos, producto y admin cubiertos; export autenticado. | ⬜ |
@@ -305,13 +305,34 @@ Entrega cerrada:
    cerrado con 410;
 6. sin migraciones, dependencias, cambios de dinero/stock ni nueva promesa.
 
+### R1.4 — Registro de módulos — ✅ 2026-08-06
+
+Entrega cerrada:
+
+1. registro canónico de 16 módulos con id, versión, capacidades, dependencias,
+   permisos, eventos, jobs, healthchecks, wiki, navegación y rutas;
+2. validación fail-fast de forma, ids, versiones, propietario único de cada
+   capacidad, dependencias desconocidas, duplicados y ciclos;
+3. el composition root resuelve únicamente módulos `active`/`degraded` y exige
+   que sus dependencias también sean operativas;
+4. navegación y política de rutas dejan sus listas manuales y se derivan del
+   registro, con orden/prioridad deterministas;
+5. el registro de escaparates pasa a `src/collections/index.ts` y el backup a
+   caso de uso/adaptador D1; la allowlist baja de 9 a 7 y `presentation-sql` de
+   4 a 3 archivos;
+6. nueve pruebas específicas cubren invariantes, inmutabilidad y presets; el
+   bloque no añade dependencias, migraciones ni infraestructura externa;
+7. `events`, `jobs` y `healthchecks` permanecen declarados y vacíos hasta sus
+   bloques propietarios R1.5, R1.11 y R1.10: no se inventan contratos futuros;
+8. verificación: `pnpm check` (31 suites, 218 tests), E2E 27/27 y panel en 14
+   superficies a 1440/375 con 0 errores y 0 avisos de accesibilidad.
+
 ## 6. Siguiente bloque
 
-### R1.4 — Registro de módulos
+### R1.5 — Sobre de eventos
 
-Definir un descriptor estable por módulo con id, versión, capacidades,
-dependencias, permisos, eventos, jobs, healthchecks y enlaces de wiki. El
-registro debe validar duplicados y ciclos, componer solo módulos operativos y
-absorber las listas manuales que ya tengan información real, sin inventar
-adaptadores ni activar infraestructura. `pnpm check`, pruebas por preset y
-allowlist no creciente son obligatorios; no hay migración D1 ni dependencia.
+Definir y probar el contrato versionado `event_id`, tipo, versión, timestamp,
+actor, entity, correlation/causation e idempotency. Adaptar los eventos actuales
+de pedido sin cambiar respuestas, tablas ni efectos; el diseño del outbox sigue
+reservado a R1.6. `pnpm check`, compatibilidad hacia atrás y allowlist no
+creciente son obligatorios; no hay migración D1 ni dependencia nueva.

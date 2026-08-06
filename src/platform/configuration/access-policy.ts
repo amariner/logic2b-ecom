@@ -1,5 +1,6 @@
 import type { CapabilityFlagName, CapabilityState } from './manifest';
 import type { CapabilityId } from './capability-definitions';
+import { MODULE_REGISTRY } from './module-registry';
 
 export type CapabilityAccess = Readonly<{
   capabilityState: (id: CapabilityId) => CapabilityState;
@@ -23,19 +24,8 @@ export type AccessDecision =
       status: 403 | 404;
     }>;
 
-export const ADMIN_NAVIGATION_ITEMS = [
-  { id: 'pedidos', href: '/demo/admin', label: 'Pedidos', capabilityId: 'ORD-001' },
-  { id: 'productos', href: '/demo/admin/productos', label: 'Productos', capabilityId: 'CAT-001' },
-  { id: 'envios', href: '/demo/admin/envios', label: 'Envíos', capabilityId: 'FUL-001' },
-  { id: 'emails', href: '/demo/admin/emails', label: 'Emails', capabilityId: 'MAR-003' },
-] as const satisfies readonly Readonly<{
-  id: string;
-  href: string;
-  label: string;
-  capabilityId: CapabilityId;
-}>[];
-
-export type AdminNavigationId = (typeof ADMIN_NAVIGATION_ITEMS)[number]['id'];
+export const ADMIN_NAVIGATION_ITEMS = MODULE_REGISTRY.navigation;
+export type { AdminNavigationId } from './module-registry';
 
 export function decideCapabilityAccess(
   access: CapabilityAccess,
@@ -72,29 +62,11 @@ export function adminHomeHrefFor(access: CapabilityAccess): string | null {
   return adminNavigationFor(access)[0]?.href ?? null;
 }
 
-type RouteRule = Readonly<{
-  capabilityId: CapabilityId;
-  matches: (pathname: string) => boolean;
-}>;
-
-const ROUTE_RULES: readonly RouteRule[] = [
-  { capabilityId: 'CHK-002', matches: (path) => path === '/api/cart/quote' },
-  { capabilityId: 'CHK-003', matches: (path) => path === '/api/checkout/session' },
-  { capabilityId: 'CHK-004', matches: (path) => path === '/api/webhooks/stripe' },
-  { capabilityId: 'CAT-001', matches: (path) => path.startsWith('/api/admin/products/') },
-  { capabilityId: 'FUL-001', matches: (path) => path.startsWith('/api/admin/shipping-rates/') },
-  { capabilityId: 'ORD-002', matches: (path) => path.startsWith('/api/admin/orders/') && !path.endsWith('/export.csv') },
-  { capabilityId: 'FUL-003', matches: (path) => path === '/api/admin/orders/export.csv' },
-  { capabilityId: 'INT-004', matches: (path) => path === '/api/admin/backup.sql' },
-  { capabilityId: 'SEC-001', matches: (path) => path === '/demo/admin/login' },
-  { capabilityId: 'CAT-001', matches: (path) => path === '/demo/admin/productos' },
-  { capabilityId: 'FUL-001', matches: (path) => path === '/demo/admin/envios' },
-  { capabilityId: 'MAR-003', matches: (path) => path === '/demo/admin/emails' },
-  { capabilityId: 'ORD-001', matches: (path) => path === '/demo/admin' || path.startsWith('/demo/admin/pedidos/') },
-];
-
 export function routeCapability(pathname: string): CapabilityId | null {
-  return ROUTE_RULES.find((rule) => rule.matches(pathname))?.capabilityId ?? null;
+  const route = MODULE_REGISTRY.routes.find((candidate) =>
+    candidate.match === 'exact' ? pathname === candidate.path : pathname.startsWith(candidate.path),
+  );
+  return route?.capabilityId ?? null;
 }
 
 export function decideRouteAccess(access: CapabilityAccess, pathname: string): AccessDecision | null {

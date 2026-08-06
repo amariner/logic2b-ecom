@@ -22,13 +22,6 @@ export type ArchitectureException = {
  */
 export const ARCHITECTURE_ALLOWLIST = [
   {
-    file: 'src/lib/collections.ts',
-    rule: 'legacy-inverted-import',
-    reason: 'El registro del motor importa colecciones concretas en vez de recibirlas desde composición.',
-    owner: 'architecture',
-    removalBlock: 'R1.4',
-  },
-  {
     file: 'src/lib/demo-catalog.ts',
     rule: 'legacy-inverted-import',
     reason: 'El adaptador de demo materializa fixtures mediante imports directos desde seed.',
@@ -55,13 +48,6 @@ export const ARCHITECTURE_ALLOWLIST = [
     reason: 'El adaptador HTTP conoce todavía el tipo de evento del SDK de Stripe.',
     owner: 'payments',
     removalBlock: 'R1.5',
-  },
-  {
-    file: 'src/pages/api/admin/backup.sql.ts',
-    rule: 'presentation-sql',
-    reason: 'El endpoint compone directamente el dump de D1.',
-    owner: 'platform-operations',
-    removalBlock: 'R1.4',
   },
   {
     file: 'src/pages/api/admin/orders/[id].ts',

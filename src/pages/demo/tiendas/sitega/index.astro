@@ -3,7 +3,7 @@
 import Shop from '../../../../layouts/Shop.astro';
 import SitegaCatalog from '../../../../components/themes/sitega/Catalog.astro';
 import { sitegaCollection } from '../../../../collections/sitega';
-import { storePaths } from '../../../../lib/collections';
+import { storePaths } from '../../../../collections';
 
 export const prerender = false;
 const paths = storePaths(sitegaCollection.id);

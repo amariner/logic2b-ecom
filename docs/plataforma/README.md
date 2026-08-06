@@ -48,6 +48,9 @@ venta o servicios logísticos propios.
 - [`../../src/platform/configuration/`](../../src/platform/configuration/):
   contrato ejecutable de estados, flags, dependencias, presets y política de
   acceso a rutas/navegación R1.2–R1.3.
+- [`../../src/platform/configuration/module-registry.ts`](../../src/platform/configuration/module-registry.ts):
+  registro canónico R1.4, validación de invariantes y resolución de módulos
+  operativos por despliegue.
 - [`../../src/composition/runtime-platform.ts`](../../src/composition/runtime-platform.ts):
   fachada única que conecta el manifest del despliegue con Astro.
 

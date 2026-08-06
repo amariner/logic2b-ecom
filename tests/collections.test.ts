@@ -15,7 +15,7 @@ import {
   resolveCategory,
   resolveCollection,
   storePaths,
-} from '../src/lib/collections';
+} from '../src/collections';
 import { demoThemes } from '../src/lib/demo-themes';
 import { MAIN_DEMO_HREF } from '../src/lib/nav';
 

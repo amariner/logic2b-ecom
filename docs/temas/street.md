@@ -77,7 +77,7 @@ Dos superficies llevan texto sobre foto. Resueltas con velo, no estimadas:
   `src/components/themes/street/` (9 componentes: Catalog, Ticker, Hero, Header,
   Footer, CategoryCards, ClubHouse, Filters, ProductGrid) y 16 imágenes en
   `public/images/collections/street/`.
-- **Registros (los parchea `pnpm new:theme`):** `src/lib/collections.ts`,
+- **Registros (los parchea `pnpm new:theme`):** `src/collections/index.ts`,
   `seed/collections/index.ts`.
 - **¿Hizo falta rozar el motor? NO.** Lo tocado fuera del kit son registros y
   utillaje, no lógica de negocio:

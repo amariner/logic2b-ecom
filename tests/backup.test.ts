@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { BACKUP_TABLES, buildBackupSql, dumpTable } from '../src/lib/backup';
+import { exportBackup } from '../src/platform/operations';
 
 describe('volcado de copia de seguridad', () => {
   it('genera INSERTs con columnas explícitas y escape de comillas', () => {
@@ -23,5 +24,18 @@ describe('volcado de copia de seguridad', () => {
     expect(deleteChildren).toBeLessThan(deleteParent);
     expect(sql.indexOf('INSERT INTO products')).toBeLessThan(sql.indexOf('INSERT INTO order_items'));
     for (const table of BACKUP_TABLES) expect(sql).toContain(`DELETE FROM ${table};`);
+  });
+
+  it('el caso de uso pide el contrato completo y genera un nombre estable', async () => {
+    const requested: string[][] = [];
+    const backup = await exportBackup({
+      async readTables(tables) {
+        requested.push([...tables]);
+        return { products: [{ id: 1, slug: 'a' }] };
+      },
+    }, new Date('2026-08-06T14:35:00.000Z'));
+    expect(requested).toEqual([[...BACKUP_TABLES]]);
+    expect(backup.filename).toBe('backup-2026-08-06-1435.sql');
+    expect(backup.sql).toContain('INSERT INTO products');
   });
 });
