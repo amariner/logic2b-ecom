@@ -40,7 +40,9 @@ venta o servicios logísticos propios.
   módulos, dependencias permitidas y transición incremental fijados en R1.1.
 - [`arquitectura/DEUDA.md`](arquitectura/DEUDA.md): allowlist exacta y bloques
   responsables de eliminarla.
-- [`adr/`](adr/): decisiones aceptadas de arquitectura modular.
+- [`adr/`](adr/): decisiones de arquitectura modular aceptadas y propuestas.
+- [`sql/0004_event_outbox.proposed.sql`](sql/0004_event_outbox.proposed.sql):
+  esquema exacto del outbox R1.6; propuesta no aplicable hasta su aprobación.
 - [`wiki/arquitectura-modular-ecommerce.md`](wiki/arquitectura-modular-ecommerce.md):
   borrador interno, no indexable, de la futura página de arquitectura.
 - [`wiki/eventos-de-dominio-trazabilidad.md`](wiki/eventos-de-dominio-trazabilidad.md):
@@ -59,6 +61,9 @@ venta o servicios logísticos propios.
 - [`../../src/shared-kernel/events.ts`](../../src/shared-kernel/events.ts):
   sobre de evento versionado R1.5 —identidad, actor, entidad, correlación,
   causación e idempotencia— sin PII, sin configuración y sin I/O.
+- [`../../src/platform/events/outbox-contract.ts`](../../src/platform/events/outbox-contract.ts):
+  contrato ejecutable R1.6 de estados, lease, lotes, retry y claim; sin I/O ni
+  conexión al runtime hasta R1.7.
 - [`../../src/composition/order-operations.ts`](../../src/composition/order-operations.ts):
   casos de uso compuestos de escritura de pedido; único punto que une el hecho
   que emite `orders` con el consumidor de `notifications`.

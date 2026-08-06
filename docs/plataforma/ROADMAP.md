@@ -72,7 +72,7 @@ conviertan el motor en una colección de condicionales.
 | 3 | **R1.3 Navegación y rutas por capacidad** | Panel y endpoints consultan el manifest; módulo apagado responde 404/403 coherente y desaparece de navegación; tests por preset. | ✅ 2026-08-06 |
 | 4 | **R1.4 Registro de módulos** | Descriptor estable: id, versión, dependencias, permisos, eventos, jobs, healthchecks y enlaces wiki; detector de ciclos. | ✅ 2026-08-06 |
 | 5 | **R1.5 Sobre de eventos** | Contrato `event_id`, tipo, versión, timestamp, actor, entity, correlation/causation/idempotency; eventos actuales de pedido adaptados sin cambiar comportamiento. | ✅ 2026-08-06 |
-| 6 | **R1.6 Diseño y aprobación de outbox** | ADR, SQL exacto, retención, claim/retry/dead-letter y compatibilidad D1; pruebas contractuales antes de migrar. Puerta de decisión de esquema. | ⬜ siguiente |
+| 6 | **R1.6 Diseño y aprobación de outbox** | ADR, SQL exacto, retención, claim/retry/dead-letter y compatibilidad D1; pruebas contractuales antes de migrar. Puerta de decisión de esquema. | 🟡 2026-08-06 — propuesta lista; espera aprobación |
 | 7 | **R1.7 Outbox transaccional** | Migración aprobada, escritura atómica en mutaciones de pago/pedido y dispatcher idempotente; fallo del consumidor no revierte el negocio. | ⬜ |
 | 8 | **R1.8 Audit log transversal** | Actor, acción, entidad, diff redacted y correlation id; pagos, pedidos, producto y admin cubiertos; export autenticado. | ⬜ |
 | 9 | **R1.9 Observabilidad base** | Logger estructurado, errores tipados, métricas de checkout/webhook/outbox/email e IDs visibles en runbook; sin PII. | ⬜ |
@@ -362,16 +362,19 @@ PLT-006 pasa a `parcial`: el contrato existe y es ejecutable, pero la
 persistencia y la entrega reintentable son R1.6/R1.7. PLT-003 pasa a `parcial`
 con eventos declarados; jobs y healthchecks siguen pendientes de R1.11 y R1.10.
 
-## 6. Siguiente bloque
+## 6. Puerta de decisión actual
 
-### R1.6 — Diseño y aprobación de outbox
+### R1.6 — Diseño listo; aprobación pendiente
 
-Diseñar, sin implementar todavía, la persistencia y entrega de los hechos que
-R1.5 ya emite: ADR, SQL exacto, política de retención, `claim`/retry/dead-letter
-y compatibilidad con D1, más las pruebas contractuales previas a la migración.
-Es **puerta de decisión de esquema**: la migración se propone y se aprueba antes
-de escribir código de escritura (§14 de `CLAUDE.md` y veto del arquitecto).
-Punto de partida obligatorio: `idempotency_key` y `correlation_id` del sobre son
-las claves de deduplicación y de traza; el consumidor de notificaciones ya es
-una función pura del evento, así que el dispatcher no debe reinventar el
-contenido de los mensajes.
+La propuesta está completa en [ADR-0007](adr/0007-outbox-transaccional-d1.md),
+con SQL exacto fuera de `migrations/`, contrato ejecutable y pruebas sobre
+SQLite. Wrangler D1 local ejecutó sus siete sentencias sin cambios. El diseño
+fija dos tablas (hecho inmutable + entrega por consumidor), claim atómico de 25
+filas con lease de 60 s, entrega at-least-once, siete backoffs y dead-letter al
+octavo fallo, errores redacted y retención de entregados durante 30 días; los
+pendientes y dead-letter nunca se purgan automáticamente.
+
+**Esperando aprobación de Andreu.** No existe migración 0004, escritura,
+dispatcher, cron ni cambio de runtime. Si se aprueba el esquema, se marca R1.6
+cerrado y el siguiente bloque es **R1.7 — outbox transaccional**. Si cambia una
+decisión estructural, se revisan primero ADR, SQL y contratos sin tocar D1.
