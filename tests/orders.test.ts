@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { shopConfig } from '../shop.config';
-import { applyExpiredMutation, applyPaidMutation, generateOrderNumber, generateSimulatedSessionToken } from '../src/lib/orders';
-import { buildPaidMutation, type OrderForPayment, type OrderItemForPayment } from '../src/lib/payment-transition';
+import { generateOrderNumber, generateSimulatedSessionToken } from '../src/lib/orders';
+import { createOrderOperations } from '../src/composition/order-operations';
+import { createEventFactory, type EventClock, type EventIdSource } from '../src/shared-kernel/events';
 
 describe('generateOrderNumber', () => {
   it('formato {prefijo}-AAMMDD-XXXX con fecha UTC, prefijo desde shop.config.ts', () => {
@@ -17,7 +18,7 @@ describe('generateOrderNumber', () => {
 });
 
 describe('generateSimulatedSessionToken', () => {
-  it('36 caracteres alfanuméricos en minúscula: no enumerable como el nº de pedido', () => {
+  it('24 caracteres alfanuméricos en minúscula: no enumerable como el nº de pedido', () => {
     const token = generateSimulatedSessionToken();
     expect(token).toMatch(/^[a-z0-9]{24}$/);
   });
@@ -29,19 +30,49 @@ describe('generateSimulatedSessionToken', () => {
 });
 
 /**
- * Doble mínimo de D1: solo entiende las cuatro sentencias que usa
- * `applyPaidMutation`. Suficiente para probar la guarda de idempotencia sin
- * levantar wrangler/D1 real.
+ * Doble mínimo de D1: solo entiende las sentencias del caso de uso de pago.
+ * Suficiente para probar la guarda de idempotencia sin levantar wrangler/D1 real.
  */
+type FakeOrderRow = {
+  order_number: string;
+  status: string;
+  email: string;
+  customer_name: string;
+  subtotal_cents: number;
+  shipping_cents: number;
+  total_cents: number;
+  stripe_payment_intent: string | null;
+};
+
 class FakeD1 {
-  orders: Map<number, { status: string; stripe_payment_intent: string | null }>;
+  orders: Map<number, FakeOrderRow>;
   products: Map<number, { stock: number }>;
+  items: { product_id: number; name_snapshot: string; unit_price_cents: number; qty: number }[];
   events: unknown[] = [];
   emails: unknown[] = [];
 
-  constructor(orderId: number, products: Record<number, number>) {
-    this.orders = new Map([[orderId, { status: 'pending', stripe_payment_intent: null }]]);
+  constructor(
+    orderId: number,
+    products: Record<number, number>,
+    items: { product_id: number; name_snapshot: string; unit_price_cents: number; qty: number }[] = [],
+  ) {
+    this.orders = new Map([
+      [
+        orderId,
+        {
+          order_number: 'BM-260717-TEST',
+          status: 'pending',
+          email: 'clienta@example.com',
+          customer_name: 'Marta Ferrer',
+          subtotal_cents: 1780,
+          shipping_cents: 490,
+          total_cents: 2270,
+          stripe_payment_intent: null,
+        },
+      ],
+    ]);
     this.products = new Map(Object.entries(products).map(([id, stock]) => [Number(id), { stock }]));
+    this.items = items;
   }
 
   prepare(sql: string): D1PreparedStatement {
@@ -84,8 +115,20 @@ class FakeD1 {
     return {
       bind: (...args: unknown[]) => this.makeStatement(sql, args),
       run,
-      all: async () => ({ success: true, results: [], meta: { changes: 0 } }) as unknown as D1Result,
-      first: async () => null,
+      all: async () => {
+        if (sql.startsWith('SELECT product_id, name_snapshot')) {
+          return { success: true, results: this.items } as unknown as D1Result;
+        }
+        throw new Error(`FakeD1: SQL no soportado en all(): ${sql}`);
+      },
+      first: async () => {
+        if (sql.startsWith('SELECT id, order_number, status')) {
+          const orderId = sql.includes('stripe_session_id') ? 7 : (params[0] as number);
+          const row = this.orders.get(orderId);
+          return row ? { id: orderId, ...row } : null;
+        }
+        throw new Error(`FakeD1: SQL no soportado en first(): ${sql}`);
+      },
       raw: async () => [],
     } as unknown as D1PreparedStatement;
   }
@@ -97,71 +140,100 @@ class FakeD1 {
   }
 }
 
-describe('applyPaidMutation (idempotencia real contra dos entregas concurrentes)', () => {
-  const order: OrderForPayment = {
-    id: 7,
-    order_number: 'BM-260717-TEST',
-    status: 'pending',
-    email: 'clienta@example.com',
-    customer_name: 'Marta Ferrer',
-    subtotal_cents: 1780,
-    shipping_cents: 490,
-    total_cents: 2270,
+function operationsFor(db: FakeD1) {
+  let tick = 0;
+  const clock: EventClock = { now: () => new Date(Date.parse('2026-08-06T10:00:00.000Z') + tick * 1000) };
+  const ids: EventIdSource = {
+    next: () => {
+      tick += 1;
+      return `evt_${tick}`;
+    },
   };
-  const items: OrderItemForPayment[] = [{ product_id: 1, name_snapshot: 'AOVE Picual 500 ml', unit_price_cents: 890, qty: 2 }];
+  return createOrderOperations(db as unknown as D1Database, createEventFactory({ clock, ids }));
+}
 
+const line = { product_id: 1, name_snapshot: 'AOVE Picual 500 ml', unit_price_cents: 890, qty: 2 };
+
+describe('confirmPayment (idempotencia real contra dos entregas concurrentes)', () => {
   it('aplica una vez: decrementa stock, un evento y dos emails, devuelve true', async () => {
-    const db = new FakeD1(order.id, { 1: 10 });
-    const mutation = buildPaidMutation(order, items, 'pi_1')!;
-    const applied = await applyPaidMutation(db as unknown as D1Database, mutation);
+    const db = new FakeD1(7, { 1: 10 }, [line]);
+    const applied = await operationsFor(db).confirmPayment({
+      lookup: { by: 'session', stripeSessionId: 'cs_test_1' },
+      paymentIntent: 'pi_1',
+      source: 'stripe',
+    });
     expect(applied).toBe(true);
     expect(db.products.get(1)?.stock).toBe(8);
     expect(db.events).toHaveLength(1);
     expect(db.emails).toHaveLength(2);
   });
 
+  it('el evento del timeline lleva la nota de siempre', async () => {
+    const db = new FakeD1(7, { 1: 10 }, [line]);
+    await operationsFor(db).confirmPayment({
+      lookup: { by: 'id', orderId: 7 },
+      paymentIntent: 'sim_pi_1',
+      source: 'simulated',
+    });
+    expect(db.events[0]).toEqual([7, 'pending', 'paid', 'Pago confirmado (simulado)']);
+  });
+
   it('dos entregas del mismo evento leídas antes de que ninguna escriba: la segunda no re-decrementa ni duplica emails', async () => {
-    const db = new FakeD1(order.id, { 1: 10 });
-    // Ambas mutaciones se construyen desde la MISMA foto 'pending' del pedido,
-    // como pasaría si dos peticiones concurrentes leyeran el estado antes de que
-    // cualquiera de las dos aplicara su UPDATE (el bug real que esto corrige).
-    const mutationA = buildPaidMutation(order, items, 'pi_1')!;
-    const mutationB = buildPaidMutation(order, items, 'pi_1')!;
+    const db = new FakeD1(7, { 1: 10 }, [line]);
+    const operations = operationsFor(db);
+    // Ambas llamadas leen la MISMA foto 'pending' del pedido, como pasaría si dos
+    // entregas concurrentes del webhook consultaran antes de que ninguna aplicara
+    // su UPDATE (el bug real que esto corrige).
+    const [appliedA, appliedB] = await Promise.all([
+      operations.confirmPayment({ lookup: { by: 'session', stripeSessionId: 'cs_test_1' }, paymentIntent: 'pi_1', source: 'stripe' }),
+      operations.confirmPayment({ lookup: { by: 'session', stripeSessionId: 'cs_test_1' }, paymentIntent: 'pi_1', source: 'stripe' }),
+    ]);
 
-    const appliedA = await applyPaidMutation(db as unknown as D1Database, mutationA);
-    const appliedB = await applyPaidMutation(db as unknown as D1Database, mutationB);
-
-    expect(appliedA).toBe(true);
-    expect(appliedB).toBe(false);
+    expect([appliedA, appliedB].toSorted()).toEqual([false, true]);
     expect(db.products.get(1)?.stock).toBe(8); // no 6: el segundo decremento nunca se aplica
     expect(db.events).toHaveLength(1);
     expect(db.emails).toHaveLength(2); // no 4
   });
+
+  it('pedido ya pagado (reintento tardío de Stripe) → false, sin efectos', async () => {
+    const db = new FakeD1(7, { 1: 10 }, [line]);
+    const operations = operationsFor(db);
+    await operations.confirmPayment({ lookup: { by: 'id', orderId: 7 }, paymentIntent: 'pi_1', source: 'stripe' });
+    const again = await operations.confirmPayment({ lookup: { by: 'id', orderId: 7 }, paymentIntent: 'pi_1', source: 'stripe' });
+    expect(again).toBe(false);
+    expect(db.events).toHaveLength(1);
+    expect(db.emails).toHaveLength(2);
+  });
 });
 
-describe('applyExpiredMutation (idempotencia de checkout.session.expired)', () => {
-  it('pedido pending → cancelled y un evento, devuelve true', async () => {
-    const db = new FakeD1(7, {});
-    const applied = await applyExpiredMutation(db as unknown as D1Database, 7);
-    expect(applied).toBe(true);
+describe('expirePayment (idempotencia de checkout.session.expired)', () => {
+  it('pedido pending → cancelled y un evento, sin tocar stock ni emails', async () => {
+    const db = new FakeD1(7, { 1: 10 }, [line]);
+    const expired = await operationsFor(db).expirePayment({ stripeSessionId: 'cs_test_1' });
+    expect(expired).toBe(true);
     expect(db.orders.get(7)?.status).toBe('cancelled');
-    expect(db.events).toHaveLength(1);
+    expect(db.events).toEqual([[7, 'pending', 'cancelled', 'Sesión de pago caducada']]);
+    expect(db.products.get(1)?.stock).toBe(10);
+    expect(db.emails).toHaveLength(0);
   });
 
   it('dos entregas del mismo evento expired solapadas: solo la primera cancela e inserta evento', async () => {
-    const db = new FakeD1(7, {});
-    const appliedA = await applyExpiredMutation(db as unknown as D1Database, 7);
-    const appliedB = await applyExpiredMutation(db as unknown as D1Database, 7);
-    expect(appliedA).toBe(true);
-    expect(appliedB).toBe(false);
+    const db = new FakeD1(7, {}, []);
+    const operations = operationsFor(db);
+    const [a, b] = await Promise.all([
+      operations.expirePayment({ stripeSessionId: 'cs_test_1' }),
+      operations.expirePayment({ stripeSessionId: 'cs_test_1' }),
+    ]);
+    expect([a, b].toSorted()).toEqual([false, true]);
     expect(db.events).toHaveLength(1); // no 2
   });
 
-  it('pedido que ya no está pending (p. ej. pagado antes de que caducara la sesión) → false, sin evento', async () => {
-    const db = new FakeD1(7, {});
-    await applyExpiredMutation(db as unknown as D1Database, 7); // lo deja en 'cancelled'
-    const appliedAgain = await applyExpiredMutation(db as unknown as D1Database, 7);
-    expect(appliedAgain).toBe(false);
-    expect(db.events).toHaveLength(1);
+  it('pedido que ya no está pending (p. ej. pagado antes de caducar la sesión) → false, sin evento', async () => {
+    const db = new FakeD1(7, { 1: 10 }, [line]);
+    const operations = operationsFor(db);
+    await operations.confirmPayment({ lookup: { by: 'id', orderId: 7 }, paymentIntent: 'pi_1', source: 'stripe' });
+    db.events.length = 0;
+    expect(await operations.expirePayment({ stripeSessionId: 'cs_test_1' })).toBe(false);
+    expect(db.events).toHaveLength(0);
   });
 });

@@ -48,7 +48,6 @@ const LEGACY_MODULES: Readonly<Record<string, ModuleName>> = {
   'src/lib/order-transitions.ts': 'orders',
   'src/lib/orders.ts': 'orders',
   'src/lib/payment-mode.ts': 'payments',
-  'src/lib/payment-transition.ts': 'orders',
   'src/lib/pricing.ts': 'pricing',
   'src/lib/quote.ts': 'checkout',
   'src/lib/rate-limit.ts': 'platform/security',
@@ -82,7 +81,6 @@ const ALLOWED_MODULE_DEPENDENCIES: Readonly<Record<ModuleName, readonly ModuleNa
 
 const LEGACY_DOMAIN_FILES = new Set([
   'src/lib/order-transitions.ts',
-  'src/lib/payment-transition.ts',
   'src/lib/pricing.ts',
   'src/lib/shipping.ts',
 ]);

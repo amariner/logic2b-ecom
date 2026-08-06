@@ -11,3 +11,4 @@ para ocultar una decisión no es válido.
 | [0003](0003-puertos-adaptadores-y-composition-root.md) | Puertos, adaptadores y composition root | accepted |
 | [0004](0004-ciclo-de-vida-de-capacidades.md) | Ciclo de vida de capacidades | accepted |
 | [0005](0005-transicion-incremental.md) | Transición incremental sin big-bang | accepted |
+| [0006](0006-sobre-de-eventos.md) | Sobre de evento versionado | accepted |

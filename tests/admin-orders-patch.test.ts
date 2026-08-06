@@ -50,7 +50,7 @@ class FakeD1 {
         throw new Error(`FakeD1: SQL no soportado en first(): ${sql}`);
       },
       all: async () => {
-        if (sql.startsWith('SELECT product_id, qty FROM order_items') || sql.startsWith('SELECT name_snapshot, unit_price_cents, qty FROM order_items')) {
+        if (sql.startsWith('SELECT product_id, name_snapshot')) {
           const [orderId] = params as [number];
           return { success: true, results: this.orderItems.get(orderId) ?? [] } as unknown as D1Result;
         }
@@ -148,5 +148,21 @@ describe('PATCH /api/admin/orders/:id (idempotencia real contra dos peticiones c
     const res = await PATCH(makeCtx(db, 7, { status: 'cancelled' }));
     expect(res.status).toBe(422);
     expect(db.products.get(1)?.stock).toBe(8);
+  });
+
+  it('paid → shipped escribe el evento con la nota de siempre y encola UN aviso', async () => {
+    const db = new FakeD1({ 7: { ...baseOrder } }, { 1: 8 }, { 7: [{ product_id: 1, qty: 2, name_snapshot: 'AOVE', unit_price_cents: 890 }] });
+    const res = await PATCH(makeCtx(db, 7, { status: 'shipped', tracking_carrier: 'SEUR', tracking_number: 'ES123' }));
+    expect(res.status).toBe(200);
+    expect(db.events).toEqual([[7, 'paid', 'shipped', 'Enviado con SEUR (ES123)']]);
+    expect(db.emails).toHaveLength(1);
+    expect(db.products.get(1)?.stock).toBe(8); // enviar no toca stock
+  });
+
+  it('la cancelación desde el panel no avisa a nadie por email', async () => {
+    const db = new FakeD1({ 7: { ...baseOrder } }, { 1: 8 }, { 7: [{ product_id: 1, qty: 2, name_snapshot: 'AOVE', unit_price_cents: 890 }] });
+    await PATCH(makeCtx(db, 7, { status: 'cancelled' }));
+    expect(db.events).toEqual([[7, 'paid', 'cancelled', 'Cancelado desde el panel']]);
+    expect(db.emails).toHaveLength(0);
   });
 });

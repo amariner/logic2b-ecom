@@ -1,6 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import { isSimulatedPayment } from '../src/lib/payment-mode';
-import { buildPaidMutation, type OrderForPayment, type OrderItemForPayment } from '../src/lib/payment-transition';
+import { orderTimelineEntry } from '../src/modules/orders/domain/order-events';
+import {
+  buildPaidMutation,
+  type OrderForPayment,
+  type OrderItemForPayment,
+} from '../src/modules/orders/domain/payment-transition';
+import { emitPlatformEvent } from '../src/composition/event-context';
 
 describe('isSimulatedPayment', () => {
   it('simula cuando no hay clave de Stripe', () => {
@@ -24,7 +30,7 @@ describe('isSimulatedPayment', () => {
   });
 });
 
-describe('buildPaidMutation con nota de pago simulado', () => {
+describe('buildPaidMutation según el origen del cobro', () => {
   const order: OrderForPayment = {
     id: 3,
     order_number: 'BM-260718-SIMU',
@@ -39,15 +45,16 @@ describe('buildPaidMutation con nota de pago simulado', () => {
     { product_id: 1, name_snapshot: 'AOVE Picual 500 ml', unit_price_cents: 500, qty: 2 },
   ];
 
-  it('por defecto marca el pago como confirmado por Stripe', () => {
-    expect(buildPaidMutation(order, items, 'pi_1')?.event.note).toBe('Pago confirmado por Stripe');
+  it('el cobro por la pasarela lo atribuye a Stripe', () => {
+    const mutation = buildPaidMutation(order, items, 'pi_1', { emit: emitPlatformEvent, source: 'stripe' });
+    expect(mutation?.event.payload.source).toBe('stripe');
+    expect(mutation && orderTimelineEntry(mutation.event).note).toBe('Pago confirmado por Stripe');
   });
 
-  it('acepta una nota personalizada para el pago simulado', () => {
-    const mutation = buildPaidMutation(order, items, 'sim_pi_1', 'Pago confirmado (simulado)');
-    expect(mutation?.event.note).toBe('Pago confirmado (simulado)');
-    expect(mutation?.event.to_status).toBe('paid');
+  it('el modo simulado produce el mismo hecho, marcado como tal', () => {
+    const mutation = buildPaidMutation(order, items, 'sim_pi_1', { emit: emitPlatformEvent, source: 'simulated' });
+    expect(mutation?.event.payload.to_status).toBe('paid');
+    expect(mutation && orderTimelineEntry(mutation.event).note).toBe('Pago confirmado (simulado)');
     expect(mutation?.stockDecrements).toEqual([{ product_id: 1, qty: 2 }]);
-    expect(mutation?.emails).toHaveLength(2);
   });
 });

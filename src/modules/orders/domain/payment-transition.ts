@@ -1,14 +1,14 @@
 /**
- * Lógica PURA de la transición de pago (webhook). Sin I/O: decide qué mutar.
- * La capa D1 (webhook endpoint) aplica el resultado en una sola batch.
+ * Lógica PURA de la transición de pago (webhook y pago simulado). Sin I/O:
+ * decide qué mutar y **emite el hecho**; quien lo persiste o lo notifica es
+ * otro (adaptador D1 y consumidores del evento).
+ *
+ * R1.5 le quitó la construcción de emails: el pedido ya no sabe qué se avisa ni
+ * a quién — solo declara que se ha cobrado.
  */
 
-import {
-  merchantNewOrderEmail,
-  orderConfirmationEmail,
-  type EmailMessage,
-  type OrderEmailData,
-} from './emails';
+import type { EmitEvent } from '../../../shared-kernel/events.ts';
+import { orderPaidEvent, type OrderPaidEvent, type OrderPaymentSource } from './order-events.ts';
 
 export type OrderForPayment = {
   id: number;
@@ -33,10 +33,16 @@ export type PaidMutation = {
   paymentIntent: string | null;
   /** decremento por producto; la SQL aplica MAX(stock - qty, 0) */
   stockDecrements: { product_id: number; qty: number }[];
-  event: { from_status: string; to_status: 'paid'; note: string };
-  /** [0] confirmación al comprador, [1] aviso al comercio */
-  emails: EmailMessage[];
+  /** El hecho de dominio. La fila de `order_events` es su proyección. */
+  event: OrderPaidEvent;
 };
+
+export type PaidMutationContext = Readonly<{
+  emit: EmitEvent;
+  source: OrderPaymentSource;
+  /** Id del hecho que lo provoca: evento de Stripe o sobre del pedido creado. */
+  causationId?: string | null;
+}>;
 
 /**
  * Devuelve la mutación a aplicar, o null si no hay nada que hacer.
@@ -47,27 +53,25 @@ export function buildPaidMutation(
   order: OrderForPayment | null,
   items: OrderItemForPayment[],
   paymentIntent: string | null,
-  note = 'Pago confirmado por Stripe',
+  context: PaidMutationContext,
 ): PaidMutation | null {
   if (order === null) return null;
   if (order.status !== 'pending') return null;
-
-  const emailData: OrderEmailData = {
-    order_number: order.order_number,
-    customer_name: order.customer_name,
-    email: order.email,
-    subtotal_cents: order.subtotal_cents,
-    shipping_cents: order.shipping_cents,
-    total_cents: order.total_cents,
-    items,
-  };
 
   return {
     orderId: order.id,
     paymentIntent,
     stockDecrements: items.map((item) => ({ product_id: item.product_id, qty: item.qty })),
-    event: { from_status: 'pending', to_status: 'paid', note },
-    emails: [orderConfirmationEmail(emailData), merchantNewOrderEmail(emailData)],
+    event: orderPaidEvent(
+      context.emit,
+      {
+        order_id: order.id,
+        order_number: order.order_number,
+        payment_intent: paymentIntent,
+        source: context.source,
+      },
+      { causationId: context.causationId ?? null },
+    ),
   };
 }
 

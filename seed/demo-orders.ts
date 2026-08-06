@@ -38,6 +38,7 @@ import {
   type OrderEmailData,
 } from '../src/lib/emails.ts';
 import type { OrderStatus } from '../src/lib/order-transitions.ts';
+import { orderTimelineNote } from '../src/modules/orders/domain/order-events.ts';
 import { computeShippingCents, computeSubtotalCents } from '../src/lib/pricing.ts';
 
 // —————————————————————————————————————————————————————————————————————————
@@ -319,21 +320,23 @@ const STATUS_LABEL: Record<OrderStatus, string> = {
   cancelled: 'Cancelado',
 };
 
-/** Nota humana de cada transición, alineada con el flujo real (orders.ts / order-transitions.ts). */
+/**
+ * Nota humana de cada transición. No la redacta el seed: la pide a la misma
+ * proyección de eventos que usa el motor (R1.5), así que una fixture no puede
+ * desviarse del texto real del timeline sin que se note.
+ */
 function eventNote(order: FixtureOrder, to: OrderStatus): string {
   switch (to) {
     case 'pending':
-      return 'Pedido creado, esperando pago';
+      return orderTimelineNote({ to_status: 'pending' });
     case 'paid':
-      return 'Pago confirmado (simulado)';
+      return orderTimelineNote({ to_status: 'paid', source: 'simulated' });
     case 'shipped':
-      return order.tracking
-        ? `Enviado con ${order.tracking.carrier} (${order.tracking.number})`
-        : 'Enviado';
+      return orderTimelineNote({ to_status: 'shipped', tracking: order.tracking ?? null });
     case 'delivered':
-      return 'Marcado como entregado';
+      return orderTimelineNote({ to_status: 'delivered' });
     case 'cancelled':
-      return 'Sesión de pago caducada';
+      return orderTimelineNote({ to_status: 'cancelled', reason: 'payment_session_expired' });
   }
 }
 

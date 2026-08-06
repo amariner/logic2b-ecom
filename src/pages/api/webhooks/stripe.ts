@@ -1,13 +1,7 @@
 import type { APIRoute } from 'astro';
-import type Stripe from 'stripe';
-import { applyExpiredMutation, applyPaidMutation } from '../../../lib/orders';
-import {
-  buildPaidMutation,
-  type OrderForPayment,
-  type OrderItemForPayment,
-} from '../../../lib/payment-transition';
+import { createOrderOperations } from '../../../composition/order-operations';
 import { deliverPendingEmails } from '../../../lib/send-email';
-import { stripeClient, verifyWebhookEvent } from '../../../lib/stripe';
+import { verifyCheckoutWebhookEvent } from '../../../lib/stripe';
 
 export const prerender = false;
 
@@ -20,72 +14,40 @@ export const POST: APIRoute = async ({ request, locals }) => {
   if (!env.STRIPE_SECRET_KEY || !env.STRIPE_WEBHOOK_SECRET) {
     return new Response('Pagos en modo simulado: webhook deshabilitado', { status: 503 });
   }
-  const stripeSecretKey = env.STRIPE_SECRET_KEY;
-  const stripeWebhookSecret = env.STRIPE_WEBHOOK_SECRET;
   const signature = request.headers.get('stripe-signature');
   if (signature === null) {
     return new Response('Falta la firma', { status: 400 });
   }
 
   const payload = await request.text();
-  let event: Stripe.Event;
+  let event;
   try {
-    event = await verifyWebhookEvent(
-      stripeClient(stripeSecretKey),
-      payload,
-      signature,
-      stripeWebhookSecret,
-    );
+    event = await verifyCheckoutWebhookEvent(env.STRIPE_SECRET_KEY, payload, signature, env.STRIPE_WEBHOOK_SECRET);
   } catch {
     return new Response('Firma inválida', { status: 400 });
   }
 
-  if (event.type === 'checkout.session.completed') {
-    const session = event.data.object;
-    // Solo cumplimos el pedido si Stripe confirma el cobro. Con métodos de pago
-    // diferido (SEPA, iDEAL con captura async…) 'completed' puede llegar con
-    // payment_status distinto de 'paid' y confirmarse (o fallar) más tarde; el
-    // kit asume cobro inmediato, así que ignoramos lo no pagado en vez de
-    // decrementar stock y enviar confirmación por un cobro aún sin cerrar.
-    if (session.payment_status !== 'paid') {
-      return Response.json({ received: true });
-    }
-    const paymentIntent = typeof session.payment_intent === 'string' ? session.payment_intent : null;
+  const orders = createOrderOperations(env.DB);
 
-    const order = await env.DB.prepare(
-      'SELECT id, order_number, status, email, customer_name, subtotal_cents, shipping_cents, total_cents FROM orders WHERE stripe_session_id = ?',
-    )
-      .bind(session.id)
-      .first<OrderForPayment>();
-
-    const items = order
-      ? (
-          await env.DB.prepare(
-            'SELECT product_id, name_snapshot, unit_price_cents, qty FROM order_items WHERE order_id = ?',
-          )
-            .bind(order.id)
-            .all<OrderItemForPayment>()
-        ).results
-      : [];
-
-    // Idempotente: pedido desconocido o ya no-pending → mutación null → 200 sin efectos.
-    // applyPaidMutation reconfirma con un UPDATE guardado por si dos entregas del
-    // mismo evento llegan solapadas (ambas leyeron 'pending' antes de que la otra escribiera).
-    const mutation = buildPaidMutation(order, items, paymentIntent);
-    if (mutation !== null && (await applyPaidMutation(env.DB, mutation))) {
+  // Idempotente en todas sus capas: pedido desconocido o ya no-pending → sin
+  // efectos; y si dos entregas del mismo evento llegan solapadas, el UPDATE
+  // guardado de dentro decide cuál gana (CLAUDE.md §7.3). Stripe recibe 200
+  // igualmente: reintentaría si no.
+  if (event.kind === 'checkout_completed' && event.paid) {
+    const confirmed = await orders.confirmPayment({
+      lookup: { by: 'session', stripeSessionId: event.session_id },
+      paymentIntent: event.payment_intent,
+      source: 'stripe',
+      causationId: event.id,
+    });
+    if (confirmed) {
       // Producción: entrega el email de confirmación sin retrasar el 200 a Stripe.
       locals.runtime.ctx.waitUntil(deliverPendingEmails(env.DB, env));
     }
   }
 
-  if (event.type === 'checkout.session.expired') {
-    const session = event.data.object;
-    const order = await env.DB.prepare('SELECT id FROM orders WHERE stripe_session_id = ?')
-      .bind(session.id)
-      .first<{ id: number }>();
-    if (order !== null) {
-      await applyExpiredMutation(env.DB, order.id);
-    }
+  if (event.kind === 'checkout_expired') {
+    await orders.expirePayment({ stripeSessionId: event.session_id, causationId: event.id });
   }
 
   return Response.json({ received: true });

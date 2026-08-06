@@ -43,6 +43,9 @@ venta o servicios logísticos propios.
 - [`adr/`](adr/): decisiones aceptadas de arquitectura modular.
 - [`wiki/arquitectura-modular-ecommerce.md`](wiki/arquitectura-modular-ecommerce.md):
   borrador interno, no indexable, de la futura página de arquitectura.
+- [`wiki/eventos-de-dominio-trazabilidad.md`](wiki/eventos-de-dominio-trazabilidad.md):
+  borrador interno, no indexable, de la futura página de eventos y trazabilidad
+  (R1.5); no publicable hasta que el outbox exista.
 - [`../../platform.config.ts`](../../platform.config.ts): manifest del
   despliegue actual, basado en un preset técnico y sin valores secretos.
 - [`../../src/platform/configuration/`](../../src/platform/configuration/):
@@ -53,6 +56,12 @@ venta o servicios logísticos propios.
   operativos por despliegue.
 - [`../../src/composition/runtime-platform.ts`](../../src/composition/runtime-platform.ts):
   fachada única que conecta el manifest del despliegue con Astro.
+- [`../../src/shared-kernel/events.ts`](../../src/shared-kernel/events.ts):
+  sobre de evento versionado R1.5 —identidad, actor, entidad, correlación,
+  causación e idempotencia— sin PII, sin configuración y sin I/O.
+- [`../../src/composition/order-operations.ts`](../../src/composition/order-operations.ts):
+  casos de uso compuestos de escritura de pedido; único punto que une el hecho
+  que emite `orders` con el consumidor de `notifications`.
 
 ## Reglas de verdad
 

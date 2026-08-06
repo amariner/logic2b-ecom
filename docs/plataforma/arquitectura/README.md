@@ -1,7 +1,7 @@
 # Arquitectura modular comprobable
 
-> Fuente de verdad arquitectónica desde R1.1, actualizada al cierre de R1.4 el
-> **2026-08-06**. Fija las fronteras que R1.5 y siguientes deben respetar. No describe
+> Fuente de verdad arquitectónica desde R1.1, actualizada al cierre de R1.5 el
+> **2026-08-06**. Fija las fronteras que R1.6 y siguientes deben respetar. No describe
 > como migradas las capas que aún siguen planas.
 
 ## 1. Tres lecturas que no deben mezclarse
@@ -42,25 +42,21 @@ de adaptadores e infraestructura siguen reservados a sus bloques.
 | Presentación storefront | `demo-themes`, `theme-catalog`, `nav`, `not-found`, `storefront-contract` | Registro de temas, descubrimiento del catálogo y detalles HTTP viven junto al dominio. |
 | Carrito/demo | `cart-client`, `demo-commerce` | Simulación pública local, deliberadamente separada del runtime D1. |
 | Precio/quote/envío | `pricing`, `shipping`, `quote` | La aritmética es pura; `quote` obtiene producto y tarifa directamente de D1. |
-| Pago/pedido | `stripe`, `payment-mode`, `payment-transition`, `orders`, `order-transitions`, `thanks` | El webhook y checkout orquestan D1, Stripe, stock, pedido y email. |
+| Pago/pedido | `stripe`, `payment-mode`, `orders`, `order-transitions`, `thanks` | `orders` conserva solo la numeración; la transición de pago vive en `modules/orders/domain/` y su escritura en `modules/orders/infrastructure/`. |
 | Notificaciones | `emails`, `send-email`, `contact` | Plantillas, outbox D1 y llamada HTTP a Resend están próximos pero sin puerto. |
 | Compartido | `format`, `csv` | `format` depende de `shop.config.ts`; no es todavía un shared-kernel puro. |
 
 ### D1 y SQL embebido
 
-El binding entra por casos de uso/adaptadores en las superficies migradas y por
-`locals.runtime.env.DB` en la deuda restante; el cron usa `env.DB`. Hay SQL
-fuera de infraestructura en estos archivos exactos:
+El binding entra por casos de uso/adaptadores en todas las superficies HTTP; el
+cron usa `env.DB`. Desde R1.5 **no queda SQL en `src/pages/`**. Sigue habiendo
+SQL fuera de una carpeta `infrastructure/` en helpers planos que actúan como
+adaptadores: `db.ts`, `quote.ts`, `send-email.ts`, `thanks.ts` y `backup.ts`;
+y en la composición de la demo, donde `src/worker.ts` ejecuta sentencias
+producidas por `seed/seed.ts`.
 
-- endpoints: `api/admin/orders/[id].ts`, `api/checkout/session.ts` y
-  `api/webhooks/stripe.ts`;
-- helpers/adaptadores planos: `db.ts`, `orders.ts`, `send-email.ts`, `thanks.ts`
-  y `backup.ts`;
-- composición demo: `src/worker.ts` ejecuta sentencias producidas por
-  `seed/seed.ts`.
-
-La lista de rutas/páginas es una allowlist ejecutable: una aparición nueva
-rompe el test arquitectónico.
+La regla `presentation-sql` es una allowlist ejecutable y ya está vacía: una
+aparición nueva rompe el test arquitectónico.
 
 ### Flujo y dependencias reales
 
@@ -70,14 +66,19 @@ escaparate público
                     -> demo-commerce -> cart-client/localStorage/sessionStorage
                     -X-> APIs reales / D1 / Stripe / Resend
 
-runtime clonable
+runtime clonable (desde R1.5, sin SQL en presentación)
   POST cart/quote -> quote -> db + pricing + shipping
-  POST checkout/session -> quote -> SQL pedido/items/evento
+  POST checkout/session -> quote -> order-operations.placeOrder
                         -> stripe o pago simulado
-                        -> payment-transition -> orders -> stock + outbox
-  POST webhooks/stripe -> stripe -> payment-transition -> orders
-                       -> stock + order_events + emails_outbox
-  PATCH admin/order -> order-transitions -> SQL pedido/stock/outbox
+                        -> order-operations.confirmPayment
+  POST webhooks/stripe -> stripe(evento normalizado)
+                       -> order-operations.confirmPayment / expirePayment
+  PATCH admin/order -> order-transitions -> order-operations.applyPanelTransition
+
+  order-operations (composition root)
+    orders.domain           emite el hecho con sobre
+    notifications           consume el hecho -> mensajes
+    orders.infrastructure   UPDATE guardado + UNA batch: timeline + stock + outbox
   outbox -> send-email -> HTTP Resend
 ```
 
@@ -185,7 +186,7 @@ implementaciones concretas.
 | `integrations` | Adaptadores Stripe, Resend, CSV y futuros proveedores; health/disconnect después. No decide negocio. | implementaciones de puertos y metadatos de adaptador. | puertos públicos de módulos, SDKs externos. |
 | `storefront` | Presentación compartida, temas y contrato de demo aislada. No posee dinero/stock/pedido real. | view models, registro de presentaciones y contrato de demo. | APIs de lectura públicas + configuración. |
 | `marketing` | Captación y consentimiento futuro. Hoy: solicitud de proyecto. | `submitLead` y puertos de notificación/almacenamiento. | customers/notifications por API pública. |
-| `shared-kernel` | Solo `MoneyCents`, IDs opacos, `Clock`, resultado/error base y metadatos de correlación cuando existan. | primitivas sin configuración ni I/O. | Ninguna. |
+| `shared-kernel` | Desde R1.5: sobre de evento, actor/entidad, reloj y fuente de ids como puertos. Pendientes `MoneyCents`, IDs opacos y resultado/error base. | `EventEnvelope`, `createEventFactory`, `validateEventEnvelope`, `causedBy`; primitivas sin configuración ni I/O. | Ninguna. |
 
 La propiedad es lógica antes que física: hasta las migraciones de R2, otros
 módulos pueden leer una tabla mediante el puerto del propietario, nunca mediante
@@ -220,8 +221,13 @@ R1.3 conecta rutas, navegación y adaptadores Astro a esa fachada mediante
 R1.4 incorpora `module-registry.ts`: cada capacidad tiene un módulo propietario
 y cada descriptor declara dependencias y superficies conocidas. El composition
 root selecciona solo módulos operativos y falla si falta una dependencia. No
-elige infraestructura, no lee secretos ni inventa adaptadores; los arrays de
-eventos, jobs y healthchecks permanecen explícitamente vacíos hasta sus bloques.
+elige infraestructura, no lee secretos ni inventa adaptadores.
+
+R1.5 añade `event-context.ts` (reloj y fuente de ids reales) y
+`order-operations.ts`, el primer caso de uso compuesto: junta el hecho que emite
+`orders` con el consumidor de `notifications` y confirma ambos efectos en una
+única batch. Es el único punto que conoce los dos módulos a la vez. Los arrays
+de jobs y healthchecks siguen explícitamente vacíos hasta R1.11 y R1.10.
 
 ## 5. Transición incremental
 
@@ -230,7 +236,7 @@ eventos, jobs y healthchecks permanecen explícitamente vacíos hasta sus bloque
 | R1.2 ✅ | Configuración/manifest tipados, presets y `create-platform` puros, sin UI. | Rutas, SQL, tablas, demo y registros de temas siguen iguales. |
 | R1.3 ✅ | Rutas/nav consultan capacidades; SQL tocado pasa a casos de uso/adaptadores. | Mutación de pago y outbox conservan contrato y tablas. |
 | R1.4 ✅ | Descriptor/registro único de 16 módulos; composition root resuelve módulos operativos y el validador rechaza duplicados/ciclos. Navegación y rutas se derivan del registro. | Seeds, temas, adaptadores y contratos futuros no se mueven ni se inventan. |
-| R1.5 | Introducir sobre de evento y adaptar transiciones actuales sin cambiar efectos; retirar Stripe del webhook de presentación y el import orders→notifications. | `emails_outbox` y entrega actual siguen hasta el diseño/implementación R1.6–R1.7. |
+| R1.5 ✅ | Sobre versionado en `shared-kernel`; los cinco hechos de pedido lo emiten y el timeline pasa a ser su proyección; notificaciones consume eventos sin depender de pedidos; el webhook recibe un evento normalizado y las tres rutas de escritura pasan a casos de uso compuestos. | `emails_outbox` y la entrega actual siguen hasta R1.6–R1.7; el stock lo sigue escribiendo el adaptador de pedidos hasta R2.7. |
 | R1.12 | Cerrar imports planos restantes, SQL de presentación residual y documentación de crear módulo. | Solo deuda que requiera olas R2+ por cambio de esquema. |
 
 No hay big-bang: cada caso de uso conserva tests y contrato HTTP mientras se
@@ -265,7 +271,9 @@ indicadores y los tests funcionales no mejoran.
 | Monolito y aislamiento por despliegue | ADR-0001 + `platform.config.ts`; manifest/config independiente y validado sin crear infraestructura compartida. |
 | `presentation -> application -> domain` | `layer-direction`, `domain-technology-import` y `domain-platform-global`. |
 | Grafo entre módulos y API pública | `module-dependency`, `module-private-import` y clasificación obligatoria de todo `src/lib/*.ts`. |
-| Puertos/adaptadores; SDK/SQL fuera de presentación | `restricted-sdk-import` y `presentation-sql`; excepciones exactas en `DEUDA.md`; allowlist reducida de 18 a 9 en R1.3 y a 7 en R1.4. |
+| Puertos/adaptadores; SDK/SQL fuera de presentación | `restricted-sdk-import` y `presentation-sql`; excepciones exactas en `DEUDA.md`; allowlist reducida de 18 a 9 en R1.3, a 7 en R1.4 y a 2 en R1.5, con `presentation-sql` en cero. |
+| Sobre de evento versionado y sin PII | ADR-0006 + `tests/event-envelope.test.ts` y `tests/order-events.test.ts`: correlación/causación, clave de idempotencia estable, fallo temprano, proyección del timeline idéntica y consumidor de notificaciones desacoplado. |
+| Emisor único por evento y suscripción declarada | `module-registry.ts` + `tests/order-events.test.ts`: prefijo del módulo, sin duplicados, y suscripción a un hecho inexistente rechazada al arrancar. |
 | Lifecycle de seis estados | ADR-0004 + `tests/capability-manifest.test.ts`: seis estados, flags, degradación, dependencias y fallo temprano ejecutables. |
 | Registro y composición de módulos | `module-registry.ts` + `tests/module-registry.test.ts`: propietario único por capacidad, semver, dependencias/ciclos, superficies y presets operativos. |
 | Transición sin big-bang | allowlist sellada a las claves R1.1, cero ciclos y `pnpm check`; contratos HTTP/runtime no se editan en este bloque. |

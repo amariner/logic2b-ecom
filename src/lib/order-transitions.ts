@@ -25,12 +25,41 @@ export type TransitionRequest = {
   tracking_number?: string | undefined;
 };
 
-export type TransitionDecision =
-  | { ok: true; note: string; sendShippedEmail: boolean; restoreStock: boolean }
-  | { ok: false; error: string };
+/**
+ * Estados a los que el panel SÍ puede llevar un pedido. `pending` es el estado
+ * de nacimiento y `paid` lo marca únicamente la pasarela: ninguno de los dos es
+ * un destino manual, y el tipo lo hace explícito para quien construya el hecho.
+ */
+export const PANEL_TRANSITION_TARGETS = ['shipped', 'delivered', 'cancelled'] as const;
+export type PanelTransitionTarget = (typeof PANEL_TRANSITION_TARGETS)[number];
+
+function isPanelTarget(status: OrderStatus): status is PanelTransitionTarget {
+  return (PANEL_TRANSITION_TARGETS as readonly string[]).includes(status);
+}
+
+/**
+ * La decisión NO redacta la nota del timeline ni decide qué email sale: ambas
+ * cosas se derivan del hecho de dominio que emite el panel (R1.5,
+ * `modules/orders/domain/order-events.ts` y el consumidor de notificaciones).
+ * Aquí solo vive lo que es política de pedido: si la transición es legal, qué
+ * datos exige y qué pasa con el stock.
+ */
+/**
+ * Transición ya validada. Es una unión correlacionada a propósito: solo el
+ * destino `shipped` lleva tracking, así que quien construya el hecho no puede
+ * olvidarlo ni inventárselo para los demás destinos.
+ */
+export type PanelTransition =
+  | { to: 'shipped'; tracking: { carrier: string; number: string }; restoreStock: false }
+  | { to: 'delivered'; tracking: null; restoreStock: false }
+  | { to: 'cancelled'; tracking: null; restoreStock: boolean };
+
+export type TransitionDecision = ({ ok: true } & PanelTransition) | { ok: false; error: string };
 
 export function decideTransition(from: OrderStatus, req: TransitionRequest): TransitionDecision {
-  if (!ALLOWED[from].includes(req.to)) {
+  // `ALLOWED` ya excluye pending y paid como destino; la segunda comprobación
+  // lo hace verdad para el compilador, no solo en tiempo de ejecución.
+  if (!ALLOWED[from].includes(req.to) || !isPanelTarget(req.to)) {
     return { ok: false, error: `No se puede pasar de «${from}» a «${req.to}»` };
   }
   if (req.to === 'shipped') {
@@ -39,21 +68,13 @@ export function decideTransition(from: OrderStatus, req: TransitionRequest): Tra
     }
     return {
       ok: true,
-      note: `Enviado con ${req.tracking_carrier.trim()} (${req.tracking_number.trim()})`,
-      sendShippedEmail: true,
+      to: req.to,
+      tracking: { carrier: req.tracking_carrier.trim(), number: req.tracking_number.trim() },
       restoreStock: false,
     };
   }
-  const notes: Partial<Record<OrderStatus, string>> = {
-    delivered: 'Marcado como entregado',
-    cancelled: 'Cancelado desde el panel',
-  };
+  if (req.to === 'delivered') return { ok: true, to: 'delivered', tracking: null, restoreStock: false };
   // El stock solo se decrementó al pasar a 'paid' (webhook): cancelar un pedido
   // pagado debe devolverlo. Cancelar desde 'pending' no toca stock (nunca se descontó).
-  return {
-    ok: true,
-    note: notes[req.to] ?? `Estado cambiado a ${req.to}`,
-    sendShippedEmail: false,
-    restoreStock: from === 'paid' && req.to === 'cancelled',
-  };
+  return { ok: true, to: 'cancelled', tracking: null, restoreStock: from === 'paid' };
 }

@@ -6,13 +6,22 @@ describe('decideTransition', () => {
     expect(decideTransition('paid', { to: 'shipped' }).ok).toBe(false);
     expect(decideTransition('paid', { to: 'shipped', tracking_carrier: 'SEUR', tracking_number: ' ' }).ok).toBe(false);
     const ok = decideTransition('paid', { to: 'shipped', tracking_carrier: 'SEUR', tracking_number: 'ES123' });
-    expect(ok).toEqual({ ok: true, note: 'Enviado con SEUR (ES123)', sendShippedEmail: true, restoreStock: false });
+    expect(ok).toEqual({
+      ok: true,
+      to: 'shipped',
+      tracking: { carrier: 'SEUR', number: 'ES123' },
+      restoreStock: false,
+    });
   });
 
-  it('shipped → delivered sin email', () => {
+  it('shipped → delivered no arrastra tracking nuevo', () => {
     const res = decideTransition('shipped', { to: 'delivered' });
-    expect(res.ok).toBe(true);
-    if (res.ok) expect(res.sendShippedEmail).toBe(false);
+    expect(res).toEqual({ ok: true, to: 'delivered', tracking: null, restoreStock: false });
+  });
+
+  it('la decisión no redacta la nota ni decide el email: eso es del hecho de dominio', () => {
+    const res = decideTransition('paid', { to: 'shipped', tracking_carrier: 'SEUR', tracking_number: 'ES123' });
+    expect(Object.keys(res).toSorted()).toEqual(['ok', 'restoreStock', 'to', 'tracking']);
   });
 
   it('pending solo puede cancelarse a mano (paid es cosa del webhook)', () => {

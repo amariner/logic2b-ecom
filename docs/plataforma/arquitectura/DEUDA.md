@@ -8,9 +8,7 @@
 | Regla | Archivos | Propietario | Salida |
 |---|---:|---|---|
 | `legacy-inverted-import` | 1 | storefront | R1.12 |
-| `module-dependency` | 2 | arquitectura/orders | R1.5 / R1.12 |
-| `restricted-sdk-import` | 1 | payments | R1.5 |
-| `presentation-sql` | 3 | módulos propietarios | R1.5 |
+| `module-dependency` | 1 | arquitectura | R1.12 |
 
 ## Excepciones exactas
 
@@ -18,11 +16,6 @@
 |---|---|---|---|---|
 | `src/lib/demo-catalog.ts` | `legacy-inverted-import` | La demo materializa fixtures importando `seed/`. | storefront | R1.12 |
 | `src/lib/format.ts` | `module-dependency` | El supuesto shared-kernel lee moneda desde config concreta; retirarlo exige inyectar contexto en presentación y notificaciones. | arquitectura | R1.12 |
-| `src/lib/payment-transition.ts` | `module-dependency` | Pedido crea plantillas de notificación directamente. | orders | R1.5 |
-| `src/pages/api/webhooks/stripe.ts` | `restricted-sdk-import` | La presentación conoce el tipo `Stripe.Checkout.Session`. | payments | R1.5 |
-| `src/pages/api/admin/orders/[id].ts` | `presentation-sql` | PATCH coordina estado, stock y outbox en SQL. | orders | R1.5 |
-| `src/pages/api/checkout/session.ts` | `presentation-sql` | Checkout inserta pedido/items/evento y consulta producto. | checkout | R1.5 |
-| `src/pages/api/webhooks/stripe.ts` | `presentation-sql` | El webhook consulta pedido/items antes de la mutación. | payments | R1.5 |
 
 No se incluyen `src/lib/db.ts`, `orders.ts`, `send-email.ts`, `thanks.ts` o
 `backup.ts` en esta regla porque, aunque hoy estén planos, actúan como
@@ -40,3 +33,19 @@ R1.4 retira dos excepciones: el registro de escaparates pasa a
 `src/collections/index.ts`, donde compone piezas de su propia capa, y la
 exportación de backup delega en un caso de uso con adaptador D1 bajo
 `src/platform/operations/`. La allowlist baja de 9 a 7 claves.
+
+R1.5 retira cinco más y deja la allowlist en **2 claves**, ambas con salida en
+R1.12:
+
+- `payment-transition.ts` deja de construir plantillas de notificación —emite un
+  hecho— y se traslada a `src/modules/orders/domain/`, así que su excepción
+  desaparece con el archivo;
+- el webhook deja de conocer los tipos del SDK: `lib/stripe.ts` devuelve un
+  evento de checkout ya normalizado;
+- las tres rutas de escritura (webhook, checkout y PATCH del panel) delegan en
+  casos de uso compuestos y adaptadores D1, así que no queda SQL en
+  presentación: `presentation-sql` pasa de 3 archivos a **0**.
+
+`products.stock` se sigue escribiendo desde el adaptador de pedidos. No es una
+excepción de la allowlist —no cruza ninguna regla estática— pero sí deuda de
+propiedad física declarada: el ledger de inventario es R2.6/R2.7.

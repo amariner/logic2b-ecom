@@ -1,11 +1,26 @@
 import { describe, expect, it } from 'vitest';
+import { createEventFactory, type EventClock, type EventIdSource } from '../src/shared-kernel/events';
+import { orderTimelineEntry } from '../src/modules/orders/domain/order-events';
 import {
   buildPaidMutation,
   stockAfterDecrement,
   type OrderForPayment,
   type OrderItemForPayment,
-} from '../src/lib/payment-transition';
-import { shopConfig } from '../shop.config';
+} from '../src/modules/orders/domain/payment-transition';
+
+function testFactory() {
+  let tick = 0;
+  const clock: EventClock = { now: () => new Date(Date.parse('2026-08-06T10:00:00.000Z') + tick * 1000) };
+  const ids: EventIdSource = {
+    next: () => {
+      tick += 1;
+      return `evt_${tick}`;
+    },
+  };
+  return createEventFactory({ clock, ids });
+}
+
+const stripeContext = { emit: testFactory(), source: 'stripe' } as const;
 
 const order: OrderForPayment = {
   id: 7,
@@ -24,8 +39,8 @@ const items: OrderItemForPayment[] = [
 ];
 
 describe('buildPaidMutation (idempotencia del webhook)', () => {
-  it('pedido pending → mutación completa', () => {
-    const mutation = buildPaidMutation(order, items, 'pi_123');
+  it('pedido pending → mutación completa con su hecho de dominio', () => {
+    const mutation = buildPaidMutation(order, items, 'pi_123', stripeContext);
     expect(mutation).not.toBeNull();
     expect(mutation?.orderId).toBe(7);
     expect(mutation?.paymentIntent).toBe('pi_123');
@@ -33,47 +48,47 @@ describe('buildPaidMutation (idempotencia del webhook)', () => {
       { product_id: 1, qty: 2 },
       { product_id: 12, qty: 3 },
     ]);
-    expect(mutation?.event).toEqual({ from_status: 'pending', to_status: 'paid', note: 'Pago confirmado por Stripe' });
+    expect(mutation?.event.type).toBe('orders.order_paid');
+    expect(mutation?.event.payload).toMatchObject({ payment_intent: 'pi_123', source: 'stripe' });
+  });
+
+  it('la fila del timeline sigue siendo la de siempre', () => {
+    const mutation = buildPaidMutation(order, items, 'pi_123', stripeContext);
+    expect(mutation && orderTimelineEntry(mutation.event)).toEqual({
+      from_status: 'pending',
+      to_status: 'paid',
+      note: 'Pago confirmado por Stripe',
+    });
   });
 
   it('pedido ya pagado (reintento de Stripe) → null, sin efectos', () => {
-    expect(buildPaidMutation({ ...order, status: 'paid' }, items, 'pi_123')).toBeNull();
+    expect(buildPaidMutation({ ...order, status: 'paid' }, items, 'pi_123', stripeContext)).toBeNull();
   });
 
   it('pedido en cualquier estado no-pending → null', () => {
     for (const status of ['shipped', 'delivered', 'cancelled']) {
-      expect(buildPaidMutation({ ...order, status }, items, null)).toBeNull();
+      expect(buildPaidMutation({ ...order, status }, items, null, stripeContext)).toBeNull();
     }
   });
 
   it('pedido desconocido (sesión de otro entorno) → null', () => {
-    expect(buildPaidMutation(null, [], 'pi_123')).toBeNull();
+    expect(buildPaidMutation(null, [], 'pi_123', stripeContext)).toBeNull();
   });
 
-  it('el email de confirmación lleva número de pedido, items y total', () => {
-    const mutation = buildPaidMutation(order, items, null);
-    const confirmation = mutation?.emails[0];
-    expect(confirmation?.to_addr).toBe('clienta@example.com');
-    expect(confirmation?.subject).toContain('BM-260717-TEST');
-    expect(confirmation?.body_html).toContain('AOVE Picual 500 ml × 2');
-    expect(confirmation?.body_html).toContain('35,30');
+  it('el pedido ya no construye emails: solo declara que se ha cobrado', () => {
+    const mutation = buildPaidMutation(order, items, 'pi_123', stripeContext);
+    expect(mutation && Object.keys(mutation).toSorted()).toEqual([
+      'event',
+      'orderId',
+      'paymentIntent',
+      'stockDecrements',
+    ]);
+    expect(JSON.stringify(mutation)).not.toContain('body_html');
   });
 
-  it('genera también el aviso interno al comercio', () => {
-    const mutation = buildPaidMutation(order, items, null);
-    const notice = mutation?.emails[1];
-    expect(notice?.to_addr).toBe(shopConfig.email);
-    expect(notice?.subject).toContain('BM-260717-TEST');
-    expect(notice?.body_html).toContain('clienta@example.com');
-  });
-
-  it('escapa el nombre del cliente en el HTML de ambos emails (checkout no lo restringe)', () => {
-    const maliciousOrder = { ...order, customer_name: '<img src=x onerror=alert(1)>Marta' };
-    const mutation = buildPaidMutation(maliciousOrder, items, null);
-    for (const email of mutation?.emails ?? []) {
-      expect(email.body_html).not.toContain('<img src=x onerror');
-      expect(email.body_html).toContain('&lt;img src=x onerror=alert(1)&gt;Marta');
-    }
+  it('propaga la causación del evento del proveedor', () => {
+    const mutation = buildPaidMutation(order, items, 'pi_123', { ...stripeContext, causationId: 'evt_stripe_9' });
+    expect(mutation?.event.causation_id).toBe('evt_stripe_9');
   });
 });
 

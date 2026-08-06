@@ -38,7 +38,7 @@ improvisan durante la implementación.
 | Ola | Resultado | Estado |
 |---|---|---|
 | R0 | Investigación, taxonomía, matriz, roadmap y estrategia wiki | ✅ cerrado 2026-08-06 |
-| R1 | Cimientos modulares y observables | 🟡 4/12 bloques cerrados |
+| R1 | Cimientos modulares y observables | 🟡 5/12 bloques cerrados |
 | R2 | Núcleo transaccional profesional | ⬜ |
 | R3 | Operación de pedidos, inventario y fulfillment | ⬜ |
 | R4 | Precios, promociones y modelos de venta | ⬜ |
@@ -71,8 +71,8 @@ conviertan el motor en una colección de condicionales.
 | 2 | **R1.2 Capability manifest tipado** | Manifest por cliente con flags, config y dependencias; validación de combinaciones; fixtures `minimal`, `standard`, `advanced`; sin UI todavía. | ✅ 2026-08-06 |
 | 3 | **R1.3 Navegación y rutas por capacidad** | Panel y endpoints consultan el manifest; módulo apagado responde 404/403 coherente y desaparece de navegación; tests por preset. | ✅ 2026-08-06 |
 | 4 | **R1.4 Registro de módulos** | Descriptor estable: id, versión, dependencias, permisos, eventos, jobs, healthchecks y enlaces wiki; detector de ciclos. | ✅ 2026-08-06 |
-| 5 | **R1.5 Sobre de eventos** | Contrato `event_id`, tipo, versión, timestamp, actor, entity, correlation/causation/idempotency; eventos actuales de pedido adaptados sin cambiar comportamiento. | ⬜ siguiente |
-| 6 | **R1.6 Diseño y aprobación de outbox** | ADR, SQL exacto, retención, claim/retry/dead-letter y compatibilidad D1; pruebas contractuales antes de migrar. Puerta de decisión de esquema. | ⬜ |
+| 5 | **R1.5 Sobre de eventos** | Contrato `event_id`, tipo, versión, timestamp, actor, entity, correlation/causation/idempotency; eventos actuales de pedido adaptados sin cambiar comportamiento. | ✅ 2026-08-06 |
+| 6 | **R1.6 Diseño y aprobación de outbox** | ADR, SQL exacto, retención, claim/retry/dead-letter y compatibilidad D1; pruebas contractuales antes de migrar. Puerta de decisión de esquema. | ⬜ siguiente |
 | 7 | **R1.7 Outbox transaccional** | Migración aprobada, escritura atómica en mutaciones de pago/pedido y dispatcher idempotente; fallo del consumidor no revierte el negocio. | ⬜ |
 | 8 | **R1.8 Audit log transversal** | Actor, acción, entidad, diff redacted y correlation id; pagos, pedidos, producto y admin cubiertos; export autenticado. | ⬜ |
 | 9 | **R1.9 Observabilidad base** | Logger estructurado, errores tipados, métricas de checkout/webhook/outbox/email e IDs visibles en runbook; sin PII. | ⬜ |
@@ -327,12 +327,51 @@ Entrega cerrada:
 8. verificación: `pnpm check` (31 suites, 218 tests), E2E 27/27 y panel en 14
    superficies a 1440/375 con 0 errores y 0 avisos de accesibilidad.
 
+### R1.5 — Sobre de eventos — ✅ 2026-08-06
+
+Entrega cerrada:
+
+1. sobre único y versionado en `src/shared-kernel/events.ts` con `event_id`,
+   tipo, versión, `occurred_at`, actor, entidad, correlación, causación y clave
+   de idempotencia; reloj y fuente de ids inyectados, validación fail-fast y
+   decisión de **no transportar PII** ([ADR-0006](adr/0006-sobre-de-eventos.md));
+2. los cinco hechos de pedido (`placed`, `paid`, `shipped`, `delivered`,
+   `cancelled`) se emiten con sobre y la fila de `order_events` pasa a ser su
+   **proyección**: mismas notas, mismos estados, mismo comportamiento —el seed
+   de la demo redacta sus notas con esa misma función;
+3. `notifications` deja de ser llamado por `orders` y pasa a **consumir el
+   sobre**: reconoce tipos por nombre, lee el payload de forma defensiva y no
+   importa nada del emisor; la unión la hace el composition root;
+4. `order-operations.ts` compone las tres escrituras de pedido conservando la
+   guarda de idempotencia (UPDATE guardado en solitario + una sola batch con
+   timeline, stock y bandeja);
+5. el webhook recibe un **evento de checkout normalizado** y las tres rutas de
+   escritura pierden su SQL: la allowlist baja de 7 a **2 claves** y
+   `presentation-sql` queda en **0 archivos**;
+6. el registro de módulos declara `events`/`subscriptions` con emisor único,
+   prefijo por módulo y rechazo de suscripciones a hechos que nadie emite;
+7. verificación: `pnpm check` (35 suites, 244 tests, tipos y build en verde),
+   E2E 27/27 contra `wrangler dev`, y prueba del motor real con `DEMO_MODE=false`
+   —compra con pago simulado, timeline de tres entradas con las notas de
+   siempre, stock decrementado, tres emails exactos y transición repetida
+   devolviendo 422 sin segundo aviso—;
+8. sin migración D1, sin dependencia nueva, sin cambio de respuestas HTTP ni de
+   promesa comercial.
+
+PLT-006 pasa a `parcial`: el contrato existe y es ejecutable, pero la
+persistencia y la entrega reintentable son R1.6/R1.7. PLT-003 pasa a `parcial`
+con eventos declarados; jobs y healthchecks siguen pendientes de R1.11 y R1.10.
+
 ## 6. Siguiente bloque
 
-### R1.5 — Sobre de eventos
+### R1.6 — Diseño y aprobación de outbox
 
-Definir y probar el contrato versionado `event_id`, tipo, versión, timestamp,
-actor, entity, correlation/causation e idempotency. Adaptar los eventos actuales
-de pedido sin cambiar respuestas, tablas ni efectos; el diseño del outbox sigue
-reservado a R1.6. `pnpm check`, compatibilidad hacia atrás y allowlist no
-creciente son obligatorios; no hay migración D1 ni dependencia nueva.
+Diseñar, sin implementar todavía, la persistencia y entrega de los hechos que
+R1.5 ya emite: ADR, SQL exacto, política de retención, `claim`/retry/dead-letter
+y compatibilidad con D1, más las pruebas contractuales previas a la migración.
+Es **puerta de decisión de esquema**: la migración se propone y se aprueba antes
+de escribir código de escritura (§14 de `CLAUDE.md` y veto del arquitecto).
+Punto de partida obligatorio: `idempotency_key` y `correlation_id` del sobre son
+las claves de deduplicación y de traza; el consumidor de notificaciones ya es
+una función pura del evento, así que el dispatcher no debe reinventar el
+contenido de los mensajes.

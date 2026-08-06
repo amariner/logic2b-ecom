@@ -21,10 +21,10 @@ su alcance requiera.
 |---|---|---|---|---|---|
 | PLT-001 | Despliegue aislado por cliente | núcleo | P0 | parcial | Código compartido; base, secretos, dominio y observabilidad aislados. |
 | PLT-002 | Manifest de capacidades | núcleo | P0 | parcial | Fuente tipada que gobierna rutas, navegación y composición de módulos; faltan publicación/importación de configuración. |
-| PLT-003 | Registro de módulos y dependencias | núcleo | P0 | parcial | Registro ejecutable con propietario de capacidades, dependencias, permisos y superficies; eventos/jobs/healthchecks se completan en sus bloques R1.5/R1.10/R1.11. |
+| PLT-003 | Registro de módulos y dependencias | núcleo | P0 | parcial | Registro ejecutable con propietario de capacidades, dependencias, permisos, superficies y, desde R1.5, emisores/suscriptores de eventos; jobs y healthchecks se completan en R1.11/R1.10. |
 | PLT-004 | Configuración validada por entorno | núcleo | P0 | parcial | Esquema tipado, valores por cliente y fallo temprano ante combinaciones inválidas. |
 | PLT-005 | Migraciones reproducibles y reversibles | núcleo | P0 | parcial | Forward migration probada, backup y procedimiento de rollback/restore. |
-| PLT-006 | Eventos de dominio versionados | núcleo | P0 | pendiente | Nombre, versión, actor, correlation id e idempotency key estables. |
+| PLT-006 | Eventos de dominio versionados | núcleo | P0 | parcial | Sobre ejecutable con nombre, versión, actor, entidad, correlación, causación e idempotencia estables; los cinco hechos de pedido lo emiten. Falta persistirlos y entregarlos (R1.6/R1.7). |
 | PLT-007 | Outbox transaccional | núcleo | P0 | pendiente | Negocio y evento se confirman juntos; entrega reintentable después. |
 | PLT-008 | Adaptadores sustituibles | núcleo | P0 | especificado | Pagos, email, transporte, impuestos y feeds detrás de interfaces. |
 | PLT-009 | Configuración con borrador y publicación | módulo | P1 | pendiente | Preview, diff, publicación atómica y rollback. |

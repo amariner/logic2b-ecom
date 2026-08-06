@@ -1,13 +1,15 @@
 import type { APIRoute } from 'astro';
 import { z } from 'zod';
 import { shopConfig } from '../../../../shop.config';
-import { applyPaidMutation, generateOrderNumber, generateSimulatedSessionToken } from '../../../lib/orders';
+import { createOrderOperations } from '../../../composition/order-operations';
+import { getProductIdsBySlugs } from '../../../lib/db';
+import { generateOrderNumber, generateSimulatedSessionToken } from '../../../lib/orders';
 import { isSimulatedPayment } from '../../../lib/payment-mode';
-import { buildPaidMutation, type OrderItemForPayment } from '../../../lib/payment-transition';
 import { DEFAULT_COLLECTION_ID, resolveCollection, storePaths } from '../../../collections';
 import { quoteCart } from '../../../lib/quote';
 import { deliverPendingEmails } from '../../../lib/send-email';
 import { stripeClient } from '../../../lib/stripe';
+import type { NewOrderLine } from '../../../modules/orders';
 
 export const prerender = false;
 
@@ -82,12 +84,10 @@ export const POST: APIRoute = async ({ request, locals }) => {
   });
 
   // Mapa slug → id de producto para el snapshot de líneas (y el decremento de stock).
-  const productRows = await env.DB.prepare(
-    `SELECT id, slug FROM products WHERE slug IN (${quote.lines.map(() => '?').join(',')})`,
-  )
-    .bind(...quote.lines.map((line) => line.slug))
-    .all<{ id: number; slug: string }>();
-  const idBySlug = new Map(productRows.results.map((row) => [row.slug, row.id]));
+  const idBySlug = await getProductIdsBySlugs(
+    env.DB,
+    quote.lines.map((line) => line.slug),
+  );
 
   // En pago real, el session_id lo da Stripe (alta entropía propia). En
   // simulación lo sintetizamos con un token aleatorio independiente del nº de
@@ -130,67 +130,44 @@ export const POST: APIRoute = async ({ request, locals }) => {
     redirectUrl = session.url ?? redirectUrl;
   }
 
-  // Pedido en 'pending' + líneas con snapshot de nombre y precio, en una batch
-  const insertOrder = env.DB.prepare(
-    `INSERT INTO orders (order_number, email, customer_name, address_json, subtotal_cents, shipping_cents, total_cents, status, stripe_session_id)
-     VALUES (?, ?, ?, ?, ?, ?, ?, 'pending', ?)`,
-  ).bind(
-    orderNumber,
-    customer.email,
-    customer.name,
-    addressJson,
-    quote.subtotal_cents,
-    quote.shipping_cents,
-    quote.total_cents,
-    sessionId,
-  );
-  await insertOrder.run();
-
-  const orderRow = await env.DB.prepare('SELECT id FROM orders WHERE order_number = ?')
-    .bind(orderNumber)
-    .first<{ id: number }>();
-  if (!orderRow) {
-    return Response.json({ error: 'No se pudo registrar el pedido' }, { status: 500 });
-  }
-
-  const items: OrderItemForPayment[] = quote.lines.map((line) => ({
+  const orderLines: NewOrderLine[] = quote.lines.map((line) => ({
     product_id: idBySlug.get(line.slug) ?? 0,
     name_snapshot: line.name,
     unit_price_cents: line.unit_price_cents,
     qty: line.qty,
   }));
 
-  const itemStatements = items.map((item) =>
-    env.DB.prepare(
-      'INSERT INTO order_items (order_id, product_id, name_snapshot, unit_price_cents, qty) VALUES (?, ?, ?, ?, ?)',
-    ).bind(orderRow.id, item.product_id || null, item.name_snapshot, item.unit_price_cents, item.qty),
+  // Pedido en 'pending' + líneas con snapshot de nombre y precio + primer hecho
+  // del flujo (`orders.order_placed`), del que sale la entrada del timeline.
+  const orders = createOrderOperations(env.DB);
+  const placed = await orders.placeOrder(
+    {
+      order_number: orderNumber,
+      email: customer.email,
+      customer_name: customer.name,
+      address_json: addressJson,
+      subtotal_cents: quote.subtotal_cents,
+      shipping_cents: quote.shipping_cents,
+      total_cents: quote.total_cents,
+      stripe_session_id: sessionId,
+    },
+    orderLines,
   );
-  itemStatements.push(
-    env.DB.prepare(
-      "INSERT INTO order_events (order_id, from_status, to_status, note) VALUES (?, NULL, 'pending', 'Pedido creado, esperando pago')",
-    ).bind(orderRow.id),
-  );
-  await env.DB.batch(itemStatements);
+  if (placed === null) {
+    return Response.json({ error: 'No se pudo registrar el pedido' }, { status: 500 });
+  }
 
-  // Pago simulado: marcamos pagado al instante (sin Stripe ni webhook). Reutiliza
-  // exactamente la misma mutación que el webhook real → stock, evento y emails.
+  // Pago simulado: marcamos pagado al instante (sin Stripe ni webhook). Recorre
+  // exactamente el mismo caso de uso que el webhook real → stock, evento y emails;
+  // solo cambian el origen del cobro y el hecho que lo causa (el alta del pedido).
   if (simulate) {
-    const mutation = buildPaidMutation(
-      {
-        id: orderRow.id,
-        order_number: orderNumber,
-        status: 'pending',
-        email: customer.email,
-        customer_name: customer.name,
-        subtotal_cents: quote.subtotal_cents,
-        shipping_cents: quote.shipping_cents,
-        total_cents: quote.total_cents,
-      },
-      items,
-      `sim_pi_${orderNumber}`,
-      'Pago confirmado (simulado)',
-    );
-    if (mutation !== null && (await applyPaidMutation(env.DB, mutation))) {
+    const confirmed = await orders.confirmPayment({
+      lookup: { by: 'id', orderId: placed.orderId },
+      paymentIntent: `sim_pi_${orderNumber}`,
+      source: 'simulated',
+      causationId: placed.event.event_id,
+    });
+    if (confirmed) {
       locals.runtime.ctx.waitUntil(deliverPendingEmails(env.DB, env));
     }
   }

@@ -147,6 +147,22 @@ export async function getProductsBySlugs(db: D1Database, slugs: string[]): Promi
   return results;
 }
 
+/**
+ * Mapa slug → id de producto para el snapshot de líneas del pedido (y el
+ * decremento de stock posterior). Sin filtrar por `active`: el checkout ya
+ * revalidó la compra contra `getProductsBySlugs`, y un producto despublicado
+ * entre ambas lecturas no debe perder su id en el pedido.
+ */
+export async function getProductIdsBySlugs(db: D1Database, slugs: readonly string[]): Promise<Map<string, number>> {
+  if (slugs.length === 0) return new Map();
+  const placeholders = slugs.map(() => '?').join(',');
+  const { results } = await db
+    .prepare(`SELECT id, slug FROM products WHERE slug IN (${placeholders})`)
+    .bind(...slugs)
+    .all<{ id: number; slug: string }>();
+  return new Map(results.map((row) => [row.slug, row.id]));
+}
+
 export async function getRateForZone(db: D1Database, zone: string): Promise<ShippingRateRow | null> {
   return await db
     .prepare('SELECT * FROM shipping_rates WHERE zone = ? AND active = 1 ORDER BY price_cents LIMIT 1')

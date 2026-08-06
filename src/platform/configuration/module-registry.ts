@@ -43,7 +43,10 @@ export type ModuleDescriptor = Readonly<{
   capabilities: readonly CapabilityId[];
   dependencies: readonly ModuleId[];
   permissions: readonly string[];
+  /** Hechos que EMITE, con el sobre de `shared-kernel`. Un tipo tiene un solo emisor. */
   events: readonly string[];
+  /** Hechos ajenos a los que REACCIONA. No crea dependencia: los une el composition root. */
+  subscriptions: readonly string[];
   jobs: readonly string[];
   healthchecks: readonly string[];
   wikiLinks: readonly string[];
@@ -54,29 +57,30 @@ export type ModuleDescriptor = Readonly<{
 const ARCHITECTURE_WIKI = 'docs/plataforma/wiki/arquitectura-modular-ecommerce.md';
 
 /**
- * Catálogo canónico de módulos R1.4. Los arrays vacíos son declaraciones
- * explícitas: eventos, jobs y healthchecks se incorporan en R1.5, R1.11 y
- * R1.10; no se inventan contratos antes de esos bloques.
+ * Catálogo canónico de módulos. Los arrays vacíos son declaraciones explícitas:
+ * jobs y healthchecks se incorporan en R1.11 y R1.10; no se inventan contratos
+ * antes de esos bloques. R1.5 llena `events`/`subscriptions` únicamente con los
+ * hechos que el motor emite y consume HOY.
  */
 export const MODULE_DESCRIPTORS = [
   {
     id: 'platform-configuration', version: '1.0.0', capabilities: ['PLT-001', 'PLT-004'], dependencies: [],
-    permissions: [], events: [], jobs: [], healthchecks: [], wikiLinks: [ARCHITECTURE_WIKI], navigation: [], routes: [],
+    permissions: [], events: [], subscriptions: [], jobs: [], healthchecks: [], wikiLinks: [ARCHITECTURE_WIKI], navigation: [], routes: [],
   },
   {
     id: 'platform-security', version: '1.0.0', capabilities: ['SEC-001', 'SEC-003', 'SEC-004', 'SEC-012'],
-    dependencies: ['platform-configuration'], permissions: ['admin.session'], events: [], jobs: [], healthchecks: [],
+    dependencies: ['platform-configuration'], permissions: ['admin.session'], events: [], subscriptions: [], jobs: [], healthchecks: [],
     wikiLinks: [ARCHITECTURE_WIKI], navigation: [],
     routes: [{ match: 'exact', path: '/demo/admin/login', capabilityId: 'SEC-001' }],
   },
   {
     id: 'platform-operations', version: '1.0.0', capabilities: ['INT-004'], dependencies: ['platform-security'],
-    permissions: ['platform.backup.read'], events: [], jobs: [], healthchecks: [], wikiLinks: [ARCHITECTURE_WIKI],
+    permissions: ['platform.backup.read'], events: [], subscriptions: [], jobs: [], healthchecks: [], wikiLinks: [ARCHITECTURE_WIKI],
     navigation: [], routes: [{ match: 'exact', path: '/api/admin/backup.sql', capabilityId: 'INT-004' }],
   },
   {
     id: 'catalog', version: '1.0.0', capabilities: ['CAT-001', 'CAT-002'], dependencies: ['platform-configuration'],
-    permissions: ['catalog.read', 'catalog.write'], events: [], jobs: [], healthchecks: [], wikiLinks: [ARCHITECTURE_WIKI],
+    permissions: ['catalog.read', 'catalog.write'], events: [], subscriptions: [], jobs: [], healthchecks: [], wikiLinks: [ARCHITECTURE_WIKI],
     navigation: [{ id: 'productos', href: '/demo/admin/productos', label: 'Productos', order: 20, capabilityId: 'CAT-001' }],
     routes: [
       { match: 'exact', path: '/demo/admin/productos', capabilityId: 'CAT-001' },
@@ -85,24 +89,26 @@ export const MODULE_DESCRIPTORS = [
   },
   {
     id: 'pricing', version: '1.0.0', capabilities: ['PRC-001', 'PRC-002', 'MKT-001', 'MKT-002'],
-    dependencies: ['platform-configuration', 'catalog'], permissions: [], events: [], jobs: [], healthchecks: [],
+    dependencies: ['platform-configuration', 'catalog'], permissions: [], events: [], subscriptions: [], jobs: [], healthchecks: [],
     wikiLinks: [ARCHITECTURE_WIKI], navigation: [], routes: [],
   },
   {
     id: 'inventory', version: '1.0.0', capabilities: ['INV-001'], dependencies: ['catalog'], permissions: [],
-    events: [], jobs: [], healthchecks: [], wikiLinks: [ARCHITECTURE_WIKI], navigation: [], routes: [],
+    events: [], subscriptions: [], jobs: [], healthchecks: [], wikiLinks: [ARCHITECTURE_WIKI], navigation: [], routes: [],
   },
   {
-    id: 'cart', version: '1.0.0', capabilities: ['CHK-001'], dependencies: ['catalog'], permissions: [], events: [],
+    id: 'cart', version: '1.0.0', capabilities: ['CHK-001'], dependencies: ['catalog'], permissions: [], events: [], subscriptions: [],
     jobs: [], healthchecks: [], wikiLinks: [ARCHITECTURE_WIKI], navigation: [], routes: [],
   },
   {
     id: 'customers', version: '1.0.0', capabilities: ['CUS-001'], dependencies: ['platform-configuration'],
-    permissions: [], events: [], jobs: [], healthchecks: [], wikiLinks: [ARCHITECTURE_WIKI], navigation: [], routes: [],
+    permissions: [], events: [], subscriptions: [], jobs: [], healthchecks: [], wikiLinks: [ARCHITECTURE_WIKI], navigation: [], routes: [],
   },
   {
     id: 'orders', version: '1.0.0', capabilities: ['ORD-001', 'ORD-002', 'AUT-001'],
-    dependencies: ['catalog', 'pricing', 'customers'], permissions: ['orders.read', 'orders.transition'], events: [],
+    dependencies: ['catalog', 'pricing', 'customers'], permissions: ['orders.read', 'orders.transition'],
+    events: ['orders.order_placed', 'orders.order_paid', 'orders.order_shipped', 'orders.order_delivered', 'orders.order_cancelled'],
+    subscriptions: [],
     jobs: [], healthchecks: [], wikiLinks: [ARCHITECTURE_WIKI],
     navigation: [{ id: 'pedidos', href: '/demo/admin', label: 'Pedidos', order: 10, capabilityId: 'ORD-001' }],
     routes: [
@@ -114,7 +120,7 @@ export const MODULE_DESCRIPTORS = [
   {
     id: 'fulfillment', version: '1.0.0', capabilities: ['FUL-001', 'FUL-002', 'FUL-003'],
     dependencies: ['orders', 'inventory'], permissions: ['fulfillment.read', 'fulfillment.write', 'fulfillment.export'],
-    events: [], jobs: [], healthchecks: [], wikiLinks: [ARCHITECTURE_WIKI],
+    events: [], subscriptions: [], jobs: [], healthchecks: [], wikiLinks: [ARCHITECTURE_WIKI],
     navigation: [{ id: 'envios', href: '/demo/admin/envios', label: 'Envíos', order: 30, capabilityId: 'FUL-001' }],
     routes: [
       { match: 'exact', path: '/demo/admin/envios', capabilityId: 'FUL-001' },
@@ -124,20 +130,23 @@ export const MODULE_DESCRIPTORS = [
   },
   {
     id: 'notifications', version: '1.0.0', capabilities: ['MAR-003', 'AUT-002', 'INT-002'],
-    dependencies: ['platform-configuration'], permissions: ['notifications.read'], events: [], jobs: [], healthchecks: [],
+    dependencies: ['platform-configuration'], permissions: ['notifications.read'], events: [],
+    // Reacciona a hechos de `orders` SIN depender de `orders`: esa es la razón
+    // de ser del sobre. Quien los une es el composition root.
+    subscriptions: ['orders.order_paid', 'orders.order_shipped'], jobs: [], healthchecks: [],
     wikiLinks: [ARCHITECTURE_WIKI],
     navigation: [{ id: 'emails', href: '/demo/admin/emails', label: 'Emails', order: 40, capabilityId: 'MAR-003' }],
     routes: [{ match: 'exact', path: '/demo/admin/emails', capabilityId: 'MAR-003' }],
   },
   {
     id: 'payments', version: '1.0.0', capabilities: ['CHK-004', 'INT-001'], dependencies: ['platform-configuration'],
-    permissions: [], events: [], jobs: [], healthchecks: [], wikiLinks: [ARCHITECTURE_WIKI], navigation: [],
+    permissions: [], events: [], subscriptions: [], jobs: [], healthchecks: [], wikiLinks: [ARCHITECTURE_WIKI], navigation: [],
     routes: [{ match: 'exact', path: '/api/webhooks/stripe', capabilityId: 'CHK-004' }],
   },
   {
     id: 'checkout', version: '1.0.0', capabilities: ['CHK-002', 'CHK-003'],
     dependencies: ['cart', 'catalog', 'pricing', 'inventory', 'fulfillment', 'customers', 'payments', 'orders'],
-    permissions: [], events: [], jobs: [], healthchecks: [], wikiLinks: [ARCHITECTURE_WIKI], navigation: [],
+    permissions: [], events: [], subscriptions: [], jobs: [], healthchecks: [], wikiLinks: [ARCHITECTURE_WIKI], navigation: [],
     routes: [
       { match: 'exact', path: '/api/cart/quote', capabilityId: 'CHK-002' },
       { match: 'exact', path: '/api/checkout/session', capabilityId: 'CHK-003' },
@@ -145,17 +154,17 @@ export const MODULE_DESCRIPTORS = [
   },
   {
     id: 'integrations', version: '1.0.0', capabilities: ['INT-003'],
-    dependencies: ['payments', 'fulfillment', 'notifications'], permissions: [], events: [], jobs: [], healthchecks: [],
+    dependencies: ['payments', 'fulfillment', 'notifications'], permissions: [], events: [], subscriptions: [], jobs: [], healthchecks: [],
     wikiLinks: [ARCHITECTURE_WIKI], navigation: [], routes: [],
   },
   {
     id: 'storefront', version: '1.0.0', capabilities: ['STO-001', 'STO-002', 'STO-008'],
-    dependencies: ['platform-configuration', 'platform-security', 'catalog', 'pricing'], permissions: [], events: [],
+    dependencies: ['platform-configuration', 'platform-security', 'catalog', 'pricing'], permissions: [], events: [], subscriptions: [],
     jobs: [], healthchecks: [], wikiLinks: [ARCHITECTURE_WIKI], navigation: [], routes: [],
   },
   {
     id: 'marketing', version: '1.0.0', capabilities: ['MAR-001'], dependencies: ['customers', 'notifications'],
-    permissions: [], events: [], jobs: [], healthchecks: [], wikiLinks: [ARCHITECTURE_WIKI], navigation: [], routes: [],
+    permissions: [], events: [], subscriptions: [], jobs: [], healthchecks: [], wikiLinks: [ARCHITECTURE_WIKI], navigation: [], routes: [],
   },
 ] as const satisfies readonly ModuleDescriptor[];
 
@@ -163,7 +172,8 @@ export type AdminNavigationId = (typeof MODULE_DESCRIPTORS)[number]['navigation'
 
 export type ModuleRegistryIssue = Readonly<{
   code: 'invalid-descriptor' | 'duplicate-module' | 'unknown-dependency' | 'dependency-cycle' |
-    'duplicate-capability' | 'missing-capability' | 'duplicate-navigation' | 'duplicate-route';
+    'duplicate-capability' | 'missing-capability' | 'duplicate-navigation' | 'duplicate-route' |
+    'duplicate-event' | 'foreign-event' | 'unknown-subscription';
   path: string;
   message: string;
 }>;
@@ -172,6 +182,8 @@ export type ModuleRegistry = Readonly<{
   descriptors: readonly ModuleDescriptor[];
   byId: Readonly<Record<ModuleId, ModuleDescriptor>>;
   capabilityOwners: Readonly<Record<CapabilityId, ModuleId>>;
+  /** Emisor único de cada tipo de evento, igual que `capabilityOwners`. */
+  eventOwners: Readonly<Record<string, ModuleId>>;
   navigation: readonly ModuleNavigationItem[];
   routes: readonly ModuleRoute[];
 }>;
@@ -185,7 +197,14 @@ export type OperationalModule = Readonly<{
 
 const moduleIdSet = new Set<string>(MODULE_IDS);
 const capabilityIdSet = new Set<string>(CAPABILITY_IDS);
-const descriptorFields = ['id', 'version', 'capabilities', 'dependencies', 'permissions', 'events', 'jobs', 'healthchecks', 'wikiLinks', 'navigation', 'routes'];
+const descriptorFields = ['id', 'version', 'capabilities', 'dependencies', 'permissions', 'events', 'subscriptions', 'jobs', 'healthchecks', 'wikiLinks', 'navigation', 'routes'];
+
+/** Mismo patrón que el sobre: `modulo.hecho`, con el prefijo del módulo emisor. */
+const EVENT_TYPE_PATTERN = /^[a-z][a-z0-9_]*\.[a-z][a-z0-9_]*$/;
+
+function eventPrefixOf(moduleId: string): string {
+  return moduleId.replaceAll('-', '_');
+}
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
@@ -220,6 +239,8 @@ export function validateModuleRegistry(input: unknown): readonly ModuleRegistryI
   const descriptors: ModuleDescriptor[] = [];
   const seenModules = new Set<string>();
   const capabilityOwners = new Map<string, string>();
+  const eventOwners = new Map<string, string>();
+  const subscriptions: { path: string; type: string }[] = [];
   const navigationIds = new Set<string>();
   const navigationHrefs = new Set<string>();
   const routePaths = new Set<string>();
@@ -243,10 +264,10 @@ export function validateModuleRegistry(input: unknown): readonly ModuleRegistryI
     if (typeof raw.version !== 'string' || !/^\d+\.\d+\.\d+$/.test(raw.version)) {
       issues.push({ code: 'invalid-descriptor', path: `${path}.version`, message: 'La versión debe ser semver estable.' });
     }
-    for (const field of ['capabilities', 'dependencies', 'permissions', 'events', 'jobs', 'healthchecks', 'wikiLinks', 'navigation', 'routes']) {
+    for (const field of ['capabilities', 'dependencies', 'permissions', 'events', 'subscriptions', 'jobs', 'healthchecks', 'wikiLinks', 'navigation', 'routes']) {
       if (!Array.isArray(raw[field])) issues.push({ code: 'invalid-descriptor', path: `${path}.${field}`, message: `${field} debe ser un array.` });
     }
-    for (const field of ['permissions', 'events', 'jobs', 'healthchecks', 'wikiLinks'] as const) {
+    for (const field of ['permissions', 'events', 'subscriptions', 'jobs', 'healthchecks', 'wikiLinks'] as const) {
       if (Array.isArray(raw[field]) && raw[field].some((value) => typeof value !== 'string' || value.length === 0)) {
         issues.push({ code: 'invalid-descriptor', path: `${path}.${field}`, message: `${field} solo admite cadenas no vacías.` });
       }
@@ -262,6 +283,22 @@ export function validateModuleRegistry(input: unknown): readonly ModuleRegistryI
     for (const dependency of raw.dependencies) {
       if (typeof dependency !== 'string' || !moduleIdSet.has(dependency)) {
         issues.push({ code: 'unknown-dependency', path: `${path}.dependencies`, message: `Dependencia desconocida: ${String(dependency)}.` });
+      }
+    }
+    if (Array.isArray(raw.events)) {
+      for (const event of raw.events) {
+        if (typeof event !== 'string' || !EVENT_TYPE_PATTERN.test(event)) {
+          issues.push({ code: 'invalid-descriptor', path: `${path}.events`, message: `Tipo de evento inválido: ${String(event)}.` });
+        } else if (!event.startsWith(`${eventPrefixOf(id)}.`)) {
+          issues.push({ code: 'foreign-event', path: `${path}.events`, message: `${event} no pertenece al espacio de ${id}.` });
+        } else if (eventOwners.has(event)) {
+          issues.push({ code: 'duplicate-event', path: `${path}.events`, message: `${event} ya lo emite ${eventOwners.get(event)}.` });
+        } else eventOwners.set(event, id);
+      }
+    }
+    if (Array.isArray(raw.subscriptions)) {
+      for (const event of raw.subscriptions) {
+        if (typeof event === 'string') subscriptions.push({ path: `${path}.subscriptions`, type: event });
       }
     }
     for (const [navIndex, navigation] of raw.navigation.entries()) {
@@ -297,6 +334,13 @@ export function validateModuleRegistry(input: unknown): readonly ModuleRegistryI
   for (const capability of CAPABILITY_IDS) {
     if (!capabilityOwners.has(capability)) issues.push({ code: 'missing-capability', path: `capabilities.${capability}`, message: `${capability} no tiene módulo propietario.` });
   }
+  // Una suscripción a un hecho que nadie emite es una promesa muerta: se rechaza
+  // aquí y no en producción, cuando el consumidor calla para siempre.
+  for (const subscription of subscriptions) {
+    if (!eventOwners.has(subscription.type)) {
+      issues.push({ code: 'unknown-subscription', path: subscription.path, message: `Ningún módulo emite ${subscription.type}.` });
+    }
+  }
   issues.push(...dependencyCycleIssues(descriptors));
   return issues;
 }
@@ -318,6 +362,7 @@ export function createModuleRegistry(input: unknown = MODULE_DESCRIPTORS): Modul
       dependencies: Object.freeze([...descriptor.dependencies]),
       permissions: Object.freeze([...descriptor.permissions]),
       events: Object.freeze([...descriptor.events]),
+      subscriptions: Object.freeze([...descriptor.subscriptions]),
       jobs: Object.freeze([...descriptor.jobs]),
       healthchecks: Object.freeze([...descriptor.healthchecks]),
       wikiLinks: Object.freeze([...descriptor.wikiLinks]),
@@ -329,11 +374,14 @@ export function createModuleRegistry(input: unknown = MODULE_DESCRIPTORS): Modul
   const capabilityOwners = Object.freeze(Object.fromEntries(descriptors.flatMap((descriptor) =>
     descriptor.capabilities.map((capability) => [capability, descriptor.id]),
   ))) as Readonly<Record<CapabilityId, ModuleId>>;
+  const eventOwners = Object.freeze(Object.fromEntries(descriptors.flatMap((descriptor) =>
+    descriptor.events.map((event) => [event, descriptor.id]),
+  ))) as Readonly<Record<string, ModuleId>>;
   const navigation = Object.freeze(descriptors.flatMap((descriptor) => descriptor.navigation).toSorted((a, b) => a.order - b.order));
   const routes = Object.freeze(descriptors.flatMap((descriptor) => descriptor.routes).toSorted((a, b) =>
     (a.match === b.match ? b.path.length - a.path.length : a.match === 'exact' ? -1 : 1),
   ));
-  return Object.freeze({ descriptors, byId, capabilityOwners, navigation, routes });
+  return Object.freeze({ descriptors, byId, capabilityOwners, eventOwners, navigation, routes });
 }
 
 export function resolveOperationalModules(

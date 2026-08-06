@@ -35,41 +35,6 @@ export const ARCHITECTURE_ALLOWLIST = [
     owner: 'architecture',
     removalBlock: 'R1.12',
   },
-  {
-    file: 'src/lib/payment-transition.ts',
-    rule: 'module-dependency',
-    reason: 'La transición de pedido construye plantillas de notificación directamente.',
-    owner: 'orders',
-    removalBlock: 'R1.5',
-  },
-  {
-    file: 'src/pages/api/webhooks/stripe.ts',
-    rule: 'restricted-sdk-import',
-    reason: 'El adaptador HTTP conoce todavía el tipo de evento del SDK de Stripe.',
-    owner: 'payments',
-    removalBlock: 'R1.5',
-  },
-  {
-    file: 'src/pages/api/admin/orders/[id].ts',
-    rule: 'presentation-sql',
-    reason: 'El endpoint coordina estado, stock y outbox mediante SQL.',
-    owner: 'orders',
-    removalBlock: 'R1.5',
-  },
-  {
-    file: 'src/pages/api/checkout/session.ts',
-    rule: 'presentation-sql',
-    reason: 'El endpoint crea pedido, líneas y evento y consulta productos.',
-    owner: 'checkout',
-    removalBlock: 'R1.5',
-  },
-  {
-    file: 'src/pages/api/webhooks/stripe.ts',
-    rule: 'presentation-sql',
-    reason: 'El webhook consulta pedido e items antes de aplicar la transición.',
-    owner: 'payments',
-    removalBlock: 'R1.5',
-  },
 ] as const satisfies readonly ArchitectureException[];
 
 /**
