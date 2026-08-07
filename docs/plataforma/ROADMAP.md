@@ -38,7 +38,7 @@ improvisan durante la implementación.
 | Ola | Resultado | Estado |
 |---|---|---|
 | R0 | Investigación, taxonomía, matriz, roadmap y estrategia wiki | ✅ cerrado 2026-08-06 |
-| R1 | Cimientos modulares y observables | 🟡 7/12 bloques cerrados |
+| R1 | Cimientos modulares y observables | 🟡 8/12 bloques cerrados |
 | R2 | Núcleo transaccional profesional | ⬜ |
 | R3 | Operación de pedidos, inventario y fulfillment | ⬜ |
 | R4 | Precios, promociones y modelos de venta | ⬜ |
@@ -74,7 +74,7 @@ conviertan el motor en una colección de condicionales.
 | 5 | **R1.5 Sobre de eventos** | Contrato `event_id`, tipo, versión, timestamp, actor, entity, correlation/causation/idempotency; eventos actuales de pedido adaptados sin cambiar comportamiento. | ✅ 2026-08-06 |
 | 6 | **R1.6 Diseño y aprobación de outbox** | ADR, SQL exacto, retención, claim/retry/dead-letter y compatibilidad D1; pruebas contractuales antes de migrar. Puerta de decisión de esquema. | ✅ 2026-08-06 |
 | 7 | **R1.7 Outbox transaccional** | Migración aprobada, escritura atómica en mutaciones de pago/pedido y dispatcher idempotente; fallo del consumidor no revierte el negocio. | ✅ 2026-08-06 |
-| 8 | **R1.8 Audit log transversal** | Actor, acción, entidad, diff redacted y correlation id; pagos, pedidos, producto y admin cubiertos; export autenticado. | ⬜ |
+| 8 | **R1.8 Audit log transversal** | Actor, acción, entidad, diff redacted y correlation id; pagos, pedidos, producto y admin cubiertos; sin export HTTP por decisión de seguridad. | ✅ 2026-08-07 |
 | 9 | **R1.9 Observabilidad base** | Logger estructurado, errores tipados, métricas de checkout/webhook/outbox/email e IDs visibles en runbook; sin PII. | ⬜ |
 | 10 | **R1.10 Registro de integraciones** | Estado/config no secreta/health/última sync/error; secretos fuera de D1; adaptadores actuales registrados. | ⬜ |
 | 11 | **R1.11 Contrato de jobs** | Ejecución única/recurrente, lock, timeout, reintento y replay; cron de demo migra sin regresión. | ⬜ |
@@ -406,11 +406,39 @@ en `migrations/0004_event_outbox.sql`.
 PLT-006 y PLT-007 pasan a `actual`. No hay dependencia, ruta, pantalla, PII en
 el sobre, coste fijo ni cambio en dinero/stock fuera de la unidad atómica.
 
+### R1.8 — Audit log transversal — ✅ 2026-08-07
+
+1. `audit_log` conserva actor técnico, acción, entidad, correlación, evento
+   fuente y diff JSON en una migración aditiva con dos índices acotados.
+2. Pedido, pago y transición admin se proyectan desde el hecho persistido en la
+   misma batch; producto y tarifa usan snapshot completo y guarda optimista.
+   Una carrera perdedora escribe cero negocio y cero evidencia.
+3. Cada caso de uso declara campos permitidos y una denylist transversal
+   redacta PII, sesiones, secretos y referencias de pago. El diff limita 50
+   campos, 256 caracteres por valor y 4 KB totales.
+4. Por instrucción explícita de Andreu, no existe export, lectura, página ni
+   navegación HTTP. La demo rechaza antes de tocar D1 y el tráfico de lectura,
+   login o rate limit no produce audit rows. El backup público tampoco incluye
+   la tabla; la extracción operativa usa Cloudflare/Wrangler autorizado.
+5. Producto y tarifas pierden sus writers no auditados: toda mutación HTTP pasa
+   por la unidad de trabajo transversal. No se registran payloads ni errores.
+6. Verificación: 37 suites y 259 tests en verde, con constraints SQLite,
+   redacción, rollback, carreras de pago/admin y ausencia de superficie pública;
+   migración aplicada con Wrangler sobre D1 local y E2E 27/27. Tras todo el
+   recorrido demo, `audit_log` conserva exactamente cero filas; `db:reset`
+   reconstruye y siembra las cinco migraciones desde cero.
+7. ADR-0008 y borrador wiki documentan la decisión. La matriz no cambia porque
+   no contiene un ID de capacidad específico para audit log.
+8. El reset descubrió y corrigió dos parameter properties incompatibles con el
+   TypeScript strip-only de Node; seed y registro conservan el mismo contrato.
+
+No hay dependencia, servicio, coste fijo, nueva ruta, JavaScript, trabajo por
+visita ni superficie PCI.
+
 ## 7. Siguiente bloque
 
-### R1.8 — Audit log transversal
+### R1.9 — Observabilidad base
 
-Diseñar primero el contrato de actor, acción, entidad y diff redacted; después
-registrar pagos, pedidos, producto y acciones admin con `correlation_id`, más
-export autenticado. No duplicar el outbox: el audit log es evidencia duradera,
-no mecanismo de entrega.
+Logger estructurado y errores tipados sin PII; métricas acotadas de
+checkout/webhook/outbox/email e identificadores útiles en runbook. No convertir
+tráfico hostil en escrituras ni introducir un servicio con coste.

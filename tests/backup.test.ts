@@ -37,5 +37,6 @@ describe('volcado de copia de seguridad', () => {
     expect(requested).toEqual([[...BACKUP_TABLES]]);
     expect(backup.filename).toBe('backup-2026-08-06-1435.sql');
     expect(backup.sql).toContain('INSERT INTO products');
+    expect(backup.sql).not.toContain('audit_log');
   });
 });

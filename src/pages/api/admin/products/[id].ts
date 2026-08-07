@@ -1,6 +1,6 @@
 import type { APIRoute } from 'astro';
 import { z } from 'zod';
-import { createProductAdmin } from '../../../../modules/catalog';
+import { createAdminOperations } from '../../../../composition/admin-operations';
 
 export const prerender = false;
 
@@ -34,9 +34,15 @@ export const PATCH: APIRoute = async ({ params, request, locals }) => {
     return Response.json({ error: 'Datos inválidos', details: parsed.error.flatten() }, { status: 400 });
   }
 
-  const updated = await createProductAdmin(env.DB).update(id, parsed.data);
-  if (!updated) {
+  const outcome = await createAdminOperations(env.DB).updateProduct(id, parsed.data);
+  if (outcome === 'not-found') {
     return Response.json({ error: 'Producto no encontrado' }, { status: 404 });
+  }
+  if (outcome === 'conflict') {
+    return Response.json(
+      { error: 'El producto cambió mientras se procesaba; recarga la página.' },
+      { status: 409 },
+    );
   }
   return Response.json({ ok: true });
 };

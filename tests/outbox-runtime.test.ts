@@ -64,6 +64,7 @@ describe('outbox transaccional R1.7 sobre SQL real', () => {
     expect(placed?.event.payload.order_id).toBe(1);
     expect(db.value('SELECT count(*) AS value FROM order_items')).toBe(1);
     expect(db.value('SELECT count(*) AS value FROM order_events')).toBe(1);
+    expect(db.value("SELECT count(*) AS value FROM audit_log WHERE action='orders.created'")).toBe(1);
     const stored = db.query<{ entity_id: string; payload_json: string }>(
       'SELECT entity_id, payload_json FROM event_outbox_events',
     )[0];
@@ -82,6 +83,13 @@ describe('outbox transaccional R1.7 sobre SQL real', () => {
     expect(confirmed).toBe(true);
     expect(db.value('SELECT stock AS value FROM products WHERE id=1')).toBe(8);
     expect(db.value('SELECT count(*) AS value FROM event_outbox_events')).toBe(1);
+    const audit = db.query<{ action: string; diff_json: string; source_event_id: string }>(
+      'SELECT action, diff_json, source_event_id FROM audit_log',
+    )[0];
+    expect(audit?.action).toBe('payments.confirmed');
+    expect(audit?.source_event_id).toBeTruthy();
+    expect(audit?.diff_json).toContain('[REDACTED]');
+    expect(audit?.diff_json).not.toContain('pi_1');
     expect(db.value("SELECT count(*) AS value FROM event_outbox_deliveries WHERE status='pending'")).toBe(1);
     expect(db.value('SELECT count(*) AS value FROM emails_outbox')).toBe(0);
 
@@ -109,6 +117,7 @@ describe('outbox transaccional R1.7 sobre SQL real', () => {
     expect(db.value('SELECT stock AS value FROM products WHERE id=1')).toBe(8);
     expect(db.value('SELECT count(*) AS value FROM event_outbox_events')).toBe(1);
     expect(db.value('SELECT count(*) AS value FROM event_outbox_deliveries')).toBe(1);
+    expect(db.value('SELECT count(*) AS value FROM audit_log')).toBe(1);
   });
 
   it('dos expiraciones solapadas cancelan una vez y no crean entregas sin suscriptor', async () => {
@@ -123,6 +132,7 @@ describe('outbox transaccional R1.7 sobre SQL real', () => {
     expect(db.value("SELECT count(*) AS value FROM orders WHERE status='cancelled'")).toBe(1);
     expect(db.value("SELECT count(*) AS value FROM event_outbox_events WHERE event_type='orders.order_cancelled'")).toBe(1);
     expect(db.value('SELECT count(*) AS value FROM event_outbox_deliveries')).toBe(0);
+    expect(db.value('SELECT count(*) AS value FROM audit_log')).toBe(1);
     expect(db.value('SELECT stock AS value FROM products WHERE id=1')).toBe(10);
   });
 
@@ -145,6 +155,7 @@ describe('outbox transaccional R1.7 sobre SQL real', () => {
     expect(db.value('SELECT count(*) AS value FROM orders')).toBe(0);
     expect(db.value('SELECT count(*) AS value FROM order_events')).toBe(0);
     expect(db.value('SELECT count(*) AS value FROM event_outbox_events')).toBe(0);
+    expect(db.value('SELECT count(*) AS value FROM audit_log')).toBe(0);
   });
 
   it('un consumidor desconocido reintenta con error redacted y muere en el octavo fallo', async () => {

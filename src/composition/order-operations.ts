@@ -33,6 +33,8 @@ import {
   type OrderPlacedEvent,
 } from '../modules/orders';
 import { createD1EventOutboxWriter } from '../platform/events';
+import { createD1AuditLogWriter, type AuditEventProjection } from '../platform/operations';
+import { createAuditDiff } from '../shared-kernel/audit';
 import type { EmitEvent, ReserveEventIdentity } from '../shared-kernel/events';
 import { emitPlatformEvent, reservePlatformEventIdentity } from './event-context';
 import { runtimePlatform } from './runtime-platform';
@@ -70,6 +72,7 @@ export function createOrderOperations(
 ) {
   const orders = createOrderWriter(db);
   const outbox = createD1EventOutboxWriter(db);
+  const audit = createD1AuditLogWriter(db);
 
   return {
     /** Alta del pedido en `pending` con su primer hecho: nace el flujo. */
@@ -83,6 +86,7 @@ export function createOrderOperations(
       const results = await orders.commitResults([
         orders.insertPendingOrderStatement(order),
         outbox.placedEventStatement(identity, order.order_number),
+        audit.eventStatement(identity.event_id, placedAuditProjection()),
         ...outbox.deliveryStatements(identity.event_id, identity.occurred_at, consumerIds),
         ...orders.lineStatementsForOrderNumber(order.order_number, lines),
         orders.timelineStatementForOrderNumber(order.order_number, timeline),
@@ -113,6 +117,7 @@ export function createOrderOperations(
       const consumerIds = consumersFor(mutation.event.type);
       const results = await orders.commitResults([
         outbox.guardedEventStatement(mutation.event, { orderId: mutation.orderId, expectedStatus: 'pending' }),
+        audit.eventStatement(mutation.event.event_id, orderAuditProjection(mutation.event)),
         ...outbox.deliveryStatements(mutation.event.event_id, mutation.event.occurred_at, consumerIds),
         orders.guardedPaidStatement(mutation.orderId, mutation.paymentIntent, mutation.event.event_id),
         ...orders.guardedStockDecrementStatements(mutation.stockDecrements, mutation.event.event_id),
@@ -138,6 +143,7 @@ export function createOrderOperations(
       const consumerIds = consumersFor(event.type);
       const results = await orders.commitResults([
         outbox.guardedEventStatement(event, { orderId: order.id, expectedStatus: 'pending' }),
+        audit.eventStatement(event.event_id, orderAuditProjection(event)),
         ...outbox.deliveryStatements(event.event_id, event.occurred_at, consumerIds),
         orders.guardedExpiredStatement(order.id, event.event_id),
         orders.guardedTimelineStatement(order.id, orderTimelineEntry(event), event.event_id),
@@ -152,6 +158,7 @@ export function createOrderOperations(
       const consumerIds = consumersFor(event.type);
       const results = await orders.commitResults([
         outbox.guardedEventStatement(event, { orderId: input.order.id, expectedStatus: input.from }),
+        audit.eventStatement(event.event_id, orderAuditProjection(event)),
         ...outbox.deliveryStatements(event.event_id, event.occurred_at, consumerIds),
         orders.guardedTransitionStatement({
           orderId: input.order.id,
@@ -169,6 +176,62 @@ export function createOrderOperations(
 
     findOrderForTransition: orders.findOrderForTransition,
   };
+}
+
+function placedAuditProjection(): AuditEventProjection {
+  return {
+    action: 'orders.created',
+    diff: createAuditDiff({ status: null }, { status: 'pending' }, ['status']),
+  };
+}
+
+function orderAuditProjection(event: OrderDomainEvent): AuditEventProjection {
+  const status = createAuditDiff(
+    { status: event.payload.from_status },
+    { status: event.payload.to_status },
+    ['status'],
+  );
+  switch (event.type) {
+    case 'orders.order_placed':
+      return placedAuditProjection();
+    case 'orders.order_paid':
+      return {
+        action: 'payments.confirmed',
+        diff: createAuditDiff(
+          { status: event.payload.from_status, payment_intent: null, payment_source: null },
+          {
+            status: event.payload.to_status,
+            payment_intent: event.payload.payment_intent,
+            payment_source: event.payload.source,
+          },
+          ['status', 'payment_intent', 'payment_source'],
+        ),
+      };
+    case 'orders.order_shipped':
+      return {
+        action: 'orders.shipped',
+        diff: createAuditDiff(
+          { status: event.payload.from_status, tracking_carrier: null, tracking_number: null },
+          {
+            status: event.payload.to_status,
+            tracking_carrier: event.payload.tracking.carrier,
+            tracking_number: event.payload.tracking.number,
+          },
+          ['status', 'tracking_carrier', 'tracking_number'],
+        ),
+      };
+    case 'orders.order_delivered':
+      return { action: 'orders.delivered', diff: status };
+    case 'orders.order_cancelled':
+      return {
+        action: event.payload.reason === 'payment_session_expired' ? 'payments.expired' : 'orders.cancelled',
+        diff: createAuditDiff(
+          { status: event.payload.from_status, cancellation_reason: null },
+          { status: event.payload.to_status, cancellation_reason: event.payload.reason },
+          ['status', 'cancellation_reason'],
+        ),
+      };
+  }
 }
 
 function panelTransitionEvent(emit: EmitEvent, input: PanelTransitionInput): OrderDomainEvent {

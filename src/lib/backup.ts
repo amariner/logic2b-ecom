@@ -16,6 +16,8 @@ export const BACKUP_TABLES = [
   'event_outbox_events',
   'event_outbox_deliveries',
   'emails_outbox',
+  // `audit_log` NO se exporta por HTTP: es evidencia interna y la demo tiene
+  // credenciales públicas. Su extracción se hace solo con Wrangler/Cloudflare.
   // `contact_requests` NO entra a propósito: son datos personales de leads
   // reales y esta copia se descarga desde el panel, que en la demo pública es
   // accesible con la contraseña que la propia demo enseña. Ver migración 0003.

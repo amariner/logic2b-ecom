@@ -25,14 +25,14 @@ export type PendingShipmentRow = Readonly<{
 
 export interface FulfillmentAdminRepository {
   listRates(): Promise<readonly ShippingRateRow[]>;
-  updateRate(id: number, patch: ShippingRatePatch): Promise<boolean>;
+  findRate(id: number): Promise<ShippingRateRow | null>;
   listPendingShipments(): Promise<readonly PendingShipmentRow[]>;
 }
 
 export function createFulfillmentAdminService(repository: FulfillmentAdminRepository) {
   return Object.freeze({
     listRates: () => repository.listRates(),
-    updateRate: (id: number, patch: ShippingRatePatch) => repository.updateRate(id, patch),
+    findRate: (id: number) => repository.findRate(id),
     listPendingShipments: () => repository.listPendingShipments(),
   });
 }

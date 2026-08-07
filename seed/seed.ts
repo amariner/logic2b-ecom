@@ -40,6 +40,7 @@ function assertCompareAtPrice(prod: SeedProduct): void {
 /** Sentencias que dejan la base en el estado demo inicial. Orden: hijos antes que padres. */
 export function seedStatements(): string[] {
   const statements: string[] = [
+    'DELETE FROM audit_log',
     'DELETE FROM event_outbox_deliveries',
     'DELETE FROM event_outbox_events',
     'DELETE FROM order_events',

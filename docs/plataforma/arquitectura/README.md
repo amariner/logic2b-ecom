@@ -1,7 +1,7 @@
 # Arquitectura modular comprobable
 
-> Fuente de verdad arquitectónica desde R1.1, actualizada al cierre de R1.5 el
-> **2026-08-06**. Fija las fronteras que R1.6 y siguientes deben respetar. No describe
+> Fuente de verdad arquitectónica desde R1.1, actualizada al cierre de R1.8 el
+> **2026-08-07**. Fija las fronteras que los bloques siguientes deben respetar. No describe
 > como migradas las capas que aún siguen planas.
 
 ## 1. Tres lecturas que no deben mezclarse
@@ -80,6 +80,9 @@ runtime clonable (desde R1.5, sin SQL en presentación)
     notifications           consume el hecho -> mensajes
     orders.infrastructure   UNA batch: mutación + evento + timeline + stock + entregas
   event-outbox -> dispatcher -> emails_outbox -> send-email -> HTTP Resend
+
+  mutación efectiva -> audit_log (misma batch; diff allowlisted/redacted)
+  tráfico demo/lecturas/rechazos -X-> audit_log
 ```
 
 El precio se revalida en D1, el cliente no envía importes, el stock se descuenta
@@ -112,7 +115,8 @@ tarjeta. R1.1 no altera ninguno de esos contratos.
 - `shop.config.ts`: configuración legacy compartida de la tienda; aún la
   importan presentación, plantillas, precios/envío y numeración.
 - `wrangler.jsonc` y `src/env.d.ts`: bindings, variables y secretos esperados.
-- `migrations/0001..0003`: esquema D1 vigente. R1.1 no los modifica.
+- `migrations/0001..0005`: esquema D1 vigente; outbox y audit log son
+  migraciones aditivas y la demo no escribe en ellas por tráfico público.
 - `seed/`: catálogo, colecciones, pedidos demo y SQL reproducible.
 - `tests/`: el contrato estático de R1.1 y las pruebas del manifest de R1.2 se
   ejecutan con Vitest sin librerías nuevas.

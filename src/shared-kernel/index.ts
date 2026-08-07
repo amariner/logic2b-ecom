@@ -15,3 +15,17 @@ export {
   type EventEnvelopeIssue,
   type EventIdSource,
 } from './events';
+export {
+  AUDIT_DIFF_MAX_BYTES,
+  AUDIT_DIFF_MAX_FIELDS,
+  AUDIT_REDACTED,
+  AUDIT_VALUE_MAX_LENGTH,
+  createAuditDiff,
+  createAuditEntry,
+  serializeAuditDiff,
+  type AuditChange,
+  type AuditDiff,
+  type AuditEntry,
+  type AuditEntryDraft,
+  type AuditValue,
+} from './audit';

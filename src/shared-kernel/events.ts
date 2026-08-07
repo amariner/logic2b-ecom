@@ -153,9 +153,12 @@ export function isEventEnvelope(value: unknown): value is EventEnvelope {
 }
 
 export class EventEnvelopeError extends Error {
-  constructor(readonly issues: readonly EventEnvelopeIssue[]) {
+  readonly issues: readonly EventEnvelopeIssue[];
+
+  constructor(issues: readonly EventEnvelopeIssue[]) {
     super(`Sobre de evento inválido:\n${issues.map((issue) => `- ${issue.path}: ${issue.message}`).join('\n')}`);
     this.name = 'EventEnvelopeError';
+    this.issues = issues;
   }
 }
 

@@ -1,7 +1,6 @@
 import type {
   FulfillmentAdminRepository,
   PendingShipmentRow,
-  ShippingRatePatch,
   ShippingRateRow,
 } from '../application/fulfillment-admin';
 
@@ -10,15 +9,10 @@ export function createD1FulfillmentAdminRepository(db: D1Database): FulfillmentA
     async listRates() {
       return (await db.prepare('SELECT * FROM shipping_rates ORDER BY price_cents').all<ShippingRateRow>()).results;
     },
-    async updateRate(id: number, patch: ShippingRatePatch) {
-      const sets: string[] = [];
-      const binds: (number | null)[] = [];
-      if (patch.price_cents !== undefined) { sets.push('price_cents = ?'); binds.push(patch.price_cents); }
-      if (patch.free_over_cents !== undefined) { sets.push('free_over_cents = ?'); binds.push(patch.free_over_cents); }
-      if (patch.active !== undefined) { sets.push('active = ?'); binds.push(patch.active ? 1 : 0); }
-      binds.push(id);
-      const result = await db.prepare(`UPDATE shipping_rates SET ${sets.join(', ')} WHERE id = ?`).bind(...binds).run();
-      return result.meta.changes > 0;
+    findRate(id) {
+      return db.prepare(
+        'SELECT id, zone, label, price_cents, free_over_cents, active FROM shipping_rates WHERE id = ?',
+      ).bind(id).first<ShippingRateRow>();
     },
     async listPendingShipments() {
       const { results } = await db.prepare(

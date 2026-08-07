@@ -17,12 +17,12 @@ export type ProductPatch = Readonly<{
 
 export interface ProductAdminRepository {
   list(): Promise<readonly ProductAdminRow[]>;
-  update(id: number, patch: ProductPatch): Promise<boolean>;
+  find(id: number): Promise<ProductAdminRow | null>;
 }
 
 export function createProductAdminService(repository: ProductAdminRepository) {
   return Object.freeze({
     list: () => repository.list(),
-    update: (id: number, patch: ProductPatch) => repository.update(id, patch),
+    find: (id: number) => repository.find(id),
   });
 }

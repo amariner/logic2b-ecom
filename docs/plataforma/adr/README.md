@@ -13,3 +13,4 @@ para ocultar una decisión no es válido.
 | [0005](0005-transicion-incremental.md) | Transición incremental sin big-bang | accepted |
 | [0006](0006-sobre-de-eventos.md) | Sobre de evento versionado | accepted |
 | [0007](0007-outbox-transaccional-d1.md) | Outbox transaccional sobre D1 | accepted |
+| [0008](0008-audit-log-seguro-d1.md) | Audit log seguro y sin superficie pública | accepted |

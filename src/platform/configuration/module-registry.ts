@@ -346,9 +346,12 @@ export function validateModuleRegistry(input: unknown): readonly ModuleRegistryI
 }
 
 export class ModuleRegistryError extends Error {
-  constructor(readonly issues: readonly ModuleRegistryIssue[]) {
+  readonly issues: readonly ModuleRegistryIssue[];
+
+  constructor(issues: readonly ModuleRegistryIssue[]) {
     super(`Registro de módulos inválido:\n${issues.map((issue) => `- ${issue.path}: ${issue.message}`).join('\n')}`);
     this.name = 'ModuleRegistryError';
+    this.issues = issues;
   }
 }
 

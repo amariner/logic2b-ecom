@@ -49,6 +49,9 @@ venta o servicios logísticos propios.
 - [`wiki/eventos-de-dominio-trazabilidad.md`](wiki/eventos-de-dominio-trazabilidad.md):
   borrador interno, no indexable, de la futura página de eventos y trazabilidad
   (R1.5–R1.7); la capacidad ya es operativa, publicación editorial pendiente.
+- [`wiki/auditoria-operaciones-ecommerce.md`](wiki/auditoria-operaciones-ecommerce.md):
+  borrador interno R1.8 sobre evidencia transaccional redactada y sin export
+  desde el Worker público.
 - [`../../platform.config.ts`](../../platform.config.ts): manifest del
   despliegue actual, basado en un preset técnico y sin valores secretos.
 - [`../../src/platform/configuration/`](../../src/platform/configuration/):
@@ -71,6 +74,10 @@ venta o servicios logísticos propios.
 - [`../../src/composition/order-operations.ts`](../../src/composition/order-operations.ts):
   casos de uso compuestos de escritura de pedido; único punto que une el hecho
   que emite `orders` con el consumidor de `notifications`.
+- [`../../src/shared-kernel/audit.ts`](../../src/shared-kernel/audit.ts):
+  contrato de diff con allowlist, denylist de PII y límites estrictos.
+- [`../../src/platform/operations/infrastructure/d1-audit-log.ts`](../../src/platform/operations/infrastructure/d1-audit-log.ts):
+  persistencia atómica de evidencia sin lecturas ni export HTTP.
 
 ## Reglas de verdad
 
