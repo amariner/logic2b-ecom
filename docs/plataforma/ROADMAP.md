@@ -424,16 +424,17 @@ el sobre, coste fijo ni cambio en dinero/stock fuera de la unidad atómica.
    por la unidad de trabajo transversal. No se registran payloads ni errores.
 6. Verificación: 37 suites y 259 tests en verde, con constraints SQLite,
    redacción, rollback, carreras de pago/admin y ausencia de superficie pública;
-   migración aplicada con Wrangler sobre D1 local y E2E 27/27. Tras todo el
-   recorrido demo, `audit_log` conserva exactamente cero filas; `db:reset`
-   reconstruye y siembra las cinco migraciones desde cero.
+   migración aplicada con Wrangler en D1 local y remota, y E2E 27/27 en ambos
+   entornos. Tras cada recorrido demo, `audit_log` conserva exactamente cero
+   filas; `db:reset` reconstruye y siembra las cinco migraciones desde cero.
 7. ADR-0008 y borrador wiki documentan la decisión. La matriz no cambia porque
    no contiene un ID de capacidad específico para audit log.
 8. El reset descubrió y corrigió dos parameter properties incompatibles con el
    TypeScript strip-only de Node; seed y registro conservan el mismo contrato.
 
 No hay dependencia, servicio, coste fijo, nueva ruta, JavaScript, trabajo por
-visita ni superficie PCI.
+visita ni superficie PCI. Despliegue confirmado:
+`808274b4-ca86-432e-9816-7a01c337ecc1`.
 
 ## 7. Siguiente bloque
 

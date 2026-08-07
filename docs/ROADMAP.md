@@ -1483,8 +1483,10 @@ excepcional usa el control plane autorizado. El diff solo acepta allowlists,
 máximo 4 KB, y redacta PII, secretos, sesiones y referencias de pago.
 
 Verificación: `pnpm check` en verde (37 suites, 259 tests, tipos y build),
-constraints, concurrencia, rollback, migración Wrangler local y E2E 27/27;
-tras el recorrido completo de la demo, `audit_log` mantiene cero filas.
+constraints, concurrencia, rollback, migración Wrangler local/remota y E2E
+27/27 en ambos entornos; tras cada recorrido completo de la demo, `audit_log`
+mantiene cero filas. Producción: versión
+`808274b4-ca86-432e-9816-7a01c337ecc1`.
 ADR-0008 y borrador wiki recogen la decisión; sin dependencia, coste, ruta,
 trabajo por visita ni nueva promesa pública.
 
