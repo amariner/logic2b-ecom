@@ -44,6 +44,8 @@ venta o servicios logísticos propios.
   declarar, componer, probar y documentar un módulo o trabajo nuevo.
 - [`AUDITORIA_DEPENDENCIAS_R1.md`](AUDITORIA_DEPENDENCIAS_R1.md): inventario,
   imports y advisories del lockfile al cierre de R1.
+- [`MODELO_TRANSACCIONAL_R2.md`](MODELO_TRANSACCIONAL_R2.md): ERD, invariantes,
+  compatibilidad, backfills y ensayo de restore que gobiernan R2.2–R2.14.
 - [`adr/`](adr/): decisiones de arquitectura modular aceptadas y propuestas.
 - [`sql/0004_event_outbox.proposed.sql`](sql/0004_event_outbox.proposed.sql):
   evidencia exacta de la propuesta R1.6 aprobada; la migración viva es
@@ -63,8 +65,14 @@ venta o servicios logísticos propios.
 - [`wiki/integraciones-observables.md`](wiki/integraciones-observables.md):
   borrador interno R1.10; distingue registro/health local de panel, replay y
   sondeos remotos todavía pendientes.
+- [`wiki/nucleo-transaccional-ecommerce.md`](wiki/nucleo-transaccional-ecommerce.md):
+  borrador interno R2.1, no publicable hasta que variantes, ledgers y
+  fulfillment por líneas tengan evidencia operativa.
 - [`adr/0011-jobs-duraderos-d1.md`](adr/0011-jobs-duraderos-d1.md): contrato
   R1.11 de identidad, lock, timeout, retry, dead-letter y replay sobre D1.
+- [`adr/0012-modelo-transaccional-r2.md`](adr/0012-modelo-transaccional-r2.md):
+  decisión de separación de producto/variante, inventario, pago, reembolso y
+  fulfillment mediante transición incremental.
 - [`../../platform.config.ts`](../../platform.config.ts): manifest del
   despliegue actual, basado en un preset técnico y sin valores secretos.
 - [`../../src/platform/configuration/`](../../src/platform/configuration/):

@@ -63,7 +63,7 @@ reconciliación se conserva abajo por contexto.
 | 11 | Landing V2 «nivel Awwwards» + negocio + funnel + docs | 🟡 En curso | 2026-07-24 | **F11.1, F11.3 (2 sesiones), F11.4, F11.5, F11.6, F11.7 y F11.8 (primera pasada + pase a11y/contenido desde cloud 2026-07-24) hechos**, más F11.8b (auditor de a11y, cloud), F11.2a-1 (tienda ASFALTO / tema Street), F11.2a-2 (tienda METRIA / tema Industrial) F11.2a-3 (tienda ROMER / tema Natural) y **F11.2a-4 (tienda KALIBRE / tema Specs, local 2026-07-25) — con la que F11.2a queda CERRADA (10/10 tiendas)**; y **F11.8c (Lighthouse citable + OG de WhatsApp + URLs sin redirección, local 2026-07-26)**; y **F11.8d–e (tabla de Lighthouse cerrada y desplegada: 7 de 8 superficies a 100×4, la landing entre ellas en móvil y escritorio, local 2026-07-27)**; de la cola de F11.8 solo queda la submission a Awwwards (decisión de pago: Andreu). Detalle por bloque abajo. (ver «Fase 11» abajo). **Plan maestro completo en [`docs/PLAN_FASE11_LANDING_V2.md`](PLAN_FASE11_LANDING_V2.md)**: bloques F11.0–F11.8 ejecutables por sesiones independientes. **Decisiones D1–D6 APROBADAS por Andreu (2026-07-23)**: JS propio ≤15 KB sin deps, capturas con browser tools en local, dirección C «Ocho tiendas, un motor», escalera de precios (Lite 590 / Kit 1.900+39 / A medida 3.400+59), WhatsApp+email, Lite publicado sin construir. Prompt de arranque: [`docs/PROMPT_FASE11.md`](PROMPT_FASE11.md). Integra 9B.5/9B.6 (imaginería y temas restantes) como prerequisito del hero |
 | 8 | Pulido de la demo (backlog abajo) | 🟡 En curso | 2026-07-19 | Backlog técnico agotado; solo quedan decisiones y pasos locales de Andreu (ver «Decisiones pendientes» y `docs/PROMPT_CLOUD.md`). Últimas tandas: novena (race de idempotencia en el pago, PII enumerable en `/demo/gracias`, cancelación de pedido pagado sin devolver stock), décima (la misma race en el PATCH de admin, campos vacíos guardados como 0, login sin rate limit), undécima (diagrama móvil de `/arquitectura`, hedge del plazo de entrega, tokens de tema en `/demo/reset`, terminología «envío»), duodécima (aviso de corte en pedidos del admin, cabeceras sin wrap a 375px, leftover «portes», token de radio del carrito, contraste del botón eliminar, H1 en valenciano, checklist de producción) y decimotercera (misma race de idempotencia en `checkout.session.expired`, divisa hardcodeada a EUR fuera de Stripe, cobertura de test de `quoteCart`/PATCH admin/emails) y decimocuarta (config parcial de Stripe → cobro sin cumplimiento, emails duplicados bajo concurrencia, `payment_status` del webhook, color de marca centralizado en `shop.config.ts`, contraste/tema en carrito y checkout) — ver sección «Fase 8» |
 | 12 | Logic2B Ecommerce: renombrado, reposicionamiento y docs de dos visiones | 🟡 En curso | 2026-08-06 | **F12.0–F12.5 cerrados:** renombrado, nuevo argumento en landing/dossier, canal agencias en marca blanca y manual ampliado del gestor. Solo queda F12.6 (consolidación). **Plan maestro en [`docs/PLAN_FASE12_LOGIC2B_ECOMMERCE.md`](PLAN_FASE12_LOGIC2B_ECOMMERCE.md)**. |
-| 13 | Plataforma modular: del gestor mínimo a paridad extrema de capacidad | 🟡 En curso | 2026-08-07 | **R0 y R1 completos:** cimientos modulares consolidados, allowlist vacía, jobs duraderos y 294 tests. Siguiente: R2.1, modelo objetivo y plan de migración transaccional. Fuente de verdad en [`docs/plataforma/`](plataforma/README.md). |
+| 13 | Plataforma modular: del gestor mínimo a paridad extrema de capacidad | 🟡 En curso | 2026-08-07 | **R0, R1 y R2.1 completos:** modelo transaccional objetivo, backfills y restore base fijados sin tocar esquema. Siguiente: R2.2 producto-variante, sujeto a aprobación de migración. Fuente de verdad en [`docs/plataforma/`](plataforma/README.md). |
 
 ## Repo y entornos
 
@@ -115,7 +115,8 @@ de producto pasa a la Fase 13 y se ejecuta un bloque R por sesión.
 | R1.10 | Registro de integraciones | ✅ 2026-08-07 — Stripe/Resend/CSV, health local y snapshots sin secretos |
 | R1.11 | Contrato de jobs duraderos | ✅ 2026-08-07 — D1 lock, timeout, retry/dead-letter, replay y crons migrados |
 | R1.12 | Consolidación R1 | ✅ 2026-08-07 — allowlist 0, presets/clones, guía de módulos/jobs y auditoría de dependencias |
-| R2+ | Núcleo transaccional y resto de olas | ⬜ ver plan maestro |
+| R2.1 | Modelo objetivo y plan de migración | ✅ 2026-08-07 — ADR/ERD, compatibilidad, backfills y restore base ensayado |
+| R2.2+ | Producto-variante, ledgers y resto de olas | ⬜ ver plan maestro |
 
 ## Fase 12 — Logic2B Ecommerce: renombrado, reposicionamiento y las dos visiones
 
@@ -1597,15 +1598,42 @@ No hay migración, dependencia, cambio HTTP/UI o despliegue; E2E/a11y/Lighthouse
 no aplican. R1 queda cerrado sin cambiar estados de capacidades que todavía son
 parciales.
 
+### R2.1 — modelo objetivo y plan de migración — ✅ cerrado 2026-08-07
+
+ADR-0012 y [`MODELO_TRANSACCIONAL_R2.md`](plataforma/MODELO_TRANSACCIONAL_R2.md)
+separan producto editorial de variante vendible, inventario de movimientos,
+pago de pedido y fulfillment por cantidades. El ERD fija opciones/valores,
+media/atributos, ledger/balance/reservas, pagos/transacciones, reembolsos y
+fulfillments por líneas sin adelantar ubicaciones de R3.6.
+
+La transición evita el big-bang: expandir, backfill determinista, shadow-read,
+doble escritura temporal y contracción en R2.14. Precio/stock/imagen,
+`order_items.product_id`, columnas Stripe, `orders.status` y tracking se
+mantienen como espejos compatibles hasta que cada lector y export haya migrado.
+Un cancelado que antes estuvo pagado no se falsea como reembolsado: queda para
+reconciliación porque el motor actual no prueba una devolución del PSP.
+
+Seeds v1 producen una variante default; backup/export v2 incorporarán las
+relaciones nuevas y el CSV logístico seguirá consumiendo snapshots. El ensayo
+local no destructivo exportó la D1 con Wrangler y la restauró en SQLite
+temporal: 12 tablas, 18 índices y todos los recuentos idénticos, 0 violaciones
+FK e integridad `ok` (194 productos, 8 pedidos, 13 líneas). La consulta oficial
+falló por red dos veces; la operación remota se revalidará antes de migrar.
+
+La matriz solo eleva a `especificado` los contratos realmente fijados y el
+borrador wiki sigue no publicable. Verificación: `pnpm check` en verde, 44
+suites y **294 tests**, tipos y build. No hay migración, SQL ejecutable, ruta,
+UI, dependencia ni despliegue; E2E/a11y/Lighthouse no aplican.
+
 ### Siguiente bloque
 
-**R2.1 — modelo objetivo y plan de migración.** Diseñar ERD y ADR para
-producto-variante, inventario, pagos, fulfillment y reembolsos, incluidos
-backfill, compatibilidad con seeds/export y ensayo de restore. Es diseño con
-**cero código de escritura y cero migración viva**. Criterio completo en
+**R2.2 — producto-variante: esquema.** Requiere aprobación expresa de la puerta
+de migración. Después, convertir solo catálogo/variantes en una migración
+aditiva con backfill 1:1, constraints, índices y ensayo forward/restore sobre
+copia aislada; el producto simple debe seguir idéntico. Criterio completo en
 [`docs/plataforma/ROADMAP.md`](plataforma/ROADMAP.md#r2--núcleo-transaccional-profesional).
 
-**F12.6 queda en el carril comercial, no bloquea R2.1.** Una sesión local de
+**F12.6 queda en el carril comercial, no bloquea R2.2.** Una sesión local de
 mantenimiento creará el índice general de docs, revisará OG y ejecutará
 Lighthouse contra producción en las indexables, incluidas `/precios` y
 `/agencias`.

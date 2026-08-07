@@ -17,3 +17,4 @@ para ocultar una decisión no es válido.
 | [0009](0009-observabilidad-segura-workers-logs.md) | Observabilidad segura sobre Workers Logs | accepted |
 | [0010](0010-registro-integraciones-seguro.md) | Registro de integraciones seguro y sin secretos | accepted |
 | [0011](0011-jobs-duraderos-d1.md) | Jobs duraderos y bloqueados sobre D1 | accepted |
+| [0012](0012-modelo-transaccional-r2.md) | Modelo producto-variante, ledgers y fulfillment incremental | accepted (diseño) |

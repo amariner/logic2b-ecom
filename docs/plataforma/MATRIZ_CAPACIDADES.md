@@ -23,7 +23,7 @@ su alcance requiera.
 | PLT-002 | Manifest de capacidades | núcleo | P0 | parcial | Fuente tipada que gobierna rutas, navegación, jobs, efectos y composición; presets clonables probados, faltan publicación/importación de configuración. |
 | PLT-003 | Registro de módulos y dependencias | núcleo | P0 | actual | Registro ejecutable con propietario único de capacidades, eventos, jobs y healthchecks; dependencias, permisos y superficies validadas al componer. |
 | PLT-004 | Configuración validada por entorno | núcleo | P0 | parcial | Esquema tipado, valores por cliente y fallo temprano ante combinaciones inválidas. |
-| PLT-005 | Migraciones reproducibles y reversibles | núcleo | P0 | parcial | Forward migration probada, backup y procedimiento de rollback/restore. |
+| PLT-005 | Migraciones reproducibles y reversibles | núcleo | P0 | parcial | Export/restore base ensayado con esquema, recuentos, FKs e integridad; cada forward migration conserva copia, preflight y rollback propio. |
 | PLT-006 | Eventos de dominio versionados | núcleo | P0 | actual | Los cinco hechos de pedido se emiten, persisten sin PII y conservan identidad, versión, causa, correlación e idempotencia. |
 | PLT-007 | Outbox transaccional | núcleo | P0 | actual | Negocio, evento y entregas se confirman en una batch; claim con lease, retry/dead-letter, replay interno y dispatcher idempotente sobre D1. |
 | PLT-008 | Adaptadores sustituibles | núcleo | P0 | especificado | Pagos, email, transporte, impuestos y feeds detrás de interfaces. |
@@ -40,9 +40,9 @@ su alcance requiera.
 |---|---|---|---|---|---|
 | CAT-001 | Producto básico | núcleo | P0 | actual | Nombre, slug, descripción, precio, stock, imagen, categoría y actividad. |
 | CAT-002 | Colecciones/catálogos separados | núcleo | P0 | actual | Catálogos visuales aislados sobre contratos compartidos. |
-| CAT-003 | Producto y variante separados | núcleo | P0 | pendiente | El producto describe; la variante tiene SKU, precio, stock y disponibilidad. |
-| CAT-004 | Opciones y valores | núcleo | P0 | pendiente | Talla/color/material con combinaciones válidas y orden estable. |
-| CAT-005 | SKU, GTIN/EAN, MPN y marca | núcleo | P1 | pendiente | Identificación interoperable para almacén, feeds y B2B. |
+| CAT-003 | Producto y variante separados | núcleo | P0 | especificado | El producto describe; la variante vendible tiene SKU, precio, estado y referencia de inventario, con default 1:1 para producto simple. |
+| CAT-004 | Opciones y valores | núcleo | P0 | especificado | Opciones/valores ordenados y combinación única por variante; un producto simple no necesita opciones. |
+| CAT-005 | SKU, GTIN/EAN, MPN y marca | núcleo | P1 | especificado | SKU único sin distinguir mayúsculas, identificadores opcionales en variante y marca editorial en producto. |
 | CAT-006 | Taxonomía y categoría normalizada | módulo | P1 | pendiente | Categoría interna + mapeos externos versionados. |
 | CAT-007 | Atributos tipados por categoría | módulo | P1 | parcial | Texto, número, unidad, booleano, referencia y lista validados. |
 | CAT-008 | Galería multimedia | núcleo | P1 | parcial | Varias imágenes/vídeo, alt, foco, orden y asociación a variante. |
@@ -61,9 +61,9 @@ su alcance requiera.
 | ID | Capacidad | Vía | Prioridad | Estado | Resultado objetivo |
 |---|---|---|---|---|---|
 | INV-001 | Stock simple por producto | núcleo | P0 | actual | Descuento en pago confirmado y restitución al cancelar pagado. |
-| INV-002 | Stock por variante | núcleo | P0 | pendiente | Toda unidad vendible mantiene su disponibilidad propia. |
-| INV-003 | Movimientos de inventario | núcleo | P0 | pendiente | Ledger append-only con tipo, cantidad, origen, actor y referencia. |
-| INV-004 | Reservas de stock | módulo | P1 | pendiente | Reserva con expiración y liberación idempotente. |
+| INV-002 | Stock por variante | núcleo | P0 | especificado | Balance global por unidad vendible; R3 añadirá ubicación principal sin alterar pedidos. |
+| INV-003 | Movimientos de inventario | núcleo | P0 | especificado | Ledger append-only idempotente, balance reconstruible y correcciones como nuevos movimientos. |
+| INV-004 | Reservas de stock | módulo | P1 | especificado | Cabecera/líneas con expiración y estados idempotentes; apagada por defecto. |
 | INV-005 | Múltiples ubicaciones | módulo | P1 | pendiente | Existencias y disponibilidad separadas por almacén/tienda. |
 | INV-006 | Disponible, comprometido, entrante y dañado | módulo | P1 | pendiente | Estados contables distintos, no una única cifra editable. |
 | INV-007 | Transferencias entre ubicaciones | módulo | P2 | pendiente | Borrador, enviado, parcial, recibido y discrepancias. |
@@ -125,7 +125,7 @@ su alcance requiera.
 | ORD-004 | Notas, etiquetas y timeline | módulo | P1 | parcial | Actividad unificada con actor y visibilidad interna/cliente. |
 | ORD-005 | Edición de pedido | módulo | P1 | pendiente | Añadir/quitar/cambiar cantidad con ajuste de dinero y stock. |
 | ORD-006 | Cancelación parcial | módulo | P1 | pendiente | Por línea/cantidad, motivo, stock y reembolso coherentes. |
-| ORD-007 | Reembolso total/parcial | módulo | P1 | pendiente | Ledger, PSP idempotente, impuesto y estado separados. |
+| ORD-007 | Reembolso total/parcial | módulo | P1 | especificado | Workflow y asignación por línea sobre ledger/PSP idempotente; dinero y reposición de stock son decisiones separadas. |
 | ORD-008 | Pedido preliminar/presupuesto | módulo | P2 | pendiente | Borrador, caducidad, aprobación, factura y enlace de pago. |
 | ORD-009 | Captura manual o diferida | módulo | P2 | pendiente | Autorización, captura parcial y expiración. |
 | ORD-010 | Riesgo/incidencia/bloqueo | módulo | P2 | pendiente | Hold explícito que impide preparación hasta resolución. |
@@ -140,8 +140,8 @@ su alcance requiera.
 | FUL-001 | Tarifas planas por zona | núcleo | P0 | actual | Cálculo servidor y umbral gratuito. |
 | FUL-002 | Tracking y aviso de envío | núcleo | P0 | actual | Transportista/número y email transaccional. |
 | FUL-003 | Exportación logística CSV | conector | P1 | actual | Puente manual a operadores compatibles. |
-| FUL-004 | Preparación parcial | módulo | P1 | pendiente | Fulfillment por cantidades con estados independientes. |
-| FUL-005 | Múltiples envíos por pedido | módulo | P1 | pendiente | Tracking y promesa por grupo. |
+| FUL-004 | Preparación parcial | módulo | P1 | especificado | Fulfillment por cantidades cuya suma nunca supera la línea neta. |
+| FUL-005 | Múltiples envíos por pedido | módulo | P1 | especificado | Cada grupo posee estado, tracking e idempotencia; el pedido solo proyecta el resumen. |
 | FUL-006 | Compra de etiquetas | conector | P2 | conector | Cotizar, comprar, anular, imprimir y registrar coste. |
 | FUL-007 | Reglas de embalaje | módulo | P2 | pendiente | Peso/dimensiones, embalaje por variante y bultos. |
 | FUL-008 | Recogida en tienda | módulo | P2 | pendiente | Disponibilidad, preparación, listo y recogido. |

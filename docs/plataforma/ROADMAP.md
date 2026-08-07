@@ -39,7 +39,7 @@ improvisan durante la implementación.
 |---|---|---|
 | R0 | Investigación, taxonomía, matriz, roadmap y estrategia wiki | ✅ cerrado 2026-08-06 |
 | R1 | Cimientos modulares y observables | ✅ cerrado 2026-08-07 |
-| R2 | Núcleo transaccional profesional | ⬜ |
+| R2 | Núcleo transaccional profesional | 🟡 R2.1 cerrado 2026-08-07 |
 | R3 | Operación de pedidos, inventario y fulfillment | ⬜ |
 | R4 | Precios, promociones y modelos de venta | ⬜ |
 | R5 | Clientes, privacidad y mercados | ⬜ |
@@ -87,7 +87,7 @@ Cada migración se diseña y ensaya sobre una copia antes de tocar el esquema vi
 
 | Orden | Bloque de una sesión | Entregables y criterio específico | Estado |
 |---:|---|---|---|
-| 13 | **R2.1 Modelo objetivo y plan de migración** | ERD/ADR para producto-variante, inventario, pago, fulfillment y reembolso; compatibilidad con seeds y export; cero código de escritura. | ⬜ |
+| 13 | **R2.1 Modelo objetivo y plan de migración** | ERD/ADR para producto-variante, inventario, pago, fulfillment y reembolso; compatibilidad con seeds y export; cero código de escritura. | ✅ 2026-08-07 |
 | 14 | **R2.2 Producto-variante: esquema** | Migración aditiva, backfill 1:1, constraints/índices y restore rehearsal; producto simple sigue idéntico. | ⬜ |
 | 15 | **R2.3 Producto-variante: dominio y lectura** | Repositorio y tipos canónicos; storefront y quote leen variante; guardarraíl prohíbe precio desde cliente. | ⬜ |
 | 16 | **R2.4 Producto-variante: admin y seed** | CRUD de opciones/variantes/SKU/estado con validación; import/export y seed actual migrados. | ⬜ |
@@ -554,12 +554,46 @@ PLT-002 sigue `parcial`: manifest, presets, rutas, navegación, jobs, efectos y
 composición son reales, pero publicación/importación de configuración pertenece
 a bloques posteriores. R1 queda cerrado sin declarar capacidades futuras.
 
+### R2.1 — Modelo objetivo y plan de migración — ✅ 2026-08-07
+
+1. ADR-0012 separa producto editorial de variante vendible, inventario de
+   movimientos/balance, pago de pedido y fulfillment por cantidades. El pedido
+   conserva snapshots; sus estados financieros y logísticos pasan a ser
+   proyecciones, no una única verdad mutable.
+2. El ERD objetivo fija opciones/valores, variantes, media/atributos, ledger y
+   reservas de inventario, pagos/transacciones, reembolsos por líneas y
+   fulfillments/items. R3.6 añadirá ubicaciones: R2 conserva balance global para
+   no anticipar una interfaz multi-almacén vacía.
+3. La transición es expand/backfill/shadow-read/doble escritura/contract. Las
+   columnas legacy permanecen como espejos hasta R2.14; cada migración conserva
+   su propia puerta, copia, preflight, reconciliación y rollback.
+4. Los backfills son deterministas: variante `LEGACY-{product_id}`, movimiento
+   de apertura idempotente y fulfillment total desde líneas. Un cancelado que
+   antes estuvo pagado queda `requires_review`: el sistema actual no demuestra
+   un reembolso del PSP y la migración no inventa dinero.
+5. Seeds v1 se convierten en una variante default; el formato v2, backup y
+   export incluyen relaciones nuevas sin romper el CSV logístico basado en
+   snapshots. Las copias siguen excluyendo audit log y leads de la superficie
+   HTTP pública.
+6. Ensayo local no destructivo: export Wrangler restaurado en SQLite temporal,
+   12 tablas, 18 índices y recuentos idénticos; 0 violaciones FK e integridad
+   `ok` sobre 194 productos, 8 pedidos y 13 líneas. La red oficial falló dos
+   veces, así que comandos remotos y recuperación adicional se revalidan antes
+   de R2.2.
+7. La matriz pasa únicamente a `especificado` las capacidades cuyo contrato
+   queda fijado. No aparece ruta, UI, job, dependencia, SQL de migración ni
+   promesa pública; el borrador wiki permanece interno.
+8. `pnpm check` pasa con 44 suites y 294 tests, tipos y build. Compra, admin,
+   esquema y producción no cambian; E2E/a11y/Lighthouse/deploy no aplican.
+
 ## 7. Siguiente bloque
 
-### R2.1 — Modelo objetivo y plan de migración
+### R2.2 — Producto-variante: esquema
 
-Diseñar ERD y ADR para producto-variante, inventario, pagos, fulfillment y
-reembolsos; preparar backfill, compatibilidad con seeds/export y ensayo de
-restore. Es una sesión de diseño: **cero código de escritura y cero migración
-viva**. La actualización de Astro permanece como puerta separada antes de
-desplegar, no se mezcla con el modelo transaccional.
+Tras aprobación expresa de la puerta de esquema, convertir solo la parte
+producto-variante de ADR-0012 en migración aditiva: tablas de variantes,
+opciones/valores, columnas de compatibilidad y backfill 1:1. Ensayar forward y
+restore sobre una copia aislada, fijar constraints/índices y demostrar que el
+producto simple sigue idéntico. Inventario, pagos, fulfillment y reembolsos no
+se migran todavía. La actualización de Astro permanece como puerta separada
+antes de desplegar y no se mezcla con el modelo transaccional.
