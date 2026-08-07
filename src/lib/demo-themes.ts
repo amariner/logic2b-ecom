@@ -646,6 +646,36 @@ export const demoThemes: DemoTheme[] = [
       annotations: true, darkFooter: true,
     },
   },
+  {
+    id: 'argent',
+    label: 'ARGENT.',
+    hint: 'Moda cinematográfica: campaña a sangre, carrusel blanco y mosaico editorial.',
+    reference: { name: 'ARILGENT homepage study', file: '14-argent.webp' },
+    sample: null,
+    bestFor: ['Moda de autor', 'Streetwear premium', 'Marcas con campañas visuales'],
+    status: 'planned',
+    vars: {
+      '--color-brand': '#1b1b19',
+      '--color-brand-dark': '#000000',
+      '--color-brand-fg': '#ffffff',
+      '--font-display': SYSTEM_SANS,
+      '--font-accent': SYSTEM_SANS,
+      '--tracking-display': '-0.045em',
+      '--weight-display': '700',
+      '--radius-btn': '0rem',
+      '--radius-card': '0rem',
+      '--border-width': '0px',
+      '--surface-product': '#f7f7f6',
+      '--surface-sunken': '#efefed',
+      '--space-density': '0.8',
+      '--grid-gap': '1rem',
+    },
+    layout: {
+      gridCols: 5, gridStyle: 'uniform', nav: 'immersive', hero: 'fullbleed',
+      card: 'plain', filters: 'chips', density: 'compact',
+      annotations: true, darkFooter: true,
+    },
+  },
   // new-theme:themes — no borrar: `pnpm new:theme <id>` añade aquí el tema si falta.
 ];
 

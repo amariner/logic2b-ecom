@@ -1,0 +1,92 @@
+---
+import type { StorePaths } from '../../../collections';
+import { formatEurCents } from '../../../lib/format';
+
+type GridProduct = {
+  slug: string;
+  name: string;
+  price_cents: number;
+  compare_at_price_cents?: number | null;
+  image: string;
+  stock: number;
+};
+
+interface Props { paths: StorePaths; products: GridProduct[]; }
+const { paths, products } = Astro.props;
+---
+
+<ul class="argent-grid">
+  {products.map((product, index) => {
+    const onSale = product.compare_at_price_cents && product.compare_at_price_cents > product.price_cents;
+    return (
+      <li class="argent-card">
+        <a class="argent-card__link" href={paths.product(product.slug)}>
+          <div class="argent-card__media">
+            {index === 0 && <span class="argent-card__badge argent-card__badge--new">Nuevo</span>}
+            {onSale && <span class="argent-card__badge argent-card__badge--sale">Sale</span>}
+            <img src={product.image} alt={product.name} width="720" height="900" loading="lazy" />
+          </div>
+          <div class="argent-card__copy">
+            <h3>{product.name}</h3>
+            <p>
+              {onSale && <del>{formatEurCents(product.compare_at_price_cents!)}</del>}
+              <span>{formatEurCents(product.price_cents)}</span>
+            </p>
+          </div>
+        </a>
+        <button
+          class="argent-card__add"
+          type="button"
+          data-argent-add={product.slug}
+          disabled={product.stock === 0}
+          aria-label={product.stock === 0 ? `${product.name} agotado` : `Añadir ${product.name} al carrito`}
+        >{product.stock === 0 ? '—' : '+'}</button>
+      </li>
+    );
+  })}
+</ul>
+
+<script>
+  import { addToCart } from '../../../lib/cart-client';
+  document.querySelectorAll<HTMLButtonElement>('[data-argent-add]').forEach((button) => {
+    button.addEventListener('click', () => {
+      addToCart(button.dataset.argentAdd ?? '');
+      const previous = button.textContent;
+      button.textContent = '✓';
+      setTimeout(() => (button.textContent = previous), 850);
+    });
+  });
+</script>
+
+<style>
+  .argent-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: var(--grid-gap); margin: 0; padding: 0; list-style: none; }
+  .argent-card { position: relative; min-width: 0; }
+  .argent-card__link { display: block; }
+  .argent-card__media { position: relative; display: grid; place-items: center; aspect-ratio: 4 / 5; overflow: hidden; background: var(--surface-product); }
+  .argent-card__media img { width: 100%; height: 100%; object-fit: contain; padding: clamp(.4rem, 1.2vw, 1.2rem); transition: transform .35s ease; }
+  .argent-card:hover .argent-card__media img { transform: scale(1.025); }
+  .argent-card__badge { position: absolute; z-index: 1; top: .45rem; left: .45rem; padding: .18rem .35rem; color: #fff; font: 750 .47rem/1 var(--font-accent); letter-spacing: .02em; text-transform: uppercase; }
+  .argent-card__badge--new { background: #89911c; }
+  .argent-card__badge--sale { background: #c5402c; }
+  .argent-card__copy { padding: .75rem .2rem 0; text-align: center; text-transform: uppercase; }
+  .argent-card__copy h3 { overflow: hidden; font: 700 clamp(.5rem, .62vw, .62rem)/1.25 var(--font-accent); text-overflow: ellipsis; white-space: nowrap; }
+  .argent-card__copy p { display: flex; justify-content: center; gap: .35rem; margin-top: .32rem; font: 700 .55rem/1 var(--font-accent); }
+  .argent-card__copy del { color: #8a8a85; font-weight: 500; }
+  .argent-card__add { position: absolute; z-index: 2; top: .55rem; right: .55rem; display: grid; place-items: center; width: 1.45rem; height: 1.45rem; border: 0; border-radius: 50%; color: #61615d; background: transparent; font: 500 1rem/1 var(--font-accent); cursor: pointer; transition: color .2s, background .2s; }
+  .argent-card__add:hover { color: #fff; background: #171715; }
+  .argent-card__add:disabled { cursor: not-allowed; opacity: .35; }
+
+  @media (max-width: 900px) {
+    .argent-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); row-gap: 2rem; }
+  }
+  @media (max-width: 600px) {
+    .argent-grid { display: flex; gap: .65rem; margin-inline: -.65rem; padding-inline: .65rem; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; }
+    .argent-grid::-webkit-scrollbar { display: none; }
+    .argent-card { flex: 0 0 67vw; scroll-snap-align: start; }
+    .argent-card__copy { padding-top: .65rem; }
+    .argent-card__copy h3 { font-size: .58rem; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .argent-card__media img { transition: none; }
+  }
+</style>

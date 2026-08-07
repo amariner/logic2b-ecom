@@ -12,7 +12,7 @@
 
 Logic2B Ecommerce vende una tienda **a medida**. El problema comercial es que «a medida»
 suena caro y abstracto: el cliente no puede imaginarse su tienda. El catálogo de
-estilos resuelve eso — son 13 direcciones visuales completas, cada una derivada de
+estilos resuelve eso — son 14 direcciones visuales completas, cada una derivada de
 una referencia real de ecommerce, entre las que el cliente elige un punto de
 partida.
 
@@ -593,6 +593,19 @@ hacia el gestor de tienda.
 
 Ficha completa: [`docs/temas/stretch.md`](temas/stretch.md).
 
+### 14 · ARGENT. — *moda cinematográfica*
+
+📎 **Referencia: [`14-argent.webp`](../public/images/referencias/14-argent.webp)**
+
+**Para quién:** moda de autor, streetwear premium y marcas que venden mediante
+campañas editoriales.
+
+Hero de retrovisor a sangre con navegación superpuesta, wordmark condensado,
+carrusel blanco de cinco prendas y un díptico de campaña vertical. La estructura
+está implementada; la generación integrada de los ocho assets se reanuda antes
+de abrir el siguiente elemento de la cola. Ficha completa:
+[`docs/temas/argent.md`](temas/argent.md).
+
 ---
 
 ## 6. Tabla resumen
@@ -613,6 +626,7 @@ Ficha completa: [`docs/temas/stretch.md`](temas/stretch.md).
 | 11 | Sitēga | `#111111` | 4 | **irregular** | **immersive** | **fullbleed** | plain | chips | airy | ✅ |
 | 12 | Forma | `#171717` | 4 | **irregular** | **immersive** | **fullbleed** | plain | chips | airy | ✅ |
 | 13 | STRETCH | `#171717` | 4 | uniform | **immersive** | **fullbleed** | divided | chips | airy | ✅ |
+| 14 | ARGENT. | `#1b1b19` | **5** | uniform | **immersive** | **fullbleed** | plain | chips | compact | ⏳ assets |
 
 ---
 
@@ -648,7 +662,7 @@ en los que tocan datos.
 2. **Coste de imaginería.** Cada tema quiere su propia estética de producto.
    *Guide* además pide ilustración de línea. Es el capítulo más caro.
 
-3. **Deriva de componentes.** 12 temas × 6 componentes = 72 ficheros si se
+3. **Deriva de componentes.** 14 temas × 6 componentes = 84 ficheros si se
    implementa todo. Mitigación: **herencia de Base, implementar solo lo que el
    tema redefine**. Vigilar en cada sesión.
 

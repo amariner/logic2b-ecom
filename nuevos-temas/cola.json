@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "orden": "nombre_de_archivo_ascendente",
+  "rama": "codex/new-themes",
+  "items": [
+    {
+      "posicion": 1,
+      "archivo": "04c4f5bf206ddf57efa95df81abcc674.jpg",
+      "tema": "argent",
+      "estado": "en_progreso_assets_bloqueados",
+      "nota": "Estructura y catálogo implementados. El generador integrado de Codex falló por red dos veces el 2026-08-07; no se cambió de proveedor ni a CLI."
+    },
+    { "posicion": 2, "archivo": "60f2fa24f7e2b276b70ff9be60b1238c.jpg", "tema": null, "estado": "pendiente" },
+    { "posicion": 3, "archivo": "6a1a7f42fded979ce23514a8bb5c3937.jpg", "tema": null, "estado": "pendiente" },
+    { "posicion": 4, "archivo": "a3978f1d35c67011b1d8877eb75adeaa.jpg", "tema": null, "estado": "pendiente" },
+    { "posicion": 5, "archivo": "ac52bc2a112b7cb95286c8707a2cabb8.jpg", "tema": null, "estado": "pendiente" },
+    { "posicion": 6, "archivo": "bbaf805fad44a7cffddab95cbaf9a5da.jpg", "tema": null, "estado": "pendiente" },
+    { "posicion": 7, "archivo": "c907738a08f280fe8ca611d64646e235.jpg", "tema": null, "estado": "pendiente" },
+    { "posicion": 8, "archivo": "e1803646a8e5fb8f95c0daa8d2de2f4c.jpg", "tema": null, "estado": "pendiente" }
+  ]
+}

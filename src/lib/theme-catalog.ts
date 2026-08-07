@@ -27,6 +27,7 @@ const THEME_CATEGORIES = {
   sitega: ['hogar'],
   forma: ['moda'],
   stretch: ['cuidado'],
+  argent: ['moda', 'lanzamiento'],
 } as const satisfies Readonly<Record<string, readonly ThemeCategoryId[]>>;
 
 export function normalizeThemeSearch(value: string): string {

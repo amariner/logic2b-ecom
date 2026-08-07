@@ -1,0 +1,57 @@
+---
+import type { CollectionConfig, StorePaths } from '../../../collections';
+
+interface Props {
+  paths: StorePaths;
+  collection: CollectionConfig;
+  count: number;
+  activeCategory?: string | undefined;
+  sort: string;
+  search?: string | undefined;
+}
+
+const { paths, collection, count, activeCategory, sort, search } = Astro.props;
+const hrefFor = (category?: string) => {
+  const params = new URLSearchParams();
+  if (category) params.set('categoria', category);
+  if (sort !== 'featured') params.set('orden', sort);
+  if (search) params.set('q', search);
+  const query = params.toString();
+  return `${paths.catalog}${query ? `?${query}` : ''}`;
+};
+---
+
+<div class="argent-filters">
+  <nav aria-label="Categorías">
+    <span>Catálogo ({count})</span>
+    <a href={hrefFor()} aria-current={!activeCategory ? 'page' : undefined}>Todo</a>
+    {collection.categories.map((item) => (
+      <a href={hrefFor(item.id)} aria-current={activeCategory === item.id ? 'page' : undefined}>{item.label}</a>
+    ))}
+  </nav>
+  <form method="get" action={paths.catalog} role="search">
+    {activeCategory && <input type="hidden" name="categoria" value={activeCategory} />}
+    <input type="search" name="q" value={search} maxlength="60" placeholder="Buscar" aria-label="Buscar productos" />
+    <select name="orden" aria-label="Ordenar catálogo" onchange="this.form.submit()">
+      <option value="featured" selected={sort === 'featured'}>Destacados</option>
+      <option value="price-asc" selected={sort === 'price-asc'}>Precio ↑</option>
+      <option value="price-desc" selected={sort === 'price-desc'}>Precio ↓</option>
+      <option value="name" selected={sort === 'name'}>Nombre A–Z</option>
+    </select>
+  </form>
+</div>
+
+<style>
+  .argent-filters { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin: -1rem 0 2rem; padding: .75rem 0; border-block: 1px solid #e7e7e4; font: 650 .58rem/1 var(--font-accent); letter-spacing: .055em; text-transform: uppercase; }
+  .argent-filters nav, .argent-filters form { display: flex; align-items: center; gap: .85rem; }
+  .argent-filters nav > span { color: #8a8a85; }
+  .argent-filters a[aria-current='page'] { text-decoration: underline; text-underline-offset: 4px; }
+  .argent-filters input, .argent-filters select { min-height: 2rem; border: 0; border-bottom: 1px solid #aaa9a3; border-radius: 0; background: transparent; font: inherit; text-transform: uppercase; }
+  .argent-filters input { width: 7rem; }
+  @media (max-width: 700px) {
+    .argent-filters { align-items: flex-start; flex-direction: column; overflow: hidden; }
+    .argent-filters nav { width: 100%; padding-bottom: .4rem; overflow-x: auto; }
+    .argent-filters nav > * { flex: 0 0 auto; }
+    .argent-filters form { width: 100%; justify-content: space-between; }
+  }
+</style>

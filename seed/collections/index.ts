@@ -24,6 +24,7 @@ import { sitegaSeedProducts } from './sitega.ts';
 import { formaSeedProducts } from './forma.ts';
 import { stretchSeedProducts } from './stretch.ts';
 import { arceSeedProducts } from './arce.ts';
+import { argentSeedProducts } from './argent.ts';
 // new-theme:seed-imports — no borrar: `pnpm new:theme <id>` añade aquí su import.
 
 export const collectionSeedProducts: readonly SeedProduct[] = [
@@ -41,5 +42,6 @@ export const collectionSeedProducts: readonly SeedProduct[] = [
   ...formaSeedProducts,
   ...stretchSeedProducts,
   ...arceSeedProducts,
+  ...argentSeedProducts,
   // new-theme:seed-entries — no borrar: `pnpm new:theme <id>` añade aquí su spread.
 ];
