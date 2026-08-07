@@ -519,7 +519,12 @@ portada, arquitectura, tienda demo y sitemap.
 8. Verificación: migración Wrangler sobre D1 local y Cron Trigger real mediante
    `__scheduled` (200, ejecución `succeeded` al primer intento); `pnpm check`
    en verde con 43 suites, 288 tests, tipos y build. Compra/admin/UI no cambian,
-   así que E2E/a11y/Lighthouse no aplican.
+   así que a11y/Lighthouse no aplican.
+
+Migración remota aplicada y producción desplegada en
+`a8f7a5e4-790b-40ad-9bbc-145e179a8de4`. Smoke 200 en portada, arquitectura,
+tienda principal, ARGENT y sitemap; E2E remoto de aislamiento 27/27 en verde.
+La tabla remota existe y parte con cero ejecuciones antes del siguiente tick.
 
 ## 7. Siguiente bloque
 

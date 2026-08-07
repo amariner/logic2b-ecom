@@ -1564,8 +1564,10 @@ dependencia, servicio ni coste nuevo; ADR-0011 fija la garantía at-least-once.
 
 Verificado con migración Wrangler D1 local, Cron Trigger real mediante
 `__scheduled` (200 y `succeeded` al primer intento) y `pnpm check`: 43 suites,
-288 tests, tipos y build en verde. Al no cambiar compra, admin o UI,
-E2E/a11y/Lighthouse no aplican.
+288 tests, tipos y build en verde. Migración remota aplicada; producción
+`a8f7a5e4-790b-40ad-9bbc-145e179a8de4`, smoke 200 en portada, arquitectura,
+tienda principal, ARGENT y sitemap, y E2E remoto de aislamiento 27/27. Al no
+cambiar UI, a11y/Lighthouse no aplican.
 
 ### Siguiente bloque
 
