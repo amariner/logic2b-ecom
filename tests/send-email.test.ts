@@ -1,5 +1,10 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { buildResendRequest, deliverPendingEmails, shouldDeliver } from '../src/lib/send-email';
+import {
+  buildResendRequest,
+  deliverPendingEmailBatch,
+  deliverPendingEmails,
+  shouldDeliver,
+} from '../src/lib/send-email';
 import { shopConfig } from '../shop.config';
 
 describe('shouldDeliver', () => {
@@ -126,8 +131,8 @@ describe('deliverPendingEmails — reclamo atómico', () => {
   it('libera el reclamo (sent=0) si Resend falla, para reintentar', async () => {
     vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response('nope', { status: 500 }));
     const rows: OutboxRow[] = [{ id: 1, to_addr: 'a@b.c', subject: '1', body_html: '<p>1</p>', sent: 0 }];
-    const delivered = await deliverPendingEmails(fakeOutboxDb(rows), prodEnv);
-    expect(delivered).toBe(0);
+    const result = await deliverPendingEmailBatch(fakeOutboxDb(rows), prodEnv);
+    expect(result).toEqual({ claimed: 1, delivered: 0, failed: 1 });
     expect(rows[0]!.sent).toBe(0); // vuelve a pendiente
   });
 });

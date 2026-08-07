@@ -52,6 +52,10 @@ venta o servicios logísticos propios.
 - [`wiki/auditoria-operaciones-ecommerce.md`](wiki/auditoria-operaciones-ecommerce.md):
   borrador interno R1.8 sobre evidencia transaccional redactada y sin export
   desde el Worker público.
+- [`OPERACION_OBSERVABILIDAD.md`](OPERACION_OBSERVABILIDAD.md): runbook R1.9
+  para correlacionar checkout, webhook, outbox y email sin PII.
+- [`wiki/observabilidad-operativa-ecommerce.md`](wiki/observabilidad-operativa-ecommerce.md):
+  borrador interno R1.9; no promete alertas hasta que R11.5 las implemente.
 - [`../../platform.config.ts`](../../platform.config.ts): manifest del
   despliegue actual, basado en un preset técnico y sin valores secretos.
 - [`../../src/platform/configuration/`](../../src/platform/configuration/):
@@ -78,6 +82,10 @@ venta o servicios logísticos propios.
   contrato de diff con allowlist, denylist de PII y límites estrictos.
 - [`../../src/platform/operations/infrastructure/d1-audit-log.ts`](../../src/platform/operations/infrastructure/d1-audit-log.ts):
   persistencia atómica de evidencia sin lecturas ni export HTTP.
+- [`../../src/platform/operations/application/observability.ts`](../../src/platform/operations/application/observability.ts):
+  contrato cerrado de métricas y errores operativos sin campos arbitrarios.
+- [`../../src/platform/operations/infrastructure/console-observability.ts`](../../src/platform/operations/infrastructure/console-observability.ts):
+  adaptador JSON a Workers Logs; no usa D1 ni expone endpoint.
 
 ## Reglas de verdad
 

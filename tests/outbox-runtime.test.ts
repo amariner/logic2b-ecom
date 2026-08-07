@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { createOrderOperations } from '../src/composition/order-operations';
 import { dispatchEventOutbox } from '../src/composition/outbox-dispatcher';
 import { createD1EventOutboxRepository } from '../src/platform/events';
+import type { PlatformObservability } from '../src/platform/operations';
 import {
   createEventFactory,
   createEventIdentityFactory,
@@ -178,9 +179,16 @@ describe('outbox transaccional R1.7 sobre SQL real', () => {
         '2026-08-06T10:00:00.000Z', '2026-08-06T10:00:00.000Z', '2026-08-06T10:00:00.000Z'
       );
     `);
+    const failures: Array<{ code: string; context: Record<string, unknown> }> = [];
+    const observability: PlatformObservability = {
+      metric: () => undefined,
+      failure: (error, context) => failures.push({ code: error.code, context }),
+    };
     const result = await dispatchEventOutbox(db.asD1(), {
       now: '2026-08-06T10:01:00.000Z',
       workerId: 'worker-dead',
+      operationId: 'op_outbox_test',
+      observability,
     });
     expect(result).toEqual({ claimed: 1, delivered: 0, failed: 1 });
     const delivery = db.query<{ status: string; attempt_count: number; last_error_message: string }>(
@@ -188,6 +196,15 @@ describe('outbox transaccional R1.7 sobre SQL real', () => {
     )[0];
     expect(delivery).toMatchObject({ status: 'dead', attempt_count: 8 });
     expect(delivery?.last_error_message).not.toContain('clienta@example.com');
+    expect(failures).toEqual([{
+      code: 'outbox.unknown_consumer',
+      context: {
+        operation: 'outbox',
+        operationId: 'op_outbox_test',
+        correlationId: 'order:BM-260806-TEST',
+        causationId: 'evt_unknown',
+      },
+    }]);
 
     const deliveryId = Number(db.value('SELECT id AS value FROM event_outbox_deliveries'));
     expect(await createD1EventOutboxRepository(db.asD1()).replayDead(

@@ -10,6 +10,12 @@ import { quoteCart } from '../../../lib/quote';
 import { flushEventOutbox } from '../../../composition/outbox-dispatcher';
 import { stripeClient } from '../../../lib/stripe';
 import type { NewOrderLine } from '../../../modules/orders';
+import {
+  OperationalError,
+  asOperationalError,
+  createConsoleObservability,
+  createOperationId,
+} from '../../../platform/operations';
 
 export const prerender = false;
 
@@ -55,122 +61,151 @@ export const POST: APIRoute = async ({ request, locals }) => {
   if (!parsed.success) {
     return Response.json({ error: 'Datos inválidos', details: parsed.error.flatten() }, { status: 400 });
   }
-  const { lines, customer } = parsed.data;
-  const storeCollection = resolveCollection(parsed.data.collection);
-  const paths = storePaths(storeCollection?.id ?? DEFAULT_COLLECTION_ID);
+  const operationId = createOperationId();
+  const observability = createConsoleObservability();
+  const started = performance.now();
+  try {
+    const { lines, customer } = parsed.data;
+    const storeCollection = resolveCollection(parsed.data.collection);
+    const paths = storePaths(storeCollection?.id ?? DEFAULT_COLLECTION_ID);
 
-  // Revalidar TODO contra D1: precios, stock y cobertura de envío (§7.4)
-  const quote = await quoteCart(env.DB, { lines, postal_code: customer.postal_code });
-  if (!quote.purchasable) {
-    return Response.json({ error: 'Hay productos no disponibles en el carrito', quote }, { status: 409 });
-  }
-  if (quote.shipping_cents === null || quote.total_cents === null || quote.shipping === null) {
-    return Response.json({ error: 'No hay cobertura de envío para ese código postal' }, { status: 422 });
-  }
+    // Revalidar TODO contra D1: precios, stock y cobertura de envío (§7.4)
+    const quote = await quoteCart(env.DB, { lines, postal_code: customer.postal_code });
+    if (!quote.purchasable) {
+      return Response.json({ error: 'Hay productos no disponibles en el carrito', quote }, { status: 409 });
+    }
+    if (quote.shipping_cents === null || quote.total_cents === null || quote.shipping === null) {
+      return Response.json({ error: 'No hay cobertura de envío para ese código postal' }, { status: 422 });
+    }
 
-  const orderNumber = generateOrderNumber();
-  const origin = new URL(request.url).origin;
-  const simulate = isSimulatedPayment(env);
+    const orderNumber = generateOrderNumber();
+    const origin = new URL(request.url).origin;
+    const simulate = isSimulatedPayment(env);
 
-  const addressJson = JSON.stringify({
-    name: customer.name,
-    phone: customer.phone ?? null,
-    street: customer.street,
-    city: customer.city,
-    postal_code: customer.postal_code,
-    zone: quote.shipping.zone,
-    nif: customer.nif ?? null,
-    company: customer.company ?? null,
-  });
+    const addressJson = JSON.stringify({
+      name: customer.name,
+      phone: customer.phone ?? null,
+      street: customer.street,
+      city: customer.city,
+      postal_code: customer.postal_code,
+      zone: quote.shipping.zone,
+      nif: customer.nif ?? null,
+      company: customer.company ?? null,
+    });
 
-  // Mapa slug → id de producto para el snapshot de líneas (y el decremento de stock).
-  const idBySlug = await getProductIdsBySlugs(
-    env.DB,
-    quote.lines.map((line) => line.slug),
-  );
+    // Mapa slug → id de producto para el snapshot de líneas (y el decremento de stock).
+    const idBySlug = await getProductIdsBySlugs(
+      env.DB,
+      quote.lines.map((line) => line.slug),
+    );
 
-  // En pago real, el session_id lo da Stripe (alta entropía propia). En
-  // simulación lo sintetizamos con un token aleatorio independiente del nº de
-  // pedido: /demo/gracias no requiere login y lo usa para exponer nombre/email/total.
-  let sessionId = `sim_${generateSimulatedSessionToken()}`;
-  let redirectUrl = `${origin}${paths.thanks}?session_id=${sessionId}`;
+    // En pago real, el session_id lo da Stripe (alta entropía propia). En
+    // simulación lo sintetizamos con un token aleatorio independiente del nº de
+    // pedido: /demo/gracias no requiere login y lo usa para exponer nombre/email/total.
+    let sessionId = `sim_${generateSimulatedSessionToken()}`;
+    let redirectUrl = `${origin}${paths.thanks}?session_id=${sessionId}`;
 
-  if (!simulate) {
-    const stripe = stripeClient(env.STRIPE_SECRET_KEY!);
+    if (!simulate) {
+      const stripe = stripeClient(env.STRIPE_SECRET_KEY!);
 
-    // line_items construidos EN SERVIDOR desde la quote (nunca del cliente)
-    const lineItems = quote.lines.map((line) => ({
-      quantity: line.qty,
-      price_data: {
-        currency: shopConfig.currency,
-        unit_amount: line.unit_price_cents,
-        product_data: { name: line.name },
-      },
-    }));
-    if (quote.shipping_cents > 0) {
-      lineItems.push({
-        quantity: 1,
+      // line_items construidos EN SERVIDOR desde la quote (nunca del cliente)
+      const lineItems = quote.lines.map((line) => ({
+        quantity: line.qty,
         price_data: {
           currency: shopConfig.currency,
-          unit_amount: quote.shipping_cents,
-          product_data: { name: `Envío — ${quote.shipping.label}` },
+          unit_amount: line.unit_price_cents,
+          product_data: { name: line.name },
         },
+      }));
+      if (quote.shipping_cents > 0) {
+        lineItems.push({
+          quantity: 1,
+          price_data: {
+            currency: shopConfig.currency,
+            unit_amount: quote.shipping_cents,
+            product_data: { name: `Envío — ${quote.shipping.label}` },
+          },
+        });
+      }
+
+      try {
+        const session = await stripe.checkout.sessions.create({
+          mode: 'payment',
+          line_items: lineItems,
+          customer_email: customer.email,
+          metadata: { order_number: orderNumber },
+          success_url: `${origin}${paths.thanks}?session_id={CHECKOUT_SESSION_ID}`,
+          cancel_url: `${origin}${paths.cart}`,
+        });
+        sessionId = session.id;
+        redirectUrl = session.url ?? redirectUrl;
+      } catch {
+        throw new OperationalError('checkout.provider_failed', true);
+      }
+    }
+
+    const orderLines: NewOrderLine[] = quote.lines.map((line) => ({
+      product_id: idBySlug.get(line.slug) ?? 0,
+      name_snapshot: line.name,
+      unit_price_cents: line.unit_price_cents,
+      qty: line.qty,
+    }));
+
+    // Pedido en 'pending' + líneas con snapshot de nombre y precio + primer hecho
+    // del flujo (`orders.order_placed`), del que sale la entrada del timeline.
+    const orders = createOrderOperations(env.DB);
+    const placed = await orders.placeOrder(
+      {
+        order_number: orderNumber,
+        email: customer.email,
+        customer_name: customer.name,
+        address_json: addressJson,
+        subtotal_cents: quote.subtotal_cents,
+        shipping_cents: quote.shipping_cents,
+        total_cents: quote.total_cents,
+        stripe_session_id: sessionId,
+      },
+      orderLines,
+    );
+    if (placed === null) throw new OperationalError('checkout.persistence_failed', true);
+
+    // Pago simulado: marcamos pagado al instante (sin Stripe ni webhook). Recorre
+    // exactamente el mismo caso de uso que el webhook real → stock, evento y emails;
+    // solo cambian el origen del cobro y el hecho que lo causa (el alta del pedido).
+    let paymentOutcome: 'pending' | 'confirmed' | 'conflict' = 'pending';
+    if (simulate) {
+      const confirmed = await orders.confirmPayment({
+        lookup: { by: 'id', orderId: placed.orderId },
+        paymentIntent: `sim_pi_${orderNumber}`,
+        source: 'simulated',
+        causationId: placed.event.event_id,
       });
+      paymentOutcome = confirmed ? 'confirmed' : 'conflict';
+      if (confirmed) {
+        locals.runtime.ctx.waitUntil(flushEventOutbox(env.DB, env));
+      }
     }
 
-    const session = await stripe.checkout.sessions.create({
-      mode: 'payment',
-      line_items: lineItems,
-      customer_email: customer.email,
-      metadata: { order_number: orderNumber },
-      success_url: `${origin}${paths.thanks}?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${origin}${paths.cart}`,
+    observability.metric({
+      name: 'checkout.completed',
+      operationId,
+      correlationId: placed.event.correlation_id,
+      paymentMode: simulate ? 'simulated' : 'stripe',
+      paymentOutcome,
+      durationMs: performance.now() - started,
     });
-    sessionId = session.id;
-    redirectUrl = session.url ?? redirectUrl;
-  }
-
-  const orderLines: NewOrderLine[] = quote.lines.map((line) => ({
-    product_id: idBySlug.get(line.slug) ?? 0,
-    name_snapshot: line.name,
-    unit_price_cents: line.unit_price_cents,
-    qty: line.qty,
-  }));
-
-  // Pedido en 'pending' + líneas con snapshot de nombre y precio + primer hecho
-  // del flujo (`orders.order_placed`), del que sale la entrada del timeline.
-  const orders = createOrderOperations(env.DB);
-  const placed = await orders.placeOrder(
-    {
-      order_number: orderNumber,
-      email: customer.email,
-      customer_name: customer.name,
-      address_json: addressJson,
-      subtotal_cents: quote.subtotal_cents,
-      shipping_cents: quote.shipping_cents,
-      total_cents: quote.total_cents,
-      stripe_session_id: sessionId,
-    },
-    orderLines,
-  );
-  if (placed === null) {
-    return Response.json({ error: 'No se pudo registrar el pedido' }, { status: 500 });
-  }
-
-  // Pago simulado: marcamos pagado al instante (sin Stripe ni webhook). Recorre
-  // exactamente el mismo caso de uso que el webhook real → stock, evento y emails;
-  // solo cambian el origen del cobro y el hecho que lo causa (el alta del pedido).
-  if (simulate) {
-    const confirmed = await orders.confirmPayment({
-      lookup: { by: 'id', orderId: placed.orderId },
-      paymentIntent: `sim_pi_${orderNumber}`,
-      source: 'simulated',
-      causationId: placed.event.event_id,
+    return Response.json(
+      { url: redirectUrl, order_number: orderNumber },
+      { headers: { 'x-operation-id': operationId } },
+    );
+  } catch (error) {
+    const operationalError = asOperationalError(error, 'checkout.unexpected_failure');
+    observability.failure(operationalError, {
+      operation: 'checkout', operationId, durationMs: performance.now() - started,
     });
-    if (confirmed) {
-      locals.runtime.ctx.waitUntil(flushEventOutbox(env.DB, env));
-    }
+    return Response.json(
+      { error: 'No se pudo iniciar el pago. Inténtalo de nuevo en unos minutos.' },
+      { status: 503, headers: { 'x-operation-id': operationId, 'cache-control': 'no-store' } },
+    );
   }
-
-  return Response.json({ url: redirectUrl, order_number: orderNumber });
 };

@@ -38,7 +38,7 @@ improvisan durante la implementación.
 | Ola | Resultado | Estado |
 |---|---|---|
 | R0 | Investigación, taxonomía, matriz, roadmap y estrategia wiki | ✅ cerrado 2026-08-06 |
-| R1 | Cimientos modulares y observables | 🟡 8/12 bloques cerrados |
+| R1 | Cimientos modulares y observables | 🟡 9/12 bloques cerrados |
 | R2 | Núcleo transaccional profesional | ⬜ |
 | R3 | Operación de pedidos, inventario y fulfillment | ⬜ |
 | R4 | Precios, promociones y modelos de venta | ⬜ |
@@ -75,7 +75,7 @@ conviertan el motor en una colección de condicionales.
 | 6 | **R1.6 Diseño y aprobación de outbox** | ADR, SQL exacto, retención, claim/retry/dead-letter y compatibilidad D1; pruebas contractuales antes de migrar. Puerta de decisión de esquema. | ✅ 2026-08-06 |
 | 7 | **R1.7 Outbox transaccional** | Migración aprobada, escritura atómica en mutaciones de pago/pedido y dispatcher idempotente; fallo del consumidor no revierte el negocio. | ✅ 2026-08-06 |
 | 8 | **R1.8 Audit log transversal** | Actor, acción, entidad, diff redacted y correlation id; pagos, pedidos, producto y admin cubiertos; sin export HTTP por decisión de seguridad. | ✅ 2026-08-07 |
-| 9 | **R1.9 Observabilidad base** | Logger estructurado, errores tipados, métricas de checkout/webhook/outbox/email e IDs visibles en runbook; sin PII. | ⬜ |
+| 9 | **R1.9 Observabilidad base** | Logger estructurado, errores tipados, métricas de checkout/webhook/outbox/email e IDs visibles en runbook; sin PII. | ✅ 2026-08-07 |
 | 10 | **R1.10 Registro de integraciones** | Estado/config no secreta/health/última sync/error; secretos fuera de D1; adaptadores actuales registrados. | ⬜ |
 | 11 | **R1.11 Contrato de jobs** | Ejecución única/recurrente, lock, timeout, reintento y replay; cron de demo migra sin regresión. | ⬜ |
 | 12 | **R1.12 Consolidación R1** | Tests de presets, fallos, concurrencia y clonabilidad; docs de crear módulo; ficha wiki de arquitectura; auditoría de dependencias. | ⬜ |
@@ -436,10 +436,34 @@ No hay dependencia, servicio, coste fijo, nueva ruta, JavaScript, trabajo por
 visita ni superficie PCI. Despliegue confirmado:
 `808274b4-ca86-432e-9816-7a01c337ecc1`.
 
+### R1.9 — Observabilidad base — ✅ 2026-08-07
+
+1. Un contrato cerrado define cuatro métricas y nueve códigos de error; no
+   acepta campos arbitrarios ni conserva causa, stack o mensaje crudo.
+2. Workers Logs recibe una línea JSON versionada por señal útil, con nivel,
+   duración acotada y IDs técnicos validados. No hay tabla, endpoint, exportador,
+   beacon, dependencia o proveedor nuevo.
+3. Checkout devuelve `x-operation-id` y mide solo tras validar una compra real;
+   el webhook hace lo mismo solo después de verificar la firma. Ambos excluyen
+   PII, body, URL, IP, sesión y referencias de pago.
+4. Outbox y email emiten conteos agregados únicamente cuando reclaman trabajo.
+   Demo, peticiones inválidas, firmas inválidas, rechazos de negocio y crons
+   vacíos quedan en silencio; el tráfico hostil no controla escrituras ni logs.
+5. Los fallos de consumidor persisten únicamente código/mensaje seguro y emiten
+   correlación; si falla el sink, la operación observada continúa.
+6. El runbook documenta búsqueda por `operation_id`, `correlation_id` y
+   `causation_id`, códigos y contención. ADR-0009 y el borrador wiki fijan los
+   límites de seguridad.
+7. Verificación local: 40 suites, 268 tests, tipos y build en verde; pruebas con
+   checkout simulado real y webhook Stripe firmado prueban ausencia de PII,
+   mientras demo y firma inválida no tocan D1 ni logger.
+8. SEC-008 pasa a `parcial`: logs, métricas y correlación son reales; alertas y
+   SLO permanecen honestamente en R11.5.
+
 ## 7. Siguiente bloque
 
-### R1.9 — Observabilidad base
+### R1.10 — Registro de integraciones
 
-Logger estructurado y errores tipados sin PII; métricas acotadas de
-checkout/webhook/outbox/email e identificadores útiles en runbook. No convertir
-tráfico hostil en escrituras ni introducir un servicio con coste.
+Estado y configuración no secreta, health, última sincronización y último error
+de cada adaptador actual. Los secretos permanecen fuera de D1 y no se añade una
+integración ficticia para llenar el registro.

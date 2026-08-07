@@ -332,7 +332,7 @@ su alcance requiera.
 | SEC-005 | Audit log completo | núcleo | P0 | parcial | Actor, acción, entidad, diff, IP/contexto y correlation id. |
 | SEC-006 | Protección PII y minimización | núcleo | P0 | parcial | Acceso, retención, redacción de logs y exportación controlada. |
 | SEC-007 | Política de backups y restore drill | núcleo | P0 | parcial | RPO/RTO por cliente y restauración ensayada. |
-| SEC-008 | Observabilidad estructurada | núcleo | P0 | pendiente | Logs, métricas, trazas y alertas con correlation id. |
+| SEC-008 | Observabilidad estructurada | núcleo | P0 | parcial | Logs JSON, métricas operativas y correlation id activos; alertas/SLO quedan en R11.5. |
 | SEC-009 | SLO y alertas | núcleo | P1 | pendiente | Checkout, webhooks, emails, syncs y storefront. |
 | SEC-010 | Escaneo de dependencias/secretos | núcleo | P1 | pendiente | CI y proceso de respuesta. |
 | SEC-011 | CSP y cabeceras de seguridad | núcleo | P1 | parcial | Política por superficies e integraciones. |

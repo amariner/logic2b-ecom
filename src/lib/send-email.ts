@@ -17,6 +17,12 @@ type SendEnv = {
   RESEND_API_KEY?: string;
 };
 
+export type EmailDeliveryResult = Readonly<{
+  claimed: number;
+  delivered: number;
+  failed: number;
+}>;
+
 /** Decisión pura: solo se envía de verdad fuera de demo y con clave configurada. */
 export function shouldDeliver(env: SendEnv): env is SendEnv & { RESEND_API_KEY: string } {
   return env.DEMO_MODE !== 'true' && typeof env.RESEND_API_KEY === 'string' && env.RESEND_API_KEY.length > 0;
@@ -49,8 +55,8 @@ export function buildResendRequest(
  * Entrega los emails pendientes de la outbox. Devuelve cuántos se entregaron.
  * Pensada para ctx.waitUntil(): nunca lanza, no bloquea la respuesta HTTP.
  */
-export async function deliverPendingEmails(db: D1Database, env: SendEnv): Promise<number> {
-  if (!shouldDeliver(env)) return 0;
+export async function deliverPendingEmailBatch(db: D1Database, env: SendEnv): Promise<EmailDeliveryResult> {
+  if (!shouldDeliver(env)) return Object.freeze({ claimed: 0, delivered: 0, failed: 0 });
   const apiKey = env.RESEND_API_KEY;
 
   const pending = (
@@ -60,6 +66,8 @@ export async function deliverPendingEmails(db: D1Database, env: SendEnv): Promis
   ).results;
 
   let delivered = 0;
+  let claimed = 0;
+  let failed = 0;
   for (const message of pending) {
     // Reclamo atómico ANTES de enviar: marcamos sent=1 condicionado a que siga
     // en 0. D1 serializa las escrituras, así que de dos entregas concurrentes
@@ -71,6 +79,7 @@ export async function deliverPendingEmails(db: D1Database, env: SendEnv): Promis
       .bind(message.id)
       .run();
     if (claim.meta.changes !== 1) continue; // otra invocación ya lo reclamó
+    claimed++;
 
     try {
       const { url, init } = buildResendRequest(message, apiKey);
@@ -78,13 +87,20 @@ export async function deliverPendingEmails(db: D1Database, env: SendEnv): Promis
       if (response.ok) {
         delivered++;
       } else {
+        failed++;
         // Resend rechazó: liberamos el reclamo para reintentar en el próximo disparo.
         await db.prepare('UPDATE emails_outbox SET sent = 0 WHERE id = ?').bind(message.id).run();
       }
     } catch {
+      failed++;
       // Red caída o Resend fuera: liberamos el reclamo y se reintentará.
       await db.prepare('UPDATE emails_outbox SET sent = 0 WHERE id = ?').bind(message.id).run();
     }
   }
-  return delivered;
+  return Object.freeze({ claimed, delivered, failed });
+}
+
+/** Contrato legacy: conserva el número de entregados para sus consumidores. */
+export async function deliverPendingEmails(db: D1Database, env: SendEnv): Promise<number> {
+  return (await deliverPendingEmailBatch(db, env)).delivered;
 }
