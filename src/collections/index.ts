@@ -27,7 +27,8 @@ import { sitegaCollection } from './sitega';
 import { formaCollection } from './forma';
 import { stretchCollection } from './stretch';
 import { arceCollection } from './arce';
-import { argentCollection } from '../collections/argent';
+import { argentCollection } from './argent';
+import { sillageCollection } from './sillage';
 // new-theme:imports — no borrar: `pnpm new:theme <id>` añade aquí su import.
 import type { CollectionCategory, CollectionConfig } from './types';
 
@@ -57,6 +58,7 @@ export const collections: readonly CollectionConfig[] = [
   stretchCollection,
   arceCollection,
   argentCollection,
+  sillageCollection,
   // new-theme:entries — no borrar: `pnpm new:theme <id>` añade aquí su entrada.
 ];
 

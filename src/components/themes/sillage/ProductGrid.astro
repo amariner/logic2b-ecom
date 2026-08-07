@@ -1,0 +1,74 @@
+---
+import type { StorePaths } from '../../../collections';
+import { formatEurCents } from '../../../lib/format';
+
+type GridProduct = {
+  slug: string;
+  name: string;
+  price_cents: number;
+  image: string;
+  stock: number;
+};
+
+interface Props { paths: StorePaths; products: GridProduct[]; }
+const { paths, products } = Astro.props;
+---
+
+<ul class="sillage-grid">
+  {products.map((product) => (
+    <li class="sillage-card">
+      <a class="sillage-card__link" href={paths.product(product.slug)}>
+        <div class="sillage-card__media">
+          <img src={product.image} alt={product.name} width="900" height="900" loading="lazy" />
+        </div>
+        <div class="sillage-card__copy">
+          <h3>{product.name}</h3>
+          <p>{formatEurCents(product.price_cents)}</p>
+        </div>
+      </a>
+      <button
+        class="sillage-card__add"
+        type="button"
+        data-sillage-add={product.slug}
+        disabled={product.stock === 0}
+        aria-label={product.stock === 0 ? `${product.name} agotado` : `Añadir ${product.name} al carrito`}
+      >{product.stock === 0 ? 'Agotado' : '+'}</button>
+    </li>
+  ))}
+</ul>
+
+<script>
+  import { addToCart } from '../../../lib/cart-client';
+
+  document.querySelectorAll<HTMLButtonElement>('[data-sillage-add]').forEach((button) => {
+    button.addEventListener('click', () => {
+      addToCart(button.dataset.sillageAdd ?? '');
+      const previous = button.textContent;
+      button.textContent = '✓';
+      setTimeout(() => (button.textContent = previous), 850);
+    });
+  });
+</script>
+
+<style>
+  .sillage-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--grid-gap); margin: 0; padding: 0; list-style: none; }
+  .sillage-card { position: relative; min-width: 0; }
+  .sillage-card__link { display: block; color: var(--color-foreground); text-decoration: none; }
+  .sillage-card__media { display: grid; aspect-ratio: 1; place-items: center; overflow: hidden; border-radius: var(--radius-card); background: var(--surface-product); }
+  .sillage-card__media img { width: 100%; height: 100%; object-fit: cover; transition: transform .35s ease; }
+  .sillage-card:hover .sillage-card__media img { transform: scale(1.025); }
+  .sillage-card__copy { padding-top: .65rem; text-align: center; }
+  .sillage-card__copy h3 { overflow: hidden; font: 500 .66rem/1.3 var(--font-accent); text-overflow: ellipsis; white-space: nowrap; }
+  .sillage-card__copy p { margin-top: .22rem; color: var(--color-muted-foreground); font-size: .58rem; }
+  .sillage-card__add { position: absolute; z-index: 2; top: .6rem; right: .6rem; display: grid; min-width: 2rem; height: 2rem; place-items: center; border: 0; border-radius: 50%; color: var(--color-brand-fg); background: var(--color-brand); font: 500 .9rem/1 var(--font-accent); cursor: pointer; }
+  .sillage-card__add:hover { background: var(--color-brand-dark); }
+  .sillage-card__add:disabled { cursor: not-allowed; opacity: .48; }
+  .sillage-card__add:focus-visible, .sillage-card__link:focus-visible { outline: .15rem solid var(--color-brand); outline-offset: .18rem; }
+
+  @media (max-width: 900px) {
+    .sillage-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); row-gap: 2.5rem; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .sillage-card__media img { transition: none; }
+  }
+</style>

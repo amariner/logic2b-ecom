@@ -9,6 +9,9 @@ dist/
 # informes de Lighthouse (~800 KB por pasada); el resumen citable va en docs/
 .lighthouse/
 
+# Intermedios locales de generación y QA visual
+tmp/
+
 # secretos — jamás en el repo
 .dev.vars
 .env

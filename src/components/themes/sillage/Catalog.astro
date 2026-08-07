@@ -1,0 +1,222 @@
+---
+/**
+ * SILLAGE · boutique de perfumería editorial.
+ * Réplica estructural de la referencia 60f2…: hero sensorial, cuatro novedades,
+ * producto destacado, manifiesto, familias apiladas y cierre de showroom.
+ */
+import type { CollectionConfig, StorePaths } from '../../../collections';
+import Filters from './Filters.astro';
+import ProductGrid from './ProductGrid.astro';
+
+type GridProduct = {
+  slug: string;
+  name: string;
+  price_cents: number;
+  image: string;
+  stock: number;
+};
+
+interface Props {
+  paths: StorePaths;
+  products: GridProduct[];
+  collection: CollectionConfig;
+  category?: string | undefined;
+  sort: string;
+  search?: string | undefined;
+}
+
+const { paths, products, collection, category, sort, search } = Astro.props;
+const editorial = !category && !search && sort === 'featured';
+const FEATURED = [
+  'sil-humo-blanco',
+  'sil-cedro-solar',
+  'sil-noche-mineral',
+  'sil-iris-frio',
+  'sil-azahar-08',
+  'sil-vetiver-11',
+  'sil-leche-higo',
+  'sil-balsamo-sal',
+];
+const rank = new Map(FEATURED.map((slug, index) => [slug, index]));
+const orderedProducts = products.toSorted((a, b) => (rank.get(a.slug) ?? 99) - (rank.get(b.slug) ?? 99));
+const shownProducts = editorial ? orderedProducts.slice(0, 4) : orderedProducts;
+
+const families = [
+  { id: 'sil-perfume', label: 'Perfume', image: '/images/collections/sillage/sil-cedro-solar.webp', alt: 'Frasco de perfume de autor en vidrio ámbar' },
+  { id: 'sil-oil', label: 'Aceites', image: '/images/collections/sillage/sil-humo-blanco.webp', alt: 'Frasco de vidrio claro sobre fondo marfil' },
+  { id: 'sil-body-care', label: 'Cuidado corporal', image: '/images/collections/sillage/sil-cedro-solar.webp', alt: 'Envase de la colección SILLAGE sobre fondo marfil' },
+] as const;
+---
+
+<div class="sillage">
+  {editorial && (
+    <section class="sillage-hero" aria-labelledby="sillage-title">
+      <img
+        src="/images/collections/sillage/hero-abstract.webp"
+        alt="Formas líquidas y vapor en tonos ámbar, violeta y negro"
+        width="1920"
+        height="1080"
+        loading="eager"
+        fetchpriority="high"
+      />
+      <div class="sillage-hero__copy">
+        <h1 id="sillage-title">Galería olfativa<br />seleccionada</h1>
+        <a href="#novedades">Explorar perfumes</a>
+      </div>
+    </section>
+  )}
+
+  <main>
+    <section id="novedades" class="sillage-products" aria-labelledby="sillage-products-title">
+      <div class="sillage-section-head">
+        {editorial
+          ? <h2 id="sillage-products-title">Nuevas llegadas</h2>
+          : <h1 id="sillage-products-title">Colección</h1>}
+        {editorial && <a href={`${paths.catalog}?orden=name`}>Ver todo</a>}
+      </div>
+
+      {!editorial && (
+        <Filters
+          paths={paths}
+          collection={collection}
+          count={products.length}
+          activeCategory={category}
+          sort={sort}
+          search={search}
+        />
+      )}
+
+      {search && products.length > 0 && (
+        <p class="sillage-results">
+          {products.length} {products.length === 1 ? 'resultado' : 'resultados'} para «{search}»
+        </p>
+      )}
+
+      {shownProducts.length > 0 ? (
+        <ProductGrid paths={paths} products={shownProducts} />
+      ) : (
+        <div class="sillage-empty">
+          <p>{search ? `Nada por aquí para «${search}»` : 'No hay productos en esta colección'}</p>
+          <a href={paths.catalog}>Volver a la galería</a>
+        </div>
+      )}
+    </section>
+
+    {editorial && <>
+      <section class="sillage-feature" aria-labelledby="sillage-feature-title">
+        <img
+          src="/images/collections/sillage/feature-cedro-solar.webp"
+          alt="Frasco de Cedro Solar sobre fondo marfil"
+          width="1200"
+          height="1200"
+          loading="lazy"
+        />
+        <div>
+          <p>Esencia 02</p>
+          <h2 id="sillage-feature-title">Cedro Solar<br />por SILLAGE</h2>
+          <p>Cítrico al principio, resinoso después. Una fragancia luminosa construida alrededor del cedro tostado y el ámbar seco.</p>
+          <a href={paths.product('sil-cedro-solar')}>Explorar Cedro Solar</a>
+        </div>
+      </section>
+
+      <section class="sillage-manifesto" aria-label="Manifiesto de SILLAGE">
+        <p>
+          SILLAGE es una galería olfativa independiente. Elegimos cada perfume por su capacidad para permanecer: en la piel, en una habitación y en la memoria.
+        </p>
+      </section>
+
+      <section class="sillage-families" aria-labelledby="sillage-families-title">
+        <h2 id="sillage-families-title">Explora nuestras<br />colecciones</h2>
+        <div>
+          {families.map((family, index) => (
+            <a href={`${paths.catalog}?categoria=${family.id}`} class="sillage-family">
+              <span><small>{String(index + 1).padStart(2, '0')}</small>{family.label}</span>
+              <img src={family.image} alt={family.alt} width="1200" height="420" loading="lazy" />
+            </a>
+          ))}
+        </div>
+      </section>
+
+      <section class="sillage-showroom" aria-labelledby="sillage-showroom-title">
+        <img
+          src="/images/collections/sillage/showroom.webp"
+          alt="Salón de una perfumería con sofá de cuero color coñac"
+          width="1400"
+          height="1100"
+          loading="lazy"
+        />
+        <div>
+          <p>Castelló<br />Carrer Major, 18<br />12001 Castelló</p>
+          <p>València<br />Carrer de la Pau, 32<br />46003 València</p>
+          <h2 id="sillage-showroom-title">Visita nuestras<br />galerías</h2>
+        </div>
+      </section>
+
+      <div class="sillage-endmark" aria-hidden="true">SILLAGE</div>
+    </>}
+  </main>
+</div>
+
+<style>
+  .sillage { min-height: 100vh; color: var(--color-foreground); background: var(--color-background); }
+  .sillage :where(a) { color: inherit; text-decoration: none; }
+
+  .sillage-hero { position: relative; min-height: min(63vw, 48rem); margin: clamp(.6rem, 1.4vw, 1.4rem); overflow: hidden; border-radius: var(--radius-card); background: var(--surface-product); }
+  .sillage-hero::after { position: absolute; inset: 0; content: ''; background: linear-gradient(90deg, color-mix(in srgb, var(--color-foreground) 48%, transparent), transparent 68%); }
+  .sillage-hero > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .sillage-hero__copy { position: absolute; z-index: 1; top: 50%; left: 50%; width: min(90%, 40rem); padding: clamp(3rem, 8vw, 6rem) 2rem; color: var(--color-brand-fg); background-image: radial-gradient(closest-side, rgb(20 21 18 / .48), transparent); text-align: center; transform: translate(-50%, -50%); }
+  .sillage-hero__copy h1 { font: var(--weight-display) clamp(2rem, 4vw, 4.5rem)/.94 var(--font-display); letter-spacing: var(--tracking-display); }
+  .sillage-hero__copy a, .sillage-feature a { display: inline-flex; min-height: 2rem; align-items: center; margin-top: 1.2rem; padding: .45rem .8rem; border-radius: var(--radius-btn); color: var(--color-foreground); background: var(--color-brand-fg); font-size: .68rem; }
+
+  .sillage-products { padding: clamp(4rem, 9vw, 9rem) clamp(1rem, 7vw, 7rem); }
+  .sillage-section-head { display: flex; align-items: center; justify-content: center; gap: 2rem; margin-bottom: clamp(2rem, 4vw, 4rem); }
+  .sillage-section-head h1, .sillage-section-head h2 { font: var(--weight-display) clamp(1.6rem, 2.5vw, 2.6rem)/1 var(--font-display); letter-spacing: var(--tracking-display); }
+  .sillage-section-head > a { padding: .45rem .7rem; border-radius: var(--radius-btn); background: var(--surface-product); font-size: .65rem; }
+  .sillage-results { margin-bottom: 1.5rem; color: var(--color-muted-foreground); font-size: .78rem; }
+  .sillage-empty { padding: 5rem 1rem; border-radius: var(--radius-card); background: var(--surface-sunken); text-align: center; }
+  .sillage-empty a { display: inline-block; margin-top: 1rem; text-decoration: underline; text-underline-offset: .2rem; }
+
+  .sillage-feature { display: grid; grid-template-columns: minmax(0, .86fr) minmax(0, 1.14fr); max-width: 48rem; margin: 0 auto; overflow: hidden; border-radius: var(--radius-card); background: var(--surface-product); }
+  .sillage-feature > img { width: 100%; height: 100%; min-height: 28rem; object-fit: cover; }
+  .sillage-feature > div { display: flex; flex-direction: column; align-items: flex-start; justify-content: center; padding: clamp(2rem, 5vw, 5rem); }
+  .sillage-feature > div > p:first-child { margin-bottom: 2rem; color: var(--color-muted-foreground); font-size: .6rem; text-transform: uppercase; }
+  .sillage-feature h2 { font: var(--weight-display) clamp(1.8rem, 3vw, 3rem)/.98 var(--font-display); letter-spacing: var(--tracking-display); }
+  .sillage-feature h2 + p { max-width: 24rem; margin-top: 1.5rem; color: var(--color-muted-foreground); font-size: .76rem; line-height: 1.5; }
+  .sillage-feature a { color: var(--color-brand-fg); background: var(--color-brand); }
+
+  .sillage-manifesto { display: grid; min-height: clamp(24rem, 48vw, 45rem); place-items: center; padding: 5rem 1rem; }
+  .sillage-manifesto p { max-width: 44rem; font: var(--weight-display) clamp(1.25rem, 2.4vw, 2.35rem)/1.1 var(--font-display); letter-spacing: var(--tracking-display); text-align: center; }
+
+  .sillage-families { display: grid; grid-template-columns: minmax(12rem, .85fr) minmax(0, 1.35fr); gap: clamp(2rem, 5vw, 6rem); align-items: start; padding: 0 clamp(1rem, 7vw, 7rem) clamp(6rem, 11vw, 11rem); }
+  .sillage-families > h2 { position: sticky; top: 7rem; font: var(--weight-display) clamp(2rem, 4vw, 4rem)/.92 var(--font-display); letter-spacing: var(--tracking-display); }
+  .sillage-families > div { display: grid; gap: var(--grid-gap); }
+  .sillage-family { display: grid; min-height: 13rem; grid-template-columns: 7rem 1fr; gap: 1rem; align-items: center; overflow: hidden; padding: 1rem; border-radius: var(--radius-card); background: var(--surface-product); }
+  .sillage-family span { align-self: start; font-size: .74rem; }
+  .sillage-family small { display: block; margin-bottom: .6rem; color: var(--color-muted-foreground); font-size: .55rem; }
+  .sillage-family img { width: 100%; height: 100%; max-height: 12rem; object-fit: contain; transition: transform .35s ease; }
+  .sillage-family:hover img { transform: scale(1.025); }
+
+  .sillage-showroom { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(2rem, 5vw, 5rem); align-items: center; padding: 0 clamp(1rem, 7vw, 7rem) clamp(4rem, 8vw, 8rem); }
+  .sillage-showroom > img { width: 100%; border-radius: var(--radius-card); }
+  .sillage-showroom > div { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
+  .sillage-showroom p { color: var(--color-muted-foreground); font-size: .64rem; line-height: 1.5; }
+  .sillage-showroom h2 { grid-column: 1 / -1; margin-top: 2rem; font: var(--weight-display) clamp(2rem, 4vw, 4rem)/.92 var(--font-display); letter-spacing: var(--tracking-display); }
+  .sillage-endmark { overflow: hidden; padding: 0 clamp(1rem, 7vw, 7rem); font: 800 clamp(6rem, 23vw, 22rem)/.72 var(--font-display); letter-spacing: -.1em; white-space: nowrap; }
+
+  @media (max-width: 700px) {
+    .sillage-hero { min-height: 72svh; }
+    .sillage-hero::after { background: color-mix(in srgb, var(--color-foreground) 28%, transparent); }
+    .sillage-products { padding-block: 4.5rem; }
+    .sillage-section-head { justify-content: space-between; }
+    .sillage-feature { grid-template-columns: 1fr; margin-inline: 1rem; }
+    .sillage-feature > img { min-height: 22rem; }
+    .sillage-families { grid-template-columns: 1fr; }
+    .sillage-families > h2 { position: static; }
+    .sillage-family { grid-template-columns: 5.5rem 1fr; }
+    .sillage-showroom { grid-template-columns: 1fr; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .sillage-family img { transition: none; }
+  }
+</style>

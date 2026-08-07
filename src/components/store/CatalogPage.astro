@@ -27,6 +27,7 @@ import FormaCatalog from '../themes/forma/Catalog.astro';
 import StretchCatalog from '../themes/stretch/Catalog.astro';
 import ArceCatalog from '../themes/arce/Catalog.astro';
 import ArgentCatalog from '../themes/argent/Catalog.astro';
+import SillageCatalog from '../themes/sillage/Catalog.astro';
 
 interface Props {
   collection: CollectionConfig;
@@ -81,6 +82,7 @@ const catalogViews = {
   stretch: StretchCatalog,
   arce: ArceCatalog,
   argent: ArgentCatalog,
+  sillage: SillageCatalog,
 } as const;
 const ThemedCatalog = catalogViews[collection.themeId as keyof typeof catalogViews] ?? null;
 ---

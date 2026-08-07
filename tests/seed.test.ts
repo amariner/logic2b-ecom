@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { shopConfig } from '../shop.config';
+import { collections } from '../src/collections';
 import { demoCollection } from '../src/collections/demo';
 import { collectionSeedProducts } from '../seed/collections/index';
 import { demoOrderStatements } from '../seed/demo-orders';
@@ -23,10 +24,48 @@ describe('integridad del seed', () => {
     expect(emptyCategories, 'debe quedar exactamente una categoría vacía para el estado vacío').toHaveLength(1);
   });
 
-  it('slugs únicos y bien formados', () => {
-    const slugs = seedProducts.map((prod) => prod.slug);
+  it('slugs únicos y bien formados en todo el escaparate', () => {
+    const allProducts = [...seedProducts, ...collectionSeedProducts];
+    const slugs = allProducts.map((prod) => prod.slug);
     expect(new Set(slugs).size).toBe(slugs.length);
     for (const slug of slugs) expect(slug).toMatch(/^[a-z0-9-]+$/);
+  });
+
+  it('cada producto de escaparate pertenece a una colección y categoría registradas', () => {
+    const registered = new Map(collections.map((collection) => [collection.id, collection]));
+    for (const product of collectionSeedProducts) {
+      const collection = registered.get(product.collection ?? '');
+      expect(collection, `${product.slug}: colección desconocida`).toBeDefined();
+      expect(
+        collection?.categories.some((category) => category.id === product.category),
+        `${product.slug}: categoría ${product.category} ajena a ${product.collection}`,
+      ).toBe(true);
+      // Guide conserva `cof-*` porque su catálogo es una guía de café; el
+      // resto usa las tres primeras letras de la colección.
+      const expectedPrefix = product.collection === 'guide'
+        ? 'cof'
+        : product.collection?.slice(0, 3);
+      expect(product.slug, `${product.slug}: slug sin namespace de ${product.collection}`).toMatch(
+        new RegExp(`^${expectedPrefix}-`),
+      );
+    }
+  });
+
+  it('cada producto del recorrido compartido resuelve un asset local existente', () => {
+    const assetPaths = new Set(
+      Object.keys(import.meta.glob('../public/images/collections/**/*.{webp,jpg,jpeg,png}'))
+        .map((path) => path.replace('../public', '')),
+    );
+    // Sitēga y STRETCH conservan temporalmente su catálogo/recorrido dedicado
+    // (C14.3), que resuelve las imágenes desde sus adaptadores propios.
+    const dedicatedLegacyRoutes = new Set(['sitega', 'stretch']);
+
+    for (const product of collectionSeedProducts) {
+      const collection = product.collection ?? '';
+      if (dedicatedLegacyRoutes.has(collection)) continue;
+      const image = product.image ?? `/images/collections/${collection}/${product.slug}.webp`;
+      expect(assetPaths.has(image), `${product.slug}: falta ${image}`).toBe(true);
+    }
   });
 
   it('precios y stock: enteros positivos en céntimos', () => {

@@ -1625,6 +1625,22 @@ borrador wiki sigue no publicable. Verificación: `pnpm check` en verde, 44
 suites y **294 tests**, tipos y build. No hay migración, SQL ejecutable, ruta,
 UI, dependencia ni despliegue; E2E/a11y/Lighthouse no aplican.
 
+### Cola de temas · SILLAGE — 🟡 en progreso 2026-08-07
+
+La segunda referencia de `nuevos-temas/cola.json` ya tiene colección, ocho
+productos, tema propio, catálogo editorial, filtros, búsqueda, ficha y recorrido
+local compartido. Se conserva como `planned`: siete piezas de imaginería única
+siguen pendientes porque el generador integrado devolvió errores de red; los
+fallbacks locales mantienen todas las rutas navegables sin recurrir a otra API.
+
+Se cerró todo lo que no depende de generar imágenes: auditoría real contra
+Wrangler en 1440/375, carrito activo, checkout y movimiento reducido, con **9/9
+superficies sin errores ni avisos**. El seed ahora prueba para todas las tiendas
+slugs globalmente únicos, namespace, pertenencia a colección/categoría y assets
+locales del recorrido compartido. Verificación: `pnpm check` en verde, 44 suites
+y **296 tests**, 322 archivos Astro sin diagnósticos y build completo. Sin
+migración, dependencia, cambio de motor, despliegue ni generación de imágenes.
+
 ### Siguiente bloque
 
 **R2.2 — producto-variante: esquema.** Requiere aprobación expresa de la puerta

@@ -605,6 +605,18 @@ carrusel blanco de cinco prendas y un díptico de campaña vertical. La estructu
 y los ocho assets generados con Higgsfield están entregados y verificados. Ficha completa:
 [`docs/temas/argent.md`](temas/argent.md).
 
+### 15 · SILLAGE — *galería olfativa*
+
+📎 **Referencia: [`15-sillage.webp`](../public/images/referencias/15-sillage.webp)**
+
+**Para quién:** perfumería y cosmética, retail selecto y marcas de autor.
+
+Hero sensorial en tarjeta, cuatro novedades sobre gris cálido, producto
+destacado, manifiesto editorial, familias apiladas y cierre de showroom. La
+colección y el recorrido comercial están implementados y verificados; el tema
+permanece en preparación mientras se completa su imaginería única. Ficha completa:
+[`docs/temas/sillage.md`](temas/sillage.md).
+
 ---
 
 ## 6. Tabla resumen
@@ -626,6 +638,7 @@ y los ocho assets generados con Higgsfield están entregados y verificados. Fich
 | 12 | Forma | `#171717` | 4 | **irregular** | **immersive** | **fullbleed** | plain | chips | airy | ✅ |
 | 13 | STRETCH | `#171717` | 4 | uniform | **immersive** | **fullbleed** | divided | chips | airy | ✅ |
 | 14 | ARGENT. | `#1b1b19` | **5** | uniform | **immersive** | **fullbleed** | plain | chips | compact | ✅ |
+| 15 | SILLAGE | `#2f302c` | 4 | uniform | top | **card** | plain | dropdown | airy | 🚧 |
 
 ---
 
@@ -661,7 +674,7 @@ en los que tocan datos.
 2. **Coste de imaginería.** Cada tema quiere su propia estética de producto.
    *Guide* además pide ilustración de línea. Es el capítulo más caro.
 
-3. **Deriva de componentes.** 14 temas × 6 componentes = 84 ficheros si se
+3. **Deriva de componentes.** 16 temas × 6 componentes = 96 ficheros si se
    implementa todo. Mitigación: **herencia de Base, implementar solo lo que el
    tema redefine**. Vigilar en cada sesión.
 

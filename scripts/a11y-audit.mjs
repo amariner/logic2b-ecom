@@ -66,8 +66,10 @@ const DESKTOP = { w: 1440, h: 900, dsf: 1, mobile: false };
 const MOBILE = { w: 375, h: 812, dsf: 1, mobile: true };
 
 // ── Superficies ────────────────────────────────────────────────────────────
-// Las 14 tiendas vivas. `demo` (La Botiga) conserva las rutas históricas.
+// Las 17 tiendas vivas. `demo` (La Botiga) conserva las rutas históricas.
 const STORES = [
+  { id: 'sillage', label: 'SILLAGE', prefix: '/demo/tiendas/sillage', slug: 'sil-cedro-solar', cartKey: 'ecom-cart:sillage' },
+  { id: 'argent', label: 'ARGENT.', prefix: '/demo/tiendas/argent', slug: 'arg-checked-sarong-skirt', cartKey: 'ecom-cart:argent' },
   { id: 'street', label: 'ASFALTO', prefix: '/demo/tiendas/street', slug: 'str-vuelta-9', cartKey: 'ecom-cart:street' },
   { id: 'industrial', label: 'METRIA', prefix: '/demo/tiendas/industrial', slug: 'ind-mv-320', cartKey: 'ecom-cart:industrial' },
   { id: 'natural', label: 'Romer', prefix: '/demo/tiendas/natural', slug: 'nat-crema-rostro', cartKey: 'ecom-cart:natural' },

@@ -676,6 +676,36 @@ export const demoThemes: DemoTheme[] = [
       annotations: true, darkFooter: true,
     },
   },
+  {
+    id: 'sillage',
+    label: 'Sillage',
+    hint: 'Galería olfativa: mucho aire, producto preciso y campaña sensorial.',
+    reference: { name: 'Curated perfumery showroom', file: '15-sillage.webp' },
+    sample: null,
+    bestFor: ['Perfumería y cosmética', 'Retail selecto', 'Marcas de autor'],
+    status: 'planned',
+    vars: {
+      '--color-brand': '#2f302c',
+      '--color-brand-dark': '#141512',
+      '--color-brand-fg': '#ffffff',
+      '--font-display': SYSTEM_SANS,
+      '--font-accent': SYSTEM_SANS,
+      '--tracking-display': '-0.055em',
+      '--weight-display': '500',
+      '--radius-btn': '0.25rem',
+      '--radius-card': '1.1rem',
+      '--border-width': '0px',
+      '--surface-product': '#f0f1ec',
+      '--surface-sunken': '#f5f6f1',
+      '--space-density': '1.25',
+      '--grid-gap': '0.65rem',
+    },
+    layout: {
+      gridCols: 4, gridStyle: 'uniform', nav: 'top', hero: 'card',
+      card: 'plain', filters: 'dropdown', density: 'airy',
+      annotations: false, darkFooter: false,
+    },
+  },
   // new-theme:themes — no borrar: `pnpm new:theme <id>` añade aquí el tema si falta.
 ];
 
