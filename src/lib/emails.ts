@@ -7,7 +7,7 @@
 // corre con `node seed/generate.ts` (ESM con type-stripping), y ahí los imports
 // relativos exigen extensión. Es el mismo patrón que ya usa seed/*.
 import { shopConfig } from '../../shop.config.ts';
-import { escapeHtml, formatEurCents } from './format.ts';
+import { escapeHtml, formatCurrencyCents } from './format.ts';
 
 export type EmailMessage = { to_addr: string; subject: string; body_html: string };
 
@@ -20,6 +20,9 @@ export type OrderEmailData = {
   total_cents: number;
   items: { name_snapshot: string; unit_price_cents: number; qty: number }[];
 };
+
+const formatShopCents = (cents: number): string =>
+  formatCurrencyCents(cents, shopConfig.currency);
 
 const wrap = (title: string, inner: string): string => `<!doctype html>
 <html lang="es"><body style="font-family:Georgia,serif;color:#292524;max-width:560px;margin:0 auto;padding:24px">
@@ -35,11 +38,11 @@ ${data.items
   .map(
     (item) =>
       `<tr><td style="padding:4px 0">${escapeHtml(item.name_snapshot)} × ${item.qty}</td>` +
-      `<td style="text-align:right">${formatEurCents(item.unit_price_cents * item.qty)}</td></tr>`,
+      `<td style="text-align:right">${formatShopCents(item.unit_price_cents * item.qty)}</td></tr>`,
   )
   .join('')}
-<tr><td style="padding:4px 0;border-top:1px solid #d6d3d1">Envío</td><td style="text-align:right;border-top:1px solid #d6d3d1">${formatEurCents(data.shipping_cents)}</td></tr>
-<tr><td style="padding:4px 0;font-weight:bold">Total</td><td style="text-align:right;font-weight:bold">${formatEurCents(data.total_cents)}</td></tr>
+<tr><td style="padding:4px 0;border-top:1px solid #d6d3d1">Envío</td><td style="text-align:right;border-top:1px solid #d6d3d1">${formatShopCents(data.shipping_cents)}</td></tr>
+<tr><td style="padding:4px 0;font-weight:bold">Total</td><td style="text-align:right;font-weight:bold">${formatShopCents(data.total_cents)}</td></tr>
 </table>`;
 
 // Todo dato que pueda venir de un formulario (nombre del cliente, email, tracking
@@ -63,7 +66,7 @@ export function merchantNewOrderEmail(data: OrderEmailData): EmailMessage {
   const orderNumber = escapeHtml(data.order_number);
   return {
     to_addr: shopConfig.email,
-    subject: `Nuevo pedido ${data.order_number} (${formatEurCents(data.total_cents)})`,
+    subject: `Nuevo pedido ${data.order_number} (${formatShopCents(data.total_cents)})`,
     body_html: wrap(
       `Nuevo pedido de ${escapeHtml(data.customer_name)}`,
       `<p style="font-size:14px">Pedido <strong>${orderNumber}</strong> pagado (${escapeHtml(data.email)}). ` +

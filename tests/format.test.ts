@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { escapeHtml, formatEurCents, jsonLdScript } from '../src/lib/format';
+import { escapeHtml, formatCurrencyCents, formatEurCents, jsonLdScript } from '../src/lib/format';
 import { shopConfig } from '../shop.config';
 
 describe('formatEurCents', () => {
@@ -9,8 +9,8 @@ describe('formatEurCents', () => {
     expect(formatEurCents(1234).replace(/\s/g, ' ')).toBe('12,34 €');
   });
 
-  it('usa la divisa de shop.config.ts, no un literal hardcodeado', () => {
-    const formatted = formatEurCents(100);
+  it('permite inyectar la divisa del despliegue sin leer configuración concreta', () => {
+    const formatted = formatCurrencyCents(100, shopConfig.currency);
     const symbol = new Intl.NumberFormat('es-ES', { style: 'currency', currency: shopConfig.currency.toUpperCase() })
       .formatToParts(1)
       .find((p) => p.type === 'currency')?.value;

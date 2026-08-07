@@ -5,7 +5,7 @@
  */
 import Shop from '../../layouts/Shop.astro';
 import { storePaths, type CollectionConfig } from '../../collections';
-import { demoJson, getDemoProductSummaries } from '../../lib/demo-catalog';
+import { demoJson, getDemoProductSummaries } from '../../composition/demo-catalog';
 import { shopConfig } from '../../../shop.config';
 
 interface Props {
@@ -127,7 +127,7 @@ const demoCommerceJson = demoJson({
       DEMO_POSTAL_STORAGE_KEY,
       type DemoShippingConfig,
     } from '../../lib/demo-commerce';
-    import type { DemoProductSummary } from '../../lib/demo-catalog';
+    import type { DemoProductSummary } from '../../composition/demo-catalog';
     import { formatEurCents as eur } from '../../lib/format';
 
     const form = document.querySelector<HTMLFormElement>('[data-checkout-form]')!;

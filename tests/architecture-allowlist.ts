@@ -20,22 +20,7 @@ export type ArchitectureException = {
  * Deuda exacta observada al cerrar R1.1. No admite globs ni directorios.
  * Una infracción nueva debe corregirse; no se añade a esta lista.
  */
-export const ARCHITECTURE_ALLOWLIST = [
-  {
-    file: 'src/lib/demo-catalog.ts',
-    rule: 'legacy-inverted-import',
-    reason: 'El adaptador de demo materializa fixtures mediante imports directos desde seed.',
-    owner: 'storefront',
-    removalBlock: 'R1.12',
-  },
-  {
-    file: 'src/lib/format.ts',
-    rule: 'module-dependency',
-    reason: 'El helper compartido obtiene la moneda desde la configuración concreta; retirarlo exige inyectar contexto en presentación y notificaciones.',
-    owner: 'architecture',
-    removalBlock: 'R1.12',
-  },
-] as const satisfies readonly ArchitectureException[];
+export const ARCHITECTURE_ALLOWLIST: readonly ArchitectureException[] = Object.freeze([]);
 
 /**
  * Sello de la línea base: la allowlist puede eliminar claves, no inventarlas.

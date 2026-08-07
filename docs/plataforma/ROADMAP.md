@@ -38,7 +38,7 @@ improvisan durante la implementación.
 | Ola | Resultado | Estado |
 |---|---|---|
 | R0 | Investigación, taxonomía, matriz, roadmap y estrategia wiki | ✅ cerrado 2026-08-06 |
-| R1 | Cimientos modulares y observables | 🟡 11/12 bloques cerrados |
+| R1 | Cimientos modulares y observables | ✅ cerrado 2026-08-07 |
 | R2 | Núcleo transaccional profesional | ⬜ |
 | R3 | Operación de pedidos, inventario y fulfillment | ⬜ |
 | R4 | Precios, promociones y modelos de venta | ⬜ |
@@ -78,7 +78,7 @@ conviertan el motor en una colección de condicionales.
 | 9 | **R1.9 Observabilidad base** | Logger estructurado, errores tipados, métricas de checkout/webhook/outbox/email e IDs visibles en runbook; sin PII. | ✅ 2026-08-07 |
 | 10 | **R1.10 Registro de integraciones** | Estado/config no secreta/health/última sync/error; secretos fuera de D1; adaptadores actuales registrados. | ✅ 2026-08-07 |
 | 11 | **R1.11 Contrato de jobs** | Ejecución única/recurrente, lock, timeout, reintento y replay; cron de demo migra sin regresión. | ✅ 2026-08-07 |
-| 12 | **R1.12 Consolidación R1** | Tests de presets, fallos, concurrencia y clonabilidad; docs de crear módulo; ficha wiki de arquitectura; auditoría de dependencias. | ⬜ |
+| 12 | **R1.12 Consolidación R1** | Tests de presets, fallos, concurrencia y clonabilidad; docs de crear módulo; ficha wiki de arquitectura; auditoría de dependencias. | ✅ 2026-08-07 |
 
 ## R2 — Núcleo transaccional profesional
 
@@ -526,10 +526,40 @@ Migración remota aplicada y producción desplegada en
 tienda principal, ARGENT y sitemap; E2E remoto de aislamiento 27/27 en verde.
 La tabla remota existe y parte con cero ejecuciones antes del siguiente tick.
 
+### R1.12 — Consolidación R1 — ✅ 2026-08-07
+
+1. La allowlist arquitectónica baja de 2 a **0**. `demo-catalog` recibe un
+   contrato puro y composición conecta los seeds; `format` recibe divisa y
+   notificaciones inyecta la configuración del despliegue.
+2. Los checks impiden cualquier import runtime→seed fuera de composición. El
+   cierre mide 0 excepciones, 0 SQL en presentación, 0 ciclos y 0 SDKs
+   restringidos fuera de adaptadores/composición.
+3. `platform-consolidation.test.ts` clona `minimal`, `standard` y `advanced`
+   con dos identidades independientes, fija sus módulos, separa jobs cliente y
+   demo, y prueba el fallo temprano de una combinación inválida.
+4. Las pruebas R1 de manifiestos, registros, fallos, carreras, mismo tick,
+   leases, retry/dead-letter, replay e idempotencia siguen ejecutándose juntas.
+5. `CREAR_MODULO_Y_JOB.md` documenta el recorrido completo, puertas de decisión
+   y evidencia mínima. La ficha wiki y el mapa arquitectónico ya describen el
+   estado consolidado sin convertirlo en una promesa pública.
+6. La auditoría confirma 11 dependencias directas y ningún paquete nuevo. El
+   audit del lockfile sí registra 10 avisos altos transitivos/directos ligados a
+   Astro 5, Wrangler/Miniflare, Sharp y JS-YAML; no se ocultan ni se fuerzan
+   overrides. Una migración coordinada a Astro 6 queda como puerta técnica antes
+   del siguiente despliegue.
+7. `pnpm check` pasa con 44 suites, 294 tests, tipos y build. No cambian compra,
+   admin, UI, esquema ni producción; E2E/a11y/Lighthouse y deploy no aplican.
+
+PLT-002 sigue `parcial`: manifest, presets, rutas, navegación, jobs, efectos y
+composición son reales, pero publicación/importación de configuración pertenece
+a bloques posteriores. R1 queda cerrado sin declarar capacidades futuras.
+
 ## 7. Siguiente bloque
 
-### R1.12 — Consolidación R1
+### R2.1 — Modelo objetivo y plan de migración
 
-Cerrar tests de presets, fallos, concurrencia y clonabilidad; documentar cómo
-crear un módulo/job, completar la ficha wiki de arquitectura y ejecutar la
-auditoría final de dependencias antes de abrir R2.
+Diseñar ERD y ADR para producto-variante, inventario, pagos, fulfillment y
+reembolsos; preparar backfill, compatibilidad con seeds/export y ensayo de
+restore. Es una sesión de diseño: **cero código de escritura y cero migración
+viva**. La actualización de Astro permanece como puerta separada antes de
+desplegar, no se mezcla con el modelo transaccional.

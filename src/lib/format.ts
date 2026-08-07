@@ -1,10 +1,14 @@
 /** Formateo de dinero para UI. El dato siempre viaja en céntimos enteros. */
 
-// Extensión .ts explícita: format entra en la cadena del seed (node ESM). Ver emails.ts.
-import { shopConfig } from '../../shop.config.ts';
+export function formatCurrencyCents(cents: number, currency: string, locale = 'es-ES'): string {
+  return new Intl.NumberFormat(locale, {
+    style: 'currency',
+    currency: currency.toUpperCase(),
+  }).format(cents / 100);
+}
 
 export function formatEurCents(cents: number): string {
-  return new Intl.NumberFormat('es-ES', { style: 'currency', currency: shopConfig.currency.toUpperCase() }).format(cents / 100);
+  return formatCurrencyCents(cents, 'EUR');
 }
 
 /**

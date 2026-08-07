@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { shopConfig } from '../shop.config';
-import { getDemoProduct, getDemoProducts, getDemoProductSummaries } from '../src/lib/demo-catalog';
+import { getDemoProduct, getDemoProducts, getDemoProductSummaries } from '../src/composition/demo-catalog';
 import { buildDemoQuote } from '../src/lib/demo-commerce';
 
 const shipping = {

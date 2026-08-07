@@ -16,7 +16,11 @@ evidence:
   - test: tests/capability-access.test.ts
   - test: tests/module-registry.test.ts
   - test: tests/integration-registry.test.ts
+  - test: tests/job-runtime.test.ts
+  - test: tests/platform-consolidation.test.ts
   - document: docs/plataforma/arquitectura/README.md
+  - document: docs/plataforma/CREAR_MODULO_Y_JOB.md
+  - document: docs/plataforma/AUDITORIA_DEPENDENCIAS_R1.md
   - configuration: platform.config.ts
 related:
   - modulos-ecommerce-activables
@@ -29,8 +33,9 @@ draft: true
 
 > **Borrador interno. No genera ruta, sitemap ni canonical.** URL futura:
 > `/funcionalidades/arquitectura-modular-ecommerce/`. Estado público permitido
-> hoy: **En estudio**. R1.1 fija arquitectura y checks; R1.2–R1.10 entregan
-> manifest, registro, eventos/outbox, audit log, observabilidad e integraciones.
+> hoy: **En estudio**. R1 está cerrado y aporta manifest, registro,
+> eventos/outbox, audit log, observabilidad, integraciones, jobs y checks de
+> clonabilidad; la publicación editorial sigue siendo una decisión separada.
 
 ## Resumen
 
@@ -38,13 +43,13 @@ Logic2B Ecommerce se diseña como un monolito modular desplegado de forma
 independiente para cada comercio. El objetivo es ampliar capacidades sin añadir
 pantallas, jobs ni configuración a quien no las necesita. Hoy existen el
 aislamiento por proyecto, un núcleo transaccional probado y una fuente tipada
-por despliegue que gobierna rutas, navegación y composición de módulos. Falta
-cerrar el contrato de jobs y consolidar R1 antes de publicar esta arquitectura.
+por despliegue que gobierna rutas, navegación y composición de módulos. R1 está
+consolidado; R2 completará las primitivas transaccionales sin un cambio de motor.
 
 ## Estado visible
 
-**En estudio.** No debe publicarse como «Incluido» ni «Activable» hasta cerrar
-R1, disponer de manifest/registro operativo y aportar evidencias por capacidad.
+**En estudio.** R1 está cerrado, pero esta página no debe publicarse como una
+promesa global: cada capacidad conserva el estado y la evidencia de la matriz.
 
 ### Disponible hoy
 
@@ -66,10 +71,12 @@ R1, disponer de manifest/registro operativo y aportar evidencias por capacidad.
   reset interno de demo y barrido cliente del outbox ya usan el mismo runner;
 - demo completa mediante composición propia sin jobs comerciales, efectos
   comerciales ni mutaciones; solo conserva su mantenimiento de fixtures.
+- allowlist arquitectónica vacía: cero ciclos, SQL en presentación o imports
+  de SDK/seed fuera de sus adaptadores y puntos de composición;
+- guía reproducible para crear módulos/jobs y matriz de clonabilidad por preset.
 
 ### Diseñado, todavía no disponible
 
-- consolidación, auditoría final y guía de crear módulo/job (R1.12);
 - sondeos remotos, replay/desconexión y panel de integraciones (olas posteriores).
 
 ## El problema operativo
@@ -79,7 +86,7 @@ mayor tampoco debería migrar de motor cada vez que incorpora inventario,
 mercados o una integración. Sin fronteras, cada nueva función añade
 condicionales, duplica reglas y hace difícil saber qué está realmente activo.
 
-## Cómo funciona el contrato y qué falta conectar
+## Cómo funciona el contrato
 
 1. La configuración del despliegue ya declara capacidades y parámetros.
 2. El manifest ya valida dependencias y combinaciones antes de componer.
@@ -91,6 +98,7 @@ condicionales, duplica reglas y hace difícil saber qué está realmente activo.
 7. El registro de jobs compone mantenimiento por despliegue o trabajo protegido
    por el flag `jobs`; cada tick queda deduplicado y recuperable en D1.
 8. La retirada conserva exportación/retención y deja de ejecutar efectos.
+9. Los presets se clonan por deployment id sin compartir estado ni secretos.
 
 ## Qué verá el comercio
 
@@ -100,21 +108,23 @@ una integración debe traducirse en una acción comprensible, no en jerga de SDK
 
 ## Qué ocurrirá por detrás
 
-Los casos de uso dependerán de puertos; D1, Stripe, Resend y otros proveedores
-serán adaptadores. El dominio no conocerá Astro, HTTP ni SDKs. Precio, stock,
-pedido y pago conservarán propietarios distintos y se coordinarán en aplicación
-o por eventos versionados cuando R1.5 los introduzca.
+Los casos de uso dependen de puertos allí donde R1 ya los ha migrado; D1,
+Stripe, Resend y otros proveedores son adaptadores. El dominio no conoce Astro,
+HTTP ni SDKs. Precio, stock, pedido y pago conservan propietarios distintos y se
+coordinan en aplicación o por eventos versionados. R2 completará la separación
+física de variantes, inventario, pagos y fulfillment.
 
 ## Casos y excepciones
 
-- Capacidad ausente/desactivada: sin ruta ni navegación; jobs y efectos se
-  conectarán al mismo contrato con el registro/dispatcher.
+- Capacidad ausente/desactivada: sin ruta ni navegación; jobs y efectos quedan
+  fuera de la composición mediante el mismo manifest.
 - Configuración inválida: fallo temprano; no arranque parcialmente silencioso.
 - Integración caída: estado degradado y fallback seguro si está definido.
 - Reintento/duplicado: idempotencia del caso de uso y del adaptador.
 - Retirada: no equivale a borrar datos con obligación de conservación.
 
-La allowlist de R1.1 documenta deuda existente; no permite crear deuda nueva.
+La línea base de R1.1 se conserva, pero la allowlist está vacía; no permite
+crear deuda nueva.
 
 ## Configuración e integraciones
 
@@ -143,8 +153,8 @@ No. Cada cliente conserva despliegue, base, secretos, dominio y observabilidad.
 ### ¿Un módulo desactivado sigue ejecutándose?
 
 El contrato validado exige que no tenga flags de rutas, navegación, jobs ni
-efectos. Rutas y navegación ya tienen corte efectivo; jobs y efectos se
-conectarán al registro y sus ejecutores posteriores.
+efectos. Los cuatro cortes están conectados a la composición; la demo pública
+solo conserva el job interno de mantenimiento de fixtures.
 
 ### ¿Ya se pueden activar todos los módulos descritos?
 
@@ -158,4 +168,4 @@ Relacionar con módulos activables, integraciones observables y seguridad. Al
 publicar, la CTA será solicitar análisis del proyecto; no habrá CTA de
 autoactivación mientras el servicio sea gestionado por Logic2B.
 
-**Revisión:** arquitectura · 2026-08-07 · revisar tras R1.12 o en 90 días.
+**Revisión:** arquitectura · 2026-08-07 · revisar tras R2.1 o en 90 días.

@@ -192,8 +192,12 @@ function findViolations(): Violation[] {
       if (FORBIDDEN_DOMAIN_GLOBAL.test(source)) add(file, 'domain-platform-global', 'global de plataforma');
     }
 
-    if (file === 'src/lib/demo-catalog.ts' && imports.some((edge) => edge.specifier.startsWith('../../seed/'))) {
-      add(file, 'legacy-inverted-import', 'runtime -> seed');
+    if (!file.startsWith('src/composition/')) {
+      const sourceDirectory = file.split('/').slice(0, -1).join('/');
+      const importsSeed = imports.some((edge) =>
+        edge.specifier.startsWith('.') && normalizePath(`${sourceDirectory}/${edge.specifier}`).startsWith('seed/'),
+      );
+      if (importsSeed) add(file, 'legacy-inverted-import', 'runtime -> seed fuera de composición');
     }
 
     if (file.startsWith('src/pages/') && /\.(?:prepare|batch|exec)\s*\(/.test(source)) {
@@ -277,6 +281,10 @@ function findCycles(): string[][] {
 }
 
 describe('architecture boundaries (R1.1)', () => {
+  it('cierra R1 sin excepciones arquitectónicas aceptadas', () => {
+    expect(ARCHITECTURE_ALLOWLIST).toEqual([]);
+  });
+
   it('classifies every legacy src/lib file so new flat modules cannot appear silently', () => {
     const libFiles = [...sourceByProjectPath.keys()].filter((file) => file.startsWith('src/lib/') && file.endsWith('.ts'));
     expect(libFiles.filter((file) => !(file in LEGACY_MODULES))).toEqual([]);

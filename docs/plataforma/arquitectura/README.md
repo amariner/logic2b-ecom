@@ -1,6 +1,6 @@
 # Arquitectura modular comprobable
 
-> Fuente de verdad arquitectónica desde R1.1, actualizada al cierre de R1.10 el
+> Fuente de verdad arquitectónica desde R1.1, consolidada al cierre de R1.12 el
 > **2026-08-07**. Fija las fronteras que los bloques siguientes deben respetar. No describe
 > como migradas las capas que aún siguen planas.
 
@@ -38,7 +38,7 @@ de adaptadores e infraestructura siguen reservados a sus bloques.
 | Grupo actual | Archivos | Observación |
 |---|---|---|
 | Seguridad/plataforma | `admin-auth`, `rate-limit`, `backup` | Web Crypto y D1 aparecen en helpers planos. |
-| Catálogo/demo | `db`, `demo-catalog` | D1 y fixtures seed siguen planos; el registro de escaparates ya vive con sus descriptores en `src/collections/`. |
+| Catálogo/demo | `db`, `demo-catalog` | D1 sigue plano; `demo-catalog` recibe fixtures por contrato y composición, sin importar `seed/`. |
 | Presentación storefront | `demo-themes`, `theme-catalog`, `nav`, `not-found`, `storefront-contract` | Registro de temas, descubrimiento del catálogo y detalles HTTP viven junto al dominio. |
 | Carrito/demo | `cart-client`, `demo-commerce` | Simulación pública local, deliberadamente separada del runtime D1. |
 | Precio/quote/envío | `pricing`, `shipping`, `quote` | La aritmética es pura; `quote` obtiene producto y tarifa directamente de D1. |
@@ -62,7 +62,8 @@ aparición nueva rompe el test arquitectónico.
 
 ```text
 escaparate público
-  componentes store -> demo-catalog(seed inmutable)
+  componentes store -> composition/demo-catalog -> demo-catalog(contrato puro)
+                                          -> seed inmutable (adaptador)
                     -> demo-commerce -> cart-client/localStorage/sessionStorage
                     -X-> APIs reales / D1 / Stripe / Resend
 
@@ -99,8 +100,9 @@ tarjeta. R1.1 no altera ninguno de esos contratos.
 ### Demo, motor, colecciones y temas
 
 - `src/components/store/*Page.astro` es la presentación compartida.
-- `src/lib/demo-catalog.ts` materializa fixtures inmutables desde `seed/`; la
-  compra pública se simula localmente en `demo-commerce.ts`.
+- `src/lib/demo-catalog.ts` materializa fixtures recibidos por contrato;
+  `src/composition/demo-catalog.ts` conecta `seed/` como adaptador. La compra
+  pública se simula localmente en `demo-commerce.ts`.
 - `src/collections/*.ts` contiene identidad, copy, categorías y tema de cada
   escaparate; tres colecciones conservan componentes/rutas excepcionales.
 - `src/components/themes/<id>/` solo debe cambiar presentación y usar hooks del
@@ -137,19 +139,14 @@ tarjeta. R1.1 no altera ninguno de esos contratos.
 ### Acoplamientos y ciclos
 
 No hay ciclos en los imports estáticos locales bajo `src/` en la línea base.
-Sí hay inversiones o filtraciones localizadas:
+R1.12 deja la allowlist en **cero excepciones**: no hay import runtime→seed
+fuera de composición, dependencia del shared-kernel hacia configuración, SQL
+en presentación ni SDK externo fuera de adaptadores. Catálogo, stock, precio,
+datos de pago y fulfillment aún comparten físicamente tablas/filas; es deuda de
+propiedad para R2, no una excepción a la dirección de imports.
 
-1. `demo-catalog.ts` (runtime de presentación) importa `seed/`;
-2. `format.ts` (compartido) importa configuración concreta;
-3. `payment-transition.ts` crea emails directamente en vez de producir un
-   resultado consumible por notificaciones;
-4. el webhook importa tipos del SDK Stripe;
-5. tres rutas conocen todavía D1 y SQL;
-6. catálogo, stock, precio, datos de pago y fulfillment comparten físicamente
-   tablas/filas, aunque su propiedad lógica será distinta.
-
-Las excepciones exactas viven en [`DEUDA.md`](DEUDA.md) y
-`tests/architecture-allowlist.ts`. No se permiten comodines ni carpetas.
+El cierre y la línea base histórica viven en [`DEUDA.md`](DEUDA.md) y
+`tests/architecture-allowlist.ts`. No se permiten comodines ni nuevas claves.
 
 ## 3. Mapa objetivo
 
@@ -246,6 +243,10 @@ R1.5 añade `event-context.ts` (reloj y fuente de ids reales) y
 los healthchecks de Stripe, Resend y CSV. R1.11 incorpora el registro de jobs:
 el reset de fixtures es mantenimiento interno de demo y el barrido del outbox
 exige `AUT-002.jobs` en un despliegue cliente.
+R1.12 añade `demo-catalog.ts` como composición explícita de los fixtures y
+deja la allowlist arquitectónica vacía; la guía
+[`CREAR_MODULO_Y_JOB.md`](../CREAR_MODULO_Y_JOB.md) fija cómo extender estas
+primitivas sin reabrir dependencias invertidas.
 
 ## 5. Transición incremental
 
@@ -258,8 +259,8 @@ exige `AUT-002.jobs` en un despliegue cliente.
 | R1.6–R1.7 ✅ | ADR/esquema aprobados; mutación, evento y entregas atómicos; dispatcher con lease, retry, dead-letter, replay interno y retención. | El barrido de 5 min queda conectado al runner canónico en R1.11. |
 | R1.8–R1.9 ✅ | Audit log transaccional redactado y señales JSON tipadas para checkout/webhook/outbox/email; demo y tráfico inválido no generan filas ni logs operativos. | Alertas/SLO quedan en R11.5; consulta operativa solo por control plane autorizado. |
 | R1.10 ✅ | Registro inmutable de Stripe, Resend y CSV; health local, config allowlisted, última sync/error seguros y credenciales reducidas a presencia. | Panel, replay/desconexión y sondeos remotos de permisos/latencia quedan para R9. |
-| R1.11 ✅ | Registro de jobs por módulo; ejecución única/recurrente con D1 lock, timeout, retry/dead-letter, replay y retención; los dos crons existentes usan el runner. | No hay panel ni endpoint de operación; R1.12 documenta cómo crear módulos/jobs. |
-| R1.12 | Cerrar imports planos restantes, SQL de presentación residual y documentación de crear módulo. | Solo deuda que requiera olas R2+ por cambio de esquema. |
+| R1.11 ✅ | Registro de jobs por módulo; ejecución única/recurrente con D1 lock, timeout, retry/dead-letter, replay y retención; los dos crons existentes usan el runner. | No hay panel ni endpoint de operación; la extensión queda documentada en la guía R1.12. |
+| R1.12 ✅ | Allowlist vacía, composición explícita de fixtures, formateo puro, matriz de presets/clones, guía de módulo/job y auditoría de dependencias. | Solo deuda de propiedad física o cambios de esquema reservados a R2+. |
 
 No hay big-bang: cada caso de uso conserva tests y contrato HTTP mientras se
 mueve verticalmente (puerto, adaptador, fachada y presentación). La demo local
@@ -274,6 +275,9 @@ En cada consolidación se registran cuatro números obtenidos por el test:
 2. archivos de ruta/página con SQL (no puede subir);
 3. ciclos estáticos locales (debe permanecer en cero);
 4. imports de SDK/plataforma fuera de adaptadores/composición (no puede subir).
+
+Resultado R1.12: **0 excepciones · 0 archivos de presentación con SQL · 0
+ciclos · 0 imports restringidos fuera de adaptadores/composición**.
 
 Una reducción de carpetas o más interfaces no cuenta como mejora si esos cuatro
 indicadores y los tests funcionales no mejoran.
@@ -290,6 +294,7 @@ indicadores y los tests funcionales no mejoran.
 - [`ADR-0008`](../adr/0008-audit-log-seguro-d1.md)
 - [`ADR-0009`](../adr/0009-observabilidad-segura-workers-logs.md)
 - [`ADR-0010`](../adr/0010-registro-integraciones-seguro.md)
+- [`ADR-0011`](../adr/0011-jobs-duraderos-d1.md)
 
 ## 8. Trazabilidad decisión → evidencia
 
@@ -298,15 +303,17 @@ indicadores y los tests funcionales no mejoran.
 | Monolito y aislamiento por despliegue | ADR-0001 + `platform.config.ts`; manifest/config independiente y validado sin crear infraestructura compartida. |
 | `presentation -> application -> domain` | `layer-direction`, `domain-technology-import` y `domain-platform-global`. |
 | Grafo entre módulos y API pública | `module-dependency`, `module-private-import` y clasificación obligatoria de todo `src/lib/*.ts`. |
-| Puertos/adaptadores; SDK/SQL fuera de presentación | `restricted-sdk-import` y `presentation-sql`; excepciones exactas en `DEUDA.md`; allowlist reducida de 18 a 9 en R1.3, a 7 en R1.4 y a 2 en R1.5, con `presentation-sql` en cero. |
+| Puertos/adaptadores; SDK/SQL fuera de presentación | `restricted-sdk-import` y `presentation-sql`; allowlist reducida de 18 a 9 en R1.3, a 7 en R1.4, a 2 en R1.5 y a **0** en R1.12. |
 | Sobre de evento versionado y sin PII | ADR-0006 + `tests/event-envelope.test.ts` y `tests/order-events.test.ts`: correlación/causación, clave de idempotencia estable, fallo temprano, proyección del timeline idéntica y consumidor de notificaciones desacoplado. |
 | Emisor único por evento y suscripción declarada | `module-registry.ts` + `tests/order-events.test.ts`: prefijo del módulo, sin duplicados, y suscripción a un hecho inexistente rechazada al arrancar. |
 | Lifecycle de seis estados | ADR-0004 + `tests/capability-manifest.test.ts`: seis estados, flags, degradación, dependencias y fallo temprano ejecutables. |
 | Registro y composición de módulos | `module-registry.ts` + `tests/module-registry.test.ts`: propietario único por capacidad, semver, dependencias/ciclos, superficies y presets operativos. |
 | Observabilidad sin PII ni amplificación | ADR-0009 + tests de observabilidad: contrato cerrado, checkout/webhook reales, demo y firma inválida antes de D1/logger, y ausencia de endpoint/exportador. |
 | Integraciones registradas sin secretos | ADR-0010 + `tests/integration-registry.test.ts`: tres adaptadores reales, propietarios/healthchecks únicos, configuración incompleta degradada y serialización sin credenciales. |
-| Transición sin big-bang | allowlist sellada a las claves R1.1, cero ciclos y `pnpm check`; contratos HTTP/runtime no se editan en este bloque. |
+| Jobs duraderos por capacidad | ADR-0011 + tests de registro/runtime: propietario, manifest, mismo tick, claim concurrente, lease, timeout, retry/dead-letter y replay. |
+| Clonabilidad por preset | `tests/platform-consolidation.test.ts`: dos deployment ids por preset, composición estable, demo sin jobs comerciales y fallo temprano. |
+| Transición sin big-bang | allowlist vacía pero sellada a la línea base R1.1, cero ciclos y `pnpm check`; contratos HTTP/runtime conservados. |
 
-Las reglas aún no comprobables porque su artefacto no existe (activación de
-infraestructura, jobs y sondeos remotos de health) tienen bloque de salida
-explícito; no se presentan como garantías ya implementadas.
+Las reglas aún no comprobables porque su artefacto no existe (publicación de
+configuración y sondeos remotos de health) tienen bloque de salida explícito;
+no se presentan como garantías ya implementadas.

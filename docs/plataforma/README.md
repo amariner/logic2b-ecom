@@ -40,6 +40,10 @@ venta o servicios logísticos propios.
   módulos, dependencias permitidas y transición incremental fijados en R1.1.
 - [`arquitectura/DEUDA.md`](arquitectura/DEUDA.md): allowlist exacta y bloques
   responsables de eliminarla.
+- [`CREAR_MODULO_Y_JOB.md`](CREAR_MODULO_Y_JOB.md): recorrido operativo para
+  declarar, componer, probar y documentar un módulo o trabajo nuevo.
+- [`AUDITORIA_DEPENDENCIAS_R1.md`](AUDITORIA_DEPENDENCIAS_R1.md): inventario,
+  imports y advisories del lockfile al cierre de R1.
 - [`adr/`](adr/): decisiones de arquitectura modular aceptadas y propuestas.
 - [`sql/0004_event_outbox.proposed.sql`](sql/0004_event_outbox.proposed.sql):
   evidencia exacta de la propuesta R1.6 aprobada; la migración viva es
@@ -99,6 +103,9 @@ venta o servicios logísticos propios.
 - [`../../src/composition/job-runner.ts`](../../src/composition/job-runner.ts):
   conecta los Cron Triggers existentes con el reset demo y el outbox cliente
   según manifest, sin rutas ni configuración visible.
+- [`../../src/composition/demo-catalog.ts`](../../src/composition/demo-catalog.ts):
+  conecta los fixtures versionados con el catálogo público simulado sin que el
+  runtime importe seeds.
 
 ## Reglas de verdad
 

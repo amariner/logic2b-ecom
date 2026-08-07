@@ -63,7 +63,7 @@ reconciliación se conserva abajo por contexto.
 | 11 | Landing V2 «nivel Awwwards» + negocio + funnel + docs | 🟡 En curso | 2026-07-24 | **F11.1, F11.3 (2 sesiones), F11.4, F11.5, F11.6, F11.7 y F11.8 (primera pasada + pase a11y/contenido desde cloud 2026-07-24) hechos**, más F11.8b (auditor de a11y, cloud), F11.2a-1 (tienda ASFALTO / tema Street), F11.2a-2 (tienda METRIA / tema Industrial) F11.2a-3 (tienda ROMER / tema Natural) y **F11.2a-4 (tienda KALIBRE / tema Specs, local 2026-07-25) — con la que F11.2a queda CERRADA (10/10 tiendas)**; y **F11.8c (Lighthouse citable + OG de WhatsApp + URLs sin redirección, local 2026-07-26)**; y **F11.8d–e (tabla de Lighthouse cerrada y desplegada: 7 de 8 superficies a 100×4, la landing entre ellas en móvil y escritorio, local 2026-07-27)**; de la cola de F11.8 solo queda la submission a Awwwards (decisión de pago: Andreu). Detalle por bloque abajo. (ver «Fase 11» abajo). **Plan maestro completo en [`docs/PLAN_FASE11_LANDING_V2.md`](PLAN_FASE11_LANDING_V2.md)**: bloques F11.0–F11.8 ejecutables por sesiones independientes. **Decisiones D1–D6 APROBADAS por Andreu (2026-07-23)**: JS propio ≤15 KB sin deps, capturas con browser tools en local, dirección C «Ocho tiendas, un motor», escalera de precios (Lite 590 / Kit 1.900+39 / A medida 3.400+59), WhatsApp+email, Lite publicado sin construir. Prompt de arranque: [`docs/PROMPT_FASE11.md`](PROMPT_FASE11.md). Integra 9B.5/9B.6 (imaginería y temas restantes) como prerequisito del hero |
 | 8 | Pulido de la demo (backlog abajo) | 🟡 En curso | 2026-07-19 | Backlog técnico agotado; solo quedan decisiones y pasos locales de Andreu (ver «Decisiones pendientes» y `docs/PROMPT_CLOUD.md`). Últimas tandas: novena (race de idempotencia en el pago, PII enumerable en `/demo/gracias`, cancelación de pedido pagado sin devolver stock), décima (la misma race en el PATCH de admin, campos vacíos guardados como 0, login sin rate limit), undécima (diagrama móvil de `/arquitectura`, hedge del plazo de entrega, tokens de tema en `/demo/reset`, terminología «envío»), duodécima (aviso de corte en pedidos del admin, cabeceras sin wrap a 375px, leftover «portes», token de radio del carrito, contraste del botón eliminar, H1 en valenciano, checklist de producción) y decimotercera (misma race de idempotencia en `checkout.session.expired`, divisa hardcodeada a EUR fuera de Stripe, cobertura de test de `quoteCart`/PATCH admin/emails) y decimocuarta (config parcial de Stripe → cobro sin cumplimiento, emails duplicados bajo concurrencia, `payment_status` del webhook, color de marca centralizado en `shop.config.ts`, contraste/tema en carrito y checkout) — ver sección «Fase 8» |
 | 12 | Logic2B Ecommerce: renombrado, reposicionamiento y docs de dos visiones | 🟡 En curso | 2026-08-06 | **F12.0–F12.5 cerrados:** renombrado, nuevo argumento en landing/dossier, canal agencias en marca blanca y manual ampliado del gestor. Solo queda F12.6 (consolidación). **Plan maestro en [`docs/PLAN_FASE12_LOGIC2B_ECOMMERCE.md`](PLAN_FASE12_LOGIC2B_ECOMMERCE.md)**. |
-| 13 | Plataforma modular: del gestor mínimo a paridad extrema de capacidad | 🟡 En curso | 2026-08-07 | **R0 y R1.1–R1.11 cerrados:** manifest/módulos, eventos/outbox, audit log, observabilidad, integraciones y jobs duraderos sin superficie HTTP. Siguiente: R1.12, consolidación de R1. Fuente de verdad en [`docs/plataforma/`](plataforma/README.md). |
+| 13 | Plataforma modular: del gestor mínimo a paridad extrema de capacidad | 🟡 En curso | 2026-08-07 | **R0 y R1 completos:** cimientos modulares consolidados, allowlist vacía, jobs duraderos y 294 tests. Siguiente: R2.1, modelo objetivo y plan de migración transaccional. Fuente de verdad en [`docs/plataforma/`](plataforma/README.md). |
 
 ## Repo y entornos
 
@@ -114,7 +114,8 @@ de producto pasa a la Fase 13 y se ejecuta un bloque R por sesión.
 | R1.9 | Observabilidad base | ✅ 2026-08-07 — JSON tipado, métricas correlacionadas y tráfico hostil silencioso |
 | R1.10 | Registro de integraciones | ✅ 2026-08-07 — Stripe/Resend/CSV, health local y snapshots sin secretos |
 | R1.11 | Contrato de jobs duraderos | ✅ 2026-08-07 — D1 lock, timeout, retry/dead-letter, replay y crons migrados |
-| R1.12+ | Consolidación R1 y resto de olas | ⬜ ver plan maestro |
+| R1.12 | Consolidación R1 | ✅ 2026-08-07 — allowlist 0, presets/clones, guía de módulos/jobs y auditoría de dependencias |
+| R2+ | Núcleo transaccional y resto de olas | ⬜ ver plan maestro |
 
 ## Fase 12 — Logic2B Ecommerce: renombrado, reposicionamiento y las dos visiones
 
@@ -1569,14 +1570,42 @@ Verificado con migración Wrangler D1 local, Cron Trigger real mediante
 tienda principal, ARGENT y sitemap, y E2E remoto de aislamiento 27/27. Al no
 cambiar UI, a11y/Lighthouse no aplican.
 
+### R1.12 — consolidación R1 — ✅ cerrado 2026-08-07
+
+R1 cierra sin excepciones arquitectónicas. El catálogo demo deja de importar
+seeds: el contrato puro vive en `src/lib/demo-catalog.ts` y composición conecta
+los fixtures versionados. El formateador compartido deja de leer
+`shop.config.ts`; notificaciones inyecta la divisa. La allowlist baja de 18 en
+R1.1 a **0**, con 0 SQL en presentación, 0 ciclos y 0 SDKs restringidos fuera de
+adaptadores/composición.
+
+La nueva matriz de consolidación clona `minimal`, `standard` y `advanced` bajo
+dos identidades independientes, fija la composición esperada, mantiene los
+jobs comerciales fuera de `minimal` y demo, y falla temprano ante una capacidad
+sin dependencias. Se conserva la evidencia concurrente de outbox/jobs: claim
+único, mismo tick, lease, timeout, retry/dead-letter, replay e idempotencia.
+
+[`CREAR_MODULO_Y_JOB.md`](plataforma/CREAR_MODULO_Y_JOB.md) deja el recorrido
+operativo y [`AUDITORIA_DEPENDENCIAS_R1.md`](plataforma/AUDITORIA_DEPENDENCIAS_R1.md)
+registra 11 dependencias directas y el audit reproducible. Este último detecta
+10 avisos altos en el árbol actual, ligados a Astro 5 y transitivas del
+adaptador; el salto compatible a Astro 6 queda como puerta técnica antes del
+siguiente despliegue, no como override silencioso dentro de R1.12.
+
+Verificación: `pnpm check` en verde, 44 suites y **294 tests**, tipos y build.
+No hay migración, dependencia, cambio HTTP/UI o despliegue; E2E/a11y/Lighthouse
+no aplican. R1 queda cerrado sin cambiar estados de capacidades que todavía son
+parciales.
+
 ### Siguiente bloque
 
-**R1.12 — consolidación R1.** Cerrar tests de presets, fallos, concurrencia y
-clonabilidad; documentar cómo crear módulo/job, completar la ficha wiki de
-arquitectura y auditar dependencias antes de abrir R2. Criterio completo en
-[`docs/plataforma/ROADMAP.md`](plataforma/ROADMAP.md#r1--cimientos-modulares-y-observables).
+**R2.1 — modelo objetivo y plan de migración.** Diseñar ERD y ADR para
+producto-variante, inventario, pagos, fulfillment y reembolsos, incluidos
+backfill, compatibilidad con seeds/export y ensayo de restore. Es diseño con
+**cero código de escritura y cero migración viva**. Criterio completo en
+[`docs/plataforma/ROADMAP.md`](plataforma/ROADMAP.md#r2--núcleo-transaccional-profesional).
 
-**F12.6 queda en el carril comercial, no bloquea R1.12.** Una sesión local de
+**F12.6 queda en el carril comercial, no bloquea R2.1.** Una sesión local de
 mantenimiento creará el índice general de docs, revisará OG y ejecutará
 Lighthouse contra producción en las indexables, incluidas `/precios` y
 `/agencias`.
