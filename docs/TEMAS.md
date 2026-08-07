@@ -602,8 +602,7 @@ campañas editoriales.
 
 Hero de retrovisor a sangre con navegación superpuesta, wordmark condensado,
 carrusel blanco de cinco prendas y un díptico de campaña vertical. La estructura
-está implementada; la generación integrada de los ocho assets se reanuda antes
-de abrir el siguiente elemento de la cola. Ficha completa:
+y los ocho assets generados con Higgsfield están entregados y verificados. Ficha completa:
 [`docs/temas/argent.md`](temas/argent.md).
 
 ---
@@ -626,7 +625,7 @@ de abrir el siguiente elemento de la cola. Ficha completa:
 | 11 | Sitēga | `#111111` | 4 | **irregular** | **immersive** | **fullbleed** | plain | chips | airy | ✅ |
 | 12 | Forma | `#171717` | 4 | **irregular** | **immersive** | **fullbleed** | plain | chips | airy | ✅ |
 | 13 | STRETCH | `#171717` | 4 | uniform | **immersive** | **fullbleed** | divided | chips | airy | ✅ |
-| 14 | ARGENT. | `#1b1b19` | **5** | uniform | **immersive** | **fullbleed** | plain | chips | compact | ⏳ assets |
+| 14 | ARGENT. | `#1b1b19` | **5** | uniform | **immersive** | **fullbleed** | plain | chips | compact | ✅ |
 
 ---
 

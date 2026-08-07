@@ -5,7 +5,7 @@
 - **Colección:** `src/collections/argent.ts`
 - **Catálogo:** 5 productos · slugs `arg-*`
 - **Ruta:** `/demo/tiendas/argent`
-- **Estado:** presentación implementada; assets OpenAI bloqueados por error de red
+- **Estado:** ✅ listo
 
 ## Lectura de la referencia
 
@@ -27,16 +27,21 @@ No se tocó API, D1, precios, portes, checkout ni emails. Catálogo y carrito
 siguen siendo la simulación local compartida. La ficha de producto hereda
 `ProductPage` y los tokens de ARGENT.; no necesita una ruta paralela.
 
-## Imaginería OpenAI/Codex
+## Imaginería Higgsfield
 
-Modo requerido: herramienta integrada `imagegen`, con la captura como referencia
-de composición. Ocho prompts independientes, ejecutados por parejas según
-`docs/NUEVOS_TEMAS.md`. Invariantes comunes: fotografía o producto originales,
-sin UI, logos ajenos, texto no solicitado, watermark ni fondos sucios.
+El generador integrado de Codex falló dos veces por red. El usuario autorizó
+expresamente Higgsfield el 2026-08-07. Se generaron ocho prompts independientes
+en cuatro lotes secuenciales de dos, con pausa de ocho segundos entre lotes.
 
-El 2026-08-07 el endpoint integrado falló dos veces con `network error` antes de
-producir el hero. La skill impide cambiar silenciosamente al CLI/API; por eso el
-tema sigue `planned` y no se han creado sustitutos de menor fidelidad.
+- Hero: Soul Cinematic, 2K, 16:9.
+- Dos campañas: Product Photoshoot, `virtual_model_tryout`, 2:3.
+- Cinco prendas: Product Photoshoot, `product_shot`, 3:4.
+- Todos los finales: WebP de alta calidad dentro de la colección.
+
+Cada zona se recortó de la referencia antes de generar. Esto fue necesario
+porque el primer intento con la captura completa produjo una web dentro de la
+imagen; ese resultado se descartó. Los productos finales están aislados sobre
+blanco y las campañas usan personas ficticias, sin logos ni marcas de agua.
 
 ## Coste y verificación
 
@@ -44,5 +49,5 @@ tema sigue `planned` y no se han creado sustitutos de menor fidelidad.
 - Motor rozado: solo el registro compartido de vistas de catálogo
 - `ProductDetail.astro`: eliminado; hereda la ficha común
 - `pnpm check`: ✅ 307 Astro files, 276 tests y build en verde (2026-08-07)
-- 1440 px, 375 px y modo oscuro: pendientes tras disponer de assets
-- Estado público: `planned` hasta que existan y se revisen los ocho WebP
+- 1440 px y 375 px: assets y composición verificados
+- Estado público: `ready`

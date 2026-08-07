@@ -653,7 +653,7 @@ export const demoThemes: DemoTheme[] = [
     reference: { name: 'ARILGENT homepage study', file: '14-argent.webp' },
     sample: null,
     bestFor: ['Moda de autor', 'Streetwear premium', 'Marcas con campañas visuales'],
-    status: 'planned',
+    status: 'ready',
     vars: {
       '--color-brand': '#1b1b19',
       '--color-brand-dark': '#000000',

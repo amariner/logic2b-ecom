@@ -21,7 +21,8 @@ Cuando el usuario diga **«créame un nuevo tema»**:
 6. Guardar una copia WebP de la referencia en
    `public/images/referencias/<numero>-<id>.webp`; es material interno.
 7. Generar imaginería propia con la herramienta integrada `imagegen` de
-   Codex/OpenAI. No usar Higgsfield y no cambiar a CLI/API sin autorización.
+   Codex/OpenAI por defecto. Solo cambiar de proveedor o a CLI/API cuando el
+   usuario lo autorice expresamente; documentar la excepción en la ficha.
 8. Generar en lotes de dos llamadas secuenciales. Tras cada pareja, esperar
    ocho segundos antes de iniciar la siguiente. Cada producto o escena usa su
    propio prompt; no se simulan assets distintos con variantes de una llamada.
@@ -54,6 +55,13 @@ Los productos se generan aislados, centrados y con fondo blanco uniforme. Las
 campañas conservan el encuadre y lenguaje fotográfico de la referencia, pero
 usan personas ficticias y no incorporan logos ajenos.
 
+**Resultado de la prueba:** los ocho WebP se generaron con Higgsfield por
+petición expresa del usuario. Hero: Soul Cinematic 2K. Campañas y prendas:
+Product Photoshoot sobre GPT Image 2. Se recortó cada región de la referencia
+antes de enviarla para impedir que el modelo confundiera el asset con la web
+completa. El primer intento de hero, que sí incluyó una web compuesta, se
+descartó y no forma parte del proyecto.
+
 ## Integración con el desarrollo principal
 
 La integración se hace al terminar la cola, no tema a tema:
@@ -64,4 +72,3 @@ La integración se hace al terminar la cola, no tema a tema:
 3. Ejecutar `pnpm check` y la verificación visual de todos los temas afectados.
 4. Fusionar la rama completa en el desarrollo principal solo cuando la cola y
    las fichas estén cerradas. No borrar la rama antes de confirmar la fusión.
-
