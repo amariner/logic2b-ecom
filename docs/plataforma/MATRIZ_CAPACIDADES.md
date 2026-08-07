@@ -21,7 +21,7 @@ su alcance requiera.
 |---|---|---|---|---|---|
 | PLT-001 | Despliegue aislado por cliente | núcleo | P0 | parcial | Código compartido; base, secretos, dominio y observabilidad aislados. |
 | PLT-002 | Manifest de capacidades | núcleo | P0 | parcial | Fuente tipada que gobierna rutas, navegación y composición de módulos; faltan publicación/importación de configuración. |
-| PLT-003 | Registro de módulos y dependencias | núcleo | P0 | parcial | Registro ejecutable con propietario de capacidades, dependencias, permisos, superficies, eventos y healthchecks de integraciones; jobs se completan en R1.11. |
+| PLT-003 | Registro de módulos y dependencias | núcleo | P0 | actual | Registro ejecutable con propietario único de capacidades, eventos, jobs y healthchecks; dependencias, permisos y superficies validadas al componer. |
 | PLT-004 | Configuración validada por entorno | núcleo | P0 | parcial | Esquema tipado, valores por cliente y fallo temprano ante combinaciones inválidas. |
 | PLT-005 | Migraciones reproducibles y reversibles | núcleo | P0 | parcial | Forward migration probada, backup y procedimiento de rollback/restore. |
 | PLT-006 | Eventos de dominio versionados | núcleo | P0 | actual | Los cinco hechos de pedido se emiten, persisten sin PII y conservan identidad, versión, causa, correlación e idempotencia. |

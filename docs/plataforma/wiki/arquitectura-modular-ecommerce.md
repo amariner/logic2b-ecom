@@ -62,13 +62,14 @@ R1, disponer de manifest/registro operativo y aportar evidencias por capacidad.
 - eventos/outbox, audit log y observabilidad segura ya operativos;
 - registro de Stripe, Resend y CSV con healthchecks locales y snapshots sin
   credenciales;
-- demo completa mediante composición propia sin jobs, efectos comerciales ni
-  mutaciones.
+- jobs únicos/recurrentes con D1 lock, timeout, retry/dead-letter y replay;
+  reset interno de demo y barrido cliente del outbox ya usan el mismo runner;
+- demo completa mediante composición propia sin jobs comerciales, efectos
+  comerciales ni mutaciones; solo conserva su mantenimiento de fixtures.
 
 ### Diseñado, todavía no disponible
 
-- contrato y ejecutor de jobs (R1.11), más consolidación y guía de módulo
-  (R1.12);
+- consolidación, auditoría final y guía de crear módulo/job (R1.12);
 - sondeos remotos, replay/desconexión y panel de integraciones (olas posteriores).
 
 ## El problema operativo
@@ -87,7 +88,9 @@ condicionales, duplica reglas y hace difícil saber qué está realmente activo.
 5. El registro reúne los módulos y sus superficies conocidas sin activar
    adaptadores ni infraestructura.
 6. Healthchecks locales ya marcan integraciones degradadas sin relajar seguridad.
-7. La retirada conserva exportación/retención y deja de ejecutar efectos.
+7. El registro de jobs compone mantenimiento por despliegue o trabajo protegido
+   por el flag `jobs`; cada tick queda deduplicado y recuperable en D1.
+8. La retirada conserva exportación/retención y deja de ejecutar efectos.
 
 ## Qué verá el comercio
 

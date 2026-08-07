@@ -122,8 +122,9 @@ tarjeta. R1.1 no altera ninguno de esos contratos.
 - `shop.config.ts`: configuración legacy compartida de la tienda; aún la
   importan presentación, plantillas, precios/envío y numeración.
 - `wrangler.jsonc` y `src/env.d.ts`: bindings, variables y secretos esperados.
-- `migrations/0001..0005`: esquema D1 vigente; outbox y audit log son
-  migraciones aditivas y la demo no escribe en ellas por tráfico público.
+- `migrations/0001..0006`: esquema D1 vigente; outbox, audit log y ejecuciones
+  de jobs son aditivos. El tráfico público demo no escribe en ellos; solo el
+  Cron Trigger interno registra su reset.
 - `src/platform/operations/`: audit log D1 y observabilidad JSON R1.9; el logger
   no importa D1, no acepta campos arbitrarios y no publica superficie HTTP.
 - `src/integrations/registry.ts`: registro R1.10 de los tres adaptadores reales;
@@ -242,7 +243,9 @@ R1.5 añade `event-context.ts` (reloj y fuente de ids reales) y
 `order-operations.ts`, el primer caso de uso compuesto: junta el hecho que emite
 `orders` con el consumidor de `notifications` y confirma ambos efectos en una
 única batch. Es el único punto que conoce los dos módulos a la vez. R1.10 enlaza
-los healthchecks de Stripe, Resend y CSV; los jobs siguen vacíos hasta R1.11.
+los healthchecks de Stripe, Resend y CSV. R1.11 incorpora el registro de jobs:
+el reset de fixtures es mantenimiento interno de demo y el barrido del outbox
+exige `AUT-002.jobs` en un despliegue cliente.
 
 ## 5. Transición incremental
 
@@ -252,9 +255,10 @@ los healthchecks de Stripe, Resend y CSV; los jobs siguen vacíos hasta R1.11.
 | R1.3 ✅ | Rutas/nav consultan capacidades; SQL tocado pasa a casos de uso/adaptadores. | Mutación de pago y outbox conservan contrato y tablas. |
 | R1.4 ✅ | Descriptor/registro único de 16 módulos; composition root resuelve módulos operativos y el validador rechaza duplicados/ciclos. Navegación y rutas se derivan del registro. | Seeds, temas, adaptadores y contratos futuros no se mueven ni se inventan. |
 | R1.5 ✅ | Sobre versionado en `shared-kernel`; los cinco hechos de pedido lo emiten y el timeline pasa a ser su proyección; notificaciones consume eventos sin depender de pedidos; el webhook recibe un evento normalizado y las tres rutas de escritura pasan a casos de uso compuestos. | El stock lo sigue escribiendo el adaptador de pedidos hasta R2.7. |
-| R1.6–R1.7 ✅ | ADR/esquema aprobados; mutación, evento y entregas atómicos; dispatcher con lease, retry, dead-letter, replay interno y retención. | El job canónico entra en R1.11; el barrido de 5 min es el puente mínimo documentado. |
+| R1.6–R1.7 ✅ | ADR/esquema aprobados; mutación, evento y entregas atómicos; dispatcher con lease, retry, dead-letter, replay interno y retención. | El barrido de 5 min queda conectado al runner canónico en R1.11. |
 | R1.8–R1.9 ✅ | Audit log transaccional redactado y señales JSON tipadas para checkout/webhook/outbox/email; demo y tráfico inválido no generan filas ni logs operativos. | Alertas/SLO quedan en R11.5; consulta operativa solo por control plane autorizado. |
-| R1.10 ✅ | Registro inmutable de Stripe, Resend y CSV; health local, config allowlisted, última sync/error seguros y credenciales reducidas a presencia. | Panel, replay/desconexión y sondeos remotos de permisos/latencia quedan para R9; jobs entran en R1.11. |
+| R1.10 ✅ | Registro inmutable de Stripe, Resend y CSV; health local, config allowlisted, última sync/error seguros y credenciales reducidas a presencia. | Panel, replay/desconexión y sondeos remotos de permisos/latencia quedan para R9. |
+| R1.11 ✅ | Registro de jobs por módulo; ejecución única/recurrente con D1 lock, timeout, retry/dead-letter, replay y retención; los dos crons existentes usan el runner. | No hay panel ni endpoint de operación; R1.12 documenta cómo crear módulos/jobs. |
 | R1.12 | Cerrar imports planos restantes, SQL de presentación residual y documentación de crear módulo. | Solo deuda que requiera olas R2+ por cambio de esquema. |
 
 No hay big-bang: cada caso de uso conserva tests y contrato HTTP mientras se

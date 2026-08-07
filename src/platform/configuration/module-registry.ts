@@ -58,14 +58,13 @@ const ARCHITECTURE_WIKI = 'docs/plataforma/wiki/arquitectura-modular-ecommerce.m
 
 /**
  * Catálogo canónico de módulos. Los arrays vacíos son declaraciones explícitas:
- * jobs y healthchecks se incorporan en R1.11 y R1.10; no se inventan contratos
- * antes de esos bloques. R1.5 llena `events`/`subscriptions` únicamente con los
- * hechos que el motor emite y consume HOY.
+ * R1.5, R1.10 y R1.11 solo llenan events, healthchecks y jobs que el motor
+ * emite o ejecuta HOY; no se inventan contratos futuros.
  */
 export const MODULE_DESCRIPTORS = [
   {
     id: 'platform-configuration', version: '1.0.0', capabilities: ['PLT-001', 'PLT-004'], dependencies: [],
-    permissions: [], events: [], subscriptions: [], jobs: [], healthchecks: [], wikiLinks: [ARCHITECTURE_WIKI], navigation: [], routes: [],
+    permissions: [], events: [], subscriptions: [], jobs: ['platform-configuration.demo-fixture-reset'], healthchecks: [], wikiLinks: [ARCHITECTURE_WIKI], navigation: [], routes: [],
   },
   {
     id: 'platform-security', version: '1.0.0', capabilities: ['SEC-001', 'SEC-003', 'SEC-004', 'SEC-012'],
@@ -133,7 +132,7 @@ export const MODULE_DESCRIPTORS = [
     dependencies: ['platform-configuration'], permissions: ['notifications.read'], events: [],
     // Reacciona a hechos de `orders` SIN depender de `orders`: esa es la razón
     // de ser del sobre. Quien los une es el composition root.
-    subscriptions: ['orders.order_paid', 'orders.order_shipped'], jobs: [], healthchecks: ['notifications.resend-email'],
+    subscriptions: ['orders.order_paid', 'orders.order_shipped'], jobs: ['notifications.event-outbox-sweep'], healthchecks: ['notifications.resend-email'],
     wikiLinks: [ARCHITECTURE_WIKI],
     navigation: [{ id: 'emails', href: '/demo/admin/emails', label: 'Emails', order: 40, capabilityId: 'MAR-003' }],
     routes: [{ match: 'exact', path: '/demo/admin/emails', capabilityId: 'MAR-003' }],
@@ -173,7 +172,8 @@ export type AdminNavigationId = (typeof MODULE_DESCRIPTORS)[number]['navigation'
 export type ModuleRegistryIssue = Readonly<{
   code: 'invalid-descriptor' | 'duplicate-module' | 'unknown-dependency' | 'dependency-cycle' |
     'duplicate-capability' | 'missing-capability' | 'duplicate-navigation' | 'duplicate-route' |
-    'duplicate-event' | 'foreign-event' | 'unknown-subscription' | 'duplicate-healthcheck';
+    'duplicate-event' | 'foreign-event' | 'unknown-subscription' | 'duplicate-job' |
+    'foreign-job' | 'duplicate-healthcheck';
   path: string;
   message: string;
 }>;
@@ -184,6 +184,8 @@ export type ModuleRegistry = Readonly<{
   capabilityOwners: Readonly<Record<CapabilityId, ModuleId>>;
   /** Emisor único de cada tipo de evento, igual que `capabilityOwners`. */
   eventOwners: Readonly<Record<string, ModuleId>>;
+  /** Propietario único de cada job ejecutable. */
+  jobOwners: Readonly<Record<string, ModuleId>>;
   /** Propietario único de cada healthcheck ejecutable. */
   healthcheckOwners: Readonly<Record<string, ModuleId>>;
   navigation: readonly ModuleNavigationItem[];
@@ -203,6 +205,7 @@ const descriptorFields = ['id', 'version', 'capabilities', 'dependencies', 'perm
 
 /** Mismo patrón que el sobre: `modulo.hecho`, con el prefijo del módulo emisor. */
 const EVENT_TYPE_PATTERN = /^[a-z][a-z0-9_]*\.[a-z][a-z0-9_]*$/;
+const JOB_ID_PATTERN = /^[a-z][a-z0-9-]*\.[a-z][a-z0-9-]*$/;
 const HEALTHCHECK_ID_PATTERN = /^[a-z][a-z0-9-]*\.[a-z][a-z0-9-]*$/;
 
 function eventPrefixOf(moduleId: string): string {
@@ -243,6 +246,7 @@ export function validateModuleRegistry(input: unknown): readonly ModuleRegistryI
   const seenModules = new Set<string>();
   const capabilityOwners = new Map<string, string>();
   const eventOwners = new Map<string, string>();
+  const jobOwners = new Map<string, string>();
   const healthcheckOwners = new Map<string, string>();
   const subscriptions: { path: string; type: string }[] = [];
   const navigationIds = new Set<string>();
@@ -303,6 +307,20 @@ export function validateModuleRegistry(input: unknown): readonly ModuleRegistryI
     if (Array.isArray(raw.subscriptions)) {
       for (const event of raw.subscriptions) {
         if (typeof event === 'string') subscriptions.push({ path: `${path}.subscriptions`, type: event });
+      }
+    }
+    if (Array.isArray(raw.jobs)) {
+      for (const job of raw.jobs) {
+        if (typeof job !== 'string' || !JOB_ID_PATTERN.test(job)) {
+          issues.push({ code: 'invalid-descriptor', path: `${path}.jobs`, message: `Job inválido: ${String(job)}.` });
+          continue;
+        }
+        if (!job.startsWith(`${id}.`)) {
+          issues.push({ code: 'foreign-job', path: `${path}.jobs`, message: `${job} no pertenece al espacio de ${id}.` });
+        }
+        if (jobOwners.has(job)) {
+          issues.push({ code: 'duplicate-job', path: `${path}.jobs`, message: `${job} ya pertenece a ${jobOwners.get(job)}.` });
+        } else jobOwners.set(job, id);
       }
     }
     if (Array.isArray(raw.healthchecks)) {
@@ -393,6 +411,9 @@ export function createModuleRegistry(input: unknown = MODULE_DESCRIPTORS): Modul
   const eventOwners = Object.freeze(Object.fromEntries(descriptors.flatMap((descriptor) =>
     descriptor.events.map((event) => [event, descriptor.id]),
   ))) as Readonly<Record<string, ModuleId>>;
+  const jobOwners = Object.freeze(Object.fromEntries(descriptors.flatMap((descriptor) =>
+    descriptor.jobs.map((job) => [job, descriptor.id]),
+  ))) as Readonly<Record<string, ModuleId>>;
   const healthcheckOwners = Object.freeze(Object.fromEntries(descriptors.flatMap((descriptor) =>
     descriptor.healthchecks.map((healthcheck) => [healthcheck, descriptor.id]),
   ))) as Readonly<Record<string, ModuleId>>;
@@ -400,7 +421,7 @@ export function createModuleRegistry(input: unknown = MODULE_DESCRIPTORS): Modul
   const routes = Object.freeze(descriptors.flatMap((descriptor) => descriptor.routes).toSorted((a, b) =>
     (a.match === b.match ? b.path.length - a.path.length : a.match === 'exact' ? -1 : 1),
   ));
-  return Object.freeze({ descriptors, byId, capabilityOwners, eventOwners, healthcheckOwners, navigation, routes });
+  return Object.freeze({ descriptors, byId, capabilityOwners, eventOwners, jobOwners, healthcheckOwners, navigation, routes });
 }
 
 export function resolveOperationalModules(

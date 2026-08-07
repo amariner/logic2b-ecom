@@ -4,6 +4,7 @@ import migration2 from '../migrations/0002_collections_and_product_capabilities.
 import migration3 from '../migrations/0003_contact_requests.sql?raw';
 import migration4 from '../migrations/0004_event_outbox.sql?raw';
 import migration5 from '../migrations/0005_audit_log.sql?raw';
+import migration6 from '../migrations/0006_platform_job_runs.sql?raw';
 
 type SqlValue = string | number | bigint | null | Uint8Array;
 
@@ -58,7 +59,7 @@ export class SqliteD1 {
 
   constructor() {
     this.sqlite.exec('PRAGMA foreign_keys = ON;');
-    for (const migration of [migration1, migration2, migration3, migration4, migration5]) this.sqlite.exec(migration);
+    for (const migration of [migration1, migration2, migration3, migration4, migration5, migration6]) this.sqlite.exec(migration);
   }
 
   prepare(sql: string): D1PreparedStatement {

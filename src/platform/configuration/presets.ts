@@ -10,6 +10,7 @@ const INTERNAL: CapabilityFlags = { routes: false, navigation: false, jobs: fals
 const ROUTE: CapabilityFlags = { routes: true, navigation: false, jobs: false, sideEffects: false };
 const NAVIGATION: CapabilityFlags = { routes: true, navigation: true, jobs: false, sideEffects: false };
 const EFFECT: CapabilityFlags = { routes: false, navigation: false, jobs: false, sideEffects: true };
+const JOB_EFFECT: CapabilityFlags = { routes: false, navigation: false, jobs: true, sideEffects: true };
 const ROUTE_EFFECT: CapabilityFlags = { routes: true, navigation: false, jobs: false, sideEffects: true };
 const NAVIGATION_EFFECT: CapabilityFlags = { routes: true, navigation: true, jobs: false, sideEffects: true };
 
@@ -46,7 +47,7 @@ const STANDARD_CAPABILITIES = {
     config: { demoDelivery: 'outbox', clientDelivery: 'provider' },
   },
   'AUT-001': { state: 'active', flags: INTERNAL },
-  'AUT-002': { state: 'active', flags: EFFECT },
+  'AUT-002': { state: 'active', flags: JOB_EFFECT },
   'INT-001': {
     state: 'active',
     flags: EFFECT,

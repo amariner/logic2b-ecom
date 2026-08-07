@@ -59,6 +59,8 @@ venta o servicios logísticos propios.
 - [`wiki/integraciones-observables.md`](wiki/integraciones-observables.md):
   borrador interno R1.10; distingue registro/health local de panel, replay y
   sondeos remotos todavía pendientes.
+- [`adr/0011-jobs-duraderos-d1.md`](adr/0011-jobs-duraderos-d1.md): contrato
+  R1.11 de identidad, lock, timeout, retry, dead-letter y replay sobre D1.
 - [`../../platform.config.ts`](../../platform.config.ts): manifest del
   despliegue actual, basado en un preset técnico y sin valores secretos.
 - [`../../src/platform/configuration/`](../../src/platform/configuration/):
@@ -92,6 +94,11 @@ venta o servicios logísticos propios.
 - [`../../src/integrations/registry.ts`](../../src/integrations/registry.ts):
   registro R1.10 de Stripe, Resend y CSV con healthchecks y snapshots sin
   secretos, persistencia o superficie HTTP.
+- [`../../src/platform/jobs/`](../../src/platform/jobs/): registro, contrato,
+  repositorio D1 y runner R1.11 para ejecuciones únicas o recurrentes.
+- [`../../src/composition/job-runner.ts`](../../src/composition/job-runner.ts):
+  conecta los Cron Triggers existentes con el reset demo y el outbox cliente
+  según manifest, sin rutas ni configuración visible.
 
 ## Reglas de verdad
 

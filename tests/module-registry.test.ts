@@ -45,6 +45,18 @@ describe('registro de módulos (R1.4)', () => {
     expect(validateModuleRegistry(descriptors).map((issue) => issue.code)).toContain('duplicate-healthcheck');
   });
 
+  it('asigna cada job R1.11 a un único módulo propietario', () => {
+    expect(MODULE_REGISTRY.jobOwners).toEqual({
+      'platform-configuration.demo-fixture-reset': 'platform-configuration',
+      'notifications.event-outbox-sweep': 'notifications',
+    });
+    const descriptors = mutableDescriptors();
+    (descriptors[1]!.jobs as string[]).push('platform-configuration.demo-fixture-reset');
+    const codes = validateModuleRegistry(descriptors).map((issue) => issue.code);
+    expect(codes).toContain('foreign-job');
+    expect(codes).toContain('duplicate-job');
+  });
+
   it('deriva navegación y rutas del registro con prioridad estable', () => {
     expect(MODULE_REGISTRY.navigation.map(({ id, order }) => [id, order])).toEqual([
       ['pedidos', 10], ['productos', 20], ['envios', 30], ['emails', 40],

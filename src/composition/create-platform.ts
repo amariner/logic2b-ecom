@@ -19,15 +19,24 @@ import {
   type IntegrationRegistry,
   validateIntegrationRegistry,
 } from '../integrations';
+import {
+  JOB_DESCRIPTORS,
+  createJobRegistry,
+  resolveScheduledJobs,
+  type JobDescriptor,
+  type JobRegistry,
+} from '../platform/jobs';
 
 export type Platform = Readonly<{
   manifest: ResolvedCapabilityManifest;
   registry: ModuleRegistry;
   integrationRegistry: IntegrationRegistry;
+  jobRegistry: JobRegistry;
   modules: readonly OperationalModule[];
   module: (id: ModuleId) => OperationalModule | null;
   hasModule: (id: ModuleId) => boolean;
   integration: (id: IntegrationId) => IntegrationRegistry['byId'][IntegrationId];
+  scheduledJobs: (cron: string) => readonly JobDescriptor[];
   capability: <Id extends CapabilityId>(id: Id) => ResolvedCapabilityEntry<Id>;
   capabilityState: (id: CapabilityId) => CapabilityState;
   isCapabilityActive: (id: CapabilityId) => boolean;
@@ -48,14 +57,22 @@ export function createPlatform(
   const manifest = resolveCapabilityManifest(input);
   const modules = resolveOperationalModules(registry, manifest);
   const modulesById = new Map(modules.map((module) => [module.descriptor.id, module]));
+  const jobRegistry = createJobRegistry(JOB_DESCRIPTORS, registry);
   return Object.freeze({
     manifest,
     registry,
     integrationRegistry,
+    jobRegistry,
     modules,
     module: (id: ModuleId): OperationalModule | null => modulesById.get(id) ?? null,
     hasModule: (id: ModuleId): boolean => modulesById.has(id),
     integration: (id: IntegrationId) => integrationRegistry.byId[id],
+    scheduledJobs: (cron: string): readonly JobDescriptor[] => resolveScheduledJobs(
+      jobRegistry,
+      new Set(modulesById.keys()),
+      manifest,
+      cron,
+    ),
     capability: <Id extends CapabilityId>(id: Id): ResolvedCapabilityEntry<Id> => manifest.capabilities[id],
     capabilityState: (id: CapabilityId): CapabilityState => manifest.capabilities[id].state,
     isCapabilityActive: (id: CapabilityId): boolean => manifest.capabilities[id].state === 'active',

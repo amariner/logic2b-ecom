@@ -16,3 +16,4 @@ para ocultar una decisión no es válido.
 | [0008](0008-audit-log-seguro-d1.md) | Audit log seguro y sin superficie pública | accepted |
 | [0009](0009-observabilidad-segura-workers-logs.md) | Observabilidad segura sobre Workers Logs | accepted |
 | [0010](0010-registro-integraciones-seguro.md) | Registro de integraciones seguro y sin secretos | accepted |
+| [0011](0011-jobs-duraderos-d1.md) | Jobs duraderos y bloqueados sobre D1 | accepted |

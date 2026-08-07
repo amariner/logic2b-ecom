@@ -38,7 +38,7 @@ improvisan durante la implementación.
 | Ola | Resultado | Estado |
 |---|---|---|
 | R0 | Investigación, taxonomía, matriz, roadmap y estrategia wiki | ✅ cerrado 2026-08-06 |
-| R1 | Cimientos modulares y observables | 🟡 10/12 bloques cerrados |
+| R1 | Cimientos modulares y observables | 🟡 11/12 bloques cerrados |
 | R2 | Núcleo transaccional profesional | ⬜ |
 | R3 | Operación de pedidos, inventario y fulfillment | ⬜ |
 | R4 | Precios, promociones y modelos de venta | ⬜ |
@@ -77,7 +77,7 @@ conviertan el motor en una colección de condicionales.
 | 8 | **R1.8 Audit log transversal** | Actor, acción, entidad, diff redacted y correlation id; pagos, pedidos, producto y admin cubiertos; sin export HTTP por decisión de seguridad. | ✅ 2026-08-07 |
 | 9 | **R1.9 Observabilidad base** | Logger estructurado, errores tipados, métricas de checkout/webhook/outbox/email e IDs visibles en runbook; sin PII. | ✅ 2026-08-07 |
 | 10 | **R1.10 Registro de integraciones** | Estado/config no secreta/health/última sync/error; secretos fuera de D1; adaptadores actuales registrados. | ✅ 2026-08-07 |
-| 11 | **R1.11 Contrato de jobs** | Ejecución única/recurrente, lock, timeout, reintento y replay; cron de demo migra sin regresión. | ⬜ |
+| 11 | **R1.11 Contrato de jobs** | Ejecución única/recurrente, lock, timeout, reintento y replay; cron de demo migra sin regresión. | ✅ 2026-08-07 |
 | 12 | **R1.12 Consolidación R1** | Tests de presets, fallos, concurrencia y clonabilidad; docs de crear módulo; ficha wiki de arquitectura; auditoría de dependencias. | ⬜ |
 
 ## R2 — Núcleo transaccional profesional
@@ -493,9 +493,38 @@ Producción confirmada: `46334b51-4236-42fa-b6c8-81c323b264ae`.
 Producción confirmada: `a10992f2-aed0-4339-a5b1-a962b4e52b1d`; smoke 200 en
 portada, arquitectura, tienda demo y sitemap.
 
+### R1.11 — Contrato de jobs — ✅ 2026-08-07
+
+1. El registro modular declara dos jobs reales con propietario único y un
+   registro ejecutable valida id, módulo, capacidad, alcance, modo, trigger,
+   timeout, intentos y backoffs antes de componer.
+2. La migración aditiva `0006_platform_job_runs.sql`, autorizada por Andreu,
+   crea una fila por ejecución deduplicada y tres índices para claim, lease e
+   historial. No contiene payload, PII, secretos ni errores crudos.
+3. Ejecuciones únicas y recurrentes comparten el runner. El claim D1 es
+   atómico, la lease cerca el ACK por propietario y el timeout entrega
+   `AbortSignal`; un Worker viejo no puede confirmar tras perder el lock.
+4. Cuatro backoffs llevan el quinto fallo a `dead`. El replay interno reinicia
+   intentos e incrementa evidencia; los éxitos se purgan a 30 días por lotes y
+   dead-letter no se elimina automáticamente.
+5. El reset de fixtures es mantenimiento de despliegue solo para `demo`; no
+   activa flags comerciales. El barrido del outbox exige `AUT-002.jobs=true`
+   y modo `client`. Manifest y `DEMO_MODE` deben coincidir o el cron falla
+   cerrado sin crear una fila.
+6. `src/worker.ts` deja de contener condicionales de cada cron y delega en el
+   composition root. El reset conserva horario, seed completo e idempotencia;
+   el historial operativo no se borra al reemplazar fixtures.
+7. ADR-0011 fija at-least-once, límites y alternativas. No hay endpoint, panel,
+   navegación, dependencia, servicio o coste mensual nuevo.
+8. Verificación: migración Wrangler sobre D1 local y Cron Trigger real mediante
+   `__scheduled` (200, ejecución `succeeded` al primer intento); `pnpm check`
+   en verde con 43 suites, 288 tests, tipos y build. Compra/admin/UI no cambian,
+   así que E2E/a11y/Lighthouse no aplican.
+
 ## 7. Siguiente bloque
 
-### R1.11 — Contrato de jobs
+### R1.12 — Consolidación R1
 
-Ejecución única y recurrente con lock, timeout, reintento y replay. El cron de
-reset de la demo migra al contrato sin cambiar su aislamiento ni comportamiento.
+Cerrar tests de presets, fallos, concurrencia y clonabilidad; documentar cómo
+crear un módulo/job, completar la ficha wiki de arquitectura y ejecutar la
+auditoría final de dependencias antes de abrir R2.
