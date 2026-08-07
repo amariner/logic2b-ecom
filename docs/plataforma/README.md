@@ -56,6 +56,9 @@ venta o servicios logísticos propios.
   para correlacionar checkout, webhook, outbox y email sin PII.
 - [`wiki/observabilidad-operativa-ecommerce.md`](wiki/observabilidad-operativa-ecommerce.md):
   borrador interno R1.9; no promete alertas hasta que R11.5 las implemente.
+- [`wiki/integraciones-observables.md`](wiki/integraciones-observables.md):
+  borrador interno R1.10; distingue registro/health local de panel, replay y
+  sondeos remotos todavía pendientes.
 - [`../../platform.config.ts`](../../platform.config.ts): manifest del
   despliegue actual, basado en un preset técnico y sin valores secretos.
 - [`../../src/platform/configuration/`](../../src/platform/configuration/):
@@ -86,6 +89,9 @@ venta o servicios logísticos propios.
   contrato cerrado de métricas y errores operativos sin campos arbitrarios.
 - [`../../src/platform/operations/infrastructure/console-observability.ts`](../../src/platform/operations/infrastructure/console-observability.ts):
   adaptador JSON a Workers Logs; no usa D1 ni expone endpoint.
+- [`../../src/integrations/registry.ts`](../../src/integrations/registry.ts):
+  registro R1.10 de Stripe, Resend y CSV con healthchecks y snapshots sin
+  secretos, persistencia o superficie HTTP.
 
 ## Reglas de verdad
 

@@ -21,7 +21,7 @@ su alcance requiera.
 |---|---|---|---|---|---|
 | PLT-001 | Despliegue aislado por cliente | núcleo | P0 | parcial | Código compartido; base, secretos, dominio y observabilidad aislados. |
 | PLT-002 | Manifest de capacidades | núcleo | P0 | parcial | Fuente tipada que gobierna rutas, navegación y composición de módulos; faltan publicación/importación de configuración. |
-| PLT-003 | Registro de módulos y dependencias | núcleo | P0 | parcial | Registro ejecutable con propietario de capacidades, dependencias, permisos, superficies y, desde R1.5, emisores/suscriptores de eventos; jobs y healthchecks se completan en R1.11/R1.10. |
+| PLT-003 | Registro de módulos y dependencias | núcleo | P0 | parcial | Registro ejecutable con propietario de capacidades, dependencias, permisos, superficies, eventos y healthchecks de integraciones; jobs se completan en R1.11. |
 | PLT-004 | Configuración validada por entorno | núcleo | P0 | parcial | Esquema tipado, valores por cliente y fallo temprano ante combinaciones inválidas. |
 | PLT-005 | Migraciones reproducibles y reversibles | núcleo | P0 | parcial | Forward migration probada, backup y procedimiento de rollback/restore. |
 | PLT-006 | Eventos de dominio versionados | núcleo | P0 | actual | Los cinco hechos de pedido se emiten, persisten sin PII y conservan identidad, versión, causa, correlación e idempotencia. |
@@ -296,8 +296,8 @@ su alcance requiera.
 | INT-003 | Packlink/Sendcloud por CSV | conector | P1 | actual | Exportación manual portable. |
 | INT-004 | Backup SQL | núcleo | P0 | actual | Exportación restaurable autenticada. |
 | INT-005 | Panel de integraciones | módulo | P1 | pendiente | Estado, última sync, errores, replay y desconexión. |
-| INT-006 | Credenciales/secretos por adaptador | núcleo | P0 | parcial | Nunca en D1/logs; rotación documentada. |
-| INT-007 | Healthcheck por integración | núcleo | P1 | pendiente | Configuración, permisos, latencia y última operación. |
+| INT-006 | Credenciales/secretos por adaptador | núcleo | P0 | parcial | Nunca en D1/logs/registro; R1.10 reduce su presencia a booleanos. Falta lifecycle de rotación por adaptador. |
+| INT-007 | Healthcheck por integración | núcleo | P1 | parcial | Stripe, Resend y CSV tienen estado, configuración local y evidencia segura; faltan permisos/latencia remotos y alimentación persistente de última operación. |
 | INT-008 | Idempotencia y cursores | núcleo | P0 | pendiente | Contrato común para push/pull y reconciliación. |
 | INT-009 | Google Merchant/Meta | conector | P1 | especificado | Un feed canónico con diagnósticos por destino. |
 | INT-010 | ERP/facturación | conector | P2 | conector | Adaptador por proveedor con mapeo y replay. |

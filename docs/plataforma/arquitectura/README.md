@@ -1,6 +1,6 @@
 # Arquitectura modular comprobable
 
-> Fuente de verdad arquitectónica desde R1.1, actualizada al cierre de R1.9 el
+> Fuente de verdad arquitectónica desde R1.1, actualizada al cierre de R1.10 el
 > **2026-08-07**. Fija las fronteras que los bloques siguientes deben respetar. No describe
 > como migradas las capas que aún siguen planas.
 
@@ -86,6 +86,10 @@ runtime clonable (desde R1.5, sin SQL en presentación)
 
   trabajo legítimo -> observability JSON -> Workers Logs existente
   demo/payload o firma inválida/cron vacío -X-> observability
+
+  env secrets -> presencia booleana -> integration registry
+             -X-> D1 / HTTP / logs / snapshots
+  Stripe + Resend + CSV -> healthchecks propietarios y evidencia segura opcional
 ```
 
 El precio se revalida en D1, el cliente no envía importes, el stock se descuenta
@@ -122,6 +126,8 @@ tarjeta. R1.1 no altera ninguno de esos contratos.
   migraciones aditivas y la demo no escribe en ellas por tráfico público.
 - `src/platform/operations/`: audit log D1 y observabilidad JSON R1.9; el logger
   no importa D1, no acepta campos arbitrarios y no publica superficie HTTP.
+- `src/integrations/registry.ts`: registro R1.10 de los tres adaptadores reales;
+  enlaza capacidad/módulo/healthcheck y resuelve snapshots sin strings secretos.
 - `seed/`: catálogo, colecciones, pedidos demo y SQL reproducible.
 - `tests/`: el contrato estático de R1.1 y las pruebas del manifest de R1.2 se
   ejecutan con Vitest sin librerías nuevas.
@@ -235,8 +241,8 @@ elige infraestructura, no lee secretos ni inventa adaptadores.
 R1.5 añade `event-context.ts` (reloj y fuente de ids reales) y
 `order-operations.ts`, el primer caso de uso compuesto: junta el hecho que emite
 `orders` con el consumidor de `notifications` y confirma ambos efectos en una
-única batch. Es el único punto que conoce los dos módulos a la vez. Los arrays
-de jobs y healthchecks siguen explícitamente vacíos hasta R1.11 y R1.10.
+única batch. Es el único punto que conoce los dos módulos a la vez. R1.10 enlaza
+los healthchecks de Stripe, Resend y CSV; los jobs siguen vacíos hasta R1.11.
 
 ## 5. Transición incremental
 
@@ -248,6 +254,7 @@ de jobs y healthchecks siguen explícitamente vacíos hasta R1.11 y R1.10.
 | R1.5 ✅ | Sobre versionado en `shared-kernel`; los cinco hechos de pedido lo emiten y el timeline pasa a ser su proyección; notificaciones consume eventos sin depender de pedidos; el webhook recibe un evento normalizado y las tres rutas de escritura pasan a casos de uso compuestos. | El stock lo sigue escribiendo el adaptador de pedidos hasta R2.7. |
 | R1.6–R1.7 ✅ | ADR/esquema aprobados; mutación, evento y entregas atómicos; dispatcher con lease, retry, dead-letter, replay interno y retención. | El job canónico entra en R1.11; el barrido de 5 min es el puente mínimo documentado. |
 | R1.8–R1.9 ✅ | Audit log transaccional redactado y señales JSON tipadas para checkout/webhook/outbox/email; demo y tráfico inválido no generan filas ni logs operativos. | Alertas/SLO quedan en R11.5; consulta operativa solo por control plane autorizado. |
+| R1.10 ✅ | Registro inmutable de Stripe, Resend y CSV; health local, config allowlisted, última sync/error seguros y credenciales reducidas a presencia. | Panel, replay/desconexión y sondeos remotos de permisos/latencia quedan para R9; jobs entran en R1.11. |
 | R1.12 | Cerrar imports planos restantes, SQL de presentación residual y documentación de crear módulo. | Solo deuda que requiera olas R2+ por cambio de esquema. |
 
 No hay big-bang: cada caso de uso conserva tests y contrato HTTP mientras se
@@ -278,6 +285,7 @@ indicadores y los tests funcionales no mejoran.
 - [`ADR-0007`](../adr/0007-outbox-transaccional-d1.md)
 - [`ADR-0008`](../adr/0008-audit-log-seguro-d1.md)
 - [`ADR-0009`](../adr/0009-observabilidad-segura-workers-logs.md)
+- [`ADR-0010`](../adr/0010-registro-integraciones-seguro.md)
 
 ## 8. Trazabilidad decisión → evidencia
 
@@ -292,8 +300,9 @@ indicadores y los tests funcionales no mejoran.
 | Lifecycle de seis estados | ADR-0004 + `tests/capability-manifest.test.ts`: seis estados, flags, degradación, dependencias y fallo temprano ejecutables. |
 | Registro y composición de módulos | `module-registry.ts` + `tests/module-registry.test.ts`: propietario único por capacidad, semver, dependencias/ciclos, superficies y presets operativos. |
 | Observabilidad sin PII ni amplificación | ADR-0009 + tests de observabilidad: contrato cerrado, checkout/webhook reales, demo y firma inválida antes de D1/logger, y ausencia de endpoint/exportador. |
+| Integraciones registradas sin secretos | ADR-0010 + `tests/integration-registry.test.ts`: tres adaptadores reales, propietarios/healthchecks únicos, configuración incompleta degradada y serialización sin credenciales. |
 | Transición sin big-bang | allowlist sellada a las claves R1.1, cero ciclos y `pnpm check`; contratos HTTP/runtime no se editan en este bloque. |
 
 Las reglas aún no comprobables porque su artefacto no existe (activación de
-infraestructura, eventos, jobs y healthchecks reales) tienen bloque de salida
+infraestructura, jobs y sondeos remotos de health) tienen bloque de salida
 explícito; no se presentan como garantías ya implementadas.

@@ -12,13 +12,22 @@ import {
   type ModuleRegistry,
   type OperationalModule,
 } from '../platform/configuration';
+import {
+  INTEGRATION_REGISTRY,
+  IntegrationRegistryError,
+  type IntegrationId,
+  type IntegrationRegistry,
+  validateIntegrationRegistry,
+} from '../integrations';
 
 export type Platform = Readonly<{
   manifest: ResolvedCapabilityManifest;
   registry: ModuleRegistry;
+  integrationRegistry: IntegrationRegistry;
   modules: readonly OperationalModule[];
   module: (id: ModuleId) => OperationalModule | null;
   hasModule: (id: ModuleId) => boolean;
+  integration: (id: IntegrationId) => IntegrationRegistry['byId'][IntegrationId];
   capability: <Id extends CapabilityId>(id: Id) => ResolvedCapabilityEntry<Id>;
   capabilityState: (id: CapabilityId) => CapabilityState;
   isCapabilityActive: (id: CapabilityId) => boolean;
@@ -29,16 +38,24 @@ export type Platform = Readonly<{
  * Composition root puro: resuelve capacidades y compone solo los módulos que
  * quedan operativos para ese manifiesto.
  */
-export function createPlatform(input: CapabilityManifestInput, registry: ModuleRegistry = MODULE_REGISTRY): Platform {
+export function createPlatform(
+  input: CapabilityManifestInput,
+  registry: ModuleRegistry = MODULE_REGISTRY,
+  integrationRegistry: IntegrationRegistry = INTEGRATION_REGISTRY,
+): Platform {
+  const integrationIssues = validateIntegrationRegistry(integrationRegistry.descriptors, registry);
+  if (integrationIssues.length > 0) throw new IntegrationRegistryError(integrationIssues);
   const manifest = resolveCapabilityManifest(input);
   const modules = resolveOperationalModules(registry, manifest);
   const modulesById = new Map(modules.map((module) => [module.descriptor.id, module]));
   return Object.freeze({
     manifest,
     registry,
+    integrationRegistry,
     modules,
     module: (id: ModuleId): OperationalModule | null => modulesById.get(id) ?? null,
     hasModule: (id: ModuleId): boolean => modulesById.has(id),
+    integration: (id: IntegrationId) => integrationRegistry.byId[id],
     capability: <Id extends CapabilityId>(id: Id): ResolvedCapabilityEntry<Id> => manifest.capabilities[id],
     capabilityState: (id: CapabilityId): CapabilityState => manifest.capabilities[id].state,
     isCapabilityActive: (id: CapabilityId): boolean => manifest.capabilities[id].state === 'active',

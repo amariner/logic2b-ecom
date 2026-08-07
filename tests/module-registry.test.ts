@@ -27,9 +27,22 @@ describe('registro de módulos (R1.4)', () => {
       expect(descriptor.version).toMatch(/^\d+\.\d+\.\d+$/);
       expect(Object.isFrozen(descriptor)).toBe(true);
       expect(Object.isFrozen(descriptor.capabilities)).toBe(true);
+      expect(Object.isFrozen(descriptor.healthchecks)).toBe(true);
       expect(Object.isFrozen(descriptor.navigation)).toBe(true);
       expect(Object.isFrozen(descriptor.routes)).toBe(true);
     }
+  });
+
+  it('asigna cada healthcheck R1.10 a un único módulo propietario', () => {
+    expect(MODULE_REGISTRY.healthcheckOwners).toEqual({
+      'notifications.resend-email': 'notifications',
+      'payments.stripe-checkout': 'payments',
+      'integrations.logistics-csv': 'integrations',
+    });
+
+    const descriptors = mutableDescriptors();
+    (descriptors[12]!.healthchecks as string[]).push('payments.stripe-checkout');
+    expect(validateModuleRegistry(descriptors).map((issue) => issue.code)).toContain('duplicate-healthcheck');
   });
 
   it('deriva navegación y rutas del registro con prioridad estable', () => {

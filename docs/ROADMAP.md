@@ -63,7 +63,7 @@ reconciliación se conserva abajo por contexto.
 | 11 | Landing V2 «nivel Awwwards» + negocio + funnel + docs | 🟡 En curso | 2026-07-24 | **F11.1, F11.3 (2 sesiones), F11.4, F11.5, F11.6, F11.7 y F11.8 (primera pasada + pase a11y/contenido desde cloud 2026-07-24) hechos**, más F11.8b (auditor de a11y, cloud), F11.2a-1 (tienda ASFALTO / tema Street), F11.2a-2 (tienda METRIA / tema Industrial) F11.2a-3 (tienda ROMER / tema Natural) y **F11.2a-4 (tienda KALIBRE / tema Specs, local 2026-07-25) — con la que F11.2a queda CERRADA (10/10 tiendas)**; y **F11.8c (Lighthouse citable + OG de WhatsApp + URLs sin redirección, local 2026-07-26)**; y **F11.8d–e (tabla de Lighthouse cerrada y desplegada: 7 de 8 superficies a 100×4, la landing entre ellas en móvil y escritorio, local 2026-07-27)**; de la cola de F11.8 solo queda la submission a Awwwards (decisión de pago: Andreu). Detalle por bloque abajo. (ver «Fase 11» abajo). **Plan maestro completo en [`docs/PLAN_FASE11_LANDING_V2.md`](PLAN_FASE11_LANDING_V2.md)**: bloques F11.0–F11.8 ejecutables por sesiones independientes. **Decisiones D1–D6 APROBADAS por Andreu (2026-07-23)**: JS propio ≤15 KB sin deps, capturas con browser tools en local, dirección C «Ocho tiendas, un motor», escalera de precios (Lite 590 / Kit 1.900+39 / A medida 3.400+59), WhatsApp+email, Lite publicado sin construir. Prompt de arranque: [`docs/PROMPT_FASE11.md`](PROMPT_FASE11.md). Integra 9B.5/9B.6 (imaginería y temas restantes) como prerequisito del hero |
 | 8 | Pulido de la demo (backlog abajo) | 🟡 En curso | 2026-07-19 | Backlog técnico agotado; solo quedan decisiones y pasos locales de Andreu (ver «Decisiones pendientes» y `docs/PROMPT_CLOUD.md`). Últimas tandas: novena (race de idempotencia en el pago, PII enumerable en `/demo/gracias`, cancelación de pedido pagado sin devolver stock), décima (la misma race en el PATCH de admin, campos vacíos guardados como 0, login sin rate limit), undécima (diagrama móvil de `/arquitectura`, hedge del plazo de entrega, tokens de tema en `/demo/reset`, terminología «envío»), duodécima (aviso de corte en pedidos del admin, cabeceras sin wrap a 375px, leftover «portes», token de radio del carrito, contraste del botón eliminar, H1 en valenciano, checklist de producción) y decimotercera (misma race de idempotencia en `checkout.session.expired`, divisa hardcodeada a EUR fuera de Stripe, cobertura de test de `quoteCart`/PATCH admin/emails) y decimocuarta (config parcial de Stripe → cobro sin cumplimiento, emails duplicados bajo concurrencia, `payment_status` del webhook, color de marca centralizado en `shop.config.ts`, contraste/tema en carrito y checkout) — ver sección «Fase 8» |
 | 12 | Logic2B Ecommerce: renombrado, reposicionamiento y docs de dos visiones | 🟡 En curso | 2026-08-06 | **F12.0–F12.5 cerrados:** renombrado, nuevo argumento en landing/dossier, canal agencias en marca blanca y manual ampliado del gestor. Solo queda F12.6 (consolidación). **Plan maestro en [`docs/PLAN_FASE12_LOGIC2B_ECOMMERCE.md`](PLAN_FASE12_LOGIC2B_ECOMMERCE.md)**. |
-| 13 | Plataforma modular: del gestor mínimo a paridad extrema de capacidad | 🟡 En curso | 2026-08-07 | **R0 y R1.1–R1.9 cerrados:** manifest/registro, eventos/outbox, audit log y observabilidad segura sin superficie HTTP. Siguiente: R1.10, registro de integraciones. Fuente de verdad en [`docs/plataforma/`](plataforma/README.md). |
+| 13 | Plataforma modular: del gestor mínimo a paridad extrema de capacidad | 🟡 En curso | 2026-08-07 | **R0 y R1.1–R1.10 cerrados:** manifest/módulos, eventos/outbox, audit log, observabilidad y registro seguro de integraciones sin superficie HTTP. Siguiente: R1.11, contrato de jobs. Fuente de verdad en [`docs/plataforma/`](plataforma/README.md). |
 
 ## Repo y entornos
 
@@ -112,7 +112,8 @@ de producto pasa a la Fase 13 y se ejecuta un bloque R por sesión.
 | R1.7 | Outbox transaccional | ✅ 2026-08-06 — migración, escritura atómica, dispatcher y recuperación |
 | R1.8 | Audit log transversal | ✅ 2026-08-07 — evidencia atómica/redactada; demo inerte y sin export HTTP |
 | R1.9 | Observabilidad base | ✅ 2026-08-07 — JSON tipado, métricas correlacionadas y tráfico hostil silencioso |
-| R1.10+ | Registro de integraciones y resto de olas | ⬜ ver plan maestro |
+| R1.10 | Registro de integraciones | ✅ 2026-08-07 — Stripe/Resend/CSV, health local y snapshots sin secretos |
+| R1.11+ | Contrato de jobs y resto de olas | ⬜ ver plan maestro |
 
 ## Fase 12 — Logic2B Ecommerce: renombrado, reposicionamiento y las dos visiones
 
@@ -1515,14 +1516,36 @@ Producción: `46334b51-4236-42fa-b6c8-81c323b264ae`. ADR-0009, runbook y borrado
 wiki documentan la operación. SEC-008 queda `parcial` hasta que R11.5 implemente
 alertas y SLO.
 
+### R1.10 — registro de integraciones — ✅ cerrado 2026-08-07
+
+Stripe Checkout, Resend y el export CSV son los únicos adaptadores del registro
+inmutable. Cada uno enlaza capacidad, módulo propietario, versión, healthcheck e
+implementación existente; validadores fail-fast rechazan duplicados, ausencias
+y propietarios incoherentes.
+
+Los snapshots separan estado, health local, configuración no secreta, última
+sincronización y último error seguro. El corte de composición transforma las
+credenciales en booleanos de presencia antes de entrar al registro. No se
+persisten ni serializan valores, nombres de secreto, PII o errores crudos. En
+demo, Stripe y Resend permanecen inactivos; el CSV manual conserva el recorrido
+de fixtures. Configuración Stripe parcial o Resend sin clave queda degradada.
+
+Verificación: `pnpm check` en verde (41 suites, 276 tests, tipos y build), con
+pruebas de propietarios únicos, presets, timestamps/códigos cerrados y ausencia
+de credenciales serializadas. No cambia compra, admin o UI, por lo que
+E2E/a11y/Lighthouse no aplican. ADR-0010 y el borrador wiki fijan el límite:
+`INT-007` queda `parcial` hasta incorporar permisos/latencia remotos y evidencia
+persistente. Sin migración, ruta, navegación, job, dependencia, coste o
+integración ficticia.
+
 ### Siguiente bloque
 
-**R1.10 — registro de integraciones.** Estado/config no secreta/health/última
-sincronización/error de adaptadores actuales, manteniendo secretos fuera de D1.
-Criterio completo en
+**R1.11 — contrato de jobs.** Ejecución única/recurrente, lock, timeout,
+reintento y replay; el cron de reset de la demo migra sin regresión. Criterio
+completo en
 [`docs/plataforma/ROADMAP.md`](plataforma/ROADMAP.md#r1--cimientos-modulares-y-observables).
 
-**F12.6 queda en el carril comercial, no bloquea R1.6.** Una sesión local de
+**F12.6 queda en el carril comercial, no bloquea R1.11.** Una sesión local de
 mantenimiento creará el índice general de docs, revisará OG y ejecutará
 Lighthouse contra producción en las indexables, incluidas `/precios` y
 `/agencias`.

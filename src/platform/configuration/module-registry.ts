@@ -133,14 +133,14 @@ export const MODULE_DESCRIPTORS = [
     dependencies: ['platform-configuration'], permissions: ['notifications.read'], events: [],
     // Reacciona a hechos de `orders` SIN depender de `orders`: esa es la razón
     // de ser del sobre. Quien los une es el composition root.
-    subscriptions: ['orders.order_paid', 'orders.order_shipped'], jobs: [], healthchecks: [],
+    subscriptions: ['orders.order_paid', 'orders.order_shipped'], jobs: [], healthchecks: ['notifications.resend-email'],
     wikiLinks: [ARCHITECTURE_WIKI],
     navigation: [{ id: 'emails', href: '/demo/admin/emails', label: 'Emails', order: 40, capabilityId: 'MAR-003' }],
     routes: [{ match: 'exact', path: '/demo/admin/emails', capabilityId: 'MAR-003' }],
   },
   {
     id: 'payments', version: '1.0.0', capabilities: ['CHK-004', 'INT-001'], dependencies: ['platform-configuration'],
-    permissions: [], events: [], subscriptions: [], jobs: [], healthchecks: [], wikiLinks: [ARCHITECTURE_WIKI], navigation: [],
+    permissions: [], events: [], subscriptions: [], jobs: [], healthchecks: ['payments.stripe-checkout'], wikiLinks: [ARCHITECTURE_WIKI], navigation: [],
     routes: [{ match: 'exact', path: '/api/webhooks/stripe', capabilityId: 'CHK-004' }],
   },
   {
@@ -154,7 +154,7 @@ export const MODULE_DESCRIPTORS = [
   },
   {
     id: 'integrations', version: '1.0.0', capabilities: ['INT-003'],
-    dependencies: ['payments', 'fulfillment', 'notifications'], permissions: [], events: [], subscriptions: [], jobs: [], healthchecks: [],
+    dependencies: ['payments', 'fulfillment', 'notifications'], permissions: [], events: [], subscriptions: [], jobs: [], healthchecks: ['integrations.logistics-csv'],
     wikiLinks: [ARCHITECTURE_WIKI], navigation: [], routes: [],
   },
   {
@@ -173,7 +173,7 @@ export type AdminNavigationId = (typeof MODULE_DESCRIPTORS)[number]['navigation'
 export type ModuleRegistryIssue = Readonly<{
   code: 'invalid-descriptor' | 'duplicate-module' | 'unknown-dependency' | 'dependency-cycle' |
     'duplicate-capability' | 'missing-capability' | 'duplicate-navigation' | 'duplicate-route' |
-    'duplicate-event' | 'foreign-event' | 'unknown-subscription';
+    'duplicate-event' | 'foreign-event' | 'unknown-subscription' | 'duplicate-healthcheck';
   path: string;
   message: string;
 }>;
@@ -184,6 +184,8 @@ export type ModuleRegistry = Readonly<{
   capabilityOwners: Readonly<Record<CapabilityId, ModuleId>>;
   /** Emisor único de cada tipo de evento, igual que `capabilityOwners`. */
   eventOwners: Readonly<Record<string, ModuleId>>;
+  /** Propietario único de cada healthcheck ejecutable. */
+  healthcheckOwners: Readonly<Record<string, ModuleId>>;
   navigation: readonly ModuleNavigationItem[];
   routes: readonly ModuleRoute[];
 }>;
@@ -201,6 +203,7 @@ const descriptorFields = ['id', 'version', 'capabilities', 'dependencies', 'perm
 
 /** Mismo patrón que el sobre: `modulo.hecho`, con el prefijo del módulo emisor. */
 const EVENT_TYPE_PATTERN = /^[a-z][a-z0-9_]*\.[a-z][a-z0-9_]*$/;
+const HEALTHCHECK_ID_PATTERN = /^[a-z][a-z0-9-]*\.[a-z][a-z0-9-]*$/;
 
 function eventPrefixOf(moduleId: string): string {
   return moduleId.replaceAll('-', '_');
@@ -240,6 +243,7 @@ export function validateModuleRegistry(input: unknown): readonly ModuleRegistryI
   const seenModules = new Set<string>();
   const capabilityOwners = new Map<string, string>();
   const eventOwners = new Map<string, string>();
+  const healthcheckOwners = new Map<string, string>();
   const subscriptions: { path: string; type: string }[] = [];
   const navigationIds = new Set<string>();
   const navigationHrefs = new Set<string>();
@@ -299,6 +303,15 @@ export function validateModuleRegistry(input: unknown): readonly ModuleRegistryI
     if (Array.isArray(raw.subscriptions)) {
       for (const event of raw.subscriptions) {
         if (typeof event === 'string') subscriptions.push({ path: `${path}.subscriptions`, type: event });
+      }
+    }
+    if (Array.isArray(raw.healthchecks)) {
+      for (const healthcheck of raw.healthchecks) {
+        if (typeof healthcheck !== 'string' || !HEALTHCHECK_ID_PATTERN.test(healthcheck)) {
+          issues.push({ code: 'invalid-descriptor', path: `${path}.healthchecks`, message: `Healthcheck inválido: ${String(healthcheck)}.` });
+        } else if (healthcheckOwners.has(healthcheck)) {
+          issues.push({ code: 'duplicate-healthcheck', path: `${path}.healthchecks`, message: `${healthcheck} ya pertenece a ${healthcheckOwners.get(healthcheck)}.` });
+        } else healthcheckOwners.set(healthcheck, id);
       }
     }
     for (const [navIndex, navigation] of raw.navigation.entries()) {
@@ -380,11 +393,14 @@ export function createModuleRegistry(input: unknown = MODULE_DESCRIPTORS): Modul
   const eventOwners = Object.freeze(Object.fromEntries(descriptors.flatMap((descriptor) =>
     descriptor.events.map((event) => [event, descriptor.id]),
   ))) as Readonly<Record<string, ModuleId>>;
+  const healthcheckOwners = Object.freeze(Object.fromEntries(descriptors.flatMap((descriptor) =>
+    descriptor.healthchecks.map((healthcheck) => [healthcheck, descriptor.id]),
+  ))) as Readonly<Record<string, ModuleId>>;
   const navigation = Object.freeze(descriptors.flatMap((descriptor) => descriptor.navigation).toSorted((a, b) => a.order - b.order));
   const routes = Object.freeze(descriptors.flatMap((descriptor) => descriptor.routes).toSorted((a, b) =>
     (a.match === b.match ? b.path.length - a.path.length : a.match === 'exact' ? -1 : 1),
   ));
-  return Object.freeze({ descriptors, byId, capabilityOwners, eventOwners, navigation, routes });
+  return Object.freeze({ descriptors, byId, capabilityOwners, eventOwners, healthcheckOwners, navigation, routes });
 }
 
 export function resolveOperationalModules(

@@ -7,7 +7,7 @@ intent: arquitectura-modular-ecommerce
 audience: [comercio, responsable-ecommerce, agencia]
 availability: en-estudio
 publishedAt: null
-reviewedAt: 2026-08-06
+reviewedAt: 2026-08-07
 reviewEveryDays: 90
 owner: arquitectura
 evidence:
@@ -15,6 +15,7 @@ evidence:
   - test: tests/capability-manifest.test.ts
   - test: tests/capability-access.test.ts
   - test: tests/module-registry.test.ts
+  - test: tests/integration-registry.test.ts
   - document: docs/plataforma/arquitectura/README.md
   - configuration: platform.config.ts
 related:
@@ -28,8 +29,8 @@ draft: true
 
 > **Borrador interno. No genera ruta, sitemap ni canonical.** URL futura:
 > `/funcionalidades/arquitectura-modular-ecommerce/`. Estado público permitido
-> hoy: **En estudio**. R1.1 fija arquitectura y checks; R1.2–R1.4 entregan el
-> manifest tipado, el corte de rutas/navegación y el registro de módulos.
+> hoy: **En estudio**. R1.1 fija arquitectura y checks; R1.2–R1.10 entregan
+> manifest, registro, eventos/outbox, audit log, observabilidad e integraciones.
 
 ## Resumen
 
@@ -37,8 +38,8 @@ Logic2B Ecommerce se diseña como un monolito modular desplegado de forma
 independiente para cada comercio. El objetivo es ampliar capacidades sin añadir
 pantallas, jobs ni configuración a quien no las necesita. Hoy existen el
 aislamiento por proyecto, un núcleo transaccional probado y una fuente tipada
-por despliegue que gobierna rutas, navegación y composición de módulos. Faltan
-los contratos operativos de eventos, jobs, healthchecks e integraciones.
+por despliegue que gobierna rutas, navegación y composición de módulos. Falta
+cerrar el contrato de jobs y consolidar R1 antes de publicar esta arquitectura.
 
 ## Estado visible
 
@@ -58,13 +59,17 @@ R1, disponer de manifest/registro operativo y aportar evidencias por capacidad.
   política común que oculta o corta rutas según el estado/flag;
 - registro validado de 16 módulos con propietario único de capacidades,
   dependencias, permisos y superficies; composición operativa por preset;
+- eventos/outbox, audit log y observabilidad segura ya operativos;
+- registro de Stripe, Resend y CSV con healthchecks locales y snapshots sin
+  credenciales;
 - demo completa mediante composición propia sin jobs, efectos comerciales ni
   mutaciones.
 
 ### Diseñado, todavía no disponible
 
-- eventos versionados, outbox, audit log, observabilidad y healthchecks
-  (R1.5–R1.10).
+- contrato y ejecutor de jobs (R1.11), más consolidación y guía de módulo
+  (R1.12);
+- sondeos remotos, replay/desconexión y panel de integraciones (olas posteriores).
 
 ## El problema operativo
 
@@ -81,7 +86,7 @@ condicionales, duplica reglas y hace difícil saber qué está realmente activo.
 4. Presentación y acceso ya obedecen esos flags con 404/403 coherente.
 5. El registro reúne los módulos y sus superficies conocidas sin activar
    adaptadores ni infraestructura.
-6. Healthchecks podrán marcar una capacidad `degraded` sin relajar seguridad.
+6. Healthchecks locales ya marcan integraciones degradadas sin relajar seguridad.
 7. La retirada conserva exportación/retención y deja de ejecutar efectos.
 
 ## Qué verá el comercio
@@ -150,4 +155,4 @@ Relacionar con módulos activables, integraciones observables y seguridad. Al
 publicar, la CTA será solicitar análisis del proyecto; no habrá CTA de
 autoactivación mientras el servicio sea gestionado por Logic2B.
 
-**Revisión:** arquitectura · 2026-08-06 · revisar tras R1.5 o en 90 días.
+**Revisión:** arquitectura · 2026-08-07 · revisar tras R1.12 o en 90 días.

@@ -38,7 +38,7 @@ improvisan durante la implementación.
 | Ola | Resultado | Estado |
 |---|---|---|
 | R0 | Investigación, taxonomía, matriz, roadmap y estrategia wiki | ✅ cerrado 2026-08-06 |
-| R1 | Cimientos modulares y observables | 🟡 9/12 bloques cerrados |
+| R1 | Cimientos modulares y observables | 🟡 10/12 bloques cerrados |
 | R2 | Núcleo transaccional profesional | ⬜ |
 | R3 | Operación de pedidos, inventario y fulfillment | ⬜ |
 | R4 | Precios, promociones y modelos de venta | ⬜ |
@@ -76,7 +76,7 @@ conviertan el motor en una colección de condicionales.
 | 7 | **R1.7 Outbox transaccional** | Migración aprobada, escritura atómica en mutaciones de pago/pedido y dispatcher idempotente; fallo del consumidor no revierte el negocio. | ✅ 2026-08-06 |
 | 8 | **R1.8 Audit log transversal** | Actor, acción, entidad, diff redacted y correlation id; pagos, pedidos, producto y admin cubiertos; sin export HTTP por decisión de seguridad. | ✅ 2026-08-07 |
 | 9 | **R1.9 Observabilidad base** | Logger estructurado, errores tipados, métricas de checkout/webhook/outbox/email e IDs visibles en runbook; sin PII. | ✅ 2026-08-07 |
-| 10 | **R1.10 Registro de integraciones** | Estado/config no secreta/health/última sync/error; secretos fuera de D1; adaptadores actuales registrados. | ⬜ |
+| 10 | **R1.10 Registro de integraciones** | Estado/config no secreta/health/última sync/error; secretos fuera de D1; adaptadores actuales registrados. | ✅ 2026-08-07 |
 | 11 | **R1.11 Contrato de jobs** | Ejecución única/recurrente, lock, timeout, reintento y replay; cron de demo migra sin regresión. | ⬜ |
 | 12 | **R1.12 Consolidación R1** | Tests de presets, fallos, concurrencia y clonabilidad; docs de crear módulo; ficha wiki de arquitectura; auditoría de dependencias. | ⬜ |
 
@@ -360,7 +360,8 @@ Entrega cerrada:
 
 PLT-006 pasa a `parcial`: el contrato existe y es ejecutable, pero la
 persistencia y la entrega reintentable son R1.6/R1.7. PLT-003 pasa a `parcial`
-con eventos declarados; jobs y healthchecks siguen pendientes de R1.11 y R1.10.
+con eventos declarados; en ese cierre jobs y healthchecks quedaban asignados a
+R1.11 y R1.10 respectivamente.
 
 ## 6. Bloques cerrados
 
@@ -463,10 +464,35 @@ visita ni superficie PCI. Despliegue confirmado:
 
 Producción confirmada: `46334b51-4236-42fa-b6c8-81c323b264ae`.
 
+### R1.10 — Registro de integraciones — ✅ 2026-08-07
+
+1. Un registro inmutable contiene únicamente los adaptadores reales de Stripe
+   Checkout, Resend y exportación logística CSV; cada descriptor enlaza versión,
+   capacidad, módulo propietario, healthcheck e implementación existente.
+2. El registro modular valida propietario único para cada healthcheck; el de
+   integraciones rechaza duplicados, ausencias, capacidades ajenas y checks sin
+   dueño antes de componer.
+3. Los snapshots separan estado, health local, configuración allowlisted,
+   última sincronización y último error. Los errores solo admiten código cerrado
+   y timestamp ISO; nunca mensaje, causa, stack o datos del comprador.
+4. El único corte que ve secretos los reduce inmediatamente a booleanos de
+   presencia. El registro no acepta credenciales, no escribe D1 y su
+   serialización está probada contra fugas.
+5. La demo mantiene Stripe y Resend inactivos y el CSV manual activo sobre
+   fixtures. Un cliente con Stripe parcial o Resend sin clave queda degradado;
+   no se presenta una configuración incompleta como sana.
+6. El health de esta fase es local: no sondea proveedores al arrancar ni por
+   petición. Permisos/latencia remotos y evidencia persistente mantienen
+   `INT-007` en `parcial`; panel, replay y desconexión siguen posteriores.
+7. ADR-0010, arquitectura y borrador wiki documentan el límite. No se añade
+   migración, endpoint, navegación, job, dependencia, coste ni integración
+   ficticia.
+8. Verificación: 41 suites, 276 tests, tipos y build en verde. Al no cambiar
+   compra, admin o UI, E2E/a11y/Lighthouse no aplican.
+
 ## 7. Siguiente bloque
 
-### R1.10 — Registro de integraciones
+### R1.11 — Contrato de jobs
 
-Estado y configuración no secreta, health, última sincronización y último error
-de cada adaptador actual. Los secretos permanecen fuera de D1 y no se añade una
-integración ficticia para llenar el registro.
+Ejecución única y recurrente con lock, timeout, reintento y replay. El cron de
+reset de la demo migra al contrato sin cambiar su aislamiento ni comportamiento.
