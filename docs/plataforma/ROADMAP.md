@@ -454,11 +454,14 @@ visita ni superficie PCI. Despliegue confirmado:
 6. El runbook documenta búsqueda por `operation_id`, `correlation_id` y
    `causation_id`, códigos y contención. ADR-0009 y el borrador wiki fijan los
    límites de seguridad.
-7. Verificación local: 40 suites, 268 tests, tipos y build en verde; pruebas con
-   checkout simulado real y webhook Stripe firmado prueban ausencia de PII,
-   mientras demo y firma inválida no tocan D1 ni logger.
+7. Verificación: 40 suites, 268 tests, tipos y build en verde; pruebas con
+   checkout simulado real y webhook Stripe firmado prueban ausencia de PII.
+   E2E local y remoto 27/27 confirman demo inerte; después del recorrido remoto,
+   `audit_log`, hechos y entregas pendientes conservan cero filas.
 8. SEC-008 pasa a `parcial`: logs, métricas y correlación son reales; alertas y
    SLO permanecen honestamente en R11.5.
+
+Producción confirmada: `46334b51-4236-42fa-b6c8-81c323b264ae`.
 
 ## 7. Siguiente bloque
 

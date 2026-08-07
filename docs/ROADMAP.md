@@ -1507,10 +1507,13 @@ Stripe inválida, rechazo de negocio y cron vacío no producen señal ni escritu
 No existe endpoint, exportador, tabla, beacon, dependencia o servicio nuevo. El
 logger tampoco puede romper la operación si falla su sink.
 
-Verificación local: `pnpm check` en verde (40 suites, 268 tests, tipos y build),
+Verificación: `pnpm check` en verde (40 suites, 268 tests, tipos y build),
 incluidos checkout simulado real, webhook firmado, redacción de PII, sink caído
-y cortes previos a D1/logger. ADR-0009, runbook y borrador wiki documentan la
-operación. SEC-008 queda `parcial` hasta que R11.5 implemente alertas y SLO.
+y cortes previos a D1/logger. E2E local/remoto 27/27; la D1 remota conserva cero
+filas de audit, eventos y entregas pendientes después del recorrido demo.
+Producción: `46334b51-4236-42fa-b6c8-81c323b264ae`. ADR-0009, runbook y borrador
+wiki documentan la operación. SEC-008 queda `parcial` hasta que R11.5 implemente
+alertas y SLO.
 
 ### Siguiente bloque
 
