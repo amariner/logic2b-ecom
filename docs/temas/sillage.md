@@ -60,3 +60,4 @@ siguiente; no se usó API con facturación separada ni se volvió a Higgsfield.
 - ☑ Capturas de QA, incluidas `-560` y `-900`, dentro de objetivo de peso
 - ☑ Ficha visible en `/temas`, con enlace a la tienda
 - ☑ Entrada en el rail principal y estado `ready`
+- ☑ Desplegado en producción; tienda y assets nuevos comprobados por HTTP

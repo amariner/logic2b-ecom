@@ -1640,8 +1640,9 @@ con **9/9 superficies sin errores ni avisos**, sin desbordes ni errores de
 consola. El seed prueba para todas las tiendas slugs globalmente únicos,
 namespace, pertenencia a colección/categoría y assets locales del recorrido
 compartido. `pnpm check` queda verde: 44 suites, **296 tests**, 322 archivos
-Astro sin diagnósticos y build completo. Sin migración, dependencia, cambio de
-motor ni despliegue.
+Astro sin diagnósticos y build completo. Desplegado en producción como versión
+`7f73f927-a605-4197-bab1-0f6eb66786b1`; `/temas`, la tienda y los assets nuevos
+responden 200 tras propagación. Sin migración, dependencia ni cambio de motor.
 
 ### Siguiente bloque
 
