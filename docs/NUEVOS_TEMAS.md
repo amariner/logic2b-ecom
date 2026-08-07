@@ -23,9 +23,10 @@ Cuando el usuario diga **«créame un nuevo tema»**:
 7. Generar imaginería propia con la herramienta integrada `imagegen` de
    Codex/OpenAI por defecto. Solo cambiar de proveedor o a CLI/API cuando el
    usuario lo autorice expresamente; documentar la excepción en la ficha.
-8. Generar en lotes de dos llamadas secuenciales. Tras cada pareja, esperar
-   ocho segundos antes de iniciar la siguiente. Cada producto o escena usa su
-   propio prompt; no se simulan assets distintos con variantes de una llamada.
+8. Generar con una sola llamada activa cada vez. Guardar, optimizar e inspeccionar
+   el resultado y esperar al menos ocho segundos antes de iniciar la siguiente.
+   Cada producto o escena usa su propio prompt; no se simulan assets distintos
+   con variantes de una llamada.
 9. Copiar los resultados finales a `public/images/collections/<id>/`, convertir
    a WebP y comprobar encuadre, fidelidad visual, texto, anatomía y ausencia de
    marcas de agua. Los assets que consume el proyecto nunca se dejan solo en

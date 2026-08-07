@@ -12,9 +12,7 @@ export const sillageSeedProducts: readonly SeedProduct[] = [
   c({ slug: 'sil-noche-mineral', name: 'Noche Mineral', description: 'Piedra mojada, incienso negro y vetiver. Extracto de perfume, 30 ml.', price_cents: 14200, stock: 6, category: 'sil-perfume' }),
   c({ slug: 'sil-iris-frio', name: 'Iris Frío', description: 'Iris empolvado, hoja de violeta y cuero pálido. Eau de parfum, 50 ml.', price_cents: 13200, stock: 8, category: 'sil-perfume' }),
   c({ slug: 'sil-azahar-08', name: 'Azahar 08', description: 'Aceite aromático concentrado de azahar, petitgrain y neroli. Roll-on, 15 ml.', price_cents: 4200, stock: 18, category: 'sil-oil' }),
-  // Fallbacks visuales temporales: mantienen navegable la tienda mientras
-  // Higgsfield no puede completar las tres fotos restantes por falta de saldo.
-  c({ slug: 'sil-vetiver-11', name: 'Vetiver 11', description: 'Aceite seco de vetiver, bergamota y madera de gaiac. Gotero, 30 ml.', price_cents: 5400, stock: 14, category: 'sil-oil', image: '/images/collections/sillage/sil-cedro-solar.webp' }),
-  c({ slug: 'sil-leche-higo', name: 'Leche de Higo', description: 'Loción corporal ligera con hoja de higuera, sándalo y sal marina. 250 ml.', price_cents: 3800, stock: 16, category: 'sil-body-care', image: '/images/collections/sillage/sil-humo-blanco.webp' }),
-  c({ slug: 'sil-balsamo-sal', name: 'Bálsamo de Sal', description: 'Bálsamo nutritivo de algas, salvia y ámbar gris vegetal. 180 ml.', price_cents: 4600, stock: 11, category: 'sil-body-care', image: '/images/collections/sillage/sil-cedro-solar.webp' }),
+  c({ slug: 'sil-vetiver-11', name: 'Vetiver 11', description: 'Aceite seco de vetiver, bergamota y madera de gaiac. Gotero, 30 ml.', price_cents: 5400, stock: 14, category: 'sil-oil' }),
+  c({ slug: 'sil-leche-higo', name: 'Leche de Higo', description: 'Loción corporal ligera con hoja de higuera, sándalo y sal marina. 250 ml.', price_cents: 3800, stock: 16, category: 'sil-body-care' }),
+  c({ slug: 'sil-balsamo-sal', name: 'Bálsamo de Sal', description: 'Bálsamo nutritivo de algas, salvia y ámbar gris vegetal. 180 ml.', price_cents: 4600, stock: 11, category: 'sil-body-care' }),
 ];

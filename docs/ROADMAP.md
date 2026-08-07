@@ -1625,21 +1625,23 @@ borrador wiki sigue no publicable. Verificación: `pnpm check` en verde, 44
 suites y **294 tests**, tipos y build. No hay migración, SQL ejecutable, ruta,
 UI, dependencia ni despliegue; E2E/a11y/Lighthouse no aplican.
 
-### Cola de temas · SILLAGE — 🟡 en progreso 2026-08-07
+### Cola de temas · SILLAGE — ✅ cerrado 2026-08-07
 
 La segunda referencia de `nuevos-temas/cola.json` ya tiene colección, ocho
 productos, tema propio, catálogo editorial, filtros, búsqueda, ficha y recorrido
-local compartido. Se conserva como `planned`: siete piezas de imaginería única
-siguen pendientes porque el generador integrado devolvió errores de red; los
-fallbacks locales mantienen todas las rutas navegables sin recurrir a otra API.
+local compartido. Los catorce WebP finales son únicos: los siete pendientes se
+completaron con la suscripción integrada de OpenAI, se optimizaron e
+inspeccionaron individualmente y sustituyen todos los fallbacks temporales. El
+tema pasa a `ready`, entra en el rail principal y la posición 2 de la cola queda
+`completado`.
 
-Se cerró todo lo que no depende de generar imágenes: auditoría real contra
-Wrangler en 1440/375, carrito activo, checkout y movimiento reducido, con **9/9
-superficies sin errores ni avisos**. El seed ahora prueba para todas las tiendas
-slugs globalmente únicos, namespace, pertenencia a colección/categoría y assets
-locales del recorrido compartido. Verificación: `pnpm check` en verde, 44 suites
-y **296 tests**, 322 archivos Astro sin diagnósticos y build completo. Sin
-migración, dependencia, cambio de motor, despliegue ni generación de imágenes.
+Verificación real en 1440/375, carrito activo, checkout y movimiento reducido,
+con **9/9 superficies sin errores ni avisos**, sin desbordes ni errores de
+consola. El seed prueba para todas las tiendas slugs globalmente únicos,
+namespace, pertenencia a colección/categoría y assets locales del recorrido
+compartido. `pnpm check` queda verde: 44 suites, **296 tests**, 322 archivos
+Astro sin diagnósticos y build completo. Sin migración, dependencia, cambio de
+motor ni despliegue.
 
 ### Siguiente bloque
 

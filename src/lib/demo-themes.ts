@@ -683,7 +683,7 @@ export const demoThemes: DemoTheme[] = [
     reference: { name: 'Curated perfumery showroom', file: '15-sillage.webp' },
     sample: null,
     bestFor: ['Perfumería y cosmética', 'Retail selecto', 'Marcas de autor'],
-    status: 'planned',
+    status: 'ready',
     vars: {
       '--color-brand': '#2f302c',
       '--color-brand-dark': '#141512',

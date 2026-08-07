@@ -5,7 +5,7 @@
 - **Colección:** `src/collections/sillage.ts` — nombre propuesto: **SILLAGE**
 - **Catálogo:** 8 productos · slugs `sil-*` · perfume, aceites y cuidado corporal
 - **Ruta:** `/demo/tiendas/sillage`
-- **Estado:** en progreso; siete assets finales y fallbacks navegables, imaginería única bloqueada por saldo
+- **Estado:** listo; catorce assets finales únicos y tema publicado en el rail principal
 
 ## Lectura de la referencia
 
@@ -26,25 +26,23 @@ integrada y usando recortes de la captura únicamente como referencias de compos
 - `family-perfume.webp`, `family-oils.webp`, `family-body-care.webp`
 - ocho imágenes de producto con el nombre de su slug
 
-Ya están terminados y optimizados `hero-abstract.webp`, `showroom.webp`,
-`sil-humo-blanco.webp`, `sil-cedro-solar.webp`, `sil-noche-mineral.webp`,
-`sil-iris-frio.webp` y `sil-azahar-08.webp`. El destacado reutiliza de forma
-temporal la toma de Cedro Solar; las tres familias y los tres productos restantes
-usan fallbacks explícitos, por lo que ninguna ruta pública queda rota.
+Están terminados y optimizados los catorce WebP previstos: hero, destacado,
+showroom, tres familias y las ocho imágenes de producto. Cada producto usa ya
+su asset por slug y las tarjetas de familia consumen sus composiciones propias.
 
 El 2026-08-07 el usuario autorizó expresamente Higgsfield tras dos fallos de red
 del generador integrado. Se generaron siete assets con GPT Image 2 y Soul
 Location. El siguiente trabajo (`sil-vetiver-11`) fue rechazado por saldo
-insuficiente; la cuenta conservaba 6,56 créditos. El tema no se marca como listo
-hasta producir los siete assets únicos restantes.
+insuficiente; la cuenta conservaba 6,56 créditos. Por ello el tema no se marcó
+como listo hasta producir los siete assets únicos restantes.
 
 Al retomar el trabajo el mismo día, el usuario indicó que los siete assets
-restantes deben generarse exclusivamente con la suscripción integrada de
-OpenAI, de uno en uno, con pausa entre solicitudes y WebP finales ligeros. Se
-probó `sil-vetiver-11` sin llegar a producir ningún resultado: tanto el endpoint
-de edición con referencia como el de generación devolvieron un error de red. Se
-detuvieron los reintentos para no saturar el servicio. No usar API con facturación
-separada ni volver a Higgsfield sin una autorización nueva.
+restantes debían generarse exclusivamente con la suscripción integrada de
+OpenAI, de uno en uno, con pausa entre solicitudes y WebP finales ligeros. El
+servicio volvió a estar disponible y completó `sil-vetiver-11`,
+`sil-leche-higo`, `sil-balsamo-sal`, el destacado de Cedro Solar y las tres
+familias. Cada llamada se guardó, optimizó e inspeccionó antes de enviar la
+siguiente; no se usó API con facturación separada ni se volvió a Higgsfield.
 
 ## Coste del tema
 
@@ -56,10 +54,9 @@ separada ni volver a Higgsfield sin una autorización nueva.
 ## Verificación
 
 - ☑ `pnpm check`: 322 archivos Astro, 296 tests y build en verde
-- ☑ Siete assets WebP generados, optimizados e inspeccionados
-- ☑ Ninguna ruta de imagen rota gracias a fallbacks temporales
-- ☐ Siete assets WebP únicos pendientes
+- ☑ Catorce assets WebP generados, optimizados e inspeccionados
+- ☑ Ocho productos y tres familias con assets únicos, sin fallbacks temporales
 - ☑ 1440 px · 375 px · recorrido completo · 9 superficies a11y sin hallazgos
 - ☑ Capturas de QA, incluidas `-560` y `-900`, dentro de objetivo de peso
-- ☑ Ficha visible en `/temas` como «En desarrollo», con enlace a la tienda
-- ☐ Entrada en el rail principal y estado `ready` (esperan la imaginería única)
+- ☑ Ficha visible en `/temas`, con enlace a la tienda
+- ☑ Entrada en el rail principal y estado `ready`

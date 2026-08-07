@@ -14,8 +14,8 @@
       "posicion": 2,
       "archivo": "60f2fa24f7e2b276b70ff9be60b1238c.jpg",
       "tema": "sillage",
-      "estado": "en_progreso",
-      "nota": "Colección, catálogo y composición implementados; tipos, 296 tests, build y 9 superficies a11y en verde. El seed queda protegido por contratos de colección, categoría, namespace y assets. Tras autorización expresa se usó Higgsfield: siete assets finales generados y optimizados. El octavo trabajo falló por saldo insuficiente (quedaban 6,56 créditos); tres productos, el destacado y tres familias conservan fallback temporal. Al retomar, el usuario pidió completar esos siete assets solo con la suscripción integrada de OpenAI, uno por uno y con WebP ligeros; edición y generación fallaron por red antes de producir resultado, por lo que se detuvieron los reintentos."
+      "estado": "completado",
+      "nota": "Tema y 14 assets terminados. Los siete iniciales se generaron con Higgsfield por autorización expresa; los siete restantes se completaron con la suscripción integrada de OpenAI, en llamadas individuales con pausa y validación entre solicitudes. Todos quedaron optimizados como WebP y se retiraron los fallbacks temporales."
     },
     { "posicion": 3, "archivo": "6a1a7f42fded979ce23514a8bb5c3937.jpg", "tema": null, "estado": "pendiente" },
     { "posicion": 4, "archivo": "a3978f1d35c67011b1d8877eb75adeaa.jpg", "tema": null, "estado": "pendiente" },

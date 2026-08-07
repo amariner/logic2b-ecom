@@ -42,9 +42,9 @@ const orderedProducts = products.toSorted((a, b) => (rank.get(a.slug) ?? 99) - (
 const shownProducts = editorial ? orderedProducts.slice(0, 4) : orderedProducts;
 
 const families = [
-  { id: 'sil-perfume', label: 'Perfume', image: '/images/collections/sillage/sil-cedro-solar.webp', alt: 'Frasco de perfume de autor en vidrio ámbar' },
-  { id: 'sil-oil', label: 'Aceites', image: '/images/collections/sillage/sil-humo-blanco.webp', alt: 'Frasco de vidrio claro sobre fondo marfil' },
-  { id: 'sil-body-care', label: 'Cuidado corporal', image: '/images/collections/sillage/sil-cedro-solar.webp', alt: 'Envase de la colección SILLAGE sobre fondo marfil' },
+  { id: 'sil-perfume', label: 'Perfume', image: '/images/collections/sillage/family-perfume.webp', alt: 'Cinco perfumes de autor en vidrio claro, ámbar y ahumado' },
+  { id: 'sil-oil', label: 'Aceites', image: '/images/collections/sillage/family-oils.webp', alt: 'Cuatro aceites aromáticos en gotero y roll-on' },
+  { id: 'sil-body-care', label: 'Cuidado corporal', image: '/images/collections/sillage/family-body-care.webp', alt: 'Colección de loción, bálsamo, aceite y crema corporal' },
 ] as const;
 ---
 
@@ -106,9 +106,9 @@ const families = [
       <section class="sillage-feature" aria-labelledby="sillage-feature-title">
         <img
           src="/images/collections/sillage/feature-cedro-solar.webp"
-          alt="Frasco de Cedro Solar sobre fondo marfil"
-          width="1200"
-          height="1200"
+          alt="Frasco de Cedro Solar entre formas escultóricas de color ámbar"
+          width="1000"
+          height="1000"
           loading="lazy"
         />
         <div>
@@ -131,7 +131,7 @@ const families = [
           {families.map((family, index) => (
             <a href={`${paths.catalog}?categoria=${family.id}`} class="sillage-family">
               <span><small>{String(index + 1).padStart(2, '0')}</small>{family.label}</span>
-              <img src={family.image} alt={family.alt} width="1200" height="420" loading="lazy" />
+              <img src={family.image} alt={family.alt} width="900" height="900" loading="lazy" />
             </a>
           ))}
         </div>
