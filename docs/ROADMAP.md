@@ -1538,6 +1538,9 @@ E2E/a11y/Lighthouse no aplican. ADR-0010 y el borrador wiki fijan el límite:
 persistente. Sin migración, ruta, navegación, job, dependencia, coste o
 integración ficticia.
 
+Producción: `a10992f2-aed0-4339-a5b1-a962b4e52b1d`; smoke 200 en `/`,
+`/arquitectura`, `/demo/tienda` y `/sitemap.xml`.
+
 ### Siguiente bloque
 
 **R1.11 — contrato de jobs.** Ejecución única/recurrente, lock, timeout,

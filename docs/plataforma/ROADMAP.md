@@ -490,6 +490,9 @@ Producción confirmada: `46334b51-4236-42fa-b6c8-81c323b264ae`.
 8. Verificación: 41 suites, 276 tests, tipos y build en verde. Al no cambiar
    compra, admin o UI, E2E/a11y/Lighthouse no aplican.
 
+Producción confirmada: `a10992f2-aed0-4339-a5b1-a962b4e52b1d`; smoke 200 en
+portada, arquitectura, tienda demo y sitemap.
+
 ## 7. Siguiente bloque
 
 ### R1.11 — Contrato de jobs
