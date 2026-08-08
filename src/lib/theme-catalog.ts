@@ -12,6 +12,15 @@ export const THEME_FILTERS = [
 export type ThemeFilterId = (typeof THEME_FILTERS)[number]['id'];
 export type ThemeCategoryId = Exclude<ThemeFilterId, 'all'>;
 
+/**
+ * El registro añade cada tema nuevo al final. El catálogo comercial invierte
+ * una copia para enseñar primero las incorporaciones más recientes sin mutar
+ * el orden estable que consumen el selector y el resto de la demo.
+ */
+export function newestThemesFirst<T>(themes: readonly T[]): T[] {
+  return themes.toReversed();
+}
+
 const THEME_CATEGORIES = {
   editorial: ['tecnico'],
   industrial: ['tecnico'],

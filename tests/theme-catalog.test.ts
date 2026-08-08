@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { defaultTheme, demoThemes } from '../src/lib/demo-themes';
 import {
   THEME_FILTERS,
+  newestThemesFirst,
   normalizeThemeSearch,
   themeCategoryIds,
   themeSearchText,
@@ -10,6 +11,18 @@ import {
 const themes = demoThemes.filter((theme) => theme.id !== defaultTheme.id);
 
 describe('catálogo navegable de temas', () => {
+  it('enseña las altas más recientes primero sin mutar el registro', () => {
+    const registrationOrder = ['editorial', 'argent', 'sillage'] as const;
+
+    expect(newestThemesFirst(registrationOrder)).toEqual(['sillage', 'argent', 'editorial']);
+    expect(registrationOrder).toEqual(['editorial', 'argent', 'sillage']);
+    expect(newestThemesFirst(themes).map((theme) => theme.id).slice(0, 3)).toEqual([
+      'sillage',
+      'argent',
+      'stretch',
+    ]);
+  });
+
   it('asigna al menos un filtro visible a cada tema público', () => {
     for (const theme of themes) expect(themeCategoryIds(theme), theme.id).not.toHaveLength(0);
   });

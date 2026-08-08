@@ -13,7 +13,7 @@ import Landing from '../layouts/Landing.astro';
 import { MAIN_DEMO_HREF } from '../lib/nav';
 import { demoThemes, defaultTheme } from '../lib/demo-themes';
 import { collections, storePaths } from '../collections';
-import { THEME_FILTERS, themeCategoryIds, themeSearchText } from '../lib/theme-catalog';
+import { THEME_FILTERS, newestThemesFirst, themeCategoryIds, themeSearchText } from '../lib/theme-catalog';
 
 /**
  * Tienda viva de cada tema (9B: un tema desarrollado = una tienda con URL).
@@ -54,7 +54,7 @@ const sampleFiles = new Set(
 );
 const hasSample = (sample: string | null): boolean => Boolean(sample) && sampleFiles.has(sample!);
 
-const styles = demoThemes.filter((t) => t.id !== defaultTheme.id);
+const styles = newestThemesFirst(demoThemes.filter((t) => t.id !== defaultTheme.id));
 
 const layoutLabels: Record<string, string> = {
   // rejilla
