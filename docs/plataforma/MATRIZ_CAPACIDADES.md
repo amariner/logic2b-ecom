@@ -40,9 +40,9 @@ su alcance requiera.
 |---|---|---|---|---|---|
 | CAT-001 | Producto básico | núcleo | P0 | actual | Nombre, slug, descripción, precio, stock, imagen, categoría y actividad. |
 | CAT-002 | Colecciones/catálogos separados | núcleo | P0 | actual | Catálogos visuales aislados sobre contratos compartidos. |
-| CAT-003 | Producto y variante separados | núcleo | P0 | especificado | El producto describe; la variante vendible tiene SKU, precio, estado y referencia de inventario, con default 1:1 para producto simple. |
-| CAT-004 | Opciones y valores | núcleo | P0 | especificado | Opciones/valores ordenados y combinación única por variante; un producto simple no necesita opciones. |
-| CAT-005 | SKU, GTIN/EAN, MPN y marca | núcleo | P1 | especificado | SKU único sin distinguir mayúsculas, identificadores opcionales en variante y marca editorial en producto. |
+| CAT-003 | Producto y variante separados | núcleo | P0 | parcial | R2.2 materializa esquema y default 1:1 con snapshots; dominio, lectura y referencia de inventario llegan en R2.3/R2.7. |
+| CAT-004 | Opciones y valores | núcleo | P0 | parcial | Tablas, orden, FKs cruzadas y firma única existen; faltan dominio y CRUD de R2.3–R2.4. |
+| CAT-005 | SKU, GTIN/EAN, MPN y marca | núcleo | P1 | parcial | SKU `NOCASE`, GTIN y MPN existen en variante; faltan escritura canónica y marca editorial. |
 | CAT-006 | Taxonomía y categoría normalizada | módulo | P1 | pendiente | Categoría interna + mapeos externos versionados. |
 | CAT-007 | Atributos tipados por categoría | módulo | P1 | parcial | Texto, número, unidad, booleano, referencia y lista validados. |
 | CAT-008 | Galería multimedia | núcleo | P1 | parcial | Varias imágenes/vídeo, alt, foco, orden y asociación a variante. |

@@ -88,7 +88,7 @@ Cada migración se diseña y ensaya sobre una copia antes de tocar el esquema vi
 | Orden | Bloque de una sesión | Entregables y criterio específico | Estado |
 |---:|---|---|---|
 | 13 | **R2.1 Modelo objetivo y plan de migración** | ERD/ADR para producto-variante, inventario, pago, fulfillment y reembolso; compatibilidad con seeds y export; cero código de escritura. | ✅ 2026-08-07 |
-| 14 | **R2.2 Producto-variante: esquema** | Migración aditiva, backfill 1:1, constraints/índices y restore rehearsal; producto simple sigue idéntico. | ⬜ |
+| 14 | **R2.2 Producto-variante: esquema** | Migración aditiva, backfill 1:1, constraints/índices y restore rehearsal; producto simple sigue idéntico. | ✅ 2026-08-08 |
 | 15 | **R2.3 Producto-variante: dominio y lectura** | Repositorio y tipos canónicos; storefront y quote leen variante; guardarraíl prohíbe precio desde cliente. | ⬜ |
 | 16 | **R2.4 Producto-variante: admin y seed** | CRUD de opciones/variantes/SKU/estado con validación; import/export y seed actual migrados. | ⬜ |
 | 17 | **R2.5 Media y atributos tipados** | Galería, alt/foco/orden/asociación a variante; atributos con definición, valor y validación. | ⬜ |
@@ -586,14 +586,41 @@ a bloques posteriores. R1 queda cerrado sin declarar capacidades futuras.
 8. `pnpm check` pasa con 44 suites y 294 tests, tipos y build. Compra, admin,
    esquema y producción no cambian; E2E/a11y/Lighthouse/deploy no aplican.
 
+### R2.2 — Producto-variante: esquema — ✅ 2026-08-08
+
+1. `0007_product_variants.sql` añade variante vendible, opciones, valores y
+   relaciones con FKs compuestas; SKU es único sin distinguir mayúsculas,
+   precio/compare-at conservan sus guardas y una firma canónica impide repetir
+   combinaciones. `order_items` gana referencia y snapshots nullable sin retirar
+   ninguna columna legacy ni activar un lector nuevo.
+2. El backfill crea exactamente una variante `LEGACY-{product_id}` por producto,
+   copia precio, compare-at, actividad y timestamps, y enlaza las líneas
+   históricas. El seed v1 reconstruye las mismas filas y snapshots después de
+   cada reset; dos resets consecutivos quedan idempotentes.
+3. `rehearse-r2-product-variants.mjs` convierte el preflight de R2.1 en once
+   guardas bloqueantes, restaura un export remoto fresco en SQLite aislada,
+   aplica la migración, compara todas las columnas de las 12 tablas legacy y
+   vuelve a restaurar el dump migrado.
+4. Ensayo real: 194 productos → 194 variantes, 8 pedidos y 13 líneas; hashes
+   legacy idénticos antes/después/restore, cero violaciones FK y `integrity_check
+   = ok`. Wrangler aplicó `0007` y resembró la D1 local: 194/194 y cero líneas
+   incompletas.
+5. Verificación completa: 45 suites y 300 tests, tipos Astro y build en verde.
+   No cambian ruta de compra, UI, inventario, pagos, fulfillment ni dependencias;
+   E2E/a11y/Lighthouse no aplican.
+6. La D1 remota conserva `0001`–`0006`: aplicar `0007` sin desplegar el seed
+   compatible permitiría que el Worker servido borrase el backfill en su cron.
+   La puerta separada de actualización/despliegue Astro se resuelve antes de
+   migrar producción; el export remoto fresco queda como evidencia de ensayo,
+   no como autorización para saltarse esa puerta.
+
 ## 7. Siguiente bloque
 
-### R2.2 — Producto-variante: esquema
+### R2.3 — Producto-variante: dominio y lectura
 
-Tras aprobación expresa de la puerta de esquema, convertir solo la parte
-producto-variante de ADR-0012 en migración aditiva: tablas de variantes,
-opciones/valores, columnas de compatibilidad y backfill 1:1. Ensayar forward y
-restore sobre una copia aislada, fijar constraints/índices y demostrar que el
-producto simple sigue idéntico. Inventario, pagos, fulfillment y reembolsos no
-se migran todavía. La actualización de Astro permanece como puerta separada
-antes de desplegar y no se mezcla con el modelo transaccional.
+Crear tipos y repositorio canónicos de producto-variante, ejecutar shadow-read
+contra las columnas legacy y migrar storefront/quote mediante flag reversible.
+Toda diferencia bloquea el corte; el servidor continúa decidiendo precio y
+disponibilidad. No tocar admin, seed v2, inventario ni pagos. La actualización
+de Astro y la aplicación remota de `0007` conservan su puerta separada antes de
+cualquier despliegue.

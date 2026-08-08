@@ -47,6 +47,10 @@ export function seedStatements(): string[] {
     'DELETE FROM order_items',
     'DELETE FROM emails_outbox',
     'DELETE FROM orders',
+    'DELETE FROM product_variant_option_values',
+    'DELETE FROM product_option_values',
+    'DELETE FROM product_options',
+    'DELETE FROM product_variants',
     'DELETE FROM shipping_rates',
     'DELETE FROM products',
   ];
@@ -77,6 +81,18 @@ export function seedStatements(): string[] {
     );
   }
 
+  // Compatibilidad R2.2: el seed v1 sigue siendo la fuente de productos
+  // simples y materializa una variante default 1:1. R2.4 ampliara el contrato
+  // a opciones/variantes explicitas; hasta entonces no hay lector nuevo.
+  statements.push(
+    `INSERT INTO product_variants (` +
+      `product_id, sku, title, price_cents, compare_at_price_cents, status, is_default, ` +
+      `option_signature, created_at, updated_at` +
+    `) SELECT id, 'LEGACY-' || id, '', price_cents, compare_at_price_cents, ` +
+      `CASE active WHEN 1 THEN 'active' ELSE 'archived' END, 1, NULL, created_at, created_at ` +
+    `FROM products ORDER BY id`,
+  );
+
   for (const rate of shopConfig.shipping.seedRates) {
     statements.push(
       `INSERT INTO shipping_rates (zone, label, price_cents, free_over_cents, active) VALUES (` +
@@ -90,6 +106,17 @@ export function seedStatements(): string[] {
   // los productos y pedidos ya insertados en esta misma batch. SOLO DEMO — un
   // cliente real borra esta línea (ver seed/demo-orders.ts).
   statements.push(...demoOrderStatements());
+
+  // Las fixtures legacy aun insertan order_items por product_id. Congelamos
+  // tambien su variante default para que un reset no deshaga el backfill.
+  statements.push(
+    `UPDATE order_items SET ` +
+      `variant_id = (SELECT pv.id FROM product_variants pv ` +
+        `WHERE pv.product_id = order_items.product_id AND pv.is_default = 1), ` +
+      `sku_snapshot = (SELECT pv.sku FROM product_variants pv ` +
+        `WHERE pv.product_id = order_items.product_id AND pv.is_default = 1), ` +
+      `product_name_snapshot = name_snapshot, variant_name_snapshot = NULL`,
+  );
 
   return statements;
 }

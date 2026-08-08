@@ -117,9 +117,9 @@ describe('integridad del seed', () => {
   it('genera SQL con limpieza previa y sin comillas sin escapar', () => {
     const stmts = seedStatements();
     expect(stmts[0]).toContain('DELETE FROM');
-    // 9 DELETE (incluye outbox + audit log) + 60 productos + colecciones +
-    // 4 tarifas + las fixtures de pedidos de demo (9B.2)
-    expect(stmts.length).toBe(9 + 60 + collectionSeedProducts.length + 4 + demoOrderStatements().length);
+    // 13 DELETE (incluye tablas de variante) + productos + backfill de
+    // variantes + 4 tarifas + fixtures + snapshots de variante de las lineas.
+    expect(stmts.length).toBe(13 + 60 + collectionSeedProducts.length + 1 + 4 + demoOrderStatements().length + 1);
     for (const stmt of stmts) {
       // apóstrofes escapados como '' — nunca un quote suelto dentro de un valor
       expect(() => stmt).not.toThrow();

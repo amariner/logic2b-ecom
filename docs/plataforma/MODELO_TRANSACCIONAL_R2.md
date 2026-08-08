@@ -1,8 +1,9 @@
 # Modelo transaccional objetivo de R2
 
-> Diseño cerrado en R2.1. No es una migración ejecutable: fija el destino, las
-> invariantes, el orden de backfill y las puertas que debe superar cada bloque
-> R2.2–R2.14. El esquema vivo sigue siendo `0001`–`0006`.
+> Diseño cerrado en R2.1: fija el destino, las invariantes, el orden de backfill
+> y las puertas de R2.2–R2.14. R2.2 ya materializa producto-variante en la
+> migración versionada `0007`; producción conserva `0001`–`0006` hasta superar
+> la puerta separada de actualización/despliegue Astro.
 
 ## 1. Punto de partida y objetivo
 
@@ -61,7 +62,7 @@ erDiagram
 
 ## 3. Contratos por agregado
 
-Los nombres son canónicos para el diseño. R2.2 convertirá la parte
+Los nombres son canónicos para el diseño. R2.2 convierte la parte
 producto-variante en SQL exacto; los bloques de ledger harán lo mismo cuando
 llegue su puerta de esquema. Ningún bloque puede reinterpretar estas
 invariantes en silencio.
@@ -284,16 +285,15 @@ La muestra contenía 194 productos, 8 pedidos, 13 líneas, 21 eventos, 16 emails
 fichero temporal ocupó 133.903 bytes. `_cf_METADATA` es metadata local de
 Miniflare y no forma parte del export de aplicación, correctamente.
 
-Antes de R2.2 se repite con un export remoto fresco y se restaura en una base
-D1 aislada, nunca encima de producción. La red oficial no estuvo disponible
-durante R2.1, por lo que los comandos remotos y cualquier mecanismo adicional
-de recuperación de Cloudflare deben revalidarse contra su documentación y el
-`wrangler --help` instalado en esa sesión.
+Antes de R2.2 se repitió con un export remoto fresco y se restauró en una base
+aislada, nunca encima de producción; la evidencia queda en §10. Cada migración
+posterior repetirá la misma operación y revalidará los comandos con el
+`wrangler --help` instalado en su sesión.
 
 ## 9. Consultas de preflight obligatorias
 
-El script de R2.2 deberá convertir estas condiciones en pruebas, no ejecutarlas
-como correcciones:
+El script de R2.2 convierte estas condiciones en pruebas, no las ejecuta como
+correcciones:
 
 - productos sin slug, precio/stock inválido o más de un catálogo inesperado;
 - líneas cuyo `product_id` no existe o cuyos snapshots/qty son inválidos;
@@ -305,3 +305,19 @@ como correcciones:
 
 Un resultado distinto de cero genera informe y bloquea el corte. No se borra,
 redondea, reembolsa ni repone nada durante un backfill de estructura.
+
+## 10. Evidencia de R2.2
+
+El 2026-08-08 la puerta fue aprobada expresamente y se ejecutó contra un export
+remoto fresco de 136.496 bytes. El script reproducible restauró las 12 tablas
+legacy, aplicó `0007`, generó un dump de 132.000 bytes y lo restauró en una
+segunda SQLite. Los 194 productos produjeron 194 variantes default; 8 pedidos y
+13 líneas conservaron snapshots y referencia; los hashes de todas las columnas
+legacy coincidieron antes, después y tras restore. `foreign_key_check` quedó en
+cero e `integrity_check` en `ok`.
+
+Wrangler aplicó la migración y el seed compatible en D1 local con 194/194 filas,
+cero líneas incompletas y cero violaciones FK. Producción no se migró: el Worker
+servido todavía contiene el cron anterior, que no reconstruye variantes, y la
+actualización Astro ya estaba fijada como puerta independiente antes de otro
+deploy. R2.2 queda cerrado en repo/local sin falsear el estado remoto.

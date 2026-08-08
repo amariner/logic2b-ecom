@@ -73,6 +73,10 @@ venta o servicios logísticos propios.
 - [`adr/0012-modelo-transaccional-r2.md`](adr/0012-modelo-transaccional-r2.md):
   decisión de separación de producto/variante, inventario, pago, reembolso y
   fulfillment mediante transición incremental.
+- [`../../migrations/0007_product_variants.sql`](../../migrations/0007_product_variants.sql):
+  esquema aditivo R2.2, backfill default 1:1 y snapshots compatibles de línea.
+- [`../../scripts/rehearse-r2-product-variants.mjs`](../../scripts/rehearse-r2-product-variants.mjs):
+  preflight, forward, reconciliación legacy y restore aislado de R2.2.
 - [`../../platform.config.ts`](../../platform.config.ts): manifest del
   despliegue actual, basado en un preset técnico y sin valores secretos.
 - [`../../src/platform/configuration/`](../../src/platform/configuration/):
