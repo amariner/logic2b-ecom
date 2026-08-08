@@ -608,11 +608,10 @@ a bloques posteriores. R1 queda cerrado sin declarar capacidades futuras.
 5. Verificación completa: 45 suites y 300 tests, tipos Astro y build en verde.
    No cambian ruta de compra, UI, inventario, pagos, fulfillment ni dependencias;
    E2E/a11y/Lighthouse no aplican.
-6. La D1 remota conserva `0001`–`0006`: aplicar `0007` sin desplegar el seed
-   compatible permitiría que el Worker servido borrase el backfill en su cron.
-   La puerta separada de actualización/despliegue Astro se resuelve antes de
-   migrar producción; el export remoto fresco queda como evidencia de ensayo,
-   no como autorización para saltarse esa puerta.
+6. Al cerrar R2.2 la D1 remota conservaba `0001`–`0006`: aplicar `0007` sin el
+   seed compatible habría permitido que el Worker servido borrase el backfill.
+   La puerta se superó el 2026-08-08 con upload sin tráfico, backup restaurado,
+   migración remota y corte posterior del binario compatible.
 
 ### R2.3 — Producto-variante: dominio y lectura — ✅ 2026-08-08
 
@@ -636,9 +635,9 @@ a bloques posteriores. R1 queda cerrado sin declarar capacidades futuras.
 6. No cambian admin, seed v2, esquema, inventario, pagos, UI ni dependencias. La
    demo pública continúa con fixtures locales y endpoints 410; el storefront
    canónico pertenece al motor clonable, sin reconectar la muestra a D1.
-7. Producción conserva `0001`–`0006`. No se despliega este binario ni se aplica
-   `0007` remotamente hasta superar la puerta coordinada de Astro + seed ya
-   registrada en R2.2.
+7. Al cerrar R2.3 producción conservaba `0001`–`0006`. El 2026-08-08 se superó
+   la puerta coordinada y se desplegó este binario junto con `0007`, conservando
+   lectura reversible y seed compatible.
 8. Verificación del bloque: 46 suites y 308 tests en la composición sin trabajo
    ajeno incompleto, Astro sin diagnósticos, build completo y E2E local 27/27.
    UI/a11y/Lighthouse y deploy no aplican.
@@ -651,8 +650,9 @@ Extender CRUD, validación, seed e import/export para escribir producto,
 opciones y variantes con doble escritura de los espejos legacy. Mantener la UI
 de variantes ausente cuando la capacidad no esté activa y ensayar reset/backup
 restaurable. No tocar todavía media/atributos, ledger de inventario, pagos ni
-fulfillment. La actualización de Astro y la aplicación remota de `0007`
-conservan su puerta separada antes de cualquier despliegue.
+fulfillment. La puerta coordinada de Astro + `0007` quedó ejecutada en
+producción el 2026-08-08; no cambia que R2.4 siga abierto hasta completar el
+CRUD seguro de combinaciones.
 
 **Corte local 1 (2026-08-08, en curso).** El PATCH administrativo sincroniza
 precio, precio anterior, actividad/estado y metadatos de la variante default
@@ -665,3 +665,13 @@ FKs. Falta el CRUD seguro de combinaciones no default; por eso R2.4 sigue
 abierto y no cambia aún el estado público de CAT-003/004/005.
 Verificación del corte: 333 archivos Astro sin diagnósticos, 46 suites y **312
 tests**, restore aislado con `foreign_key_check` limpio y build completo.
+
+**Corte de producción (2026-08-08, cerrado).** Un export remoto fresco se
+restauró antes de migrar (`integrity_check = ok`, cero FK; SHA-256
+`447a1d3a44f606525c84be71b4b9223ec038c3c42792fd9b43e704a365d2ea90`).
+Después de aplicar `0007`, D1 quedó en 194 productos/194 variantes default, 13
+líneas completas, cero divergencias y cero SKU duplicados. La versión Worker
+`193a5610-1b76-4534-92ce-a5ade571c732` (`release-0d9c447`) sirve el 100 % del
+tráfico, con dominio y ambos cron sincronizados. E2E de producción 27/27 y
+auditoría posterior sin escrituras ni violaciones FK. El despliegue no cierra
+R2.4: solo publica de forma coherente el corte compatible ya terminado.

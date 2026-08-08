@@ -68,7 +68,7 @@ reconciliación se conserva abajo por contexto.
 ## Repo y entornos
 
 - GitHub: `https://github.com/amariner/logic2b-ecom` (rama `main`).
-- Cloudflare: **en producción** — Worker `ecom-logic2b` en https://ecom.logic2b.com, D1 remota `ecom-demo` (`7ae9b06d-3664-4790-a87c-04bb4c67e97a`), cron reset cada 6 h, cuenta marinerandreu@gmail.com.
+- Cloudflare: **en producción** — Worker `ecom-logic2b` en https://ecom.logic2b.com, D1 remota `ecom-demo` (`7ae9b06d-3664-4790-a87c-04bb4c67e97a`), cron reset cada 6 h, cuenta marinerandreu@gmail.com. Corte coordinado del 2026-08-08: versión `193a5610-1b76-4534-92ce-a5ade571c732` al 100 %, migraciones `0001`–`0007` aplicadas y triggers de reset/outbox sincronizados.
 
 ## Fase 13 — Plataforma modular y paridad de capacidad
 
@@ -722,6 +722,7 @@ modifica lógica de precios, envíos, checkout, pedidos, D1 ni APIs.** Verificac
 local: build en verde; carrito y ficha probados con clic real; capturas a 1440 y
 390×844; auditor de accesibilidad con **0 errores y 0 avisos en 9 superficies**;
 `pnpm check` con 333 archivos Astro, 308 tests y build en verde.
+Desplegado en producción el 2026-08-08; tienda y asset principal responden 200.
 Ficha completa en [`docs/temas/summit.md`](temas/summit.md).
 
 ### Línea paralela · tema LÍTICA (2026-08-08, sesión local)
@@ -739,7 +740,8 @@ Verificación local: build y chequeo Astro en verde (338 archivos, 0
 diagnósticos); filtro, búsqueda vacía, ficha y carrito probados con interacción
 real; capturas a 1440 y 390×844; auditor de accesibilidad con **0 errores y 0
 avisos en 9 superficies**; 46 suites y **312 tests** en verde. Ficha completa en
-[`docs/temas/litica.md`](temas/litica.md).
+[`docs/temas/litica.md`](temas/litica.md). Desplegado en producción el
+2026-08-08; tienda y asset principal responden 200.
 
 ### Pendiente en la Fase 9B
 
@@ -1693,10 +1695,9 @@ responden 200 tras propagación. Sin migración, dependencia ni cambio de motor.
   pedidos y 13 líneas; `integrity_check = ok`.
 - Verificación: 45 suites, **300 tests**, tipos Astro y build en verde. No hay
   cambio de compra/admin/UI, dependencia, inventario, pago o fulfillment.
-- Producción conserva migraciones `0001`–`0006`: el Worker servido aún lleva el
-  cron anterior y aplicarle `0007` solo borraría el backfill en el siguiente
-  reset. La actualización/despliegue Astro sigue como puerta separada y se hará
-  antes de migrar la D1 remota.
+- Al cerrar R2.2 producción conservaba `0001`–`0006`; la puerta impedía aplicar
+  `0007` con el Worker anterior. Se superó el 2026-08-08 mediante upload sin
+  tráfico, backup restaurado, migración remota y corte del binario compatible.
 
 ### R2.3 — producto-variante: dominio y lectura — ✅ cerrado 2026-08-08
 
@@ -1715,8 +1716,21 @@ responden 200 tras propagación. Sin migración, dependencia ni cambio de motor.
   legacy conserva el rollback.
 - Verificación del bloque: 46 suites, 308 tests, tipos/build y E2E local 27/27.
   UI/a11y/Lighthouse no aplican.
-- La demo pública permanece local y aislada. No cambian admin, seed v2, UI,
-  esquema, pagos, fulfillment ni dependencias; no hay deploy ni migración remota.
+- Al cerrar R2.3 la demo pública permanecía local y aislada, sin deploy ni
+  migración remota. El despliegue coordinado posterior del 2026-08-08 activó
+  este binario junto con `0007`, sin cambiar pagos, fulfillment ni inventario.
+
+### Corte de producción R2.4 + temas — ✅ 2026-08-08
+
+- Backup D1 previo restaurado en SQLite con `integrity_check = ok`, cero
+  violaciones FK y SHA-256
+  `447a1d3a44f606525c84be71b4b9223ec038c3c42792fd9b43e704a365d2ea90`.
+- `0007_product_variants.sql` aplicada: 194 productos, 194 variantes/default,
+  13 líneas con snapshots completos, cero divergencias y cero SKU duplicados.
+- Worker `193a5610-1b76-4534-92ce-a5ade571c732` (`release-0d9c447`) al 100 %;
+  dominio y cron `0 */6 * * *` + `*/5 * * * *` sincronizados.
+- Portada, `/temas`, SUMMIT, LÍTICA, sus assets y sitemap responden 200. E2E de
+  producción 27/27; después conserva cero audit/outbox y cero violaciones FK.
 
 ### Siguiente bloque
 

@@ -1,9 +1,9 @@
 # Modelo transaccional objetivo de R2
 
 > Diseño cerrado en R2.1: fija el destino, las invariantes, el orden de backfill
-> y las puertas de R2.2–R2.14. R2.2 ya materializa producto-variante en la
-> migración versionada `0007`; producción conserva `0001`–`0006` hasta superar
-> la puerta separada de actualización/despliegue Astro.
+> y las puertas de R2.2–R2.14. R2.2 materializa producto-variante en la
+> migración versionada `0007`; la puerta separada de actualización/despliegue
+> Astro se superó en producción el 2026-08-08 con backup y validación posterior.
 
 ## 1. Punto de partida y objetivo
 
@@ -338,6 +338,7 @@ leen sus fuentes y shadow falla, como exige el rollback reversible.
 
 Quote y checkout resuelven el flag en servidor. El payload sigue limitado a
 slug/cantidad y un importe inyectado por cliente se descarta antes del cálculo.
-No se toca admin, seed v2, esquema, stock, pagos, fulfillment ni la demo local.
-Producción mantiene la puerta coordinada de binario + `0007`; R2.3 no autoriza
-deploy ni migración remota.
+R2.3 no tocó admin, seed v2, esquema, stock, pagos, fulfillment ni la demo
+local, y por sí solo no autorizó deploy ni migración remota. La puerta
+coordinada de binario + `0007` se ejecutó después, el 2026-08-08: backup
+restaurado, 194/194 variantes, E2E 27/27 y cero violaciones FK tras el corte.
