@@ -708,6 +708,22 @@ Hacer barato repetir 8 veces, sin que el scaffold pueda tocar el motor.
   productos reales, añadir al carrito (`ecom-cart:iris` aislado), conmutador
   con las 6 tiendas y banner de demo visible. `pnpm check` en verde (148).
 
+### Línea paralela · tema SUMMIT (2026-08-08, sesión local)
+
+Tercer elemento de `nuevos-temas/cola.json`. SUMMIT replica una dirección de
+lujo alpino con hero editorial inmersivo y mosaico irregular: tres productos a
+ancho uniforme, seguidos por cuatro tarjetas compactas y una campaña vertical.
+La tienda suma 7 productos `sum-*` en tres categorías y 9 assets propios
+generados con la herramienta integrada de OpenAI, optimizados a WebP.
+
+El tema toca solo su kit y los registros previstos: colección, seed,
+componentes, tokens, assets, auditoría, capturas y catálogo comercial. **No
+modifica lógica de precios, envíos, checkout, pedidos, D1 ni APIs.** Verificación
+local: build en verde; carrito y ficha probados con clic real; capturas a 1440 y
+390×844; auditor de accesibilidad con **0 errores y 0 avisos en 9 superficies**;
+`pnpm check` con 333 archivos Astro, 308 tests y build en verde.
+Ficha completa en [`docs/temas/summit.md`](temas/summit.md).
+
 ### Pendiente en la Fase 9B
 
 - **Pasada de fidelidad fina** de los 4 temas contra su captura (se re-hospedaron

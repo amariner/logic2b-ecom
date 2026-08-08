@@ -26,6 +26,7 @@ import { stretchSeedProducts } from './stretch.ts';
 import { arceSeedProducts } from './arce.ts';
 import { argentSeedProducts } from './argent.ts';
 import { sillageSeedProducts } from './sillage.ts';
+import { summitSeedProducts } from './summit.ts';
 // new-theme:seed-imports — no borrar: `pnpm new:theme <id>` añade aquí su import.
 
 export const collectionSeedProducts: readonly SeedProduct[] = [
@@ -45,5 +46,6 @@ export const collectionSeedProducts: readonly SeedProduct[] = [
   ...arceSeedProducts,
   ...argentSeedProducts,
   ...sillageSeedProducts,
+  ...summitSeedProducts,
   // new-theme:seed-entries — no borrar: `pnpm new:theme <id>` añade aquí su spread.
 ];

@@ -29,6 +29,7 @@ import { stretchCollection } from './stretch';
 import { arceCollection } from './arce';
 import { argentCollection } from './argent';
 import { sillageCollection } from './sillage';
+import { summitCollection } from './summit';
 // new-theme:imports — no borrar: `pnpm new:theme <id>` añade aquí su import.
 import type { CollectionCategory, CollectionConfig } from './types';
 
@@ -59,6 +60,7 @@ export const collections: readonly CollectionConfig[] = [
   arceCollection,
   argentCollection,
   sillageCollection,
+  summitCollection,
   // new-theme:entries — no borrar: `pnpm new:theme <id>` añade aquí su entrada.
 ];
 

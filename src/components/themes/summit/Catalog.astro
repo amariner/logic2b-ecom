@@ -1,0 +1,157 @@
+---
+/**
+ * SUMMIT · lujo alpino: hero inmersivo y mosaico irregular de producto.
+ * Réplica estructural de la referencia 6a1a… sin reutilizar marca ni assets.
+ */
+import type { CollectionConfig, StorePaths } from '../../../collections';
+import Filters from './Filters.astro';
+import ProductGrid from './ProductGrid.astro';
+
+type GridProduct = {
+  slug: string;
+  name: string;
+  price_cents: number;
+  image: string;
+  stock: number;
+};
+
+interface Props {
+  paths: StorePaths;
+  products: GridProduct[];
+  collection: CollectionConfig;
+  category?: string | undefined;
+  sort: string;
+  search?: string | undefined;
+}
+
+const { paths, products, collection, category, sort, search } = Astro.props;
+const editorial = !category && !search && sort === 'featured';
+const FEATURED = [
+  'sum-shell-07',
+  'sum-carbon-ski-set',
+  'sum-bib-copper',
+  'sum-orbit-helmet',
+  'sum-downliner-02',
+  'sum-ridge-halfzip',
+  'sum-flask-750',
+];
+const rank = new Map(FEATURED.map((slug, index) => [slug, index]));
+const orderedProducts = products.toSorted((a, b) => (rank.get(a.slug) ?? 99) - (rank.get(b.slug) ?? 99));
+---
+
+<div class="summit">
+  {editorial ? (
+    <section class="summit-hero" aria-labelledby="summit-title">
+      <img
+        src="/images/collections/summit/hero-boundaries.webp"
+        alt="Dos alpinistas avanzan junto a una cascada glaciar"
+        width="1536"
+        height="1024"
+        loading="eager"
+        fetchpriority="high"
+      />
+      <header class="summit-header summit-header--overlay">
+        <a class="summit-wordmark" href={paths.catalog}>{collection.name}</a>
+        <nav aria-label="Colecciones SUMMIT">
+          <a href={paths.catalog} aria-current="page">Nuevo</a>
+          {collection.categories.map((item) => <a href={`${paths.catalog}?categoria=${item.id}`}>{item.label}</a>)}
+        </nav>
+        <div class="summit-actions">
+          <a href={`${paths.catalog}?orden=name`}>Índice</a>
+          <a href={paths.cart}>Bolsa <span data-cart-badge>0</span></a>
+        </div>
+      </header>
+      <div class="summit-hero__copy">
+        <p>Colección alpina / 01</p>
+        <h1 id="summit-title">Más allá<br />de la cota</h1>
+      </div>
+    </section>
+  ) : (
+    <header class="summit-header summit-header--solid">
+      <a class="summit-wordmark" href={paths.catalog}>{collection.name}</a>
+      <nav aria-label="Colecciones SUMMIT">
+        <a href={paths.catalog} aria-current={!category ? 'page' : undefined}>Nuevo</a>
+        {collection.categories.map((item) => <a href={`${paths.catalog}?categoria=${item.id}`} aria-current={category === item.id ? 'page' : undefined}>{item.label}</a>)}
+      </nav>
+      <div class="summit-actions"><a href={paths.cart}>Bolsa <span data-cart-badge>0</span></a></div>
+    </header>
+  )}
+
+  <main class="summit-products" id="catalogo">
+    {!editorial && <h1 class="summit-catalog-title">Colección SUMMIT</h1>}
+    {!editorial && (
+      <Filters
+        paths={paths}
+        collection={collection}
+        count={products.length}
+        activeCategory={category}
+        sort={sort}
+        search={search}
+      />
+    )}
+    {search && products.length > 0 && <p class="summit-results">{products.length} {products.length === 1 ? 'resultado' : 'resultados'} para «{search}»</p>}
+    {orderedProducts.length > 0 ? (
+      <ProductGrid paths={paths} products={orderedProducts} editorial={editorial} />
+    ) : (
+      <div class="summit-empty">
+        <p>{search ? `Nada por aquí para «${search}»` : 'No hay productos en esta colección'}</p>
+        <a href={paths.catalog}>Volver a la colección</a>
+      </div>
+    )}
+  </main>
+
+  <footer class="summit-footer">
+    <a class="summit-wordmark summit-wordmark--footer" href={paths.catalog}>{collection.name}</a>
+    <nav aria-label="Pie de SUMMIT">
+      {collection.categories.map((item) => <a href={`${paths.catalog}?categoria=${item.id}`}>{item.label}</a>)}
+      <a href="/demo/reset">Reiniciar demo</a>
+      <a href="/">Logic2B Ecommerce</a>
+    </nav>
+  </footer>
+</div>
+
+<style>
+  .summit { min-height: 100vh; color: var(--color-foreground); background: var(--color-background); }
+  .summit :where(a) { color: inherit; text-decoration: none; }
+  .summit-hero { position: relative; min-height: min(58vw, 52rem); overflow: hidden; background: #262727; }
+  .summit-hero::after { position: absolute; inset: 0; content: ''; background: linear-gradient(to bottom, rgb(0 0 0 / .28), transparent 30%, transparent 57%, rgb(0 0 0 / .52)); }
+  .summit-hero > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 47%; }
+  .summit-header { z-index: 3; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; min-height: 3.7rem; padding: .85rem clamp(.75rem, 1.35vw, 1.35rem); font: 500 .58rem/1 var(--font-accent); letter-spacing: .035em; }
+  .summit-header--overlay { position: absolute; inset: 0 0 auto; color: #fff; }
+  .summit-header--solid { position: sticky; top: 0; z-index: 30; color: var(--color-foreground); background: color-mix(in srgb, var(--color-background) 94%, transparent); border-bottom: var(--border-width) solid var(--color-border); backdrop-filter: blur(14px); }
+  .summit-header nav, .summit-actions { display: flex; align-items: center; gap: clamp(.7rem, 1.5vw, 1.45rem); }
+  .summit-header nav { justify-content: center; }
+  .summit-actions { justify-content: flex-end; }
+  .summit-header a { padding-block: .45rem; transition: opacity .2s ease; }
+  .summit-header a:hover { opacity: .58; }
+  .summit-wordmark { justify-self: start; font: 400 clamp(1.35rem, 2.1vw, 2rem)/.85 var(--font-display); letter-spacing: -.06em; }
+  .summit-hero__copy { position: absolute; z-index: 2; bottom: clamp(1.2rem, 3vw, 2.6rem); left: 50%; min-width: min(92%, 30rem); padding: 1.1rem 1.4rem; color: #fff; background-color: rgb(10 10 10 / .38); text-align: center; transform: translateX(-50%); }
+  .summit-hero__copy p { margin-bottom: .35rem; font: 600 .54rem/1 var(--font-accent); letter-spacing: .11em; text-transform: uppercase; }
+  .summit-hero__copy h1 { font: var(--weight-display) clamp(2.2rem, 4.8vw, 4.8rem)/.82 var(--font-display); letter-spacing: var(--tracking-display); text-transform: uppercase; }
+  .summit-products { background: var(--color-background); }
+  .summit-results { padding: 1rem; border-bottom: var(--border-width) solid var(--color-border); color: var(--color-muted-foreground); font-size: .7rem; }
+  .summit-catalog-title { padding: 1rem; border-bottom: var(--border-width) solid var(--color-border); font: var(--weight-display) clamp(1.5rem, 2.2vw, 2.2rem)/1 var(--font-display); letter-spacing: var(--tracking-display); }
+  .summit-empty { padding: 8rem 1rem; background: var(--surface-sunken); text-align: center; }
+  .summit-empty p { font: var(--weight-display) 1.4rem/1.1 var(--font-display); }
+  .summit-empty a { display: inline-block; margin-top: 1rem; font-size: .72rem; text-decoration: underline; text-underline-offset: .25rem; }
+  .summit-footer { display: grid; min-height: 17rem; grid-template-columns: 1fr auto; gap: 3rem; align-items: end; padding: clamp(2rem, 5vw, 5rem) clamp(1rem, 2vw, 2rem); color: #e8e8e5; background: #111210; }
+  .summit-wordmark--footer { align-self: end; font-size: clamp(3.5rem, 10vw, 9rem); }
+  .summit-footer nav { display: grid; gap: .35rem; font: 500 .62rem/1.2 var(--font-accent); text-align: right; }
+  .summit-footer nav a { display: inline-flex; min-height: 1.5rem; align-items: center; justify-content: flex-end; }
+
+  @media (max-width: 740px) {
+    .summit-hero { min-height: 82svh; }
+    .summit-hero > img { object-position: 56% center; }
+    .summit-header { grid-template-columns: 1fr auto; }
+    .summit-header nav { display: none; }
+    .summit-actions a:first-child { display: none; }
+    .summit-hero__copy { bottom: 1rem; }
+    .summit-footer { grid-template-columns: 1fr; }
+    .summit-wordmark--footer { font-size: 22vw; }
+    .summit-footer nav { text-align: left; }
+    .summit-footer nav a { justify-content: flex-start; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .summit-header a { transition: none; }
+  }
+</style>

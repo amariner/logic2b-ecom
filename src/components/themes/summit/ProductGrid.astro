@@ -1,0 +1,108 @@
+---
+/** SUMMIT · mosaico 3 columnas → 2×2 + campaña de la referencia. */
+import type { StorePaths } from '../../../collections';
+import { formatEurCents } from '../../../lib/format';
+
+type GridProduct = {
+  slug: string;
+  name: string;
+  price_cents: number;
+  image: string;
+  stock: number;
+};
+
+interface Props {
+  paths: StorePaths;
+  products: GridProduct[];
+  editorial: boolean;
+}
+
+const { paths, products, editorial } = Astro.props;
+---
+
+<ul class:list={['summit-grid', !editorial && 'summit-grid--uniform']}>
+  {products.map((product, index) => (
+    <Fragment>
+      <li class={`summit-card summit-card--${index + 1}`}>
+        <div class="summit-card__media">
+          <img src={product.image} alt={product.name} width="1024" height="1024" loading={index < 3 ? 'eager' : 'lazy'} />
+        </div>
+        <div class="summit-card__copy">
+          <h2><a href={paths.product(product.slug)}>{product.name}</a></h2>
+          <p>{formatEurCents(product.price_cents)}</p>
+        </div>
+        <button
+          class="summit-card__add"
+          type="button"
+          data-summit-add={product.slug}
+          disabled={product.stock === 0}
+          aria-label={product.stock === 0 ? `${product.name} agotado` : `Añadir ${product.name} al carrito`}
+        >{product.stock === 0 ? '×' : '+'}</button>
+      </li>
+      {editorial && index === 4 && (
+        <li class="summit-campaign">
+          <a href={`${paths.catalog}?categoria=sum-outerwear`} aria-label="Explorar la colección de abrigo SUMMIT">
+            <img src="/images/collections/summit/campaign-glacier.webp" alt="Alpinista de espaldas ante un glaciar" width="1024" height="1280" loading="lazy" />
+            <span>Field notes / Glacier 01</span>
+          </a>
+        </li>
+      )}
+    </Fragment>
+  ))}
+</ul>
+
+<script>
+  import { addToCart } from '../../../lib/cart-client';
+
+  document.querySelectorAll<HTMLButtonElement>('[data-summit-add]').forEach((button) => {
+    button.addEventListener('click', () => {
+      addToCart(button.dataset.summitAdd ?? '');
+      const previous = button.textContent;
+      button.textContent = '✓';
+      setTimeout(() => (button.textContent = previous), 850);
+    });
+  });
+</script>
+
+<style>
+  .summit-grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: var(--grid-gap); margin: 0; padding: 0; list-style: none; background: var(--color-border); }
+  .summit-card { position: relative; min-width: 0; color: var(--color-foreground); background: var(--color-background); }
+  .summit-card--1 { grid-column: 1 / 5; grid-row: 1; }
+  .summit-card--2 { grid-column: 5 / 9; grid-row: 1; }
+  .summit-card--3 { grid-column: 9 / 13; grid-row: 1; }
+  .summit-card--4 { grid-column: 1 / 4; grid-row: 2; }
+  .summit-card--5 { grid-column: 4 / 7; grid-row: 2; }
+  .summit-card--6 { grid-column: 1 / 4; grid-row: 3; }
+  .summit-card--7 { grid-column: 4 / 7; grid-row: 3; }
+  .summit-card__media { display: grid; aspect-ratio: 1; place-items: center; overflow: hidden; background: var(--surface-product); }
+  .summit-card__media img { width: 100%; height: 100%; object-fit: contain; transition: transform .35s ease; }
+  .summit-card:hover .summit-card__media img { transform: scale(1.025); }
+  .summit-card__copy { min-height: 3.6rem; padding: .65rem .65rem .8rem; font: 500 clamp(.5rem, .62vw, .66rem)/1.25 var(--font-accent); }
+  .summit-card__copy h2 { font: inherit; }
+  .summit-card__copy h2 a::after { position: absolute; inset: 0; content: ''; }
+  .summit-card__copy p { margin-top: .18rem; color: var(--color-muted-foreground); font-size: .9em; }
+  .summit-card__add { position: absolute; z-index: 2; top: .55rem; right: .55rem; display: grid; width: 1.65rem; height: 1.65rem; place-items: center; border: 0; border-radius: 50%; color: var(--color-brand-fg); background: var(--color-brand); font: 500 .82rem/1 var(--font-accent); cursor: pointer; }
+  .summit-card__add:hover { background: var(--color-brand-dark); }
+  .summit-card__add:disabled { cursor: not-allowed; opacity: .45; }
+  .summit-card__add:focus-visible, .summit-card__copy a:focus-visible, .summit-campaign a:focus-visible { outline: .15rem solid var(--color-brand); outline-offset: -.15rem; }
+  .summit-campaign { position: relative; min-height: 0; grid-column: 7 / 13; grid-row: 2 / 4; overflow: hidden; background: #292b2a; }
+  .summit-campaign a { position: absolute; inset: 0; display: block; }
+  .summit-campaign img { width: 100%; height: 100%; object-fit: cover; transition: transform .5s ease; }
+  .summit-campaign:hover img { transform: scale(1.018); }
+  .summit-campaign span { position: absolute; right: .8rem; bottom: .8rem; padding: .4rem .55rem; color: #fff; background-color: rgb(10 10 10 / .6); font: 600 .52rem/1 var(--font-accent); letter-spacing: .08em; text-transform: uppercase; }
+
+  .summit-grid--uniform { grid-template-columns: repeat(3, minmax(0, 1fr)); background: var(--color-background); }
+  .summit-grid--uniform .summit-card { grid-column: auto; grid-row: auto; }
+
+  @media (max-width: 740px) {
+    .summit-grid, .summit-grid--uniform { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .summit-grid .summit-card { grid-column: auto; grid-row: auto; }
+    .summit-card__copy { min-height: 3.4rem; padding-inline: .45rem; font-size: .55rem; }
+    .summit-card__add { top: .4rem; right: .4rem; }
+    .summit-campaign { aspect-ratio: 4 / 5; grid-column: 1 / -1; grid-row: auto; }
+    .summit-campaign a { position: absolute; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .summit-card__media img, .summit-campaign img { transition: none; }
+  }
+</style>

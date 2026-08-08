@@ -706,6 +706,36 @@ export const demoThemes: DemoTheme[] = [
       annotations: false, darkFooter: false,
     },
   },
+  {
+    id: 'summit',
+    label: 'SUMMIT',
+    hint: 'Lujo alpino: campaña inmersiva, precisión técnica y mosaico editorial.',
+    reference: { name: 'Luxury alpine expedition study', file: '16-summit.webp' },
+    sample: null,
+    bestFor: ['Moda técnica', 'Deporte y montaña', 'Marcas premium de equipamiento'],
+    status: 'ready',
+    vars: {
+      '--color-brand': '#8b4e2e',
+      '--color-brand-dark': '#63341f',
+      '--color-brand-fg': '#ffffff',
+      '--font-display': "Georgia, 'Times New Roman', serif",
+      '--font-accent': SYSTEM_SANS,
+      '--tracking-display': '-0.055em',
+      '--weight-display': '400',
+      '--radius-btn': '0rem',
+      '--radius-card': '0rem',
+      '--border-width': '1px',
+      '--surface-product': '#f5f5f3',
+      '--surface-sunken': '#ececea',
+      '--space-density': '0.75',
+      '--grid-gap': '1px',
+    },
+    layout: {
+      gridCols: 3, gridStyle: 'irregular', nav: 'immersive', hero: 'fullbleed',
+      card: 'divided', filters: 'dropdown', density: 'compact',
+      annotations: false, darkFooter: true,
+    },
+  },
   // new-theme:themes — no borrar: `pnpm new:theme <id>` añade aquí el tema si falta.
 ];
 
