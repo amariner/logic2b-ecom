@@ -10,6 +10,7 @@ import { quoteCart } from '../../../lib/quote';
 import { flushEventOutbox } from '../../../composition/outbox-dispatcher';
 import { stripeClient } from '../../../lib/stripe';
 import type { NewOrderLine } from '../../../modules/orders';
+import { resolveCatalogReadMode } from '../../../modules/catalog';
 import {
   OperationalError,
   asOperationalError,
@@ -70,7 +71,9 @@ export const POST: APIRoute = async ({ request, locals }) => {
     const paths = storePaths(storeCollection?.id ?? DEFAULT_COLLECTION_ID);
 
     // Revalidar TODO contra D1: precios, stock y cobertura de envío (§7.4)
-    const quote = await quoteCart(env.DB, { lines, postal_code: customer.postal_code });
+    const quote = await quoteCart(env.DB, { lines, postal_code: customer.postal_code }, {
+      catalogReadMode: resolveCatalogReadMode(env.CATALOG_READ_MODE),
+    });
     if (!quote.purchasable) {
       return Response.json({ error: 'Hay productos no disponibles en el carrito', quote }, { status: 409 });
     }

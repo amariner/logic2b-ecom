@@ -3,6 +3,8 @@
 type Env = {
   DB: D1Database;
   DEMO_MODE: string;
+  /** Rollout R2.3: legacy | shadow (por defecto) | variant. */
+  CATALOG_READ_MODE?: string;
   /** Assets estáticos del Worker (dist/). Puede faltar en `astro dev`. */
   ASSETS?: { fetch: (req: Request | string) => Promise<Response> };
   /** Si falta, el checkout simula el pago (demo). Con clave → Stripe real. */

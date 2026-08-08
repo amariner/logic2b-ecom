@@ -1,6 +1,6 @@
 # Núcleo transaccional de un ecommerce que puede crecer
 
-> Borrador interno R2.1. Estado editorial: **no publicable**. Las capacidades
+> Borrador interno actualizado en R2.3. Estado editorial: **no publicable**. Las capacidades
 > CAT-003/004, INV-002/003/004, ORD-007 y FUL-004/005 están especificadas, no
 > disponibles. Esta ficha no genera ruta, sitemap ni promesa comercial.
 
@@ -15,10 +15,10 @@ un núcleo que no confunde hechos distintos.
 ## Respuesta honesta hoy
 
 Logic2B Ecommerce ya recalcula precios y stock en servidor, congela líneas de
-pedido, protege webhooks duplicados y registra eventos/auditoría. R2.1 ha fijado
-el modelo objetivo y su migración incremental. Todavía no ofrece variantes,
-ledger de inventario/pagos, reembolso del PSP ni preparación parcial como
-capacidades operativas.
+pedido, protege webhooks duplicados y registra eventos/auditoría. R2.3 añade el
+dominio y lector canónicos de producto-variante con shadow-read reversible, pero
+todavía no ofrece CRUD de variantes, ledger de inventario/pagos, reembolso del
+PSP ni preparación parcial como capacidades operativas.
 
 ## Estructura de la futura guía
 

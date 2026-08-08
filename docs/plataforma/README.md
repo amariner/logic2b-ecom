@@ -77,6 +77,14 @@ venta o servicios logísticos propios.
   esquema aditivo R2.2, backfill default 1:1 y snapshots compatibles de línea.
 - [`../../scripts/rehearse-r2-product-variants.mjs`](../../scripts/rehearse-r2-product-variants.mjs):
   preflight, forward, reconciliación legacy y restore aislado de R2.2.
+- [`../../src/modules/catalog/domain/product.ts`](../../src/modules/catalog/domain/product.ts):
+  agregado R2.3 de producto editorial, variante vendible, opciones y guardas.
+- [`../../src/modules/catalog/infrastructure/d1-catalog-repository.ts`](../../src/modules/catalog/infrastructure/d1-catalog-repository.ts):
+  lector canónico D1 y proyección temporal de disponibilidad legacy.
+- [`../../src/modules/catalog/application/catalog-reader.ts`](../../src/modules/catalog/application/catalog-reader.ts):
+  rollout reversible `legacy|shadow|variant` y comparación bloqueante.
+- [`wiki/productos-variantes-opciones.md`](wiki/productos-variantes-opciones.md):
+  borrador interno R2.3; no publicable hasta completar escritura e inventario.
 - [`../../platform.config.ts`](../../platform.config.ts): manifest del
   despliegue actual, basado en un preset técnico y sin valores secretos.
 - [`../../src/platform/configuration/`](../../src/platform/configuration/):

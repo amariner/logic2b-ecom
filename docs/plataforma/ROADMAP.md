@@ -39,7 +39,7 @@ improvisan durante la implementación.
 |---|---|---|
 | R0 | Investigación, taxonomía, matriz, roadmap y estrategia wiki | ✅ cerrado 2026-08-06 |
 | R1 | Cimientos modulares y observables | ✅ cerrado 2026-08-07 |
-| R2 | Núcleo transaccional profesional | 🟡 R2.1 cerrado 2026-08-07 |
+| R2 | Núcleo transaccional profesional | 🟡 R2.1–R2.3 cerrados 2026-08-08 |
 | R3 | Operación de pedidos, inventario y fulfillment | ⬜ |
 | R4 | Precios, promociones y modelos de venta | ⬜ |
 | R5 | Clientes, privacidad y mercados | ⬜ |
@@ -89,7 +89,7 @@ Cada migración se diseña y ensaya sobre una copia antes de tocar el esquema vi
 |---:|---|---|---|
 | 13 | **R2.1 Modelo objetivo y plan de migración** | ERD/ADR para producto-variante, inventario, pago, fulfillment y reembolso; compatibilidad con seeds y export; cero código de escritura. | ✅ 2026-08-07 |
 | 14 | **R2.2 Producto-variante: esquema** | Migración aditiva, backfill 1:1, constraints/índices y restore rehearsal; producto simple sigue idéntico. | ✅ 2026-08-08 |
-| 15 | **R2.3 Producto-variante: dominio y lectura** | Repositorio y tipos canónicos; storefront y quote leen variante; guardarraíl prohíbe precio desde cliente. | ⬜ |
+| 15 | **R2.3 Producto-variante: dominio y lectura** | Repositorio y tipos canónicos; storefront y quote leen variante; guardarraíl prohíbe precio desde cliente. | ✅ 2026-08-08 |
 | 16 | **R2.4 Producto-variante: admin y seed** | CRUD de opciones/variantes/SKU/estado con validación; import/export y seed actual migrados. | ⬜ |
 | 17 | **R2.5 Media y atributos tipados** | Galería, alt/foco/orden/asociación a variante; atributos con definición, valor y validación. | ⬜ |
 | 18 | **R2.6 Ledger de inventario: diseño** | Movimientos, balance, razones, reservas y concurrencia; invariantes y SQL propuesto. | ⬜ |
@@ -614,13 +614,42 @@ a bloques posteriores. R1 queda cerrado sin declarar capacidades futuras.
    migrar producción; el export remoto fresco queda como evidencia de ensayo,
    no como autorización para saltarse esa puerta.
 
+### R2.3 — Producto-variante: dominio y lectura — ✅ 2026-08-08
+
+1. `modules/catalog` separa producto editorial, variante vendible, selección de
+   opciones y disponibilidad legacy transitoria. El constructor rechaza default
+   ausente, dinero inválido, SKU/combinación duplicados, firma incoherente y un
+   default no activo para un producto publicado; el agregado sale inmutable.
+2. El repositorio D1 hidrata producto + todas sus variantes/opciones y proyecta
+   storefront/quote desde la variante default. `products.stock` permanece como
+   disponibilidad separada hasta R2.7; no se anticipa un ledger ficticio.
+3. `CATALOG_READ_MODE=legacy|shadow|variant` permite rollback de binario. Shadow
+   ejecuta ambos lectores, compara todos los campos servidos y el orden del
+   catálogo, y lanza un error bloqueante ante cualquier diferencia. Variant
+   corta al nuevo lector; legacy no consulta las tablas R2.
+4. `/api/cart/quote` y `/api/checkout/session` resuelven el modo explícitamente.
+   El contrato del navegador conserva solo `slug` + `qty`: Zod elimina un
+   `price_cents` hostil y la quote usa el precio de la variante en D1.
+5. El seed v1 completo reconcilia por shadow-read todos sus catálogos y slugs.
+   Las pruebas fuerzan además una divergencia de precio y comprueban que shadow
+   la bloquea mientras variant/legacy leen sus respectivas fuentes.
+6. No cambian admin, seed v2, esquema, inventario, pagos, UI ni dependencias. La
+   demo pública continúa con fixtures locales y endpoints 410; el storefront
+   canónico pertenece al motor clonable, sin reconectar la muestra a D1.
+7. Producción conserva `0001`–`0006`. No se despliega este binario ni se aplica
+   `0007` remotamente hasta superar la puerta coordinada de Astro + seed ya
+   registrada en R2.2.
+8. Verificación del bloque: 46 suites y 308 tests en la composición sin trabajo
+   ajeno incompleto, Astro sin diagnósticos, build completo y E2E local 27/27.
+   UI/a11y/Lighthouse y deploy no aplican.
+
 ## 7. Siguiente bloque
 
-### R2.3 — Producto-variante: dominio y lectura
+### R2.4 — Producto-variante: admin y seed
 
-Crear tipos y repositorio canónicos de producto-variante, ejecutar shadow-read
-contra las columnas legacy y migrar storefront/quote mediante flag reversible.
-Toda diferencia bloquea el corte; el servidor continúa decidiendo precio y
-disponibilidad. No tocar admin, seed v2, inventario ni pagos. La actualización
-de Astro y la aplicación remota de `0007` conservan su puerta separada antes de
-cualquier despliegue.
+Extender CRUD, validación, seed e import/export para escribir producto,
+opciones y variantes con doble escritura de los espejos legacy. Mantener la UI
+de variantes ausente cuando la capacidad no esté activa y ensayar reset/backup
+restaurable. No tocar todavía media/atributos, ledger de inventario, pagos ni
+fulfillment. La actualización de Astro y la aplicación remota de `0007`
+conservan su puerta separada antes de cualquier despliegue.

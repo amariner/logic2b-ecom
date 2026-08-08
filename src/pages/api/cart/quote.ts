@@ -1,5 +1,6 @@
 import type { APIRoute } from 'astro';
 import { quoteCart, quoteRequestSchema } from '../../../lib/quote';
+import { resolveCatalogReadMode } from '../../../modules/catalog';
 
 export const prerender = false;
 
@@ -22,6 +23,8 @@ export const POST: APIRoute = async ({ request, locals }) => {
     return Response.json({ error: 'Payload inválido', details: parsed.error.flatten() }, { status: 400 });
   }
 
-  const result = await quoteCart(locals.runtime.env.DB, parsed.data);
+  const result = await quoteCart(locals.runtime.env.DB, parsed.data, {
+    catalogReadMode: resolveCatalogReadMode(locals.runtime.env.CATALOG_READ_MODE),
+  });
   return Response.json(result);
 };

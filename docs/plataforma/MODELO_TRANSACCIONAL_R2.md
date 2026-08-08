@@ -321,3 +321,23 @@ cero líneas incompletas y cero violaciones FK. Producción no se migró: el Wor
 servido todavía contiene el cron anterior, que no reconstruye variantes, y la
 actualización Astro ya estaba fijada como puerta independiente antes de otro
 deploy. R2.2 queda cerrado en repo/local sin falsear el estado remoto.
+
+## 11. Evidencia de R2.3
+
+El agregado tipado valida producto, default, variantes, dinero, SKU, opciones y
+firma antes de exponer una lectura. El repositorio D1 ensambla las relaciones de
+`0007` y proyecta precio/estado desde la variante default; stock continúa como
+proyección legacy separada hasta R2.7.
+
+El lector compatible admite `legacy`, `shadow` y `variant`. Shadow contrasta
+todos los campos servidos y el orden del catálogo; una divergencia lanza
+`CatalogShadowReadMismatchError` y bloquea el corte. El seed v1 completo se
+reconcilia sin diferencias para todas las colecciones y slugs. Una prueba
+hostil separa `products.price_cents` del precio de variante: legacy y variant
+leen sus fuentes y shadow falla, como exige el rollback reversible.
+
+Quote y checkout resuelven el flag en servidor. El payload sigue limitado a
+slug/cantidad y un importe inyectado por cliente se descarta antes del cálculo.
+No se toca admin, seed v2, esquema, stock, pagos, fulfillment ni la demo local.
+Producción mantiene la puerta coordinada de binario + `0007`; R2.3 no autoriza
+deploy ni migración remota.

@@ -43,6 +43,9 @@ describe('observabilidad de POST /api/checkout/session', () => {
     db.sqlite.exec(`
       INSERT INTO products (id, slug, name, price_cents, stock, category)
       VALUES (1, 'aove-seguro', 'AOVE Seguro', 890, 10, 'aceites');
+      INSERT INTO product_variants (
+        product_id, sku, title, price_cents, status, is_default, option_signature
+      ) VALUES (1, 'LEGACY-1', '', 890, 'active', 1, NULL);
       INSERT INTO shipping_rates (zone, label, price_cents, free_over_cents, active)
       VALUES ('peninsula', 'Estándar', 490, 5000, 1);
     `);

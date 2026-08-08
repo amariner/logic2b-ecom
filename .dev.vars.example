@@ -1,5 +1,7 @@
 # Copia este fichero a .dev.vars (gitignored) y rellena con claves TEST de Stripe.
 DEMO_MODE=true
+# Rollout R2.3: legacy (rollback), shadow (comparación bloqueante) o variant.
+CATALOG_READ_MODE=shadow
 STRIPE_SECRET_KEY=sk_test_xxx
 STRIPE_WEBHOOK_SECRET=whsec_xxx
 ADMIN_COOKIE_SECRET=cualquier-cadena-larga-aleatoria

@@ -38,7 +38,7 @@ de adaptadores e infraestructura siguen reservados a sus bloques.
 | Grupo actual | Archivos | Observación |
 |---|---|---|
 | Seguridad/plataforma | `admin-auth`, `rate-limit`, `backup` | Web Crypto y D1 aparecen en helpers planos. |
-| Catálogo/demo | `db`, `demo-catalog` | D1 sigue plano; `demo-catalog` recibe fixtures por contrato y composición, sin importar `seed/`. |
+| Catálogo/demo | `db`, `demo-catalog` | `db` es fachada compatible sobre el repositorio producto-variante R2.3; `demo-catalog` recibe fixtures por contrato y composición, sin importar `seed/`. |
 | Presentación storefront | `demo-themes`, `theme-catalog`, `nav`, `not-found`, `storefront-contract` | Registro de temas, descubrimiento del catálogo y detalles HTTP viven junto al dominio. |
 | Carrito/demo | `cart-client`, `demo-commerce` | Simulación pública local, deliberadamente separada del runtime D1. |
 | Precio/quote/envío | `pricing`, `shipping`, `quote` | La aritmética es pura; `quote` obtiene producto y tarifa directamente de D1. |
@@ -51,7 +51,8 @@ de adaptadores e infraestructura siguen reservados a sus bloques.
 El binding entra por casos de uso/adaptadores en todas las superficies HTTP; el
 cron usa `env.DB`. Desde R1.5 **no queda SQL en `src/pages/`**. Sigue habiendo
 SQL fuera de una carpeta `infrastructure/` en helpers planos que actúan como
-adaptadores: `db.ts`, `quote.ts`, `send-email.ts`, `thanks.ts` y `backup.ts`;
+adaptadores: `db.ts` solo para tarifas/referencias legacy, `quote.ts`,
+`send-email.ts`, `thanks.ts` y `backup.ts`;
 y en la composición de la demo, donde `src/worker.ts` ejecuta sentencias
 producidas por `seed/seed.ts`.
 
@@ -67,8 +68,9 @@ escaparate público
                     -> demo-commerce -> cart-client/localStorage/sessionStorage
                     -X-> APIs reales / D1 / Stripe / Resend
 
-runtime clonable (desde R1.5, sin SQL en presentación)
-  POST cart/quote -> quote -> db + pricing + shipping
+runtime clonable (desde R2.3, sin SQL en presentación)
+  POST cart/quote -> quote -> catalog reader (legacy|shadow|variant)
+                           -> pricing + shipping
   POST checkout/session -> quote -> order-operations.placeOrder
                         -> stripe o pago simulado
                         -> order-operations.confirmPayment
@@ -124,9 +126,9 @@ tarjeta. R1.1 no altera ninguno de esos contratos.
 - `shop.config.ts`: configuración legacy compartida de la tienda; aún la
   importan presentación, plantillas, precios/envío y numeración.
 - `wrangler.jsonc` y `src/env.d.ts`: bindings, variables y secretos esperados.
-- `migrations/0001..0006`: esquema D1 vigente; outbox, audit log y ejecuciones
-  de jobs son aditivos. El tráfico público demo no escribe en ellos; solo el
-  Cron Trigger interno registra su reset.
+- `migrations/0001..0007`: esquema versionado del repo/local; producción sigue
+  en `0001..0006` hasta su puerta coordinada. El tráfico público demo no escribe
+  comercio; solo el Cron Trigger interno registra su reset.
 - `src/platform/operations/`: audit log D1 y observabilidad JSON R1.9; el logger
   no importa D1, no acepta campos arbitrarios y no publica superficie HTTP.
 - `src/integrations/registry.ts`: registro R1.10 de los tres adaptadores reales;
@@ -186,7 +188,7 @@ implementaciones concretas.
 | Módulo | Responsabilidad y datos poseídos | API pública objetivo | Dependencias permitidas |
 |---|---|---|---|
 | `platform/configuration` | Config validada por despliegue y, desde R1.2, manifest. Sin datos operativos. | `validateCapabilityManifest`, `resolveCapabilityManifest`, presets y tipos publicados. | `shared-kernel`. |
-| `catalog` | Producto, variante futura, taxonomía, media y publicación. Hoy: columnas descriptivas de `products`. | consultas de producto/catálogo y snapshots tipados; comandos de catálogo. | `shared-kernel`, configuración publicada. |
+| `catalog` | Producto editorial, variante vendible, opciones y publicación; disponibilidad aún proyecta `products.stock` hasta R2.7. | agregado/lector canónicos, rollout `legacy|shadow|variant`, consultas de producto/catálogo y comandos administrativos. | `shared-kernel`, configuración publicada. |
 | `pricing` | Dinero base, reglas y desglose. Hoy: `price_cents`; no posee UI de precio anterior. | `PriceQuote`, `calculatePrice`, políticas puras. | `shared-kernel`, tipos públicos de catálogo. |
 | `inventory` | Disponibilidad y movimientos. Hoy: `products.stock` como deuda física. | `checkAvailability`, `commit`, `restore`; puertos de repositorio. | `shared-kernel`, identificadores de catálogo. |
 | `cart` | Líneas y cantidades, nunca precio autoritativo. Estado invitado puede estar en cliente. | `CartDraft`, normalización y validación de cantidades. | `shared-kernel`, IDs públicos de catálogo. |

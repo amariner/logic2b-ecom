@@ -5,6 +5,7 @@
 
 import { z } from 'zod';
 import { getProductsBySlugs, getRateForZone } from './db';
+import type { CatalogReadMode } from '../modules/catalog';
 import { computeShippingCents, computeSubtotalCents } from './pricing';
 import { resolveZone } from './shipping';
 
@@ -65,11 +66,19 @@ export type QuoteResult = {
   purchasable: boolean;
 };
 
-export async function quoteCart(db: D1Database, request: QuoteRequest): Promise<QuoteResult> {
+export async function quoteCart(
+  db: D1Database,
+  request: QuoteRequest,
+  options: Readonly<{ catalogReadMode?: CatalogReadMode }> = {},
+): Promise<QuoteResult> {
   // Colapsar duplicados del mismo slug antes de tocar la base
   const qtyBySlug = aggregateLineQuantities(request.lines);
 
-  const products = await getProductsBySlugs(db, [...qtyBySlug.keys()]);
+  const products = await getProductsBySlugs(
+    db,
+    [...qtyBySlug.keys()],
+    options.catalogReadMode ?? 'legacy',
+  );
   const bySlug = new Map(products.map((prod) => [prod.slug, prod]));
 
   const lines: QuoteLine[] = [...qtyBySlug.entries()].map(([slug, qty]) => {
