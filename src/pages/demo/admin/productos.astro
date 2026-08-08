@@ -1,10 +1,12 @@
 ---
 import Admin from '../../../layouts/Admin.astro';
 import { allCategoryLabels } from '../../../collections';
+import { runtimePlatform } from '../../../composition/runtime-platform';
 import { createProductAdmin } from '../../../modules/catalog';
 
 export const prerender = false;
 const readOnly = Astro.locals.runtime.env.DEMO_MODE === 'true';
+const variantsEnabled = runtimePlatform.isCapabilityActive('CAT-003');
 
 const products = await createProductAdmin(Astro.locals.runtime.env.DB).list();
 
@@ -18,7 +20,9 @@ const categoryLabel = allCategoryLabels();
   <p class="mt-1 text-sm text-stone-600">
     {readOnly
       ? 'Catálogo ficticio de ejemplo. Esta vista pública es de solo lectura y no modifica ninguna tienda.'
-      : 'Edita precio, stock o visibilidad. Los cambios se guardan al salir de la celda.'}
+      : variantsEnabled
+        ? 'Edita producto y variante por defecto. Precio y estado se escriben en ambos modelos de forma atómica.'
+        : 'Edita precio, stock o visibilidad. Los cambios se guardan al salir de la celda.'}
   </p>
 
   <div class="mt-4 overflow-x-auto rounded-lg border border-stone-300 bg-white">
@@ -27,6 +31,7 @@ const categoryLabel = allCategoryLabels();
         <tr>
           <th class="px-4 py-2">Producto</th>
           <th class="px-4 py-2">Categoría</th>
+          {variantsEnabled && <th class="px-4 py-2">Variante por defecto</th>}
           <th class="px-4 py-2 text-right">Precio €</th>
           <th class="px-4 py-2 text-right">Stock</th>
           <th class="px-4 py-2 text-center">Activo</th>
@@ -39,6 +44,34 @@ const categoryLabel = allCategoryLabels();
               <input data-field="name" data-id={prod.id} value={prod.name} aria-label={`Nombre de ${prod.slug}`} disabled={readOnly} class="w-full min-w-56 rounded border border-transparent px-1 py-0.5 hover:border-stone-300 focus:border-stone-400 disabled:bg-transparent disabled:text-stone-800" />
             </td>
             <td class="px-4 py-1.5 text-stone-500">{categoryLabel.get(prod.category) ?? prod.category}</td>
+            {variantsEnabled && (
+              <td class="px-4 py-1.5">
+                <div class="flex min-w-48 items-center gap-2">
+                  <input
+                    data-field="sku"
+                    data-id={prod.id}
+                    data-saved={prod.default_sku ?? ''}
+                    value={prod.default_sku ?? ''}
+                    aria-label={`SKU por defecto de ${prod.name}`}
+                    disabled={readOnly || prod.default_variant_id === null}
+                    class="w-28 rounded border border-transparent px-1 py-0.5 font-mono text-xs hover:border-stone-300 focus:border-stone-400 disabled:bg-transparent disabled:text-stone-800"
+                  />
+                  <select
+                    data-field="variant_status"
+                    data-id={prod.id}
+                    data-saved={prod.default_variant_status ?? ''}
+                    aria-label={`Estado de la variante por defecto de ${prod.name}`}
+                    disabled={readOnly || prod.default_variant_id === null}
+                    class="rounded border border-stone-200 bg-white px-1 py-0.5 text-xs disabled:border-transparent disabled:bg-transparent disabled:text-stone-800"
+                  >
+                    <option value="active" selected={prod.default_variant_status === 'active'}>Activa</option>
+                    <option value="draft" selected={prod.default_variant_status === 'draft'}>Borrador</option>
+                    <option value="archived" selected={prod.default_variant_status === 'archived'}>Archivada</option>
+                  </select>
+                  {prod.variant_count > 1 && <span class="text-xs text-stone-500">+{prod.variant_count - 1}</span>}
+                </div>
+              </td>
+            )}
             <td class="px-4 py-1.5 text-right">
               <input data-field="price" data-id={prod.id} aria-label={`Precio de ${prod.name}`} value={(prod.price_cents / 100).toFixed(2)} inputmode="decimal" disabled={readOnly} class="w-20 rounded border border-transparent px-1 py-0.5 text-right hover:border-stone-300 focus:border-stone-400 disabled:bg-transparent disabled:text-stone-800" />
             </td>
@@ -62,7 +95,27 @@ const categoryLabel = allCategoryLabels();
     // (no al de la carga de página, que puede ser una edición previa de la misma
     // sesión) — dejar el valor rechazado en el input engañaría al comercio
     // haciéndole creer que se guardó.
-    async function save(id: string, patch: Record<string, unknown>, input: HTMLInputElement): Promise<void> {
+    type EditableControl = HTMLInputElement | HTMLSelectElement;
+
+    function savedValue(control: EditableControl): string {
+      return control.dataset.saved ?? (control instanceof HTMLInputElement && control.type === 'checkbox'
+        ? String(control.defaultChecked)
+        : control.value);
+    }
+
+    function remember(control: EditableControl): void {
+      control.dataset.saved = control instanceof HTMLInputElement && control.type === 'checkbox'
+        ? String(control.checked)
+        : control.value;
+    }
+
+    function restore(control: EditableControl): void {
+      const saved = savedValue(control);
+      if (control instanceof HTMLInputElement && control.type === 'checkbox') control.checked = saved === 'true';
+      else control.value = saved;
+    }
+
+    async function save(id: string, patch: Record<string, unknown>, input: EditableControl): Promise<void> {
       statusEl.textContent = 'Guardando…';
       const res = await fetch(`/api/admin/products/${id}`, {
         method: 'PATCH',
@@ -71,18 +124,19 @@ const categoryLabel = allCategoryLabels();
       });
       if (res.ok) {
         statusEl.textContent = 'Guardado ✓';
-        if (input.type === 'checkbox') input.defaultChecked = input.checked;
-        else input.defaultValue = input.value;
+        remember(input);
         setTimeout(() => (statusEl.textContent = ''), 1500);
       } else {
         const body = (await res.json()) as { error?: string };
         statusEl.textContent = `Error: ${body.error ?? 'inesperado'}`;
-        if (input.type === 'checkbox') input.checked = input.defaultChecked;
-        else input.value = input.defaultValue;
+        restore(input);
       }
     }
 
-    document.querySelectorAll<HTMLInputElement>('[data-field]:not([disabled])').forEach((input) => {
+    document.querySelectorAll('[data-field]:not([disabled])').forEach((element) => {
+      if (!(element instanceof HTMLInputElement) && !(element instanceof HTMLSelectElement)) return;
+      const input: EditableControl = element;
+      if (input.dataset.saved === undefined) remember(input);
       const id = input.dataset.id ?? '';
       const field = input.dataset.field ?? '';
       input.addEventListener('change', () => {
@@ -90,7 +144,7 @@ const categoryLabel = allCategoryLabels();
           const name = input.value.trim();
           if (name.length < 2) {
             statusEl.textContent = 'El nombre debe tener al menos 2 caracteres';
-            input.value = input.defaultValue;
+            restore(input);
             return;
           }
           void save(id, { name }, input);
@@ -101,7 +155,7 @@ const categoryLabel = allCategoryLabels();
           if (Number.isInteger(cents) && cents >= 0) void save(id, { price_cents: cents }, input);
           else {
             statusEl.textContent = 'Precio inválido';
-            input.value = input.defaultValue;
+            restore(input);
           }
         }
         if (field === 'stock') {
@@ -110,10 +164,19 @@ const categoryLabel = allCategoryLabels();
           if (Number.isInteger(stock) && stock >= 0) void save(id, { stock }, input);
           else {
             statusEl.textContent = 'Stock inválido';
-            input.value = input.defaultValue;
+            restore(input);
           }
         }
-        if (field === 'active') void save(id, { active: input.checked }, input);
+        if (field === 'active' && input instanceof HTMLInputElement) void save(id, { active: input.checked }, input);
+        if (field === 'sku') {
+          const sku = input.value.trim();
+          if (sku.length > 0) void save(id, { sku }, input);
+          else {
+            statusEl.textContent = 'El SKU no puede estar vacío';
+            restore(input);
+          }
+        }
+        if (field === 'variant_status') void save(id, { variant_status: input.value }, input);
       });
     });
   </script>

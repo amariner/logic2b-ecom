@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import { BACKUP_TABLES, buildBackupSql, dumpTable } from '../src/lib/backup';
-import { exportBackup } from '../src/platform/operations';
+import { BACKUP_SCHEMA_VERSION, BACKUP_TABLES, buildBackupSql, dumpTable } from '../src/lib/backup';
+import { seedStatements } from '../seed/seed';
+import { createD1BackupReader, exportBackup } from '../src/platform/operations';
+import { SqliteD1 } from './sqlite-d1';
 
 describe('volcado de copia de seguridad', () => {
   it('genera INSERTs con columnas explícitas y escape de comillas', () => {
@@ -23,6 +25,16 @@ describe('volcado de copia de seguridad', () => {
     expect(deleteChildren).toBeGreaterThan(-1);
     expect(deleteChildren).toBeLessThan(deleteParent);
     expect(sql.indexOf('INSERT INTO products')).toBeLessThan(sql.indexOf('INSERT INTO order_items'));
+    expect(sql).toContain(`logic2b-backup-schema: ${BACKUP_SCHEMA_VERSION}`);
+    expect(sql.indexOf('DELETE FROM product_variant_option_values')).toBeLessThan(
+      sql.indexOf('DELETE FROM product_variants'),
+    );
+    expect(BACKUP_TABLES).toEqual(expect.arrayContaining([
+      'product_options',
+      'product_option_values',
+      'product_variants',
+      'product_variant_option_values',
+    ]));
     for (const table of BACKUP_TABLES) expect(sql).toContain(`DELETE FROM ${table};`);
   });
 
@@ -38,5 +50,32 @@ describe('volcado de copia de seguridad', () => {
     expect(backup.filename).toBe('backup-2026-08-06-1435.sql');
     expect(backup.sql).toContain('INSERT INTO products');
     expect(backup.sql).not.toContain('audit_log');
+  });
+
+  it('restaura productos v2, combinaciones y pedidos sin romper FKs', async () => {
+    const source = new SqliteD1();
+    await source.batch(seedStatements().map((sql) => source.prepare(sql)));
+    const backup = await exportBackup(
+      createD1BackupReader(source.asD1()),
+      new Date('2026-08-08T16:00:00.000Z'),
+    );
+
+    const restored = new SqliteD1();
+    restored.sqlite.exec(backup.sql);
+
+    for (const table of BACKUP_TABLES) {
+      expect(restored.value(`SELECT count(*) AS value FROM ${table}`), table).toBe(
+        source.value(`SELECT count(*) AS value FROM ${table}`),
+      );
+    }
+    expect(restored.query(`
+      SELECT pv.sku, po.name AS option_name, pov.value
+      FROM product_variants pv
+      JOIN product_variant_option_values pvov ON pvov.variant_id = pv.id
+      JOIN product_options po ON po.id = pvov.option_id
+      JOIN product_option_values pov ON pov.id = pvov.option_value_id
+      WHERE pv.is_default = 1 AND pv.sku = 'SUM-SHELL-07-M'
+    `)).toEqual([{ sku: 'SUM-SHELL-07-M', option_name: 'Talla', value: 'M' }]);
+    expect(restored.query('PRAGMA foreign_key_check')).toEqual([]);
   });
 });

@@ -4,6 +4,24 @@
  * Precios en céntimos. La imagen es un placeholder por categoría (WebP local).
  */
 
+export type SeedProductOption = Readonly<{
+  name: string;
+  values: readonly string[];
+}>;
+
+export type SeedProductVariant = Readonly<{
+  sku: string;
+  title: string;
+  price_cents: number;
+  compare_at_price_cents?: number;
+  gtin?: string;
+  mpn?: string;
+  status?: 'draft' | 'active' | 'archived';
+  default?: boolean;
+  /** Un valor por nombre de opción, por ejemplo `{ Talla: 'M' }`. */
+  values: Readonly<Record<string, string>>;
+}>;
+
 export type SeedProduct = {
   slug: string;
   name: string;
@@ -31,6 +49,10 @@ export type SeedProduct = {
   compare_at_price_cents?: number;
   /** Filas de ficha técnica (Specs). */
   specs?: readonly { label: string; value: string }[];
+
+  // — Formato v2 (R2.4). Si falta, se materializa la variante simple legacy. —
+  options?: readonly SeedProductOption[];
+  variants?: readonly SeedProductVariant[];
 };
 
 const p = (

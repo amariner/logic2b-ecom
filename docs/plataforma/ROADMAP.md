@@ -653,3 +653,15 @@ de variantes ausente cuando la capacidad no esté activa y ensayar reset/backup
 restaurable. No tocar todavía media/atributos, ledger de inventario, pagos ni
 fulfillment. La actualización de Astro y la aplicación remota de `0007`
 conservan su puerta separada antes de cualquier despliegue.
+
+**Corte local 1 (2026-08-08, en curso).** El PATCH administrativo sincroniza
+precio, precio anterior, actividad/estado y metadatos de la variante default
+con los espejos legacy dentro de la misma batch y evidencia optimista. `CAT-003`
+gobierna las columnas avanzadas del panel: queda ausente en minimal/standard y
+activo en advanced/demo. El seed v2 materializa opciones, valores, firmas y tres
+tallas reales de `sum-shell-07`, mientras v1 conserva su default simple. El
+backup marcado como esquema 2 exporta/restaura las cuatro tablas nuevas y sus
+FKs. Falta el CRUD seguro de combinaciones no default; por eso R2.4 sigue
+abierto y no cambia aún el estado público de CAT-003/004/005.
+Verificación del corte: 333 archivos Astro sin diagnósticos, 46 suites y **312
+tests**, restore aislado con `foreign_key_check` limpio y build completo.

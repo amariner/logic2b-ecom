@@ -7,7 +7,20 @@ const c = (prod: Omit<SeedProduct, 'collection'>): SeedProduct => ({
 });
 
 export const summitSeedProducts: readonly SeedProduct[] = [
-  c({ slug: 'sum-shell-07', name: 'Shell 07', description: 'Parka alpina de tres capas con capucha de tormenta, costuras selladas y bolsillos de carga protegidos.', price_cents: 139000, stock: 8, category: 'sum-outerwear' }),
+  c({
+    slug: 'sum-shell-07',
+    name: 'Shell 07',
+    description: 'Parka alpina de tres capas con capucha de tormenta, costuras selladas y bolsillos de carga protegidos.',
+    price_cents: 139000,
+    stock: 8,
+    category: 'sum-outerwear',
+    options: [{ name: 'Talla', values: ['S', 'M', 'L'] }],
+    variants: [
+      { sku: 'SUM-SHELL-07-S', title: 'S', price_cents: 139000, status: 'active', values: { Talla: 'S' } },
+      { sku: 'SUM-SHELL-07-M', title: 'M', price_cents: 139000, status: 'active', default: true, values: { Talla: 'M' } },
+      { sku: 'SUM-SHELL-07-L', title: 'L', price_cents: 139000, status: 'active', values: { Talla: 'L' } },
+    ],
+  }),
   c({ slug: 'sum-carbon-ski-set', name: 'Carbon Ski Set', description: 'Esquís de carbono de 178 cm y bastones de aluminio aeronáutico para terreno variable.', price_cents: 265000, stock: 5, category: 'sum-snow' }),
   c({ slug: 'sum-bib-copper', name: 'Bib Copper', description: 'Pantalón técnico de peto con rodillas articuladas, refuerzos y tirantes de cinta color cobre.', price_cents: 118000, stock: 9, category: 'sum-snow' }),
   c({ slug: 'sum-orbit-helmet', name: 'Orbit Helmet', description: 'Casco de esquí de perfil bajo con ventilación regulable, acolchado térmico y cierre magnético.', price_cents: 62000, stock: 12, category: 'sum-accessories' }),

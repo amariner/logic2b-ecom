@@ -22,6 +22,21 @@ class SqliteStatement {
 
   async run<T = Record<string, unknown>>(): Promise<D1Result<T>> {
     const statement = this.database.prepare(this.sql);
+    if (/^\s*(?:SELECT|PRAGMA|WITH)\b/i.test(this.sql)) {
+      const results = statement.all(...this.params) as T[];
+      return {
+        success: true,
+        results,
+        meta: {
+          changes: 0,
+          duration: 0,
+          size_after: 0,
+          rows_read: results.length,
+          rows_written: 0,
+          changed_db: false,
+        },
+      } as unknown as D1Result<T>;
+    }
     const result = statement.run(...this.params);
     return {
       success: true,

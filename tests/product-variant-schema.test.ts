@@ -176,13 +176,30 @@ describe('R2.2 producto-variante', () => {
     expect(database.prepare('PRAGMA foreign_key_check').all()).toEqual([]);
   });
 
-  it('el reset v1 reconstruye variantes y snapshots de forma idempotente', async () => {
+  it('el reset v2 reconstruye variantes, opciones y snapshots de forma idempotente', async () => {
     const database = new SqliteD1();
     const reset = async () => database.batch(seedStatements().map((sql) => database.prepare(sql)));
 
     await reset();
     const products = Number(database.value('SELECT count(*) AS value FROM products'));
-    expect(Number(database.value('SELECT count(*) AS value FROM product_variants'))).toBe(products);
+    const variants = Number(database.value('SELECT count(*) AS value FROM product_variants'));
+    expect(variants).toBeGreaterThan(products);
+    expect(Number(database.value(
+      'SELECT count(*) AS value FROM product_variants WHERE is_default = 1',
+    ))).toBe(products);
+    expect(database.query(`
+      SELECT pv.sku, pv.title, pv.is_default, po.name AS option_name, pov.value
+      FROM product_variants pv
+      JOIN product_variant_option_values pvov ON pvov.variant_id = pv.id
+      JOIN product_options po ON po.id = pvov.option_id
+      JOIN product_option_values pov ON pov.id = pvov.option_value_id
+      WHERE pv.sku LIKE 'SUM-SHELL-07-%'
+      ORDER BY pv.sku
+    `)).toEqual([
+      { sku: 'SUM-SHELL-07-L', title: 'L', is_default: 0, option_name: 'Talla', value: 'L' },
+      { sku: 'SUM-SHELL-07-M', title: 'M', is_default: 1, option_name: 'Talla', value: 'M' },
+      { sku: 'SUM-SHELL-07-S', title: 'S', is_default: 0, option_name: 'Talla', value: 'S' },
+    ]);
     expect(Number(database.value(`
       SELECT count(*) AS value
       FROM products p
@@ -198,7 +215,7 @@ describe('R2.2 producto-variante', () => {
     `))).toBe(0);
 
     await reset();
-    expect(Number(database.value('SELECT count(*) AS value FROM product_variants'))).toBe(products);
+    expect(Number(database.value('SELECT count(*) AS value FROM product_variants'))).toBe(variants);
     expect(database.query('PRAGMA foreign_key_check')).toEqual([]);
   });
 });

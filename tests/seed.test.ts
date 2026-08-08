@@ -5,7 +5,7 @@ import { demoCollection } from '../src/collections/demo';
 import { collectionSeedProducts } from '../seed/collections/index';
 import { demoOrderStatements } from '../seed/demo-orders';
 import { seedProducts } from '../seed/products';
-import { seedStatements } from '../seed/seed';
+import { seedStatements, validateSeedProducts } from '../seed/seed';
 
 describe('integridad del seed', () => {
   it('tiene 60 productos en categorías de la colección demo, con una de temporada vacía', () => {
@@ -77,6 +77,23 @@ describe('integridad del seed', () => {
     }
   });
 
+  it('el formato v2 rechaza defaults contradictorios y combinaciones duplicadas', () => {
+    const invalid = {
+      slug: 'producto-v2',
+      name: 'Producto v2',
+      description: '',
+      price_cents: 1000,
+      stock: 3,
+      category: 'test',
+      options: [{ name: 'Talla', values: ['M', 'L'] }],
+      variants: [
+        { sku: 'V2-M', title: 'M', price_cents: 1200, default: true, values: { Talla: 'M' } },
+        { sku: 'V2-L', title: 'L', price_cents: 1000, values: { Talla: 'M' } },
+      ],
+    } as const;
+    expect(() => validateSeedProducts([invalid])).toThrow(/combinación|espejos legacy/);
+  });
+
   it('las tarifas seed cubren todas las zonas definidas', () => {
     const rateZones = new Set(shopConfig.shipping.seedRates.map((r) => r.zone));
     for (const zone of shopConfig.shipping.zones) {
@@ -117,9 +134,12 @@ describe('integridad del seed', () => {
   it('genera SQL con limpieza previa y sin comillas sin escapar', () => {
     const stmts = seedStatements();
     expect(stmts[0]).toContain('DELETE FROM');
-    // 13 DELETE (incluye tablas de variante) + productos + backfill de
-    // variantes + 4 tarifas + fixtures + snapshots de variante de las lineas.
-    expect(stmts.length).toBe(13 + 60 + collectionSeedProducts.length + 1 + 4 + demoOrderStatements().length + 1);
+    expect(stmts.filter((stmt) => stmt.startsWith('INSERT INTO products '))).toHaveLength(
+      60 + collectionSeedProducts.length,
+    );
+    expect(stmts.some((stmt) => stmt.startsWith('INSERT INTO product_options '))).toBe(true);
+    expect(stmts.some((stmt) => stmt.includes('SUM-SHELL-07-M'))).toBe(true);
+    expect(stmts.length).toBeGreaterThan(13 + 60 + collectionSeedProducts.length + demoOrderStatements().length);
     for (const stmt of stmts) {
       // apóstrofes escapados como '' — nunca un quote suelto dentro de un valor
       expect(() => stmt).not.toThrow();

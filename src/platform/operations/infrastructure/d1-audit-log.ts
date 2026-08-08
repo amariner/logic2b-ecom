@@ -15,9 +15,18 @@ export type AuditedProductSnapshot = Readonly<{
   slug: string;
   name: string;
   price_cents: number;
+  compare_at_price_cents: number | null;
   stock: number;
   category: string;
   active: number;
+  default_variant_id: number | null;
+  default_sku: string | null;
+  default_gtin: string | null;
+  default_mpn: string | null;
+  default_variant_title: string | null;
+  default_variant_status: 'draft' | 'active' | 'archived' | null;
+  default_variant_price_cents: number | null;
+  default_variant_compare_at_price_cents: number | null;
 }>;
 
 export type AuditedProductPatch = Readonly<{
@@ -25,6 +34,12 @@ export type AuditedProductPatch = Readonly<{
   price_cents?: number | undefined;
   stock?: number | undefined;
   active?: boolean | undefined;
+  compare_at_price_cents?: number | null | undefined;
+  sku?: string | undefined;
+  gtin?: string | null | undefined;
+  mpn?: string | null | undefined;
+  variant_title?: string | undefined;
+  variant_status?: 'draft' | 'active' | 'archived' | undefined;
 }>;
 
 export type AuditedShippingRateSnapshot = Readonly<{
@@ -64,10 +79,12 @@ function entryValues(entry: AuditEntry): readonly unknown[] {
 
 function outcomeOf(results: readonly D1Result[]): AuditedMutationOutcome {
   const auditChanges = results[0]?.meta.changes ?? 0;
-  const mutationChanges = results[1]?.meta.changes ?? 0;
-  if (auditChanges === 1 && mutationChanges === 1) return 'applied';
-  if (auditChanges === 0 && mutationChanges === 0) return 'conflict';
-  throw new Error(`Unidad de auditoría inconsistente: audit=${auditChanges}, mutation=${mutationChanges}.`);
+  const mutationChanges = results.slice(1).map((result) => result.meta.changes ?? 0);
+  if (auditChanges === 1 && mutationChanges.every((changes) => changes === 1)) return 'applied';
+  if (auditChanges === 0 && mutationChanges.every((changes) => changes === 0)) return 'conflict';
+  throw new Error(
+    `Unidad de auditoría inconsistente: audit=${auditChanges}, mutations=${mutationChanges.join(',')}.`,
+  );
 }
 
 export function createD1AuditLogWriter(db: D1Database) {
@@ -94,16 +111,47 @@ export function createD1AuditLogWriter(db: D1Database) {
       expected: AuditedProductSnapshot,
       patch: AuditedProductPatch,
     ): Promise<AuditedMutationOutcome> {
-      const sets: string[] = [];
-      const values: unknown[] = [];
-      if (patch.name !== undefined) { sets.push('name = ?'); values.push(patch.name); }
-      if (patch.price_cents !== undefined) { sets.push('price_cents = ?'); values.push(patch.price_cents); }
-      if (patch.stock !== undefined) { sets.push('stock = ?'); values.push(patch.stock); }
-      if (patch.active !== undefined) { sets.push('active = ?'); values.push(patch.active ? 1 : 0); }
+      const productSets: string[] = [];
+      const productValues: unknown[] = [];
+      const variantSets: string[] = [];
+      const variantValues: unknown[] = [];
+      if (patch.name !== undefined) { productSets.push('name = ?'); productValues.push(patch.name); }
+      if (patch.price_cents !== undefined) {
+        productSets.push('price_cents = ?'); productValues.push(patch.price_cents);
+        variantSets.push('price_cents = ?'); variantValues.push(patch.price_cents);
+      }
+      if (patch.compare_at_price_cents !== undefined) {
+        productSets.push('compare_at_price_cents = ?'); productValues.push(patch.compare_at_price_cents);
+        variantSets.push('compare_at_price_cents = ?'); variantValues.push(patch.compare_at_price_cents);
+      }
+      if (patch.stock !== undefined) { productSets.push('stock = ?'); productValues.push(patch.stock); }
+      if (patch.active !== undefined) {
+        productSets.push('active = ?'); productValues.push(patch.active ? 1 : 0);
+        if (patch.variant_status === undefined) {
+          variantSets.push('status = ?'); variantValues.push(patch.active ? 'active' : 'archived');
+        }
+      }
+      if (patch.sku !== undefined) { variantSets.push('sku = ?'); variantValues.push(patch.sku); }
+      if (patch.gtin !== undefined) { variantSets.push('gtin = ?'); variantValues.push(patch.gtin); }
+      if (patch.mpn !== undefined) { variantSets.push('mpn = ?'); variantValues.push(patch.mpn); }
+      if (patch.variant_title !== undefined) {
+        variantSets.push('title = ?'); variantValues.push(patch.variant_title);
+      }
+      if (patch.variant_status !== undefined) {
+        variantSets.push('status = ?'); variantValues.push(patch.variant_status);
+        if (patch.active === undefined) {
+          productSets.push('active = ?'); productValues.push(patch.variant_status === 'active' ? 1 : 0);
+        }
+      }
+      if (variantSets.length > 0) variantSets.push("updated_at = datetime('now')");
 
       const guard = [
         expected.id, expected.slug, expected.name, expected.price_cents,
-        expected.stock, expected.category, expected.active,
+        expected.compare_at_price_cents,
+        expected.stock, expected.category, expected.active, expected.default_variant_id,
+        expected.default_sku, expected.default_gtin, expected.default_mpn,
+        expected.default_variant_title, expected.default_variant_status,
+        expected.default_variant_price_cents, expected.default_variant_compare_at_price_cents,
       ] as const;
       const audit = db.prepare(`
         INSERT INTO audit_log (
@@ -112,17 +160,34 @@ export function createD1AuditLogWriter(db: D1Database) {
           source_event_id, diff_json, created_at
         )
         SELECT ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
-        FROM products
-        WHERE id = ? AND slug = ? AND name = ? AND price_cents = ?
-          AND stock = ? AND category = ? AND active = ?
+        FROM products p
+        LEFT JOIN product_variants pv ON pv.product_id = p.id AND pv.is_default = 1
+        WHERE p.id = ? AND p.slug = ? AND p.name = ? AND p.price_cents = ?
+          AND p.compare_at_price_cents IS ?
+          AND p.stock = ? AND p.category = ? AND p.active = ?
+          AND pv.id IS ? AND pv.sku IS ? AND pv.gtin IS ? AND pv.mpn IS ?
+          AND pv.title IS ? AND pv.status IS ? AND pv.price_cents IS ?
+          AND pv.compare_at_price_cents IS ?
       `).bind(...entryValues(entry), ...guard);
-      const mutation = db.prepare(`
-        UPDATE products SET ${sets.join(', ')}
-        WHERE id = ? AND slug = ? AND name = ? AND price_cents = ?
-          AND stock = ? AND category = ? AND active = ?
-          AND EXISTS (SELECT 1 FROM audit_log WHERE audit_id = ?)
-      `).bind(...values, ...guard, entry.audit_id);
-      return outcomeOf(await db.batch([audit, mutation]));
+      const mutations: D1PreparedStatement[] = [];
+      if (productSets.length > 0) {
+        mutations.push(db.prepare(`
+          UPDATE products SET ${productSets.join(', ')}
+          WHERE id = ? AND slug = ? AND name = ? AND price_cents = ?
+            AND compare_at_price_cents IS ? AND stock = ? AND category = ? AND active = ?
+            AND EXISTS (SELECT 1 FROM audit_log WHERE audit_id = ?)
+        `).bind(...productValues, ...guard.slice(0, 8), entry.audit_id));
+      }
+      if (variantSets.length > 0) {
+        mutations.push(db.prepare(`
+          UPDATE product_variants SET ${variantSets.join(', ')}
+          WHERE id IS ? AND sku IS ? AND gtin IS ? AND mpn IS ?
+            AND title IS ? AND status IS ? AND price_cents IS ?
+            AND compare_at_price_cents IS ?
+            AND EXISTS (SELECT 1 FROM audit_log WHERE audit_id = ?)
+        `).bind(...variantValues, ...guard.slice(8), entry.audit_id));
+      }
+      return outcomeOf(await db.batch([audit, ...mutations]));
     },
 
     async updateShippingRate(

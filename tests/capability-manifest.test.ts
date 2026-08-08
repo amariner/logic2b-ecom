@@ -49,6 +49,8 @@ describe('capability manifest (R1.2)', () => {
     expect(minimalCount).toBeLessThan(standardCount);
     expect(standardCount).toBeLessThan(advancedCount);
     expect('CHK-003' in CAPABILITY_PRESETS.minimal).toBe(false);
+    expect('CAT-003' in CAPABILITY_PRESETS.standard).toBe(false);
+    expect(CAPABILITY_PRESETS.advanced['CAT-003']?.state).toBe('active');
     expect(CAPABILITY_PRESETS.standard['CHK-003']?.state).toBe('active');
     expect(CAPABILITY_PRESETS.advanced['INT-004']?.state).toBe('active');
   });

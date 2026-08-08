@@ -40,9 +40,9 @@ su alcance requiera.
 |---|---|---|---|---|---|
 | CAT-001 | Producto básico | núcleo | P0 | actual | Nombre, slug, descripción, precio, stock, imagen, categoría y actividad. |
 | CAT-002 | Colecciones/catálogos separados | núcleo | P0 | actual | Catálogos visuales aislados sobre contratos compartidos. |
-| CAT-003 | Producto y variante separados | núcleo | P0 | parcial | Esquema, agregado/repository canónicos y lectura reversible existen; admin/doble escritura llegan en R2.4 y stock por variante en R2.7. |
-| CAT-004 | Opciones y valores | núcleo | P0 | parcial | Tablas, FKs, selección tipada y firma canónica se leen/validan; falta CRUD y seed v2 de R2.4. |
-| CAT-005 | SKU, GTIN/EAN, MPN y marca | núcleo | P1 | parcial | SKU `NOCASE`, GTIN y MPN forman parte del dominio/lector canónico; faltan escritura administrativa y marca editorial. |
+| CAT-003 | Producto y variante separados | núcleo | P0 | parcial | Esquema, lectura reversible y doble escritura auditada del default existen; faltan CRUD de combinaciones y stock por variante (R2.7). |
+| CAT-004 | Opciones y valores | núcleo | P0 | parcial | Tablas, FKs, lectura y seed v2 con combinaciones reales existen; falta el CRUD administrativo de opciones/valores. |
+| CAT-005 | SKU, GTIN/EAN, MPN y marca | núcleo | P1 | parcial | SKU/GTIN/MPN se leen y el default admite escritura validada; faltan variantes no default y marca editorial. |
 | CAT-006 | Taxonomía y categoría normalizada | módulo | P1 | pendiente | Categoría interna + mapeos externos versionados. |
 | CAT-007 | Atributos tipados por categoría | módulo | P1 | parcial | Texto, número, unidad, booleano, referencia y lista validados. |
 | CAT-008 | Galería multimedia | núcleo | P1 | parcial | Varias imágenes/vídeo, alt, foco, orden y asociación a variante. |
@@ -51,7 +51,7 @@ su alcance requiera.
 | CAT-011 | Publicación programada | módulo | P2 | pendiente | Ventanas temporales con timezone y rollback. |
 | CAT-012 | Edición masiva | módulo | P1 | pendiente | Selección, preview, validación y resultado por fila. |
 | CAT-013 | Importación CSV robusta | módulo | P1 | pendiente | Dry-run, errores por fila, idempotencia y mapeo de campos. |
-| CAT-014 | Exportación completa | módulo | P1 | parcial | Productos, variantes, atributos, media y relaciones. |
+| CAT-014 | Exportación completa | módulo | P1 | parcial | El backup SQL v2 conserva producto, opciones, variantes y combinaciones; atributos/media llegan en R2.5. |
 | CAT-015 | Productos combinados | módulo | P3 | pendiente | Agrupar productos relacionados sin perder URLs/variantes independientes. |
 | CAT-016 | Productos digitales y servicios | módulo | P3 | pendiente | Tipo sin envío, entrega segura y reglas fiscales propias. |
 | CAT-017 | Catálogo de hasta gran escala | núcleo | P2 | parcial | Paginación por cursor, índices, búsqueda externa opcional y pruebas de carga. |
