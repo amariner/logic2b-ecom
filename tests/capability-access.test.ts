@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { platformManifest } from '../platform.config';
+import productPatchSource from '../src/pages/api/admin/products/[id].ts?raw';
 import { createPlatform } from '../src/composition/create-platform';
 import {
   adminHomeHrefFor,
@@ -48,12 +49,21 @@ describe('capability access policy (R1.3)', () => {
     expect(decideRouteAccess(closed, '/demo/admin/productos')).toMatchObject({ allowed: false, status: 403 });
   });
 
+  it('protege los campos avanzados del PATCH compartido con CAT-003', () => {
+    expect(productPatchSource).toContain("runtimePlatform.isCapabilityActive('CAT-003')");
+    expect(productPatchSource).toContain("error: 'Recurso no disponible.'");
+  });
+
   it.each([
     ['minimal', '/demo/admin/productos', true],
     ['minimal', '/api/cart/quote', false],
     ['standard', '/api/cart/quote', true],
     ['standard', '/api/admin/orders/export.csv', false],
+    ['standard', '/demo/admin/productos/1', false],
+    ['standard', '/api/admin/catalog-variants/1', false],
     ['advanced', '/api/admin/orders/export.csv', true],
+    ['advanced', '/demo/admin/productos/1', true],
+    ['advanced', '/api/admin/catalog-variants/1', true],
     ['advanced', '/api/admin/backup.sql', true],
   ] as const)('applies the %s preset to %s', (profile, pathname, allowed) => {
     expect(decideRouteAccess(platformFor(profile), pathname)?.allowed).toBe(allowed);
@@ -87,10 +97,14 @@ describe('capability access policy (R1.3)', () => {
     for (const pathname of [
       '/demo/admin',
       '/demo/admin/productos',
+      '/demo/admin/productos/1',
       '/demo/admin/envios',
       '/demo/admin/emails',
       '/api/admin/orders/export.csv',
       '/api/admin/backup.sql',
+      '/api/admin/catalog-options/product/1',
+      '/api/admin/catalog-option-values/1',
+      '/api/admin/catalog-variants/1',
     ]) {
       expect(decideRouteAccess(demo, pathname)?.allowed).toBe(true);
     }

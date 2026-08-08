@@ -342,3 +342,31 @@ R2.3 no tocó admin, seed v2, esquema, stock, pagos, fulfillment ni la demo
 local, y por sí solo no autorizó deploy ni migración remota. La puerta
 coordinada de binario + `0007` se ejecutó después, el 2026-08-08: backup
 restaurado, 194/194 variantes, E2E 27/27 y cero violaciones FK tras el corte.
+
+## 12. Evidencia de R2.4
+
+El panel avanzado administra opciones, valores y variantes no default mediante
+operaciones D1 auditadas. Cada batch inserta primero una evidencia condicionada
+al snapshot leído y solo entonces crea, actualiza o elimina sus relaciones. Dos
+altas concurrentes de la misma combinación dejan una variante y una evidencia;
+un snapshot perdedor no escribe. Las constraints globales conservan SKU y firma
+únicos.
+
+La variante default no se puede borrar. Una variante presente en pedidos solo
+puede archivarse, y una opción o valor usado por combinaciones tampoco se
+elimina hasta reasignarlas. Cambiar el default actualiza `products.price_cents`,
+`compare_at_price_cents` y `active` en el mismo batch, manteniendo reversible el
+lector legacy. GTIN/EAN y MPN se validan en servidor.
+
+`CAT-003` mantiene la pantalla y sus endpoints fuera de `minimal` y `standard`;
+la demo `advanced` la enseña con todos los controles deshabilitados. El seed v2
+y el backup de esquema 2 ya materializan/restauran las cuatro tablas R2.4. El
+reset local queda en 207 productos, 209 variantes, una opción, tres valores y
+tres asociaciones, con cero violaciones FK.
+
+Verificación de cierre: 47 suites, 321 tests, tipos y build; E2E de aislamiento
+32/32; editor a 1440/375 sin overflow ni errores de consola; auditoría de la
+nueva superficie 2/2 sin errores ni avisos. El storefront continúa usando el
+default y el stock sigue global hasta R2.7. El despliegue funcional del
+2026-08-09 (`0445b6cb-1619-43eb-aeaf-da0012f6b9f9`) conserva los mismos
+recuentos en D1 y pasa el E2E remoto 32/32.

@@ -78,11 +78,15 @@ export const MODULE_DESCRIPTORS = [
     navigation: [], routes: [{ match: 'exact', path: '/api/admin/backup.sql', capabilityId: 'INT-004' }],
   },
   {
-    id: 'catalog', version: '1.1.0', capabilities: ['CAT-001', 'CAT-002', 'CAT-003'], dependencies: ['platform-configuration'],
+    id: 'catalog', version: '1.2.0', capabilities: ['CAT-001', 'CAT-002', 'CAT-003'], dependencies: ['platform-configuration'],
     permissions: ['catalog.read', 'catalog.write'], events: [], subscriptions: [], jobs: [], healthchecks: [], wikiLinks: [ARCHITECTURE_WIKI],
     navigation: [{ id: 'productos', href: '/demo/admin/productos', label: 'Productos', order: 20, capabilityId: 'CAT-001' }],
     routes: [
       { match: 'exact', path: '/demo/admin/productos', capabilityId: 'CAT-001' },
+      { match: 'prefix', path: '/demo/admin/productos/', capabilityId: 'CAT-003' },
+      { match: 'prefix', path: '/api/admin/catalog-options/', capabilityId: 'CAT-003' },
+      { match: 'prefix', path: '/api/admin/catalog-option-values/', capabilityId: 'CAT-003' },
+      { match: 'prefix', path: '/api/admin/catalog-variants/', capabilityId: 'CAT-003' },
       { match: 'prefix', path: '/api/admin/products/', capabilityId: 'CAT-001' },
     ],
   },

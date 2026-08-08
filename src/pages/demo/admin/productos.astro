@@ -68,7 +68,13 @@ const categoryLabel = allCategoryLabels();
                     <option value="draft" selected={prod.default_variant_status === 'draft'}>Borrador</option>
                     <option value="archived" selected={prod.default_variant_status === 'archived'}>Archivada</option>
                   </select>
-                  {prod.variant_count > 1 && <span class="text-xs text-stone-500">+{prod.variant_count - 1}</span>}
+                  <a
+                    href={`/demo/admin/productos/${prod.id}`}
+                    class="inline-flex min-h-11 shrink-0 items-center rounded px-2 text-xs font-medium text-stone-700 underline-offset-2 hover:bg-stone-100 hover:underline"
+                    aria-label={`Gestionar variantes de ${prod.name}`}
+                  >
+                    {prod.variant_count > 1 ? `+${prod.variant_count - 1}` : 'Gestionar'}
+                  </a>
                 </div>
               </td>
             )}

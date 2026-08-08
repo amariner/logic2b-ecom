@@ -33,6 +33,10 @@ const storefrontComponents = import.meta.glob<string>('../src/components/{store,
   query: '?raw',
   import: 'default',
 });
+const catalogAdminMutationRoutes = import.meta.glob<string>(
+  '../src/pages/api/admin/{catalog-options,catalog-option-values,catalog-variants}/**/*.ts',
+  { eager: true, query: '?raw', import: 'default' },
+);
 
 describe('contrato de las demos de tienda', () => {
   it('fija catálogo embebido y recorrido efímero sin backend', () => {
@@ -131,8 +135,16 @@ describe('aislamiento de las rutas públicas', () => {
   });
 
   it('el panel público rechaza todas las mutaciones', () => {
+    expect(Object.keys(catalogAdminMutationRoutes).length).toBe(6);
     for (const source of [orderPatchSource, productPatchSource, shippingPatchSource]) {
       expect(source).toContain("DEMO_MODE === 'true'");
+    }
+    for (const source of [
+      orderPatchSource,
+      productPatchSource,
+      shippingPatchSource,
+      ...Object.values(catalogAdminMutationRoutes),
+    ]) {
       expect(source).toContain('solo lectura');
       expect(source).toContain('status: 403');
     }

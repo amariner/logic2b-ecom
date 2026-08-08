@@ -4,7 +4,30 @@ import { createD1CatalogRepository } from './infrastructure/d1-catalog-repositor
 import { createD1LegacyCatalogReader } from './infrastructure/d1-legacy-catalog-reader';
 import { createD1ProductAdminRepository } from './infrastructure/d1-product-admin';
 
-export type { ProductAdminRow, ProductPatch } from './application/product-admin';
+export type {
+  ProductAdminRow,
+  ProductOptionAdminRow,
+  ProductOptionSnapshot,
+  ProductOptionValueAdminRow,
+  ProductOptionValueSnapshot,
+  ProductPatch,
+  ProductVariantAdminDetails,
+  ProductVariantAdminRow,
+} from './application/product-admin';
+
+export {
+  CatalogAdminError,
+  validateOptionName,
+  validateOptionValue,
+  validateVariantWrite,
+  type CatalogAdminErrorCode,
+  type ProductOptionCreate,
+  type ProductOptionPatch,
+  type ProductOptionValueCreate,
+  type ProductOptionValuePatch,
+  type ProductVariantCreate,
+  type ProductVariantWrite,
+} from './application/product-variant-admin';
 
 export {
   CATALOG_READ_MODES,
@@ -36,6 +59,10 @@ export {
 } from './domain/product';
 
 export { createD1CatalogRepository } from './infrastructure/d1-catalog-repository';
+export {
+  catalogAdminErrorResponse,
+  catalogAdminMutationResponse,
+} from './presentation/admin-http';
 
 export const createCatalogReader = (db: D1Database, mode: CatalogReadMode) =>
   createCompatibleCatalogReader(

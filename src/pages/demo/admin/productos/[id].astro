@@ -1,0 +1,374 @@
+---
+import Admin from '../../../../layouts/Admin.astro';
+import { runtimePlatform } from '../../../../composition/runtime-platform';
+import { createProductAdmin } from '../../../../modules/catalog';
+
+export const prerender = false;
+
+const productId = Number(Astro.params.id);
+if (!Number.isInteger(productId) || productId <= 0 || !runtimePlatform.isCapabilityActive('CAT-003')) {
+  return new Response('Producto no encontrado', { status: 404 });
+}
+const details = await createProductAdmin(Astro.locals.runtime.env.DB).details(productId);
+if (!details) return new Response('Producto no encontrado', { status: 404 });
+
+const readOnly = Astro.locals.runtime.env.DEMO_MODE === 'true';
+---
+
+<Admin title={`Variantes · ${details.product.name}`} active="productos">
+  <a href="/demo/admin/productos" class="inline-flex min-h-11 items-center text-sm text-stone-600 underline-offset-4 hover:underline">
+    ← Volver a productos
+  </a>
+
+  <div class="mt-2 flex flex-wrap items-start justify-between gap-3">
+    <div>
+      <h1 class="text-2xl font-bold">{details.product.name}</h1>
+      <p class="mt-1 font-mono text-xs text-stone-600">{details.product.slug}</p>
+    </div>
+    <span class:list={[
+      'rounded-full px-3 py-1 text-xs font-medium',
+      details.product.active === 1 ? 'bg-emerald-100 text-emerald-900' : 'bg-stone-200 text-stone-700',
+    ]}>
+      {details.product.active === 1 ? 'Producto publicado' : 'Producto oculto'}
+    </span>
+  </div>
+
+  <p class="mt-4 max-w-3xl text-sm text-stone-600">
+    {readOnly
+      ? 'Configuración ficticia de ejemplo. En una tienda real, esta pantalla permite mantener opciones, valores y combinaciones.'
+      : 'Cada combinación tiene su propio SKU, precio e identificadores. La marcada por defecto alimenta el escaparate y conserva el espejo compatible.'}
+  </p>
+  <p class="mt-2 max-w-3xl text-xs text-stone-600">
+    El stock sigue siendo global para el producto ({details.product.stock} uds.) hasta la entrada del ledger por variante en R2.7.
+  </p>
+
+  <p data-catalog-status role="status" aria-live="polite" class="mt-4 min-h-6 text-sm text-stone-700"></p>
+
+  <section class="mt-2 rounded-xl border border-stone-300 bg-white p-4 sm:p-5" aria-labelledby="options-title">
+    <div class="flex flex-wrap items-start justify-between gap-3">
+      <div>
+        <h2 id="options-title" class="text-lg font-semibold">Opciones y valores</h2>
+        <p class="mt-1 text-sm text-stone-600">Por ejemplo, «Talla» con los valores S, M y L.</p>
+      </div>
+      {!readOnly && (
+        <form data-create-option class="flex flex-wrap gap-2">
+          <label class="sr-only" for="new-option-name">Nueva opción</label>
+          <input id="new-option-name" name="name" required maxlength="80" placeholder="Nueva opción"
+            class="min-h-11 rounded border border-stone-300 px-3 text-sm" />
+          <button class="min-h-11 rounded bg-stone-900 px-4 text-sm font-medium text-white hover:bg-stone-700">Añadir</button>
+        </form>
+      )}
+    </div>
+
+    {details.options.length === 0 ? (
+      <p class="mt-4 rounded-lg bg-stone-50 p-4 text-sm text-stone-600">
+        Producto simple: crea una opción antes de añadir combinaciones.
+      </p>
+    ) : (
+      <div class="mt-4 grid gap-4 lg:grid-cols-2">
+        {details.options.map((option) => (
+          <article data-option-id={option.id} class="rounded-lg border border-stone-200 p-4">
+            <div class="flex flex-wrap items-center gap-2">
+              <label class="sr-only" for={`option-${option.id}`}>Nombre de la opción</label>
+              <input id={`option-${option.id}`} data-option-name value={option.name} maxlength="80" disabled={readOnly}
+                class="min-h-11 min-w-0 flex-1 rounded border border-stone-300 px-3 font-medium disabled:border-transparent disabled:bg-transparent disabled:px-0 disabled:text-stone-900" />
+              {!readOnly && (
+                <>
+                  <button type="button" data-save-option class="min-h-11 rounded border border-stone-300 px-3 text-sm hover:bg-stone-50">Guardar</button>
+                  <button type="button" data-delete-option class="min-h-11 rounded px-3 text-sm text-red-700 hover:bg-red-50">Eliminar</button>
+                </>
+              )}
+            </div>
+
+            <ul class="mt-3 space-y-2">
+              {option.values.map((value) => (
+                <li data-value-id={value.id} class="flex items-center gap-2">
+                  <label class="sr-only" for={`value-${value.id}`}>Valor de {option.name}</label>
+                  <input id={`value-${value.id}`} data-value-name value={value.value} maxlength="100" disabled={readOnly}
+                    class="min-h-11 min-w-0 flex-1 rounded border border-stone-300 px-3 text-sm disabled:border-transparent disabled:bg-stone-50 disabled:text-stone-800" />
+                  {!readOnly && (
+                    <>
+                      <button type="button" data-save-value class="min-h-11 rounded border border-stone-300 px-3 text-sm hover:bg-stone-50">Guardar</button>
+                      <button type="button" data-delete-value aria-label={`Eliminar ${value.value}`} class="min-h-11 min-w-11 rounded text-red-700 hover:bg-red-50">×</button>
+                    </>
+                  )}
+                </li>
+              ))}
+            </ul>
+            {!readOnly && (
+              <form data-create-value class="mt-3 flex gap-2">
+                <label class="sr-only" for={`new-value-${option.id}`}>Nuevo valor de {option.name}</label>
+                <input id={`new-value-${option.id}`} name="value" required maxlength="100" placeholder="Nuevo valor"
+                  class="min-h-11 min-w-0 flex-1 rounded border border-stone-300 px-3 text-sm" />
+                <button class="min-h-11 rounded bg-stone-800 px-3 text-sm font-medium text-white hover:bg-stone-700">Añadir</button>
+              </form>
+            )}
+          </article>
+        ))}
+      </div>
+    )}
+  </section>
+
+  <section class="mt-6" aria-labelledby="variants-title">
+    <div>
+      <h2 id="variants-title" class="text-lg font-semibold">Variantes</h2>
+      <p class="mt-1 text-sm text-stone-600">
+        No se puede borrar la combinación por defecto ni una variante que ya aparezca en pedidos; en ese caso se archiva.
+      </p>
+    </div>
+
+    <div class="mt-4 space-y-4">
+      {details.variants.map((variant) => (
+        <form data-variant-form data-variant-id={variant.id} class="rounded-xl border border-stone-300 bg-white p-4 sm:p-5">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <div class="flex flex-wrap items-center gap-2">
+              <h3 class="font-semibold">{variant.title || variant.sku}</h3>
+              {variant.is_default && <span class="rounded-full bg-stone-900 px-2 py-0.5 text-xs text-white">Por defecto</span>}
+              {variant.order_item_count > 0 && <span class="rounded-full bg-sky-100 px-2 py-0.5 text-xs text-sky-900">En pedidos</span>}
+            </div>
+            <span class="text-xs text-stone-500">#{variant.id}</span>
+          </div>
+
+          <div class="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            <label class="text-xs font-medium text-stone-600">Título
+              <input name="title" value={variant.title} maxlength="160" disabled={readOnly}
+                class="mt-1 min-h-11 w-full rounded border border-stone-300 px-3 text-sm disabled:bg-stone-50" />
+            </label>
+            <label class="text-xs font-medium text-stone-600">SKU
+              <input name="sku" value={variant.sku} required maxlength="100" disabled={readOnly}
+                class="mt-1 min-h-11 w-full rounded border border-stone-300 px-3 font-mono text-sm disabled:bg-stone-50" />
+            </label>
+            <label class="text-xs font-medium text-stone-600">Precio €
+              <input name="price" value={(variant.price_cents / 100).toFixed(2)} required inputmode="decimal" disabled={readOnly}
+                class="mt-1 min-h-11 w-full rounded border border-stone-300 px-3 text-sm disabled:bg-stone-50" />
+            </label>
+            <label class="text-xs font-medium text-stone-600">Precio anterior €
+              <input name="compare_at" value={variant.compare_at_price_cents === null ? '' : (variant.compare_at_price_cents / 100).toFixed(2)} inputmode="decimal" disabled={readOnly}
+                class="mt-1 min-h-11 w-full rounded border border-stone-300 px-3 text-sm disabled:bg-stone-50" />
+            </label>
+            <label class="text-xs font-medium text-stone-600">Estado
+              <select name="status" disabled={readOnly} class="mt-1 min-h-11 w-full rounded border border-stone-300 bg-white px-3 text-sm disabled:bg-stone-50">
+                <option value="active" selected={variant.status === 'active'}>Activa</option>
+                <option value="draft" selected={variant.status === 'draft'}>Borrador</option>
+                <option value="archived" selected={variant.status === 'archived'}>Archivada</option>
+              </select>
+            </label>
+            <label class="text-xs font-medium text-stone-600">GTIN / EAN
+              <input name="gtin" value={variant.gtin ?? ''} inputmode="numeric" pattern="[0-9]{8,14}" disabled={readOnly}
+                class="mt-1 min-h-11 w-full rounded border border-stone-300 px-3 text-sm disabled:bg-stone-50" />
+            </label>
+            <label class="text-xs font-medium text-stone-600">MPN
+              <input name="mpn" value={variant.mpn ?? ''} maxlength="100" disabled={readOnly}
+                class="mt-1 min-h-11 w-full rounded border border-stone-300 px-3 text-sm disabled:bg-stone-50" />
+            </label>
+            {details.options.map((option) => (
+              <label class="text-xs font-medium text-stone-600">{option.name}
+                <select data-option-value name={`option-${option.id}`} required disabled={readOnly}
+                  class="mt-1 min-h-11 w-full rounded border border-stone-300 bg-white px-3 text-sm disabled:bg-stone-50">
+                  <option value="">Sin asignar</option>
+                  {option.values.map((value) => (
+                    <option value={value.id} selected={variant.option_value_ids.includes(value.id)}>{value.value}</option>
+                  ))}
+                </select>
+              </label>
+            ))}
+          </div>
+
+          {!readOnly && (
+            <div class="mt-4 flex flex-wrap gap-2">
+              <button class="min-h-11 rounded bg-stone-900 px-4 text-sm font-medium text-white hover:bg-stone-700">Guardar variante</button>
+              {!variant.is_default && (
+                <button data-make-default class="min-h-11 rounded border border-stone-400 px-4 text-sm font-medium hover:bg-stone-50">
+                  Marcar por defecto
+                </button>
+              )}
+              {!variant.is_default && (
+                <button type="button" data-delete-variant class="min-h-11 rounded px-4 text-sm font-medium text-red-700 hover:bg-red-50">
+                  Eliminar
+                </button>
+              )}
+            </div>
+          )}
+        </form>
+      ))}
+    </div>
+
+    {!readOnly && details.options.length > 0 && details.options.every((option) => option.values.length > 0) && (
+      <details class="mt-4 rounded-xl border border-dashed border-stone-400 bg-white p-4">
+        <summary class="min-h-11 cursor-pointer py-2 font-medium">Añadir variante</summary>
+        <form data-create-variant class="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <label class="text-xs font-medium text-stone-600">Título
+            <input name="title" maxlength="160" class="mt-1 min-h-11 w-full rounded border border-stone-300 px-3 text-sm" />
+          </label>
+          <label class="text-xs font-medium text-stone-600">SKU
+            <input name="sku" required maxlength="100" class="mt-1 min-h-11 w-full rounded border border-stone-300 px-3 font-mono text-sm" />
+          </label>
+          <label class="text-xs font-medium text-stone-600">Precio €
+            <input name="price" required inputmode="decimal" class="mt-1 min-h-11 w-full rounded border border-stone-300 px-3 text-sm" />
+          </label>
+          <label class="text-xs font-medium text-stone-600">Precio anterior €
+            <input name="compare_at" inputmode="decimal" class="mt-1 min-h-11 w-full rounded border border-stone-300 px-3 text-sm" />
+          </label>
+          <label class="text-xs font-medium text-stone-600">Estado
+            <select name="status" class="mt-1 min-h-11 w-full rounded border border-stone-300 bg-white px-3 text-sm">
+              <option value="active">Activa</option>
+              <option value="draft">Borrador</option>
+              <option value="archived">Archivada</option>
+            </select>
+          </label>
+          <label class="text-xs font-medium text-stone-600">GTIN / EAN
+            <input name="gtin" inputmode="numeric" pattern="[0-9]{8,14}" class="mt-1 min-h-11 w-full rounded border border-stone-300 px-3 text-sm" />
+          </label>
+          <label class="text-xs font-medium text-stone-600">MPN
+            <input name="mpn" maxlength="100" class="mt-1 min-h-11 w-full rounded border border-stone-300 px-3 text-sm" />
+          </label>
+          {details.options.map((option) => (
+            <label class="text-xs font-medium text-stone-600">{option.name}
+              <select data-option-value name={`option-${option.id}`} required class="mt-1 min-h-11 w-full rounded border border-stone-300 bg-white px-3 text-sm">
+                <option value="">Selecciona</option>
+                {option.values.map((value) => <option value={value.id}>{value.value}</option>)}
+              </select>
+            </label>
+          ))}
+          <div class="sm:col-span-2 lg:col-span-4">
+            <button class="min-h-11 rounded bg-stone-900 px-4 text-sm font-medium text-white hover:bg-stone-700">Crear variante</button>
+          </div>
+        </form>
+      </details>
+    )}
+  </section>
+
+  <script is:inline define:vars={{ productId }}>
+    const statusElement = document.querySelector('[data-catalog-status]');
+
+    function setStatus(message, error = false) {
+      if (!(statusElement instanceof HTMLElement)) return;
+      statusElement.textContent = message;
+      statusElement.classList.toggle('text-red-700', error);
+      statusElement.classList.toggle('text-stone-700', !error);
+      statusElement.scrollIntoView({ block: 'nearest' });
+    }
+
+    async function mutate(method, url, body) {
+      setStatus('Guardando…');
+      const response = await fetch(url, {
+        method,
+        headers: body === undefined ? undefined : { 'content-type': 'application/json' },
+        body: body === undefined ? undefined : JSON.stringify(body),
+      });
+      if (!response.ok) {
+        const payload = await response.json().catch(() => ({}));
+        setStatus(`Error: ${payload.error ?? 'inesperado'}`, true);
+        return false;
+      }
+      setStatus('Guardado ✓');
+      window.location.reload();
+      return true;
+    }
+
+    function cents(value) {
+      const normalized = String(value).trim().replace(',', '.');
+      if (normalized === '') return null;
+      const result = Math.round(Number(normalized) * 100);
+      return Number.isInteger(result) && result >= 0 ? result : NaN;
+    }
+
+    function variantPayload(form, makeDefault = false) {
+      const data = new FormData(form);
+      const price = cents(data.get('price'));
+      const compare = cents(data.get('compare_at'));
+      if (!Number.isInteger(price) || Number.isNaN(compare)) {
+        setStatus('Revisa los importes de la variante.', true);
+        return null;
+      }
+      const optionValueIds = [...form.querySelectorAll('[data-option-value]')].map((element) =>
+        element instanceof HTMLSelectElement ? Number(element.value) : NaN,
+      );
+      if (optionValueIds.some((value) => !Number.isInteger(value) || value <= 0)) {
+        setStatus('Selecciona un valor para cada opción.', true);
+        return null;
+      }
+      return {
+        sku: String(data.get('sku') ?? '').trim(),
+        gtin: String(data.get('gtin') ?? '').trim() || null,
+        mpn: String(data.get('mpn') ?? '').trim() || null,
+        title: String(data.get('title') ?? '').trim(),
+        price_cents: price,
+        compare_at_price_cents: compare,
+        status: String(data.get('status') ?? ''),
+        option_value_ids: optionValueIds,
+        ...(makeDefault ? { make_default: true } : {}),
+      };
+    }
+
+    document.querySelector('[data-create-option]')?.addEventListener('submit', (event) => {
+      event.preventDefault();
+      if (!(event.currentTarget instanceof HTMLFormElement)) return;
+      const name = String(new FormData(event.currentTarget).get('name') ?? '').trim();
+      void mutate('POST', `/api/admin/catalog-options/product/${productId}`, { name });
+    });
+
+    document.querySelectorAll('[data-option-id]').forEach((container) => {
+      if (!(container instanceof HTMLElement)) return;
+      const optionId = container.dataset.optionId ?? '';
+      const nameInput = container.querySelector('[data-option-name]');
+      container.querySelector('[data-save-option]')?.addEventListener('click', () => {
+        if (nameInput instanceof HTMLInputElement) {
+          void mutate('PATCH', `/api/admin/catalog-options/${optionId}`, { name: nameInput.value.trim() });
+        }
+      });
+      container.querySelector('[data-delete-option]')?.addEventListener('click', () => {
+        if (window.confirm('¿Eliminar esta opción y sus valores sin usar?')) {
+          void mutate('DELETE', `/api/admin/catalog-options/${optionId}`);
+        }
+      });
+      const createValueForm = container.querySelector('[data-create-value]');
+      createValueForm?.addEventListener('submit', (event) => {
+        event.preventDefault();
+        if (!(createValueForm instanceof HTMLFormElement)) return;
+        const value = String(new FormData(createValueForm).get('value') ?? '').trim();
+        void mutate('POST', `/api/admin/catalog-option-values/option/${optionId}`, { value });
+      });
+    });
+
+    document.querySelectorAll('[data-value-id]').forEach((row) => {
+      if (!(row instanceof HTMLElement)) return;
+      const valueId = row.dataset.valueId ?? '';
+      const input = row.querySelector('[data-value-name]');
+      row.querySelector('[data-save-value]')?.addEventListener('click', () => {
+        if (input instanceof HTMLInputElement) {
+          void mutate('PATCH', `/api/admin/catalog-option-values/${valueId}`, { value: input.value.trim() });
+        }
+      });
+      row.querySelector('[data-delete-value]')?.addEventListener('click', () => {
+        if (window.confirm('¿Eliminar este valor sin usar?')) {
+          void mutate('DELETE', `/api/admin/catalog-option-values/${valueId}`);
+        }
+      });
+    });
+
+    document.querySelectorAll('[data-variant-form]').forEach((element) => {
+      if (!(element instanceof HTMLFormElement)) return;
+      const variantId = element.dataset.variantId ?? '';
+      element.addEventListener('submit', (event) => {
+        event.preventDefault();
+        const submitter = event instanceof SubmitEvent ? event.submitter : null;
+        const payload = variantPayload(element, submitter instanceof HTMLElement && submitter.hasAttribute('data-make-default'));
+        if (payload) void mutate('PATCH', `/api/admin/catalog-variants/${variantId}`, payload);
+      });
+      element.querySelector('[data-delete-variant]')?.addEventListener('click', () => {
+        if (window.confirm('¿Eliminar esta variante? Si ya aparece en pedidos, el servidor lo impedirá.')) {
+          void mutate('DELETE', `/api/admin/catalog-variants/${variantId}`);
+        }
+      });
+    });
+
+    const createVariantForm = document.querySelector('[data-create-variant]');
+    createVariantForm?.addEventListener('submit', (event) => {
+      event.preventDefault();
+      if (!(createVariantForm instanceof HTMLFormElement)) return;
+      const payload = variantPayload(createVariantForm);
+      if (payload) void mutate('POST', `/api/admin/catalog-variants/product/${productId}`, payload);
+    });
+  </script>
+</Admin>

@@ -1,0 +1,49 @@
+import type { APIRoute } from 'astro';
+import { z } from 'zod';
+import { createAdminOperations } from '../../../../composition/admin-operations';
+import { runtimePlatform } from '../../../../composition/runtime-platform';
+import { catalogAdminErrorResponse, catalogAdminMutationResponse } from '../../../../modules/catalog';
+
+export const prerender = false;
+
+const schema = z.object({ name: z.string().trim().min(1).max(80) }).strict();
+
+function guard(params: Record<string, string | undefined>, demoMode: string | undefined): Response | number {
+  if (demoMode === 'true') {
+    return Response.json({ error: 'El panel público es una muestra de solo lectura.' }, { status: 403 });
+  }
+  if (!runtimePlatform.isCapabilityActive('CAT-003')) {
+    return Response.json({ error: 'Recurso no disponible.' }, { status: 404 });
+  }
+  const id = Number(params.id);
+  return Number.isInteger(id) && id > 0 ? id : Response.json({ error: 'id inválido' }, { status: 400 });
+}
+
+export const PATCH: APIRoute = async ({ params, request, locals }) => {
+  const checked = guard(params, locals.runtime.env.DEMO_MODE);
+  if (checked instanceof Response) return checked;
+  const parsed = schema.safeParse(await request.json().catch(() => null));
+  if (!parsed.success) return Response.json({ error: 'Datos inválidos' }, { status: 400 });
+  try {
+    return catalogAdminMutationResponse(
+      await createAdminOperations(locals.runtime.env.DB).updateProductOption(checked, parsed.data),
+    );
+  } catch (error) {
+    const response = catalogAdminErrorResponse(error);
+    if (response) return response;
+    throw error;
+  }
+};
+export const DELETE: APIRoute = async ({ params, locals }) => {
+  const checked = guard(params, locals.runtime.env.DEMO_MODE);
+  if (checked instanceof Response) return checked;
+  try {
+    return catalogAdminMutationResponse(
+      await createAdminOperations(locals.runtime.env.DB).deleteProductOption(checked),
+    );
+  } catch (error) {
+    const response = catalogAdminErrorResponse(error);
+    if (response) return response;
+    throw error;
+  }
+};

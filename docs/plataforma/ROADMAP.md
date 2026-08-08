@@ -39,7 +39,7 @@ improvisan durante la implementación.
 |---|---|---|
 | R0 | Investigación, taxonomía, matriz, roadmap y estrategia wiki | ✅ cerrado 2026-08-06 |
 | R1 | Cimientos modulares y observables | ✅ cerrado 2026-08-07 |
-| R2 | Núcleo transaccional profesional | 🟡 R2.1–R2.3 cerrados 2026-08-08 |
+| R2 | Núcleo transaccional profesional | 🟡 R2.1–R2.4 cerrados 2026-08-08 |
 | R3 | Operación de pedidos, inventario y fulfillment | ⬜ |
 | R4 | Precios, promociones y modelos de venta | ⬜ |
 | R5 | Clientes, privacidad y mercados | ⬜ |
@@ -90,7 +90,7 @@ Cada migración se diseña y ensaya sobre una copia antes de tocar el esquema vi
 | 13 | **R2.1 Modelo objetivo y plan de migración** | ERD/ADR para producto-variante, inventario, pago, fulfillment y reembolso; compatibilidad con seeds y export; cero código de escritura. | ✅ 2026-08-07 |
 | 14 | **R2.2 Producto-variante: esquema** | Migración aditiva, backfill 1:1, constraints/índices y restore rehearsal; producto simple sigue idéntico. | ✅ 2026-08-08 |
 | 15 | **R2.3 Producto-variante: dominio y lectura** | Repositorio y tipos canónicos; storefront y quote leen variante; guardarraíl prohíbe precio desde cliente. | ✅ 2026-08-08 |
-| 16 | **R2.4 Producto-variante: admin y seed** | CRUD de opciones/variantes/SKU/estado con validación; import/export y seed actual migrados. | ⬜ |
+| 16 | **R2.4 Producto-variante: admin y seed** | CRUD de opciones/variantes/SKU/estado con validación; import/export y seed actual migrados. | ✅ 2026-08-08 |
 | 17 | **R2.5 Media y atributos tipados** | Galería, alt/foco/orden/asociación a variante; atributos con definición, valor y validación. | ⬜ |
 | 18 | **R2.6 Ledger de inventario: diseño** | Movimientos, balance, razones, reservas y concurrencia; invariantes y SQL propuesto. | ⬜ |
 | 19 | **R2.7 Ledger de inventario: implementación** | Migración, backfill del stock, escrituras append-only y proyección de disponible; doble webhook no duplica movimiento. | ⬜ |
@@ -642,27 +642,16 @@ a bloques posteriores. R1 queda cerrado sin declarar capacidades futuras.
    ajeno incompleto, Astro sin diagnósticos, build completo y E2E local 27/27.
    UI/a11y/Lighthouse y deploy no aplican.
 
-## 7. Siguiente bloque
+### R2.4 — Producto-variante: admin y seed — ✅ 2026-08-08
 
-### R2.4 — Producto-variante: admin y seed
-
-Extender CRUD, validación, seed e import/export para escribir producto,
-opciones y variantes con doble escritura de los espejos legacy. Mantener la UI
-de variantes ausente cuando la capacidad no esté activa y ensayar reset/backup
-restaurable. No tocar todavía media/atributos, ledger de inventario, pagos ni
-fulfillment. La puerta coordinada de Astro + `0007` quedó ejecutada en
-producción el 2026-08-08; no cambia que R2.4 siga abierto hasta completar el
-CRUD seguro de combinaciones.
-
-**Corte local 1 (2026-08-08, en curso).** El PATCH administrativo sincroniza
+**Corte local 1 (2026-08-08).** El PATCH administrativo sincroniza
 precio, precio anterior, actividad/estado y metadatos de la variante default
 con los espejos legacy dentro de la misma batch y evidencia optimista. `CAT-003`
 gobierna las columnas avanzadas del panel: queda ausente en minimal/standard y
 activo en advanced/demo. El seed v2 materializa opciones, valores, firmas y tres
 tallas reales de `sum-shell-07`, mientras v1 conserva su default simple. El
 backup marcado como esquema 2 exporta/restaura las cuatro tablas nuevas y sus
-FKs. Falta el CRUD seguro de combinaciones no default; por eso R2.4 sigue
-abierto y no cambia aún el estado público de CAT-003/004/005.
+FKs.
 Verificación del corte: 333 archivos Astro sin diagnósticos, 46 suites y **312
 tests**, restore aislado con `foreign_key_check` limpio y build completo.
 
@@ -675,3 +664,34 @@ líneas completas, cero divergencias y cero SKU duplicados. La versión Worker
 tráfico, con dominio y ambos cron sincronizados. E2E de producción 27/27 y
 auditoría posterior sin escrituras ni violaciones FK. El despliegue no cierra
 R2.4: solo publica de forma coherente el corte compatible ya terminado.
+
+**Cierre funcional (2026-08-08).** El admin avanzado incorpora una ficha por
+producto para crear, renombrar y retirar opciones/valores, mantener cualquier
+combinación, SKU, GTIN/EAN, MPN, precio y estado, y cambiar el default. Default,
+valores usados y variantes presentes en pedidos llevan guardas explícitas. Cada
+mutación confirma snapshot, dato y audit log en una batch; la carrera de alta
+de una combinación deja un ganador. La demo solo muestra fixtures deshabilitados
+y `minimal`/`standard` no exponen página ni endpoints de `CAT-003`.
+
+El reset local reconstruye 207 productos, 209 variantes y las tres tallas de
+SUMMIT; el backup de esquema 2 restaura relaciones con FK limpia. `pnpm check`
+pasa 47 suites y **321 tests**, tipos y build. E2E local **32/32**; editor en
+1440/375 sin overflow ni consola; auditoría 2/2 sin errores ni avisos. No se
+tocan esquema, media, stock, pagos o fulfillment.
+
+**Despliegue funcional (2026-08-09).** El Worker
+`0445b6cb-1619-43eb-aeaf-da0012f6b9f9` sirve el cierre R2.4. Tras materializar
+el reset interno, D1 confirma 207 productos, 209 variantes, una opción, tres
+valores y tres asociaciones. La ficha SUMMIT responde 200 con sus combinaciones,
+las mutaciones públicas responden 403 y el E2E de producción pasa **32/32**.
+
+## 7. Siguiente bloque
+
+### R2.5 — Media y atributos tipados
+
+Implementar galería con orden, alt, foco y asociación opcional a variante, más
+definiciones/valores de atributos con tipo y validación. Mantener fallback a
+`products.image`/`specs_json`, ampliar seed y backup y ocultar toda UI cuando la
+capacidad no esté activa. No tocar todavía el ledger de inventario, pagos ni
+fulfillment. Cualquier migración D1 requiere la puerta expresa del arquitecto,
+ensayo sobre copia aislada, `foreign_key_check` y rollback compatible.

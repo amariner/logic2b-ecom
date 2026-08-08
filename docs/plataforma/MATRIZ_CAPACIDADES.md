@@ -40,14 +40,14 @@ su alcance requiera.
 |---|---|---|---|---|---|
 | CAT-001 | Producto básico | núcleo | P0 | actual | Nombre, slug, descripción, precio, stock, imagen, categoría y actividad. |
 | CAT-002 | Colecciones/catálogos separados | núcleo | P0 | actual | Catálogos visuales aislados sobre contratos compartidos. |
-| CAT-003 | Producto y variante separados | núcleo | P0 | parcial | Esquema, lectura reversible y doble escritura auditada del default existen; faltan CRUD de combinaciones y stock por variante (R2.7). |
-| CAT-004 | Opciones y valores | núcleo | P0 | parcial | Tablas, FKs, lectura y seed v2 con combinaciones reales existen; falta el CRUD administrativo de opciones/valores. |
-| CAT-005 | SKU, GTIN/EAN, MPN y marca | núcleo | P1 | parcial | SKU/GTIN/MPN se leen y el default admite escritura validada; faltan variantes no default y marca editorial. |
+| CAT-003 | Producto y variante separados | núcleo | P0 | parcial | Esquema, lectura reversible y CRUD auditado de default/combinaciones existen; falta stock por variante (R2.7) y selección storefront. |
+| CAT-004 | Opciones y valores | núcleo | P0 | parcial | CRUD administrativo, FKs, lectura y seed v2 con combinaciones reales existen; el storefront todavía sirve la variante default. |
+| CAT-005 | SKU, GTIN/EAN, MPN y marca | núcleo | P1 | parcial | SKU/GTIN/MPN tienen lectura y escritura validada en cualquier variante; falta la marca editorial tipada. |
 | CAT-006 | Taxonomía y categoría normalizada | módulo | P1 | pendiente | Categoría interna + mapeos externos versionados. |
 | CAT-007 | Atributos tipados por categoría | módulo | P1 | parcial | Texto, número, unidad, booleano, referencia y lista validados. |
 | CAT-008 | Galería multimedia | núcleo | P1 | parcial | Varias imágenes/vídeo, alt, foco, orden y asociación a variante. |
 | CAT-009 | Archivos y media reutilizables | módulo | P2 | pendiente | Biblioteca con metadatos, derivados, uso y eliminación segura. |
-| CAT-010 | Estado borrador/activo/archivado/no listado | núcleo | P1 | parcial | Publicación explícita sin borrar historial. |
+| CAT-010 | Estado borrador/activo/archivado/no listado | núcleo | P1 | parcial | Borrador/activo/archivado se administran sin borrar historial; falta «no listado». |
 | CAT-011 | Publicación programada | módulo | P2 | pendiente | Ventanas temporales con timezone y rollback. |
 | CAT-012 | Edición masiva | módulo | P1 | pendiente | Selección, preview, validación y resultado por fila. |
 | CAT-013 | Importación CSV robusta | módulo | P1 | pendiente | Dry-run, errores por fila, idempotencia y mapeo de campos. |

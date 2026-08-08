@@ -1,4 +1,80 @@
-import type { ProductAdminRepository, ProductAdminRow } from '../application/product-admin';
+import type {
+  ProductAdminRepository,
+  ProductAdminRow,
+  ProductOptionAdminRow,
+  ProductOptionSnapshot,
+  ProductOptionValueAdminRow,
+  ProductOptionValueSnapshot,
+  ProductVariantAdminRow,
+} from '../application/product-admin';
+
+type OptionValueJoinRow = Readonly<{
+  option_id: number;
+  product_id: number;
+  option_name: string;
+  option_position: number;
+  value_id: number | null;
+  value: string | null;
+  value_position: number | null;
+}>;
+
+type VariantValueJoinRow = Readonly<{
+  id: number;
+  product_id: number;
+  sku: string;
+  gtin: string | null;
+  mpn: string | null;
+  title: string;
+  price_cents: number;
+  compare_at_price_cents: number | null;
+  status: 'draft' | 'active' | 'archived';
+  is_default: number;
+  option_signature: string | null;
+  option_value_id: number | null;
+  order_item_count: number;
+  created_at: string;
+  updated_at: string;
+}>;
+
+const variantSelect = `
+  SELECT pv.id, pv.product_id, pv.sku, pv.gtin, pv.mpn, pv.title,
+         pv.price_cents, pv.compare_at_price_cents, pv.status, pv.is_default,
+         pv.option_signature, pv.created_at, pv.updated_at,
+         pvov.option_value_id,
+         (SELECT count(*) FROM order_items oi WHERE oi.variant_id = pv.id) AS order_item_count
+  FROM product_variants pv
+  LEFT JOIN product_variant_option_values pvov ON pvov.variant_id = pv.id`;
+
+function hydrateVariants(rows: readonly VariantValueJoinRow[]): readonly ProductVariantAdminRow[] {
+  const byId = new Map<number, VariantValueJoinRow[]>();
+  for (const row of rows) {
+    const current = byId.get(row.id) ?? [];
+    current.push(row);
+    byId.set(row.id, current);
+  }
+  return [...byId.values()].map((variantRows) => {
+    const row = variantRows[0]!;
+    return Object.freeze({
+      id: row.id,
+      product_id: row.product_id,
+      sku: row.sku,
+      gtin: row.gtin,
+      mpn: row.mpn,
+      title: row.title,
+      price_cents: row.price_cents,
+      compare_at_price_cents: row.compare_at_price_cents,
+      status: row.status,
+      is_default: row.is_default === 1,
+      option_signature: row.option_signature,
+      option_value_ids: Object.freeze(variantRows.flatMap((candidate) =>
+        candidate.option_value_id === null ? [] : [candidate.option_value_id],
+      ).toSorted((a, b) => a - b)),
+      order_item_count: row.order_item_count,
+      created_at: row.created_at,
+      updated_at: row.updated_at,
+    });
+  });
+}
 
 export function createD1ProductAdminRepository(db: D1Database): ProductAdminRepository {
   const select = `
@@ -23,6 +99,80 @@ export function createD1ProductAdminRepository(db: D1Database): ProductAdminRepo
       return db.prepare(
         `${select} WHERE p.id = ?`,
       ).bind(id).first<ProductAdminRow>();
+    },
+    async details(id) {
+      const product = await db.prepare(`${select} WHERE p.id = ?`).bind(id).first<ProductAdminRow>();
+      if (!product) return null;
+      const [optionResult, variantResult] = await Promise.all([
+        db.prepare(`
+          SELECT po.id AS option_id, po.product_id, po.name AS option_name,
+                 po.position AS option_position, pov.id AS value_id,
+                 pov.value, pov.position AS value_position
+          FROM product_options po
+          LEFT JOIN product_option_values pov ON pov.option_id = po.id
+          WHERE po.product_id = ?
+          ORDER BY po.position, po.id, pov.position, pov.id
+        `).bind(id).all<OptionValueJoinRow>(),
+        db.prepare(`
+          ${variantSelect}
+          WHERE pv.product_id = ?
+          ORDER BY pv.is_default DESC, pv.id, pvov.option_id
+        `).bind(id).all<VariantValueJoinRow>(),
+      ]);
+      const options = new Map<number, ProductOptionAdminRow>();
+      for (const row of optionResult.results) {
+        const current = options.get(row.option_id) ?? Object.freeze({
+          id: row.option_id,
+          product_id: row.product_id,
+          name: row.option_name,
+          position: row.option_position,
+          values: Object.freeze([]) as readonly ProductOptionValueAdminRow[],
+        });
+        const values = [...current.values];
+        if (row.value_id !== null && row.value !== null && row.value_position !== null) {
+          values.push(Object.freeze({
+            id: row.value_id,
+            option_id: row.option_id,
+            value: row.value,
+            position: row.value_position,
+          }));
+        }
+        options.set(row.option_id, Object.freeze({ ...current, values: Object.freeze(values) }));
+      }
+      return Object.freeze({
+        product,
+        options: Object.freeze([...options.values()]),
+        variants: Object.freeze(hydrateVariants(variantResult.results)),
+      });
+    },
+    findOption(id) {
+      return db.prepare(`
+        SELECT po.id, po.product_id, p.slug AS product_slug, po.name, po.position,
+               (SELECT count(*) FROM product_option_values pov WHERE pov.option_id = po.id) AS value_count,
+               (SELECT count(*) FROM product_variant_option_values pvov WHERE pvov.option_id = po.id) AS variant_count
+        FROM product_options po
+        JOIN products p ON p.id = po.product_id
+        WHERE po.id = ?
+      `).bind(id).first<ProductOptionSnapshot>();
+    },
+    findOptionValue(id) {
+      return db.prepare(`
+        SELECT pov.id, pov.option_id, po.product_id, p.slug AS product_slug,
+               pov.value, pov.position,
+               (SELECT count(*) FROM product_variant_option_values pvov WHERE pvov.option_value_id = pov.id) AS variant_count
+        FROM product_option_values pov
+        JOIN product_options po ON po.id = pov.option_id
+        JOIN products p ON p.id = po.product_id
+        WHERE pov.id = ?
+      `).bind(id).first<ProductOptionValueSnapshot>();
+    },
+    async findVariant(id) {
+      const { results } = await db.prepare(`
+        ${variantSelect}
+        WHERE pv.id = ?
+        ORDER BY pvov.option_id
+      `).bind(id).all<VariantValueJoinRow>();
+      return hydrateVariants(results)[0] ?? null;
     },
   };
 }

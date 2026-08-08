@@ -1,8 +1,9 @@
 # Productos, variantes y opciones sin duplicar el catálogo
 
-> Borrador interno R2.3. Estado editorial: **no publicable**. CAT-003, CAT-004
-> y CAT-005 siguen `parcial`: existe lectura canónica, pero falta escritura
-> administrativa y el inventario todavía no se contabiliza por variante.
+> Borrador interno actualizado en R2.4. Estado editorial: **no publicable**.
+> CAT-003, CAT-004 y CAT-005 siguen `parcial`: la administración ya es real,
+> pero el storefront todavía sirve el default y el inventario no se contabiliza
+> por variante.
 
 ## Intención futura
 
@@ -14,13 +15,17 @@ productos simples.
 
 El motor separa ya el contenido editorial del producto y la unidad vendible de
 la variante. Un repositorio tipado lee SKU, GTIN, MPN, precio, estado y valores
-de opción; exige una variante default y bloquea combinaciones incoherentes. La
-lectura puede volver a `products` con un flag y compara ambas fuentes antes del
-corte.
+de opción; exige una variante default y bloquea combinaciones incoherentes. El
+panel avanzado crea, edita y elimina opciones, valores y combinaciones con
+validación en servidor, audit log y control optimista de carreras. Cambiar el
+default sincroniza precio, precio anterior y actividad con `products` en la
+misma transacción compatible.
 
-Todavía no se puede presentar como funcionalidad disponible: el admin y el
-seed v2 no crean ni editan opciones/variantes, y `products.stock` sigue siendo
-la proyección temporal de disponibilidad hasta el ledger R2.7.
+La lectura puede volver a `products` con un flag y compara ambas fuentes antes
+del corte. El seed v2 y el backup SQL v2 conservan las relaciones y sus FKs.
+Todavía no se puede presentar como funcionalidad completa: la tienda pública
+sirve la variante por defecto y `products.stock` sigue siendo la proyección
+temporal de disponibilidad hasta el ledger R2.7.
 
 ## Qué verá el comercio al completarse
 
@@ -34,12 +39,14 @@ la proyección temporal de disponibilidad hasta el ledger R2.7.
 - agregado inmutable y guardas en `modules/catalog/domain/product.ts`;
 - repositorio D1 en `modules/catalog/infrastructure/d1-catalog-repository.ts`;
 - rollout `legacy|shadow|variant` con divergencia bloqueante;
-- reconciliación automatizada de todos los productos del seed v1;
+- CRUD auditado con protección del default y de variantes presentes en pedidos;
+- serialización de altas concurrentes y unicidad de SKU/combinación;
+- seed v2 y backup/restore con opciones, valores, variantes y asociaciones;
+- editor condicionado por `CAT-003`, ausente en `minimal` y `standard`;
 - quote autoritativa: un precio enviado por el navegador se descarta.
 
 ## Evidencia pendiente antes de publicar
 
-- CRUD y seed/import/export v2 con doble escritura restaurable (R2.4);
 - selección de variante en storefront y snapshots de pedido completos;
 - stock por variante con ledger y concurrencia (R2.7–R2.8);
 - pruebas E2E de producto con varias combinaciones;

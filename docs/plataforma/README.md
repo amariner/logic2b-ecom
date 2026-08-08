@@ -83,6 +83,12 @@ venta o servicios logísticos propios.
   lector canónico D1 y proyección temporal de disponibilidad legacy.
 - [`../../src/modules/catalog/application/catalog-reader.ts`](../../src/modules/catalog/application/catalog-reader.ts):
   rollout reversible `legacy|shadow|variant` y comparación bloqueante.
+- [`../../src/composition/admin-operations.ts`](../../src/composition/admin-operations.ts):
+  casos de uso R2.4 para opciones, valores y variantes con validación y auditoría.
+- [`../../src/platform/operations/infrastructure/d1-catalog-variant-audit.ts`](../../src/platform/operations/infrastructure/d1-catalog-variant-audit.ts):
+  unidades D1 optimistas que confirman configuración y evidencia en una batch.
+- [`../../src/pages/demo/admin/productos/[id].astro`](../../src/pages/demo/admin/productos/[id].astro):
+  editor de combinaciones condicionado por capacidad y de solo lectura en demo.
 - [`wiki/productos-variantes-opciones.md`](wiki/productos-variantes-opciones.md):
   borrador interno R2.3; no publicable hasta completar escritura e inventario.
 - [`../../platform.config.ts`](../../platform.config.ts): manifest del

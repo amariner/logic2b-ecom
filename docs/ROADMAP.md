@@ -63,12 +63,12 @@ reconciliación se conserva abajo por contexto.
 | 11 | Landing V2 «nivel Awwwards» + negocio + funnel + docs | 🟡 En curso | 2026-07-24 | **F11.1, F11.3 (2 sesiones), F11.4, F11.5, F11.6, F11.7 y F11.8 (primera pasada + pase a11y/contenido desde cloud 2026-07-24) hechos**, más F11.8b (auditor de a11y, cloud), F11.2a-1 (tienda ASFALTO / tema Street), F11.2a-2 (tienda METRIA / tema Industrial) F11.2a-3 (tienda ROMER / tema Natural) y **F11.2a-4 (tienda KALIBRE / tema Specs, local 2026-07-25) — con la que F11.2a queda CERRADA (10/10 tiendas)**; y **F11.8c (Lighthouse citable + OG de WhatsApp + URLs sin redirección, local 2026-07-26)**; y **F11.8d–e (tabla de Lighthouse cerrada y desplegada: 7 de 8 superficies a 100×4, la landing entre ellas en móvil y escritorio, local 2026-07-27)**; de la cola de F11.8 solo queda la submission a Awwwards (decisión de pago: Andreu). Detalle por bloque abajo. (ver «Fase 11» abajo). **Plan maestro completo en [`docs/PLAN_FASE11_LANDING_V2.md`](PLAN_FASE11_LANDING_V2.md)**: bloques F11.0–F11.8 ejecutables por sesiones independientes. **Decisiones D1–D6 APROBADAS por Andreu (2026-07-23)**: JS propio ≤15 KB sin deps, capturas con browser tools en local, dirección C «Ocho tiendas, un motor», escalera de precios (Lite 590 / Kit 1.900+39 / A medida 3.400+59), WhatsApp+email, Lite publicado sin construir. Prompt de arranque: [`docs/PROMPT_FASE11.md`](PROMPT_FASE11.md). Integra 9B.5/9B.6 (imaginería y temas restantes) como prerequisito del hero |
 | 8 | Pulido de la demo (backlog abajo) | 🟡 En curso | 2026-07-19 | Backlog técnico agotado; solo quedan decisiones y pasos locales de Andreu (ver «Decisiones pendientes» y `docs/PROMPT_CLOUD.md`). Últimas tandas: novena (race de idempotencia en el pago, PII enumerable en `/demo/gracias`, cancelación de pedido pagado sin devolver stock), décima (la misma race en el PATCH de admin, campos vacíos guardados como 0, login sin rate limit), undécima (diagrama móvil de `/arquitectura`, hedge del plazo de entrega, tokens de tema en `/demo/reset`, terminología «envío»), duodécima (aviso de corte en pedidos del admin, cabeceras sin wrap a 375px, leftover «portes», token de radio del carrito, contraste del botón eliminar, H1 en valenciano, checklist de producción) y decimotercera (misma race de idempotencia en `checkout.session.expired`, divisa hardcodeada a EUR fuera de Stripe, cobertura de test de `quoteCart`/PATCH admin/emails) y decimocuarta (config parcial de Stripe → cobro sin cumplimiento, emails duplicados bajo concurrencia, `payment_status` del webhook, color de marca centralizado en `shop.config.ts`, contraste/tema en carrito y checkout) — ver sección «Fase 8» |
 | 12 | Logic2B Ecommerce: renombrado, reposicionamiento y docs de dos visiones | 🟡 En curso | 2026-08-06 | **F12.0–F12.5 cerrados:** renombrado, nuevo argumento en landing/dossier, canal agencias en marca blanca y manual ampliado del gestor. Solo queda F12.6 (consolidación). **Plan maestro en [`docs/PLAN_FASE12_LOGIC2B_ECOMMERCE.md`](PLAN_FASE12_LOGIC2B_ECOMMERCE.md)**. |
-| 13 | Plataforma modular: del gestor mínimo a paridad extrema de capacidad | 🟡 En curso | 2026-08-08 | **R0, R1 y R2.1–R2.3 completos; R2.4 en curso:** doble escritura del default, seed v2 y backup v2 ya operativos; sigue el CRUD de combinaciones. Fuente de verdad en [`docs/plataforma/`](plataforma/README.md). |
+| 13 | Plataforma modular: del gestor mínimo a paridad extrema de capacidad | 🟡 En curso | 2026-08-08 | **R0, R1 y R2.1–R2.4 completos; R2.5 siguiente:** opciones, valores y combinaciones ya tienen CRUD auditado; stock sigue global hasta R2.7. Fuente de verdad en [`docs/plataforma/`](plataforma/README.md). |
 
 ## Repo y entornos
 
 - GitHub: `https://github.com/amariner/logic2b-ecom` (rama `main`).
-- Cloudflare: **en producción** — Worker `ecom-logic2b` en https://ecom.logic2b.com, D1 remota `ecom-demo` (`7ae9b06d-3664-4790-a87c-04bb4c67e97a`), cron reset cada 6 h, cuenta marinerandreu@gmail.com. Corte coordinado del 2026-08-08: versión `193a5610-1b76-4534-92ce-a5ade571c732` al 100 %, migraciones `0001`–`0007` aplicadas y triggers de reset/outbox sincronizados.
+- Cloudflare: **en producción** — Worker `ecom-logic2b` en https://ecom.logic2b.com, D1 remota `ecom-demo` (`7ae9b06d-3664-4790-a87c-04bb4c67e97a`), cron reset cada 6 h, cuenta marinerandreu@gmail.com. Corte funcional R2.4 del 2026-08-09: versión `0445b6cb-1619-43eb-aeaf-da0012f6b9f9` al 100 %, migraciones `0001`–`0007` aplicadas y triggers de reset/outbox sincronizados.
 
 ## Fase 13 — Plataforma modular y paridad de capacidad
 
@@ -118,7 +118,8 @@ de producto pasa a la Fase 13 y se ejecuta un bloque R por sesión.
 | R2.1 | Modelo objetivo y plan de migración | ✅ 2026-08-07 — ADR/ERD, compatibilidad, backfills y restore base ensayado |
 | R2.2 | Esquema producto-variante, backfill y restore aislado | ✅ 2026-08-08 — 194/194, hash legacy idéntico |
 | R2.3 | Dominio/lectura de variante y shadow-read reversible | ✅ 2026-08-08 |
-| R2.4+ | Admin/seed de variante, ledgers y resto de olas | ⬜ ver plan maestro |
+| R2.4 | Admin/seed/backup y CRUD auditado de opciones y variantes | ✅ 2026-08-08 — 321 tests, E2E 32/32, a11y 2/2 |
+| R2.5+ | Media/atributos, ledgers y resto de olas | ⬜ ver plan maestro |
 
 ## Fase 12 — Logic2B Ecommerce: renombrado, reposicionamiento y las dos visiones
 
@@ -1732,12 +1733,33 @@ responden 200 tras propagación. Sin migración, dependencia ni cambio de motor.
 - Portada, `/temas`, SUMMIT, LÍTICA, sus assets y sitemap responden 200. E2E de
   producción 27/27; después conserva cero audit/outbox y cero violaciones FK.
 
+### R2.4 — producto-variante: admin y seed — ✅ cerrado 2026-08-08
+
+- Ficha avanzada por producto para opciones, valores y combinaciones; el panel
+  demo enseña el seed real de SUMMIT con todos los controles deshabilitados.
+- CRUD servidor de SKU, GTIN/EAN, MPN, título, precio, estado y default. Las
+  eliminaciones protegen la variante default, valores usados y líneas de pedido.
+- Mutación + audit log en batch optimista; dos altas concurrentes de la misma
+  combinación dejan un ganador y una sola evidencia. Cambiar el default
+  sincroniza los espejos legacy de precio, precio anterior y actividad.
+- `CAT-003` deja página y APIs fuera de `minimal`/`standard`; la ruta compartida
+  rechaza campos avanzados si la capacidad está ausente.
+- Reset D1: 207 productos, 209 variantes, 3 combinaciones SUMMIT y cero FK.
+  Backup/restore de esquema 2 y seed v2 siguen idempotentes.
+- Verificación: `pnpm check` (47 suites, **321 tests**), E2E local **32/32**,
+  editor 1440/375 sin overflow ni errores de consola y a11y **2/2** limpio.
+  Sin migración, dependencia, media, ledger, pago o fulfillment.
+- Producción: Worker `0445b6cb-1619-43eb-aeaf-da0012f6b9f9`; tras el reset
+  interno, D1 conserva 207 productos, 209 variantes, una opción, tres valores
+  y tres asociaciones. E2E remoto **32/32** el 2026-08-09.
+
 ### Siguiente bloque
 
-**R2.4 — producto-variante: admin y seed.** Extender CRUD, validación, seed e
-import/export para opciones y variantes con doble escritura legacy restaurable.
-La UI solo aparece cuando la capacidad esté activa. No tocar media/atributos,
-ledger de inventario, pagos ni fulfillment.
+**R2.5 — media y atributos tipados.** Añadir galería ordenada con alt/foco y
+asociación a variante, además de atributos con definición, tipo y validación.
+Conservar fallback a `products.image`/`specs_json`, seed/backup restaurables y
+UI ausente con la capacidad apagada. No tocar ledger de inventario, pagos ni
+fulfillment; una nueva migración exige puerta y ensayo aislado.
 Criterio completo en
 [`docs/plataforma/ROADMAP.md`](plataforma/ROADMAP.md#r2--núcleo-transaccional-profesional).
 

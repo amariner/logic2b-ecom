@@ -36,3 +36,13 @@ export {
   type AuditEventProjection,
   type D1AuditLogWriter,
 } from './infrastructure/d1-audit-log';
+export {
+  createD1CatalogVariantAuditWriter,
+  type CatalogAuditedOutcome,
+  type CatalogOptionGuard,
+  type CatalogOptionValueGuard,
+  type CatalogProductGuard,
+  type CatalogVariantGuard,
+  type CatalogVariantValues,
+  type D1CatalogVariantAuditWriter,
+} from './infrastructure/d1-catalog-variant-audit';

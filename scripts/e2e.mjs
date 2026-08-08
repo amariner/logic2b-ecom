@@ -89,8 +89,26 @@ check('panel vuelve a ARCE', adminHtml.includes('href="/demo/tiendas/arce"'));
 
 const productsHtml = await (await fetch(`${BASE}/demo/admin/productos`, { headers: { cookie } })).text();
 const productId = productsHtml.match(/data-field="name" data-id="(\d+)"/)?.[1];
+const variantProductId = productsHtml.match(/data-field="name" data-id="(\d+)" value="Shell 07"/)?.[1];
 check('productos son visibles como fixtures', productId !== undefined && productsHtml.includes('solo lectura'));
 check('controles de producto están deshabilitados', productsHtml.includes('disabled'));
+check('producto con variantes enlaza su editor', variantProductId !== undefined);
+let variantId;
+if (variantProductId) {
+  const variantsHtml = await (await fetch(
+    `${BASE}/demo/admin/productos/${variantProductId}`,
+    { headers: { cookie } },
+  )).text();
+  variantId = variantsHtml.match(/data-variant-id="(\d+)"/)?.[1];
+  check(
+    'editor enseña opciones y combinaciones sembradas',
+    variantsHtml.includes('Opciones y valores') && variantsHtml.includes('SUM-SHELL-07-M'),
+  );
+  check(
+    'editor de variantes también es de solo lectura',
+    variantId !== undefined && variantsHtml.includes('disabled') && !variantsHtml.includes('>Añadir variante</summary>'),
+  );
+}
 
 const shippingHtml = await (await fetch(`${BASE}/demo/admin/envios`, { headers: { cookie } })).text();
 const rateId = shippingHtml.match(/data-field="price" data-id="(\d+)"/)?.[1];
@@ -114,6 +132,19 @@ for (const [label, path, body] of [
     method: 'PATCH',
     headers: { 'content-type': 'application/json', cookie },
     body: JSON.stringify(body),
+  });
+  const responseBody = await json(response);
+  check(`mutación de ${label} rechazada`, response.status === 403 && responseBody?.error?.includes('solo lectura'));
+}
+
+for (const [label, method, path] of [
+  ['opciones', 'POST', `/api/admin/catalog-options/product/${variantProductId ?? 1}`],
+  ['variantes', 'PATCH', `/api/admin/catalog-variants/${variantId ?? 1}`],
+]) {
+  const response = await fetch(`${BASE}${path}`, {
+    method,
+    headers: { 'content-type': 'application/json', cookie },
+    body: '{}',
   });
   const responseBody = await json(response);
   check(`mutación de ${label} rechazada`, response.status === 403 && responseBody?.error?.includes('solo lectura'));

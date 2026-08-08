@@ -4,6 +4,7 @@ import {
   createAdminOperations,
   type AdminMutationOutcome,
 } from '../../../../composition/admin-operations';
+import { runtimePlatform } from '../../../../composition/runtime-platform';
 
 export const prerender = false;
 
@@ -51,6 +52,17 @@ export const PATCH: APIRoute = async ({ params, request, locals }) => {
   const parsed = patchSchema.safeParse(body);
   if (!parsed.success) {
     return Response.json({ error: 'Datos inválidos', details: parsed.error.flatten() }, { status: 400 });
+  }
+  const touchesVariants = [
+    parsed.data.compare_at_price_cents,
+    parsed.data.sku,
+    parsed.data.gtin,
+    parsed.data.mpn,
+    parsed.data.variant_title,
+    parsed.data.variant_status,
+  ].some((value) => value !== undefined);
+  if (touchesVariants && !runtimePlatform.isCapabilityActive('CAT-003')) {
+    return Response.json({ error: 'Recurso no disponible.' }, { status: 404 });
   }
 
   let outcome: AdminMutationOutcome;
