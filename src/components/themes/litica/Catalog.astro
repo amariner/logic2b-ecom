@@ -1,0 +1,252 @@
+---
+/**
+ * LÍTICA · retícula editorial de cosmética mineral.
+ * Réplica estructural de la referencia a397… con marca, copy y assets propios.
+ */
+import type { CollectionConfig, StorePaths } from '../../../collections';
+import Filters from './Filters.astro';
+import ProductGrid from './ProductGrid.astro';
+
+type GridProduct = {
+  slug: string;
+  name: string;
+  price_cents: number;
+  image: string;
+  stock: number;
+};
+
+interface Props {
+  paths: StorePaths;
+  products: GridProduct[];
+  collection: CollectionConfig;
+  category?: string | undefined;
+  sort: string;
+  search?: string | undefined;
+}
+
+const { paths, products, collection, category, sort, search } = Astro.props;
+const editorial = !category && !search && sort === 'featured';
+const FEATURED = [
+  'lit-mineral-wash',
+  'lit-ferment-serum',
+  'lit-barrier-cream',
+  'lit-night-mask',
+  'lit-body-oil',
+  'lit-limestone-tool',
+];
+const rank = new Map(FEATURED.map((slug, index) => [slug, index]));
+const orderedProducts = products.toSorted((a, b) => (rank.get(a.slug) ?? 99) - (rank.get(b.slug) ?? 99));
+const favorites = orderedProducts.slice(0, 3);
+const arrivals = orderedProducts.slice(3);
+---
+
+<div class="litica">
+  <header class="litica-header">
+    <nav class="litica-header__nav" aria-label="Colecciones LÍTICA">
+      <a class="litica-menu" href={paths.catalog} aria-current={!category ? 'page' : undefined}>Menú</a>
+      <a class="litica-desktop" href={paths.catalog} aria-current={!category ? 'page' : undefined}>Inicio</a>
+      {collection.categories.map((item) => <a class="litica-desktop" href={`${paths.catalog}?categoria=${item.id}`}>{item.label}</a>)}
+    </nav>
+    <a class="litica-wordmark" href={paths.catalog}>{collection.name}</a>
+    <div class="litica-header__actions">
+      <a class="litica-desktop" href={`${paths.catalog}?orden=name`}>Índice</a>
+      <a href={paths.cart}>Bolsa <span data-cart-badge>0</span></a>
+    </div>
+  </header>
+
+  {editorial ? (
+    <main>
+      <section class="litica-hero" aria-labelledby="litica-title">
+        <div class="litica-media">
+          <img src="/images/collections/litica/hero-mineral.webp" alt="Tres tarros de vidrio ámbar sobre roca caliza" width="1600" height="1067" loading="eager" fetchpriority="high" />
+        </div>
+        <div class="litica-hero__copy">
+          <h1 id="litica-title">Materia para<br />tu piel</h1>
+          <div>
+            <p>Fórmulas cortas, minerales trazables y texturas que trabajan con la barrera natural. Sin perfume, sin ornamento y con un estándar claro: cada ingrediente debe tener una función.</p>
+            <a href="#favoritos">Ver favoritos</a>
+          </div>
+        </div>
+      </section>
+
+      <section class="litica-product-band" id="favoritos" aria-labelledby="litica-favorites">
+        <div class="litica-band-title">
+          <h2 id="litica-favorites">Más<br />elegidos</h2>
+          <a href={`${paths.catalog}?categoria=lit-face`}>Ver rostro</a>
+        </div>
+        <ProductGrid paths={paths} products={favorites} />
+      </section>
+
+      <section class="litica-category-story" aria-label="Categorías y cuidado corporal">
+        <div class="litica-category-list">
+          <div>
+            <h2>Piel y cuerpo</h2>
+            <nav aria-label="Cuidado de piel y cuerpo">
+              <a href={`${paths.catalog}?categoria=lit-face`}>Limpieza facial</a>
+              <a href={`${paths.catalog}?categoria=lit-body`}>Manos y cuerpo</a>
+              <a href={`${paths.catalog}?categoria=lit-face`}>Rutinas</a>
+            </nav>
+          </div>
+          <div>
+            <h2>Kits y objetos</h2>
+            <nav aria-label="Kits y objetos">
+              <a href={`${paths.catalog}?categoria=lit-objects`}>Piedra pulida</a>
+              <a href="#principios">Kit esencial</a>
+            </nav>
+          </div>
+        </div>
+        <div class="litica-media litica-media--mono">
+          <img src="/images/collections/litica/ritual-hands.webp" alt="Gesto de cuidado sobre un antebrazo" width="1000" height="1250" loading="lazy" />
+        </div>
+      </section>
+
+      <section class="litica-principles" id="principios" aria-labelledby="litica-principles-title">
+        <div class="litica-media">
+          <img src="/images/collections/litica/gift-kit.webp" alt="Kit de cuidado en caja de fibra moldeada sobre piedra" width="1000" height="1000" loading="lazy" />
+        </div>
+        <div class="litica-principles__copy">
+          <h2 id="litica-principles-title">Nuestros principios</h2>
+          <div>
+            <p>Diseñamos fórmulas honestas, concentradas y fáciles de entender. El envase protege el producto, se reduce a lo necesario y evita promesas que la piel no puede comprobar.</p>
+            <a href="#criterio">Leer criterio</a>
+          </div>
+        </div>
+      </section>
+
+      <section class="litica-product-band" aria-labelledby="litica-arrivals">
+        <div class="litica-band-title">
+          <h2 id="litica-arrivals">Nuevas<br />materias</h2>
+          <a href={paths.catalog}>Ver todo</a>
+        </div>
+        <ProductGrid paths={paths} products={arrivals} />
+      </section>
+
+      <section class="litica-criterion" id="criterio" aria-label="Criterio LÍTICA">
+        <div class="litica-criterion__copy">
+          <div>
+            <h2>Sí</h2>
+            <ul>
+              <li>Ingredientes con función</li>
+              <li>Origen y fórmula comprensibles</li>
+              <li>Envases reducidos</li>
+              <li>Rutinas que caben en la vida real</li>
+            </ul>
+          </div>
+          <div>
+            <h2>No</h2>
+            <ul>
+              <li>Pruebas en animales</li>
+              <li>Perfume que oculta la fórmula</li>
+              <li>Promesas imposibles</li>
+              <li>Capas de embalaje innecesarias</li>
+            </ul>
+          </div>
+        </div>
+        <div class="litica-media litica-media--mono">
+          <img src="/images/collections/litica/ritual-stones.webp" alt="Dos piedras de basalto sobre un antebrazo" width="1000" height="1250" loading="lazy" />
+        </div>
+      </section>
+    </main>
+  ) : (
+    <main class="litica-catalog" id="catalogo">
+      <div class="litica-catalog__heading">
+        <p>Materia / Colección</p>
+        <h1>{category ? collection.categories.find((item) => item.id === category)?.label : 'Todos los productos'}</h1>
+      </div>
+      <Filters paths={paths} collection={collection} count={products.length} activeCategory={category} sort={sort} search={search} />
+      {search && products.length > 0 && <p class="litica-results">{products.length} {products.length === 1 ? 'resultado' : 'resultados'} para «{search}»</p>}
+      {orderedProducts.length > 0 ? (
+        <div class="litica-catalog__grid"><ProductGrid paths={paths} products={orderedProducts} /></div>
+      ) : (
+        <div class="litica-empty">
+          <p>{search ? `Nada por aquí para «${search}»` : 'No hay productos en esta colección'}</p>
+          <a href={paths.catalog}>Volver a la colección</a>
+        </div>
+      )}
+    </main>
+  )}
+
+  <footer class="litica-footer">
+    <a class="litica-footer__wordmark" href={paths.catalog}>{collection.name}</a>
+    <p>Materia esencial, fórmulas honestas y objetos hechos para durar.</p>
+    <nav aria-label="Pie de LÍTICA">
+      <a href={paths.catalog} aria-current={editorial ? 'page' : undefined}>Colección</a>
+      <a href="/demo/reset">Reiniciar demo</a>
+      <a href="/">Logic2B Ecommerce</a>
+    </nav>
+  </footer>
+</div>
+
+<style>
+  /* El catálogo pinta la cabecera y el pie de la referencia. Esta hoja solo se
+     carga en esta vista; ficha, carrito y checkout conservan el chrome común. */
+  :global([data-store-theme='litica'] > header),
+  :global([data-store-theme='litica'] > .shop-footer) { display: none; }
+  .litica { min-height: 100vh; color: var(--color-foreground); background: var(--color-background); font-family: var(--font-accent); }
+  .litica :where(a) { color: inherit; text-decoration: none; }
+  .litica-header { position: sticky; top: 0; z-index: 30; display: grid; min-height: 3.65rem; grid-template-columns: 1fr auto 1fr; align-items: center; padding: .7rem 1rem; border-bottom: var(--border-width) solid var(--color-border); background: color-mix(in srgb, var(--color-background) 95%, transparent); backdrop-filter: blur(14px); font: 500 .52rem/1 var(--font-accent); text-transform: uppercase; }
+  .litica-header__nav, .litica-header__actions { display: flex; align-items: center; gap: clamp(.7rem, 1.35vw, 1.3rem); }
+  .litica-header__actions { justify-content: flex-end; }
+  .litica-header a { padding-block: .5rem; }
+  .litica-header a:hover { text-decoration: underline; text-underline-offset: .2rem; }
+  .litica-menu { display: none; }
+  .litica-wordmark { font: var(--weight-display) 1rem/1 var(--font-display); letter-spacing: var(--tracking-display); }
+  .litica-media { position: relative; min-height: 0; overflow: hidden; background: var(--surface-product); }
+  .litica-media img { width: 100%; height: 100%; object-fit: cover; }
+  .litica-media--mono { background: color-mix(in srgb, var(--color-background) 90%, var(--color-foreground)); }
+  .litica-hero { display: grid; min-height: min(44rem, 61vw); grid-template-columns: 1fr 1fr; border-bottom: var(--border-width) solid var(--color-border); }
+  .litica-hero > * + * { border-left: var(--border-width) solid var(--color-border); }
+  .litica-hero__copy { display: flex; flex-direction: column; justify-content: space-between; padding: clamp(1rem, 2.3vw, 2.2rem); background: color-mix(in srgb, var(--color-background) 97%, var(--color-foreground)); }
+  .litica-hero__copy h1 { font: var(--weight-display) clamp(2.45rem, 5vw, 5.6rem)/.84 var(--font-display); letter-spacing: var(--tracking-display); text-transform: uppercase; }
+  .litica-hero__copy > div { max-width: 21rem; font-size: .66rem; line-height: 1.45; }
+  .litica-hero__copy a, .litica-band-title a, .litica-principles__copy a { display: inline-block; margin-top: 1rem; font-size: .55rem; text-transform: uppercase; text-decoration: underline; text-underline-offset: .22rem; }
+  .litica-product-band { display: grid; grid-template-columns: minmax(10rem, 1fr) 3fr; border-bottom: var(--border-width) solid var(--color-border); }
+  .litica-band-title { display: flex; min-height: 22rem; flex-direction: column; align-items: flex-start; justify-content: space-between; padding: 1rem; border-right: var(--border-width) solid var(--color-border); }
+  .litica-band-title h2, .litica-category-list h2, .litica-principles h2, .litica-criterion h2, .litica-catalog__heading h1 { font: var(--weight-display) clamp(1.35rem, 2.05vw, 2.25rem)/.9 var(--font-display); letter-spacing: var(--tracking-display); text-transform: uppercase; }
+  .litica-category-story, .litica-principles, .litica-criterion { display: grid; grid-template-columns: 1fr 1fr; border-bottom: var(--border-width) solid var(--color-border); }
+  .litica-category-story > * + *, .litica-principles > * + *, .litica-criterion > * + * { border-left: var(--border-width) solid var(--color-border); }
+  .litica-category-list { display: grid; grid-template-rows: 1fr 1fr; }
+  .litica-category-list > div { display: flex; min-height: 15rem; flex-direction: column; align-items: flex-start; justify-content: space-between; padding: 1rem; }
+  .litica-category-list > div + div { border-top: var(--border-width) solid var(--color-border); }
+  .litica-category-list nav { display: grid; gap: .28rem; font-size: .54rem; text-transform: uppercase; }
+  .litica-category-list nav a { display: inline-flex; min-height: 1.5rem; align-items: center; }
+  .litica-category-list a:hover { text-decoration: underline; text-underline-offset: .18rem; }
+  .litica-category-story .litica-media { min-height: 30rem; }
+  .litica-principles .litica-media { min-height: 31rem; }
+  .litica-principles__copy { display: flex; flex-direction: column; justify-content: space-between; padding: 1rem; }
+  .litica-principles__copy > div { max-width: 22rem; font-size: .62rem; line-height: 1.5; }
+  .litica-criterion__copy { display: grid; grid-template-rows: 1fr 1fr; }
+  .litica-criterion__copy > div { min-height: 15rem; padding: 1rem; }
+  .litica-criterion__copy > div + div { border-top: var(--border-width) solid var(--color-border); }
+  .litica-criterion ul { margin: 1rem 0 0; padding-left: 1.05rem; font-size: .55rem; line-height: 1.55; text-transform: uppercase; }
+  .litica-criterion .litica-media { min-height: 30rem; }
+  .litica-catalog__heading { min-height: 14rem; padding: 1rem; border-bottom: var(--border-width) solid var(--color-border); background: color-mix(in srgb, var(--color-background) 97%, var(--color-foreground)); }
+  .litica-catalog__heading p { margin-bottom: 3rem; color: var(--color-muted-foreground); font-size: .55rem; text-transform: uppercase; }
+  .litica-catalog__grid { border-bottom: var(--border-width) solid var(--color-border); }
+  .litica-results { padding: 1rem; border-bottom: var(--border-width) solid var(--color-border); color: var(--color-muted-foreground); font-size: .62rem; }
+  .litica-empty { padding: 8rem 1rem; text-align: center; background: color-mix(in srgb, var(--color-background) 96%, var(--color-foreground)); }
+  .litica-empty p { font: var(--weight-display) 1.4rem/1.1 var(--font-display); text-transform: uppercase; }
+  .litica-empty a { display: inline-block; margin-top: 1rem; font-size: .62rem; text-decoration: underline; text-underline-offset: .25rem; }
+  .litica-footer { display: grid; min-height: 18rem; place-items: center; align-content: center; gap: 1.2rem; padding: 3rem 1rem; text-align: center; background: color-mix(in srgb, var(--color-background) 96%, var(--color-foreground)); }
+  .litica-footer__wordmark { font: var(--weight-display) clamp(4rem, 11vw, 10rem)/.75 var(--font-display); letter-spacing: var(--tracking-display); }
+  .litica-footer p { max-width: 30rem; color: var(--color-muted-foreground); font-size: .62rem; }
+  .litica-footer nav { display: flex; flex-wrap: wrap; justify-content: center; gap: 1rem; font-size: .54rem; text-transform: uppercase; }
+  .litica-footer nav a { display: inline-flex; min-height: 1.8rem; align-items: center; }
+
+  @media (max-width: 720px) {
+    .litica-header { padding-inline: .75rem; }
+    .litica-menu { display: inline-flex; }
+    .litica-desktop { display: none; }
+    .litica-hero { min-height: 0; grid-template-columns: 1fr; }
+    .litica-hero > * + * { border-top: var(--border-width) solid var(--color-border); border-left: 0; }
+    .litica-hero .litica-media { aspect-ratio: 1 / .92; }
+    .litica-hero__copy { min-height: 26rem; }
+    .litica-product-band { grid-template-columns: 1fr; }
+    .litica-band-title { min-height: 9rem; border-right: 0; border-bottom: var(--border-width) solid var(--color-border); }
+    .litica-category-story, .litica-principles, .litica-criterion { grid-template-columns: 1fr; }
+    .litica-category-story > * + *, .litica-principles > * + *, .litica-criterion > * + * { border-top: var(--border-width) solid var(--color-border); border-left: 0; }
+    .litica-category-story .litica-media { order: -1; min-height: 27rem; }
+    .litica-principles .litica-media, .litica-criterion .litica-media { min-height: 26rem; }
+    .litica-principles__copy { min-height: 21rem; }
+  }
+</style>

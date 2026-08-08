@@ -724,6 +724,23 @@ local: build en verde; carrito y ficha probados con clic real; capturas a 1440 y
 `pnpm check` con 333 archivos Astro, 308 tests y build en verde.
 Ficha completa en [`docs/temas/summit.md`](temas/summit.md).
 
+### Línea paralela · tema LÍTICA (2026-08-08, sesión local)
+
+Cuarto elemento de `nuevos-temas/cola.json`. LÍTICA replica una dirección de
+cosmética mineral con hero partido, retícula editorial de filetes, seis
+productos `lit-*` y bloques alternos de materia cálida y ritual monocromo. Los
+diez assets propios se generaron con la herramienta integrada de OpenAI y se
+optimizaron como WebP.
+
+El tema toca solo su kit y los registros previstos. La cabecera editorial vive
+en el catálogo; ficha, carrito y checkout conservan la navegación compartida.
+**No modifica lógica de precios, envíos, checkout, pedidos, D1 ni APIs.**
+Verificación local: build y chequeo Astro en verde (338 archivos, 0
+diagnósticos); filtro, búsqueda vacía, ficha y carrito probados con interacción
+real; capturas a 1440 y 390×844; auditor de accesibilidad con **0 errores y 0
+avisos en 9 superficies**; 46 suites y **312 tests** en verde. Ficha completa en
+[`docs/temas/litica.md`](temas/litica.md).
+
 ### Pendiente en la Fase 9B
 
 - **Pasada de fidelidad fina** de los 4 temas contra su captura (se re-hospedaron

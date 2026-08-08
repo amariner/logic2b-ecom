@@ -66,8 +66,9 @@ const DESKTOP = { w: 1440, h: 900, dsf: 1, mobile: false };
 const MOBILE = { w: 375, h: 812, dsf: 1, mobile: true };
 
 // ── Superficies ────────────────────────────────────────────────────────────
-// Las 18 tiendas vivas. `demo` (La Botiga) conserva las rutas históricas.
+// Las tiendas vivas. `demo` (La Botiga) conserva las rutas históricas.
 const STORES = [
+  { id: 'litica', label: 'LÍTICA', prefix: '/demo/tiendas/litica', slug: 'lit-mineral-wash', cartKey: 'ecom-cart:litica' },
   { id: 'summit', label: 'SUMMIT', prefix: '/demo/tiendas/summit', slug: 'sum-shell-07', cartKey: 'ecom-cart:summit' },
   { id: 'sillage', label: 'SILLAGE', prefix: '/demo/tiendas/sillage', slug: 'sil-cedro-solar', cartKey: 'ecom-cart:sillage' },
   { id: 'argent', label: 'ARGENT.', prefix: '/demo/tiendas/argent', slug: 'arg-checked-sarong-skirt', cartKey: 'ecom-cart:argent' },

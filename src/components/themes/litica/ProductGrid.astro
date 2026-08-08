@@ -1,0 +1,78 @@
+---
+/** LÍTICA · celdas de producto aislado con filetes editoriales. */
+import type { StorePaths } from '../../../collections';
+import { formatEurCents } from '../../../lib/format';
+
+type GridProduct = {
+  slug: string;
+  name: string;
+  price_cents: number;
+  image: string;
+  stock: number;
+};
+
+interface Props {
+  paths: StorePaths;
+  products: GridProduct[];
+}
+
+const { paths, products } = Astro.props;
+---
+
+<ul class="litica-grid">
+  {products.map((product, index) => (
+    <li class="litica-card">
+      <div class="litica-card__media">
+        <img src={product.image} alt={product.name} width="900" height="900" loading={index < 3 ? 'eager' : 'lazy'} />
+      </div>
+      <div class="litica-card__copy">
+        <h2><a href={paths.product(product.slug)}>{product.name}</a></h2>
+        <p>{formatEurCents(product.price_cents)}</p>
+      </div>
+      <button
+        class="litica-card__add"
+        type="button"
+        data-litica-add={product.slug}
+        disabled={product.stock === 0}
+        aria-label={product.stock === 0 ? `${product.name} agotado` : `Añadir ${product.name} al carrito`}
+      >{product.stock === 0 ? '×' : '+'}</button>
+    </li>
+  ))}
+</ul>
+
+<script>
+  import { addToCart } from '../../../lib/cart-client';
+
+  document.querySelectorAll<HTMLButtonElement>('[data-litica-add]').forEach((button) => {
+    button.addEventListener('click', () => {
+      addToCart(button.dataset.liticaAdd ?? '');
+      const previous = button.textContent;
+      button.textContent = '✓';
+      setTimeout(() => (button.textContent = previous), 850);
+    });
+  });
+</script>
+
+<style>
+  .litica-grid { display: grid; min-width: 0; grid-template-columns: repeat(3, minmax(0, 1fr)); margin: 0; padding: 0; list-style: none; background: var(--color-border); gap: var(--grid-gap); }
+  .litica-card { position: relative; min-width: 0; color: var(--color-foreground); background: var(--color-background); }
+  .litica-card__media { display: grid; aspect-ratio: 1; place-items: center; overflow: hidden; background: var(--surface-product); }
+  .litica-card__media img { width: 100%; height: 100%; object-fit: cover; transition: transform .35s ease; }
+  .litica-card:hover .litica-card__media img { transform: scale(1.018); }
+  .litica-card__copy { min-height: 4.4rem; padding: .8rem .55rem 1rem; text-align: center; text-transform: uppercase; font: 500 clamp(.5rem, .56vw, .62rem)/1.3 var(--font-accent); letter-spacing: -.015em; }
+  .litica-card__copy h2 { font: inherit; }
+  .litica-card__copy h2 a::after { position: absolute; inset: 0; content: ''; }
+  .litica-card__copy p { margin-top: .28rem; color: var(--color-muted-foreground); font-size: .88em; }
+  .litica-card__add { position: absolute; z-index: 2; right: .45rem; bottom: .45rem; display: grid; width: 1.55rem; height: 1.55rem; place-items: center; border: var(--border-width) solid var(--color-border); border-radius: var(--radius-btn); color: var(--color-brand-fg); background: var(--color-brand); font: 600 .72rem/1 var(--font-accent); cursor: pointer; }
+  .litica-card__add:hover { background: var(--color-brand-dark); }
+  .litica-card__add:disabled { cursor: not-allowed; opacity: .45; }
+  .litica-card__add:focus-visible, .litica-card__copy a:focus-visible { outline: .16rem solid var(--color-brand); outline-offset: -.16rem; }
+
+  @media (max-width: 720px) {
+    .litica-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .litica-card__copy { min-height: 4.1rem; padding-inline: .4rem; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .litica-card__media img { transition: none; }
+  }
+</style>

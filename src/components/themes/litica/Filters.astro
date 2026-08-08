@@ -1,0 +1,67 @@
+---
+/** LÍTICA · controles compactos del catálogo funcional. */
+import type { CollectionConfig, StorePaths } from '../../../collections';
+
+interface Props {
+  paths: StorePaths;
+  collection: CollectionConfig;
+  count: number;
+  activeCategory?: string | undefined;
+  sort: string;
+  search?: string | undefined;
+}
+
+const { paths, collection, count, activeCategory, sort, search } = Astro.props;
+const hrefFor = (category?: string) => {
+  const params = new URLSearchParams();
+  if (category) params.set('categoria', category);
+  if (sort !== 'featured') params.set('orden', sort);
+  if (search) params.set('q', search);
+  const query = params.toString();
+  return `${paths.catalog}${query ? `?${query}` : ''}`;
+};
+---
+
+<div class="litica-filters">
+  <nav aria-label="Categorías LÍTICA">
+    <span>Catálogo / {count}</span>
+    <a href={hrefFor()} aria-current={!activeCategory ? 'page' : undefined}>Todo</a>
+    {collection.categories.map((category) => (
+      <a href={hrefFor(category.id)} aria-current={activeCategory === category.id ? 'page' : undefined}>{category.label}</a>
+    ))}
+  </nav>
+  <div class="litica-filters__forms">
+    <form method="get" action={paths.catalog} role="search">
+      {activeCategory && <input type="hidden" name="categoria" value={activeCategory} />}
+      {sort !== 'featured' && <input type="hidden" name="orden" value={sort} />}
+      <input type="search" name="q" value={search} maxlength="60" placeholder="Buscar" aria-label="Buscar productos" />
+    </form>
+    <form method="get" action={paths.catalog}>
+      {activeCategory && <input type="hidden" name="categoria" value={activeCategory} />}
+      {search && <input type="hidden" name="q" value={search} />}
+      <select name="orden" aria-label="Ordenar catálogo" onchange="this.form.submit()">
+        <option value="featured" selected={sort === 'featured'}>Destacados</option>
+        <option value="price-asc" selected={sort === 'price-asc'}>Precio ↑</option>
+        <option value="price-desc" selected={sort === 'price-desc'}>Precio ↓</option>
+        <option value="name" selected={sort === 'name'}>Nombre A–Z</option>
+      </select>
+    </form>
+  </div>
+</div>
+
+<style>
+  .litica-filters { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: .75rem 1rem; border-bottom: var(--border-width) solid var(--color-border); color: var(--color-foreground); background: var(--color-background); font: 500 .58rem/1 var(--font-accent); text-transform: uppercase; }
+  .litica-filters nav, .litica-filters__forms { display: flex; align-items: center; gap: 1rem; }
+  .litica-filters nav > span { color: var(--color-muted-foreground); }
+  .litica-filters a { padding-block: .6rem; }
+  .litica-filters a[aria-current='page'] { text-decoration: underline; text-underline-offset: .25rem; }
+  .litica-filters input, .litica-filters select { min-height: 2.3rem; border: 0; border-bottom: var(--border-width) solid var(--color-border); border-radius: var(--radius-btn); color: var(--color-foreground); background: transparent; font: inherit; text-transform: uppercase; }
+  .litica-filters input { width: 8rem; }
+
+  @media (max-width: 720px) {
+    .litica-filters { align-items: stretch; flex-direction: column; overflow: hidden; }
+    .litica-filters nav { overflow-x: auto; }
+    .litica-filters nav > * { flex: 0 0 auto; }
+    .litica-filters__forms { justify-content: space-between; }
+  }
+</style>

@@ -12,14 +12,14 @@ const themes = demoThemes.filter((theme) => theme.id !== defaultTheme.id);
 
 describe('catálogo navegable de temas', () => {
   it('enseña las altas más recientes primero sin mutar el registro', () => {
-    const registrationOrder = ['editorial', 'argent', 'sillage', 'summit'] as const;
+    const registrationOrder = ['editorial', 'argent', 'sillage', 'summit', 'litica'] as const;
 
-    expect(newestThemesFirst(registrationOrder)).toEqual(['summit', 'sillage', 'argent', 'editorial']);
-    expect(registrationOrder).toEqual(['editorial', 'argent', 'sillage', 'summit']);
+    expect(newestThemesFirst(registrationOrder)).toEqual(['litica', 'summit', 'sillage', 'argent', 'editorial']);
+    expect(registrationOrder).toEqual(['editorial', 'argent', 'sillage', 'summit', 'litica']);
     expect(newestThemesFirst(themes).map((theme) => theme.id).slice(0, 3)).toEqual([
+      'litica',
       'summit',
       'sillage',
-      'argent',
     ]);
   });
 

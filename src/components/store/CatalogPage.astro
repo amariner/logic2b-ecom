@@ -29,6 +29,7 @@ import ArceCatalog from '../themes/arce/Catalog.astro';
 import ArgentCatalog from '../themes/argent/Catalog.astro';
 import SillageCatalog from '../themes/sillage/Catalog.astro';
 import SummitCatalog from '../themes/summit/Catalog.astro';
+import LiticaCatalog from '../themes/litica/Catalog.astro';
 
 interface Props {
   collection: CollectionConfig;
@@ -85,6 +86,7 @@ const catalogViews = {
   argent: ArgentCatalog,
   sillage: SillageCatalog,
   summit: SummitCatalog,
+  litica: LiticaCatalog,
 } as const;
 const ThemedCatalog = catalogViews[collection.themeId as keyof typeof catalogViews] ?? null;
 ---

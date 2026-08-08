@@ -736,6 +736,36 @@ export const demoThemes: DemoTheme[] = [
       annotations: false, darkFooter: true,
     },
   },
+  {
+    id: 'litica',
+    label: 'LÍTICA',
+    hint: 'Cosmética mineral: retícula editorial, materia táctil y precisión apotecaria.',
+    reference: { name: 'Mineral skincare editorial study', file: '17-litica.webp' },
+    sample: null,
+    bestFor: ['Cosmética y skincare', 'Bienestar', 'Marcas naturales de autor'],
+    status: 'ready',
+    vars: {
+      '--color-brand': '#9a3f1f',
+      '--color-brand-dark': '#6d2a16',
+      '--color-brand-fg': '#ffffff',
+      '--font-display': SYSTEM_SANS,
+      '--font-accent': SYSTEM_SANS,
+      '--tracking-display': '-0.06em',
+      '--weight-display': '500',
+      '--radius-btn': '0rem',
+      '--radius-card': '0rem',
+      '--border-width': '1px',
+      '--surface-product': '#efede5',
+      '--surface-sunken': '#e9e7df',
+      '--space-density': '0.75',
+      '--grid-gap': '1px',
+    },
+    layout: {
+      gridCols: 3, gridStyle: 'irregular', nav: 'top', hero: 'split',
+      card: 'divided', filters: 'dropdown', density: 'compact',
+      annotations: false, darkFooter: false,
+    },
+  },
   // new-theme:themes — no borrar: `pnpm new:theme <id>` añade aquí el tema si falta.
 ];
 
