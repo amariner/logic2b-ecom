@@ -96,7 +96,9 @@ una integración operativa o un alcance a medida explícito.
 El plan anterior permanece como historia y mantenimiento de la demo. **F12.6
 ya no bloquea el desarrollo del motor**: se conserva en el carril comercial y se
 cerrará cuando una sesión local ejecute sus auditorías de producción. El orden
-de producto pasa a la Fase 13 y se ejecuta un bloque R por sesión.
+de producto pasa a la Fase 13. Cada bloque R continúa siendo una unidad atómica:
+una sesión normal ejecuta uno y Goal mode puede encadenar varios sin saltarse
+sus verificaciones ni sus puntos de reanudación.
 
 ### Estado F13
 
@@ -416,6 +418,8 @@ Sesión local. Ejecutado el núcleo del cierre; queda la cola «de premio».
   protocolo de 8 pasos para que cualquier chat (local o cloud) que reciba solo
   «continúa con el desarrollo» sincronice, planifique UN bloque con el equipo,
   ejecute, testee, documente, actualice «Próxima sesión» y suba a main.
+  En Goal mode, el mismo ciclo se repite para bloques sucesivos siguiendo
+  [`docs/RUTA_DESARROLLO_CONTINUO.md`](RUTA_DESARROLLO_CONTINUO.md).
 - **Pendiente de F11.8** (cola): Lighthouse 100×4 citable contra producción,
   verificación del OG en WhatsApp, submission Awwwards (decisión de pago:
   Andreu). El pase formal de teclado/lector y reduced-motion de las páginas
@@ -1315,6 +1319,12 @@ reciba «continúa con el desarrollo» hace `git fetch`, carga la skill `equipo`
 ejecuta el bloque de «Próxima sesión» de abajo, testea, documenta, actualiza
 esta sección y sube a `main`.
 
+Si recibe `/goal sigue desarrollando este proyecto todo lo que puedas`, debe
+encadenar bloques atómicos según
+[`docs/RUTA_DESARROLLO_CONTINUO.md`](RUTA_DESARROLLO_CONTINUO.md) hasta completar
+la ruta o encontrar un bloqueo real. El objetivo incluye el carril principal y
+la cola de temas, coordinados sin mezclar worktrees ni cambios abiertos.
+
 ## Próxima sesión
 
 ### C15.1 — aislamiento seguro de todas las demos — ✅ cerrado 2026-08-04
@@ -1762,6 +1772,17 @@ UI ausente con la capacidad apagada. No tocar ledger de inventario, pagos ni
 fulfillment; una nueva migración exige puerta y ensayo aislado.
 Criterio completo en
 [`docs/plataforma/ROADMAP.md`](plataforma/ROADMAP.md#r2--núcleo-transaccional-profesional).
+
+**Ruta continua del desarrollo principal.** Después de cerrar R2.5, el
+siguiente bloque es **UIA.1–UIA.4 · Panel administrativo V2**, antes de R2.6.
+El panel debe alcanzar el nivel visual de la landing usando Logic2B UI, sin
+perder minimalismo ni modularidad. Desde ahí se retoma el orden R2–R11 y los
+carriles transversales de UI, calidad y verdad comercial definidos en
+[`docs/RUTA_DESARROLLO_CONTINUO.md`](RUTA_DESARROLLO_CONTINUO.md). La creación
+de temas forma parte del mismo `/goal`: después de R2.5 se abre el carril visual
+con las posiciones 5–8 de `nuevos-temas/cola.json`, en paralelo con Admin V2 si
+existe un worktree separado o intercalado entre bloques principales cerrados.
+Todos los temas se consolidan y migran al contrato definitivo durante R8.
 
 **F12.6 queda en el carril comercial, no bloquea R2.4.** Una sesión local de
 mantenimiento creará el índice general de docs, revisará OG y ejecutará

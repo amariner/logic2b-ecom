@@ -1,11 +1,20 @@
-# Línea paralela de nuevos temas
+# Carril visual de nuevos temas
 
-Esta línea vive en `codex/new-themes`. Su entrada es la carpeta interna
-`nuevos-temas/`; su orden y estado están en `nuevos-temas/cola.json`.
+Este carril forma parte de
+[`RUTA_DESARROLLO_CONTINUO.md`](RUTA_DESARROLLO_CONTINUO.md). Su entrada es la
+carpeta interna `nuevos-temas/`; su orden y estado están en
+`nuevos-temas/cola.json`.
+
+Cuando existe otro chat desarrollando el motor, vive en `codex/new-themes`
+dentro de un worktree separado. Cuando un único `/goal` ejecuta ambos carriles,
+puede trabajar secuencialmente sobre su rama activa, siempre después de cerrar
+el bloque anterior y sincronizar la base. Dos chats nunca editan el mismo
+checkout ni los mismos archivos a la vez.
 
 ## Orden de ejecución
 
-Cuando el usuario diga **«créame un nuevo tema»**:
+Cuando el usuario diga **«créame un nuevo tema»** o el `/goal` continuo
+seleccione el siguiente bloque visual:
 
 1. Leer `nuevos-temas/cola.json`.
 2. Continuar primero cualquier elemento `en_progreso` o bloqueado. Solo si no
@@ -63,13 +72,31 @@ antes de enviarla para impedir que el modelo confundiera el asset con la web
 completa. El primer intento de hero, que sí incluyó una web compuesta, se
 descartó y no forma parte del proyecto.
 
+## Selección dentro del Goal continuo
+
+1. R2.5 se integra antes de incorporar nuevos cambios de colección o seed.
+2. Con un chat visual paralelo, continuar las posiciones pendientes mientras el
+   carril principal ejecuta Admin V2 en otro worktree.
+3. Con un solo Goal, intercalar un tema únicamente después de cerrar un bloque
+   principal y cuando no haya migración, deploy o refactor de storefront abierto.
+4. Si el tema necesita ampliar el motor, registrar la necesidad en el ROADMAP y
+   resolverla para todos en el bloque arquitectónico correspondiente; el tema no
+   recibe una excepción privada.
+5. Durante R8, migrar todos los temas terminados al contrato de secciones. Los
+   temas creados después de R8.3 nacen directamente sobre ese contrato.
+
 ## Integración con el desarrollo principal
 
-La integración se hace al terminar la cola, no tema a tema:
+Si se usa la rama paralela, la integración se hace al terminar el lote activo de
+la cola, no con un tema incompleto:
 
 1. Actualizar `codex/new-themes` con la rama principal vigente mediante rebase o
    merge no destructivo, preservando cualquier cambio paralelo del motor.
 2. Resolver conflictos manteniendo la regla de un único backend.
 3. Ejecutar `pnpm check` y la verificación visual de todos los temas afectados.
-4. Fusionar la rama completa en el desarrollo principal solo cuando la cola y
-   las fichas estén cerradas. No borrar la rama antes de confirmar la fusión.
+4. Fusionar la rama completa en el desarrollo principal solo cuando el lote y
+   sus fichas estén cerrados. No borrar la rama antes de confirmar la fusión.
+
+Si el Goal secuencial trabaja en una sola rama, cada tema puede integrarse como
+un bloque atómico independiente, pero solo con ficha, cola, capturas y todas las
+verificaciones cerradas.

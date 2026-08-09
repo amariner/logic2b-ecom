@@ -1,8 +1,15 @@
-# Protocolo «continúa» — una sesión, un bloque
+# Protocolo «continúa» — bloques atómicos y objetivos continuos
 
 > Cuando Andreu abra un chat (local o cloud) y diga solo **«continúa con el
 > desarrollo de este proyecto»**, la sesión sigue este protocolo de principio a
 > fin, sin preguntar salvo veto del equipo. Vale igual para sesiones cloud.
+
+> Cuando Andreu inicie **`/goal sigue desarrollando este proyecto todo lo que
+> puedas`**, aplicar además
+> [`RUTA_DESARROLLO_CONTINUO.md`](RUTA_DESARROLLO_CONTINUO.md). Un bloque sigue
+> siendo atómico, pero el objetivo encadena bloques consecutivos sin esperar un
+> nuevo mensaje. Incluye tanto el carril principal como la cola de temas y demos
+> visuales, seleccionados en los puntos seguros definidos por la ruta.
 
 ## Contexto fijo
 
@@ -25,13 +32,19 @@
    (tabla de fases + «Próxima sesión»), el índice
    [`plataforma/README.md`](plataforma/README.md), la matriz y el bloque exacto
    de [`plataforma/ROADMAP.md`](plataforma/ROADMAP.md), además de los roles
-   afectados. `REVISION_CODEX_2026-08-03.md` es histórico y ya no dirige la cola.
-3. **Planificar la sesión** — ejecutar **UN bloque**: el que marque «Próxima
-   sesión» en el ROADMAP. Desde F13, respetar el orden R y su definición de
-   terminado; no saltar a una feature vistosa si faltan sus primitivas. Los
-   bloques marcados LOCAL necesitan wrangler/Chrome/red local. Anunciar qué se
-   va a hacer y por qué.
-4. **Ejecutar** — desarrollo del bloque, respetando CLAUDE.md §2 y §14.
+   afectados. En Goal mode, leer además
+   [`RUTA_DESARROLLO_CONTINUO.md`](RUTA_DESARROLLO_CONTINUO.md).
+   Si toca el carril visual, leer `docs/NUEVOS_TEMAS.md`,
+   `nuevos-temas/cola.json` y `docs/CHECKLIST_TEMA.md` completos.
+   `REVISION_CODEX_2026-08-03.md` es histórico y ya no dirige la cola.
+3. **Planificar el bloque** — ejecutar **UN bloque atómico**: el que marque
+   «Próxima sesión» en el ROADMAP. Desde F13, respetar el orden R y su definición
+   de terminado. Un tema seleccionado por la ruta no es un salto arbitrario:
+   pertenece al carril visual y debe respetar su cola, frontera y checklist. En
+   un `/goal`, repetir los ocho pasos con el bloque siguiente hasta bloqueo real
+   o finalización. Los bloques LOCAL necesitan wrangler/Chrome/red local.
+4. **Ejecutar** — desarrollo del bloque, respetando CLAUDE.md §2 y §14. En un
+   tema: kit, colección, assets y presentación; nunca duplicar negocio.
 5. **Testear** — `pnpm check` (tests+tipos+build) siempre; `pnpm test:e2e`
    contra `pnpm preview` si se tocó compra/admin; `node scripts/a11y-audit.mjs`
    si se tocó una tienda o el panel; `pnpm audit:lh` **contra producción, después
@@ -43,7 +56,8 @@
    `wrangler dev` a la vez se pelean por la D1 y el segundo se cuelga.
 6. **Documentar** — actualizar `docs/ROADMAP.md`: estado del bloque con fecha y
    resumen, y **reescribir la sección «Próxima sesión»** para que el siguiente
-   chat sepa qué toca sin pensar.
+   chat sepa qué toca sin pensar. Si es un tema, actualizar también su ficha,
+   capturas y `nuevos-temas/cola.json`.
 7. **Integrar** — commit descriptivo en inglés + push a `origin/main`. En
    cloud: abrir el PR según la mecánica del entorno y **mergearlo a `main` en
    la misma sesión** — Andreu delegó explícitamente (2026-07-25) el permiso de

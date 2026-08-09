@@ -2,8 +2,11 @@
 
 ## Continuidad del desarrollo
 
+- [`RUTA_DESARROLLO_CONTINUO.md`](RUTA_DESARROLLO_CONTINUO.md): hilo conductor
+  sin calendario para `/goal`; coordina producto, panel, temas y demos.
 - [`ROADMAP.md`](ROADMAP.md): estado histórico y próxima sesión canónica.
-- [`CONTINUAR.md`](CONTINUAR.md): protocolo de una sesión, un bloque.
+- [`CONTINUAR.md`](CONTINUAR.md): ciclo verificable por bloque y continuidad en
+  Goal mode.
 - [`PROMPT_FASE13.md`](PROMPT_FASE13.md): prompt autocontenido para iniciar R1.1.
 - [`plataforma/README.md`](plataforma/README.md): evolución modular posterior al MVP.
 - [`plataforma/ROADMAP.md`](plataforma/ROADMAP.md): orden detallado R0–R11.
@@ -40,6 +43,10 @@
 
 ## Temas y experiencia visual
 
+- [`NUEVOS_TEMAS.md`](NUEVOS_TEMAS.md): carril visual, orden de ejecución e
+  integración con el Goal continuo.
+- [`../nuevos-temas/cola.json`](../nuevos-temas/cola.json): estado canónico de
+  las referencias visuales.
 - [`TEMAS.md`](TEMAS.md): contrato de temas y motor compartido.
 - [`CHECKLIST_TEMA.md`](CHECKLIST_TEMA.md): receta de implementación y QA.
 - [`temas/`](temas/): fichas de entrega por dirección visual.
