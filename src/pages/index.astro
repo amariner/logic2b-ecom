@@ -178,7 +178,7 @@ const jsonLd = [
         <div class="airtable-hero-copy">
           <p class="airtable-eyebrow">Un servicio de Logic2B · Hecho en Castellón</p>
           <h1 class="hero-title font-display">Tu tienda online a medida</h1>
-          <p class="hero-fade" style="--d:.12s">
+          <p class="hero-fade hero-lcp-copy">
             Una tienda propia, rápida y lista para crecer contigo. Empieza con lo esencial y añade lo que el negocio necesite.
           </p>
           <form class="airtable-email-gate hero-fade" data-email-gate style="--d:.24s">
@@ -492,6 +492,9 @@ const jsonLd = [
        LCP móvil y con ello el 100 de rendimiento. El gesto se mantiene. */
     .hero-title { animation: hero-title-in 0.35s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
     .hero-fade { animation: hero-fade-in 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) both; animation-delay: var(--d, 0s); }
+    /* El párrafo es el LCP móvil: debe estar visible desde el primer fotograma.
+       La entrada escalonada se conserva en el formulario, que no bloquea LCP. */
+    .hero-lcp-copy { animation: none; }
 
     @supports (animation-timeline: view()) {
       /* Entrada suave de tarjetas conducida por el scroll (scrubbed). */
@@ -527,7 +530,9 @@ const jsonLd = [
     overflow-x: clip;
     background: var(--air-cream) !important;
     color: var(--air-ink);
-    font-family: 'Inter Variable', 'Inter Fallback', ui-sans-serif, system-ui, sans-serif;
+    /* Igual que la base global: en móvil usamos el fallback de métricas
+       calibradas para no descargar 131 kB de Inter antes del primer pintado. */
+    font-family: 'Inter Fallback', ui-sans-serif, system-ui, sans-serif;
   }
 
   .airtable-landing .airtable-announcement {
@@ -585,7 +590,7 @@ const jsonLd = [
     max-width: 760px;
     margin-inline: auto;
     color: #040e20;
-    font-family: 'Space Grotesk', 'Inter Variable', sans-serif;
+    font-family: 'Space Grotesk', 'Inter Fallback', sans-serif;
     font-size: clamp(2.7rem, 5vw, 4.3rem);
     font-weight: 700;
     letter-spacing: -0.055em;
@@ -733,7 +738,7 @@ const jsonLd = [
   .airtable-landing h3,
   .airtable-landing summary {
     color: var(--air-ink);
-    font-family: 'Space Grotesk', 'Inter Variable', sans-serif;
+    font-family: 'Space Grotesk', 'Inter Fallback', sans-serif;
     letter-spacing: -0.035em;
   }
   .airtable-landing .airtable-features h2,
@@ -744,6 +749,11 @@ const jsonLd = [
   }
   .airtable-landing .text-muted-foreground {
     color: var(--air-muted) !important;
+  }
+  @media (min-width: 640px) {
+    .airtable-landing {
+      font-family: 'Inter Variable', 'Inter Fallback', ui-sans-serif, system-ui, sans-serif;
+    }
   }
   .airtable-landing .airtable-features .rise {
     overflow: hidden;

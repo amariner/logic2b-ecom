@@ -62,7 +62,7 @@ reconciliación se conserva abajo por contexto.
 | 10 | Documentación para el cliente | 🟡 Casi completa | 2026-07-24 | **Ejecutada como F11.7** (ver Fase 11): `/ayuda` (noindex) con manual de 3 pasos + guías + runbook, acta de entrega e inventario de accesos en `docs/plantillas/`, dossier con «qué pasa si nos vamos», guion del vídeo. Pendiente: grabar el vídeo (Andreu) y confirmar las decisiones a/b/c asumidas |
 | 11 | Landing V2 «nivel Awwwards» + negocio + funnel + docs | 🟡 En curso | 2026-07-24 | **F11.1, F11.3 (2 sesiones), F11.4, F11.5, F11.6, F11.7 y F11.8 (primera pasada + pase a11y/contenido desde cloud 2026-07-24) hechos**, más F11.8b (auditor de a11y, cloud), F11.2a-1 (tienda ASFALTO / tema Street), F11.2a-2 (tienda METRIA / tema Industrial) F11.2a-3 (tienda ROMER / tema Natural) y **F11.2a-4 (tienda KALIBRE / tema Specs, local 2026-07-25) — con la que F11.2a queda CERRADA (10/10 tiendas)**; y **F11.8c (Lighthouse citable + OG de WhatsApp + URLs sin redirección, local 2026-07-26)**; y **F11.8d–e (tabla de Lighthouse cerrada y desplegada: 7 de 8 superficies a 100×4, la landing entre ellas en móvil y escritorio, local 2026-07-27)**; de la cola de F11.8 solo queda la submission a Awwwards (decisión de pago: Andreu). Detalle por bloque abajo. (ver «Fase 11» abajo). **Plan maestro completo en [`docs/PLAN_FASE11_LANDING_V2.md`](PLAN_FASE11_LANDING_V2.md)**: bloques F11.0–F11.8 ejecutables por sesiones independientes. **Decisiones D1–D6 APROBADAS por Andreu (2026-07-23)**: JS propio ≤15 KB sin deps, capturas con browser tools en local, dirección C «Ocho tiendas, un motor», escalera de precios (Lite 590 / Kit 1.900+39 / A medida 3.400+59), WhatsApp+email, Lite publicado sin construir. Prompt de arranque: [`docs/PROMPT_FASE11.md`](PROMPT_FASE11.md). Integra 9B.5/9B.6 (imaginería y temas restantes) como prerequisito del hero |
 | 8 | Pulido de la demo (backlog abajo) | 🟡 En curso | 2026-07-19 | Backlog técnico agotado; solo quedan decisiones y pasos locales de Andreu (ver «Decisiones pendientes» y `docs/PROMPT_CLOUD.md`). Últimas tandas: novena (race de idempotencia en el pago, PII enumerable en `/demo/gracias`, cancelación de pedido pagado sin devolver stock), décima (la misma race en el PATCH de admin, campos vacíos guardados como 0, login sin rate limit), undécima (diagrama móvil de `/arquitectura`, hedge del plazo de entrega, tokens de tema en `/demo/reset`, terminología «envío»), duodécima (aviso de corte en pedidos del admin, cabeceras sin wrap a 375px, leftover «portes», token de radio del carrito, contraste del botón eliminar, H1 en valenciano, checklist de producción) y decimotercera (misma race de idempotencia en `checkout.session.expired`, divisa hardcodeada a EUR fuera de Stripe, cobertura de test de `quoteCart`/PATCH admin/emails) y decimocuarta (config parcial de Stripe → cobro sin cumplimiento, emails duplicados bajo concurrencia, `payment_status` del webhook, color de marca centralizado en `shop.config.ts`, contraste/tema en carrito y checkout) — ver sección «Fase 8» |
-| 12 | Logic2B Ecommerce: renombrado, reposicionamiento y docs de dos visiones | 🟡 En curso | 2026-08-06 | **F12.0–F12.5 cerrados:** renombrado, nuevo argumento en landing/dossier, canal agencias en marca blanca y manual ampliado del gestor. Solo queda F12.6 (consolidación). **Plan maestro en [`docs/PLAN_FASE12_LOGIC2B_ECOMMERCE.md`](PLAN_FASE12_LOGIC2B_ECOMMERCE.md)**. |
+| 12 | Logic2B Ecommerce: renombrado, reposicionamiento y docs de dos visiones | ✅ Hecho | 2026-08-10 | **F12.0–F12.6 cerrados:** marca, argumento, dossier, canal agencias, ayuda, índice por audiencias, OG y auditorías citables consolidados. **Plan maestro en [`docs/PLAN_FASE12_LOGIC2B_ECOMMERCE.md`](PLAN_FASE12_LOGIC2B_ECOMMERCE.md)**. |
 | 13 | Plataforma modular: del gestor mínimo a paridad extrema de capacidad | 🟡 En curso | 2026-08-10 | **R0, R1, R2.1–R2.8 y Admin V2 completos:** ledger y reservas opcionales por variante, con espejo reversible. Siguiente: pagos R2.9. Fuente de verdad en [`docs/plataforma/`](plataforma/README.md). |
 
 ## Repo y entornos
@@ -94,9 +94,9 @@ con «disponible» y la wiki solo podrá publicar una promesa respaldada por tes
 una integración operativa o un alcance a medida explícito.
 
 El plan anterior permanece como historia y mantenimiento de la demo. **F12.6
-ya no bloquea el desarrollo del motor**: se conserva en el carril comercial y se
-cerrará cuando una sesión local ejecute sus auditorías de producción. El orden
-de producto pasa a la Fase 13. Cada bloque R continúa siendo una unidad atómica:
+quedó cerrado el 2026-08-10** con auditorías de producción, OG e índice de
+documentación por audiencias. El orden de producto pasa a la Fase 13. Cada bloque
+R continúa siendo una unidad atómica:
 una sesión normal ejecuta uno y Goal mode puede encadenar varios sin saltarse
 sus verificaciones ni sus puntos de reanudación.
 
@@ -187,7 +187,7 @@ tienda conservan su radio propio. Bloques, un bloque por sesión:
 | F12.3 | Dossier V2: business case para el decisor (camino MVP→escala, qué compra la mensualidad) | ✅ 2026-07-30 — en el repo; **deploy pendiente del OK de Andreu al copy** (entrada abajo) |
 | F12.4 | La visión de la agencia: `docs/AGENCIAS.md` + página `/agencias` (D8: GO, con marca blanca) | ✅ 2026-08-06 — documento, página indexable, OG propia y conversión; desplegado (entrada abajo) |
 | F12.5 | La visión del gestor ampliada: `/ayuda` con escenarios reales y «tu primer mes» | ✅ 2026-08-06 — backend mínimo, 10 escenarios y rutina del primer mes; entrada abajo |
-| F12.6 | Consolidación: barridos completos, Lighthouse en producción, OG, índice `docs/README.md` por audiencia | ⬜ |
+| F12.6 | Consolidación: barridos completos, Lighthouse en producción, OG, índice `docs/README.md` por audiencia | ✅ 2026-08-10 — 207 superficies del corte servido revisadas; regresión ARGENT, LCP de portada y CLS de `/temas` corregidos, índice/OG consolidados |
 
 ## Fase 11 — Landing V2, negocio, funnel y docs
 
@@ -1444,6 +1444,27 @@ superficies**.
 - **Higiene global:** los seis avisos restantes eran saltos `h1 → h3` en las
   tarjetas de Street y Launch; pasan a `h2` sin cambio visual.
 
+### F12.6 — consolidación comercial — ✅ cerrado 2026-08-10
+
+- `docs/README.md` pasa a orientar por audiencia: dirección/comercial,
+  agencias, gestor, implantación técnica, continuidad y temas. Las seis páginas
+  indexables conservan canonical, Open Graph y tarjeta social comprobados.
+- El barrido encontró deuda real en ARGENT: H1 invisible, estado activo ausente
+  y contrastes insuficientes. Queda corregida y los tres falsos estados de
+  cálculo de portes de ORBE/VISO/NERA salen del auditor porque esas composiciones
+  no ofrecen calculadora.
+- `/temas` revela los filtros antes del primer pintado, sin el salto acumulado
+  de layout de 0,08. La portada deja el párrafo LCP sin animación de entrada y,
+  en móvil, usa el fallback métrico previsto por la base para no descargar
+  131 kB de Inter en la ruta crítica.
+- El corte servido se mantiene deliberadamente compatible con D1 hasta
+  `0008`: versión de producción `6b465a19-d295-455a-9c59-21ccde4a610e`, sin
+  migración remota. R2.7/R2.8 siguen solo en el repositorio hasta su gate de
+  migración. Auditoría remota: 207 superficies, 0 errores y 0 avisos.
+- Verificado además con `pnpm check` (53 suites, 350 tests, tipos y build),
+  auditoría enfocada de 33 superficies afectadas en verde y Lighthouse
+  completo documentado en `docs/LIGHTHOUSE.md`.
+
 ### F12.5 — la visión del gestor, ampliada — ✅ cerrado 2026-08-06
 
 `/ayuda` conserva el manual de tres pasos y gana la profundidad operativa que
@@ -1877,18 +1898,20 @@ migración `0010`, reservas versionadas, captura/liberación/TTL, carrera y job
 durable; `INV-004` permanece instalada pero apagada. El siguiente bloque es
 **R2.9 · Ledger de pagos**. Desde ahí continúa el orden R2–R11 y los
 carriles transversales de UI, calidad y verdad comercial definidos en
-[`docs/RUTA_DESARROLLO_CONTINUO.md`](RUTA_DESARROLLO_CONTINUO.md). La creación
-de temas forma parte del mismo `/goal`: después de R2.5 se abre el carril visual
-con las posiciones 5–8 de `nuevos-temas/cola.json`, en paralelo con R2.7 si
-existe un worktree separado o intercalado entre bloques principales cerrados.
-Todos los temas se consolidan y migran al contrato definitivo durante R8.
+[`docs/RUTA_DESARROLLO_CONTINUO.md`](RUTA_DESARROLLO_CONTINUO.md). R2.9 necesita
+una migración D1 aditiva y permanece a la espera del permiso explícito exigido
+por el veto del arquitecto; no se ha escrito ni aplicado todavía. Esta rama no
+toma generación de temas por decisión de Andreu: el carril visual continúa en
+otro canal/worktree.
 
-**F12.6 queda en el carril comercial, no bloquea R2.4.** Una sesión local de
-mantenimiento creará el índice general de docs, revisará OG y ejecutará
-Lighthouse contra producción en las indexables, incluidas `/precios` y
-`/agencias`.
+**F12.6 queda cerrado en el carril comercial (2026-08-10).** El índice por
+audiencias, las OG y las seis páginas indexables se han revalidado; el barrido
+detectó y corrigió la deuda de ARGENT y el CLS causado por revelar tarde los
+filtros de `/temas`. Producción sirve el corte compatible con D1 `0008`
+(`6b465a19-d295-455a-9c59-21ccde4a610e`): 207 superficies, 0 errores y 0
+avisos; R2.7/R2.8 no se desplegaron.
 
-### Cola F12 conservada (retomar después de C14 o cuando el bloque lo indique)
+### Estado F12 conservado
 
 **Mandato nuevo de Andreu (2026-07-28), y manda sobre todo lo demás:**
 renombrado a **Logic2B Ecommerce**, reposicionamiento del argumento de venta
@@ -1898,31 +1921,9 @@ gestor). **Plan maestro completo en
 [`docs/PLAN_FASE12_LOGIC2B_ECOMMERCE.md`](PLAN_FASE12_LOGIC2B_ECOMMERCE.md)**
 — bloques F12.0–F12.6, un bloque por sesión.
 
-- **PRIMERO: cerrar el ciclo de F12.2 (2026-07-30).** El copy nuevo de la
-  landing está **en el repo y verificado, pero NO desplegado**: el gate de
-  product manda — **Andreu tiene que dar el OK al copy** (promesas de
-  servicio: frase estrella con techo de un millón, cuota «se sustituye, no se
-  apila», FAQ de agencias). En cuanto llegue el OK, en sesión local:
-  `pnpm deploy` → verificación en producción → `pnpm audit:lh --write` con
-  red estable (la deuda de `docs/LIGHTHOUSE.md` viene de F12.1) → reset de la
-  demo con cabecera `Origin`. Con el deploy salen también la marca partida y
-  Poppins (en repo desde F12.1) y la alineación header/botones con
-  logic2b.com (2026-07-30).
-  **F12.3 va en el mismo deploy**: el dossier reescrito espera el mismo OK.
-- **Bloque que toca después: F12.4 — la visión de la agencia que nos
-  subcontrata.** Es la audiencia sin cubrir (plan §3). Primero el documento
-  `docs/AGENCIAS.md` —modelo de colaboración, proceso, plazos, entregables,
-  qué necesitamos de la agencia, marca blanca (D8 ya es GO)— y después la
-  página `/agencias` indexable, decidiendo su sitio en el mapa de indexación
-  y su enlace desde la landing. **D8c (tarifas de partner) sigue siendo de
-  Andreu**: el documento se escribe sin cifras de partner hasta que las fije.
-- **F12.0 está CERRADO y desplegado** (2026-07-28, entrada abajo): 123
-  superficies en verde y sin avisos — 19 comerciales nuevas, las 20 `@dark`
-  fantasma retiradas, pie de `/ayuda` arreglado, regla 13 sin falsos
-  positivos de anclas, y Street en oscuro descartado con motivo (no existe
-  modo oscuro al que temer).
-- **Después, en orden:** F12.3 dossier → F12.4 agencias · F12.5 gestor
-  (cualquier orden) → F12.6 consolidación.
+- **F12.0–F12.6 están cerrados.** Marca, argumento, dossier, agencias, ayuda y
+  consolidación se sirven en producción; la evidencia de cada entrega queda en
+  las entradas históricas de esta sección.
 - **Decisiones de Andreu en cola:** **D7** — concepto DECIDIDO (2026-07-28):
   una sola cuota personalizada (mantenimiento + asistencia + seguimiento) que
   se sustituye al subir de tramo, nunca se apila; **solo faltan las cifras**,

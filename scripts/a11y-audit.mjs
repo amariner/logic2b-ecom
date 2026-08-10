@@ -69,9 +69,12 @@ const MOBILE = { w: 375, h: 812, dsf: 1, mobile: true };
 // Las tiendas vivas. `demo` (La Botiga) conserva las rutas históricas.
 const STORES = [
   { id: 'alva', label: 'ALVA', prefix: '/demo/tiendas/alva', slug: 'alv-lina-shoulder-black', cartKey: 'ecom-cart:alva' },
-  { id: 'orbe', label: 'ORBE', prefix: '/demo/tiendas/orbe', slug: 'orb-renew-serum', cartKey: 'ecom-cart:orbe' },
-  { id: 'viso', label: 'VISO', prefix: '/demo/tiendas/viso', slug: 'vis-spectra-01', cartKey: 'ecom-cart:viso' },
-  { id: 'nera', label: 'NERA', prefix: '/demo/tiendas/nera', slug: 'ner-blazer-negra', cartKey: 'ecom-cart:nera' },
+  // Estas direcciones recientes conservan carrito local, pero su composición
+  // no incluye calculadora de portes. El estado activo no existe y no debe
+  // contarse como una pantalla fallida.
+  { id: 'orbe', label: 'ORBE', prefix: '/demo/tiendas/orbe', slug: 'orb-renew-serum', cartKey: 'ecom-cart:orbe', canQuote: false },
+  { id: 'viso', label: 'VISO', prefix: '/demo/tiendas/viso', slug: 'vis-spectra-01', cartKey: 'ecom-cart:viso', canQuote: false },
+  { id: 'nera', label: 'NERA', prefix: '/demo/tiendas/nera', slug: 'ner-blazer-negra', cartKey: 'ecom-cart:nera', canQuote: false },
   { id: 'litica', label: 'LÍTICA', prefix: '/demo/tiendas/litica', slug: 'lit-mineral-wash', cartKey: 'ecom-cart:litica' },
   { id: 'summit', label: 'SUMMIT', prefix: '/demo/tiendas/summit', slug: 'sum-shell-07', cartKey: 'ecom-cart:summit' },
   { id: 'sillage', label: 'SILLAGE', prefix: '/demo/tiendas/sillage', slug: 'sil-cedro-solar', cartKey: 'ecom-cart:sillage' },

@@ -163,6 +163,10 @@ const jsonLd = [
             </p>
           </div>
         </div>
+        <!-- Mejora progresiva sin CLS: el script bloqueante revela los
+             controles antes del primer pintado. Sin JS siguen ocultos y la
+             rejilla completa continúa siendo usable. -->
+        <script is:inline>document.querySelector('[data-theme-controls]')?.removeAttribute('hidden');</script>
 
         <ul data-theme-grid data-columns="2" class="grid gap-8 sm:grid-cols-2">
           {styles.map((theme, i) => (
@@ -382,7 +386,6 @@ const jsonLd = [
   const reset = document.querySelector<HTMLButtonElement>('[data-theme-reset]');
 
   if (controls && grid && search && count && empty) {
-    controls.hidden = false;
     let activeFilter = 'all';
 
     const normalize = (value: string) => value
