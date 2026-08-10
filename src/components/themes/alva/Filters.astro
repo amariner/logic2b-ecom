@@ -1,0 +1,34 @@
+---
+/** ALVA · filtros GET compactos que conservan el contrato compartido. */
+import type { CollectionConfig, StorePaths } from '../../../collections';
+interface Props { paths: StorePaths; collection: CollectionConfig; count: number; activeCategory?: string | undefined; sort: string; search?: string | undefined; }
+const { paths, collection, count, activeCategory, sort, search } = Astro.props;
+const hrefFor = (category?: string) => {
+  const params = new URLSearchParams();
+  if (category) params.set('categoria', category);
+  if (sort !== 'featured') params.set('orden', sort);
+  if (search) params.set('q', search);
+  const query = params.toString();
+  return `${paths.catalog}${query ? `?${query}` : ''}`;
+};
+---
+
+<div class="alva-filters">
+  <nav aria-label="Categorías ALVA"><span>Archivo / {count}</span><a href={hrefFor()} aria-current={!activeCategory ? 'page' : undefined}>Todo</a>{collection.categories.map((item) => <a href={hrefFor(item.id)} aria-current={activeCategory === item.id ? 'page' : undefined}>{item.label}</a>)}</nav>
+  <form method="get" action={paths.catalog} role="search">
+    {activeCategory && <input type="hidden" name="categoria" value={activeCategory} />}
+    <input type="search" name="q" value={search} maxlength="60" placeholder="Buscar" aria-label="Buscar productos" />
+    <select name="orden" aria-label="Ordenar catálogo" onchange="this.form.submit()"><option value="featured" selected={sort === 'featured'}>Destacados</option><option value="price-asc" selected={sort === 'price-asc'}>Precio ↑</option><option value="price-desc" selected={sort === 'price-desc'}>Precio ↓</option><option value="name" selected={sort === 'name'}>Nombre A–Z</option></select>
+  </form>
+</div>
+
+<style>
+  .alva-filters { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: .55rem .65rem; border-bottom: var(--border-width) solid var(--color-border); color: var(--color-foreground); background: var(--color-background); font-size: .54rem; }
+  .alva-filters nav, .alva-filters form { display: flex; align-items: center; gap: 1rem; }
+  .alva-filters nav > span { color: var(--color-muted-foreground); }
+  .alva-filters a { display: inline-flex; min-height: 2.2rem; align-items: center; }
+  .alva-filters a[aria-current='page'] { text-decoration: underline; text-underline-offset: .22rem; }
+  .alva-filters input, .alva-filters select { min-height: 2.35rem; border: 0; border-bottom: var(--border-width) solid var(--color-border); border-radius: 0; color: var(--color-foreground); background: transparent; font: inherit; }
+  .alva-filters input { width: 7rem; }
+  @media (max-width: 720px) { .alva-filters { align-items: stretch; flex-direction: column; } .alva-filters nav { overflow-x: auto; } .alva-filters nav > * { flex: 0 0 auto; } .alva-filters form { justify-content: space-between; } }
+</style>

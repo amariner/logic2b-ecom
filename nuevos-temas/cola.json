@@ -52,7 +52,13 @@
       "estado": "completado",
       "nota": "Tema ORBE terminado: skincare inclusivo responsive, catálogo de 6 productos, 9 assets WebP propios y capturas finales. Tras el fallo de red de imagegen, Higgsfield Product Photoshoot generó las piezas una a una por petición expresa de Andreu; auditoría a11y 0/0."
     },
-    { "posicion": 8, "archivo": "e1803646a8e5fb8f95c0daa8d2de2f4c.jpg", "tema": null, "estado": "pendiente" },
+    {
+      "posicion": 8,
+      "archivo": "e1803646a8e5fb8f95c0daa8d2de2f4c.jpg",
+      "tema": "alva",
+      "estado": "completado",
+      "nota": "Tema ALVA terminado: marroquinería escandinava responsive, catálogo de 8 productos, 12 assets WebP propios y capturas finales. Imagegen falló por red; el fallback ya autorizado de Higgsfield Product Photoshoot consumió 120,68 créditos. Auditoría a11y 0/0 en 9 superficies y 350 tests en verde."
+    },
     { "posicion": 9, "archivo": "247f56bc054cf88fda76024abf2137df.jpg", "tema": null, "estado": "pendiente" },
     { "posicion": 10, "archivo": "308044ce22d161b3d0caead45300d7f9.jpg", "tema": null, "estado": "pendiente" },
     { "posicion": 11, "archivo": "445a62400246953e06387477674110e4.jpg", "tema": null, "estado": "pendiente" },

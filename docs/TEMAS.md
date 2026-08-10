@@ -673,6 +673,18 @@ marfil y manifiesto de familia en salvia. Nueve assets propios sostienen la
 dirección editorial sin inventar avales de prensa ni tocar el motor comercial.
 Ficha: [`docs/temas/orbe.md`](temas/orbe.md).
 
+### 21 · ALVA — *marroquinería escandinava*
+
+📎 **Referencia: [`21-alva.webp`](../public/images/referencias/21-alva.webp)**
+
+**Para quién:** marroquinería, calzado de autor y accesorios premium.
+
+Hoja editorial estrecha sobre fondo oscuro, hero partido entre campaña y
+objeto, cuatro bolsos, díptico de atelier y cuatro sandalias sobre una retícula
+de filetes mínimos. Ocho productos y doce assets propios sostienen una dirección
+serena y táctil sin duplicar ninguna parte del recorrido comercial. Ficha:
+[`docs/temas/alva.md`](temas/alva.md).
+
 ---
 
 ## 6. Tabla resumen
@@ -700,6 +712,7 @@ Ficha: [`docs/temas/orbe.md`](temas/orbe.md).
 | 18 | NERA | `#55788a` | 4 | uniform | top | **fullbleed** | divided | dropdown | compact | ✅ |
 | 19 | VISO | `#9b4520` | 4 | **irregular** | top | **split** | plain | dropdown | compact | ✅ |
 | 20 | ORBE | `#465344` | 4 | uniform | top | **split** | divided | dropdown | compact | ✅ |
+| 21 | ALVA | `#282522` | 4 | uniform | top | **split** | divided | dropdown | compact | ✅ |
 
 ---
 

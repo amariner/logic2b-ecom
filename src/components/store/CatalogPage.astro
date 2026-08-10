@@ -33,6 +33,7 @@ import LiticaCatalog from '../themes/litica/Catalog.astro';
 import NeraCatalog from '../themes/nera/Catalog.astro';
 import VisoCatalog from '../themes/viso/Catalog.astro';
 import OrbeCatalog from '../themes/orbe/Catalog.astro';
+import AlvaCatalog from '../themes/alva/Catalog.astro';
 
 interface Props {
   collection: CollectionConfig;
@@ -93,6 +94,7 @@ const catalogViews = {
   nera: NeraCatalog,
   viso: VisoCatalog,
   orbe: OrbeCatalog,
+  alva: AlvaCatalog,
 } as const;
 const ThemedCatalog = catalogViews[collection.themeId as keyof typeof catalogViews] ?? null;
 ---

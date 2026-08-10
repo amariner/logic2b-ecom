@@ -807,6 +807,24 @@ verde. La posición 7 queda
 cerrada y la siguiente referencia ejecutable es la posición 8. Sin despliegue
 remoto. Ficha completa en [`docs/temas/orbe.md`](temas/orbe.md).
 
+### Línea paralela · tema ALVA (2026-08-10, sesión local)
+
+Octavo elemento de `nuevos-temas/cola.json`. ALVA replica una dirección de
+marroquinería escandinava con lienzo editorial estrecho, hero doble, cuatro
+bolsos, díptico de atelier y cuatro sandalias. La colección incorpora ocho
+productos `alv-*` y doce assets WebP propios. La herramienta integrada de
+OpenAI falló por red; el fallback de Higgsfield previamente autorizado generó
+las piezas una a una y consumió 120,68 créditos.
+
+El bloque toca únicamente el kit visual, la colección, el seed y sus registros
+de presentación; **no cambia pricing, envíos, checkout, pedidos, D1 ni APIs** y
+no añade dependencias al proyecto. Verificación local: 392 archivos Astro sin
+diagnósticos, 53 suites y 350 tests en verde, capturas a 1440 y 390×844 dentro
+de presupuesto, ficha/carrito/checkout revisados y auditoría a11y con **0
+errores y 0 avisos en 9 superficies**. Sin despliegue remoto. Ficha completa en
+[`docs/temas/alva.md`](temas/alva.md). La siguiente referencia ejecutable de la
+cola es la posición 9 (`247f56bc054cf88fda76024abf2137df.jpg`).
+
 ### Pendiente en la Fase 9B
 
 - **Pasada de fidelidad fina** de los 4 temas contra su captura (se re-hospedaron

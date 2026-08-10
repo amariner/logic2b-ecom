@@ -856,6 +856,36 @@ export const demoThemes: DemoTheme[] = [
       annotations: false, darkFooter: false,
     },
   },
+  {
+    id: 'alva',
+    label: 'ALVA',
+    hint: 'Marroquinería escandinava: marfil sereno, piel táctil y retícula de atelier.',
+    reference: { name: 'Scandinavian leather goods editorial study', file: '21-alva.webp' },
+    sample: null,
+    bestFor: ['Marroquinería', 'Calzado de autor', 'Accesorios premium'],
+    status: 'ready',
+    vars: {
+      '--color-brand': '#282522',
+      '--color-brand-dark': '#11100f',
+      '--color-brand-fg': '#ffffff',
+      '--font-display': "Georgia, 'Times New Roman', serif",
+      '--font-accent': SYSTEM_SANS,
+      '--tracking-display': '-0.065em',
+      '--weight-display': '500',
+      '--radius-btn': '0rem',
+      '--radius-card': '0rem',
+      '--border-width': '1px',
+      '--surface-product': '#f5f4f1',
+      '--surface-sunken': '#e9e3dc',
+      '--space-density': '0.75',
+      '--grid-gap': '1px',
+    },
+    layout: {
+      gridCols: 4, gridStyle: 'uniform', nav: 'top', hero: 'split',
+      card: 'divided', filters: 'dropdown', density: 'compact',
+      annotations: false, darkFooter: false,
+    },
+  },
   // new-theme:themes — no borrar: `pnpm new:theme <id>` añade aquí el tema si falta.
 ];
 

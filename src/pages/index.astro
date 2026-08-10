@@ -33,7 +33,7 @@ import { AGENCY_EMAIL, AGENCY_WHATSAPP } from '../lib/contact';
 // ── Galería del hero — derivada del registro de tiendas (clonable) ──────────
 // La tienda más reciente abre la fila; la demo genérica
 // continúa disponible dentro del resto de la galería.
-const galleryOrder = ['orbe', 'viso', 'nera', 'litica', 'summit', 'argent', 'arce', 'stretch', 'forma', 'sitega', 'noddo', 'demo', 'launch', 'editorial', 'iris', 'street', 'industrial', 'natural', 'specs', 'minimal', 'guide'];
+const galleryOrder = ['alva', 'orbe', 'viso', 'nera', 'litica', 'summit', 'argent', 'arce', 'stretch', 'forma', 'sitega', 'noddo', 'demo', 'launch', 'editorial', 'iris', 'street', 'industrial', 'natural', 'specs', 'minimal', 'guide'];
 const gallery = galleryOrder.map((id) => {
   const col = collections.find((c) => c.id === id)!;
   const theme = getTheme(col.themeId)!;

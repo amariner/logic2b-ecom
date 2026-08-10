@@ -1,0 +1,50 @@
+---
+/** ALVA · cuadrícula de producto con filetes de atelier. */
+import type { StorePaths } from '../../../collections';
+import { formatEurCents } from '../../../lib/format';
+type GridProduct = { slug: string; name: string; price_cents: number; image: string; stock: number; };
+interface Props { paths: StorePaths; products: GridProduct[]; }
+const { paths, products } = Astro.props;
+---
+
+<ul class="alva-grid">
+  {products.map((product, index) => (
+    <li class="alva-card">
+      <div class="alva-card__copy"><h3><a href={paths.product(product.slug)}>{product.name}</a></h3><p>{formatEurCents(product.price_cents)}</p></div>
+      <div class="alva-card__media"><img src={product.image} alt={product.name} width="1024" height="1024" loading={index < 4 ? 'eager' : 'lazy'} /></div>
+      <button type="button" data-alva-add={product.slug} disabled={product.stock === 0} aria-label={product.stock === 0 ? `${product.name} agotado` : `Añadir ${product.name} a la bolsa`}>{product.stock === 0 ? 'Agotado' : 'Añadir'}</button>
+    </li>
+  ))}
+</ul>
+
+<script>
+  import { addToCart } from '../../../lib/cart-client';
+  document.querySelectorAll<HTMLButtonElement>('[data-alva-add]').forEach((button) => {
+    button.addEventListener('click', () => {
+      addToCart(button.dataset.alvaAdd ?? '');
+      const previous = button.textContent;
+      button.textContent = 'Añadido';
+      setTimeout(() => (button.textContent = previous), 850);
+    });
+  });
+</script>
+
+<style>
+  .alva-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); margin: 0; padding: 0; list-style: none; background: var(--color-border); gap: var(--grid-gap); }
+  .alva-card { position: relative; min-width: 0; color: var(--color-foreground); background: var(--color-background); }
+  .alva-card__copy { display: flex; min-height: 2.6rem; align-items: flex-start; justify-content: space-between; gap: .4rem; padding: .55rem .45rem; font-size: .5rem; line-height: 1.25; }
+  .alva-card__copy h3 { max-width: 70%; font: inherit; }
+  .alva-card__copy h3 a::after { position: absolute; z-index: 1; inset: 0; content: ''; }
+  .alva-card__copy p { color: var(--color-muted-foreground); white-space: nowrap; }
+  .alva-card__media { display: grid; aspect-ratio: 1 / 1.08; place-items: center; overflow: hidden; background: var(--surface-product); }
+  .alva-card__media img { width: 100%; height: 100%; object-fit: cover; transition: transform .35s ease; }
+  .alva-card:hover .alva-card__media img { transform: scale(1.018); }
+  .alva-card button { position: absolute; z-index: 2; right: .45rem; bottom: .45rem; display: inline-flex; min-height: 2.35rem; align-items: center; padding: .5rem .7rem; visibility: hidden; border: var(--border-width) solid var(--color-foreground); color: var(--color-brand-fg); background: var(--color-brand); font: 500 .5rem/1 var(--font-accent); cursor: pointer; }
+  .alva-card:hover button, .alva-card:focus-within button { visibility: visible; }
+  .alva-card button:hover { background: var(--color-brand-dark); }
+  .alva-card button:disabled { cursor: not-allowed; opacity: .45; }
+  .alva-card button:focus-visible, .alva-card__copy h3 a:focus-visible { outline: .17rem solid var(--color-brand); outline-offset: -.17rem; }
+  @media (max-width: 720px) { .alva-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .alva-card__copy { min-height: 3.2rem; flex-direction: column; } .alva-card__copy h3 { max-width: 100%; } .alva-card__media { aspect-ratio: 1; } }
+  @media (hover: none), (pointer: coarse) { .alva-card button { visibility: visible; } }
+  @media (prefers-reduced-motion: reduce) { .alva-card__media img { transition: none; } }
+</style>
