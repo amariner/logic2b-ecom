@@ -32,6 +32,7 @@ import { sillageCollection } from './sillage';
 import { summitCollection } from './summit';
 import { liticaCollection } from './litica';
 import { neraCollection } from '../collections/nera';
+import { visoCollection } from '../collections/viso';
 // new-theme:imports — no borrar: `pnpm new:theme <id>` añade aquí su import.
 import type { CollectionCategory, CollectionConfig } from './types';
 
@@ -65,6 +66,7 @@ export const collections: readonly CollectionConfig[] = [
   summitCollection,
   liticaCollection,
   neraCollection,
+  visoCollection,
   // new-theme:entries — no borrar: `pnpm new:theme <id>` añade aquí su entrada.
 ];
 

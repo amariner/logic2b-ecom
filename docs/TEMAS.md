@@ -12,7 +12,7 @@
 
 Logic2B Ecommerce vende una tienda **a medida**. El problema comercial es que «a medida»
 suena caro y abstracto: el cliente no puede imaginarse su tienda. El catálogo de
-estilos resuelve eso — son 19 direcciones visuales completas, cada una derivada de
+estilos resuelve eso — son 20 direcciones visuales completas, cada una derivada de
 una referencia real de ecommerce, entre las que el cliente elige un punto de
 partida.
 
@@ -651,6 +651,17 @@ producto sobre blanco. Ocho productos y once assets propios replican el ritmo y
 la jerarquía de la referencia con identidad NERA. Ficha:
 [`docs/temas/nera.md`](temas/nera.md).
 
+### 19 · VISO — *óptica futurista*
+
+📎 **Referencia: [`19-viso.webp`](../public/images/referencias/19-viso.webp)**
+
+**Para quién:** óptica y eyewear, moda tecnológica y accesorios premium.
+
+Hoja marfil sobre fondo negro, hero partido de campaña cinética, wordmark
+sobredimensionado, seis modelos en retícula asimétrica y un díptico final de
+objeto/retrato. Nueve assets propios completan el recorrido sin tocar el motor
+comercial. Ficha: [`docs/temas/viso.md`](temas/viso.md).
+
 ---
 
 ## 6. Tabla resumen
@@ -676,6 +687,7 @@ la jerarquía de la referencia con identidad NERA. Ficha:
 | 16 | SUMMIT | `#8b4e2e` | 3 | **irregular** | **immersive** | **fullbleed** | divided | dropdown | compact | ✅ |
 | 17 | LÍTICA | `#9a3f1f` | 3 | **irregular** | top | **split** | divided | dropdown | compact | ✅ |
 | 18 | NERA | `#55788a` | 4 | uniform | top | **fullbleed** | divided | dropdown | compact | ✅ |
+| 19 | VISO | `#9b4520` | 4 | **irregular** | top | **split** | plain | dropdown | compact | ✅ |
 
 ---
 

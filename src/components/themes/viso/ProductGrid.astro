@@ -1,0 +1,54 @@
+---
+/** VISO · retícula asimétrica de óptica con compra local compartida. */
+import type { StorePaths } from '../../../collections';
+import { formatEurCents } from '../../../lib/format';
+type GridProduct = { slug: string; name: string; price_cents: number; image: string; stock: number; };
+interface Props { paths: StorePaths; products: GridProduct[]; }
+const { paths, products } = Astro.props;
+---
+
+<ul class="viso-grid">
+  {products.map((product, index) => (
+    <li class:list={['viso-card', index === 2 && 'viso-card--wide']}>
+      <a href={paths.product(product.slug)}>
+        <div class="viso-card__media"><img src={product.image} alt={product.name} width="1536" height="1536" loading={index < 4 ? 'eager' : 'lazy'} /></div>
+        <div class="viso-card__copy"><h3>{product.name}</h3><p>{formatEurCents(product.price_cents)}</p></div>
+      </a>
+      <button type="button" data-viso-add={product.slug} disabled={product.stock === 0} aria-label={product.stock === 0 ? `${product.name} agotado` : `Añadir ${product.name} al carrito`}>{product.stock === 0 ? 'Agotado' : '+'}</button>
+    </li>
+  ))}
+</ul>
+
+<script>
+  import { addToCart } from '../../../lib/cart-client';
+  document.querySelectorAll<HTMLButtonElement>('[data-viso-add]').forEach((button) => button.addEventListener('click', () => {
+    addToCart(button.dataset.visoAdd ?? '');
+    const previous = button.textContent;
+    button.textContent = '✓';
+    setTimeout(() => (button.textContent = previous), 850);
+  }));
+</script>
+
+<style>
+  .viso-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); align-items: end; gap: var(--grid-gap); margin: 0; padding: 0; list-style: none; }
+  .viso-card { position: relative; min-width: 0; }
+  .viso-card--wide { grid-column: span 2; }
+  .viso-card__media { aspect-ratio: 1 / 1.15; overflow: hidden; background: var(--surface-product); }
+  .viso-card--wide .viso-card__media { aspect-ratio: 2 / 1.15; }
+  .viso-card__media img { width: 100%; height: 100%; object-fit: cover; transition: transform .35s ease; }
+  .viso-card:hover img { transform: scale(1.018); }
+  .viso-card__copy { display: flex; justify-content: space-between; gap: .5rem; padding-top: .4rem; font-size: .56rem; text-transform: uppercase; }
+  .viso-card__copy h3 { font: inherit; }
+  .viso-card__copy p { flex: 0 0 auto; }
+  .viso-card button { position: absolute; top: .45rem; right: .45rem; display: grid; min-width: 2.75rem; min-height: 2.75rem; place-items: center; border: var(--border-width) solid var(--color-border); color: var(--color-foreground); background: color-mix(in srgb, var(--color-background) 90%, transparent); cursor: pointer; }
+  .viso-card button:hover { color: var(--color-brand-fg); background: var(--color-brand); }
+  .viso-card button:disabled { cursor: not-allowed; opacity: .45; }
+  .viso-card button:focus-visible, .viso-card a:focus-visible { outline: .16rem solid var(--color-brand); outline-offset: .15rem; }
+  @media (max-width: 720px) {
+    .viso-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .viso-card--wide { grid-column: span 2; }
+    .viso-card__media { aspect-ratio: 1; }
+    .viso-card--wide .viso-card__media { aspect-ratio: 2 / 1; }
+  }
+  @media (prefers-reduced-motion: reduce) { .viso-card__media img { transition: none; } }
+</style>

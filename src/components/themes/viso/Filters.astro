@@ -1,0 +1,37 @@
+---
+/** VISO · filtro mínimo sobre el contrato GET compartido. */
+import type { CollectionConfig, StorePaths } from '../../../collections';
+interface Props { paths: StorePaths; collection: CollectionConfig; count: number; activeCategory?: string | undefined; sort: string; search?: string | undefined; }
+const { paths, collection, count, activeCategory, sort, search } = Astro.props;
+const hrefFor = (category?: string) => {
+  const params = new URLSearchParams();
+  if (category) params.set('categoria', category);
+  if (sort !== 'featured') params.set('orden', sort);
+  if (search) params.set('q', search);
+  const query = params.toString();
+  return `${paths.catalog}${query ? `?${query}` : ''}`;
+};
+---
+
+<div class="viso-filters">
+  <nav aria-label="Categorías VISO">
+    <span>Modelos / {count}</span><a href={hrefFor()} aria-current={!activeCategory ? 'page' : undefined}>Todos</a>
+    {collection.categories.map((category) => <a href={hrefFor(category.id)} aria-current={activeCategory === category.id ? 'page' : undefined}>{category.label}</a>)}
+  </nav>
+  <form action={paths.catalog} method="get" role="search">
+    {activeCategory && <input type="hidden" name="categoria" value={activeCategory} />}
+    <input name="q" type="search" value={search} maxlength="60" placeholder="Buscar" aria-label="Buscar modelos" />
+    <select name="orden" aria-label="Ordenar modelos" onchange="this.form.submit()"><option value="featured" selected={sort === 'featured'}>Selección</option><option value="price-asc" selected={sort === 'price-asc'}>Precio ↑</option><option value="price-desc" selected={sort === 'price-desc'}>Precio ↓</option><option value="name" selected={sort === 'name'}>Nombre A–Z</option></select>
+  </form>
+</div>
+
+<style>
+  .viso-filters { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: .7rem 0; border-bottom: var(--border-width) solid var(--color-border); font-size: .56rem; text-transform: uppercase; }
+  .viso-filters nav, .viso-filters form { display: flex; align-items: center; gap: .9rem; }
+  .viso-filters nav span { color: var(--color-muted-foreground); }
+  .viso-filters a { display: inline-flex; min-height: 2.75rem; align-items: center; }
+  .viso-filters a[aria-current='page'] { text-decoration: underline; text-underline-offset: .22rem; }
+  .viso-filters input, .viso-filters select { min-height: 2.75rem; border: 0; border-bottom: var(--border-width) solid var(--color-border); color: inherit; background: transparent; font: inherit; text-transform: uppercase; }
+  .viso-filters input { width: 7rem; }
+  @media (max-width: 720px) { .viso-filters { align-items: stretch; flex-direction: column; } .viso-filters nav { overflow-x: auto; } .viso-filters nav > * { flex: 0 0 auto; } .viso-filters form { justify-content: space-between; } }
+</style>

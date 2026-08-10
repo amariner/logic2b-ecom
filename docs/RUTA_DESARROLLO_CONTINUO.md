@@ -240,14 +240,14 @@ avisos. No hubo migración ni despliegue. La cabeza principal pasa a R2.6.
 
 ### Carril visual inmediato — cola de temas
 
-La cola actual contiene cinco referencias completadas y catorce pendientes. El
+La cola actual contiene seis referencias completadas y trece pendientes. El
 orden visual es siempre el de `nuevos-temas/cola.json`:
 
 1. cerrar R2.5 antes de integrar nuevos cambios de colección o seed;
-2. las posiciones 1–5 están cerradas; tomar la posición 6 y completar
+2. las posiciones 1–6 están cerradas; tomar la posición 7 y completar
    referencia, nombre, colección, catálogo, componentes, assets, ficha,
    capturas y QA;
-3. repetir el mismo bloque cerrado con las posiciones 7–19;
+3. repetir el mismo bloque cerrado con las posiciones 8–19;
 4. ejecutar una consolidación de fidelidad y regresión de todas las tiendas;
 5. integrar la rama visual, desplegar y comprobar que landing, `/estilos`, cada
    tienda y sus assets responden correctamente.

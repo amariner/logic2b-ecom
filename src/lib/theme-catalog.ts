@@ -41,6 +41,7 @@ const THEME_CATEGORIES = {
   summit: ['moda', 'tecnico'],
   litica: ['cuidado'],
   nera: ['moda'],
+  viso: ['moda', 'tecnico'],
 } as const satisfies Readonly<Record<string, readonly ThemeCategoryId[]>>;
 
 export function normalizeThemeSearch(value: string): string {

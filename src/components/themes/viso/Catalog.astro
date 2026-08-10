@@ -1,0 +1,107 @@
+---
+/** VISO · escaparate editorial de óptica futurista. */
+import type { CollectionConfig, StorePaths } from '../../../collections';
+import Filters from './Filters.astro';
+import ProductGrid from './ProductGrid.astro';
+type GridProduct = { slug: string; name: string; price_cents: number; image: string; stock: number; };
+interface Props { paths: StorePaths; products: GridProduct[]; collection: CollectionConfig; category?: string | undefined; sort: string; search?: string | undefined; }
+const { paths, products, collection, category, sort, search } = Astro.props;
+const editorial = !category && !search && sort === 'featured';
+const ORDER = ['vis-axis-black', 'vis-arc-smoke', 'vis-frame-x', 'vis-orbit-silver', 'vis-spectra-01', 'vis-veil-amber'];
+const rank = new Map(ORDER.map((slug, index) => [slug, index]));
+const ordered = products.toSorted((a, b) => (rank.get(a.slug) ?? 99) - (rank.get(b.slug) ?? 99));
+---
+
+<div class="viso">
+  <header class="viso-header">
+    <a class="viso-mark" href={paths.catalog}>{collection.name}</a>
+    <nav aria-label="Navegación VISO"><a href={paths.catalog} aria-current={editorial ? 'page' : undefined}>Modelos</a><a href="#nuevos">Nueva colección</a><a href="#manifiesto">Estudio</a></nav>
+    <a class="viso-cart" href={paths.cart}>Bolsa <span data-cart-count>0</span></a>
+  </header>
+
+  {editorial ? (
+    <main>
+      <section class="viso-hero" aria-labelledby="viso-title">
+        <div class="viso-hero__image"><img src="/images/collections/viso/hero-motion.webp" alt="Modelo con visor humo en una campaña de movimiento" width="2048" height="1152" loading="eager" fetchpriority="high" /></div>
+        <div class="viso-hero__copy">
+          <p>Óptica de precisión<br />Madrid — 2026</p>
+          <h1 id="viso-title">{collection.name}</h1>
+          <p>{collection.tagline}</p>
+          <a href="#nuevos">Ver modelos</a>
+        </div>
+      </section>
+
+      <section class="viso-products" id="nuevos" aria-labelledby="viso-bestsellers">
+        <div class="viso-section-title"><h2 id="viso-bestsellers">Selección actual</h2><span>01 — 06</span></div>
+        <ProductGrid paths={paths} products={ordered} />
+      </section>
+
+      <section class="viso-duo" id="manifiesto" aria-label="Universo VISO">
+        <a href={`${paths.catalog}?categoria=vis-shield`}><img src="/images/collections/viso/editorial-object.webp" alt="Detalle de un visor plata sobre fondo grafito" width="1536" height="2048" loading="lazy" /><span>Nueva pantalla</span></a>
+        <a href={`${paths.catalog}?categoria=vis-optical`}><img src="/images/collections/viso/editorial-portrait.webp" alt="Retrato con gafas técnicas de lente humo" width="1536" height="2048" loading="lazy" /><span>Óptica diaria</span></a>
+      </section>
+    </main>
+  ) : (
+    <main class="viso-catalog">
+      <div class="viso-catalog__title"><p>Archivo VISO / {products.length}</p><h1>{category ? collection.categories.find((item) => item.id === category)?.label : 'Todos los modelos'}</h1></div>
+      <Filters paths={paths} collection={collection} count={products.length} activeCategory={category} sort={sort} search={search} />
+      {ordered.length > 0 ? <ProductGrid paths={paths} products={ordered} /> : <div class="viso-empty"><p>{search ? `Sin resultados para «${search}»` : 'No hay modelos en esta categoría'}</p><a href={paths.catalog}>Volver al archivo</a></div>}
+    </main>
+  )}
+
+  <footer class="viso-footer"><a href={paths.catalog}>{collection.name}</a><p>Ver el presente con menos ruido.</p><nav aria-label="Pie VISO"><a href={paths.catalog} aria-current={editorial ? 'page' : undefined}>Modelos</a><a href={paths.cart}>Bolsa</a><a href="/">Logic2B Ecommerce</a></nav></footer>
+</div>
+
+<style>
+  :global([data-store-theme='viso'] > header), :global([data-store-theme='viso'] > .shop-footer) { display: none; }
+  .viso { min-height: 100vh; padding: 2.4rem; color: var(--color-foreground); background: #0c0f11; font-family: var(--font-accent); }
+  .viso :where(a) { color: inherit; text-decoration: none; }
+  .viso-header, .viso main, .viso-footer { max-width: 92rem; margin-inline: auto; background: var(--color-background); }
+  .viso-header { display: grid; min-height: 5.5rem; grid-template-columns: 1fr 1fr auto; gap: 2rem; align-items: start; padding: 1.1rem 1.4rem; font-size: .57rem; text-transform: uppercase; }
+  .viso-mark { font: var(--weight-display) 1rem/1 var(--font-display); letter-spacing: var(--tracking-display); }
+  .viso-header nav { display: grid; gap: .35rem; }
+  .viso-header a { width: max-content; }
+  .viso-header a:hover { text-decoration: underline; text-underline-offset: .2rem; }
+  .viso-cart { justify-self: end; }
+  .viso-hero { display: grid; min-height: 38rem; grid-template-columns: 1fr 1fr; }
+  .viso-hero__image { min-height: 38rem; overflow: hidden; background: var(--surface-product); }
+  .viso-hero__image img { width: 100%; height: 100%; object-fit: cover; object-position: 29% center; }
+  .viso-hero__copy { position: relative; display: flex; flex-direction: column; justify-content: space-between; padding: 1rem 1.4rem 1.5rem; }
+  .viso-hero__copy p { max-width: 13rem; font-size: .58rem; line-height: 1.2; text-transform: uppercase; }
+  .viso-hero__copy h1 { position: absolute; z-index: 1; top: 31%; right: 4%; font: var(--weight-display) clamp(5rem, 11vw, 12rem)/.72 var(--font-display); letter-spacing: var(--tracking-display); }
+  .viso-hero__copy > a { align-self: flex-end; font-size: .58rem; text-decoration: underline; text-underline-offset: .25rem; text-transform: uppercase; }
+  .viso-products { padding: 8rem 2rem 3rem; }
+  .viso-section-title { display: flex; justify-content: space-between; margin-bottom: 1.2rem; font-size: .57rem; text-transform: uppercase; }
+  .viso-section-title h2 { font: inherit; text-decoration: underline; text-underline-offset: .22rem; }
+  .viso-duo { display: grid; grid-template-columns: 1fr 1fr; }
+  .viso-duo a { position: relative; display: block; aspect-ratio: 4 / 5; overflow: hidden; background: var(--surface-product); }
+  .viso-duo img { width: 100%; height: 100%; object-fit: cover; transition: transform .4s ease; }
+  .viso-duo a:hover img { transform: scale(1.015); }
+  .viso-duo span { position: absolute; bottom: 1rem; left: 50%; padding: .45rem .55rem; transform: translateX(-50%); color: white; background: #0c0f11; font-size: .62rem; text-decoration: underline; text-underline-offset: .22rem; text-transform: uppercase; }
+  .viso-catalog { padding: 1.4rem 2rem 5rem; }
+  .viso-catalog__title { min-height: 14rem; display: flex; flex-direction: column; justify-content: space-between; padding-bottom: 1rem; border-bottom: var(--border-width) solid var(--color-border); text-transform: uppercase; }
+  .viso-catalog__title p { font-size: .57rem; }
+  .viso-catalog__title h1 { font: var(--weight-display) clamp(3rem, 8vw, 8rem)/.78 var(--font-display); letter-spacing: var(--tracking-display); }
+  .viso-catalog :global(.viso-grid) { margin-top: 2rem; }
+  .viso-empty { padding: 7rem 0; text-align: center; }
+  .viso-empty a { display: inline-block; margin-top: 1rem; text-decoration: underline; }
+  .viso-footer { display: grid; min-height: 16rem; place-items: center; align-content: center; gap: 1rem; padding: 3rem 1rem; text-align: center; }
+  .viso-footer > a { font: var(--weight-display) clamp(4rem, 10vw, 9rem)/.75 var(--font-display); letter-spacing: var(--tracking-display); }
+  .viso-footer p, .viso-footer nav { font-size: .56rem; text-transform: uppercase; }
+  .viso-footer nav { display: flex; gap: 1rem; }
+  .viso-footer nav a { display: inline-flex; min-height: 2.75rem; align-items: center; }
+  @media (max-width: 720px) {
+    .viso { padding: .75rem; }
+    .viso-header { min-height: 4.4rem; grid-template-columns: 1fr auto; padding: .9rem; }
+    .viso-header nav { display: none; }
+    .viso-hero { grid-template-columns: 1fr; }
+    .viso-hero__image { min-height: 74svh; }
+    .viso-hero__image img { object-position: 24% center; }
+    .viso-hero__copy { min-height: 17rem; }
+    .viso-hero__copy h1 { top: 15%; right: .8rem; font-size: clamp(5rem, 27vw, 7.5rem); }
+    .viso-products { padding: 4rem .8rem 2rem; }
+    .viso-duo { grid-template-columns: 1fr; }
+    .viso-catalog { padding-inline: .9rem; }
+  }
+  @media (prefers-reduced-motion: reduce) { .viso-duo img { transition: none; } }
+</style>

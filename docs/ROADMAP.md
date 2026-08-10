@@ -772,6 +772,23 @@ tests en verde. La posición 5 queda cerrada y la siguiente referencia ejecutabl
 es la posición 6. Sin despliegue ni cambios remotos. Ficha completa en
 [`docs/temas/nera.md`](temas/nera.md).
 
+### Línea paralela · tema VISO (2026-08-10, sesión local)
+
+Sexto elemento de `nuevos-temas/cola.json`. VISO replica una dirección de óptica
+futurista con hoja clara enmarcada en negro, hero partido, wordmark de escala
+extrema, seis productos `vis-*` y retícula asimétrica. Los nueve assets propios
+se generaron con Higgsfield tras un nuevo fallo de red de `imagegen`; se
+descartaron todos los resultados con texto o interfaz antes de integrar la
+campaña, seis productos, macro de objeto y retrato finales.
+
+No hubo cambio de motor, dependencia, migración, API o lógica comercial. El
+reset D1 fue exclusivamente local. Verificación: catálogo y ficha revisados a
+1440 y 390×844; carrito activo, checkout y movimiento reducido; **0 errores y 0
+avisos en 9 superficies a11y**; capturas dentro del presupuesto; E2E **37/37** y
+`pnpm check` con 53 suites, 350 tests, 382 archivos Astro y build en verde. La
+posición 6 queda cerrada y la siguiente referencia ejecutable es la posición 7.
+Sin despliegue remoto. Ficha completa en [`docs/temas/viso.md`](temas/viso.md).
+
 ### Pendiente en la Fase 9B
 
 - **Pasada de fidelidad fina** de los 4 temas contra su captura (se re-hospedaron

@@ -796,6 +796,36 @@ export const demoThemes: DemoTheme[] = [
       annotations: false, darkFooter: false,
     },
   },
+  {
+    id: 'viso',
+    label: 'VISO',
+    hint: 'Óptica futurista: campaña cinética, blanco técnico y retícula asimétrica.',
+    reference: { name: 'Futurist optical editorial study', file: '19-viso.webp' },
+    sample: null,
+    bestFor: ['Óptica y eyewear', 'Moda tecnológica', 'Accesorios premium'],
+    status: 'ready',
+    vars: {
+      '--color-brand': '#9b4520',
+      '--color-brand-dark': '#733016',
+      '--color-brand-fg': '#ffffff',
+      '--font-display': SYSTEM_SANS,
+      '--font-accent': SYSTEM_SANS,
+      '--tracking-display': '-0.07em',
+      '--weight-display': '700',
+      '--radius-btn': '0rem',
+      '--radius-card': '0rem',
+      '--border-width': '1px',
+      '--surface-product': '#e9eceb',
+      '--surface-sunken': '#f1f0eb',
+      '--space-density': '0.75',
+      '--grid-gap': '0.35rem',
+    },
+    layout: {
+      gridCols: 4, gridStyle: 'irregular', nav: 'top', hero: 'split',
+      card: 'plain', filters: 'dropdown', density: 'compact',
+      annotations: false, darkFooter: false,
+    },
+  },
   // new-theme:themes — no borrar: `pnpm new:theme <id>` añade aquí el tema si falta.
 ];
 
