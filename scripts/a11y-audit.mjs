@@ -68,6 +68,7 @@ const MOBILE = { w: 375, h: 812, dsf: 1, mobile: true };
 // ── Superficies ────────────────────────────────────────────────────────────
 // Las tiendas vivas. `demo` (La Botiga) conserva las rutas históricas.
 const STORES = [
+  { id: 'orbe', label: 'ORBE', prefix: '/demo/tiendas/orbe', slug: 'orb-renew-serum', cartKey: 'ecom-cart:orbe' },
   { id: 'viso', label: 'VISO', prefix: '/demo/tiendas/viso', slug: 'vis-spectra-01', cartKey: 'ecom-cart:viso' },
   { id: 'nera', label: 'NERA', prefix: '/demo/tiendas/nera', slug: 'ner-blazer-negra', cartKey: 'ecom-cart:nera' },
   { id: 'litica', label: 'LÍTICA', prefix: '/demo/tiendas/litica', slug: 'lit-mineral-wash', cartKey: 'ecom-cart:litica' },

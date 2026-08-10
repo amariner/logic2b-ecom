@@ -826,6 +826,36 @@ export const demoThemes: DemoTheme[] = [
       annotations: false, darkFooter: false,
     },
   },
+  {
+    id: 'orbe',
+    label: 'ORBE',
+    hint: 'Skincare inclusivo: marfil clínico, vidrio ámbar y campaña de piel real.',
+    reference: { name: 'Inclusive skincare editorial study', file: '20-orbe.webp' },
+    sample: null,
+    bestFor: ['Cosmética y skincare', 'Bienestar premium', 'Marcas inclusivas'],
+    status: 'ready',
+    vars: {
+      '--color-brand': '#465344',
+      '--color-brand-dark': '#303c30',
+      '--color-brand-fg': '#ffffff',
+      '--font-display': "Georgia, 'Times New Roman', serif",
+      '--font-accent': SYSTEM_SANS,
+      '--tracking-display': '-0.055em',
+      '--weight-display': '700',
+      '--radius-btn': '0rem',
+      '--radius-card': '0rem',
+      '--border-width': '1px',
+      '--surface-product': '#eee8de',
+      '--surface-sunken': '#dce1d7',
+      '--space-density': '0.8',
+      '--grid-gap': '1px',
+    },
+    layout: {
+      gridCols: 4, gridStyle: 'uniform', nav: 'top', hero: 'split',
+      card: 'divided', filters: 'dropdown', density: 'compact',
+      annotations: false, darkFooter: false,
+    },
+  },
   // new-theme:themes — no borrar: `pnpm new:theme <id>` añade aquí el tema si falta.
 ];
 

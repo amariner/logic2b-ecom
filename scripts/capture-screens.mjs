@@ -128,6 +128,7 @@ const REVEAL_STRETCH = `(async () => {
 // Iris es tienda de vídeo-scrub: la estática solo sirve de PÓSTER del hero
 // (viewport), no de página completa — el escaparate se enseña con el clip.
 const STORES = [
+  { id: 'orbe', label: 'ORBE', catalog: '/demo/tiendas/orbe', full: true, maxH: 3000, mobileQ: 58 },
   { id: 'viso', label: 'VISO', catalog: '/demo/tiendas/viso', full: true, maxH: 3000 },
   { id: 'nera', label: 'NERA', catalog: '/demo/tiendas/nera', full: true, maxH: 3000 },
   { id: 'litica', label: 'LÍTICA', catalog: '/demo/tiendas/litica', full: true, maxH: 3000 },
@@ -163,12 +164,13 @@ for (const s of STORES) {
   // Escaparate (versátil: la landing recorta/enmarca por CSS). Iris = viewport.
   SHOTS.push({ name: `store-${s.id}-catalog`, url: s.catalog, vp: DESKTOP, full: s.full, maxH: s.maxH, eval: s.eval, group: 'desktop', card: true });
   // Móvil: framing de pantalla (viewport), no página completa.
-  SHOTS.push({ name: `store-${s.id}-catalog-m`, url: s.catalog, vp: MOBILE, eval: s.eval, group: 'mobile' });
+  SHOTS.push({ name: `store-${s.id}-catalog-m`, url: s.catalog, vp: MOBILE, eval: s.eval, group: 'mobile', q: s.mobileQ });
 }
 
 // Ficha de producto: el producto firma de cada tienda. `product(slug)` respeta
 // las rutas históricas de la genérica (/demo/tienda/<slug>).
 const FICHAS = [
+  { id: 'orbe', slug: 'orb-renew-serum', prefix: '/demo/tiendas/orbe' },
   { id: 'viso', slug: 'vis-spectra-01', prefix: '/demo/tiendas/viso' },
   { id: 'nera', slug: 'ner-blazer-negra', prefix: '/demo/tiendas/nera' },
   { id: 'litica', slug: 'lit-mineral-wash', prefix: '/demo/tiendas/litica' },

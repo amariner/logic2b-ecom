@@ -789,6 +789,24 @@ avisos en 9 superficies a11y**; capturas dentro del presupuesto; E2E **37/37** y
 posición 6 queda cerrada y la siguiente referencia ejecutable es la posición 7.
 Sin despliegue remoto. Ficha completa en [`docs/temas/viso.md`](temas/viso.md).
 
+### Línea paralela · tema ORBE (2026-08-10, sesión local)
+
+Séptimo elemento de `nuevos-temas/cola.json`. ORBE replica una dirección de
+skincare editorial con hero partido entre producto y retrato, franja de
+principios, seis productos `orb-*` y manifiesto de familia. Los nueve assets
+propios se generaron uno a uno con Higgsfield Product Photoshoot tras el fallo
+de red de `imagegen` y la petición expresa de Andreu; el consumo fue de 63,72
+créditos del plan. Cada salida se inspeccionó y convirtió a WebP.
+
+No hubo cambio de motor, dependencia, migración remota, API o lógica comercial.
+El reset D1 fue exclusivamente local. Verificación: catálogo y ficha revisados
+a 1440 y 390×844; carrito activo, checkout y movimiento reducido; **0 errores
+y 0 avisos en 9 superficies a11y**; capturas dentro del presupuesto; E2E
+**37/37** y `pnpm check` con 53 suites, 350 tests, 387 archivos Astro y build en
+verde. La posición 7 queda
+cerrada y la siguiente referencia ejecutable es la posición 8. Sin despliegue
+remoto. Ficha completa en [`docs/temas/orbe.md`](temas/orbe.md).
+
 ### Pendiente en la Fase 9B
 
 - **Pasada de fidelidad fina** de los 4 temas contra su captura (se re-hospedaron

@@ -12,7 +12,7 @@
 
 Logic2B Ecommerce vende una tienda **a medida**. El problema comercial es que «a medida»
 suena caro y abstracto: el cliente no puede imaginarse su tienda. El catálogo de
-estilos resuelve eso — son 20 direcciones visuales completas, cada una derivada de
+estilos resuelve eso — son 21 direcciones visuales completas, cada una derivada de
 una referencia real de ecommerce, entre las que el cliente elige un punto de
 partida.
 
@@ -662,6 +662,17 @@ sobredimensionado, seis modelos en retícula asimétrica y un díptico final de
 objeto/retrato. Nueve assets propios completan el recorrido sin tocar el motor
 comercial. Ficha: [`docs/temas/viso.md`](temas/viso.md).
 
+### 20 · ORBE — *skincare inclusivo*
+
+📎 **Referencia: [`20-orbe.webp`](../public/images/referencias/20-orbe.webp)**
+
+**Para quién:** cosmética y skincare, bienestar premium y marcas inclusivas.
+
+Hero partido entre objeto y piel, franja de principios, seis tratamientos sobre
+marfil y manifiesto de familia en salvia. Nueve assets propios sostienen la
+dirección editorial sin inventar avales de prensa ni tocar el motor comercial.
+Ficha: [`docs/temas/orbe.md`](temas/orbe.md).
+
 ---
 
 ## 6. Tabla resumen
@@ -688,6 +699,7 @@ comercial. Ficha: [`docs/temas/viso.md`](temas/viso.md).
 | 17 | LÍTICA | `#9a3f1f` | 3 | **irregular** | top | **split** | divided | dropdown | compact | ✅ |
 | 18 | NERA | `#55788a` | 4 | uniform | top | **fullbleed** | divided | dropdown | compact | ✅ |
 | 19 | VISO | `#9b4520` | 4 | **irregular** | top | **split** | plain | dropdown | compact | ✅ |
+| 20 | ORBE | `#465344` | 4 | uniform | top | **split** | divided | dropdown | compact | ✅ |
 
 ---
 

@@ -1,0 +1,122 @@
+---
+/** ORBE · home editorial de cuidado facial y catálogo filtrable. */
+import type { CollectionConfig, StorePaths } from '../../../collections';
+import Filters from './Filters.astro';
+import ProductGrid from './ProductGrid.astro';
+
+type GridProduct = { slug: string; name: string; price_cents: number; image: string; stock: number; };
+interface Props { paths: StorePaths; products: GridProduct[]; collection: CollectionConfig; category?: string | undefined; sort: string; search?: string | undefined; }
+
+const { paths, products, collection, category, sort, search } = Astro.props;
+const editorial = !category && !search && sort === 'featured';
+const FEATURED = [
+  'orb-renew-serum', 'orb-calm-essence', 'orb-barrier-oil',
+  'orb-night-balm', 'orb-eye-concentrate', 'orb-radiance-treatment',
+];
+const rank = new Map(FEATURED.map((slug, index) => [slug, index]));
+const ordered = products.toSorted((a, b) => (rank.get(a.slug) ?? 99) - (rank.get(b.slug) ?? 99));
+---
+
+<div class="orbe">
+  <p class="orbe-service">Envío de muestra gratuito desde 60 € · Tienda de demostración</p>
+  <header class="orbe-header">
+    <nav aria-label="Colección ORBE"><a href={paths.catalog} aria-current={editorial ? 'page' : undefined}>Tienda</a><a href="#formula">Fórmulas</a><a href="#ritual">Ritual</a></nav>
+    <a class="orbe-wordmark" href={paths.catalog}>{collection.name}</a>
+    <nav aria-label="Acciones de tienda"><a href={`${paths.catalog}?orden=name`}>Buscar</a><a href={paths.cart}>Cesta (<span data-cart-count>0</span>)</a></nav>
+  </header>
+
+  {editorial ? (
+    <main>
+      <section class="orbe-hero" aria-labelledby="orbe-title">
+        <div class="orbe-hero__product">
+          <img src="/images/collections/orbe/hero-serum.webp" alt="Sérum ORBE en vidrio ámbar sobre una superficie de piedra marfil" width="2688" height="1520" loading="eager" fetchpriority="high" />
+          <div class="orbe-hero__copy"><h1 id="orbe-title">{collection.tagline}</h1><p>Texturas esenciales para acompañar todos los tonos y ritmos de piel.</p></div>
+          <a class="orbe-button" href="#bestsellers">Descubrir</a>
+        </div>
+        <img class="orbe-hero__portrait" src="/images/collections/orbe/editorial-portrait.webp" alt="Retrato de un hombre adulto de piel oscura con los ojos cerrados" width="1744" height="2336" loading="eager" fetchpriority="high" />
+      </section>
+
+      <ul class="orbe-principles" aria-label="Principios ORBE">
+        <li>Objeto</li><li>Materia</li><li>Ritual</li><li>Piel</li><li>Precisión</li><li>ORBE Journal</li>
+      </ul>
+
+      <section class="orbe-products" id="bestsellers" aria-labelledby="orbe-bestsellers">
+        <div class="orbe-section-title"><h2 id="orbe-bestsellers">Más elegidos</h2><a href={`${paths.catalog}?orden=name`}>Ver todo</a></div>
+        <ProductGrid paths={paths} products={ordered.slice(0, 4)} />
+      </section>
+
+      <section class="orbe-manifesto" id="formula" aria-labelledby="orbe-manifesto-title">
+        <img src="/images/collections/orbe/editorial-family.webp" alt="Familia de cuatro tratamientos ORBE en vidrio ámbar y marfil" width="2688" height="2016" loading="lazy" />
+        <div><p class="orbe-eyebrow">La fórmula ORBE</p><h2 id="orbe-manifesto-title">Cuidado que honra cada piel.</h2><p>Una colección concisa de texturas compatibles entre sí. Cada gesto suma hidratación, confort y constancia sin imponer una única manera de cuidar la piel.</p><a class="orbe-button" href={`${paths.catalog}?categoria=orb-care`}>Explorar el ritual</a></div>
+      </section>
+
+      <section class="orbe-products" id="ritual" aria-labelledby="orbe-ritual-title">
+        <div class="orbe-section-title"><h2 id="orbe-ritual-title">Completa el ritual</h2><span>05 — 06</span></div>
+        <ProductGrid paths={paths} products={ordered.slice(4)} compact />
+      </section>
+    </main>
+  ) : (
+    <main class="orbe-catalog">
+      <div class="orbe-catalog__intro"><p>Catálogo / {products.length} fórmulas</p><h1>{category ? collection.categories.find((item) => item.id === category)?.label : search ? `Resultados para «${search}»` : 'Todas las fórmulas'}</h1></div>
+      <Filters paths={paths} collection={collection} count={products.length} activeCategory={category} sort={sort} search={search} />
+      {ordered.length > 0 ? <ProductGrid paths={paths} products={ordered} /> : <div class="orbe-empty"><p>{search ? `Nada por aquí para «${search}»` : 'No hay productos en esta categoría'}</p><a href={paths.catalog}>Volver a la colección</a></div>}
+    </main>
+  )}
+
+  <footer class="orbe-footer"><a href={paths.catalog}>{collection.name}</a><p>Tratamientos faciales de textura precisa · Madrid / 2026</p><nav aria-label="Pie de ORBE"><a href={paths.catalog} aria-current={editorial ? 'page' : undefined}>Tienda</a><a href={paths.cart}>Cesta</a><a href="/">Logic2B Ecommerce</a></nav></footer>
+</div>
+
+<style>
+  :global([data-store-theme='orbe'] > header), :global([data-store-theme='orbe'] > .shop-footer) { display: none; }
+  .orbe { min-height: 100vh; color: var(--color-foreground); background: var(--color-background); font-family: var(--font-accent); }
+  .orbe :where(a) { color: inherit; text-decoration: none; }
+  .orbe-service { min-height: 1.7rem; padding: .45rem 1rem; border-bottom: var(--border-width) solid var(--color-border); text-align: center; font-size: .55rem; letter-spacing: .03em; }
+  .orbe-header { position: sticky; top: 0; z-index: 30; display: grid; min-height: 3.5rem; grid-template-columns: 1fr auto 1fr; align-items: center; padding: .65rem 1rem; border-bottom: var(--border-width) solid var(--color-border); background: color-mix(in srgb, var(--color-background) 95%, transparent); backdrop-filter: blur(12px); }
+  .orbe-header nav { display: flex; gap: 1rem; font-size: .58rem; }
+  .orbe-header nav:last-child { justify-content: flex-end; }
+  .orbe-header nav a { display: inline-flex; min-height: 2rem; align-items: center; }
+  .orbe-header nav a:hover, .orbe-footer nav a:hover { text-decoration: underline; text-underline-offset: .22rem; }
+  .orbe-wordmark { font: var(--weight-display) 1.65rem/.8 var(--font-display); letter-spacing: var(--tracking-display); }
+  .orbe-hero { display: grid; min-height: 43rem; grid-template-columns: 1fr 1fr; border-bottom: var(--border-width) solid var(--color-border); }
+  .orbe-hero__product { position: relative; min-width: 0; overflow: hidden; background: var(--surface-sunken); }
+  .orbe-hero__product > img { width: 100%; height: 100%; object-fit: cover; object-position: left center; }
+  .orbe-hero__portrait { width: 100%; height: 100%; min-height: 43rem; object-fit: cover; object-position: center 30%; }
+  .orbe-hero__copy { position: absolute; top: 1.4rem; left: 1.4rem; max-width: 19rem; }
+  .orbe-hero__copy h1 { font: 700 clamp(1.15rem, 2.2vw, 2.1rem)/1.02 var(--font-accent); letter-spacing: -.04em; }
+  .orbe-hero__copy p { max-width: 17rem; margin-top: .35rem; font-size: .72rem; line-height: 1.35; }
+  .orbe .orbe-button { display: inline-flex; min-height: 2.75rem; align-items: center; justify-content: center; padding: .7rem 1.1rem; color: var(--color-brand-fg); background: var(--color-brand); font-size: .58rem; text-transform: uppercase; }
+  .orbe-button:hover { background: var(--color-brand-dark); }
+  .orbe-hero__product > .orbe-button { position: absolute; bottom: 1.4rem; left: 1.4rem; }
+  .orbe-principles { display: grid; min-height: 5rem; grid-template-columns: repeat(6, 1fr); align-items: center; margin: 0; padding: 0 1rem; border-bottom: var(--border-width) solid var(--color-border); list-style: none; text-align: center; font: 600 clamp(.72rem, 1.25vw, 1.1rem)/1 var(--font-display); }
+  .orbe-section-title { display: flex; min-height: 4rem; align-items: center; justify-content: space-between; padding: 1rem; border-bottom: var(--border-width) solid var(--color-border); }
+  .orbe-section-title h2 { font: 700 1rem/1 var(--font-accent); }
+  .orbe-section-title :where(a, span) { font-size: .58rem; text-transform: uppercase; }
+  .orbe-manifesto { display: grid; min-height: 42rem; grid-template-columns: 1fr 1fr; border-top: var(--border-width) solid var(--color-border); border-bottom: var(--border-width) solid var(--color-border); }
+  .orbe-manifesto > img { width: 100%; height: 100%; object-fit: cover; }
+  .orbe-manifesto > div { display: flex; flex-direction: column; justify-content: center; align-items: flex-start; padding: clamp(2rem, 6vw, 7rem); }
+  .orbe-eyebrow { margin-bottom: 1rem; font-size: .58rem; text-transform: uppercase; }
+  .orbe-manifesto h2 { max-width: 25rem; font: 700 clamp(2rem, 4.5vw, 4.8rem)/.9 var(--font-display); letter-spacing: var(--tracking-display); }
+  .orbe-manifesto h2 + p { max-width: 31rem; margin: 1.4rem 0; font-size: .8rem; line-height: 1.5; }
+  .orbe-catalog__intro { display: flex; min-height: 15rem; flex-direction: column; justify-content: space-between; padding: 1rem; border-bottom: var(--border-width) solid var(--color-border); background: var(--surface-sunken); }
+  .orbe-catalog__intro p { font-size: .58rem; text-transform: uppercase; }
+  .orbe-catalog__intro h1 { font: 700 clamp(2.5rem, 7vw, 7rem)/.82 var(--font-display); letter-spacing: var(--tracking-display); }
+  .orbe-empty { padding: 8rem 1rem; text-align: center; }
+  .orbe-empty a { display: inline-block; margin-top: 1rem; text-decoration: underline; text-underline-offset: .25rem; }
+  .orbe-footer { display: grid; min-height: 17rem; place-items: center; align-content: center; gap: 1rem; padding: 3rem 1rem; text-align: center; background: var(--surface-sunken); }
+  .orbe-footer > a { font: var(--weight-display) clamp(4rem, 11vw, 10rem)/.72 var(--font-display); letter-spacing: var(--tracking-display); }
+  .orbe-footer p, .orbe-footer nav { font-size: .56rem; text-transform: uppercase; }
+  .orbe-footer nav { display: flex; gap: 1rem; }
+  .orbe-footer nav a { display: inline-flex; min-height: 2rem; align-items: center; }
+  @media (max-width: 720px) {
+    .orbe-service { font-size: .5rem; }
+    .orbe-header { padding-inline: .65rem; }
+    .orbe-header nav:first-child a:not(:first-child), .orbe-header nav:last-child a:first-child { display: none; }
+    .orbe-wordmark { font-size: 1.35rem; }
+    .orbe-hero { min-height: 0; grid-template-columns: 1fr; }
+    .orbe-hero__product { min-height: 30rem; }
+    .orbe-hero__portrait { min-height: 36rem; }
+    .orbe-principles { grid-template-columns: repeat(3, 1fr); gap: 1.25rem .5rem; padding-block: 1.3rem; }
+    .orbe-manifesto { grid-template-columns: 1fr; }
+    .orbe-manifesto > img { aspect-ratio: 4 / 3; }
+  }
+</style>

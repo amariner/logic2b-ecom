@@ -1,0 +1,51 @@
+---
+/** ORBE · cuadrícula clínica de producto con filetes finos. */
+import type { StorePaths } from '../../../collections';
+import { formatEurCents } from '../../../lib/format';
+type GridProduct = { slug: string; name: string; price_cents: number; image: string; stock: number; };
+interface Props { paths: StorePaths; products: GridProduct[]; compact?: boolean; }
+const { paths, products, compact = false } = Astro.props;
+---
+
+<ul class:list={['orbe-grid', { 'orbe-grid--compact': compact }]}>
+  {products.map((product, index) => (
+    <li class="orbe-card">
+      <a class="orbe-card__link" href={paths.product(product.slug)}>
+        <div class="orbe-card__media"><img src={product.image} alt={product.name} width="1744" height="2336" loading={index < 4 ? 'eager' : 'lazy'} /></div>
+        <div class="orbe-card__copy"><h3>{product.name}</h3><p>{formatEurCents(product.price_cents)}</p></div>
+      </a>
+      <button type="button" data-orbe-add={product.slug} disabled={product.stock === 0} aria-label={product.stock === 0 ? `${product.name} agotado` : `Añadir ${product.name} a la cesta`}>{product.stock === 0 ? 'Agotado' : 'Añadir'}</button>
+    </li>
+  ))}
+</ul>
+
+<script>
+  import { addToCart } from '../../../lib/cart-client';
+  document.querySelectorAll<HTMLButtonElement>('[data-orbe-add]').forEach((button) => {
+    button.addEventListener('click', () => {
+      addToCart(button.dataset.orbeAdd ?? '');
+      const previous = button.textContent;
+      button.textContent = 'Añadido';
+      setTimeout(() => (button.textContent = previous), 850);
+    });
+  });
+</script>
+
+<style>
+  .orbe-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); margin: 0; padding: 0; list-style: none; background: var(--color-border); gap: var(--grid-gap); }
+  .orbe-grid--compact { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .orbe-card { min-width: 0; color: var(--color-foreground); background: var(--color-background); }
+  .orbe-card__link { display: block; }
+  .orbe-card__media { aspect-ratio: 3 / 4; overflow: hidden; background: var(--surface-product); }
+  .orbe-card__media img { width: 100%; height: 100%; object-fit: cover; transition: transform .35s ease; }
+  .orbe-card:hover .orbe-card__media img { transform: scale(1.018); }
+  .orbe-card__copy { display: flex; min-height: 3.5rem; align-items: flex-start; justify-content: space-between; gap: .5rem; padding: .65rem .35rem; font-size: .57rem; }
+  .orbe-card__copy h3 { font: 600 .62rem/1.2 var(--font-accent); }
+  .orbe-card__copy p { color: var(--color-muted-foreground); white-space: nowrap; }
+  .orbe-card button { display: inline-flex; width: calc(100% - .7rem); min-height: 2.75rem; align-items: center; justify-content: center; margin: 0 .35rem .7rem; border: var(--border-width) solid var(--color-foreground); color: var(--color-foreground); background: transparent; font: 500 .56rem/1 var(--font-accent); text-transform: uppercase; cursor: pointer; }
+  .orbe-card button:hover { color: var(--color-brand-fg); background: var(--color-brand); }
+  .orbe-card button:disabled { cursor: not-allowed; opacity: .45; }
+  .orbe-card button:focus-visible, .orbe-card__link:focus-visible { outline: .18rem solid var(--color-brand); outline-offset: -.18rem; }
+  @media (max-width: 720px) { .orbe-grid, .orbe-grid--compact { grid-template-columns: repeat(2, minmax(0, 1fr)); } .orbe-card__copy { min-height: 4rem; flex-direction: column; } }
+  @media (prefers-reduced-motion: reduce) { .orbe-card__media img { transition: none; } }
+</style>
