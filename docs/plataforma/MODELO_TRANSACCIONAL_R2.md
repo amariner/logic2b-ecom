@@ -389,3 +389,38 @@ la ficha admin a 1440/375 sin hallazgos. Producción sirve el Worker
 `94d51142-49c3-444a-921c-3790227117e0`; D1 contiene 207 productos, 209
 variantes, 208 medias, dos asociaciones, cinco definiciones y seis valores,
 sin divergencias de imagen ni violaciones FK.
+
+## 14. Evidencia de R2.6
+
+ADR-0014 convierte el diseño general de §3.3 en un contrato exacto: variante
+como unidad, movimientos con razones/direcciones cerradas, balance versionado,
+disponibilidad derivada, idempotencia, referencia/correlación y espejo legacy
+asignado. La concurrencia usa versión esperada y ausencia de clave; una carrera
+de última unidad deja un ganador y nunca trunca el saldo con `MAX`.
+
+La propuesta `0009` se materializó como `migrations/0009_inventory_ledger.sql`
+en R2.7; la propuesta `0010` se materializó en R2.8 con versión de reserva
+separada, historiales de transición y triggers de concurrencia. `INV-004`
+permanece instalada sin flags, por lo que migrar no activa holds ni job. El
+backfill replica el stock legacy por variante conforme a ADR-0012, incluso cero,
+y exige apertura, suma, versión, FK, mirror y restore coherentes.
+
+Seis pruebas SQLite ejecutan ambos esquemas y cubren constraints, dedupe,
+dirección, sobreventa, guarda optimista, reconciliación, estados de reserva y
+ausencia de PII. Cierre global: 51 suites y 341 tests, tipos/build en verde. No
+se creó migración, tabla local/remota, writer vivo, job, ruta, UI ni deploy.
+
+## 15. Evidencia de R2.8
+
+`migrations/0010_inventory_reservations.sql` conserva la versión del ledger y
+añade `reservation_version`, cabecera/líneas, transición terminal e historial de
+`reserved`. Los triggers convierten lecturas obsoletas o saldos insuficientes en
+rollback de toda la batch. Alta de pedido reserva; cobro consume y crea venta;
+cancelación/liberación y TTL solo descomprometen.
+
+El job `inventory.expire-reservations` reutiliza locks, retries y dedupe R1.11.
+Stripe y la reserva comparten expiración con 31 minutos de margen seguro. La
+capacidad está instalada, pero todos los presets conservan `INV-004` sin flags.
+El rehearsal sobre 209 balances mantuvo hashes y cero holds tras forward y
+restore. Cierre: 53 suites, 350 tests, tipos/build y E2E 37/37 en verde; sin
+deploy remoto.

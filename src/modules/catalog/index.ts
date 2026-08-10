@@ -5,6 +5,8 @@ import { createD1LegacyCatalogReader } from './infrastructure/d1-legacy-catalog-
 import { createD1ProductAdminRepository } from './infrastructure/d1-product-admin';
 
 export type {
+  ProductAdminPage,
+  ProductAdminQuery,
   ProductAdminRow,
   AttributeDefinitionAdminRow,
   AttributeValueType,

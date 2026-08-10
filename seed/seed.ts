@@ -239,6 +239,12 @@ export function seedStatements(): string[] {
     'DELETE FROM event_outbox_events',
     'DELETE FROM order_events',
     'DELETE FROM order_items',
+    'DELETE FROM inventory_reservation_balance_events',
+    'DELETE FROM inventory_reservation_events',
+    'DELETE FROM inventory_reservation_lines',
+    'DELETE FROM inventory_reservations',
+    'DELETE FROM inventory_movements',
+    'DELETE FROM inventory_balances',
     'DELETE FROM emails_outbox',
     'DELETE FROM orders',
     'DELETE FROM product_attribute_values',
@@ -371,6 +377,21 @@ export function seedStatements(): string[] {
       }
     }
   }
+
+  // R2.7: toda variante nace con su apertura, incluido stock cero. El stock
+  // legacy se replica porque el seed histórico no distinguía pools.
+  statements.push(
+    `INSERT INTO inventory_balances (variant_id, on_hand, reserved, version, updated_at) ` +
+      `SELECT pv.id, p.stock, 0, 1, datetime('now') FROM product_variants pv ` +
+      `JOIN products p ON p.id = pv.product_id ORDER BY pv.id`,
+    `INSERT INTO inventory_movements (` +
+      `variant_id, delta, reason, balance_after, version_after, actor_kind, actor_id, ` +
+      `reference_type, reference_id, idempotency_key, correlation_id, occurred_at, created_at` +
+    `) SELECT b.variant_id, b.on_hand, 'legacy_opening_balance', b.on_hand, 1, ` +
+      `'system', 'demo-seed', 'seed', 'demo', 'r2:inventory:opening:' || b.variant_id, ` +
+      `'inventory:variant:' || b.variant_id, b.updated_at, b.updated_at ` +
+      `FROM inventory_balances b ORDER BY b.variant_id`,
+  );
 
   for (const prod of products) {
     const media = mediaBySlug.get(prod.slug) ?? [];

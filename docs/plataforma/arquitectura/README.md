@@ -188,9 +188,9 @@ implementaciones concretas.
 | Módulo | Responsabilidad y datos poseídos | API pública objetivo | Dependencias permitidas |
 |---|---|---|---|
 | `platform/configuration` | Config validada por despliegue y, desde R1.2, manifest. Sin datos operativos. | `validateCapabilityManifest`, `resolveCapabilityManifest`, presets y tipos publicados. | `shared-kernel`. |
-| `catalog` | Producto editorial, variante vendible, opciones y publicación; disponibilidad aún proyecta `products.stock` hasta R2.7. | agregado/lector canónicos, rollout `legacy|shadow|variant`, consultas de producto/catálogo y comandos administrativos. | `shared-kernel`, configuración publicada. |
+| `catalog` | Producto editorial, variante vendible, opciones y publicación; disponibilidad lee el balance de la variante. | agregado/lector canónicos, rollout `legacy|shadow|variant`, consultas de producto/catálogo y comandos administrativos. | `shared-kernel`, configuración publicada. |
 | `pricing` | Dinero base, reglas y desglose. Hoy: `price_cents`; no posee UI de precio anterior. | `PriceQuote`, `calculatePrice`, políticas puras. | `shared-kernel`, tipos públicos de catálogo. |
-| `inventory` | Disponibilidad y movimientos. Hoy: `products.stock` como deuda física. | `checkAvailability`, `commit`, `restore`; puertos de repositorio. | `shared-kernel`, identificadores de catálogo. |
+| `inventory` | Balances versionados y movimientos append-only por variante; `products.stock` es espejo temporal del default. | plan de movimiento, disponibilidad y unidad D1 guardada por evento/auditoría. | `shared-kernel`, identificadores de catálogo. |
 | `cart` | Líneas y cantidades, nunca precio autoritativo. Estado invitado puede estar en cliente. | `CartDraft`, normalización y validación de cantidades. | `shared-kernel`, IDs públicos de catálogo. |
 | `checkout` | Orquesta cotización y creación del intento de compra; no implementa PSP ni SQL. | `quoteCheckout`, `startCheckout`; puertos hacia pago/pedido. | APIs públicas de cart, catalog, pricing, inventory, fulfillment, customers, payments y orders. |
 | `payments` | Intención/resultado de pago e idempotencia del proveedor; no posee el pedido. Hoy sus columnas viven en `orders`. | `PaymentGateway`, `PaymentResult`, verificación de evento normalizado. | `shared-kernel`; adaptadores en `integrations`. |

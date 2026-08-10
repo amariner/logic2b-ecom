@@ -77,10 +77,28 @@ venta o servicios logísticos propios.
   esquema aditivo R2.2, backfill default 1:1 y snapshots compatibles de línea.
 - [`../../migrations/0008_product_media_attributes.sql`](../../migrations/0008_product_media_attributes.sql):
   esquema aditivo R2.5 para galería y atributos tipados con backfill de imagen.
+- [`../../migrations/0009_inventory_ledger.sql`](../../migrations/0009_inventory_ledger.sql):
+  ledger R2.7, balance por variante y apertura determinista desde stock legacy.
+- [`adr/0014-ledger-inventario-global.md`](adr/0014-ledger-inventario-global.md):
+  diseño R2.6 de movimientos, balances, concurrencia, backfill y reservas.
+- [`sql/0009_inventory_ledger.proposed.sql`](sql/0009_inventory_ledger.proposed.sql):
+  propuesta R2.6 conservada como evidencia; la migración viva es `0009`.
+- [`sql/0010_inventory_reservations.proposed.sql`](sql/0010_inventory_reservations.proposed.sql):
+  propuesta R2.6 conservada como evidencia; la migración viva R2.8 es `0010`.
+- [`../../src/modules/inventory/domain/inventory-ledger.ts`](../../src/modules/inventory/domain/inventory-ledger.ts):
+  razones, direcciones, transiciones y guarda optimista del ledger.
+- [`../../src/modules/inventory/infrastructure/d1-inventory-ledger.ts`](../../src/modules/inventory/infrastructure/d1-inventory-ledger.ts):
+  unidad D1 versionada para balance, movimiento y espejo default.
 - [`../../scripts/rehearse-r2-product-variants.mjs`](../../scripts/rehearse-r2-product-variants.mjs):
   preflight, forward, reconciliación legacy y restore aislado de R2.2.
 - [`../../scripts/rehearse-r2-media-attributes.mjs`](../../scripts/rehearse-r2-media-attributes.mjs):
   preflight, hashes, forward y restore aislado de media/atributos R2.5.
+- [`../../scripts/rehearse-r2-inventory-ledger.mjs`](../../scripts/rehearse-r2-inventory-ledger.mjs):
+  preflight, reconciliación y dump/restore aislado del ledger R2.7.
+- [`../../scripts/rehearse-r2-inventory-reservations.mjs`](../../scripts/rehearse-r2-inventory-reservations.mjs):
+  forward, hashes y dump/restore aislado de reservas R2.8.
+- [`../../src/modules/inventory/infrastructure/d1-inventory-reservations.ts`](../../src/modules/inventory/infrastructure/d1-inventory-reservations.ts):
+  alta, consumo, liberación y expiración versionados por variante.
 - [`../../src/modules/catalog/domain/product.ts`](../../src/modules/catalog/domain/product.ts):
   agregado R2.3 de producto editorial, variante vendible, opciones y guardas.
 - [`../../src/modules/catalog/infrastructure/d1-catalog-repository.ts`](../../src/modules/catalog/infrastructure/d1-catalog-repository.ts):

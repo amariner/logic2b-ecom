@@ -9,11 +9,42 @@ import type {
 
 export function createD1OrderReader(db: D1Database): OrderReader {
   return {
-    async list(status, limit) {
-      const query = status
-        ? db.prepare('SELECT id, order_number, customer_name, email, total_cents, status, created_at FROM orders WHERE status = ? ORDER BY created_at DESC LIMIT ?').bind(status, limit)
-        : db.prepare('SELECT id, order_number, customer_name, email, total_cents, status, created_at FROM orders ORDER BY created_at DESC LIMIT ?').bind(limit);
-      return (await query.all<OrderListRow>()).results;
+    async list(query) {
+      const clauses: string[] = [];
+      const bindings: unknown[] = [];
+      if (query.status) {
+        clauses.push('status = ?');
+        bindings.push(query.status);
+      }
+      const search = query.search?.trim();
+      if (search) {
+        clauses.push("(order_number LIKE ? ESCAPE '\\' OR customer_name LIKE ? ESCAPE '\\' OR email LIKE ? ESCAPE '\\')");
+        const pattern = `%${search.replaceAll('\\', '\\\\').replaceAll('%', '\\%').replaceAll('_', '\\_')}%`;
+        bindings.push(pattern, pattern, pattern);
+      }
+      const where = clauses.length > 0 ? ` WHERE ${clauses.join(' AND ')}` : '';
+      const statement = db.prepare(
+        `SELECT id, order_number, customer_name, email, total_cents, status, created_at
+         FROM orders${where} ORDER BY created_at DESC, id DESC LIMIT ? OFFSET ?`,
+      ).bind(...bindings, query.limit, query.offset ?? 0);
+      return (await statement.all<OrderListRow>()).results;
+    },
+    async matchingCount(status, searchValue) {
+      const clauses: string[] = [];
+      const bindings: unknown[] = [];
+      if (status) {
+        clauses.push('status = ?');
+        bindings.push(status);
+      }
+      const search = searchValue?.trim();
+      if (search) {
+        clauses.push("(order_number LIKE ? ESCAPE '\\' OR customer_name LIKE ? ESCAPE '\\' OR email LIKE ? ESCAPE '\\')");
+        const pattern = `%${search.replaceAll('\\', '\\\\').replaceAll('%', '\\%').replaceAll('_', '\\_')}%`;
+        bindings.push(pattern, pattern, pattern);
+      }
+      const where = clauses.length > 0 ? ` WHERE ${clauses.join(' AND ')}` : '';
+      const row = await db.prepare(`SELECT count(*) AS n FROM orders${where}`).bind(...bindings).first<{ n: number }>();
+      return row?.n ?? 0;
     },
     async counts() {
       return (await db.prepare('SELECT status, count(*) AS n FROM orders GROUP BY status').all<OrderStatusCount>()).results;

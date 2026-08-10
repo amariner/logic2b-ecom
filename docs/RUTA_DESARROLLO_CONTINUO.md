@@ -187,7 +187,7 @@ Orden interno:
 Cierre: CAT-007/CAT-008 pasan al estado real demostrado por tests; producto
 simple sigue funcionando y presets sin capacidad no muestran nada nuevo.
 
-### Carril principal · Etapa 2 — Panel administrativo V2
+### Carril principal · Etapa 2 — Panel administrativo V2 — ✅ 2026-08-10
 
 Esta etapa entra inmediatamente después de R2.5 y antes de R2.6 por mandato de
 producto. El panel actual es funcional pero está por debajo de la landing en
@@ -232,6 +232,12 @@ Cierre: todas las rutas del panel comparten el mismo sistema, no hay overflow
 involuntario, los targets miden al menos 44 px, el contraste es AA, el foco es
 visible y E2E/a11y están en verde.
 
+Evidencia de cierre: shell y navegación responsive por capacidad, listados de
+pedidos/productos consultables y paginados, detalles operativos, envíos, emails,
+login y ayuda unificados; `pnpm check` suma 50 suites/335 tests, E2E 37/37 y la
+auditoría administrativa cubre 16 superficies a 1440/375 con 0 errores y 0
+avisos. No hubo migración ni despliegue. La cabeza principal pasa a R2.6.
+
 ### Carril visual inmediato — cola de temas
 
 La cola actual contiene cuatro referencias completadas y cuatro pendientes. El
@@ -258,12 +264,15 @@ Goal continuo puede seleccionar el siguiente elemento por sí mismo.
 
 Después del panel V2, continuar el orden exacto:
 
-1. **R2.6 — Diseño del ledger de inventario.** Movimientos, balances, razones,
-   reservas, concurrencia y SQL propuesto; todavía sin escritura viva.
-2. **R2.7 — Implementación del ledger.** Backfill, append-only, disponibilidad
-   por variante e idempotencia del webhook.
-3. **R2.8 — Reservas y expiración.** TTL, liberación, captura y carrera de la
-   última unidad; módulo apagado por defecto.
+1. **R2.6 — Diseño del ledger de inventario — ✅ 2026-08-10.** ADR-0014,
+   contrato ejecutable y DDL separados para ledger R2.7/reservas R2.8; sin
+   escritura viva ni migración.
+2. **R2.7 — Implementación del ledger — ✅ 2026-08-10.** Migración/backfill,
+   append-only, disponibilidad por variante, venta/cancelación/admin atómicos,
+   espejo legacy y ensayo dump/restore; sin deploy.
+3. **R2.8 — Reservas y expiración — ✅ 2026-08-10.** Migración, TTL, liberación,
+   captura, carrera de la última unidad y job durable; `INV-004` instalado pero
+   apagado por defecto y sin deploy.
 4. **R2.9 — Ledger de pagos.** Payment/transaction/refund, proveedor, moneda,
    importe, estado e idempotencia.
 5. **R2.10 — Reembolso total.** Admin→proveedor→ledger→evento→email→stock con

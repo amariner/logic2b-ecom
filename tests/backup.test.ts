@@ -38,6 +38,12 @@ describe('volcado de copia de seguridad', () => {
       'product_variant_media',
       'attribute_definitions',
       'product_attribute_values',
+      'inventory_balances',
+      'inventory_movements',
+      'inventory_reservations',
+      'inventory_reservation_lines',
+      'inventory_reservation_events',
+      'inventory_reservation_balance_events',
     ]));
     for (const table of BACKUP_TABLES) expect(sql).toContain(`DELETE FROM ${table};`);
   });
@@ -59,6 +65,44 @@ describe('volcado de copia de seguridad', () => {
   it('restaura productos v2, combinaciones y pedidos sin romper FKs', async () => {
     const source = new SqliteD1();
     await source.batch(seedStatements().map((sql) => source.prepare(sql)));
+    const reservable = source.query<{
+      variant_id: number; reserved: number; reservation_version: number;
+    }>(`
+      SELECT variant_id, reserved, reservation_version
+      FROM inventory_balances WHERE on_hand > reserved ORDER BY variant_id LIMIT 1
+    `)[0]!;
+    source.sqlite.prepare(`
+      INSERT INTO inventory_reservations (
+        id, owner_type, owner_id, status, idempotency_key, expires_at,
+        version, created_at, updated_at
+      ) VALUES (
+        'backup-reservation', 'order', 'BACKUP-ORDER', 'active',
+        'backup:reservation:create', '2026-08-08T17:00:00.000Z', 1,
+        '2026-08-08T16:00:00.000Z', '2026-08-08T16:00:00.000Z'
+      )
+    `).run();
+    source.sqlite.prepare(`
+      INSERT INTO inventory_reservation_lines (reservation_id, variant_id, quantity)
+      VALUES ('backup-reservation', ?, 1)
+    `).run(reservable.variant_id);
+    source.sqlite.prepare(`
+      INSERT INTO inventory_reservation_balance_events (
+        reservation_id, variant_id, transition, quantity_delta, reserved_after,
+        reservation_version_after, idempotency_key, occurred_at
+      ) VALUES (
+        'backup-reservation', ?, 'created', 1, ?, ?,
+        'backup:reservation:create:line', '2026-08-08T16:00:00.000Z'
+      )
+    `).run(
+      reservable.variant_id,
+      reservable.reserved + 1,
+      reservable.reservation_version + 1,
+    );
+    source.sqlite.prepare(`
+      UPDATE inventory_balances
+      SET reserved = reserved + 1, reservation_version = reservation_version + 1
+      WHERE variant_id = ?
+    `).run(reservable.variant_id);
     const backup = await exportBackup(
       createD1BackupReader(source.asD1()),
       new Date('2026-08-08T16:00:00.000Z'),
@@ -81,5 +125,6 @@ describe('volcado de copia de seguridad', () => {
       WHERE pv.is_default = 1 AND pv.sku = 'SUM-SHELL-07-M'
     `)).toEqual([{ sku: 'SUM-SHELL-07-M', option_name: 'Talla', value: 'M' }]);
     expect(restored.query('PRAGMA foreign_key_check')).toEqual([]);
+    expect(restored.value("SELECT count(*) AS value FROM inventory_reservations WHERE status='active'")).toBe(1);
   });
 });

@@ -11,6 +11,8 @@ import { flushEventOutbox } from '../../../composition/outbox-dispatcher';
 import { stripeClient } from '../../../lib/stripe';
 import type { NewOrderLine } from '../../../modules/orders';
 import { resolveCatalogReadMode } from '../../../modules/catalog';
+import { INVENTORY_RESERVATION_POLICY } from '../../../modules/inventory';
+import { runtimePlatform } from '../../../composition/runtime-platform';
 import {
   OperationalError,
   asOperationalError,
@@ -84,6 +86,10 @@ export const POST: APIRoute = async ({ request, locals }) => {
     const orderNumber = generateOrderNumber();
     const origin = new URL(request.url).origin;
     const simulate = isSimulatedPayment(env);
+    const reservationsEnabled = runtimePlatform.hasCapabilityFlag('INV-004', 'sideEffects');
+    const reservationExpiresAt = reservationsEnabled
+      ? new Date(Date.now() + INVENTORY_RESERVATION_POLICY.ttlSeconds * 1000).toISOString()
+      : null;
 
     const addressJson = JSON.stringify({
       name: customer.name,
@@ -139,6 +145,9 @@ export const POST: APIRoute = async ({ request, locals }) => {
           metadata: { order_number: orderNumber },
           success_url: `${origin}${paths.thanks}?session_id={CHECKOUT_SESSION_ID}`,
           cancel_url: `${origin}${paths.cart}`,
+          ...(reservationExpiresAt === null
+            ? {}
+            : { expires_at: Math.floor(Date.parse(reservationExpiresAt) / 1000) }),
         });
         sessionId = session.id;
         redirectUrl = session.url ?? redirectUrl;
@@ -156,7 +165,10 @@ export const POST: APIRoute = async ({ request, locals }) => {
 
     // Pedido en 'pending' + líneas con snapshot de nombre y precio + primer hecho
     // del flujo (`orders.order_placed`), del que sale la entrada del timeline.
-    const orders = createOrderOperations(env.DB);
+    const orders = createOrderOperations(env.DB, undefined, undefined, {
+      reservationsEnabled,
+      ...(reservationExpiresAt === null ? {} : { reservationExpiresAt }),
+    });
     const placed = await orders.placeOrder(
       {
         order_number: orderNumber,

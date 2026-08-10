@@ -38,6 +38,6 @@ R1.5 retiró cinco más y dejó la allowlist en **2 claves**, cerradas por R1.12
   casos de uso compuestos y adaptadores D1, así que no queda SQL en
   presentación: `presentation-sql` pasa de 3 archivos a **0**.
 
-`products.stock` se sigue escribiendo desde el adaptador de pedidos. No es una
-excepción de la allowlist —no cruza ninguna regla estática— pero sí deuda de
-propiedad física declarada: el ledger de inventario es R2.6/R2.7.
+Desde R2.7 `products.stock` solo es espejo de la variante default y el módulo de
+inventario posee balance/movimiento. R2.8 separa además la versión de reservas;
+la deuda restante es retirar el espejo legacy de forma controlada en R2.14.

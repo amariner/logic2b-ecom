@@ -98,8 +98,8 @@ export const MODULE_DESCRIPTORS = [
     wikiLinks: [ARCHITECTURE_WIKI], navigation: [], routes: [],
   },
   {
-    id: 'inventory', version: '1.0.0', capabilities: ['INV-001'], dependencies: ['catalog'], permissions: [],
-    events: [], subscriptions: [], jobs: [], healthchecks: [], wikiLinks: [ARCHITECTURE_WIKI], navigation: [], routes: [],
+    id: 'inventory', version: '1.1.0', capabilities: ['INV-001', 'INV-004'], dependencies: ['catalog'], permissions: [],
+    events: [], subscriptions: [], jobs: ['inventory.expire-reservations'], healthchecks: [], wikiLinks: [ARCHITECTURE_WIKI], navigation: [], routes: [],
   },
   {
     id: 'cart', version: '1.0.0', capabilities: ['CHK-001'], dependencies: ['catalog'], permissions: [], events: [], subscriptions: [],

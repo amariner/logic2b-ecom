@@ -30,8 +30,10 @@ seleccione el siguiente bloque visual:
 6. Guardar una copia WebP de la referencia en
    `public/images/referencias/<numero>-<id>.webp`; es material interno.
 7. Generar imaginería propia con la herramienta integrada `imagegen` de
-   Codex/OpenAI por defecto. Solo cambiar de proveedor o a CLI/API cuando el
-   usuario lo autorice expresamente; documentar la excepción en la ficha.
+   Codex/OpenAI por defecto. Si la generación falla o el resultado no es
+   utilizable tras una iteración dirigida, el usuario autorizó el 2026-08-10
+   continuar con Higgsfield. Documentar el proveedor efectivo y el motivo del
+   cambio en la ficha del tema.
 8. Generar con una sola llamada activa cada vez. Guardar, optimizar e inspeccionar
    el resultado y esperar al menos ocho segundos antes de iniciar la siguiente.
    Cada producto o escena usa su propio prompt; no se simulan assets distintos

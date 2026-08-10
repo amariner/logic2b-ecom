@@ -110,6 +110,7 @@ export function createD1AuditLogWriter(db: D1Database) {
       entry: AuditEntry,
       expected: AuditedProductSnapshot,
       patch: AuditedProductPatch,
+      guardedStatements: readonly D1PreparedStatement[] = [],
     ): Promise<AuditedMutationOutcome> {
       const productSets: string[] = [];
       const productValues: unknown[] = [];
@@ -124,7 +125,11 @@ export function createD1AuditLogWriter(db: D1Database) {
         productSets.push('compare_at_price_cents = ?'); productValues.push(patch.compare_at_price_cents);
         variantSets.push('compare_at_price_cents = ?'); variantValues.push(patch.compare_at_price_cents);
       }
-      if (patch.stock !== undefined) { productSets.push('stock = ?'); productValues.push(patch.stock); }
+      // R2.7: el stock lo escribe el ledger y asigna después el espejo legacy.
+      // La ruta sin sentencias extra se conserva para compatibilidad aislada.
+      if (patch.stock !== undefined && guardedStatements.length === 0) {
+        productSets.push('stock = ?'); productValues.push(patch.stock);
+      }
       if (patch.active !== undefined) {
         productSets.push('active = ?'); productValues.push(patch.active ? 1 : 0);
         if (patch.variant_status === undefined) {
@@ -187,7 +192,7 @@ export function createD1AuditLogWriter(db: D1Database) {
             AND EXISTS (SELECT 1 FROM audit_log WHERE audit_id = ?)
         `).bind(...variantValues, ...guard.slice(8), entry.audit_id));
       }
-      return outcomeOf(await db.batch([audit, ...mutations]));
+      return outcomeOf(await db.batch([audit, ...mutations, ...guardedStatements]));
     },
 
     async updateShippingRate(

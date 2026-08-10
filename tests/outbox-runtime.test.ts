@@ -22,6 +22,16 @@ function seedPendingOrder(db: SqliteD1): void {
   db.sqlite.exec(`
     INSERT INTO products (id, slug, name, price_cents, stock, category)
     VALUES (1, 'aove', 'AOVE', 890, 10, 'aceites');
+    INSERT INTO product_variants (
+      id, product_id, sku, title, price_cents, status, is_default, option_signature
+    ) VALUES (1, 1, 'AOVE-DEFAULT', '', 890, 'active', 1, NULL);
+    INSERT INTO inventory_balances (variant_id, on_hand, reserved, version)
+    VALUES (1, 10, 0, 1);
+    INSERT INTO inventory_movements (
+      variant_id, delta, reason, balance_after, version_after, actor_kind,
+      actor_id, reference_type, reference_id, idempotency_key, correlation_id, occurred_at
+    ) VALUES (1, 10, 'legacy_opening_balance', 10, 1, 'system', 'test',
+      'test', '1', 'test:opening:1', 'inventory:variant:1', '2026-08-08T10:00:00.000Z');
     INSERT INTO orders (
       id, order_number, email, customer_name, address_json,
       subtotal_cents, shipping_cents, total_cents, status, stripe_session_id
@@ -29,8 +39,8 @@ function seedPendingOrder(db: SqliteD1): void {
       7, 'BM-260806-TEST', 'clienta@example.com', 'Marta Ferrer', '{}',
       1780, 490, 2270, 'pending', 'cs_test_1'
     );
-    INSERT INTO order_items (order_id, product_id, name_snapshot, unit_price_cents, qty)
-    VALUES (7, 1, 'AOVE', 890, 2);
+    INSERT INTO order_items (order_id, product_id, variant_id, name_snapshot, unit_price_cents, qty)
+    VALUES (7, 1, 1, 'AOVE', 890, 2);
   `);
 }
 
@@ -45,6 +55,16 @@ describe('outbox transaccional R1.7 sobre SQL real', () => {
     db.sqlite.exec(`
       INSERT INTO products (id, slug, name, price_cents, stock, category)
       VALUES (1, 'aove', 'AOVE', 890, 10, 'aceites');
+      INSERT INTO product_variants (
+        id, product_id, sku, title, price_cents, status, is_default, option_signature
+      ) VALUES (1, 1, 'AOVE-DEFAULT', '', 890, 'active', 1, NULL);
+      INSERT INTO inventory_balances (variant_id, on_hand, reserved, version)
+      VALUES (1, 10, 0, 1);
+      INSERT INTO inventory_movements (
+        variant_id, delta, reason, balance_after, version_after, actor_kind,
+        actor_id, reference_type, reference_id, idempotency_key, correlation_id, occurred_at
+      ) VALUES (1, 10, 'legacy_opening_balance', 10, 1, 'system', 'test',
+        'test', '1', 'test:opening:1', 'inventory:variant:1', '2026-08-08T10:00:00.000Z');
     `);
     const runtime = eventRuntime();
     const placed = await createOrderOperations(db.asD1(), runtime.emit, runtime.reserve).placeOrder(
@@ -121,6 +141,27 @@ describe('outbox transaccional R1.7 sobre SQL real', () => {
     expect(db.value('SELECT count(*) AS value FROM audit_log')).toBe(1);
   });
 
+  it('stock insuficiente aborta cobro, pedido, evento y movimiento', async () => {
+    const db = new SqliteD1();
+    seedPendingOrder(db);
+    db.sqlite.exec(`
+      UPDATE products SET stock = 1 WHERE id = 1;
+      UPDATE inventory_balances SET on_hand = 1 WHERE variant_id = 1;
+      UPDATE inventory_movements
+      SET delta = 1, balance_after = 1
+      WHERE variant_id = 1 AND reason = 'legacy_opening_balance';
+    `);
+    await expect(operations(db).confirmPayment({
+      lookup: { by: 'session', stripeSessionId: 'cs_test_1' },
+      paymentIntent: 'pi_insufficient',
+      source: 'stripe',
+    })).rejects.toThrow(/disponibilidad negativa/);
+    expect(db.value('SELECT status AS value FROM orders WHERE id = 7')).toBe('pending');
+    expect(db.value('SELECT stock AS value FROM products WHERE id = 1')).toBe(1);
+    expect(db.value('SELECT count(*) AS value FROM event_outbox_events')).toBe(0);
+    expect(db.value("SELECT count(*) AS value FROM inventory_movements WHERE reason = 'sale'")).toBe(0);
+  });
+
   it('dos expiraciones solapadas cancelan una vez y no crean entregas sin suscriptor', async () => {
     const db = new SqliteD1();
     seedPendingOrder(db);
@@ -152,7 +193,7 @@ describe('outbox transaccional R1.7 sobre SQL real', () => {
         stripe_session_id: 'cs_rollback',
       },
       [{ product_id: 999, name_snapshot: 'Inexistente', unit_price_cents: 890, qty: 1 }],
-    )).rejects.toThrow(/FOREIGN KEY/);
+    )).rejects.toThrow(/constraint failed/i);
     expect(db.value('SELECT count(*) AS value FROM orders')).toBe(0);
     expect(db.value('SELECT count(*) AS value FROM order_events')).toBe(0);
     expect(db.value('SELECT count(*) AS value FROM event_outbox_events')).toBe(0);

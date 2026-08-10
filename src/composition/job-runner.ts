@@ -3,6 +3,7 @@ import { executeJob, type JobExecutionResult, type JobHandler } from '../platfor
 import type { Platform } from './create-platform';
 import { flushEventOutbox } from './outbox-dispatcher';
 import { runtimePlatform } from './runtime-platform';
+import { createD1InventoryReservations, INVENTORY_RESERVATION_POLICY } from '../modules/inventory';
 
 export type ScheduledJobEnv = Env & Readonly<{
   DEMO_MODE: string;
@@ -20,6 +21,14 @@ function handlerFor(jobId: string, env: ScheduledJobEnv): JobHandler {
       return async (_run, signal) => {
         if (env.DEMO_MODE === 'true' || signal.aborted) return;
         await flushEventOutbox(env.DB, env);
+      };
+    case 'inventory.expire-reservations':
+      return async (run, signal) => {
+        if (env.DEMO_MODE === 'true' || signal.aborted) return;
+        await createD1InventoryReservations(env.DB).expireDue(
+          run.scheduledFor,
+          INVENTORY_RESERVATION_POLICY.expiryBatchSize,
+        );
       };
     default:
       throw new Error('unknown-job-handler');

@@ -318,7 +318,33 @@ export function createD1CatalogVariantAuditWriter(db: D1Database) {
       const mappings = input.option_value_ids.map((valueId) =>
         mappingInsert(db, entry.audit_id, null, input.sku, expected.id, valueId),
       );
-      return outcomeOf(await db.batch([audit, insert, ...mappings]), [1, ...mappings.map(() => 1)]);
+      const openingBalance = db.prepare(`
+        INSERT INTO inventory_balances (variant_id, on_hand, reserved, version, updated_at)
+        SELECT pv.id, p.stock, 0, 1, ?
+        FROM product_variants pv
+        JOIN products p ON p.id = pv.product_id
+        WHERE pv.product_id = ? AND pv.sku = ?
+          AND EXISTS (SELECT 1 FROM audit_log WHERE audit_id = ?)
+      `).bind(entry.occurred_at, expected.id, input.sku, entry.audit_id);
+      const openingMovement = db.prepare(`
+        INSERT INTO inventory_movements (
+          variant_id, delta, reason, balance_after, version_after,
+          actor_kind, actor_id, reference_type, reference_id,
+          idempotency_key, correlation_id, occurred_at, created_at
+        )
+        SELECT b.variant_id, b.on_hand, 'legacy_opening_balance', b.on_hand, 1,
+               'admin', 'admin-panel', 'product_variant', CAST(b.variant_id AS TEXT),
+               'r2:inventory:opening:' || b.variant_id,
+               'inventory:variant:' || b.variant_id, ?, ?
+        FROM inventory_balances b
+        JOIN product_variants pv ON pv.id = b.variant_id
+        WHERE pv.product_id = ? AND pv.sku = ?
+          AND EXISTS (SELECT 1 FROM audit_log WHERE audit_id = ?)
+      `).bind(entry.occurred_at, entry.occurred_at, expected.id, input.sku, entry.audit_id);
+      return outcomeOf(
+        await db.batch([audit, insert, openingBalance, openingMovement, ...mappings]),
+        [1, 1, 1, ...mappings.map(() => 1)],
+      );
     },
 
     async updateVariant(
@@ -376,13 +402,16 @@ export function createD1CatalogVariantAuditWriter(db: D1Database) {
       expectedChanges.push(1);
       if (expected.is_default || makeDefault) {
         statements.push(db.prepare(`
-          UPDATE products SET price_cents = ?, compare_at_price_cents = ?, active = ?
+          UPDATE products
+          SET price_cents = ?, compare_at_price_cents = ?, active = ?,
+              stock = (SELECT on_hand FROM inventory_balances WHERE variant_id = ?)
           WHERE id = ? AND price_cents = ? AND compare_at_price_cents IS ? AND active = ?
             AND EXISTS (SELECT 1 FROM audit_log WHERE audit_id = ?)
         `).bind(
           input.price_cents,
           input.compare_at_price_cents,
           input.status === 'active' ? 1 : 0,
+          expected.id,
           product.id,
           product.price_cents,
           product.compare_at_price_cents,

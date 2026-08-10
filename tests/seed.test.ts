@@ -56,13 +56,8 @@ describe('integridad del seed', () => {
       Object.keys(import.meta.glob('../public/images/collections/**/*.{webp,jpg,jpeg,png}'))
         .map((path) => path.replace('../public', '')),
     );
-    // Sitēga y STRETCH conservan temporalmente su catálogo/recorrido dedicado
-    // (C14.3), que resuelve las imágenes desde sus adaptadores propios.
-    const dedicatedLegacyRoutes = new Set(['sitega', 'stretch']);
-
     for (const product of collectionSeedProducts) {
       const collection = product.collection ?? '';
-      if (dedicatedLegacyRoutes.has(collection)) continue;
       const image = product.image ?? `/images/collections/${collection}/${product.slug}.webp`;
       expect(assetPaths.has(image), `${product.slug}: falta ${image}`).toBe(true);
     }

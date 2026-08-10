@@ -30,6 +30,17 @@ export const JOB_DESCRIPTORS = [
     maxAttempts: 5,
     retryDelaysSeconds: RETRIES,
   },
+  {
+    id: 'inventory.expire-reservations',
+    moduleId: 'inventory',
+    scope: 'capability',
+    requiredCapabilityId: 'INV-004',
+    trigger: { kind: 'recurring', crons: ['*/1 * * * *'] },
+    modes: ['client'],
+    timeoutSeconds: 120,
+    maxAttempts: 5,
+    retryDelaysSeconds: RETRIES,
+  },
 ] as const satisfies readonly JobDescriptor[];
 
 export type JobId = (typeof JOB_DESCRIPTORS)[number]['id'];

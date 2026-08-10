@@ -23,6 +23,7 @@ import {
   type ProductVariantWrite,
 } from '../modules/catalog';
 import { createFulfillmentAdmin, type ShippingRatePatch } from '../modules/fulfillment';
+import { createD1InventoryLedger } from '../modules/inventory';
 import {
   createD1AuditLogWriter,
   createD1CatalogContentAuditWriter,
@@ -50,6 +51,7 @@ export function createAdminOperations(
   const audit = createD1AuditLogWriter(db);
   const variantAudit = createD1CatalogVariantAuditWriter(db);
   const contentAudit = createD1CatalogContentAuditWriter(db);
+  const inventory = createD1InventoryLedger(db);
 
   function entry(
     action: string,
@@ -196,7 +198,37 @@ export function createAdminOperations(
         entity: { type: 'product', id: String(before.id), reference: before.slug },
         diff,
       });
-      return audit.updateProduct(entry, before, patch);
+      let inventoryStatements: readonly D1PreparedStatement[] = [];
+      if (patch.stock !== undefined) {
+        if (before.default_variant_id === null) return 'conflict';
+        const balance = (await inventory.balances([before.default_variant_id])).get(before.default_variant_id);
+        if (!balance || balance.on_hand !== before.stock) return 'conflict';
+        const delta = patch.stock - balance.on_hand;
+        if (delta !== 0) {
+          inventoryStatements = inventory.movementStatements(
+            balance,
+            {
+              variant_id: before.default_variant_id,
+              product_id: before.id,
+              is_default: true,
+              delta,
+            },
+            {
+              delta,
+              reason: 'manual_adjustment',
+              actor_kind: 'admin',
+              actor_id: ADMIN_ACTOR.id,
+              reference_type: 'product',
+              reference_id: String(before.id),
+              idempotency_key: `inventory:audit:${entry.audit_id}:variant:${before.default_variant_id}`,
+              correlation_id: entry.correlation_id,
+            },
+            entry.occurred_at,
+            { kind: 'audit', id: entry.audit_id },
+          );
+        }
+      }
+      return audit.updateProduct(entry, before, patch, inventoryStatements);
     },
 
     async createProductOption(input: ProductOptionCreate): Promise<AdminMutationOutcome> {
@@ -388,16 +420,10 @@ export function createAdminOperations(
           'La variante aparece en pedidos; archívala para conservar el histórico.',
         );
       }
-      const auditEntry = entry(
-        'catalog.variant_deleted',
-        { type: 'product_variant', id: String(id), reference: before.sku },
-        createAuditDiff(
-          before,
-          { ...before, sku: null, status: null, option_signature: null },
-          ['sku', 'status', 'option_signature'],
-        ),
+      throw new CatalogAdminError(
+        'inventory-history',
+        'La variante tiene historial de inventario; archívala en lugar de eliminarla.',
       );
-      return variantAudit.deleteVariant(auditEntry, variantGuard(before));
     },
 
     async createProductMedia(productId: number, write: ProductMediaWrite): Promise<AdminMutationOutcome> {

@@ -5,9 +5,8 @@
  * evento se inserta condicionado al estado leído y estas mutaciones exigen ese
  * `event_id`: pedido, stock, timeline y entregas se confirman en UNA batch.
  *
- * `products.stock` se escribe desde aquí como deuda física conocida: el ledger
- * de inventario es R2.6/R2.7. La propiedad lógica ya está declarada en
- * `docs/plataforma/arquitectura/README.md`.
+ * Desde R2.7 el inventario lo compone `order-operations`; este adaptador solo
+ * persiste pedido, líneas y timeline.
  */
 
 import type { OrderTimelineEntry } from '../domain/order-events';
@@ -42,9 +41,11 @@ export type OrderForTransition = Readonly<{
   total_cents: number;
 }>;
 
-export type StockChange = Readonly<{ product_id: number; qty: number }>;
-
-const ORDER_ITEMS_COLUMNS = 'product_id, name_snapshot, unit_price_cents, qty';
+const ORDER_ITEMS_COLUMNS = `
+  oi.product_id,
+  COALESCE(item_variant.id, default_variant.id) AS variant_id,
+  COALESCE(item_variant.id, default_variant.id) = default_variant.id AS is_default,
+  oi.name_snapshot, oi.unit_price_cents, oi.qty`;
 
 export function createD1OrderWriter(db: D1Database) {
   return {
@@ -68,9 +69,35 @@ export function createD1OrderWriter(db: D1Database) {
 
     lineStatementsForOrderNumber(orderNumber: string, lines: readonly NewOrderLine[]): D1PreparedStatement[] {
       return lines.map((line) => db.prepare(`
-        INSERT INTO order_items (order_id, product_id, name_snapshot, unit_price_cents, qty)
-        SELECT id, ?, ?, ?, ? FROM orders WHERE order_number = ?
-      `).bind(line.product_id || null, line.name_snapshot, line.unit_price_cents, line.qty, orderNumber));
+        INSERT INTO order_items (
+          order_id, product_id, variant_id, name_snapshot, sku_snapshot,
+          product_name_snapshot, variant_name_snapshot, unit_price_cents, qty
+        )
+        VALUES (
+          (SELECT o.id FROM orders o
+           JOIN product_variants required_variant
+             ON required_variant.product_id = ? AND required_variant.is_default = 1
+           WHERE o.order_number = ?),
+          ?,
+          (SELECT id FROM product_variants WHERE product_id = ? AND is_default = 1),
+          ?,
+          (SELECT sku FROM product_variants WHERE product_id = ? AND is_default = 1),
+          ?,
+          (SELECT NULLIF(title, '') FROM product_variants WHERE product_id = ? AND is_default = 1),
+          ?, ?
+        )
+      `).bind(
+        line.product_id || null,
+        orderNumber,
+        line.product_id || null,
+        line.product_id || null,
+        line.name_snapshot,
+        line.product_id || null,
+        line.name_snapshot,
+        line.product_id || null,
+        line.unit_price_cents,
+        line.qty,
+      ));
     },
 
     findOrderForPaymentBySession(stripeSessionId: string): Promise<OrderForPayment | null> {
@@ -102,7 +129,14 @@ export function createD1OrderWriter(db: D1Database) {
 
     async items(orderId: number): Promise<OrderItemForPayment[]> {
       const { results } = await db
-        .prepare(`SELECT ${ORDER_ITEMS_COLUMNS} FROM order_items WHERE order_id = ?`)
+        .prepare(`
+          SELECT ${ORDER_ITEMS_COLUMNS}
+          FROM order_items oi
+          JOIN product_variants default_variant
+            ON default_variant.product_id = oi.product_id AND default_variant.is_default = 1
+          LEFT JOIN product_variants item_variant ON item_variant.id = oi.variant_id
+          WHERE oi.order_id = ?
+        `)
         .bind(orderId)
         .all<OrderItemForPayment>();
       return results;
@@ -159,22 +193,6 @@ export function createD1OrderWriter(db: D1Database) {
         SELECT ?, ?, ?, ?
         WHERE EXISTS (SELECT 1 FROM event_outbox_events WHERE event_id = ?)
       `).bind(orderId, entry.from_status, entry.to_status, entry.note, eventId);
-    },
-
-    guardedStockDecrementStatements(changes: readonly StockChange[], eventId: string): D1PreparedStatement[] {
-      return changes.map((change) => db.prepare(`
-        UPDATE products SET stock = MAX(stock - ?, 0)
-        WHERE id = ? AND EXISTS (SELECT 1 FROM event_outbox_events WHERE event_id = ?)
-      `).bind(change.qty, change.product_id, eventId));
-    },
-
-    guardedStockRestoreStatements(changes: readonly StockChange[], eventId: string): D1PreparedStatement[] {
-      return changes
-        .filter((change) => change.product_id > 0)
-        .map((change) => db.prepare(`
-          UPDATE products SET stock = stock + ?
-          WHERE id = ? AND EXISTS (SELECT 1 FROM event_outbox_events WHERE event_id = ?)
-        `).bind(change.qty, change.product_id, eventId));
     },
 
     /** Unidad de trabajo: el primer resultado decide quién ganó la carrera. */

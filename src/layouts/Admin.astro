@@ -8,6 +8,7 @@ import { shopConfig } from '../../shop.config';
 import { MAIN_DEMO_HREF } from '../lib/nav';
 import { runtimePlatform } from '../composition/runtime-platform';
 import { adminNavigationFor, type AdminNavigationId } from '../platform/configuration';
+import AdminIcon, { type AdminIconName } from '../components/admin/AdminIcon.astro';
 
 interface Props {
   title: string;
@@ -17,42 +18,69 @@ interface Props {
 const { title, active } = Astro.props;
 
 const nav = adminNavigationFor(runtimePlatform);
+const iconFor: Record<string, AdminIconName> = {
+  pedidos: 'orders', productos: 'products', envios: 'shipping', emails: 'email',
+};
 ---
 
-<Base title={`${title} — Panel · ${shopConfig.backofficeName}`} noindex>
-  <div class="border-b border-sky-200 bg-sky-50 px-4 py-1.5 text-center text-xs text-sky-900">
-    Panel ficticio de solo lectura (contraseña «demo»). Sus datos de ejemplo son independientes de los escaparates.
-  </div>
-
-  <div class="min-h-screen bg-stone-100">
-    <header class="border-b border-stone-300 bg-white">
-      <div class="mx-auto max-w-6xl px-4 py-3">
-        <div class="flex items-center justify-between gap-4">
-          <span class="truncate font-bold">{shopConfig.backofficeName} <span class="hidden font-normal text-stone-500 sm:inline">· panel</span></span>
-          <div class="flex shrink-0 items-center gap-4 text-sm">
-            <a href={MAIN_DEMO_HREF} class="text-stone-500 hover:text-stone-900">← Ver ARCE</a>
-            <a href="/ayuda" class="text-stone-500 hover:text-stone-900">Ayuda</a>
-            <a href="/demo/admin/login?salir=1" class="text-stone-500 hover:text-stone-900">Salir</a>
+<Base title={`${title} — ${shopConfig.backofficeName}`} noindex preloadDisplayFont>
+  <div class="min-h-screen bg-[#f7f7f8] text-foreground" data-admin-shell>
+    <aside class="fixed inset-y-0 left-0 z-30 hidden w-72 flex-col border-r border-border bg-card lg:flex">
+      <div class="border-b border-border px-6 py-6">
+        <a href="/demo/admin" class="inline-flex min-h-11 items-center font-display text-lg" aria-label={`${shopConfig.backofficeName}, inicio`}>
+          Logic2B <span class="ml-1 text-muted-foreground">Gestión</span>
+        </a>
+        <p class="mt-1 text-xs text-muted-foreground">Centro de operaciones</p>
+      </div>
+      <div class="px-4 py-5">
+        <div class="rounded-xl border border-border bg-muted/60 p-3">
+          <p class="text-[0.68rem] font-semibold uppercase tracking-[0.14em] text-muted-foreground">Espacio activo</p>
+          <div class="mt-2 flex items-center gap-3">
+            <span class="flex size-9 items-center justify-center rounded-lg bg-foreground text-xs font-bold text-background">L2B</span>
+            <div class="min-w-0"><p class="truncate text-sm font-semibold">Demo central</p><p class="truncate text-xs text-muted-foreground">Todos los escaparates</p></div>
           </div>
         </div>
-        <nav class="-mx-4 mt-3 flex gap-1 overflow-x-auto px-4 text-sm sm:mx-0 sm:mt-2 sm:px-0">
-          {nav.map((item) => (
-            <a
-              href={item.href}
-              aria-current={active === item.id ? 'page' : undefined}
-              class:list={[
-                'shrink-0 rounded px-3 py-1.5',
-                active === item.id ? 'bg-stone-900 text-white' : 'text-stone-600 hover:bg-stone-100',
-              ]}
-            >{item.label}</a>
-          ))}
-        </nav>
       </div>
+      <nav class="flex-1 space-y-1 px-4" aria-label="Navegación del panel">
+        {nav.map((item) => (
+          <a href={item.href} aria-current={active === item.id ? 'page' : undefined} class:list={[
+            'flex min-h-11 items-center gap-3 rounded-xl px-3 text-sm font-medium transition',
+            active === item.id ? 'bg-foreground text-background shadow-sm' : 'text-muted-foreground hover:bg-muted hover:text-foreground',
+          ]}>
+            <AdminIcon name={iconFor[item.id] ?? 'orders'} class="size-[1.15rem]" />
+            <span>{item.label}</span>
+          </a>
+        ))}
+      </nav>
+      <div class="space-y-1 border-t border-border p-4 text-sm">
+        <a href={MAIN_DEMO_HREF} class="flex min-h-11 items-center gap-3 rounded-xl px-3 text-muted-foreground hover:bg-muted hover:text-foreground"><AdminIcon name="store" />Ver tienda ARCE<AdminIcon name="external" class="ml-auto size-4" /></a>
+        <a href="/ayuda" class="flex min-h-11 items-center gap-3 rounded-xl px-3 text-muted-foreground hover:bg-muted hover:text-foreground"><AdminIcon name="help" />Ayuda</a>
+        <a href="/demo/admin/login?salir=1" class="flex min-h-11 items-center gap-3 rounded-xl px-3 text-muted-foreground hover:bg-muted hover:text-foreground"><AdminIcon name="logout" />Cerrar sesión</a>
+        <div class="mt-3 flex items-center gap-2 px-3 pt-3 text-xs text-muted-foreground"><span class="size-2 rounded-full bg-emerald-500"></span>Sistema operativo</div>
+      </div>
+    </aside>
+
+    <header class="sticky top-0 z-20 border-b border-border bg-card/95 backdrop-blur lg:hidden">
+      <div class="flex min-h-16 items-center justify-between gap-3 px-4">
+        <a href="/demo/admin" class="font-display text-base">Logic2B <span class="text-muted-foreground">Gestión</span></a>
+        <div class="flex items-center gap-1">
+          <a href={MAIN_DEMO_HREF} class="flex size-11 items-center justify-center rounded-xl text-muted-foreground hover:bg-muted hover:text-foreground" aria-label="Ver tienda ARCE"><AdminIcon name="store" /></a>
+          <a href="/ayuda" class="flex size-11 items-center justify-center rounded-xl text-muted-foreground hover:bg-muted hover:text-foreground" aria-label="Ayuda"><AdminIcon name="help" /></a>
+          <a href="/demo/admin/login?salir=1" class="flex size-11 items-center justify-center rounded-xl text-muted-foreground hover:bg-muted hover:text-foreground" aria-label="Cerrar sesión"><AdminIcon name="logout" /></a>
+        </div>
+      </div>
+      <nav class="flex gap-1 overflow-x-auto border-t border-border px-3 py-2" aria-label="Navegación móvil del panel">
+        {nav.map((item) => <a href={item.href} aria-current={active === item.id ? 'page' : undefined} class:list={['flex min-h-11 shrink-0 items-center gap-2 rounded-xl px-3 text-sm font-medium', active === item.id ? 'bg-foreground text-background' : 'text-muted-foreground hover:bg-muted hover:text-foreground']}><AdminIcon name={iconFor[item.id] ?? 'orders'} class="size-4" />{item.label}</a>)}
+      </nav>
+      <div class="border-t border-sky-200 bg-sky-50 px-4 py-2 text-center text-[0.7rem] font-medium text-sky-950">Demo de solo lectura · datos ficticios independientes</div>
     </header>
 
-    <main class="mx-auto max-w-6xl px-4 py-6">
-      <slot />
-    </main>
+    <div class="lg:pl-72">
+      <div class="hidden border-b border-sky-200 bg-sky-50 px-6 py-2 text-center text-xs font-medium text-sky-950 lg:block">Panel ficticio de solo lectura (contraseña «demo»). Sus datos de ejemplo son independientes de los escaparates.</div>
+      <main class="mx-auto w-full max-w-[100rem] px-4 py-7 sm:px-7 sm:py-9 xl:px-10">
+        <slot />
+      </main>
+    </div>
   </div>
 
   {shopConfig.analytics.cfBeaconToken && (

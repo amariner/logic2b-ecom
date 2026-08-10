@@ -82,6 +82,15 @@ function insertSimpleProduct(db: SqliteD1, legacyPrice = 1000, variantPrice = le
       option_signature, created_at, updated_at
     ) VALUES (100, 1, 'SKU-DEFAULT', '', ?, 'active', 1, NULL, ?, ?)
   `).run(variantPrice, CREATED_AT, CREATED_AT);
+  db.sqlite.exec(`
+    INSERT INTO inventory_balances (variant_id, on_hand, reserved, version, updated_at)
+    VALUES (100, 8, 0, 1, '${CREATED_AT}');
+    INSERT INTO inventory_movements (
+      variant_id, delta, reason, balance_after, version_after, actor_kind,
+      actor_id, reference_type, reference_id, idempotency_key, correlation_id, occurred_at
+    ) VALUES (100, 8, 'legacy_opening_balance', 8, 1, 'system', 'test',
+      'test', '100', 'test:opening:100', 'inventory:variant:100', '${CREATED_AT}');
+  `);
 }
 
 describe('dominio producto-variante R2.3', () => {

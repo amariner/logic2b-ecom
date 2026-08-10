@@ -34,8 +34,8 @@ const order: OrderForPayment = {
 };
 
 const items: OrderItemForPayment[] = [
-  { product_id: 1, name_snapshot: 'AOVE Picual 500 ml', unit_price_cents: 890, qty: 2 },
-  { product_id: 12, name_snapshot: 'Fuet artesà 200 g', unit_price_cents: 420, qty: 3 },
+  { product_id: 1, variant_id: 1, is_default: true, name_snapshot: 'AOVE Picual 500 ml', unit_price_cents: 890, qty: 2 },
+  { product_id: 12, variant_id: 12, is_default: true, name_snapshot: 'Fuet artesà 200 g', unit_price_cents: 420, qty: 3 },
 ];
 
 describe('buildPaidMutation (idempotencia del webhook)', () => {
@@ -45,8 +45,8 @@ describe('buildPaidMutation (idempotencia del webhook)', () => {
     expect(mutation?.orderId).toBe(7);
     expect(mutation?.paymentIntent).toBe('pi_123');
     expect(mutation?.stockDecrements).toEqual([
-      { product_id: 1, qty: 2 },
-      { product_id: 12, qty: 3 },
+      { product_id: 1, variant_id: 1, is_default: true, qty: 2 },
+      { product_id: 12, variant_id: 12, is_default: true, qty: 3 },
     ]);
     expect(mutation?.event.type).toBe('orders.order_paid');
     expect(mutation?.event.payload).toMatchObject({ payment_intent: 'pi_123', source: 'stripe' });

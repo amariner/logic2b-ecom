@@ -7,6 +7,7 @@
 import Base from '../../../layouts/Base.astro';
 import { shopConfig } from '../../../../shop.config';
 import { MAIN_DEMO_HREF } from '../../../lib/nav';
+import AdminIcon from '../../../components/admin/AdminIcon.astro';
 import {
   ADMIN_COOKIE_NAME,
   DEMO_ADMIN_PASSWORD,
@@ -53,36 +54,43 @@ if (Astro.request.method === 'POST') {
 }
 ---
 
-<Base title={`Acceso al panel · ${shopConfig.backofficeName}`} noindex>
-  <div class="flex min-h-screen flex-col bg-stone-100">
-    <div class="border-b border-sky-200 bg-sky-50 px-4 py-1.5 text-center text-xs text-sky-900">
-      Panel ficticio de solo lectura. Sus datos no proceden de las demos de tienda.
-    </div>
+<Base title={`Acceso al panel · ${shopConfig.backofficeName}`} noindex preloadDisplayFont>
+  <div class="grid min-h-screen bg-[#f7f7f8] lg:grid-cols-[minmax(0,1fr)_minmax(28rem,38rem)]">
+    <section class="hidden bg-foreground p-12 text-background lg:flex lg:flex-col lg:justify-between xl:p-16">
+      <a href="/" class="font-display text-xl">Logic2B <span class="text-background/60">Gestión</span></a>
+      <div class="max-w-2xl"><p class="text-xs font-semibold uppercase tracking-[0.18em] text-background/50">Backend mínimo</p><h2 class="mt-4 font-display text-5xl leading-[1.08] xl:text-6xl">Tu tienda.<br/>Sin misterios.</h2><p class="mt-6 max-w-lg text-lg leading-8 text-background/65">Pedidos, productos, envíos y comunicaciones. Solo lo necesario para operar bien cada día.</p></div>
+      <p class="text-sm text-background/50">Logic2B Ecommerce · Demo operativa</p>
+    </section>
 
-    <main class="mx-auto flex w-full max-w-md flex-1 flex-col justify-center px-4 py-10">
-      <div class="rounded-lg border border-stone-300 bg-white p-6 sm:p-8">
-        <p class="font-bold">{shopConfig.backofficeName} <span class="font-normal text-stone-500">· panel</span></p>
-        <h1 class="mt-4 text-2xl font-bold">Acceso al panel</h1>
+    <div class="flex min-h-screen flex-col">
+      <div class="border-b border-sky-200 bg-sky-50 px-4 py-2 text-center text-xs font-medium text-sky-950">Panel ficticio de solo lectura · datos independientes de los escaparates</div>
+      <main class="mx-auto flex w-full max-w-md flex-1 flex-col justify-center px-5 py-10 sm:px-8">
+        <a href="/" class="mb-10 font-display text-lg lg:hidden">Logic2B <span class="text-muted-foreground">Gestión</span></a>
+        <div class="rounded-2xl border border-border bg-card p-6 shadow-sm sm:p-8">
+          <span class="flex size-11 items-center justify-center rounded-xl bg-foreground text-background"><AdminIcon name="store"/></span>
+          <p class="mt-6 text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">Centro de operaciones</p>
+          <h1 class="mt-2 font-display text-3xl">Acceso al panel</h1>
+          <p class="mt-2 text-sm leading-6 text-muted-foreground">Entra en el entorno de demostración para recorrer la operativa de una tienda.</p>
 
         {demoMode && (
-          <p class="mt-3 rounded border border-green-200 bg-green-50 p-3 text-sm text-green-900">
+          <p class="mt-5 rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-sm leading-6 text-emerald-950">
             Esto es una demo: la contraseña es <strong class="font-mono">{DEMO_ADMIN_PASSWORD}</strong>.
             El login existe para enseñar cómo se presenta el acceso de un comercio.
           </p>
         )}
 
         {loggedOut && !error && (
-          <p class="mt-3 rounded border border-stone-200 bg-stone-50 p-3 text-sm text-stone-700">Sesión cerrada.</p>
+          <p class="mt-5 rounded-xl border border-border bg-muted p-4 text-sm">Sesión cerrada.</p>
         )}
 
         {rateLimited && !error && (
-          <p class="mt-3 rounded border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">Demasiados intentos seguidos; espera un momento y vuelve a intentarlo.</p>
+          <p class="mt-5 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-950">Demasiados intentos seguidos; espera un momento y vuelve a intentarlo.</p>
         )}
 
-        {error && <p class="mt-3 rounded border border-red-200 bg-red-50 p-3 text-sm text-red-800">{error}</p>}
+        {error && <p role="alert" class="mt-5 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-950">{error}</p>}
 
         <form method="post" action={`/demo/admin/login?next=${encodeURIComponent(nextPath)}`} class="mt-5">
-          <label class="block text-sm font-medium text-stone-700" for="password">Contraseña</label>
+          <label class="block text-sm font-semibold" for="password">Contraseña</label>
           <input
             id="password"
             name="password"
@@ -90,18 +98,16 @@ if (Astro.request.method === 'POST') {
             required
             autocomplete="current-password"
             autofocus
-            class="mt-1.5 w-full rounded border border-stone-300 px-3 py-2 focus:border-stone-900"
+            class="mt-2 min-h-12 w-full rounded-xl border border-input bg-background px-3 shadow-sm"
           />
           <button
             type="submit"
-            class="mt-4 w-full rounded bg-stone-900 px-4 py-2.5 font-medium text-white hover:bg-black"
+            class="mt-4 min-h-12 w-full rounded-xl bg-foreground px-4 font-semibold text-background shadow-sm hover:bg-foreground/85"
           >Entrar</button>
         </form>
-      </div>
-
-      <p class="mt-4 text-center text-sm text-stone-600">
-        <a href={MAIN_DEMO_HREF} class="hover:text-stone-900 hover:underline">← Volver a ARCE</a>
-      </p>
-    </main>
+        </div>
+        <p class="mt-5 text-center text-sm text-muted-foreground"><a href={MAIN_DEMO_HREF} class="inline-flex min-h-11 items-center gap-2 font-medium hover:text-foreground"><AdminIcon name="arrow-left" class="size-4"/>Volver a ARCE</a></p>
+      </main>
+    </div>
   </div>
 </Base>

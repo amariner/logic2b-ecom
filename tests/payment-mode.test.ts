@@ -42,7 +42,7 @@ describe('buildPaidMutation según el origen del cobro', () => {
     total_cents: 1490,
   };
   const items: OrderItemForPayment[] = [
-    { product_id: 1, name_snapshot: 'AOVE Picual 500 ml', unit_price_cents: 500, qty: 2 },
+    { product_id: 1, variant_id: 1, is_default: true, name_snapshot: 'AOVE Picual 500 ml', unit_price_cents: 500, qty: 2 },
   ];
 
   it('el cobro por la pasarela lo atribuye a Stripe', () => {
@@ -55,6 +55,8 @@ describe('buildPaidMutation según el origen del cobro', () => {
     const mutation = buildPaidMutation(order, items, 'sim_pi_1', { emit: emitPlatformEvent, source: 'simulated' });
     expect(mutation?.event.payload.to_status).toBe('paid');
     expect(mutation && orderTimelineEntry(mutation.event).note).toBe('Pago confirmado (simulado)');
-    expect(mutation?.stockDecrements).toEqual([{ product_id: 1, qty: 2 }]);
+    expect(mutation?.stockDecrements).toEqual([
+      { product_id: 1, variant_id: 1, is_default: true, qty: 2 },
+    ]);
   });
 });

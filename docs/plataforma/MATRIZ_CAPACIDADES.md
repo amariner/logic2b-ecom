@@ -40,7 +40,7 @@ su alcance requiera.
 |---|---|---|---|---|---|
 | CAT-001 | Producto básico | núcleo | P0 | actual | Nombre, slug, descripción, precio, stock, imagen, categoría y actividad. |
 | CAT-002 | Colecciones/catálogos separados | núcleo | P0 | actual | Catálogos visuales aislados sobre contratos compartidos. |
-| CAT-003 | Producto y variante separados | núcleo | P0 | parcial | Esquema, lectura reversible y CRUD auditado de default/combinaciones existen; falta stock por variante (R2.7) y selección storefront. |
+| CAT-003 | Producto y variante separados | núcleo | P0 | parcial | Esquema, lectura reversible, CRUD auditado y stock por variante existen; falta selección storefront. |
 | CAT-004 | Opciones y valores | núcleo | P0 | parcial | CRUD administrativo, FKs, lectura y seed v2 con combinaciones reales existen; el storefront todavía sirve la variante default. |
 | CAT-005 | SKU, GTIN/EAN, MPN y marca | núcleo | P1 | parcial | SKU/GTIN/MPN tienen lectura y escritura validada en cualquier variante; falta la marca editorial tipada. |
 | CAT-006 | Taxonomía y categoría normalizada | módulo | P1 | pendiente | Categoría interna + mapeos externos versionados. |
@@ -61,9 +61,9 @@ su alcance requiera.
 | ID | Capacidad | Vía | Prioridad | Estado | Resultado objetivo |
 |---|---|---|---|---|---|
 | INV-001 | Stock simple por producto | núcleo | P0 | actual | Descuento en pago confirmado y restitución al cancelar pagado. |
-| INV-002 | Stock por variante | núcleo | P0 | especificado | Balance global por unidad vendible; R3 añadirá ubicación principal sin alterar pedidos. |
-| INV-003 | Movimientos de inventario | núcleo | P0 | especificado | Ledger append-only idempotente, balance reconstruible y correcciones como nuevos movimientos. |
-| INV-004 | Reservas de stock | módulo | P1 | especificado | Cabecera/líneas con expiración y estados idempotentes; apagada por defecto. |
+| INV-002 | Stock por variante | núcleo | P0 | actual | Balance global por unidad vendible; R3 añadirá ubicación principal sin alterar pedidos. |
+| INV-003 | Movimientos de inventario | núcleo | P0 | actual | Ledger append-only idempotente, balance reconstruible y correcciones como nuevos movimientos. |
+| INV-004 | Reservas de stock | módulo | P1 | actual | Cabecera/líneas, TTL, captura/liberación/expiración y job idempotentes; instalada y apagada por defecto. |
 | INV-005 | Múltiples ubicaciones | módulo | P1 | pendiente | Existencias y disponibilidad separadas por almacén/tienda. |
 | INV-006 | Disponible, comprometido, entrante y dañado | módulo | P1 | pendiente | Estados contables distintos, no una única cifra editable. |
 | INV-007 | Transferencias entre ubicaciones | módulo | P2 | pendiente | Borrador, enviado, parcial, recibido y discrepancias. |

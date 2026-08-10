@@ -10,6 +10,13 @@ export type OrderListRow = Readonly<{
 
 export type OrderStatusCount = Readonly<{ status: string; n: number }>;
 
+export type OrderListQuery = Readonly<{
+  status?: string | undefined;
+  search?: string | undefined;
+  limit: number;
+  offset?: number | undefined;
+}>;
+
 export type OrderDetail = Readonly<{
   id: number;
   order_number: string;
@@ -34,7 +41,8 @@ export type OrderEvent = Readonly<{
 }>;
 
 export interface OrderReader {
-  list(status: string | undefined, limit: number): Promise<readonly OrderListRow[]>;
+  list(query: OrderListQuery): Promise<readonly OrderListRow[]>;
+  matchingCount(status: string | undefined, search: string | undefined): Promise<number>;
   counts(): Promise<readonly OrderStatusCount[]>;
   detail(id: number): Promise<OrderDetail | null>;
   items(id: number): Promise<readonly OrderItem[]>;
@@ -43,9 +51,13 @@ export interface OrderReader {
 
 export function createOrderReaderService(reader: OrderReader) {
   return Object.freeze({
-    async list(status: string | undefined, limit: number) {
-      const [orders, counts] = await Promise.all([reader.list(status, limit), reader.counts()]);
-      return Object.freeze({ orders, counts });
+    async list(query: OrderListQuery) {
+      const [orders, counts, total] = await Promise.all([
+        reader.list(query),
+        reader.counts(),
+        reader.matchingCount(query.status, query.search),
+      ]);
+      return Object.freeze({ orders, counts, total });
     },
     async detail(id: number) {
       const order = await reader.detail(id);

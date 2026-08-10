@@ -26,6 +26,7 @@ export type ProductVariantCreate = ProductVariantWrite & Readonly<{ product_id: 
 export type CatalogAdminErrorCode =
   | 'default-protected'
   | 'in-use'
+  | 'inventory-history'
   | 'invalid-selection'
   | 'missing-options';
 

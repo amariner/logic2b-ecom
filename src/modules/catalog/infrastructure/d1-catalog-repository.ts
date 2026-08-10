@@ -60,10 +60,13 @@ const ACTIVE_DEFAULT_JOIN = `
 
 function productSelect(where: string, orderBy: string): string {
   return `
-    SELECT p.id, p.slug, p.name, p.description, p.stock, p.image, p.category,
+    SELECT p.id, p.slug, p.name, p.description,
+           inventory.on_hand - inventory.reserved AS stock,
+           p.image, p.category,
            p.active, p.created_at, p.collection, p.subtitle, p.specs_json
     FROM products p
     ${ACTIVE_DEFAULT_JOIN}
+    JOIN inventory_balances inventory ON inventory.variant_id = default_variant.id
     WHERE ${where}
     ORDER BY ${orderBy}`;
 }

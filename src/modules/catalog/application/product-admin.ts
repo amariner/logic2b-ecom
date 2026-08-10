@@ -20,6 +20,20 @@ export type ProductAdminRow = Readonly<{
   variant_count: number;
 }>;
 
+export type ProductAdminQuery = Readonly<{
+  search?: string | undefined;
+  category?: string | undefined;
+  status?: 'active' | 'hidden' | undefined;
+  limit: number;
+  offset?: number | undefined;
+}>;
+
+export type ProductAdminPage = Readonly<{
+  products: readonly ProductAdminRow[];
+  total: number;
+  categories: readonly string[];
+}>;
+
 export type ProductPatch = Readonly<{
   name?: string | undefined;
   price_cents?: number | undefined;
@@ -62,6 +76,10 @@ export type ProductVariantAdminRow = Readonly<{
   option_signature: string | null;
   option_value_ids: readonly number[];
   order_item_count: number;
+  inventory_on_hand: number;
+  inventory_reserved: number;
+  inventory_available: number;
+  inventory_version: number;
   created_at: string;
   updated_at: string;
 }>;
@@ -143,6 +161,7 @@ export type ProductOptionValueSnapshot = Readonly<{
 
 export interface ProductAdminRepository {
   list(): Promise<readonly ProductAdminRow[]>;
+  search(query: ProductAdminQuery): Promise<ProductAdminPage>;
   find(id: number): Promise<ProductAdminRow | null>;
   details(id: number): Promise<ProductVariantAdminDetails | null>;
   findOption(id: number): Promise<ProductOptionSnapshot | null>;
@@ -156,6 +175,7 @@ export interface ProductAdminRepository {
 export function createProductAdminService(repository: ProductAdminRepository) {
   return Object.freeze({
     list: () => repository.list(),
+    search: (query: ProductAdminQuery) => repository.search(query),
     find: (id: number) => repository.find(id),
     details: (id: number) => repository.details(id),
     findOption: (id: number) => repository.findOption(id),

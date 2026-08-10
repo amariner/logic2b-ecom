@@ -6,6 +6,16 @@ function seedOrder(db: SqliteD1, status = 'paid'): void {
   db.sqlite.exec(`
     INSERT INTO products (id, slug, name, price_cents, stock, category)
     VALUES (1, 'aove', 'AOVE', 890, 8, 'aceites');
+    INSERT INTO product_variants (
+      id, product_id, sku, title, price_cents, status, is_default, option_signature
+    ) VALUES (1, 1, 'AOVE-DEFAULT', '', 890, 'active', 1, NULL);
+    INSERT INTO inventory_balances (variant_id, on_hand, reserved, version)
+    VALUES (1, 8, 0, 1);
+    INSERT INTO inventory_movements (
+      variant_id, delta, reason, balance_after, version_after, actor_kind,
+      actor_id, reference_type, reference_id, idempotency_key, correlation_id, occurred_at
+    ) VALUES (1, 8, 'legacy_opening_balance', 8, 1, 'system', 'test',
+      'test', '1', 'test:opening:1', 'inventory:variant:1', '2026-08-08T10:00:00.000Z');
     INSERT INTO orders (
       id, order_number, email, customer_name, address_json,
       subtotal_cents, shipping_cents, total_cents, status, stripe_session_id
@@ -13,8 +23,8 @@ function seedOrder(db: SqliteD1, status = 'paid'): void {
       7, 'BM-260806-TEST', 'clienta@example.com', 'Marta Ferrer', '{}',
       1780, 490, 2270, '${status}', 'cs_test_1'
     );
-    INSERT INTO order_items (order_id, product_id, name_snapshot, unit_price_cents, qty)
-    VALUES (7, 1, 'AOVE', 890, 2);
+    INSERT INTO order_items (order_id, product_id, variant_id, name_snapshot, unit_price_cents, qty)
+    VALUES (7, 1, 1, 'AOVE', 890, 2);
   `);
 }
 

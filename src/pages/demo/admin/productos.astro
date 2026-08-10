@@ -1,5 +1,8 @@
 ---
 import Admin from '../../../layouts/Admin.astro';
+import AdminIcon from '../../../components/admin/AdminIcon.astro';
+import AdminPageHeader from '../../../components/admin/AdminPageHeader.astro';
+import AdminStatusBadge from '../../../components/admin/AdminStatusBadge.astro';
 import { allCategoryLabels } from '../../../collections';
 import { runtimePlatform } from '../../../composition/runtime-platform';
 import { createProductAdmin } from '../../../modules/catalog';
@@ -7,183 +10,96 @@ import { createProductAdmin } from '../../../modules/catalog';
 export const prerender = false;
 const readOnly = Astro.locals.runtime.env.DEMO_MODE === 'true';
 const variantsEnabled = runtimePlatform.isCapabilityActive('CAT-003');
-
-const products = await createProductAdmin(Astro.locals.runtime.env.DB).list();
-
-// El backoffice es UNO y ve los productos de todas las tiendas: las etiquetas
-// salen de la unión de categorías del registro de colecciones.
+const search = (Astro.url.searchParams.get('q') ?? '').trim().slice(0, 120);
+const category = (Astro.url.searchParams.get('categoria') ?? '').trim().slice(0, 80);
+const rawStatus = Astro.url.searchParams.get('estado') ?? '';
+const status = rawStatus === 'active' || rawStatus === 'hidden' ? rawStatus : undefined;
+const rawPage = Number(Astro.url.searchParams.get('pagina') ?? '1');
+const page = Number.isInteger(rawPage) && rawPage > 0 ? rawPage : 1;
+const PAGE_SIZE = 24;
+const result = await createProductAdmin(Astro.locals.runtime.env.DB).search({
+  search, category: category || undefined, status, limit: PAGE_SIZE, offset: (page - 1) * PAGE_SIZE,
+});
+const { products, total, categories } = result;
+const pageCount = Math.max(1, Math.ceil(total / PAGE_SIZE));
 const categoryLabel = allCategoryLabels();
+const pageHref = (target: number) => {
+  const params = new URLSearchParams();
+  if (search) params.set('q', search);
+  if (category) params.set('categoria', category);
+  if (status) params.set('estado', status);
+  if (target > 1) params.set('pagina', String(target));
+  return `/demo/admin/productos?${params.toString()}`.replace(/\?$/, '');
+};
 ---
 
 <Admin title="Productos" active="productos">
-  <h1 class="text-2xl font-bold">Productos</h1>
-  <p class="mt-1 text-sm text-stone-600">
-    {readOnly
-      ? 'Catálogo ficticio de ejemplo. Esta vista pública es de solo lectura y no modifica ninguna tienda.'
-      : variantsEnabled
-        ? 'Edita producto y variante por defecto. Precio y estado se escriben en ambos modelos de forma atómica.'
-        : 'Edita precio, stock o visibilidad. Los cambios se guardan al salir de la celda.'}
-  </p>
+  <AdminPageHeader eyebrow="Catálogo central" title="Productos" description={readOnly ? 'Catálogo ficticio de ejemplo. Esta vista pública es de solo lectura y no modifica ninguna tienda.' : 'Edita la información esencial y abre la ficha para gestionar galería, atributos, opciones y variantes.'} />
 
-  <div class="mt-4 overflow-x-auto rounded-lg border border-stone-300 bg-white">
-    <table class="w-full text-sm">
-      <thead class="border-b border-stone-200 bg-stone-50 text-left text-xs uppercase tracking-wide text-stone-500">
-        <tr>
-          <th class="px-4 py-2">Producto</th>
-          <th class="px-4 py-2">Categoría</th>
-          {variantsEnabled && <th class="px-4 py-2">Variante por defecto</th>}
-          <th class="px-4 py-2 text-right">Precio €</th>
-          <th class="px-4 py-2 text-right">Stock</th>
-          <th class="px-4 py-2 text-center">Activo</th>
-        </tr>
-      </thead>
-      <tbody class="divide-y divide-stone-100">
-        {products.map((prod) => (
-          <tr class:list={['hover:bg-stone-50', prod.active === 0 && 'opacity-50']}>
-            <td class="px-4 py-1.5">
-              <input data-field="name" data-id={prod.id} value={prod.name} aria-label={`Nombre de ${prod.slug}`} disabled={readOnly} class="w-full min-w-56 rounded border border-transparent px-1 py-0.5 hover:border-stone-300 focus:border-stone-400 disabled:bg-transparent disabled:text-stone-800" />
-            </td>
-            <td class="px-4 py-1.5 text-stone-500">{categoryLabel.get(prod.category) ?? prod.category}</td>
-            {variantsEnabled && (
-              <td class="px-4 py-1.5">
-                <div class="flex min-w-48 items-center gap-2">
-                  <input
-                    data-field="sku"
-                    data-id={prod.id}
-                    data-saved={prod.default_sku ?? ''}
-                    value={prod.default_sku ?? ''}
-                    aria-label={`SKU por defecto de ${prod.name}`}
-                    disabled={readOnly || prod.default_variant_id === null}
-                    class="w-28 rounded border border-transparent px-1 py-0.5 font-mono text-xs hover:border-stone-300 focus:border-stone-400 disabled:bg-transparent disabled:text-stone-800"
-                  />
-                  <select
-                    data-field="variant_status"
-                    data-id={prod.id}
-                    data-saved={prod.default_variant_status ?? ''}
-                    aria-label={`Estado de la variante por defecto de ${prod.name}`}
-                    disabled={readOnly || prod.default_variant_id === null}
-                    class="rounded border border-stone-200 bg-white px-1 py-0.5 text-xs disabled:border-transparent disabled:bg-transparent disabled:text-stone-800"
-                  >
-                    <option value="active" selected={prod.default_variant_status === 'active'}>Activa</option>
-                    <option value="draft" selected={prod.default_variant_status === 'draft'}>Borrador</option>
-                    <option value="archived" selected={prod.default_variant_status === 'archived'}>Archivada</option>
-                  </select>
-                  <a
-                    href={`/demo/admin/productos/${prod.id}`}
-                    class="inline-flex min-h-11 shrink-0 items-center rounded px-2 text-xs font-medium text-stone-700 underline-offset-2 hover:bg-stone-100 hover:underline"
-                    aria-label={`Gestionar variantes de ${prod.name}`}
-                  >
-                    {prod.variant_count > 1 ? `+${prod.variant_count - 1}` : 'Gestionar'}
-                  </a>
-                </div>
-              </td>
-            )}
-            <td class="px-4 py-1.5 text-right">
-              <input data-field="price" data-id={prod.id} aria-label={`Precio de ${prod.name}`} value={(prod.price_cents / 100).toFixed(2)} inputmode="decimal" disabled={readOnly} class="w-20 rounded border border-transparent px-1 py-0.5 text-right hover:border-stone-300 focus:border-stone-400 disabled:bg-transparent disabled:text-stone-800" />
-            </td>
-            <td class="px-4 py-1.5 text-right">
-              <input data-field="stock" data-id={prod.id} aria-label={`Stock de ${prod.name}`} value={prod.stock} inputmode="numeric" disabled={readOnly} class="w-16 rounded border border-transparent px-1 py-0.5 text-right hover:border-stone-300 focus:border-stone-400 disabled:bg-transparent disabled:text-stone-800" />
-            </td>
-            <td class="px-4 py-1.5 text-center">
-              <input data-field="active" data-id={prod.id} type="checkbox" aria-label={`Activo: ${prod.name}`} checked={prod.active === 1} disabled={readOnly} class="h-4 w-4 accent-stone-900" />
-            </td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
-  </div>
-  <p data-save-status class="mt-2 h-5 text-sm text-stone-600"></p>
+  <section class="mt-6 rounded-2xl border border-border bg-card shadow-sm" aria-labelledby="product-list-title">
+    <div class="border-b border-border p-4 sm:p-5">
+      <div class="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between"><div><h2 id="product-list-title" class="font-display text-xl">Catálogo</h2><p class="mt-1 text-sm text-muted-foreground">{total} producto{total === 1 ? '' : 's'} · {variantsEnabled ? 'variantes activadas' : 'producto simple'}</p></div>{readOnly && <span class="mt-2 inline-flex w-fit min-h-8 items-center rounded-full bg-sky-50 px-3 text-xs font-semibold text-sky-800 ring-1 ring-inset ring-sky-200">Modo solo lectura</span>}</div>
+      <form method="get" class="mt-5 grid gap-3 lg:grid-cols-[minmax(16rem,1fr)_minmax(11rem,15rem)_10rem_auto]">
+        <label class="relative"><span class="sr-only">Buscar productos</span><AdminIcon name="search" class="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"/><input type="search" name="q" value={search} placeholder="Nombre, slug o SKU" class="min-h-11 w-full rounded-xl border border-input bg-background pl-10 pr-3 text-sm shadow-sm" /></label>
+        <label><span class="sr-only">Categoría</span><select name="categoria" class="min-h-11 w-full rounded-xl border border-input bg-background px-3 text-sm shadow-sm"><option value="">Todas las categorías</option>{categories.map((value) => <option value={value} selected={category === value}>{categoryLabel.get(value) ?? value}</option>)}</select></label>
+        <label><span class="sr-only">Estado</span><select name="estado" class="min-h-11 w-full rounded-xl border border-input bg-background px-3 text-sm shadow-sm"><option value="">Cualquier estado</option><option value="active" selected={status === 'active'}>Publicados</option><option value="hidden" selected={status === 'hidden'}>Ocultos</option></select></label>
+        <div class="flex gap-2"><button class="min-h-11 rounded-xl bg-foreground px-4 text-sm font-semibold text-background">Filtrar</button>{(search || category || status) && <a href="/demo/admin/productos" class="inline-flex min-h-11 items-center rounded-xl px-3 text-sm font-medium text-muted-foreground hover:bg-muted">Limpiar</a>}</div>
+      </form>
+    </div>
 
-  <script>
-    const statusEl = document.querySelector<HTMLElement>('[data-save-status]')!;
+    {products.length > 0 && <div class="divide-y divide-border">
+      {products.map((prod) => <article class:list={['p-4 transition sm:p-5', prod.active === 0 ? 'bg-muted/30' : 'hover:bg-muted/20']}>
+        <div class="grid gap-4 xl:grid-cols-[minmax(18rem,1.6fr)_minmax(10rem,.8fr)_minmax(12rem,1fr)_7rem_6rem_6rem] xl:items-center">
+          <div class="flex min-w-0 items-center gap-4">
+            <img src={prod.image} alt="" width="72" height="72" loading="lazy" class="size-16 shrink-0 rounded-xl border border-border bg-muted object-cover sm:size-[4.5rem]" />
+            <div class="min-w-0 flex-1">
+              <label class="block"><span class="sr-only">Nombre del producto</span><input data-field="name" data-id={prod.id} value={prod.name} aria-label={`Nombre de ${prod.slug}`} disabled={readOnly} class="min-h-10 w-full rounded-lg border border-transparent bg-transparent px-2 -ml-2 text-sm font-semibold hover:border-input focus:border-input disabled:opacity-100" /></label>
+              <p class="mt-0.5 truncate font-mono text-[0.7rem] text-muted-foreground">{prod.slug}</p>
+              <p class="mt-1 text-xs text-muted-foreground">Colección {prod.collection}</p>
+            </div>
+          </div>
+          <div><p class="text-[0.68rem] font-semibold uppercase tracking-[0.12em] text-muted-foreground xl:hidden">Categoría</p><p class="mt-1 text-sm xl:mt-0">{categoryLabel.get(prod.category) ?? prod.category}</p></div>
+          {variantsEnabled ? <div>
+            <p class="text-[0.68rem] font-semibold uppercase tracking-[0.12em] text-muted-foreground xl:hidden">Variante principal</p>
+            <div class="mt-1 flex flex-wrap items-center gap-2 xl:mt-0"><span class="rounded-md bg-muted px-2 py-1 font-mono text-xs">{prod.default_sku || 'Sin SKU'}</span><span class="text-xs text-muted-foreground">{prod.variant_count} variante{prod.variant_count === 1 ? '' : 's'}</span></div>
+          </div> : <div></div>}
+          <label><span class="text-[0.68rem] font-semibold uppercase tracking-[0.12em] text-muted-foreground">Precio</span><span class="mt-1 flex items-center rounded-lg border border-input bg-background px-2"><input data-field="price" data-id={prod.id} aria-label={`Precio de ${prod.name}`} value={(prod.price_cents / 100).toFixed(2)} inputmode="decimal" disabled={readOnly} class="min-h-10 w-full min-w-0 bg-transparent text-right text-sm font-semibold disabled:opacity-100"/><span class="ml-1 text-xs text-muted-foreground">€</span></span></label>
+          <label><span class="text-[0.68rem] font-semibold uppercase tracking-[0.12em] text-muted-foreground">Stock</span><input data-field="stock" data-id={prod.id} aria-label={`Stock de ${prod.name}`} value={prod.stock} inputmode="numeric" disabled={readOnly} class="mt-1 min-h-10 w-full rounded-lg border border-input bg-background px-2 text-right text-sm font-semibold disabled:opacity-100"/></label>
+          <div class="flex items-center justify-between gap-3 xl:flex-col xl:items-end"><AdminStatusBadge status={prod.active === 1 ? 'active' : 'hidden'} label={prod.active === 1 ? 'Publicado' : 'Oculto'}/><label class="inline-flex min-h-11 cursor-pointer items-center gap-2 text-xs font-medium text-muted-foreground"><input data-field="active" data-id={prod.id} type="checkbox" aria-label={`Publicado: ${prod.name}`} checked={prod.active === 1} disabled={readOnly} class="size-4 accent-foreground"/>Visible</label></div>
+        </div>
+        {variantsEnabled && <div class="mt-4 flex justify-end border-t border-border pt-3 xl:mt-3"><a href={`/demo/admin/productos/${prod.id}`} class="inline-flex min-h-11 items-center gap-2 rounded-xl border border-border bg-card px-3 text-sm font-semibold shadow-sm hover:bg-muted">Gestionar ficha <AdminIcon name="chevron" class="size-4"/></a></div>}
+        <p data-row-status={prod.id} role="status" aria-live="polite" class="mt-2 min-h-5 text-right text-xs font-medium text-muted-foreground"></p>
+      </article>)}
+    </div>}
 
-    // Si el servidor rechaza el valor, revertimos al último guardado con éxito
-    // (no al de la carga de página, que puede ser una edición previa de la misma
-    // sesión) — dejar el valor rechazado en el input engañaría al comercio
-    // haciéndole creer que se guardó.
-    type EditableControl = HTMLInputElement | HTMLSelectElement;
+    {products.length === 0 && <div class="px-5 py-14 text-center"><span class="mx-auto flex size-12 items-center justify-center rounded-2xl bg-muted text-muted-foreground"><AdminIcon name="products"/></span><h3 class="mt-4 font-display text-lg">No hay productos que coincidan</h3><p class="mx-auto mt-2 max-w-md text-sm leading-6 text-muted-foreground">Cambia la búsqueda, la categoría o el estado para ampliar los resultados.</p><a href="/demo/admin/productos" class="mt-5 inline-flex min-h-11 items-center rounded-xl border border-border px-4 text-sm font-semibold hover:bg-muted">Quitar filtros</a></div>}
 
-    function savedValue(control: EditableControl): string {
-      return control.dataset.saved ?? (control instanceof HTMLInputElement && control.type === 'checkbox'
-        ? String(control.defaultChecked)
-        : control.value);
-    }
+    {pageCount > 1 && <nav class="flex items-center justify-between border-t border-border px-4 py-3 text-sm" aria-label="Paginación de productos"><span class="text-muted-foreground">Página {page} de {pageCount}</span><div class="flex gap-2">{page > 1 && <a href={pageHref(page - 1)} class="inline-flex min-h-11 items-center rounded-xl border border-border px-3 font-medium hover:bg-muted">Anterior</a>}{page < pageCount && <a href={pageHref(page + 1)} class="inline-flex min-h-11 items-center rounded-xl border border-border px-3 font-medium hover:bg-muted">Siguiente</a>}</div></nav>}
+  </section>
 
-    function remember(control: EditableControl): void {
-      control.dataset.saved = control instanceof HTMLInputElement && control.type === 'checkbox'
-        ? String(control.checked)
-        : control.value;
-    }
-
-    function restore(control: EditableControl): void {
-      const saved = savedValue(control);
-      if (control instanceof HTMLInputElement && control.type === 'checkbox') control.checked = saved === 'true';
-      else control.value = saved;
-    }
-
-    async function save(id: string, patch: Record<string, unknown>, input: EditableControl): Promise<void> {
-      statusEl.textContent = 'Guardando…';
-      const res = await fetch(`/api/admin/products/${id}`, {
-        method: 'PATCH',
-        headers: { 'content-type': 'application/json' },
-        body: JSON.stringify(patch),
-      });
-      if (res.ok) {
-        statusEl.textContent = 'Guardado ✓';
-        remember(input);
-        setTimeout(() => (statusEl.textContent = ''), 1500);
-      } else {
-        const body = (await res.json()) as { error?: string };
-        statusEl.textContent = `Error: ${body.error ?? 'inesperado'}`;
-        restore(input);
-      }
-    }
-
-    document.querySelectorAll('[data-field]:not([disabled])').forEach((element) => {
-      if (!(element instanceof HTMLInputElement) && !(element instanceof HTMLSelectElement)) return;
-      const input: EditableControl = element;
-      if (input.dataset.saved === undefined) remember(input);
+  {!readOnly && <script>
+    function rowStatus(id: string): HTMLElement | null { return document.querySelector(`[data-row-status="${id}"]`); }
+    async function save(input: HTMLInputElement, patch: Record<string, unknown>): Promise<void> {
       const id = input.dataset.id ?? '';
-      const field = input.dataset.field ?? '';
-      input.addEventListener('change', () => {
-        if (field === 'name') {
-          const name = input.value.trim();
-          if (name.length < 2) {
-            statusEl.textContent = 'El nombre debe tener al menos 2 caracteres';
-            restore(input);
-            return;
-          }
-          void save(id, { name }, input);
-        }
-        if (field === 'price') {
-          const raw = input.value.trim();
-          const cents = raw === '' ? NaN : Math.round(Number(raw.replace(',', '.')) * 100);
-          if (Number.isInteger(cents) && cents >= 0) void save(id, { price_cents: cents }, input);
-          else {
-            statusEl.textContent = 'Precio inválido';
-            restore(input);
-          }
-        }
-        if (field === 'stock') {
-          const raw = input.value.trim();
-          const stock = raw === '' ? NaN : Number(raw);
-          if (Number.isInteger(stock) && stock >= 0) void save(id, { stock }, input);
-          else {
-            statusEl.textContent = 'Stock inválido';
-            restore(input);
-          }
-        }
-        if (field === 'active' && input instanceof HTMLInputElement) void save(id, { active: input.checked }, input);
-        if (field === 'sku') {
-          const sku = input.value.trim();
-          if (sku.length > 0) void save(id, { sku }, input);
-          else {
-            statusEl.textContent = 'El SKU no puede estar vacío';
-            restore(input);
-          }
-        }
-        if (field === 'variant_status') void save(id, { variant_status: input.value }, input);
-      });
-    });
-  </script>
+      const status = rowStatus(id);
+      if (status) status.textContent = 'Guardando…';
+      input.disabled = true;
+      try {
+        const res = await fetch(`/api/admin/products/${id}`, { method: 'PATCH', headers: { 'content-type': 'application/json' }, body: JSON.stringify(patch) });
+        if (!res.ok) throw new Error('save');
+        if (input.type === 'checkbox') input.defaultChecked = input.checked; else input.defaultValue = input.value;
+        if (status) { status.textContent = 'Guardado ✓'; status.classList.remove('text-red-700'); }
+      } catch {
+        if (input.type === 'checkbox') input.checked = input.defaultChecked; else input.value = input.defaultValue;
+        if (status) { status.textContent = 'No se pudo guardar. Se ha recuperado el valor anterior.'; status.classList.add('text-red-700'); }
+      } finally { input.disabled = false; }
+    }
+    document.querySelectorAll<HTMLInputElement>('[data-field]:not([disabled])').forEach((input) => input.addEventListener('change', () => {
+      const field = input.dataset.field;
+      if (field === 'name') { const name = input.value.trim(); if (name) void save(input, { name }); else input.value = input.defaultValue; }
+      if (field === 'price') { const raw = input.value.trim(); const cents = raw === '' ? NaN : Math.round(Number(raw.replace(',', '.')) * 100); if (Number.isInteger(cents) && cents >= 0) void save(input, { price_cents: cents }); else input.value = input.defaultValue; }
+      if (field === 'stock') { const stock = Number(input.value); if (Number.isInteger(stock) && stock >= 0) void save(input, { stock }); else input.value = input.defaultValue; }
+      if (field === 'active') void save(input, { active: input.checked });
+    }));
+  </script>}
 </Admin>

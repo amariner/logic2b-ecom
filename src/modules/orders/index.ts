@@ -2,7 +2,7 @@ import { createOrderReaderService } from './application/order-reader';
 import { createD1OrderReader } from './infrastructure/d1-order-reader';
 import { createD1OrderWriter } from './infrastructure/d1-order-writer';
 
-export type { OrderDetail, OrderEvent, OrderItem, OrderListRow, OrderStatusCount } from './application/order-reader';
+export type { OrderDetail, OrderEvent, OrderItem, OrderListQuery, OrderListRow, OrderStatusCount } from './application/order-reader';
 export const createOrderReader = (db: D1Database) => createOrderReaderService(createD1OrderReader(db));
 
 export {
@@ -37,5 +37,5 @@ export {
   type PaidMutation,
 } from './domain/payment-transition';
 
-export type { NewOrderInput, NewOrderLine, OrderForTransition, StockChange } from './infrastructure/d1-order-writer';
+export type { NewOrderInput, NewOrderLine, OrderForTransition } from './infrastructure/d1-order-writer';
 export const createOrderWriter = (db: D1Database) => createD1OrderWriter(db);

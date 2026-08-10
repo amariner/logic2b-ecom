@@ -30,6 +30,13 @@ function seedAdminRows(db: SqliteD1): void {
     INSERT INTO product_variants (
       id, product_id, sku, title, price_cents, status, is_default, option_signature
     ) VALUES (1, 1, 'AOVE-DEFAULT', '', 890, 'active', 1, NULL);
+    INSERT INTO inventory_balances (variant_id, on_hand, reserved, version)
+    VALUES (1, 10, 0, 1);
+    INSERT INTO inventory_movements (
+      variant_id, delta, reason, balance_after, version_after, actor_kind,
+      actor_id, reference_type, reference_id, idempotency_key, correlation_id, occurred_at
+    ) VALUES (1, 10, 'legacy_opening_balance', 10, 1, 'system', 'test',
+      'test', '1', 'test:opening:1', 'inventory:variant:1', '2026-08-08T10:00:00.000Z');
     INSERT INTO shipping_rates (id, zone, label, price_cents, free_over_cents, active)
     VALUES (1, 'peninsula', 'Península', 490, 5000, 1);
   `);
@@ -51,6 +58,12 @@ describe('auditoría de mutaciones admin R1.8', () => {
       name: { before: 'AOVE', after: 'AOVE premium' },
       stock: { before: 10, after: 8 },
     });
+    expect(db.query<{ on_hand: number; version: number }>(
+      'SELECT on_hand, version FROM inventory_balances WHERE variant_id = 1',
+    )[0]).toEqual({ on_hand: 8, version: 2 });
+    expect(db.query<{ delta: number; reason: string }>(
+      "SELECT delta, reason FROM inventory_movements WHERE reason = 'manual_adjustment'",
+    )[0]).toEqual({ delta: -2, reason: 'manual_adjustment' });
   });
 
   it('dos PATCH sobre el mismo snapshot: uno gana y solo deja una evidencia', async () => {

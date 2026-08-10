@@ -1,5 +1,6 @@
 import type {
   ProductAdminRepository,
+  ProductAdminQuery,
   ProductAdminRow,
   AttributeDefinitionAdminRow,
   ProductOptionAdminRow,
@@ -35,6 +36,10 @@ type VariantValueJoinRow = Readonly<{
   option_signature: string | null;
   option_value_id: number | null;
   order_item_count: number;
+  inventory_on_hand: number;
+  inventory_reserved: number;
+  inventory_available: number;
+  inventory_version: number;
   created_at: string;
   updated_at: string;
 }>;
@@ -75,8 +80,13 @@ const variantSelect = `
          pv.price_cents, pv.compare_at_price_cents, pv.status, pv.is_default,
          pv.option_signature, pv.created_at, pv.updated_at,
          pvov.option_value_id,
+         ib.on_hand AS inventory_on_hand,
+         ib.reserved AS inventory_reserved,
+         ib.on_hand - ib.reserved AS inventory_available,
+         ib.version AS inventory_version,
          (SELECT count(*) FROM order_items oi WHERE oi.variant_id = pv.id) AS order_item_count
   FROM product_variants pv
+  JOIN inventory_balances ib ON ib.variant_id = pv.id
   LEFT JOIN product_variant_option_values pvov ON pvov.variant_id = pv.id`;
 
 function hydrateVariants(rows: readonly VariantValueJoinRow[]): readonly ProductVariantAdminRow[] {
@@ -104,6 +114,10 @@ function hydrateVariants(rows: readonly VariantValueJoinRow[]): readonly Product
         candidate.option_value_id === null ? [] : [candidate.option_value_id],
       ).toSorted((a, b) => a - b)),
       order_item_count: row.order_item_count,
+      inventory_on_hand: row.inventory_on_hand,
+      inventory_reserved: row.inventory_reserved,
+      inventory_available: row.inventory_available,
+      inventory_version: row.inventory_version,
       created_at: row.created_at,
       updated_at: row.updated_at,
     });
@@ -113,7 +127,7 @@ function hydrateVariants(rows: readonly VariantValueJoinRow[]): readonly Product
 export function createD1ProductAdminRepository(db: D1Database): ProductAdminRepository {
   const select = `
     SELECT p.id, p.slug, p.name, p.image, p.price_cents, p.compare_at_price_cents,
-           p.stock, p.category, p.collection, p.active,
+           ib.on_hand AS stock, p.category, p.collection, p.active,
            pv.id AS default_variant_id, pv.sku AS default_sku,
            pv.gtin AS default_gtin, pv.mpn AS default_mpn,
            pv.title AS default_variant_title, pv.status AS default_variant_status,
@@ -121,13 +135,45 @@ export function createD1ProductAdminRepository(db: D1Database): ProductAdminRepo
            pv.compare_at_price_cents AS default_variant_compare_at_price_cents,
            (SELECT count(*) FROM product_variants all_pv WHERE all_pv.product_id = p.id) AS variant_count
     FROM products p
-    LEFT JOIN product_variants pv ON pv.product_id = p.id AND pv.is_default = 1`;
+    LEFT JOIN product_variants pv ON pv.product_id = p.id AND pv.is_default = 1
+    LEFT JOIN inventory_balances ib ON ib.variant_id = pv.id`;
   return {
     async list() {
       const { results } = await db.prepare(
         `${select} ORDER BY p.category, p.name`,
       ).all<ProductAdminRow>();
       return results;
+    },
+    async search(query: ProductAdminQuery) {
+      const clauses: string[] = [];
+      const bindings: unknown[] = [];
+      const search = query.search?.trim();
+      if (search) {
+        clauses.push("(p.name LIKE ? ESCAPE '\\' OR p.slug LIKE ? ESCAPE '\\' OR pv.sku LIKE ? ESCAPE '\\')");
+        const pattern = `%${search.replaceAll('\\', '\\\\').replaceAll('%', '\\%').replaceAll('_', '\\_')}%`;
+        bindings.push(pattern, pattern, pattern);
+      }
+      if (query.category) {
+        clauses.push('p.category = ?');
+        bindings.push(query.category);
+      }
+      if (query.status) {
+        clauses.push(`p.active = ${query.status === 'active' ? 1 : 0}`);
+      }
+      const where = clauses.length > 0 ? ` WHERE ${clauses.join(' AND ')}` : '';
+      const [rows, count, categoryRows] = await Promise.all([
+        db.prepare(`${select}${where} ORDER BY p.name, p.id LIMIT ? OFFSET ?`)
+          .bind(...bindings, query.limit, query.offset ?? 0).all<ProductAdminRow>(),
+        db.prepare(`SELECT count(*) AS n FROM products p
+          LEFT JOIN product_variants pv ON pv.product_id = p.id AND pv.is_default = 1${where}`)
+          .bind(...bindings).first<{ n: number }>(),
+        db.prepare('SELECT DISTINCT category FROM products ORDER BY category').all<{ category: string }>(),
+      ]);
+      return Object.freeze({
+        products: Object.freeze(rows.results),
+        total: count?.n ?? 0,
+        categories: Object.freeze(categoryRows.results.map((row) => row.category)),
+      });
     },
     find(id) {
       return db.prepare(

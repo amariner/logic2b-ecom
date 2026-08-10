@@ -17,7 +17,7 @@ Este repositorio es dos cosas a la vez:
 | Estilos | Tailwind CSS v4 |
 | Pagos | Stripe Checkout alojado (la tarjeta nunca toca nuestro servidor) |
 | Emails | Resend en una tienda real; la demo solo enseña fixtures independientes en `/demo/admin/emails` |
-| Tests | Vitest (332: comercio local, variantes, media/atributos tipados, precios, envío, transiciones, webhook/idempotencia de pago, eventos/outbox/auditoría/observabilidad, integraciones, emails, auth, rate limit, backup, JSON-LD, HTML escaping, CSV y storefront) + E2E de 37 pasos |
+| Tests | Vitest (344: comercio local, variantes, media/atributos tipados, consultas del panel, ledger de inventario real, precios, envío, transiciones, webhook/idempotencia de pago, eventos/outbox/auditoría/observabilidad, integraciones, emails, auth, rate limit, backup, JSON-LD, HTML escaping, CSV y storefront) + E2E de 37 pasos |
 
 ## Requisitos
 
@@ -83,7 +83,7 @@ tienda real hay que usar una copia con `DEMO_MODE=false`.
 
 1. Claves **test** de Stripe en `.dev.vars` (`STRIPE_SECRET_KEY=sk_test_…`).
 2. En otra terminal: `stripe listen --forward-to localhost:4321/api/webhooks/stripe` y copiar el `whsec_…` que imprime a `STRIPE_WEBHOOK_SECRET` en `.dev.vars`.
-3. Comprar con la tarjeta de prueba `4242 4242 4242 4242`. El webhook marca el pedido como pagado, descuenta stock y escribe el email de confirmación.
+3. Comprar con la tarjeta de prueba `4242 4242 4242 4242`. El webhook marca el pedido como pagado, descuenta stock y escribe el email de confirmación. Si el manifest activa `INV-004` con `sideEffects` y `jobs`, el alta reserva durante 31 minutos y el cobro consume ese hold; por defecto la capacidad está solo instalada.
 
 ### Probar el Worker real (incluido el cron de reset)
 

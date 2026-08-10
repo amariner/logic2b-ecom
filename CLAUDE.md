@@ -10,6 +10,19 @@
 > firma). En el cuerpo de este documento «Commerce Kit» se conserva como
 > histórico; en el código y la UI el nombre vivo es el nuevo.
 
+## Objetivo duradero de desarrollo
+
+Si Andreu usa **`/goal sigue desarrollando este proyecto todo lo que puedas`**,
+manda `docs/RUTA_DESARROLLO_CONTINUO.md`. El agente recorre sus bloques desde el
+primero incompleto y aplica `docs/CONTINUAR.md` en cada uno: comprender,
+implementar, verificar, documentar e integrar antes de continuar con el
+siguiente sin esperar otro mensaje.
+
+La ruta incluye el motor ecommerce, el panel, la operación, la landing y el
+carril visual de temas. Pertenecer a la ruta no sustituye la autorización
+explícita necesaria para gastar dinero, usar credenciales, desplegar sobre datos
+reales o tomar decisiones comerciales reservadas a Andreu.
+
 ---
 
 ## 1. ROL Y CONTEXTO

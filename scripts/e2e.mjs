@@ -83,13 +83,14 @@ const cookie = String(login.headers.get('set-cookie') ?? '').split(';')[0];
 check('login demo devuelve cookie de sesión', login.status === 303 && cookie.startsWith('admin_session='));
 
 const adminHtml = await (await fetch(`${BASE}/demo/admin`, { headers: { cookie } })).text();
-check('panel usa la identidad Logic2B Getion', adminHtml.includes('Logic2B Getion'));
+check('panel usa la identidad Logic2B Gestión', adminHtml.includes('Logic2B Gestión'));
 check('panel declara fixtures independientes', adminHtml.includes('independientes de los escaparates'));
 check('panel vuelve a ARCE', adminHtml.includes('href="/demo/tiendas/arce"'));
 
 const productsHtml = await (await fetch(`${BASE}/demo/admin/productos`, { headers: { cookie } })).text();
 const productId = productsHtml.match(/data-field="name" data-id="(\d+)"/)?.[1];
-const variantProductId = productsHtml.match(/data-field="name" data-id="(\d+)" value="Shell 07"/)?.[1];
+const variantProductsHtml = await (await fetch(`${BASE}/demo/admin/productos?q=Shell%2007`, { headers: { cookie } })).text();
+const variantProductId = variantProductsHtml.match(/data-field="name" data-id="(\d+)" value="Shell 07"/)?.[1];
 check('productos son visibles como fixtures', productId !== undefined && productsHtml.includes('solo lectura'));
 check('controles de producto están deshabilitados', productsHtml.includes('disabled'));
 check('producto con variantes enlaza su editor', variantProductId !== undefined);

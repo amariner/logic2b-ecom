@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "orden": "nombre_de_archivo_ascendente",
+  "orden": "llegada_a_cola; cada_lote_por_nombre_de_archivo_ascendente",
   "rama": "codex/new-themes",
   "items": [
     {
@@ -34,6 +34,17 @@
     { "posicion": 5, "archivo": "ac52bc2a112b7cb95286c8707a2cabb8.jpg", "tema": null, "estado": "pendiente" },
     { "posicion": 6, "archivo": "bbaf805fad44a7cffddab95cbaf9a5da.jpg", "tema": null, "estado": "pendiente" },
     { "posicion": 7, "archivo": "c907738a08f280fe8ca611d64646e235.jpg", "tema": null, "estado": "pendiente" },
-    { "posicion": 8, "archivo": "e1803646a8e5fb8f95c0daa8d2de2f4c.jpg", "tema": null, "estado": "pendiente" }
+    { "posicion": 8, "archivo": "e1803646a8e5fb8f95c0daa8d2de2f4c.jpg", "tema": null, "estado": "pendiente" },
+    { "posicion": 9, "archivo": "247f56bc054cf88fda76024abf2137df.jpg", "tema": null, "estado": "pendiente" },
+    { "posicion": 10, "archivo": "308044ce22d161b3d0caead45300d7f9.jpg", "tema": null, "estado": "pendiente" },
+    { "posicion": 11, "archivo": "445a62400246953e06387477674110e4.jpg", "tema": null, "estado": "pendiente" },
+    { "posicion": 12, "archivo": "4b7efb74f44f8df500b21c605b7ceff9.jpg", "tema": null, "estado": "pendiente" },
+    { "posicion": 13, "archivo": "5675ae523a7da5dc339cbf50c05e49f1.jpg", "tema": null, "estado": "pendiente" },
+    { "posicion": 14, "archivo": "8aee98009d78b485d3312aac82084e3a.jpg", "tema": null, "estado": "pendiente" },
+    { "posicion": 15, "archivo": "a0a43d8adc1a5e9263bae105fa4aabc4.jpg", "tema": null, "estado": "pendiente" },
+    { "posicion": 16, "archivo": "a8a10f52406a4a87b6b34e412425a141.jpg", "tema": null, "estado": "pendiente" },
+    { "posicion": 17, "archivo": "c8eccccdbfa253a1df41f876ab8d89b2.jpg", "tema": null, "estado": "pendiente" },
+    { "posicion": 18, "archivo": "d1d7bc5c43ce55b0febbbc1996b51765.jpg", "tema": null, "estado": "pendiente" },
+    { "posicion": 19, "archivo": "dc28330a6fa92b0343b28a809688037d.jpg", "tema": null, "estado": "pendiente" }
   ]
 }

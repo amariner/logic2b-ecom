@@ -29,14 +29,19 @@ const typeLabel = { text: 'Texto', number: 'Número', boolean: 'Sí/no', referen
 ---
 
 <Admin title={`Variantes · ${details.product.name}`} active="productos">
-  <a href="/demo/admin/productos" class="inline-flex min-h-11 items-center text-sm text-stone-600 underline-offset-4 hover:underline">
+  <div data-product-editor>
+  <a href="/demo/admin/productos" class="inline-flex min-h-11 items-center text-sm font-semibold text-muted-foreground underline-offset-4 hover:text-foreground hover:underline">
     ← Volver a productos
   </a>
 
-  <div class="mt-2 flex flex-wrap items-start justify-between gap-3">
-    <div>
-      <h1 class="text-2xl font-bold">{details.product.name}</h1>
+  <div class="mt-3 flex flex-wrap items-center justify-between gap-4 border-b border-border pb-6">
+    <div class="flex min-w-0 items-center gap-4">
+      <img src={details.product.image} alt="" width="72" height="72" class="size-16 shrink-0 rounded-2xl border border-border bg-muted object-cover sm:size-[4.5rem]" />
+      <div class="min-w-0">
+      <p class="text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">Ficha de producto</p>
+      <h1 class="mt-1 font-display text-3xl leading-tight sm:text-4xl">{details.product.name}</h1>
       <p class="mt-1 font-mono text-xs text-stone-600">{details.product.slug}</p>
+      </div>
     </div>
     <span class:list={[
       'rounded-full px-3 py-1 text-xs font-medium',
@@ -46,16 +51,16 @@ const typeLabel = { text: 'Texto', number: 'Número', boolean: 'Sí/no', referen
     </span>
   </div>
 
-  <p class="mt-4 max-w-3xl text-sm text-stone-600">
+  <p class="mt-5 max-w-3xl text-sm leading-6 text-stone-600">
     {readOnly
       ? 'Configuración ficticia de ejemplo. En una tienda real, esta pantalla permite mantener opciones, valores y combinaciones.'
       : 'Cada combinación tiene su propio SKU, precio e identificadores. La marcada por defecto alimenta el escaparate y conserva el espejo compatible.'}
   </p>
   <p class="mt-2 max-w-3xl text-xs text-stone-600">
-    El stock sigue siendo global para el producto ({details.product.stock} uds.) hasta la entrada del ledger por variante en R2.7.
+    Inventario por variante activo. La combinación por defecto refleja {details.product.stock} uds. en el escaparate y conserva el espejo de compatibilidad.
   </p>
 
-  <p data-catalog-status role="status" aria-live="polite" class="mt-4 min-h-6 text-sm text-stone-700"></p>
+  <p data-catalog-status role="status" aria-live="polite" class="sticky top-20 z-10 mt-4 min-h-6 rounded-xl bg-[#f7f7f8]/95 px-3 py-1 text-sm font-medium text-stone-700 backdrop-blur lg:top-2"></p>
 
   {showMedia && (
     <section class="mt-2 rounded-xl border border-stone-300 bg-white p-4 sm:p-5" aria-labelledby="media-title">
@@ -305,7 +310,7 @@ const typeLabel = { text: 'Texto', number: 'Número', boolean: 'Sí/no', referen
     <div>
       <h2 id="variants-title" class="text-lg font-semibold">Variantes</h2>
       <p class="mt-1 text-sm text-stone-600">
-        No se puede borrar la combinación por defecto ni una variante que ya aparezca en pedidos; en ese caso se archiva.
+        Cada combinación tiene balance y movimientos propios. Para conservar el historial, las variantes se archivan y no se eliminan.
       </p>
     </div>
 
@@ -317,6 +322,10 @@ const typeLabel = { text: 'Texto', number: 'Número', boolean: 'Sí/no', referen
               <h3 class="font-semibold">{variant.title || variant.sku}</h3>
               {variant.is_default && <span class="rounded-full bg-stone-900 px-2 py-0.5 text-xs text-white">Por defecto</span>}
               {variant.order_item_count > 0 && <span class="rounded-full bg-sky-100 px-2 py-0.5 text-xs text-sky-900">En pedidos</span>}
+              <span class="rounded-full bg-emerald-100 px-2 py-0.5 text-xs text-emerald-900">
+                {variant.inventory_available} disponibles
+              </span>
+              {variant.inventory_reserved > 0 && <span class="rounded-full bg-amber-100 px-2 py-0.5 text-xs text-amber-900">{variant.inventory_reserved} reservadas</span>}
             </div>
             <span class="text-xs text-stone-500">#{variant.id}</span>
           </div>
@@ -372,11 +381,6 @@ const typeLabel = { text: 'Texto', number: 'Número', boolean: 'Sí/no', referen
               {!variant.is_default && (
                 <button data-make-default class="min-h-11 rounded border border-stone-400 px-4 text-sm font-medium hover:bg-stone-50">
                   Marcar por defecto
-                </button>
-              )}
-              {!variant.is_default && (
-                <button type="button" data-delete-variant class="min-h-11 rounded px-4 text-sm font-medium text-red-700 hover:bg-red-50">
-                  Eliminar
                 </button>
               )}
             </div>
@@ -690,11 +694,6 @@ const typeLabel = { text: 'Texto', number: 'Número', boolean: 'Sí/no', referen
         const payload = variantPayload(element, submitter instanceof HTMLElement && submitter.hasAttribute('data-make-default'));
         if (payload) void mutate('PATCH', `/api/admin/catalog-variants/${variantId}`, payload);
       });
-      element.querySelector('[data-delete-variant]')?.addEventListener('click', () => {
-        if (window.confirm('¿Eliminar esta variante? Si ya aparece en pedidos, el servidor lo impedirá.')) {
-          void mutate('DELETE', `/api/admin/catalog-variants/${variantId}`);
-        }
-      });
     });
 
     const createVariantForm = document.querySelector('[data-create-variant]');
@@ -705,4 +704,15 @@ const typeLabel = { text: 'Texto', number: 'Número', boolean: 'Sí/no', referen
       if (payload) void mutate('POST', `/api/admin/catalog-variants/product/${productId}`, payload);
     });
   </script>
+  </div>
+  <style is:global>
+    [data-product-editor] :is(.border-stone-200,.border-stone-300,.border-stone-400) { border-color: var(--color-border); }
+    [data-product-editor] :is(.bg-white) { background-color: var(--color-card); }
+    [data-product-editor] :is(.bg-stone-50,.bg-stone-100) { background-color: var(--color-muted); }
+    [data-product-editor] :is(.text-stone-500,.text-stone-600,.text-stone-700) { color: var(--color-muted-foreground); }
+    [data-product-editor] .bg-stone-900 { background-color: var(--color-foreground); }
+    [data-product-editor] :is(h2,h3) { font-family: var(--font-display); letter-spacing: var(--tracking-display); }
+    [data-product-editor] :is(input,select,button,summary) { border-radius: 0.75rem; }
+    [data-product-editor] section { border-radius: 1rem; box-shadow: 0 1px 2px rgb(0 0 0 / .035); }
+  </style>
 </Admin>

@@ -19,6 +19,7 @@ describe('registro de jobs R1.11', () => {
     expect(MODULE_REGISTRY.jobOwners).toEqual({
       'platform-configuration.demo-fixture-reset': 'platform-configuration',
       'notifications.event-outbox-sweep': 'notifications',
+      'inventory.expire-reservations': 'inventory',
     });
     expect(Object.isFrozen(registry)).toBe(true);
     expect(Object.isFrozen(registry.descriptors)).toBe(true);
@@ -47,6 +48,28 @@ describe('registro de jobs R1.11', () => {
     ]);
     expect(standard.scheduledJobs('0 */6 * * *')).toEqual([]);
     expect(minimal.scheduledJobs('*/5 * * * *')).toEqual([]);
+    expect(standard.capabilityState('INV-004')).toBe('installed');
+    expect(standard.scheduledJobs('*/1 * * * *')).toEqual([]);
+  });
+
+  it('solo registra la expiración al activar explícitamente INV-004', () => {
+    const base = createPresetManifest('standard', {
+      id: 'jobs-reservations-test', mode: 'client', environment: 'development',
+    });
+    const platform = createPlatform({
+      ...base,
+      deployment: { ...base.deployment, profile: 'custom' },
+      capabilities: {
+        ...base.capabilities,
+        'INV-004': {
+          state: 'active',
+          flags: { routes: false, navigation: false, jobs: true, sideEffects: true },
+        },
+      },
+    });
+    expect(platform.scheduledJobs('*/1 * * * *').map((job) => job.id)).toEqual([
+      'inventory.expire-reservations',
+    ]);
   });
 
   it('rechaza ids duplicados, propietarios y capacidades incoherentes', () => {

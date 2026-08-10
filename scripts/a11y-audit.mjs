@@ -160,7 +160,7 @@ const FIRST_ORDER_OF = (estado) => String.raw`(async () => {
 
 /** Resuelve un producto del seed por slug para cubrir su editor de variantes. */
 const PRODUCT_VARIANTS_OF = (slug) => String.raw`(async () => {
-  const r = await fetch('/demo/admin/productos', { credentials: 'same-origin' });
+  const r = await fetch('/demo/admin/productos?q=' + encodeURIComponent(${JSON.stringify(slug)}), { credentials: 'same-origin' });
   if (!r.ok) return 'ERROR: productos respondió ' + r.status;
   const html = await r.text();
   const escaped = ${JSON.stringify(slug)}.replace(/[.*+?^\${}()|[\]\\]/g, '\\$&');

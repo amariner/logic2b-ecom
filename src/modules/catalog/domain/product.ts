@@ -3,7 +3,7 @@
  *
  * `Product` conserva identidad y contenido editorial; `ProductVariant` es la
  * unidad vendible. El stock todavía llega como una proyección legacy separada
- * hasta que R2.7 materialice el ledger de inventario por variante.
+ * desde R2.7 sale del ledger de inventario por variante.
  */
 
 export const PRODUCT_VARIANT_STATUSES = ['draft', 'active', 'archived'] as const;
@@ -53,7 +53,7 @@ export type Product = Readonly<{
 
 export type CatalogEntry = Readonly<{
   product: Product;
-  /** Proyección transitoria de `products.stock`; R2.7 la sustituirá. */
+  /** Disponibilidad canónica `on_hand - reserved` de la variante por defecto. */
   available_stock: number;
 }>;
 

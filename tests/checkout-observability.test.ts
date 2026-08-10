@@ -46,6 +46,14 @@ describe('observabilidad de POST /api/checkout/session', () => {
       INSERT INTO product_variants (
         product_id, sku, title, price_cents, status, is_default, option_signature
       ) VALUES (1, 'LEGACY-1', '', 890, 'active', 1, NULL);
+      INSERT INTO inventory_balances (variant_id, on_hand, reserved, version)
+      SELECT id, 10, 0, 1 FROM product_variants WHERE product_id = 1;
+      INSERT INTO inventory_movements (
+        variant_id, delta, reason, balance_after, version_after, actor_kind,
+        actor_id, reference_type, reference_id, idempotency_key, correlation_id, occurred_at
+      ) SELECT id, 10, 'legacy_opening_balance', 10, 1, 'system', 'test',
+        'test', CAST(id AS TEXT), 'test:opening:' || id, 'inventory:variant:' || id,
+        '2026-08-10T10:00:00.000Z' FROM product_variants WHERE product_id = 1;
       INSERT INTO shipping_rates (zone, label, price_cents, free_over_cents, active)
       VALUES ('peninsula', 'Estándar', 490, 5000, 1);
     `);
@@ -58,6 +66,8 @@ describe('observabilidad de POST /api/checkout/session', () => {
     await Promise.all(waits);
 
     expect(response.status).toBe(200);
+    expect(db.value('SELECT on_hand AS value FROM inventory_balances')).toBe(9);
+    expect(db.value('SELECT stock AS value FROM products WHERE id = 1')).toBe(9);
     expect(response.headers.get('x-operation-id')).toMatch(/^op_[0-9a-f-]{36}$/);
     const records = info.mock.calls.map(([message]) => JSON.parse(String(message)) as Record<string, unknown>);
     expect(records).toContainEqual(expect.objectContaining({

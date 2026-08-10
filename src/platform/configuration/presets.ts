@@ -28,6 +28,9 @@ const MINIMAL_CAPABILITIES = {
 const STANDARD_CAPABILITIES = {
   ...MINIMAL_CAPABILITIES,
   'INV-001': { state: 'active', flags: INTERNAL },
+  // R2.8 está instalado pero exige opt-in explícito: sin flags no reserva,
+  // consume ni ejecuta el job de expiración.
+  'INV-004': { state: 'installed' },
   'CHK-001': { state: 'active', flags: NAVIGATION },
   'CHK-002': { state: 'active', flags: ROUTE },
   'CHK-003': { state: 'active', flags: ROUTE_EFFECT },
@@ -109,6 +112,7 @@ export function createPublicDemoManifest(
 ): CapabilityManifestInput {
   const capabilities = Object.fromEntries(
     Object.entries(ADVANCED_CAPABILITIES).map(([id, entry]) => {
+      if (entry.state !== 'active') return [id, entry];
       const config = id === 'INT-002'
         ? { provider: 'resend' as const, delivery: 'capture' as const }
         : 'config' in entry

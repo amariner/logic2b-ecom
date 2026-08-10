@@ -23,6 +23,8 @@ export type OrderForPayment = {
 
 export type OrderItemForPayment = {
   product_id: number;
+  variant_id: number;
+  is_default: boolean;
   name_snapshot: string;
   unit_price_cents: number;
   qty: number;
@@ -31,8 +33,8 @@ export type OrderItemForPayment = {
 export type PaidMutation = {
   orderId: number;
   paymentIntent: string | null;
-  /** decremento por producto; la SQL aplica MAX(stock - qty, 0) */
-  stockDecrements: { product_id: number; qty: number }[];
+  /** Movimientos por variante; inventario valida saldo y versión. */
+  stockDecrements: { product_id: number; variant_id: number; is_default: boolean; qty: number }[];
   /** El hecho de dominio. La fila de `order_events` es su proyección. */
   event: OrderPaidEvent;
 };
@@ -61,7 +63,12 @@ export function buildPaidMutation(
   return {
     orderId: order.id,
     paymentIntent,
-    stockDecrements: items.map((item) => ({ product_id: item.product_id, qty: item.qty })),
+    stockDecrements: items.map((item) => ({
+      product_id: item.product_id,
+      variant_id: item.variant_id,
+      is_default: item.is_default,
+      qty: item.qty,
+    })),
     event: orderPaidEvent(
       context.emit,
       {

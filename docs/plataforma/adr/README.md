@@ -19,3 +19,4 @@ para ocultar una decisión no es válido.
 | [0011](0011-jobs-duraderos-d1.md) | Jobs duraderos y bloqueados sobre D1 | accepted |
 | [0012](0012-modelo-transaccional-r2.md) | Modelo producto-variante, ledgers y fulfillment incremental | accepted (diseño) |
 | [0013](0013-media-y-atributos-tipados.md) | Galería por producto/variante y atributos tipados | accepted (puerta 2026-08-10) |
+| [0014](0014-ledger-inventario-global.md) | Ledger global por variante, concurrencia y reservas opcionales | accepted; R2.7–R2.8 implementados localmente |

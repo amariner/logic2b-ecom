@@ -33,7 +33,7 @@ export const shopConfig = {
   /** Identidad */
   name: 'La Botiga del Maestrat',
   legalName: 'La Botiga del Maestrat S.L. (tienda ficticia de demostración)',
-  backofficeName: 'Logic2B Getion',
+  backofficeName: 'Logic2B Gestión',
   email: 'hola@botigadelmaestrat.demo',
   baseUrl: 'https://ecom.logic2b.com',
   currency: 'eur' as const,

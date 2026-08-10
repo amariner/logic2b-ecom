@@ -34,6 +34,13 @@ import {
 } from '../modules/orders';
 import { createD1EventOutboxWriter } from '../platform/events';
 import { createD1AuditLogWriter, type AuditEventProjection } from '../platform/operations';
+import {
+  createD1InventoryLedger,
+  createD1InventoryReservations,
+  type InventoryActorKind,
+  type InventoryMovementReason,
+  type InventoryStockChange,
+} from '../modules/inventory';
 import { createAuditDiff } from '../shared-kernel/audit';
 import type { EmitEvent, ReserveEventIdentity } from '../shared-kernel/events';
 import { emitPlatformEvent, reservePlatformEventIdentity } from './event-context';
@@ -69,10 +76,61 @@ export function createOrderOperations(
   db: D1Database,
   emit: EmitEvent = emitPlatformEvent,
   reserveIdentity: ReserveEventIdentity = reservePlatformEventIdentity,
+  options: Readonly<{
+    reservationsEnabled?: boolean;
+    reservationTtlSeconds?: number;
+    reservationExpiresAt?: string;
+  }> = {},
 ) {
   const orders = createOrderWriter(db);
   const outbox = createD1EventOutboxWriter(db);
   const audit = createD1AuditLogWriter(db);
+  const inventory = createD1InventoryLedger(db);
+  const reservations = createD1InventoryReservations(db);
+  const reservationsEnabled = options.reservationsEnabled ??
+    runtimePlatform.hasCapabilityFlag('INV-004', 'sideEffects');
+
+  async function inventoryStatements(
+    event: OrderDomainEvent,
+    rawChanges: readonly Readonly<{
+      product_id: number;
+      variant_id: number;
+      is_default: boolean;
+      qty: number;
+    }>[],
+    reason: InventoryMovementReason,
+    direction: -1 | 1,
+  ): Promise<readonly D1PreparedStatement[]> {
+    const byVariant = new Map<number, InventoryStockChange>();
+    for (const item of rawChanges) {
+      const current = byVariant.get(item.variant_id);
+      if (current && (current.product_id !== item.product_id || current.is_default !== Boolean(item.is_default))) {
+        throw new Error(`Variante ${item.variant_id}: líneas de inventario incompatibles.`);
+      }
+      byVariant.set(item.variant_id, {
+        variant_id: item.variant_id,
+        product_id: item.product_id,
+        is_default: Boolean(item.is_default),
+        delta: (current?.delta ?? 0) + direction * item.qty,
+      });
+    }
+    const changes = [...byVariant.values()];
+    const balances = await inventory.balances(changes.map((change) => change.variant_id));
+    return changes.flatMap((change) => {
+      const balance = balances.get(change.variant_id);
+      if (!balance) throw new Error(`Balance de inventario ausente para variante ${change.variant_id}.`);
+      return inventory.movementStatements(balance, change, {
+        delta: change.delta,
+        reason,
+        actor_kind: event.actor.kind as InventoryActorKind,
+        actor_id: event.actor.id,
+        reference_type: 'order',
+        reference_id: String(event.payload.order_id),
+        idempotency_key: `${event.idempotency_key}:variant:${change.variant_id}`,
+        correlation_id: event.correlation_id,
+      }, event.occurred_at, { kind: 'event', id: event.event_id });
+    });
+  }
 
   return {
     /** Alta del pedido en `pending` con su primer hecho: nace el flujo. */
@@ -83,12 +141,29 @@ export function createOrderOperations(
       const identity = reserveIdentity();
       const timeline = { from_status: null, to_status: 'pending', note: 'Pedido creado, esperando pago' } as const;
       const consumerIds = consumersFor('orders.order_placed');
+      const reservationStatements = reservationsEnabled
+        ? await reservations.createForOrderStatements(
+            order.order_number,
+            lines,
+            identity.occurred_at,
+            { kind: 'event', id: identity.event_id },
+            {
+              ...(options.reservationTtlSeconds === undefined
+                ? {}
+                : { ttlSeconds: options.reservationTtlSeconds }),
+              ...(options.reservationExpiresAt === undefined
+                ? {}
+                : { expiresAt: options.reservationExpiresAt }),
+            },
+          )
+        : [];
       const results = await orders.commitResults([
         orders.insertPendingOrderStatement(order),
         outbox.placedEventStatement(identity, order.order_number),
         audit.eventStatement(identity.event_id, placedAuditProjection()),
         ...outbox.deliveryStatements(identity.event_id, identity.occurred_at, consumerIds),
         ...orders.lineStatementsForOrderNumber(order.order_number, lines),
+        ...reservationStatements,
         orders.timelineStatementForOrderNumber(order.order_number, timeline),
       ]);
       const orderId = results[0]?.meta.last_row_id;
@@ -115,12 +190,29 @@ export function createOrderOperations(
       });
       if (order === null || mutation === null) return false;
       const consumerIds = consumersFor(mutation.event.type);
+      const reservation = reservationsEnabled
+        ? await reservations.findForOrder(order.order_number)
+        : null;
+      if (reservation && reservation.status !== 'active') return false;
+      const stockStatements = reservation
+        ? reservations.transitionStatements(
+            reservation,
+            'consumed',
+            mutation.event.occurred_at,
+            `${mutation.event.idempotency_key}:reservation`,
+          )
+        : await inventoryStatements(
+            mutation.event,
+            mutation.stockDecrements,
+            'sale',
+            -1,
+          );
       const results = await orders.commitResults([
         outbox.guardedEventStatement(mutation.event, { orderId: mutation.orderId, expectedStatus: 'pending' }),
         audit.eventStatement(mutation.event.event_id, orderAuditProjection(mutation.event)),
         ...outbox.deliveryStatements(mutation.event.event_id, mutation.event.occurred_at, consumerIds),
         orders.guardedPaidStatement(mutation.orderId, mutation.paymentIntent, mutation.event.event_id),
-        ...orders.guardedStockDecrementStatements(mutation.stockDecrements, mutation.event.event_id),
+        ...stockStatements,
         orders.guardedTimelineStatement(mutation.orderId, orderTimelineEntry(mutation.event), mutation.event.event_id),
       ]);
       return results[0]?.meta.changes === 1;
@@ -141,11 +233,23 @@ export function createOrderOperations(
         { causationId: input.causationId ?? null },
       );
       const consumerIds = consumersFor(event.type);
+      const reservation = reservationsEnabled
+        ? await reservations.findForOrder(order.order_number)
+        : null;
+      const reservationStatements = reservation?.status === 'active'
+        ? reservations.transitionStatements(
+            reservation,
+            event.occurred_at >= reservation.expires_at ? 'expired' : 'released',
+            event.occurred_at,
+            `${event.idempotency_key}:reservation`,
+          )
+        : [];
       const results = await orders.commitResults([
         outbox.guardedEventStatement(event, { orderId: order.id, expectedStatus: 'pending' }),
         audit.eventStatement(event.event_id, orderAuditProjection(event)),
         ...outbox.deliveryStatements(event.event_id, event.occurred_at, consumerIds),
         orders.guardedExpiredStatement(order.id, event.event_id),
+        ...reservationStatements,
         orders.guardedTimelineStatement(order.id, orderTimelineEntry(event), event.event_id),
       ]);
       return results[0]?.meta.changes === 1;
@@ -156,6 +260,20 @@ export function createOrderOperations(
       const items = await orders.items(input.order.id);
       const event = panelTransitionEvent(emit, input);
       const consumerIds = consumersFor(event.type);
+      const stockStatements = input.transition.restoreStock
+        ? await inventoryStatements(event, items, 'cancellation_restock', 1)
+        : [];
+      const reservation = reservationsEnabled && input.transition.to === 'cancelled'
+        ? await reservations.findForOrder(input.order.order_number)
+        : null;
+      const reservationStatements = reservation?.status === 'active'
+        ? reservations.transitionStatements(
+            reservation,
+            'released',
+            event.occurred_at,
+            `${event.idempotency_key}:reservation`,
+          )
+        : [];
       const results = await orders.commitResults([
         outbox.guardedEventStatement(event, { orderId: input.order.id, expectedStatus: input.from }),
         audit.eventStatement(event.event_id, orderAuditProjection(event)),
@@ -168,7 +286,8 @@ export function createOrderOperations(
           eventId: event.event_id,
         }),
         orders.guardedTimelineStatement(input.order.id, orderTimelineEntry(event), event.event_id),
-        ...(input.transition.restoreStock ? orders.guardedStockRestoreStatements(items, event.event_id) : []),
+        ...reservationStatements,
+        ...stockStatements,
       ]);
       if (results[0]?.meta.changes !== 1) return { outcome: 'conflict', queuedMessages: 0 };
       return { outcome: 'applied', queuedMessages: consumerIds.length };

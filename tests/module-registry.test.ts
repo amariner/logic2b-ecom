@@ -49,6 +49,7 @@ describe('registro de módulos (R1.4)', () => {
     expect(MODULE_REGISTRY.jobOwners).toEqual({
       'platform-configuration.demo-fixture-reset': 'platform-configuration',
       'notifications.event-outbox-sweep': 'notifications',
+      'inventory.expire-reservations': 'inventory',
     });
     const descriptors = mutableDescriptors();
     (descriptors[1]!.jobs as string[]).push('platform-configuration.demo-fixture-reset');

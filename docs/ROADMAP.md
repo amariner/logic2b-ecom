@@ -63,7 +63,7 @@ reconciliación se conserva abajo por contexto.
 | 11 | Landing V2 «nivel Awwwards» + negocio + funnel + docs | 🟡 En curso | 2026-07-24 | **F11.1, F11.3 (2 sesiones), F11.4, F11.5, F11.6, F11.7 y F11.8 (primera pasada + pase a11y/contenido desde cloud 2026-07-24) hechos**, más F11.8b (auditor de a11y, cloud), F11.2a-1 (tienda ASFALTO / tema Street), F11.2a-2 (tienda METRIA / tema Industrial) F11.2a-3 (tienda ROMER / tema Natural) y **F11.2a-4 (tienda KALIBRE / tema Specs, local 2026-07-25) — con la que F11.2a queda CERRADA (10/10 tiendas)**; y **F11.8c (Lighthouse citable + OG de WhatsApp + URLs sin redirección, local 2026-07-26)**; y **F11.8d–e (tabla de Lighthouse cerrada y desplegada: 7 de 8 superficies a 100×4, la landing entre ellas en móvil y escritorio, local 2026-07-27)**; de la cola de F11.8 solo queda la submission a Awwwards (decisión de pago: Andreu). Detalle por bloque abajo. (ver «Fase 11» abajo). **Plan maestro completo en [`docs/PLAN_FASE11_LANDING_V2.md`](PLAN_FASE11_LANDING_V2.md)**: bloques F11.0–F11.8 ejecutables por sesiones independientes. **Decisiones D1–D6 APROBADAS por Andreu (2026-07-23)**: JS propio ≤15 KB sin deps, capturas con browser tools en local, dirección C «Ocho tiendas, un motor», escalera de precios (Lite 590 / Kit 1.900+39 / A medida 3.400+59), WhatsApp+email, Lite publicado sin construir. Prompt de arranque: [`docs/PROMPT_FASE11.md`](PROMPT_FASE11.md). Integra 9B.5/9B.6 (imaginería y temas restantes) como prerequisito del hero |
 | 8 | Pulido de la demo (backlog abajo) | 🟡 En curso | 2026-07-19 | Backlog técnico agotado; solo quedan decisiones y pasos locales de Andreu (ver «Decisiones pendientes» y `docs/PROMPT_CLOUD.md`). Últimas tandas: novena (race de idempotencia en el pago, PII enumerable en `/demo/gracias`, cancelación de pedido pagado sin devolver stock), décima (la misma race en el PATCH de admin, campos vacíos guardados como 0, login sin rate limit), undécima (diagrama móvil de `/arquitectura`, hedge del plazo de entrega, tokens de tema en `/demo/reset`, terminología «envío»), duodécima (aviso de corte en pedidos del admin, cabeceras sin wrap a 375px, leftover «portes», token de radio del carrito, contraste del botón eliminar, H1 en valenciano, checklist de producción) y decimotercera (misma race de idempotencia en `checkout.session.expired`, divisa hardcodeada a EUR fuera de Stripe, cobertura de test de `quoteCart`/PATCH admin/emails) y decimocuarta (config parcial de Stripe → cobro sin cumplimiento, emails duplicados bajo concurrencia, `payment_status` del webhook, color de marca centralizado en `shop.config.ts`, contraste/tema en carrito y checkout) — ver sección «Fase 8» |
 | 12 | Logic2B Ecommerce: renombrado, reposicionamiento y docs de dos visiones | 🟡 En curso | 2026-08-06 | **F12.0–F12.5 cerrados:** renombrado, nuevo argumento en landing/dossier, canal agencias en marca blanca y manual ampliado del gestor. Solo queda F12.6 (consolidación). **Plan maestro en [`docs/PLAN_FASE12_LOGIC2B_ECOMMERCE.md`](PLAN_FASE12_LOGIC2B_ECOMMERCE.md)**. |
-| 13 | Plataforma modular: del gestor mínimo a paridad extrema de capacidad | 🟡 En curso | 2026-08-10 | **R0, R1 y R2.1–R2.5 completos:** galería y atributos tipados auditados, migración `0008`, backup v3 y producción verificada. Siguiente: Admin V2 antes de R2.6; stock sigue global hasta R2.7. Fuente de verdad en [`docs/plataforma/`](plataforma/README.md). |
+| 13 | Plataforma modular: del gestor mínimo a paridad extrema de capacidad | 🟡 En curso | 2026-08-10 | **R0, R1, R2.1–R2.8 y Admin V2 completos:** ledger y reservas opcionales por variante, con espejo reversible. Siguiente: pagos R2.9. Fuente de verdad en [`docs/plataforma/`](plataforma/README.md). |
 
 ## Repo y entornos
 
@@ -122,8 +122,11 @@ sus verificaciones ni sus puntos de reanudación.
 | R2.3 | Dominio/lectura de variante y shadow-read reversible | ✅ 2026-08-08 |
 | R2.4 | Admin/seed/backup y CRUD auditado de opciones y variantes | ✅ 2026-08-08 — 321 tests, E2E 32/32, a11y 2/2 |
 | R2.5 | Media/atributos tipados, admin auditado, seed/backup y corte productivo | ✅ 2026-08-10 — 332 tests, E2E 37/37, a11y 2/2 |
-| UIA.1–UIA.4 | Panel administrativo V2 | ⬜ siguiente bloque antes de R2.6 |
-| R2.6+ | Ledgers y resto de olas | ⬜ ver plan maestro |
+| UIA.1–UIA.4 | Panel administrativo V2 | ✅ 2026-08-10 — 335 tests, E2E 37/37, a11y 16/16 |
+| R2.6 | Diseño del ledger de inventario | ✅ 2026-08-10 — ADR/2 DDL propuestos, 341 tests |
+| R2.7 | Implementación del ledger de inventario | ✅ 2026-08-10 — migración, writer, 344 tests, E2E 37/37, a11y 16/16; sin deploy |
+| R2.8 | Reservas y expiración | ✅ 2026-08-10 — 350 tests, carrera/TTL/job y E2E 37/37; `INV-004` apagada y sin deploy |
+| R2.9+ | Pagos y resto de olas | ⬜ siguiente: ledger de pagos |
 
 ## Fase 12 — Logic2B Ecommerce: renombrado, reposicionamiento y las dos visiones
 
@@ -1337,7 +1340,7 @@ desde el seed, carrito/portes/confirmación se simulan en el navegador y no se
 crean pedidos, no se descuenta stock ni se envían emails. En `DEMO_MODE`, quote,
 checkout y reset públicos responden `410`.
 
-El backoffice pasa a llamarse **Logic2B Getion**, enlaza a ARCE y conserva una
+El backoffice pasa a llamarse **Logic2B Gestión**, enlaza a ARCE y conserva una
 base de fixtures independiente. Productos, envíos y pedidos son de solo lectura;
 las tres APIs de mutación rechazan con `403` incluso con sesión autenticada.
 
@@ -1784,16 +1787,27 @@ responden 200 tras propagación. Sin migración, dependencia ni cambio de motor.
   `94d51142-49c3-444a-921c-3790227117e0`; D1 confirma recuentos, espejo sin
   divergencias y `foreign_key_check` vacío.
 
+### UIA.1–UIA.4 · Panel administrativo V2 — cerrado 2026-08-10
+
+- Logic2B Gestión usa shell, navegación, tarjetas, campos, badges, tablas y
+  estados responsive derivados de la composición por capacidades.
+- Pedidos y productos incorporan consulta/filtros en URL y paginación; el
+  catálogo ya no renderiza cientos de filas/formularios a la vez.
+- Detalle de pedido, editor R2.5, envíos, emails, login y ayuda comparten el
+  sistema visual y conservan aislamiento/read-only de la demo.
+- Verificación: `pnpm check` (50 suites, 335 tests), E2E 37/37 y auditoría admin
+  16/16 a 1440/375 con 0 errores y 0 avisos. Sin migración ni deploy.
+
 ### Siguiente bloque
 
-**Ruta continua del desarrollo principal.** Después de cerrar R2.5, el
-siguiente bloque es **UIA.1–UIA.4 · Panel administrativo V2**, antes de R2.6.
-El panel debe alcanzar el nivel visual de la landing usando Logic2B UI, sin
-perder minimalismo ni modularidad. Desde ahí se retoma el orden R2–R11 y los
+**Ruta continua del desarrollo principal.** R2.8 queda cerrado localmente con
+migración `0010`, reservas versionadas, captura/liberación/TTL, carrera y job
+durable; `INV-004` permanece instalada pero apagada. El siguiente bloque es
+**R2.9 · Ledger de pagos**. Desde ahí continúa el orden R2–R11 y los
 carriles transversales de UI, calidad y verdad comercial definidos en
 [`docs/RUTA_DESARROLLO_CONTINUO.md`](RUTA_DESARROLLO_CONTINUO.md). La creación
 de temas forma parte del mismo `/goal`: después de R2.5 se abre el carril visual
-con las posiciones 5–8 de `nuevos-temas/cola.json`, en paralelo con Admin V2 si
+con las posiciones 5–8 de `nuevos-temas/cola.json`, en paralelo con R2.7 si
 existe un worktree separado o intercalado entre bloques principales cerrados.
 Todos los temas se consolidan y migran al contrato definitivo durante R8.
 

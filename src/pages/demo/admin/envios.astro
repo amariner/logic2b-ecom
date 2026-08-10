@@ -1,126 +1,70 @@
 ---
 import Admin from '../../../layouts/Admin.astro';
+import AdminIcon from '../../../components/admin/AdminIcon.astro';
+import AdminPageHeader from '../../../components/admin/AdminPageHeader.astro';
 import { shopConfig } from '../../../../shop.config';
 import { runtimePlatform } from '../../../composition/runtime-platform';
 import { createFulfillmentAdmin } from '../../../modules/fulfillment';
 
 export const prerender = false;
 const readOnly = Astro.locals.runtime.env.DEMO_MODE === 'true';
-
 const rates = await createFulfillmentAdmin(Astro.locals.runtime.env.DB).listRates();
-
 const zoneLabel = new Map(shopConfig.shipping.zones.map((zone) => [zone.id, zone.label]));
 const canExport = runtimePlatform.hasCapabilityFlag('FUL-003', 'routes');
 ---
 
 <Admin title="Envíos" active="envios">
-  <div class="flex flex-wrap items-center justify-between gap-2">
-    <h1 class="text-2xl font-bold">Tarifas de envío</h1>
-    {canExport && <a href="/api/admin/orders/export.csv" download
-      class="rounded border border-stone-400 bg-white px-4 py-1.5 text-sm font-medium hover:bg-stone-50">
-      Exportar CSV para Packlink/SendCloud
-    </a>}
-  </div>
-  <p class="mt-1 text-sm text-stone-600">
-    {readOnly
-      ? 'Configuración ficticia de ejemplo. El panel público es de solo lectura y no alimenta los escaparates.'
-      : 'Tarifa plana por zona. «Gratis desde» en euros; vacío = nunca gratis.'}
-  </p>
+  <AdminPageHeader eyebrow="Logística" title="Envíos" description={readOnly ? 'Configuración ficticia de ejemplo. El panel público es de solo lectura y no alimenta los escaparates.' : 'Define las tarifas planas por zona y el umbral de envío gratuito.'}>
+    {canExport && <a slot="actions" href="/api/admin/orders/export.csv" download class="inline-flex min-h-11 items-center gap-2 rounded-xl bg-foreground px-4 text-sm font-semibold text-background shadow-sm hover:bg-foreground/85"><AdminIcon name="download" class="size-4"/>Exportar envíos</a>}
+  </AdminPageHeader>
 
-  <div class="mt-4 overflow-x-auto rounded-lg border border-stone-300 bg-white">
-    <table class="w-full text-sm">
-      <thead class="border-b border-stone-200 bg-stone-50 text-left text-xs uppercase tracking-wide text-stone-500">
-        <tr>
-          <th class="px-4 py-2">Zona</th>
-          <th class="px-4 py-2">Servicio</th>
-          <th class="px-4 py-2 text-right">Precio €</th>
-          <th class="px-4 py-2 text-right">Gratis desde €</th>
-          <th class="px-4 py-2 text-center">Activa</th>
-        </tr>
-      </thead>
-      <tbody class="divide-y divide-stone-100">
-        {rates.map((rate) => (
-          <tr class:list={[rate.active === 0 && 'opacity-50']}>
-            <td class="px-4 py-2 font-medium">{zoneLabel.get(rate.zone) ?? rate.zone}</td>
-            <td class="px-4 py-2 text-stone-500">{rate.label}</td>
-            <td class="px-4 py-2 text-right">
-              <input data-field="price" data-id={rate.id} aria-label={`Precio de la zona ${zoneLabel.get(rate.zone) ?? rate.zone}`} value={(rate.price_cents / 100).toFixed(2)} inputmode="decimal" disabled={readOnly}
-                class="w-20 rounded border border-transparent px-1 py-0.5 text-right hover:border-stone-300 focus:border-stone-400 disabled:bg-transparent disabled:text-stone-800" />
-            </td>
-            <td class="px-4 py-2 text-right">
-              <input data-field="free_over" data-id={rate.id} aria-label={`Envío gratis desde, zona ${zoneLabel.get(rate.zone) ?? rate.zone}`} value={rate.free_over_cents === null ? '' : (rate.free_over_cents / 100).toFixed(2)} inputmode="decimal" placeholder="—" disabled={readOnly}
-                class="w-20 rounded border border-transparent px-1 py-0.5 text-right hover:border-stone-300 focus:border-stone-400 disabled:bg-transparent disabled:text-stone-800" />
-            </td>
-            <td class="px-4 py-2 text-center">
-              <input data-field="active" data-id={rate.id} type="checkbox" aria-label={`Activa: zona ${zoneLabel.get(rate.zone) ?? rate.zone}`} checked={rate.active === 1} disabled={readOnly} class="h-4 w-4 accent-stone-900" />
-            </td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
-  </div>
-  <p data-save-status class="mt-2 h-5 text-sm text-stone-600"></p>
+  <div class="mt-6 grid gap-6 xl:grid-cols-[minmax(0,1fr)_22rem]">
+    <section class="overflow-hidden rounded-2xl border border-border bg-card shadow-sm" aria-labelledby="rates-title">
+      <div class="border-b border-border p-5"><div class="flex items-center justify-between gap-4"><div><h2 id="rates-title" class="font-display text-xl">Tarifas por zona</h2><p class="mt-1 text-sm text-muted-foreground">{rates.length} zonas configuradas</p></div>{readOnly && <span class="rounded-full bg-sky-50 px-3 py-1 text-xs font-semibold text-sky-800 ring-1 ring-inset ring-sky-200">Solo lectura</span>}</div></div>
+      <div class="divide-y divide-border">{rates.map((rate) => <article class:list={['p-5', rate.active === 0 && 'bg-muted/40']}>
+        <div class="flex flex-col gap-4 lg:flex-row lg:items-center">
+          <div class="min-w-0 flex-1"><div class="flex items-center gap-3"><span class="flex size-10 shrink-0 items-center justify-center rounded-xl bg-muted text-muted-foreground"><AdminIcon name="shipping" class="size-5"/></span><div><h3 class="font-semibold">{zoneLabel.get(rate.zone) ?? rate.zone}</h3><p class="mt-0.5 text-sm text-muted-foreground">{rate.label}</p></div></div></div>
+          <div class="grid grid-cols-2 gap-3 sm:w-[21rem]">
+            <label><span class="text-[0.68rem] font-semibold uppercase tracking-[0.12em] text-muted-foreground">Tarifa</span><span class="mt-1 flex items-center rounded-xl border border-input bg-background px-3"><input data-field="price" data-id={rate.id} aria-label={`Precio de la zona ${zoneLabel.get(rate.zone) ?? rate.zone}`} value={(rate.price_cents / 100).toFixed(2)} inputmode="decimal" disabled={readOnly} class="min-h-11 w-full min-w-0 bg-transparent text-right text-sm font-semibold disabled:opacity-100"/><span class="ml-1 text-xs text-muted-foreground">€</span></span></label>
+            <label><span class="text-[0.68rem] font-semibold uppercase tracking-[0.12em] text-muted-foreground">Gratis desde</span><span class="mt-1 flex items-center rounded-xl border border-input bg-background px-3"><input data-field="free_over" data-id={rate.id} aria-label={`Envío gratis desde, zona ${zoneLabel.get(rate.zone) ?? rate.zone}`} value={rate.free_over_cents === null ? '' : (rate.free_over_cents / 100).toFixed(2)} inputmode="decimal" placeholder="Nunca" disabled={readOnly} class="min-h-11 w-full min-w-0 bg-transparent text-right text-sm font-semibold disabled:opacity-100"/><span class="ml-1 text-xs text-muted-foreground">€</span></span></label>
+          </div>
+          <label class="inline-flex min-h-11 items-center gap-2 text-sm font-medium"><input data-field="active" data-id={rate.id} type="checkbox" aria-label={`Activa: zona ${zoneLabel.get(rate.zone) ?? rate.zone}`} checked={rate.active === 1} disabled={readOnly} class="size-4 accent-foreground"/>Activa</label>
+        </div>
+      </article>)}</div>
+      <p data-save-status role="status" aria-live="polite" class="min-h-11 border-t border-border px-5 py-3 text-sm font-medium text-muted-foreground"></p>
+    </section>
 
-  <div class="mt-8 rounded-lg border border-stone-300 bg-white p-4 text-sm text-stone-600">
-    <h2 class="font-semibold text-stone-900">Cómo funcionaría el flujo de envíos</h2>
-    <ol class="mt-2 list-decimal space-y-1 pl-5">
-      <li>Cuando llega un pedido pagado, aparece en <a href="/demo/admin?estado=paid" class="underline">Pedidos → Pagados</a>.</li>
-      <li>Exporta el CSV y súbelo a Packlink PRO o SendCloud para imprimir las etiquetas.</li>
-      <li>En el detalle del pedido, pulsa «Marcar enviado» y pega el nº de seguimiento: el cliente recibe el aviso automáticamente.</li>
-    </ol>
+    <aside class="h-fit rounded-2xl border border-border bg-card p-5 shadow-sm"><span class="flex size-11 items-center justify-center rounded-xl bg-foreground text-background"><AdminIcon name="shipping"/></span><h2 class="mt-4 font-display text-lg">Flujo de preparación</h2><ol class="mt-4 space-y-4 text-sm leading-6"><li class="flex gap-3"><span class="font-mono text-muted-foreground">01</span><span>Abre los <a href="/demo/admin?estado=paid" class="font-semibold underline underline-offset-4">pedidos pagados</a>.</span></li><li class="flex gap-3"><span class="font-mono text-muted-foreground">02</span><span>Exporta el CSV y crea las etiquetas en tu operador.</span></li><li class="flex gap-3"><span class="font-mono text-muted-foreground">03</span><span>Añade el seguimiento en el pedido; el cliente recibe el aviso.</span></li></ol><a href="/ayuda#pedido" class="mt-5 inline-flex min-h-11 items-center gap-2 rounded-xl border border-border px-3 text-sm font-semibold hover:bg-muted">Ver guía completa <AdminIcon name="chevron" class="size-4"/></a></aside>
   </div>
 
   <script>
     const statusEl = document.querySelector<HTMLElement>('[data-save-status]')!;
-
-    // Revertir al último valor guardado con éxito si el servidor rechaza el
-    // cambio: dejar el valor rechazado en el input haría creer que se guardó.
     async function save(id: string, patch: Record<string, unknown>, input: HTMLInputElement): Promise<void> {
-      statusEl.textContent = 'Guardando…';
-      const res = await fetch(`/api/admin/shipping-rates/${id}`, {
-        method: 'PATCH',
-        headers: { 'content-type': 'application/json' },
-        body: JSON.stringify(patch),
-      });
-      if (res.ok) {
-        statusEl.textContent = 'Guardado ✓';
-        if (input.type === 'checkbox') input.defaultChecked = input.checked;
-        else input.defaultValue = input.value;
-        setTimeout(() => (statusEl.textContent = ''), 1500);
-      } else {
-        statusEl.textContent = 'Error al guardar';
-        if (input.type === 'checkbox') input.checked = input.defaultChecked;
-        else input.value = input.defaultValue;
-      }
+      statusEl.textContent = 'Guardando…'; input.disabled = true;
+      try { const res = await fetch(`/api/admin/shipping-rates/${id}`, { method: 'PATCH', headers: { 'content-type': 'application/json' }, body: JSON.stringify(patch) }); if (!res.ok) throw new Error('save'); if (input.type === 'checkbox') input.defaultChecked = input.checked; else input.defaultValue = input.value; statusEl.textContent = 'Guardado ✓'; statusEl.classList.remove('text-red-700'); }
+      catch { statusEl.textContent = 'No se pudo guardar. Se ha recuperado el valor anterior.'; statusEl.classList.add('text-red-700'); if (input.type === 'checkbox') input.checked = input.defaultChecked; else input.value = input.defaultValue; }
+      finally { input.disabled = false; }
     }
-
     document.querySelectorAll<HTMLInputElement>('[data-field]:not([disabled])').forEach((input) => {
       const id = input.dataset.id ?? '';
       input.addEventListener('change', () => {
         const field = input.dataset.field;
         if (field === 'price') {
-          // Vacío ≠ 0 €: un campo de precio en blanco es un valor inválido, no un
-          // envío gratis silencioso (Number('') === 0 lo coló antes de este arreglo).
           const raw = input.value.trim();
           const cents = raw === '' ? NaN : Math.round(Number(raw.replace(',', '.')) * 100);
           if (Number.isInteger(cents) && cents >= 0) void save(id, { price_cents: cents }, input);
-          else {
-            statusEl.textContent = 'Precio inválido';
-            input.value = input.defaultValue;
-          }
+          else { statusEl.textContent = 'Precio inválido'; input.value = input.defaultValue; }
+          return;
         }
         if (field === 'free_over') {
           const raw = input.value.trim();
-          if (raw === '') {
-            void save(id, { free_over_cents: null }, input);
-          } else {
+          if (raw === '') void save(id, { free_over_cents: null }, input);
+          else {
             const cents = Math.round(Number(raw.replace(',', '.')) * 100);
             if (Number.isInteger(cents) && cents >= 0) void save(id, { free_over_cents: cents }, input);
-            else {
-              statusEl.textContent = 'Importe inválido';
-              input.value = input.defaultValue;
-            }
+            else { statusEl.textContent = 'Importe inválido'; input.value = input.defaultValue; }
           }
+          return;
         }
         if (field === 'active') void save(id, { active: input.checked }, input);
       });

@@ -20,6 +20,16 @@ function seedProduct(db: SqliteD1): void {
        '2026-08-10 10:00:00', '2026-08-10 10:00:00'),
       (2, 1, 'SHELL-L', 'L', 139000, 'active', 0, '[99]',
        '2026-08-10 10:00:00', '2026-08-10 10:00:00');
+    INSERT INTO inventory_balances (variant_id, on_hand, reserved, version)
+    VALUES (1, 8, 0, 1), (2, 8, 0, 1);
+    INSERT INTO inventory_movements (
+      variant_id, delta, reason, balance_after, version_after, actor_kind,
+      actor_id, reference_type, reference_id, idempotency_key, correlation_id, occurred_at
+    ) VALUES
+      (1, 8, 'legacy_opening_balance', 8, 1, 'system', 'test', 'test', '1',
+       'test:opening:1', 'inventory:variant:1', '2026-08-10T10:00:00.000Z'),
+      (2, 8, 'legacy_opening_balance', 8, 1, 'system', 'test', 'test', '2',
+       'test:opening:2', 'inventory:variant:2', '2026-08-10T10:00:00.000Z');
   `);
 }
 

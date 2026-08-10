@@ -39,7 +39,7 @@ improvisan durante la implementación.
 |---|---|---|
 | R0 | Investigación, taxonomía, matriz, roadmap y estrategia wiki | ✅ cerrado 2026-08-06 |
 | R1 | Cimientos modulares y observables | ✅ cerrado 2026-08-07 |
-| R2 | Núcleo transaccional profesional | 🟡 R2.1–R2.5 cerrados 2026-08-10; Admin V2 antes de R2.6 |
+| R2 | Núcleo transaccional profesional | 🟡 R2.1–R2.8 y Admin V2 cerrados 2026-08-10; siguiente R2.9 |
 | R3 | Operación de pedidos, inventario y fulfillment | ⬜ |
 | R4 | Precios, promociones y modelos de venta | ⬜ |
 | R5 | Clientes, privacidad y mercados | ⬜ |
@@ -92,9 +92,9 @@ Cada migración se diseña y ensaya sobre una copia antes de tocar el esquema vi
 | 15 | **R2.3 Producto-variante: dominio y lectura** | Repositorio y tipos canónicos; storefront y quote leen variante; guardarraíl prohíbe precio desde cliente. | ✅ 2026-08-08 |
 | 16 | **R2.4 Producto-variante: admin y seed** | CRUD de opciones/variantes/SKU/estado con validación; import/export y seed actual migrados. | ✅ 2026-08-08 |
 | 17 | **R2.5 Media y atributos tipados** | Galería, alt/foco/orden/asociación a variante; atributos con definición, valor y validación. | ✅ 2026-08-10 |
-| 18 | **R2.6 Ledger de inventario: diseño** | Movimientos, balance, razones, reservas y concurrencia; invariantes y SQL propuesto. | ⬜ |
-| 19 | **R2.7 Ledger de inventario: implementación** | Migración, backfill del stock, escrituras append-only y proyección de disponible; doble webhook no duplica movimiento. | ⬜ |
-| 20 | **R2.8 Reservas y expiración** | Reserva opcional por carrito/checkout, TTL, liberación, captura y carrera última unidad; feature apagada por defecto. | ⬜ |
+| 18 | **R2.6 Ledger de inventario: diseño** | Movimientos, balance, razones, reservas y concurrencia; invariantes y SQL propuesto. | ✅ 2026-08-10 |
+| 19 | **R2.7 Ledger de inventario: implementación** | Migración, backfill del stock, escrituras append-only y proyección de disponible; doble webhook no duplica movimiento. | ✅ 2026-08-10 |
+| 20 | **R2.8 Reservas y expiración** | Reserva opcional por carrito/checkout, TTL, liberación, captura y carrera última unidad; feature apagada por defecto. | ✅ 2026-08-10 |
 | 21 | **R2.9 Ledger de pagos** | Payment/transaction/refund con proveedor, moneda, importe, status e idempotencia; pedido no usa un único string como contabilidad. | ⬜ |
 | 22 | **R2.10 Reembolso total** | Acción admin → proveedor → ledger → evento → email → stock según política; retry seguro y estado visible. | ⬜ |
 | 23 | **R2.11 Fulfillment por líneas** | Fulfillment y fulfillment_items; envío total actual se convierte en un caso simple. | ⬜ |
@@ -708,10 +708,82 @@ las mutaciones públicas responden 403 y el E2E de producción pasa **32/32**.
 8. No se tocaron inventario, pagos ni fulfillment; stock continúa global hasta
    R2.7.
 
-## 7. Siguiente bloque
+## 7. Panel administrativo V2 — ✅ 2026-08-10
 
-### UIA.1–UIA.4 — Panel administrativo V2
+UIA.1–UIA.4 queda cerrado como un único corte coherente:
 
-Elevar el panel a Logic2B UI con shell, navegación, dashboard y tablas/fichas
-responsive sin perder su composición por capacidades. Este carril entra antes
-de R2.6; después se retoma el ledger de inventario según el orden R2.
+1. naming corregido a **Logic2B Gestión**, shell Logic2B UI con Poppins/Inter,
+   navegación derivada de capacidades, espacio activo, salud y demo integrados;
+2. pedidos con resumen, búsqueda y filtros combinables en URL, paginación,
+   filas accionables, tarjetas móviles y detalle con timeline y riesgo separado;
+3. productos con búsqueda, categoría, estado y paginación de 24 filas, miniatura,
+   SKU/variantes y editor R2.5 con feedback persistente;
+4. tarifas, emails con preview aislada, login y ayuda comparten jerarquía,
+   estados vacíos/read-only, targets de 44 px y foco visible;
+5. las consultas nuevas permanecen dentro de los puertos/adaptadores de pedidos
+   y catálogo; presets y capability gates no cambian;
+6. verificación local: `pnpm check` con **50 suites y 335 tests**, E2E **37/37**
+   y auditoría admin **16/16** (1440/375) con 0 errores y 0 avisos;
+7. sin migración, dependencia, cambio de dinero/stock, escritura nueva ni deploy.
+
+## 8. R2.6 — Diseño del ledger de inventario — ✅ 2026-08-10
+
+1. ADR-0014 fija variante como unidad, ledger append-only, balance versionado,
+   `available = on_hand - reserved`, razones cerradas y espejo legacy asignado.
+2. El contrato de dominio valida dirección, disponibilidad, ids/referencias y
+   estados terminales de reserva; la guarda SQL optimista deja un ganador.
+3. `0009_inventory_ledger.proposed.sql` define balance/movimiento para R2.7;
+   `0010_inventory_reservations.proposed.sql` queda separado para R2.8.
+4. Backfill, doble escritura, reconciliación, rollout y rollback quedan exactos;
+   la apertura incluye stock cero y replica el dato legacy por variante según
+   ADR-0012, sin inventar un reparto.
+5. Seis pruebas SQLite ejecutan ambos DDL, constraints, dedupe, carrera de última
+   unidad, suma=balance, reservas y ausencia de PII.
+6. Verificación: `pnpm check` con **51 suites y 341 tests**, tipos y build.
+7. Sin migración, runtime, dependencia, escritura viva ni deploy; la puerta de
+   implementación sigue siendo R2.7.
+
+## 9. R2.7 — Implementación del ledger de inventario — ✅ 2026-08-10
+
+1. `migrations/0009_inventory_ledger.sql` crea balances y movimientos y abre
+   todas las variantes, incluido stock cero, replicando el dato legacy.
+2. El adaptador D1 aplica balance versionado, movimiento append-only y espejo
+   default bajo la misma guarda de evento o auditoría.
+3. Cobro, cancelación y ajuste admin abandonan la aritmética directa sobre
+   `products.stock`; stock insuficiente revierte pedido, outbox y auditoría.
+4. Las líneas nuevas congelan `variant_id`/SKU y el catálogo sirve
+   `on_hand - reserved`; el panel expone disponibilidad y versión por variante.
+5. Crear una variante abre su ledger. El historial impide borrarla: se archiva.
+6. Seed y ensayo `rehearse-r2-inventory-ledger.mjs` verifican forward,
+   reconciliación, hashes y dump/restore sin imprimir PII.
+7. Verificación local: **52 suites, 344 tests**, tipos/build, E2E **37/37** y
+   a11y admin **16/16** sin hallazgos. La D1 local reconcilia 209 balances,
+   ledger, espejos y FKs a cero. Sin reservas, migración remota ni deploy;
+   `0010` continúa reservado para R2.8.
+
+## 10. R2.8 — Reservas y expiración — ✅ 2026-08-10
+
+1. `0010_inventory_reservations.sql` separa `reservation_version` de la versión
+   del ledger y crea cabecera, líneas e historiales append-only con triggers de
+   guarda; el saldo físico no cambia al reservar.
+2. El checkout reserva por variante default dentro de la misma batch que pedido,
+   evento y auditoría. Consumir reduce `reserved` y `on_hand` y crea una única
+   venta; liberar/expirar solo reduce `reserved`.
+3. La expiración usa el runner durable R1.11 cada minuto, lotes de 100, TTL de
+   31 minutos alineado con Stripe y replay idempotente.
+4. `INV-004` está instalado pero sin flags en todos los presets: demo, clientes
+   y jobs conservan el comportamiento R2.7 hasta un opt-in explícito.
+5. Cinco pruebas SQLite cubren captura, doble confirmación, carrera de última
+   unidad, TTL/job durable y ausencia de PII; el registro añade prueba de activación.
+6. El rehearsal forward/dump/restore conserva 209 balances, ledger y espejo,
+   crea cero holds al migrar y valida hashes canónico/esquema.
+7. Verificación local: **53 suites, 350 tests**, tipos/build y E2E **37/37**.
+   Sin migración remota, activación, navegación ni deploy.
+
+## 11. Siguiente bloque
+
+### R2.9 — Ledger de pagos
+
+Separar intención, transacción y estado financiero del string legacy del pedido;
+backfill de Stripe/simulado, moneda e importes en céntimos, captura idempotente y
+excepciones `requires_review`, conservando rollback y datos sensibles fuera.
