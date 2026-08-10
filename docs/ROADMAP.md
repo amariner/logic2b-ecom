@@ -775,7 +775,7 @@ es la posición 6. Sin despliegue ni cambios remotos. Ficha completa en
 ### Línea paralela · tema VISO (2026-08-10, sesión local)
 
 Sexto elemento de `nuevos-temas/cola.json`. VISO replica una dirección de óptica
-futurista con hoja clara enmarcada en negro, hero partido, wordmark de escala
+futurista con lienzo claro a ancho completo, hero partido, wordmark de escala
 extrema, seis productos `vis-*` y retícula asimétrica. Los nueve assets propios
 se generaron con Higgsfield tras un nuevo fallo de red de `imagegen`; se
 descartaron todos los resultados con texto o interfaz antes de integrar la

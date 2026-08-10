@@ -9,18 +9,19 @@
 
 ## Lectura de la referencia
 
-Escaparate de óptica futurista sobre un fondo casi negro, con una hoja marfil
-centrada, hero partido, navegación técnica diminuta y un wordmark enorme que
-cruza la zona de campaña. Debajo, la referencia alterna cuatro fichas de gafas
-de distinta anchura y cierra con dos campañas verticales. VISO conserva esa
-composición, el contraste de escala y la retícula asimétrica, pero usa marca,
-modelos, productos, copy y fotografías propios.
+La referencia presenta un escaparate de óptica futurista sobre un fondo casi
+negro, con una hoja marfil centrada, hero partido, navegación técnica diminuta y
+un wordmark enorme que cruza la zona de campaña. Debajo alterna cuatro fichas de
+gafas de distinta anchura y cierra con dos campañas verticales. VISO conserva
+esa composición, el contraste de escala y la retícula asimétrica, pero usa
+marca, modelos, productos, copy y fotografías propios. El 2026-08-10 Andreu
+pidió retirar el marco exterior y llevar el lienzo marfil a todo el viewport.
 
-En móvil la hoja mantiene su marco oscuro, la navegación secundaria desaparece,
-la campaña se convierte en un plano vertical y el wordmark baja a una sección
-de copy legible. La rejilla queda en dos columnas y conserva una pieza doble.
-Ficha, carrito y checkout usan el chrome compartido para mantener evidente el
-recorrido demo y no duplicar lógica comercial.
+En móvil el lienzo también ocupa todo el ancho, la navegación secundaria
+desaparece, la campaña se convierte en un plano vertical y el wordmark baja a
+una sección de copy legible. La rejilla queda en dos columnas y conserva una
+pieza doble. Ficha, carrito y checkout usan el chrome compartido para mantener
+evidente el recorrido demo y no duplicar lógica comercial.
 
 ## Imaginería y prompts finales
 

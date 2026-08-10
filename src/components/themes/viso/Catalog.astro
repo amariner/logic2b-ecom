@@ -54,9 +54,9 @@ const ordered = products.toSorted((a, b) => (rank.get(a.slug) ?? 99) - (rank.get
 
 <style>
   :global([data-store-theme='viso'] > header), :global([data-store-theme='viso'] > .shop-footer) { display: none; }
-  .viso { min-height: 100vh; padding: 2.4rem; color: var(--color-foreground); background: #0c0f11; font-family: var(--font-accent); }
+  .viso { min-height: 100vh; color: var(--color-foreground); background: var(--color-background); font-family: var(--font-accent); }
   .viso :where(a) { color: inherit; text-decoration: none; }
-  .viso-header, .viso main, .viso-footer { max-width: 92rem; margin-inline: auto; background: var(--color-background); }
+  .viso-header, .viso main, .viso-footer { width: 100%; background: var(--color-background); }
   .viso-header { display: grid; min-height: 5.5rem; grid-template-columns: 1fr 1fr auto; gap: 2rem; align-items: start; padding: 1.1rem 1.4rem; font-size: .57rem; text-transform: uppercase; }
   .viso-mark { font: var(--weight-display) 1rem/1 var(--font-display); letter-spacing: var(--tracking-display); }
   .viso-header nav { display: grid; gap: .35rem; }
@@ -91,7 +91,6 @@ const ordered = products.toSorted((a, b) => (rank.get(a.slug) ?? 99) - (rank.get
   .viso-footer nav { display: flex; gap: 1rem; }
   .viso-footer nav a { display: inline-flex; min-height: 2.75rem; align-items: center; }
   @media (max-width: 720px) {
-    .viso { padding: .75rem; }
     .viso-header { min-height: 4.4rem; grid-template-columns: 1fr auto; padding: .9rem; }
     .viso-header nav { display: none; }
     .viso-hero { grid-template-columns: 1fr; }

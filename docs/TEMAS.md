@@ -657,7 +657,7 @@ la jerarquía de la referencia con identidad NERA. Ficha:
 
 **Para quién:** óptica y eyewear, moda tecnológica y accesorios premium.
 
-Hoja marfil sobre fondo negro, hero partido de campaña cinética, wordmark
+Lienzo marfil a ancho completo, hero partido de campaña cinética, wordmark
 sobredimensionado, seis modelos en retícula asimétrica y un díptico final de
 objeto/retrato. Nueve assets propios completan el recorrido sin tocar el motor
 comercial. Ficha: [`docs/temas/viso.md`](temas/viso.md).
