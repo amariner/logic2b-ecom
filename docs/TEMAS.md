@@ -679,10 +679,10 @@ Ficha: [`docs/temas/orbe.md`](temas/orbe.md).
 
 **Para quién:** marroquinería, calzado de autor y accesorios premium.
 
-Hoja editorial estrecha sobre fondo oscuro, hero partido entre campaña y
-objeto, cuatro bolsos, díptico de atelier y cuatro sandalias sobre una retícula
-de filetes mínimos. Ocho productos y doce assets propios sostienen una dirección
-serena y táctil sin duplicar ninguna parte del recorrido comercial. Ficha:
+Lienzo editorial a ancho completo, hero partido entre campaña y objeto, cuatro
+bolsos, díptico de atelier y cuatro sandalias sobre una retícula de filetes
+mínimos. Ocho productos y doce assets propios sostienen una dirección serena y
+táctil sin duplicar ninguna parte del recorrido comercial. Ficha:
 [`docs/temas/alva.md`](temas/alva.md).
 
 ---

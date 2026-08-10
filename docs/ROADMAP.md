@@ -810,8 +810,8 @@ remoto. Ficha completa en [`docs/temas/orbe.md`](temas/orbe.md).
 ### Línea paralela · tema ALVA (2026-08-10, sesión local)
 
 Octavo elemento de `nuevos-temas/cola.json`. ALVA replica una dirección de
-marroquinería escandinava con lienzo editorial estrecho, hero doble, cuatro
-bolsos, díptico de atelier y cuatro sandalias. La colección incorpora ocho
+marroquinería escandinava con lienzo editorial a ancho completo, hero doble,
+cuatro bolsos, díptico de atelier y cuatro sandalias. La colección incorpora ocho
 productos `alv-*` y doce assets WebP propios. La herramienta integrada de
 OpenAI falló por red; el fallback de Higgsfield previamente autorizado generó
 las piezas una a una y consumió 120,68 créditos.

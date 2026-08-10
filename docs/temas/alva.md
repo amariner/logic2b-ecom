@@ -5,9 +5,10 @@
 - **Colección:** `src/collections/alva.ts` — **ALVA**, marroquinería y calzado
   escandinavo de autor.
 - **Catálogo:** 8 productos · 4 bolsos + 4 sandalias · slugs `alv-*`.
-- **Dirección:** fondo exterior negro, lienzo marfil, cabecera tipográfica,
-  hero partido, retícula de cuatro columnas, díptico de atelier y wordmark de
-  gran escala en el pie.
+- **Dirección:** lienzo marfil a ancho completo, cabecera tipográfica, hero
+  partido, retícula de cuatro columnas, díptico de atelier y wordmark de gran
+  escala en el pie. El 2026-08-10 Andreu pidió retirar el marco estrecho negro
+  de la primera entrega y llevar la composición a todo el viewport.
 - **Imaginería:** 12 assets finales (4 campañas/editorial + 8 productos), WebP,
   1,0 MB total. La herramienta integrada de OpenAI falló por red antes de
   generar; se aplicó el fallback de Higgsfield ya autorizado para la cola.
@@ -42,6 +43,6 @@
 - ✅ Catálogo y ficha servidos en local; capturas a 1440 y 390×844.
 - ✅ Ficha, carrito vacío/activo y checkout bajo el recorrido compartido.
 - ✅ Reduced motion y auditoría propia: **0 errores · 0 avisos · 9 superficies**.
-- ✅ Capturas WebP dentro de presupuesto: catálogo 116 KB, móvil 35 KB,
+- ✅ Capturas WebP dentro de presupuesto: catálogo 88 KB, móvil 35 KB,
   miniaturas 28/74 KB y ficha 33 KB.
 - ✅ Contraste del copy sobre fotografía corregido con plancha sólida oscura.
