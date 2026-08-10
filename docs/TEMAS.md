@@ -12,7 +12,7 @@
 
 Logic2B Ecommerce vende una tienda **a medida**. El problema comercial es que «a medida»
 suena caro y abstracto: el cliente no puede imaginarse su tienda. El catálogo de
-estilos resuelve eso — son 14 direcciones visuales completas, cada una derivada de
+estilos resuelve eso — son 19 direcciones visuales completas, cada una derivada de
 una referencia real de ecommerce, entre las que el cliente elige un punto de
 partida.
 
@@ -134,7 +134,9 @@ paralela dentro del tema.
 `/estilos` es indexable y republicar ahí el diseño de otra tienda no procede. Lo
 que se enseña es material propio generado con Higgsfield.
 
-**Estado:** las 8 referencias ✅ y las 8 muestras ✅ están en el repo.
+**Estado:** las referencias de los temas entregados y sus capturas reales de
+tienda están en el repo. `/temas` prioriza esas capturas; la muestra estática es
+solo el fallback de una dirección que todavía no tenga escaparate propio.
 
 ---
 
@@ -177,7 +179,7 @@ lógica editorial con nuestra tipografía y nuestros grises.
 
 ---
 
-## 5. Los doce temas
+## 5. Los temas
 
 > Cada ficha enlaza **la imagen que hay que abrir** antes de tocar código.
 
@@ -613,9 +615,41 @@ y los ocho assets generados con Higgsfield están entregados y verificados. Fich
 
 Hero sensorial en tarjeta, cuatro novedades sobre gris cálido, producto
 destacado, manifiesto editorial, familias apiladas y cierre de showroom. La
-colección y el recorrido comercial están implementados y verificados; el tema
-permanece en preparación mientras se completa su imaginería única. Ficha completa:
+colección, sus catorce assets y el recorrido comercial están implementados y
+verificados. Ficha completa:
 [`docs/temas/sillage.md`](temas/sillage.md).
+
+### 16 · SUMMIT — *lujo alpino*
+
+📎 **Referencia: [`16-summit.webp`](../public/images/referencias/16-summit.webp)**
+
+**Para quién:** moda técnica, deporte de montaña y equipamiento premium.
+
+Hero inmersivo de expedición, producto aislado y mosaico de cuatro piezas con
+campaña vertical. Siete productos y nueve assets propios componen un escaparate
+completo, responsive y conectado al recorrido comercial compartido. Ficha:
+[`docs/temas/summit.md`](temas/summit.md).
+
+### 17 · LÍTICA — *cosmética mineral*
+
+📎 **Referencia: [`17-litica.webp`](../public/images/referencias/17-litica.webp)**
+
+**Para quién:** cosmética y skincare, bienestar y marcas naturales de autor.
+
+Hero partido, retícula de filetes, materia cálida y ritual monocromo. Seis
+productos y diez assets propios sostienen la dirección sin duplicar lógica de
+compra. Ficha: [`docs/temas/litica.md`](temas/litica.md).
+
+### 18 · NERA — *sastrería editorial*
+
+📎 **Referencia: [`18-nera.webp`](../public/images/referencias/18-nera.webp)**
+
+**Para quién:** moda de autor, sastrería femenina y colecciones cortas.
+
+Hero editorial a sangre, cuatro prendas aisladas y mosaico alterno de campaña y
+producto sobre blanco. Ocho productos y once assets propios replican el ritmo y
+la jerarquía de la referencia con identidad NERA. Ficha:
+[`docs/temas/nera.md`](temas/nera.md).
 
 ---
 
@@ -638,7 +672,10 @@ permanece en preparación mientras se completa su imaginería única. Ficha comp
 | 12 | Forma | `#171717` | 4 | **irregular** | **immersive** | **fullbleed** | plain | chips | airy | ✅ |
 | 13 | STRETCH | `#171717` | 4 | uniform | **immersive** | **fullbleed** | divided | chips | airy | ✅ |
 | 14 | ARGENT. | `#1b1b19` | **5** | uniform | **immersive** | **fullbleed** | plain | chips | compact | ✅ |
-| 15 | SILLAGE | `#2f302c` | 4 | uniform | top | **card** | plain | dropdown | airy | 🚧 |
+| 15 | SILLAGE | `#2f302c` | 4 | uniform | top | **card** | plain | dropdown | airy | ✅ |
+| 16 | SUMMIT | `#8b4e2e` | 3 | **irregular** | **immersive** | **fullbleed** | divided | dropdown | compact | ✅ |
+| 17 | LÍTICA | `#9a3f1f` | 3 | **irregular** | top | **split** | divided | dropdown | compact | ✅ |
+| 18 | NERA | `#55788a` | 4 | uniform | top | **fullbleed** | divided | dropdown | compact | ✅ |
 
 ---
 

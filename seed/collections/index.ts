@@ -28,6 +28,7 @@ import { argentSeedProducts } from './argent.ts';
 import { sillageSeedProducts } from './sillage.ts';
 import { summitSeedProducts } from './summit.ts';
 import { liticaSeedProducts } from './litica.ts';
+import { neraSeedProducts } from './nera.ts';
 // new-theme:seed-imports — no borrar: `pnpm new:theme <id>` añade aquí su import.
 
 export const collectionSeedProducts: readonly SeedProduct[] = [
@@ -49,5 +50,6 @@ export const collectionSeedProducts: readonly SeedProduct[] = [
   ...sillageSeedProducts,
   ...summitSeedProducts,
   ...liticaSeedProducts,
+  ...neraSeedProducts,
   // new-theme:seed-entries — no borrar: `pnpm new:theme <id>` añade aquí su spread.
 ];

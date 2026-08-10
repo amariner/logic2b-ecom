@@ -766,6 +766,36 @@ export const demoThemes: DemoTheme[] = [
       annotations: false, darkFooter: false,
     },
   },
+  {
+    id: 'nera',
+    label: 'NERA',
+    hint: 'Sastrería editorial, blanco absoluto y mosaico de campaña.',
+    reference: { name: 'Tailored womenswear editorial study', file: '18-nera.webp' },
+    sample: null,
+    bestFor: ['Moda de autor', 'Sastrería femenina', 'Marcas de colección corta'],
+    status: 'ready',
+    vars: {
+      '--color-brand': '#55788a',
+      '--color-brand-dark': '#385765',
+      '--color-brand-fg': '#ffffff',
+      '--font-display': "'Arial Narrow', 'Helvetica Neue', Arial, sans-serif",
+      '--font-accent': SYSTEM_SANS,
+      '--tracking-display': '-0.045em',
+      '--weight-display': '500',
+      '--radius-btn': '0rem',
+      '--radius-card': '0rem',
+      '--border-width': '1px',
+      '--surface-product': '#f7f7f5',
+      '--surface-sunken': '#efefec',
+      '--space-density': '0.75',
+      '--grid-gap': '1px',
+    },
+    layout: {
+      gridCols: 4, gridStyle: 'uniform', nav: 'top', hero: 'fullbleed',
+      card: 'divided', filters: 'dropdown', density: 'compact',
+      annotations: false, darkFooter: false,
+    },
+  },
   // new-theme:themes — no borrar: `pnpm new:theme <id>` añade aquí el tema si falta.
 ];
 

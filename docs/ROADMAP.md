@@ -753,6 +753,25 @@ avisos en 9 superficies**; 46 suites y **312 tests** en verde. Ficha completa en
 [`docs/temas/litica.md`](temas/litica.md). Desplegado en producción el
 2026-08-08; tienda y asset principal responden 200.
 
+### Línea paralela · tema NERA (2026-08-10, sesión local)
+
+Quinto elemento de `nuevos-temas/cola.json`. NERA replica una dirección de moda
+femenina minimalista con cabecera fina, hero editorial, cuatro prendas aisladas
+y un mosaico de campaña/producto. La tienda incorpora 8 productos `ner-*` en
+cuatro categorías y 11 assets propios. El generador integrado falló por red y,
+conforme al fallback ya autorizado para la cola, se completaron con Higgsfield
+Soul 2.0 y Product Photoshoot, uno por llamada e inspeccionados antes de
+convertirse a WebP.
+
+El bloque toca solo el kit visual y sus registros; **no modifica lógica de
+precios, checkout, pedidos, inventario, D1 ni APIs**, y no añade dependencias.
+Verificación local: capturas reales a 1440 y 390×844, ficha, carrito activo,
+checkout y movimiento reducido; auditoría a11y con **0 errores y 0 avisos en 9
+superficies**; E2E de aislamiento **37/37** y `pnpm check` con 53 suites y 350
+tests en verde. La posición 5 queda cerrada y la siguiente referencia ejecutable
+es la posición 6. Sin despliegue ni cambios remotos. Ficha completa en
+[`docs/temas/nera.md`](temas/nera.md).
+
 ### Pendiente en la Fase 9B
 
 - **Pasada de fidelidad fina** de los 4 temas contra su captura (se re-hospedaron

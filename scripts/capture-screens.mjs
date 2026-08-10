@@ -128,6 +128,7 @@ const REVEAL_STRETCH = `(async () => {
 // Iris es tienda de vídeo-scrub: la estática solo sirve de PÓSTER del hero
 // (viewport), no de página completa — el escaparate se enseña con el clip.
 const STORES = [
+  { id: 'nera', label: 'NERA', catalog: '/demo/tiendas/nera', full: true, maxH: 3000 },
   { id: 'litica', label: 'LÍTICA', catalog: '/demo/tiendas/litica', full: true, maxH: 3000 },
   { id: 'summit', label: 'SUMMIT', catalog: '/demo/tiendas/summit', full: true, maxH: 3000 },
   { id: 'sillage', label: 'SILLAGE', catalog: '/demo/tiendas/sillage', full: true, maxH: 3000 },
@@ -167,6 +168,7 @@ for (const s of STORES) {
 // Ficha de producto: el producto firma de cada tienda. `product(slug)` respeta
 // las rutas históricas de la genérica (/demo/tienda/<slug>).
 const FICHAS = [
+  { id: 'nera', slug: 'ner-blazer-negra', prefix: '/demo/tiendas/nera' },
   { id: 'litica', slug: 'lit-mineral-wash', prefix: '/demo/tiendas/litica' },
   { id: 'summit', slug: 'sum-shell-07', prefix: '/demo/tiendas/summit' },
   { id: 'sillage', slug: 'sil-cedro-solar', prefix: '/demo/tiendas/sillage' },
