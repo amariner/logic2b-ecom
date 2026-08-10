@@ -750,6 +750,22 @@ avisos en 9 superficies**; 46 suites y **312 tests** en verde. Ficha completa en
 [`docs/temas/litica.md`](temas/litica.md). Desplegado en producción el
 2026-08-08; tienda y asset principal responden 200.
 
+### Línea paralela · tema SARGA (2026-08-10, sesión local)
+
+Quinto elemento de `nuevos-temas/cola.json`. SARGA replica una dirección de
+sastrería femenina contemporánea con hero de campaña, carrusel de cuatro
+prendas aisladas y mosaico editorial asimétrico. La tienda suma 4 productos
+`sar-*` en tres categorías y 8 assets WebP propios.
+
+La herramienta integrada de OpenAI falló por red antes de producir el primer
+asset; con la autorización expresa del usuario se completó la imaginería con
+Higgsfield Product Photoshoot, en llamadas individuales. El tema toca solo su
+kit y los registros previstos. **No modifica lógica de precios, envíos,
+checkout, pedidos, D1 ni APIs.** Ficha completa en
+[`docs/temas/sarga.md`](temas/sarga.md). Verificación local: 364 archivos Astro
+sin diagnósticos, 49 suites y 332 tests, build en verde; catálogo, ficha,
+carrito y checkout con **0 errores y 0 avisos a11y** en 9 superficies.
+
 ### Pendiente en la Fase 9B
 
 - **Pasada de fidelidad fina** de los 4 temas contra su captura (se re-hospedaron

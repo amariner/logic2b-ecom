@@ -766,6 +766,36 @@ export const demoThemes: DemoTheme[] = [
       annotations: false, darkFooter: false,
     },
   },
+  {
+    id: 'sarga',
+    label: 'SARGA',
+    hint: 'Sastrería editorial: campaña en blanco, producto aislado y mosaico preciso.',
+    reference: { name: 'Contemporary tailoring editorial study', file: '18-sarga.webp' },
+    sample: null,
+    bestFor: ['Moda contemporánea', 'Sastrería de autor', 'Marcas de colección corta'],
+    status: 'ready',
+    vars: {
+      '--color-brand': '#20201f',
+      '--color-brand-dark': '#050505',
+      '--color-brand-fg': '#ffffff',
+      '--font-display': SYSTEM_SANS,
+      '--font-accent': SYSTEM_SANS,
+      '--tracking-display': '-0.055em',
+      '--weight-display': '500',
+      '--radius-btn': '0rem',
+      '--radius-card': '0rem',
+      '--border-width': '1px',
+      '--surface-product': '#f7f6f2',
+      '--surface-sunken': '#efefeb',
+      '--space-density': '0.75',
+      '--grid-gap': '1px',
+    },
+    layout: {
+      gridCols: 4, gridStyle: 'irregular', nav: 'immersive', hero: 'fullbleed',
+      card: 'divided', filters: 'dropdown', density: 'compact',
+      annotations: false, darkFooter: false,
+    },
+  },
   // new-theme:themes — no borrar: `pnpm new:theme <id>` añade aquí el tema si falta.
 ];
 

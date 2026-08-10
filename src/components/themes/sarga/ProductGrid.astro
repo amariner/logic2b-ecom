@@ -1,0 +1,58 @@
+---
+/** SARGA · cuatro prendas aisladas sobre fondo cálido. */
+import type { StorePaths } from '../../../collections';
+import { formatEurCents } from '../../../lib/format';
+
+type GridProduct = { slug: string; name: string; price_cents: number; image: string; stock: number; };
+interface Props { paths: StorePaths; products: GridProduct[]; }
+const { paths, products } = Astro.props;
+---
+
+<ul class="sarga-grid">
+  {products.map((product, index) => (
+    <li class="sarga-card">
+      <div class="sarga-card__media">
+        <img src={product.image} alt={product.name} width="2048" height="2048" loading={index < 4 ? 'eager' : 'lazy'} />
+      </div>
+      <div class="sarga-card__copy">
+        <h2><a href={paths.product(product.slug)}>{product.name}</a></h2>
+        <p>{formatEurCents(product.price_cents)}</p>
+      </div>
+      <button class="sarga-card__add" type="button" data-sarga-add={product.slug} disabled={product.stock === 0} aria-label={product.stock === 0 ? `${product.name} agotado` : `Añadir ${product.name} al carrito`}>{product.stock === 0 ? '—' : '+'}</button>
+    </li>
+  ))}
+</ul>
+
+<script>
+  import { addToCart } from '../../../lib/cart-client';
+  document.querySelectorAll<HTMLButtonElement>('[data-sarga-add]').forEach((button) => {
+    button.addEventListener('click', () => {
+      addToCart(button.dataset.sargaAdd ?? '');
+      const previous = button.textContent;
+      button.textContent = '✓';
+      setTimeout(() => (button.textContent = previous), 850);
+    });
+  });
+</script>
+
+<style>
+  .sarga-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); margin: 0; padding: 0; list-style: none; background: var(--color-border); gap: var(--grid-gap); }
+  .sarga-card { position: relative; min-width: 0; color: var(--color-foreground); background: var(--color-background); }
+  .sarga-card__media { display: grid; aspect-ratio: 1; place-items: center; overflow: hidden; background: var(--surface-product); }
+  .sarga-card__media img { width: 100%; height: 100%; object-fit: contain; transition: transform .3s ease; }
+  .sarga-card:hover .sarga-card__media img { transform: scale(1.025); }
+  .sarga-card__copy { min-height: 4.8rem; padding: .8rem .55rem 1rem; text-align: center; text-transform: uppercase; font: 500 clamp(.49rem, .58vw, .62rem)/1.25 var(--font-accent); }
+  .sarga-card__copy h2 { font: inherit; }
+  .sarga-card__copy h2 a::after { position: absolute; inset: 0; content: ''; }
+  .sarga-card__copy p { margin-top: .34rem; color: var(--color-muted-foreground); }
+  .sarga-card__add { position: absolute; z-index: 2; right: .55rem; bottom: .6rem; display: grid; width: 1.6rem; height: 1.6rem; place-items: center; border: var(--border-width) solid var(--color-border); border-radius: var(--radius-btn); color: var(--color-brand-fg); background: var(--color-brand); font: 500 .72rem/1 var(--font-accent); cursor: pointer; }
+  .sarga-card__add:hover { background: var(--color-brand-dark); }
+  .sarga-card__add:disabled { cursor: not-allowed; opacity: .45; }
+  .sarga-card__add:focus-visible, .sarga-card__copy a:focus-visible { outline: .16rem solid var(--color-brand); outline-offset: -.16rem; }
+  @media (max-width: 720px) {
+    .sarga-grid { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; }
+    .sarga-grid::-webkit-scrollbar { display: none; }
+    .sarga-card { flex: 0 0 66vw; scroll-snap-align: start; }
+  }
+  @media (prefers-reduced-motion: reduce) { .sarga-card__media img { transition: none; } }
+</style>

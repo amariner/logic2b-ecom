@@ -31,7 +31,7 @@
       "estado": "completado",
       "nota": "Tema LÍTICA terminado: réplica responsive de cosmética mineral, catálogo de 6 productos, 10 assets WebP propios generados con la herramienta integrada, capturas finales y auditoría a11y 0/0."
     },
-    { "posicion": 5, "archivo": "ac52bc2a112b7cb95286c8707a2cabb8.jpg", "tema": null, "estado": "pendiente" },
+    { "posicion": 5, "archivo": "ac52bc2a112b7cb95286c8707a2cabb8.jpg", "tema": "sarga", "estado": "completado", "nota": "Tema SARGA terminado: réplica responsive de sastrería contemporánea, catálogo de 4 productos y 8 assets WebP propios. OpenAI/imagegen falló por red antes de generar; fallback autorizado a Higgsfield Product Photoshoot (56 créditos). pnpm check verde y auditoría a11y 0/0." },
     { "posicion": 6, "archivo": "bbaf805fad44a7cffddab95cbaf9a5da.jpg", "tema": null, "estado": "pendiente" },
     { "posicion": 7, "archivo": "c907738a08f280fe8ca611d64646e235.jpg", "tema": null, "estado": "pendiente" },
     { "posicion": 8, "archivo": "e1803646a8e5fb8f95c0daa8d2de2f4c.jpg", "tema": null, "estado": "pendiente" }
