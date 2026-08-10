@@ -68,7 +68,7 @@ reconciliación se conserva abajo por contexto.
 ## Repo y entornos
 
 - GitHub: `https://github.com/amariner/logic2b-ecom` (rama `main`).
-- Cloudflare: **en producción** — Worker `ecom-logic2b` en https://ecom.logic2b.com, D1 remota `ecom-demo` (`7ae9b06d-3664-4790-a87c-04bb4c67e97a`), cron reset cada 6 h, cuenta marinerandreu@gmail.com. Corte funcional R2.5 + consolidación F12.6 del 2026-08-10: versión `6b465a19-d295-455a-9c59-21ccde4a610e` al 100 %, migraciones `0001`–`0008` aplicadas y triggers de reset/outbox sincronizados.
+- Cloudflare: **en producción** — Worker `ecom-logic2b` en https://ecom.logic2b.com, D1 remota `ecom-demo` (`7ae9b06d-3664-4790-a87c-04bb4c67e97a`), cron reset cada 6 h, cuenta marinerandreu@gmail.com. Corte compatible R2.5 + consolidación F12.6 + temas NERA/VISO/ORBE/ALVA del 2026-08-10: versión `627eed0a-b45b-4698-b26e-6db3fb770b59` al 100 %, migraciones `0001`–`0008` y triggers de reset/outbox sincronizados. Smoke estable, E2E remoto completo, ALVA 0/0 en 9 superficies y Lighthouse 100×4 en las 12 mediciones comerciales; R2.7/R2.8 permanecen fuera del corte.
 
 ## Fase 13 — Plataforma modular y paridad de capacidad
 
