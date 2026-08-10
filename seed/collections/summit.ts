@@ -14,6 +14,51 @@ export const summitSeedProducts: readonly SeedProduct[] = [
     price_cents: 139000,
     stock: 8,
     category: 'sum-outerwear',
+    media: [
+      {
+        kind: 'image',
+        source: '/images/collections/summit/sum-shell-07.webp',
+        alt: 'Parka Shell 07 en paisaje alpino',
+        focal_x_bps: 5400,
+        focal_y_bps: 4200,
+        variant_skus: ['SUM-SHELL-07-M'],
+      },
+      {
+        kind: 'image',
+        source: '/images/collections/summit/campaign-glacier.webp',
+        alt: 'Campaña de SUMMIT sobre un glaciar',
+        focal_x_bps: 6200,
+        focal_y_bps: 3600,
+        variant_skus: ['SUM-SHELL-07-L'],
+      },
+    ],
+    attributes: [
+      {
+        code: 'construction', label: 'Construcción', value_type: 'text',
+        constraints: { minLength: 2, maxLength: 120 }, value: 'Tejido técnico de tres capas',
+      },
+      {
+        code: 'weight', label: 'Peso', value_type: 'number', unit: 'g',
+        constraints: { min: 0, max: 2000, step: 1 }, value: 420,
+      },
+      {
+        code: 'waterproof', label: 'Impermeable', value_type: 'boolean', value: true,
+      },
+      {
+        code: 'collection_ref', label: 'Referencia de colección', value_type: 'reference',
+        constraints: { allowedPrefixes: ['SUM-'] }, value: 'SUM-AW26',
+      },
+      {
+        code: 'materials', label: 'Materiales', value_type: 'list',
+        constraints: { choices: ['polyamide', 'recycled-polyester'], minItems: 1, maxItems: 2 },
+        value: ['polyamide', 'recycled-polyester'],
+      },
+      {
+        code: 'weight', label: 'Peso', value_type: 'number', unit: 'g',
+        constraints: { min: 0, max: 2000, step: 1 }, value: 435,
+        variant_sku: 'SUM-SHELL-07-L',
+      },
+    ],
     options: [{ name: 'Talla', values: ['S', 'M', 'L'] }],
     variants: [
       { sku: 'SUM-SHELL-07-S', title: 'S', price_cents: 139000, status: 'active', values: { Talla: 'S' } },

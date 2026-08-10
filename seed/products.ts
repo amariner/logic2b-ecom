@@ -22,6 +22,29 @@ export type SeedProductVariant = Readonly<{
   values: Readonly<Record<string, string>>;
 }>;
 
+export type SeedProductMedia = Readonly<{
+  kind: 'image' | 'video';
+  source: string;
+  alt: string;
+  focal_x_bps?: number;
+  focal_y_bps?: number;
+  /** SKUs que usan esta media como galería específica. Vacío = solo producto. */
+  variant_skus?: readonly string[];
+}>;
+
+export type SeedAttributeValue = string | number | boolean | readonly string[];
+
+export type SeedProductAttribute = Readonly<{
+  code: string;
+  label: string;
+  value_type: 'text' | 'number' | 'boolean' | 'reference' | 'list';
+  unit?: string;
+  constraints?: Readonly<Record<string, unknown>>;
+  value: SeedAttributeValue;
+  /** Si existe, el valor sustituye al general solo para esa variante. */
+  variant_sku?: string;
+}>;
+
 export type SeedProduct = {
   slug: string;
   name: string;
@@ -53,6 +76,10 @@ export type SeedProduct = {
   // — Formato v2 (R2.4). Si falta, se materializa la variante simple legacy. —
   options?: readonly SeedProductOption[];
   variants?: readonly SeedProductVariant[];
+
+  // — Contenido estructurado R2.5. Ambos campos son opcionales. —
+  media?: readonly SeedProductMedia[];
+  attributes?: readonly SeedProductAttribute[];
 };
 
 const p = (

@@ -9,6 +9,8 @@ import { demoOrderStatements } from './demo-orders.ts';
 import { imageVariants } from './image-variants.ts';
 import {
   seedProducts,
+  type SeedProductAttribute,
+  type SeedProductMedia,
   type SeedProduct,
   type SeedProductVariant,
 } from './products.ts';
@@ -20,6 +22,10 @@ function sqlString(value: string): string {
 /** `NULL` literal o el string escapado. Para las capacidades opcionales. */
 function sqlNullable(value: string | undefined): string {
   return value === undefined ? 'NULL' : sqlString(value);
+}
+
+function sqlJson(value: unknown): string {
+  return sqlString(JSON.stringify(value));
 }
 
 /** Colección por defecto de un producto del seed que no la declare. */
@@ -120,6 +126,53 @@ function assertVariantSeed(prod: SeedProduct, knownSkus: Set<string>): void {
   }
 }
 
+function assertMediaSeed(prod: SeedProduct): void {
+  if (prod.media === undefined) return;
+  if (prod.media.length === 0 || !prod.media.some((item) => item.kind === 'image')) {
+    throw new Error(`"${prod.slug}": media debe contener al menos una imagen`);
+  }
+  const knownVariantSkus = new Set((prod.variants ?? []).map((variant) => variant.sku));
+  for (const media of prod.media) {
+    if (!media.source.trim() || media.source.length > 500 || !media.alt.trim() || media.alt.length > 240) {
+      throw new Error(`"${prod.slug}": source o alt de media inválido`);
+    }
+    for (const focal of [media.focal_x_bps ?? 5000, media.focal_y_bps ?? 5000]) {
+      if (!Number.isInteger(focal) || focal < 0 || focal > 10000) {
+        throw new Error(`"${prod.slug}": foco de media fuera de 0..10000`);
+      }
+    }
+    if ((media.variant_skus ?? []).some((sku) => !knownVariantSkus.has(sku))) {
+      throw new Error(`"${prod.slug}": media asociada a una variante inexistente`);
+    }
+  }
+}
+
+function definitionSignature(attribute: SeedProductAttribute): string {
+  return JSON.stringify({
+    label: attribute.label,
+    value_type: attribute.value_type,
+    unit: attribute.unit ?? null,
+    constraints: attribute.constraints ?? {},
+  });
+}
+
+function assertAttributeValue(prod: SeedProduct, attribute: SeedProductAttribute): void {
+  const { value } = attribute;
+  const valid =
+    (attribute.value_type === 'text' && typeof value === 'string' && value.length > 0 && value.length <= 5000) ||
+    (attribute.value_type === 'reference' && typeof value === 'string' && value.trim().length > 0 && value.length <= 500) ||
+    (attribute.value_type === 'number' && typeof value === 'number' && Number.isFinite(value)) ||
+    (attribute.value_type === 'boolean' && typeof value === 'boolean') ||
+    (attribute.value_type === 'list' && Array.isArray(value) && value.length > 0 && value.every((item) => typeof item === 'string' && item.length > 0));
+  if (!valid) throw new Error(`"${prod.slug}": valor inválido para atributo ${attribute.code}`);
+  if (attribute.unit !== undefined && attribute.value_type !== 'number') {
+    throw new Error(`"${prod.slug}": solo un atributo numérico admite unidad`);
+  }
+  if (attribute.variant_sku && !(prod.variants ?? []).some((variant) => variant.sku === attribute.variant_sku)) {
+    throw new Error(`"${prod.slug}": atributo asociado a una variante inexistente`);
+  }
+}
+
 function productIdSql(slug: string): string {
   return `(SELECT id FROM products WHERE slug = ${sqlString(slug)})`;
 }
@@ -139,10 +192,43 @@ function optionValueIdSql(slug: string, option: string, value: string): string {
 
 export function validateSeedProducts(products: readonly SeedProduct[]): void {
   const knownSkus = new Set<string>();
+  const definitions = new Map<string, string>();
   for (const prod of products) {
     assertCompareAtPrice(prod);
     assertVariantSeed(prod, knownSkus);
+    assertMediaSeed(prod);
+    const collection = prod.collection ?? DEFAULT_COLLECTION;
+    const seenValues = new Set<string>();
+    for (const attribute of prod.attributes ?? []) {
+      if (!/^[a-z][a-z0-9_-]{0,79}$/.test(attribute.code) || !attribute.label.trim()) {
+        throw new Error(`"${prod.slug}": código o etiqueta de atributo inválidos`);
+      }
+      assertAttributeValue(prod, attribute);
+      const definitionKey = `${collection}\0${prod.category}\0${attribute.code.toLocaleLowerCase('en')}`;
+      const signature = definitionSignature(attribute);
+      const previous = definitions.get(definitionKey);
+      if (previous !== undefined && previous !== signature) {
+        throw new Error(`"${prod.slug}": definición contradictoria para ${attribute.code}`);
+      }
+      definitions.set(definitionKey, signature);
+      const valueKey = `${attribute.variant_sku ?? 'product'}\0${attribute.code.toLocaleLowerCase('en')}`;
+      if (seenValues.has(valueKey)) throw new Error(`"${prod.slug}": atributo duplicado en el mismo scope`);
+      seenValues.add(valueKey);
+    }
   }
+}
+
+function attributeDefinitionIdSql(collection: string, category: string, code: string): string {
+  return `(SELECT id FROM attribute_definitions WHERE collection = ${sqlString(collection)} ` +
+    `AND category = ${sqlString(category)} AND code = ${sqlString(code)})`;
+}
+
+function attributeValueSql(attribute: SeedProductAttribute): string {
+  if (attribute.value_type === 'number') return `NULL, ${attribute.value}, NULL, NULL, NULL`;
+  if (attribute.value_type === 'boolean') return `NULL, NULL, ${attribute.value ? 1 : 0}, NULL, NULL`;
+  if (attribute.value_type === 'reference') return `NULL, NULL, NULL, ${sqlString(String(attribute.value))}, NULL`;
+  if (attribute.value_type === 'list') return `NULL, NULL, NULL, NULL, ${sqlJson(attribute.value)}`;
+  return `${sqlString(String(attribute.value))}, NULL, NULL, NULL, NULL`;
 }
 
 /** Sentencias que dejan la base en el estado demo inicial. Orden: hijos antes que padres. */
@@ -155,10 +241,14 @@ export function seedStatements(): string[] {
     'DELETE FROM order_items',
     'DELETE FROM emails_outbox',
     'DELETE FROM orders',
+    'DELETE FROM product_attribute_values',
+    'DELETE FROM product_variant_media',
     'DELETE FROM product_variant_option_values',
     'DELETE FROM product_option_values',
     'DELETE FROM product_options',
     'DELETE FROM product_variants',
+    'DELETE FROM product_media',
+    'DELETE FROM attribute_definitions',
     'DELETE FROM shipping_rates',
     'DELETE FROM products',
   ];
@@ -166,7 +256,30 @@ export function seedStatements(): string[] {
   const products = [...seedProducts, ...collectionSeedProducts];
   validateSeedProducts(products);
 
+  const definitionPositions = new Map<string, number>();
+  const scopePositions = new Map<string, number>();
+  for (const prod of products) {
+    const collection = prod.collection ?? DEFAULT_COLLECTION;
+    const scope = `${collection}\0${prod.category}`;
+    for (const attribute of prod.attributes ?? []) {
+      const key = `${scope}\0${attribute.code.toLocaleLowerCase('en')}`;
+      if (definitionPositions.has(key)) continue;
+      const position = scopePositions.get(scope) ?? 0;
+      scopePositions.set(scope, position + 1);
+      definitionPositions.set(key, position);
+      statements.push(
+        `INSERT INTO attribute_definitions (` +
+          `collection, category, code, label, value_type, unit, constraints_json, position, active` +
+        `) VALUES (` +
+          `${sqlString(collection)}, ${sqlString(prod.category)}, ${sqlString(attribute.code)}, ` +
+          `${sqlString(attribute.label)}, ${sqlString(attribute.value_type)}, ${sqlNullable(attribute.unit)}, ` +
+          `${sqlJson(attribute.constraints ?? {})}, ${position}, 1)`,
+      );
+    }
+  }
+
   const perCategory: Record<string, number> = {};
+  const mediaBySlug = new Map<string, readonly SeedProductMedia[]>();
   for (const prod of products) {
     const collection = prod.collection ?? DEFAULT_COLLECTION;
     // Imagen: explícita > por-slug (colecciones) > placeholder por categoría
@@ -175,11 +288,14 @@ export function seedStatements(): string[] {
     perCategory[prod.category] = index + 1;
     const variant = (index % (imageVariants[prod.category] ?? 1)) + 1;
     const suffix = variant === 1 ? '' : `-${variant}`;
-    const image =
+    const fallbackImage =
       prod.image ??
       (collection === DEFAULT_COLLECTION
         ? `/images/products/${prod.category}${suffix}.webp`
         : `/images/collections/${collection}/${prod.slug}.webp`);
+    const media = prod.media ?? [{ kind: 'image', source: fallbackImage, alt: prod.name } as const];
+    const image = media.find((item) => item.kind === 'image')?.source ?? fallbackImage;
+    mediaBySlug.set(prod.slug, media);
     const specsJson = prod.specs === undefined ? undefined : JSON.stringify(prod.specs);
     statements.push(
       `INSERT INTO products (slug, name, description, price_cents, stock, image, category, active, ` +
@@ -189,6 +305,15 @@ export function seedStatements(): string[] {
         `${sqlString(collection)}, ${sqlNullable(prod.subtitle)}, ` +
         `${prod.compare_at_price_cents ?? 'NULL'}, ${sqlNullable(specsJson)})`,
     );
+    for (const [position, item] of media.entries()) {
+      statements.push(
+        `INSERT INTO product_media (` +
+          `product_id, kind, source, alt_text, focal_x_bps, focal_y_bps, position` +
+        `) VALUES (` +
+          `${productIdSql(prod.slug)}, ${sqlString(item.kind)}, ${sqlString(item.source)}, ` +
+          `${sqlString(item.alt)}, ${item.focal_x_bps ?? 5000}, ${item.focal_y_bps ?? 5000}, ${position})`,
+      );
+    }
   }
 
   // Compatibilidad R2.4: cada producto v1 materializa una variante simple. Los
@@ -244,6 +369,38 @@ export function seedStatements(): string[] {
             `${optionValueIdSql(prod.slug, option.name, variant.values[option.name]!)})`,
         );
       }
+    }
+  }
+
+  for (const prod of products) {
+    const media = mediaBySlug.get(prod.slug) ?? [];
+    for (const [position, item] of media.entries()) {
+      for (const sku of item.variant_skus ?? []) {
+        statements.push(
+          `INSERT INTO product_variant_media (variant_id, product_id, media_id, position) VALUES (` +
+            `(SELECT id FROM product_variants WHERE sku = ${sqlString(sku)}), ` +
+            `${productIdSql(prod.slug)}, ` +
+            `(SELECT pm.id FROM product_media pm JOIN products p ON p.id = pm.product_id ` +
+              `WHERE p.slug = ${sqlString(prod.slug)} AND pm.position = ${position}), ` +
+            `${position})`,
+        );
+      }
+    }
+
+    const collection = prod.collection ?? DEFAULT_COLLECTION;
+    for (const attribute of prod.attributes ?? []) {
+      const variantId = attribute.variant_sku
+        ? `(SELECT id FROM product_variants WHERE sku = ${sqlString(attribute.variant_sku)})`
+        : 'NULL';
+      statements.push(
+        `INSERT INTO product_attribute_values (` +
+          `product_id, variant_id, attribute_definition_id, value_text, value_number, ` +
+          `value_boolean, value_reference, value_list_json` +
+        `) VALUES (` +
+          `${productIdSql(prod.slug)}, ${variantId}, ` +
+          `${attributeDefinitionIdSql(collection, prod.category, attribute.code)}, ` +
+          `${attributeValueSql(attribute)})`,
+      );
     }
   }
 

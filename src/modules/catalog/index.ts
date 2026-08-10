@@ -6,10 +6,14 @@ import { createD1ProductAdminRepository } from './infrastructure/d1-product-admi
 
 export type {
   ProductAdminRow,
+  AttributeDefinitionAdminRow,
+  AttributeValueType,
   ProductOptionAdminRow,
   ProductOptionSnapshot,
   ProductOptionValueAdminRow,
   ProductOptionValueSnapshot,
+  ProductAttributeValueAdminRow,
+  ProductMediaAdminRow,
   ProductPatch,
   ProductVariantAdminDetails,
   ProductVariantAdminRow,
@@ -28,6 +32,16 @@ export {
   type ProductVariantCreate,
   type ProductVariantWrite,
 } from './application/product-variant-admin';
+
+export {
+  attributeValueStorage,
+  normalizeAttributeDefinition,
+  validateMediaWrite,
+  type AttributeDefinitionWrite,
+  type AttributeTypedValue,
+  type AttributeValueStorage,
+  type ProductMediaWrite,
+} from './application/product-content-admin';
 
 export {
   CATALOG_READ_MODES,

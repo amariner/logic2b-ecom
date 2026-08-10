@@ -2,10 +2,12 @@ export type ProductAdminRow = Readonly<{
   id: number;
   slug: string;
   name: string;
+  image: string;
   price_cents: number;
   compare_at_price_cents: number | null;
   stock: number;
   category: string;
+  collection: string;
   active: number;
   default_variant_id: number | null;
   default_sku: string | null;
@@ -68,6 +70,55 @@ export type ProductVariantAdminDetails = Readonly<{
   product: ProductAdminRow;
   options: readonly ProductOptionAdminRow[];
   variants: readonly ProductVariantAdminRow[];
+  media: readonly ProductMediaAdminRow[];
+  attribute_definitions: readonly AttributeDefinitionAdminRow[];
+  attribute_values: readonly ProductAttributeValueAdminRow[];
+}>;
+
+export type ProductMediaAdminRow = Readonly<{
+  id: number;
+  product_id: number;
+  kind: 'image' | 'video';
+  source: string;
+  alt_text: string;
+  focal_x_bps: number;
+  focal_y_bps: number;
+  position: number;
+  variant_ids: readonly number[];
+  created_at: string;
+  updated_at: string;
+}>;
+
+export type AttributeValueType = 'text' | 'number' | 'boolean' | 'reference' | 'list';
+
+export type AttributeDefinitionAdminRow = Readonly<{
+  id: number;
+  collection: string;
+  category: string;
+  code: string;
+  label: string;
+  value_type: AttributeValueType;
+  unit: string | null;
+  constraints_json: string;
+  position: number;
+  active: number;
+  value_count: number;
+  created_at: string;
+  updated_at: string;
+}>;
+
+export type ProductAttributeValueAdminRow = Readonly<{
+  id: number;
+  product_id: number;
+  variant_id: number | null;
+  attribute_definition_id: number;
+  value_text: string | null;
+  value_number: number | null;
+  value_boolean: number | null;
+  value_reference: string | null;
+  value_list_json: string | null;
+  created_at: string;
+  updated_at: string;
 }>;
 
 export type ProductOptionSnapshot = Readonly<{
@@ -97,6 +148,9 @@ export interface ProductAdminRepository {
   findOption(id: number): Promise<ProductOptionSnapshot | null>;
   findOptionValue(id: number): Promise<ProductOptionValueSnapshot | null>;
   findVariant(id: number): Promise<ProductVariantAdminRow | null>;
+  findMedia(id: number): Promise<ProductMediaAdminRow | null>;
+  findAttributeDefinition(id: number): Promise<AttributeDefinitionAdminRow | null>;
+  findAttributeValue(id: number): Promise<ProductAttributeValueAdminRow | null>;
 }
 
 export function createProductAdminService(repository: ProductAdminRepository) {
@@ -107,5 +161,8 @@ export function createProductAdminService(repository: ProductAdminRepository) {
     findOption: (id: number) => repository.findOption(id),
     findOptionValue: (id: number) => repository.findOptionValue(id),
     findVariant: (id: number) => repository.findVariant(id),
+    findMedia: (id: number) => repository.findMedia(id),
+    findAttributeDefinition: (id: number) => repository.findAttributeDefinition(id),
+    findAttributeValue: (id: number) => repository.findAttributeValue(id),
   });
 }

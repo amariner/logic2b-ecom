@@ -39,7 +39,7 @@ improvisan durante la implementación.
 |---|---|---|
 | R0 | Investigación, taxonomía, matriz, roadmap y estrategia wiki | ✅ cerrado 2026-08-06 |
 | R1 | Cimientos modulares y observables | ✅ cerrado 2026-08-07 |
-| R2 | Núcleo transaccional profesional | 🟡 R2.1–R2.4 cerrados 2026-08-08 |
+| R2 | Núcleo transaccional profesional | 🟡 R2.1–R2.5 cerrados 2026-08-10; Admin V2 antes de R2.6 |
 | R3 | Operación de pedidos, inventario y fulfillment | ⬜ |
 | R4 | Precios, promociones y modelos de venta | ⬜ |
 | R5 | Clientes, privacidad y mercados | ⬜ |
@@ -91,7 +91,7 @@ Cada migración se diseña y ensaya sobre una copia antes de tocar el esquema vi
 | 14 | **R2.2 Producto-variante: esquema** | Migración aditiva, backfill 1:1, constraints/índices y restore rehearsal; producto simple sigue idéntico. | ✅ 2026-08-08 |
 | 15 | **R2.3 Producto-variante: dominio y lectura** | Repositorio y tipos canónicos; storefront y quote leen variante; guardarraíl prohíbe precio desde cliente. | ✅ 2026-08-08 |
 | 16 | **R2.4 Producto-variante: admin y seed** | CRUD de opciones/variantes/SKU/estado con validación; import/export y seed actual migrados. | ✅ 2026-08-08 |
-| 17 | **R2.5 Media y atributos tipados** | Galería, alt/foco/orden/asociación a variante; atributos con definición, valor y validación. | ⬜ |
+| 17 | **R2.5 Media y atributos tipados** | Galería, alt/foco/orden/asociación a variante; atributos con definición, valor y validación. | ✅ 2026-08-10 |
 | 18 | **R2.6 Ledger de inventario: diseño** | Movimientos, balance, razones, reservas y concurrencia; invariantes y SQL propuesto. | ⬜ |
 | 19 | **R2.7 Ledger de inventario: implementación** | Migración, backfill del stock, escrituras append-only y proyección de disponible; doble webhook no duplica movimiento. | ⬜ |
 | 20 | **R2.8 Reservas y expiración** | Reserva opcional por carrito/checkout, TTL, liberación, captura y carrera última unidad; feature apagada por defecto. | ⬜ |
@@ -685,13 +685,33 @@ el reset interno, D1 confirma 207 productos, 209 variantes, una opción, tres
 valores y tres asociaciones. La ficha SUMMIT responde 200 con sus combinaciones,
 las mutaciones públicas responden 403 y el E2E de producción pasa **32/32**.
 
+### R2.5 — Media y atributos tipados — ✅ 2026-08-10
+
+1. Andreu aprobó ADR-0013 y la migración aditiva `0008`; el rehearsal sobre un
+   export remoto fresco produjo 207 medias, conservó hashes legacy/canónicos y
+   pasó dump/restore con `foreign_key_check` vacío e `integrity_check = ok`.
+2. `CAT-008` administra galería, orden, alt, foco y asociaciones de variante;
+   `CAT-007` administra definiciones y valores `text|number|boolean|reference|list`
+   con restricciones cerradas y override de variante.
+3. Todas las escrituras pasan por casos de uso y batches optimistas con
+   `audit_log`; el primer `image` se refleja en `products.image`, las bajas
+   compactan posiciones y las carreras dejan un único ganador.
+4. El seed compatible e idempotente deja 207 productos, 209 variantes, 208
+   medias, dos asociaciones, cinco definiciones y seis valores. Backup de
+   esquema 3 exporta/restaura las cuatro tablas nuevas.
+5. La demo advanced enseña la ficha real SUMMIT en solo lectura; minimal y
+   standard no exponen rutas ni controles. E2E prueba datos, backup y 403.
+6. Verificación: 49 suites, **332 tests**, tipos/build, E2E local/remoto
+   **37/37** y a11y/responsive **2/2** sin errores ni avisos.
+7. Producción: D1 `0001`–`0008`, cero divergencias del espejo y cero FK; Worker
+   `94d51142-49c3-444a-921c-3790227117e0` al 100 %.
+8. No se tocaron inventario, pagos ni fulfillment; stock continúa global hasta
+   R2.7.
+
 ## 7. Siguiente bloque
 
-### R2.5 — Media y atributos tipados
+### UIA.1–UIA.4 — Panel administrativo V2
 
-Implementar galería con orden, alt, foco y asociación opcional a variante, más
-definiciones/valores de atributos con tipo y validación. Mantener fallback a
-`products.image`/`specs_json`, ampliar seed y backup y ocultar toda UI cuando la
-capacidad no esté activa. No tocar todavía el ledger de inventario, pagos ni
-fulfillment. Cualquier migración D1 requiere la puerta expresa del arquitecto,
-ensayo sobre copia aislada, `foreign_key_check` y rollback compatible.
+Elevar el panel a Logic2B UI con shell, navegación, dashboard y tablas/fichas
+responsive sin perder su composición por capacidades. Este carril entra antes
+de R2.6; después se retoma el ledger de inventario según el orden R2.

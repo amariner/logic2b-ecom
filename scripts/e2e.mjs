@@ -108,6 +108,16 @@ if (variantProductId) {
     'editor de variantes también es de solo lectura',
     variantId !== undefined && variantsHtml.includes('disabled') && !variantsHtml.includes('>Añadir variante</summary>'),
   );
+  check(
+    'editor enseña galería canónica con foco y asociación a variante',
+    variantsHtml.includes('Galería') && variantsHtml.includes('campaign-glacier.webp') && variantsHtml.includes('Foco horizontal'),
+  );
+  check(
+    'editor enseña los cinco tipos de atributo y el override sembrado',
+    variantsHtml.includes('Atributos técnicos') && variantsHtml.includes('Peso')
+      && variantsHtml.includes('Impermeable') && variantsHtml.includes('Materiales')
+      && variantsHtml.includes('Referencia de colección') && variantsHtml.includes('Construcción'),
+  );
 }
 
 const shippingHtml = await (await fetch(`${BASE}/demo/admin/envios`, { headers: { cookie } })).text();
@@ -140,6 +150,8 @@ for (const [label, path, body] of [
 for (const [label, method, path] of [
   ['opciones', 'POST', `/api/admin/catalog-options/product/${variantProductId ?? 1}`],
   ['variantes', 'PATCH', `/api/admin/catalog-variants/${variantId ?? 1}`],
+  ['galería', 'PUT', `/api/admin/catalog-media/product/${variantProductId ?? 1}`],
+  ['atributos', 'POST', `/api/admin/catalog-attributes/definitions/product/${variantProductId ?? 1}`],
 ]) {
   const response = await fetch(`${BASE}${path}`, {
     method,
@@ -153,7 +165,13 @@ for (const [label, method, path] of [
 const csv = await fetch(`${BASE}/api/admin/orders/export.csv`, { headers: { cookie } });
 check('CSV de fixtures sigue disponible', csv.ok && (await csv.text()).includes('BM-'));
 const backup = await fetch(`${BASE}/api/admin/backup.sql`, { headers: { cookie } });
-check('backup de fixtures sigue disponible', backup.ok && (await backup.text()).includes('INSERT INTO products'));
+const backupSql = await backup.text();
+check('backup de fixtures sigue disponible', backup.ok && backupSql.includes('INSERT INTO products'));
+check(
+  'backup conserva media, asociaciones y atributos tipados',
+  backupSql.includes('INSERT INTO product_media') && backupSql.includes('INSERT INTO product_variant_media')
+    && backupSql.includes('INSERT INTO attribute_definitions') && backupSql.includes('INSERT INTO product_attribute_values'),
+);
 
 if (failures > 0) {
   console.error(`\nE2E: ${failures} comprobaciones fallidas`);

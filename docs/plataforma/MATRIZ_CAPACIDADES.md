@@ -44,14 +44,14 @@ su alcance requiera.
 | CAT-004 | Opciones y valores | núcleo | P0 | parcial | CRUD administrativo, FKs, lectura y seed v2 con combinaciones reales existen; el storefront todavía sirve la variante default. |
 | CAT-005 | SKU, GTIN/EAN, MPN y marca | núcleo | P1 | parcial | SKU/GTIN/MPN tienen lectura y escritura validada en cualquier variante; falta la marca editorial tipada. |
 | CAT-006 | Taxonomía y categoría normalizada | módulo | P1 | pendiente | Categoría interna + mapeos externos versionados. |
-| CAT-007 | Atributos tipados por categoría | módulo | P1 | parcial | Texto, número, unidad, booleano, referencia y lista validados. |
-| CAT-008 | Galería multimedia | núcleo | P1 | parcial | Varias imágenes/vídeo, alt, foco, orden y asociación a variante. |
+| CAT-007 | Atributos tipados por categoría | módulo | P1 | actual | Definición por colección/categoría, cinco tipos, restricciones, valores y override de variante con CRUD auditado. |
+| CAT-008 | Galería multimedia | núcleo | P1 | actual | Varias imágenes/vídeo, alt, foco, orden, espejo legacy y asociación a variante con CRUD auditado. |
 | CAT-009 | Archivos y media reutilizables | módulo | P2 | pendiente | Biblioteca con metadatos, derivados, uso y eliminación segura. |
 | CAT-010 | Estado borrador/activo/archivado/no listado | núcleo | P1 | parcial | Borrador/activo/archivado se administran sin borrar historial; falta «no listado». |
 | CAT-011 | Publicación programada | módulo | P2 | pendiente | Ventanas temporales con timezone y rollback. |
 | CAT-012 | Edición masiva | módulo | P1 | pendiente | Selección, preview, validación y resultado por fila. |
 | CAT-013 | Importación CSV robusta | módulo | P1 | pendiente | Dry-run, errores por fila, idempotencia y mapeo de campos. |
-| CAT-014 | Exportación completa | módulo | P1 | parcial | El backup SQL v2 conserva producto, opciones, variantes y combinaciones; atributos/media llegan en R2.5. |
+| CAT-014 | Exportación completa | módulo | P1 | actual | El backup SQL v3 conserva producto, opciones, variantes, media, asociaciones, definiciones y valores tipados. |
 | CAT-015 | Productos combinados | módulo | P3 | pendiente | Agrupar productos relacionados sin perder URLs/variantes independientes. |
 | CAT-016 | Productos digitales y servicios | módulo | P3 | pendiente | Tipo sin envío, entrega segura y reglas fiscales propias. |
 | CAT-017 | Catálogo de hasta gran escala | núcleo | P2 | parcial | Paginación por cursor, índices, búsqueda externa opcional y pruebas de carga. |

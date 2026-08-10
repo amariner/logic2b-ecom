@@ -62,7 +62,7 @@ El envío ya está implementado (`src/lib/send-email.ts`): la outbox es la fuent
 
 ## 8. Verificación final
 
-- [ ] `pnpm check` en verde (tipos + 101 tests + build) y `pnpm test:e2e` contra un preview con datos de prueba.
+- [ ] `pnpm check` en verde (tipos + suite Vitest completa + build) y `pnpm test:e2e` contra un preview con datos de prueba.
 - [ ] Lighthouse ≥ 95 en las 4 métricas sobre la home y una ficha de producto
       (`BASE_URL=https://<dominio> node scripts/lighthouse.mjs`; el script pasa
       las páginas comerciales por mediana de 3 pasadas).

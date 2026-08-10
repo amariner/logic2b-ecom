@@ -65,6 +65,8 @@ const ADVANCED_CAPABILITIES = {
   ...STANDARD_CAPABILITIES,
   'CAT-002': { state: 'active', flags: INTERNAL },
   'CAT-003': { state: 'active', flags: ROUTE },
+  'CAT-007': { state: 'active', flags: ROUTE },
+  'CAT-008': { state: 'active', flags: ROUTE },
   'PRC-002': { state: 'active', flags: INTERNAL },
   'FUL-002': { state: 'active', flags: ROUTE },
   'FUL-003': { state: 'active', flags: ROUTE },

@@ -51,6 +51,10 @@ describe('capability manifest (R1.2)', () => {
     expect('CHK-003' in CAPABILITY_PRESETS.minimal).toBe(false);
     expect('CAT-003' in CAPABILITY_PRESETS.standard).toBe(false);
     expect(CAPABILITY_PRESETS.advanced['CAT-003']?.state).toBe('active');
+    expect(CAPABILITY_PRESETS.advanced['CAT-007']?.state).toBe('active');
+    expect(CAPABILITY_PRESETS.advanced['CAT-008']?.state).toBe('active');
+    expect('CAT-007' in CAPABILITY_PRESETS.standard).toBe(false);
+    expect('CAT-008' in CAPABILITY_PRESETS.standard).toBe(false);
     expect(CAPABILITY_PRESETS.standard['CHK-003']?.state).toBe('active');
     expect(CAPABILITY_PRESETS.advanced['INT-004']?.state).toBe('active');
   });
@@ -161,6 +165,8 @@ describe('capability manifest (R1.2)', () => {
     expect(platform.capabilityState('CHK-004')).toBe('active');
     expect(platform.hasCapabilityFlag('CHK-004', 'sideEffects')).toBe(false);
     expect(platform.isCapabilityActive('STO-001')).toBe(true);
+    expect(platform.isCapabilityActive('CAT-007')).toBe(true);
+    expect(platform.isCapabilityActive('CAT-008')).toBe(true);
     expect(platform.hasCapabilityFlag('STO-001', 'navigation')).toBe(true);
     expect(platform.hasCapabilityFlag('PLT-004', 'sideEffects')).toBe(false);
     expect(Object.isFrozen(platform)).toBe(true);

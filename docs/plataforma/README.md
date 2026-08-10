@@ -75,8 +75,12 @@ venta o servicios logísticos propios.
   fulfillment mediante transición incremental.
 - [`../../migrations/0007_product_variants.sql`](../../migrations/0007_product_variants.sql):
   esquema aditivo R2.2, backfill default 1:1 y snapshots compatibles de línea.
+- [`../../migrations/0008_product_media_attributes.sql`](../../migrations/0008_product_media_attributes.sql):
+  esquema aditivo R2.5 para galería y atributos tipados con backfill de imagen.
 - [`../../scripts/rehearse-r2-product-variants.mjs`](../../scripts/rehearse-r2-product-variants.mjs):
   preflight, forward, reconciliación legacy y restore aislado de R2.2.
+- [`../../scripts/rehearse-r2-media-attributes.mjs`](../../scripts/rehearse-r2-media-attributes.mjs):
+  preflight, hashes, forward y restore aislado de media/atributos R2.5.
 - [`../../src/modules/catalog/domain/product.ts`](../../src/modules/catalog/domain/product.ts):
   agregado R2.3 de producto editorial, variante vendible, opciones y guardas.
 - [`../../src/modules/catalog/infrastructure/d1-catalog-repository.ts`](../../src/modules/catalog/infrastructure/d1-catalog-repository.ts):
@@ -84,9 +88,11 @@ venta o servicios logísticos propios.
 - [`../../src/modules/catalog/application/catalog-reader.ts`](../../src/modules/catalog/application/catalog-reader.ts):
   rollout reversible `legacy|shadow|variant` y comparación bloqueante.
 - [`../../src/composition/admin-operations.ts`](../../src/composition/admin-operations.ts):
-  casos de uso R2.4 para opciones, valores y variantes con validación y auditoría.
+  casos de uso R2.4–R2.5 para variantes, media y atributos con validación.
 - [`../../src/platform/operations/infrastructure/d1-catalog-variant-audit.ts`](../../src/platform/operations/infrastructure/d1-catalog-variant-audit.ts):
   unidades D1 optimistas que confirman configuración y evidencia en una batch.
+- [`../../src/platform/operations/infrastructure/d1-catalog-content-audit.ts`](../../src/platform/operations/infrastructure/d1-catalog-content-audit.ts):
+  unidades auditadas de media/atributos, orden y sincronización del espejo.
 - [`../../src/pages/demo/admin/productos/[id].astro`](../../src/pages/demo/admin/productos/[id].astro):
   editor de combinaciones condicionado por capacidad y de solo lectura en demo.
 - [`wiki/productos-variantes-opciones.md`](wiki/productos-variantes-opciones.md):

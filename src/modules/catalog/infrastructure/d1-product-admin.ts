@@ -1,10 +1,13 @@
 import type {
   ProductAdminRepository,
   ProductAdminRow,
+  AttributeDefinitionAdminRow,
   ProductOptionAdminRow,
   ProductOptionSnapshot,
   ProductOptionValueAdminRow,
   ProductOptionValueSnapshot,
+  ProductAttributeValueAdminRow,
+  ProductMediaAdminRow,
   ProductVariantAdminRow,
 } from '../application/product-admin';
 
@@ -35,6 +38,37 @@ type VariantValueJoinRow = Readonly<{
   created_at: string;
   updated_at: string;
 }>;
+
+type MediaVariantJoinRow = Omit<ProductMediaAdminRow, 'variant_ids'> & Readonly<{
+  variant_id: number | null;
+}>;
+
+function hydrateMedia(rows: readonly MediaVariantJoinRow[]): readonly ProductMediaAdminRow[] {
+  const byId = new Map<number, MediaVariantJoinRow[]>();
+  for (const row of rows) {
+    const current = byId.get(row.id) ?? [];
+    current.push(row);
+    byId.set(row.id, current);
+  }
+  return [...byId.values()].map((mediaRows) => {
+    const row = mediaRows[0]!;
+    return Object.freeze({
+      id: row.id,
+      product_id: row.product_id,
+      kind: row.kind,
+      source: row.source,
+      alt_text: row.alt_text,
+      focal_x_bps: row.focal_x_bps,
+      focal_y_bps: row.focal_y_bps,
+      position: row.position,
+      variant_ids: Object.freeze(mediaRows.flatMap((candidate) =>
+        candidate.variant_id === null ? [] : [candidate.variant_id],
+      ).toSorted((a, b) => a - b)),
+      created_at: row.created_at,
+      updated_at: row.updated_at,
+    });
+  });
+}
 
 const variantSelect = `
   SELECT pv.id, pv.product_id, pv.sku, pv.gtin, pv.mpn, pv.title,
@@ -78,8 +112,8 @@ function hydrateVariants(rows: readonly VariantValueJoinRow[]): readonly Product
 
 export function createD1ProductAdminRepository(db: D1Database): ProductAdminRepository {
   const select = `
-    SELECT p.id, p.slug, p.name, p.price_cents, p.compare_at_price_cents,
-           p.stock, p.category, p.active,
+    SELECT p.id, p.slug, p.name, p.image, p.price_cents, p.compare_at_price_cents,
+           p.stock, p.category, p.collection, p.active,
            pv.id AS default_variant_id, pv.sku AS default_sku,
            pv.gtin AS default_gtin, pv.mpn AS default_mpn,
            pv.title AS default_variant_title, pv.status AS default_variant_status,
@@ -103,7 +137,7 @@ export function createD1ProductAdminRepository(db: D1Database): ProductAdminRepo
     async details(id) {
       const product = await db.prepare(`${select} WHERE p.id = ?`).bind(id).first<ProductAdminRow>();
       if (!product) return null;
-      const [optionResult, variantResult] = await Promise.all([
+      const [optionResult, variantResult, mediaResult, definitionResult, attributeValueResult] = await Promise.all([
         db.prepare(`
           SELECT po.id AS option_id, po.product_id, po.name AS option_name,
                  po.position AS option_position, pov.id AS value_id,
@@ -118,6 +152,34 @@ export function createD1ProductAdminRepository(db: D1Database): ProductAdminRepo
           WHERE pv.product_id = ?
           ORDER BY pv.is_default DESC, pv.id, pvov.option_id
         `).bind(id).all<VariantValueJoinRow>(),
+        db.prepare(`
+          SELECT pm.id, pm.product_id, pm.kind, pm.source, pm.alt_text,
+                 pm.focal_x_bps, pm.focal_y_bps, pm.position,
+                 pm.created_at, pm.updated_at, pvm.variant_id
+          FROM product_media pm
+          LEFT JOIN product_variant_media pvm ON pvm.media_id = pm.id
+          WHERE pm.product_id = ?
+          ORDER BY pm.position, pm.id, pvm.variant_id
+        `).bind(id).all<MediaVariantJoinRow>(),
+        db.prepare(`
+          SELECT ad.id, ad.collection, ad.category, ad.code, ad.label,
+                 ad.value_type, ad.unit, ad.constraints_json, ad.position,
+                 ad.active, ad.created_at, ad.updated_at,
+                 (SELECT count(*) FROM product_attribute_values pav
+                  WHERE pav.attribute_definition_id = ad.id) AS value_count
+          FROM attribute_definitions ad
+          WHERE ad.collection = ?
+            AND (ad.category = '' OR ad.category = ?)
+          ORDER BY ad.category = '' DESC, ad.position, ad.id
+        `).bind(product.collection, product.category).all<AttributeDefinitionAdminRow>(),
+        db.prepare(`
+          SELECT id, product_id, variant_id, attribute_definition_id,
+                 value_text, value_number, value_boolean, value_reference,
+                 value_list_json, created_at, updated_at
+          FROM product_attribute_values
+          WHERE product_id = ?
+          ORDER BY attribute_definition_id, variant_id IS NOT NULL, variant_id, id
+        `).bind(id).all<ProductAttributeValueAdminRow>(),
       ]);
       const options = new Map<number, ProductOptionAdminRow>();
       for (const row of optionResult.results) {
@@ -143,6 +205,9 @@ export function createD1ProductAdminRepository(db: D1Database): ProductAdminRepo
         product,
         options: Object.freeze([...options.values()]),
         variants: Object.freeze(hydrateVariants(variantResult.results)),
+        media: Object.freeze(hydrateMedia(mediaResult.results)),
+        attribute_definitions: Object.freeze(definitionResult.results),
+        attribute_values: Object.freeze(attributeValueResult.results),
       });
     },
     findOption(id) {
@@ -173,6 +238,36 @@ export function createD1ProductAdminRepository(db: D1Database): ProductAdminRepo
         ORDER BY pvov.option_id
       `).bind(id).all<VariantValueJoinRow>();
       return hydrateVariants(results)[0] ?? null;
+    },
+    async findMedia(id) {
+      const { results } = await db.prepare(`
+        SELECT pm.id, pm.product_id, pm.kind, pm.source, pm.alt_text,
+               pm.focal_x_bps, pm.focal_y_bps, pm.position,
+               pm.created_at, pm.updated_at, pvm.variant_id
+        FROM product_media pm
+        LEFT JOIN product_variant_media pvm ON pvm.media_id = pm.id
+        WHERE pm.id = ?
+        ORDER BY pvm.variant_id
+      `).bind(id).all<MediaVariantJoinRow>();
+      return hydrateMedia(results)[0] ?? null;
+    },
+    findAttributeDefinition(id) {
+      return db.prepare(`
+        SELECT ad.id, ad.collection, ad.category, ad.code, ad.label,
+               ad.value_type, ad.unit, ad.constraints_json, ad.position,
+               ad.active, ad.created_at, ad.updated_at,
+               (SELECT count(*) FROM product_attribute_values pav
+                WHERE pav.attribute_definition_id = ad.id) AS value_count
+        FROM attribute_definitions ad WHERE ad.id = ?
+      `).bind(id).first<AttributeDefinitionAdminRow>();
+    },
+    findAttributeValue(id) {
+      return db.prepare(`
+        SELECT id, product_id, variant_id, attribute_definition_id,
+               value_text, value_number, value_boolean, value_reference,
+               value_list_json, created_at, updated_at
+        FROM product_attribute_values WHERE id = ?
+      `).bind(id).first<ProductAttributeValueAdminRow>();
     },
   };
 }

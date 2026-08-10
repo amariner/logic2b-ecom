@@ -17,7 +17,7 @@ Este repositorio es dos cosas a la vez:
 | Estilos | Tailwind CSS v4 |
 | Pagos | Stripe Checkout alojado (la tarjeta nunca toca nuestro servidor) |
 | Emails | Resend en una tienda real; la demo solo enseña fixtures independientes en `/demo/admin/emails` |
-| Tests | Vitest (321: comercio local, variantes, precios, envío, transiciones, webhook/idempotencia de pago, eventos/outbox/auditoría/observabilidad, integraciones, emails, auth, rate limit, backup, JSON-LD, HTML escaping, CSV y storefront) + E2E de 32 pasos |
+| Tests | Vitest (332: comercio local, variantes, media/atributos tipados, precios, envío, transiciones, webhook/idempotencia de pago, eventos/outbox/auditoría/observabilidad, integraciones, emails, auth, rate limit, backup, JSON-LD, HTML escaping, CSV y storefront) + E2E de 37 pasos |
 
 ## Requisitos
 

@@ -46,3 +46,7 @@ export {
   type CatalogVariantValues,
   type D1CatalogVariantAuditWriter,
 } from './infrastructure/d1-catalog-variant-audit';
+export {
+  createD1CatalogContentAuditWriter,
+  type D1CatalogContentAuditWriter,
+} from './infrastructure/d1-catalog-content-audit';

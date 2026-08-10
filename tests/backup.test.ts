@@ -34,6 +34,10 @@ describe('volcado de copia de seguridad', () => {
       'product_option_values',
       'product_variants',
       'product_variant_option_values',
+      'product_media',
+      'product_variant_media',
+      'attribute_definitions',
+      'product_attribute_values',
     ]));
     for (const table of BACKUP_TABLES) expect(sql).toContain(`DELETE FROM ${table};`);
   });

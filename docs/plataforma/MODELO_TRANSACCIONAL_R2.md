@@ -246,7 +246,7 @@ PSP y no existe dato histórico suficiente para backfillearla.
   fuera `audit_log`, `contact_requests` y datos operativos internos ya excluidos
   por seguridad. El formato de backup incorpora versión de esquema y aborta si
   se intenta restaurar sobre una versión incompatible.
-- El export de catálogo v2 incluye productos, variantes, combinaciones,
+- El export de catálogo v3 incluye productos, variantes, combinaciones,
   atributos y media. El CSV logístico continúa usando snapshots de pedido: no
   depende de que el producto o variante sigan publicados.
 
@@ -257,7 +257,7 @@ PSP y no existe dato histórico suficiente para backfillearla.
 | R2.2 | Tablas/columnas aditivas de producto-variante y backfill 1:1. Sin lector nuevo. | Recuentos, unicidad, FK y precios idénticos; rollback de binario trivial. |
 | R2.3 | Dominio/repositorio canónico y lectura de variante. | Shadow-read sin diferencias; flag permite volver al lector legacy. |
 | R2.4 | Admin, seed e import/export escriben producto-variante. | Doble escritura y fixtures restaurables; ninguna UI aparece si capacidad está apagada. |
-| R2.5 | Media y atributos tipados; fallback a columnas de `products`. | Asociación solo dentro del producto; export v2 completo. |
+| R2.5 | Media y atributos tipados; fallback a columnas de `products`. | Asociación solo dentro del producto; export v3 completo. |
 | R2.6 | ADR/SQL exacto del ledger. | Nueva puerta de esquema; sin mutar stock todavía. |
 | R2.7 | Movimiento, balance, backfill y escritura canónica. | Reconciliación a cero; rollback exige espejo legacy íntegro. |
 | R2.8 | Reservas y job de expiración opcionales. | Carrera última unidad, expiración y replay idempotentes. |
@@ -370,3 +370,22 @@ nueva superficie 2/2 sin errores ni avisos. El storefront continúa usando el
 default y el stock sigue global hasta R2.7. El despliegue funcional del
 2026-08-09 (`0445b6cb-1619-43eb-aeaf-da0012f6b9f9`) conserva los mismos
 recuentos en D1 y pasa el E2E remoto 32/32.
+
+## 13. Evidencia de R2.5
+
+La puerta de ADR-0013 fue aprobada expresamente el 2026-08-10. El rehearsal
+restauró un export remoto fresco, aplicó `0008`, creó 207 filas media desde
+`products.image`, conservó hashes legacy/canónicos y volvió a restaurar el dump
+migrado con `foreign_key_check` vacío e `integrity_check = ok`.
+
+El agregado administrativo valida foco, alt, pertenencia de variante, scopes,
+los cinco tipos y sus restricciones. Cada mutación escribe evidencia y datos en
+la misma batch optimista; el orden usa posiciones temporales para no violar
+unicidad y mantiene alineado `products.image`. El seed y el backup de esquema 3
+son idempotentes y restaurables.
+
+El cierre pasa 49 suites y 332 tests, tipos/build, E2E 37/37 local y remoto y
+la ficha admin a 1440/375 sin hallazgos. Producción sirve el Worker
+`94d51142-49c3-444a-921c-3790227117e0`; D1 contiene 207 productos, 209
+variantes, 208 medias, dos asociaciones, cinco definiciones y seis valores,
+sin divergencias de imagen ni violaciones FK.

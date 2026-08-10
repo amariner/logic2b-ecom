@@ -2,7 +2,10 @@
 
 import {
   CatalogAdminError,
+  attributeValueStorage,
   createProductAdmin,
+  normalizeAttributeDefinition,
+  validateMediaWrite,
   validateOptionName,
   validateOptionValue,
   validateVariantWrite,
@@ -11,6 +14,9 @@ import {
   type ProductOptionValueCreate,
   type ProductOptionValuePatch,
   type ProductPatch,
+  type AttributeDefinitionWrite,
+  type AttributeTypedValue,
+  type ProductMediaWrite,
   type ProductVariantAdminDetails,
   type ProductVariantAdminRow,
   type ProductVariantCreate,
@@ -19,6 +25,7 @@ import {
 import { createFulfillmentAdmin, type ShippingRatePatch } from '../modules/fulfillment';
 import {
   createD1AuditLogWriter,
+  createD1CatalogContentAuditWriter,
   createD1CatalogVariantAuditWriter,
   type CatalogOptionGuard,
   type CatalogOptionValueGuard,
@@ -42,6 +49,7 @@ export function createAdminOperations(
   const fulfillment = createFulfillmentAdmin(db);
   const audit = createD1AuditLogWriter(db);
   const variantAudit = createD1CatalogVariantAuditWriter(db);
+  const contentAudit = createD1CatalogContentAuditWriter(db);
 
   function entry(
     action: string,
@@ -390,6 +398,251 @@ export function createAdminOperations(
         ),
       );
       return variantAudit.deleteVariant(auditEntry, variantGuard(before));
+    },
+
+    async createProductMedia(productId: number, write: ProductMediaWrite): Promise<AdminMutationOutcome> {
+      const details = await products.details(productId);
+      if (!details) return 'not-found';
+      const values = validateMediaWrite(write);
+      const variantIds = new Set(details.variants.map((variant) => variant.id));
+      if (values.variant_ids.some((id) => !variantIds.has(id))) {
+        throw new CatalogAdminError('invalid-selection', 'La media contiene variantes ajenas al producto.');
+      }
+      const position = details.media.length;
+      const auditEntry = entry(
+        'catalog.media_created',
+        { type: 'product_media', id: `new:${productId}:${position}`, reference: details.product.slug },
+        createAuditDiff(
+          { source: null, kind: null, position: null },
+          { source: values.source, kind: values.kind, position },
+          ['source', 'kind', 'position'],
+        ),
+      );
+      return contentAudit.createMedia(auditEntry, {
+        id: details.product.id,
+        slug: details.product.slug,
+        image: details.product.image,
+        media_count: details.media.length,
+      }, values);
+    },
+
+    async updateProductMedia(id: number, write: ProductMediaWrite): Promise<AdminMutationOutcome> {
+      const before = await products.findMedia(id);
+      if (!before) return 'not-found';
+      const details = await products.details(before.product_id);
+      if (!details) return 'not-found';
+      const values = validateMediaWrite(write);
+      const variantIds = new Set(details.variants.map((variant) => variant.id));
+      if (values.variant_ids.some((variantId) => !variantIds.has(variantId))) {
+        throw new CatalogAdminError('invalid-selection', 'La media contiene variantes ajenas al producto.');
+      }
+      const after = { ...before, ...values };
+      const diff = createAuditDiff(before, after, [
+        'kind', 'source', 'alt_text', 'focal_x_bps', 'focal_y_bps', 'variant_ids',
+      ]);
+      if (Object.keys(diff).length === 0) return 'unchanged';
+      const auditEntry = entry(
+        'catalog.media_updated',
+        { type: 'product_media', id: String(id), reference: details.product.slug },
+        diff,
+      );
+      return contentAudit.updateMedia(auditEntry, before, values);
+    },
+
+    async reorderProductMedia(productId: number, orderedIds: readonly number[]): Promise<AdminMutationOutcome> {
+      const details = await products.details(productId);
+      if (!details) return 'not-found';
+      const currentIds = details.media.map((media) => media.id);
+      if (
+        orderedIds.length !== currentIds.length
+        || new Set(orderedIds).size !== orderedIds.length
+        || orderedIds.some((id) => !currentIds.includes(id))
+      ) {
+        throw new CatalogAdminError('invalid-selection', 'El orden debe contener toda la galería una sola vez.');
+      }
+      if (orderedIds.every((id, position) => id === currentIds[position])) return 'unchanged';
+      const auditEntry = entry(
+        'catalog.media_reordered',
+        { type: 'product_media_gallery', id: String(productId), reference: details.product.slug },
+        createAuditDiff(
+          { ordered_ids: currentIds },
+          { ordered_ids: [...orderedIds] },
+          ['ordered_ids'],
+        ),
+      );
+      return contentAudit.reorderMedia(
+        auditEntry,
+        { id: productId, slug: details.product.slug },
+        details.media,
+        orderedIds,
+      );
+    },
+
+    async deleteProductMedia(id: number): Promise<AdminMutationOutcome> {
+      const before = await products.findMedia(id);
+      if (!before) return 'not-found';
+      const details = await products.details(before.product_id);
+      if (!details) return 'not-found';
+      if (details.media.length <= 1) {
+        throw new CatalogAdminError('in-use', 'El producto debe conservar al menos una media.');
+      }
+      const later = details.media.filter((media) => media.position > before.position);
+      const auditEntry = entry(
+        'catalog.media_deleted',
+        { type: 'product_media', id: String(id), reference: details.product.slug },
+        createAuditDiff(before, { ...before, source: null, position: null }, ['source', 'position']),
+      );
+      return contentAudit.deleteMedia(
+        auditEntry,
+        before,
+        later.length,
+        later.reduce((sum, media) => sum + media.variant_ids.length, 0),
+      );
+    },
+
+    async createAttributeDefinition(
+      productId: number,
+      write: AttributeDefinitionWrite,
+    ): Promise<AdminMutationOutcome> {
+      const details = await products.details(productId);
+      if (!details) return 'not-found';
+      const values = normalizeAttributeDefinition(write);
+      const scoped = details.attribute_definitions.filter((definition) =>
+        definition.collection === details.product.collection && definition.category === details.product.category
+      );
+      if (scoped.some((definition) => definition.code.toLocaleLowerCase('en') === values.code)) {
+        throw new CatalogAdminError('invalid-selection', 'Ya existe un atributo con ese código en la categoría.');
+      }
+      const auditEntry = entry(
+        'catalog.attribute_definition_created',
+        { type: 'attribute_definition', id: `new:${productId}:${values.code}`, reference: details.product.slug },
+        createAuditDiff(
+          { code: null, value_type: null },
+          { code: values.code, value_type: values.value_type },
+          ['code', 'value_type'],
+        ),
+      );
+      return contentAudit.createDefinition(auditEntry, {
+        product_id: productId,
+        collection: details.product.collection,
+        category: details.product.category,
+        count: scoped.length,
+      }, values);
+    },
+
+    async updateAttributeDefinition(
+      id: number,
+      write: AttributeDefinitionWrite,
+    ): Promise<AdminMutationOutcome> {
+      const before = await products.findAttributeDefinition(id);
+      if (!before) return 'not-found';
+      const values = normalizeAttributeDefinition(write);
+      if (
+        before.value_count > 0 &&
+        (before.value_type !== values.value_type || before.unit !== values.unit || before.constraints_json !== values.constraints_json)
+      ) {
+        throw new CatalogAdminError(
+          'in-use',
+          'No se puede cambiar tipo, unidad o restricciones mientras existan valores.',
+        );
+      }
+      const diff = createAuditDiff(before, { ...before, ...values }, [
+        'code', 'label', 'value_type', 'unit', 'constraints_json', 'active',
+      ]);
+      if (Object.keys(diff).length === 0) return 'unchanged';
+      const auditEntry = entry(
+        'catalog.attribute_definition_updated',
+        { type: 'attribute_definition', id: String(id), reference: `${before.collection}:${before.category}` },
+        diff,
+      );
+      return contentAudit.updateDefinition(auditEntry, before, values);
+    },
+
+    async deleteAttributeDefinition(id: number): Promise<AdminMutationOutcome> {
+      const before = await products.findAttributeDefinition(id);
+      if (!before) return 'not-found';
+      if (before.value_count > 0) {
+        throw new CatalogAdminError('in-use', 'El atributo tiene valores; desactívalo para conservar los datos.');
+      }
+      const auditEntry = entry(
+        'catalog.attribute_definition_deleted',
+        { type: 'attribute_definition', id: String(id), reference: `${before.collection}:${before.category}` },
+        createAuditDiff(before, { ...before, code: null }, ['code']),
+      );
+      return contentAudit.deleteDefinition(auditEntry, before);
+    },
+
+    async createProductAttributeValue(
+      productId: number,
+      definitionId: number,
+      variantId: number | null,
+      input: AttributeTypedValue,
+    ): Promise<AdminMutationOutcome> {
+      const [details, definition] = await Promise.all([
+        products.details(productId),
+        products.findAttributeDefinition(definitionId),
+      ]);
+      if (!details || !definition) return 'not-found';
+      if (
+        definition.collection !== details.product.collection ||
+        (definition.category !== '' && definition.category !== details.product.category)
+      ) {
+        throw new CatalogAdminError('invalid-selection', 'El atributo no pertenece al producto.');
+      }
+      if (variantId !== null && !details.variants.some((variant) => variant.id === variantId)) {
+        throw new CatalogAdminError('invalid-selection', 'La variante no pertenece al producto.');
+      }
+      const storage = attributeValueStorage(definition, input);
+      const auditEntry = entry(
+        'catalog.attribute_value_created',
+        { type: 'product_attribute_value', id: `new:${productId}:${variantId ?? 'product'}:${definitionId}`, reference: details.product.slug },
+        createAuditDiff(
+          { definition_id: null, value: null },
+          { definition_id: definitionId, value: storage },
+          ['definition_id', 'value'],
+        ),
+      );
+      return contentAudit.createAttributeValue(auditEntry, {
+        product_id: productId,
+        variant_id: variantId,
+        definition_id: definitionId,
+      }, storage);
+    },
+
+    async updateProductAttributeValue(id: number, input: AttributeTypedValue): Promise<AdminMutationOutcome> {
+      const before = await products.findAttributeValue(id);
+      if (!before) return 'not-found';
+      const definition = await products.findAttributeDefinition(before.attribute_definition_id);
+      if (!definition) return 'conflict';
+      const storage = attributeValueStorage(definition, input);
+      const diff = createAuditDiff(before, { ...before, ...storage }, [
+        'value_text', 'value_number', 'value_boolean', 'value_reference', 'value_list_json',
+      ]);
+      if (Object.keys(diff).length === 0) return 'unchanged';
+      const auditEntry = entry(
+        'catalog.attribute_value_updated',
+        { type: 'product_attribute_value', id: String(id), reference: String(before.product_id) },
+        diff,
+      );
+      return contentAudit.updateAttributeValue(auditEntry, before, storage);
+    },
+
+    async deleteProductAttributeValue(id: number): Promise<AdminMutationOutcome> {
+      const before = await products.findAttributeValue(id);
+      if (!before) return 'not-found';
+      const auditEntry = entry(
+        'catalog.attribute_value_deleted',
+        { type: 'product_attribute_value', id: String(id), reference: String(before.product_id) },
+        createAuditDiff(before, {
+          ...before,
+          value_text: null,
+          value_number: null,
+          value_boolean: null,
+          value_reference: null,
+          value_list_json: null,
+        }, ['value_text', 'value_number', 'value_boolean', 'value_reference', 'value_list_json']),
+      );
+      return contentAudit.deleteAttributeValue(auditEntry, before);
     },
 
     async updateShippingRate(id: number, patch: ShippingRatePatch): Promise<AdminMutationOutcome> {

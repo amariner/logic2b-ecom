@@ -13,6 +13,19 @@ const details = await createProductAdmin(Astro.locals.runtime.env.DB).details(pr
 if (!details) return new Response('Producto no encontrado', { status: 404 });
 
 const readOnly = Astro.locals.runtime.env.DEMO_MODE === 'true';
+const showMedia = runtimePlatform.isCapabilityActive('CAT-008');
+const showAttributes = runtimePlatform.isCapabilityActive('CAT-007');
+const attributeValueText = (value: (typeof details.attribute_values)[number]): string => {
+  if (value.value_text !== null) return value.value_text;
+  if (value.value_number !== null) return String(value.value_number);
+  if (value.value_boolean !== null) return value.value_boolean === 1 ? 'true' : 'false';
+  if (value.value_reference !== null) return value.value_reference;
+  if (value.value_list_json !== null) {
+    try { return (JSON.parse(value.value_list_json) as string[]).join(', '); } catch { return value.value_list_json; }
+  }
+  return '';
+};
+const typeLabel = { text: 'Texto', number: 'Número', boolean: 'Sí/no', reference: 'Referencia', list: 'Lista' } as const;
 ---
 
 <Admin title={`Variantes · ${details.product.name}`} active="productos">
@@ -43,6 +56,185 @@ const readOnly = Astro.locals.runtime.env.DEMO_MODE === 'true';
   </p>
 
   <p data-catalog-status role="status" aria-live="polite" class="mt-4 min-h-6 text-sm text-stone-700"></p>
+
+  {showMedia && (
+    <section class="mt-2 rounded-xl border border-stone-300 bg-white p-4 sm:p-5" aria-labelledby="media-title">
+      <div>
+        <h2 id="media-title" class="text-lg font-semibold">Galería</h2>
+        <p class="mt-1 text-sm text-stone-600">Orden, texto alternativo, foco de recorte y media específica por variante.</p>
+      </div>
+      <div class="mt-4 grid gap-4 lg:grid-cols-2">
+        {details.media.map((media, mediaIndex) => (
+          <form data-media-form data-media-id={media.id} class="rounded-lg border border-stone-200 p-4">
+            <div class="grid gap-4 sm:grid-cols-[8rem_1fr]">
+              <div class="overflow-hidden rounded-lg bg-stone-100">
+                {media.kind === 'image' ? (
+                  <img src={media.source} alt={media.alt_text} width="240" height="240" loading="lazy"
+                    class="aspect-square h-full w-full object-cover"
+                    style={`object-position:${media.focal_x_bps / 100}% ${media.focal_y_bps / 100}%`} />
+                ) : (
+                  <video src={media.source} aria-label={media.alt_text} controls preload="metadata" class="aspect-square h-full w-full object-cover"></video>
+                )}
+              </div>
+              <div class="grid gap-3">
+                <label class="text-xs font-medium text-stone-600">Tipo
+                  <select name="kind" disabled={readOnly} class="mt-1 min-h-11 w-full rounded border border-stone-300 bg-white px-3 text-sm disabled:bg-stone-50">
+                    <option value="image" selected={media.kind === 'image'}>Imagen</option>
+                    <option value="video" selected={media.kind === 'video'}>Vídeo</option>
+                  </select>
+                </label>
+                <label class="text-xs font-medium text-stone-600">Ruta o clave
+                  <input name="source" value={media.source} required maxlength="500" disabled={readOnly}
+                    class="mt-1 min-h-11 w-full rounded border border-stone-300 px-3 font-mono text-xs disabled:bg-stone-50" />
+                </label>
+                <label class="text-xs font-medium text-stone-600">Texto alternativo
+                  <input name="alt_text" value={media.alt_text} required maxlength="240" disabled={readOnly}
+                    class="mt-1 min-h-11 w-full rounded border border-stone-300 px-3 text-sm disabled:bg-stone-50" />
+                </label>
+              </div>
+            </div>
+            <div class="mt-3 grid gap-3 sm:grid-cols-2">
+              <label class="text-xs font-medium text-stone-600">Foco horizontal (0–100 %)
+                <input name="focal_x" type="number" min="0" max="100" step="0.01" value={media.focal_x_bps / 100} disabled={readOnly}
+                  class="mt-1 min-h-11 w-full rounded border border-stone-300 px-3 text-sm disabled:bg-stone-50" />
+              </label>
+              <label class="text-xs font-medium text-stone-600">Foco vertical (0–100 %)
+                <input name="focal_y" type="number" min="0" max="100" step="0.01" value={media.focal_y_bps / 100} disabled={readOnly}
+                  class="mt-1 min-h-11 w-full rounded border border-stone-300 px-3 text-sm disabled:bg-stone-50" />
+              </label>
+            </div>
+            <fieldset class="mt-3">
+              <legend class="text-xs font-medium text-stone-600">Visible específicamente en variantes</legend>
+              <div class="mt-2 flex flex-wrap gap-3">
+                {details.variants.map((variant) => (
+                  <label class="inline-flex min-h-11 items-center gap-2 text-xs">
+                    <input type="checkbox" name="variant_ids" value={variant.id} checked={media.variant_ids.includes(variant.id)} disabled={readOnly} />
+                    {variant.title || variant.sku}
+                  </label>
+                ))}
+              </div>
+            </fieldset>
+            {!readOnly && (
+              <div class="mt-3 flex flex-wrap gap-2">
+                <button class="min-h-11 rounded bg-stone-900 px-4 text-sm font-medium text-white">Guardar media</button>
+                <button type="button" data-move-media="-1" disabled={mediaIndex === 0}
+                  aria-label={`Subir ${media.alt_text} una posición`}
+                  class="min-h-11 rounded border border-stone-300 px-4 text-sm disabled:cursor-not-allowed disabled:opacity-40">↑ Subir</button>
+                <button type="button" data-move-media="1" disabled={mediaIndex === details.media.length - 1}
+                  aria-label={`Bajar ${media.alt_text} una posición`}
+                  class="min-h-11 rounded border border-stone-300 px-4 text-sm disabled:cursor-not-allowed disabled:opacity-40">↓ Bajar</button>
+                <button type="button" data-delete-media class="min-h-11 rounded px-4 text-sm text-red-700 hover:bg-red-50">Eliminar</button>
+              </div>
+            )}
+          </form>
+        ))}
+      </div>
+      {!readOnly && (
+        <details class="mt-4 rounded-lg border border-dashed border-stone-400 p-4">
+          <summary class="min-h-11 cursor-pointer py-2 font-medium">Añadir media</summary>
+          <form data-create-media class="mt-3 grid gap-3 sm:grid-cols-2">
+            <label class="text-xs font-medium text-stone-600">Tipo
+              <select name="kind" class="mt-1 min-h-11 w-full rounded border border-stone-300 bg-white px-3"><option value="image">Imagen</option><option value="video">Vídeo</option></select>
+            </label>
+            <label class="text-xs font-medium text-stone-600">Ruta o clave
+              <input name="source" required maxlength="500" class="mt-1 min-h-11 w-full rounded border border-stone-300 px-3 font-mono text-xs" />
+            </label>
+            <label class="text-xs font-medium text-stone-600 sm:col-span-2">Texto alternativo
+              <input name="alt_text" required maxlength="240" class="mt-1 min-h-11 w-full rounded border border-stone-300 px-3" />
+            </label>
+            <label class="text-xs font-medium text-stone-600">Foco horizontal %
+              <input name="focal_x" type="number" min="0" max="100" step="0.01" value="50" class="mt-1 min-h-11 w-full rounded border border-stone-300 px-3" />
+            </label>
+            <label class="text-xs font-medium text-stone-600">Foco vertical %
+              <input name="focal_y" type="number" min="0" max="100" step="0.01" value="50" class="mt-1 min-h-11 w-full rounded border border-stone-300 px-3" />
+            </label>
+            <div class="sm:col-span-2"><button class="min-h-11 rounded bg-stone-900 px-4 text-sm font-medium text-white">Crear media</button></div>
+          </form>
+        </details>
+      )}
+    </section>
+  )}
+
+  {showAttributes && (
+    <section class="mt-6 rounded-xl border border-stone-300 bg-white p-4 sm:p-5" aria-labelledby="attributes-title">
+      <div>
+        <h2 id="attributes-title" class="text-lg font-semibold">Atributos técnicos</h2>
+        <p class="mt-1 text-sm text-stone-600">Valores tipados del producto; una variante puede sustituir el valor general.</p>
+      </div>
+      <div class="mt-4 space-y-4">
+        {details.attribute_definitions.map((definition) => {
+          const values = details.attribute_values.filter((value) => value.attribute_definition_id === definition.id);
+          return (
+            <article class="rounded-lg border border-stone-200 p-4">
+              <form data-definition-form data-definition-id={definition.id} class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                <label class="text-xs font-medium text-stone-600">Etiqueta
+                  <input name="label" value={definition.label} maxlength="120" disabled={readOnly} class="mt-1 min-h-11 w-full rounded border border-stone-300 px-3 disabled:bg-stone-50" />
+                </label>
+                <label class="text-xs font-medium text-stone-600">Código
+                  <input name="code" value={definition.code} maxlength="80" disabled={readOnly} class="mt-1 min-h-11 w-full rounded border border-stone-300 px-3 font-mono text-sm disabled:bg-stone-50" />
+                </label>
+                <label class="text-xs font-medium text-stone-600">Tipo
+                  <select name="value_type" disabled={readOnly || definition.value_count > 0} class="mt-1 min-h-11 w-full rounded border border-stone-300 bg-white px-3 disabled:bg-stone-50">
+                    {Object.entries(typeLabel).map(([type, label]) => <option value={type} selected={definition.value_type === type}>{label}</option>)}
+                  </select>
+                </label>
+                <label class="text-xs font-medium text-stone-600">Unidad
+                  <input name="unit" value={definition.unit ?? ''} maxlength="24" disabled={readOnly || definition.value_count > 0} class="mt-1 min-h-11 w-full rounded border border-stone-300 px-3 disabled:bg-stone-50" />
+                </label>
+                <label class="text-xs font-medium text-stone-600 sm:col-span-2 lg:col-span-3">Restricciones JSON
+                  <input name="constraints" value={definition.constraints_json} disabled={readOnly || definition.value_count > 0} class="mt-1 min-h-11 w-full rounded border border-stone-300 px-3 font-mono text-xs disabled:bg-stone-50" />
+                </label>
+                <label class="inline-flex min-h-11 items-center gap-2 pt-5 text-sm"><input name="active" type="checkbox" checked={definition.active === 1} disabled={readOnly} /> Activo</label>
+                {!readOnly && <div class="flex flex-wrap gap-2 sm:col-span-2 lg:col-span-4"><button class="min-h-11 rounded bg-stone-900 px-4 text-sm text-white">Guardar definición</button><button type="button" data-delete-definition class="min-h-11 rounded px-4 text-sm text-red-700">Eliminar</button></div>}
+              </form>
+              <ul class="mt-3 space-y-2">
+                {values.map((value) => {
+                  const variant = details.variants.find((candidate) => candidate.id === value.variant_id);
+                  return (
+                    <li>
+                      <form data-attribute-value-form data-value-id={value.id} data-value-type={definition.value_type} class="flex flex-wrap items-end gap-2 rounded bg-stone-50 p-3">
+                        <label class="min-w-32 flex-1 text-xs font-medium text-stone-600">{variant ? `Variante ${variant.title || variant.sku}` : 'Valor general'}
+                          <input name="value" value={attributeValueText(value)} disabled={readOnly} class="mt-1 min-h-11 w-full rounded border border-stone-300 px-3 text-sm disabled:bg-white" />
+                        </label>
+                        {!readOnly && <><button class="min-h-11 rounded border border-stone-300 px-3 text-sm">Guardar</button><button type="button" data-delete-attribute-value class="min-h-11 rounded px-3 text-sm text-red-700">Eliminar</button></>}
+                      </form>
+                    </li>
+                  );
+                })}
+              </ul>
+            </article>
+          );
+        })}
+      </div>
+      {!readOnly && (
+        <div class="mt-4 grid gap-4 lg:grid-cols-2">
+          <form data-create-definition class="rounded-lg border border-dashed border-stone-400 p-4">
+            <h3 class="font-medium">Nueva definición</h3>
+            <div class="mt-3 grid gap-3 sm:grid-cols-2">
+              <input name="label" required maxlength="120" placeholder="Etiqueta" aria-label="Etiqueta del atributo" class="min-h-11 rounded border border-stone-300 px-3" />
+              <input name="code" required maxlength="80" placeholder="codigo_interno" aria-label="Código del atributo" class="min-h-11 rounded border border-stone-300 px-3 font-mono text-sm" />
+              <select name="value_type" aria-label="Tipo del atributo" class="min-h-11 rounded border border-stone-300 bg-white px-3">{Object.entries(typeLabel).map(([type, label]) => <option value={type}>{label}</option>)}</select>
+              <input name="unit" maxlength="24" placeholder="Unidad (solo número)" aria-label="Unidad del atributo" class="min-h-11 rounded border border-stone-300 px-3" />
+              <input name="constraints" value="{}" aria-label="Restricciones JSON" class="min-h-11 rounded border border-stone-300 px-3 font-mono text-xs sm:col-span-2" />
+              <button class="min-h-11 rounded bg-stone-900 px-4 text-sm font-medium text-white sm:col-span-2">Crear definición</button>
+            </div>
+          </form>
+          <form data-create-attribute-value class="rounded-lg border border-dashed border-stone-400 p-4">
+            <h3 class="font-medium">Nuevo valor</h3>
+            <div class="mt-3 grid gap-3">
+              <select name="definition_id" aria-label="Definición" required class="min-h-11 rounded border border-stone-300 bg-white px-3">
+                <option value="">Selecciona atributo</option>
+                {details.attribute_definitions.filter((definition) => definition.active === 1).map((definition) => <option value={definition.id} data-value-type={definition.value_type}>{definition.label} · {typeLabel[definition.value_type]}</option>)}
+              </select>
+              <select name="variant_id" aria-label="Ámbito del valor" class="min-h-11 rounded border border-stone-300 bg-white px-3"><option value="">Producto completo</option>{details.variants.map((variant) => <option value={variant.id}>Variante {variant.title || variant.sku}</option>)}</select>
+              <input name="value" required placeholder="Valor; listas separadas por comas" aria-label="Valor del atributo" class="min-h-11 rounded border border-stone-300 px-3" />
+              <button class="min-h-11 rounded bg-stone-900 px-4 text-sm font-medium text-white">Crear valor</button>
+            </div>
+          </form>
+        </div>
+      )}
+    </section>
+  )}
 
   <section class="mt-2 rounded-xl border border-stone-300 bg-white p-4 sm:p-5" aria-labelledby="options-title">
     <div class="flex flex-wrap items-start justify-between gap-3">
@@ -272,6 +464,148 @@ const readOnly = Astro.locals.runtime.env.DEMO_MODE === 'true';
       const result = Math.round(Number(normalized) * 100);
       return Number.isInteger(result) && result >= 0 ? result : NaN;
     }
+
+    function mediaPayload(form) {
+      const data = new FormData(form);
+      const focalX = Math.round(Number(data.get('focal_x')) * 100);
+      const focalY = Math.round(Number(data.get('focal_y')) * 100);
+      if (![focalX, focalY].every((value) => Number.isInteger(value) && value >= 0 && value <= 10000)) {
+        setStatus('El foco debe estar entre 0 y 100 %.', true);
+        return null;
+      }
+      return {
+        kind: String(data.get('kind') ?? ''),
+        source: String(data.get('source') ?? '').trim(),
+        alt_text: String(data.get('alt_text') ?? '').trim(),
+        focal_x_bps: focalX,
+        focal_y_bps: focalY,
+        variant_ids: data.getAll('variant_ids').map(Number),
+      };
+    }
+
+    function definitionPayload(form) {
+      const data = new FormData(form);
+      let constraints;
+      try { constraints = JSON.parse(String(data.get('constraints') ?? '{}')); }
+      catch { setStatus('Las restricciones deben ser JSON válido.', true); return null; }
+      if (!constraints || Array.isArray(constraints) || typeof constraints !== 'object') {
+        setStatus('Las restricciones deben ser un objeto JSON.', true);
+        return null;
+      }
+      return {
+        code: String(data.get('code') ?? '').trim(),
+        label: String(data.get('label') ?? '').trim(),
+        value_type: String(data.get('value_type') ?? ''),
+        unit: String(data.get('unit') ?? '').trim() || null,
+        constraints,
+        active: data.get('active') === 'on' || !form.hasAttribute('data-definition-form'),
+      };
+    }
+
+    function typedAttributeValue(type, raw) {
+      const value = String(raw).trim();
+      if (type === 'number') {
+        const number = Number(value.replace(',', '.'));
+        if (!Number.isFinite(number)) { setStatus('El valor debe ser numérico.', true); return null; }
+        return { type, value: number };
+      }
+      if (type === 'boolean') {
+        const normalized = value.toLocaleLowerCase('es');
+        if (['true', '1', 'sí', 'si'].includes(normalized)) return { type, value: true };
+        if (['false', '0', 'no'].includes(normalized)) return { type, value: false };
+        setStatus('Usa sí/no o true/false para un atributo booleano.', true);
+        return null;
+      }
+      if (type === 'list') return { type, value: value.split(',').map((item) => item.trim()).filter(Boolean) };
+      if (type === 'text' || type === 'reference') return { type, value };
+      setStatus('Tipo de atributo desconocido.', true);
+      return null;
+    }
+
+    document.querySelectorAll('[data-media-form]').forEach((element) => {
+      if (!(element instanceof HTMLFormElement)) return;
+      const mediaId = element.dataset.mediaId ?? '';
+      element.addEventListener('submit', (event) => {
+        event.preventDefault();
+        const payload = mediaPayload(element);
+        if (payload) void mutate('PATCH', `/api/admin/catalog-media/${mediaId}`, payload);
+      });
+      element.querySelector('[data-delete-media]')?.addEventListener('click', () => {
+        if (window.confirm('¿Eliminar esta media de la galería?')) void mutate('DELETE', `/api/admin/catalog-media/${mediaId}`);
+      });
+      element.querySelectorAll('[data-move-media]').forEach((button) => {
+        button.addEventListener('click', () => {
+          if (!(button instanceof HTMLButtonElement)) return;
+          const forms = [...document.querySelectorAll('[data-media-form]')];
+          const currentIndex = forms.indexOf(element);
+          const nextIndex = currentIndex + Number(button.dataset.moveMedia);
+          if (currentIndex < 0 || nextIndex < 0 || nextIndex >= forms.length) return;
+          const orderedIds = forms.map((form) => Number((form instanceof HTMLElement ? form.dataset.mediaId : '') ?? ''));
+          [orderedIds[currentIndex], orderedIds[nextIndex]] = [orderedIds[nextIndex], orderedIds[currentIndex]];
+          void mutate('PUT', `/api/admin/catalog-media/product/${productId}`, { ordered_ids: orderedIds });
+        });
+      });
+    });
+
+    const createMediaForm = document.querySelector('[data-create-media]');
+    createMediaForm?.addEventListener('submit', (event) => {
+      event.preventDefault();
+      if (!(createMediaForm instanceof HTMLFormElement)) return;
+      const payload = mediaPayload(createMediaForm);
+      if (payload) void mutate('POST', `/api/admin/catalog-media/product/${productId}`, payload);
+    });
+
+    document.querySelectorAll('[data-definition-form]').forEach((element) => {
+      if (!(element instanceof HTMLFormElement)) return;
+      const definitionId = element.dataset.definitionId ?? '';
+      element.addEventListener('submit', (event) => {
+        event.preventDefault();
+        const payload = definitionPayload(element);
+        if (payload) void mutate('PATCH', `/api/admin/catalog-attributes/definitions/${definitionId}`, payload);
+      });
+      element.querySelector('[data-delete-definition]')?.addEventListener('click', () => {
+        if (window.confirm('¿Eliminar esta definición sin valores?')) void mutate('DELETE', `/api/admin/catalog-attributes/definitions/${definitionId}`);
+      });
+    });
+
+    const createDefinitionForm = document.querySelector('[data-create-definition]');
+    createDefinitionForm?.addEventListener('submit', (event) => {
+      event.preventDefault();
+      if (!(createDefinitionForm instanceof HTMLFormElement)) return;
+      const payload = definitionPayload(createDefinitionForm);
+      if (payload) void mutate('POST', `/api/admin/catalog-attributes/definitions/product/${productId}`, payload);
+    });
+
+    document.querySelectorAll('[data-attribute-value-form]').forEach((element) => {
+      if (!(element instanceof HTMLFormElement)) return;
+      const valueId = element.dataset.valueId ?? '';
+      element.addEventListener('submit', (event) => {
+        event.preventDefault();
+        const input = element.elements.namedItem('value');
+        const payload = typedAttributeValue(element.dataset.valueType, input instanceof HTMLInputElement ? input.value : '');
+        if (payload) void mutate('PATCH', `/api/admin/catalog-attributes/values/${valueId}`, payload);
+      });
+      element.querySelector('[data-delete-attribute-value]')?.addEventListener('click', () => {
+        if (window.confirm('¿Eliminar este valor?')) void mutate('DELETE', `/api/admin/catalog-attributes/values/${valueId}`);
+      });
+    });
+
+    const createAttributeValueForm = document.querySelector('[data-create-attribute-value]');
+    createAttributeValueForm?.addEventListener('submit', (event) => {
+      event.preventDefault();
+      if (!(createAttributeValueForm instanceof HTMLFormElement)) return;
+      const data = new FormData(createAttributeValueForm);
+      const definition = createAttributeValueForm.elements.namedItem('definition_id');
+      const option = definition instanceof HTMLSelectElement ? definition.selectedOptions[0] : null;
+      const value = typedAttributeValue(option?.dataset.valueType, data.get('value'));
+      if (!value) return;
+      const variant = String(data.get('variant_id') ?? '');
+      void mutate('POST', `/api/admin/catalog-attributes/values/product/${productId}`, {
+        definition_id: Number(data.get('definition_id')),
+        variant_id: variant ? Number(variant) : null,
+        value,
+      });
+    });
 
     function variantPayload(form, makeDefault = false) {
       const data = new FormData(form);
