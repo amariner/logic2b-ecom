@@ -844,7 +844,10 @@ dentro de presupuesto. Sin despliegue remoto. Ficha completa en
 [`docs/temas/brio.md`](temas/brio.md). La siguiente referencia ejecutable de la
 cola es la posición 10 (`308044ce22d161b3d0caead45300d7f9.jpg`). Lighthouse
 local de la landing quedó en 98 móvil / 99 escritorio por LCP del copy general
-y una captura ORBE; el resto de categorías, 100.
+y una captura ORBE; el resto de categorías, 100. Integrado en `main` como
+`8d18b6c` y desplegado el 2026-08-11 en el Worker
+`603ca2fa-ae6f-45f4-be87-b597ad76adf1`; smoke remoto 200 en tienda, portada y
+asset de hero.
 
 ### Pendiente en la Fase 9B
 
