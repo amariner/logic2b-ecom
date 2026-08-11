@@ -68,7 +68,7 @@ reconciliación se conserva abajo por contexto.
 ## Repo y entornos
 
 - GitHub: `https://github.com/amariner/logic2b-ecom` (rama `main`).
-- Cloudflare: **en producción** — Worker `ecom-logic2b` en https://ecom.logic2b.com, D1 remota `ecom-demo` (`7ae9b06d-3664-4790-a87c-04bb4c67e97a`), cron reset cada 6 h, cuenta marinerandreu@gmail.com. Corte compatible R2.5 + consolidación F12.6 + temas NERA/VISO/ORBE/ALVA del 2026-08-10: versión `627eed0a-b45b-4698-b26e-6db3fb770b59` al 100 %, migraciones `0001`–`0008` y triggers de reset/outbox sincronizados. Smoke estable, E2E remoto completo, ALVA 0/0 en 9 superficies y Lighthouse 100×4 en las 12 mediciones comerciales; R2.7/R2.8 permanecen fuera del corte.
+- Cloudflare: **en producción** — Worker `ecom-logic2b` en https://ecom.logic2b.com, D1 remota `ecom-demo` (`7ae9b06d-3664-4790-a87c-04bb4c67e97a`), cron reset cada 6 h, cuenta marinerandreu@gmail.com. Corte R2.9 del 2026-08-11: versión `08d0e8e3-dbfc-40b2-a277-6028b49e577b`, migraciones `0001`–`0011`, backfill 8 pagos/6 capturas y E2E remoto 38/38; cero revisiones, descuadres o violaciones FK. Conserva la consolidación F12.6 y los temas ya servidos, sin tomar trabajo nuevo del carril visual.
 
 ## Fase 13 — Plataforma modular y paridad de capacidad
 
@@ -126,7 +126,7 @@ sus verificaciones ni sus puntos de reanudación.
 | R2.6 | Diseño del ledger de inventario | ✅ 2026-08-10 — ADR/2 DDL propuestos, 341 tests |
 | R2.7 | Implementación del ledger de inventario | ✅ 2026-08-10 — migración, writer, 344 tests, E2E 37/37, a11y 16/16; sin deploy |
 | R2.8 | Reservas y expiración | ✅ 2026-08-10 — 350 tests, carrera/TTL/job y E2E 37/37; `INV-004` apagada y sin deploy |
-| R2.9 | Ledger de pagos, backfill y captura transaccional | ✅ 2026-08-11 — 358 tests, rehearsal remoto aislado y E2E 38/38; rollout pendiente |
+| R2.9 | Ledger de pagos, backfill y captura transaccional | ✅ 2026-08-11 — 358 tests, D1 `0011`, Worker `08d0e8e3…` y E2E remoto 38/38 |
 | R2.10+ | Reembolso total y resto de olas | ⬜ siguiente: reembolso total |
 
 ## Fase 12 — Logic2B Ecommerce: renombrado, reposicionamiento y las dos visiones
@@ -1892,7 +1892,7 @@ responden 200 tras propagación. Sin migración, dependencia ni cambio de motor.
 - Verificación: `pnpm check` (50 suites, 335 tests), E2E 37/37 y auditoría admin
   16/16 a 1440/375 con 0 errores y 0 avisos. Sin migración ni deploy.
 
-### R2.9 · Ledger de pagos — cerrado en repo/local 2026-08-11
+### R2.9 · Ledger de pagos — cerrado en producción 2026-08-11
 
 - `0011_payment_ledger.sql` añade moneda expand/contract, pagos, transacciones,
   reembolsos y asignaciones. Céntimos, moneda, proveedor, estados, referencias y
@@ -1908,25 +1908,25 @@ responden 200 tras propagación. Sin migración, dependencia ni cambio de motor.
 - Seed/reset local y backup de esquema 5 conservan 8/8/6, cero reembolsos,
   monedas divergentes o violaciones FK. Verificación: `pnpm check` (56 suites,
   358 tests) y E2E local 38/38.
-- El rollout remoto queda deliberadamente después de integrar en `main`, según
-  `docs/plataforma/OPERACION_LEDGER_PAGOS.md`; producción aún sirve D1 `0008`.
+- El rollout remoto dejó D1 en `0011`: 8 pedidos, 8 pagos, 6 capturas, cero
+  revisiones, divisas divergentes, descuadres o violaciones FK. Worker
+  `08d0e8e3-dbfc-40b2-a277-6028b49e577b`; E2E de producción 38/38.
 
 ### Siguiente bloque
 
-**Ruta continua del desarrollo principal.** R2.9 queda cerrado en repo/local
+**Ruta continua del desarrollo principal.** R2.9 queda cerrado en producción
 con migración `0011`, backfill por moneda, ledger/captura idempotente y backup
 de esquema 5. El siguiente bloque es **R2.10 · Reembolso total**. Desde ahí
 continúa el orden R2–R11 y los
 carriles transversales de UI, calidad y verdad comercial definidos en
-[`docs/RUTA_DESARROLLO_CONTINUO.md`](RUTA_DESARROLLO_CONTINUO.md). Primero se
-integra y ejecuta el rollout remoto seguro de R2.9. Esta rama no toma generación
-de temas por decisión de Andreu: el carril visual continúa en otro
+[`docs/RUTA_DESARROLLO_CONTINUO.md`](RUTA_DESARROLLO_CONTINUO.md). Esta rama no
+toma generación de temas por decisión de Andreu: el carril visual continúa en otro
 canal/worktree.
 
 **F12.6 queda cerrado en el carril comercial (2026-08-10).** El índice por
 audiencias, las OG y las seis páginas indexables se han revalidado; el barrido
 detectó y corrigió la deuda de ARGENT y el CLS causado por revelar tarde los
-filtros de `/temas`. Producción sirve el corte compatible con D1 `0008`
+filtros de `/temas`. En aquel cierre producción servía el corte compatible con D1 `0008`
 (`6b465a19-d295-455a-9c59-21ccde4a610e`): 207 superficies, 0 errores y 0
 avisos; R2.7/R2.8 no se desplegaron.
 

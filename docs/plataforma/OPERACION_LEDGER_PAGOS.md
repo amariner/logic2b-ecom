@@ -64,6 +64,22 @@ La demo pública ya rechaza checkout y no necesita esa pausa.
 7. Reabrir checkout solo cuando pedido, pago, captura, stock, evento y email
    hayan pasado la prueba de extremo a extremo.
 
+### Evidencia del corte de la demo — 2026-08-11
+
+- baseline remoto conservado: 409.232 bytes;
+- D1 `0001`–`0011`; 8 pedidos, 8 pagos, 6 capturas y 0 reembolsos;
+- cero `requires_review`, monedas divergentes, descuadres de captura o FKs;
+- Worker `08d0e8e3-dbfc-40b2-a277-6028b49e577b`; E2E remoto 38/38.
+
+Wrangler 4.111 devolvió `incomplete input` al enviar por `/query` los triggers
+con `CASE ... END` anidado. El corte usó la importación atómica por fichero,
+verificó tablas/triggers antes de registrar cada migración y no dejó estado
+parcial. El DDL canónico evita ya el `END` anidado mediante el equivalente
+`SELECT RAISE ... WHERE`, validado contra el parser remoto. D1 permite
+`PRAGMA foreign_key_check` —vacío en el corte—, pero rechaza
+`PRAGMA integrity_check` por `SQLITE_AUTH`; la comprobación de integridad se
+ejecutó sobre la copia aislada del rehearsal.
+
 ## Rollback y recuperación
 
 - Antes del deploy, el binario anterior ignora las tablas nuevas. La columna

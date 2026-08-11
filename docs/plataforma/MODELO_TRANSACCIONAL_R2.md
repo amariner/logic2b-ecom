@@ -447,6 +447,9 @@ el hash canónico y el dump restaurado conservó hashes legacy/canónico, FKs e
 integridad. El reset local coincide (8/8/6, cero reembolsos o monedas
 divergentes) y el backup de esquema 5 restaura las cuatro tablas.
 
-Cierre en repo/local: 56 suites, 358 tests, tipos/build y E2E 38/38. El rollout
-remoto queda como gate posterior a integrar `main`, documentado en
-`OPERACION_LEDGER_PAGOS.md`.
+Cierre servido: 56 suites, 358 tests y tipos/build en verde. Producción quedó
+en D1 `0011` con 8 pagos, 6 capturas, cero revisiones, divisas divergentes,
+descuadres o violaciones FK; Worker
+`08d0e8e3-dbfc-40b2-a277-6028b49e577b` y E2E remoto 38/38. La incidencia del
+parser de triggers de Wrangler 4.111 y el corte coordinado quedan registrados
+en `OPERACION_LEDGER_PAGOS.md`.

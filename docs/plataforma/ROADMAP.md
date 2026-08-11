@@ -799,8 +799,12 @@ UIA.1–UIA.4 queda cerrado como un único corte coherente:
    local queda en 8/8/6 y cero reembolsos/divisas divergentes.
 6. Verificación: **56 suites, 358 tests**, tipos/build y E2E local **38/38**.
    Sin dependencia, UI, superficie PCI ni dato sensible nuevo.
-7. En este commit aún no se mutó D1 remota ni se desplegó; el rollout sigue el
-   runbook `OPERACION_LEDGER_PAGOS.md` después de integrar en `main`.
+7. Producción cerrada el 2026-08-11: D1 `0001`–`0011`, backfill 8 pagos/6
+   capturas para 8 pedidos, cero revisiones/divisas/FKs divergentes y Worker
+   `08d0e8e3-dbfc-40b2-a277-6028b49e577b`. E2E remoto **38/38**. Wrangler
+   4.111 requirió importar `0010`/`0011` por fichero debido a su parser de
+   triggers compuestos; se verificó cada esquema antes de registrar la
+   migración y el DDL quedó reformulado sin `CASE ... END` anidado.
 
 ## 12. Siguiente bloque
 
