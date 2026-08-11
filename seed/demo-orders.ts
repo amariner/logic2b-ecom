@@ -407,6 +407,8 @@ export function demoOrderStatements(): string[] {
     });
 
     const paymentIntent = reachedStatuses.has('paid') ? `sim_pi_${order.order_number}` : null;
+    const paymentStatus = reachedStatuses.has('paid') ? 'captured' : order.status === 'pending' ? 'pending' : 'cancelled';
+    const sessionId = `sim_sess_${order.order_number}`;
     const trackingCarrier = order.tracking && reachedStatuses.has('shipped') ? order.tracking.carrier : null;
     const trackingNumber = order.tracking && reachedStatuses.has('shipped') ? order.tracking.number : null;
 
@@ -414,18 +416,46 @@ export function demoOrderStatements(): string[] {
     statements.push(
       `INSERT INTO orders (order_number, email, customer_name, address_json, ` +
         `subtotal_cents, shipping_cents, total_cents, status, stripe_session_id, ` +
-        `stripe_payment_intent, tracking_carrier, tracking_number, created_at, updated_at) VALUES (` +
+        `stripe_payment_intent, tracking_carrier, tracking_number, created_at, updated_at, currency) VALUES (` +
         `${sqlString(order.order_number)}, ${sqlString(order.customer.email)}, ` +
         `${sqlString(order.customer.name)}, ${sqlString(addressJson)}, ` +
         `${subtotal}, ${shipping}, ${total}, ${sqlString(order.status)}, ` +
-        `${sqlString(`sim_sess_${order.order_number}`)}, ` +
+        `${sqlString(sessionId)}, ` +
         `${paymentIntent === null ? 'NULL' : sqlString(paymentIntent)}, ` +
         `${trackingCarrier === null ? 'NULL' : sqlString(trackingCarrier)}, ` +
         `${trackingNumber === null ? 'NULL' : sqlString(trackingNumber)}, ` +
-        `${sqlNow(created.at)}, ${sqlNow(last.at)})`,
+        `${sqlNow(created.at)}, ${sqlNow(last.at)}, ${sqlString(shopConfig.currency.toUpperCase())})`,
     );
 
-    // 2) Las líneas (product_id por subconsulta de slug — integridad referencial real).
+    // 2) Intención/captura canónica R2.9. Las columnas Stripe del pedido se
+    // conservan como espejo temporal de rollback hasta R2.14.
+    statements.push(
+      `INSERT INTO payments (` +
+        `order_id, provider, provider_reference, currency, expected_amount_cents, ` +
+        `status, version, idempotency_key, created_at, updated_at` +
+      `) VALUES (` +
+        `${orderIdByNumber(order.order_number)}, 'simulated', ` +
+        `${sqlString(paymentIntent ?? sessionId)}, ${sqlString(shopConfig.currency.toUpperCase())}, ` +
+        `${total}, ${sqlString(paymentStatus)}, 1, ` +
+        `'r2:payment:order:' || ${orderIdByNumber(order.order_number)} || ':primary', ` +
+        `${sqlNow(created.at)}, ${sqlNow(last.at)})`,
+    );
+    if (paymentIntent !== null) {
+      const paidStep = order.timeline.find((step) => step.to === 'paid')!;
+      statements.push(
+        `INSERT INTO payment_transactions (` +
+          `payment_id, type, amount_cents, currency, status, provider_reference, ` +
+          `idempotency_key, occurred_at, created_at` +
+        `) VALUES (` +
+          `(SELECT id FROM payments WHERE order_id = ${orderIdByNumber(order.order_number)} ORDER BY id LIMIT 1), ` +
+          `'capture', ${total}, ${sqlString(shopConfig.currency.toUpperCase())}, 'succeeded', ` +
+          `${sqlString(paymentIntent)}, ` +
+          `'r2:payment:capture:order:' || ${orderIdByNumber(order.order_number)}, ` +
+          `${sqlNow(paidStep.at)}, ${sqlNow(paidStep.at)})`,
+      );
+    }
+
+    // 3) Las líneas (product_id por subconsulta de slug — integridad referencial real).
     for (const line of order.lines) {
       statements.push(
         `INSERT INTO order_items (order_id, product_id, name_snapshot, unit_price_cents, qty) VALUES (` +
@@ -434,7 +464,7 @@ export function demoOrderStatements(): string[] {
       );
     }
 
-    // 3) El timeline de eventos (uno por hito, con su propio timestamp).
+    // 4) El timeline de eventos (uno por hito, con su propio timestamp).
     let previous: OrderStatus | null = null;
     for (const step of order.timeline) {
       const from = previous === null ? 'NULL' : sqlString(previous);
@@ -446,7 +476,7 @@ export function demoOrderStatements(): string[] {
       previous = step.to;
     }
 
-    // 4) Los emails que el flujo real habría generado.
+    // 5) Los emails que el flujo real habría generado.
     if (reachedStatuses.has('paid')) {
       const paidStep = order.timeline.find((step) => step.to === 'paid')!;
       const data = emailDataFor(order);

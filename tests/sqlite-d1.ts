@@ -9,6 +9,7 @@ import migration7 from '../migrations/0007_product_variants.sql?raw';
 import migration8 from '../migrations/0008_product_media_attributes.sql?raw';
 import migration9 from '../migrations/0009_inventory_ledger.sql?raw';
 import migration10 from '../migrations/0010_inventory_reservations.sql?raw';
+import migration11 from '../migrations/0011_payment_ledger.sql?raw';
 
 type SqlValue = string | number | bigint | null | Uint8Array;
 
@@ -81,6 +82,7 @@ export class SqliteD1 {
     for (const migration of [
       migration1, migration2, migration3, migration4, migration5,
       migration6, migration7, migration8, migration9, migration10,
+      migration11,
     ]) {
       this.sqlite.exec(migration);
     }

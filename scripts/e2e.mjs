@@ -173,6 +173,14 @@ check(
   backupSql.includes('INSERT INTO product_media') && backupSql.includes('INSERT INTO product_variant_media')
     && backupSql.includes('INSERT INTO attribute_definitions') && backupSql.includes('INSERT INTO product_attribute_values'),
 );
+check(
+  'backup conserva ledger de pagos y estructura de reembolsos R2.9',
+  backupSql.includes('logic2b-backup-schema: 5')
+    && backupSql.includes('INSERT INTO payments')
+    && backupSql.includes('INSERT INTO payment_transactions')
+    && backupSql.includes('DELETE FROM refunds')
+    && backupSql.includes('DELETE FROM refund_items'),
+);
 
 if (failures > 0) {
   console.error(`\nE2E: ${failures} comprobaciones fallidas`);

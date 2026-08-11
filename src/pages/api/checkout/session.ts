@@ -179,8 +179,10 @@ export const POST: APIRoute = async ({ request, locals }) => {
         shipping_cents: quote.shipping_cents,
         total_cents: quote.total_cents,
         stripe_session_id: sessionId,
+        currency: shopConfig.currency.toUpperCase(),
       },
       orderLines,
+      simulate ? 'simulated' : 'stripe',
     );
     if (placed === null) throw new OperationalError('checkout.persistence_failed', true);
 

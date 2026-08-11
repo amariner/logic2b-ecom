@@ -56,6 +56,7 @@ function order(number: string, session: string) {
     shipping_cents: 0,
     total_cents: 1500,
     stripe_session_id: session,
+    currency: 'EUR',
   };
 }
 
@@ -66,7 +67,7 @@ describe('reservas de inventario R2.8', () => {
     const db = new SqliteD1();
     seedUnit(db, 2);
     const orders = service(db);
-    const placed = await orders.placeOrder(order('R2-8-CONSUME', 'cs_consume'), line);
+    const placed = await orders.placeOrder(order('R2-8-CONSUME', 'cs_consume'), line, 'stripe');
     expect(placed).not.toBeNull();
     expect(db.query('SELECT on_hand, reserved, version, reservation_version FROM inventory_balances')).toEqual([
       { on_hand: 2, reserved: 1, version: 1, reservation_version: 2 },
@@ -99,8 +100,8 @@ describe('reservas de inventario R2.8', () => {
     seedUnit(db);
     const orders = service(db);
     const results = await Promise.allSettled([
-      orders.placeOrder(order('R2-8-RACE-A', 'cs_race_a'), line),
-      orders.placeOrder(order('R2-8-RACE-B', 'cs_race_b'), line),
+      orders.placeOrder(order('R2-8-RACE-A', 'cs_race_a'), line, 'stripe'),
+      orders.placeOrder(order('R2-8-RACE-B', 'cs_race_b'), line, 'stripe'),
     ]);
     expect(results.filter((result) => result.status === 'fulfilled')).toHaveLength(1);
     expect(results.filter((result) => result.status === 'rejected')).toHaveLength(1);
@@ -114,7 +115,7 @@ describe('reservas de inventario R2.8', () => {
   it('el job expira por TTL una vez y libera reserved sin tocar on_hand', async () => {
     const db = new SqliteD1();
     seedUnit(db);
-    await service(db).placeOrder(order('R2-8-EXPIRE', 'cs_expire'), line);
+    await service(db).placeOrder(order('R2-8-EXPIRE', 'cs_expire'), line, 'stripe');
     const reservations = createD1InventoryReservations(db.asD1());
     expect(await reservations.expireDue('2026-08-10T10:30:59.000Z')).toBe(0);
     expect(await reservations.expireDue('2026-08-10T10:32:00.000Z')).toBe(1);
@@ -130,7 +131,7 @@ describe('reservas de inventario R2.8', () => {
   it('no persiste PII en cabeceras, líneas ni eventos de reserva', async () => {
     const db = new SqliteD1();
     seedUnit(db);
-    await service(db).placeOrder(order('R2-8-NO-PII', 'cs_no_pii'), line);
+    await service(db).placeOrder(order('R2-8-NO-PII', 'cs_no_pii'), line, 'stripe');
     const serialized = JSON.stringify({
       reservations: db.query('SELECT * FROM inventory_reservations'),
       lines: db.query('SELECT * FROM inventory_reservation_lines'),
@@ -143,7 +144,7 @@ describe('reservas de inventario R2.8', () => {
   it('el cron durable ejecuta expiración solo con INV-004 activa', async () => {
     const db = new SqliteD1();
     seedUnit(db);
-    await service(db).placeOrder(order('R2-8-CRON', 'cs_cron'), line);
+    await service(db).placeOrder(order('R2-8-CRON', 'cs_cron'), line, 'stripe');
     const base = createPresetManifest('standard', {
       id: 'reservation-cron-test', mode: 'client', environment: 'development',
     });

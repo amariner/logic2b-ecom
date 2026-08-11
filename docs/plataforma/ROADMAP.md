@@ -39,7 +39,7 @@ improvisan durante la implementación.
 |---|---|---|
 | R0 | Investigación, taxonomía, matriz, roadmap y estrategia wiki | ✅ cerrado 2026-08-06 |
 | R1 | Cimientos modulares y observables | ✅ cerrado 2026-08-07 |
-| R2 | Núcleo transaccional profesional | 🟡 R2.1–R2.8 y Admin V2 cerrados 2026-08-10; siguiente R2.9 |
+| R2 | Núcleo transaccional profesional | 🟡 R2.1–R2.9 y Admin V2 cerrados; siguiente R2.10 |
 | R3 | Operación de pedidos, inventario y fulfillment | ⬜ |
 | R4 | Precios, promociones y modelos de venta | ⬜ |
 | R5 | Clientes, privacidad y mercados | ⬜ |
@@ -95,7 +95,7 @@ Cada migración se diseña y ensaya sobre una copia antes de tocar el esquema vi
 | 18 | **R2.6 Ledger de inventario: diseño** | Movimientos, balance, razones, reservas y concurrencia; invariantes y SQL propuesto. | ✅ 2026-08-10 |
 | 19 | **R2.7 Ledger de inventario: implementación** | Migración, backfill del stock, escrituras append-only y proyección de disponible; doble webhook no duplica movimiento. | ✅ 2026-08-10 |
 | 20 | **R2.8 Reservas y expiración** | Reserva opcional por carrito/checkout, TTL, liberación, captura y carrera última unidad; feature apagada por defecto. | ✅ 2026-08-10 |
-| 21 | **R2.9 Ledger de pagos** | Payment/transaction/refund con proveedor, moneda, importe, status e idempotencia; pedido no usa un único string como contabilidad. | ⬜ |
+| 21 | **R2.9 Ledger de pagos** | Payment/transaction/refund con proveedor, moneda, importe, status e idempotencia; pedido no usa un único string como contabilidad. | ✅ 2026-08-11 |
 | 22 | **R2.10 Reembolso total** | Acción admin → proveedor → ledger → evento → email → stock según política; retry seguro y estado visible. | ⬜ |
 | 23 | **R2.11 Fulfillment por líneas** | Fulfillment y fulfillment_items; envío total actual se convierte en un caso simple. | ⬜ |
 | 24 | **R2.12 Fulfillment parcial** | Cantidades parciales, múltiples trackings, email por envío y estados derivados sin perder histórico. | ⬜ |
@@ -780,10 +780,32 @@ UIA.1–UIA.4 queda cerrado como un único corte coherente:
 7. Verificación local: **53 suites, 350 tests**, tipos/build y E2E **37/37**.
    Sin migración remota, activación, navegación ni deploy.
 
-## 11. Siguiente bloque
+## 11. R2.9 — Ledger de pagos — ✅ 2026-08-11
 
-### R2.9 — Ledger de pagos
+1. `0011_payment_ledger.sql` añade moneda expand/contract, intención,
+   transacciones, reembolsos y asignaciones con FKs, estados cerrados, céntimos,
+   idempotencia y guarda de saldo; los espejos `orders.stripe_*` siguen vivos.
+2. `modules/payments` valida proveedor, moneda, importe y versión y ofrece una
+   unidad D1 guardada por el mismo evento que pedido, inventario, timeline,
+   auditoría y entregas.
+3. Alta crea intención `pending`; webhook/simulado crea una sola captura y
+   actualiza el espejo. Expiración cancela sin asiento y cancelar un pedido ya
+   pagado marca `requires_review`, nunca reembolso ficticio.
+4. El backfill se genera desde `shop.config.currency`, no congela EUR en clones.
+   El rehearsal sobre export remoto fresco (409.232 bytes) llevó el corte
+   `0008` a `0011` en copia: 8 pedidos, 8 pagos, 6 capturas, 0 revisiones,
+   replay idempotente y dump/restore con hashes estables.
+5. Seed, reset y backup de esquema 5 incluyen el ledger y restauran FKs; la D1
+   local queda en 8/8/6 y cero reembolsos/divisas divergentes.
+6. Verificación: **56 suites, 358 tests**, tipos/build y E2E local **38/38**.
+   Sin dependencia, UI, superficie PCI ni dato sensible nuevo.
+7. En este commit aún no se mutó D1 remota ni se desplegó; el rollout sigue el
+   runbook `OPERACION_LEDGER_PAGOS.md` después de integrar en `main`.
 
-Separar intención, transacción y estado financiero del string legacy del pedido;
-backfill de Stripe/simulado, moneda e importes en céntimos, captura idempotente y
-excepciones `requires_review`, conservando rollback y datos sensibles fuera.
+## 12. Siguiente bloque
+
+### R2.10 — Reembolso total
+
+Acción administrativa confirmada → adaptador PSP → ledger de pago/reembolso →
+evento/auditoría → email → reposición de stock según política, con reintento
+idempotente, fallo recuperable y demo pública inerte.

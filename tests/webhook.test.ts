@@ -31,6 +31,7 @@ const order: OrderForPayment = {
   subtotal_cents: 3040,
   shipping_cents: 490,
   total_cents: 3530,
+  currency: 'EUR',
 };
 
 const items: OrderItemForPayment[] = [

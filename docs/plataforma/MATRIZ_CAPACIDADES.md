@@ -101,7 +101,7 @@ su alcance requiera.
 | CHK-001 | Carrito persistente invitado | núcleo | P0 | actual | Namespaced, cantidades limitadas y revalidación en servidor. |
 | CHK-002 | Cotización autoritativa | núcleo | P0 | actual | Precio, stock, envío y total salen del servidor. |
 | CHK-003 | Checkout alojado seguro | conector | P0 | actual | Datos de tarjeta fuera del servidor Logic2B. |
-| CHK-004 | Webhook de pago idempotente | núcleo | P0 | actual | Una transición, un descuento de stock, un email. |
+| CHK-004 | Webhook de pago idempotente | núcleo | P0 | actual | Una captura financiera, una transición, un descuento de stock y un email en la misma unidad guardada. |
 | CHK-005 | Dirección normalizada y validada | módulo | P1 | parcial | Esquema por país, sugerencias opcionales y validación no bloqueante. |
 | CHK-006 | Impuestos y desglose | núcleo | P1 | pendiente | Base, tipo, jurisdicción, redondeo y snapshot por línea. |
 | CHK-007 | Múltiples métodos de entrega | módulo | P1 | parcial | Envío, recogida y entrega local según contexto. |
@@ -125,7 +125,7 @@ su alcance requiera.
 | ORD-004 | Notas, etiquetas y timeline | módulo | P1 | parcial | Actividad unificada con actor y visibilidad interna/cliente. |
 | ORD-005 | Edición de pedido | módulo | P1 | pendiente | Añadir/quitar/cambiar cantidad con ajuste de dinero y stock. |
 | ORD-006 | Cancelación parcial | módulo | P1 | pendiente | Por línea/cantidad, motivo, stock y reembolso coherentes. |
-| ORD-007 | Reembolso total/parcial | módulo | P1 | especificado | Workflow y asignación por línea sobre ledger/PSP idempotente; dinero y reposición de stock son decisiones separadas. |
+| ORD-007 | Reembolso total/parcial | módulo | P1 | especificado | Esquema y guardas de saldo instalados; workflow PSP/admin pendiente de R2.10–R2.13. Dinero y reposición de stock son decisiones separadas. |
 | ORD-008 | Pedido preliminar/presupuesto | módulo | P2 | pendiente | Borrador, caducidad, aprobación, factura y enlace de pago. |
 | ORD-009 | Captura manual o diferida | módulo | P2 | pendiente | Autorización, captura parcial y expiración. |
 | ORD-010 | Riesgo/incidencia/bloqueo | módulo | P2 | pendiente | Hold explícito que impide preparación hasta resolución. |
@@ -291,7 +291,7 @@ su alcance requiera.
 
 | ID | Capacidad | Vía | Prioridad | Estado | Resultado objetivo |
 |---|---|---|---|---|---|
-| INT-001 | Pago Stripe | conector | P0 | actual | Checkout, webhook y estados. |
+| INT-001 | Pago Stripe | conector | P0 | actual | Checkout alojado, webhook y captura reconciliada en ledger; reembolso operativo pendiente de R2.10. |
 | INT-002 | Email Resend | conector | P1 | parcial | En demo se captura; cliente real usa adaptador. |
 | INT-003 | Packlink/Sendcloud por CSV | conector | P1 | actual | Exportación manual portable. |
 | INT-004 | Backup SQL | núcleo | P0 | actual | Exportación restaurable autenticada. |
@@ -351,7 +351,7 @@ son, en este orden:
 
 1. manifest/registro de módulos, eventos versionados y outbox;
 2. producto-variante y ledger de inventario;
-3. ledger de pagos, reembolsos y fulfillment parcial;
+3. reembolsos y fulfillment parcial sobre los ledgers ya instalados;
 4. clientes/consentimientos y contexto de mercado;
 5. contratos de adaptadores y observabilidad;
 6. proyecciones para búsqueda, analítica y automatización;

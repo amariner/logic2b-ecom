@@ -85,6 +85,12 @@ venta o servicios logísticos propios.
   propuesta R2.6 conservada como evidencia; la migración viva es `0009`.
 - [`sql/0010_inventory_reservations.proposed.sql`](sql/0010_inventory_reservations.proposed.sql):
   propuesta R2.6 conservada como evidencia; la migración viva R2.8 es `0010`.
+- [`../../migrations/0011_payment_ledger.sql`](../../migrations/0011_payment_ledger.sql):
+  esquema aditivo R2.9 para intención, asiento financiero y reembolso.
+- [`OPERACION_LEDGER_PAGOS.md`](OPERACION_LEDGER_PAGOS.md): rehearsal,
+  backfill por moneda, corte coordinado, rollback y recuperación R2.9.
+- [`../../src/modules/payments/`](../../src/modules/payments/): contrato puro y
+  adaptador D1 de intención, captura y cancelación financiera.
 - [`../../src/modules/inventory/domain/inventory-ledger.ts`](../../src/modules/inventory/domain/inventory-ledger.ts):
   razones, direcciones, transiciones y guarda optimista del ledger.
 - [`../../src/modules/inventory/infrastructure/d1-inventory-ledger.ts`](../../src/modules/inventory/infrastructure/d1-inventory-ledger.ts):

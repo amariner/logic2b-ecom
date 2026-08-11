@@ -34,13 +34,18 @@ function seedPendingOrder(db: SqliteD1): void {
       'test', '1', 'test:opening:1', 'inventory:variant:1', '2026-08-08T10:00:00.000Z');
     INSERT INTO orders (
       id, order_number, email, customer_name, address_json,
-      subtotal_cents, shipping_cents, total_cents, status, stripe_session_id
+      subtotal_cents, shipping_cents, total_cents, status, stripe_session_id, currency
     ) VALUES (
       7, 'BM-260806-TEST', 'clienta@example.com', 'Marta Ferrer', '{}',
-      1780, 490, 2270, 'pending', 'cs_test_1'
+      1780, 490, 2270, 'pending', 'cs_test_1', 'EUR'
     );
     INSERT INTO order_items (order_id, product_id, variant_id, name_snapshot, unit_price_cents, qty)
     VALUES (7, 1, 1, 'AOVE', 890, 2);
+    INSERT INTO payments (
+      order_id, provider, provider_reference, currency, expected_amount_cents,
+      status, idempotency_key, created_at, updated_at
+    ) VALUES (7, 'stripe', 'cs_test_1', 'EUR', 2270, 'pending',
+      'r2:payment:order:7:primary', '2026-08-06T10:00:00.000Z', '2026-08-06T10:00:00.000Z');
   `);
 }
 
@@ -77,8 +82,10 @@ describe('outbox transaccional R1.7 sobre SQL real', () => {
         shipping_cents: 0,
         total_cents: 890,
         stripe_session_id: 'cs_placed',
+        currency: 'EUR',
       },
       [{ product_id: 1, name_snapshot: 'AOVE', unit_price_cents: 890, qty: 1 }],
+      'stripe',
     );
     expect(placed?.orderId).toBe(1);
     expect(placed?.event.entity.id).toBe('1');
@@ -102,6 +109,8 @@ describe('outbox transaccional R1.7 sobre SQL real', () => {
       source: 'stripe',
     });
     expect(confirmed).toBe(true);
+    expect(db.value('SELECT status AS value FROM payments WHERE order_id=7')).toBe('captured');
+    expect(db.value('SELECT count(*) AS value FROM payment_transactions')).toBe(1);
     expect(db.value('SELECT stock AS value FROM products WHERE id=1')).toBe(8);
     expect(db.value('SELECT count(*) AS value FROM event_outbox_events')).toBe(1);
     const audit = db.query<{ action: string; diff_json: string; source_event_id: string }>(
@@ -139,6 +148,7 @@ describe('outbox transaccional R1.7 sobre SQL real', () => {
     expect(db.value('SELECT count(*) AS value FROM event_outbox_events')).toBe(1);
     expect(db.value('SELECT count(*) AS value FROM event_outbox_deliveries')).toBe(1);
     expect(db.value('SELECT count(*) AS value FROM audit_log')).toBe(1);
+    expect(db.value('SELECT count(*) AS value FROM payment_transactions')).toBe(1);
   });
 
   it('stock insuficiente aborta cobro, pedido, evento y movimiento', async () => {
@@ -160,6 +170,8 @@ describe('outbox transaccional R1.7 sobre SQL real', () => {
     expect(db.value('SELECT stock AS value FROM products WHERE id = 1')).toBe(1);
     expect(db.value('SELECT count(*) AS value FROM event_outbox_events')).toBe(0);
     expect(db.value("SELECT count(*) AS value FROM inventory_movements WHERE reason = 'sale'")).toBe(0);
+    expect(db.value('SELECT status AS value FROM payments WHERE order_id=7')).toBe('pending');
+    expect(db.value('SELECT count(*) AS value FROM payment_transactions')).toBe(0);
   });
 
   it('dos expiraciones solapadas cancelan una vez y no crean entregas sin suscriptor', async () => {
@@ -175,6 +187,7 @@ describe('outbox transaccional R1.7 sobre SQL real', () => {
     expect(db.value("SELECT count(*) AS value FROM event_outbox_events WHERE event_type='orders.order_cancelled'")).toBe(1);
     expect(db.value('SELECT count(*) AS value FROM event_outbox_deliveries')).toBe(0);
     expect(db.value('SELECT count(*) AS value FROM audit_log')).toBe(1);
+    expect(db.value('SELECT status AS value FROM payments WHERE order_id=7')).toBe('cancelled');
     expect(db.value('SELECT stock AS value FROM products WHERE id=1')).toBe(10);
   });
 
@@ -191,8 +204,10 @@ describe('outbox transaccional R1.7 sobre SQL real', () => {
         shipping_cents: 0,
         total_cents: 890,
         stripe_session_id: 'cs_rollback',
+        currency: 'EUR',
       },
       [{ product_id: 999, name_snapshot: 'Inexistente', unit_price_cents: 890, qty: 1 }],
+      'stripe',
     )).rejects.toThrow(/constraint failed/i);
     expect(db.value('SELECT count(*) AS value FROM orders')).toBe(0);
     expect(db.value('SELECT count(*) AS value FROM order_events')).toBe(0);

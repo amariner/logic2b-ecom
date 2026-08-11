@@ -42,7 +42,7 @@ de adaptadores e infraestructura siguen reservados a sus bloques.
 | Presentación storefront | `demo-themes`, `theme-catalog`, `nav`, `not-found`, `storefront-contract` | Registro de temas, descubrimiento del catálogo y detalles HTTP viven junto al dominio. |
 | Carrito/demo | `cart-client`, `demo-commerce` | Simulación pública local, deliberadamente separada del runtime D1. |
 | Precio/quote/envío | `pricing`, `shipping`, `quote` | La aritmética es pura; `quote` obtiene producto y tarifa directamente de D1. |
-| Pago/pedido | `stripe`, `payment-mode`, `orders`, `order-transitions`, `thanks` | `orders` conserva solo la numeración; la transición de pago vive en `modules/orders/domain/` y su escritura en `modules/orders/infrastructure/`. |
+| Pago/pedido | `stripe`, `payment-mode`, `orders`, `order-transitions`, `thanks` | `orders` conserva numeración y espejos legacy; intención, captura e idempotencia viven en `modules/payments/` y se componen con pedido/inventario en una batch. |
 | Notificaciones | `emails`, `send-email`, `contact` | Plantillas, outbox D1 y llamada HTTP a Resend están próximos pero sin puerto. |
 | Compartido | `format`, `csv` | `format` depende de `shop.config.ts`; no es todavía un shared-kernel puro. |
 
@@ -80,8 +80,9 @@ runtime clonable (desde R2.3, sin SQL en presentación)
 
   order-operations (composition root)
     orders.domain           emite el hecho con sobre
+    payments.infrastructure intención + asiento + estado financiero
     notifications           consume el hecho -> mensajes
-    orders.infrastructure   UNA batch: mutación + evento + timeline + stock + entregas
+    orders.infrastructure   UNA batch: pedido + pago + evento + timeline + stock + entregas
   event-outbox -> dispatcher -> emails_outbox -> send-email -> HTTP Resend
 
   mutación efectiva -> audit_log (misma batch; diff allowlisted/redacted)
@@ -193,7 +194,7 @@ implementaciones concretas.
 | `inventory` | Balances versionados y movimientos append-only por variante; `products.stock` es espejo temporal del default. | plan de movimiento, disponibilidad y unidad D1 guardada por evento/auditoría. | `shared-kernel`, identificadores de catálogo. |
 | `cart` | Líneas y cantidades, nunca precio autoritativo. Estado invitado puede estar en cliente. | `CartDraft`, normalización y validación de cantidades. | `shared-kernel`, IDs públicos de catálogo. |
 | `checkout` | Orquesta cotización y creación del intento de compra; no implementa PSP ni SQL. | `quoteCheckout`, `startCheckout`; puertos hacia pago/pedido. | APIs públicas de cart, catalog, pricing, inventory, fulfillment, customers, payments y orders. |
-| `payments` | Intención/resultado de pago e idempotencia del proveedor; no posee el pedido. Hoy sus columnas viven en `orders`. | `PaymentGateway`, `PaymentResult`, verificación de evento normalizado. | `shared-kernel`; adaptadores en `integrations`. |
+| `payments` | Intención, transacción financiera e idempotencia del proveedor; posee `payments`, `payment_transactions`, `refunds` y `refund_items`. `orders.stripe_*` continúa como espejo temporal. | Plan de captura, unidad D1 guardada por evento y futuro `PaymentGateway`; el workflow de reembolso llega en R2.10. | `shared-kernel`; adaptadores de PSP en `integrations`. |
 | `orders` | Pedido, snapshots, estados y timeline. Posee `orders`, `order_items`, `order_events`. | crear/consultar/transicionar pedido; contratos de eventos desde R1.5. | `shared-kernel`, snapshots públicos; no notificaciones concretas. |
 | `fulfillment` | Cotización de entrega, preparación, tracking y devolución. Hoy: `shipping_rates` y columnas tracking en pedido. | `quoteDelivery`, `markShipped`, `LogisticsExportPort`. | `shared-kernel`, contratos públicos de order/inventory. |
 | `customers` | Identidad invitada, dirección y, en el futuro, perfil/consentimiento. Hoy no tiene tabla propia. | validación/normalización y `CustomerSnapshot`. | `shared-kernel`. |

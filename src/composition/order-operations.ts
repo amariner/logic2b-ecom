@@ -41,6 +41,10 @@ import {
   type InventoryMovementReason,
   type InventoryStockChange,
 } from '../modules/inventory';
+import {
+  createD1PaymentLedger,
+  type PaymentProvider,
+} from '../modules/payments';
 import { createAuditDiff } from '../shared-kernel/audit';
 import type { EmitEvent, ReserveEventIdentity } from '../shared-kernel/events';
 import { emitPlatformEvent, reservePlatformEventIdentity } from './event-context';
@@ -87,6 +91,7 @@ export function createOrderOperations(
   const audit = createD1AuditLogWriter(db);
   const inventory = createD1InventoryLedger(db);
   const reservations = createD1InventoryReservations(db);
+  const payments = createD1PaymentLedger(db);
   const reservationsEnabled = options.reservationsEnabled ??
     runtimePlatform.hasCapabilityFlag('INV-004', 'sideEffects');
 
@@ -137,6 +142,7 @@ export function createOrderOperations(
     async placeOrder(
       order: NewOrderInput,
       lines: readonly NewOrderLine[],
+      paymentProvider: Exclude<PaymentProvider, 'legacy'>,
     ): Promise<{ orderId: number; event: OrderPlacedEvent } | null> {
       const identity = reserveIdentity();
       const timeline = { from_status: null, to_status: 'pending', note: 'Pedido creado, esperando pago' } as const;
@@ -161,6 +167,12 @@ export function createOrderOperations(
         orders.insertPendingOrderStatement(order),
         outbox.placedEventStatement(identity, order.order_number),
         audit.eventStatement(identity.event_id, placedAuditProjection()),
+        payments.pendingForOrderStatement(order.order_number, {
+          provider: paymentProvider,
+          provider_reference: order.stripe_session_id,
+          currency: order.currency,
+          occurred_at: identity.occurred_at,
+        }, { eventId: identity.event_id }),
         ...outbox.deliveryStatements(identity.event_id, identity.occurred_at, consumerIds),
         ...orders.lineStatementsForOrderNumber(order.order_number, lines),
         ...reservationStatements,
@@ -189,6 +201,11 @@ export function createOrderOperations(
         causationId: input.causationId ?? null,
       });
       if (order === null || mutation === null) return false;
+      if (mutation.paymentIntent === null || mutation.paymentIntent.trim().length === 0) {
+        throw new Error('La captura pagada no incluye una referencia del proveedor.');
+      }
+      const payment = await payments.findByOrderId(order.id);
+      if (payment === null) throw new Error(`Pedido ${order.id}: intención de pago ausente.`);
       const consumerIds = consumersFor(mutation.event.type);
       const reservation = reservationsEnabled
         ? await reservations.findForOrder(order.order_number)
@@ -211,6 +228,14 @@ export function createOrderOperations(
         outbox.guardedEventStatement(mutation.event, { orderId: mutation.orderId, expectedStatus: 'pending' }),
         audit.eventStatement(mutation.event.event_id, orderAuditProjection(mutation.event)),
         ...outbox.deliveryStatements(mutation.event.event_id, mutation.event.occurred_at, consumerIds),
+        ...payments.captureStatements(payment, {
+          provider: input.source,
+          provider_reference: mutation.paymentIntent,
+          amount_cents: order.total_cents,
+          currency: order.currency,
+          idempotency_key: `${mutation.event.idempotency_key}:capture`,
+          occurred_at: mutation.event.occurred_at,
+        }, { eventId: mutation.event.event_id }),
         orders.guardedPaidStatement(mutation.orderId, mutation.paymentIntent, mutation.event.event_id),
         ...stockStatements,
         orders.guardedTimelineStatement(mutation.orderId, orderTimelineEntry(mutation.event), mutation.event.event_id),
@@ -222,6 +247,9 @@ export function createOrderOperations(
     async expirePayment(input: Readonly<{ stripeSessionId: string; causationId?: string | null }>): Promise<boolean> {
       const order = await orders.findOrderForPaymentBySession(input.stripeSessionId);
       if (order === null || order.status !== 'pending') return false;
+      const payment = await payments.findByOrderId(order.id);
+      if (payment === null) throw new Error(`Pedido ${order.id}: intención de pago ausente.`);
+      if (payment.status !== 'pending') return false;
       const event = orderCancelledEvent(
         emit,
         {
@@ -248,6 +276,7 @@ export function createOrderOperations(
         outbox.guardedEventStatement(event, { orderId: order.id, expectedStatus: 'pending' }),
         audit.eventStatement(event.event_id, orderAuditProjection(event)),
         ...outbox.deliveryStatements(event.event_id, event.occurred_at, consumerIds),
+        payments.cancelPendingStatement(payment, event.occurred_at, { eventId: event.event_id }),
         orders.guardedExpiredStatement(order.id, event.event_id),
         ...reservationStatements,
         orders.guardedTimelineStatement(order.id, orderTimelineEntry(event), event.event_id),
@@ -274,6 +303,9 @@ export function createOrderOperations(
             `${event.idempotency_key}:reservation`,
           )
         : [];
+      const paymentStatements = input.transition.to === 'cancelled'
+        ? await paymentCancellationStatements(input.order.id, input.from, event.event_id, event.occurred_at)
+        : [];
       const results = await orders.commitResults([
         outbox.guardedEventStatement(event, { orderId: input.order.id, expectedStatus: input.from }),
         audit.eventStatement(event.event_id, orderAuditProjection(event)),
@@ -286,6 +318,7 @@ export function createOrderOperations(
           eventId: event.event_id,
         }),
         orders.guardedTimelineStatement(input.order.id, orderTimelineEntry(event), event.event_id),
+        ...paymentStatements,
         ...reservationStatements,
         ...stockStatements,
       ]);
@@ -295,6 +328,25 @@ export function createOrderOperations(
 
     findOrderForTransition: orders.findOrderForTransition,
   };
+
+  async function paymentCancellationStatements(
+    orderId: number,
+    from: OrderStatus,
+    eventId: string,
+    occurredAt: string,
+  ): Promise<readonly D1PreparedStatement[]> {
+    const payment = await payments.findByOrderId(orderId);
+    if (payment === null) throw new Error(`Pedido ${orderId}: intención de pago ausente.`);
+    if (from === 'pending') {
+      if (payment.status !== 'pending') throw new Error(`Pedido ${orderId}: estado financiero incoherente.`);
+      return [payments.cancelPendingStatement(payment, occurredAt, { eventId })];
+    }
+    if (from === 'paid') {
+      if (payment.status !== 'captured') throw new Error(`Pedido ${orderId}: captura financiera ausente.`);
+      return [payments.requireReviewStatement(payment, occurredAt, { eventId })];
+    }
+    return [];
+  }
 }
 
 function placedAuditProjection(): AuditEventProjection {

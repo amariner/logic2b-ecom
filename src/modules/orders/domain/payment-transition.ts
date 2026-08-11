@@ -19,6 +19,7 @@ export type OrderForPayment = {
   subtotal_cents: number;
   shipping_cents: number;
   total_cents: number;
+  currency: string;
 };
 
 export type OrderItemForPayment = {

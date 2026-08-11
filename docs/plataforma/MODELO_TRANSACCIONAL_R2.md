@@ -424,3 +424,29 @@ capacidad está instalada, pero todos los presets conservan `INV-004` sin flags.
 El rehearsal sobre 209 balances mantuvo hashes y cero holds tras forward y
 restore. Cierre: 53 suites, 350 tests, tipos/build y E2E 37/37 en verde; sin
 deploy remoto.
+
+## 16. Evidencia de R2.9
+
+`migrations/0011_payment_ledger.sql` materializa `payments`,
+`payment_transactions`, `refunds` y `refund_items` sin retirar los espejos del
+pedido. La columna `orders.currency` usa vacío únicamente como ventana
+expand/contract para el binario anterior; el backfill coordinado congela la
+moneda real de `shop.config.ts` y el runtime R2.9 siempre la escribe explícita.
+
+El dominio rechaza proveedor, referencia, moneda o importe distintos de la
+intención. El adaptador D1 inserta captura y actualiza estado/version bajo la
+misma guarda de evento que pedido, inventario, timeline, auditoría y outbox. Un
+replay no crea un segundo asiento. Expirar cancela sin movimiento y cancelar
+después de capturar pasa a `requires_review`; el esquema de reembolso permanece
+vacío hasta que R2.10 ejecute el PSP de extremo a extremo.
+
+El rehearsal sobre un export remoto fresco de 409.232 bytes preparó `0009` y
+`0010` solo dentro de la copia, aplicó `0011` y backfill EUR, y produjo 8 pagos
+y 6 capturas para 8 pedidos, con cero revisiones. El segundo backfill conservó
+el hash canónico y el dump restaurado conservó hashes legacy/canónico, FKs e
+integridad. El reset local coincide (8/8/6, cero reembolsos o monedas
+divergentes) y el backup de esquema 5 restaura las cuatro tablas.
+
+Cierre en repo/local: 56 suites, 358 tests, tipos/build y E2E 38/38. El rollout
+remoto queda como gate posterior a integrar `main`, documentado en
+`OPERACION_LEDGER_PAGOS.md`.

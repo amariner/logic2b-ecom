@@ -40,6 +40,7 @@ describe('buildPaidMutation según el origen del cobro', () => {
     subtotal_cents: 1000,
     shipping_cents: 490,
     total_cents: 1490,
+    currency: 'EUR',
   };
   const items: OrderItemForPayment[] = [
     { product_id: 1, variant_id: 1, is_default: true, name_snapshot: 'AOVE Picual 500 ml', unit_price_cents: 500, qty: 2 },

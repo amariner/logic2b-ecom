@@ -21,6 +21,7 @@ export type NewOrderInput = Readonly<{
   shipping_cents: number;
   total_cents: number;
   stripe_session_id: string;
+  currency: string;
 }>;
 
 export type NewOrderLine = Readonly<{
@@ -52,8 +53,8 @@ export function createD1OrderWriter(db: D1Database) {
     insertPendingOrderStatement(order: NewOrderInput): D1PreparedStatement {
       return db
         .prepare(
-          `INSERT INTO orders (order_number, email, customer_name, address_json, subtotal_cents, shipping_cents, total_cents, status, stripe_session_id)
-     VALUES (?, ?, ?, ?, ?, ?, ?, 'pending', ?)`,
+          `INSERT INTO orders (order_number, email, customer_name, address_json, subtotal_cents, shipping_cents, total_cents, status, stripe_session_id, currency)
+     VALUES (?, ?, ?, ?, ?, ?, ?, 'pending', ?, ?)`,
         )
         .bind(
           order.order_number,
@@ -64,6 +65,7 @@ export function createD1OrderWriter(db: D1Database) {
           order.shipping_cents,
           order.total_cents,
           order.stripe_session_id,
+          order.currency,
         );
     },
 
@@ -103,7 +105,7 @@ export function createD1OrderWriter(db: D1Database) {
     findOrderForPaymentBySession(stripeSessionId: string): Promise<OrderForPayment | null> {
       return db
         .prepare(
-          'SELECT id, order_number, status, email, customer_name, subtotal_cents, shipping_cents, total_cents FROM orders WHERE stripe_session_id = ?',
+          'SELECT id, order_number, status, email, customer_name, subtotal_cents, shipping_cents, total_cents, currency FROM orders WHERE stripe_session_id = ?',
         )
         .bind(stripeSessionId)
         .first<OrderForPayment>();
@@ -112,7 +114,7 @@ export function createD1OrderWriter(db: D1Database) {
     findOrderForPaymentById(orderId: number): Promise<OrderForPayment | null> {
       return db
         .prepare(
-          'SELECT id, order_number, status, email, customer_name, subtotal_cents, shipping_cents, total_cents FROM orders WHERE id = ?',
+          'SELECT id, order_number, status, email, customer_name, subtotal_cents, shipping_cents, total_cents, currency FROM orders WHERE id = ?',
         )
         .bind(orderId)
         .first<OrderForPayment>();

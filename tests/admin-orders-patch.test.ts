@@ -25,6 +25,19 @@ function seedOrder(db: SqliteD1, status = 'paid'): void {
     );
     INSERT INTO order_items (order_id, product_id, variant_id, name_snapshot, unit_price_cents, qty)
     VALUES (7, 1, 1, 'AOVE', 890, 2);
+    INSERT INTO payments (
+      order_id, provider, provider_reference, currency, expected_amount_cents,
+      status, idempotency_key, created_at, updated_at
+    ) VALUES (7, 'stripe', 'pi_test_1', 'EUR', 2270,
+      '${status === 'paid' ? 'captured' : 'cancelled'}', 'r2:payment:order:7:primary',
+      '2026-08-06T10:00:00.000Z', '2026-08-06T10:00:00.000Z');
+    INSERT INTO payment_transactions (
+      payment_id, type, amount_cents, currency, status, provider_reference,
+      idempotency_key, occurred_at, created_at
+    )
+    SELECT id, 'capture', 2270, 'EUR', 'succeeded', 'pi_test_1',
+      'r2:payment:capture:order:7', '2026-08-06T10:00:00.000Z', '2026-08-06T10:00:00.000Z'
+    FROM payments WHERE order_id = 7 AND status = 'captured';
   `);
 }
 
@@ -55,6 +68,7 @@ describe('PATCH /api/admin/orders/:id con outbox transaccional', () => {
     expect(response.status).toBe(200);
     expect(db.value('SELECT stock AS value FROM products WHERE id=1')).toBe(10);
     expect(db.value("SELECT count(*) AS value FROM event_outbox_events WHERE event_type='orders.order_cancelled'")).toBe(1);
+    expect(db.value('SELECT status AS value FROM payments WHERE order_id=7')).toBe('requires_review');
     expect(db.value('SELECT count(*) AS value FROM emails_outbox')).toBe(0);
   });
 

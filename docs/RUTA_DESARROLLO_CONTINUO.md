@@ -274,8 +274,9 @@ Después del panel V2, continuar el orden exacto:
 3. **R2.8 — Reservas y expiración — ✅ 2026-08-10.** Migración, TTL, liberación,
    captura, carrera de la última unidad y job durable; `INV-004` instalado pero
    apagado por defecto y sin deploy.
-4. **R2.9 — Ledger de pagos.** Payment/transaction/refund, proveedor, moneda,
-   importe, estado e idempotencia.
+4. **R2.9 — Ledger de pagos — ✅ 2026-08-11.** Payment/transaction/refund,
+   moneda por config, captura idempotente y `requires_review`; rehearsal remoto
+   aislado, backup v5 y runtime atómico, con rollout servido pendiente.
 5. **R2.10 — Reembolso total.** Admin→proveedor→ledger→evento→email→stock con
    retry seguro.
 6. **R2.11 — Fulfillment por líneas.** El envío total actual pasa a ser el caso

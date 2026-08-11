@@ -54,11 +54,16 @@ describe('observabilidad de POST /api/webhooks/stripe', () => {
       VALUES (1, 'aove', 'AOVE', 890, 10, 'aceites');
       INSERT INTO orders (
         id, order_number, email, customer_name, address_json,
-        subtotal_cents, shipping_cents, total_cents, status, stripe_session_id
+        subtotal_cents, shipping_cents, total_cents, status, stripe_session_id, currency
       ) VALUES (
         7, 'BM-260807-SAFE', 'clienta-privada@example.com', 'Marta Datos Privados',
-        '{"street":"Calle Secreta 42"}', 890, 0, 890, 'pending', 'cs_private_session_1'
+        '{"street":"Calle Secreta 42"}', 890, 0, 890, 'pending', 'cs_private_session_1', 'EUR'
       );
+      INSERT INTO payments (
+        order_id, provider, provider_reference, currency, expected_amount_cents,
+        status, idempotency_key, created_at, updated_at
+      ) VALUES (7, 'stripe', 'cs_private_session_1', 'EUR', 890, 'pending',
+        'r2:payment:order:7:primary', '2026-08-07T10:00:00.000Z', '2026-08-07T10:00:00.000Z');
       INSERT INTO order_items (order_id, product_id, name_snapshot, unit_price_cents, qty)
       VALUES (7, 1, 'AOVE', 890, 1);
     `);

@@ -18,7 +18,8 @@
     "db:seed": "node seed/generate.ts > .wrangler/seed.sql && wrangler d1 execute ecom-demo --local --file .wrangler/seed.sql",
     "db:reset": "rm -rf .wrangler/state && pnpm db:migrate && pnpm db:seed",
     "db:rehearse:inventory": "node scripts/rehearse-r2-inventory-ledger.mjs",
-    "db:rehearse:reservations": "node scripts/rehearse-r2-inventory-reservations.mjs"
+    "db:rehearse:reservations": "node scripts/rehearse-r2-inventory-reservations.mjs",
+    "db:rehearse:payments": "node scripts/rehearse-r2-payment-ledger.mjs"
   },
   "dependencies": {
     "@astrojs/cloudflare": "^12.6.0",
