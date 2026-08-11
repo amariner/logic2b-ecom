@@ -2,7 +2,11 @@
 
 import type { EventEnvelope, EventIdentity } from '../../shared-kernel/events';
 
-export type EventOrderGuard = Readonly<{ orderId: number; expectedStatus: string }>;
+export type EventOrderGuard = Readonly<{
+  orderId: number;
+  expectedStatus: string;
+  requireNoActiveRefund?: boolean;
+}>;
 
 function eventValues(event: EventEnvelope): readonly unknown[] {
   return [
@@ -28,6 +32,13 @@ export function createD1EventOutboxWriter(db: D1Database) {
   return {
     /** El evento solo nace si el pedido sigue en el estado que leyó el caso de uso. */
     guardedEventStatement(event: EventEnvelope, guard: EventOrderGuard): D1PreparedStatement {
+      const refundGuard = guard.requireNoActiveRefund
+        ? `AND NOT EXISTS (
+            SELECT 1 FROM refunds
+            WHERE order_id = ? AND status IN ('pending', 'processing', 'succeeded', 'requires_review')
+          )`
+        : '';
+      const refundBindings = guard.requireNoActiveRefund ? [guard.orderId] : [];
       return db.prepare(`
         INSERT INTO event_outbox_events (
           event_id, event_type, event_version, occurred_at,
@@ -37,9 +48,9 @@ export function createD1EventOutboxWriter(db: D1Database) {
         )
         SELECT ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
         WHERE EXISTS (
-          SELECT 1 FROM orders WHERE id = ? AND status = ?
+          SELECT 1 FROM orders WHERE id = ? AND status = ? ${refundGuard}
         )
-      `).bind(...eventValues(event), guard.orderId, guard.expectedStatus);
+      `).bind(...eventValues(event), guard.orderId, guard.expectedStatus, ...refundBindings);
     },
 
     /**

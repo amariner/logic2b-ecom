@@ -34,6 +34,7 @@ export const ORDER_EVENT_TYPES = [
   'orders.order_shipped',
   'orders.order_delivered',
   'orders.order_cancelled',
+  'orders.order_refunded',
 ] as const;
 
 export type OrderEventType = (typeof ORDER_EVENT_TYPES)[number];
@@ -62,19 +63,29 @@ export type OrderDeliveredPayload = OrderEventSubject &
   Readonly<{ from_status: OrderStatus; to_status: 'delivered' }>;
 export type OrderCancelledPayload = OrderEventSubject &
   Readonly<{ from_status: OrderStatus; to_status: 'cancelled'; reason: OrderCancellationReason }>;
+export type OrderRefundedPayload = OrderEventSubject &
+  Readonly<{
+    from_status: 'paid';
+    to_status: 'cancelled';
+    total_cents: number;
+    currency: string;
+    restock: boolean;
+  }>;
 
 export type OrderPlacedEvent = EventEnvelope<'orders.order_placed', OrderPlacedPayload>;
 export type OrderPaidEvent = EventEnvelope<'orders.order_paid', OrderPaidPayload>;
 export type OrderShippedEvent = EventEnvelope<'orders.order_shipped', OrderShippedPayload>;
 export type OrderDeliveredEvent = EventEnvelope<'orders.order_delivered', OrderDeliveredPayload>;
 export type OrderCancelledEvent = EventEnvelope<'orders.order_cancelled', OrderCancelledPayload>;
+export type OrderRefundedEvent = EventEnvelope<'orders.order_refunded', OrderRefundedPayload>;
 
 export type OrderDomainEvent =
   | OrderPlacedEvent
   | OrderPaidEvent
   | OrderShippedEvent
   | OrderDeliveredEvent
-  | OrderCancelledEvent;
+  | OrderCancelledEvent
+  | OrderRefundedEvent;
 
 /** Origen del hecho. El actor identifica el canal, nunca a la persona. */
 export const ORDER_ACTORS = {
@@ -201,6 +212,27 @@ export function orderCancelledEvent(
   return emit(draftFor('orders.order_cancelled', actor, payload, options));
 }
 
+export function orderRefundedEvent(
+  emit: EmitEvent,
+  input: OrderEventSubject & Readonly<{
+    total_cents: number;
+    currency: string;
+    restock: boolean;
+  }>,
+  options: EmitOptions = {},
+): OrderRefundedEvent {
+  const payload: OrderRefundedPayload = {
+    order_id: input.order_id,
+    order_number: input.order_number,
+    from_status: 'paid',
+    to_status: 'cancelled',
+    total_cents: input.total_cents,
+    currency: input.currency,
+    restock: input.restock,
+  };
+  return emit(draftFor('orders.order_refunded', ORDER_ACTORS.admin, payload, options));
+}
+
 /** Entrada del timeline tal y como la guarda `order_events` desde la Fase 3. */
 export type OrderTimelineEntry = Readonly<{
   from_status: string | null;
@@ -232,7 +264,8 @@ export function orderTimelineNote(fact: OrderTimelineFact): string {
     case 'delivered':
       return 'Marcado como entregado';
     case 'cancelled':
-      return fact.reason === 'payment_session_expired' ? 'Sesión de pago caducada' : 'Cancelado desde el panel';
+      if (fact.reason === 'payment_session_expired') return 'Sesión de pago caducada';
+      return 'Cancelado desde el panel';
   }
 }
 
@@ -248,11 +281,20 @@ function timelineFactOf(event: OrderDomainEvent): OrderTimelineFact {
       return { to_status: 'delivered' };
     case 'orders.order_cancelled':
       return { to_status: 'cancelled', reason: event.payload.reason };
+    case 'orders.order_refunded':
+      return { to_status: 'cancelled', reason: 'admin' };
   }
 }
 
 /** Proyecta el hecho a la fila de `order_events`. Es presentación del hecho, no el hecho. */
 export function orderTimelineEntry(event: OrderDomainEvent): OrderTimelineEntry {
+  if (event.type === 'orders.order_refunded') {
+    return Object.freeze({
+      from_status: event.payload.from_status,
+      to_status: event.payload.to_status,
+      note: 'Reembolso total confirmado y pedido cancelado',
+    });
+  }
   return Object.freeze({
     from_status: event.payload.from_status,
     to_status: event.payload.to_status,

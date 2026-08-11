@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   assertPaymentCurrency,
   planPaymentCapture,
+  planTotalRefund,
   type PaymentLedgerEntry,
 } from '../src/modules/payments';
 
@@ -47,5 +48,24 @@ describe('contrato de dominio del ledger de pagos R2.9', () => {
     expect(() => assertPaymentCurrency('EUR')).not.toThrow();
     expect(() => assertPaymentCurrency('eur')).toThrow(/ISO 4217/);
     expect(() => assertPaymentCurrency('EURO')).toThrow(/ISO 4217/);
+  });
+
+  it('congela un reembolso total exacto y separa la reposición del dinero', () => {
+    const captured = { ...payment, status: 'captured' as const };
+    expect(planTotalRefund(
+      captured,
+      { subtotal_cents: 3040, shipping_cents: 490, total_cents: 3530 },
+      [
+        { order_item_id: 1, quantity: 2, amount_cents: 1780 },
+        { order_item_id: 2, quantity: 3, amount_cents: 1260 },
+      ],
+      'restock',
+    )).toMatchObject({ total_cents: 3530, restock_decision: 'restock' });
+    expect(() => planTotalRefund(
+      captured,
+      { subtotal_cents: 3040, shipping_cents: 490, total_cents: 3530 },
+      [{ order_item_id: 1, quantity: 1, amount_cents: 1 }],
+      'none',
+    )).toThrow(/no suman/);
   });
 });

@@ -307,7 +307,11 @@ export function createOrderOperations(
         ? await paymentCancellationStatements(input.order.id, input.from, event.event_id, event.occurred_at)
         : [];
       const results = await orders.commitResults([
-        outbox.guardedEventStatement(event, { orderId: input.order.id, expectedStatus: input.from }),
+        outbox.guardedEventStatement(event, {
+          orderId: input.order.id,
+          expectedStatus: input.from,
+          requireNoActiveRefund: true,
+        }),
         audit.eventStatement(event.event_id, orderAuditProjection(event)),
         ...outbox.deliveryStatements(event.event_id, event.occurred_at, consumerIds),
         orders.guardedTransitionStatement({
@@ -316,6 +320,7 @@ export function createOrderOperations(
           to: input.transition.to,
           tracking: input.transition.tracking,
           eventId: event.event_id,
+          requireNoActiveRefund: true,
         }),
         orders.guardedTimelineStatement(input.order.id, orderTimelineEntry(event), event.event_id),
         ...paymentStatements,
@@ -400,6 +405,15 @@ function orderAuditProjection(event: OrderDomainEvent): AuditEventProjection {
           { status: event.payload.from_status, cancellation_reason: null },
           { status: event.payload.to_status, cancellation_reason: event.payload.reason },
           ['status', 'cancellation_reason'],
+        ),
+      };
+    case 'orders.order_refunded':
+      return {
+        action: 'payments.refunded',
+        diff: createAuditDiff(
+          { status: event.payload.from_status, refunded_cents: 0 },
+          { status: event.payload.to_status, refunded_cents: event.payload.total_cents },
+          ['status', 'refunded_cents'],
         ),
       };
   }

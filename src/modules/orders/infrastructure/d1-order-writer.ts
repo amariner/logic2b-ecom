@@ -43,6 +43,7 @@ export type OrderForTransition = Readonly<{
 }>;
 
 const ORDER_ITEMS_COLUMNS = `
+  oi.id AS order_item_id,
   oi.product_id,
   COALESCE(item_variant.id, default_variant.id) AS variant_id,
   COALESCE(item_variant.id, default_variant.id) = default_variant.id AS is_default,
@@ -167,19 +168,37 @@ export function createD1OrderWriter(db: D1Database) {
       to: string;
       tracking: { carrier: string; number: string } | null;
       eventId: string;
+      requireNoActiveRefund?: boolean;
     }): D1PreparedStatement {
+      const refundGuard = input.requireNoActiveRefund
+        ? `AND NOT EXISTS (
+            SELECT 1 FROM refunds
+            WHERE order_id = ? AND status IN ('pending', 'processing', 'succeeded', 'requires_review')
+          )`
+        : '';
+      const refundBindings = input.requireNoActiveRefund ? [input.orderId] : [];
       return input.tracking
         ? db.prepare(`
             UPDATE orders
             SET status = ?, tracking_carrier = ?, tracking_number = ?, updated_at = datetime('now')
             WHERE id = ? AND status = ?
+              ${refundGuard}
               AND EXISTS (SELECT 1 FROM event_outbox_events WHERE event_id = ?)
-          `).bind(input.to, input.tracking.carrier, input.tracking.number, input.orderId, input.from, input.eventId)
+          `).bind(
+            input.to,
+            input.tracking.carrier,
+            input.tracking.number,
+            input.orderId,
+            input.from,
+            ...refundBindings,
+            input.eventId,
+          )
         : db.prepare(`
             UPDATE orders SET status = ?, updated_at = datetime('now')
             WHERE id = ? AND status = ?
+              ${refundGuard}
               AND EXISTS (SELECT 1 FROM event_outbox_events WHERE event_id = ?)
-          `).bind(input.to, input.orderId, input.from, input.eventId);
+          `).bind(input.to, input.orderId, input.from, ...refundBindings, input.eventId);
     },
 
     timelineStatementForOrderNumber(orderNumber: string, entry: OrderTimelineEntry): D1PreparedStatement {

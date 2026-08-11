@@ -125,7 +125,7 @@ su alcance requiera.
 | ORD-004 | Notas, etiquetas y timeline | módulo | P1 | parcial | Actividad unificada con actor y visibilidad interna/cliente. |
 | ORD-005 | Edición de pedido | módulo | P1 | pendiente | Añadir/quitar/cambiar cantidad con ajuste de dinero y stock. |
 | ORD-006 | Cancelación parcial | módulo | P1 | pendiente | Por línea/cantidad, motivo, stock y reembolso coherentes. |
-| ORD-007 | Reembolso total/parcial | módulo | P1 | especificado | Esquema y guardas de saldo instalados; workflow PSP/admin pendiente de R2.10–R2.13. Dinero y reposición de stock son decisiones separadas. |
+| ORD-007 | Reembolso total/parcial | módulo | P1 | parcial | Reembolso total operativo con intención previa al PSP, retry idempotente, estado visible, evento/email y reposición opcional. El parcial continúa en R2.13. |
 | ORD-008 | Pedido preliminar/presupuesto | módulo | P2 | pendiente | Borrador, caducidad, aprobación, factura y enlace de pago. |
 | ORD-009 | Captura manual o diferida | módulo | P2 | pendiente | Autorización, captura parcial y expiración. |
 | ORD-010 | Riesgo/incidencia/bloqueo | módulo | P2 | pendiente | Hold explícito que impide preparación hasta resolución. |
@@ -291,7 +291,7 @@ su alcance requiera.
 
 | ID | Capacidad | Vía | Prioridad | Estado | Resultado objetivo |
 |---|---|---|---|---|---|
-| INT-001 | Pago Stripe | conector | P0 | actual | Checkout alojado, webhook y captura reconciliada en ledger; reembolso operativo pendiente de R2.10. |
+| INT-001 | Pago Stripe | conector | P0 | actual | Checkout alojado, webhook, captura reconciliada y reembolso total idempotente; sin datos de tarjeta en Logic2B. |
 | INT-002 | Email Resend | conector | P1 | parcial | En demo se captura; cliente real usa adaptador. |
 | INT-003 | Packlink/Sendcloud por CSV | conector | P1 | actual | Exportación manual portable. |
 | INT-004 | Backup SQL | núcleo | P0 | actual | Exportación restaurable autenticada. |

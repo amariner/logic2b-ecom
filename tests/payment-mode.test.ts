@@ -43,7 +43,7 @@ describe('buildPaidMutation según el origen del cobro', () => {
     currency: 'EUR',
   };
   const items: OrderItemForPayment[] = [
-    { product_id: 1, variant_id: 1, is_default: true, name_snapshot: 'AOVE Picual 500 ml', unit_price_cents: 500, qty: 2 },
+    { order_item_id: 1, product_id: 1, variant_id: 1, is_default: true, name_snapshot: 'AOVE Picual 500 ml', unit_price_cents: 500, qty: 2 },
   ];
 
   it('el cobro por la pasarela lo atribuye a Stripe', () => {

@@ -14,13 +14,18 @@ import type { EventEnvelope } from '../../../shared-kernel/events';
 import {
   merchantNewOrderEmail,
   orderConfirmationEmail,
+  orderRefundedEmail,
   orderShippedEmail,
   type EmailMessage,
   type OrderEmailData,
 } from '../../../lib/emails';
 
 /** Hechos a los que este consumidor está suscrito. El registro de módulos lo declara. */
-export const SUBSCRIBED_ORDER_EVENTS = ['orders.order_paid', 'orders.order_shipped'] as const;
+export const SUBSCRIBED_ORDER_EVENTS = [
+  'orders.order_paid',
+  'orders.order_shipped',
+  'orders.order_refunded',
+] as const;
 
 function trackingOf(payload: unknown): { carrier: string; number: string } | null {
   if (typeof payload !== 'object' || payload === null) return null;
@@ -43,6 +48,8 @@ export function orderNotificationsFor(event: EventEnvelope, order: OrderEmailDat
       const tracking = trackingOf(event.payload);
       return tracking ? Object.freeze([orderShippedEmail(order, tracking)]) : Object.freeze([]);
     }
+    case 'orders.order_refunded':
+      return Object.freeze([orderRefundedEmail(order)]);
     default:
       return Object.freeze([]);
   }

@@ -57,6 +57,8 @@ describe('capability manifest (R1.2)', () => {
     expect('CAT-008' in CAPABILITY_PRESETS.standard).toBe(false);
     expect(CAPABILITY_PRESETS.standard['CHK-003']?.state).toBe('active');
     expect(CAPABILITY_PRESETS.advanced['INT-004']?.state).toBe('active');
+    expect(CAPABILITY_PRESETS.advanced['ORD-007']?.state).toBe('active');
+    expect('ORD-007' in CAPABILITY_PRESETS.standard).toBe(false);
   });
 
   it('resolves omitted capabilities as absent with every runtime flag off', () => {
@@ -167,6 +169,8 @@ describe('capability manifest (R1.2)', () => {
     expect(platform.isCapabilityActive('STO-001')).toBe(true);
     expect(platform.isCapabilityActive('CAT-007')).toBe(true);
     expect(platform.isCapabilityActive('CAT-008')).toBe(true);
+    expect(platform.isCapabilityActive('ORD-007')).toBe(true);
+    expect(platform.hasCapabilityFlag('ORD-007', 'sideEffects')).toBe(false);
     expect(platform.hasCapabilityFlag('STO-001', 'navigation')).toBe(true);
     expect(platform.hasCapabilityFlag('PLT-004', 'sideEffects')).toBe(false);
     expect(Object.isFrozen(platform)).toBe(true);

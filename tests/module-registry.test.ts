@@ -68,9 +68,11 @@ describe('registro de módulos (R1.4)', () => {
     expect(exportIndex).toBeLessThan(ordersPrefixIndex);
     expect(MODULE_REGISTRY.capabilityOwners['CAT-007']).toBe('catalog');
     expect(MODULE_REGISTRY.capabilityOwners['CAT-008']).toBe('catalog');
+    expect(MODULE_REGISTRY.capabilityOwners['ORD-007']).toBe('orders');
     expect(MODULE_REGISTRY.routes).toEqual(expect.arrayContaining([
       expect.objectContaining({ path: '/api/admin/catalog-attributes/', capabilityId: 'CAT-007' }),
       expect.objectContaining({ path: '/api/admin/catalog-media/', capabilityId: 'CAT-008' }),
+      expect.objectContaining({ path: '/api/admin/refunds/', capabilityId: 'ORD-007' }),
     ]));
   });
 

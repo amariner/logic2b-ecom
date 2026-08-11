@@ -63,7 +63,7 @@ reconciliación se conserva abajo por contexto.
 | 11 | Landing V2 «nivel Awwwards» + negocio + funnel + docs | 🟡 En curso | 2026-07-24 | **F11.1, F11.3 (2 sesiones), F11.4, F11.5, F11.6, F11.7 y F11.8 (primera pasada + pase a11y/contenido desde cloud 2026-07-24) hechos**, más F11.8b (auditor de a11y, cloud), F11.2a-1 (tienda ASFALTO / tema Street), F11.2a-2 (tienda METRIA / tema Industrial) F11.2a-3 (tienda ROMER / tema Natural) y **F11.2a-4 (tienda KALIBRE / tema Specs, local 2026-07-25) — con la que F11.2a queda CERRADA (10/10 tiendas)**; y **F11.8c (Lighthouse citable + OG de WhatsApp + URLs sin redirección, local 2026-07-26)**; y **F11.8d–e (tabla de Lighthouse cerrada y desplegada: 7 de 8 superficies a 100×4, la landing entre ellas en móvil y escritorio, local 2026-07-27)**; de la cola de F11.8 solo queda la submission a Awwwards (decisión de pago: Andreu). Detalle por bloque abajo. (ver «Fase 11» abajo). **Plan maestro completo en [`docs/PLAN_FASE11_LANDING_V2.md`](PLAN_FASE11_LANDING_V2.md)**: bloques F11.0–F11.8 ejecutables por sesiones independientes. **Decisiones D1–D6 APROBADAS por Andreu (2026-07-23)**: JS propio ≤15 KB sin deps, capturas con browser tools en local, dirección C «Ocho tiendas, un motor», escalera de precios (Lite 590 / Kit 1.900+39 / A medida 3.400+59), WhatsApp+email, Lite publicado sin construir. Prompt de arranque: [`docs/PROMPT_FASE11.md`](PROMPT_FASE11.md). Integra 9B.5/9B.6 (imaginería y temas restantes) como prerequisito del hero |
 | 8 | Pulido de la demo (backlog abajo) | 🟡 En curso | 2026-07-19 | Backlog técnico agotado; solo quedan decisiones y pasos locales de Andreu (ver «Decisiones pendientes» y `docs/PROMPT_CLOUD.md`). Últimas tandas: novena (race de idempotencia en el pago, PII enumerable en `/demo/gracias`, cancelación de pedido pagado sin devolver stock), décima (la misma race en el PATCH de admin, campos vacíos guardados como 0, login sin rate limit), undécima (diagrama móvil de `/arquitectura`, hedge del plazo de entrega, tokens de tema en `/demo/reset`, terminología «envío»), duodécima (aviso de corte en pedidos del admin, cabeceras sin wrap a 375px, leftover «portes», token de radio del carrito, contraste del botón eliminar, H1 en valenciano, checklist de producción) y decimotercera (misma race de idempotencia en `checkout.session.expired`, divisa hardcodeada a EUR fuera de Stripe, cobertura de test de `quoteCart`/PATCH admin/emails) y decimocuarta (config parcial de Stripe → cobro sin cumplimiento, emails duplicados bajo concurrencia, `payment_status` del webhook, color de marca centralizado en `shop.config.ts`, contraste/tema en carrito y checkout) — ver sección «Fase 8» |
 | 12 | Logic2B Ecommerce: renombrado, reposicionamiento y docs de dos visiones | ✅ Hecho | 2026-08-10 | **F12.0–F12.6 cerrados:** marca, argumento, dossier, canal agencias, ayuda, índice por audiencias, OG y auditorías citables consolidados. **Plan maestro en [`docs/PLAN_FASE12_LOGIC2B_ECOMMERCE.md`](PLAN_FASE12_LOGIC2B_ECOMMERCE.md)**. |
-| 13 | Plataforma modular: del gestor mínimo a paridad extrema de capacidad | 🟡 En curso | 2026-08-11 | **R0, R1, R2.1–R2.9 y Admin V2 completos:** inventario, reservas y pagos con ledgers reversibles. Siguiente: reembolso total R2.10. Fuente de verdad en [`docs/plataforma/`](plataforma/README.md). |
+| 13 | Plataforma modular: del gestor mínimo a paridad extrema de capacidad | 🟡 En curso | 2026-08-11 | **R0, R1, R2.1–R2.10 y Admin V2 completos:** inventario, reservas, pagos y reembolso total con ledgers reversibles. Siguiente: fulfillment por líneas R2.11. Fuente de verdad en [`docs/plataforma/`](plataforma/README.md). |
 
 ## Repo y entornos
 
@@ -127,7 +127,8 @@ sus verificaciones ni sus puntos de reanudación.
 | R2.7 | Implementación del ledger de inventario | ✅ 2026-08-10 — migración, writer, 344 tests, E2E 37/37, a11y 16/16; sin deploy |
 | R2.8 | Reservas y expiración | ✅ 2026-08-10 — 350 tests, carrera/TTL/job y E2E 37/37; `INV-004` apagada y sin deploy |
 | R2.9 | Ledger de pagos, backfill y captura transaccional | ✅ 2026-08-11 — 358 tests, D1 `0011`, Worker `08d0e8e3…` y E2E remoto 38/38 |
-| R2.10+ | Reembolso total y resto de olas | ⬜ siguiente: reembolso total |
+| R2.10 | Reembolso total idempotente de extremo a extremo | ✅ 2026-08-11 — 366 tests, E2E 39/39 y a11y 2/2; sin migración |
+| R2.11+ | Fulfillment por líneas y resto de olas | ⬜ siguiente: fulfillment por líneas |
 
 ## Fase 12 — Logic2B Ecommerce: renombrado, reposicionamiento y las dos visiones
 
@@ -1912,11 +1913,23 @@ responden 200 tras propagación. Sin migración, dependencia ni cambio de motor.
   revisiones, divisas divergentes, descuadres o violaciones FK. Worker
   `08d0e8e3-dbfc-40b2-a277-6028b49e577b`; E2E de producción 38/38.
 
+### R2.10 · Reembolso total — cerrado localmente 2026-08-11
+
+- El panel avanzado confirma motivo y reposición; el servidor calcula importe y
+  líneas, persiste la intención antes de llamar al PSP y usa una clave estable.
+- Stripe/simulado quedan tras un puerto; respuesta, moneda, importe, proveedor y
+  referencia se contrastan. Timeout, replay y concurrencia no duplican dinero.
+- El éxito agrupa ledger, evento, auditoría, email, cancelación/timeline y stock
+  opcional. Estados intermedios quedan visibles y bloquean transiciones
+  incompatibles sin eventos fantasma.
+- La demo pública conserva lectura y rechaza la mutación. Verificación: 57
+  suites/366 tests, build, reset 0001–0011, E2E 39/39 y a11y 2/2.
+
 ### Siguiente bloque
 
-**Ruta continua del desarrollo principal.** R2.9 queda cerrado en producción
-con migración `0011`, backfill por moneda, ledger/captura idempotente y backup
-de esquema 5. El siguiente bloque es **R2.10 · Reembolso total**. Desde ahí
+**Ruta continua del desarrollo principal.** R2.10 queda cerrado en código y
+verificación local, sin migración ni dependencia. Tras su integración y rollout,
+el siguiente bloque es **R2.11 · Fulfillment por líneas**. Desde ahí
 continúa el orden R2–R11 y los
 carriles transversales de UI, calidad y verdad comercial definidos en
 [`docs/RUTA_DESARROLLO_CONTINUO.md`](RUTA_DESARROLLO_CONTINUO.md). Esta rama no

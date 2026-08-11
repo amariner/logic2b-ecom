@@ -35,8 +35,8 @@ const order: OrderForPayment = {
 };
 
 const items: OrderItemForPayment[] = [
-  { product_id: 1, variant_id: 1, is_default: true, name_snapshot: 'AOVE Picual 500 ml', unit_price_cents: 890, qty: 2 },
-  { product_id: 12, variant_id: 12, is_default: true, name_snapshot: 'Fuet artesà 200 g', unit_price_cents: 420, qty: 3 },
+  { order_item_id: 1, product_id: 1, variant_id: 1, is_default: true, name_snapshot: 'AOVE Picual 500 ml', unit_price_cents: 890, qty: 2 },
+  { order_item_id: 2, product_id: 12, variant_id: 12, is_default: true, name_snapshot: 'Fuet artesà 200 g', unit_price_cents: 420, qty: 3 },
 ];
 
 describe('buildPaidMutation (idempotencia del webhook)', () => {

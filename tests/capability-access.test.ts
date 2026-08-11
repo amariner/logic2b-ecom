@@ -66,8 +66,10 @@ describe('capability access policy (R1.3)', () => {
     ['advanced', '/api/admin/catalog-variants/1', true],
     ['advanced', '/api/admin/catalog-attributes/definitions/product/1', true],
     ['advanced', '/api/admin/catalog-media/product/1', true],
+    ['advanced', '/api/admin/refunds/7', true],
     ['standard', '/api/admin/catalog-attributes/definitions/product/1', false],
     ['standard', '/api/admin/catalog-media/product/1', false],
+    ['standard', '/api/admin/refunds/7', false],
     ['advanced', '/api/admin/backup.sql', true],
   ] as const)('applies the %s preset to %s', (profile, pathname, allowed) => {
     expect(decideRouteAccess(platformFor(profile), pathname)?.allowed).toBe(allowed);
@@ -111,6 +113,7 @@ describe('capability access policy (R1.3)', () => {
       '/api/admin/catalog-variants/1',
       '/api/admin/catalog-attributes/definitions/product/1',
       '/api/admin/catalog-media/product/1',
+      '/api/admin/refunds/7',
     ]) {
       expect(decideRouteAccess(demo, pathname)?.allowed).toBe(true);
     }

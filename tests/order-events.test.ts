@@ -7,6 +7,7 @@ import {
   orderDeliveredEvent,
   orderPaidEvent,
   orderPlacedEvent,
+  orderRefundedEvent,
   orderShippedEvent,
   orderTimelineEntry,
   orderTimelineNote,
@@ -121,6 +122,14 @@ describe('eventos de pedido (R1.5)', () => {
         orderCancelledEvent(emit, { ...subject, from_status: 'pending', reason: 'payment_session_expired' }),
       ).note,
     ).toBe('Sesión de pago caducada');
+    expect(
+      orderTimelineEntry(orderRefundedEvent(emit, {
+        ...subject,
+        total_cents: 2270,
+        currency: 'EUR',
+        restock: true,
+      })).note,
+    ).toBe('Reembolso total confirmado y pedido cancelado');
   });
 
   it('la nota de envío sin tracking (solo posible en fixtures) no inventa paréntesis vacíos', () => {
@@ -150,6 +159,21 @@ describe('notificaciones como consumidor de eventos (R1.5)', () => {
     expect(messages).toHaveLength(1);
     expect(messages[0]?.body_html).toContain('SEUR');
     expect(messages[0]?.body_html).toContain('ES123');
+  });
+
+  it('un reembolso confirmado avisa al comprador sin exponer la referencia PSP', () => {
+    const messages = orderNotificationsFor(
+      orderRefundedEvent(emit, {
+        ...subject,
+        total_cents: 2270,
+        currency: 'EUR',
+        restock: true,
+      }),
+      emailData,
+    );
+    expect(messages).toHaveLength(1);
+    expect(messages[0]?.subject).toContain('Reembolso');
+    expect(messages[0]?.body_html).toContain('importe completo');
   });
 
   it('los hechos a los que no está suscrito no producen nada', () => {
@@ -192,6 +216,7 @@ describe('registro de módulos y eventos (R1.5)', () => {
       'orders.order_shipped',
       'orders.order_delivered',
       'orders.order_cancelled',
+      'orders.order_refunded',
     ]);
     for (const event of MODULE_REGISTRY.byId.orders.events) {
       expect(MODULE_REGISTRY.eventOwners[event]).toBe('orders');
@@ -200,7 +225,11 @@ describe('registro de módulos y eventos (R1.5)', () => {
 
   it('notificaciones se suscribe a pedidos SIN depender de pedidos', () => {
     const notifications = MODULE_REGISTRY.byId.notifications;
-    expect(notifications.subscriptions).toEqual(['orders.order_paid', 'orders.order_shipped']);
+    expect(notifications.subscriptions).toEqual([
+      'orders.order_paid',
+      'orders.order_shipped',
+      'orders.order_refunded',
+    ]);
     expect(notifications.dependencies).not.toContain('orders');
     for (const event of notifications.subscriptions) {
       expect(MODULE_REGISTRY.eventOwners[event]).toBe('orders');

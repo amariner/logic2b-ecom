@@ -150,6 +150,7 @@ for (const [label, path, body] of [
 
 for (const [label, method, path] of [
   ['opciones', 'POST', `/api/admin/catalog-options/product/${variantProductId ?? 1}`],
+  ['reembolso', 'POST', `/api/admin/refunds/${orderId ?? 1}`],
   ['variantes', 'PATCH', `/api/admin/catalog-variants/${variantId ?? 1}`],
   ['galería', 'PUT', `/api/admin/catalog-media/product/${variantProductId ?? 1}`],
   ['atributos', 'POST', `/api/admin/catalog-attributes/definitions/product/${variantProductId ?? 1}`],

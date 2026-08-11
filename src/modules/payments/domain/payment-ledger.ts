@@ -39,6 +39,46 @@ export type PlannedPaymentCapture = PaymentCaptureDraft & Readonly<{
   version_after: number;
 }>;
 
+export const REFUND_STATUSES = [
+  'pending',
+  'processing',
+  'succeeded',
+  'failed',
+  'cancelled',
+  'requires_review',
+] as const;
+export type RefundStatus = (typeof REFUND_STATUSES)[number];
+export type RefundRestockDecision = 'none' | 'restock';
+
+export type RefundLedgerEntry = Readonly<{
+  id: number;
+  order_id: number;
+  payment_id: number;
+  status: RefundStatus;
+  reason: string;
+  subtotal_cents: number;
+  shipping_cents: number;
+  total_cents: number;
+  provider_reference: string | null;
+  idempotency_key: string;
+  version: number;
+  restock_decision: RefundRestockDecision;
+}>;
+
+export type TotalRefundLine = Readonly<{
+  order_item_id: number;
+  quantity: number;
+  amount_cents: number;
+}>;
+
+export type PlannedTotalRefund = Readonly<{
+  subtotal_cents: number;
+  shipping_cents: number;
+  total_cents: number;
+  lines: readonly TotalRefundLine[];
+  restock_decision: RefundRestockDecision;
+}>;
+
 const CURRENCY_PATTERN = /^[A-Z]{3}$/;
 const TIMESTAMP_PATTERN = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/;
 
@@ -98,5 +138,45 @@ export function planPaymentCapture(
     status: 'captured',
     transaction_status: 'succeeded',
     version_after: payment.version + 1,
+  });
+}
+
+/** Congela el reembolso total desde snapshots servidor; stock y dinero son decisiones separadas. */
+export function planTotalRefund(
+  payment: PaymentLedgerEntry,
+  order: Readonly<{ subtotal_cents: number; shipping_cents: number; total_cents: number }>,
+  lines: readonly TotalRefundLine[],
+  restockDecision: RefundRestockDecision,
+): PlannedTotalRefund {
+  if (payment.status !== 'captured') throw new RangeError('solo un pago captured se puede reembolsar por completo.');
+  assertMoney(order.subtotal_cents, 'order.subtotal_cents');
+  assertMoney(order.shipping_cents, 'order.shipping_cents');
+  assertMoney(order.total_cents, 'order.total_cents');
+  if (order.total_cents !== order.subtotal_cents + order.shipping_cents) {
+    throw new RangeError('el total del pedido no coincide con subtotal y envío.');
+  }
+  if (payment.expected_amount_cents !== order.total_cents) {
+    throw new RangeError('el importe del pago no coincide con el pedido.');
+  }
+  if (lines.length < 1) throw new RangeError('el reembolso total necesita al menos una línea.');
+  let subtotal = 0;
+  for (const line of lines) {
+    assertPositiveInteger(line.order_item_id, 'line.order_item_id');
+    assertPositiveInteger(line.quantity, 'line.quantity');
+    assertMoney(line.amount_cents, 'line.amount_cents');
+    subtotal += line.amount_cents;
+  }
+  if (!Number.isSafeInteger(subtotal) || subtotal !== order.subtotal_cents) {
+    throw new RangeError('las líneas del reembolso no suman el subtotal del pedido.');
+  }
+  if (restockDecision !== 'none' && restockDecision !== 'restock') {
+    throw new RangeError('decisión de reposición inválida.');
+  }
+  return Object.freeze({
+    subtotal_cents: order.subtotal_cents,
+    shipping_cents: order.shipping_cents,
+    total_cents: order.total_cents,
+    lines: Object.freeze(lines.map((line) => Object.freeze({ ...line }))),
+    restock_decision: restockDecision,
   });
 }

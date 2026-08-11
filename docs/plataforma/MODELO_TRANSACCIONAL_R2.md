@@ -15,7 +15,9 @@ responsabilidades que ya no pueden crecer juntas:
 - `orders.status` mezcla vida del pedido, pago y preparación;
 - la pasarela cabe en dos columnas de `orders` y no existe un ledger de pagos;
 - un único tracking en `orders` presupone un único envío total;
-- cancelar un pedido pagado repone stock, pero no registra un reembolso del PSP.
+- la cancelación administrativa legacy de un pedido pagado no prueba un
+  reembolso; R2.10 añade el flujo monetario explícito y conserva la ruta antigua
+  solo como excepción `requires_review`.
 
 R2 separa esas verdades sin cambiar de motor, proveedor ni arquitectura. El
 producto describe; la variante se vende; inventario y pagos conservan
@@ -230,8 +232,9 @@ detiene el bloque; no se corrige inventando datos.
    backfill; `paid|pending|cancelled` no crea fulfillment ficticio.
 4. Verificar por línea que preparado, reembolsado y cancelado nunca exceden `qty`.
 
-Los reembolsos parten vacíos: el sistema actual no ejecuta una devolución en el
-PSP y no existe dato histórico suficiente para backfillearla.
+El backfill de R2.9 deja los reembolsos históricos vacíos: no existe evidencia
+suficiente para inventarlos. Desde R2.10 las devoluciones nuevas nacen como una
+intención durable y solo se cierran tras contrastar la respuesta del PSP.
 
 ## 6. Seeds, importación y exportación
 
@@ -453,3 +456,24 @@ descuadres o violaciones FK; Worker
 `08d0e8e3-dbfc-40b2-a277-6028b49e577b` y E2E remoto 38/38. La incidencia del
 parser de triggers de Wrangler 4.111 y el corte coordinado quedan registrados
 en `OPERACION_LEDGER_PAGOS.md`.
+
+## 17. Evidencia de R2.10
+
+`createRefundOperations` calcula el reembolso total desde pedido, pago capturado
+y snapshots de línea. Antes de cualquier llamada externa inserta `refunds` y
+`refund_items` con una clave estable por pedido; Stripe recibe esa misma clave y
+un retry puede recuperar la referencia ya creada sin duplicar dinero.
+
+Solo una confirmación coherente materializa la transacción `refund`, mueve pago
+y devolución a `refunded/succeeded` y ejecuta en una batch D1 el evento
+`orders.order_refunded`, auditoría, entrega de notificación, cancelación,
+timeline y, si se eligió, movimientos de inventario. Un reembolso activo bloquea
+envío o cancelación manual mediante la misma guarda del evento y de la mutación,
+por lo que un conflicto no deja proyecciones fantasma.
+
+Los resultados `processing`, `failed` y `requires_review` se persisten para
+operación. R2.10 reconcilia por reintento manual idempotente; la automatización
+por webhook queda fuera de este corte. La demo pública permite inspeccionar el
+estado pero responde 403 a la mutación. Evidencia local: 57 suites/366 tests,
+E2E 39/39 y a11y 2/2; el procedimiento está en
+`OPERACION_REEMBOLSOS.md`.

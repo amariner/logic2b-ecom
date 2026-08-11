@@ -277,8 +277,9 @@ Después del panel V2, continuar el orden exacto:
 4. **R2.9 — Ledger de pagos — ✅ 2026-08-11.** Payment/transaction/refund,
    moneda por config, captura idempotente y `requires_review`; rehearsal remoto
    aislado, backup v5 y runtime atómico; D1 `0011`, Worker servido y E2E 38/38.
-5. **R2.10 — Reembolso total.** Admin→proveedor→ledger→evento→email→stock con
-   retry seguro.
+5. **R2.10 — Reembolso total — ✅ 2026-08-11.** Confirmación admin, adaptador
+   PSP, intención durable previa, ledger/evento/auditoría/email y reposición
+   opcional; retry concurrente seguro y demo pública inerte.
 6. **R2.11 — Fulfillment por líneas.** El envío total actual pasa a ser el caso
    simple del modelo nuevo.
 7. **R2.12 — Fulfillment parcial.** Cantidades, múltiples trackings, emails y

@@ -39,7 +39,7 @@ improvisan durante la implementación.
 |---|---|---|
 | R0 | Investigación, taxonomía, matriz, roadmap y estrategia wiki | ✅ cerrado 2026-08-06 |
 | R1 | Cimientos modulares y observables | ✅ cerrado 2026-08-07 |
-| R2 | Núcleo transaccional profesional | 🟡 R2.1–R2.9 y Admin V2 cerrados; siguiente R2.10 |
+| R2 | Núcleo transaccional profesional | 🟡 R2.1–R2.10 y Admin V2 cerrados; siguiente R2.11 |
 | R3 | Operación de pedidos, inventario y fulfillment | ⬜ |
 | R4 | Precios, promociones y modelos de venta | ⬜ |
 | R5 | Clientes, privacidad y mercados | ⬜ |
@@ -96,7 +96,7 @@ Cada migración se diseña y ensaya sobre una copia antes de tocar el esquema vi
 | 19 | **R2.7 Ledger de inventario: implementación** | Migración, backfill del stock, escrituras append-only y proyección de disponible; doble webhook no duplica movimiento. | ✅ 2026-08-10 |
 | 20 | **R2.8 Reservas y expiración** | Reserva opcional por carrito/checkout, TTL, liberación, captura y carrera última unidad; feature apagada por defecto. | ✅ 2026-08-10 |
 | 21 | **R2.9 Ledger de pagos** | Payment/transaction/refund con proveedor, moneda, importe, status e idempotencia; pedido no usa un único string como contabilidad. | ✅ 2026-08-11 |
-| 22 | **R2.10 Reembolso total** | Acción admin → proveedor → ledger → evento → email → stock según política; retry seguro y estado visible. | ⬜ |
+| 22 | **R2.10 Reembolso total** | Acción admin → proveedor → ledger → evento → email → stock según política; retry seguro y estado visible. | ✅ 2026-08-11 |
 | 23 | **R2.11 Fulfillment por líneas** | Fulfillment y fulfillment_items; envío total actual se convierte en un caso simple. | ⬜ |
 | 24 | **R2.12 Fulfillment parcial** | Cantidades parciales, múltiples trackings, email por envío y estados derivados sin perder histórico. | ⬜ |
 | 25 | **R2.13 Cancelación/reembolso parcial** | Selección por cantidad, cálculo servidor, descuento/restitución correcta y pruebas de redondeo/concurrencia. | ⬜ |
@@ -806,10 +806,31 @@ UIA.1–UIA.4 queda cerrado como un único corte coherente:
    triggers compuestos; se verificó cada esquema antes de registrar la
    migración y el DDL quedó reformulado sin `CASE ... END` anidado.
 
-## 12. Siguiente bloque
+## 12. R2.10 — Reembolso total — ✅ 2026-08-11
 
-### R2.10 — Reembolso total
+1. La acción administrativa exige confirmación, motivo y decisión explícita de
+   reposición. El importe y las líneas se calculan siempre en servidor.
+2. La intención y sus líneas quedan durables antes de invocar el PSP. Stripe y
+   el simulador implementan un puerto común; proveedor, referencia, moneda e
+   importe se contrastan antes de asentar el resultado.
+3. El mismo `idempotency_key` llega al PSP y al ledger. Reintento tras timeout,
+   replay y dos solicitudes concurrentes producen una sola devolución y una
+   sola tanda de efectos internos.
+4. El cierre confirmado agrupa evento `orders.order_refunded`, auditoría,
+   notificación, transacción financiera, estados, cancelación del pedido,
+   timeline y reposición opcional en una batch D1 guardada.
+5. `pending`, `processing`, `failed` y `requires_review` permanecen visibles;
+   los estados activos bloquean envío/cancelación manual sin crear eventos
+   fantasma. La reconciliación es manual por reintento idempotente en R2.10.
+6. Demo pública: ruta visible pero mutación 403 y cero efectos. Sin dependencia,
+   migración, dato PCI, precio ni promesa comercial nueva.
+7. Verificación local: **57 suites, 366 tests**, tipos/build, reset `0001`–`0011`,
+   E2E **39/39** y a11y del pedido pagado **2/2** a 1440/375.
 
-Acción administrativa confirmada → adaptador PSP → ledger de pago/reembolso →
-evento/auditoría → email → reposición de stock según política, con reintento
-idempotente, fallo recuperable y demo pública inerte.
+## 13. Siguiente bloque
+
+### R2.11 — Fulfillment por líneas
+
+Crear `fulfillments` y `fulfillment_items`, migrar el envío total actual como
+caso simple, conservar temporalmente el tracking legacy y probar cantidades,
+replay, restore y proyección de estado antes del corte.

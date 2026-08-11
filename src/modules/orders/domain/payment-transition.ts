@@ -23,6 +23,7 @@ export type OrderForPayment = {
 };
 
 export type OrderItemForPayment = {
+  order_item_id: number;
   product_id: number;
   variant_id: number;
   is_default: boolean;

@@ -90,3 +90,16 @@ export function orderShippedEmail(
     ),
   };
 }
+
+export function orderRefundedEmail(data: OrderEmailData): EmailMessage {
+  const orderNumber = escapeHtml(data.order_number);
+  return {
+    to_addr: data.email,
+    subject: `Reembolso del pedido ${data.order_number} confirmado — ${shopConfig.name}`,
+    body_html: wrap(
+      `Tu reembolso está confirmado, ${escapeHtml(data.customer_name)}`,
+      `<p style="font-size:14px">Hemos reembolsado el importe completo del pedido <strong>${orderNumber}</strong>. ` +
+        `El abono puede tardar varios días en aparecer, según tu banco.</p>${itemsTable(data)}`,
+    ),
+  };
+}

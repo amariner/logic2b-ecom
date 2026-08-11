@@ -21,3 +21,8 @@ export {
   type IntegrationStatus,
   type IntegrationStatuses,
 } from './registry';
+export {
+  createPaymentRefundGatewayResolver,
+  createSimulatedRefundGateway,
+  createStripeRefundGateway,
+} from './payment-refund-gateways';

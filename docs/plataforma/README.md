@@ -89,8 +89,10 @@ venta o servicios logísticos propios.
   esquema aditivo R2.9 para intención, asiento financiero y reembolso.
 - [`OPERACION_LEDGER_PAGOS.md`](OPERACION_LEDGER_PAGOS.md): rehearsal,
   backfill por moneda, corte coordinado, rollback y recuperación R2.9.
+- [`OPERACION_REEMBOLSOS.md`](OPERACION_REEMBOLSOS.md): contrato operativo,
+  estados, retry/reconciliación y separación dinero-stock de R2.10.
 - [`../../src/modules/payments/`](../../src/modules/payments/): contrato puro y
-  adaptador D1 de intención, captura y cancelación financiera.
+  adaptador D1 de intención, captura, cancelación financiera y reembolso total.
 - [`../../src/modules/inventory/domain/inventory-ledger.ts`](../../src/modules/inventory/domain/inventory-ledger.ts):
   razones, direcciones, transiciones y guarda optimista del ledger.
 - [`../../src/modules/inventory/infrastructure/d1-inventory-ledger.ts`](../../src/modules/inventory/infrastructure/d1-inventory-ledger.ts):
