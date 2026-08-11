@@ -837,3 +837,14 @@ UIA.1–UIA.4 queda cerrado como un único corte coherente:
 Crear `fulfillments` y `fulfillment_items`, migrar el envío total actual como
 caso simple, conservar temporalmente el tracking legacy y probar cantidades,
 replay, restore y proyección de estado antes del corte.
+
+**Preparación de puerta — 2026-08-11.** ADR-0015 fija estados, cantidades,
+idempotencia, escritura dual, backfill, rollout y rollback. El DDL exacto
+permanece deliberadamente en
+`docs/plataforma/sql/0012_fulfillment_lines.proposed.sql`, fuera de
+`migrations/`: dos FKs compuestas impiden asociar líneas de otro pedido y el
+dominio calcula únicamente cantidades netas pendientes. Seis pruebas nuevas
+ejecutan el esquema aislado y cubren constraints, replay estructural,
+transiciones, tracking y sobreasignación. `pnpm check`: 58 suites/372 tests,
+tipos y build en verde. No se tocó D1, seed, backup, runtime ni UI. La puerta
+explícita de migración continúa pendiente antes de materializar `0012`.

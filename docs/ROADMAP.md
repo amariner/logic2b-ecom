@@ -1982,6 +1982,13 @@ carriles transversales de UI, calidad y verdad comercial definidos en
 toma generación de temas por decisión de Andreu: el carril visual continúa en otro
 canal/worktree.
 
+**Puerta R2.11 preparada (2026-08-11).** ADR-0015, el contrato de dominio y el
+DDL propuesto `0012_fulfillment_lines.proposed.sql` fijan ya tablas, FKs,
+cantidades, idempotencia, backfill y rollback sin tocar `migrations/` ni D1.
+La evidencia queda en 58 suites/372 tests, tipos y build en verde. Falta la
+aprobación explícita de la migración para materializar `0012`, ejecutar el
+ensayo sobre copia aislada e implementar doble escritura, backup y lectura.
+
 **F12.6 queda cerrado en el carril comercial (2026-08-10).** El índice por
 audiencias, las OG y las seis páginas indexables se han revalidado; el barrido
 detectó y corrigió la deuda de ARGENT y el CLS causado por revelar tarde los
