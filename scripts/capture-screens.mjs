@@ -128,6 +128,7 @@ const REVEAL_STRETCH = `(async () => {
 // Iris es tienda de vídeo-scrub: la estática solo sirve de PÓSTER del hero
 // (viewport), no de página completa — el escaparate se enseña con el clip.
 const STORES = [
+  { id: 'brio', label: 'BRÍO', catalog: '/demo/tiendas/brio', full: true, maxH: 3400, mobileQ: 54 },
   { id: 'alva', label: 'ALVA', catalog: '/demo/tiendas/alva', full: true, maxH: 3000 },
   { id: 'orbe', label: 'ORBE', catalog: '/demo/tiendas/orbe', full: true, maxH: 3000, mobileQ: 58 },
   { id: 'viso', label: 'VISO', catalog: '/demo/tiendas/viso', full: true, maxH: 3000 },
@@ -171,6 +172,7 @@ for (const s of STORES) {
 // Ficha de producto: el producto firma de cada tienda. `product(slug)` respeta
 // las rutas históricas de la genérica (/demo/tienda/<slug>).
 const FICHAS = [
+  { id: 'brio', slug: 'bri-espalda-libre', prefix: '/demo/tiendas/brio' },
   { id: 'alva', slug: 'alv-lina-shoulder-black', prefix: '/demo/tiendas/alva' },
   { id: 'orbe', slug: 'orb-renew-serum', prefix: '/demo/tiendas/orbe' },
   { id: 'viso', slug: 'vis-spectra-01', prefix: '/demo/tiendas/viso' },

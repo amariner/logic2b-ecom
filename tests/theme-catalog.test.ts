@@ -17,10 +17,10 @@ describe('catálogo navegable de temas', () => {
     expect(newestThemesFirst(registrationOrder)).toEqual(['litica', 'summit', 'sillage', 'argent', 'editorial']);
     expect(registrationOrder).toEqual(['editorial', 'argent', 'sillage', 'summit', 'litica']);
     expect(newestThemesFirst(themes).map((theme) => theme.id).slice(0, 4)).toEqual([
+      'brio',
       'alva',
       'orbe',
       'viso',
-      'nera',
     ]);
   });
 

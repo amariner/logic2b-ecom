@@ -1,0 +1,139 @@
+---
+/** BRÍO · escaparate editorial de bienestar urbano y catálogo filtrable. */
+import type { CollectionConfig, StorePaths } from '../../../collections';
+import Filters from './Filters.astro';
+import ProductGrid from './ProductGrid.astro';
+
+type GridProduct = { slug: string; name: string; description: string; price_cents: number; image: string; stock: number; };
+interface Props { paths: StorePaths; products: GridProduct[]; collection: CollectionConfig; category?: string | undefined; sort: string; search?: string | undefined; }
+
+const { paths, products, collection, category, sort, search } = Astro.props;
+const editorial = !category && !search && sort === 'featured';
+const FEATURED = [
+  'bri-musculo-suelto', 'bri-pausa-nocturna', 'bri-espalda-libre',
+  'bri-nuca-clara', 'bri-ciclo-calma', 'bri-viaje-ligero',
+];
+const rank = new Map(FEATURED.map((slug, index) => [slug, index]));
+const ordered = products.toSorted((a, b) => (rank.get(a.slug) ?? 99) - (rank.get(b.slug) ?? 99));
+// La referencia repite el producto de campaña en la retícula editorial
+// inferior. Conservamos esa decisión de composición sin inventar otro SKU.
+const posterProducts = ordered.length > 0 ? [...ordered.slice(3), ordered[0]!] : [];
+---
+
+<div class="brio-stage">
+  <div class="brio">
+    <header class="brio-header">
+      <nav class="brio-nav" aria-label="Navegación BRÍO">
+        <a href={paths.catalog} aria-current={editorial ? 'page' : undefined}>Tienda</a>
+        <a href="#ritual">El ritual</a>
+        <a href="#mision">Nuestra misión</a>
+      </nav>
+      <a class="brio-wordmark" href={paths.catalog}>{collection.name}</a>
+      <nav class="brio-actions" aria-label="Acciones de tienda">
+        <a href={`${paths.catalog}?orden=name`}>Buscar</a>
+        <a href={paths.cart}>Bolsa <span data-cart-count>0</span></a>
+      </nav>
+    </header>
+
+    {editorial ? (
+      <main>
+        <section class="brio-hero" aria-labelledby="brio-title">
+          <article class="brio-hero__portrait">
+            <img src="/images/collections/brio/hero-smile.webp" alt="Retrato cercano de una mujer sonriendo con parches de bienestar en la sien" width="1536" height="1536" loading="eager" fetchpriority="high" />
+            <div class="brio-hero__copy">
+              <h1 id="brio-title">Alivio justo donde lo necesitas. Sin agujas.</h1>
+              <p>Parches botánicos para acompañar tu cuerpo sin frenar el día.</p>
+              <a href="#productos">Conocer BRÍO</a>
+            </div>
+          </article>
+          <article class="brio-hero__object">
+            <img src="/images/collections/brio/hero-pack.webp" alt="Sobre verde BRÍO sobre una estructura blanca de azulejos" width="1536" height="1536" loading="eager" fetchpriority="high" />
+          </article>
+        </section>
+
+        <div class="brio-marquee" aria-label="Selección editorial">
+          <div><span>Salud urbana</span><span>Nuevo ritual</span><span>Bienestar hoy</span><span>Sin pausa</span><span aria-hidden="true">Salud urbana</span><span aria-hidden="true">Nuevo ritual</span></div>
+        </div>
+
+        <section class="brio-manifesto" id="mision" aria-labelledby="brio-manifesto-title">
+          <h2 id="brio-manifesto-title">Mezclamos tradición botánica y cultura urbana para crear pequeños rituales que acompañan el cuerpo y elevan el día.</h2>
+          <a href="#productos">Explorar productos</a>
+        </section>
+
+        <section id="productos" aria-labelledby="brio-products-title">
+          <h2 id="brio-products-title" class="sr-only">Productos BRÍO</h2>
+          <ProductGrid paths={paths} products={ordered.slice(0, 3)} layout="compact" />
+          <ProductGrid paths={paths} products={posterProducts} layout="poster" />
+        </section>
+      </main>
+    ) : (
+      <main class="brio-catalog">
+        <div class="brio-catalog__intro"><p>BRÍO / {products.length} rituales</p><h1>{category ? collection.categories.find((item) => item.id === category)?.label : search ? `Resultados para «${search}»` : 'Todo el catálogo'}</h1></div>
+        <Filters paths={paths} collection={collection} count={products.length} activeCategory={category} sort={sort} search={search} />
+        {ordered.length > 0 ? <ProductGrid paths={paths} products={ordered} layout="compact" /> : <div class="brio-empty"><p>{search ? `Nada por aquí para «${search}»` : 'No hay productos en esta categoría'}</p><a href={paths.catalog}>Volver a la tienda</a></div>}
+      </main>
+    )}
+
+    <footer class="brio-footer" id="ritual">
+      <div class="brio-footer__links">
+        <nav aria-label="BRÍO"><a href={paths.catalog} aria-current={editorial ? 'page' : undefined}>Inicio</a><a href={`${paths.catalog}?orden=name`}>Tienda</a><a href="#mision">Misión</a></nav>
+        <nav aria-label="Ayuda"><a href={paths.cart}>Bolsa</a><a href="mailto:hola@logic2b.com">Contacto</a><a href="/">Logic2B</a></nav>
+        <div><p>Pequeños rituales.<br />Días con más BRÍO.</p></div>
+        <div><p>Castellón / 2026<br />Tienda de demostración</p></div>
+      </div>
+      <a class="brio-footer__wordmark" href={paths.catalog}>{collection.name}</a>
+    </footer>
+  </div>
+</div>
+
+<style>
+  :global([data-store-theme='brio'] > header), :global([data-store-theme='brio'] > .shop-footer) { display: none; }
+  .brio-stage { min-height: 100vh; padding: clamp(0rem, 3vw, 3rem); color: var(--color-foreground); background: var(--surface-sunken); }
+  .brio { max-width: 74rem; margin: 0 auto; overflow: hidden; border-radius: var(--radius-card); color: var(--color-foreground); background: var(--color-background); font-family: var(--font-accent); }
+  .brio :where(a) { color: inherit; text-decoration: none; }
+  .brio-header { position: sticky; top: 0; z-index: 30; display: grid; min-height: 4.3rem; grid-template-columns: 1fr auto 1fr; align-items: center; padding: .75rem 1.8rem; background: color-mix(in srgb, var(--color-background) 95%, transparent); backdrop-filter: blur(12px); }
+  .brio-nav, .brio-actions { display: flex; gap: 1rem; font-size: .58rem; font-weight: 700; text-transform: uppercase; }
+  .brio-actions { justify-content: flex-end; }
+  .brio-header :where(nav a) { display: inline-flex; min-height: 2rem; align-items: center; }
+  .brio-header :where(nav a:hover) { text-decoration: underline; text-underline-offset: .22rem; }
+  .brio-wordmark { font: var(--weight-display) 1.3rem/.8 var(--font-display); letter-spacing: var(--tracking-display); transform: scaleX(1.08); }
+  .brio-hero { display: grid; grid-template-columns: 1fr 1fr; gap: var(--grid-gap); padding: 0 1.8rem 1rem; }
+  .brio-hero article { position: relative; min-width: 0; overflow: hidden; border-radius: var(--radius-card); background: var(--surface-product); }
+  .brio-hero img { width: 100%; height: 100%; min-height: 32rem; object-fit: cover; }
+  .brio-hero__copy { position: absolute; inset: auto 1.8rem 1.8rem; max-width: 25rem; padding: 1rem; color: var(--color-background); background: color-mix(in srgb, var(--color-foreground) 78%, transparent); backdrop-filter: blur(5px); }
+  .brio-hero__copy h1 { max-width: 21rem; font: var(--weight-display) clamp(1.35rem, 2.5vw, 2.2rem)/1 var(--font-display); letter-spacing: var(--tracking-display); text-transform: uppercase; }
+  .brio-hero__copy p { max-width: 21rem; margin-top: .7rem; font-size: .66rem; line-height: 1.4; }
+  .brio-hero__copy a, .brio-manifesto > a { display: inline-flex; min-height: 2.3rem; align-items: center; justify-content: center; margin-top: 1rem; padding: .45rem .8rem; border: var(--border-width) solid currentColor; border-radius: var(--radius-btn); font-size: .58rem; }
+  .brio-marquee { overflow: hidden; padding: .5rem 0; border-block: var(--border-width) solid var(--color-border); }
+  .brio-marquee > div { display: flex; width: max-content; animation: brio-ticker 28s linear infinite; }
+  .brio-marquee span { margin-right: 3.2rem; font: 700 clamp(1rem, 1.6vw, 1.5rem)/1 var(--font-display); letter-spacing: var(--tracking-display); }
+  .brio-manifesto { min-height: 17rem; padding: 3.4rem 1.8rem 2.4rem; }
+  .brio-manifesto h2 { max-width: 58rem; font: var(--weight-display) clamp(1.8rem, 3.6vw, 3.4rem)/.98 var(--font-display); letter-spacing: var(--tracking-display); }
+  .brio-manifesto > a { color: var(--color-foreground); }
+  .brio-catalog__intro { display: flex; min-height: 15rem; flex-direction: column; justify-content: space-between; padding: 1.8rem; border-bottom: var(--border-width) solid var(--color-border); }
+  .brio-catalog__intro p { font-size: .58rem; text-transform: uppercase; }
+  .brio-catalog__intro h1 { font: var(--weight-display) clamp(2.5rem, 7vw, 6.5rem)/.82 var(--font-display); letter-spacing: var(--tracking-display); text-transform: uppercase; }
+  .brio-empty { padding: 8rem 1rem; text-align: center; }
+  .brio-empty p { font: var(--weight-display) 1.4rem/1 var(--font-display); }
+  .brio-empty a { display: inline-block; margin-top: 1rem; text-decoration: underline; text-underline-offset: .22rem; }
+  .brio-footer { padding: 3rem 1.8rem .5rem; }
+  .brio-footer__links { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; padding-top: 1.2rem; border-top: var(--border-width) solid var(--color-border); font-size: .56rem; line-height: 1.7; }
+  .brio-footer nav { display: flex; align-items: flex-start; flex-direction: column; }
+  .brio-footer nav a { min-height: 1.7rem; }
+  .brio-footer__wordmark { display: block; margin-top: 3rem; overflow: hidden; font: var(--weight-display) clamp(8rem, 22vw, 18rem)/.68 var(--font-display); letter-spacing: -.13em; text-align: center; transform: scaleX(1.16); transform-origin: center bottom; }
+  @keyframes brio-ticker { to { transform: translateX(-50%); } }
+  @media (max-width: 720px) {
+    .brio-stage { padding: 0; }
+    .brio { border-radius: 0; }
+    .brio-header { min-height: 3.8rem; grid-template-columns: 1fr auto 1fr; padding: .55rem .8rem; }
+    .brio-nav a:not(:first-child), .brio-actions a:first-child { display: none; }
+    .brio-hero { grid-template-columns: 1fr; padding: 0 .8rem .8rem; }
+    .brio-hero img { min-height: 0; aspect-ratio: 1; }
+    .brio-hero__copy { inset: auto .8rem .8rem; }
+    .brio-manifesto { min-height: 14rem; padding: 2.5rem .8rem 1.8rem; }
+    .brio-footer { padding-inline: .8rem; }
+    .brio-footer__links { grid-template-columns: 1fr 1fr; gap: 2rem 1rem; }
+    .brio-footer__wordmark { margin-top: 2rem; font-size: 8rem; }
+  }
+  @media (prefers-reduced-motion: reduce) { .brio-marquee > div { animation: none; } }
+</style>

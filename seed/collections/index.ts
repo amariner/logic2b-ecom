@@ -32,6 +32,7 @@ import { neraSeedProducts } from './nera.ts';
 import { visoSeedProducts } from './viso.ts';
 import { orbeSeedProducts } from './orbe.ts';
 import { alvaSeedProducts } from './alva.ts';
+import { brioSeedProducts } from './brio.ts';
 // new-theme:seed-imports — no borrar: `pnpm new:theme <id>` añade aquí su import.
 
 export const collectionSeedProducts: readonly SeedProduct[] = [
@@ -57,5 +58,6 @@ export const collectionSeedProducts: readonly SeedProduct[] = [
   ...visoSeedProducts,
   ...orbeSeedProducts,
   ...alvaSeedProducts,
+  ...brioSeedProducts,
   // new-theme:seed-entries — no borrar: `pnpm new:theme <id>` añade aquí su spread.
 ];

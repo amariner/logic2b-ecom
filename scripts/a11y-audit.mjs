@@ -68,6 +68,7 @@ const MOBILE = { w: 375, h: 812, dsf: 1, mobile: true };
 // ── Superficies ────────────────────────────────────────────────────────────
 // Las tiendas vivas. `demo` (La Botiga) conserva las rutas históricas.
 const STORES = [
+  { id: 'brio', label: 'BRÍO', prefix: '/demo/tiendas/brio', slug: 'bri-espalda-libre', cartKey: 'ecom-cart:brio', canQuote: false },
   { id: 'alva', label: 'ALVA', prefix: '/demo/tiendas/alva', slug: 'alv-lina-shoulder-black', cartKey: 'ecom-cart:alva' },
   // Estas direcciones recientes conservan carrito local, pero su composición
   // no incluye calculadora de portes. El estado activo no existe y no debe

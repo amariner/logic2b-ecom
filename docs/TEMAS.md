@@ -685,6 +685,18 @@ mínimos. Ocho productos y doce assets propios sostienen una dirección serena y
 táctil sin duplicar ninguna parte del recorrido comercial. Ficha:
 [`docs/temas/alva.md`](temas/alva.md).
 
+### 22 · BRÍO — *bienestar botánico urbano*
+
+📎 **Referencia: [`22-brio.webp`](../public/images/referencias/22-brio.webp)**
+
+**Para quién:** bienestar y autocuidado, cosmética funcional y marcas DTC.
+
+Hoja marfil redondeada, hero partido entre piel y envase, cinta editorial,
+manifiesto tipográfico, tres productos sobre azulejo y retícula 2×2 con
+abundante vacío. Seis productos y ocho assets propios construyen una dirección
+eléctrica y cercana sin copiar marca, claims ni imaginería de la referencia.
+Ficha: [`docs/temas/brio.md`](temas/brio.md).
+
 ---
 
 ## 6. Tabla resumen
@@ -713,6 +725,7 @@ táctil sin duplicar ninguna parte del recorrido comercial. Ficha:
 | 19 | VISO | `#9b4520` | 4 | **irregular** | top | **split** | plain | dropdown | compact | ✅ |
 | 20 | ORBE | `#465344` | 4 | uniform | top | **split** | divided | dropdown | compact | ✅ |
 | 21 | ALVA | `#282522` | 4 | uniform | top | **split** | divided | dropdown | compact | ✅ |
+| 22 | BRÍO | `#c9e66d` | 3 | **irregular** | top | **split** | hairline | dropdown | regular | ✅ |
 
 ---
 

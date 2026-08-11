@@ -886,6 +886,36 @@ export const demoThemes: DemoTheme[] = [
       annotations: false, darkFooter: false,
     },
   },
+  {
+    id: 'brio',
+    label: 'BRÍO',
+    hint: 'Bienestar urbano: hoja marfil, envases eléctricos y retícula editorial con humor.',
+    reference: { name: 'Urban botanical patches editorial study', file: '22-brio.webp' },
+    sample: null,
+    bestFor: ['Bienestar y autocuidado', 'Cosmética funcional', 'Marcas DTC'],
+    status: 'ready',
+    vars: {
+      '--color-brand': '#c9e66d',
+      '--color-brand-dark': '#a9c84e',
+      '--color-brand-fg': '#11140d',
+      '--font-display': "'Arial Black', 'Helvetica Neue', Arial, sans-serif",
+      '--font-accent': SYSTEM_SANS,
+      '--tracking-display': '-0.055em',
+      '--weight-display': '700',
+      '--radius-btn': '9999px',
+      '--radius-card': '1rem',
+      '--border-width': '1px',
+      '--surface-product': '#f2f3eb',
+      '--surface-sunken': '#d6d7d1',
+      '--space-density': '0.9',
+      '--grid-gap': '0.8rem',
+    },
+    layout: {
+      gridCols: 3, gridStyle: 'irregular', nav: 'top', hero: 'split',
+      card: 'hairline', filters: 'dropdown', density: 'regular',
+      annotations: false, darkFooter: false,
+    },
+  },
   // new-theme:themes — no borrar: `pnpm new:theme <id>` añade aquí el tema si falta.
 ];
 

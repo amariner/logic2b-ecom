@@ -1,0 +1,34 @@
+---
+/** BRÍO · filtros compactos con el contrato compartido de URL. */
+import type { CollectionConfig, StorePaths } from '../../../collections';
+interface Props { paths: StorePaths; collection: CollectionConfig; count: number; activeCategory?: string | undefined; sort: string; search?: string | undefined; }
+const { paths, collection, count, activeCategory, sort, search } = Astro.props;
+const linkFor = (category?: string) => {
+  const params = new URLSearchParams();
+  if (category) params.set('categoria', category);
+  if (sort !== 'featured') params.set('orden', sort);
+  if (search) params.set('q', search);
+  const query = params.toString();
+  return `${paths.catalog}${query ? `?${query}` : ''}`;
+};
+---
+
+<div class="brio-filters">
+  <nav aria-label="Categorías BRÍO"><span>Catálogo ({count})</span><a href={linkFor()} aria-current={!activeCategory ? 'page' : undefined}>Todo</a>{collection.categories.map((item) => <a href={linkFor(item.id)} aria-current={activeCategory === item.id ? 'page' : undefined}>{item.label}</a>)}</nav>
+  <div class="brio-filters__forms">
+    <form method="get" action={paths.catalog} role="search">{activeCategory && <input type="hidden" name="categoria" value={activeCategory} />}<input type="search" name="q" value={search} placeholder="Buscar" aria-label="Buscar productos" /></form>
+    <form method="get" action={paths.catalog}>{activeCategory && <input type="hidden" name="categoria" value={activeCategory} />}{search && <input type="hidden" name="q" value={search} />}<label><span class="sr-only">Ordenar catálogo</span><select name="orden" aria-label="Ordenar catálogo" onchange="this.form?.requestSubmit()"><option value="featured" selected={sort === 'featured'}>Destacados</option><option value="price-asc" selected={sort === 'price-asc'}>Precio ↑</option><option value="price-desc" selected={sort === 'price-desc'}>Precio ↓</option><option value="name" selected={sort === 'name'}>Nombre</option></select></label></form>
+  </div>
+</div>
+
+<style>
+  .brio-filters { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: .8rem 1.8rem; border-bottom: var(--border-width) solid var(--color-border); font-size: .56rem; font-weight: 700; text-transform: uppercase; }
+  .brio-filters nav, .brio-filters__forms { display: flex; align-items: center; gap: 1rem; }
+  .brio-filters nav > span { color: var(--color-muted-foreground); }
+  .brio-filters a { display: inline-flex; min-height: 2rem; align-items: center; }
+  .brio-filters a[aria-current='page'] { text-decoration: underline; text-underline-offset: .22rem; }
+  .brio-filters input, .brio-filters select { min-height: 2.25rem; border: var(--border-width) solid var(--color-border); border-radius: var(--radius-btn); color: var(--color-foreground); background: transparent; font: inherit; text-transform: uppercase; }
+  .brio-filters input { width: 7.5rem; padding: .4rem .7rem; }
+  .brio-filters select { padding: .4rem 1.6rem .4rem .7rem; }
+  @media (max-width: 720px) { .brio-filters { align-items: stretch; flex-direction: column; padding-inline: .8rem; overflow: hidden; } .brio-filters nav { overflow-x: auto; } .brio-filters nav > * { flex: 0 0 auto; } .brio-filters__forms { justify-content: space-between; } }
+</style>

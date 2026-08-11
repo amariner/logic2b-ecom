@@ -44,6 +44,7 @@ const THEME_CATEGORIES = {
   viso: ['moda', 'tecnico'],
   orbe: ['cuidado'],
   alva: ['moda'],
+  brio: ['cuidado'],
 } as const satisfies Readonly<Record<string, readonly ThemeCategoryId[]>>;
 
 export function normalizeThemeSearch(value: string): string {

@@ -827,6 +827,25 @@ errores y 0 avisos en 9 superficies**. Sin despliegue remoto. Ficha completa en
 [`docs/temas/alva.md`](temas/alva.md). La siguiente referencia ejecutable de la
 cola es la posición 9 (`247f56bc054cf88fda76024abf2137df.jpg`).
 
+### Línea paralela · tema BRÍO (2026-08-11, sesión local)
+
+Noveno elemento de `nuevos-temas/cola.json`. BRÍO replica una dirección de
+bienestar botánico urbano con hoja marfil, hero partido, cinta editorial,
+manifiesto tipográfico, seis productos `bri-*` y retícula 3 + 2×2. Los ocho
+assets WebP propios se generaron uno a uno con Higgsfield Product Photoshoot
+tras un fallo de red de `imagegen`, conforme al fallback ya autorizado. Consumo:
+56 créditos (saldo 660,48 → 604,48).
+
+El bloque toca solo el kit visual, colección, seed y registros previstos; **no
+cambia pricing, envíos, checkout, pedidos, D1 ni APIs** y no añade dependencias.
+Catálogo, ficha, carrito y checkout se revisaron a 1440 y 375/390 px, claro,
+oscuro y reduced-motion; auditoría a11y **0 errores / 0 avisos** y capturas
+dentro de presupuesto. Sin despliegue remoto. Ficha completa en
+[`docs/temas/brio.md`](temas/brio.md). La siguiente referencia ejecutable de la
+cola es la posición 10 (`308044ce22d161b3d0caead45300d7f9.jpg`). Lighthouse
+local de la landing quedó en 98 móvil / 99 escritorio por LCP del copy general
+y una captura ORBE; el resto de categorías, 100.
+
 ### Pendiente en la Fase 9B
 
 - **Pasada de fidelidad fina** de los 4 temas contra su captura (se re-hospedaron

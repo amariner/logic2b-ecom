@@ -1,0 +1,61 @@
+---
+/** BRÍO · rejilla 3 + pósteres 2×N con área de enlace única. */
+import type { StorePaths } from '../../../collections';
+import { formatEurCents } from '../../../lib/format';
+type GridProduct = { slug: string; name: string; description: string; price_cents: number; image: string; stock: number; };
+interface Props { paths: StorePaths; products: GridProduct[]; layout?: 'compact' | 'poster'; }
+const { paths, products, layout = 'compact' } = Astro.props;
+---
+
+<ul class:list={['brio-grid', { 'brio-grid--poster': layout === 'poster' }] }>
+  {products.map((product, index) => (
+    <li class="brio-card">
+      <div class="brio-card__media"><img src={product.image} alt={product.name} width="1536" height="1536" loading={index < 3 ? 'eager' : 'lazy'} /></div>
+      <div class="brio-card__copy">
+        <div><h3><a href={paths.product(product.slug)}>{product.name}</a></h3><p>{product.description}</p></div>
+        <span>{formatEurCents(product.price_cents)}</span>
+      </div>
+      <button type="button" data-brio-add={product.slug} disabled={product.stock === 0} aria-label={product.stock === 0 ? `${product.name} agotado` : `Añadir ${product.name} a la bolsa`}>{product.stock === 0 ? 'Agotado' : '+'}</button>
+    </li>
+  ))}
+</ul>
+
+<script>
+  import { addToCart } from '../../../lib/cart-client';
+  document.querySelectorAll<HTMLButtonElement>('[data-brio-add]').forEach((button) => {
+    button.addEventListener('click', () => {
+      addToCart(button.dataset.brioAdd ?? '');
+      const previous = button.textContent;
+      button.textContent = '✓';
+      setTimeout(() => (button.textContent = previous), 850);
+    });
+  });
+</script>
+
+<style>
+  .brio-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); margin: 0; padding: 0 1.8rem 1.8rem; list-style: none; gap: var(--grid-gap); }
+  .brio-grid--poster { grid-template-columns: repeat(2, minmax(0, 1fr)); padding-top: 0; }
+  .brio-card { position: relative; min-width: 0; border-bottom: var(--border-width) solid var(--color-border); color: var(--color-foreground); background: var(--color-background); }
+  .brio-card__media { display: grid; aspect-ratio: 1; place-items: center; overflow: hidden; border-radius: var(--radius-card); background: var(--surface-product); }
+  .brio-grid--poster .brio-card__media { aspect-ratio: 1 / 1.06; border-radius: 0; }
+  .brio-card__media img { width: 100%; height: 100%; object-fit: cover; transition: transform .3s ease; }
+  .brio-card:hover .brio-card__media img { transform: scale(1.018); }
+  .brio-card__copy { display: flex; min-height: 4.8rem; align-items: flex-start; justify-content: space-between; gap: .7rem; padding: .8rem 0; font-size: .56rem; line-height: 1.35; }
+  .brio-card__copy h3 { font: 700 .68rem/1.2 var(--font-accent); text-transform: uppercase; }
+  .brio-card__copy h3 a::after { position: absolute; z-index: 1; inset: 0; content: ''; }
+  .brio-card__copy p { max-width: 18rem; margin-top: .25rem; color: var(--color-muted-foreground); }
+  .brio-card__copy > span { white-space: nowrap; font-weight: 700; }
+  .brio-card button { position: absolute; z-index: 2; right: .4rem; top: .4rem; display: grid; width: 2.1rem; height: 2.1rem; place-items: center; visibility: hidden; border: var(--border-width) solid var(--color-foreground); border-radius: var(--radius-btn); color: var(--color-brand-fg); background: var(--color-brand); font: 700 .8rem/1 var(--font-accent); cursor: pointer; }
+  .brio-card:hover button, .brio-card:focus-within button { visibility: visible; }
+  .brio-card button:hover { background: var(--color-brand-dark); }
+  .brio-card button:disabled { cursor: not-allowed; opacity: .5; }
+  .brio-card button:focus-visible, .brio-card__copy h3 a:focus-visible { outline: .18rem solid var(--color-brand); outline-offset: -.18rem; }
+  @media (max-width: 720px) {
+    .brio-grid, .brio-grid--poster { grid-template-columns: repeat(2, minmax(0, 1fr)); padding: 0 .8rem .8rem; }
+    .brio-grid--poster .brio-card:last-child { grid-column: 1 / -1; }
+    .brio-card__copy { min-height: 6rem; flex-direction: column; }
+    .brio-card__copy p { display: none; }
+  }
+  @media (hover: none), (pointer: coarse) { .brio-card button { visibility: visible; } }
+  @media (prefers-reduced-motion: reduce) { .brio-card__media img { transition: none; } }
+</style>

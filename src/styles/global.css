@@ -340,3 +340,10 @@
 [data-store-theme='street'] :is(.text-brand, .hover\:text-brand-dark:hover) {
   color: var(--color-foreground);
 }
+
+/* TEMA BRÍO — el lima es una superficie gráfica y de acción con texto en
+   tinta. Como texto suelto sobre blanco no pasa AA, así que las superficies
+   compartidas conservan la afordancia usando el color de primer plano. */
+[data-store-theme='brio'] :is(.text-brand, .hover\:text-brand-dark:hover) {
+  color: var(--color-foreground);
+}
