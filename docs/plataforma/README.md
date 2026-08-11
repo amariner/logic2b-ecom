@@ -66,8 +66,8 @@ venta o servicios logísticos propios.
   borrador interno R1.10; distingue registro/health local de panel, replay y
   sondeos remotos todavía pendientes.
 - [`wiki/nucleo-transaccional-ecommerce.md`](wiki/nucleo-transaccional-ecommerce.md):
-  borrador interno R2.1, no publicable hasta que variantes, ledgers y
-  fulfillment por líneas tengan evidencia operativa.
+  borrador interno actualizado en R2.12; variantes, ledgers y fulfillment
+  parcial tienen evidencia local, pero el corte remoto y R2.13 siguen fuera.
 - [`adr/0011-jobs-duraderos-d1.md`](adr/0011-jobs-duraderos-d1.md): contrato
   R1.11 de identidad, lock, timeout, retry, dead-letter y replay sobre D1.
 - [`adr/0012-modelo-transaccional-r2.md`](adr/0012-modelo-transaccional-r2.md):
@@ -94,7 +94,7 @@ venta o servicios logísticos propios.
 - [`../../migrations/0012_fulfillment_lines.sql`](../../migrations/0012_fulfillment_lines.sql):
   esquema aditivo R2.11 de grupos y cantidades por línea.
 - [`OPERACION_FULFILLMENT_LINEAS.md`](OPERACION_FULFILLMENT_LINEAS.md):
-  preflight, backfill, replay, restore, corte y rollback de R2.11.
+  preflight, backfill, replay, restore, corte R2.11 y operación parcial R2.12.
 - [`../../scripts/rehearse-r2-fulfillment-lines.mjs`](../../scripts/rehearse-r2-fulfillment-lines.mjs):
   rehearsal aislado que compara hashes legacy y canónico sin imprimir PII.
 - [`../../src/modules/payments/`](../../src/modules/payments/): contrato puro y

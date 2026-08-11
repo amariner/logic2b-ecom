@@ -283,8 +283,9 @@ Después del panel V2, continuar el orden exacto:
 6. **R2.11 — Fulfillment por líneas — ✅ 2026-08-11.** Migración/backfill,
    grupos y cantidades atómicos, espejo legacy, backup/restore y lectura
    administrativa; D1 local aplicada, sin deploy remoto.
-7. **R2.12 — Fulfillment parcial.** Cantidades, múltiples trackings, emails y
-   estados derivados.
+7. **R2.12 — Fulfillment parcial — ✅ 2026-08-11.** Cantidades, múltiples
+   trackings, email limitado a cada salida, panel por grupos y estados globales
+   derivados; replay/carreras sin duplicados y sin migración nueva.
 8. **R2.13 — Cancelación/reembolso parcial.** Selección por cantidad, dinero y
    reposición correctos bajo concurrencia.
 9. **R2.14 — Consolidación.** E2E completo, carga, concurrencia y guía de

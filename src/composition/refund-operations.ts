@@ -22,6 +22,7 @@ import { createAuditDiff } from '../shared-kernel/audit';
 import type { EmitEvent } from '../shared-kernel/events';
 import { emitPlatformEvent } from './event-context';
 import { runtimePlatform } from './runtime-platform';
+import { createD1FulfillmentLedger } from '../modules/fulfillment';
 
 export type TotalRefundInput = Readonly<{
   orderId: number;
@@ -59,6 +60,7 @@ export function createRefundOperations(
   const inventory = createD1InventoryLedger(db);
   const outbox = createD1EventOutboxWriter(db);
   const audit = createD1AuditLogWriter(db);
+  const fulfillments = createD1FulfillmentLedger(db);
 
   async function restockStatements(
     event: OrderDomainEvent,
@@ -108,6 +110,11 @@ export function createRefundOperations(
           : { outcome: 'conflict', queuedMessages: 0 };
       }
       if (order.status !== 'paid' || payment.status !== 'captured') {
+        return { outcome: 'invalid_state', queuedMessages: 0 };
+      }
+      if ((await fulfillments.listForOrder(order.id)).some((group) => group.status !== 'cancelled')) {
+        // R2.13 resolverá cancelación/reembolso por cantidades. R2.12 nunca
+        // repone ni abona como "total" unidades que ya salieron físicamente.
         return { outcome: 'invalid_state', queuedMessages: 0 };
       }
       const gateway = resolveGateway(payment.provider);

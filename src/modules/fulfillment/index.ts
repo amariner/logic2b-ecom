@@ -9,6 +9,7 @@ export {
   normalizeFulfillmentIdempotencyKey,
   normalizeFulfillmentTracking,
   planOutstandingFulfillment,
+  planRequestedFulfillment,
   remainingFulfillableQuantity,
   trackingRequiredForFulfillment,
 } from './domain/fulfillment';
@@ -18,6 +19,18 @@ export type {
   FulfillmentStatus,
   FulfillmentTracking,
 } from './domain/fulfillment';
+export {
+  FULFILLMENT_EVENT_TYPES,
+  fulfillmentDeliveredEvent,
+  fulfillmentShippedEvent,
+} from './domain/fulfillment-events';
+export type {
+  FulfillmentDeliveredEvent,
+  FulfillmentDeliveredPayload,
+  FulfillmentDomainEvent,
+  FulfillmentShippedEvent,
+  FulfillmentShippedPayload,
+} from './domain/fulfillment-events';
 export { fulfillmentBackfillSql } from './infrastructure/fulfillment-backfill';
 export { createD1FulfillmentLedger } from './infrastructure/d1-fulfillment-ledger';
 export type {

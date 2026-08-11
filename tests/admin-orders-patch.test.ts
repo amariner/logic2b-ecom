@@ -137,7 +137,7 @@ describe('PATCH /api/admin/orders/:id con outbox transaccional', () => {
     expect(db.value('SELECT count(*) AS value FROM fulfillments WHERE order_id=7')).toBe(1);
     expect(db.value('SELECT count(*) AS value FROM fulfillment_items WHERE order_id=7')).toBe(1);
     expect(db.value('SELECT sum(quantity) AS value FROM fulfillment_items WHERE order_id=7')).toBe(2);
-    expect(db.value("SELECT count(*) AS value FROM event_outbox_events WHERE event_type='orders.order_shipped'")).toBe(1);
+    expect(db.value("SELECT count(*) AS value FROM event_outbox_events WHERE event_type='fulfillment.fulfillment_shipped'")).toBe(1);
   });
 
   it('shipped → delivered avanza el grupo canónico y el espejo una sola vez', async () => {

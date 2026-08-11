@@ -20,9 +20,7 @@ import {
   buildPaidMutation,
   createOrderWriter,
   orderCancelledEvent,
-  orderDeliveredEvent,
   orderPlacedEventFromIdentity,
-  orderShippedEvent,
   orderTimelineEntry,
   type NewOrderInput,
   type NewOrderLine,
@@ -45,10 +43,6 @@ import {
   createD1PaymentLedger,
   type PaymentProvider,
 } from '../modules/payments';
-import {
-  createD1FulfillmentLedger,
-  planOutstandingFulfillment,
-} from '../modules/fulfillment';
 import { createAuditDiff } from '../shared-kernel/audit';
 import type { EmitEvent, ReserveEventIdentity } from '../shared-kernel/events';
 import { emitPlatformEvent, reservePlatformEventIdentity } from './event-context';
@@ -65,7 +59,7 @@ export type ConfirmPaymentInput = Readonly<{
 export type PanelTransitionInput = Readonly<{
   order: OrderForTransition;
   from: OrderStatus;
-  transition: PanelTransition;
+  transition: Extract<PanelTransition, { to: 'cancelled' }>;
 }>;
 
 export type PanelTransitionOutcome = Readonly<{
@@ -96,7 +90,6 @@ export function createOrderOperations(
   const inventory = createD1InventoryLedger(db);
   const reservations = createD1InventoryReservations(db);
   const payments = createD1PaymentLedger(db);
-  const fulfillments = createD1FulfillmentLedger(db);
   const reservationsEnabled = options.reservationsEnabled ??
     runtimePlatform.hasCapabilityFlag('INV-004', 'sideEffects');
 
@@ -311,7 +304,6 @@ export function createOrderOperations(
       const paymentStatements = input.transition.to === 'cancelled'
         ? await paymentCancellationStatements(input.order.id, input.from, event.event_id, event.occurred_at)
         : [];
-      const fulfillmentPlan = await fulfillmentStatementsFor(event, input);
       const results = await orders.commitResults([
         outbox.guardedEventStatement(event, {
           orderId: input.order.id,
@@ -320,8 +312,7 @@ export function createOrderOperations(
         }),
         audit.eventStatement(event.event_id, orderAuditProjection(event)),
         ...outbox.deliveryStatements(event.event_id, event.occurred_at, consumerIds),
-        ...fulfillmentPlan.statements,
-        fulfillmentPlan.orderProjection ?? orders.guardedTransitionStatement({
+        orders.guardedTransitionStatement({
           orderId: input.order.id,
           from: input.from,
           to: input.transition.to,
@@ -340,70 +331,6 @@ export function createOrderOperations(
 
     findOrderForTransition: orders.findOrderForTransition,
   };
-
-  async function fulfillmentStatementsFor(
-    event: OrderDomainEvent,
-    input: PanelTransitionInput,
-  ): Promise<Readonly<{
-    statements: readonly D1PreparedStatement[];
-    orderProjection: D1PreparedStatement | null;
-  }>> {
-    if (event.type === 'orders.order_shipped' && input.transition.to === 'shipped') {
-      const active = (await fulfillments.listForOrder(input.order.id))
-        .filter((fulfillment) => fulfillment.status !== 'cancelled');
-      if (active.length !== 0) {
-        throw new Error(
-          `Pedido ${input.order.id}: ya existe evidencia de fulfillment activa.`,
-        );
-      }
-      const allocations = planOutstandingFulfillment(
-        await fulfillments.lineBalances(input.order.id),
-      );
-      const idempotencyKey = `r2:fulfillment:event:${event.event_id}`;
-      return Object.freeze({
-        statements: fulfillments.shipmentStatements({
-          orderId: input.order.id,
-          expectedOrderStatus: 'paid',
-          eventId: event.event_id,
-          idempotencyKey,
-          tracking: input.transition.tracking,
-          occurredAt: event.occurred_at,
-          allocations,
-        }),
-        orderProjection: fulfillments.guardedShipmentProjectionStatement({
-          orderId: input.order.id,
-          expectedOrderStatus: 'paid',
-          eventId: event.event_id,
-          idempotencyKey,
-          tracking: input.transition.tracking,
-        }),
-      });
-    }
-    if (event.type === 'orders.order_delivered' && input.transition.to === 'delivered') {
-      const active = (await fulfillments.listForOrder(input.order.id))
-        .filter((fulfillment) => fulfillment.status !== 'cancelled');
-      if (active.length !== 1 || active[0]?.status !== 'shipped') {
-        throw new Error(
-          `Pedido ${input.order.id}: se esperaba un unico fulfillment enviado.`,
-        );
-      }
-      const fulfillment = active[0];
-      return Object.freeze({
-        statements: [fulfillments.guardedDeliveryStatement({
-          fulfillment,
-          eventId: event.event_id,
-          occurredAt: event.occurred_at,
-        })],
-        orderProjection: fulfillments.guardedDeliveryProjectionStatement({
-          orderId: input.order.id,
-          expectedOrderStatus: 'shipped',
-          eventId: event.event_id,
-          fulfillmentId: fulfillment.id,
-        }),
-      });
-    }
-    return Object.freeze({ statements: [], orderProjection: null });
-  }
 
   async function paymentCancellationStatements(
     orderId: number,
@@ -496,14 +423,7 @@ function panelTransitionEvent(emit: EmitEvent, input: PanelTransitionInput): Ord
     order_number: input.order.order_number,
     from_status: input.from,
   };
-  switch (input.transition.to) {
-    case 'shipped':
-      return orderShippedEvent(emit, { ...subject, tracking: input.transition.tracking });
-    case 'delivered':
-      return orderDeliveredEvent(emit, subject);
-    case 'cancelled':
-      return orderCancelledEvent(emit, { ...subject, reason: 'admin' });
-  }
+  return orderCancelledEvent(emit, { ...subject, reason: 'admin' });
 }
 
 export type OrderOperations = ReturnType<typeof createOrderOperations>;

@@ -1,8 +1,9 @@
 # Núcleo transaccional de un ecommerce que puede crecer
 
-> Borrador interno actualizado en R2.3. Estado editorial: **no publicable**. Las capacidades
-> CAT-003/004, INV-002/003/004, ORD-007 y FUL-004/005 están especificadas, no
-> disponibles. Esta ficha no genera ruta, sitemap ni promesa comercial.
+> Borrador interno actualizado en R2.12. Estado editorial: **no publicable**.
+> FUL-004/005 ya tienen implementación y evidencia local, pero el corte remoto
+> y la cancelación/reembolso parcial siguen pendientes. Esta ficha no genera
+> ruta, sitemap ni promesa comercial.
 
 ## Intención futura
 
@@ -14,11 +15,11 @@ un núcleo que no confunde hechos distintos.
 
 ## Respuesta honesta hoy
 
-Logic2B Ecommerce ya recalcula precios y stock en servidor, congela líneas de
-pedido, protege webhooks duplicados y registra eventos/auditoría. R2.3 añade el
-dominio y lector canónicos de producto-variante con shadow-read reversible, pero
-todavía no ofrece CRUD de variantes, ledger de inventario/pagos, reembolso del
-PSP ni preparación parcial como capacidades operativas.
+Logic2B Ecommerce ya separa variantes, inventario, pagos y fulfillment en
+ledgers auditables. El flujo local admite reembolso total idempotente, envío por
+cantidades, varios trackings y avisos por salida. La demo pública solo permite
+inspección; producción aún no ha recibido la migración `0012` ni este binario,
+y el reembolso parcial continúa en R2.13.
 
 ## Estructura de la futura guía
 

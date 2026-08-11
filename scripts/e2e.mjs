@@ -130,6 +130,10 @@ check('panel contiene pedidos ficticios sembrados', orderId !== undefined);
 if (orderId) {
   const detailHtml = await (await fetch(`${BASE}/demo/admin/pedidos/${orderId}`, { headers: { cookie } })).text();
   check('detalle identifica el pedido como ficticio', detailHtml.includes('Pedido ficticio de ejemplo'));
+  check(
+    'detalle muestra progreso y grupos de envío como fuente canónica',
+    detailHtml.includes('Envíos') && detailHtml.includes('unidades pendientes') && detailHtml.includes('Enviado '),
+  );
   check('detalle no ofrece acciones mutables', !detailHtml.includes('<form data-ship-form'));
 }
 
@@ -151,6 +155,8 @@ for (const [label, path, body] of [
 for (const [label, method, path] of [
   ['opciones', 'POST', `/api/admin/catalog-options/product/${variantProductId ?? 1}`],
   ['reembolso', 'POST', `/api/admin/refunds/${orderId ?? 1}`],
+  ['envío parcial', 'POST', '/api/admin/fulfillments'],
+  ['entrega de envío', 'PATCH', '/api/admin/fulfillments/1'],
   ['variantes', 'PATCH', `/api/admin/catalog-variants/${variantId ?? 1}`],
   ['galería', 'PUT', `/api/admin/catalog-media/product/${variantProductId ?? 1}`],
   ['atributos', 'POST', `/api/admin/catalog-attributes/definitions/product/${variantProductId ?? 1}`],

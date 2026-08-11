@@ -505,3 +505,24 @@ esperada. Seed y backup esquema 6 conservan la evidencia, y el panel usa el
 tracking canónico con fallback legacy. Evidencia: 59 suites/381 tests, build,
 E2E 39/39 y a11y del pedido enviado 2/2 a 1440/375. La operación coordinada y
 el rollback están en `OPERACION_FULFILLMENT_LINEAS.md`.
+
+## 19. Evidencia de R2.12
+
+R2.12 reutiliza `fulfillments` y `fulfillment_items`: no añade DDL ni backfill.
+La asignación solicitada se valida por línea, exige enteros positivos, rechaza
+duplicados y nunca supera `qty - cancelled - fulfilled`. El comando sin líneas
+asigna todo lo pendiente y conserva el flujo total como caso simple.
+
+Cada salida usa una clave de idempotencia estable y confirma en una batch el
+evento `fulfillment.fulfillment_shipped`, auditoría, entregas outbox, cabecera,
+asignaciones y proyección del pedido. Una salida parcial mantiene `paid`; la
+última mueve a `shipped`. Con más de un grupo, `orders.tracking_*` queda nulo:
+el tracking canónico pertenece siempre al grupo. La entrega global solo se
+proyecta cuando todos los grupos activos están entregados.
+
+El consumidor de notificaciones resuelve las líneas del pedido fuera del sobre
+sin transportar PII y genera un email con las cantidades de esa salida y el
+pendiente. El panel lee el mismo ledger, muestra progreso y opera cada grupo.
+El reembolso total se rechaza antes del PSP cuando existe un fulfillment activo,
+porque cancelación/reembolso por cantidad pertenece a R2.13. Evidencia local:
+61 suites/391 tests, build, E2E 42/42 y a11y 6/6 a 1440/375.

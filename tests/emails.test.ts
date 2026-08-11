@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { orderShippedEmail, type OrderEmailData } from '../src/lib/emails';
+import { fulfillmentShippedEmail, orderShippedEmail, type OrderEmailData } from '../src/lib/emails';
 
 const data: OrderEmailData = {
   order_number: 'BM-260717-TEST',
@@ -27,5 +27,34 @@ describe('orderShippedEmail', () => {
     expect(email.body_html).not.toContain('<script>');
     expect(email.body_html).toContain('&lt;img src=x onerror=alert(1)&gt;SEUR');
     expect(email.body_html).toContain('&lt;/strong&gt;&lt;script&gt;alert(1)&lt;/script&gt;');
+  });
+});
+
+describe('fulfillmentShippedEmail', () => {
+  it('describe solo las unidades de esta salida y el pendiente', () => {
+    const email = fulfillmentShippedEmail(
+      data,
+      { carrier: 'GLS', number: 'GLS-2' },
+      [{ name_snapshot: 'AOVE Picual 500 ml', qty: 1 }],
+      1,
+    );
+    expect(email.body_html).toContain('AOVE Picual 500 ml × 1');
+    expect(email.body_html).toContain('Queda 1 unidad pendiente');
+    expect(email.body_html).not.toContain('AOVE Picual 500 ml × 2');
+    expect(email.body_html).not.toContain('Total');
+  });
+
+  it('escapa tracking y nombre de una línea antes de generar HTML', () => {
+    const email = fulfillmentShippedEmail(
+      data,
+      { carrier: '<b>GLS</b>', number: '<script>x</script>' },
+      [{ name_snapshot: '<img src=x onerror=x>', qty: 1 }],
+      0,
+    );
+    expect(email.body_html).not.toContain('<script>');
+    expect(email.body_html).not.toContain('<img src=x');
+    expect(email.body_html).toContain('&lt;b&gt;GLS&lt;/b&gt;');
+    expect(email.body_html).toContain('&lt;img src=x onerror=x&gt;');
+    expect(email.body_html).toContain('todas las unidades pendientes');
   });
 });

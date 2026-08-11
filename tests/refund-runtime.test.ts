@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { createOrderOperations } from '../src/composition/order-operations';
+import { createFulfillmentOperations } from '../src/composition/fulfillment-operations';
 import { createRefundOperations } from '../src/composition/refund-operations';
 import type {
   PaymentRefundGateway,
@@ -159,13 +160,12 @@ describe('reembolso total R2.10', () => {
     const input = { orderId: paid.id, reason: 'Cliente', restock: false } as const;
 
     expect(await refunds.refundTotal(input)).toMatchObject({ outcome: 'processing' });
-    const order = await paid.orders.findOrderForTransition(paid.id);
-    expect((await paid.orders.applyPanelTransition({
-      order: order!,
-      from: 'paid',
-      transition: { to: 'shipped', tracking: { carrier: 'SEUR', number: 'X' }, restoreStock: false },
+    expect((await createFulfillmentOperations(db.asD1(), paid.emit).ship({
+      orderId: paid.id,
+      tracking: { carrier: 'SEUR', number: 'X' },
+      idempotencyKey: 'refund-processing-blocks-shipment',
     })).outcome).toBe('conflict');
-    expect(db.value("SELECT count(*) AS value FROM event_outbox_events WHERE event_type='orders.order_shipped'")).toBe(0);
+    expect(db.value("SELECT count(*) AS value FROM event_outbox_events WHERE event_type='fulfillment.fulfillment_shipped'")).toBe(0);
 
     expect(await refunds.refundTotal(input)).toMatchObject({ outcome: 'applied' });
     expect(db.value('SELECT stock AS value FROM products')).toBe(4);
@@ -195,5 +195,35 @@ describe('reembolso total R2.10', () => {
     expect(db.value("SELECT count(*) AS value FROM payment_transactions WHERE type='refund'")).toBe(1);
     expect(db.value("SELECT count(*) AS value FROM inventory_movements WHERE reason='cancellation_restock'")).toBe(1);
     expect(db.value("SELECT count(*) AS value FROM audit_log WHERE action='payments.refunded'")).toBe(1);
+  });
+
+  it('bloquea el reembolso total antes de llamar al PSP si alguna unidad ya salió', async () => {
+    const db = new SqliteD1();
+    seedProduct(db);
+    const paid = await paidOrder(db, 'R212-SHIPPED');
+    const itemId = Number(db.value('SELECT id AS value FROM order_items WHERE order_id = ?', paid.id));
+    db.sqlite.exec(`
+      INSERT INTO fulfillments (
+        order_id, status, carrier, tracking_number, idempotency_key,
+        version, shipped_at, created_at, updated_at
+      ) VALUES (${paid.id}, 'shipped', 'SEUR', 'R212-1',
+        'r2:test:fulfillment:${paid.id}', 1, '${START}', '${START}', '${START}');
+      INSERT INTO fulfillment_items (fulfillment_id, order_id, order_item_id, quantity, created_at)
+      SELECT id, order_id, ${itemId}, 1, '${START}' FROM fulfillments WHERE order_id = ${paid.id};
+    `);
+    let calls = 0;
+    const refunds = createRefundOperations(db.asD1(), () => gateway(async () => {
+      calls += 1;
+      return { providerReference: 'must-not-run', status: 'succeeded' };
+    }), paid.emit);
+
+    expect(await refunds.refundTotal({
+      orderId: paid.id,
+      reason: 'No debe reponer una unidad enviada',
+      restock: true,
+    })).toEqual({ outcome: 'invalid_state', queuedMessages: 0 });
+    expect(calls).toBe(0);
+    expect(db.value('SELECT count(*) AS value FROM refunds')).toBe(0);
+    expect(db.value('SELECT status AS value FROM orders WHERE id = ?', paid.id)).toBe('paid');
   });
 });

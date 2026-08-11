@@ -124,14 +124,16 @@ export const MODULE_DESCRIPTORS = [
     ],
   },
   {
-    id: 'fulfillment', version: '1.0.0', capabilities: ['FUL-001', 'FUL-002', 'FUL-003'],
+    id: 'fulfillment', version: '1.2.0', capabilities: ['FUL-001', 'FUL-002', 'FUL-003', 'FUL-004', 'FUL-005'],
     dependencies: ['orders', 'inventory'], permissions: ['fulfillment.read', 'fulfillment.write', 'fulfillment.export'],
-    events: [], subscriptions: [], jobs: [], healthchecks: [], wikiLinks: [ARCHITECTURE_WIKI],
+    events: ['fulfillment.fulfillment_shipped', 'fulfillment.fulfillment_delivered'],
+    subscriptions: [], jobs: [], healthchecks: [], wikiLinks: [ARCHITECTURE_WIKI],
     navigation: [{ id: 'envios', href: '/demo/admin/envios', label: 'Envíos', order: 30, capabilityId: 'FUL-001' }],
     routes: [
       { match: 'exact', path: '/demo/admin/envios', capabilityId: 'FUL-001' },
       { match: 'prefix', path: '/api/admin/shipping-rates/', capabilityId: 'FUL-001' },
       { match: 'exact', path: '/api/admin/orders/export.csv', capabilityId: 'FUL-003' },
+      { match: 'prefix', path: '/api/admin/fulfillments', capabilityId: 'FUL-004' },
     ],
   },
   {
@@ -139,7 +141,7 @@ export const MODULE_DESCRIPTORS = [
     dependencies: ['platform-configuration'], permissions: ['notifications.read'], events: [],
     // Reacciona a hechos de `orders` SIN depender de `orders`: esa es la razón
     // de ser del sobre. Quien los une es el composition root.
-    subscriptions: ['orders.order_paid', 'orders.order_shipped', 'orders.order_refunded'], jobs: ['notifications.event-outbox-sweep'], healthchecks: ['notifications.resend-email'],
+    subscriptions: ['orders.order_paid', 'orders.order_shipped', 'orders.order_refunded', 'fulfillment.fulfillment_shipped'], jobs: ['notifications.event-outbox-sweep'], healthchecks: ['notifications.resend-email'],
     wikiLinks: [ARCHITECTURE_WIKI],
     navigation: [{ id: 'emails', href: '/demo/admin/emails', label: 'Emails', order: 40, capabilityId: 'MAR-003' }],
     routes: [{ match: 'exact', path: '/demo/admin/emails', capabilityId: 'MAR-003' }],

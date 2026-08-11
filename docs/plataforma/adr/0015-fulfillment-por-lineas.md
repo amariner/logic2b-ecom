@@ -1,8 +1,8 @@
 # ADR-0015 — Fulfillment por líneas y transición del envío total
 
-- Estado: **aceptado e implementado localmente en R2.11**
+- Estado: **aceptado e implementado localmente en R2.11–R2.12**
 - Fecha: 2026-08-11
-- Mandato: R2.11
+- Mandato: R2.11–R2.12
 
 ## Contexto
 
@@ -31,9 +31,8 @@ El esquema aceptado vive en
    reabren;
 4. `shipped` y `delivered` exigen transportista, tracking y timestamps
    coherentes; carrier y número aparecen o desaparecen juntos;
-5. el envío total actual crea un único grupo ya `shipped` y asigna toda cantidad
-   neta pendiente de cada línea; R2.12 añadirá la selección parcial sin cambiar
-   estas tablas;
+5. el envío total crea un único grupo ya `shipped` y asigna toda cantidad neta
+   pendiente; R2.12 añadió selección parcial y varios grupos sin cambiar tablas;
 6. `orders.status` y `orders.tracking_*` permanecen como proyección/espejo hasta
    R2.14. El tracking canónico pertenece al fulfillment.
 
@@ -74,23 +73,24 @@ Sobre un export fresco restaurado en aislamiento:
 
 ## Escritura dual y concurrencia
 
-La transición administrativa `paid → shipped` conserva el evento
-`orders.order_shipped`. En la misma `DB.batch()` guardada por estado y ausencia
-de reembolso activo se escriben:
+Cada salida administrativa emite `fulfillment.fulfillment_shipped`. En la misma
+`DB.batch()` guardada por estado, cantidades e inexistencia de reembolso activo
+se escriben:
 
 1. evento, auditoría y entregas de outbox;
 2. cabecera con clave `r2:fulfillment:event:{event_id}`;
 3. todas las líneas pendientes calculadas en servidor;
-4. timeline y espejo `orders.status`/`tracking_*`.
+4. proyección; timeline y espejo solo cuando se completa el pedido.
 
 Las sentencias de cabecera y líneas dependen del evento persistido y de la clave
 única. Una carrera perdedora produce cero evidencia nueva. Si una cantidad ya
 está agotada, toda la batch revierte; nunca se trunca ni se satura. La transición
-`shipped → delivered` actualiza grupo y proyección con versión esperada.
+La entrega actualiza el grupo con versión esperada y solo proyecta
+`orders.status=delivered` al entregar todos los grupos activos.
 
-R2.11 no añade un segundo formulario: el panel conserva “Marcar enviado” como
-caso total y lee el grupo canónico. R2.12 podrá mostrar selección por cantidades
-y múltiples trackings cuando exista operación parcial real.
+R2.12 sustituyó el formulario total por una única superficie: selección por
+cantidades más “Enviar todo lo pendiente”. El panel lee progreso y tracking por
+grupo; no existe un segundo flujo logístico que pueda divergir.
 
 ## Rollout y rollback
 
@@ -117,12 +117,13 @@ corte de lector requieren su propia autorización operativa.
 
 ## Consecuencias
 
-- el envío simple actual pasa a ser evidencia por cantidades sin cambiar la
-  carga operativa del panel;
-- R2.12 podrá añadir varios grupos sobre el mismo contrato;
+- el envío simple es evidencia por cantidades y conserva una acción rápida;
+- R2.12 añade varios grupos, email por salida y estado derivado sobre el mismo
+  contrato;
 - la FK compuesta añade un índice pequeño a `order_items`, aceptable frente a
   impedir asociaciones cruzadas de pedido;
 - la suma por línea sigue siendo una guarda transaccional de aplicación porque
   SQLite no admite `CHECK` con agregados entre filas;
-- R2.11 materializa migración, seed, runtime, backup y lectura administrativa;
-  producción conserva `0011` hasta una autorización operativa separada.
+- R2.11 materializa migración, seed y backup; R2.12 completa runtime y panel
+  parcial sin DDL nuevo. Producción conserva `0011` hasta una autorización
+  operativa separada.

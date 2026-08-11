@@ -6,6 +6,7 @@ export type EventOrderGuard = Readonly<{
   orderId: number;
   expectedStatus: string;
   requireNoActiveRefund?: boolean;
+  ignoreExistingIdempotencyKey?: boolean;
 }>;
 
 function eventValues(event: EventEnvelope): readonly unknown[] {
@@ -39,6 +40,10 @@ export function createD1EventOutboxWriter(db: D1Database) {
           )`
         : '';
       const refundBindings = guard.requireNoActiveRefund ? [guard.orderId] : [];
+      const idempotencyGuard = guard.ignoreExistingIdempotencyKey
+        ? 'AND NOT EXISTS (SELECT 1 FROM event_outbox_events WHERE idempotency_key = ?)'
+        : '';
+      const idempotencyBindings = guard.ignoreExistingIdempotencyKey ? [event.idempotency_key] : [];
       return db.prepare(`
         INSERT INTO event_outbox_events (
           event_id, event_type, event_version, occurred_at,
@@ -50,7 +55,14 @@ export function createD1EventOutboxWriter(db: D1Database) {
         WHERE EXISTS (
           SELECT 1 FROM orders WHERE id = ? AND status = ? ${refundGuard}
         )
-      `).bind(...eventValues(event), guard.orderId, guard.expectedStatus, ...refundBindings);
+        ${idempotencyGuard}
+      `).bind(
+        ...eventValues(event),
+        guard.orderId,
+        guard.expectedStatus,
+        ...refundBindings,
+        ...idempotencyBindings,
+      );
     },
 
     /**

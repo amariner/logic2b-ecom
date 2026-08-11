@@ -18,7 +18,7 @@ export type OrderEmailData = {
   subtotal_cents: number;
   shipping_cents: number;
   total_cents: number;
-  items: { name_snapshot: string; unit_price_cents: number; qty: number }[];
+  items: { order_item_id?: number; name_snapshot: string; unit_price_cents: number; qty: number }[];
 };
 
 const formatShopCents = (cents: number): string =>
@@ -87,6 +87,33 @@ export function orderShippedEmail(
       `Tu pedido está en camino, ${escapeHtml(data.customer_name)}`,
       `<p style="font-size:14px">El pedido <strong>${orderNumber}</strong> ha salido con <strong>${escapeHtml(tracking.carrier)}</strong>.<br>` +
         `Número de seguimiento: <strong>${escapeHtml(tracking.number)}</strong></p>${itemsTable(data)}`,
+    ),
+  };
+}
+
+export function fulfillmentShippedEmail(
+  data: OrderEmailData,
+  tracking: { carrier: string; number: string },
+  shippedItems: readonly { name_snapshot: string; qty: number }[],
+  remainingQuantity: number,
+): EmailMessage {
+  const orderNumber = escapeHtml(data.order_number);
+  const lines = shippedItems.map((item) =>
+    `<li>${escapeHtml(item.name_snapshot)} × ${item.qty}</li>`
+  ).join('');
+  const pendingLabel = remainingQuantity === 1 ? 'Queda 1 unidad pendiente' : `Quedan ${remainingQuantity} unidades pendientes`;
+  const progress = remainingQuantity > 0
+    ? `<p style="font-size:14px">${pendingLabel}. Te enviaremos el seguimiento de cada salida.</p>`
+    : '<p style="font-size:14px">Con este envío salen todas las unidades pendientes.</p>';
+  return {
+    to_addr: data.email,
+    subject: `Envío del pedido ${data.order_number} en camino — ${shopConfig.name}`,
+    body_html: wrap(
+      `Parte de tu pedido está en camino, ${escapeHtml(data.customer_name)}`,
+      `<p style="font-size:14px">El envío del pedido <strong>${orderNumber}</strong> ha salido con ` +
+        `<strong>${escapeHtml(tracking.carrier)}</strong>.<br>Número de seguimiento: ` +
+        `<strong>${escapeHtml(tracking.number)}</strong></p>` +
+        `<p style="font-size:14px"><strong>Incluye:</strong></p><ul style="font-size:14px">${lines}</ul>${progress}`,
     ),
   };
 }

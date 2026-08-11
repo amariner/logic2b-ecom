@@ -117,3 +117,29 @@ export function planOutstandingFulfillment(
   if (allocations.length === 0) throw new RangeError('el pedido no conserva cantidades pendientes de fulfillment.');
   return Object.freeze(allocations);
 }
+
+/** Selección parcial autoritativa: ids y límites se contrastan con el saldo D1. */
+export function planRequestedFulfillment(
+  lines: readonly FulfillmentLineBalance[],
+  requested: readonly FulfillmentAllocation[],
+): readonly FulfillmentAllocation[] {
+  if (requested.length === 0) throw new RangeError('selecciona al menos una línea para el envío.');
+  const balances = new Map(lines.map((line) => [line.order_item_id, line] as const));
+  const seen = new Set<number>();
+  return Object.freeze(requested.map((allocation) => {
+    assertPositiveInteger(allocation.order_item_id, 'order_item_id');
+    assertPositiveInteger(allocation.quantity, 'quantity');
+    if (seen.has(allocation.order_item_id)) throw new RangeError('order_item_id no puede repetirse.');
+    seen.add(allocation.order_item_id);
+    const balance = balances.get(allocation.order_item_id);
+    if (!balance) throw new RangeError('la línea no pertenece al pedido.');
+    const remaining = remainingFulfillableQuantity(balance);
+    if (allocation.quantity > remaining) {
+      throw new RangeError('quantity no puede superar la cantidad pendiente de la línea.');
+    }
+    return Object.freeze({
+      order_item_id: allocation.order_item_id,
+      quantity: allocation.quantity,
+    });
+  }));
+}

@@ -39,7 +39,7 @@ improvisan durante la implementación.
 |---|---|---|
 | R0 | Investigación, taxonomía, matriz, roadmap y estrategia wiki | ✅ cerrado 2026-08-06 |
 | R1 | Cimientos modulares y observables | ✅ cerrado 2026-08-07 |
-| R2 | Núcleo transaccional profesional | 🟡 R2.1–R2.11 y Admin V2 cerrados; siguiente R2.12 |
+| R2 | Núcleo transaccional profesional | 🟡 R2.1–R2.12 y Admin V2 cerrados; siguiente R2.13 |
 | R3 | Operación de pedidos, inventario y fulfillment | ⬜ |
 | R4 | Precios, promociones y modelos de venta | ⬜ |
 | R5 | Clientes, privacidad y mercados | ⬜ |
@@ -98,7 +98,7 @@ Cada migración se diseña y ensaya sobre una copia antes de tocar el esquema vi
 | 21 | **R2.9 Ledger de pagos** | Payment/transaction/refund con proveedor, moneda, importe, status e idempotencia; pedido no usa un único string como contabilidad. | ✅ 2026-08-11 |
 | 22 | **R2.10 Reembolso total** | Acción admin → proveedor → ledger → evento → email → stock según política; retry seguro y estado visible. | ✅ 2026-08-11 |
 | 23 | **R2.11 Fulfillment por líneas** | Fulfillment y fulfillment_items; envío total actual se convierte en un caso simple. | ✅ 2026-08-11 |
-| 24 | **R2.12 Fulfillment parcial** | Cantidades parciales, múltiples trackings, email por envío y estados derivados sin perder histórico. | ⬜ |
+| 24 | **R2.12 Fulfillment parcial** | Cantidades parciales, múltiples trackings, email por envío y estados derivados sin perder histórico. | ✅ 2026-08-11 |
 | 25 | **R2.13 Cancelación/reembolso parcial** | Selección por cantidad, cálculo servidor, descuento/restitución correcta y pruebas de redondeo/concurrencia. | ⬜ |
 | 26 | **R2.14 Consolidación R2** | E2E producto con variantes → reserva → pago → dos envíos → reembolso parcial; carga/concurrencia; guía de migración. | ⬜ |
 
@@ -851,9 +851,29 @@ UIA.1–UIA.4 queda cerrado como un único corte coherente:
    1440/375. Sin dependencia, coste, superficie PCI ni despliegue remoto.
 6. Producción permanece en D1 `0011` y Worker R2.10 hasta autorización separada.
 
-### R2.12 — Fulfillment parcial
+### R2.12 — Fulfillment parcial — ✅ 2026-08-11
 
-Extender el contrato ya migrado con selección por cantidades, varios grupos y
-trackings, emails por envío y estado global derivado. No añadir tablas ni
-duplicar el formulario total: la UI debe explicar pendiente/enviado por línea y
-conservar el caso simple como acción rápida.
+1. Un único servicio asigna cantidades positivas por línea sin superar el
+   pendiente; la ausencia de selección conserva el envío total como acción
+   rápida. Varios grupos tienen tracking, versión e identidad propios.
+2. Cada salida confirma outbox, auditoría, grupo, líneas y proyección en una
+   batch. La última cantidad mueve el pedido a `shipped`; varios grupos anulan
+   el espejo `orders.tracking_*`. El pedido solo llega a `delivered` cuando
+   todos los grupos activos están entregados.
+3. La notificación del evento `fulfillment.fulfillment_shipped` contiene solo
+   las líneas/cantidades de esa salida y el total aún pendiente. Replay con la
+   misma clave y carreras con claves distintas no duplican grupo ni email.
+4. El panel muestra enviado/total/pendiente por línea, una tarjeta por tracking,
+   entrega por grupo, selección de cantidades y “Enviar todo lo pendiente”. La
+   demo enseña la evidencia pero ambas APIs responden 403.
+5. Para no reponer unidades físicamente enviadas, el reembolso total queda
+   bloqueado tras cualquier grupo activo; R2.13 incorpora el cálculo parcial.
+6. Verificación: 61 suites/391 tests, tipos/build, E2E 42/42 y seis superficies
+   de pedido a 1440/375 sin errores ni avisos. Sin esquema, dependencia, coste,
+   superficie PCI ni despliegue remoto nuevos.
+
+### R2.13 — Cancelación/reembolso parcial
+
+Seleccionar cantidades cancelables, calcular dinero solo en servidor y separar
+la decisión de reposición. Debe reutilizar los ledgers ya instalados, mantener
+redondeo exacto e impedir que una carrera cancele o reembolse una unidad enviada.

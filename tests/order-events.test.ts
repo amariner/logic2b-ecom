@@ -223,16 +223,19 @@ describe('registro de módulos y eventos (R1.5)', () => {
     }
   });
 
-  it('notificaciones se suscribe a pedidos SIN depender de pedidos', () => {
+  it('notificaciones consume pedidos y envíos sin depender de sus módulos', () => {
     const notifications = MODULE_REGISTRY.byId.notifications;
     expect(notifications.subscriptions).toEqual([
       'orders.order_paid',
       'orders.order_shipped',
       'orders.order_refunded',
+      'fulfillment.fulfillment_shipped',
     ]);
     expect(notifications.dependencies).not.toContain('orders');
-    for (const event of notifications.subscriptions) {
+    expect(notifications.dependencies).not.toContain('fulfillment');
+    for (const event of notifications.subscriptions.filter((event) => event.startsWith('orders.'))) {
       expect(MODULE_REGISTRY.eventOwners[event]).toBe('orders');
     }
+    expect(MODULE_REGISTRY.eventOwners['fulfillment.fulfillment_shipped']).toBe('fulfillment');
   });
 });

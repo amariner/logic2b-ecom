@@ -140,8 +140,8 @@ su alcance requiera.
 | FUL-001 | Tarifas planas por zona | núcleo | P0 | actual | Cálculo servidor y umbral gratuito. |
 | FUL-002 | Tracking y aviso de envío | núcleo | P0 | actual | Un grupo canónico asigna todas las líneas, conserva tracking y proyecta pedido/email. |
 | FUL-003 | Exportación logística CSV | conector | P1 | actual | Puente manual a operadores compatibles. |
-| FUL-004 | Preparación parcial | módulo | P1 | especificado | Fulfillment por cantidades cuya suma nunca supera la línea neta. |
-| FUL-005 | Múltiples envíos por pedido | módulo | P1 | especificado | Cada grupo posee estado, tracking e idempotencia; el pedido solo proyecta el resumen. |
+| FUL-004 | Preparación parcial | módulo | P1 | actual | Selección por cantidades validada contra el pendiente, acción total rápida y email limitado a cada salida. |
+| FUL-005 | Múltiples envíos por pedido | módulo | P1 | actual | Cada grupo posee estado, tracking e idempotencia; pedido/timeline se derivan al completar cantidades y entregas. |
 | FUL-006 | Compra de etiquetas | conector | P2 | conector | Cotizar, comprar, anular, imprimir y registrar coste. |
 | FUL-007 | Reglas de embalaje | módulo | P2 | pendiente | Peso/dimensiones, embalaje por variante y bultos. |
 | FUL-008 | Recogida en tienda | módulo | P2 | pendiente | Disponibilidad, preparación, listo y recogido. |

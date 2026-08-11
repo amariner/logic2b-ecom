@@ -1,4 +1,4 @@
-# Operación del fulfillment por líneas R2.11
+# Operación del fulfillment por líneas R2.11–R2.12
 
 Este runbook coordina la migración aditiva `0012_fulfillment_lines.sql`, el
 backfill del envío total legacy y el corte reversible del lector. No autoriza
@@ -40,8 +40,28 @@ pedidos ni números de tracking.
 8. reabrir las mutaciones solo tras reconciliación a cero.
 
 La demo pública conserva `DEMO_MODE=true`: sus APIs de mutación responden 403 y
-el panel solo lee fixtures. R2.11 no crea un formulario adicional; “Marcar
-enviado” asigna todas las cantidades pendientes a un único grupo.
+el panel solo lee fixtures. En una composición avanzada R2.12 usa
+`POST /api/admin/fulfillments` para crear un grupo parcial o total y
+`PATCH /api/admin/fulfillments/:id` para confirmar su entrega.
+
+## Operación parcial tras el corte
+
+- una cantidad nunca puede superar el pendiente de su línea;
+- repetir la misma clave devuelve el grupo existente y no reenvía el email;
+- claves distintas compiten por el pendiente: solo la batch compatible gana;
+- mientras quede alguna unidad, el pedido permanece `paid`;
+- la última asignación proyecta `shipped`; la última entrega activa proyecta
+  `delivered`;
+- con varios grupos, el tracking se consulta en `fulfillments` y el espejo del
+  pedido queda nulo;
+- un reembolso total se rechaza antes de llamar al PSP si existe cualquier
+  grupo activo. R2.13 es el único bloque autorizado para cancelar/reembolsar
+  cantidades ya separadas.
+
+Para diagnosticar una incidencia, congelar las mutaciones del pedido y revisar
+grupo, asignaciones, outbox, auditoría y timeline por `event_id`. No se corrigen
+cantidades editando filas históricas: se conserva la evidencia y se aplica el
+flujo compensatorio definido por la ola que corresponda.
 
 ## Rollback
 

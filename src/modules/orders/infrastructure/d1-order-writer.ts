@@ -216,6 +216,32 @@ export function createD1OrderWriter(db: D1Database) {
       `).bind(orderId, entry.from_status, entry.to_status, entry.note, eventId);
     },
 
+    guardedProjectedTimelineStatement(
+      orderId: number,
+      entry: OrderTimelineEntry,
+      eventId: string,
+    ): D1PreparedStatement {
+      return db.prepare(`
+        INSERT INTO order_events (order_id, from_status, to_status, note)
+        SELECT ?, ?, ?, ?
+        WHERE EXISTS (SELECT 1 FROM event_outbox_events WHERE event_id = ?)
+          AND EXISTS (SELECT 1 FROM orders WHERE id = ? AND status = ?)
+          AND NOT EXISTS (
+            SELECT 1 FROM order_events WHERE order_id = ? AND to_status = ?
+          )
+      `).bind(
+        orderId,
+        entry.from_status,
+        entry.to_status,
+        entry.note,
+        eventId,
+        orderId,
+        entry.to_status,
+        orderId,
+        entry.to_status,
+      );
+    },
+
     /** Unidad de trabajo: el primer resultado decide quién ganó la carrera. */
     async commitResults(statements: readonly D1PreparedStatement[]): Promise<D1Result[]> {
       if (statements.length === 0) return [];

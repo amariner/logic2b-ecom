@@ -4,6 +4,8 @@ import { createOrderOperations } from '../../../../composition/order-operations'
 import { decideTransition, isOrderStatus } from '../../../../lib/order-transitions';
 import { flushEventOutbox } from '../../../../composition/outbox-dispatcher';
 import { runtimePlatform } from '../../../../composition/runtime-platform';
+import { createFulfillmentOperations } from '../../../../composition/fulfillment-operations';
+import { createD1FulfillmentLedger } from '../../../../modules/fulfillment';
 
 export const prerender = false;
 
@@ -53,6 +55,43 @@ export const PATCH: APIRoute = async ({ params, request, locals }) => {
     tracking_number: parsed.data.tracking_number,
   });
   if (!decision.ok) return Response.json({ error: decision.error }, { status: 422 });
+
+  if (decision.to === 'shipped') {
+    const result = await createFulfillmentOperations(env.DB).ship({
+      orderId: order.id,
+      tracking: decision.tracking,
+      idempotencyKey: request.headers.get('idempotency-key') ?? `total-${crypto.randomUUID()}`,
+    });
+    if (result.outcome === 'conflict') {
+      return Response.json(
+        { error: 'El pedido cambió de estado mientras se procesaba; recarga la página.' },
+        { status: 409 },
+      );
+    }
+    if (result.queuedMessages > 0) {
+      locals.runtime.ctx.waitUntil(flushEventOutbox(env.DB, env));
+    }
+    return Response.json({ ok: true, status: result.orderStatus, replayed: result.outcome === 'replayed' });
+  }
+
+  if (decision.to === 'delivered') {
+    const groups = (await createD1FulfillmentLedger(env.DB).listForOrder(order.id))
+      .filter((fulfillment) => fulfillment.status === 'shipped');
+    if (groups.length !== 1) {
+      return Response.json(
+        { error: 'Marca cada envío como entregado desde su grupo de seguimiento.' },
+        { status: 422 },
+      );
+    }
+    const result = await createFulfillmentOperations(env.DB).deliver(groups[0]!.id);
+    if (result.outcome === 'conflict') {
+      return Response.json(
+        { error: 'El envío cambió de estado mientras se procesaba; recarga la página.' },
+        { status: 409 },
+      );
+    }
+    return Response.json({ ok: true, status: result.orderStatus, replayed: result.outcome === 'replayed' });
+  }
 
   // La guarda de idempotencia vive en el caso de uso (mismo patrón que el
   // webhook, ver ROADMAP): el UPDATE va acotado por el estado LEÍDO y en

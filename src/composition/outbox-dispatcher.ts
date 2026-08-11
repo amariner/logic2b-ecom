@@ -55,6 +55,7 @@ async function notificationData(db: D1Database, delivery: ClaimedOutboxDelivery)
     shipping_cents: detail.order.shipping_cents,
     total_cents: detail.order.total_cents,
     items: detail.items.map((item) => ({
+      order_item_id: item.order_item_id,
       name_snapshot: item.name_snapshot,
       unit_price_cents: item.unit_price_cents,
       qty: item.qty,

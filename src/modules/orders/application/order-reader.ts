@@ -32,7 +32,12 @@ export type OrderDetail = Readonly<{
   created_at: string;
 }>;
 
-export type OrderItem = Readonly<{ name_snapshot: string; unit_price_cents: number; qty: number }>;
+export type OrderItem = Readonly<{
+  order_item_id: number;
+  name_snapshot: string;
+  unit_price_cents: number;
+  qty: number;
+}>;
 export type OrderEvent = Readonly<{
   from_status: string | null;
   to_status: string;
