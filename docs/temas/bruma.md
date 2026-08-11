@@ -76,4 +76,7 @@ optimizaron a WebP 1600×1600. El proyecto no depende del proveedor en runtime.
 - ✅ E2E global tras reseed local `0001`–`0011`: todas las comprobaciones de
   aislamiento, admin, backup y pagos en verde.
 - ✅ Capturas: catálogo 54 KB, móvil 29 KB, ficha 28 KB y miniaturas 13/35 KB.
-- ⬜ Lighthouse y smoke remoto: se ejecutan después del despliegue.
+- ✅ Producción: Worker `8ceba68c-9e0a-4179-b17a-207895763e6c`; smoke 200
+  en tienda, asset principal, portada y `/temas`.
+- ✅ Lighthouse remoto (mediana de 3): portada y `/temas`, móvil y
+  escritorio, **100/100/100/100**; LCP máximo 1,3 s, CLS 0 y TBT 0 ms.

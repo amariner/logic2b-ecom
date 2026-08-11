@@ -861,7 +861,11 @@ El bloque solo toca kit visual, colección, seed y registros previstos; **no
 cambia pricing, envíos, checkout, pedidos, D1 ni APIs** y no añade dependencias.
 `pnpm check` queda en 57 suites/366 tests, E2E global verde tras reseed local
 `0001`–`0011`, auditoría a11y 0/0 en 8 superficies y cinco capturas dentro de
-presupuesto. Sin despliegue remoto todavía. Ficha completa en
+presupuesto. Integrado en `main` como `b28f00b` y desplegado el 2026-08-11 en
+el Worker `8ceba68c-9e0a-4179-b17a-207895763e6c`; smoke remoto 200 en tienda,
+asset principal, portada y `/temas`. Lighthouse remoto, mediana de tres
+pasadas, queda en **100/100/100/100** para portada y `/temas`, tanto en móvil
+como en escritorio (LCP máximo 1,3 s, CLS 0, TBT 0 ms). Ficha completa en
 [`docs/temas/bruma.md`](temas/bruma.md). La siguiente referencia visual es la
 posición 11 (`445a62400246953e06387477674110e4.jpg`). El carril principal
 conserva R2.11 como cabeza y requiere permiso explícito por su migración D1.
