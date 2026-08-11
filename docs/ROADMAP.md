@@ -2025,6 +2025,15 @@ lo pendiente. Replay y carreras no duplican grupo, línea ni email; el reembolso
 total se bloquea tras cualquier salida hasta R2.13. Verificación: 61 suites/391
 tests, build, E2E 42/42 y a11y 6/6. Producción permanece sin cambios.
 
+**R2.13 diseñado; puerta pendiente (2026-08-11).** ADR-0016 y el SQL propuesto
+`0013_partial_refund_guards` añaden, sin tocar D1, el tipo de operación y la
+guarda que impide líneas ajenas, dobles cancelaciones o unidades ya enviadas.
+El diseño conserva futuros RMA y reserva intenciones antes del PSP. Para abrir
+implementación hacen falta aprobación explícita de la migración y una política
+de gastos de envío parcial; se recomienda devolver solo mercancía y reservar el
+envío completo para el flujo total. El SQL propuesto pasa 3 pruebas aisladas;
+la batería completa queda en 62 suites/394 tests y build, sin tocar ninguna D1.
+
 **F12.6 queda cerrado en el carril comercial (2026-08-10).** El índice por
 audiencias, las OG y las seis páginas indexables se han revalidado; el barrido
 detectó y corrigió la deuda de ARGENT y el CLS causado por revelar tarde los

@@ -877,3 +877,12 @@ UIA.1–UIA.4 queda cerrado como un único corte coherente:
 Seleccionar cantidades cancelables, calcular dinero solo en servidor y separar
 la decisión de reposición. Debe reutilizar los ledgers ya instalados, mantener
 redondeo exacto e impedir que una carrera cancele o reembolse una unidad enviada.
+
+**Diseño preparado, puerta pendiente.** ADR-0016 y
+`sql/0013_partial_refund_guards.proposed.sql` demuestran que hace falta una
+migración aditiva: `operation_type` separa cancelación de futura devolución y
+un trigger reserva pertenencia/cantidades antes del PSP. Falta autorización para
+materializar `0013` y elegir si un parcial devuelve solo mercancía (recomendado)
+o también el envío completo al cancelar las últimas unidades. La propuesta
+pasa 3 pruebas de esquema/guardas dentro de la batería completa: 62 suites/394
+tests, tipos y build; no se ha aplicado sobre ninguna D1.
