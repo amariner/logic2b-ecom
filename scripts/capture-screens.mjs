@@ -128,6 +128,7 @@ const REVEAL_STRETCH = `(async () => {
 // Iris es tienda de vídeo-scrub: la estática solo sirve de PÓSTER del hero
 // (viewport), no de página completa — el escaparate se enseña con el clip.
 const STORES = [
+  { id: 'dintel', label: 'DINTEL', catalog: '/demo/tiendas/dintel', full: true, maxH: 3900, mobileQ: 56 },
   { id: 'traza', label: 'TRAZA', catalog: '/demo/tiendas/traza', full: true, maxH: 3600, mobileQ: 56 },
   { id: 'bruma', label: 'BRUMA', catalog: '/demo/tiendas/bruma', full: true, maxH: 3000, mobileQ: 56 },
   { id: 'brio', label: 'BRÍO', catalog: '/demo/tiendas/brio', full: true, maxH: 3400, mobileQ: 54 },
@@ -174,6 +175,7 @@ for (const s of STORES) {
 // Ficha de producto: el producto firma de cada tienda. `product(slug)` respeta
 // las rutas históricas de la genérica (/demo/tienda/<slug>).
 const FICHAS = [
+  { id: 'dintel', slug: 'din-mesa-traves', prefix: '/demo/tiendas/dintel' },
   { id: 'traza', slug: 'tra-mesa-rasante', prefix: '/demo/tiendas/traza' },
   { id: 'bruma', slug: 'bru-niebla-alta', prefix: '/demo/tiendas/bruma' },
   { id: 'brio', slug: 'bri-espalda-libre', prefix: '/demo/tiendas/brio' },
@@ -388,15 +390,40 @@ async function adminCookie() {
   return { name: pair.slice(0, eq), value: pair.slice(eq + 1) };
 }
 
-// Dispara la carga perezosa recorriendo la página y espera fuentes + imágenes.
+// Dispara la carga perezosa recorriendo la página y espera fuentes + imágenes
+// decodificadas. `img.complete` puede ser true mientras Chrome todavía no ha
+// pintado un WebP recién solicitado; `decode()` evita capturas con los huecos
+// grises de las tarjetas aunque la red termine un instante después.
 const SETTLE_JS = `(async () => {
+  const deadline = performance.now() + 10000;
+  while (document.images.length === 0 && performance.now() < deadline) {
+    await new Promise((resolve) => setTimeout(resolve, 50));
+  }
+  if (document.images.length === 0) throw new Error('La página no montó imágenes antes de capturar');
   const h = document.body.scrollHeight;
   for (let y = 0; y <= h; y += 500) { window.scrollTo(0, y); await new Promise(r => setTimeout(r, 40)); }
   window.scrollTo(0, 0);
   try { await document.fonts.ready; } catch {}
   const imgs = Array.from(document.images);
-  await Promise.all(imgs.map((img) => img.complete ? 1 : new Promise((r) => { img.onload = img.onerror = r; setTimeout(r, 2500); })));
+  await Promise.all(imgs.map(async (img) => {
+    if (img.complete && img.naturalWidth > 0) {
+      try { await img.decode(); } catch {}
+      return;
+    }
+    await new Promise((resolve) => {
+      const done = () => resolve();
+      img.addEventListener('load', done, { once: true });
+      img.addEventListener('error', done, { once: true });
+      setTimeout(done, 8000);
+    });
+    if (img.naturalWidth > 0) {
+      try { await img.decode(); } catch {}
+    }
+  }));
+  const missing = imgs.filter((img) => img.naturalWidth === 0).map((img) => img.currentSrc || img.src);
+  if (missing.length) throw new Error('Imágenes sin decodificar: ' + missing.join(', '));
   await new Promise((r) => setTimeout(r, 250));
+  return JSON.stringify({ images: imgs.length, decoded: imgs.filter((img) => img.naturalWidth > 0).length });
 })()`;
 
 async function main() {
@@ -428,6 +455,13 @@ async function main() {
   await S('Runtime.enable');
   await S('Network.enable');
   await S('DOM.enable');
+  const settlePage = async () => {
+    const evaluation = await S('Runtime.evaluate', { expression: SETTLE_JS, awaitPromise: true, returnByValue: true });
+    if (evaluation.exceptionDetails) {
+      throw new Error(evaluation.exceptionDetails.text ?? 'La página no se estabilizó antes de la captura');
+    }
+    return evaluation.result?.value ?? '';
+  };
 
   const shots = SHOTS.filter((s) => !ONLY || s.name.includes(ONLY));
   const results = [];
@@ -458,7 +492,8 @@ async function main() {
 
     await S('Page.navigate', { url: shot.url.startsWith('http') ? shot.url : BASE + shot.url });
     await sleep(400);
-    await S('Runtime.evaluate', { expression: SETTLE_JS, awaitPromise: true, returnByValue: true }).catch(() => {});
+    const settled = await settlePage();
+    if (process.env.CAPTURE_DEBUG) console.log(`  settle ${shot.name}: ${settled}`);
     if (shot.followOrderNumber) {
       const { result } = await S('Runtime.evaluate', {
         expression: `Array.from(document.querySelectorAll('a')).find((a) => a.textContent?.trim() === ${JSON.stringify(shot.followOrderNumber)})?.href ?? ''`,
@@ -467,7 +502,8 @@ async function main() {
       if (!result.value) throw new Error(`No se encontró el pedido ${shot.followOrderNumber} para ${shot.name}`);
       await S('Page.navigate', { url: result.value });
       await sleep(400);
-      await S('Runtime.evaluate', { expression: SETTLE_JS, awaitPromise: true, returnByValue: true }).catch(() => {});
+      const settledDetail = await settlePage();
+      if (process.env.CAPTURE_DEBUG) console.log(`  settle ${shot.name}: ${settledDetail}`);
     }
     if (shot.eval) await S('Runtime.evaluate', { expression: shot.eval, awaitPromise: true }).catch(() => {});
     await S('Runtime.evaluate', { expression: HIDE_DEMO_CHROME });

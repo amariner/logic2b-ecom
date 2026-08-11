@@ -976,6 +976,36 @@ export const demoThemes: DemoTheme[] = [
       annotations: true, darkFooter: false,
     },
   },
+  {
+    id: 'dintel',
+    label: 'DINTEL',
+    hint: 'Tipografía monumental y retícula escultórica para objeto, interiorismo y mobiliario de autor.',
+    reference: { name: 'Referencia de mobiliario monolítico', file: '25-dintel.webp' },
+    sample: null,
+    bestFor: ['Interiorismo', 'Mobiliario de autor', 'Objeto escultórico'],
+    status: 'ready',
+    vars: {
+      '--color-brand': '#e8e6df',
+      '--color-brand-dark': '#c9c7bf',
+      '--color-brand-fg': '#ffffff',
+      '--font-display': "Arial Black, Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif",
+      '--font-accent': SYSTEM_SANS,
+      '--tracking-display': '-0.085em',
+      '--weight-display': '900',
+      '--radius-btn': '0.15rem',
+      '--radius-card': '0',
+      '--border-width': '1px',
+      '--surface-product': '#e5e3dd',
+      '--surface-sunken': '#171715',
+      '--space-density': '0.85',
+      '--grid-gap': 'clamp(1rem, 2.4vw, 2.5rem)',
+    },
+    layout: {
+      gridCols: 3, gridStyle: 'irregular', nav: 'immersive', hero: 'fullbleed',
+      card: 'plain', filters: 'dropdown', density: 'airy',
+      annotations: true, darkFooter: true,
+    },
+  },
   // new-theme:themes — no borrar: `pnpm new:theme <id>` añade aquí el tema si falta.
 ];
 

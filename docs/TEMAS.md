@@ -721,6 +721,19 @@ madera, piel, vidrio y cerámica trasladan la dirección material de la referenc
 sin copiar estudio, proyectos ni fotografías. Ficha:
 [`docs/temas/traza.md`](temas/traza.md).
 
+### 25 · DINTEL — *mobiliario monolítico*
+
+📎 **Referencia: [`25-dintel.webp`](../public/images/referencias/25-dintel.webp)**
+
+**Para quién:** interiorismo, mobiliario de autor y marcas de objeto escultórico.
+
+El negro funciona como vitrina; un wordmark monumental, metadatos minúsculos y
+una retícula de doce columnas dan a cada pieza un ritmo de exposición. DINTEL
+traduce ese sistema a ocho objetos propios de madera, piedra, bronce y luz,
+manteniendo catálogo, ficha, carrito y checkout sobre el recorrido local común.
+
+Ficha completa: [`docs/temas/dintel.md`](temas/dintel.md).
+
 ---
 
 ## 6. Tabla resumen
@@ -752,6 +765,7 @@ sin copiar estudio, proyectos ni fotografías. Ficha:
 | 22 | BRÍO | `#c9e66d` | 3 | **irregular** | top | **split** | hairline | dropdown | regular | ✅ |
 | 23 | BRUMA | `#272725` | 4 | uniform | top | none | plain | dropdown | airy | ✅ |
 | 24 | TRAZA | `#242321` | 3 | **irregular** | **immersive** | **fullbleed** | plain | dropdown | airy | ✅ |
+| 25 | DINTEL | `#e8e6df` | 3 | **irregular** | **immersive** | **fullbleed** | plain | dropdown | airy | ✅ |
 
 ---
 

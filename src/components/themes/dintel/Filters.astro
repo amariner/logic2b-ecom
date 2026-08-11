@@ -1,0 +1,37 @@
+---
+/** DINTEL · filtro GET compacto; conserva el contrato local compartido. */
+import type { CollectionConfig, StorePaths } from '../../../collections';
+
+interface Props { paths: StorePaths; collection: CollectionConfig; count: number; activeCategory?: string | undefined; sort: string; search?: string | undefined; }
+
+const { paths, collection, count, activeCategory, sort, search } = Astro.props;
+const hrefFor = (category?: string): string => {
+  const params = new URLSearchParams();
+  if (category) params.set('categoria', category);
+  if (sort !== 'featured') params.set('orden', sort);
+  if (search) params.set('q', search);
+  const query = params.toString();
+  return `${paths.catalog}${query ? `?${query}` : ''}`;
+};
+---
+
+<div class="dintel-filters" id="dintel-filtros">
+  <nav aria-label="Categorías DINTEL"><span>Índice / {count.toString().padStart(2, '0')}</span><a href={hrefFor()} aria-current={!activeCategory ? 'page' : undefined}>Todo</a>{collection.categories.map((item) => <a href={hrefFor(item.id)} aria-current={activeCategory === item.id ? 'page' : undefined}>{item.label}</a>)}</nav>
+  <form method="get" action={paths.catalog} role="search">
+    {activeCategory && <input type="hidden" name="categoria" value={activeCategory} />}
+    <input type="search" name="q" value={search} maxlength="60" placeholder="Buscar" aria-label="Buscar objetos" />
+    <select name="orden" aria-label="Ordenar colección" onchange="this.form.submit()"><option value="featured" selected={sort === 'featured'}>Editorial</option><option value="price-asc" selected={sort === 'price-asc'}>Precio ↑</option><option value="price-desc" selected={sort === 'price-desc'}>Precio ↓</option><option value="name" selected={sort === 'name'}>Nombre A–Z</option></select>
+  </form>
+</div>
+
+<style>
+  .dintel-filters { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: clamp(2.3rem, 4vw, 4rem); padding: .55rem 0; border-top: 1px solid #373734; border-bottom: 1px solid #373734; color: #f2f1ea; font-size: .56rem; letter-spacing: .025em; text-transform: uppercase; }
+  .dintel-filters nav, .dintel-filters form { display: flex; align-items: center; gap: clamp(.75rem, 1.4vw, 1.4rem); }
+  .dintel-filters nav > span { color: #aaa9a2; }
+  .dintel-filters a { display: inline-flex; min-height: 2.75rem; align-items: center; }
+  .dintel-filters a[aria-current='page'], .dintel-filters a:hover, .dintel-filters a:focus-visible { text-decoration: underline; text-underline-offset: .25rem; }
+  .dintel-filters input, .dintel-filters select { min-height: 2.5rem; border: 0; border-bottom: 1px solid #5b5a55; border-radius: 0; color: #f2f1ea; background: transparent; font: inherit; letter-spacing: inherit; text-transform: uppercase; }
+  .dintel-filters input { width: 6.75rem; }
+  .dintel-filters input::placeholder { color: #aaa9a2; }
+  @media (max-width: 720px) { .dintel-filters { align-items: stretch; flex-direction: column; } .dintel-filters nav { overflow-x: auto; } .dintel-filters nav > * { flex: 0 0 auto; } .dintel-filters form { justify-content: space-between; } .dintel-filters input { width: 7.5rem; } }
+</style>

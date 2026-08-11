@@ -1,0 +1,73 @@
+---
+/** DINTEL · retícula de objeto irregular, sin reordenar el catálogo. */
+import type { StorePaths } from '../../../collections';
+import { formatEurCents } from '../../../lib/format';
+
+type GridProduct = { slug: string; name: string; description: string; price_cents: number; image: string; stock: number; };
+interface Props { paths: StorePaths; products: GridProduct[]; }
+
+const { paths, products } = Astro.props;
+---
+
+<ul class="dintel-grid">
+  {products.map((product, index) => (
+    <li class="dintel-card">
+      <div class="dintel-card__media"><img src={product.image} alt={product.name} width="1536" height="1536" loading={index < 3 ? 'eager' : 'lazy'} /></div>
+      <div class="dintel-card__meta">
+        <div><span>{String(index + 1).padStart(2, '0')} / 08</span><h3><a href={paths.product(product.slug)}>{product.name}</a></h3><p>{product.description}</p></div>
+        <strong>{formatEurCents(product.price_cents)}</strong>
+      </div>
+      <button type="button" data-dintel-add={product.slug} disabled={product.stock === 0} aria-label={product.stock === 0 ? `${product.name} agotado` : `Añadir ${product.name} a la cesta`}>{product.stock === 0 ? 'Agotado' : 'Añadir +'}</button>
+    </li>
+  ))}
+</ul>
+
+<script>
+  import { addToCart } from '../../../lib/cart-client';
+  document.querySelectorAll<HTMLButtonElement>('[data-dintel-add]').forEach((button) => {
+    button.addEventListener('click', () => {
+      addToCart(button.dataset.dintelAdd ?? '');
+      const previous = button.textContent;
+      button.textContent = 'Añadido ✓';
+      setTimeout(() => (button.textContent = previous), 850);
+    });
+  });
+</script>
+
+<style>
+  .dintel-grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: clamp(3.5rem, 8vw, 9rem) var(--grid-gap); margin: 0; padding: 0; list-style: none; }
+  .dintel-card { position: relative; grid-column: span 4; min-width: 0; color: #f2f1ea; }
+  .dintel-card:nth-child(1) { grid-column: 1 / 5; }
+  .dintel-card:nth-child(2) { grid-column: 6 / -1; }
+  .dintel-card:nth-child(3) { grid-column: 1 / 8; }
+  .dintel-card:nth-child(4) { grid-column: 10 / -1; align-self: end; }
+  .dintel-card:nth-child(5) { grid-column: 1 / 4; }
+  .dintel-card:nth-child(6) { grid-column: 5 / 9; }
+  .dintel-card:nth-child(7) { grid-column: 10 / -1; }
+  .dintel-card:nth-child(8) { grid-column: 1 / -1; }
+  .dintel-card__media { overflow: hidden; aspect-ratio: 1 / 1.04; background: var(--surface-product); }
+  .dintel-card:nth-child(2) .dintel-card__media, .dintel-card:nth-child(3) .dintel-card__media, .dintel-card:nth-child(8) .dintel-card__media { aspect-ratio: 1.55; }
+  .dintel-card:nth-child(5) .dintel-card__media, .dintel-card:nth-child(7) .dintel-card__media { aspect-ratio: .74; }
+  .dintel-card__media img { width: 100%; height: 100%; object-fit: cover; transition: transform .55s ease; }
+  .dintel-card:hover .dintel-card__media img { transform: scale(1.014); }
+  .dintel-card__meta { display: grid; grid-template-columns: 1fr auto; gap: 1rem; padding-top: .65rem; color: #f2f1ea; font-size: .58rem; line-height: 1.4; }
+  .dintel-card__meta span { color: #aaa9a2; letter-spacing: .035em; }
+  .dintel-card__meta h3 { margin-top: .25rem; font: 800 clamp(.85rem, 1vw, 1.05rem)/1 var(--font-accent); letter-spacing: -.025em; text-transform: uppercase; }
+  .dintel-card__meta h3 a::after { position: absolute; z-index: 1; inset: 0; content: ''; }
+  .dintel-card__meta p { max-width: 23rem; margin-top: .4rem; color: #aaa9a2; }
+  .dintel-card__meta strong { font-size: .62rem; font-weight: 600; white-space: nowrap; }
+  .dintel-card button { position: absolute; z-index: 2; right: 0; bottom: -2.9rem; min-height: 2.75rem; padding: .45rem 0; border: 0; border-bottom: 1px solid #f2f1ea; color: #f2f1ea; background: transparent; font: 700 .55rem/1 var(--font-accent); letter-spacing: .04em; text-transform: uppercase; cursor: pointer; visibility: hidden; }
+  .dintel-card:hover button, .dintel-card:focus-within button { visibility: visible; }
+  .dintel-card button:disabled { cursor: not-allowed; opacity: .45; }
+  .dintel-card button:focus-visible, .dintel-card__meta h3 a:focus-visible { outline: .15rem solid #f2f1ea; outline-offset: .18rem; }
+  @media (max-width: 720px) {
+    .dintel-grid { display: block; }
+    .dintel-card, .dintel-card:nth-child(n) { margin-bottom: 4.7rem; }
+    .dintel-card__media, .dintel-card:nth-child(n) .dintel-card__media { aspect-ratio: 1 / 1.06; }
+    .dintel-card:nth-child(5) .dintel-card__media, .dintel-card:nth-child(7) .dintel-card__media { aspect-ratio: .82; }
+    .dintel-card__meta { grid-template-columns: 1fr; }
+    .dintel-card__meta strong { position: absolute; right: 0; bottom: -1.25rem; }
+  }
+  @media (hover: none), (pointer: coarse) { .dintel-card button { visibility: visible; } }
+  @media (prefers-reduced-motion: reduce) { .dintel-card__media img { transition: none; } }
+</style>

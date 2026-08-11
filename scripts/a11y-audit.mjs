@@ -68,6 +68,7 @@ const MOBILE = { w: 375, h: 812, dsf: 1, mobile: true };
 // ── Superficies ────────────────────────────────────────────────────────────
 // Las tiendas vivas. `demo` (La Botiga) conserva las rutas históricas.
 const STORES = [
+  { id: 'dintel', label: 'DINTEL', prefix: '/demo/tiendas/dintel', slug: 'din-mesa-traves', cartKey: 'ecom-cart:dintel', canQuote: false },
   { id: 'traza', label: 'TRAZA', prefix: '/demo/tiendas/traza', slug: 'tra-mesa-rasante', cartKey: 'ecom-cart:traza', canQuote: false },
   { id: 'bruma', label: 'BRUMA', prefix: '/demo/tiendas/bruma', slug: 'bru-niebla-alta', cartKey: 'ecom-cart:bruma', canQuote: false },
   { id: 'brio', label: 'BRÍO', prefix: '/demo/tiendas/brio', slug: 'bri-espalda-libre', cartKey: 'ecom-cart:brio', canQuote: false },
