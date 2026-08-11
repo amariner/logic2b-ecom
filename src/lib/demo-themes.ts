@@ -916,6 +916,36 @@ export const demoThemes: DemoTheme[] = [
       annotations: false, darkFooter: false,
     },
   },
+  {
+    id: 'bruma',
+    label: 'BRUMA',
+    hint: 'Catálogo de lujo silencioso: tipografía, aire y producto sin ruido.',
+    reference: { name: 'Referencia de catálogo editorial de café', file: '23-bruma.webp' },
+    sample: null,
+    bestFor: ['Café de especialidad', 'Alimentación premium', 'Marcas de autor'],
+    status: 'ready',
+    vars: {
+      '--color-brand': '#272725',
+      '--color-brand-dark': '#111110',
+      '--color-brand-fg': '#ffffff',
+      '--font-display': "Georgia, 'Times New Roman', serif",
+      '--font-accent': SYSTEM_SANS,
+      '--tracking-display': '-0.045em',
+      '--weight-display': '400',
+      '--radius-btn': '0',
+      '--radius-card': '0',
+      '--border-width': '1px',
+      '--surface-product': '#f2f1ed',
+      '--surface-sunken': '#e8e7e2',
+      '--space-density': '1',
+      '--grid-gap': '0.55rem',
+    },
+    layout: {
+      gridCols: 4, gridStyle: 'uniform', nav: 'top', hero: 'none',
+      card: 'plain', filters: 'dropdown', density: 'airy',
+      annotations: false, darkFooter: false,
+    },
+  },
   // new-theme:themes — no borrar: `pnpm new:theme <id>` añade aquí el tema si falta.
 ];
 

@@ -1,0 +1,35 @@
+---
+/** BRUMA · dos controles discretos, equivalentes a Origen / Notas. */
+import type { CollectionConfig, StorePaths } from '../../../collections';
+interface Props { paths: StorePaths; collection: CollectionConfig; count: number; activeCategory?: string | undefined; sort: string; search?: string | undefined; }
+const { paths, collection, count, activeCategory, sort, search } = Astro.props;
+---
+
+<form class="bruma-filters" action={paths.catalog} method="get">
+  <label>Origen:
+    <select name="categoria" aria-label="Filtrar por origen" onchange="this.form?.requestSubmit()">
+      <option value="">Todos</option>
+      {collection.categories.map((item) => <option value={item.id} selected={activeCategory === item.id}>{item.label}</option>)}
+    </select>
+  </label>
+  <label>Orden:
+    <select name="orden" aria-label="Ordenar cafés" onchange="this.form?.requestSubmit()">
+      <option value="featured" selected={sort === 'featured'}>Selección</option>
+      <option value="price-asc" selected={sort === 'price-asc'}>Precio ↑</option>
+      <option value="price-desc" selected={sort === 'price-desc'}>Precio ↓</option>
+      <option value="name" selected={sort === 'name'}>Nombre</option>
+    </select>
+  </label>
+  {search && <input type="hidden" name="q" value={search} />}
+  <span>{count} cafés</span>
+  <button type="submit">Aplicar</button>
+</form>
+
+<style>
+  .bruma-filters { display: flex; min-height: 3.8rem; align-items: center; gap: 1.5rem; color: var(--color-muted-foreground); font-size: .58rem; }
+  .bruma-filters label { display: inline-flex; min-height: 2.75rem; align-items: center; gap: .35rem; }
+  .bruma-filters select { min-height: 2.75rem; border: 0; color: var(--color-foreground); background: transparent; font: inherit; cursor: pointer; }
+  .bruma-filters > span { margin-left: auto; }
+  .bruma-filters button { min-height: 2.75rem; padding-inline: .75rem; border: var(--border-width) solid var(--color-border); color: var(--color-foreground); background: var(--color-background); font: inherit; cursor: pointer; }
+  @media (max-width: 620px) { .bruma-filters { flex-wrap: wrap; gap: .25rem 1rem; padding-block: .5rem; } .bruma-filters > span { width: 100%; margin-left: 0; } }
+</style>

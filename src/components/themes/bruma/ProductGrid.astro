@@ -1,0 +1,59 @@
+---
+/** BRUMA · rejilla rígida 4×N, una sola área de enlace y compra compartida. */
+import type { StorePaths } from '../../../collections';
+import { formatEurCents } from '../../../lib/format';
+type GridProduct = { slug: string; name: string; description: string; price_cents: number; image: string; stock: number; };
+interface Props { paths: StorePaths; products: GridProduct[]; }
+const { paths, products } = Astro.props;
+---
+
+<ul class="bruma-grid">
+  {products.map((product, index) => (
+    <li class="bruma-card">
+      <div class="bruma-card__media">
+        {index === 1 && <span>Más vendido</span>}
+        {index === 6 && <span>Novedad</span>}
+        <img src={product.image} alt={product.name} width="1536" height="1536" loading={index < 4 ? 'eager' : 'lazy'} />
+      </div>
+      <div class="bruma-card__copy">
+        <h2><a href={paths.product(product.slug)}>{product.name}</a></h2>
+        <p>{product.description}</p>
+        <strong>Desde {formatEurCents(product.price_cents)}</strong>
+      </div>
+      <button type="button" data-bruma-add={product.slug} disabled={product.stock === 0} aria-label={product.stock === 0 ? `${product.name} agotado` : `Añadir ${product.name} al carrito`}>{product.stock === 0 ? 'Agotado' : 'Añadir'}</button>
+    </li>
+  ))}
+</ul>
+
+<script>
+  import { addToCart } from '../../../lib/cart-client';
+  document.querySelectorAll<HTMLButtonElement>('[data-bruma-add]').forEach((button) => {
+    button.addEventListener('click', () => {
+      addToCart(button.dataset.brumaAdd ?? '');
+      const previous = button.textContent;
+      button.textContent = 'Añadido ✓';
+      setTimeout(() => (button.textContent = previous), 850);
+    });
+  });
+</script>
+
+<style>
+  .bruma-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--grid-gap); margin: 0; padding: 0; list-style: none; }
+  .bruma-card { position: relative; min-width: 0; padding-bottom: 2.2rem; color: var(--color-foreground); background: var(--color-background); }
+  .bruma-card__media { position: relative; display: grid; aspect-ratio: 1; place-items: center; overflow: hidden; background: var(--surface-product); }
+  .bruma-card__media img { width: 100%; height: 100%; object-fit: cover; transition: transform .35s ease; }
+  .bruma-card:hover .bruma-card__media img { transform: scale(1.018); }
+  .bruma-card__media span { position: absolute; z-index: 1; top: .75rem; left: .75rem; font-size: .48rem; text-transform: uppercase; }
+  .bruma-card__copy { min-height: 6.8rem; padding-top: .8rem; font-size: .62rem; line-height: 1.4; }
+  .bruma-card__copy h2 { font-size: .66rem; font-weight: 500; text-transform: uppercase; }
+  .bruma-card__copy h2 a::after { position: absolute; z-index: 1; inset: 0; content: ''; }
+  .bruma-card__copy p { margin-top: .25rem; color: var(--color-muted-foreground); }
+  .bruma-card__copy strong { display: block; margin-top: .7rem; font-weight: 500; }
+  .bruma-card button { position: absolute; z-index: 2; right: 0; bottom: .2rem; min-width: 4rem; min-height: 2.75rem; visibility: hidden; padding: .5rem .7rem; border: var(--border-width) solid var(--color-foreground); color: var(--color-brand-fg); background: var(--color-brand); font-size: .56rem; cursor: pointer; }
+  .bruma-card:hover button, .bruma-card:focus-within button { visibility: visible; }
+  .bruma-card button:disabled { cursor: not-allowed; opacity: .5; }
+  .bruma-card button:focus-visible, .bruma-card__copy h2 a:focus-visible { outline: .16rem solid var(--color-foreground); outline-offset: .15rem; }
+  @media (max-width: 760px) { .bruma-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .bruma-card__copy { min-height: 8rem; } }
+  @media (hover: none), (pointer: coarse) { .bruma-card button { visibility: visible; } }
+  @media (prefers-reduced-motion: reduce) { .bruma-card__media img { transition: none; } }
+</style>

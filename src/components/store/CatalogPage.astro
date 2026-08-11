@@ -35,6 +35,7 @@ import VisoCatalog from '../themes/viso/Catalog.astro';
 import OrbeCatalog from '../themes/orbe/Catalog.astro';
 import AlvaCatalog from '../themes/alva/Catalog.astro';
 import BrioCatalog from '../themes/brio/Catalog.astro';
+import BrumaCatalog from '../themes/bruma/Catalog.astro';
 
 interface Props {
   collection: CollectionConfig;
@@ -97,6 +98,7 @@ const catalogViews = {
   orbe: OrbeCatalog,
   alva: AlvaCatalog,
   brio: BrioCatalog,
+  bruma: BrumaCatalog,
 } as const;
 const ThemedCatalog = catalogViews[collection.themeId as keyof typeof catalogViews] ?? null;
 ---

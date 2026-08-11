@@ -697,6 +697,18 @@ abundante vacío. Seis productos y ocho assets propios construyen una dirección
 eléctrica y cercana sin copiar marca, claims ni imaginería de la referencia.
 Ficha: [`docs/temas/brio.md`](temas/brio.md).
 
+### 23 · BRUMA — *café de lujo silencioso*
+
+📎 **Referencia: [`23-bruma.webp`](../public/images/referencias/23-bruma.webp)**
+
+**Para quién:** café de especialidad, alimentación premium y marcas de autor.
+
+Cabecera mínima, navegación tipográfica a gran escala, dos filtros discretos y
+una rejilla rígida de cuatro columnas donde el producto y el vacío construyen
+la jerarquía. Ocho cafés y un sistema propio de bolsas topográficas trasladan
+la dirección editorial sin copiar marca, textos ni packaging de la referencia.
+Ficha: [`docs/temas/bruma.md`](temas/bruma.md).
+
 ---
 
 ## 6. Tabla resumen
@@ -726,6 +738,7 @@ Ficha: [`docs/temas/brio.md`](temas/brio.md).
 | 20 | ORBE | `#465344` | 4 | uniform | top | **split** | divided | dropdown | compact | ✅ |
 | 21 | ALVA | `#282522` | 4 | uniform | top | **split** | divided | dropdown | compact | ✅ |
 | 22 | BRÍO | `#c9e66d` | 3 | **irregular** | top | **split** | hairline | dropdown | regular | ✅ |
+| 23 | BRUMA | `#272725` | 4 | uniform | top | none | plain | dropdown | airy | ✅ |
 
 ---
 

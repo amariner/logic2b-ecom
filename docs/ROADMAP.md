@@ -849,6 +849,23 @@ y una captura ORBE; el resto de categorías, 100. Integrado en `main` como
 `603ca2fa-ae6f-45f4-be87-b597ad76adf1`; smoke remoto 200 en tienda, portada y
 asset de hero.
 
+### Línea paralela · tema BRUMA (2026-08-11, sesión local)
+
+Décimo elemento de `nuevos-temas/cola.json`. BRUMA replica un catálogo de café
+de lujo silencioso: cabecera mínima, navegación tipográfica a gran escala,
+filtros discretos y rejilla 4×N. Ocho cafés `bru-*` usan un sistema propio de
+bolsas mate y topografías; `imagegen` falló por red y el fallback Higgsfield ya
+autorizado consumió 56,36 créditos (466,28 → 409,92).
+
+El bloque solo toca kit visual, colección, seed y registros previstos; **no
+cambia pricing, envíos, checkout, pedidos, D1 ni APIs** y no añade dependencias.
+`pnpm check` queda en 57 suites/366 tests, E2E global verde tras reseed local
+`0001`–`0011`, auditoría a11y 0/0 en 8 superficies y cinco capturas dentro de
+presupuesto. Sin despliegue remoto todavía. Ficha completa en
+[`docs/temas/bruma.md`](temas/bruma.md). La siguiente referencia visual es la
+posición 11 (`445a62400246953e06387477674110e4.jpg`). El carril principal
+conserva R2.11 como cabeza y requiere permiso explícito por su migración D1.
+
 ### Pendiente en la Fase 9B
 
 - **Pasada de fidelidad fina** de los 4 temas contra su captura (se re-hospedaron

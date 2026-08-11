@@ -1,0 +1,67 @@
+---
+/** BRUMA · catálogo editorial de café, fiel a la referencia de cuatro columnas. */
+import type { CollectionConfig, StorePaths } from '../../../collections';
+import Filters from './Filters.astro';
+import ProductGrid from './ProductGrid.astro';
+
+type GridProduct = { slug: string; name: string; description: string; price_cents: number; image: string; stock: number; };
+interface Props { paths: StorePaths; products: GridProduct[]; collection: CollectionConfig; category?: string | undefined; sort: string; search?: string | undefined; }
+
+const { paths, products, collection, category, sort, search } = Astro.props;
+const activeLabel = collection.categories.find((item) => item.id === category)?.label;
+const title = search ? `Resultados para «${search}»` : activeLabel ?? 'Todo el café';
+---
+
+<div class="bruma">
+  <header class="bruma-header">
+    <a class="bruma-wordmark" href={paths.catalog}>{collection.name.toLowerCase()}</a>
+    <nav aria-label="Navegación BRUMA"><a href={paths.catalog} aria-current={!category && !search ? 'page' : undefined}>Café</a><a href="#origenes">Orígenes</a><a href="#bruma-notas">Diario</a></nav>
+    <nav aria-label="Acciones de tienda"><a href={`${paths.catalog}?orden=name`}>Buscar</a><a href="/">Logic2B</a><a href={paths.cart}>Carrito (<span data-cart-count>0</span>)</a></nav>
+  </header>
+
+  <main>
+    <section class="bruma-heading" aria-labelledby="bruma-title">
+      <h1 id="bruma-title"><a href={paths.catalog} aria-current={!category && !search ? 'page' : undefined}>Todo el café</a>, {collection.categories.map((item, index) => <><a href={`${paths.catalog}?categoria=${item.id}`} aria-current={category === item.id ? 'page' : undefined}>{item.label}</a>{index < collection.categories.length - 1 ? ', ' : ''}</>)}</h1>
+      {search && <p>{title}</p>}
+    </section>
+
+    <section class="bruma-catalog" id="origenes" aria-labelledby="bruma-products-title">
+      <h2 class="sr-only" id="bruma-products-title">{title}</h2>
+      <Filters paths={paths} collection={collection} count={products.length} activeCategory={category} sort={sort} search={search} />
+      {products.length > 0 ? <ProductGrid paths={paths} products={products} /> : <div class="bruma-empty"><p>{search ? `Nada por aquí para «${search}»` : 'No hay cafés en esta selección'}</p><a href={paths.catalog}>Volver a todo el café</a></div>}
+    </section>
+  </main>
+
+  <footer class="bruma-footer" id="bruma-notas"><p>BRUMA / café de especialidad tostado en pequeños lotes.</p><p>Demo visual de Logic2B Ecommerce · Castellón, 2026</p></footer>
+</div>
+
+<style>
+  :global([data-store-theme='bruma'] > header), :global([data-store-theme='bruma'] > .shop-footer) { display: none; }
+  .bruma { min-height: 100vh; color: var(--color-foreground); background: var(--color-background); font-family: var(--font-accent); }
+  .bruma :where(a) { color: inherit; text-decoration: none; }
+  .bruma-header { display: grid; min-height: 4.5rem; grid-template-columns: 1fr 1fr 1fr; align-items: start; gap: 1rem; padding: 1rem 2rem; font-size: .62rem; }
+  .bruma-header nav { display: flex; gap: 2rem; }
+  .bruma-header nav:last-child { justify-content: flex-end; }
+  .bruma-header a { display: inline-flex; min-height: 2.75rem; align-items: center; }
+  .bruma-header a:hover, .bruma-header a[aria-current='page'] { text-decoration: underline; text-underline-offset: .25rem; }
+  .bruma-wordmark { font-weight: 700; letter-spacing: -.035em; }
+  .bruma-heading { display: flex; min-height: 16rem; flex-direction: column; justify-content: center; padding: 2rem; }
+  .bruma-heading h1 { max-width: 70rem; font: var(--weight-display) clamp(2.4rem, 4.3vw, 4.5rem)/1.03 var(--font-display); letter-spacing: var(--tracking-display); }
+  .bruma-heading h1 a { color: var(--color-muted-foreground); }
+  .bruma-heading h1 a:first-child, .bruma-heading h1 a:hover, .bruma-heading h1 a[aria-current='page'] { color: var(--color-foreground); text-decoration: underline; text-decoration-thickness: var(--border-width); text-underline-offset: .35rem; }
+  .bruma-heading p { margin-top: 1.5rem; color: var(--color-muted-foreground); font-size: .7rem; }
+  .bruma-catalog { padding: 0 2rem 6rem; }
+  .bruma-empty { padding: 7rem 1rem; text-align: center; }
+  .bruma-empty p { font: var(--weight-display) 2rem/1.1 var(--font-display); }
+  .bruma-empty a { display: inline-block; min-height: 2.75rem; margin-top: 1rem; text-decoration: underline; text-underline-offset: .25rem; }
+  .bruma-footer { display: flex; justify-content: space-between; gap: 2rem; padding: 2rem; border-top: var(--border-width) solid var(--color-border); color: var(--color-muted-foreground); font-size: .58rem; }
+  @media (max-width: 760px) {
+    .bruma-header { grid-template-columns: 1fr auto; padding: .7rem 1rem; }
+    .bruma-header > nav:first-of-type { display: none; }
+    .bruma-header nav:last-child a:not(:last-child) { display: none; }
+    .bruma-heading { min-height: 12rem; padding: 1rem; }
+    .bruma-heading h1 { font-size: clamp(2rem, 10vw, 3.2rem); }
+    .bruma-catalog { padding: 0 1rem 4rem; }
+    .bruma-footer { align-items: flex-start; flex-direction: column; padding: 1rem; }
+  }
+</style>
