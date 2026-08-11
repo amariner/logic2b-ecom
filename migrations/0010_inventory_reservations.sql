@@ -60,28 +60,9 @@ CREATE TABLE inventory_reservation_events (
   UNIQUE (reservation_id, version_after)
 );
 
-CREATE TRIGGER inventory_reservation_event_guard
-BEFORE INSERT ON inventory_reservation_events
-BEGIN
-  SELECT CASE WHEN NOT EXISTS (
-    SELECT 1 FROM inventory_reservations r
-    WHERE r.id = NEW.reservation_id
-      AND (
-        (
-          r.status = 'active'
-          AND r.version + 1 = NEW.version_after
-          AND (
-            (NEW.transition = 'expired' AND r.expires_at <= NEW.occurred_at)
-            OR (NEW.transition = 'consumed' AND r.expires_at > NEW.occurred_at)
-            OR NEW.transition = 'released'
-          )
-        )
-        -- Un backup de contenido restaura primero la cabecera final y después
-        -- su historia. La rama solo admite versiones ya alcanzadas/terminales.
-        OR (r.status = NEW.transition AND r.version >= NEW.version_after)
-      )
-  ) THEN RAISE(ABORT, 'inventory_reservation_conflict') END;
-END;
+-- D1 remoto requiere que los triggers viajen en una sola línea en la ruta de
+-- `migrations apply`; la forma multilínea falla en su parser con SQLITE_ERROR.
+CREATE TRIGGER inventory_reservation_event_guard BEFORE INSERT ON inventory_reservation_events BEGIN SELECT CASE WHEN NOT EXISTS (SELECT 1 FROM inventory_reservations r WHERE r.id = NEW.reservation_id AND ((r.status = 'active' AND r.version + 1 = NEW.version_after AND ((NEW.transition = 'expired' AND r.expires_at <= NEW.occurred_at) OR (NEW.transition = 'consumed' AND r.expires_at > NEW.occurred_at) OR NEW.transition = 'released')) OR (r.status = NEW.transition AND r.version >= NEW.version_after))) THEN RAISE(ABORT, 'inventory_reservation_conflict') END; END;
 
 -- Este historial es además la guarda optimista del balance reservado. Se
 -- inserta antes del UPDATE: versión repetida aborta una carrera y los triggers
@@ -110,40 +91,7 @@ CREATE TABLE inventory_reservation_balance_events (
   UNIQUE (reservation_id, variant_id, transition)
 );
 
-CREATE TRIGGER inventory_reservation_balance_event_guard
-BEFORE INSERT ON inventory_reservation_balance_events
-BEGIN
-  SELECT CASE WHEN NOT EXISTS (
-    SELECT 1
-    FROM inventory_balances b
-    JOIN inventory_reservations r ON r.id = NEW.reservation_id
-    JOIN inventory_reservation_lines l
-      ON l.reservation_id = r.id AND l.variant_id = NEW.variant_id
-    WHERE b.variant_id = NEW.variant_id
-      AND NEW.quantity_delta IN (l.quantity, -l.quantity)
-      AND (
-        (
-          b.reservation_version + 1 = NEW.reservation_version_after
-          AND b.reserved + NEW.quantity_delta = NEW.reserved_after
-          AND NEW.reserved_after <= b.on_hand
-        )
-        -- Replay histórico de backup: el balance final ya alcanzó esta versión.
-        OR b.reservation_version >= NEW.reservation_version_after
-      )
-      AND (
-        (NEW.transition = 'created' AND r.version >= 1)
-        OR (
-          NEW.transition <> 'created'
-          AND EXISTS (
-            SELECT 1 FROM inventory_reservation_events e
-            WHERE e.reservation_id = r.id
-              AND e.transition = NEW.transition
-              AND e.occurred_at = NEW.occurred_at
-          )
-        )
-      )
-  ) THEN RAISE(ABORT, 'inventory_reservation_balance_conflict') END;
-END;
+CREATE TRIGGER inventory_reservation_balance_event_guard BEFORE INSERT ON inventory_reservation_balance_events BEGIN SELECT CASE WHEN NOT EXISTS (SELECT 1 FROM inventory_balances b JOIN inventory_reservations r ON r.id = NEW.reservation_id JOIN inventory_reservation_lines l ON l.reservation_id = r.id AND l.variant_id = NEW.variant_id WHERE b.variant_id = NEW.variant_id AND NEW.quantity_delta IN (l.quantity, -l.quantity) AND ((b.reservation_version + 1 = NEW.reservation_version_after AND b.reserved + NEW.quantity_delta = NEW.reserved_after AND NEW.reserved_after <= b.on_hand) OR b.reservation_version >= NEW.reservation_version_after) AND ((NEW.transition = 'created' AND r.version >= 1) OR (NEW.transition <> 'created' AND EXISTS (SELECT 1 FROM inventory_reservation_events e WHERE e.reservation_id = r.id AND e.transition = NEW.transition AND e.occurred_at = NEW.occurred_at)))) THEN RAISE(ABORT, 'inventory_reservation_balance_conflict') END; END;
 
 CREATE INDEX idx_inventory_reservations_expiry
   ON inventory_reservations(expires_at, id)

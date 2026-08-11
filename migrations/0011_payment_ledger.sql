@@ -109,38 +109,6 @@ CREATE INDEX idx_refund_items_order_item
 
 -- Una transaccion es un asiento inmutable. La guarda valida moneda, saldo y
 -- referencia al insertar; cualquier correccion futura sera otro asiento.
-CREATE TRIGGER payment_transaction_guard
-BEFORE INSERT ON payment_transactions
-BEGIN
-  SELECT CASE WHEN NOT EXISTS (
-    SELECT 1 FROM payments p
-    WHERE p.id = NEW.payment_id
-      AND p.currency = NEW.currency
-      AND (
-        NEW.status <> 'succeeded'
-        OR (
-          NEW.type IN ('authorization', 'capture')
-          AND NEW.amount_cents + COALESCE((
-            SELECT sum(t.amount_cents) FROM payment_transactions t
-            WHERE t.payment_id = p.id
-              AND t.type = NEW.type AND t.status = 'succeeded'
-          ), 0) <= p.expected_amount_cents
-        )
-        OR (
-          NEW.type = 'refund'
-          AND NEW.amount_cents > 0
-          AND NEW.amount_cents + COALESCE((
-            SELECT sum(t.amount_cents) FROM payment_transactions t
-            WHERE t.payment_id = p.id
-              AND t.type = 'refund' AND t.status = 'succeeded'
-          ), 0) <= COALESCE((
-            SELECT sum(t.amount_cents) FROM payment_transactions t
-            WHERE t.payment_id = p.id
-              AND t.type = 'capture' AND t.status = 'succeeded'
-          ), 0)
-        )
-        OR NEW.type = 'adjustment'
-        OR (NEW.type = 'void' AND NEW.amount_cents = 0)
-      )
-  ) THEN RAISE(ABORT, 'payment_transaction_conflict') END;
-END;
+-- Véase la nota equivalente en 0010: el parser remoto de migraciones de D1
+-- exige actualmente una sola línea para un CREATE TRIGGER compuesto.
+CREATE TRIGGER payment_transaction_guard BEFORE INSERT ON payment_transactions BEGIN SELECT CASE WHEN NOT EXISTS (SELECT 1 FROM payments p WHERE p.id = NEW.payment_id AND p.currency = NEW.currency AND (NEW.status <> 'succeeded' OR (NEW.type IN ('authorization', 'capture') AND NEW.amount_cents + COALESCE((SELECT sum(t.amount_cents) FROM payment_transactions t WHERE t.payment_id = p.id AND t.type = NEW.type AND t.status = 'succeeded'), 0) <= p.expected_amount_cents) OR (NEW.type = 'refund' AND NEW.amount_cents > 0 AND NEW.amount_cents + COALESCE((SELECT sum(t.amount_cents) FROM payment_transactions t WHERE t.payment_id = p.id AND t.type = 'refund' AND t.status = 'succeeded'), 0) <= COALESCE((SELECT sum(t.amount_cents) FROM payment_transactions t WHERE t.payment_id = p.id AND t.type = 'capture' AND t.status = 'succeeded'), 0)) OR NEW.type = 'adjustment' OR (NEW.type = 'void' AND NEW.amount_cents = 0))) THEN RAISE(ABORT, 'payment_transaction_conflict') END; END;
