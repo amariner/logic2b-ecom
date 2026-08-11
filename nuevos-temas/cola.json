@@ -61,7 +61,7 @@
     },
     { "posicion": 9, "archivo": "247f56bc054cf88fda76024abf2137df.jpg", "tema": "brio", "estado": "completado", "nota": "Tema BRÍO terminado: réplica responsive de bienestar botánico urbano, catálogo de 6 productos y 8 assets WebP propios. Imagegen falló por red; el fallback Higgsfield ya autorizado consumió 56 créditos. Capturas dentro de presupuesto y auditoría a11y 0/0." },
     { "posicion": 10, "archivo": "308044ce22d161b3d0caead45300d7f9.jpg", "tema": "bruma", "estado": "completado", "nota": "Tema BRUMA terminado: réplica editorial responsive de café, catálogo de 8 productos y 8 assets WebP propios. Imagegen falló por red; el fallback Higgsfield ya autorizado consumió 56,36 créditos. Capturas dentro de presupuesto, 366 tests, E2E global y auditoría a11y 0/0." },
-    { "posicion": 11, "archivo": "445a62400246953e06387477674110e4.jpg", "tema": null, "estado": "pendiente" },
+    { "posicion": 11, "archivo": "445a62400246953e06387477674110e4.jpg", "tema": "traza", "estado": "completado", "nota": "Tema TRAZA terminado: portfolio ecommerce responsive de objetos domésticos arquitectónicos, catálogo de 8 productos y 8 assets WebP propios. Imagegen falló por red; el fallback Higgsfield ya autorizado consumió 70,60 créditos. Capturas dentro de presupuesto, 366 tests, E2E global y auditoría a11y 0/0." },
     { "posicion": 12, "archivo": "4b7efb74f44f8df500b21c605b7ceff9.jpg", "tema": null, "estado": "pendiente" },
     { "posicion": 13, "archivo": "5675ae523a7da5dc339cbf50c05e49f1.jpg", "tema": null, "estado": "pendiente" },
     { "posicion": 14, "archivo": "8aee98009d78b485d3312aac82084e3a.jpg", "tema": null, "estado": "pendiente" },

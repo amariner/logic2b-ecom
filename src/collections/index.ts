@@ -37,6 +37,7 @@ import { orbeCollection } from '../collections/orbe';
 import { alvaCollection } from '../collections/alva';
 import { brioCollection } from '../collections/brio';
 import { brumaCollection } from '../collections/bruma';
+import { trazaCollection } from '../collections/traza';
 // new-theme:imports — no borrar: `pnpm new:theme <id>` añade aquí su import.
 import type { CollectionCategory, CollectionConfig } from './types';
 
@@ -75,6 +76,7 @@ export const collections: readonly CollectionConfig[] = [
   alvaCollection,
   brioCollection,
   brumaCollection,
+  trazaCollection,
   // new-theme:entries — no borrar: `pnpm new:theme <id>` añade aquí su entrada.
 ];
 

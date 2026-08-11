@@ -709,6 +709,18 @@ la jerarquía. Ocho cafés y un sistema propio de bolsas topográficas trasladan
 la dirección editorial sin copiar marca, textos ni packaging de la referencia.
 Ficha: [`docs/temas/bruma.md`](temas/bruma.md).
 
+### 24 · TRAZA — *objetos que hacen lugar*
+
+📎 **Referencia: [`24-traza.webp`](../public/images/referencias/24-traza.webp)**
+
+**Para quién:** interiorismo, mobiliario de autor y objetos para el hogar.
+
+Cabecera microscópica, titular arquitectónico y una retícula de doce columnas
+con grandes vacíos convierten el catálogo en portfolio. Ocho objetos de piedra,
+madera, piel, vidrio y cerámica trasladan la dirección material de la referencia
+sin copiar estudio, proyectos ni fotografías. Ficha:
+[`docs/temas/traza.md`](temas/traza.md).
+
 ---
 
 ## 6. Tabla resumen
@@ -739,6 +751,7 @@ Ficha: [`docs/temas/bruma.md`](temas/bruma.md).
 | 21 | ALVA | `#282522` | 4 | uniform | top | **split** | divided | dropdown | compact | ✅ |
 | 22 | BRÍO | `#c9e66d` | 3 | **irregular** | top | **split** | hairline | dropdown | regular | ✅ |
 | 23 | BRUMA | `#272725` | 4 | uniform | top | none | plain | dropdown | airy | ✅ |
+| 24 | TRAZA | `#242321` | 3 | **irregular** | **immersive** | **fullbleed** | plain | dropdown | airy | ✅ |
 
 ---
 

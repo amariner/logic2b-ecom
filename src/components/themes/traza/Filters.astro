@@ -1,0 +1,34 @@
+---
+/** TRAZA · filtros casi invisibles, como metadatos de un portfolio. */
+import type { CollectionConfig, StorePaths } from '../../../collections';
+interface Props { paths: StorePaths; collection: CollectionConfig; count: number; activeCategory?: string | undefined; sort: string; search?: string | undefined; }
+const { paths, collection, count, activeCategory, sort, search } = Astro.props;
+---
+
+<form id="traza-filtros" class="traza-filters" action={paths.catalog} method="get">
+  <span>PROYECTOS / {count.toString().padStart(2, '0')}</span>
+  <label>CATEGORÍA
+    <select name="categoria" onchange="this.form?.requestSubmit()">
+      <option value="">TODAS</option>
+      {collection.categories.map((item) => <option value={item.id} selected={activeCategory === item.id}>{item.label.toUpperCase()}</option>)}
+    </select>
+  </label>
+  <label>ORDEN
+    <select name="orden" onchange="this.form?.requestSubmit()">
+      <option value="featured" selected={sort === 'featured'}>EDITORIAL</option>
+      <option value="price-asc" selected={sort === 'price-asc'}>PRECIO ↑</option>
+      <option value="price-desc" selected={sort === 'price-desc'}>PRECIO ↓</option>
+      <option value="name" selected={sort === 'name'}>NOMBRE</option>
+    </select>
+  </label>
+  {search && <input type="hidden" name="q" value={search} />}
+  <button type="submit">APLICAR</button>
+</form>
+
+<style>
+  .traza-filters { display: grid; grid-template-columns: 1fr auto auto auto; align-items: center; gap: 2rem; margin: 0 1.5rem 2rem; padding: .75rem 0; border-top: var(--border-width) solid var(--color-border); border-bottom: var(--border-width) solid var(--color-border); color: var(--color-muted-foreground); font-size: .5rem; letter-spacing: .03em; }
+  .traza-filters label { display: inline-flex; min-height: 2.75rem; align-items: center; gap: .45rem; }
+  .traza-filters select { min-height: 2.75rem; border: 0; color: var(--color-foreground); background: transparent; font: inherit; cursor: pointer; }
+  .traza-filters button { min-height: 2.75rem; border: 0; color: var(--color-foreground); background: transparent; font: inherit; text-decoration: underline; text-underline-offset: .2rem; cursor: pointer; }
+  @media (max-width: 720px) { .traza-filters { grid-template-columns: 1fr 1fr; gap: 0 .8rem; margin: 0 1rem 1.2rem; } .traza-filters > span { grid-column: 1 / -1; padding-block: .5rem; } .traza-filters button { display: none; } }
+</style>

@@ -1,0 +1,64 @@
+---
+/** TRAZA · mosaico de proyecto: escala, vacío y metadatos. */
+import type { StorePaths } from '../../../collections';
+import { formatEurCents } from '../../../lib/format';
+type GridProduct = { slug: string; name: string; description: string; price_cents: number; image: string; stock: number; };
+interface Props { paths: StorePaths; products: GridProduct[]; }
+const { paths, products } = Astro.props;
+---
+
+<ul class="traza-grid">
+  {products.map((product, index) => (
+    <li class="traza-card">
+      <div class="traza-card__media"><img src={product.image} alt={product.name} width="1600" height="1600" loading={index < 2 ? 'eager' : 'lazy'} /></div>
+      <div class="traza-card__meta">
+        <div><h2><a href={paths.product(product.slug)}>{product.name}</a></h2><p>{product.description}</p></div>
+        <div><span>{String(index + 1).padStart(2, '0')}</span><strong>{formatEurCents(product.price_cents)}</strong></div>
+      </div>
+      <button type="button" data-traza-add={product.slug} disabled={product.stock === 0} aria-label={product.stock === 0 ? `${product.name} agotado` : `Añadir ${product.name} al carrito`}>{product.stock === 0 ? 'AGOTADO' : 'AÑADIR +'}</button>
+    </li>
+  ))}
+</ul>
+
+<script>
+  import { addToCart } from '../../../lib/cart-client';
+  document.querySelectorAll<HTMLButtonElement>('[data-traza-add]').forEach((button) => {
+    button.addEventListener('click', () => {
+      addToCart(button.dataset.trazaAdd ?? '');
+      const previous = button.textContent;
+      button.textContent = 'AÑADIDO ✓';
+      setTimeout(() => (button.textContent = previous), 850);
+    });
+  });
+</script>
+
+<style>
+  .traza-grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 8rem var(--grid-gap); margin: 0; padding: 0; list-style: none; }
+  .traza-card { position: relative; grid-column: span 5; min-width: 0; color: var(--color-foreground); }
+  .traza-card:nth-child(1), .traza-card:nth-child(6) { grid-column: 1 / -1; }
+  .traza-card:nth-child(2), .traza-card:nth-child(4), .traza-card:nth-child(7) { grid-column: 1 / 6; }
+  .traza-card:nth-child(3), .traza-card:nth-child(5), .traza-card:nth-child(8) { grid-column: 8 / 13; }
+  .traza-card__media { aspect-ratio: 1.28; overflow: hidden; background: var(--surface-product); }
+  .traza-card:nth-child(1) .traza-card__media, .traza-card:nth-child(6) .traza-card__media { aspect-ratio: 2.05; }
+  .traza-card__media img { width: 100%; height: 100%; object-fit: cover; transition: transform .55s ease; }
+  .traza-card:hover .traza-card__media img { transform: scale(1.012); }
+  .traza-card__meta { display: grid; grid-template-columns: 1fr auto; gap: 1rem; padding-top: .6rem; font-size: .5rem; line-height: 1.45; }
+  .traza-card__meta h2 { font-size: .56rem; font-weight: 600; text-transform: uppercase; }
+  .traza-card__meta h2 a::after { position: absolute; z-index: 1; inset: 0; content: ''; }
+  .traza-card__meta p { max-width: 38rem; margin-top: .2rem; color: var(--color-muted-foreground); }
+  .traza-card__meta > div:last-child { display: flex; min-width: 7rem; justify-content: space-between; gap: 1rem; }
+  .traza-card__meta strong { font-weight: 500; }
+  .traza-card button { position: absolute; z-index: 2; right: 0; bottom: -2.9rem; min-height: 2.75rem; visibility: hidden; padding: .5rem 0; border: 0; border-bottom: var(--border-width) solid var(--color-foreground); color: var(--color-foreground); background: transparent; font-size: .5rem; cursor: pointer; }
+  .traza-card:hover button, .traza-card:focus-within button { visibility: visible; }
+  .traza-card button:disabled { cursor: not-allowed; opacity: .5; }
+  .traza-card button:focus-visible, .traza-card__meta h2 a:focus-visible { outline: .16rem solid var(--color-foreground); outline-offset: .18rem; }
+  @media (max-width: 720px) {
+    .traza-grid { display: block; }
+    .traza-card { margin-bottom: 5rem; }
+    .traza-card__media, .traza-card:nth-child(1) .traza-card__media, .traza-card:nth-child(6) .traza-card__media { aspect-ratio: 1.15; }
+    .traza-card__meta { grid-template-columns: 1fr; }
+    .traza-card__meta > div:last-child { min-width: 0; }
+  }
+  @media (hover: none), (pointer: coarse) { .traza-card button { visibility: visible; } }
+  @media (prefers-reduced-motion: reduce) { .traza-card__media img { transition: none; } }
+</style>

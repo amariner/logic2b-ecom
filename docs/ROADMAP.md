@@ -870,6 +870,25 @@ como en escritorio (LCP máximo 1,3 s, CLS 0, TBT 0 ms). Ficha completa en
 posición 11 (`445a62400246953e06387477674110e4.jpg`). El carril principal
 conserva R2.11 como cabeza y requiere permiso explícito por su migración D1.
 
+### Línea paralela · tema TRAZA (2026-08-11, sesión local)
+
+Undécimo elemento de `nuevos-temas/cola.json`. TRAZA convierte una referencia
+de portfolio arquitectónico en una tienda de objetos domésticos de autor:
+cabecera microscópica, titular a gran escala, metadatos discretos y una retícula
+asimétrica de doce columnas. Ocho piezas `tra-*` cubren luz, asiento,
+superficie y objeto con un sistema material propio de piedra, madera, piel,
+vidrio y cerámica. `imagegen` falló por red; el fallback Higgsfield ya
+autorizado consumió 70,60 créditos (388,32 → 317,72).
+
+El bloque solo toca kit visual, colección, seed y registros previstos; **no
+cambia pricing, envíos, checkout, pedidos, D1 ni APIs** y no añade dependencias.
+`pnpm check` queda en 58 suites/372 tests, E2E global verde, auditoría a11y 0/0
+en 8 superficies y cinco capturas dentro de presupuesto. Sin despliegue remoto
+todavía. Ficha completa en [`docs/temas/traza.md`](temas/traza.md). La siguiente
+referencia visual es la posición 12
+(`4b7efb74f44f8df500b21c605b7ceff9.jpg`). El carril principal conserva R2.11
+como cabeza y requiere permiso explícito por su migración D1.
+
 ### Pendiente en la Fase 9B
 
 - **Pasada de fidelidad fina** de los 4 temas contra su captura (se re-hospedaron

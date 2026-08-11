@@ -946,6 +946,36 @@ export const demoThemes: DemoTheme[] = [
       annotations: false, darkFooter: false,
     },
   },
+  {
+    id: 'traza',
+    label: 'TRAZA',
+    hint: 'Portfolio habitable: una retícula arquitectónica que convierte cada objeto en proyecto.',
+    reference: { name: 'Referencia de portfolio de arquitectura', file: '24-traza.webp' },
+    sample: null,
+    bestFor: ['Interiorismo', 'Mobiliario de autor', 'Objetos para el hogar'],
+    status: 'ready',
+    vars: {
+      '--color-brand': '#242321',
+      '--color-brand-dark': '#10100f',
+      '--color-brand-fg': '#ffffff',
+      '--font-display': "'Arial Narrow', 'Helvetica Neue', Arial, sans-serif",
+      '--font-accent': SYSTEM_SANS,
+      '--tracking-display': '-0.055em',
+      '--weight-display': '400',
+      '--radius-btn': '0',
+      '--radius-card': '0',
+      '--border-width': '1px',
+      '--surface-product': '#e4e2de',
+      '--surface-sunken': '#d8d6d2',
+      '--space-density': '1',
+      '--grid-gap': '0.75rem',
+    },
+    layout: {
+      gridCols: 3, gridStyle: 'irregular', nav: 'immersive', hero: 'fullbleed',
+      card: 'plain', filters: 'dropdown', density: 'airy',
+      annotations: true, darkFooter: false,
+    },
+  },
   // new-theme:themes — no borrar: `pnpm new:theme <id>` añade aquí el tema si falta.
 ];
 

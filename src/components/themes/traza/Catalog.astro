@@ -1,0 +1,70 @@
+---
+/** TRAZA · catálogo/portfolio arquitectónico de retícula asimétrica. */
+import type { CollectionConfig, StorePaths } from '../../../collections';
+import Filters from './Filters.astro';
+import ProductGrid from './ProductGrid.astro';
+
+type GridProduct = { slug: string; name: string; description: string; price_cents: number; image: string; stock: number; };
+interface Props { paths: StorePaths; products: GridProduct[]; collection: CollectionConfig; category?: string | undefined; sort: string; search?: string | undefined; }
+
+const { paths, products, collection, category, sort, search } = Astro.props;
+const activeLabel = collection.categories.find((item) => item.id === category)?.label;
+const title = search ? `Resultados para «${search}»` : activeLabel ?? 'Colección 01';
+---
+
+<div class="traza">
+  <header class="traza-header">
+    <a class="traza-wordmark" href={paths.catalog}>{collection.name}</a>
+    <div class="traza-contact"><span>ESTUDIO / CASTELLÓN</span><a href="mailto:hola@logic2b.com">HOLA@LOGIC2B.COM</a></div>
+    <nav aria-label="Acciones de TRAZA"><a href="/">L2B</a><a href={paths.cart}>CESTA&nbsp;<span data-cart-count>0</span></a></nav>
+  </header>
+
+  <main>
+    <section class="traza-intro" aria-labelledby="traza-title">
+      <h1 id="traza-title">{collection.tagline}</h1>
+      <div><span>{title}</span><span>{products.length.toString().padStart(2, '0')} PIEZAS</span></div>
+      <a href="#traza-filtros">VER ↓</a>
+    </section>
+
+    <Filters paths={paths} collection={collection} count={products.length} activeCategory={category} sort={sort} search={search} />
+
+    <section class="traza-projects" aria-labelledby="traza-projects-title">
+      <h2 class="sr-only" id="traza-projects-title">{title}</h2>
+      {products.length > 0 ? <ProductGrid paths={paths} products={products} /> : <div class="traza-empty"><p>{search ? `Nada por aquí para «${search}»` : 'No hay piezas en esta selección'}</p><a href={paths.catalog}>Volver a la colección</a></div>}
+    </section>
+  </main>
+
+  <footer class="traza-footer"><p>TRAZA / OBJETOS QUE HACEN LUGAR</p><a href={paths.catalog}>VOLVER ARRIBA ↑</a></footer>
+</div>
+
+<style>
+  .traza { min-height: 100vh; color: var(--color-foreground); background: var(--color-background); font-family: var(--font-accent); }
+  .traza :where(a) { color: inherit; text-decoration: none; }
+  .traza-header { display: grid; min-height: 7.5rem; grid-template-columns: 1fr 1fr 1fr; align-items: start; gap: 1rem; padding: 1.1rem 1.5rem; font-size: .55rem; line-height: 1.35; letter-spacing: .02em; }
+  .traza-wordmark { font-weight: 700; }
+  .traza-contact { display: flex; flex-direction: column; }
+  .traza-header nav { display: flex; justify-content: flex-end; gap: 2rem; }
+  .traza-header a { min-height: 2.75rem; }
+  .traza-header a:hover { text-decoration: underline; text-underline-offset: .2rem; }
+  .traza-intro { display: grid; grid-template-columns: 1fr 1fr auto; align-items: end; gap: 1rem; min-height: 10rem; padding: 1.5rem; }
+  .traza-intro h1 { max-width: 16ch; font: var(--weight-display) clamp(2.1rem, 4vw, 4.25rem)/.92 var(--font-display); letter-spacing: var(--tracking-display); text-transform: uppercase; }
+  .traza-intro div { display: flex; justify-content: space-between; gap: 1rem; padding-bottom: .25rem; font-size: .52rem; }
+  .traza-intro > a { display: inline-flex; min-height: 2.75rem; align-items: flex-end; padding-bottom: .25rem; font-size: .52rem; }
+  .traza-projects { padding: 0 1.5rem 7rem; }
+  .traza-empty { min-height: 30rem; display: grid; place-content: center; gap: 1rem; text-align: center; }
+  .traza-empty p { font: var(--weight-display) 2rem/1 var(--font-display); text-transform: uppercase; }
+  .traza-empty a { min-height: 2.75rem; text-decoration: underline; text-underline-offset: .25rem; }
+  .traza-footer { display: flex; justify-content: space-between; gap: 2rem; padding: 4rem 1.5rem 1.5rem; border-top: var(--border-width) solid var(--color-border); font-size: .55rem; }
+  .traza-footer a { min-height: 2.75rem; }
+  @media (max-width: 720px) {
+    .traza-header { min-height: 5rem; grid-template-columns: 1fr auto; padding: .8rem 1rem; }
+    .traza-contact { display: none; }
+    .traza-header nav a:first-child { display: none; }
+    .traza-intro { grid-template-columns: 1fr auto; min-height: 11rem; padding: 1rem; }
+    .traza-intro h1 { grid-column: 1 / -1; font-size: clamp(2.4rem, 13vw, 4rem); }
+    .traza-intro div { display: block; }
+    .traza-intro div span { display: block; margin-top: .25rem; }
+    .traza-projects { padding: 0 1rem 5rem; }
+    .traza-footer { padding: 3rem 1rem 1rem; }
+  }
+</style>
