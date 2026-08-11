@@ -826,6 +826,9 @@ UIA.1–UIA.4 queda cerrado como un único corte coherente:
    migración, dato PCI, precio ni promesa comercial nueva.
 7. Verificación local: **57 suites, 366 tests**, tipos/build, reset `0001`–`0011`,
    E2E **39/39** y a11y del pedido pagado **2/2** a 1440/375.
+8. Producción: Worker `4a6892cd-6ddc-44e4-b098-57eb276fb1ac`, D1 conserva
+   11 migraciones, 8 pedidos/8 pagos, cero reembolsos/asientos de devolución,
+   cero estados activos y cero errores FK; E2E remoto **39/39** tras propagación.
 
 ## 13. Siguiente bloque
 

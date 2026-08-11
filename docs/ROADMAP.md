@@ -68,7 +68,7 @@ reconciliación se conserva abajo por contexto.
 ## Repo y entornos
 
 - GitHub: `https://github.com/amariner/logic2b-ecom` (rama `main`).
-- Cloudflare: **en producción** — Worker `ecom-logic2b` en https://ecom.logic2b.com, D1 remota `ecom-demo` (`7ae9b06d-3664-4790-a87c-04bb4c67e97a`), cron reset cada 6 h, cuenta marinerandreu@gmail.com. Corte R2.9 del 2026-08-11: versión `08d0e8e3-dbfc-40b2-a277-6028b49e577b`, migraciones `0001`–`0011`, backfill 8 pagos/6 capturas y E2E remoto 38/38; cero revisiones, descuadres o violaciones FK. Conserva la consolidación F12.6 y los temas ya servidos, sin tomar trabajo nuevo del carril visual.
+- Cloudflare: **en producción** — Worker `ecom-logic2b` en https://ecom.logic2b.com, D1 remota `ecom-demo` (`7ae9b06d-3664-4790-a87c-04bb4c67e97a`), cron reset cada 6 h, cuenta marinerandreu@gmail.com. Corte R2.10 del 2026-08-11: versión `4a6892cd-6ddc-44e4-b098-57eb276fb1ac`, migraciones `0001`–`0011`, 8 pagos/6 capturas, cero reembolsos/asientos/estados activos, cero violaciones FK y E2E remoto 39/39. Conserva la consolidación F12.6 y los temas ya servidos, sin tomar trabajo nuevo del carril visual.
 
 ## Fase 13 — Plataforma modular y paridad de capacidad
 
@@ -1913,7 +1913,7 @@ responden 200 tras propagación. Sin migración, dependencia ni cambio de motor.
   revisiones, divisas divergentes, descuadres o violaciones FK. Worker
   `08d0e8e3-dbfc-40b2-a277-6028b49e577b`; E2E de producción 38/38.
 
-### R2.10 · Reembolso total — cerrado localmente 2026-08-11
+### R2.10 · Reembolso total — cerrado en producción 2026-08-11
 
 - El panel avanzado confirma motivo y reposición; el servidor calcula importe y
   líneas, persiste la intención antes de llamar al PSP y usa una clave estable.
@@ -1924,12 +1924,15 @@ responden 200 tras propagación. Sin migración, dependencia ni cambio de motor.
   incompatibles sin eventos fantasma.
 - La demo pública conserva lectura y rechaza la mutación. Verificación: 57
   suites/366 tests, build, reset 0001–0011, E2E 39/39 y a11y 2/2.
+- Producción: Worker `4a6892cd-6ddc-44e4-b098-57eb276fb1ac`; D1 mantiene
+  8 pagos/6 capturas, cero reembolsos/asientos/estados activos y cero errores FK.
+  E2E remoto 39/39 tras la propagación inicial del borde.
 
 ### Siguiente bloque
 
-**Ruta continua del desarrollo principal.** R2.10 queda cerrado en código y
-verificación local, sin migración ni dependencia. Tras su integración y rollout,
-el siguiente bloque es **R2.11 · Fulfillment por líneas**. Desde ahí
+**Ruta continua del desarrollo principal.** R2.10 queda cerrado en producción,
+sin migración ni dependencia nueva. El siguiente bloque es
+**R2.11 · Fulfillment por líneas**. Desde ahí
 continúa el orden R2–R11 y los
 carriles transversales de UI, calidad y verdad comercial definidos en
 [`docs/RUTA_DESARROLLO_CONTINUO.md`](RUTA_DESARROLLO_CONTINUO.md). Esta rama no

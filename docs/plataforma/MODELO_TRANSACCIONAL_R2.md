@@ -477,3 +477,8 @@ por webhook queda fuera de este corte. La demo pública permite inspeccionar el
 estado pero responde 403 a la mutación. Evidencia local: 57 suites/366 tests,
 E2E 39/39 y a11y 2/2; el procedimiento está en
 `OPERACION_REEMBOLSOS.md`.
+
+El rollout no requiere migración ni backfill adicional. Producción sirve Worker
+`4a6892cd-6ddc-44e4-b098-57eb276fb1ac`; la lectura posterior conserva 11
+migraciones, 8 pedidos/8 pagos, cero reembolsos, asientos de devolución o estados
+activos y cero errores FK. El E2E remoto queda en 39/39.
