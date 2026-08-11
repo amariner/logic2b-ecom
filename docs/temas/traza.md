@@ -79,4 +79,7 @@ runtime.
 - ✅ E2E global: aislamiento de demos, admin, backup y pagos en verde.
 - ✅ Capturas: catálogo 129 KB, móvil 27 KB, ficha 23 KB y miniaturas
   26/99 KB.
-- ⬜ Producción, smoke y Lighthouse remoto.
+- ✅ Producción: Worker `524724c0-ba13-4666-9eec-c77f44f126d7`; smoke 200
+  en tienda, asset principal, portada y `/temas`.
+- ✅ Lighthouse remoto (mediana de 3): portada y `/temas`, móvil y
+  escritorio, **100/100/100/100**; LCP máximo 1,5 s, CLS 0 y TBT 0 ms.

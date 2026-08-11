@@ -883,9 +883,14 @@ autorizado consumió 70,60 créditos (388,32 → 317,72).
 El bloque solo toca kit visual, colección, seed y registros previstos; **no
 cambia pricing, envíos, checkout, pedidos, D1 ni APIs** y no añade dependencias.
 `pnpm check` queda en 58 suites/372 tests, E2E global verde, auditoría a11y 0/0
-en 8 superficies y cinco capturas dentro de presupuesto. Sin despliegue remoto
-todavía. Ficha completa en [`docs/temas/traza.md`](temas/traza.md). La siguiente
-referencia visual es la posición 12
+en 8 superficies y cinco capturas dentro de presupuesto. Integrado en `main`
+como `c47e2ce` y desplegado el 2026-08-11 en el Worker
+`524724c0-ba13-4666-9eec-c77f44f126d7`; smoke remoto 200 en tienda, asset
+principal, portada y `/temas`. Lighthouse remoto, mediana de tres pasadas,
+queda en **100/100/100/100** para portada y `/temas`, tanto en móvil como en
+escritorio (LCP máximo 1,5 s, CLS 0, TBT 0 ms). Ficha completa en
+[`docs/temas/traza.md`](temas/traza.md). La siguiente referencia visual es la
+posición 12
 (`4b7efb74f44f8df500b21c605b7ceff9.jpg`). El carril principal conserva R2.11
 como cabeza y requiere permiso explícito por su migración D1.
 
