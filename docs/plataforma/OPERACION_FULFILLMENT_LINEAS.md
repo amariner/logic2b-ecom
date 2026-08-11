@@ -73,3 +73,12 @@ evidencia canónica y se corrige mediante una apertura nueva; nunca se reescribe
 el histórico ni se satura una cantidad.
 
 La eliminación del espejo queda prohibida hasta R2.14.
+
+## Corte productivo del 2026-08-11
+
+El preflight sobre un export remoto de 469.172 bytes produjo 4 grupos y 7
+asignaciones con replay/restore coherentes. Se aplicó `0012`, se ejecutó el
+backfill y la lectura posterior confirmó los mismos recuentos y cero errores FK.
+El Worker `6663a123-012f-4507-b120-384750876809` quedó servido en
+`ecom.logic2b.com`; E2E remoto pasó 42/42 y las seis superficies de pedido
+pasaron la auditoría a11y. La propuesta `0013` no se materializó ni se aplicó.

@@ -125,5 +125,5 @@ corte de lector requieren su propia autorización operativa.
 - la suma por línea sigue siendo una guarda transaccional de aplicación porque
   SQLite no admite `CHECK` con agregados entre filas;
 - R2.11 materializa migración, seed y backup; R2.12 completa runtime y panel
-  parcial sin DDL nuevo. Producción conserva `0011` hasta una autorización
-  operativa separada.
+  parcial sin DDL nuevo. El corte operativo del 2026-08-11 aplicó `0012`, su
+  backfill y el Worker R2.12; la propuesta `0013` permanece fuera de producción.

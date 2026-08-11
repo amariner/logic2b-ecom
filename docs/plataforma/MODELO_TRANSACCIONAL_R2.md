@@ -492,11 +492,12 @@ guarda PII, dinero, SKU ni respuestas de transportista. Las columnas
 `orders.status` y `orders.tracking_*` permanecen como espejo hasta R2.14.
 
 El backfill crea un grupo estable por pedido `shipped|delivered`, deriva sus
-fechas del timeline y asigna `order_items.qty` completo. El rehearsal sobre una
-exportación local de 475.195 bytes produjo 4 grupos y 7 asignaciones; replay y
-dump/restore conservaron los hashes legacy y canónico, integridad y cero FKs.
-La D1 local autorizada quedó en `0012` con los mismos recuentos. Producción no se
-migró ni se desplegó.
+fechas del timeline y asigna `order_items.qty` completo. El rehearsal inicial
+sobre una exportación local de 475.195 bytes produjo 4 grupos y 7 asignaciones;
+replay y dump/restore conservaron los hashes legacy y canónico, integridad y
+cero FKs. El preflight productivo posterior repitió el ensayo sobre un export de
+469.172 bytes y el corte dejó D1 en `0012` con 4 grupos, 7 asignaciones y cero
+errores FK.
 
 La transición administrativa total calcula cantidades pendientes en servidor.
 Grupo, líneas, evento, auditoría, outbox, timeline y espejo se guardan en una
@@ -505,6 +506,11 @@ esperada. Seed y backup esquema 6 conservan la evidencia, y el panel usa el
 tracking canónico con fallback legacy. Evidencia: 59 suites/381 tests, build,
 E2E 39/39 y a11y del pedido enviado 2/2 a 1440/375. La operación coordinada y
 el rollback están en `OPERACION_FULFILLMENT_LINEAS.md`.
+
+R2.12 quedó servido en producción con Worker
+`6663a123-012f-4507-b120-384750876809`. El E2E remoto pasó 42/42 y las seis
+superficies de pedido pasaron la auditoría a11y; `0013` no se materializó ni se
+aplicó.
 
 ## 19. Evidencia de R2.12
 

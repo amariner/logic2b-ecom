@@ -848,8 +848,9 @@ UIA.1–UIA.4 queda cerrado como un único corte coherente:
 4. Seed y backup esquema 6 conservan fulfillment. El panel lee tracking y
    cantidades del grupo canónico con fallback legacy; la demo continúa inerte.
 5. Verificación: 59 suites/381 tests, tipos y build, E2E 39/39 y a11y 2/2 a
-   1440/375. Sin dependencia, coste, superficie PCI ni despliegue remoto.
-6. Producción permanece en D1 `0011` y Worker R2.10 hasta autorización separada.
+   1440/375. Sin dependencia, coste ni superficie PCI nueva.
+6. El corte coordinado posterior de R2.12 aplicó D1 `0012` y el backfill remoto:
+   4 grupos, 7 asignaciones y cero errores FK.
 
 ### R2.12 — Fulfillment parcial — ✅ 2026-08-11
 
@@ -868,9 +869,11 @@ UIA.1–UIA.4 queda cerrado como un único corte coherente:
    demo enseña la evidencia pero ambas APIs responden 403.
 5. Para no reponer unidades físicamente enviadas, el reembolso total queda
    bloqueado tras cualquier grupo activo; R2.13 incorpora el cálculo parcial.
-6. Verificación: 61 suites/391 tests, tipos/build, E2E 42/42 y seis superficies
-   de pedido a 1440/375 sin errores ni avisos. Sin esquema, dependencia, coste,
-   superficie PCI ni despliegue remoto nuevos.
+6. Verificación local: 61 suites/391 tests, tipos/build, E2E 42/42 y seis
+   superficies de pedido a 1440/375 sin errores ni avisos. El corte productivo
+   sirve Worker `6663a123-012f-4507-b120-384750876809`, D1 `0012`, E2E remoto
+   42/42 y a11y 6/6. Sin esquema, dependencia, coste ni superficie PCI nuevos;
+   la propuesta `0013` no se aplicó.
 
 ### R2.13 — Cancelación/reembolso parcial
 

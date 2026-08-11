@@ -67,7 +67,7 @@ venta o servicios logísticos propios.
   sondeos remotos todavía pendientes.
 - [`wiki/nucleo-transaccional-ecommerce.md`](wiki/nucleo-transaccional-ecommerce.md):
   borrador interno actualizado en R2.12; variantes, ledgers y fulfillment
-  parcial tienen evidencia local, pero el corte remoto y R2.13 siguen fuera.
+  parcial tienen evidencia local/remota, pero R2.13 sigue fuera.
 - [`adr/0011-jobs-duraderos-d1.md`](adr/0011-jobs-duraderos-d1.md): contrato
   R1.11 de identidad, lock, timeout, retry, dead-letter y replay sobre D1.
 - [`adr/0012-modelo-transaccional-r2.md`](adr/0012-modelo-transaccional-r2.md):

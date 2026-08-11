@@ -68,7 +68,7 @@ reconciliación se conserva abajo por contexto.
 ## Repo y entornos
 
 - GitHub: `https://github.com/amariner/logic2b-ecom` (rama `main`).
-- Cloudflare: **en producción** — Worker `ecom-logic2b` en https://ecom.logic2b.com, D1 remota `ecom-demo` (`7ae9b06d-3664-4790-a87c-04bb4c67e97a`), cron reset cada 6 h, cuenta marinerandreu@gmail.com. Corte R2.10 del 2026-08-11: versión `4a6892cd-6ddc-44e4-b098-57eb276fb1ac`, migraciones `0001`–`0011`, 8 pagos/6 capturas, cero reembolsos/asientos/estados activos, cero violaciones FK y E2E remoto 39/39. Conserva la consolidación F12.6 y los temas ya servidos, sin tomar trabajo nuevo del carril visual.
+- Cloudflare: **en producción** — Worker `ecom-logic2b` en https://ecom.logic2b.com, D1 remota `ecom-demo` (`7ae9b06d-3664-4790-a87c-04bb4c67e97a`), cron reset cada 6 h, cuenta marinerandreu@gmail.com. Corte R2.12 del 2026-08-11: versión `6663a123-012f-4507-b120-384750876809`, migraciones `0001`–`0012`, backfill de 4 grupos/7 asignaciones, cero violaciones FK, E2E remoto 42/42 y a11y 6/6. La propuesta `0013` no está materializada ni aplicada. Conserva la consolidación F12.6 y los temas ya servidos, sin tomar trabajo nuevo del carril visual.
 
 ## Fase 13 — Plataforma modular y paridad de capacidad
 
@@ -128,8 +128,8 @@ sus verificaciones ni sus puntos de reanudación.
 | R2.8 | Reservas y expiración | ✅ 2026-08-10 — 350 tests, carrera/TTL/job y E2E 37/37; `INV-004` apagada y sin deploy |
 | R2.9 | Ledger de pagos, backfill y captura transaccional | ✅ 2026-08-11 — 358 tests, D1 `0011`, Worker `08d0e8e3…` y E2E remoto 38/38 |
 | R2.10 | Reembolso total idempotente de extremo a extremo | ✅ 2026-08-11 — 366 tests, E2E 39/39 y a11y 2/2; sin migración |
-| R2.11 | Fulfillment por líneas, backfill, doble escritura y backup | ✅ 2026-08-11 — 381 tests, E2E 39/39, a11y 2/2; D1 local `0012`, sin deploy |
-| R2.12 | Fulfillment parcial, múltiples trackings y estado derivado | ✅ 2026-08-11 — 391 tests, E2E 42/42, a11y 6/6; sin migración/deploy |
+| R2.11 | Fulfillment por líneas, backfill, doble escritura y backup | ✅ 2026-08-11 — 381 tests, D1 `0012`, backfill remoto 4/7 y cero FKs |
+| R2.12 | Fulfillment parcial, múltiples trackings y estado derivado | ✅ 2026-08-11 — 391 tests; Worker `6663a123…`, E2E remoto 42/42 y a11y 6/6 |
 | R2.13+ | Cancelación/reembolso parcial y resto de olas | ⬜ siguiente: cancelación/reembolso parcial |
 
 ## Fase 12 — Logic2B Ecommerce: renombrado, reposicionamiento y las dos visiones
@@ -2000,30 +2000,31 @@ responden 200 tras propagación. Sin migración, dependencia ni cambio de motor.
 ### Siguiente bloque
 
 **Ruta continua del desarrollo principal.** R2.12 queda cerrado en repositorio
-y D1 local, sin dependencia nueva y sin tocar producción. El siguiente bloque
+y producción, sin dependencia nueva. El siguiente bloque
 es **R2.13 · Cancelación/reembolso parcial**. Desde ahí continúa el orden R2–R11 y los
 carriles transversales de UI, calidad y verdad comercial definidos en
 [`docs/RUTA_DESARROLLO_CONTINUO.md`](RUTA_DESARROLLO_CONTINUO.md). Esta rama no
 toma generación de temas por decisión de Andreu: el carril visual continúa en otro
 canal/worktree.
 
-**R2.11 cerrado localmente (2026-08-11).** La autorización materializa
+**R2.11 cerrado (2026-08-11).** La autorización materializa
 `0012_fulfillment_lines.sql`; el rehearsal sobre el export local produce 4
 grupos y 7 asignaciones, conserva hashes en replay/restore y deja 0 FKs. El
 runtime escribe envío/entrega, cantidades, evento, auditoría, outbox, timeline
 y espejo en una batch; la carrera crea un solo grupo. Seed, backup esquema 6 y
 panel leen el contrato canónico. Verificación: 59 suites/381 tests, build, E2E
-39/39 y a11y 2/2. Producción sigue en `0011`/Worker R2.10: migración remota y
-deploy necesitan autorización separada.
+39/39 y a11y 2/2. El corte posterior R2.12 aplicó `0012` y su backfill remoto.
 
-**R2.12 cerrado localmente (2026-08-11).** El ledger `0012` admite selección
+**R2.12 cerrado y desplegado (2026-08-11).** El ledger `0012` admite selección
 por cantidades y varios grupos sin esquema nuevo. Cada salida guarda evento,
 auditoría y aviso limitado a sus unidades; la última cantidad deriva
 `orders.status=shipped` y la entrega global espera a todos los grupos. El panel
 muestra progreso por línea, trackings canónicos y una acción rápida para todo
 lo pendiente. Replay y carreras no duplican grupo, línea ni email; el reembolso
 total se bloquea tras cualquier salida hasta R2.13. Verificación: 61 suites/391
-tests, build, E2E 42/42 y a11y 6/6. Producción permanece sin cambios.
+tests, build, E2E 42/42 y a11y 6/6. Corte productivo: Worker
+`6663a123-012f-4507-b120-384750876809`, D1 `0012`, 4 grupos/7 asignaciones,
+cero violaciones FK, E2E remoto 42/42 y a11y 6/6. `0013` no se aplicó.
 
 **R2.13 diseñado; puerta pendiente (2026-08-11).** ADR-0016 y el SQL propuesto
 `0013_partial_refund_guards` añaden, sin tocar D1, el tipo de operación y la
