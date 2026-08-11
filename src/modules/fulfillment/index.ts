@@ -18,6 +18,13 @@ export type {
   FulfillmentStatus,
   FulfillmentTracking,
 } from './domain/fulfillment';
+export { fulfillmentBackfillSql } from './infrastructure/fulfillment-backfill';
+export { createD1FulfillmentLedger } from './infrastructure/d1-fulfillment-ledger';
+export type {
+  D1FulfillmentLedger,
+  FulfillmentRecord,
+  ShipmentWriteInput,
+} from './infrastructure/d1-fulfillment-ledger';
 
 export const createFulfillmentAdmin = (db: D1Database) =>
   createFulfillmentAdminService(createD1FulfillmentAdminRepository(db));

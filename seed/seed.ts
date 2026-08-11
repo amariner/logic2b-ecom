@@ -242,6 +242,8 @@ export function seedStatements(): string[] {
     'DELETE FROM refunds',
     'DELETE FROM payment_transactions',
     'DELETE FROM payments',
+    'DELETE FROM fulfillment_items',
+    'DELETE FROM fulfillments',
     'DELETE FROM order_items',
     'DELETE FROM inventory_reservation_balance_events',
     'DELETE FROM inventory_reservation_events',

@@ -1,6 +1,6 @@
 import { DatabaseSync } from 'node:sqlite';
 import { describe, expect, it } from 'vitest';
-import schema from '../docs/plataforma/sql/0012_fulfillment_lines.proposed.sql?raw';
+import schema from '../migrations/0012_fulfillment_lines.sql?raw';
 import {
   canTransitionFulfillment,
   normalizeFulfillmentIdempotencyKey,
@@ -8,6 +8,7 @@ import {
   planOutstandingFulfillment,
   remainingFulfillableQuantity,
   trackingRequiredForFulfillment,
+  fulfillmentBackfillSql,
 } from '../src/modules/fulfillment';
 
 const NOW = '2026-08-11T12:00:00.000Z';
@@ -16,14 +17,28 @@ function database(): DatabaseSync {
   const db = new DatabaseSync(':memory:');
   db.exec(`
     PRAGMA foreign_keys = ON;
-    CREATE TABLE orders (id INTEGER PRIMARY KEY);
+    CREATE TABLE orders (
+      id INTEGER PRIMARY KEY,
+      status TEXT NOT NULL,
+      tracking_carrier TEXT,
+      tracking_number TEXT
+    );
     CREATE TABLE order_items (
       id INTEGER PRIMARY KEY,
       order_id INTEGER NOT NULL REFERENCES orders(id) ON DELETE CASCADE,
       qty INTEGER NOT NULL CHECK (qty > 0)
     );
-    INSERT INTO orders (id) VALUES (1), (2);
+    CREATE TABLE order_events (
+      id INTEGER PRIMARY KEY,
+      order_id INTEGER NOT NULL REFERENCES orders(id),
+      to_status TEXT NOT NULL,
+      created_at TEXT NOT NULL
+    );
+    INSERT INTO orders (id, status, tracking_carrier, tracking_number)
+    VALUES (1, 'shipped', 'SEUR', 'ES123'), (2, 'paid', NULL, NULL);
     INSERT INTO order_items (id, order_id, qty) VALUES (10, 1, 2), (20, 2, 1);
+    INSERT INTO order_events (id, order_id, to_status, created_at)
+    VALUES (1, 1, 'shipped', '${NOW}');
   `);
   db.exec(schema);
   return db;
@@ -40,9 +55,9 @@ function insertShipped(db: DatabaseSync, idempotencyKey = 'fulfillment:event:evt
 }
 
 describe('diseño de fulfillment por líneas R2.11', () => {
-  it('mantiene el DDL fuera de migrations y crea solo las tablas e índices previstos', () => {
+  it('materializa el DDL aprobado y crea solo las tablas e índices previstos', () => {
     const db = database();
-    expect(schema).toContain('PROPUESTA R2.11. NO ES UNA MIGRACION APLICABLE');
+    expect(schema).toContain('Fulfillment por lineas (R2.11; ADR-0015)');
     expect(db.prepare(`SELECT name FROM sqlite_schema
       WHERE type='table' AND name LIKE 'fulfillment%' ORDER BY name`).all()).toEqual([
       { name: 'fulfillment_items' },
@@ -54,6 +69,32 @@ describe('diseño de fulfillment por líneas R2.11', () => {
       { name: 'idx_fulfillments_operation' },
       { name: 'idx_fulfillments_order' },
     ]);
+  });
+
+  it('migra el envío total legacy de forma determinista e idempotente', () => {
+    const db = database();
+    const backfill = fulfillmentBackfillSql();
+    db.exec(backfill);
+    expect(db.prepare(`
+      SELECT order_id, status, carrier, tracking_number, idempotency_key,
+             shipped_at, delivered_at
+      FROM fulfillments ORDER BY order_id
+    `).all()).toEqual([{
+      order_id: 1,
+      status: 'shipped',
+      carrier: 'SEUR',
+      tracking_number: 'ES123',
+      idempotency_key: 'r2:fulfillment:legacy:order:1',
+      shipped_at: NOW,
+      delivered_at: null,
+    }]);
+    expect(db.prepare(`
+      SELECT order_id, order_item_id, quantity FROM fulfillment_items
+    `).all()).toEqual([{ order_id: 1, order_item_id: 10, quantity: 2 }]);
+    db.exec(backfill);
+    expect(db.prepare('SELECT count(*) AS value FROM fulfillments').get()).toEqual({ value: 1 });
+    expect(db.prepare('SELECT count(*) AS value FROM fulfillment_items').get()).toEqual({ value: 1 });
+    expect(db.prepare('PRAGMA foreign_key_check').all()).toEqual([]);
   });
 
   it('asigna todas las cantidades netas pendientes sin exceder ninguna línea', () => {

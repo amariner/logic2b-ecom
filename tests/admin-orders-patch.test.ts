@@ -108,5 +108,61 @@ describe('PATCH /api/admin/orders/:id con outbox transaccional', () => {
     expect(db.value('SELECT count(*) AS value FROM emails_outbox')).toBe(1);
     expect(db.value("SELECT count(*) AS value FROM event_outbox_deliveries WHERE status='delivered'")).toBe(1);
     expect(db.value('SELECT stock AS value FROM products WHERE id=1')).toBe(8);
+    expect(db.query(`
+      SELECT status, carrier, tracking_number, version
+      FROM fulfillments WHERE order_id = 7
+    `)).toEqual([{ status: 'shipped', carrier: 'SEUR', tracking_number: 'ES123', version: 1 }]);
+    expect(db.query(`
+      SELECT fi.quantity
+      FROM fulfillment_items fi JOIN fulfillments f ON f.id = fi.fulfillment_id
+      WHERE f.order_id = 7
+    `)).toEqual([{ quantity: 2 }]);
+  });
+
+  it('dos envíos solapados crean un solo grupo y una sola asignación', async () => {
+    const db = new SqliteD1();
+    seedOrder(db);
+    const waits: Promise<unknown>[] = [];
+    const body = {
+      status: 'shipped',
+      tracking_carrier: 'SEUR',
+      tracking_number: 'ES123',
+    };
+    const responses = await Promise.all([
+      PATCH(makeCtx(db, body, waits)),
+      PATCH(makeCtx(db, body, waits)),
+    ]);
+    await Promise.all(waits);
+    expect(responses.map((response) => response.status).sort()).toEqual([200, 409]);
+    expect(db.value('SELECT count(*) AS value FROM fulfillments WHERE order_id=7')).toBe(1);
+    expect(db.value('SELECT count(*) AS value FROM fulfillment_items WHERE order_id=7')).toBe(1);
+    expect(db.value('SELECT sum(quantity) AS value FROM fulfillment_items WHERE order_id=7')).toBe(2);
+    expect(db.value("SELECT count(*) AS value FROM event_outbox_events WHERE event_type='orders.order_shipped'")).toBe(1);
+  });
+
+  it('shipped → delivered avanza el grupo canónico y el espejo una sola vez', async () => {
+    const db = new SqliteD1();
+    seedOrder(db);
+    const waits: Promise<unknown>[] = [];
+    const shipped = await PATCH(makeCtx(db, {
+      status: 'shipped',
+      tracking_carrier: 'SEUR',
+      tracking_number: 'ES123',
+    }, waits));
+    expect(shipped.status).toBe(200);
+    const delivered = await PATCH(makeCtx(db, { status: 'delivered' }, waits));
+    await Promise.all(waits);
+    expect(delivered.status).toBe(200);
+    expect(db.query(`
+      SELECT status, carrier, tracking_number, version,
+             shipped_at IS NOT NULL AS has_shipped_at,
+             delivered_at IS NOT NULL AS has_delivered_at
+      FROM fulfillments WHERE order_id = 7
+    `)).toEqual([{
+      status: 'delivered', carrier: 'SEUR', tracking_number: 'ES123', version: 2,
+      has_shipped_at: 1, has_delivered_at: 1,
+    }]);
+    expect(db.query('SELECT status, tracking_carrier, tracking_number FROM orders WHERE id=7'))
+      .toEqual([{ status: 'delivered', tracking_carrier: 'SEUR', tracking_number: 'ES123' }]);
   });
 });

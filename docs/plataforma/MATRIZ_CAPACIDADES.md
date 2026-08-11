@@ -138,7 +138,7 @@ su alcance requiera.
 | ID | Capacidad | Vía | Prioridad | Estado | Resultado objetivo |
 |---|---|---|---|---|---|
 | FUL-001 | Tarifas planas por zona | núcleo | P0 | actual | Cálculo servidor y umbral gratuito. |
-| FUL-002 | Tracking y aviso de envío | núcleo | P0 | actual | Transportista/número y email transaccional. |
+| FUL-002 | Tracking y aviso de envío | núcleo | P0 | actual | Un grupo canónico asigna todas las líneas, conserva tracking y proyecta pedido/email. |
 | FUL-003 | Exportación logística CSV | conector | P1 | actual | Puente manual a operadores compatibles. |
 | FUL-004 | Preparación parcial | módulo | P1 | especificado | Fulfillment por cantidades cuya suma nunca supera la línea neta. |
 | FUL-005 | Múltiples envíos por pedido | módulo | P1 | especificado | Cada grupo posee estado, tracking e idempotencia; el pedido solo proyecta el resumen. |

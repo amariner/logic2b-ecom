@@ -91,6 +91,12 @@ venta o servicios logísticos propios.
   backfill por moneda, corte coordinado, rollback y recuperación R2.9.
 - [`OPERACION_REEMBOLSOS.md`](OPERACION_REEMBOLSOS.md): contrato operativo,
   estados, retry/reconciliación y separación dinero-stock de R2.10.
+- [`../../migrations/0012_fulfillment_lines.sql`](../../migrations/0012_fulfillment_lines.sql):
+  esquema aditivo R2.11 de grupos y cantidades por línea.
+- [`OPERACION_FULFILLMENT_LINEAS.md`](OPERACION_FULFILLMENT_LINEAS.md):
+  preflight, backfill, replay, restore, corte y rollback de R2.11.
+- [`../../scripts/rehearse-r2-fulfillment-lines.mjs`](../../scripts/rehearse-r2-fulfillment-lines.mjs):
+  rehearsal aislado que compara hashes legacy y canónico sin imprimir PII.
 - [`../../src/modules/payments/`](../../src/modules/payments/): contrato puro y
   adaptador D1 de intención, captura, cancelación financiera y reembolso total.
 - [`../../src/modules/inventory/domain/inventory-ledger.ts`](../../src/modules/inventory/domain/inventory-ledger.ts):

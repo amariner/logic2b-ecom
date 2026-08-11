@@ -1,6 +1,6 @@
 # ADR-0015 — Fulfillment por líneas y transición del envío total
 
-- Estado: **propuesto; pendiente de puerta de esquema R2.11**
+- Estado: **aceptado e implementado localmente en R2.11**
 - Fecha: 2026-08-11
 - Mandato: R2.11
 
@@ -13,15 +13,14 @@ estado del pedido en la única evidencia logística. R2.11 debe introducir la
 primitiva por líneas sin adelantar todavía la operación parcial de R2.12 ni las
 ubicaciones de R3.6.
 
-ADR-0012 ya aceptó el destino y exige una puerta separada para su SQL. Este ADR
-y el DDL propuesto hacen esa puerta revisable y ejecutable, pero no crean una
-migración ni autorizan tocar D1 local o remota.
+ADR-0012 ya aceptó el destino y exigió una puerta separada para su SQL. Andreu
+aprobó esa puerta el 2026-08-11: el esquema se materializó y ensayó localmente;
+la aplicación remota y el despliegue continúan sujetos a autorización propia.
 
 ## Decisión
 
-El candidato exacto vive en
-[`../sql/0012_fulfillment_lines.proposed.sql`](../sql/0012_fulfillment_lines.proposed.sql),
-fuera de `migrations/` hasta aprobación explícita:
+El esquema aceptado vive en
+[`../../../migrations/0012_fulfillment_lines.sql`](../../../migrations/0012_fulfillment_lines.sql):
 
 1. `fulfillments` representa un grupo operativo de un pedido, con estado,
    tracking, timestamps, versión y clave idempotente;
@@ -125,5 +124,5 @@ corte de lector requieren su propia autorización operativa.
   impedir asociaciones cruzadas de pedido;
 - la suma por línea sigue siendo una guarda transaccional de aplicación porque
   SQLite no admite `CHECK` con agregados entre filas;
-- este corte solo prepara la puerta: no modifica `migrations/`, seed, runtime,
-  backup ni D1.
+- R2.11 materializa migración, seed, runtime, backup y lectura administrativa;
+  producción conserva `0011` hasta una autorización operativa separada.

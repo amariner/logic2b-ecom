@@ -39,7 +39,7 @@ improvisan durante la implementación.
 |---|---|---|
 | R0 | Investigación, taxonomía, matriz, roadmap y estrategia wiki | ✅ cerrado 2026-08-06 |
 | R1 | Cimientos modulares y observables | ✅ cerrado 2026-08-07 |
-| R2 | Núcleo transaccional profesional | 🟡 R2.1–R2.10 y Admin V2 cerrados; siguiente R2.11 |
+| R2 | Núcleo transaccional profesional | 🟡 R2.1–R2.11 y Admin V2 cerrados; siguiente R2.12 |
 | R3 | Operación de pedidos, inventario y fulfillment | ⬜ |
 | R4 | Precios, promociones y modelos de venta | ⬜ |
 | R5 | Clientes, privacidad y mercados | ⬜ |
@@ -97,7 +97,7 @@ Cada migración se diseña y ensaya sobre una copia antes de tocar el esquema vi
 | 20 | **R2.8 Reservas y expiración** | Reserva opcional por carrito/checkout, TTL, liberación, captura y carrera última unidad; feature apagada por defecto. | ✅ 2026-08-10 |
 | 21 | **R2.9 Ledger de pagos** | Payment/transaction/refund con proveedor, moneda, importe, status e idempotencia; pedido no usa un único string como contabilidad. | ✅ 2026-08-11 |
 | 22 | **R2.10 Reembolso total** | Acción admin → proveedor → ledger → evento → email → stock según política; retry seguro y estado visible. | ✅ 2026-08-11 |
-| 23 | **R2.11 Fulfillment por líneas** | Fulfillment y fulfillment_items; envío total actual se convierte en un caso simple. | ⬜ |
+| 23 | **R2.11 Fulfillment por líneas** | Fulfillment y fulfillment_items; envío total actual se convierte en un caso simple. | ✅ 2026-08-11 |
 | 24 | **R2.12 Fulfillment parcial** | Cantidades parciales, múltiples trackings, email por envío y estados derivados sin perder histórico. | ⬜ |
 | 25 | **R2.13 Cancelación/reembolso parcial** | Selección por cantidad, cálculo servidor, descuento/restitución correcta y pruebas de redondeo/concurrencia. | ⬜ |
 | 26 | **R2.14 Consolidación R2** | E2E producto con variantes → reserva → pago → dos envíos → reembolso parcial; carga/concurrencia; guía de migración. | ⬜ |
@@ -832,19 +832,28 @@ UIA.1–UIA.4 queda cerrado como un único corte coherente:
 
 ## 13. Siguiente bloque
 
-### R2.11 — Fulfillment por líneas
+### R2.11 — Fulfillment por líneas — ✅ 2026-08-11
 
-Crear `fulfillments` y `fulfillment_items`, migrar el envío total actual como
-caso simple, conservar temporalmente el tracking legacy y probar cantidades,
-replay, restore y proyección de estado antes del corte.
+1. `0012_fulfillment_lines.sql` materializa grupos y asignaciones con FKs
+   compuestas, estado/tracking coherentes, versión e idempotencia; no elimina
+   columnas legacy.
+2. El backfill bloquea historia incompleta, deriva timestamps del timeline y
+   migra cada envío total a un grupo estable. Replay, dump y restore mantienen
+   hashes legacy/canónico idénticos: 4 grupos, 7 asignaciones y 0 errores FK en
+   la D1 local autorizada.
+3. `paid → shipped` calcula todas las cantidades pendientes en servidor y
+   confirma grupo, líneas, evento, auditoría, outbox, timeline y espejo en una
+   batch. Dos solicitudes solapadas crean un solo grupo. `shipped → delivered`
+   avanza la misma evidencia con versión esperada.
+4. Seed y backup esquema 6 conservan fulfillment. El panel lee tracking y
+   cantidades del grupo canónico con fallback legacy; la demo continúa inerte.
+5. Verificación: 59 suites/381 tests, tipos y build, E2E 39/39 y a11y 2/2 a
+   1440/375. Sin dependencia, coste, superficie PCI ni despliegue remoto.
+6. Producción permanece en D1 `0011` y Worker R2.10 hasta autorización separada.
 
-**Preparación de puerta — 2026-08-11.** ADR-0015 fija estados, cantidades,
-idempotencia, escritura dual, backfill, rollout y rollback. El DDL exacto
-permanece deliberadamente en
-`docs/plataforma/sql/0012_fulfillment_lines.proposed.sql`, fuera de
-`migrations/`: dos FKs compuestas impiden asociar líneas de otro pedido y el
-dominio calcula únicamente cantidades netas pendientes. Seis pruebas nuevas
-ejecutan el esquema aislado y cubren constraints, replay estructural,
-transiciones, tracking y sobreasignación. `pnpm check`: 58 suites/372 tests,
-tipos y build en verde. No se tocó D1, seed, backup, runtime ni UI. La puerta
-explícita de migración continúa pendiente antes de materializar `0012`.
+### R2.12 — Fulfillment parcial
+
+Extender el contrato ya migrado con selección por cantidades, varios grupos y
+trackings, emails por envío y estado global derivado. No añadir tablas ni
+duplicar el formulario total: la UI debe explicar pendiente/enviado por línea y
+conservar el caso simple como acción rápida.

@@ -280,8 +280,9 @@ Después del panel V2, continuar el orden exacto:
 5. **R2.10 — Reembolso total — ✅ 2026-08-11.** Confirmación admin, adaptador
    PSP, intención durable previa, ledger/evento/auditoría/email y reposición
    opcional; retry concurrente seguro y demo pública inerte.
-6. **R2.11 — Fulfillment por líneas.** El envío total actual pasa a ser el caso
-   simple del modelo nuevo.
+6. **R2.11 — Fulfillment por líneas — ✅ 2026-08-11.** Migración/backfill,
+   grupos y cantidades atómicos, espejo legacy, backup/restore y lectura
+   administrativa; D1 local aplicada, sin deploy remoto.
 7. **R2.12 — Fulfillment parcial.** Cantidades, múltiples trackings, emails y
    estados derivados.
 8. **R2.13 — Cancelación/reembolso parcial.** Selección por cantidad, dinero y

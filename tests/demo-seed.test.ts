@@ -96,6 +96,14 @@ describe('generación de SQL del seed de demo', () => {
       demoOrderFixtures.filter((order) => order.timeline.some((step) => step.to === 'paid')).length,
     );
     expect(count('order_items')).toBe(totalLines);
+    expect(count('fulfillments')).toBe(
+      demoOrderFixtures.filter((order) => order.timeline.some((step) => step.to === 'shipped')).length,
+    );
+    expect(count('fulfillment_items')).toBe(
+      demoOrderFixtures
+        .filter((order) => order.timeline.some((step) => step.to === 'shipped'))
+        .reduce((sum, order) => sum + order.lines.length, 0),
+    );
     expect(count('order_events')).toBe(totalEvents);
   });
 
@@ -111,6 +119,8 @@ describe('generación de SQL del seed de demo', () => {
     expect(all.some((sql) => sql.startsWith('INSERT INTO order_events'))).toBe(true);
     expect(all.some((sql) => sql.startsWith('INSERT INTO payments'))).toBe(true);
     expect(all.some((sql) => sql.startsWith('INSERT INTO payment_transactions'))).toBe(true);
+    expect(all.some((sql) => sql.startsWith('INSERT INTO fulfillments'))).toBe(true);
+    expect(all.some((sql) => sql.startsWith('INSERT INTO fulfillment_items'))).toBe(true);
     expect(all.some((sql) => sql.startsWith('INSERT INTO emails_outbox'))).toBe(true);
   });
 });

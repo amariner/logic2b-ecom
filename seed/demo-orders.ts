@@ -464,7 +464,37 @@ export function demoOrderStatements(): string[] {
       );
     }
 
-    // 4) El timeline de eventos (uno por hito, con su propio timestamp).
+    // 4) Evidencia logística canónica R2.11. El pedido conserva tracking y
+    // estado como espejo temporal, pero cada cantidad pertenece al grupo.
+    if (reachedStatuses.has('shipped') && order.tracking) {
+      const shippedStep = order.timeline.find((step) => step.to === 'shipped')!;
+      const deliveredStep = order.timeline.find((step) => step.to === 'delivered');
+      statements.push(
+        `INSERT INTO fulfillments (` +
+          `order_id, status, carrier, tracking_number, idempotency_key, version, ` +
+          `shipped_at, delivered_at, created_at, updated_at` +
+        `) VALUES (` +
+          `${orderIdByNumber(order.order_number)}, ${sqlString(order.status)}, ` +
+          `${sqlString(order.tracking.carrier)}, ${sqlString(order.tracking.number)}, ` +
+          `'r2:fulfillment:legacy:order:' || ${orderIdByNumber(order.order_number)}, 1, ` +
+          `${sqlNow(shippedStep.at)}, ` +
+          `${deliveredStep ? sqlNow(deliveredStep.at) : 'NULL'}, ` +
+          `${sqlNow(shippedStep.at)}, ${deliveredStep ? sqlNow(deliveredStep.at) : sqlNow(shippedStep.at)})`,
+      );
+      for (const line of order.lines) {
+        statements.push(
+          `INSERT INTO fulfillment_items (` +
+            `fulfillment_id, order_id, order_item_id, quantity, created_at` +
+          `) SELECT f.id, f.order_id, oi.id, oi.qty, f.created_at ` +
+          `FROM fulfillments f JOIN order_items oi ON oi.order_id = f.order_id ` +
+          `WHERE f.idempotency_key = ` +
+            `'r2:fulfillment:legacy:order:' || ${orderIdByNumber(order.order_number)} ` +
+            `AND oi.product_id = ${productIdBySlug(line.slug)}`,
+        );
+      }
+    }
+
+    // 5) El timeline de eventos (uno por hito, con su propio timestamp).
     let previous: OrderStatus | null = null;
     for (const step of order.timeline) {
       const from = previous === null ? 'NULL' : sqlString(previous);
@@ -476,7 +506,7 @@ export function demoOrderStatements(): string[] {
       previous = step.to;
     }
 
-    // 5) Los emails que el flujo real habría generado.
+    // 6) Los emails que el flujo real habría generado.
     if (reachedStatuses.has('paid')) {
       const paidStep = order.timeline.find((step) => step.to === 'paid')!;
       const data = emailDataFor(order);

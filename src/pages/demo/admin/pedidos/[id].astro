@@ -7,6 +7,7 @@ import { formatEurCents } from '../../../../lib/format';
 import { runtimePlatform } from '../../../../composition/runtime-platform';
 import { createOrderReader } from '../../../../modules/orders';
 import { createD1PaymentLedger } from '../../../../modules/payments';
+import { createD1FulfillmentLedger } from '../../../../modules/fulfillment';
 
 export const prerender = false;
 const readOnly = Astro.locals.runtime.env.DEMO_MODE === 'true';
@@ -16,10 +17,15 @@ const detail = Number.isInteger(id) ? await createOrderReader(Astro.locals.runti
 if (!detail) return new Response(null, { status: 404 });
 const { order, items, events } = detail;
 const paymentLedger = createD1PaymentLedger(Astro.locals.runtime.env.DB);
-const [payment, refund] = await Promise.all([
+const fulfillmentLedger = createD1FulfillmentLedger(Astro.locals.runtime.env.DB);
+const [payment, refund, fulfillments] = await Promise.all([
   paymentLedger.findByOrderId(order.id),
   paymentLedger.findRefundByOrderId(order.id),
+  fulfillmentLedger.listForOrder(order.id),
 ]);
+const primaryFulfillment = fulfillments.find((fulfillment) => fulfillment.status !== 'cancelled') ?? null;
+const trackingCarrier = primaryFulfillment?.carrier ?? order.tracking_carrier;
+const trackingNumber = primaryFulfillment?.tracking_number ?? order.tracking_number;
 const refundRouteEnabled = runtimePlatform.hasCapabilityFlag('ORD-007', 'routes');
 const refundEffectsEnabled = runtimePlatform.hasCapabilityFlag('ORD-007', 'sideEffects');
 const addr = JSON.parse(order.address_json) as { name: string; phone: string | null; street: string; city: string; postal_code: string; zone: string; nif?: string | null; company?: string | null; };
@@ -58,7 +64,7 @@ const financialStatusLabel: Record<string, string> = {
     <aside class="space-y-6">
       {refundRouteEnabled && payment && <section class="rounded-2xl border border-border bg-card p-5 shadow-sm" aria-labelledby="payment-title"><h2 id="payment-title" class="font-display text-lg">Pago y reembolso</h2><dl class="mt-4 space-y-2 text-sm"><div class="flex items-center justify-between gap-4"><dt class="text-muted-foreground">Pago</dt><dd class="font-semibold">{financialStatusLabel[payment.status] ?? payment.status}</dd></div><div class="flex items-center justify-between gap-4"><dt class="text-muted-foreground">Proveedor</dt><dd class="font-mono text-xs uppercase">{payment.provider}</dd></div>{refund && <div class="flex items-center justify-between gap-4"><dt class="text-muted-foreground">Reembolso</dt><dd class="font-semibold">{financialStatusLabel[refund.status] ?? refund.status}</dd></div>}</dl>{refund?.status === 'processing' && <p class="mt-3 text-sm leading-6 text-muted-foreground">La pasarela aún está procesando el abono. Reintentar reconcilia la misma referencia: no crea otro reembolso.</p>}{(refund?.status === 'failed' || refund?.status === 'requires_review') && <AdminNotice tone="warning">La pasarela no confirmó el abono. Revisa el pago antes de preparar el pedido.</AdminNotice>}</section>}
 
-      <section class="rounded-2xl border border-border bg-card p-5 shadow-sm" aria-labelledby="customer-title"><h2 id="customer-title" class="font-display text-lg">Cliente y entrega</h2><div class="mt-4 text-sm leading-6"><p class="font-semibold">{addr.name}</p><p>{addr.street}</p><p>{addr.postal_code} {addr.city}</p><a href={`mailto:${order.email}`} class="mt-3 block break-all text-muted-foreground underline underline-offset-4">{order.email}</a>{addr.phone && <a href={`tel:${addr.phone}`} class="block text-muted-foreground underline underline-offset-4">{addr.phone}</a>}</div>{(addr.nif || addr.company) && <div class="mt-4 rounded-xl bg-amber-50 p-3 text-sm text-amber-950"><p class="text-xs font-semibold uppercase tracking-wide">Facturación</p><p class="mt-1">{[addr.company, addr.nif].filter(Boolean).join(' · ')}</p></div>}{order.tracking_number && <div class="mt-4 rounded-xl bg-sky-50 p-3 text-sm text-sky-950"><p class="text-xs font-semibold uppercase tracking-wide">Seguimiento</p><p class="mt-1 font-semibold">{order.tracking_carrier}</p><p class="break-all font-mono text-xs">{order.tracking_number}</p></div>}</section>
+      <section class="rounded-2xl border border-border bg-card p-5 shadow-sm" aria-labelledby="customer-title"><h2 id="customer-title" class="font-display text-lg">Cliente y entrega</h2><div class="mt-4 text-sm leading-6"><p class="font-semibold">{addr.name}</p><p>{addr.street}</p><p>{addr.postal_code} {addr.city}</p><a href={`mailto:${order.email}`} class="mt-3 block break-all text-muted-foreground underline underline-offset-4">{order.email}</a>{addr.phone && <a href={`tel:${addr.phone}`} class="block text-muted-foreground underline underline-offset-4">{addr.phone}</a>}</div>{(addr.nif || addr.company) && <div class="mt-4 rounded-xl bg-amber-50 p-3 text-sm text-amber-950"><p class="text-xs font-semibold uppercase tracking-wide">Facturación</p><p class="mt-1">{[addr.company, addr.nif].filter(Boolean).join(' · ')}</p></div>}{trackingNumber && <div class="mt-4 rounded-xl bg-sky-50 p-3 text-sm text-sky-950"><p class="text-xs font-semibold uppercase tracking-wide">Seguimiento</p><p class="mt-1 font-semibold">{trackingCarrier}</p><p class="break-all font-mono text-xs">{trackingNumber}</p>{primaryFulfillment && <p class="mt-2 text-xs">Envío completo · {primaryFulfillment.total_quantity} unidades en {primaryFulfillment.line_count} líneas</p>}</div>}</section>
 
       {!readOnly && trackingEnabled && order.status === 'paid' && <form data-ship-form data-order-id={order.id} class="rounded-2xl border border-border bg-card p-5 shadow-sm"><h2 class="font-display text-lg">Preparar envío</h2><p class="mt-1 text-sm leading-6 text-muted-foreground">Añade el seguimiento y avisa al cliente.</p><label class="mt-4 block text-xs font-semibold text-muted-foreground" for="carrier">Transportista</label><input id="carrier" name="carrier" required list="carriers" class="mt-1 min-h-11 w-full rounded-xl border border-input px-3 text-sm"/><datalist id="carriers"><option value="SEUR"></option><option value="Correos Express"></option><option value="GLS"></option><option value="MRW"></option><option value="CTT"></option></datalist><label class="mt-3 block text-xs font-semibold text-muted-foreground" for="tracking">Nº de seguimiento</label><input id="tracking" name="tracking" required class="mt-1 min-h-11 w-full rounded-xl border border-input px-3 text-sm"/><p data-ship-error role="alert" class="mt-2 hidden text-sm text-red-700"></p><button type="submit" class="mt-4 min-h-11 w-full rounded-xl bg-foreground px-4 text-sm font-semibold text-background hover:bg-foreground/85">Marcar enviado y avisar</button></form>}
 

@@ -48,6 +48,8 @@ describe('volcado de copia de seguridad', () => {
       'payment_transactions',
       'refunds',
       'refund_items',
+      'fulfillments',
+      'fulfillment_items',
     ]));
     for (const table of BACKUP_TABLES) expect(sql).toContain(`DELETE FROM ${table};`);
   });

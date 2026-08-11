@@ -1,9 +1,10 @@
--- PROPUESTA R2.11 APROBADA EL 2026-08-11; se conserva como evidencia histórica.
--- La migración viva es ../../../migrations/0012_fulfillment_lines.sql.
--- Decisión completa: ../adr/0015-fulfillment-por-lineas.md
+-- Fulfillment por lineas (R2.11; ADR-0015).
+--
+-- Migracion aditiva. `orders.status` y `orders.tracking_*` permanecen como
+-- proyeccion de rollback hasta R2.14; el tracking canonico pertenece al grupo.
 
 -- Permite que las dos relaciones compuestas de fulfillment_items demuestren
--- en D1 que el grupo y la línea pertenecen al mismo pedido.
+-- en D1 que el grupo y la linea pertenecen al mismo pedido.
 CREATE UNIQUE INDEX idx_order_items_id_order
   ON order_items(id, order_id);
 

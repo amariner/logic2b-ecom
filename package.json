@@ -21,7 +21,8 @@
     "db:reset": "rm -rf .wrangler/state && pnpm db:migrate && pnpm db:seed",
     "db:rehearse:inventory": "node scripts/rehearse-r2-inventory-ledger.mjs",
     "db:rehearse:reservations": "node scripts/rehearse-r2-inventory-reservations.mjs",
-    "db:rehearse:payments": "node scripts/rehearse-r2-payment-ledger.mjs"
+    "db:rehearse:payments": "node scripts/rehearse-r2-payment-ledger.mjs",
+    "db:rehearse:fulfillment": "node scripts/rehearse-r2-fulfillment-lines.mjs"
   },
   "dependencies": {
     "@astrojs/cloudflare": "^12.6.0",

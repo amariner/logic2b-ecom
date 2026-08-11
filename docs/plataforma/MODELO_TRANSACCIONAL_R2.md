@@ -482,3 +482,26 @@ El rollout no requiere migración ni backfill adicional. Producción sirve Worke
 `4a6892cd-6ddc-44e4-b098-57eb276fb1ac`; la lectura posterior conserva 11
 migraciones, 8 pedidos/8 pagos, cero reembolsos, asientos de devolución o estados
 activos y cero errores FK. El E2E remoto queda en 39/39.
+
+## 18. Evidencia de R2.11
+
+`migrations/0012_fulfillment_lines.sql` añade `fulfillments` y
+`fulfillment_items` con identidad idempotente, estados/timestamps coherentes y
+dos FKs compuestas que impiden asociar una línea de otro pedido. El agregado no
+guarda PII, dinero, SKU ni respuestas de transportista. Las columnas
+`orders.status` y `orders.tracking_*` permanecen como espejo hasta R2.14.
+
+El backfill crea un grupo estable por pedido `shipped|delivered`, deriva sus
+fechas del timeline y asigna `order_items.qty` completo. El rehearsal sobre una
+exportación local de 475.195 bytes produjo 4 grupos y 7 asignaciones; replay y
+dump/restore conservaron los hashes legacy y canónico, integridad y cero FKs.
+La D1 local autorizada quedó en `0012` con los mismos recuentos. Producción no se
+migró ni se desplegó.
+
+La transición administrativa total calcula cantidades pendientes en servidor.
+Grupo, líneas, evento, auditoría, outbox, timeline y espejo se guardan en una
+batch; una carrera deja un ganador. La entrega avanza el mismo grupo con versión
+esperada. Seed y backup esquema 6 conservan la evidencia, y el panel usa el
+tracking canónico con fallback legacy. Evidencia: 59 suites/381 tests, build,
+E2E 39/39 y a11y del pedido enviado 2/2 a 1440/375. La operación coordinada y
+el rollback están en `OPERACION_FULFILLMENT_LINEAS.md`.

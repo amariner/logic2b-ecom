@@ -176,11 +176,13 @@ check(
 );
 check(
   'backup conserva ledger de pagos y estructura de reembolsos R2.9',
-  backupSql.includes('logic2b-backup-schema: 5')
+  backupSql.includes('logic2b-backup-schema: 6')
     && backupSql.includes('INSERT INTO payments')
     && backupSql.includes('INSERT INTO payment_transactions')
     && backupSql.includes('DELETE FROM refunds')
-    && backupSql.includes('DELETE FROM refund_items'),
+    && backupSql.includes('DELETE FROM refund_items')
+    && backupSql.includes('INSERT INTO fulfillments')
+    && backupSql.includes('INSERT INTO fulfillment_items'),
 );
 
 if (failures > 0) {
