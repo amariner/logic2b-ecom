@@ -287,10 +287,12 @@ Después del panel V2, continuar el orden exacto:
    trackings, email limitado a cada salida, panel por grupos y estados globales
    derivados; replay/carreras sin duplicados, Worker productivo `6663a123…` y
    E2E remoto 42/42, sin migración nueva aparte del corte `0012` de R2.11.
-8. **R2.13 — Cancelación/reembolso parcial.** Selección por cantidad, dinero y
-   reposición correctos bajo concurrencia.
-9. **R2.14 — Consolidación.** E2E completo, carga, concurrencia y guía de
-   migración.
+8. **R2.13 — Cancelación/reembolso parcial — ✅ 2026-08-12.** Selección por
+   cantidad, dinero y reposición correctos bajo concurrencia; D1 `0013`, Worker
+   `52779fca…`, E2E remoto 44/44 y política por propietario.
+9. **R2.14 — Consolidación — ✅ 2026-08-12.** Journey variante → reserva → pago
+   → dos envíos → parcial → entrega/restore, 16 carreras simultáneas y guía de
+   migración/downgrade; sin DDL destructivo.
 
 No se salta a promociones, clientes o IA mientras dinero, stock, pago y
 fulfillment no tengan primitivas fiables.

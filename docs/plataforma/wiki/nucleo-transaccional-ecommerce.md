@@ -1,6 +1,6 @@
 # Núcleo transaccional de un ecommerce que puede crecer
 
-> Borrador interno actualizado en R2.13. Estado editorial: **no publicable**.
+> Borrador interno actualizado en R2.14. Estado editorial: **no publicable**.
 > FUL-004/005 y la cancelación/reembolso parcial tienen implementación y
 > evidencia local/remota. Esta ficha no genera
 > ruta, sitemap ni promesa comercial.

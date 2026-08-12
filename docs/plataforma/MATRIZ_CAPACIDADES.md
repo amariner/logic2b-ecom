@@ -338,7 +338,7 @@ su alcance requiera.
 | SEC-011 | CSP y cabeceras de seguridad | núcleo | P1 | parcial | Política por superficies e integraciones. |
 | SEC-012 | Accesibilidad WCAG 2.2 AA | núcleo | P0 | actual | Auditor propio y barrido global. |
 | SEC-013 | Presupuestos de rendimiento | núcleo | P1 | parcial | Lighthouse, tamaño de JS/imágenes y regresión CI. |
-| SEC-014 | Pruebas de carga y concurrencia | núcleo | P1 | parcial | Compra, inventario, webhooks, bulk e importación. |
+| SEC-014 | Pruebas de carga y concurrencia | núcleo | P1 | parcial | Compra/inventario/fulfillment/refund incluyen 16 carreras simultáneas consolidadas en R2.14; faltan bulk e importación de olas posteriores. |
 | SEC-015 | Runbook de incidentes | núcleo | P1 | pendiente | Detección, contención, comunicación, recuperación y postmortem. |
 | SEC-016 | Privacidad y cumplimiento | gestionado | P1 | parcial | Configuración técnica + validación legal por cliente/mercado. |
 

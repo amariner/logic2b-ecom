@@ -72,7 +72,8 @@ ni grupos. Si aparece una divergencia, se congelan mutaciones, se conserva la
 evidencia canónica y se corrige mediante una apertura nueva; nunca se reescribe
 el histórico ni se satura una cantidad.
 
-La eliminación del espejo queda prohibida hasta R2.14.
+R2.14 conserva el espejo para downgrade. Su eliminación sigue prohibida hasta
+una puerta destructiva futura con ADR, migración y autorización propios.
 
 ## Corte productivo del 2026-08-11
 

@@ -33,7 +33,7 @@ Adoptar el modelo y el plan de
    del pedido es una proyección, no la única evidencia.
 5. Las líneas de pedido conservan snapshots y añaden referencia de variante.
 6. La transición usa expand/backfill/shadow-read/doble escritura/contract. Las
-   columnas legacy permanecen como espejos hasta R2.14.
+   columnas legacy permanecen como espejos durante R2.14 y hasta una contracción autorizada.
 
 R2.1 acepta la dirección y las invariantes, no autoriza SQL vivo. R2.2, R2.6,
 R2.9 y R2.11 deben presentar el SQL exacto y activar de nuevo la puerta de

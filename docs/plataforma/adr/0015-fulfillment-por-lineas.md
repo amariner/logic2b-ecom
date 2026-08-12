@@ -34,7 +34,7 @@ El esquema aceptado vive en
 5. el envío total crea un único grupo ya `shipped` y asigna toda cantidad neta
    pendiente; R2.12 añadió selección parcial y varios grupos sin cambiar tablas;
 6. `orders.status` y `orders.tracking_*` permanecen como proyección/espejo hasta
-   R2.14. El tracking canónico pertenece al fulfillment.
+   al menos durante R2.14. El tracking canónico pertenece al fulfillment.
 
 No entra una dependencia, proveedor, etiqueta, coste, ubicación, nueva ruta ni
 promesa comercial. La demo pública sigue siendo de solo lectura.
@@ -99,7 +99,7 @@ grupo; no existe un segundo flujo logístico que pueda divergir.
 3. aplicar esquema y backfill sin cambiar lectores;
 4. desplegar doble escritura y shadow-read contra el espejo;
 5. cortar lectura al fulfillment tras reconciliación a cero;
-6. conservar columnas legacy hasta R2.14.
+6. conservar columnas legacy durante R2.14 y hasta una contracción futura autorizada.
 
 Volver al binario anterior es seguro mientras la doble escritura mantenga el
 espejo. La migración no elimina columnas ni filas. Un despliegue remoto y el
@@ -113,7 +113,7 @@ corte de lector requieren su propia autorización operativa.
 - **Crear ubicaciones ahora:** pertenece a R3.6 y añade operación ficticia.
 - **Implementar parciales en R2.11:** mezcla dos bloques y amplía UI/API antes de
   estabilizar el caso total.
-- **Eliminar el espejo al cortar:** impide rollback incremental antes de R2.14.
+- **Eliminar el espejo al cortar:** impide rollback incremental; R2.14 lo conserva.
 
 ## Consecuencias
 

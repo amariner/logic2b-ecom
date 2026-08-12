@@ -2,7 +2,7 @@
 
 Este runbook coordina `0011_payment_ledger.sql`, el backfill por moneda y el
 binario R2.9. La migración es aditiva: conserva `orders.status` y
-`orders.stripe_*` como espejos de rollback hasta R2.14. No almacena PAN, CVC,
+`orders.stripe_*` como espejos de rollback durante R2.14 y hasta una contracción autorizada. No almacena PAN, CVC,
 token de tarjeta ni respuestas crudas del proveedor.
 
 ## Invariantes del corte

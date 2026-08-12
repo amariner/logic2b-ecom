@@ -169,13 +169,14 @@ reintento no crea un segundo grupo.
 
 ## 4. Compatibilidad durante R2
 
-La migración sigue el patrón expand/contract. No se renombra ni elimina una
-columna viva hasta R2.14 y nunca se obliga a desplegar esquema y binario en una
-ventana inseparable.
+La migración sigue el patrón expand/contract. R2.14 cierra la expansión y
+demuestra downgrade, pero no renombra ni elimina columnas: la contracción queda
+tras una versión estable observada, con puerta y autorización propias. Nunca se
+obliga a desplegar esquema y binario en una ventana inseparable.
 
 | Contrato actual | Canon nuevo | Compatibilidad temporal |
 |---|---|---|
-| `products.price_cents` | variante por defecto | espejo de lectura/escritura hasta R2.14 |
+| `products.price_cents` | variante por defecto | espejo de lectura/escritura conservado tras R2.14 |
 | `products.stock` | balance/ledger de la variante por defecto | proyección legacy actualizada en la misma batch |
 | `products.image` | primer `product_media` | fallback si aún no hay fila media |
 | `order_items.product_id` | `order_items.variant_id` | ambos presentes; snapshots siguen válidos |
@@ -268,7 +269,7 @@ intención durable y solo se cierran tras contrastar la respuesta del PSP.
 | R2.10 | Reembolso total extremo a extremo. | PSP, ledger, evento, email y stock reintentables sin duplicado. |
 | R2.11–R2.12 | Fulfillment total y luego parcial por cantidades. | Totales por línea y proyecciones de estado exactas. |
 | R2.13 | Cancelación/reembolso parcial. | Property tests de redondeo, cantidades y concurrencia. |
-| R2.14 | Contracción de espejos legacy, solo tras una versión completa estable. | Backup/restore v2, E2E y procedimiento de downgrade probado antes de eliminar. |
+| R2.14 | Consolidación; evaluar contracción solo tras una versión completa estable. | Backup/restore, E2E, carga y procedimiento de downgrade probados; sin DDL destructivo. |
 
 Cada migración aditiva necesita aprobación expresa, copia fresca, ensayo sobre
 base aislada, `PRAGMA foreign_key_check`, invariantes de dominio y `pnpm check`.
@@ -489,7 +490,8 @@ activos y cero errores FK. El E2E remoto queda en 39/39.
 `fulfillment_items` con identidad idempotente, estados/timestamps coherentes y
 dos FKs compuestas que impiden asociar una línea de otro pedido. El agregado no
 guarda PII, dinero, SKU ni respuestas de transportista. Las columnas
-`orders.status` y `orders.tracking_*` permanecen como espejo hasta R2.14.
+`orders.status` y `orders.tracking_*` permanecen como espejo tras R2.14 hasta
+superar la puerta destructiva futura.
 
 El backfill crea un grupo estable por pedido `shipped|delivered`, deriva sus
 fechas del timeline y asigna `order_items.qty` completo. El rehearsal inicial
@@ -555,3 +557,18 @@ export remoto de 510.914 bytes pasó preflight, concurrencia y dump/restore con
 4 fulfillments y cero refunds históricos. El corte dejó D1 remota en `0013` y
 sirve Worker `52779fca-8202-4f4d-92d4-c1f64304cb71`; E2E remoto pasó 44/44 y
 a11y del pedido pagado 2/2.
+
+## 21. Cierre de R2.14
+
+La consolidación no añade DDL. El journey ejecutable verifica producto con dos
+variantes, reserva/consumo de la default, captura, dos fulfillments,
+cancelación parcial del pendiente, entrega global, stock, pago, cinco emails,
+siete eventos/auditorías y restore esquema 7. La prueba de carga repite 16
+carreras refund/fulfillment en paralelo con un ganador, una unidad comprometida,
+como máximo una llamada PSP y cero FKs por ronda.
+
+`GUIA_MIGRACION_R2.md` reúne la secuencia `0007`–`0013`, preflight, rehearsals,
+configuración, corte expand-first, downgrade y restore. Los espejos legacy se
+conservan tras evaluar la contracción: una eliminación ahora reduciría la
+capacidad de rollback y sería destructiva, por lo que exige una puerta futura
+separada. Evidencia final: 65 suites/414 tests, tipos y build.

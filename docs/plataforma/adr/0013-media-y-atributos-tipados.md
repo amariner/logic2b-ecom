@@ -265,8 +265,9 @@ Antes de aplicar `0008` a cualquier D1 compartida:
 - La ficha y el panel pueden demostrar galería real y datos técnicos validados
   sin tocar dinero, stock, pago ni fulfillment.
 - D1 sigue guardando solo metadatos pequeños y cabe en el modelo de coste actual.
-- Hay doble escritura temporal únicamente para la primera imagen, acotada hasta
-  la contracción de R2.14.
+- Hay doble escritura temporal únicamente para la primera imagen. R2.14 decidió
+  conservarla para downgrade; su retirada pasa a la puerta destructiva futura
+  de `GUIA_MIGRACION_R2.md`.
 - La validez cruzada entre definición y valor vive en el servicio de catálogo y
   en seed/restore; SQLite conserva las guardas estructurales que sí puede probar.
 - La puerta de `0008` fue aprobada expresamente por Andreu el 2026-08-10.

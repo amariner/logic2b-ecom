@@ -39,5 +39,7 @@ R1.5 retiró cinco más y dejó la allowlist en **2 claves**, cerradas por R1.12
   presentación: `presentation-sql` pasa de 3 archivos a **0**.
 
 Desde R2.7 `products.stock` solo es espejo de la variante default y el módulo de
-inventario posee balance/movimiento. R2.8 separa además la versión de reservas;
-la deuda restante es retirar el espejo legacy de forma controlada en R2.14.
+inventario posee balance/movimiento. R2.8 separa además la versión de reservas.
+R2.14 verificó el conjunto y conservó el espejo: retirarlo es una contracción
+destructiva futura, condicionada por `GUIA_MIGRACION_R2.md` a una versión
+estable observada, ADR/migración propios y autorización expresa.

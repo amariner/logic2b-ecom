@@ -29,7 +29,7 @@ El inventario canónico se compone de:
 
 La disponibilidad siempre se calcula como `on_hand - reserved`. No se almacena
 una tercera cifra que pueda divergir. `products.stock` permanece como espejo de
-la variante por defecto hasta R2.14; se asigna desde `balance.on_hand`, nunca se
+la variante por defecto durante R2.14 y hasta una contracción autorizada; se asigna desde `balance.on_hand`, nunca se
 incrementa/decrementa de forma independiente.
 
 Los DDL ensayables están fuera de `migrations/`:
@@ -146,7 +146,7 @@ R2.7 sigue expand/contract:
 2. shadow-read por variante y reconciliación a cero;
 3. doble escritura canónica+espejo en venta, cancelación y admin;
 4. corte de lectura a balance con flag reversible;
-5. una versión completa estable antes de retirar writers legacy en R2.14.
+5. una versión completa estable antes de retirar writers legacy tras R2.14.
 
 Volver el binario es seguro mientras el espejo siga íntegro. Después de aceptar
 escrituras solo canónicas, un rollback escritor exige congelar mutaciones,

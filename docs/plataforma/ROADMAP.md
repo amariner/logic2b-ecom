@@ -39,7 +39,7 @@ improvisan durante la implementación.
 |---|---|---|
 | R0 | Investigación, taxonomía, matriz, roadmap y estrategia wiki | ✅ cerrado 2026-08-06 |
 | R1 | Cimientos modulares y observables | ✅ cerrado 2026-08-07 |
-| R2 | Núcleo transaccional profesional | 🟡 R2.1–R2.13 y Admin V2 cerrados; siguiente R2.14 |
+| R2 | Núcleo transaccional profesional | ✅ R2.1–R2.14 y Admin V2 cerrados 2026-08-12 |
 | R3 | Operación de pedidos, inventario y fulfillment | ⬜ |
 | R4 | Precios, promociones y modelos de venta | ⬜ |
 | R5 | Clientes, privacidad y mercados | ⬜ |
@@ -100,7 +100,7 @@ Cada migración se diseña y ensaya sobre una copia antes de tocar el esquema vi
 | 23 | **R2.11 Fulfillment por líneas** | Fulfillment y fulfillment_items; envío total actual se convierte en un caso simple. | ✅ 2026-08-11 |
 | 24 | **R2.12 Fulfillment parcial** | Cantidades parciales, múltiples trackings, email por envío y estados derivados sin perder histórico. | ✅ 2026-08-11 |
 | 25 | **R2.13 Cancelación/reembolso parcial** | Selección por cantidad, cálculo servidor, descuento/restitución correcta y pruebas de redondeo/concurrencia. | ✅ 2026-08-12 |
-| 26 | **R2.14 Consolidación R2** | E2E producto con variantes → reserva → pago → dos envíos → reembolso parcial; carga/concurrencia; guía de migración. | ⬜ |
+| 26 | **R2.14 Consolidación R2** | E2E producto con variantes → reserva → pago → dos envíos → reembolso parcial; carga/concurrencia; guía de migración. | ✅ 2026-08-12 |
 
 ## R3 — Operación profesional
 
@@ -565,7 +565,7 @@ a bloques posteriores. R1 queda cerrado sin declarar capacidades futuras.
    fulfillments/items. R3.6 añadirá ubicaciones: R2 conserva balance global para
    no anticipar una interfaz multi-almacén vacía.
 3. La transición es expand/backfill/shadow-read/doble escritura/contract. Las
-   columnas legacy permanecen como espejos hasta R2.14; cada migración conserva
+   columnas legacy permanecen como espejos durante R2.14 y hasta una contracción autorizada; cada migración conserva
    su propia puerta, copia, preflight, reconciliación y rollback.
 4. Los backfills son deterministas: variante `LEGACY-{product_id}`, movimiento
    de apertura idempotente y fulfillment total desde líneas. Un cancelado que
@@ -893,3 +893,20 @@ tests, tipos/build, E2E completo y a11y 2/2 a 1440/375. Un export remoto fresco
 de 510.914 bytes pasó el rehearsal, con 4 fulfillments, cero refunds y restore
 coherente. D1 remota quedó en `0013` sin violaciones FK y el Worker
 `52779fca-8202-4f4d-92d4-c1f64304cb71` pasó E2E remoto 44/44 y a11y 2/2.
+
+### R2.14 — Consolidación R2
+
+**Cerrado sin migración ni despliegue nuevos.**
+`tests/r2-consolidation-runtime.test.ts` recorre un producto con dos variantes:
+reserva y consumo de la default, captura, dos fulfillments, cancelación parcial
+de las dos unidades pendientes, entrega global, cinco emails, siete hechos y
+auditorías, reposición selectiva y backup/restore esquema 7 sin FKs. Una segunda
+prueba ejecuta 16 carreras refund/fulfillment simultáneas; cada base termina con
+un ganador, una unidad comprometida, como máximo una llamada PSP y cero FKs.
+
+La guía `GUIA_MIGRACION_R2.md` consolida `0007`–`0013`, rehearsals,
+configuración por despliegue, expand-first, restore y downgrade. R2.14 conserva
+los espejos legacy: retirarlos sería DDL destructivo y queda tras una versión
+estable observada, ADR/migración y autorización expresa. Gate final: 65
+suites/414 tests, tipos y build. El siguiente bloque ejecutable es R3.1, índice
+de pedidos escalable.

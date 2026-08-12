@@ -46,6 +46,9 @@ venta o servicios logísticos propios.
   imports y advisories del lockfile al cierre de R1.
 - [`MODELO_TRANSACCIONAL_R2.md`](MODELO_TRANSACCIONAL_R2.md): ERD, invariantes,
   compatibilidad, backfills y ensayo de restore que gobiernan R2.2–R2.14.
+- [`GUIA_MIGRACION_R2.md`](GUIA_MIGRACION_R2.md): secuencia expand-first,
+  rehearsals, configuración, downgrade, restore y puerta futura de contracción
+  consolidados en R2.14.
 - [`adr/`](adr/): decisiones de arquitectura modular aceptadas y propuestas.
 - [`sql/0004_event_outbox.proposed.sql`](sql/0004_event_outbox.proposed.sql):
   evidencia exacta de la propuesta R1.6 aprobada; la migración viva es
