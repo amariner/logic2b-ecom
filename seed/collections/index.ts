@@ -36,6 +36,7 @@ import { brioSeedProducts } from './brio.ts';
 import { brumaSeedProducts } from './bruma.ts';
 import { trazaSeedProducts } from './traza.ts';
 import { dintelSeedProducts } from './dintel.ts';
+import { lumbreSeedProducts } from './lumbre.ts';
 // new-theme:seed-imports — no borrar: `pnpm new:theme <id>` añade aquí su import.
 
 export const collectionSeedProducts: readonly SeedProduct[] = [
@@ -65,5 +66,6 @@ export const collectionSeedProducts: readonly SeedProduct[] = [
   ...brumaSeedProducts,
   ...trazaSeedProducts,
   ...dintelSeedProducts,
+  ...lumbreSeedProducts,
   // new-theme:seed-entries — no borrar: `pnpm new:theme <id>` añade aquí su spread.
 ];

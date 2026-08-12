@@ -39,6 +39,7 @@ import { brioCollection } from '../collections/brio';
 import { brumaCollection } from '../collections/bruma';
 import { trazaCollection } from '../collections/traza';
 import { dintelCollection } from '../collections/dintel';
+import { lumbreCollection } from '../collections/lumbre';
 // new-theme:imports — no borrar: `pnpm new:theme <id>` añade aquí su import.
 import type { CollectionCategory, CollectionConfig } from './types';
 
@@ -79,6 +80,7 @@ export const collections: readonly CollectionConfig[] = [
   brumaCollection,
   trazaCollection,
   dintelCollection,
+  lumbreCollection,
   // new-theme:entries — no borrar: `pnpm new:theme <id>` añade aquí su entrada.
 ];
 

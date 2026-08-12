@@ -38,6 +38,7 @@ import BrioCatalog from '../themes/brio/Catalog.astro';
 import BrumaCatalog from '../themes/bruma/Catalog.astro';
 import TrazaCatalog from '../themes/traza/Catalog.astro';
 import DintelCatalog from '../themes/dintel/Catalog.astro';
+import LumbreCatalog from '../themes/lumbre/Catalog.astro';
 
 interface Props {
   collection: CollectionConfig;
@@ -103,6 +104,7 @@ const catalogViews = {
   bruma: BrumaCatalog,
   traza: TrazaCatalog,
   dintel: DintelCatalog,
+  lumbre: LumbreCatalog,
 } as const;
 const ThemedCatalog = catalogViews[collection.themeId as keyof typeof catalogViews] ?? null;
 ---

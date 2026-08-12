@@ -922,6 +922,31 @@ visual ejecutable es la posición 13
 (`5675ae523a7da5dc339cbf50c05e49f1.jpg`). El carril principal conserva R2.13
 como cabeza.
 
+### Línea paralela · tema LUMBRE (2026-08-12, sesión local)
+
+Decimotercer elemento de `nuevos-temas/cola.json`. LUMBRE traduce una
+referencia editorial de iluminación cerámica mediante cabecera mínima, hero
+mineral, fotografía cálida, filetes finos y una tienda de cuatro columnas. Seis
+luminarias `lum-*` cubren sobremesa y ambiente; tres escenas editoriales
+completan el recorrido de marca.
+
+`imagegen` integrado falló por red antes de producir resultado. El fallback
+previsto, Higgsfield Product Photoshoot, generó diez assets propios en llamadas
+individuales y consumió 70 créditos (244,72 → 174,72); todos se inspeccionaron
+y optimizaron a WebP. El bloque solo toca kit visual, colección, seed y
+registros previstos: **no cambia pricing, envíos, checkout, pedidos, D1 ni
+APIs**, y no añade dependencias.
+
+`pnpm check` queda en verde (445 archivos sin diagnósticos, 65 suites/414 tests
+y build), el E2E global verifica el aislamiento de demos y panel, y la auditoría
+a11y cubre 8 superficies con 0 errores y 0 avisos. Las capturas de 1440, 900,
+560 y 375 px, además de la ficha, quedan revisadas. Lighthouse local rápido
+mantiene a11y/SEO 100 en portada y `/temas`; la medición remota citable queda
+reservada para el siguiente despliegue autorizado. La posición 13 queda
+completada y la siguiente referencia visual ejecutable es la posición 14
+(`8aee98009d78b485d3312aac82084e3a.jpg`). El carril principal conserva R2.13
+como cabeza.
+
 ### Pendiente en la Fase 9B
 
 - **Pasada de fidelidad fina** de los 4 temas contra su captura (se re-hospedaron

@@ -734,6 +734,18 @@ manteniendo catálogo, ficha, carrito y checkout sobre el recorrido local común
 
 Ficha completa: [`docs/temas/dintel.md`](temas/dintel.md).
 
+### 26 · LUMBRE — *luz hecha materia*
+
+📎 **Referencia: [`26-lumbre.webp`](../public/images/referencias/26-lumbre.webp)**
+
+**Para quién:** iluminación, cerámica, interiorismo y objeto de autor.
+
+Una cabecera mínima, fotografía cálida a gran escala, filetes finos y tipografía
+serif convierten el catálogo en una revista de interiores. LUMBRE lleva ese
+ritmo a seis luminarias propias de cerámica, piedra y metal sin separar el
+recorrido común de producto, carrito y checkout. Ficha:
+[`docs/temas/lumbre.md`](temas/lumbre.md).
+
 ---
 
 ## 6. Tabla resumen
@@ -766,6 +778,7 @@ Ficha completa: [`docs/temas/dintel.md`](temas/dintel.md).
 | 23 | BRUMA | `#272725` | 4 | uniform | top | none | plain | dropdown | airy | ✅ |
 | 24 | TRAZA | `#242321` | 3 | **irregular** | **immersive** | **fullbleed** | plain | dropdown | airy | ✅ |
 | 25 | DINTEL | `#171715` | 3 | **irregular** | **immersive** | **fullbleed** | plain | dropdown | airy | ✅ |
+| 26 | LUMBRE | `#4b251b` | 4 | uniform | **immersive** | **fullbleed** | hairline | dropdown | airy | ✅ |
 
 ---
 

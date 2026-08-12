@@ -48,6 +48,7 @@ const THEME_CATEGORIES = {
   bruma: ['cuidado'],
   traza: ['hogar'],
   dintel: ['hogar'],
+  lumbre: ['hogar'],
 } as const satisfies Readonly<Record<string, readonly ThemeCategoryId[]>>;
 
 export function normalizeThemeSearch(value: string): string {

@@ -1006,6 +1006,36 @@ export const demoThemes: DemoTheme[] = [
       annotations: true, darkFooter: true,
     },
   },
+  {
+    id: 'lumbre',
+    label: 'LUMBRE',
+    hint: 'Editorial cálido y silencioso para iluminación, cerámica y objeto de autor.',
+    reference: { name: 'Referencia editorial de iluminación cerámica', file: '26-lumbre.webp' },
+    sample: null,
+    bestFor: ['Iluminación', 'Cerámica', 'Objeto de autor'],
+    status: 'ready',
+    vars: {
+      '--color-brand': '#4b251b',
+      '--color-brand-dark': '#321711',
+      '--color-brand-fg': '#fffaf4',
+      '--font-display': "Georgia, 'Times New Roman', serif",
+      '--font-accent': SYSTEM_SANS,
+      '--tracking-display': '-0.035em',
+      '--weight-display': '400',
+      '--radius-btn': '0',
+      '--radius-card': '0',
+      '--border-width': '1px',
+      '--surface-product': '#e7e2dc',
+      '--surface-sunken': '#eee9e3',
+      '--space-density': '0.9',
+      '--grid-gap': 'clamp(0.65rem, 1.1vw, 1rem)',
+    },
+    layout: {
+      gridCols: 4, gridStyle: 'uniform', nav: 'immersive', hero: 'fullbleed',
+      card: 'hairline', filters: 'dropdown', density: 'airy',
+      annotations: true, darkFooter: false,
+    },
+  },
   // new-theme:themes — no borrar: `pnpm new:theme <id>` añade aquí el tema si falta.
 ];
 

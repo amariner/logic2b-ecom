@@ -128,6 +128,7 @@ const REVEAL_STRETCH = `(async () => {
 // Iris es tienda de vídeo-scrub: la estática solo sirve de PÓSTER del hero
 // (viewport), no de página completa — el escaparate se enseña con el clip.
 const STORES = [
+  { id: 'lumbre', label: 'LUMBRE', catalog: '/demo/tiendas/lumbre', full: true, maxH: 3600, mobileQ: 56 },
   { id: 'dintel', label: 'DINTEL', catalog: '/demo/tiendas/dintel', full: true, maxH: 3900, mobileQ: 56 },
   { id: 'traza', label: 'TRAZA', catalog: '/demo/tiendas/traza', full: true, maxH: 3600, mobileQ: 56 },
   { id: 'bruma', label: 'BRUMA', catalog: '/demo/tiendas/bruma', full: true, maxH: 3000, mobileQ: 56 },
@@ -175,6 +176,7 @@ for (const s of STORES) {
 // Ficha de producto: el producto firma de cada tienda. `product(slug)` respeta
 // las rutas históricas de la genérica (/demo/tienda/<slug>).
 const FICHAS = [
+  { id: 'lumbre', slug: 'lum-soma-terracota', prefix: '/demo/tiendas/lumbre' },
   { id: 'dintel', slug: 'din-mesa-traves', prefix: '/demo/tiendas/dintel' },
   { id: 'traza', slug: 'tra-mesa-rasante', prefix: '/demo/tiendas/traza' },
   { id: 'bruma', slug: 'bru-niebla-alta', prefix: '/demo/tiendas/bruma' },

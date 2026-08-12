@@ -1,0 +1,149 @@
+---
+/** LUMBRE · escaparate editorial de luz cerámica. */
+import type { CollectionConfig, StorePaths } from '../../../collections';
+import Filters from './Filters.astro';
+import ProductGrid from './ProductGrid.astro';
+
+type GridProduct = {
+  slug: string;
+  name: string;
+  description: string;
+  price_cents: number;
+  image: string;
+  stock: number;
+};
+
+interface Props {
+  paths: StorePaths;
+  products: GridProduct[];
+  collection: CollectionConfig;
+  category?: string | undefined;
+  sort: string;
+  search?: string | undefined;
+}
+
+const { paths, products, collection, category, sort, search } = Astro.props;
+---
+
+<div class="lumbre">
+  <header class="lumbre-header">
+    <a class="lumbre-header__meta" href={paths.catalog}>Luz / Cerámica<br />Castellón, ES</a>
+    <h1 class="lumbre-header__brand"><a href={paths.catalog}>{collection.name}</a></h1>
+    <nav aria-label="Navegación LUMBRE">
+      <a href="#lumbre-tienda">Tienda</a>
+      <a href={paths.cart}>Cesta <span data-cart-count>0</span></a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="lumbre-hero" aria-labelledby="lumbre-title">
+      <img src="/images/collections/lumbre/hero-lumbre.webp" alt="Lámpara escultórica de cerámica iluminada con luz cálida" width="1536" height="1024" fetchpriority="high" />
+      <p class="sr-only" id="lumbre-title">{collection.name}: {collection.tagline}</p>
+    </section>
+
+    <section class="lumbre-intro" aria-labelledby="lumbre-intro-title">
+      <div>
+        <p>Obras funcionales de luz</p>
+        <h2 id="lumbre-intro-title">Objetos serenos para encender la casa.</h2>
+        <span>{collection.description}</span>
+      </div>
+      <a href="#lumbre-tienda">Ver todas</a>
+    </section>
+
+    <section class="lumbre-scenes" aria-label="LUMBRE en el espacio">
+      <figure>
+        <img src="/images/collections/lumbre/editorial-mesa.webp" alt="Lámpara de cerámica rojiza sobre una mesa de madera" width="1024" height="1280" loading="lazy" />
+        <figcaption><span>01</span><strong>Materia y penumbra</strong></figcaption>
+      </figure>
+      <figure>
+        <img src="/images/collections/lumbre/editorial-salon.webp" alt="Dos butacas grises y una lámpara escultórica en un salón tranquilo" width="1536" height="1024" loading="lazy" />
+        <figcaption><span>02</span><strong>Luz para quedarse</strong></figcaption>
+      </figure>
+    </section>
+
+    <section class="lumbre-feature">
+      <img src="/images/collections/lumbre/editorial-tacto.webp" alt="Una mano regula una lámpara de cerámica junto a objetos escultóricos" width="1536" height="1024" loading="lazy" />
+      <div>
+        <p>Colección Umbral</p>
+        <h2>La luz también tiene tacto.</h2>
+        <span>Piezas torneadas, esmaltadas y montadas en series cortas. Cada superficie filtra la luz de forma distinta.</span>
+        <a href={`${paths.catalog}?categoria=lum-ambiente`}>Ver colección</a>
+      </div>
+    </section>
+
+    <section class="lumbre-shop" id="lumbre-tienda" aria-labelledby="lumbre-shop-title">
+      <div class="lumbre-shop__head">
+        <h2 id="lumbre-shop-title">Tienda LUMBRE</h2>
+        <Filters paths={paths} collection={collection} count={products.length} activeCategory={category} sort={sort} search={search} />
+      </div>
+      {search && products.length > 0 && <p class="lumbre-results">{products.length} {products.length === 1 ? 'resultado' : 'resultados'} para «{search}»</p>}
+      {products.length > 0
+        ? <ProductGrid paths={paths} products={products} />
+        : <div class="lumbre-empty"><p>{search ? `Nada por aquí para «${search}»` : 'No hay luminarias en esta selección'}</p><a href={paths.catalog}>Volver a la tienda</a></div>}
+    </section>
+  </main>
+
+  <footer class="lumbre-footer">
+    <div><strong>LUMBRE</strong><span>Luz hecha materia.</span></div>
+    <nav aria-label="Enlaces de LUMBRE"><a href={paths.catalog} aria-current="page">Tienda</a><a href="#lumbre-intro-title">Estudio</a><a href={paths.cart}>Cesta</a></nav>
+    <p>Series cortas · Castellón<br />Hecho para durar</p>
+  </footer>
+</div>
+
+<style>
+  .lumbre { --lum-ink: var(--color-foreground); --lum-muted: var(--color-muted-foreground); --lum-rule: var(--color-border); min-height: 100vh; color: var(--lum-ink); background: var(--surface-sunken); font-family: var(--font-accent); }
+  .lumbre :where(a) { color: inherit; text-decoration: none; }
+  .lumbre-header { display: grid; grid-template-columns: 1fr auto 1fr; align-items: start; min-height: 4.4rem; padding: .7rem clamp(.75rem, 1.4vw, 1.4rem); border-bottom: var(--border-width) solid var(--lum-rule); font-size: .55rem; line-height: 1.25; letter-spacing: .04em; text-transform: uppercase; }
+  .lumbre-header__brand { margin: 0; font: var(--weight-display) clamp(1.2rem, 1.9vw, 1.75rem)/1 var(--font-display); letter-spacing: var(--tracking-display); text-transform: none; }
+  .lumbre-header nav { display: flex; justify-content: flex-end; gap: clamp(1rem, 2vw, 2rem); }
+  .lumbre-header a { min-height: 2.75rem; }
+  .lumbre-header a:hover, .lumbre-header a:focus-visible { text-decoration: underline; text-underline-offset: .25rem; }
+  .lumbre-hero { margin: 0 clamp(.75rem, 1.4vw, 1.4rem); overflow: hidden; aspect-ratio: 1.82; background: var(--surface-product); }
+  .lumbre-hero img { width: 100%; height: 100%; object-fit: cover; }
+  .lumbre-intro { display: grid; grid-template-columns: 1fr auto; gap: 2rem; margin: 0 clamp(.75rem, 1.4vw, 1.4rem); padding: clamp(1.2rem, 2.4vw, 2.2rem) 0; border-bottom: var(--border-width) solid var(--lum-rule); }
+  .lumbre-intro > div { max-width: 36rem; }
+  .lumbre-intro p, .lumbre-feature p { margin: 0 0 .35rem; font-size: .55rem; letter-spacing: .045em; text-transform: uppercase; }
+  .lumbre-intro h2, .lumbre-feature h2 { margin: 0; font: var(--weight-display) clamp(1.7rem, 3.1vw, 3.4rem)/.92 var(--font-display); letter-spacing: var(--tracking-display); }
+  .lumbre-intro span, .lumbre-feature span { display: block; max-width: 29rem; margin-top: .75rem; color: var(--lum-muted); font-size: .72rem; line-height: 1.5; }
+  .lumbre-intro > a, .lumbre-feature a { display: inline-flex; min-width: 8.5rem; min-height: 2.75rem; align-items: center; justify-content: center; border: var(--border-width) solid var(--lum-ink); font-size: .54rem; letter-spacing: .04em; text-transform: uppercase; }
+  .lumbre-intro > a:hover, .lumbre-intro > a:focus-visible, .lumbre-feature a:hover, .lumbre-feature a:focus-visible { color: var(--color-brand-fg); background: var(--color-brand); }
+  .lumbre-scenes { display: grid; grid-template-columns: .72fr 1.28fr; gap: var(--grid-gap); padding: var(--grid-gap) clamp(.75rem, 1.4vw, 1.4rem) clamp(3rem, 7vw, 7rem); }
+  .lumbre-scenes figure { margin: 0; }
+  .lumbre-scenes img { width: 100%; height: clamp(22rem, 49vw, 48rem); object-fit: cover; }
+  .lumbre-scenes figcaption { display: flex; justify-content: space-between; gap: 1rem; padding: .55rem 0; border-bottom: var(--border-width) solid var(--lum-rule); font-size: .55rem; letter-spacing: .035em; text-transform: uppercase; }
+  .lumbre-scenes figcaption strong { font-weight: 500; }
+  .lumbre-feature { display: grid; grid-template-columns: 1.35fr .65fr; align-items: center; border-top: var(--border-width) solid var(--lum-rule); border-bottom: var(--border-width) solid var(--lum-rule); }
+  .lumbre-feature > img { width: 100%; height: min(66vw, 55rem); object-fit: cover; }
+  .lumbre-feature > div { padding: clamp(2rem, 6vw, 7rem); text-align: center; }
+  .lumbre-feature span { margin-inline: auto; }
+  .lumbre-feature a { margin-top: 1.5rem; }
+  .lumbre-shop { padding: clamp(3rem, 6vw, 6rem) clamp(.75rem, 1.4vw, 1.4rem); }
+  .lumbre-shop__head { display: grid; grid-template-columns: 1fr auto; align-items: end; gap: 2rem; margin-bottom: 1rem; padding-bottom: .8rem; border-bottom: var(--border-width) solid var(--lum-rule); }
+  .lumbre-shop__head h2 { margin: 0; font: var(--weight-display) clamp(1.8rem, 3vw, 3rem)/1 var(--font-display); letter-spacing: var(--tracking-display); }
+  .lumbre-results { margin: .75rem 0; color: var(--lum-muted); font-size: .68rem; }
+  .lumbre-empty { display: grid; min-height: 22rem; place-content: center; gap: 1rem; text-align: center; }
+  .lumbre-empty p { font: var(--weight-display) clamp(1.7rem, 4vw, 3.5rem)/1 var(--font-display); }
+  .lumbre-empty a { min-height: 2.75rem; text-decoration: underline; text-underline-offset: .25rem; }
+  .lumbre-footer { display: grid; grid-template-columns: 1.5fr 1fr 1fr; gap: 2rem; min-height: 16rem; padding: clamp(2rem, 4vw, 4rem) clamp(.75rem, 1.4vw, 1.4rem); border-top: var(--border-width) solid var(--lum-rule); font-size: .58rem; line-height: 1.5; text-transform: uppercase; }
+  .lumbre-footer div { display: flex; flex-direction: column; gap: .45rem; }
+  .lumbre-footer strong { font: var(--weight-display) clamp(2.3rem, 5vw, 5rem)/.8 var(--font-display); letter-spacing: var(--tracking-display); }
+  .lumbre-footer nav { display: flex; align-items: flex-start; flex-direction: column; gap: .35rem; }
+  .lumbre-footer nav a { min-height: 2.25rem; }
+  .lumbre-footer nav a:hover, .lumbre-footer nav a:focus-visible, .lumbre-footer nav a[aria-current='page'] { text-decoration: underline; text-underline-offset: .25rem; }
+  .lumbre-footer p { margin: 0; text-align: right; }
+  @media (max-width: 720px) {
+    .lumbre-header { grid-template-columns: 1fr auto; min-height: 3.7rem; }
+    .lumbre-header__meta, .lumbre-header nav a:first-child { display: none; }
+    .lumbre-header__brand { justify-self: start; }
+    .lumbre-hero { aspect-ratio: .82; }
+    .lumbre-intro { grid-template-columns: 1fr; }
+    .lumbre-intro > a { justify-self: start; }
+    .lumbre-scenes { grid-template-columns: 1fr; padding-bottom: 4rem; }
+    .lumbre-scenes img { height: auto; aspect-ratio: 1 / 1.1; }
+    .lumbre-feature { grid-template-columns: 1fr; }
+    .lumbre-feature > img { height: auto; aspect-ratio: .9; }
+    .lumbre-shop__head { grid-template-columns: 1fr; align-items: start; }
+    .lumbre-footer { grid-template-columns: 1fr 1fr; min-height: 13rem; }
+    .lumbre-footer p { display: none; }
+  }
+</style>

@@ -1,0 +1,56 @@
+---
+/** LUMBRE · catálogo uniforme de luminarias. */
+import type { StorePaths } from '../../../collections';
+import { formatEurCents } from '../../../lib/format';
+
+type GridProduct = { slug: string; name: string; description: string; price_cents: number; image: string; stock: number; };
+interface Props { paths: StorePaths; products: GridProduct[]; }
+const { paths, products } = Astro.props;
+---
+
+<ul class="lumbre-grid">
+  {products.map((product, index) => (
+    <li class="lumbre-card">
+      <div class="lumbre-card__media"><img src={product.image} alt={product.name} width="1254" height="1254" loading={index < 4 ? 'eager' : 'lazy'} /></div>
+      <div class="lumbre-card__meta">
+        <h2><a href={paths.product(product.slug)}>{product.name}</a></h2>
+        <span>{formatEurCents(product.price_cents)}</span>
+      </div>
+      <p>{product.description}</p>
+      <button type="button" data-lumbre-add={product.slug} disabled={product.stock === 0} aria-label={product.stock === 0 ? `${product.name} agotada` : `Añadir ${product.name} a la cesta`}>{product.stock === 0 ? 'Agotada' : 'Añadir +'}</button>
+    </li>
+  ))}
+</ul>
+
+<script>
+  import { addToCart } from '../../../lib/cart-client';
+  document.querySelectorAll<HTMLButtonElement>('[data-lumbre-add]').forEach((button) => {
+    button.addEventListener('click', () => {
+      addToCart(button.dataset.lumbreAdd ?? '');
+      const previous = button.textContent;
+      button.textContent = 'Añadida ✓';
+      setTimeout(() => (button.textContent = previous), 850);
+    });
+  });
+</script>
+
+<style>
+  .lumbre-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: clamp(3rem, 6vw, 6rem) var(--grid-gap); margin: 0; padding: 0; list-style: none; }
+  .lumbre-card { position: relative; min-width: 0; padding-bottom: 2.7rem; }
+  .lumbre-card__media { overflow: hidden; aspect-ratio: .82; background: var(--surface-product); }
+  .lumbre-card__media img { width: 100%; height: 100%; object-fit: cover; transition: transform .5s ease; }
+  .lumbre-card:hover .lumbre-card__media img { transform: scale(1.012); }
+  .lumbre-card__meta { display: flex; justify-content: space-between; gap: 1rem; padding-top: .65rem; font-size: .64rem; }
+  .lumbre-card__meta h2 { margin: 0; font: var(--weight-display) clamp(.95rem, 1.25vw, 1.25rem)/1 var(--font-display); letter-spacing: var(--tracking-display); }
+  .lumbre-card__meta h2 a::after { position: absolute; z-index: 1; inset: 0; content: ''; }
+  .lumbre-card__meta span { white-space: nowrap; }
+  .lumbre-card > p { max-width: 18rem; margin: .45rem 0 0; color: var(--lum-muted); font-size: .61rem; line-height: 1.45; }
+  .lumbre-card button { position: absolute; z-index: 2; right: 0; bottom: 0; min-height: 2.5rem; padding: .4rem 0; visibility: hidden; border: 0; border-bottom: var(--border-width) solid var(--lum-ink); color: var(--lum-ink); background: transparent; font: 600 .54rem/1 var(--font-accent); letter-spacing: .04em; text-transform: uppercase; cursor: pointer; }
+  .lumbre-card:hover button, .lumbre-card:focus-within button { visibility: visible; }
+  .lumbre-card button:disabled { cursor: not-allowed; opacity: .55; }
+  .lumbre-card button:focus-visible, .lumbre-card__meta a:focus-visible { outline: .14rem solid var(--color-brand); outline-offset: .18rem; }
+  @media (max-width: 980px) { .lumbre-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 560px) { .lumbre-grid { grid-template-columns: 1fr; } .lumbre-card__media { aspect-ratio: .9; } }
+  @media (hover: none), (pointer: coarse) { .lumbre-card button { visibility: visible; } }
+  @media (prefers-reduced-motion: reduce) { .lumbre-card__media img { transition: none; } }
+</style>
