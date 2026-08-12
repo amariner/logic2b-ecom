@@ -5,9 +5,9 @@ import { createD1BackupReader, exportBackup } from '../src/platform/operations';
 import { SqliteD1 } from './sqlite-d1';
 
 describe('volcado de copia de seguridad', () => {
-  it('declara el contrato que incluye los campos de reembolso parcial', () => {
-    expect(BACKUP_SCHEMA_VERSION).toBe(7);
-    expect(buildBackupSql({}, '2026-08-12')).toContain('0013_partial_refund_guards');
+  it('declara el contrato que incluye el índice de pedidos derivado', () => {
+    expect(BACKUP_SCHEMA_VERSION).toBe(8);
+    expect(buildBackupSql({}, '2026-08-12')).toContain('0014_order_list_indexes');
   });
 
   it('genera INSERTs con columnas explícitas y escape de comillas', () => {
@@ -137,5 +137,8 @@ describe('volcado de copia de seguridad', () => {
     `)).toEqual([{ sku: 'SUM-SHELL-07-M', option_name: 'Talla', value: 'M' }]);
     expect(restored.query('PRAGMA foreign_key_check')).toEqual([]);
     expect(restored.value("SELECT count(*) AS value FROM inventory_reservations WHERE status='active'")).toBe(1);
+    expect(restored.value('SELECT count(*) AS value FROM orders_search')).toBe(
+      restored.value('SELECT count(*) AS value FROM orders'),
+    );
   });
 });

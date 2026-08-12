@@ -22,3 +22,4 @@ para ocultar una decisión no es válido.
 | [0014](0014-ledger-inventario-global.md) | Ledger global por variante, concurrencia y reservas opcionales | accepted; R2.7–R2.8 implementados localmente |
 | [0015](0015-fulfillment-por-lineas.md) | Fulfillment por líneas y transición del envío total | accepted; R2.11–R2.12 implementados localmente |
 | [0016](0016-cancelacion-reembolso-parcial.md) | Cancelación/reembolso parcial y reserva de cantidades | accepted |
+| [0017](0017-indice-pedidos-cursor-fts.md) | Cursor estable, filtros combinables y búsqueda FTS de pedidos | accepted |

@@ -99,6 +99,12 @@ venta o servicios logísticos propios.
 - [`../../migrations/0013_partial_refund_guards.sql`](../../migrations/0013_partial_refund_guards.sql):
   esquema aditivo R2.13 que tipa la operación y reserva cantidades cancelables;
   materializado, ensayado y aplicado local/remotamente el 2026-08-12.
+- [`adr/0017-indice-pedidos-cursor-fts.md`](adr/0017-indice-pedidos-cursor-fts.md):
+  contrato R3.1 de cursor bidireccional, orden estable, filtros y búsqueda FTS.
+- [`../../migrations/0014_order_list_indexes.sql`](../../migrations/0014_order_list_indexes.sql):
+  índices compuestos y proyección FTS5 sincronizada del índice de pedidos.
+- [`OPERACION_INDICE_PEDIDOS.md`](OPERACION_INDICE_PEDIDOS.md): preflight,
+  planes de consulta, backup esquema 8, rollout y rollback compatibles.
 - [`OPERACION_FULFILLMENT_LINEAS.md`](OPERACION_FULFILLMENT_LINEAS.md):
   preflight, backfill, replay, restore, corte R2.11 y operación parcial R2.12.
 - [`../../scripts/rehearse-r2-fulfillment-lines.mjs`](../../scripts/rehearse-r2-fulfillment-lines.mjs):

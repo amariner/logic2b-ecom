@@ -106,7 +106,7 @@ Cada migración se diseña y ensaya sobre una copia antes de tocar el esquema vi
 
 | Orden | Bloque de una sesión | Entregables y criterio específico | Estado |
 |---:|---|---|---|
-| 27 | **R3.1 Índice de pedidos escalable** | Cursor, búsqueda, filtros combinables, sort estable y límites; URL compartible y consulta indexada. | ⬜ |
+| 27 | **R3.1 Índice de pedidos escalable** | Cursor, búsqueda, filtros combinables, sort estable y límites; URL compartible y consulta indexada. | ✅ 2026-08-12 |
 | 28 | **R3.2 Notas, etiquetas y timeline** | Visibilidad interna/cliente, actor, edición auditada y filtros. | ⬜ |
 | 29 | **R3.3 Edición de pedido** | Añadir/quitar/cantidad/dirección con preview de delta, pago adicional o reembolso y stock. | ⬜ |
 | 30 | **R3.4 Holds e incidencias** | Bloqueo manual/automático, motivo, responsable, SLA y desbloqueo; preparación no avanza en hold. | ⬜ |
@@ -910,3 +910,26 @@ los espejos legacy: retirarlos sería DDL destructivo y queda tras una versión
 estable observada, ADR/migración y autorización expresa. Gate final: 65
 suites/414 tests, tipos y build. El siguiente bloque ejecutable es R3.1, índice
 de pedidos escalable.
+
+### R3.1 — Índice de pedidos escalable
+
+**Cerrado y desplegado.** El lector reemplaza OFFSET por cursor bidireccional sobre `(fecha|importe, id)`,
+limita a 100 filas y liga cada cursor al orden y los filtros exactos. El panel
+combina estado, texto, rango de fechas e importes en una URL GET compartible,
+ofrece cuatro órdenes estables y conserva tabla/esquema móvil, estados vacíos y
+demo inerte.
+
+La migración aditiva `0014` incorpora índices compuestos y una
+proyección FTS5 de número, cliente y email mantenida por triggers. La batería
+recorre 115 pedidos con empates sin omisiones/duplicados, vuelve hacia atrás,
+rechaza cursores de otro ámbito, limita la página, prueba entrada hostil y fija
+los planes de fecha/importe. Backup esquema 8 reconstruye FTS desde `orders`.
+Runbook y rollback compatible: [`OPERACION_INDICE_PEDIDOS.md`](OPERACION_INDICE_PEDIDOS.md).
+
+Gate: **66 suites/420 tests**, tipos/build, reset `0001`–`0014`, E2E completo y
+a11y del listado **2/2** local y remoto. Un export remoto fresco de 512.752
+bytes pasó restore/preflight: 8 pedidos, 8 filas FTS, cero duplicados/FKs,
+triggers insert/update/delete y ambos planes indexados. Producción sirve D1
+`0014` y Worker `e5a71c2e-ad48-42af-9acb-87bae4341889`.
+
+El siguiente bloque ejecutable es R3.2, notas, etiquetas y timeline unificado.

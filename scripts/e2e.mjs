@@ -86,6 +86,23 @@ const adminHtml = await (await fetch(`${BASE}/demo/admin`, { headers: { cookie }
 check('panel usa la identidad Logic2B Gestión', adminHtml.includes('Logic2B Gestión'));
 check('panel declara fixtures independientes', adminHtml.includes('independientes de los escaparates'));
 check('panel vuelve a ARCE', adminHtml.includes('href="/demo/tiendas/arce"'));
+check(
+  'índice de pedidos expone filtros URL y orden estable R3.1',
+  adminHtml.includes('name="orden"')
+    && adminHtml.includes('name="desde"')
+    && adminHtml.includes('name="min"')
+    && !adminHtml.includes('name="pagina"'),
+);
+const filteredOrdersHtml = await (await fetch(
+  `${BASE}/demo/admin?estado=paid&q=BM-DEMO&orden=total-desc`,
+  { headers: { cookie } },
+)).text();
+check(
+  'búsqueda FTS combina estado y orden sin perder pedidos',
+  filteredOrdersHtml.includes('name="estado" value="paid"')
+    && filteredOrdersHtml.includes('value="BM-DEMO"')
+    && filteredOrdersHtml.includes('BM-DEMO-'),
+);
 
 const productsHtml = await (await fetch(`${BASE}/demo/admin/productos`, { headers: { cookie } })).text();
 const productId = productsHtml.match(/data-field="name" data-id="(\d+)"/)?.[1];
@@ -189,8 +206,9 @@ check(
     && backupSql.includes('INSERT INTO attribute_definitions') && backupSql.includes('INSERT INTO product_attribute_values'),
 );
 check(
-  'backup conserva ledger de pagos y estructura de reembolsos R2.9',
-  backupSql.includes('logic2b-backup-schema: 7')
+  'backup esquema 8 conserva pagos y reconstruye el índice de pedidos',
+  backupSql.includes('logic2b-backup-schema: 8')
+    && backupSql.includes('0014_order_list_indexes')
     && backupSql.includes('INSERT INTO payments')
     && backupSql.includes('INSERT INTO payment_transactions')
     && backupSql.includes('DELETE FROM refunds')
