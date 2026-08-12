@@ -1,6 +1,6 @@
 # ADR-0016 — Cancelación y reembolso parcial por cantidades
 
-- Estado: **aceptado para esquema; política de envío pendiente**
+- Estado: **aceptado**
 - Fecha: 2026-08-11
 - Mandato: R2.13
 
@@ -19,7 +19,7 @@ operar por cantidades:
 Ambas deben quedar protegidas en D1 antes de llamar a Stripe o al adaptador
 simulado. Una comprobación previa en TypeScript no basta bajo concurrencia.
 
-## Decisión propuesta
+## Decisión
 
 La propuesta exacta vive en
 [`../sql/0013_partial_refund_guards.proposed.sql`](../sql/0013_partial_refund_guards.proposed.sql):
@@ -43,7 +43,7 @@ como `migrations/0013_partial_refund_guards.sql` y ensayada sobre una copia
 aislada de D1 `0012`. El reset aplica `0013` en D1 local con integridad a cero;
 la D1 remota permanece en `0012` hasta que exista runtime compatible.
 
-## Workflow posterior a la política de envío
+## Workflow
 
 1. El admin envía ids de línea, cantidades, motivo, decisión de reposición y
    clave idempotente; nunca envía importes.
@@ -54,8 +54,10 @@ la D1 remota permanece en `0012` hasta que exista runtime compatible.
 5. El éxito añade un asiento `refund`, mueve el pago a `partially_refunded` o
    `refunded`, registra evento/auditoría/email y repone solo las cantidades cuya
    decisión sea `restock`.
-6. El pedido permanece operativo mientras conserve unidades netas. Solo una
-   cancelación monetaria completa sin fulfillment proyecta `cancelled`.
+6. El pedido permanece `paid` mientras conserve unidades netas. Al cancelar
+   toda la mercancía queda `cancelled` si no hubo salida, o conserva
+   `shipped|delivered` si sí la hubo; el estado financiero puede quedar
+   `partially_refunded` cuando la política retiene el envío.
 7. Replay, retry y reconciliación recuperan la misma intención; una selección
    diferente exige otra clave y compite contra las cantidades reservadas.
 
@@ -63,21 +65,25 @@ El flujo parcial queda limitado a unidades **no enviadas**. Reembolsar una
 unidad enviada/entregada requiere devolución/RMA e inspección (FUL-010/011), no
 una cancelación administrativa que reponga stock de forma ficticia.
 
-## Puerta comercial: gastos de envío
+## Política de gastos de envío
 
 El esquema separa `subtotal_cents` y `shipping_cents`, pero el pedido no guarda
-una asignación de envío por línea. Hace falta escoger una política antes de
-construir el cálculo y la UI:
+una asignación de envío por línea. Andreu eligió el 2026-08-12 la política A
+como valor predeterminado y pidió que el propietario de cada ecommerce pueda
+ajustarla. La decisión vive en `shop.config.ts`, por despliegue, no como un
+control mutable del panel:
 
-- **A — recomendada:** un reembolso parcial devuelve solo mercancía
+- **`merchandise-only` — predeterminada:** un reembolso parcial devuelve solo mercancía
   seleccionada (`shipping_cents=0`). El flujo total existente devuelve el envío
   completo. Es determinista y no inventa un prorrateo.
-- **B:** permitir devolver el envío completo al cancelar las últimas unidades
-  reembolsables. Exige un control/confirmación explícitos y cambia la promesa
-  operativa al cliente.
+- **`full-on-final-cancellation` — alternativa configurable:** devuelve el
+  envío completo únicamente cuando esa operación cancela toda la mercancía
+  pendiente y todavía no salió ningún fulfillment. Nunca lo prorratea ni lo
+  devuelve tras una expedición.
 
-No se propone un prorrateo: sin una regla comercial y una asignación congelada
-sería dinero inventado por redondeo.
+El servidor lee la política y muestra su efecto en el panel y en el email; el
+navegador nunca decide el importe. No se propone un prorrateo: sin una regla
+comercial y una asignación congelada sería dinero inventado por redondeo.
 
 ## Rollout y rollback aprobados para el esquema
 

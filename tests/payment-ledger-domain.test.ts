@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   assertPaymentCurrency,
   planPaymentCapture,
+  planPartialRefund,
   planTotalRefund,
   type PaymentLedgerEntry,
 } from '../src/modules/payments';
@@ -15,6 +16,7 @@ const payment: PaymentLedgerEntry = {
   expected_amount_cents: 3530,
   status: 'pending',
   version: 1,
+  refunded_cents: 0,
 };
 
 const capture = {
@@ -67,5 +69,85 @@ describe('contrato de dominio del ledger de pagos R2.9', () => {
       [{ order_item_id: 1, quantity: 1, amount_cents: 1 }],
       'none',
     )).toThrow(/no suman/);
+  });
+
+  it('calcula parciales por cantidad con política A sin aceptar importes del cliente', () => {
+    const captured = { ...payment, status: 'captured' as const };
+    const planned = planPartialRefund(
+      captured,
+      { subtotal_cents: 3040, shipping_cents: 490, total_cents: 3530 },
+      [
+        { order_item_id: 1, unit_price_cents: 890, ordered_quantity: 2, fulfilled_quantity: 0, cancelled_quantity: 0 },
+        { order_item_id: 2, unit_price_cents: 420, ordered_quantity: 3, fulfilled_quantity: 1, cancelled_quantity: 0 },
+      ],
+      [
+        { order_item_id: 2, quantity: 1 },
+        { order_item_id: 1, quantity: 2 },
+      ],
+      'restock',
+      'merchandise-only',
+    );
+    expect(planned).toEqual({
+      subtotal_cents: 2200,
+      shipping_cents: 0,
+      total_cents: 2200,
+      lines: [
+        { order_item_id: 2, quantity: 1, amount_cents: 420 },
+        { order_item_id: 1, quantity: 2, amount_cents: 1780 },
+      ],
+      restock_decision: 'restock',
+      remaining_quantity: 1,
+      payment_status_after: 'partially_refunded',
+    });
+  });
+
+  it('hace ajustable el envío sin prorratearlo ni devolverlo si ya salió mercancía', () => {
+    const captured = { ...payment, status: 'captured' as const };
+    const order = { subtotal_cents: 3040, shipping_cents: 490, total_cents: 3530 };
+    const lines = [
+      { order_item_id: 1, unit_price_cents: 1520, ordered_quantity: 2, fulfilled_quantity: 0, cancelled_quantity: 0 },
+    ];
+    expect(planPartialRefund(
+      captured, order, lines, [{ order_item_id: 1, quantity: 2 }], 'none',
+      'merchandise-only',
+    ).shipping_cents).toBe(0);
+    expect(planPartialRefund(
+      captured, order, lines, [{ order_item_id: 1, quantity: 2 }], 'none',
+      'full-on-final-cancellation',
+    )).toMatchObject({ shipping_cents: 490, total_cents: 3530, payment_status_after: 'refunded' });
+    expect(planPartialRefund(
+      captured,
+      order,
+      [{ ...lines[0]!, ordered_quantity: 3, fulfilled_quantity: 1 }],
+      [{ order_item_id: 1, quantity: 2 }],
+      'none',
+      'full-on-final-cancellation',
+    ).shipping_cents).toBe(0);
+  });
+
+  it('rechaza líneas ajenas, duplicadas, enviadas/canceladas y exceso financiero', () => {
+    const partiallyRefunded = {
+      ...payment,
+      status: 'partially_refunded' as const,
+      refunded_cents: 3000,
+    };
+    const order = { subtotal_cents: 3040, shipping_cents: 490, total_cents: 3530 };
+    const lines = [
+      { order_item_id: 1, unit_price_cents: 890, ordered_quantity: 2, fulfilled_quantity: 1, cancelled_quantity: 0 },
+    ];
+    expect(() => planPartialRefund(
+      partiallyRefunded, order, lines, [{ order_item_id: 2, quantity: 1 }], 'none', 'merchandise-only',
+    )).toThrow(/no pertenece/);
+    expect(() => planPartialRefund(
+      partiallyRefunded, order, lines,
+      [{ order_item_id: 1, quantity: 1 }, { order_item_id: 1, quantity: 1 }],
+      'none', 'merchandise-only',
+    )).toThrow(/repetirse/);
+    expect(() => planPartialRefund(
+      partiallyRefunded, order, lines, [{ order_item_id: 1, quantity: 2 }], 'none', 'merchandise-only',
+    )).toThrow(/cancelables/);
+    expect(() => planPartialRefund(
+      partiallyRefunded, order, lines, [{ order_item_id: 1, quantity: 1 }], 'none', 'merchandise-only',
+    )).toThrow(/supera la captura/);
   });
 });

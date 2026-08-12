@@ -2,9 +2,11 @@ export {
   PAYMENT_PROVIDERS,
   PAYMENT_STATUSES,
   REFUND_STATUSES,
+  REFUND_OPERATION_TYPES,
   assertPaymentCurrency,
   planPaymentCapture,
   planTotalRefund,
+  planPartialRefund,
 } from './domain/payment-ledger';
 export type {
   PaymentCaptureDraft,
@@ -13,7 +15,12 @@ export type {
   PaymentStatus,
   PlannedPaymentCapture,
   PlannedTotalRefund,
+  PlannedPartialRefund,
+  PartialRefundLineSnapshot,
+  PartialRefundRequestLine,
+  PartialRefundShippingPolicy,
   RefundLedgerEntry,
+  RefundOperationType,
   RefundRestockDecision,
   RefundStatus,
   TotalRefundLine,
@@ -31,5 +38,7 @@ export type {
   D1PaymentLedger,
   PaymentLedgerGuard,
   PendingPaymentInput,
+  PartialRefundIntentInput,
+  RefundItemLedgerLine,
   TotalRefundIntentInput,
 } from './infrastructure/d1-payment-ledger';

@@ -112,7 +112,7 @@ export const MODULE_DESCRIPTORS = [
   {
     id: 'orders', version: '1.1.0', capabilities: ['ORD-001', 'ORD-002', 'ORD-007', 'AUT-001'],
     dependencies: ['catalog', 'pricing', 'customers'], permissions: ['orders.read', 'orders.transition', 'orders.refund'],
-    events: ['orders.order_placed', 'orders.order_paid', 'orders.order_shipped', 'orders.order_delivered', 'orders.order_cancelled', 'orders.order_refunded'],
+    events: ['orders.order_placed', 'orders.order_paid', 'orders.order_shipped', 'orders.order_delivered', 'orders.order_cancelled', 'orders.order_refunded', 'orders.order_partially_refunded'],
     subscriptions: [],
     jobs: [], healthchecks: [], wikiLinks: [ARCHITECTURE_WIKI],
     navigation: [{ id: 'pedidos', href: '/demo/admin', label: 'Pedidos', order: 10, capabilityId: 'ORD-001' }],
@@ -141,7 +141,7 @@ export const MODULE_DESCRIPTORS = [
     dependencies: ['platform-configuration'], permissions: ['notifications.read'], events: [],
     // Reacciona a hechos de `orders` SIN depender de `orders`: esa es la razón
     // de ser del sobre. Quien los une es el composition root.
-    subscriptions: ['orders.order_paid', 'orders.order_shipped', 'orders.order_refunded', 'fulfillment.fulfillment_shipped'], jobs: ['notifications.event-outbox-sweep'], healthchecks: ['notifications.resend-email'],
+    subscriptions: ['orders.order_paid', 'orders.order_shipped', 'orders.order_refunded', 'orders.order_partially_refunded', 'fulfillment.fulfillment_shipped'], jobs: ['notifications.event-outbox-sweep'], healthchecks: ['notifications.resend-email'],
     wikiLinks: [ARCHITECTURE_WIKI],
     navigation: [{ id: 'emails', href: '/demo/admin/emails', label: 'Emails', order: 40, capabilityId: 'MAR-003' }],
     routes: [{ match: 'exact', path: '/demo/admin/emails', capabilityId: 'MAR-003' }],

@@ -881,13 +881,14 @@ Seleccionar cantidades cancelables, calcular dinero solo en servidor y separar
 la decisión de reposición. Debe reutilizar los ledgers ya instalados, mantener
 redondeo exacto e impedir que una carrera cancele o reembolse una unidad enviada.
 
-**Esquema autorizado y ensayado; política pendiente.** Andreu autorizó `0013`
-el 2026-08-12. `operation_type` separa cancelación de futura devolución y el
-trigger reserva pertenencia/cantidades antes del PSP. La migración viva, sus 3
-pruebas y el rehearsal sobre una copia aislada de D1 `0012` conservan el hash
-R2.12, prueban reserva/liberación y sobreviven a dump/restore. `pnpm check`
-queda en 62 suites/394 tests, tipos y build. No se ha aplicado sobre ninguna
-D1 remota; `pnpm db:reset` sí deja la D1 local en `0013`, 268 productos y cero
-violaciones FK. Para abrir runtime y UI falta elegir si un parcial devuelve
-solo mercancía (recomendado) o también el envío completo al cancelar las
-últimas unidades.
+**Runtime completo; corte remoto pendiente.** Andreu autorizó `0013` y eligió
+el 2026-08-12 `merchandise-only` como política predeterminada, configurable por
+propietario en `shop.config.ts`; la alternativa devuelve todo el envío solo al
+cancelar la última mercancía antes de cualquier salida. El runtime calcula
+dinero en servidor, reserva cantidades antes del PSP, acumula saldo, repone por
+selección y cierra evento/auditoría/email/timeline en una batch. Carreras
+refund/refund y refund/fulfillment tienen un único ganador. La demo muestra la
+acción deshabilitada y la API responde 403. Evidencia local: 64 suites/412
+tests, tipos/build, E2E completo y a11y 2/2 a 1440/375. Un export remoto fresco
+de 510.914 bytes pasó el rehearsal, con 4 fulfillments, cero refunds y restore
+coherente; falta aplicar `0013` y desplegar el Worker compatible.

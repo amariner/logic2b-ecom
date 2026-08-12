@@ -1,8 +1,8 @@
 # Núcleo transaccional de un ecommerce que puede crecer
 
-> Borrador interno actualizado en R2.12. Estado editorial: **no publicable**.
-> FUL-004/005 ya tienen implementación y evidencia local/remota, pero la
-> cancelación/reembolso parcial sigue pendiente. Esta ficha no genera
+> Borrador interno actualizado en R2.13. Estado editorial: **no publicable**.
+> FUL-004/005 y la cancelación/reembolso parcial tienen implementación y
+> evidencia local; falta cerrar el corte remoto. Esta ficha no genera
 > ruta, sitemap ni promesa comercial.
 
 ## Intención futura
@@ -16,10 +16,10 @@ un núcleo que no confunde hechos distintos.
 ## Respuesta honesta hoy
 
 Logic2B Ecommerce ya separa variantes, inventario, pagos y fulfillment en
-ledgers auditables. El flujo desplegado admite reembolso total idempotente,
-envío por cantidades, varios trackings y avisos por salida. La demo pública
-solo permite inspección; producción sirve D1 `0012` y el Worker R2.12, mientras
-el reembolso parcial continúa en R2.13.
+ledgers auditables. R2.13 añade cancelación por cantidades no enviadas,
+reembolso acumulado idempotente, reposición selectiva y una política de envío
+configurable por despliegue. La demo pública solo permite inspección y responde
+403 a cualquier mutación.
 
 ## Estructura de la futura guía
 

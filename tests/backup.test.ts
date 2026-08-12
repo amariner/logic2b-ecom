@@ -5,6 +5,11 @@ import { createD1BackupReader, exportBackup } from '../src/platform/operations';
 import { SqliteD1 } from './sqlite-d1';
 
 describe('volcado de copia de seguridad', () => {
+  it('declara el contrato que incluye los campos de reembolso parcial', () => {
+    expect(BACKUP_SCHEMA_VERSION).toBe(7);
+    expect(buildBackupSql({}, '2026-08-12')).toContain('0013_partial_refund_guards');
+  });
+
   it('genera INSERTs con columnas explícitas y escape de comillas', () => {
     const stmts = dumpTable('products', [
       { id: 1, name: "Queso d'Ovella", price_cents: 950, image: null },

@@ -127,12 +127,20 @@ check('tarifas son fixtures de solo lectura', rateId !== undefined && shippingHt
 
 const orderId = adminHtml.match(/\/demo\/admin\/pedidos\/(\d+)"/)?.[1];
 check('panel contiene pedidos ficticios sembrados', orderId !== undefined);
-if (orderId) {
-  const detailHtml = await (await fetch(`${BASE}/demo/admin/pedidos/${orderId}`, { headers: { cookie } })).text();
+const paidOrdersHtml = await (await fetch(`${BASE}/demo/admin?estado=paid`, { headers: { cookie } })).text();
+const paidOrderId = paidOrdersHtml.match(/\/demo\/admin\/pedidos\/(\d+)"/)?.[1];
+check('panel contiene un pedido pagado para demostrar operaciones', paidOrderId !== undefined);
+if (paidOrderId) {
+  const detailHtml = await (await fetch(`${BASE}/demo/admin/pedidos/${paidOrderId}`, { headers: { cookie } })).text();
   check('detalle identifica el pedido como ficticio', detailHtml.includes('Pedido ficticio de ejemplo'));
   check(
     'detalle muestra progreso y grupos de envío como fuente canónica',
     detailHtml.includes('Envíos') && detailHtml.includes('unidades pendientes') && detailHtml.includes('Enviado '),
+  );
+  check(
+    'detalle muestra la cancelación parcial sin habilitar efectos',
+    detailHtml.includes('Cancelación parcial') && detailHtml.includes('la API responde 403')
+      && detailHtml.includes('Reembolsar selección') && detailHtml.includes('disabled'),
   );
   check('detalle no ofrece acciones mutables', !detailHtml.includes('<form data-ship-form'));
 }
@@ -154,7 +162,7 @@ for (const [label, path, body] of [
 
 for (const [label, method, path] of [
   ['opciones', 'POST', `/api/admin/catalog-options/product/${variantProductId ?? 1}`],
-  ['reembolso', 'POST', `/api/admin/refunds/${orderId ?? 1}`],
+  ['reembolso parcial', 'POST', `/api/admin/refunds/${orderId ?? 1}`],
   ['envío parcial', 'POST', '/api/admin/fulfillments'],
   ['entrega de envío', 'PATCH', '/api/admin/fulfillments/1'],
   ['variantes', 'PATCH', `/api/admin/catalog-variants/${variantId ?? 1}`],
@@ -182,7 +190,7 @@ check(
 );
 check(
   'backup conserva ledger de pagos y estructura de reembolsos R2.9',
-  backupSql.includes('logic2b-backup-schema: 6')
+  backupSql.includes('logic2b-backup-schema: 7')
     && backupSql.includes('INSERT INTO payments')
     && backupSql.includes('INSERT INTO payment_transactions')
     && backupSql.includes('DELETE FROM refunds')

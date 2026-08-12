@@ -72,7 +72,7 @@ async function paidOrder(db: SqliteD1, number: string) {
 function gateway(
   handler: (request: RefundGatewayRequest) => Promise<RefundGatewayResult>,
 ): PaymentRefundGateway {
-  return { provider: 'simulated', refundTotal: handler };
+  return { provider: 'simulated', refund: handler };
 }
 
 describe('reembolso total R2.10', () => {

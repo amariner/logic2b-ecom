@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { fulfillmentShippedEmail, orderShippedEmail, type OrderEmailData } from '../src/lib/emails';
+import {
+  fulfillmentShippedEmail,
+  orderPartiallyRefundedEmail,
+  orderShippedEmail,
+  type OrderEmailData,
+} from '../src/lib/emails';
 
 const data: OrderEmailData = {
   order_number: 'BM-260717-TEST',
@@ -56,5 +61,34 @@ describe('fulfillmentShippedEmail', () => {
     expect(email.body_html).toContain('&lt;b&gt;GLS&lt;/b&gt;');
     expect(email.body_html).toContain('&lt;img src=x onerror=x&gt;');
     expect(email.body_html).toContain('todas las unidades pendientes');
+  });
+});
+
+describe('orderPartiallyRefundedEmail', () => {
+  it('muestra las unidades abonadas y distingue si el envío forma parte del abono', () => {
+    const withoutShipping = orderPartiallyRefundedEmail(data, {
+      total_cents: 890,
+      shipping_cents: 0,
+      items: [{ name_snapshot: 'AOVE Picual 500 ml', qty: 1 }],
+    });
+    expect(withoutShipping.body_html).toContain('AOVE Picual 500 ml × 1');
+    expect(withoutShipping.body_html).toContain('no incluye los gastos de envío');
+
+    const withShipping = orderPartiallyRefundedEmail(data, {
+      total_cents: 1380,
+      shipping_cents: 490,
+      items: [{ name_snapshot: 'AOVE Picual 500 ml', qty: 1 }],
+    });
+    expect(withShipping.body_html).toContain('incluye 4,90');
+  });
+
+  it('escapa el nombre de la línea cancelada', () => {
+    const email = orderPartiallyRefundedEmail(data, {
+      total_cents: 890,
+      shipping_cents: 0,
+      items: [{ name_snapshot: '<script>alert(1)</script>', qty: 1 }],
+    });
+    expect(email.body_html).not.toContain('<script>');
+    expect(email.body_html).toContain('&lt;script&gt;alert(1)&lt;/script&gt;');
   });
 });

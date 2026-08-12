@@ -102,8 +102,8 @@ export function createFulfillmentOperations(
       }
 
       const balances = await fulfillments.lineBalances(order.id);
-      const expectedAllocatedQuantity = balances.reduce(
-        (sum, balance) => sum + balance.fulfilled_quantity,
+      const expectedCommittedQuantity = balances.reduce(
+        (sum, balance) => sum + balance.fulfilled_quantity + balance.cancelled_quantity,
         0,
       );
       const allocations = input.allocations === undefined
@@ -133,7 +133,7 @@ export function createFulfillmentOperations(
         ...fulfillments.shipmentStatements({
           orderId: order.id,
           expectedOrderStatus: 'paid',
-          expectedAllocatedQuantity,
+          expectedCommittedQuantity,
           eventId: event.event_id,
           idempotencyKey: fulfillmentKey,
           tracking,

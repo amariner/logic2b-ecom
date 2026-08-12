@@ -35,6 +35,7 @@ export const ORDER_EVENT_TYPES = [
   'orders.order_delivered',
   'orders.order_cancelled',
   'orders.order_refunded',
+  'orders.order_partially_refunded',
 ] as const;
 
 export type OrderEventType = (typeof ORDER_EVENT_TYPES)[number];
@@ -71,6 +72,19 @@ export type OrderRefundedPayload = OrderEventSubject &
     currency: string;
     restock: boolean;
   }>;
+export type OrderPartiallyRefundedPayload = OrderEventSubject &
+  Readonly<{
+    from_status: 'paid';
+    to_status: OrderStatus;
+    refund_id: number;
+    subtotal_cents: number;
+    shipping_cents: number;
+    total_cents: number;
+    currency: string;
+    restock: boolean;
+    allocations: readonly Readonly<{ order_item_id: number; quantity: number }>[];
+    remaining_quantity: number;
+  }>;
 
 export type OrderPlacedEvent = EventEnvelope<'orders.order_placed', OrderPlacedPayload>;
 export type OrderPaidEvent = EventEnvelope<'orders.order_paid', OrderPaidPayload>;
@@ -78,6 +92,10 @@ export type OrderShippedEvent = EventEnvelope<'orders.order_shipped', OrderShipp
 export type OrderDeliveredEvent = EventEnvelope<'orders.order_delivered', OrderDeliveredPayload>;
 export type OrderCancelledEvent = EventEnvelope<'orders.order_cancelled', OrderCancelledPayload>;
 export type OrderRefundedEvent = EventEnvelope<'orders.order_refunded', OrderRefundedPayload>;
+export type OrderPartiallyRefundedEvent = EventEnvelope<
+  'orders.order_partially_refunded',
+  OrderPartiallyRefundedPayload
+>;
 
 export type OrderDomainEvent =
   | OrderPlacedEvent
@@ -85,7 +103,8 @@ export type OrderDomainEvent =
   | OrderShippedEvent
   | OrderDeliveredEvent
   | OrderCancelledEvent
-  | OrderRefundedEvent;
+  | OrderRefundedEvent
+  | OrderPartiallyRefundedEvent;
 
 /** Origen del hecho. El actor identifica el canal, nunca a la persona. */
 export const ORDER_ACTORS = {
@@ -108,11 +127,12 @@ export function orderCorrelationId(orderNumber: string): string {
  * La clave de idempotencia es el hecho, no la entrega: dos webhooks del mismo
  * cobro producen la misma clave y un consumidor puede descartar el segundo.
  */
-function orderIdempotencyKey(orderNumber: string, type: OrderEventType): string {
-  return `${orderCorrelationId(orderNumber)}:${type.slice('orders.'.length)}`;
+function orderIdempotencyKey(orderNumber: string, type: OrderEventType, suffix?: string): string {
+  const base = `${orderCorrelationId(orderNumber)}:${type.slice('orders.'.length)}`;
+  return suffix ? `${base}:${suffix}` : base;
 }
 
-type EmitOptions = Readonly<{ causationId?: string | null }>;
+type EmitOptions = Readonly<{ causationId?: string | null; idempotencySuffix?: string }>;
 
 function draftFor<TType extends OrderEventType, TPayload extends OrderEventSubject>(
   type: TType,
@@ -125,7 +145,7 @@ function draftFor<TType extends OrderEventType, TPayload extends OrderEventSubje
     version: ORDER_EVENT_VERSION,
     actor,
     entity: { type: 'order', id: String(payload.order_id), reference: payload.order_number },
-    idempotency_key: orderIdempotencyKey(payload.order_number, type),
+    idempotency_key: orderIdempotencyKey(payload.order_number, type, options.idempotencySuffix),
     correlation_id: orderCorrelationId(payload.order_number),
     causation_id: options.causationId ?? null,
     payload,
@@ -233,6 +253,41 @@ export function orderRefundedEvent(
   return emit(draftFor('orders.order_refunded', ORDER_ACTORS.admin, payload, options));
 }
 
+export function orderPartiallyRefundedEvent(
+  emit: EmitEvent,
+  input: OrderEventSubject & Readonly<{
+    to_status: OrderStatus;
+    refund_id: number;
+    subtotal_cents: number;
+    shipping_cents: number;
+    total_cents: number;
+    currency: string;
+    restock: boolean;
+    allocations: readonly Readonly<{ order_item_id: number; quantity: number }>[];
+    remaining_quantity: number;
+  }>,
+  options: EmitOptions = {},
+): OrderPartiallyRefundedEvent {
+  const payload: OrderPartiallyRefundedPayload = {
+    order_id: input.order_id,
+    order_number: input.order_number,
+    from_status: 'paid',
+    to_status: input.to_status,
+    refund_id: input.refund_id,
+    subtotal_cents: input.subtotal_cents,
+    shipping_cents: input.shipping_cents,
+    total_cents: input.total_cents,
+    currency: input.currency,
+    restock: input.restock,
+    allocations: Object.freeze(input.allocations.map((line) => Object.freeze({ ...line }))),
+    remaining_quantity: input.remaining_quantity,
+  };
+  return emit(draftFor('orders.order_partially_refunded', ORDER_ACTORS.admin, payload, {
+    ...options,
+    idempotencySuffix: String(input.refund_id),
+  }));
+}
+
 /** Entrada del timeline tal y como la guarda `order_events` desde la Fase 3. */
 export type OrderTimelineEntry = Readonly<{
   from_status: string | null;
@@ -269,7 +324,9 @@ export function orderTimelineNote(fact: OrderTimelineFact): string {
   }
 }
 
-function timelineFactOf(event: OrderDomainEvent): OrderTimelineFact {
+function timelineFactOf(
+  event: Exclude<OrderDomainEvent, OrderRefundedEvent | OrderPartiallyRefundedEvent>,
+): OrderTimelineFact {
   switch (event.type) {
     case 'orders.order_placed':
       return { to_status: 'pending' };
@@ -281,8 +338,6 @@ function timelineFactOf(event: OrderDomainEvent): OrderTimelineFact {
       return { to_status: 'delivered' };
     case 'orders.order_cancelled':
       return { to_status: 'cancelled', reason: event.payload.reason };
-    case 'orders.order_refunded':
-      return { to_status: 'cancelled', reason: 'admin' };
   }
 }
 
@@ -293,6 +348,14 @@ export function orderTimelineEntry(event: OrderDomainEvent): OrderTimelineEntry 
       from_status: event.payload.from_status,
       to_status: event.payload.to_status,
       note: 'Reembolso total confirmado y pedido cancelado',
+    });
+  }
+  if (event.type === 'orders.order_partially_refunded') {
+    const quantity = event.payload.allocations.reduce((sum, line) => sum + line.quantity, 0);
+    return Object.freeze({
+      from_status: event.payload.from_status,
+      to_status: event.payload.to_status,
+      note: `Reembolso parcial confirmado: ${quantity} ${quantity === 1 ? 'unidad' : 'unidades'}`,
     });
   }
   return Object.freeze({

@@ -27,6 +27,10 @@ export type ShippingZone = {
   postalPrefixes: string[];
 };
 
+export type PartialRefundShippingPolicy =
+  | 'merchandise-only'
+  | 'full-on-final-cancellation';
+
 export type ShopConfig = typeof shopConfig;
 
 export const shopConfig = {
@@ -39,6 +43,16 @@ export const shopConfig = {
   currency: 'eur' as const,
   /** Prefijo del nº de pedido legible (p. ej. BM-260719-K7M2). 2-4 letras mayúsculas. */
   orderNumberPrefix: 'BM',
+
+  /**
+   * Reembolsos parciales: política elegida por el propietario del despliegue.
+   * `merchandise-only` nunca prorratea ni devuelve el envío en un parcial.
+   * La alternativa devuelve el envío completo solo al cancelar la última
+   * mercancía pendiente y únicamente si todavía no ha salido ningún paquete.
+   */
+  refunds: {
+    partialShippingPolicy: 'merchandise-only' as PartialRefundShippingPolicy,
+  },
 
   /**
    * Marca — fuente única del color. Base.astro lo inyecta en :root, así que las

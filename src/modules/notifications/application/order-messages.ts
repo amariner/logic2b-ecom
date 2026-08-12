@@ -16,6 +16,7 @@ import {
   fulfillmentShippedEmail,
   orderConfirmationEmail,
   orderRefundedEmail,
+  orderPartiallyRefundedEmail,
   orderShippedEmail,
   type EmailMessage,
   type OrderEmailData,
@@ -26,6 +27,7 @@ export const SUBSCRIBED_ORDER_EVENTS = [
   'orders.order_paid',
   'orders.order_shipped',
   'orders.order_refunded',
+  'orders.order_partially_refunded',
   'fulfillment.fulfillment_shipped',
 ] as const;
 
@@ -62,6 +64,38 @@ function partialShipmentOf(payload: unknown): Readonly<{
     : null;
 }
 
+function partialRefundOf(payload: unknown): Readonly<{
+  allocations: readonly Readonly<{ order_item_id: number; quantity: number }>[];
+  totalCents: number;
+  shippingCents: number;
+}> | null {
+  if (typeof payload !== 'object' || payload === null) return null;
+  const raw = payload as {
+    allocations?: unknown;
+    total_cents?: unknown;
+    shipping_cents?: unknown;
+  };
+  if (!Array.isArray(raw.allocations) || !Number.isSafeInteger(raw.total_cents) ||
+      Number(raw.total_cents) < 1 || !Number.isSafeInteger(raw.shipping_cents) ||
+      Number(raw.shipping_cents) < 0) return null;
+  const allocations: Array<{ order_item_id: number; quantity: number }> = [];
+  for (const item of raw.allocations) {
+    if (typeof item !== 'object' || item === null) return null;
+    const allocation = item as { order_item_id?: unknown; quantity?: unknown };
+    if (!Number.isSafeInteger(allocation.order_item_id) || Number(allocation.order_item_id) < 1 ||
+        !Number.isSafeInteger(allocation.quantity) || Number(allocation.quantity) < 1) return null;
+    allocations.push({
+      order_item_id: Number(allocation.order_item_id),
+      quantity: Number(allocation.quantity),
+    });
+  }
+  return allocations.length > 0 ? Object.freeze({
+    allocations,
+    totalCents: Number(raw.total_cents),
+    shippingCents: Number(raw.shipping_cents),
+  }) : null;
+}
+
 /**
  * Mensajes que provoca un hecho de pedido. Un tipo no suscrito devuelve lista
  * vacía: el consumidor ignora en silencio lo que no le toca.
@@ -76,6 +110,23 @@ export function orderNotificationsFor(event: EventEnvelope, order: OrderEmailDat
     }
     case 'orders.order_refunded':
       return Object.freeze([orderRefundedEmail(order)]);
+    case 'orders.order_partially_refunded': {
+      const refund = partialRefundOf(event.payload);
+      if (!refund) return Object.freeze([]);
+      const itemsById = new Map(order.items
+        .filter((item) => item.order_item_id !== undefined)
+        .map((item) => [item.order_item_id!, item] as const));
+      const refundedItems = refund.allocations.map((allocation) => {
+        const item = itemsById.get(allocation.order_item_id);
+        return item ? { name_snapshot: item.name_snapshot, qty: allocation.quantity } : null;
+      });
+      if (refundedItems.some((item) => item === null)) return Object.freeze([]);
+      return Object.freeze([orderPartiallyRefundedEmail(order, {
+        total_cents: refund.totalCents,
+        shipping_cents: refund.shippingCents,
+        items: refundedItems as readonly { name_snapshot: string; qty: number }[],
+      })]);
+    }
     case 'fulfillment.fulfillment_shipped': {
       const tracking = trackingOf(event.payload);
       const shipment = partialShipmentOf(event.payload);

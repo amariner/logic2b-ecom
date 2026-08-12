@@ -173,7 +173,7 @@ export function createD1OrderWriter(db: D1Database) {
       const refundGuard = input.requireNoActiveRefund
         ? `AND NOT EXISTS (
             SELECT 1 FROM refunds
-            WHERE order_id = ? AND status IN ('pending', 'processing', 'succeeded', 'requires_review')
+            WHERE order_id = ? AND status IN ('pending', 'processing', 'failed', 'requires_review')
           )`
         : '';
       const refundBindings = input.requireNoActiveRefund ? [input.orderId] : [];

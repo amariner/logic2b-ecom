@@ -532,3 +532,24 @@ pendiente. El panel lee el mismo ledger, muestra progreso y opera cada grupo.
 El reembolso total se rechaza antes del PSP cuando existe un fulfillment activo,
 porque cancelación/reembolso por cantidad pertenece a R2.13. Evidencia local:
 61 suites/391 tests, build, E2E 42/42 y a11y 6/6 a 1440/375.
+
+## 20. Evidencia de R2.13
+
+`0013_partial_refund_guards` añade únicamente `operation_type`, un índice y una
+guarda de pertenencia/cantidad. Toda intención distinta de `cancelled` reserva
+unidades junto a fulfillments activos antes del PSP; solo cancelaciones
+confirmadas alimentan `cancelled_quantity`. La suma financiera continúa
+limitada por la captura mediante `payment_transactions`.
+
+El navegador envía línea/cantidad, motivo, reposición y UUID; precio, saldo y
+envío se derivan de snapshots servidor. La política por despliegue es
+`merchandise-only` por defecto o `full-on-final-cancellation` si el propietario
+quiere devolver el envío completo al cancelar toda la mercancía antes de una
+salida. No existe prorrateo. Evento, auditoría, pago, refund, pedido, timeline,
+stock y outbox se cierran bajo versiones esperadas; un retry conserva la misma
+identidad externa.
+
+Evidencia previa al corte: 64 suites/412 tests, build, E2E demo y a11y 2/2 en
+1440/375; reset local con 13 migraciones, 265 productos y cero errores FK. Un
+export remoto de 510.914 bytes pasó preflight, concurrencia y dump/restore con
+4 fulfillments y cero refunds históricos.

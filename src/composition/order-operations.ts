@@ -414,6 +414,15 @@ function orderAuditProjection(event: OrderDomainEvent): AuditEventProjection {
           ['status', 'refunded_cents'],
         ),
       };
+    case 'orders.order_partially_refunded':
+      return {
+        action: 'payments.partially_refunded',
+        diff: createAuditDiff(
+          { status: event.payload.from_status, refunded_cents: 0 },
+          { status: event.payload.to_status, refunded_cents: event.payload.total_cents },
+          ['status', 'refunded_cents'],
+        ),
+      };
   }
 }
 

@@ -21,6 +21,12 @@ export type OrderEmailData = {
   items: { order_item_id?: number; name_snapshot: string; unit_price_cents: number; qty: number }[];
 };
 
+export type PartialRefundEmailData = Readonly<{
+  total_cents: number;
+  shipping_cents: number;
+  items: readonly Readonly<{ name_snapshot: string; qty: number }>[];
+}>;
+
 const formatShopCents = (cents: number): string =>
   formatCurrencyCents(cents, shopConfig.currency);
 
@@ -127,6 +133,31 @@ export function orderRefundedEmail(data: OrderEmailData): EmailMessage {
       `Tu reembolso está confirmado, ${escapeHtml(data.customer_name)}`,
       `<p style="font-size:14px">Hemos reembolsado el importe completo del pedido <strong>${orderNumber}</strong>. ` +
         `El abono puede tardar varios días en aparecer, según tu banco.</p>${itemsTable(data)}`,
+    ),
+  };
+}
+
+export function orderPartiallyRefundedEmail(
+  data: OrderEmailData,
+  refund: PartialRefundEmailData,
+): EmailMessage {
+  const orderNumber = escapeHtml(data.order_number);
+  const lines = refund.items.map((item) =>
+    `<li>${escapeHtml(item.name_snapshot)} × ${item.qty}</li>`
+  ).join('');
+  const shipping = refund.shipping_cents > 0
+    ? `<p style="font-size:14px">El abono incluye ${formatShopCents(refund.shipping_cents)} de envío.</p>`
+    : '<p style="font-size:14px">Este abono no incluye los gastos de envío.</p>';
+  return {
+    to_addr: data.email,
+    subject: `Reembolso parcial del pedido ${data.order_number} — ${shopConfig.name}`,
+    body_html: wrap(
+      `Tu reembolso parcial está confirmado, ${escapeHtml(data.customer_name)}`,
+      `<p style="font-size:14px">Hemos confirmado un abono de <strong>${formatShopCents(refund.total_cents)}</strong> ` +
+        `para el pedido <strong>${orderNumber}</strong>.</p>` +
+        `<p style="font-size:14px"><strong>Unidades canceladas:</strong></p>` +
+        `<ul style="font-size:14px">${lines}</ul>${shipping}` +
+        '<p style="font-size:14px">El abono puede tardar varios días en aparecer, según tu banco.</p>',
     ),
   };
 }

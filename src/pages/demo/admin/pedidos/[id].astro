@@ -8,6 +8,7 @@ import { runtimePlatform } from '../../../../composition/runtime-platform';
 import { createOrderReader } from '../../../../modules/orders';
 import { createD1PaymentLedger } from '../../../../modules/payments';
 import { createD1FulfillmentLedger } from '../../../../modules/fulfillment';
+import { shopConfig } from '../../../../../shop.config';
 
 export const prerender = false;
 const readOnly = Astro.locals.runtime.env.DEMO_MODE === 'true';
@@ -20,9 +21,9 @@ if (!detail) return new Response(null, { status: 404 });
 const { order, items, events } = detail;
 const paymentLedger = createD1PaymentLedger(Astro.locals.runtime.env.DB);
 const fulfillmentLedger = createD1FulfillmentLedger(Astro.locals.runtime.env.DB);
-const [payment, refund, fulfillments, fulfillmentBalances] = await Promise.all([
+const [payment, refunds, fulfillments, fulfillmentBalances] = await Promise.all([
   paymentLedger.findByOrderId(order.id),
-  paymentLedger.findRefundByOrderId(order.id),
+  paymentLedger.listRefundsForOrder(order.id),
   fulfillmentLedger.listForOrder(order.id),
   fulfillmentLedger.lineBalances(order.id),
 ]);
@@ -30,16 +31,34 @@ const balancesByItem = new Map(fulfillmentBalances.map((balance) => [balance.ord
 const itemProgress = items.map((item) => {
   const balance = balancesByItem.get(item.order_item_id);
   const fulfilled = balance?.fulfilled_quantity ?? 0;
-  return { ...item, fulfilled_quantity: fulfilled, remaining_quantity: item.qty - fulfilled };
+  const cancelled = balance?.cancelled_quantity ?? 0;
+  return {
+    ...item,
+    fulfilled_quantity: fulfilled,
+    cancelled_quantity: cancelled,
+    remaining_quantity: item.qty - fulfilled - cancelled,
+  };
 });
 const remainingQuantity = itemProgress.reduce((sum, item) => sum + item.remaining_quantity, 0);
+const activeFulfillments = fulfillments.filter((group) => group.status !== 'cancelled');
+const totalRefund = refunds.find((candidate) => candidate.operation_type === 'total_cancellation');
+const activePartialRefund = refunds.find((candidate) =>
+  candidate.operation_type === 'partial_cancellation' &&
+  ['pending', 'processing', 'failed', 'requires_review'].includes(candidate.status)
+);
+const activePartialLines = activePartialRefund
+  ? await paymentLedger.refundItems(activePartialRefund.id)
+  : [];
+const partialRefundKey = activePartialRefund?.idempotency_key.split(':').at(-1) ?? '';
+const partialShippingPolicy = shopConfig.refunds.partialShippingPolicy;
 const refundRouteEnabled = runtimePlatform.hasCapabilityFlag('ORD-007', 'routes');
 const refundEffectsEnabled = runtimePlatform.hasCapabilityFlag('ORD-007', 'sideEffects');
+const refundActionDisabled = readOnly || !refundEffectsEnabled;
 const addr = JSON.parse(order.address_json) as { name: string; phone: string | null; street: string; city: string; postal_code: string; zone: string; nif?: string | null; company?: string | null; };
 const statusLabel: Record<string, string> = { pending: 'Pendiente de pago', paid: 'Pagado', shipped: 'Enviado', delivered: 'Entregado', cancelled: 'Cancelado' };
 const date = (value: string) => new Intl.DateTimeFormat('es-ES', { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(value));
 const financialStatusLabel: Record<string, string> = {
-  pending: 'Pendiente', captured: 'Cobrado', refunded: 'Reembolsado',
+  pending: 'Pendiente', captured: 'Cobrado', partially_refunded: 'Reembolso parcial', refunded: 'Reembolsado',
   processing: 'En proceso', failed: 'Fallido', requires_review: 'Revisión necesaria',
 };
 const fulfillmentStatusLabel: Record<string, string> = {
@@ -62,7 +81,7 @@ const fulfillmentStatusLabel: Record<string, string> = {
     <div class="space-y-6">
       <section class="overflow-hidden rounded-2xl border border-border bg-card shadow-sm" aria-labelledby="lines-title">
         <div class="border-b border-border px-5 py-4"><h2 id="lines-title" class="font-display text-xl">Productos</h2><p class="mt-1 text-sm text-muted-foreground">{items.reduce((sum, item) => sum + item.qty, 0)} unidades en {items.length} líneas</p></div>
-        <ul class="divide-y divide-border">{itemProgress.map((item) => <li class="grid grid-cols-[1fr_auto] gap-3 px-5 py-4 text-sm sm:grid-cols-[1fr_auto_auto] sm:items-center"><div><p class="font-semibold">{item.name_snapshot}</p><p class="mt-1 text-xs text-muted-foreground">Enviado {item.fulfilled_quantity} de {item.qty} · Pendiente {item.remaining_quantity}</p><p class="mt-1 text-xs text-muted-foreground sm:hidden">{item.qty} × {formatEurCents(item.unit_price_cents)}</p></div><p class="hidden text-muted-foreground sm:block">{item.qty} × {formatEurCents(item.unit_price_cents)}</p><p class="text-right font-semibold">{formatEurCents(item.qty * item.unit_price_cents)}</p></li>)}</ul>
+        <ul class="divide-y divide-border">{itemProgress.map((item) => <li class="grid grid-cols-[1fr_auto] gap-3 px-5 py-4 text-sm sm:grid-cols-[1fr_auto_auto] sm:items-center"><div><p class="font-semibold">{item.name_snapshot}</p><p class="mt-1 text-xs text-muted-foreground">Enviado {item.fulfilled_quantity} · Cancelado {item.cancelled_quantity} · Pendiente {item.remaining_quantity}</p><p class="mt-1 text-xs text-muted-foreground sm:hidden">{item.qty} × {formatEurCents(item.unit_price_cents)}</p></div><p class="hidden text-muted-foreground sm:block">{item.qty} × {formatEurCents(item.unit_price_cents)}</p><p class="text-right font-semibold">{formatEurCents(item.qty * item.unit_price_cents)}</p></li>)}</ul>
         <dl class="space-y-2 border-t border-border bg-muted/40 px-5 py-4 text-sm"><div class="flex justify-between gap-4"><dt class="text-muted-foreground">Subtotal</dt><dd>{formatEurCents(order.subtotal_cents)}</dd></div><div class="flex justify-between gap-4"><dt class="text-muted-foreground">Envío</dt><dd>{formatEurCents(order.shipping_cents)}</dd></div><div class="flex justify-between gap-4 border-t border-border pt-3 text-base font-semibold"><dt>Total</dt><dd>{formatEurCents(order.total_cents)}</dd></div></dl>
       </section>
 
@@ -75,13 +94,43 @@ const fulfillmentStatusLabel: Record<string, string> = {
     </div>
 
     <aside class="space-y-6">
-      {refundRouteEnabled && payment && <section class="rounded-2xl border border-border bg-card p-5 shadow-sm" aria-labelledby="payment-title"><h2 id="payment-title" class="font-display text-lg">Pago y reembolso</h2><dl class="mt-4 space-y-2 text-sm"><div class="flex items-center justify-between gap-4"><dt class="text-muted-foreground">Pago</dt><dd class="font-semibold">{financialStatusLabel[payment.status] ?? payment.status}</dd></div><div class="flex items-center justify-between gap-4"><dt class="text-muted-foreground">Proveedor</dt><dd class="font-mono text-xs uppercase">{payment.provider}</dd></div>{refund && <div class="flex items-center justify-between gap-4"><dt class="text-muted-foreground">Reembolso</dt><dd class="font-semibold">{financialStatusLabel[refund.status] ?? refund.status}</dd></div>}</dl>{refund?.status === 'processing' && <p class="mt-3 text-sm leading-6 text-muted-foreground">La pasarela aún está procesando el abono. Reintentar reconcilia la misma referencia: no crea otro reembolso.</p>}{(refund?.status === 'failed' || refund?.status === 'requires_review') && <AdminNotice tone="warning">La pasarela no confirmó el abono. Revisa el pago antes de preparar el pedido.</AdminNotice>}</section>}
+      {refundRouteEnabled && payment && <section class="rounded-2xl border border-border bg-card p-5 shadow-sm" aria-labelledby="payment-title">
+        <h2 id="payment-title" class="font-display text-lg">Pago y reembolsos</h2>
+        <dl class="mt-4 space-y-2 text-sm">
+          <div class="flex items-center justify-between gap-4"><dt class="text-muted-foreground">Pago</dt><dd class="font-semibold">{financialStatusLabel[payment.status] ?? payment.status}</dd></div>
+          <div class="flex items-center justify-between gap-4"><dt class="text-muted-foreground">Proveedor</dt><dd class="font-mono text-xs uppercase">{payment.provider}</dd></div>
+          <div class="flex items-center justify-between gap-4"><dt class="text-muted-foreground">Abonado</dt><dd class="font-semibold">{formatEurCents(payment.refunded_cents)}</dd></div>
+        </dl>
+        {refunds.length > 0 && <ol class="mt-4 space-y-2 border-t border-border pt-4">{refunds.map((refund) => <li class="rounded-xl bg-muted/60 p-3 text-sm"><div class="flex items-start justify-between gap-3"><div><p class="font-semibold">{refund.operation_type === 'partial_cancellation' ? 'Parcial' : 'Total'} · {formatEurCents(refund.total_cents)}</p><p class="mt-1 text-xs text-muted-foreground">{refund.reason}</p></div><span class="text-xs font-semibold">{financialStatusLabel[refund.status] ?? refund.status}</span></div></li>)}</ol>}
+        {activePartialRefund?.status === 'processing' && <p class="mt-3 text-sm leading-6 text-muted-foreground">La pasarela aún procesa el abono parcial. Reintentar conserva la misma referencia.</p>}
+        {(activePartialRefund?.status === 'failed' || activePartialRefund?.status === 'requires_review') && <div class="mt-3"><AdminNotice tone="warning">La pasarela no confirmó el parcial. Reconcílialo antes de preparar más unidades.</AdminNotice></div>}
+      </section>}
 
       <section class="rounded-2xl border border-border bg-card p-5 shadow-sm" aria-labelledby="customer-title"><h2 id="customer-title" class="font-display text-lg">Cliente y entrega</h2><div class="mt-4 text-sm leading-6"><p class="font-semibold">{addr.name}</p><p>{addr.street}</p><p>{addr.postal_code} {addr.city}</p><a href={`mailto:${order.email}`} class="mt-3 block break-all text-muted-foreground underline underline-offset-4">{order.email}</a>{addr.phone && <a href={`tel:${addr.phone}`} class="block text-muted-foreground underline underline-offset-4">{addr.phone}</a>}</div>{(addr.nif || addr.company) && <div class="mt-4 rounded-xl bg-amber-50 p-3 text-sm text-amber-950"><p class="text-xs font-semibold uppercase tracking-wide">Facturación</p><p class="mt-1">{[addr.company, addr.nif].filter(Boolean).join(' · ')}</p></div>}</section>
 
       {!readOnly && trackingEnabled && partialEffectsEnabled && order.status === 'paid' && remainingQuantity > 0 && <form data-ship-form data-order-id={order.id} class="rounded-2xl border border-border bg-card p-5 shadow-sm"><h2 class="font-display text-lg">Preparar envío</h2><p class="mt-1 text-sm leading-6 text-muted-foreground">Elige cantidades o usa la salida completa. Cada paquete avisa al cliente.</p><fieldset class="mt-4 space-y-2"><legend class="text-xs font-semibold text-muted-foreground">Unidades de este envío</legend>{itemProgress.filter((item) => item.remaining_quantity > 0).map((item) => <label class="flex min-h-11 items-center justify-between gap-3 rounded-xl border border-border px-3 text-sm"><span class="min-w-0 truncate">{item.name_snapshot}</span><input type="number" inputmode="numeric" min="0" max={item.remaining_quantity} value="0" data-fulfillment-line data-line-id={item.order_item_id} aria-label={`Cantidad de ${item.name_snapshot}; máximo ${item.remaining_quantity}`} class="h-9 w-16 rounded-lg border border-input px-2 text-right"/></label>)}</fieldset><label class="mt-4 block text-xs font-semibold text-muted-foreground" for="carrier">Transportista</label><input id="carrier" name="carrier" required list="carriers" class="mt-1 min-h-11 w-full rounded-xl border border-input px-3 text-sm"/><datalist id="carriers"><option value="SEUR"></option><option value="Correos Express"></option><option value="GLS"></option><option value="MRW"></option><option value="CTT"></option></datalist><label class="mt-3 block text-xs font-semibold text-muted-foreground" for="tracking">Nº de seguimiento</label><input id="tracking" name="tracking" required class="mt-1 min-h-11 w-full rounded-xl border border-input px-3 text-sm"/><p data-ship-error role="alert" class="mt-2 hidden text-sm text-red-700"></p><div class="mt-4 grid gap-2"><button type="submit" data-ship-mode="selected" class="min-h-11 rounded-xl border border-border px-4 text-sm font-semibold hover:bg-muted">Enviar selección</button><button type="submit" data-ship-mode="all" class="min-h-11 rounded-xl bg-foreground px-4 text-sm font-semibold text-background hover:bg-foreground/85">Enviar todo lo pendiente</button></div></form>}
 
-      {!readOnly && refundEffectsEnabled && order.status === 'paid' && fulfillments.length === 0 && payment?.status === 'captured' && payment.provider !== 'legacy' && <form data-refund-form data-order-id={order.id} class="rounded-2xl border border-red-200 bg-red-50 p-5"><h2 class="font-display text-lg text-red-950">Reembolso total</h2><p class="mt-2 text-sm leading-6 text-red-900">Devuelve {formatEurCents(order.total_cents)} por la pasarela y cancela el pedido. El importe siempre sale del servidor.</p><label class="mt-4 block text-xs font-semibold text-red-900" for="refund-reason">Motivo</label><select id="refund-reason" name="reason" required class="mt-1 min-h-11 w-full rounded-xl border border-red-300 bg-white px-3 text-sm text-red-950"><option value="Cancelación solicitada por el cliente">Cancelación solicitada por el cliente</option><option value="Pedido duplicado">Pedido duplicado</option><option value="Producto no disponible">Producto no disponible</option></select><label class="mt-4 flex min-h-11 items-center gap-3 text-sm font-medium text-red-950"><input type="checkbox" name="restock" checked class="size-5"/>Reponer las unidades en stock</label><p class="mt-1 text-xs leading-5 text-red-800">El abono y la reposición quedan registrados como decisiones separadas.</p><p data-refund-error role="alert" class="mt-2 hidden text-sm font-medium text-red-800"></p><button type="submit" class="mt-4 min-h-11 w-full rounded-xl border border-red-300 bg-white px-4 text-sm font-semibold text-red-800 hover:bg-red-100">{refund ? 'Reintentar o reconciliar' : 'Reembolsar y cancelar'}</button></form>}
+      {refundRouteEnabled && order.status === 'paid' && remainingQuantity > 0 && payment && (payment.status === 'captured' || payment.status === 'partially_refunded') && payment.provider !== 'legacy' && <form
+        data-refund-form
+        data-refund-mode="partial"
+        data-order-id={order.id}
+        data-idempotency-key={partialRefundKey}
+        data-refund-lines={activePartialRefund ? JSON.stringify(activePartialLines.map((line) => ({ order_item_id: line.order_item_id, quantity: line.quantity }))) : undefined}
+        class="rounded-2xl border border-amber-300 bg-amber-50 p-5"
+      >
+        <h2 class="font-display text-lg text-amber-950">Cancelación parcial</h2>
+        <p class="mt-2 text-sm leading-6 text-amber-900">Selecciona unidades no enviadas. Precio, saldo e importe se recalculan en el servidor.</p>
+        {refundActionDisabled && <p class="mt-3 rounded-xl border border-amber-300 bg-white/60 p-3 text-sm text-amber-950">Vista demostrativa: la operación está desactivada y la API responde 403.</p>}
+        {activePartialRefund ? <p class="mt-4 rounded-xl border border-amber-300 bg-white/60 p-3 text-sm text-amber-950">Hay un parcial {financialStatusLabel[activePartialRefund.status]?.toLowerCase() ?? activePartialRefund.status}. Reintenta la misma selección para reconciliarlo sin duplicar el abono.</p> : <fieldset class="mt-4 space-y-2"><legend class="text-xs font-semibold text-amber-900">Unidades a cancelar</legend>{itemProgress.filter((item) => item.remaining_quantity > 0).map((item) => <label class="flex min-h-11 items-center justify-between gap-3 rounded-xl border border-amber-300 bg-white/70 px-3 text-sm text-amber-950"><span class="min-w-0 truncate">{item.name_snapshot}</span><input type="number" inputmode="numeric" min="0" max={item.remaining_quantity} value="0" data-refund-line data-line-id={item.order_item_id} aria-label={`Cancelar unidades de ${item.name_snapshot}; máximo ${item.remaining_quantity}`} disabled={refundActionDisabled} class="h-9 w-16 rounded-lg border border-amber-300 bg-white px-2 text-right"/></label>)}</fieldset>}
+        <label class="mt-4 block text-xs font-semibold text-amber-900" for="partial-refund-reason">Motivo</label>
+        <select id="partial-refund-reason" name="reason" required disabled={refundActionDisabled} class="mt-1 min-h-11 w-full rounded-xl border border-amber-300 bg-white px-3 text-sm text-amber-950"><option value="Cancelación solicitada por el cliente">Cancelación solicitada por el cliente</option><option value="Producto no disponible">Producto no disponible</option><option value="Ajuste acordado con el cliente">Ajuste acordado con el cliente</option></select>
+        <label class="mt-4 flex min-h-11 items-center gap-3 text-sm font-medium text-amber-950"><input type="checkbox" name="restock" checked disabled={refundActionDisabled} class="size-5"/>Reponer las unidades canceladas</label>
+        <p class="mt-1 text-xs leading-5 text-amber-900">{partialShippingPolicy === 'merchandise-only' ? 'Esta tienda devuelve solo la mercancía en parciales; el envío se conserva.' : 'Esta tienda devuelve el envío completo únicamente al cancelar la última mercancía y si nada ha salido.'}</p>
+        <p data-refund-error role="alert" class="mt-2 hidden text-sm font-medium text-red-800"></p>
+        <button type="submit" disabled={refundActionDisabled} class="mt-4 min-h-11 w-full rounded-xl border border-amber-400 bg-white px-4 text-sm font-semibold text-foreground hover:bg-amber-100 disabled:cursor-not-allowed">{activePartialRefund ? 'Reintentar o reconciliar' : 'Reembolsar selección'}</button>
+      </form>}
+
+      {!readOnly && refundEffectsEnabled && order.status === 'paid' && activeFulfillments.length === 0 && (refunds.length === 0 || (refunds.length === 1 && totalRefund)) && payment?.status === 'captured' && payment.provider !== 'legacy' && <form data-refund-form data-refund-mode="total" data-order-id={order.id} class="rounded-2xl border border-red-200 bg-red-50 p-5"><h2 class="font-display text-lg text-red-950">Reembolso total</h2><p class="mt-2 text-sm leading-6 text-red-900">Devuelve {formatEurCents(order.total_cents)} por la pasarela y cancela el pedido. El importe siempre sale del servidor.</p><label class="mt-4 block text-xs font-semibold text-red-900" for="refund-reason">Motivo</label><select id="refund-reason" name="reason" required class="mt-1 min-h-11 w-full rounded-xl border border-red-300 bg-white px-3 text-sm text-red-950"><option value="Cancelación solicitada por el cliente">Cancelación solicitada por el cliente</option><option value="Pedido duplicado">Pedido duplicado</option><option value="Producto no disponible">Producto no disponible</option></select><label class="mt-4 flex min-h-11 items-center gap-3 text-sm font-medium text-red-950"><input type="checkbox" name="restock" checked class="size-5"/>Reponer las unidades en stock</label><p class="mt-1 text-xs leading-5 text-red-800">El abono total incluye el envío y la reposición queda registrada aparte.</p><p data-refund-error role="alert" class="mt-2 hidden text-sm font-medium text-red-800"></p><button type="submit" class="mt-4 min-h-11 w-full rounded-xl border border-red-300 bg-white px-4 text-sm font-semibold text-red-800 hover:bg-red-100">{totalRefund ? 'Reintentar o reconciliar' : 'Reembolsar y cancelar'}</button></form>}
     </aside>
   </div>
 
@@ -89,8 +138,62 @@ const fulfillmentStatusLabel: Record<string, string> = {
     const shipForm = document.querySelector<HTMLFormElement>('[data-ship-form]');
     shipForm?.addEventListener('submit', (event) => { event.preventDefault(); if (!shipForm.reportValidity()) return; const submitter = (event as SubmitEvent).submitter as HTMLButtonElement | null; const buttons = [...shipForm.querySelectorAll<HTMLButtonElement>('button[type="submit"]')]; if (buttons.some((button) => button.disabled)) return; const data = new FormData(shipForm); const lines = [...shipForm.querySelectorAll<HTMLInputElement>('[data-fulfillment-line]')].map((input) => ({ order_item_id: Number(input.dataset.lineId), quantity: Number(input.value) })).filter((line) => Number.isInteger(line.quantity) && line.quantity > 0); const error = shipForm.querySelector<HTMLElement>('[data-ship-error]')!; if (submitter?.dataset.shipMode !== 'all' && lines.length === 0) { error.textContent = 'Selecciona al menos una unidad o usa “Enviar todo”.'; error.classList.remove('hidden'); return; } buttons.forEach((button) => { button.disabled = true; }); shipForm.dataset.idempotencyKey ||= crypto.randomUUID(); void (async () => { const res = await fetch('/api/admin/fulfillments', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ order_id: Number(shipForm.dataset.orderId), tracking_carrier: String(data.get('carrier') ?? ''), tracking_number: String(data.get('tracking') ?? ''), idempotency_key: shipForm.dataset.idempotencyKey, ...(submitter?.dataset.shipMode === 'all' ? {} : { lines }) }) }); if (res.ok) window.location.reload(); else { const body = await res.json() as { error?: string }; error.textContent = body.error ?? 'Error inesperado'; error.classList.remove('hidden'); buttons.forEach((button) => { button.disabled = false; }); } })(); });
     document.querySelectorAll<HTMLButtonElement>('[data-deliver-fulfillment]').forEach((button) => button.addEventListener('click', () => { if (button.disabled) return; button.disabled = true; void fetch(`/api/admin/fulfillments/${button.dataset.fulfillmentId}`, { method: 'PATCH', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ status: 'delivered' }) }).then((res) => { if (res.ok) window.location.reload(); else button.disabled = false; }); }));
-    const refundForm = document.querySelector<HTMLFormElement>('[data-refund-form]');
-    const refundButton = refundForm?.querySelector<HTMLButtonElement>('button[type="submit"]');
-    refundForm?.addEventListener('submit', (event) => { event.preventDefault(); if (!refundForm.reportValidity() || refundButton?.disabled) return; const data = new FormData(refundForm); if (!window.confirm('¿Confirmas el reembolso total y la cancelación? La pasarela recibirá la orden una sola vez aunque haya reintentos.')) return; if (refundButton) refundButton.disabled = true; void (async () => { const res = await fetch(`/api/admin/refunds/${refundForm.dataset.orderId}`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ reason: String(data.get('reason') ?? ''), restock: data.get('restock') === 'on' }) }); if (res.ok) window.location.reload(); else { if (refundButton) refundButton.disabled = false; const body = await res.json() as { error?: string }; const error = document.querySelector<HTMLElement>('[data-refund-error]')!; error.textContent = body.error ?? 'Error inesperado'; error.classList.remove('hidden'); } })(); });
+    document.querySelectorAll<HTMLFormElement>('[data-refund-form]').forEach((refundForm) => {
+      const refundButton = refundForm.querySelector<HTMLButtonElement>('button[type="submit"]');
+      refundForm.addEventListener('submit', (event) => {
+        event.preventDefault();
+        if (!refundForm.reportValidity() || refundButton?.disabled) return;
+        const data = new FormData(refundForm);
+        const partial = refundForm.dataset.refundMode === 'partial';
+        const presetLines = refundForm.dataset.refundLines;
+        const lines = presetLines
+          ? JSON.parse(presetLines) as { order_item_id: number; quantity: number }[]
+          : [...refundForm.querySelectorAll<HTMLInputElement>('[data-refund-line]')]
+              .map((input) => ({
+                order_item_id: Number(input.dataset.lineId),
+                quantity: Number(input.value),
+              }))
+              .filter((line) => Number.isInteger(line.quantity) && line.quantity > 0);
+        const error = refundForm.querySelector<HTMLElement>('[data-refund-error]')!;
+        if (partial && lines.length === 0) {
+          error.textContent = 'Selecciona al menos una unidad para cancelar.';
+          error.classList.remove('hidden');
+          return;
+        }
+        const confirmation = partial
+          ? '¿Confirmas el reembolso de las unidades seleccionadas? El servidor recalculará el importe y bloqueará cualquier unidad ya enviada.'
+          : '¿Confirmas el reembolso total y la cancelación? La pasarela recibirá la orden una sola vez aunque haya reintentos.';
+        if (!window.confirm(confirmation)) return;
+        if (refundButton) refundButton.disabled = true;
+        if (partial) refundForm.dataset.idempotencyKey ||= crypto.randomUUID();
+        const payload = partial
+          ? {
+              mode: 'partial',
+              reason: String(data.get('reason') ?? ''),
+              restock: data.get('restock') === 'on',
+              idempotency_key: refundForm.dataset.idempotencyKey,
+              lines,
+            }
+          : {
+              mode: 'total',
+              reason: String(data.get('reason') ?? ''),
+              restock: data.get('restock') === 'on',
+            };
+        void (async () => {
+          const res = await fetch(`/api/admin/refunds/${refundForm.dataset.orderId}`, {
+            method: 'POST',
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify(payload),
+          });
+          if (res.ok) window.location.reload();
+          else {
+            if (refundButton) refundButton.disabled = false;
+            const body = await res.json() as { error?: string };
+            error.textContent = body.error ?? 'Error inesperado';
+            error.classList.remove('hidden');
+          }
+        })();
+      });
+    });
   </script>
 </Admin>

@@ -7,6 +7,8 @@ export type EventOrderGuard = Readonly<{
   expectedStatus: string;
   requireNoActiveRefund?: boolean;
   ignoreExistingIdempotencyKey?: boolean;
+  payment?: Readonly<{ id: number; status: string; version: number }>;
+  refund?: Readonly<{ id: number; status: string; version: number }>;
 }>;
 
 function eventValues(event: EventEnvelope): readonly unknown[] {
@@ -36,7 +38,7 @@ export function createD1EventOutboxWriter(db: D1Database) {
       const refundGuard = guard.requireNoActiveRefund
         ? `AND NOT EXISTS (
             SELECT 1 FROM refunds
-            WHERE order_id = ? AND status IN ('pending', 'processing', 'succeeded', 'requires_review')
+            WHERE order_id = ? AND status IN ('pending', 'processing', 'failed', 'requires_review')
           )`
         : '';
       const refundBindings = guard.requireNoActiveRefund ? [guard.orderId] : [];
@@ -44,6 +46,24 @@ export function createD1EventOutboxWriter(db: D1Database) {
         ? 'AND NOT EXISTS (SELECT 1 FROM event_outbox_events WHERE idempotency_key = ?)'
         : '';
       const idempotencyBindings = guard.ignoreExistingIdempotencyKey ? [event.idempotency_key] : [];
+      const paymentGuard = guard.payment
+        ? `AND EXISTS (
+            SELECT 1 FROM payments
+            WHERE id = ? AND status = ? AND version = ?
+          )`
+        : '';
+      const paymentBindings = guard.payment
+        ? [guard.payment.id, guard.payment.status, guard.payment.version]
+        : [];
+      const refundGuardSql = guard.refund
+        ? `AND EXISTS (
+            SELECT 1 FROM refunds
+            WHERE id = ? AND status = ? AND version = ?
+          )`
+        : '';
+      const refundGuardBindings = guard.refund
+        ? [guard.refund.id, guard.refund.status, guard.refund.version]
+        : [];
       return db.prepare(`
         INSERT INTO event_outbox_events (
           event_id, event_type, event_version, occurred_at,
@@ -55,12 +75,16 @@ export function createD1EventOutboxWriter(db: D1Database) {
         WHERE EXISTS (
           SELECT 1 FROM orders WHERE id = ? AND status = ? ${refundGuard}
         )
+        ${paymentGuard}
+        ${refundGuardSql}
         ${idempotencyGuard}
       `).bind(
         ...eventValues(event),
         guard.orderId,
         guard.expectedStatus,
         ...refundBindings,
+        ...paymentBindings,
+        ...refundGuardBindings,
         ...idempotencyBindings,
       );
     },

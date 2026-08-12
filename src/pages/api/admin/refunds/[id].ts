@@ -7,10 +7,22 @@ import { createPaymentRefundGatewayResolver } from '../../../../integrations';
 
 export const prerender = false;
 
-const refundSchema = z.object({
+const totalRefundSchema = z.object({
+  mode: z.literal('total').optional(),
   reason: z.string().trim().min(1).max(240),
   restock: z.boolean(),
-});
+}).strict();
+
+const partialRefundSchema = z.object({
+  mode: z.literal('partial'),
+  reason: z.string().trim().min(1).max(240),
+  restock: z.boolean(),
+  idempotency_key: z.string().uuid(),
+  lines: z.array(z.object({
+    order_item_id: z.number().int().positive(),
+    quantity: z.number().int().positive(),
+  }).strict()).min(1).max(100),
+}).strict();
 
 export const POST: APIRoute = async ({ params, request, locals }) => {
   const env = locals.runtime.env;
@@ -30,7 +42,10 @@ export const POST: APIRoute = async ({ params, request, locals }) => {
   } catch {
     return Response.json({ error: 'JSON inválido' }, { status: 400 });
   }
-  const parsed = refundSchema.safeParse(body);
+  const parsed = typeof body === 'object' && body !== null &&
+    (body as { mode?: unknown }).mode === 'partial'
+    ? partialRefundSchema.safeParse(body)
+    : totalRefundSchema.safeParse(body);
   if (!parsed.success) {
     return Response.json({ error: 'Datos inválidos', details: parsed.error.flatten() }, { status: 400 });
   }
@@ -40,7 +55,19 @@ export const POST: APIRoute = async ({ params, request, locals }) => {
       env.DB,
       createPaymentRefundGatewayResolver(env.STRIPE_SECRET_KEY),
     );
-    const result = await refunds.refundTotal({ orderId, ...parsed.data });
+    const result = parsed.data.mode === 'partial'
+      ? await refunds.refundPartial({
+          orderId,
+          reason: parsed.data.reason,
+          restock: parsed.data.restock,
+          idempotencyKey: parsed.data.idempotency_key,
+          lines: parsed.data.lines,
+        })
+      : await refunds.refundTotal({
+          orderId,
+          reason: parsed.data.reason,
+          restock: parsed.data.restock,
+        });
     switch (result.outcome) {
       case 'applied':
         if (result.queuedMessages > 0) {
@@ -54,7 +81,11 @@ export const POST: APIRoute = async ({ params, request, locals }) => {
       case 'not_found':
         return Response.json({ error: 'Pedido no encontrado.' }, { status: 404 });
       case 'invalid_state':
-        return Response.json({ error: 'El pedido o el pago ya no admite un reembolso total.' }, { status: 422 });
+        return Response.json({
+          error: parsed.data.mode === 'partial'
+            ? 'La selección ya no conserva esas unidades cancelables.'
+            : 'El pedido o el pago ya no admite un reembolso total.',
+        }, { status: 422 });
       case 'gateway_unavailable':
         return Response.json({ error: 'La pasarela del pago no permite completar el reembolso.' }, { status: 503 });
       case 'conflict':

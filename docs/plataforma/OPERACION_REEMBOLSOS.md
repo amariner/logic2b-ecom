@@ -1,8 +1,8 @@
-# Operación de reembolsos totales R2.10
+# Operación de reembolsos totales y parciales R2.10–R2.13
 
-Este runbook cubre la devolución total iniciada desde el detalle administrativo.
-No autoriza reembolsos parciales, cambios de precio, créditos de tienda ni una
-decisión comercial sobre cuándo devolver stock.
+Este runbook cubre la cancelación con reembolso total o por cantidades iniciada
+desde el detalle administrativo. No cubre devoluciones/RMA de mercancía ya
+enviada, cambios de precio ni créditos de tienda.
 
 ## Precondiciones
 
@@ -11,25 +11,31 @@ decisión comercial sobre cuándo devolver stock.
 - proveedor soportado (`stripe` con secreto configurado o `simulated`);
 - capacidad `ORD-007` con `routes` y `sideEffects` activas;
 - motivo y decisión de reposición confirmados por la persona operadora.
+- en un parcial, cantidades enteras positivas que sigan pendientes; los
+  importes se calculan exclusivamente con snapshots del servidor.
 
 La demo pública mantiene `sideEffects=false` y además responde 403 cuando
 `DEMO_MODE=true`. Nunca llama al proveedor ni escribe una intención.
 
 ## Secuencia y garantías
 
-1. El servidor relee pedido, pago y líneas y calcula el total; el navegador no
-   envía dinero ni cantidades.
-2. Inserta `refunds` y `refund_items` con
-   `r2:refund:order:{order_id}:total` antes de la llamada externa.
+1. El servidor relee pedido, pago, líneas, fulfillments y cancelaciones y
+   calcula el importe; el navegador envía cantidades, nunca dinero.
+2. Inserta `refunds` y `refund_items` antes de la llamada externa. El total usa
+   `r2:refund:order:{order_id}:total`; cada parcial conserva una clave UUID del
+   navegador prefijada por pedido.
 3. El adaptador pasa esa clave al PSP. Un retry consulta o repite la misma
    operación idempotente.
 4. Se contrastan proveedor, referencia del pago, moneda e importe. Una
    divergencia queda en `requires_review`, nunca como éxito.
-5. El éxito escribe una sola transacción financiera y, bajo la misma guarda de
+5. Los triggers de `0013` reservan línea y cantidad contra intenciones no
+   canceladas y fulfillments activos, de modo que una carrera se resuelve antes
+   del PSP.
+6. El éxito escribe una sola transacción financiera y, bajo la misma guarda de
    evento, actualiza pago/reembolso/pedido, evento, auditoría, timeline,
    notificación y stock opcional.
 
-Un fallo entre los pasos 3 y 5 se recupera ejecutando de nuevo la misma acción:
+Un fallo entre la llamada y el cierre se recupera ejecutando de nuevo la misma acción:
 la intención y la clave ya existen, por lo que el PSP no recibe una segunda
 devolución. Dos solicitudes concurrentes comparten esa clave y solo una puede
 cerrar los efectos D1.
@@ -44,10 +50,10 @@ cerrar los efectos D1.
 | `failed` | PSP indicó fallo terminal | revisar proveedor y decidir siguiente paso |
 | `requires_review` | respuesta o identidad no coincide con el ledger | no mutar pedido; reconciliar manualmente |
 
-`pending`, `processing`, `succeeded` y `requires_review` bloquean envío o
-cancelación administrativa. `failed` deja disponible la resolución manual. El
-bloqueo cubre tanto la mutación como el evento, evitando timeline o auditoría
-fantasma.
+En cancelación por cantidades, `pending`, `processing`, `failed`, `succeeded` y
+`requires_review` reservan sus unidades; solo `cancelled` las libera. Así un
+fallo incierto nunca permite enviar o reembolsar dos veces la misma unidad. La
+persona operadora reintenta la misma clave o reconcilia, sin borrar evidencia.
 
 ## Reconciliación segura
 
@@ -65,7 +71,20 @@ R2.10 no incorpora reconciliación automática por webhook. El estado intermedio
 es durable y el procedimiento manual es el fallback explícito hasta una ola
 posterior.
 
-## Corte de esquema R2.13 pendiente de política
+## Política de envío por propietario
+
+`shop.config.ts#refunds.partialShippingPolicy` admite dos valores:
+
+- `merchandise-only` (predeterminado): todo parcial devuelve solo mercancía;
+- `full-on-final-cancellation`: añade el envío completo solo al cancelar la
+  última mercancía pendiente y si nunca salió un fulfillment.
+
+El panel explica la política configurada y el email confirma si el abono incluyó
+envío. Cambiarla es una decisión de configuración y despliegue del propietario,
+no una casilla por operación. El reembolso total anterior sigue incluyendo el
+envío completo.
+
+## Corte de esquema R2.13
 
 La migración aditiva `0013_partial_refund_guards.sql` fue autorizada, ensayada y
 aplicada a la D1 local mediante reset el 2026-08-12; producción permanece en
@@ -81,7 +100,7 @@ pnpm db:rehearse:partial-refunds -- \
 El ensayo no imprime filas ni PII: valida preflight, pertenencia, cantidades
 reservadas por refunds/fulfillments, liberación exclusiva de `cancelled`, hash
 R2.12 y dump/restore. No autoriza por sí solo el runtime ni el rollout remoto;
-ambos esperan la política comercial de gastos de envío parcial.
+ambos requieren el runtime R2.13 compatible.
 
 ## Verificación
 
@@ -93,6 +112,7 @@ BASE_URL=http://127.0.0.1:8787 pnpm test:e2e
 BASE_URL=http://127.0.0.1:8787 node scripts/a11y-audit.mjs --only=admin:pedido-pagado
 ```
 
-Las pruebas de runtime cubren éxito, replay, timeout seguido de recuperación,
-estado `processing`, reposición sí/no y dos solicitudes concurrentes. El E2E
-confirma que la demo pública rechaza la mutación.
+Las pruebas de runtime cubren ambas políticas, éxito, replay, timeout seguido de
+recuperación, estado `processing`, reposición sí/no, acumulación y carreras
+refund/refund y refund/fulfillment. El E2E confirma que la demo pública rechaza
+la mutación.

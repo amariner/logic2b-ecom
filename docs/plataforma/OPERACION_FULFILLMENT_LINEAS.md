@@ -55,8 +55,8 @@ el panel solo lee fixtures. En una composición avanzada R2.12 usa
 - con varios grupos, el tracking se consulta en `fulfillments` y el espejo del
   pedido queda nulo;
 - un reembolso total se rechaza antes de llamar al PSP si existe cualquier
-  grupo activo. R2.13 es el único bloque autorizado para cancelar/reembolsar
-  cantidades ya separadas.
+  grupo activo. R2.13 permite cancelar y reembolsar únicamente cantidades aún
+  pendientes; las cantidades enviadas requieren el futuro flujo RMA.
 
 Para diagnosticar una incidencia, congelar las mutaciones del pedido y revisar
 grupo, asignaciones, outbox, auditoría y timeline por `event_id`. No se corrigen
@@ -81,4 +81,5 @@ asignaciones con replay/restore coherentes. Se aplicó `0012`, se ejecutó el
 backfill y la lectura posterior confirmó los mismos recuentos y cero errores FK.
 El Worker `6663a123-012f-4507-b120-384750876809` quedó servido en
 `ecom.logic2b.com`; E2E remoto pasó 42/42 y las seis superficies de pedido
-pasaron la auditoría a11y. La propuesta `0013` no se materializó ni se aplicó.
+pasaron la auditoría a11y. `0013` se materializó y ensayó localmente el
+2026-08-12; su corte remoto requiere el binario R2.13 compatible.

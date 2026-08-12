@@ -45,7 +45,7 @@ export function createStripeRefundGateway(secretKey: string): PaymentRefundGatew
   const stripe = stripeClient(secretKey);
   return Object.freeze({
     provider: 'stripe' as const,
-    async refundTotal(request: RefundGatewayRequest) {
+    async refund(request: RefundGatewayRequest) {
       const refund = request.existingRefundReference
         ? await stripe.refunds.retrieve(request.existingRefundReference)
         : await stripe.refunds.create(
@@ -64,7 +64,7 @@ export function createStripeRefundGateway(secretKey: string): PaymentRefundGatew
 export function createSimulatedRefundGateway(): PaymentRefundGateway {
   return Object.freeze({
     provider: 'simulated' as const,
-    async refundTotal(request: RefundGatewayRequest) {
+    async refund(request: RefundGatewayRequest) {
       const providerReference = request.existingRefundReference ??
         `sim_refund_${request.idempotencyKey.replace(/[^a-zA-Z0-9]/g, '_')}`;
       return Object.freeze({ providerReference, status: 'succeeded' as const });

@@ -4,7 +4,7 @@ Pasos para convertir esta plantilla en la tienda de un cliente. En orden; todo e
 
 ## 1. Personalizar la tienda
 
-- [ ] `shop.config.ts`: nombre, razón social, email, divisa, `orderNumberPrefix` (nº de pedido legible: `{prefijo}-AAMMDD-XXXX`, hoy `BM` de la demo), colores de marca, categorías, zonas de envío y tarifas seed.
+- [ ] `shop.config.ts`: nombre, razón social, email, divisa, `orderNumberPrefix` (nº de pedido legible: `{prefijo}-AAMMDD-XXXX`, hoy `BM` de la demo), colores de marca, zonas de envío, tarifas seed y `refunds.partialShippingPolicy`. Esta última vale `merchandise-only` por defecto; usar `full-on-final-cancellation` solo si el propietario quiere devolver el envío al cancelar toda la mercancía antes de cualquier salida.
 - [ ] `seed/products.ts`: catálogo real del cliente (el formato es autoexplicativo; precios en céntimos).
 - [ ] Imágenes reales de producto en `public/images/products/` (WebP optimizado, 800×800). El seed reparte variantes por categoría vía `seed/image-variants.ts` — actualiza ese fichero con el nº de fotos reales por categoría del cliente (hoy apunta a las fotos IA de la demo).
 - [ ] Textos legales del footer (aviso legal, privacidad, devoluciones) con los datos del comercio.

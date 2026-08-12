@@ -5,7 +5,7 @@ import { SqliteD1 } from './sqlite-d1';
 const NOW = '2026-08-11T18:00:00.000Z';
 
 function database(): SqliteD1 {
-  const db = new SqliteD1();
+  const db = new SqliteD1(false);
   db.sqlite.exec(`
     INSERT INTO products (id, slug, name, price_cents, stock, category)
     VALUES (1, 'producto', 'Producto', 1000, 10, 'test');

@@ -28,7 +28,7 @@ export type FulfillmentRecord = Readonly<{
 export type ShipmentWriteInput = Readonly<{
   orderId: number;
   expectedOrderStatus: 'paid';
-  expectedAllocatedQuantity: number;
+  expectedCommittedQuantity: number;
   eventId: string;
   idempotencyKey: string;
   tracking: FulfillmentTracking;
@@ -90,7 +90,14 @@ export function createD1FulfillmentLedger(db: D1Database) {
       const { results } = await db.prepare(`
         SELECT oi.id AS order_item_id,
                oi.qty AS ordered_quantity,
-               0 AS cancelled_quantity,
+               COALESCE((
+                 SELECT sum(ri.quantity)
+                 FROM refund_items ri
+                 JOIN refunds r ON r.id = ri.refund_id
+                 WHERE ri.order_item_id = oi.id
+                   AND r.operation_type IN ('total_cancellation', 'partial_cancellation')
+                   AND r.status = 'succeeded'
+               ), 0) AS cancelled_quantity,
                COALESCE(sum(CASE WHEN f.status <> 'cancelled' THEN fi.quantity ELSE 0 END), 0)
                  AS fulfilled_quantity
         FROM order_items oi
@@ -105,8 +112,8 @@ export function createD1FulfillmentLedger(db: D1Database) {
 
     shipmentStatements(input: ShipmentWriteInput): readonly D1PreparedStatement[] {
       assertId(input.orderId, 'order_id');
-      if (!Number.isSafeInteger(input.expectedAllocatedQuantity) || input.expectedAllocatedQuantity < 0) {
-        throw new RangeError('expectedAllocatedQuantity debe ser un entero seguro no negativo.');
+      if (!Number.isSafeInteger(input.expectedCommittedQuantity) || input.expectedCommittedQuantity < 0) {
+        throw new RangeError('expectedCommittedQuantity debe ser un entero seguro no negativo.');
       }
       const key = normalizeFulfillmentIdempotencyKey(input.idempotencyKey);
       const tracking = normalizeFulfillmentTracking(input.tracking);
@@ -123,12 +130,21 @@ export function createD1FulfillmentLedger(db: D1Database) {
           SELECT 1 FROM event_outbox_events WHERE event_id = ?
         ) AND EXISTS (
           SELECT 1 FROM orders WHERE id = ? AND status = ?
-        ) AND ? = COALESCE((
-          SELECT sum(fi.quantity)
-          FROM fulfillment_items fi
-          JOIN fulfillments existing ON existing.id = fi.fulfillment_id
-          WHERE existing.order_id = ? AND existing.status <> 'cancelled'
-        ), 0)
+        ) AND ? =
+          COALESCE((
+            SELECT sum(fi.quantity)
+            FROM fulfillment_items fi
+            JOIN fulfillments existing ON existing.id = fi.fulfillment_id
+            WHERE existing.order_id = ? AND existing.status <> 'cancelled'
+          ), 0)
+          + COALESCE((
+            SELECT sum(ri.quantity)
+            FROM refund_items ri
+            JOIN refunds r ON r.id = ri.refund_id
+            WHERE r.order_id = ?
+              AND r.operation_type IN ('total_cancellation', 'partial_cancellation')
+              AND r.status = 'succeeded'
+          ), 0)
       `).bind(
         input.orderId,
         tracking.carrier,
@@ -140,7 +156,8 @@ export function createD1FulfillmentLedger(db: D1Database) {
         input.eventId,
         input.orderId,
         input.expectedOrderStatus,
-        input.expectedAllocatedQuantity,
+        input.expectedCommittedQuantity,
+        input.orderId,
         input.orderId,
       );
       const lines = input.allocations.map((allocation) => {
@@ -158,6 +175,13 @@ export function createD1FulfillmentLedger(db: D1Database) {
                 FROM fulfillment_items fi
                 JOIN fulfillments existing ON existing.id = fi.fulfillment_id
                 WHERE fi.order_item_id = oi.id AND existing.status <> 'cancelled'
+              ), 0) - COALESCE((
+                SELECT sum(ri.quantity)
+                FROM refund_items ri
+                JOIN refunds r ON r.id = ri.refund_id
+                WHERE ri.order_item_id = oi.id
+                  AND r.operation_type IN ('total_cancellation', 'partial_cancellation')
+                  AND r.status = 'succeeded'
               ), 0)
           )
           INSERT INTO fulfillment_items (
@@ -267,6 +291,13 @@ export function createD1FulfillmentLedger(db: D1Database) {
                 FROM fulfillment_items fi
                 JOIN fulfillments allocated ON allocated.id = fi.fulfillment_id
                 WHERE fi.order_item_id = oi.id AND allocated.status <> 'cancelled'
+              ), 0) + COALESCE((
+                SELECT sum(ri.quantity)
+                FROM refund_items ri
+                JOIN refunds r ON r.id = ri.refund_id
+                WHERE ri.order_item_id = oi.id
+                  AND r.operation_type IN ('total_cancellation', 'partial_cancellation')
+                  AND r.status = 'succeeded'
               ), 0) < oi.qty
           )
           AND NOT EXISTS (

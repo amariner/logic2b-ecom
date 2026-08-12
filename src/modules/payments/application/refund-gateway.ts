@@ -18,7 +18,7 @@ export type RefundGatewayResult = Readonly<{
 /** Puerto PSP: el módulo decide el dinero; el adaptador solo ejecuta/reconcilia. */
 export interface PaymentRefundGateway {
   readonly provider: Exclude<PaymentProvider, 'legacy'>;
-  refundTotal(request: RefundGatewayRequest): Promise<RefundGatewayResult>;
+  refund(request: RefundGatewayRequest): Promise<RefundGatewayResult>;
 }
 
 export type PaymentRefundGatewayResolver = (

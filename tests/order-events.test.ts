@@ -6,6 +6,7 @@ import {
   orderCorrelationId,
   orderDeliveredEvent,
   orderPaidEvent,
+  orderPartiallyRefundedEvent,
   orderPlacedEvent,
   orderRefundedEvent,
   orderShippedEvent,
@@ -37,7 +38,7 @@ const emailData: OrderEmailData = {
   subtotal_cents: 1780,
   shipping_cents: 490,
   total_cents: 2270,
-  items: [{ name_snapshot: 'AOVE Picual 500 ml', unit_price_cents: 890, qty: 2 }],
+  items: [{ order_item_id: 71, name_snapshot: 'AOVE Picual 500 ml', unit_price_cents: 890, qty: 2 }],
 };
 
 describe('eventos de pedido (R1.5)', () => {
@@ -130,6 +131,20 @@ describe('eventos de pedido (R1.5)', () => {
         restock: true,
       })).note,
     ).toBe('Reembolso total confirmado y pedido cancelado');
+    expect(
+      orderTimelineEntry(orderPartiallyRefundedEvent(emit, {
+        ...subject,
+        to_status: 'paid',
+        refund_id: 4,
+        subtotal_cents: 890,
+        shipping_cents: 0,
+        total_cents: 890,
+        currency: 'EUR',
+        restock: true,
+        allocations: [{ order_item_id: 71, quantity: 1 }],
+        remaining_quantity: 1,
+      })).note,
+    ).toBe('Reembolso parcial confirmado: 1 unidad');
   });
 
   it('la nota de envío sin tracking (solo posible en fixtures) no inventa paréntesis vacíos', () => {
@@ -176,6 +191,28 @@ describe('notificaciones como consumidor de eventos (R1.5)', () => {
     expect(messages[0]?.body_html).toContain('importe completo');
   });
 
+  it('un reembolso parcial enumera solo las unidades seleccionadas y si incluye envío', () => {
+    const messages = orderNotificationsFor(
+      orderPartiallyRefundedEvent(emit, {
+        ...subject,
+        to_status: 'paid',
+        refund_id: 8,
+        subtotal_cents: 890,
+        shipping_cents: 0,
+        total_cents: 890,
+        currency: 'EUR',
+        restock: false,
+        allocations: [{ order_item_id: 71, quantity: 1 }],
+        remaining_quantity: 1,
+      }),
+      emailData,
+    );
+    expect(messages).toHaveLength(1);
+    expect(messages[0]?.subject).toContain('Reembolso parcial');
+    expect(messages[0]?.body_html).toContain('AOVE Picual 500 ml × 1');
+    expect(messages[0]?.body_html).toContain('no incluye los gastos de envío');
+  });
+
   it('los hechos a los que no está suscrito no producen nada', () => {
     for (const event of [
       orderPlacedEvent(emit, subject),
@@ -217,6 +254,7 @@ describe('registro de módulos y eventos (R1.5)', () => {
       'orders.order_delivered',
       'orders.order_cancelled',
       'orders.order_refunded',
+      'orders.order_partially_refunded',
     ]);
     for (const event of MODULE_REGISTRY.byId.orders.events) {
       expect(MODULE_REGISTRY.eventOwners[event]).toBe('orders');
@@ -229,6 +267,7 @@ describe('registro de módulos y eventos (R1.5)', () => {
       'orders.order_paid',
       'orders.order_shipped',
       'orders.order_refunded',
+      'orders.order_partially_refunded',
       'fulfillment.fulfillment_shipped',
     ]);
     expect(notifications.dependencies).not.toContain('orders');

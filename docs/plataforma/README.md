@@ -66,8 +66,8 @@ venta o servicios logísticos propios.
   borrador interno R1.10; distingue registro/health local de panel, replay y
   sondeos remotos todavía pendientes.
 - [`wiki/nucleo-transaccional-ecommerce.md`](wiki/nucleo-transaccional-ecommerce.md):
-  borrador interno actualizado en R2.12; variantes, ledgers y fulfillment
-  parcial tienen evidencia local/remota, pero R2.13 sigue fuera.
+  borrador interno actualizado en R2.13; variantes, ledgers, fulfillment y
+  cancelación parcial tienen evidencia local, con publicación aún pendiente.
 - [`adr/0011-jobs-duraderos-d1.md`](adr/0011-jobs-duraderos-d1.md): contrato
   R1.11 de identidad, lock, timeout, retry, dead-letter y replay sobre D1.
 - [`adr/0012-modelo-transaccional-r2.md`](adr/0012-modelo-transaccional-r2.md):
@@ -95,7 +95,7 @@ venta o servicios logísticos propios.
   esquema aditivo R2.11 de grupos y cantidades por línea.
 - [`../../migrations/0013_partial_refund_guards.sql`](../../migrations/0013_partial_refund_guards.sql):
   esquema aditivo R2.13 que tipa la operación y reserva cantidades cancelables;
-  materializado, ensayado y aplicado localmente; D1 remota sigue en `0012`.
+  materializado, ensayado y aplicado localmente.
 - [`OPERACION_FULFILLMENT_LINEAS.md`](OPERACION_FULFILLMENT_LINEAS.md):
   preflight, backfill, replay, restore, corte R2.11 y operación parcial R2.12.
 - [`../../scripts/rehearse-r2-fulfillment-lines.mjs`](../../scripts/rehearse-r2-fulfillment-lines.mjs):
@@ -103,7 +103,8 @@ venta o servicios logísticos propios.
 - [`../../scripts/rehearse-r2-partial-refunds.mjs`](../../scripts/rehearse-r2-partial-refunds.mjs):
   rehearsal aislado de `0013`, guardas de pertenencia/cantidad y dump/restore.
 - [`../../src/modules/payments/`](../../src/modules/payments/): contrato puro y
-  adaptador D1 de intención, captura, cancelación financiera y reembolso total.
+  adaptador D1 de intención, captura, cancelación financiera y reembolso total
+  o por cantidades.
 - [`../../src/modules/inventory/domain/inventory-ledger.ts`](../../src/modules/inventory/domain/inventory-ledger.ts):
   razones, direcciones, transiciones y guarda optimista del ledger.
 - [`../../src/modules/inventory/infrastructure/d1-inventory-ledger.ts`](../../src/modules/inventory/infrastructure/d1-inventory-ledger.ts):
