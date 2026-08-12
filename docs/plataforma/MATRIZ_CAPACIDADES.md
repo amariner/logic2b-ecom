@@ -122,7 +122,7 @@ su alcance requiera.
 | ORD-001 | Pedido con snapshots | núcleo | P0 | actual | Nombre y precio quedan congelados en la compra. |
 | ORD-002 | Máquina de estados validada | núcleo | P0 | actual | Transiciones permitidas, evento y concurrencia protegida. |
 | ORD-003 | Búsqueda, filtros y paginación | núcleo | P1 | actual | Cursor bidireccional estable; búsqueda FTS segura; estado, fecha e importe combinables; URL compartible. Vistas guardadas siguen opcionales. |
-| ORD-004 | Notas, etiquetas y timeline | módulo | P1 | parcial | Actividad unificada con actor y visibilidad interna/cliente. |
+| ORD-004 | Notas, etiquetas y timeline | módulo | P1 | actual | Notas versionadas internas/cliente, etiquetas idempotentes, actor, auditoría y actividad unificada filtrable. |
 | ORD-005 | Edición de pedido | módulo | P1 | pendiente | Añadir/quitar/cambiar cantidad con ajuste de dinero y stock. |
 | ORD-006 | Cancelación parcial | módulo | P1 | actual | Selección por línea/cantidad no enviada, motivo, reserva concurrente y stock opcional coherente. |
 | ORD-007 | Reembolso total/parcial | módulo | P1 | actual | Intención previa al PSP, saldo acumulado, retry idempotente, política de envío por despliegue, estado visible, evento/email y reposición opcional. |

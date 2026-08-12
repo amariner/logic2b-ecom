@@ -107,7 +107,7 @@ Cada migración se diseña y ensaya sobre una copia antes de tocar el esquema vi
 | Orden | Bloque de una sesión | Entregables y criterio específico | Estado |
 |---:|---|---|---|
 | 27 | **R3.1 Índice de pedidos escalable** | Cursor, búsqueda, filtros combinables, sort estable y límites; URL compartible y consulta indexada. | ✅ 2026-08-12 |
-| 28 | **R3.2 Notas, etiquetas y timeline** | Visibilidad interna/cliente, actor, edición auditada y filtros. | ⬜ |
+| 28 | **R3.2 Notas, etiquetas y timeline** | Visibilidad interna/cliente, actor, edición auditada y filtros. | ✅ 2026-08-12 |
 | 29 | **R3.3 Edición de pedido** | Añadir/quitar/cantidad/dirección con preview de delta, pago adicional o reembolso y stock. | ⬜ |
 | 30 | **R3.4 Holds e incidencias** | Bloqueo manual/automático, motivo, responsable, SLA y desbloqueo; preparación no avanza en hold. | ⬜ |
 | 31 | **R3.5 Acciones masivas** | Selección estable, dry-run, job, progreso, resultados por fila y replay seguro. | ⬜ |
@@ -932,4 +932,32 @@ bytes pasó restore/preflight: 8 pedidos, 8 filas FTS, cero duplicados/FKs,
 triggers insert/update/delete y ambos planes indexados. Producción sirve D1
 `0014` y Worker `e5a71c2e-ad48-42af-9acb-87bae4341889`.
 
-El siguiente bloque ejecutable es R3.2, notas, etiquetas y timeline unificado.
+El cierre siguiente documenta R3.2, notas, etiquetas y timeline unificado.
+
+### R3.2 — Notas, etiquetas y timeline
+
+**Cerrado y desplegado.** `ORD-004` incorpora notas internas o visibles al
+cliente con proyección actual y revisiones inmutables, versión esperada y un
+solo ganador bajo concurrencia. Las etiquetas usan slug normalizado,
+asignación idempotente y filtro combinable ligado al cursor de R3.1. El detalle
+compone estados legacy, revisiones y cambios de etiqueta en un timeline único
+con actor y visibilidad, sin reescribir `order_events`.
+
+La migración expand-only `0015` añade cinco tablas e índices. Cada mutación y su
+auditoría comparten guarda SQL; el diff no conserva cuerpo de nota ni PII.
+`ORD-004` está activo en advanced y la demo enseña fixtures inertes: elimina
+formularios y las tres APIs nuevas responden `403`. Backup/restore sube a
+esquema 9. ADR y runbook:
+[`adr/0018-colaboracion-pedidos-timeline.md`](adr/0018-colaboracion-pedidos-timeline.md)
+y [`OPERACION_COLABORACION_PEDIDOS.md`](OPERACION_COLABORACION_PEDIDOS.md).
+
+Gate: **69 suites/427 tests**, tipos/build, reset `0001`–`0015`, E2E remoto
+completo y a11y admin **16/16** con cero hallazgos. Un backup fresco de R3.1
+pasó rehearsal con 8 pedidos/8 FTS/0 FKs; producción conserva 8 pedidos, 2
+notas, 3 revisiones, 3 etiquetas, 3 asignaciones y 0 FKs. D1 sirve `0015` y el
+Worker `593ecf57-afff-49f9-9d38-f31b5ff6cd05`. El smoke descubrió respuestas
+admin obsoletas en caché compartida; todas las superficies privadas fijan ahora
+`private, no-store` y `Vary: Cookie`.
+
+El siguiente bloque ejecutable es R3.3, edición segura de pedido. Su diseño
+implica nueva persistencia y activa el veto de migración antes de escribir DDL.
