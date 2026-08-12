@@ -1,10 +1,9 @@
--- PROPUESTA R2.13 CONSERVADA COMO EVIDENCIA DE DISENO.
--- Aprobada el 2026-08-12 y materializada sin cambios funcionales en
--- migrations/0013_partial_refund_guards.sql; este fichero no se aplica a D1.
--- Decision completa: ../adr/0016-cancelacion-reembolso-parcial.md
+-- Cancelacion y reembolso parcial por cantidades (R2.13; ADR-0016).
+--
+-- Migracion aditiva. Las filas R2.10 conservan la semantica de cancelacion
+-- total; las cancelaciones parciales reservan cantidades antes de llamar al
+-- PSP y no invaden el futuro flujo de devoluciones/RMA.
 
--- Separa la cancelacion de unidades no enviadas de las devoluciones/RMA que
--- llegaran en R3. El default conserva la semantica de los reembolsos R2.10.
 ALTER TABLE refunds ADD COLUMN operation_type TEXT NOT NULL
   DEFAULT 'total_cancellation'
   CHECK (operation_type IN (

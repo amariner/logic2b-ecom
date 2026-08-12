@@ -1,6 +1,6 @@
 # ADR-0016 — Cancelación y reembolso parcial por cantidades
 
-- Estado: **propuesto; pendiente de puerta de migración y política de envío**
+- Estado: **aceptado para esquema; política de envío pendiente**
 - Fecha: 2026-08-11
 - Mandato: R2.13
 
@@ -38,10 +38,12 @@ La propuesta exacta vive en
    `partial_cancellation|total_cancellation` con reembolso `succeeded`.
 
 No se elimina ni renombra una columna, no se añade dependencia y no se toca
-ningún dato PCI. La migración es aditiva, pero requiere autorización expresa y
-rehearsal antes de entrar en `migrations/` o D1 local/remota.
+ningún dato PCI. Andreu autorizó la migración el 2026-08-12; quedó materializada
+como `migrations/0013_partial_refund_guards.sql` y ensayada sobre una copia
+aislada de D1 `0012`. El reset aplica `0013` en D1 local con integridad a cero;
+la D1 remota permanece en `0012` hasta que exista runtime compatible.
 
-## Workflow posterior a la puerta
+## Workflow posterior a la política de envío
 
 1. El admin envía ids de línea, cantidades, motivo, decisión de reposición y
    clave idempotente; nunca envía importes.
@@ -77,7 +79,7 @@ construir el cálculo y la UI:
 No se propone un prorrateo: sin una regla comercial y una asignación congelada
 sería dinero inventado por redondeo.
 
-## Rollout y rollback propuestos
+## Rollout y rollback aprobados para el esquema
 
 1. exportar y restaurar una copia aislada de la D1 objetivo;
 2. comprobar que toda `refund_item` histórica pertenece a su pedido y que no

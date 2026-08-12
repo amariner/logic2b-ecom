@@ -22,7 +22,8 @@
     "db:rehearse:inventory": "node scripts/rehearse-r2-inventory-ledger.mjs",
     "db:rehearse:reservations": "node scripts/rehearse-r2-inventory-reservations.mjs",
     "db:rehearse:payments": "node scripts/rehearse-r2-payment-ledger.mjs",
-    "db:rehearse:fulfillment": "node scripts/rehearse-r2-fulfillment-lines.mjs"
+    "db:rehearse:fulfillment": "node scripts/rehearse-r2-fulfillment-lines.mjs",
+    "db:rehearse:partial-refunds": "node scripts/rehearse-r2-partial-refunds.mjs"
   },
   "dependencies": {
     "@astrojs/cloudflare": "^12.6.0",

@@ -65,6 +65,24 @@ R2.10 no incorpora reconciliación automática por webhook. El estado intermedio
 es durable y el procedimiento manual es el fallback explícito hasta una ola
 posterior.
 
+## Corte de esquema R2.13 pendiente de política
+
+La migración aditiva `0013_partial_refund_guards.sql` fue autorizada, ensayada y
+aplicada a la D1 local mediante reset el 2026-08-12; producción permanece en
+`0012`. Antes de ejecutar el rehearsal contra un export `0012`, congelar
+mutaciones y usar:
+
+```bash
+pnpm db:rehearse:partial-refunds -- \
+  --baseline /ruta/aislada/baseline.sql \
+  --output-dir /ruta/aislada
+```
+
+El ensayo no imprime filas ni PII: valida preflight, pertenencia, cantidades
+reservadas por refunds/fulfillments, liberación exclusiva de `cancelled`, hash
+R2.12 y dump/restore. No autoriza por sí solo el runtime ni el rollout remoto;
+ambos esperan la política comercial de gastos de envío parcial.
+
 ## Verificación
 
 ```bash

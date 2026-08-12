@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import proposedSchema from '../docs/plataforma/sql/0013_partial_refund_guards.proposed.sql?raw';
+import migration from '../migrations/0013_partial_refund_guards.sql?raw';
 import { SqliteD1 } from './sqlite-d1';
 
 const NOW = '2026-08-11T18:00:00.000Z';
@@ -29,8 +29,15 @@ function database(): SqliteD1 {
     ) VALUES
       (1, 1, 'simulated', 'sim_pi_one', 'EUR', 3000, 'captured', 'payment:one', '${NOW}', '${NOW}'),
       (2, 2, 'simulated', 'sim_pi_two', 'EUR', 1000, 'captured', 'payment:two', '${NOW}', '${NOW}');
+    INSERT INTO refunds (
+      id, order_id, payment_id, status, reason, subtotal_cents, shipping_cents,
+      total_cents, idempotency_key, version, created_at, updated_at
+    ) VALUES (
+      99, 1, 1, 'succeeded', 'Historico', 3000, 0, 3000,
+      'refund:one:legacy', 1, '${NOW}', '${NOW}'
+    );
   `);
-  db.sqlite.exec(proposedSchema);
+  db.sqlite.exec(migration);
   db.sqlite.exec(`
     INSERT INTO refunds (
       id, order_id, payment_id, status, reason, subtotal_cents, shipping_cents,
@@ -49,13 +56,16 @@ function database(): SqliteD1 {
   return db;
 }
 
-describe('propuesta R2.13 de guardas para reembolso parcial', () => {
-  it('es aditiva y conserva total_cancellation como default R2.10', () => {
+describe('migracion R2.13 de guardas para reembolso parcial', () => {
+  it('es aditiva y conserva total_cancellation para filas R2.10', () => {
     const db = database();
     const column = db.query<{ name: string; dflt_value: string }>(
       "PRAGMA table_info('refunds')",
     ).find((candidate) => candidate.name === 'operation_type');
     expect(column?.dflt_value).toBe("'total_cancellation'");
+    expect(db.value(
+      "SELECT count(*) AS value FROM refunds WHERE id=99 AND operation_type='total_cancellation'",
+    )).toBe(1);
     expect(db.value(
       "SELECT count(*) AS value FROM sqlite_schema WHERE type='trigger' AND name='refund_item_partial_guard'",
     )).toBe(1);

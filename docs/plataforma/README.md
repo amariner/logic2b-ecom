@@ -93,10 +93,15 @@ venta o servicios logísticos propios.
   estados, retry/reconciliación y separación dinero-stock de R2.10.
 - [`../../migrations/0012_fulfillment_lines.sql`](../../migrations/0012_fulfillment_lines.sql):
   esquema aditivo R2.11 de grupos y cantidades por línea.
+- [`../../migrations/0013_partial_refund_guards.sql`](../../migrations/0013_partial_refund_guards.sql):
+  esquema aditivo R2.13 que tipa la operación y reserva cantidades cancelables;
+  materializado, ensayado y aplicado localmente; D1 remota sigue en `0012`.
 - [`OPERACION_FULFILLMENT_LINEAS.md`](OPERACION_FULFILLMENT_LINEAS.md):
   preflight, backfill, replay, restore, corte R2.11 y operación parcial R2.12.
 - [`../../scripts/rehearse-r2-fulfillment-lines.mjs`](../../scripts/rehearse-r2-fulfillment-lines.mjs):
   rehearsal aislado que compara hashes legacy y canónico sin imprimir PII.
+- [`../../scripts/rehearse-r2-partial-refunds.mjs`](../../scripts/rehearse-r2-partial-refunds.mjs):
+  rehearsal aislado de `0013`, guardas de pertenencia/cantidad y dump/restore.
 - [`../../src/modules/payments/`](../../src/modules/payments/): contrato puro y
   adaptador D1 de intención, captura, cancelación financiera y reembolso total.
 - [`../../src/modules/inventory/domain/inventory-ledger.ts`](../../src/modules/inventory/domain/inventory-ledger.ts):

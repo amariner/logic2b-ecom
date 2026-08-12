@@ -2050,14 +2050,17 @@ tests, build, E2E 42/42 y a11y 6/6. Corte productivo: Worker
 `6663a123-012f-4507-b120-384750876809`, D1 `0012`, 4 grupos/7 asignaciones,
 cero violaciones FK, E2E remoto 42/42 y a11y 6/6. `0013` no se aplicó.
 
-**R2.13 diseñado; puerta pendiente (2026-08-11).** ADR-0016 y el SQL propuesto
-`0013_partial_refund_guards` añaden, sin tocar D1, el tipo de operación y la
-guarda que impide líneas ajenas, dobles cancelaciones o unidades ya enviadas.
-El diseño conserva futuros RMA y reserva intenciones antes del PSP. Para abrir
-implementación hacen falta aprobación explícita de la migración y una política
-de gastos de envío parcial; se recomienda devolver solo mercancía y reservar el
-envío completo para el flujo total. El SQL propuesto pasa 3 pruebas aisladas;
-la batería completa queda en 62 suites/394 tests y build, sin tocar ninguna D1.
+**R2.13 con esquema autorizado; política pendiente (2026-08-12).** Andreu
+autorizó la migración aditiva `0013_partial_refund_guards`: ya vive en
+`migrations/`, conserva `total_cancellation` para R2.10 y reserva en D1 líneas y
+cantidades antes del PSP. El rehearsal sobre una copia aislada de la D1 local
+`0012` conserva el hash R2.12, prueba conflictos, liberación y dump/restore.
+`pnpm check` queda en 62 suites/394 tests y build. Tras cerrar el servidor del
+carril visual, `pnpm db:reset` aplicó las 13 migraciones a D1 local con 268
+productos, trigger presente y cero violaciones FK; producción sigue en `0012`.
+Runtime/UI continúan detenidos hasta elegir la política de gastos de envío
+parcial; se recomienda devolver solo mercancía y reservar el envío completo
+para el flujo total.
 
 **F12.6 queda cerrado en el carril comercial (2026-08-10).** El índice por
 audiencias, las OG y las seis páginas indexables se han revalidado; el barrido
