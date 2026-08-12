@@ -552,4 +552,6 @@ identidad externa.
 Evidencia previa al corte: 64 suites/412 tests, build, E2E demo y a11y 2/2 en
 1440/375; reset local con 13 migraciones, 265 productos y cero errores FK. Un
 export remoto de 510.914 bytes pasó preflight, concurrencia y dump/restore con
-4 fulfillments y cero refunds históricos.
+4 fulfillments y cero refunds históricos. El corte dejó D1 remota en `0013` y
+sirve Worker `52779fca-8202-4f4d-92d4-c1f64304cb71`; E2E remoto pasó 44/44 y
+a11y del pedido pagado 2/2.

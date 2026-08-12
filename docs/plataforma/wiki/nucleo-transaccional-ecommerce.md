@@ -2,7 +2,7 @@
 
 > Borrador interno actualizado en R2.13. Estado editorial: **no publicable**.
 > FUL-004/005 y la cancelación/reembolso parcial tienen implementación y
-> evidencia local; falta cerrar el corte remoto. Esta ficha no genera
+> evidencia local/remota. Esta ficha no genera
 > ruta, sitemap ni promesa comercial.
 
 ## Intención futura

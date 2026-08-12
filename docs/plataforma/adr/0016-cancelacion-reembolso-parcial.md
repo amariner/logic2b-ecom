@@ -40,8 +40,9 @@ La propuesta exacta vive en
 No se elimina ni renombra una columna, no se añade dependencia y no se toca
 ningún dato PCI. Andreu autorizó la migración el 2026-08-12; quedó materializada
 como `migrations/0013_partial_refund_guards.sql` y ensayada sobre una copia
-aislada de D1 `0012`. El reset aplica `0013` en D1 local con integridad a cero;
-la D1 remota permanece en `0012` hasta que exista runtime compatible.
+aislada de D1 `0012`. El reset aplica `0013` en D1 local con integridad a cero.
+El 2026-08-12 el rehearsal sobre export remoto pasó y D1 producción recibió
+`0013` antes del Worker compatible, sin violaciones FK.
 
 ## Workflow
 

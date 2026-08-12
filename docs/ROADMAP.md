@@ -63,12 +63,12 @@ reconciliación se conserva abajo por contexto.
 | 11 | Landing V2 «nivel Awwwards» + negocio + funnel + docs | 🟡 En curso | 2026-07-24 | **F11.1, F11.3 (2 sesiones), F11.4, F11.5, F11.6, F11.7 y F11.8 (primera pasada + pase a11y/contenido desde cloud 2026-07-24) hechos**, más F11.8b (auditor de a11y, cloud), F11.2a-1 (tienda ASFALTO / tema Street), F11.2a-2 (tienda METRIA / tema Industrial) F11.2a-3 (tienda ROMER / tema Natural) y **F11.2a-4 (tienda KALIBRE / tema Specs, local 2026-07-25) — con la que F11.2a queda CERRADA (10/10 tiendas)**; y **F11.8c (Lighthouse citable + OG de WhatsApp + URLs sin redirección, local 2026-07-26)**; y **F11.8d–e (tabla de Lighthouse cerrada y desplegada: 7 de 8 superficies a 100×4, la landing entre ellas en móvil y escritorio, local 2026-07-27)**; de la cola de F11.8 solo queda la submission a Awwwards (decisión de pago: Andreu). Detalle por bloque abajo. (ver «Fase 11» abajo). **Plan maestro completo en [`docs/PLAN_FASE11_LANDING_V2.md`](PLAN_FASE11_LANDING_V2.md)**: bloques F11.0–F11.8 ejecutables por sesiones independientes. **Decisiones D1–D6 APROBADAS por Andreu (2026-07-23)**: JS propio ≤15 KB sin deps, capturas con browser tools en local, dirección C «Ocho tiendas, un motor», escalera de precios (Lite 590 / Kit 1.900+39 / A medida 3.400+59), WhatsApp+email, Lite publicado sin construir. Prompt de arranque: [`docs/PROMPT_FASE11.md`](PROMPT_FASE11.md). Integra 9B.5/9B.6 (imaginería y temas restantes) como prerequisito del hero |
 | 8 | Pulido de la demo (backlog abajo) | 🟡 En curso | 2026-07-19 | Backlog técnico agotado; solo quedan decisiones y pasos locales de Andreu (ver «Decisiones pendientes» y `docs/PROMPT_CLOUD.md`). Últimas tandas: novena (race de idempotencia en el pago, PII enumerable en `/demo/gracias`, cancelación de pedido pagado sin devolver stock), décima (la misma race en el PATCH de admin, campos vacíos guardados como 0, login sin rate limit), undécima (diagrama móvil de `/arquitectura`, hedge del plazo de entrega, tokens de tema en `/demo/reset`, terminología «envío»), duodécima (aviso de corte en pedidos del admin, cabeceras sin wrap a 375px, leftover «portes», token de radio del carrito, contraste del botón eliminar, H1 en valenciano, checklist de producción) y decimotercera (misma race de idempotencia en `checkout.session.expired`, divisa hardcodeada a EUR fuera de Stripe, cobertura de test de `quoteCart`/PATCH admin/emails) y decimocuarta (config parcial de Stripe → cobro sin cumplimiento, emails duplicados bajo concurrencia, `payment_status` del webhook, color de marca centralizado en `shop.config.ts`, contraste/tema en carrito y checkout) — ver sección «Fase 8» |
 | 12 | Logic2B Ecommerce: renombrado, reposicionamiento y docs de dos visiones | ✅ Hecho | 2026-08-10 | **F12.0–F12.6 cerrados:** marca, argumento, dossier, canal agencias, ayuda, índice por audiencias, OG y auditorías citables consolidados. **Plan maestro en [`docs/PLAN_FASE12_LOGIC2B_ECOMMERCE.md`](PLAN_FASE12_LOGIC2B_ECOMMERCE.md)**. |
-| 13 | Plataforma modular: del gestor mínimo a paridad extrema de capacidad | 🟡 En curso | 2026-08-12 | **R0, R1, R2.1–R2.12 y Admin V2 completos; R2.13 listo para corte:** cancelación/reembolso parcial verificado localmente y ensayado sobre export remoto. Siguiente tras despliegue: consolidación R2.14. Fuente de verdad en [`docs/plataforma/`](plataforma/README.md). |
+| 13 | Plataforma modular: del gestor mínimo a paridad extrema de capacidad | 🟡 En curso | 2026-08-12 | **R0, R1, R2.1–R2.13 y Admin V2 completos:** cancelación/reembolso parcial desplegado con política configurable por propietario. Siguiente: consolidación R2.14. Fuente de verdad en [`docs/plataforma/`](plataforma/README.md). |
 
 ## Repo y entornos
 
 - GitHub: `https://github.com/amariner/logic2b-ecom` (rama `main`).
-- Cloudflare: **en producción** — Worker `ecom-logic2b` en https://ecom.logic2b.com, D1 remota `ecom-demo` (`7ae9b06d-3664-4790-a87c-04bb4c67e97a`), cron reset cada 6 h, cuenta marinerandreu@gmail.com. Corte servido R2.12 del 2026-08-11: versión `6663a123-012f-4507-b120-384750876809`, migraciones `0001`–`0012`, backfill de 4 grupos/7 asignaciones, cero violaciones FK, E2E remoto 42/42 y a11y 6/6. `0013` está materializada y ha pasado el rehearsal sobre export remoto; falta su aplicación coordinada con el Worker R2.13. Conserva la consolidación F12.6 y los temas ya servidos, sin tomar trabajo nuevo del carril visual.
+- Cloudflare: **en producción** — Worker `ecom-logic2b` en https://ecom.logic2b.com, D1 remota `ecom-demo` (`7ae9b06d-3664-4790-a87c-04bb4c67e97a`), cron reset cada 6 h, cuenta marinerandreu@gmail.com. Corte R2.13 del 2026-08-12: versión `52779fca-8202-4f4d-92d4-c1f64304cb71`, migraciones `0001`–`0013`, 4 grupos de fulfillment históricos, cero refunds previos y cero violaciones FK; E2E remoto 44/44 y a11y 2/2 sobre el pedido pagado. Conserva la consolidación F12.6 y los temas ya servidos, sin tomar trabajo nuevo del carril visual.
 
 ## Fase 13 — Plataforma modular y paridad de capacidad
 
@@ -130,7 +130,8 @@ sus verificaciones ni sus puntos de reanudación.
 | R2.10 | Reembolso total idempotente de extremo a extremo | ✅ 2026-08-11 — 366 tests, E2E 39/39 y a11y 2/2; sin migración |
 | R2.11 | Fulfillment por líneas, backfill, doble escritura y backup | ✅ 2026-08-11 — 381 tests, D1 `0012`, backfill remoto 4/7 y cero FKs |
 | R2.12 | Fulfillment parcial, múltiples trackings y estado derivado | ✅ 2026-08-11 — 391 tests; Worker `6663a123…`, E2E remoto 42/42 y a11y 6/6 |
-| R2.13+ | Cancelación/reembolso parcial y resto de olas | ⬜ siguiente: cancelación/reembolso parcial |
+| R2.13 | Cancelación/reembolso parcial con política de envío por propietario | ✅ 2026-08-12 — 412 tests; D1 `0013`, Worker `52779fca…`, E2E remoto 44/44 y a11y 2/2 |
+| R2.14+ | Consolidación R2 y resto de olas | ⬜ siguiente: consolidación del núcleo R2 |
 
 ## Fase 12 — Logic2B Ecommerce: renombrado, reposicionamiento y las dos visiones
 
@@ -2050,7 +2051,7 @@ tests, build, E2E 42/42 y a11y 6/6. Corte productivo: Worker
 `6663a123-012f-4507-b120-384750876809`, D1 `0012`, 4 grupos/7 asignaciones,
 cero violaciones FK, E2E remoto 42/42 y a11y 6/6. `0013` no se aplicó.
 
-**R2.13 listo para corte remoto (2026-08-12).** Andreu autorizó la migración
+**R2.13 cerrado y desplegado (2026-08-12).** Andreu autorizó la migración
 aditiva `0013_partial_refund_guards` y eligió política A como predeterminada,
 ajustable por propietario mediante `shop.config.ts`. El runtime/UI parcial
 calcula importes en servidor, reserva líneas antes del PSP, acumula saldo,
@@ -2060,7 +2061,8 @@ salidas. Carreras refund/refund y refund/fulfillment tienen un ganador. Gate
 local: 64 suites/412 tests, build, E2E completo y a11y 2/2. `pnpm db:reset`
 aplicó 13 migraciones con 265 productos y cero violaciones FK. El rehearsal
 sobre un export remoto fresco de 510.914 bytes conservó hashes, 4 fulfillments
-y dump/restore; producción sigue en `0012` hasta el corte coordinado.
+y dump/restore. D1 remota quedó en `0013` con cero FKs y el Worker
+`52779fca-8202-4f4d-92d4-c1f64304cb71` pasó E2E remoto 44/44 y a11y 2/2.
 
 **F12.6 queda cerrado en el carril comercial (2026-08-10).** El índice por
 audiencias, las OG y las seis páginas indexables se han revalidado; el barrido

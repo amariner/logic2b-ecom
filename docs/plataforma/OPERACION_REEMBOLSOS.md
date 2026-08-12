@@ -87,8 +87,8 @@ envío completo.
 ## Corte de esquema R2.13
 
 La migración aditiva `0013_partial_refund_guards.sql` fue autorizada, ensayada y
-aplicada a la D1 local mediante reset el 2026-08-12; producción permanece en
-`0012`. Antes de ejecutar el rehearsal contra un export `0012`, congelar
+aplicada local y remotamente el 2026-08-12. Antes de repetir el rehearsal contra
+un export `0012`, congelar
 mutaciones y usar:
 
 ```bash
@@ -116,3 +116,11 @@ Las pruebas de runtime cubren ambas políticas, éxito, replay, timeout seguido 
 recuperación, estado `processing`, reposición sí/no, acumulación y carreras
 refund/refund y refund/fulfillment. El E2E confirma que la demo pública rechaza
 la mutación.
+
+## Corte productivo del 2026-08-12
+
+El export remoto fresco de 510.914 bytes conservó hashes, 4 fulfillments, cero
+refunds históricos y dump/restore. D1 quedó en `0013`, con la guarda presente y
+cero violaciones FK. El Worker `52779fca-8202-4f4d-92d4-c1f64304cb71` sirve el
+runtime compatible; E2E remoto pasó 44/44 y el pedido pagado pasó a11y 2/2 a
+1440/375 sin errores ni avisos.

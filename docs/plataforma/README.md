@@ -67,7 +67,7 @@ venta o servicios logísticos propios.
   sondeos remotos todavía pendientes.
 - [`wiki/nucleo-transaccional-ecommerce.md`](wiki/nucleo-transaccional-ecommerce.md):
   borrador interno actualizado en R2.13; variantes, ledgers, fulfillment y
-  cancelación parcial tienen evidencia local, con publicación aún pendiente.
+  cancelación parcial tienen evidencia local/remota, con publicación editorial aún pendiente.
 - [`adr/0011-jobs-duraderos-d1.md`](adr/0011-jobs-duraderos-d1.md): contrato
   R1.11 de identidad, lock, timeout, retry, dead-letter y replay sobre D1.
 - [`adr/0012-modelo-transaccional-r2.md`](adr/0012-modelo-transaccional-r2.md):
@@ -95,7 +95,7 @@ venta o servicios logísticos propios.
   esquema aditivo R2.11 de grupos y cantidades por línea.
 - [`../../migrations/0013_partial_refund_guards.sql`](../../migrations/0013_partial_refund_guards.sql):
   esquema aditivo R2.13 que tipa la operación y reserva cantidades cancelables;
-  materializado, ensayado y aplicado localmente.
+  materializado, ensayado y aplicado local/remotamente el 2026-08-12.
 - [`OPERACION_FULFILLMENT_LINEAS.md`](OPERACION_FULFILLMENT_LINEAS.md):
   preflight, backfill, replay, restore, corte R2.11 y operación parcial R2.12.
 - [`../../scripts/rehearse-r2-fulfillment-lines.mjs`](../../scripts/rehearse-r2-fulfillment-lines.mjs):

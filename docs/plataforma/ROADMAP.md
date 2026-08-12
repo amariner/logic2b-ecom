@@ -39,7 +39,7 @@ improvisan durante la implementación.
 |---|---|---|
 | R0 | Investigación, taxonomía, matriz, roadmap y estrategia wiki | ✅ cerrado 2026-08-06 |
 | R1 | Cimientos modulares y observables | ✅ cerrado 2026-08-07 |
-| R2 | Núcleo transaccional profesional | 🟡 R2.1–R2.12 y Admin V2 cerrados; siguiente R2.13 |
+| R2 | Núcleo transaccional profesional | 🟡 R2.1–R2.13 y Admin V2 cerrados; siguiente R2.14 |
 | R3 | Operación de pedidos, inventario y fulfillment | ⬜ |
 | R4 | Precios, promociones y modelos de venta | ⬜ |
 | R5 | Clientes, privacidad y mercados | ⬜ |
@@ -99,7 +99,7 @@ Cada migración se diseña y ensaya sobre una copia antes de tocar el esquema vi
 | 22 | **R2.10 Reembolso total** | Acción admin → proveedor → ledger → evento → email → stock según política; retry seguro y estado visible. | ✅ 2026-08-11 |
 | 23 | **R2.11 Fulfillment por líneas** | Fulfillment y fulfillment_items; envío total actual se convierte en un caso simple. | ✅ 2026-08-11 |
 | 24 | **R2.12 Fulfillment parcial** | Cantidades parciales, múltiples trackings, email por envío y estados derivados sin perder histórico. | ✅ 2026-08-11 |
-| 25 | **R2.13 Cancelación/reembolso parcial** | Selección por cantidad, cálculo servidor, descuento/restitución correcta y pruebas de redondeo/concurrencia. | ⬜ |
+| 25 | **R2.13 Cancelación/reembolso parcial** | Selección por cantidad, cálculo servidor, descuento/restitución correcta y pruebas de redondeo/concurrencia. | ✅ 2026-08-12 |
 | 26 | **R2.14 Consolidación R2** | E2E producto con variantes → reserva → pago → dos envíos → reembolso parcial; carga/concurrencia; guía de migración. | ⬜ |
 
 ## R3 — Operación profesional
@@ -881,7 +881,7 @@ Seleccionar cantidades cancelables, calcular dinero solo en servidor y separar
 la decisión de reposición. Debe reutilizar los ledgers ya instalados, mantener
 redondeo exacto e impedir que una carrera cancele o reembolse una unidad enviada.
 
-**Runtime completo; corte remoto pendiente.** Andreu autorizó `0013` y eligió
+**Cerrado y desplegado.** Andreu autorizó `0013` y eligió
 el 2026-08-12 `merchandise-only` como política predeterminada, configurable por
 propietario en `shop.config.ts`; la alternativa devuelve todo el envío solo al
 cancelar la última mercancía antes de cualquier salida. El runtime calcula
@@ -891,4 +891,5 @@ refund/refund y refund/fulfillment tienen un único ganador. La demo muestra la
 acción deshabilitada y la API responde 403. Evidencia local: 64 suites/412
 tests, tipos/build, E2E completo y a11y 2/2 a 1440/375. Un export remoto fresco
 de 510.914 bytes pasó el rehearsal, con 4 fulfillments, cero refunds y restore
-coherente; falta aplicar `0013` y desplegar el Worker compatible.
+coherente. D1 remota quedó en `0013` sin violaciones FK y el Worker
+`52779fca-8202-4f4d-92d4-c1f64304cb71` pasó E2E remoto 44/44 y a11y 2/2.
