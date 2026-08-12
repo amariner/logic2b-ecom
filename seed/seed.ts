@@ -237,6 +237,11 @@ export function seedStatements(): string[] {
     'DELETE FROM audit_log',
     'DELETE FROM event_outbox_deliveries',
     'DELETE FROM event_outbox_events',
+    'DELETE FROM order_tag_events',
+    'DELETE FROM order_tag_assignments',
+    'DELETE FROM order_note_revisions',
+    'DELETE FROM order_notes',
+    'DELETE FROM order_tags',
     'DELETE FROM order_events',
     'DELETE FROM refund_items',
     'DELETE FROM refunds',
@@ -444,6 +449,29 @@ export function seedStatements(): string[] {
   // los productos y pedidos ya insertados en esta misma batch. SOLO DEMO — un
   // cliente real borra esta línea (ver seed/demo-orders.ts).
   statements.push(...demoOrderStatements());
+
+  // R3.2: colaboración ficticia visible en el panel público de solo lectura.
+  statements.push(
+    `INSERT INTO order_tags (slug, label, active, created_at, updated_at) VALUES ` +
+      `('prioritario', 'Prioritario', 1, datetime('now'), datetime('now')), ` +
+      `('mayorista', 'Mayorista', 1, datetime('now'), datetime('now')), ` +
+      `('revisar-direccion', 'Revisar dirección', 1, datetime('now'), datetime('now'))`,
+    `INSERT INTO order_tag_assignments (order_id, tag_id, actor_kind, actor_id, actor_label, created_at) VALUES ` +
+      `((SELECT id FROM orders WHERE order_number = 'BM-DEMO-1003'), (SELECT id FROM order_tags WHERE slug = 'prioritario'), 'admin', 'demo-seed', 'Equipo demo', datetime('now', '-2 hours')), ` +
+      `((SELECT id FROM orders WHERE order_number = 'BM-DEMO-1003'), (SELECT id FROM order_tags WHERE slug = 'revisar-direccion'), 'admin', 'demo-seed', 'Equipo demo', datetime('now', '-90 minutes')), ` +
+      `((SELECT id FROM orders WHERE order_number = 'BM-DEMO-1006'), (SELECT id FROM order_tags WHERE slug = 'mayorista'), 'admin', 'demo-seed', 'Equipo demo', datetime('now', '-1 day'))`,
+    `INSERT INTO order_notes (id, order_id, visibility, body, version, actor_kind, actor_id, actor_label, created_at, updated_at) VALUES ` +
+      `('demo-note-1003-a', (SELECT id FROM orders WHERE order_number = 'BM-DEMO-1003'), 'internal', 'Confirmar el portal antes de preparar el envío.', 2, 'admin', 'demo-seed', 'Equipo demo', datetime('now', '-2 hours'), datetime('now', '-75 minutes')), ` +
+      `('demo-note-1006-a', (SELECT id FROM orders WHERE order_number = 'BM-DEMO-1006'), 'customer', 'Entrega coordinada para el viernes por la mañana.', 1, 'admin', 'demo-seed', 'Equipo demo', datetime('now', '-1 day'), datetime('now', '-1 day'))`,
+    `INSERT INTO order_note_revisions (id, note_id, order_id, version, visibility, body, actor_kind, actor_id, actor_label, created_at) VALUES ` +
+      `('demo-note-1003-a:1', 'demo-note-1003-a', (SELECT id FROM orders WHERE order_number = 'BM-DEMO-1003'), 1, 'internal', 'Revisar la dirección antes de preparar el envío.', 'admin', 'demo-seed', 'Equipo demo', datetime('now', '-2 hours')), ` +
+      `('demo-note-1003-a:2', 'demo-note-1003-a', (SELECT id FROM orders WHERE order_number = 'BM-DEMO-1003'), 2, 'internal', 'Confirmar el portal antes de preparar el envío.', 'admin', 'demo-seed', 'Equipo demo', datetime('now', '-75 minutes')), ` +
+      `('demo-note-1006-a:1', 'demo-note-1006-a', (SELECT id FROM orders WHERE order_number = 'BM-DEMO-1006'), 1, 'customer', 'Entrega coordinada para el viernes por la mañana.', 'admin', 'demo-seed', 'Equipo demo', datetime('now', '-1 day'))`,
+    `INSERT INTO order_tag_events (id, order_id, tag_id, action, tag_slug_snapshot, tag_label_snapshot, actor_kind, actor_id, actor_label, created_at) VALUES ` +
+      `('demo-tag-event-1003-a', (SELECT id FROM orders WHERE order_number = 'BM-DEMO-1003'), (SELECT id FROM order_tags WHERE slug = 'prioritario'), 'assigned', 'prioritario', 'Prioritario', 'admin', 'demo-seed', 'Equipo demo', datetime('now', '-2 hours')), ` +
+      `('demo-tag-event-1003-b', (SELECT id FROM orders WHERE order_number = 'BM-DEMO-1003'), (SELECT id FROM order_tags WHERE slug = 'revisar-direccion'), 'assigned', 'revisar-direccion', 'Revisar dirección', 'admin', 'demo-seed', 'Equipo demo', datetime('now', '-90 minutes')), ` +
+      `('demo-tag-event-1006-a', (SELECT id FROM orders WHERE order_number = 'BM-DEMO-1006'), (SELECT id FROM order_tags WHERE slug = 'mayorista'), 'assigned', 'mayorista', 'Mayorista', 'admin', 'demo-seed', 'Equipo demo', datetime('now', '-1 day'))`,
+  );
 
   // Las fixtures legacy aun insertan order_items por product_id. Congelamos
   // tambien su variante default para que un reset no deshaga el backfill.

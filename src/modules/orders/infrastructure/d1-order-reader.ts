@@ -6,8 +6,11 @@ import type {
   OrderListReadQuery,
   OrderListRow,
   OrderListSort,
+  OrderNote,
   OrderReader,
   OrderStatusCount,
+  OrderTag,
+  OrderTimelineItem,
 } from '../application/order-reader';
 
 type SqlFilter = Readonly<{ where: string; bindings: readonly unknown[] }>;
@@ -60,6 +63,14 @@ function buildFilter(filters: OrderListFilters): SqlFilter {
   if (filters.maxTotalCents !== undefined) {
     clauses.push('total_cents <= ?');
     bindings.push(filters.maxTotalCents);
+  }
+  if (filters.tag) {
+    clauses.push(`EXISTS (
+      SELECT 1 FROM order_tag_assignments ota
+      JOIN order_tags ot ON ot.id = ota.tag_id
+      WHERE ota.order_id = orders.id AND ot.slug = ? AND ot.active = 1
+    )`);
+    bindings.push(filters.tag);
   }
   return Object.freeze({
     where: clauses.length > 0 ? ` WHERE ${clauses.join(' AND ')}` : '',
@@ -118,6 +129,45 @@ export function createD1OrderReader(db: D1Database): OrderReader {
         .prepare('SELECT from_status, to_status, note, created_at FROM order_events WHERE order_id = ? ORDER BY id')
         .bind(id)
         .all<OrderEvent>()).results;
+    },
+    async notes(id) {
+      return (await db.prepare(`
+        SELECT id, visibility, body, version, actor_kind, actor_label, created_at, updated_at
+        FROM order_notes WHERE order_id = ? ORDER BY updated_at DESC, id DESC
+      `).bind(id).all<OrderNote>()).results;
+    },
+    async tags(orderId) {
+      const assigned = orderId === undefined
+        ? ''
+        : ' WHERE EXISTS (SELECT 1 FROM order_tag_assignments selected WHERE selected.tag_id = t.id AND selected.order_id = ?)';
+      const statement = db.prepare(`
+        SELECT t.id, t.slug, t.label, t.active, count(a.order_id) AS usage_count
+        FROM order_tags t LEFT JOIN order_tag_assignments a ON a.tag_id = t.id
+        ${assigned} GROUP BY t.id ORDER BY t.label COLLATE NOCASE, t.id
+      `);
+      return (await (orderId === undefined ? statement : statement.bind(orderId)).all<OrderTag>()).results;
+    },
+    async timeline(id) {
+      return (await db.prepare(`
+        SELECT * FROM (
+          SELECT 'status:' || id AS id, 'status' AS kind, to_status AS title,
+            note AS detail, 'customer' AS visibility, 'system' AS actor_kind,
+            'Sistema' AS actor_label, created_at AS occurred_at, id AS sort_key
+          FROM order_events WHERE order_id = ?
+          UNION ALL
+          SELECT 'note:' || id, 'note',
+            CASE WHEN version = 1 THEN 'Nota añadida' ELSE 'Nota editada' END,
+            body, visibility, actor_kind, actor_label, created_at,
+            1000000000 + rowid
+          FROM order_note_revisions WHERE order_id = ?
+          UNION ALL
+          SELECT 'tag:' || id, 'tag',
+            CASE action WHEN 'assigned' THEN 'Etiqueta asignada' ELSE 'Etiqueta retirada' END,
+            tag_label_snapshot, 'internal', actor_kind, actor_label, created_at,
+            2000000000 + rowid
+          FROM order_tag_events WHERE order_id = ?
+        ) ORDER BY occurred_at DESC, sort_key DESC
+      `).bind(id, id, id).all<OrderTimelineItem>()).results;
     },
   };
 }

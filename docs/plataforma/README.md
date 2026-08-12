@@ -105,6 +105,12 @@ venta o servicios logísticos propios.
   índices compuestos y proyección FTS5 sincronizada del índice de pedidos.
 - [`OPERACION_INDICE_PEDIDOS.md`](OPERACION_INDICE_PEDIDOS.md): preflight,
   planes de consulta, backup esquema 8, rollout y rollback compatibles.
+- [`adr/0018-colaboracion-pedidos-timeline.md`](adr/0018-colaboracion-pedidos-timeline.md):
+  separación entre hechos transaccionales y colaboración versionada R3.2.
+- [`../../migrations/0015_order_collaboration.sql`](../../migrations/0015_order_collaboration.sql):
+  notas/revisiones, etiquetas/asignaciones y actividad colaborativa aditivas.
+- [`OPERACION_COLABORACION_PEDIDOS.md`](OPERACION_COLABORACION_PEDIDOS.md):
+  preflight, concurrencia, backup esquema 9, rollout y rollback compatibles.
 - [`OPERACION_FULFILLMENT_LINEAS.md`](OPERACION_FULFILLMENT_LINEAS.md):
   preflight, backfill, replay, restore, corte R2.11 y operación parcial R2.12.
 - [`../../scripts/rehearse-r2-fulfillment-lines.mjs`](../../scripts/rehearse-r2-fulfillment-lines.mjs):

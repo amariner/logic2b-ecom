@@ -17,7 +17,10 @@ export {
   type OrderListQuery,
   type OrderListRow,
   type OrderListSort,
+  type OrderNote,
   type OrderStatusCount,
+  type OrderTag,
+  type OrderTimelineItem,
 } from './application/order-reader';
 export const createOrderReader = (db: D1Database) => createOrderReaderService(createD1OrderReader(db));
 
@@ -60,3 +63,13 @@ export {
 
 export type { NewOrderInput, NewOrderLine, OrderForTransition } from './infrastructure/d1-order-writer';
 export const createOrderWriter = (db: D1Database) => createD1OrderWriter(db);
+
+export {
+  createD1OrderCollaboration,
+  normalizeOrderTagSlug,
+  type OrderCollaborationOutcome,
+  type OrderNoteUpdate,
+  type OrderNoteVisibility,
+  type OrderNoteWrite,
+  type OrderTagAction,
+} from './infrastructure/d1-order-collaboration';

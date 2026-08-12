@@ -89,10 +89,28 @@ check('panel vuelve a ARCE', adminHtml.includes('href="/demo/tiendas/arce"'));
 check(
   'índice de pedidos expone filtros URL y orden estable R3.1',
   adminHtml.includes('name="orden"')
+    && adminHtml.includes('name="etiqueta"')
     && adminHtml.includes('name="desde"')
     && adminHtml.includes('name="min"')
     && !adminHtml.includes('name="pagina"'),
 );
+const taggedOrdersHtml = await (await fetch(`${BASE}/demo/admin?etiqueta=prioritario`, { headers: { cookie } })).text();
+const taggedOrderId = taggedOrdersHtml.match(/\/demo\/admin\/pedidos\/(\d+)"/)?.[1];
+check(
+  'filtro por etiqueta conserva la URL y localiza el fixture R3.2',
+  taggedOrdersHtml.includes('value="prioritario" selected') && taggedOrderId !== undefined,
+);
+if (taggedOrderId) {
+  const collaborationHtml = await (await fetch(`${BASE}/demo/admin/pedidos/${taggedOrderId}`, { headers: { cookie } })).text();
+  check(
+    'detalle unifica notas, etiquetas, actor y visibilidad sin acciones demo',
+    collaborationHtml.includes('Confirmar el portal')
+      && collaborationHtml.includes('Prioritario')
+      && collaborationHtml.includes('Equipo demo')
+      && collaborationHtml.includes('Interno')
+      && !collaborationHtml.includes('data-note-create'),
+  );
+}
 const filteredOrdersHtml = await (await fetch(
   `${BASE}/demo/admin?estado=paid&q=BM-DEMO&orden=total-desc`,
   { headers: { cookie } },
@@ -185,6 +203,9 @@ for (const [label, method, path] of [
   ['variantes', 'PATCH', `/api/admin/catalog-variants/${variantId ?? 1}`],
   ['galería', 'PUT', `/api/admin/catalog-media/product/${variantProductId ?? 1}`],
   ['atributos', 'POST', `/api/admin/catalog-attributes/definitions/product/${variantProductId ?? 1}`],
+  ['nota de pedido', 'POST', '/api/admin/order-notes'],
+  ['etiqueta de pedido', 'POST', '/api/admin/order-tags'],
+  ['asignación de etiqueta', 'POST', '/api/admin/order-tags/assignments'],
 ]) {
   const response = await fetch(`${BASE}${path}`, {
     method,
@@ -206,15 +227,17 @@ check(
     && backupSql.includes('INSERT INTO attribute_definitions') && backupSql.includes('INSERT INTO product_attribute_values'),
 );
 check(
-  'backup esquema 8 conserva pagos y reconstruye el índice de pedidos',
-  backupSql.includes('logic2b-backup-schema: 8')
-    && backupSql.includes('0014_order_list_indexes')
+  'backup esquema 9 conserva pagos, colaboración y reconstruye el índice de pedidos',
+  backupSql.includes('logic2b-backup-schema: 9')
+    && backupSql.includes('0015_order_collaboration')
     && backupSql.includes('INSERT INTO payments')
     && backupSql.includes('INSERT INTO payment_transactions')
     && backupSql.includes('DELETE FROM refunds')
     && backupSql.includes('DELETE FROM refund_items')
     && backupSql.includes('INSERT INTO fulfillments')
-    && backupSql.includes('INSERT INTO fulfillment_items'),
+    && backupSql.includes('INSERT INTO fulfillment_items')
+    && backupSql.includes('INSERT INTO order_notes')
+    && backupSql.includes('INSERT INTO order_tag_assignments'),
 );
 
 if (failures > 0) {

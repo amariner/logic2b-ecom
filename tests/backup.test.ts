@@ -5,9 +5,9 @@ import { createD1BackupReader, exportBackup } from '../src/platform/operations';
 import { SqliteD1 } from './sqlite-d1';
 
 describe('volcado de copia de seguridad', () => {
-  it('declara el contrato que incluye el índice de pedidos derivado', () => {
-    expect(BACKUP_SCHEMA_VERSION).toBe(8);
-    expect(buildBackupSql({}, '2026-08-12')).toContain('0014_order_list_indexes');
+  it('declara el contrato que incluye la colaboración de pedidos', () => {
+    expect(BACKUP_SCHEMA_VERSION).toBe(9);
+    expect(buildBackupSql({}, '2026-08-12')).toContain('0015_order_collaboration');
   });
 
   it('genera INSERTs con columnas explícitas y escape de comillas', () => {
@@ -55,6 +55,11 @@ describe('volcado de copia de seguridad', () => {
       'refund_items',
       'fulfillments',
       'fulfillment_items',
+      'order_tags',
+      'order_notes',
+      'order_note_revisions',
+      'order_tag_assignments',
+      'order_tag_events',
     ]));
     for (const table of BACKUP_TABLES) expect(sql).toContain(`DELETE FROM ${table};`);
   });

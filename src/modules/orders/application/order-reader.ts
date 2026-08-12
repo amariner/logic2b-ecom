@@ -23,6 +23,7 @@ export type OrderListFilters = Readonly<{
   createdBefore?: string | undefined;
   minTotalCents?: number | undefined;
   maxTotalCents?: number | undefined;
+  tag?: string | undefined;
 }>;
 
 export type OrderListQuery = OrderListFilters & Readonly<{
@@ -85,6 +86,33 @@ export type OrderEvent = Readonly<{
   note: string | null;
   created_at: string;
 }>;
+export type OrderNote = Readonly<{
+  id: string;
+  visibility: 'internal' | 'customer';
+  body: string;
+  version: number;
+  actor_kind: string;
+  actor_label: string | null;
+  created_at: string;
+  updated_at: string;
+}>;
+export type OrderTag = Readonly<{
+  id: number;
+  slug: string;
+  label: string;
+  active: number;
+  usage_count: number;
+}>;
+export type OrderTimelineItem = Readonly<{
+  id: string;
+  kind: 'status' | 'note' | 'tag';
+  title: string;
+  detail: string | null;
+  visibility: 'internal' | 'customer';
+  actor_kind: string;
+  actor_label: string | null;
+  occurred_at: string;
+}>;
 
 export interface OrderReader {
   list(query: OrderListReadQuery): Promise<readonly OrderListRow[]>;
@@ -93,6 +121,9 @@ export interface OrderReader {
   detail(id: number): Promise<OrderDetail | null>;
   items(id: number): Promise<readonly OrderItem[]>;
   events(id: number): Promise<readonly OrderEvent[]>;
+  notes(id: number): Promise<readonly OrderNote[]>;
+  tags(orderId?: number): Promise<readonly OrderTag[]>;
+  timeline(id: number): Promise<readonly OrderTimelineItem[]>;
 }
 
 type CursorPayload = Readonly<{
@@ -163,9 +194,11 @@ export function decodeOrderListCursor(token: string): OrderListCursor | null {
 function normalizedFilters(query: OrderListQuery): OrderListFilters {
   const search = query.search?.trim().slice(0, 120);
   const status = query.status?.trim().slice(0, 32);
+  const tag = query.tag?.trim().slice(0, 64);
   return Object.freeze({
     ...(status ? { status } : {}),
     ...(search ? { search } : {}),
+    ...(tag ? { tag } : {}),
     ...(query.createdFrom ? { createdFrom: query.createdFrom } : {}),
     ...(query.createdBefore ? { createdBefore: query.createdBefore } : {}),
     ...(Number.isSafeInteger(query.minTotalCents) && (query.minTotalCents ?? -1) >= 0
@@ -185,6 +218,7 @@ function cursorScope(filters: OrderListFilters): string {
     filters.createdBefore ?? '',
     filters.minTotalCents ?? '',
     filters.maxTotalCents ?? '',
+    filters.tag ?? '',
   ]);
 }
 
@@ -235,8 +269,11 @@ export function createOrderReaderService(reader: OrderReader) {
     async detail(id: number) {
       const order = await reader.detail(id);
       if (!order) return null;
-      const [items, events] = await Promise.all([reader.items(id), reader.events(id)]);
-      return Object.freeze({ order, items, events });
+      const [items, events, notes, tags, availableTags, timeline] = await Promise.all([
+        reader.items(id), reader.events(id), reader.notes(id), reader.tags(id), reader.tags(), reader.timeline(id),
+      ]);
+      return Object.freeze({ order, items, events, notes, tags, availableTags, timeline });
     },
+    tags: () => reader.tags(),
   });
 }

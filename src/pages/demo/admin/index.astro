@@ -25,6 +25,8 @@ const sort: OrderListSort = (ORDER_LIST_SORTS as readonly string[]).includes(raw
   ? rawSort as OrderListSort
   : ORDER_LIST_DEFAULT_SORT;
 const cursor = (Astro.url.searchParams.get('cursor') ?? '').slice(0, 2_048) || undefined;
+const rawTag = (Astro.url.searchParams.get('etiqueta') ?? '').trim().slice(0, 64);
+const tag = /^[a-z0-9]+(?:-[a-z0-9]+)*$/u.test(rawTag) ? rawTag : undefined;
 const validDate = (value: string): string => {
   if (!/^\d{4}-\d{2}-\d{2}$/u.test(value)) return '';
   const parsed = new Date(`${value}T00:00:00.000Z`);
@@ -52,7 +54,8 @@ const maxTotalRaw = (Astro.url.searchParams.get('max') ?? '').trim().slice(0, 12
 const minTotal = parseEuros(minTotalRaw);
 const maxTotal = parseEuros(maxTotalRaw);
 const ORDER_LIMIT = 25;
-const orderPage = await createOrderReader(Astro.locals.runtime.env.DB).list({
+const orderReader = createOrderReader(Astro.locals.runtime.env.DB);
+const [orderPage, tagDefinitions] = await Promise.all([orderReader.list({
   status,
   search,
   sort,
@@ -62,7 +65,8 @@ const orderPage = await createOrderReader(Astro.locals.runtime.env.DB).list({
   ...(dateTo ? { createdBefore: nextDate(dateTo) } : {}),
   ...(minTotal.cents !== undefined ? { minTotalCents: minTotal.cents } : {}),
   ...(maxTotal.cents !== undefined ? { maxTotalCents: maxTotal.cents } : {}),
-});
+  ...(tag ? { tag } : {}),
+}), orderReader.tags()]);
 const { orders, counts, total, nextCursor, previousCursor, invalidCursor } = orderPage;
 const countFor = (st: string): number => counts.find((c) => c.status === st)?.n ?? 0;
 const allCount = counts.reduce((sum, c) => sum + c.n, 0);
@@ -73,11 +77,12 @@ const statusLabel: Record<string, string> = {
 };
 const filterIssue = !minTotal.valid || !maxTotal.valid || Boolean(dateFrom && dateTo && dateFrom > dateTo) ||
   Boolean(minTotal.cents !== undefined && maxTotal.cents !== undefined && minTotal.cents > maxTotal.cents);
-const filtersActive = Boolean(status || search || dateFrom || dateTo || minTotalRaw || maxTotalRaw || sort !== ORDER_LIST_DEFAULT_SORT);
+const filtersActive = Boolean(status || search || tag || dateFrom || dateTo || minTotalRaw || maxTotalRaw || sort !== ORDER_LIST_DEFAULT_SORT);
 const hrefFor = (next: { status?: string | undefined; cursor?: string | null | undefined }) => {
   const params = new URLSearchParams();
   if (next.status) params.set('estado', next.status);
   if (search) params.set('q', search);
+  if (tag) params.set('etiqueta', tag);
   if (dateFrom) params.set('desde', dateFrom);
   if (dateTo) params.set('hasta', dateTo);
   if (minTotalRaw) params.set('min', minTotalRaw);
@@ -111,6 +116,7 @@ const date = (value: string) => new Intl.DateTimeFormat('es-ES', { day: '2-digit
           {status && <input type="hidden" name="estado" value={status} />}
           <label class="relative xl:col-span-5"><span class="sr-only">Buscar pedidos</span><AdminIcon name="search" class="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"/><input type="search" name="q" value={search} maxlength="120" placeholder="Número, cliente o email" class="min-h-11 w-full rounded-xl border border-input bg-background pl-10 pr-3 text-sm shadow-sm" /></label>
           <label class="xl:col-span-3"><span class="sr-only">Ordenar pedidos</span><select name="orden" class="min-h-11 w-full rounded-xl border border-input bg-background px-3 text-sm shadow-sm"><option value="created-desc" selected={sort === 'created-desc'}>Más recientes</option><option value="created-asc" selected={sort === 'created-asc'}>Más antiguos</option><option value="total-desc" selected={sort === 'total-desc'}>Mayor importe</option><option value="total-asc" selected={sort === 'total-asc'}>Menor importe</option></select></label>
+          <label class="xl:col-span-2"><span class="sr-only">Filtrar por etiqueta</span><select name="etiqueta" class="min-h-11 w-full rounded-xl border border-input bg-background px-3 text-sm shadow-sm"><option value="">Todas las etiquetas</option>{tagDefinitions.filter((item) => item.active === 1).map((item) => <option value={item.slug} selected={tag === item.slug}>{item.label} ({item.usage_count})</option>)}</select></label>
           <button class="min-h-11 rounded-xl bg-foreground px-4 text-sm font-semibold text-background xl:col-span-2">Aplicar</button>
           {filtersActive && <a href="/demo/admin" class="inline-flex min-h-11 items-center justify-center rounded-xl px-3 text-sm font-medium text-muted-foreground hover:bg-muted xl:col-span-2">Limpiar</a>}
           <details class="rounded-xl border border-border bg-background px-3 xl:col-span-12" open={Boolean(dateFrom || dateTo || minTotalRaw || maxTotalRaw)}>
