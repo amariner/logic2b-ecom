@@ -5,7 +5,7 @@ import AdminNotice from '../../../../components/admin/AdminNotice.astro';
 import AdminStatusBadge from '../../../../components/admin/AdminStatusBadge.astro';
 import { formatEurCents } from '../../../../lib/format';
 import { runtimePlatform } from '../../../../composition/runtime-platform';
-import { createOrderReader } from '../../../../modules/orders';
+import { createD1OrderAmendments, createOrderReader } from '../../../../modules/orders';
 import { createD1PaymentLedger } from '../../../../modules/payments';
 import { createD1FulfillmentLedger } from '../../../../modules/fulfillment';
 import { shopConfig } from '../../../../../shop.config';
@@ -17,17 +17,22 @@ const collaborationEffectsEnabled = runtimePlatform.hasCapabilityFlag('ORD-004',
 const trackingEnabled = runtimePlatform.hasCapabilityFlag('FUL-002', 'routes');
 const partialEnabled = runtimePlatform.hasCapabilityFlag('FUL-004', 'routes');
 const partialEffectsEnabled = runtimePlatform.hasCapabilityFlag('FUL-004', 'sideEffects');
+const amendmentRouteEnabled = runtimePlatform.hasCapabilityFlag('ORD-005', 'routes');
+const amendmentEffectsEnabled = runtimePlatform.hasCapabilityFlag('ORD-005', 'sideEffects');
 const id = Number(Astro.params.id);
 const detail = Number.isInteger(id) ? await createOrderReader(Astro.locals.runtime.env.DB).detail(id) : null;
 if (!detail) return new Response(null, { status: 404 });
 const { order, items, notes, tags, availableTags, timeline } = detail;
 const paymentLedger = createD1PaymentLedger(Astro.locals.runtime.env.DB);
 const fulfillmentLedger = createD1FulfillmentLedger(Astro.locals.runtime.env.DB);
-const [payment, refunds, fulfillments, fulfillmentBalances] = await Promise.all([
+const amendmentLedger = createD1OrderAmendments(Astro.locals.runtime.env.DB);
+const [payment, refunds, fulfillments, fulfillmentBalances, amendmentContext, amendments] = await Promise.all([
   paymentLedger.findByOrderId(order.id),
   paymentLedger.listRefundsForOrder(order.id),
   fulfillmentLedger.listForOrder(order.id),
   fulfillmentLedger.lineBalances(order.id),
+  amendmentRouteEnabled ? amendmentLedger.context(order.id) : null,
+  amendmentRouteEnabled ? amendmentLedger.listForOrder(order.id) : [],
 ]);
 const balancesByItem = new Map(fulfillmentBalances.map((balance) => [balance.order_item_id, balance] as const));
 const itemProgress = items.map((item) => {
@@ -56,6 +61,9 @@ const partialShippingPolicy = shopConfig.refunds.partialShippingPolicy;
 const refundRouteEnabled = runtimePlatform.hasCapabilityFlag('ORD-007', 'routes');
 const refundEffectsEnabled = runtimePlatform.hasCapabilityFlag('ORD-007', 'sideEffects');
 const refundActionDisabled = readOnly || !refundEffectsEnabled;
+const activeAmendment = amendments.find((candidate) =>
+  ['pending_payment', 'pending_refund', 'ready', 'requires_review'].includes(candidate.status)
+);
 const addr = JSON.parse(order.address_json) as { name: string; phone: string | null; street: string; city: string; postal_code: string; zone: string; nif?: string | null; company?: string | null; };
 const statusLabel: Record<string, string> = { pending: 'Pendiente de pago', paid: 'Pagado', shipped: 'Enviado', delivered: 'Entregado', cancelled: 'Cancelado' };
 const date = (value: string) => new Intl.DateTimeFormat('es-ES', { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(value));
@@ -90,6 +98,31 @@ const visibilityLabel: Record<string, string> = { internal: 'Interno', customer:
         <ul class="divide-y divide-border">{itemProgress.map((item) => <li class="grid grid-cols-[1fr_auto] gap-3 px-5 py-4 text-sm sm:grid-cols-[1fr_auto_auto] sm:items-center"><div><p class="font-semibold">{item.name_snapshot}</p><p class="mt-1 text-xs text-muted-foreground">Enviado {item.fulfilled_quantity} · Cancelado {item.cancelled_quantity} · Pendiente {item.remaining_quantity}</p><p class="mt-1 text-xs text-muted-foreground sm:hidden">{item.qty} × {formatEurCents(item.unit_price_cents)}</p></div><p class="hidden text-muted-foreground sm:block">{item.qty} × {formatEurCents(item.unit_price_cents)}</p><p class="text-right font-semibold">{formatEurCents(item.qty * item.unit_price_cents)}</p></li>)}</ul>
         <dl class="space-y-2 border-t border-border bg-muted/40 px-5 py-4 text-sm"><div class="flex justify-between gap-4"><dt class="text-muted-foreground">Subtotal</dt><dd>{formatEurCents(order.subtotal_cents)}</dd></div><div class="flex justify-between gap-4"><dt class="text-muted-foreground">Envío</dt><dd>{formatEurCents(order.shipping_cents)}</dd></div><div class="flex justify-between gap-4 border-t border-border pt-3 text-base font-semibold"><dt>Total</dt><dd>{formatEurCents(order.total_cents)}</dd></div></dl>
       </section>
+
+      {amendmentRouteEnabled && amendmentContext && <section class="rounded-2xl border border-border bg-card p-5 shadow-sm" aria-labelledby="amendment-title">
+        <div class="flex flex-wrap items-start justify-between gap-3">
+          <div><h2 id="amendment-title" class="font-display text-xl">Editar pedido</h2><p class="mt-1 text-sm text-muted-foreground">Recalcula precio, envío y stock antes de aplicar cualquier cambio.</p></div>
+          <span class="rounded-full bg-muted px-3 py-1 text-xs font-semibold text-muted-foreground">Versión {amendmentContext.order.edit_version}</span>
+        </div>
+        {readOnly ? <div class="mt-5 grid gap-3 sm:grid-cols-3">
+          <div class="rounded-xl border border-border p-4"><p class="text-xs font-semibold uppercase tracking-wide text-muted-foreground">1 · Cambios</p><p class="mt-2 text-sm">Cantidades, nuevas variantes o dirección.</p></div>
+          <div class="rounded-xl border border-border p-4"><p class="text-xs font-semibold uppercase tracking-wide text-muted-foreground">2 · Vista previa</p><p class="mt-2 text-sm">Delta económico y stock, siempre desde datos servidor.</p></div>
+          <div class="rounded-xl border border-border p-4"><p class="text-xs font-semibold uppercase tracking-wide text-muted-foreground">3 · Conciliación</p><p class="mt-2 text-sm">Cobro alojado o reembolso a capturas concretas.</p></div>
+          <div class="rounded-xl bg-muted p-4 sm:col-span-3"><p class="text-sm font-semibold">Ejemplo inerte</p><p class="mt-1 text-sm text-muted-foreground">Añadir 1 unidad · total anterior {formatEurCents(order.total_cents)} · la instalación activa mostraría aquí el nuevo total y el importe a cobrar.</p></div>
+        </div> : activeAmendment ? <div class="mt-5 space-y-3">
+          <AdminNotice tone={activeAmendment.status === 'requires_review' ? 'warning' : 'info'}>Hay una edición {activeAmendment.status === 'pending_payment' ? 'pendiente de pago' : activeAmendment.status === 'requires_review' ? 'que requiere revisión financiera' : 'en conciliación'}. No se puede abrir otra hasta cerrarla.</AdminNotice>
+          {activeAmendment.status === 'requires_review' && amendmentEffectsEnabled && <button type="button" data-amendment-reconcile data-amendment-id={activeAmendment.id} class="min-h-11 rounded-xl border border-border px-4 text-sm font-semibold hover:bg-muted">Reintentar conciliación</button>}
+        </div> : amendmentEffectsEnabled && order.status === 'paid' ? <form data-amendment-form data-order-id={order.id} data-order-version={amendmentContext.order.edit_version} class="mt-5 space-y-5">
+          <fieldset class="space-y-3"><legend class="text-sm font-semibold">Cantidades vigentes</legend>{amendmentContext.lines.map((line) => <label class="grid gap-2 rounded-xl border border-border p-3 text-sm sm:grid-cols-[1fr_7rem] sm:items-center"><span><strong>{line.name_snapshot}</strong><span class="mt-1 block text-xs text-muted-foreground">{line.sku_snapshot} · mínimo comprometido {line.fulfilled_quantity + line.cancelled_quantity}</span></span><input type="number" min={line.fulfilled_quantity + line.cancelled_quantity} max="999" value={line.current_quantity} data-current={line.current_quantity} data-order-item-id={line.order_item_id} aria-label={`Cantidad de ${line.name_snapshot}`} class="min-h-11 rounded-xl border border-input bg-background px-3 text-right" /></label>)}</fieldset>
+          <div class="grid gap-3 sm:grid-cols-[1fr_7rem]"><label class="text-sm font-semibold">Añadir variante<select data-new-variant class="mt-2 min-h-11 w-full rounded-xl border border-input bg-background px-3 font-normal"><option value="">Ninguna</option>{amendmentContext.variants.filter((variant) => !amendmentContext.lines.some((line) => line.variant_id === variant.variant_id)).map((variant) => <option value={variant.variant_id}>{variant.name}{variant.variant_name ? ` · ${variant.variant_name}` : ''} — {formatEurCents(variant.unit_price_cents)} · stock {variant.available_quantity}</option>)}</select></label><label class="text-sm font-semibold">Cantidad<input data-new-quantity type="number" min="1" max="999" value="1" class="mt-2 min-h-11 w-full rounded-xl border border-input bg-background px-3 text-right font-normal" /></label></div>
+          {!amendmentContext.hasActiveFulfillment && <fieldset class="grid gap-3 border-t border-border pt-5 sm:grid-cols-2"><legend class="mb-2 text-sm font-semibold">Dirección de entrega</legend><label class="text-sm">Nombre<input name="name" value={addr.name} data-original={addr.name} class="mt-1 min-h-11 w-full rounded-xl border border-input bg-background px-3" /></label><label class="text-sm">Teléfono<input name="phone" value={addr.phone ?? ''} data-original={addr.phone ?? ''} class="mt-1 min-h-11 w-full rounded-xl border border-input bg-background px-3" /></label><label class="text-sm sm:col-span-2">Calle<input name="street" value={addr.street} data-original={addr.street} class="mt-1 min-h-11 w-full rounded-xl border border-input bg-background px-3" /></label><label class="text-sm">Ciudad<input name="city" value={addr.city} data-original={addr.city} class="mt-1 min-h-11 w-full rounded-xl border border-input bg-background px-3" /></label><label class="text-sm">Código postal<input name="postal_code" value={addr.postal_code} data-original={addr.postal_code} pattern="[0-9]{5}" class="mt-1 min-h-11 w-full rounded-xl border border-input bg-background px-3" /></label><label class="text-sm">NIF<input name="nif" value={addr.nif ?? ''} data-original={addr.nif ?? ''} class="mt-1 min-h-11 w-full rounded-xl border border-input bg-background px-3" /></label><label class="text-sm">Empresa<input name="company" value={addr.company ?? ''} data-original={addr.company ?? ''} class="mt-1 min-h-11 w-full rounded-xl border border-input bg-background px-3" /></label></fieldset>}
+          <label class="block text-sm font-semibold">Motivo<input name="reason" maxlength="240" required placeholder="Motivo operativo de la edición" class="mt-2 min-h-11 w-full rounded-xl border border-input bg-background px-3 font-normal" /></label>
+          <div data-amendment-preview class="hidden rounded-xl bg-muted p-4" aria-live="polite"></div>
+          <div class="flex flex-col gap-2 sm:flex-row"><button type="button" data-amendment-preview-button class="min-h-11 rounded-xl border border-border px-4 text-sm font-semibold hover:bg-muted">Calcular vista previa</button><button type="submit" data-amendment-apply disabled class="min-h-11 rounded-xl bg-foreground px-4 text-sm font-semibold text-background disabled:cursor-not-allowed disabled:opacity-50">Aplicar edición</button></div>
+          <p data-amendment-error class="hidden text-sm text-red-700" role="alert"></p>
+        </form> : <p class="mt-5 rounded-xl bg-muted p-4 text-sm text-muted-foreground">La edición no está disponible para el estado actual del pedido.</p>}
+        {amendments.length > 0 && <ol class="mt-5 space-y-2 border-t border-border pt-4">{amendments.slice(0, 5).map((amendment) => <li class="flex items-center justify-between gap-3 rounded-xl bg-muted/60 p-3 text-sm"><span><strong>{amendment.reason}</strong><span class="mt-1 block text-xs text-muted-foreground">{date(amendment.created_at)} · {amendment.status}</span></span><span class:list={['font-semibold', amendment.delta_cents > 0 ? 'text-amber-700' : amendment.delta_cents < 0 ? 'text-emerald-700' : '']}>{amendment.delta_cents > 0 ? '+' : ''}{formatEurCents(amendment.delta_cents)}</span></li>)}</ol>}
+      </section>}
 
       {partialEnabled && <section class="rounded-2xl border border-border bg-card p-5 shadow-sm" aria-labelledby="fulfillments-title"><div class="flex flex-wrap items-end justify-between gap-3"><div><h2 id="fulfillments-title" class="font-display text-xl">Envíos</h2><p class="mt-1 text-sm text-muted-foreground">{remainingQuantity} unidades pendientes · {fulfillments.length} grupos</p></div></div>{fulfillments.length === 0 ? <p class="mt-5 rounded-xl bg-muted p-4 text-sm text-muted-foreground">Todavía no ha salido ningún paquete.</p> : <ol class="mt-5 space-y-3">{fulfillments.map((fulfillment, index) => <li class="rounded-xl border border-border p-4"><div class="flex flex-wrap items-start justify-between gap-3"><div><p class="font-semibold">Envío {index + 1} · {fulfillment.total_quantity} unidades</p><p class="mt-1 text-sm text-muted-foreground">{fulfillment.carrier} · <span class="break-all font-mono text-xs">{fulfillment.tracking_number}</span></p></div><AdminStatusBadge status={fulfillment.status} label={fulfillmentStatusLabel[fulfillment.status] ?? fulfillment.status}/></div>{fulfillment.shipped_at && <p class="mt-3 text-xs text-muted-foreground">Salió el {date(fulfillment.shipped_at)}</p>}{fulfillment.delivered_at && <p class="mt-1 text-xs text-muted-foreground">Entregado el {date(fulfillment.delivered_at)}</p>}{!readOnly && partialEffectsEnabled && fulfillment.status === 'shipped' && <button type="button" data-deliver-fulfillment data-fulfillment-id={fulfillment.id} class="mt-4 min-h-11 w-full rounded-xl border border-border px-4 text-sm font-semibold hover:bg-muted">Marcar este envío como entregado</button>}</li>)}</ol>}</section>}
 
@@ -264,6 +297,96 @@ const visibilityLabel: Record<string, string> = { internal: 'Interno', customer:
           method: 'POST', headers: { 'content-type': 'application/json' },
           body: JSON.stringify({ order_id: Number(button.dataset.orderId), tag_id: Number(button.dataset.tagId), action: 'remove' }),
         }).then((response) => { if (response.ok) window.location.reload(); else button.disabled = false; });
+      });
+    });
+
+    const amendmentForm = document.querySelector<HTMLFormElement>('[data-amendment-form]');
+    if (amendmentForm) {
+      const previewBox = amendmentForm.querySelector<HTMLElement>('[data-amendment-preview]')!;
+      const errorBox = amendmentForm.querySelector<HTMLElement>('[data-amendment-error]')!;
+      const applyButton = amendmentForm.querySelector<HTMLButtonElement>('[data-amendment-apply]')!;
+      const previewButton = amendmentForm.querySelector<HTMLButtonElement>('[data-amendment-preview-button]')!;
+      let previewFingerprint = '';
+      const payload = () => {
+        const data = new FormData(amendmentForm);
+        const lines: Array<{ order_item_id: number; quantity: number } | { variant_id: number; quantity: number }> = [...amendmentForm.querySelectorAll<HTMLInputElement>('[data-order-item-id]')]
+          .filter((input) => Number(input.value) !== Number(input.dataset.current))
+          .map((input) => ({ order_item_id: Number(input.dataset.orderItemId), quantity: Number(input.value) }));
+        const newVariant = amendmentForm.querySelector<HTMLInputElement>('[data-new-variant]');
+        const newQuantity = amendmentForm.querySelector<HTMLInputElement>('[data-new-quantity]');
+        if (newVariant?.value) lines.push({ variant_id: Number(newVariant.value), quantity: Number(newQuantity?.value ?? 1) });
+        const addressFields = ['name', 'phone', 'street', 'city', 'postal_code', 'nif', 'company'] as const;
+        const changedAddress = addressFields.some((field) => {
+          const input = amendmentForm.elements.namedItem(field) as HTMLInputElement | null;
+          return input && input.value !== input.dataset.original;
+        });
+        const address = changedAddress ? {
+          name: String(data.get('name') ?? ''), phone: String(data.get('phone') ?? '') || null,
+          street: String(data.get('street') ?? ''), city: String(data.get('city') ?? ''),
+          postal_code: String(data.get('postal_code') ?? ''), nif: String(data.get('nif') ?? '') || null,
+          company: String(data.get('company') ?? '') || null,
+        } : undefined;
+        return {
+          order_id: Number(amendmentForm.dataset.orderId),
+          expected_version: Number(amendmentForm.dataset.orderVersion),
+          lines,
+          ...(address ? { address } : {}),
+        };
+      };
+      amendmentForm.addEventListener('input', () => { applyButton.disabled = true; previewFingerprint = ''; });
+      previewButton.addEventListener('click', () => {
+        if (!amendmentForm.reportValidity() || previewButton.disabled) return;
+        previewButton.disabled = true;
+        errorBox.classList.add('hidden');
+        void (async () => {
+          const requestPayload = payload();
+          const response = await fetch('/api/admin/order-amendments/preview', {
+            method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(requestPayload),
+          });
+          const result = await response.json() as { error?: string; preview?: { total_before_cents: number; total_after_cents: number; delta_cents: number; status: string; stock_increments: unknown[]; stock_restock: unknown[] } };
+          previewButton.disabled = false;
+          if (!response.ok || !result.preview) {
+            errorBox.textContent = result.error ?? 'No se pudo calcular la vista previa.';
+            errorBox.classList.remove('hidden');
+            return;
+          }
+          const euros = (cents: number) => new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(cents / 100);
+          const financial = result.preview.delta_cents > 0 ? `Cobro adicional ${euros(result.preview.delta_cents)}` : result.preview.delta_cents < 0 ? `Reembolso ${euros(-result.preview.delta_cents)}` : 'Sin ajuste económico';
+          previewBox.textContent = `Total ${euros(result.preview.total_before_cents)} → ${euros(result.preview.total_after_cents)}. ${financial}. Stock: +${result.preview.stock_increments.length} reservas, ${result.preview.stock_restock.length} reposiciones.`;
+          previewBox.classList.remove('hidden');
+          previewFingerprint = JSON.stringify(requestPayload);
+          applyButton.disabled = false;
+        })();
+      });
+      amendmentForm.addEventListener('submit', (event) => {
+        event.preventDefault();
+        if (!amendmentForm.reportValidity() || applyButton.disabled) return;
+        const requestPayload = payload();
+        if (JSON.stringify(requestPayload) !== previewFingerprint) { applyButton.disabled = true; return; }
+        const reason = String(new FormData(amendmentForm).get('reason') ?? '');
+        if (!window.confirm('¿Confirmas esta edición? El servidor volverá a validar precio, stock, versión y estado antes de conciliar dinero.')) return;
+        amendmentForm.dataset.idempotencyKey ||= crypto.randomUUID();
+        applyButton.disabled = true;
+        void (async () => {
+          const response = await fetch('/api/admin/order-amendments', {
+            method: 'POST', headers: { 'content-type': 'application/json' },
+            body: JSON.stringify({ ...requestPayload, reason, idempotency_key: amendmentForm.dataset.idempotencyKey }),
+          });
+          const result = await response.json() as { error?: string; payment_url?: string | null };
+          if (response.ok && result.payment_url) { window.location.assign(result.payment_url); return; }
+          if (response.ok) { window.location.reload(); return; }
+          applyButton.disabled = false;
+          errorBox.textContent = result.error ?? 'No se pudo aplicar la edición.';
+          errorBox.classList.remove('hidden');
+        })();
+      });
+    }
+    document.querySelectorAll<HTMLButtonElement>('[data-amendment-reconcile]').forEach((button) => {
+      button.addEventListener('click', () => {
+        if (button.disabled) return;
+        button.disabled = true;
+        void fetch(`/api/admin/order-amendments/${button.dataset.amendmentId}`, { method: 'POST' })
+          .then((response) => { if (response.ok) window.location.reload(); else button.disabled = false; });
       });
     });
   </script>

@@ -36,6 +36,9 @@ export const ORDER_EVENT_TYPES = [
   'orders.order_cancelled',
   'orders.order_refunded',
   'orders.order_partially_refunded',
+  'orders.order_amendment_requested',
+  'orders.order_amendment_applied',
+  'orders.order_amendment_expired',
 ] as const;
 
 export type OrderEventType = (typeof ORDER_EVENT_TYPES)[number];
@@ -85,6 +88,15 @@ export type OrderPartiallyRefundedPayload = OrderEventSubject &
     allocations: readonly Readonly<{ order_item_id: number; quantity: number }>[];
     remaining_quantity: number;
   }>;
+export type OrderAmendmentPayload = OrderEventSubject & Readonly<{
+  from_status: 'paid';
+  to_status: 'paid';
+  amendment_id: string;
+  delta_cents: number;
+  currency: string;
+  changed_line_count: number;
+  address_changed: boolean;
+}>;
 
 export type OrderPlacedEvent = EventEnvelope<'orders.order_placed', OrderPlacedPayload>;
 export type OrderPaidEvent = EventEnvelope<'orders.order_paid', OrderPaidPayload>;
@@ -96,6 +108,15 @@ export type OrderPartiallyRefundedEvent = EventEnvelope<
   'orders.order_partially_refunded',
   OrderPartiallyRefundedPayload
 >;
+export type OrderAmendmentRequestedEvent = EventEnvelope<
+  'orders.order_amendment_requested', OrderAmendmentPayload
+>;
+export type OrderAmendmentAppliedEvent = EventEnvelope<
+  'orders.order_amendment_applied', OrderAmendmentPayload
+>;
+export type OrderAmendmentExpiredEvent = EventEnvelope<
+  'orders.order_amendment_expired', OrderAmendmentPayload
+>;
 
 export type OrderDomainEvent =
   | OrderPlacedEvent
@@ -104,7 +125,10 @@ export type OrderDomainEvent =
   | OrderDeliveredEvent
   | OrderCancelledEvent
   | OrderRefundedEvent
-  | OrderPartiallyRefundedEvent;
+  | OrderPartiallyRefundedEvent
+  | OrderAmendmentRequestedEvent
+  | OrderAmendmentAppliedEvent
+  | OrderAmendmentExpiredEvent;
 
 /** Origen del hecho. El actor identifica el canal, nunca a la persona. */
 export const ORDER_ACTORS = {
@@ -288,6 +312,64 @@ export function orderPartiallyRefundedEvent(
   }));
 }
 
+type AmendmentEventInput = OrderEventSubject & Readonly<{
+  amendment_id: string;
+  delta_cents: number;
+  currency: string;
+  changed_line_count: number;
+  address_changed: boolean;
+}>;
+
+function amendmentPayload(input: AmendmentEventInput): OrderAmendmentPayload {
+  return Object.freeze({
+    order_id: input.order_id,
+    order_number: input.order_number,
+    from_status: 'paid',
+    to_status: 'paid',
+    amendment_id: input.amendment_id,
+    delta_cents: input.delta_cents,
+    currency: input.currency,
+    changed_line_count: input.changed_line_count,
+    address_changed: input.address_changed,
+  });
+}
+
+export function orderAmendmentRequestedEvent(
+  emit: EmitEvent,
+  input: AmendmentEventInput,
+  options: EmitOptions = {},
+): OrderAmendmentRequestedEvent {
+  const payload = amendmentPayload(input);
+  return emit(draftFor('orders.order_amendment_requested', ORDER_ACTORS.admin, payload, {
+    ...options,
+    idempotencySuffix: input.amendment_id,
+  }));
+}
+
+export function orderAmendmentAppliedEvent(
+  emit: EmitEvent,
+  input: AmendmentEventInput,
+  options: EmitOptions = {},
+): OrderAmendmentAppliedEvent {
+  const payload = amendmentPayload(input);
+  return emit(draftFor('orders.order_amendment_applied', ORDER_ACTORS.admin, payload, {
+    ...options,
+    idempotencySuffix: input.amendment_id,
+  }));
+}
+
+export function orderAmendmentExpiredEvent(
+  emit: EmitEvent,
+  input: AmendmentEventInput,
+  options: EmitOptions = {},
+): OrderAmendmentExpiredEvent {
+  const payload = amendmentPayload(input);
+  return emit(draftFor('orders.order_amendment_expired', ORDER_ACTORS.stripe, payload, {
+    ...options,
+    idempotencySuffix: input.amendment_id,
+  }));
+}
+
 /** Entrada del timeline tal y como la guarda `order_events` desde la Fase 3. */
 export type OrderTimelineEntry = Readonly<{
   from_status: string | null;
@@ -325,7 +407,11 @@ export function orderTimelineNote(fact: OrderTimelineFact): string {
 }
 
 function timelineFactOf(
-  event: Exclude<OrderDomainEvent, OrderRefundedEvent | OrderPartiallyRefundedEvent>,
+  event: Exclude<
+    OrderDomainEvent,
+    OrderRefundedEvent | OrderPartiallyRefundedEvent |
+    OrderAmendmentRequestedEvent | OrderAmendmentAppliedEvent | OrderAmendmentExpiredEvent
+  >,
 ): OrderTimelineFact {
   switch (event.type) {
     case 'orders.order_placed':
@@ -356,6 +442,32 @@ export function orderTimelineEntry(event: OrderDomainEvent): OrderTimelineEntry 
       from_status: event.payload.from_status,
       to_status: event.payload.to_status,
       note: `Reembolso parcial confirmado: ${quantity} ${quantity === 1 ? 'unidad' : 'unidades'}`,
+    });
+  }
+  if (event.type === 'orders.order_amendment_applied') {
+    const direction = event.payload.delta_cents > 0
+      ? 'cobro adicional'
+      : event.payload.delta_cents < 0
+        ? 'reembolso'
+        : 'sin ajuste económico';
+    return Object.freeze({
+      from_status: 'paid',
+      to_status: 'paid',
+      note: `Pedido editado (${direction})`,
+    });
+  }
+  if (event.type === 'orders.order_amendment_expired') {
+    return Object.freeze({
+      from_status: 'paid',
+      to_status: 'paid',
+      note: 'Edición caducada sin aplicar',
+    });
+  }
+  if (event.type === 'orders.order_amendment_requested') {
+    return Object.freeze({
+      from_status: 'paid',
+      to_status: 'paid',
+      note: 'Edición pendiente de conciliación',
     });
   }
   return Object.freeze({

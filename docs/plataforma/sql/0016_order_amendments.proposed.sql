@@ -1,0 +1,5 @@
+-- Copia de evidencia del DDL aprobado para R3.3.
+-- La fuente ejecutable es ../../../migrations/0016_order_amendments.sql.
+-- Se conserva como puntero estable de la propuesta aprobada. Para evitar dos
+-- DDL divergentes, el rehearsal y el despliegue leen exclusivamente la fuente
+-- ejecutable indicada arriba; ADR-0019 fija invariantes y rollback.

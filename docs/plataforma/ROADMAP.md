@@ -108,7 +108,7 @@ Cada migración se diseña y ensaya sobre una copia antes de tocar el esquema vi
 |---:|---|---|---|
 | 27 | **R3.1 Índice de pedidos escalable** | Cursor, búsqueda, filtros combinables, sort estable y límites; URL compartible y consulta indexada. | ✅ 2026-08-12 |
 | 28 | **R3.2 Notas, etiquetas y timeline** | Visibilidad interna/cliente, actor, edición auditada y filtros. | ✅ 2026-08-12 |
-| 29 | **R3.3 Edición de pedido** | Añadir/quitar/cantidad/dirección con preview de delta, pago adicional o reembolso y stock. | ⬜ |
+| 29 | **R3.3 Edición de pedido** | Añadir/quitar/cantidad/dirección con preview de delta, pago adicional o reembolso y stock. | ✅ 2026-08-12 |
 | 30 | **R3.4 Holds e incidencias** | Bloqueo manual/automático, motivo, responsable, SLA y desbloqueo; preparación no avanza en hold. | ⬜ |
 | 31 | **R3.5 Acciones masivas** | Selección estable, dry-run, job, progreso, resultados por fila y replay seguro. | ⬜ |
 | 32 | **R3.6 Ubicaciones** | Modelo y admin de almacenes/tiendas; inventario simple se backfillea a ubicación principal. | ⬜ |
@@ -959,5 +959,27 @@ Worker `593ecf57-afff-49f9-9d38-f31b5ff6cd05`. El smoke descubrió respuestas
 admin obsoletas en caché compartida; todas las superficies privadas fijan ahora
 `private, no-store` y `Vary: Cookie`.
 
-El siguiente bloque ejecutable es R3.3, edición segura de pedido. Su diseño
-implica nueva persistencia y activa el veto de migración antes de escribir DDL.
+### R3.3 — Edición segura de pedido
+
+**Cerrado y desplegado.** `ORD-005` permite añadir o retirar variantes, cambiar
+cantidades todavía no comprometidas y corregir la dirección antes del primer
+fulfillment. Preview y confirmación recalculan desde D1 precio, portes, delta y
+stock; `edit_version` resuelve carreras y cada intención conserva snapshots
+antes/después sin PII en eventos ni auditoría.
+
+La migración expand-only `0016` añade cantidad vigente, amendments y asignación
+de reembolsos por captura. Los aumentos usan Stripe Checkout alojado más reserva
+de inventario; las reducciones se concilian de forma durable contra una o más
+capturas y las ediciones neutras se aplican sin PSP. Los reembolsos R2 también
+usan ya esta asignación, por lo que siguen siendo correctos tras cobros
+adicionales. Demo pública inerte y backup esquema 10. ADR/runbook:
+[`adr/0019-edicion-segura-pedidos.md`](adr/0019-edicion-segura-pedidos.md) y
+[`OPERACION_EDICION_PEDIDOS.md`](OPERACION_EDICION_PEDIDOS.md).
+
+Gate: **73 suites/440 tests**, tipos/build, reset `0001`–`0016`, E2E remoto y
+a11y admin en verde. El rehearsal sobre backup remoto de 484.732 bytes conservó
+8 pedidos/13 líneas/0 reembolsos, hashes legacy/canónico y 0 FKs tras restore.
+Producción sirve D1 `0016` y Worker `6e61c22a-8291-436f-bea3-fdc27e6bb2af`.
+
+El siguiente bloque ejecutable es la ventana transversal F11.9 ya mandatada;
+después continúa R3.4, holds e incidencias.

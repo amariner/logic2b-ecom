@@ -23,6 +23,23 @@ export type PaymentLedgerEntry = Readonly<{
   status: PaymentStatus;
   version: number;
   refunded_cents: number;
+  adjustment_refunded_cents?: number;
+  cancellation_refunded_cents?: number;
+}>;
+
+export type RefundableCapture = Readonly<{
+  transaction_id: number;
+  payment_id: number;
+  provider_reference: string;
+  amount_cents: number;
+  allocated_cents: number;
+  occurred_at: string;
+}>;
+
+export type PlannedRefundCaptureAllocation = Readonly<{
+  capture_transaction_id: number;
+  amount_cents: number;
+  payment_reference: string;
 }>;
 
 export type PaymentCaptureDraft = Readonly<{
@@ -75,6 +92,7 @@ export type RefundLedgerEntry = Readonly<{
   version: number;
   restock_decision: RefundRestockDecision;
   operation_type: RefundOperationType;
+  amendment_id?: string | null;
 }>;
 
 export type TotalRefundLine = Readonly<{
@@ -184,9 +202,11 @@ export function planTotalRefund(
   lines: readonly TotalRefundLine[],
   restockDecision: RefundRestockDecision,
 ): PlannedTotalRefund {
-  if (payment.status !== 'captured') throw new RangeError('solo un pago captured se puede reembolsar por completo.');
-  if (payment.refunded_cents !== 0) {
-    throw new RangeError('un pago con reembolsos previos ya no admite reembolso total.');
+  if (payment.status !== 'captured' && payment.status !== 'partially_refunded') {
+    throw new RangeError('solo un pago capturado se puede reembolsar por completo.');
+  }
+  if ((payment.cancellation_refunded_cents ?? 0) !== 0) {
+    throw new RangeError('un pago con cancelaciones previas ya no admite reembolso total.');
   }
   assertMoney(order.subtotal_cents, 'order.subtotal_cents');
   assertMoney(order.shipping_cents, 'order.shipping_cents');
@@ -194,7 +214,7 @@ export function planTotalRefund(
   if (order.total_cents !== order.subtotal_cents + order.shipping_cents) {
     throw new RangeError('el total del pedido no coincide con subtotal y envío.');
   }
-  if (payment.expected_amount_cents !== order.total_cents) {
+  if (payment.expected_amount_cents - (payment.adjustment_refunded_cents ?? 0) !== order.total_cents) {
     throw new RangeError('el importe del pago no coincide con el pedido.');
   }
   if (lines.length < 1) throw new RangeError('el reembolso total necesita al menos una línea.');
@@ -241,7 +261,7 @@ export function planPartialRefund(
   assertMoney(order.shipping_cents, 'order.shipping_cents');
   assertMoney(order.total_cents, 'order.total_cents');
   if (order.total_cents !== order.subtotal_cents + order.shipping_cents ||
-      payment.expected_amount_cents !== order.total_cents) {
+      payment.expected_amount_cents - (payment.adjustment_refunded_cents ?? 0) !== order.total_cents) {
     throw new RangeError('el pago y el total del pedido no coinciden.');
   }
   if (requested.length < 1) throw new RangeError('selecciona al menos una línea para cancelar.');
@@ -321,4 +341,38 @@ export function planPartialRefund(
       ? 'refunded'
       : 'partially_refunded',
   });
+}
+
+/** Reserva importe sobre capturas concretas, empezando por la más reciente. */
+export function planRefundCaptureAllocations(
+  captures: readonly RefundableCapture[],
+  amountCents: number,
+): readonly PlannedRefundCaptureAllocation[] {
+  assertPositiveInteger(amountCents, 'amount_cents');
+  let remaining = amountCents;
+  const planned: PlannedRefundCaptureAllocation[] = [];
+  const ordered = [...captures].sort((a, b) =>
+    b.occurred_at.localeCompare(a.occurred_at) || b.transaction_id - a.transaction_id);
+  for (const capture of ordered) {
+    assertPositiveInteger(capture.transaction_id, 'capture.transaction_id');
+    assertPositiveInteger(capture.payment_id, 'capture.payment_id');
+    assertMoney(capture.amount_cents, 'capture.amount_cents');
+    assertMoney(capture.allocated_cents, 'capture.allocated_cents');
+    assertText(capture.provider_reference, 'capture.provider_reference', 200);
+    if (capture.allocated_cents > capture.amount_cents) {
+      throw new RangeError('una captura tiene más importe asignado que cobrado.');
+    }
+    const available = capture.amount_cents - capture.allocated_cents;
+    if (available <= 0) continue;
+    const allocated = Math.min(available, remaining);
+    planned.push(Object.freeze({
+      capture_transaction_id: capture.transaction_id,
+      amount_cents: allocated,
+      payment_reference: capture.provider_reference,
+    }));
+    remaining -= allocated;
+    if (remaining === 0) break;
+  }
+  if (remaining !== 0) throw new RangeError('saldo capturado insuficiente para el reembolso.');
+  return Object.freeze(planned);
 }

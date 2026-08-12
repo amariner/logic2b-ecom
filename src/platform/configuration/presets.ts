@@ -66,7 +66,9 @@ const STANDARD_CAPABILITIES = {
 
 const ADVANCED_CAPABILITIES = {
   ...STANDARD_CAPABILITIES,
+  'INV-004': { state: 'active', flags: JOB_EFFECT },
   'ORD-004': { state: 'active', flags: ROUTE_EFFECT },
+  'ORD-005': { state: 'active', flags: ROUTE_EFFECT },
   'ORD-007': { state: 'active', flags: ROUTE_EFFECT },
   'CAT-002': { state: 'active', flags: INTERNAL },
   'CAT-003': { state: 'active', flags: ROUTE },

@@ -7,6 +7,7 @@ export {
   planPaymentCapture,
   planTotalRefund,
   planPartialRefund,
+  planRefundCaptureAllocations,
 } from './domain/payment-ledger';
 export type {
   PaymentCaptureDraft,
@@ -16,10 +17,12 @@ export type {
   PlannedPaymentCapture,
   PlannedTotalRefund,
   PlannedPartialRefund,
+  PlannedRefundCaptureAllocation,
   PartialRefundLineSnapshot,
   PartialRefundRequestLine,
   PartialRefundShippingPolicy,
   RefundLedgerEntry,
+  RefundableCapture,
   RefundOperationType,
   RefundRestockDecision,
   RefundStatus,
@@ -39,6 +42,7 @@ export type {
   PaymentLedgerGuard,
   PendingPaymentInput,
   PartialRefundIntentInput,
+  RefundPaymentAllocationRecord,
   RefundItemLedgerLine,
   TotalRefundIntentInput,
 } from './infrastructure/d1-payment-ledger';

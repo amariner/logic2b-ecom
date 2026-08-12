@@ -1,6 +1,9 @@
 import type { APIRoute } from 'astro';
 import { createOrderOperations } from '../../../composition/order-operations';
+import { createOrderAmendmentOperations } from '../../../composition/order-amendment-operations';
+import { runtimePlatform } from '../../../composition/runtime-platform';
 import { flushEventOutbox } from '../../../composition/outbox-dispatcher';
+import { createPaymentRefundGatewayResolver } from '../../../integrations';
 import { verifyCheckoutWebhookEvent } from '../../../lib/stripe';
 import {
   asOperationalError,
@@ -37,6 +40,10 @@ export const POST: APIRoute = async ({ request, locals }) => {
   const started = performance.now();
   try {
     const orders = createOrderOperations(env.DB);
+    const amendments = createOrderAmendmentOperations(
+      env.DB,
+      createPaymentRefundGatewayResolver(env.STRIPE_SECRET_KEY),
+    );
     let outcome: 'applied' | 'duplicate' | 'unpaid' | 'ignored' = 'ignored';
 
     // Idempotente en todas sus capas: pedido desconocido o ya no-pending → sin
@@ -45,14 +52,23 @@ export const POST: APIRoute = async ({ request, locals }) => {
     // igualmente: reintentaría si no.
     if (event.kind === 'checkout_completed') {
       if (event.paid) {
-        const confirmed = await orders.confirmPayment({
-          lookup: { by: 'session', stripeSessionId: event.session_id },
-          paymentIntent: event.payment_intent,
-          source: 'stripe',
-          causationId: event.id,
-        });
-        outcome = confirmed ? 'applied' : 'duplicate';
-        if (confirmed) {
+        if (event.amendment_id && runtimePlatform.hasCapabilityFlag('ORD-005', 'sideEffects')) {
+          const result = await amendments.confirmAdditionalPayment(
+            event.session_id,
+            event.payment_intent,
+            event.id,
+          );
+          outcome = result.outcome === 'applied' ? 'applied' : 'duplicate';
+        } else if (!event.amendment_id) {
+          const confirmed = await orders.confirmPayment({
+            lookup: { by: 'session', stripeSessionId: event.session_id },
+            paymentIntent: event.payment_intent,
+            source: 'stripe',
+            causationId: event.id,
+          });
+          outcome = confirmed ? 'applied' : 'duplicate';
+        }
+        if (outcome === 'applied') {
           // Producción: entrega el email de confirmación sin retrasar el 200 a Stripe.
           locals.runtime.ctx.waitUntil(flushEventOutbox(env.DB, env));
         }
@@ -62,8 +78,13 @@ export const POST: APIRoute = async ({ request, locals }) => {
     }
 
     if (event.kind === 'checkout_expired') {
-      const expired = await orders.expirePayment({ stripeSessionId: event.session_id, causationId: event.id });
-      outcome = expired ? 'applied' : 'duplicate';
+      if (event.amendment_id && runtimePlatform.hasCapabilityFlag('ORD-005', 'sideEffects')) {
+        const result = await amendments.expire(event.session_id, event.id);
+        outcome = result.outcome === 'applied' ? 'applied' : 'duplicate';
+      } else if (!event.amendment_id) {
+        const expired = await orders.expirePayment({ stripeSessionId: event.session_id, causationId: event.id });
+        outcome = expired ? 'applied' : 'duplicate';
+      }
     }
 
     observability.metric({

@@ -11,6 +11,14 @@ export type EventOrderGuard = Readonly<{
   refund?: Readonly<{ id: number; status: string; version: number }>;
 }>;
 
+export type EventAmendmentGuard = Readonly<{
+  orderId: number;
+  expectedOrderVersion: number;
+  amendmentId: string;
+  amendmentStatus: string | readonly string[];
+  amendmentVersion: number;
+}>;
+
 function eventValues(event: EventEnvelope): readonly unknown[] {
   return [
     event.event_id,
@@ -86,6 +94,46 @@ export function createD1EventOutboxWriter(db: D1Database) {
         ...paymentBindings,
         ...refundGuardBindings,
         ...idempotencyBindings,
+      );
+    },
+
+    /** Guarda una edición por versión de pedido y estado/version de intención. */
+    guardedAmendmentEventStatement(
+      event: EventEnvelope,
+      guard: EventAmendmentGuard,
+    ): D1PreparedStatement {
+      const statuses = Array.isArray(guard.amendmentStatus)
+        ? guard.amendmentStatus
+        : [guard.amendmentStatus];
+      if (statuses.length === 0) throw new RangeError('amendmentStatus no puede estar vacío.');
+      return db.prepare(`
+        INSERT INTO event_outbox_events (
+          event_id, event_type, event_version, occurred_at,
+          actor_kind, actor_id, actor_label,
+          entity_type, entity_id, entity_reference,
+          correlation_id, causation_id, idempotency_key, payload_json, created_at
+        )
+        SELECT ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+        WHERE EXISTS (
+          SELECT 1
+          FROM order_amendments a
+          JOIN orders o ON o.id = a.order_id
+          WHERE a.id = ? AND a.order_id = ?
+            AND a.status IN (${statuses.map(() => '?').join(',')})
+            AND a.version = ?
+            AND o.status = 'paid' AND o.edit_version = ?
+        )
+        AND NOT EXISTS (
+          SELECT 1 FROM event_outbox_events WHERE idempotency_key = ?
+        )
+      `).bind(
+        ...eventValues(event),
+        guard.amendmentId,
+        guard.orderId,
+        ...statuses,
+        guard.amendmentVersion,
+        guard.expectedOrderVersion,
+        event.idempotency_key,
       );
     },
 

@@ -255,6 +255,9 @@ describe('registro de módulos y eventos (R1.5)', () => {
       'orders.order_cancelled',
       'orders.order_refunded',
       'orders.order_partially_refunded',
+      'orders.order_amendment_requested',
+      'orders.order_amendment_applied',
+      'orders.order_amendment_expired',
     ]);
     for (const event of MODULE_REGISTRY.byId.orders.events) {
       expect(MODULE_REGISTRY.eventOwners[event]).toBe('orders');

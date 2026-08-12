@@ -114,6 +114,12 @@ if (taggedOrderId) {
       && collaborationHtml.includes('Interno')
       && !collaborationHtml.includes('data-note-create'),
   );
+  check(
+    'detalle demuestra ORD-005 sin controles mutables en la demo',
+    collaborationHtml.includes('Editar pedido')
+      && collaborationHtml.includes('Ejemplo inerte')
+      && !collaborationHtml.includes('data-amendment-form'),
+  );
 }
 const filteredOrdersHtml = await (await fetch(
   `${BASE}/demo/admin?estado=paid&q=BM-DEMO&orden=total-desc`,
@@ -210,6 +216,8 @@ for (const [label, method, path] of [
   ['nota de pedido', 'POST', '/api/admin/order-notes'],
   ['etiqueta de pedido', 'POST', '/api/admin/order-tags'],
   ['asignación de etiqueta', 'POST', '/api/admin/order-tags/assignments'],
+  ['preview de edición', 'POST', '/api/admin/order-amendments/preview'],
+  ['edición de pedido', 'POST', '/api/admin/order-amendments'],
 ]) {
   const response = await fetch(adminUrl(path), {
     method,
@@ -231,9 +239,9 @@ check(
     && backupSql.includes('INSERT INTO attribute_definitions') && backupSql.includes('INSERT INTO product_attribute_values'),
 );
 check(
-  'backup esquema 9 conserva pagos, colaboración y reconstruye el índice de pedidos',
-  backupSql.includes('logic2b-backup-schema: 9')
-    && backupSql.includes('0015_order_collaboration')
+  'backup esquema 10 conserva pagos, ediciones, colaboración y reconstruye el índice de pedidos',
+  backupSql.includes('logic2b-backup-schema: 10')
+    && backupSql.includes('0016_order_amendments')
     && backupSql.includes('INSERT INTO payments')
     && backupSql.includes('INSERT INTO payment_transactions')
     && backupSql.includes('DELETE FROM refunds')
@@ -241,7 +249,10 @@ check(
     && backupSql.includes('INSERT INTO fulfillments')
     && backupSql.includes('INSERT INTO fulfillment_items')
     && backupSql.includes('INSERT INTO order_notes')
-    && backupSql.includes('INSERT INTO order_tag_assignments'),
+    && backupSql.includes('INSERT INTO order_tag_assignments')
+    && backupSql.includes('DELETE FROM order_amendments')
+    && backupSql.includes('DELETE FROM order_amendment_lines')
+    && backupSql.includes('DELETE FROM refund_payment_allocations'),
 );
 
 if (failures > 0) {

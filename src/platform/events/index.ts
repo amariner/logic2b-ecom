@@ -9,6 +9,7 @@ export {
 export {
   createD1EventOutboxWriter,
   type D1EventOutboxWriter,
+  type EventAmendmentGuard,
   type EventOrderGuard,
 } from './d1-event-outbox';
 export {

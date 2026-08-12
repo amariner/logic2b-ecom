@@ -29,6 +29,9 @@ export {
   ORDER_EVENT_TYPES,
   ORDER_EVENT_VERSION,
   orderCancelledEvent,
+  orderAmendmentAppliedEvent,
+  orderAmendmentExpiredEvent,
+  orderAmendmentRequestedEvent,
   orderCorrelationId,
   orderDeliveredEvent,
   orderPaidEvent,
@@ -40,6 +43,10 @@ export {
   orderTimelineEntry,
   orderTimelineNote,
   type OrderCancellationReason,
+  type OrderAmendmentAppliedEvent,
+  type OrderAmendmentExpiredEvent,
+  type OrderAmendmentPayload,
+  type OrderAmendmentRequestedEvent,
   type OrderDomainEvent,
   type OrderEventType,
   type OrderPaidEvent,
@@ -54,6 +61,17 @@ export {
 } from './domain/order-events';
 
 export {
+  planOrderAmendment,
+  type EditableOrderLineSnapshot,
+  type EditableOrderSnapshot,
+  type OrderAmendmentLineRequest,
+  type OrderAmendmentStatus,
+  type OrderAmendmentVariant,
+  type PlannedOrderAmendment,
+  type PlannedOrderAmendmentLine,
+} from './domain/order-amendment';
+
+export {
   buildPaidMutation,
   stockAfterDecrement,
   type OrderForPayment,
@@ -63,6 +81,13 @@ export {
 
 export type { NewOrderInput, NewOrderLine, OrderForTransition } from './infrastructure/d1-order-writer';
 export const createOrderWriter = (db: D1Database) => createD1OrderWriter(db);
+
+export {
+  createD1OrderAmendments,
+  type D1OrderAmendments,
+  type OrderAmendmentContext,
+  type OrderAmendmentRecord,
+} from './infrastructure/d1-order-amendments';
 
 export {
   createD1OrderCollaboration,

@@ -40,8 +40,14 @@ export type CheckoutWebhookEvent =
       session_id: string;
       paid: boolean;
       payment_intent: string | null;
+      amendment_id: string | null;
     }>
-  | Readonly<{ kind: 'checkout_expired'; id: string; session_id: string }>
+  | Readonly<{
+      kind: 'checkout_expired';
+      id: string;
+      session_id: string;
+      amendment_id: string | null;
+    }>
   | Readonly<{ kind: 'ignored'; id: string }>;
 
 /** Verifica la firma y devuelve el hecho normalizado. Lanza si la firma no es válida. */
@@ -60,10 +66,16 @@ export async function verifyCheckoutWebhookEvent(
       session_id: session.id,
       paid: session.payment_status === 'paid',
       payment_intent: typeof session.payment_intent === 'string' ? session.payment_intent : null,
+      amendment_id: session.metadata?.amendment_id ?? null,
     };
   }
   if (event.type === 'checkout.session.expired') {
-    return { kind: 'checkout_expired', id: event.id, session_id: event.data.object.id };
+    return {
+      kind: 'checkout_expired',
+      id: event.id,
+      session_id: event.data.object.id,
+      amendment_id: event.data.object.metadata?.amendment_id ?? null,
+    };
   }
   return { kind: 'ignored', id: event.id };
 }

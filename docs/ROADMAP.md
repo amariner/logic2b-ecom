@@ -60,10 +60,10 @@ reconciliación se conserva abajo por contexto.
 | 9 | Catálogo de estilos (8 temas) | 🟡 En curso | 2026-07-21 | Arquitectura + `/estilos` + **temas 06 Minimal, 01 Editorial, 07 Launch y 04 Guide desarrollados** (5 listos con Base; registro de catálogo por tema generalizado). **Replanteada como Fase 9B** (ver abajo): de «una tienda, 8 pieles» a «8 tiendas, un motor» |
 | 9B/C14 | Tiendas distintas sobre un solo motor | 🟡 En curso | 2026-08-04 | **C14.1–C14.2 cerrados:** contrato tipado y Forma migrada verticalmente a D1, quote, checkout, pedido y gracias compartidos. Quedan tres excepciones cerradas (NODDO, Sitēga y STRETCH); C14.3 las migra. No declarar completa hasta C14.3. |
 | 10 | Documentación para el cliente | 🟡 Casi completa | 2026-07-24 | **Ejecutada como F11.7** (ver Fase 11): `/ayuda` (noindex) con manual de 3 pasos + guías + runbook, acta de entrega e inventario de accesos en `docs/plantillas/`, dossier con «qué pasa si nos vamos», guion del vídeo. Pendiente: grabar el vídeo (Andreu) y confirmar las decisiones a/b/c asumidas |
-| 11 | Landing V2 «nivel Awwwards» + negocio + funnel + docs | 🟡 En curso | 2026-07-24 | **F11.1, F11.3 (2 sesiones), F11.4, F11.5, F11.6, F11.7 y F11.8 (primera pasada + pase a11y/contenido desde cloud 2026-07-24) hechos**, más F11.8b (auditor de a11y, cloud), F11.2a-1 (tienda ASFALTO / tema Street), F11.2a-2 (tienda METRIA / tema Industrial) F11.2a-3 (tienda ROMER / tema Natural) y **F11.2a-4 (tienda KALIBRE / tema Specs, local 2026-07-25) — con la que F11.2a queda CERRADA (10/10 tiendas)**; y **F11.8c (Lighthouse citable + OG de WhatsApp + URLs sin redirección, local 2026-07-26)**; y **F11.8d–e (tabla de Lighthouse cerrada y desplegada: 7 de 8 superficies a 100×4, la landing entre ellas en móvil y escritorio, local 2026-07-27)**; de la cola de F11.8 solo queda la submission a Awwwards (decisión de pago: Andreu). Detalle por bloque abajo. (ver «Fase 11» abajo). **Plan maestro completo en [`docs/PLAN_FASE11_LANDING_V2.md`](PLAN_FASE11_LANDING_V2.md)**: bloques F11.0–F11.8 ejecutables por sesiones independientes. **Decisiones D1–D6 APROBADAS por Andreu (2026-07-23)**: JS propio ≤15 KB sin deps, capturas con browser tools en local, dirección C «Ocho tiendas, un motor», escalera de precios (Lite 590 / Kit 1.900+39 / A medida 3.400+59), WhatsApp+email, Lite publicado sin construir. Prompt de arranque: [`docs/PROMPT_FASE11.md`](PROMPT_FASE11.md). Integra 9B.5/9B.6 (imaginería y temas restantes) como prerequisito del hero |
+| 11 | Landing V2 «nivel Awwwards» + negocio + funnel + docs | 🟡 En curso | 2026-07-24 | **F11.1, F11.3 (2 sesiones), F11.4, F11.5, F11.6, F11.7 y F11.8 (primera pasada + pase a11y/contenido desde cloud 2026-07-24) hechos**, más F11.8b (auditor de a11y, cloud), F11.2a-1 (tienda ASFALTO / tema Street), F11.2a-2 (tienda METRIA / tema Industrial) F11.2a-3 (tienda ROMER / tema Natural) y **F11.2a-4 (tienda KALIBRE / tema Specs, local 2026-07-25) — con la que F11.2a queda CERRADA (10/10 tiendas)**; y **F11.8c (Lighthouse citable + OG de WhatsApp + URLs sin redirección, local 2026-07-26)**; y **F11.8d–e (tabla de Lighthouse cerrada y desplegada: 7 de 8 superficies a 100×4, la landing entre ellas en móvil y escritorio, local 2026-07-27)**. Pendientes: **F11.9, botón global de contacto por WhatsApp** (mandato 2026-08-12), y la submission a Awwwards (decisión de pago: Andreu). Detalle por bloque abajo. (ver «Fase 11» abajo). **Plan maestro completo en [`docs/PLAN_FASE11_LANDING_V2.md`](PLAN_FASE11_LANDING_V2.md)**: bloques F11.0–F11.8 ejecutables por sesiones independientes. **Decisiones D1–D6 APROBADAS por Andreu (2026-07-23)**: JS propio ≤15 KB sin deps, capturas con browser tools en local, dirección C «Ocho tiendas, un motor», escalera de precios (Lite 590 / Kit 1.900+39 / A medida 3.400+59), WhatsApp+email, Lite publicado sin construir. Prompt de arranque: [`docs/PROMPT_FASE11.md`](PROMPT_FASE11.md). Integra 9B.5/9B.6 (imaginería y temas restantes) como prerequisito del hero |
 | 8 | Pulido de la demo (backlog abajo) | 🟡 En curso | 2026-07-19 | Backlog técnico agotado; solo quedan decisiones y pasos locales de Andreu (ver «Decisiones pendientes» y `docs/PROMPT_CLOUD.md`). Últimas tandas: novena (race de idempotencia en el pago, PII enumerable en `/demo/gracias`, cancelación de pedido pagado sin devolver stock), décima (la misma race en el PATCH de admin, campos vacíos guardados como 0, login sin rate limit), undécima (diagrama móvil de `/arquitectura`, hedge del plazo de entrega, tokens de tema en `/demo/reset`, terminología «envío»), duodécima (aviso de corte en pedidos del admin, cabeceras sin wrap a 375px, leftover «portes», token de radio del carrito, contraste del botón eliminar, H1 en valenciano, checklist de producción) y decimotercera (misma race de idempotencia en `checkout.session.expired`, divisa hardcodeada a EUR fuera de Stripe, cobertura de test de `quoteCart`/PATCH admin/emails) y decimocuarta (config parcial de Stripe → cobro sin cumplimiento, emails duplicados bajo concurrencia, `payment_status` del webhook, color de marca centralizado en `shop.config.ts`, contraste/tema en carrito y checkout) — ver sección «Fase 8» |
 | 12 | Logic2B Ecommerce: renombrado, reposicionamiento y docs de dos visiones | ✅ Hecho | 2026-08-10 | **F12.0–F12.6 cerrados:** marca, argumento, dossier, canal agencias, ayuda, índice por audiencias, OG y auditorías citables consolidados. **Plan maestro en [`docs/PLAN_FASE12_LOGIC2B_ECOMMERCE.md`](PLAN_FASE12_LOGIC2B_ECOMMERCE.md)**. |
-| 13 | Plataforma modular: del gestor mínimo a paridad extrema de capacidad | 🟡 En curso | 2026-08-12 | **R0, R1, R2.1–R2.14, Admin V2 y R3.1–R3.2 completos:** índice profesional, colaboración auditada y timeline unificado. Siguiente: R3.3 edición segura de pedido. Fuente de verdad en [`docs/plataforma/`](plataforma/README.md). |
+| 13 | Plataforma modular: del gestor mínimo a paridad extrema de capacidad | 🟡 En curso | 2026-08-12 | **R0, R1, R2.1–R2.14, Admin V2 y R3.1–R3.3 completos:** edición versionada con preview servidor, cobro/reembolso por captura y stock conciliado. Siguiente: ventana transversal F11.9 y después R3.4. Fuente de verdad en [`docs/plataforma/`](plataforma/README.md). |
 
 ## Repo y entornos
 
@@ -201,6 +201,45 @@ tienda conservan su radio propio. Bloques, un bloque por sesión:
 
 > Plan maestro: [`docs/PLAN_FASE11_LANDING_V2.md`](PLAN_FASE11_LANDING_V2.md).
 > Decisiones D1–D6 aprobadas (2026-07-23). El motor NO se toca en esta fase.
+
+### F11.9 — Botón global de contacto por WhatsApp — ⬜ pendiente (mandato 2026-08-12)
+
+Añadir un acceso flotante de WhatsApp **en todas las superficies visuales del
+proyecto**, con paridad de aspecto y comportamiento respecto al botón vivo de
+[`logic2b.com`](https://logic2b.com): píldora fija abajo a la derecha, icono
+verde y texto «Contacta», entrada suave después de superar el 60 % de la
+primera pantalla y retirada al entrar el footer. No es el adaptador de
+mensajería transaccional R7.7: es un canal comercial directo y transversal.
+
+**Alcance y contrato:**
+
+- un único componente compartido desde los layouts, sin copias por página ni
+  por tema, presente en landing, páginas comerciales, arquitectura, catálogo de
+  estilos/temas, todos los escaparates y sus recorridos, panel, login, ayuda,
+  reset y 404; las APIs y la salida de impresión quedan fuera por no ser
+  superficies visuales;
+- conservar la identidad visual de Logic2B en todas las tiendas, sin heredar el
+  acento de cada tema; número y mensaje viven en configuración central para que
+  un clon de cliente pueda sustituirlos sin buscar hardcodes;
+- usar el número de negocio ya aprobado, `+34 626 434 316`, y un mensaje
+  precargado que identifique Logic2B Ecommerce y la página de origen, en lugar
+  de copiar el texto de «auditoría gratuita» de la web corporativa;
+- enlace nativo `wa.me` utilizable sin JavaScript; el JS, propio y mínimo, solo
+  mejora aparición/retirada mediante `requestAnimationFrame` e
+  `IntersectionObserver`; ocultarlo mientras estén abiertos navegación móvil,
+  diálogos u otras capas que puedan solaparse;
+- mantener la réplica bajo los gates del proyecto: foco visible, nombre
+  accesible, área táctil mínima de 44 px, teclado, 375/1440, claro/oscuro,
+  `prefers-reduced-motion`, `target="_blank"` + `rel="noopener"`, sin tapar CTA,
+  consentimiento o controles de carrito/admin y sin dependencia nueva;
+- verificar todas las familias de layout, el barrido a11y global, `pnpm check`,
+  E2E de navegación y Lighthouse de las superficies comerciales antes de
+  desplegar. La captura automática debe poder ocultarlo igual que ya oculta
+  otros controles flotantes cuando el botón no forme parte de la composición.
+
+**Orden:** ejecutar F11.9 en la primera ventana transversal segura después de
+cerrar el bloque principal activo R3.3; no interrumpir una migración ni mezclar
+este cambio visual con la edición transaccional de pedidos.
 
 ### F11.1 — Capturas reales de tiendas, panel y flujo (2026-07-23)
 
@@ -1528,19 +1567,31 @@ la cola de temas, coordinados sin mezclar worktrees ni cambios abiertos.
 
 ## Próxima sesión
 
-### R3.3 — edición segura de pedido — ⬜ siguiente
+### F11.9 — contacto global por WhatsApp — ⬜ siguiente
 
-R3.2 deja producción con `ORD-004` actual: notas versionadas internas/cliente,
-etiquetas idempotentes y filtrables, actor y timeline compuesto sin reescribir
-los hechos transaccionales. La migración aditiva `0015`, backup esquema 9,
-69 suites/427 tests, reset, E2E remoto y a11y admin 16/16 cubren el contrato.
-El siguiente bloque atómico es el orden 29 de `docs/plataforma/ROADMAP.md`:
-añadir/quitar/cambiar cantidad o dirección con preview de delta, stock y
-dinero reconciliados. Requiere diseño y aprobación explícita de una nueva
-migración antes de escribir DDL o tocar producción.
+R3.3 queda cerrado y desplegado con `ORD-005`: edición versionada de líneas o
+dirección, preview y revalidación servidor, Stripe Checkout para incrementos,
+reembolso durable repartido por captura y reserva/reposición de stock. La
+migración aditiva `0016`, backup esquema 10, 73 suites/440 tests, reset,
+rehearsal sobre el backup remoto, E2E y a11y cubren el contrato; D1 sirve
+`0016` y Worker `6e61c22a-8291-436f-bea3-fdc27e6bb2af`. ADR-0019 y el runbook
+operativo viven en `docs/plataforma/`.
+
+El siguiente bloque atómico es F11.9, ya mandatado y descrito en Fase 11: un
+componente compartido de contacto por WhatsApp en todas las superficies
+visuales. No es un tema ni puede duplicar lógica por colección. Tras cerrarlo,
+la cabeza principal vuelve al orden 30 de `docs/plataforma/ROADMAP.md`: R3.4,
+holds e incidencias.
 
 Las entradas que siguen son el histórico de cierres anteriores y no cambian el
 orden actual.
+
+### Cola transversal autorizada — F11.9 contacto global por WhatsApp
+
+Tras cerrar R3.3, la primera ventana visual/comercial segura ejecuta F11.9: el
+botón flotante compartido, con paridad respecto a `logic2b.com`, en todas las
+superficies visuales. Su contrato y gates están definidos en «Fase 11»; esta
+cola no desplaza el bloque principal ni debe mezclarse con su migración.
 
 ### C15.1 — aislamiento seguro de todas las demos — ✅ cerrado 2026-08-04
 

@@ -423,6 +423,33 @@ function orderAuditProjection(event: OrderDomainEvent): AuditEventProjection {
           ['status', 'refunded_cents'],
         ),
       };
+    case 'orders.order_amendment_requested':
+      return {
+        action: 'orders.amendment_requested',
+        diff: createAuditDiff(
+          { amendment_id: null, delta_cents: 0 },
+          { amendment_id: event.payload.amendment_id, delta_cents: event.payload.delta_cents },
+          ['amendment_id', 'delta_cents'],
+        ),
+      };
+    case 'orders.order_amendment_applied':
+      return {
+        action: 'orders.amendment_applied',
+        diff: createAuditDiff(
+          { edit_applied: false, delta_cents: 0 },
+          { edit_applied: true, delta_cents: event.payload.delta_cents },
+          ['edit_applied', 'delta_cents'],
+        ),
+      };
+    case 'orders.order_amendment_expired':
+      return {
+        action: 'orders.amendment_expired',
+        diff: createAuditDiff(
+          { amendment_expired: false },
+          { amendment_expired: true },
+          ['amendment_expired'],
+        ),
+      };
   }
 }
 

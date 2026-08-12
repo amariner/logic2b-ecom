@@ -111,6 +111,12 @@ venta o servicios logísticos propios.
   notas/revisiones, etiquetas/asignaciones y actividad colaborativa aditivas.
 - [`OPERACION_COLABORACION_PEDIDOS.md`](OPERACION_COLABORACION_PEDIDOS.md):
   preflight, concurrencia, backup esquema 9, rollout y rollback compatibles.
+- [`adr/0019-edicion-segura-pedidos.md`](adr/0019-edicion-segura-pedidos.md):
+  versión de pedido, cobro adicional, reembolso por captura y stock de R3.3.
+- [`../../migrations/0016_order_amendments.sql`](../../migrations/0016_order_amendments.sql):
+  expansión de cantidades vigentes, amendments y asignaciones financieras.
+- [`OPERACION_EDICION_PEDIDOS.md`](OPERACION_EDICION_PEDIDOS.md):
+  preflight, rehearsal, conciliación, backup esquema 10 y rollback de R3.3.
 - [`OPERACION_FULFILLMENT_LINEAS.md`](OPERACION_FULFILLMENT_LINEAS.md):
   preflight, backfill, replay, restore, corte R2.11 y operación parcial R2.12.
 - [`../../scripts/rehearse-r2-fulfillment-lines.mjs`](../../scripts/rehearse-r2-fulfillment-lines.mjs):

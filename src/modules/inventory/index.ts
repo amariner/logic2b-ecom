@@ -39,4 +39,5 @@ export type {
   D1InventoryReservations,
   ReservationGuard,
   ReservationSourceLine,
+  VariantReservationSourceLine,
 } from './infrastructure/d1-inventory-reservations';

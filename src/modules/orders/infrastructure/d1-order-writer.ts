@@ -47,7 +47,7 @@ const ORDER_ITEMS_COLUMNS = `
   oi.product_id,
   COALESCE(item_variant.id, default_variant.id) AS variant_id,
   COALESCE(item_variant.id, default_variant.id) = default_variant.id AS is_default,
-  oi.name_snapshot, oi.unit_price_cents, oi.qty`;
+  oi.name_snapshot, oi.unit_price_cents, COALESCE(oi.current_qty, oi.qty) AS qty`;
 
 export function createD1OrderWriter(db: D1Database) {
   return {

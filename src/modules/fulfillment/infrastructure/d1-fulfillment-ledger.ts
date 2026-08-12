@@ -89,7 +89,7 @@ export function createD1FulfillmentLedger(db: D1Database) {
       assertId(orderId, 'order_id');
       const { results } = await db.prepare(`
         SELECT oi.id AS order_item_id,
-               oi.qty AS ordered_quantity,
+               COALESCE(oi.current_qty, oi.qty) AS ordered_quantity,
                COALESCE((
                  SELECT sum(ri.quantity)
                  FROM refund_items ri
@@ -104,7 +104,7 @@ export function createD1FulfillmentLedger(db: D1Database) {
         LEFT JOIN fulfillment_items fi ON fi.order_item_id = oi.id
         LEFT JOIN fulfillments f ON f.id = fi.fulfillment_id
         WHERE oi.order_id = ?
-        GROUP BY oi.id, oi.qty
+        GROUP BY oi.id, COALESCE(oi.current_qty, oi.qty)
         ORDER BY oi.id
       `).bind(orderId).all<FulfillmentLineBalance>();
       return results;
@@ -170,7 +170,7 @@ export function createD1FulfillmentLedger(db: D1Database) {
             JOIN order_items oi
               ON oi.id = ? AND oi.order_id = f.order_id
             WHERE f.idempotency_key = ? AND f.order_id = ?
-              AND ? <= oi.qty - COALESCE((
+              AND ? <= COALESCE(oi.current_qty, oi.qty) - COALESCE((
                 SELECT sum(fi.quantity)
                 FROM fulfillment_items fi
                 JOIN fulfillments existing ON existing.id = fi.fulfillment_id
@@ -298,7 +298,7 @@ export function createD1FulfillmentLedger(db: D1Database) {
                 WHERE ri.order_item_id = oi.id
                   AND r.operation_type IN ('total_cancellation', 'partial_cancellation')
                   AND r.status = 'succeeded'
-              ), 0) < oi.qty
+              ), 0) < COALESCE(oi.current_qty, oi.qty)
           )
           AND NOT EXISTS (
             SELECT 1 FROM fulfillments active
