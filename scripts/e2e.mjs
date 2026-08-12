@@ -6,6 +6,8 @@
  */
 const BASE = process.env.BASE_URL ?? 'http://localhost:8787';
 const ORIGIN = { origin: new URL(BASE).origin };
+const CACHE_BUST = `e2e-${Date.now()}`;
+const adminUrl = (path) => `${BASE}${path}${path.includes('?') ? '&' : '?'}e2e=${CACHE_BUST}`;
 
 let failures = 0;
 function check(name, condition, detail = '') {
@@ -82,7 +84,9 @@ const login = await fetch(`${BASE}/demo/admin/login`, {
 const cookie = String(login.headers.get('set-cookie') ?? '').split(';')[0];
 check('login demo devuelve cookie de sesión', login.status === 303 && cookie.startsWith('admin_session='));
 
-const adminHtml = await (await fetch(`${BASE}/demo/admin`, { headers: { cookie } })).text();
+const adminResponse = await fetch(adminUrl('/demo/admin'), { headers: { cookie } });
+const adminHtml = await adminResponse.text();
+check('panel privado no permite caché compartida', adminResponse.headers.get('cache-control')?.includes('no-store'));
 check('panel usa la identidad Logic2B Gestión', adminHtml.includes('Logic2B Gestión'));
 check('panel declara fixtures independientes', adminHtml.includes('independientes de los escaparates'));
 check('panel vuelve a ARCE', adminHtml.includes('href="/demo/tiendas/arce"'));
@@ -94,14 +98,14 @@ check(
     && adminHtml.includes('name="min"')
     && !adminHtml.includes('name="pagina"'),
 );
-const taggedOrdersHtml = await (await fetch(`${BASE}/demo/admin?etiqueta=prioritario`, { headers: { cookie } })).text();
+const taggedOrdersHtml = await (await fetch(adminUrl('/demo/admin?etiqueta=prioritario'), { headers: { cookie } })).text();
 const taggedOrderId = taggedOrdersHtml.match(/\/demo\/admin\/pedidos\/(\d+)"/)?.[1];
 check(
   'filtro por etiqueta conserva la URL y localiza el fixture R3.2',
   taggedOrdersHtml.includes('value="prioritario" selected') && taggedOrderId !== undefined,
 );
 if (taggedOrderId) {
-  const collaborationHtml = await (await fetch(`${BASE}/demo/admin/pedidos/${taggedOrderId}`, { headers: { cookie } })).text();
+  const collaborationHtml = await (await fetch(adminUrl(`/demo/admin/pedidos/${taggedOrderId}`), { headers: { cookie } })).text();
   check(
     'detalle unifica notas, etiquetas, actor y visibilidad sin acciones demo',
     collaborationHtml.includes('Confirmar el portal')
@@ -186,7 +190,7 @@ for (const [label, path, body] of [
   ['tarifa', `/api/admin/shipping-rates/${rateId ?? 1}`, { price_cents: 0 }],
   ['pedido', `/api/admin/orders/${orderId ?? 1}`, { status: 'shipped' }],
 ]) {
-  const response = await fetch(`${BASE}${path}`, {
+  const response = await fetch(adminUrl(path), {
     method: 'PATCH',
     headers: { 'content-type': 'application/json', cookie },
     body: JSON.stringify(body),
@@ -207,7 +211,7 @@ for (const [label, method, path] of [
   ['etiqueta de pedido', 'POST', '/api/admin/order-tags'],
   ['asignación de etiqueta', 'POST', '/api/admin/order-tags/assignments'],
 ]) {
-  const response = await fetch(`${BASE}${path}`, {
+  const response = await fetch(adminUrl(path), {
     method,
     headers: { 'content-type': 'application/json', cookie },
     body: '{}',

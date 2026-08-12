@@ -31,6 +31,14 @@ const PUBLIC_API_RULES: Record<string, RateLimitRule> = {
 
 export const onRequest = defineMiddleware(async (context, next) => {
   const { pathname, search } = context.url;
+  const adminSurface = pathname.startsWith('/api/admin') || pathname.startsWith('/demo/admin');
+  const privateResponse = async (): Promise<Response> => {
+    const response = await next();
+    const headers = new Headers(response.headers);
+    headers.set('cache-control', 'private, no-store, max-age=0');
+    headers.set('vary', 'Cookie');
+    return new Response(response.body, { status: response.status, statusText: response.statusText, headers });
+  };
 
   const routeAccess = decideRouteAccess(runtimePlatform, pathname);
   if (routeAccess && !routeAccess.allowed) {
@@ -71,18 +79,21 @@ export const onRequest = defineMiddleware(async (context, next) => {
     }
   }
 
-  if (!needsAuth(pathname)) return next();
+  if (!needsAuth(pathname)) return adminSurface ? privateResponse() : next();
 
   // En una tienda real (DEMO_MODE off) el guardián es Cloudflare Access
   // (docs/PRODUCCION.md §5); la cookie de login es la capa didáctica de la demo.
-  if (context.locals.runtime.env.DEMO_MODE !== 'true') return next();
+  if (context.locals.runtime.env.DEMO_MODE !== 'true') return privateResponse();
 
   const secret = resolveCookieSecret(context.locals.runtime.env);
   const token = context.cookies.get(ADMIN_COOKIE_NAME)?.value;
-  if (secret && token && (await verifySessionToken(secret, token))) return next();
+  if (secret && token && (await verifySessionToken(secret, token))) return privateResponse();
 
   if (pathname.startsWith('/api/')) {
-    return Response.json({ error: 'No autorizado: inicia sesión en el panel.' }, { status: 401 });
+    return Response.json(
+      { error: 'No autorizado: inicia sesión en el panel.' },
+      { status: 401, headers: { 'cache-control': 'private, no-store, max-age=0', vary: 'Cookie' } },
+    );
   }
   return context.redirect(`/demo/admin/login?next=${encodeURIComponent(pathname + search)}`, 302);
 });
