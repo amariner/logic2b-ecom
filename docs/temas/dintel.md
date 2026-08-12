@@ -43,5 +43,11 @@ adicionales.
 
 ## Verificación
 
-- ✅ `pnpm check`: tipos, tests y build en verde antes de las capturas.
-- ⏳ Navegador, auditoría a11y y capturas: en curso en el cierre del tema.
+- ✅ El contraste del acento compartido queda corregido para ficha, carrito y
+  checkout; la portada oscura deriva sus tintas de los 14 tokens del tema.
+- ✅ Navegador real a 1440 y 375 px, recorrido local, foco, teclado y
+  `prefers-reduced-motion` revisados.
+- ✅ Auditoría a11y: 8 superficies, 0 errores y 0 avisos.
+- ✅ Cinco capturas finales regeneradas; catálogo 90 KB, móvil 15 KB y ficha
+  23 KB, con todos los WebP decodificados antes de capturar.
+- ✅ `pnpm check`: 62 suites, 394 tests, tipos y build en verde.

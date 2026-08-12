@@ -765,7 +765,7 @@ Ficha completa: [`docs/temas/dintel.md`](temas/dintel.md).
 | 22 | BRÍO | `#c9e66d` | 3 | **irregular** | top | **split** | hairline | dropdown | regular | ✅ |
 | 23 | BRUMA | `#272725` | 4 | uniform | top | none | plain | dropdown | airy | ✅ |
 | 24 | TRAZA | `#242321` | 3 | **irregular** | **immersive** | **fullbleed** | plain | dropdown | airy | ✅ |
-| 25 | DINTEL | `#e8e6df` | 3 | **irregular** | **immersive** | **fullbleed** | plain | dropdown | airy | ✅ |
+| 25 | DINTEL | `#171715` | 3 | **irregular** | **immersive** | **fullbleed** | plain | dropdown | airy | ✅ |
 
 ---
 

@@ -896,6 +896,30 @@ posición 12
 (`4b7efb74f44f8df500b21c605b7ceff9.jpg`). El carril principal conserva R2.11
 como cabeza y requiere permiso explícito por su migración D1.
 
+### Línea paralela · tema DINTEL (2026-08-12, sesión local)
+
+Duodécimo elemento de `nuevos-temas/cola.json`. DINTEL replica una referencia
+de mobiliario monolítico con fondo negro, wordmark monumental, microtipografía
+y retícula asimétrica de doce columnas. Ocho objetos `din-*` de madera,
+piedra, bronce y luz usan assets WebP propios generados con `imagegen`
+integrado, una llamada por objeto.
+
+El WIP previo estaba completo visualmente pero no cerraba: el acento claro
+fallaba el test de contraste (1,25:1) y hacía casi invisibles la categoría y la
+CTA de la ficha compartida; además, las capturas de escritorio se tomaron antes
+de que los WebP lazy quedaran pintados. El acento operativo pasa a tinta oscura,
+el catálogo deriva sus tintas claras de los 14 tokens, el orden destacado se
+alinea con la referencia y el script espera carga y `decode()` antes de cada
+captura.
+
+El bloque no cambia pricing, envíos, checkout, pedidos, D1 ni APIs, y no añade
+dependencias. Auditoría a11y: 8 superficies, 0 errores y 0 avisos. Cinco
+capturas dentro de presupuesto y `pnpm check` en verde (62 suites/394 tests,
+tipos y build). La posición 12 queda completada y la siguiente referencia
+visual ejecutable es la posición 13
+(`5675ae523a7da5dc339cbf50c05e49f1.jpg`). El carril principal conserva R2.13
+como cabeza.
+
 ### Pendiente en la Fase 9B
 
 - **Pasada de fidelidad fina** de los 4 temas contra su captura (se re-hospedaron
