@@ -1051,15 +1051,26 @@ El bloque no cambia pricing, envíos, checkout, pedidos, D1 ni APIs, y no añade
 dependencias. `pnpm check` queda en verde (487 archivos sin diagnósticos, 78
 suites/469 tests y build), el E2E global verifica el aislamiento de demos y
 panel y la auditoría a11y cubre 8 superficies con 0 errores y 0 avisos. Las
-capturas de catálogo, móvil, ficha y derivados 900/560 quedan revisadas y dentro
-de presupuesto. Ficha completa en [`docs/temas/cota.md`](temas/cota.md). La
-siguiente referencia visual ejecutable es la posición 16
+capturas de catálogo, móvil, ficha y derivados 900/560 quedaron revisadas y dentro
+de presupuesto. La siguiente referencia visual ejecutable era la posición 16
 (`a8a10f52406a4a87b6b34e412425a141.jpg`). El carril principal conserva R3.5 y
 su gate de esquema. Integrado en `main` como `5b52c12` y desplegado en el Worker
 `70c0d815-e549-4318-99f6-4947149ffd79`; smoke remoto 200 en portada, `/temas`,
 tienda y hero. Lighthouse remoto (mediana de tres) queda en 99/100/100/100 para
 portada móvil y 100/100/100/100 para portada escritorio y `/temas` en ambos
 perfiles (LCP máximo 1,8 s, CLS 0, TBT 0 ms).
+
+### Retirada del tema COTA (2026-08-13)
+
+Por decisión directa de Andreu, COTA sale del catálogo comercial y de la demo.
+Se eliminan su registro, colección, seed, vista propia, assets públicos,
+capturas, documentación activa y entradas de auditoría; la posición 15 de la
+cola queda `descartado`. La retirada se construye desde un snapshot limpio de
+`HEAD` para no publicar cambios visuales que siguen en desarrollo. Gate: 482
+archivos sin diagnósticos, 78 suites/469 tests y build en verde. Producción
+sirve el Worker `25e45570-3864-4ab8-a218-89b7a3cad823`; smoke remoto 200 en
+portada y `/temas` sin referencias a COTA, y 404 en la tienda y el asset
+retirados.
 
 ### Pendiente en la Fase 9B
 
@@ -1651,8 +1662,8 @@ lote/acción/pedido.
 
 `ORD-011` y `AUT-011` quedan registradas como `installed` y sin flags. No existe
 ruta, navegación, job, efecto, UI ni DDL; D1 demo conserva `0017` y producción
-sirve el Worker `70c0d815-e549-4318-99f6-4947149ffd79` tras el cierre visual de
-COTA, sin código R3.5. Gate local: **78
+sirve el Worker `25e45570-3864-4ab8-a218-89b7a3cad823` tras retirar COTA, sin
+código R3.5. Gate local: **78
 suites/469 tests**, tipos y build en verde; E2E/a11y no aplican porque no cambió
 ninguna superficie servida.
 
@@ -1662,10 +1673,9 @@ se encadena persistencia, job durable, API, panel, runbook, rehearsal,
 concurrencia, E2E/a11y, aplicación a D1 demo y despliegue. Hasta entonces no se
 debe crear ni aplicar esa migración.
 
-Carril visual independiente: COTA (posición 15) queda cerrado y la siguiente
-referencia ejecutable es la posición 16,
-`a8a10f52406a4a87b6b34e412425a141.jpg`. Este carril no autoriza ni altera el
-DDL pendiente de R3.5.
+Carril visual independiente: la referencia de COTA (posición 15) queda
+descartada. La posición 16 mantiene su flujo separado y no forma parte de esta
+retirada. Este carril no autoriza ni altera el DDL pendiente de R3.5.
 
 Las entradas que siguen son el histórico de cierres anteriores y no cambian el
 orden actual.

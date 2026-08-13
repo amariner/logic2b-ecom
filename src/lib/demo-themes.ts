@@ -1066,36 +1066,6 @@ export const demoThemes: DemoTheme[] = [
       annotations: false, darkFooter: false,
     },
   },
-  {
-    id: 'cota',
-    label: 'COTA',
-    hint: 'Portfolio inmobiliario de precisión para arquitectura y residencias de autor.',
-    reference: { name: 'Referencia editorial de promoción arquitectónica', file: '28-cota.webp' },
-    sample: null,
-    bestFor: ['Arquitectura', 'Promoción residencial', 'Interiorismo'],
-    status: 'ready',
-    vars: {
-      '--color-brand': '#202424',
-      '--color-brand-dark': '#0d0f0f',
-      '--color-brand-fg': '#ffffff',
-      '--font-display': SYSTEM_SANS,
-      '--font-accent': MONO,
-      '--tracking-display': '-0.055em',
-      '--weight-display': '700',
-      '--radius-btn': '0',
-      '--radius-card': '0',
-      '--border-width': '1px',
-      '--surface-product': '#e8e8e5',
-      '--surface-sunken': '#f5f5f2',
-      '--space-density': '0.82',
-      '--grid-gap': '0.3rem',
-    },
-    layout: {
-      gridCols: 3, gridStyle: 'uniform', nav: 'top', hero: 'fullbleed',
-      card: 'plain', filters: 'dropdown', density: 'airy',
-      annotations: false, darkFooter: false,
-    },
-  },
   // new-theme:themes — no borrar: `pnpm new:theme <id>` añade aquí el tema si falta.
 ];
 

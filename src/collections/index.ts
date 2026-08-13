@@ -41,7 +41,6 @@ import { trazaCollection } from '../collections/traza';
 import { dintelCollection } from '../collections/dintel';
 import { lumbreCollection } from '../collections/lumbre';
 import { mixtaCollection } from '../collections/mixta';
-import { cotaCollection } from '../collections/cota';
 // new-theme:imports — no borrar: `pnpm new:theme <id>` añade aquí su import.
 import type { CollectionCategory, CollectionConfig } from './types';
 
@@ -84,7 +83,6 @@ export const collections: readonly CollectionConfig[] = [
   dintelCollection,
   lumbreCollection,
   mixtaCollection,
-  cotaCollection,
   // new-theme:entries — no borrar: `pnpm new:theme <id>` añade aquí su entrada.
 ];
 
