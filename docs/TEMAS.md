@@ -12,7 +12,7 @@
 
 Logic2B Ecommerce vende una tienda **a medida**. El problema comercial es que «a medida»
 suena caro y abstracto: el cliente no puede imaginarse su tienda. El catálogo de
-estilos resuelve eso — son 27 direcciones visuales completas, cada una derivada de
+estilos resuelve eso — son 28 direcciones visuales completas, cada una derivada de
 una referencia real de ecommerce, entre las que el cliente elige un punto de
 partida.
 
@@ -758,6 +758,18 @@ fórmulas propias sobre una retícula de filetes mínimos y conserva producto,
 carrito, checkout y confirmación en el recorrido local compartido. Ficha:
 [`docs/temas/mixta.md`](temas/mixta.md).
 
+### 28 · COTA — *arquitectura donde empieza el paisaje*
+
+📎 **Referencia: [`28-cota.webp`](../public/images/referencias/28-cota.webp)**
+
+**Para quién:** arquitectura, promoción residencial e interiorismo.
+
+Un marco carbón contiene una publicación inmobiliaria de microtipografía,
+líneas técnicas, hero panorámico y proyectos ordenados en una retícula de tres
+columnas. COTA reúne seis residencias ficticias entre agua, tierra y ciudad sin
+separar el recorrido compartido de ficha, selección y checkout. Ficha:
+[`docs/temas/cota.md`](temas/cota.md).
+
 ---
 
 ## 6. Tabla resumen
@@ -792,6 +804,7 @@ carrito, checkout y confirmación en el recorrido local compartido. Ficha:
 | 25 | DINTEL | `#171715` | 3 | **irregular** | **immersive** | **fullbleed** | plain | dropdown | airy | ✅ |
 | 26 | LUMBRE | `#4b251b` | 4 | uniform | **immersive** | **fullbleed** | hairline | dropdown | airy | ✅ |
 | 27 | MIXTA | `#c8ff65` | 4 | uniform | **immersive** | **fullbleed** | divided | dropdown | regular | ✅ |
+| 28 | COTA | `#202424` | 3 | uniform | top | **fullbleed** | plain | dropdown | airy | ✅ |
 
 ---
 

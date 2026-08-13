@@ -1037,6 +1037,26 @@ tienda y hero. Lighthouse remoto (mediana de tres) queda en 99/100/100/100 para
 portada móvil y 100/100/100/100 para portada escritorio y `/temas` en ambos
 perfiles (LCP máximo 1,8 s, CLS 0, TBT 0 ms).
 
+### Línea paralela · tema COTA (2026-08-13, sesión local)
+
+Decimoquinto elemento de `nuevos-temas/cola.json`. COTA replica una promoción
+residencial editorial con marco carbón, hero panorámico, líneas técnicas,
+microtipografía y retícula de tres columnas. Seis proyectos `cot-*` entre agua,
+tierra y ciudad comparten seis escenas WebP propias. `imagegen` integrado falló
+por red; Higgsfield Soul Location generó siete escenas individuales, de las que
+una se descartó por incluir una figura, con un coste total de 0,84 créditos
+(45,24 → 44,40).
+
+El bloque no cambia pricing, envíos, checkout, pedidos, D1 ni APIs, y no añade
+dependencias. `pnpm check` queda en verde (487 archivos sin diagnósticos, 78
+suites/469 tests y build), el E2E global verifica el aislamiento de demos y
+panel y la auditoría a11y cubre 8 superficies con 0 errores y 0 avisos. Las
+capturas de catálogo, móvil, ficha y derivados 900/560 quedan revisadas y dentro
+de presupuesto. Ficha completa en [`docs/temas/cota.md`](temas/cota.md). La
+siguiente referencia visual ejecutable es la posición 16
+(`a8a10f52406a4a87b6b34e412425a141.jpg`). El carril principal conserva R3.5 y
+su gate de esquema.
+
 ### Pendiente en la Fase 9B
 
 - **Pasada de fidelidad fina** de los 4 temas contra su captura (se re-hospedaron
@@ -1638,9 +1658,9 @@ se encadena persistencia, job durable, API, panel, runbook, rehearsal,
 concurrencia, E2E/a11y, aplicación a D1 demo y despliegue. Hasta entonces no se
 debe crear ni aplicar esa migración.
 
-Carril visual independiente: MIXTA (posición 14) queda cerrado y la siguiente
-referencia ejecutable es la posición 15,
-`a0a43d8adc1a5e9263bae105fa4aabc4.jpg`. Este carril no autoriza ni altera el
+Carril visual independiente: COTA (posición 15) queda cerrado y la siguiente
+referencia ejecutable es la posición 16,
+`a8a10f52406a4a87b6b34e412425a141.jpg`. Este carril no autoriza ni altera el
 DDL pendiente de R3.5.
 
 Las entradas que siguen son el histórico de cierres anteriores y no cambian el
