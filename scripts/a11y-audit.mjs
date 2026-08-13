@@ -170,6 +170,14 @@ const FIRST_ORDER_OF = (estado) => String.raw`(async () => {
   return m ? m[0] : 'ERROR: no hay ningún pedido en estado ${estado}';
 })()`;
 
+/** Resuelve el fixture que demuestra el bloqueo y el SLA de R3.4. */
+const FIRST_ORDER_WITH_HOLD = String.raw`(async () => {
+  const r = await fetch('/demo/admin?incidencia=active', { credentials: 'same-origin' });
+  if (!r.ok) return 'ERROR: el listado de incidencias respondió ' + r.status;
+  const m = (await r.text()).match(/\/demo\/admin\/pedidos\/\d+/);
+  return m ? m[0] : 'ERROR: no hay ningún pedido con incidencia activa';
+})()`;
+
 /** Resuelve un producto del seed por slug para cubrir su editor de variantes. */
 const PRODUCT_VARIANTS_OF = (slug) => String.raw`(async () => {
   const r = await fetch('/demo/admin/productos?q=' + encodeURIComponent(${JSON.stringify(slug)}), { credentials: 'same-origin' });
@@ -187,6 +195,7 @@ const ADMIN_PAGES = [
   { id: 'pedidos', url: '/demo/admin' },
   { id: 'pedido-pagado', resolve: FIRST_ORDER_OF('paid') },
   { id: 'pedido-enviado', resolve: FIRST_ORDER_OF('shipped') },
+  { id: 'pedido-incidencia', resolve: FIRST_ORDER_WITH_HOLD },
   { id: 'productos', url: '/demo/admin/productos' },
   { id: 'producto-variantes', resolve: PRODUCT_VARIANTS_OF('sum-shell-07') },
   { id: 'envios', url: '/demo/admin/envios' },

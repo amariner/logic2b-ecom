@@ -10,6 +10,7 @@ export {
   encodeOrderListCursor,
   type OrderDetail,
   type OrderEvent,
+  type OrderHoldRead,
   type OrderItem,
   type OrderListCursor,
   type OrderListFilters,
@@ -129,3 +130,10 @@ export {
   type OrderNoteWrite,
   type OrderTagAction,
 } from './infrastructure/d1-order-collaboration';
+
+export {
+  createD1OrderHolds,
+  orderHoldSnapshot,
+  type D1OrderHolds,
+  type OrderHoldRecord,
+} from './infrastructure/d1-order-holds';

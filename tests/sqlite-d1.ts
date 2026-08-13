@@ -15,6 +15,7 @@ import migration13 from '../migrations/0013_partial_refund_guards.sql?raw';
 import migration14 from '../migrations/0014_order_list_indexes.sql?raw';
 import migration15 from '../migrations/0015_order_collaboration.sql?raw';
 import migration16 from '../migrations/0016_order_amendments.sql?raw';
+import migration17 from '../migrations/0017_order_holds.sql?raw';
 
 type SqlValue = string | number | bigint | null | Uint8Array;
 
@@ -88,7 +89,7 @@ export class SqliteD1 {
       migration1, migration2, migration3, migration4, migration5,
       migration6, migration7, migration8, migration9, migration10,
       migration11, migration12,
-      ...(includePartialRefundGuards ? [migration13, migration14, migration15, migration16] : []),
+      ...(includePartialRefundGuards ? [migration13, migration14, migration15, migration16, migration17] : []),
     ]) {
       this.sqlite.exec(migration);
     }

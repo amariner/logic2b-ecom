@@ -6,6 +6,7 @@ export type EventOrderGuard = Readonly<{
   orderId: number;
   expectedStatus: string;
   requireNoActiveRefund?: boolean;
+  requireNoActiveHold?: boolean;
   ignoreExistingIdempotencyKey?: boolean;
   payment?: Readonly<{ id: number; status: string; version: number }>;
   refund?: Readonly<{ id: number; status: string; version: number }>;
@@ -17,6 +18,13 @@ export type EventAmendmentGuard = Readonly<{
   amendmentId: string;
   amendmentStatus: string | readonly string[];
   amendmentVersion: number;
+}>;
+
+export type EventHoldGuard = Readonly<{
+  orderId: number;
+  holdId: string;
+  holdStatus: 'active';
+  holdVersion: number;
 }>;
 
 function eventValues(event: EventEnvelope): readonly unknown[] {
@@ -50,6 +58,13 @@ export function createD1EventOutboxWriter(db: D1Database) {
           )`
         : '';
       const refundBindings = guard.requireNoActiveRefund ? [guard.orderId] : [];
+      const holdGuard = guard.requireNoActiveHold
+        ? `AND NOT EXISTS (
+            SELECT 1 FROM order_holds
+            WHERE order_id = ? AND status = 'active'
+          )`
+        : '';
+      const holdBindings = guard.requireNoActiveHold ? [guard.orderId] : [];
       const idempotencyGuard = guard.ignoreExistingIdempotencyKey
         ? 'AND NOT EXISTS (SELECT 1 FROM event_outbox_events WHERE idempotency_key = ?)'
         : '';
@@ -81,7 +96,7 @@ export function createD1EventOutboxWriter(db: D1Database) {
         )
         SELECT ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
         WHERE EXISTS (
-          SELECT 1 FROM orders WHERE id = ? AND status = ? ${refundGuard}
+          SELECT 1 FROM orders WHERE id = ? AND status = ? ${refundGuard} ${holdGuard}
         )
         ${paymentGuard}
         ${refundGuardSql}
@@ -91,9 +106,37 @@ export function createD1EventOutboxWriter(db: D1Database) {
         guard.orderId,
         guard.expectedStatus,
         ...refundBindings,
+        ...holdBindings,
         ...paymentBindings,
         ...refundGuardBindings,
         ...idempotencyBindings,
+      );
+    },
+
+    /** Guarda una mutación de hold solo para la versión activa observada. */
+    guardedHoldEventStatement(event: EventEnvelope, guard: EventHoldGuard): D1PreparedStatement {
+      return db.prepare(`
+        INSERT INTO event_outbox_events (
+          event_id, event_type, event_version, occurred_at,
+          actor_kind, actor_id, actor_label,
+          entity_type, entity_id, entity_reference,
+          correlation_id, causation_id, idempotency_key, payload_json, created_at
+        )
+        SELECT ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+        WHERE EXISTS (
+          SELECT 1 FROM order_holds
+          WHERE id = ? AND order_id = ? AND status = ? AND version = ?
+        )
+        AND NOT EXISTS (
+          SELECT 1 FROM event_outbox_events WHERE idempotency_key = ?
+        )
+      `).bind(
+        ...eventValues(event),
+        guard.holdId,
+        guard.orderId,
+        guard.holdStatus,
+        guard.holdVersion,
+        event.idempotency_key,
       );
     },
 

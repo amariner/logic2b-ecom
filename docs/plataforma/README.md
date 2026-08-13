@@ -117,6 +117,8 @@ venta o servicios logísticos propios.
   expansión de cantidades vigentes, amendments y asignaciones financieras.
 - [`OPERACION_EDICION_PEDIDOS.md`](OPERACION_EDICION_PEDIDOS.md):
   preflight, rehearsal, conciliación, backup esquema 10 y rollback de R3.3.
+- [`OPERACION_INCIDENCIAS_PEDIDOS.md`](OPERACION_INCIDENCIAS_PEDIDOS.md):
+  holds múltiples, SLA, guard de preparación, rehearsal, backup esquema 11 y rollback de R3.4.
 - [`OPERACION_FULFILLMENT_LINEAS.md`](OPERACION_FULFILLMENT_LINEAS.md):
   preflight, backfill, replay, restore, corte R2.11 y operación parcial R2.12.
 - [`../../scripts/rehearse-r2-fulfillment-lines.mjs`](../../scripts/rehearse-r2-fulfillment-lines.mjs):

@@ -121,10 +121,29 @@ check(
   'índice de pedidos expone filtros URL y orden estable R3.1',
   adminHtml.includes('name="orden"')
     && adminHtml.includes('name="etiqueta"')
+    && adminHtml.includes('name="incidencia"')
     && adminHtml.includes('name="desde"')
     && adminHtml.includes('name="min"')
     && !adminHtml.includes('name="pagina"'),
 );
+const heldOrdersHtml = await (await fetch(adminUrl('/demo/admin?incidencia=active'), { headers: { cookie } })).text();
+const heldOrderId = heldOrdersHtml.match(/\/demo\/admin\/pedidos\/(\d+)"/)?.[1];
+check(
+  'filtro de incidencias localiza el fixture activo y muestra su SLA R3.4',
+  heldOrderId !== undefined && heldOrdersHtml.includes('value="active" selected')
+    && heldOrdersHtml.includes('1 incidencia'),
+);
+if (heldOrderId) {
+  const holdDetailHtml = await (await fetch(adminUrl(`/demo/admin/pedidos/${heldOrderId}`), { headers: { cookie } })).text();
+  check(
+    'detalle muestra responsable, SLA y pausa de preparación sin controles demo',
+    holdDetailHtml.includes('Incidencias y bloqueos')
+      && holdDetailHtml.includes('Responsable: Operaciones')
+      && holdDetailHtml.includes('La preparación queda pausada')
+      && !holdDetailHtml.includes('data-hold-create')
+      && !holdDetailHtml.includes('data-ship-form'),
+  );
+}
 const taggedOrdersHtml = await (await fetch(adminUrl('/demo/admin?etiqueta=prioritario'), { headers: { cookie } })).text();
 const taggedOrderId = taggedOrdersHtml.match(/\/demo\/admin\/pedidos\/(\d+)"/)?.[1];
 check(
@@ -245,6 +264,8 @@ for (const [label, method, path] of [
   ['asignación de etiqueta', 'POST', '/api/admin/order-tags/assignments'],
   ['preview de edición', 'POST', '/api/admin/order-amendments/preview'],
   ['edición de pedido', 'POST', '/api/admin/order-amendments'],
+  ['alta de incidencia', 'POST', '/api/admin/order-holds'],
+  ['resolución de incidencia', 'PATCH', '/api/admin/order-holds/demo-hold-active'],
 ]) {
   const response = await fetch(adminUrl(path), {
     method,
@@ -266,9 +287,8 @@ check(
     && backupSql.includes('INSERT INTO attribute_definitions') && backupSql.includes('INSERT INTO product_attribute_values'),
 );
 check(
-  'backup esquema 10 conserva pagos, ediciones, colaboración y reconstruye el índice de pedidos',
-  backupSql.includes('logic2b-backup-schema: 10')
-    && backupSql.includes('0016_order_amendments')
+  'backup esquema 11 conserva pagos, ediciones, colaboración e incidencias',
+  backupSql.includes('logic2b-backup-schema: 11')
     && backupSql.includes('INSERT INTO payments')
     && backupSql.includes('INSERT INTO payment_transactions')
     && backupSql.includes('DELETE FROM refunds')
@@ -279,7 +299,10 @@ check(
     && backupSql.includes('INSERT INTO order_tag_assignments')
     && backupSql.includes('DELETE FROM order_amendments')
     && backupSql.includes('DELETE FROM order_amendment_lines')
-    && backupSql.includes('DELETE FROM refund_payment_allocations'),
+    && backupSql.includes('DELETE FROM refund_payment_allocations')
+    && backupSql.includes('0017_order_holds')
+    && backupSql.includes('INSERT INTO order_holds')
+    && backupSql.includes('INSERT INTO order_hold_events'),
 );
 
 if (failures > 0) {

@@ -12,6 +12,8 @@ export type OrderListRow = Readonly<{
   total_cents: number;
   status: string;
   created_at: string;
+  active_hold_count: number;
+  breached_hold_count: number;
 }>;
 
 export type OrderStatusCount = Readonly<{ status: string; n: number }>;
@@ -24,6 +26,7 @@ export type OrderListFilters = Readonly<{
   minTotalCents?: number | undefined;
   maxTotalCents?: number | undefined;
   tag?: string | undefined;
+  hold?: 'active' | 'breached' | undefined;
 }>;
 
 export type OrderListQuery = OrderListFilters & Readonly<{
@@ -103,9 +106,24 @@ export type OrderTag = Readonly<{
   active: number;
   usage_count: number;
 }>;
+export type OrderHoldRead = Readonly<{
+  id: string;
+  status: 'active' | 'resolved';
+  source: 'manual' | 'automatic';
+  reason_code: string;
+  owner_kind: 'admin' | 'system';
+  owner_id: string;
+  owner_label: string;
+  due_at: string;
+  version: number;
+  created_at: string;
+  updated_at: string;
+  resolved_at: string | null;
+  resolution_code: string | null;
+}>;
 export type OrderTimelineItem = Readonly<{
   id: string;
-  kind: 'status' | 'note' | 'tag';
+  kind: 'status' | 'note' | 'tag' | 'hold';
   title: string;
   detail: string | null;
   visibility: 'internal' | 'customer';
@@ -123,6 +141,7 @@ export interface OrderReader {
   events(id: number): Promise<readonly OrderEvent[]>;
   notes(id: number): Promise<readonly OrderNote[]>;
   tags(orderId?: number): Promise<readonly OrderTag[]>;
+  holds(orderId: number): Promise<readonly OrderHoldRead[]>;
   timeline(id: number): Promise<readonly OrderTimelineItem[]>;
 }
 
@@ -195,10 +214,12 @@ function normalizedFilters(query: OrderListQuery): OrderListFilters {
   const search = query.search?.trim().slice(0, 120);
   const status = query.status?.trim().slice(0, 32);
   const tag = query.tag?.trim().slice(0, 64);
+  const hold = query.hold === 'active' || query.hold === 'breached' ? query.hold : undefined;
   return Object.freeze({
     ...(status ? { status } : {}),
     ...(search ? { search } : {}),
     ...(tag ? { tag } : {}),
+    ...(hold ? { hold } : {}),
     ...(query.createdFrom ? { createdFrom: query.createdFrom } : {}),
     ...(query.createdBefore ? { createdBefore: query.createdBefore } : {}),
     ...(Number.isSafeInteger(query.minTotalCents) && (query.minTotalCents ?? -1) >= 0
@@ -219,6 +240,7 @@ function cursorScope(filters: OrderListFilters): string {
     filters.minTotalCents ?? '',
     filters.maxTotalCents ?? '',
     filters.tag ?? '',
+    filters.hold ?? '',
   ]);
 }
 
@@ -269,10 +291,10 @@ export function createOrderReaderService(reader: OrderReader) {
     async detail(id: number) {
       const order = await reader.detail(id);
       if (!order) return null;
-      const [items, events, notes, tags, availableTags, timeline] = await Promise.all([
-        reader.items(id), reader.events(id), reader.notes(id), reader.tags(id), reader.tags(), reader.timeline(id),
+      const [items, events, notes, tags, availableTags, holds, timeline] = await Promise.all([
+        reader.items(id), reader.events(id), reader.notes(id), reader.tags(id), reader.tags(), reader.holds(id), reader.timeline(id),
       ]);
-      return Object.freeze({ order, items, events, notes, tags, availableTags, timeline });
+      return Object.freeze({ order, items, events, notes, tags, availableTags, holds, timeline });
     },
     tags: () => reader.tags(),
   });

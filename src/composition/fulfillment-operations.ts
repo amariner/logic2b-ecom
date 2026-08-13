@@ -126,6 +126,7 @@ export function createFulfillmentOperations(
           orderId: order.id,
           expectedStatus: 'paid',
           requireNoActiveRefund: true,
+          requireNoActiveHold: true,
           ignoreExistingIdempotencyKey: true,
         }),
         audit.eventStatement(event.event_id, shippedAuditProjection(allocations)),

@@ -27,6 +27,8 @@ const sort: OrderListSort = (ORDER_LIST_SORTS as readonly string[]).includes(raw
 const cursor = (Astro.url.searchParams.get('cursor') ?? '').slice(0, 2_048) || undefined;
 const rawTag = (Astro.url.searchParams.get('etiqueta') ?? '').trim().slice(0, 64);
 const tag = /^[a-z0-9]+(?:-[a-z0-9]+)*$/u.test(rawTag) ? rawTag : undefined;
+const rawHold = Astro.url.searchParams.get('incidencia') ?? '';
+const hold = rawHold === 'active' || rawHold === 'breached' ? rawHold : undefined;
 const validDate = (value: string): string => {
   if (!/^\d{4}-\d{2}-\d{2}$/u.test(value)) return '';
   const parsed = new Date(`${value}T00:00:00.000Z`);
@@ -66,6 +68,7 @@ const [orderPage, tagDefinitions] = await Promise.all([orderReader.list({
   ...(minTotal.cents !== undefined ? { minTotalCents: minTotal.cents } : {}),
   ...(maxTotal.cents !== undefined ? { maxTotalCents: maxTotal.cents } : {}),
   ...(tag ? { tag } : {}),
+  ...(hold ? { hold } : {}),
 }), orderReader.tags()]);
 const { orders, counts, total, nextCursor, previousCursor, invalidCursor } = orderPage;
 const countFor = (st: string): number => counts.find((c) => c.status === st)?.n ?? 0;
@@ -77,12 +80,13 @@ const statusLabel: Record<string, string> = {
 };
 const filterIssue = !minTotal.valid || !maxTotal.valid || Boolean(dateFrom && dateTo && dateFrom > dateTo) ||
   Boolean(minTotal.cents !== undefined && maxTotal.cents !== undefined && minTotal.cents > maxTotal.cents);
-const filtersActive = Boolean(status || search || tag || dateFrom || dateTo || minTotalRaw || maxTotalRaw || sort !== ORDER_LIST_DEFAULT_SORT);
+const filtersActive = Boolean(status || search || tag || hold || dateFrom || dateTo || minTotalRaw || maxTotalRaw || sort !== ORDER_LIST_DEFAULT_SORT);
 const hrefFor = (next: { status?: string | undefined; cursor?: string | null | undefined }) => {
   const params = new URLSearchParams();
   if (next.status) params.set('estado', next.status);
   if (search) params.set('q', search);
   if (tag) params.set('etiqueta', tag);
+  if (hold) params.set('incidencia', hold);
   if (dateFrom) params.set('desde', dateFrom);
   if (dateTo) params.set('hasta', dateTo);
   if (minTotalRaw) params.set('min', minTotalRaw);
@@ -114,9 +118,10 @@ const date = (value: string) => new Intl.DateTimeFormat('es-ES', { day: '2-digit
         <div><h2 id="order-list-title" class="font-display text-xl">Listado de pedidos</h2><p class="mt-1 text-sm text-muted-foreground">{total} resultado{total === 1 ? '' : 's'} con los filtros actuales</p></div>
         <form class="grid w-full gap-3 xl:max-w-4xl xl:grid-cols-12" method="get">
           {status && <input type="hidden" name="estado" value={status} />}
-          <label class="relative xl:col-span-5"><span class="sr-only">Buscar pedidos</span><AdminIcon name="search" class="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"/><input type="search" name="q" value={search} maxlength="120" placeholder="Número, cliente o email" class="min-h-11 w-full rounded-xl border border-input bg-background pl-10 pr-3 text-sm shadow-sm" /></label>
-          <label class="xl:col-span-3"><span class="sr-only">Ordenar pedidos</span><select name="orden" class="min-h-11 w-full rounded-xl border border-input bg-background px-3 text-sm shadow-sm"><option value="created-desc" selected={sort === 'created-desc'}>Más recientes</option><option value="created-asc" selected={sort === 'created-asc'}>Más antiguos</option><option value="total-desc" selected={sort === 'total-desc'}>Mayor importe</option><option value="total-asc" selected={sort === 'total-asc'}>Menor importe</option></select></label>
+          <label class="relative xl:col-span-4"><span class="sr-only">Buscar pedidos</span><AdminIcon name="search" class="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"/><input type="search" name="q" value={search} maxlength="120" placeholder="Número, cliente o email" class="min-h-11 w-full rounded-xl border border-input bg-background pl-10 pr-3 text-sm shadow-sm" /></label>
+          <label class="xl:col-span-2"><span class="sr-only">Ordenar pedidos</span><select name="orden" class="min-h-11 w-full rounded-xl border border-input bg-background px-3 text-sm shadow-sm"><option value="created-desc" selected={sort === 'created-desc'}>Más recientes</option><option value="created-asc" selected={sort === 'created-asc'}>Más antiguos</option><option value="total-desc" selected={sort === 'total-desc'}>Mayor importe</option><option value="total-asc" selected={sort === 'total-asc'}>Menor importe</option></select></label>
           <label class="xl:col-span-2"><span class="sr-only">Filtrar por etiqueta</span><select name="etiqueta" class="min-h-11 w-full rounded-xl border border-input bg-background px-3 text-sm shadow-sm"><option value="">Todas las etiquetas</option>{tagDefinitions.filter((item) => item.active === 1).map((item) => <option value={item.slug} selected={tag === item.slug}>{item.label} ({item.usage_count})</option>)}</select></label>
+          <label class="xl:col-span-2"><span class="sr-only">Filtrar por incidencia</span><select name="incidencia" class="min-h-11 w-full rounded-xl border border-input bg-background px-3 text-sm shadow-sm"><option value="">Todas las incidencias</option><option value="active" selected={hold === 'active'}>Con incidencia activa</option><option value="breached" selected={hold === 'breached'}>SLA vencido</option></select></label>
           <button class="min-h-11 rounded-xl bg-foreground px-4 text-sm font-semibold text-background xl:col-span-2">Aplicar</button>
           {filtersActive && <a href="/demo/admin" class="inline-flex min-h-11 items-center justify-center rounded-xl px-3 text-sm font-medium text-muted-foreground hover:bg-muted xl:col-span-2">Limpiar</a>}
           <details class="rounded-xl border border-border bg-background px-3 xl:col-span-12" open={Boolean(dateFrom || dateTo || minTotalRaw || maxTotalRaw)}>
@@ -142,10 +147,10 @@ const date = (value: string) => new Intl.DateTimeFormat('es-ES', { day: '2-digit
       <div class="hidden overflow-x-auto md:block">
         <table class="w-full text-sm">
           <thead class="border-b border-border bg-muted/60 text-left text-xs uppercase tracking-[0.11em] text-muted-foreground"><tr><th class="px-5 py-3 font-semibold">Pedido</th><th class="px-5 py-3 font-semibold">Cliente</th><th class="px-5 py-3 font-semibold">Fecha</th><th class="px-5 py-3 text-right font-semibold">Total</th><th class="px-5 py-3 font-semibold">Estado</th><th class="w-12 px-3"><span class="sr-only">Abrir</span></th></tr></thead>
-          <tbody class="divide-y divide-border">{orders.map((order) => <tr class="group hover:bg-muted/50"><td class="px-5 py-4"><a href={`/demo/admin/pedidos/${order.id}`} class="font-mono font-semibold underline-offset-4 after:absolute hover:underline">{order.order_number}</a></td><td class="px-5 py-4"><p class="font-medium">{order.customer_name}</p><p class="mt-0.5 text-xs text-muted-foreground">{order.email}</p></td><td class="whitespace-nowrap px-5 py-4 text-muted-foreground">{date(order.created_at)}</td><td class="px-5 py-4 text-right font-semibold">{formatEurCents(order.total_cents)}</td><td class="px-5 py-4"><AdminStatusBadge status={order.status} label={statusLabel[order.status] ?? order.status}/></td><td class="px-3 py-4"><a href={`/demo/admin/pedidos/${order.id}`} class="flex size-11 items-center justify-center rounded-xl text-muted-foreground group-hover:bg-card group-hover:text-foreground" aria-label={`Abrir pedido ${order.order_number}`}><AdminIcon name="chevron" class="size-4"/></a></td></tr>)}</tbody>
+          <tbody class="divide-y divide-border">{orders.map((order) => <tr class="group hover:bg-muted/50"><td class="px-5 py-4"><a href={`/demo/admin/pedidos/${order.id}`} class="font-mono font-semibold underline-offset-4 after:absolute hover:underline">{order.order_number}</a></td><td class="px-5 py-4"><p class="font-medium">{order.customer_name}</p><p class="mt-0.5 text-xs text-muted-foreground">{order.email}</p></td><td class="whitespace-nowrap px-5 py-4 text-muted-foreground">{date(order.created_at)}</td><td class="px-5 py-4 text-right font-semibold">{formatEurCents(order.total_cents)}</td><td class="px-5 py-4"><AdminStatusBadge status={order.status} label={statusLabel[order.status] ?? order.status}/>{order.active_hold_count > 0 && <span class:list={['mt-2 block w-fit rounded-full px-2.5 py-1 text-xs font-semibold', order.breached_hold_count > 0 ? 'bg-red-100 text-red-900' : 'bg-amber-100 text-amber-950']}>{order.breached_hold_count > 0 ? 'SLA vencido' : `${order.active_hold_count} incidencia${order.active_hold_count === 1 ? '' : 's'}`}</span>}</td><td class="px-3 py-4"><a href={`/demo/admin/pedidos/${order.id}`} class="flex size-11 items-center justify-center rounded-xl text-muted-foreground group-hover:bg-card group-hover:text-foreground" aria-label={`Abrir pedido ${order.order_number}`}><AdminIcon name="chevron" class="size-4"/></a></td></tr>)}</tbody>
         </table>
       </div>
-      <ul class="divide-y divide-border md:hidden">{orders.map((order) => <li><a href={`/demo/admin/pedidos/${order.id}`} class="block min-h-11 p-4 hover:bg-muted/60"><div class="flex items-start justify-between gap-3"><div><p class="font-mono text-sm font-semibold">{order.order_number}</p><p class="mt-1 text-sm font-medium">{order.customer_name}</p></div><p class="font-semibold">{formatEurCents(order.total_cents)}</p></div><div class="mt-3 flex items-center justify-between gap-3"><AdminStatusBadge status={order.status} label={statusLabel[order.status] ?? order.status}/><time class="text-xs text-muted-foreground">{date(order.created_at)}</time></div></a></li>)}</ul>
+      <ul class="divide-y divide-border md:hidden">{orders.map((order) => <li><a href={`/demo/admin/pedidos/${order.id}`} class="block min-h-11 p-4 hover:bg-muted/60"><div class="flex items-start justify-between gap-3"><div><p class="font-mono text-sm font-semibold">{order.order_number}</p><p class="mt-1 text-sm font-medium">{order.customer_name}</p></div><p class="font-semibold">{formatEurCents(order.total_cents)}</p></div><div class="mt-3 flex flex-wrap items-center justify-between gap-3"><AdminStatusBadge status={order.status} label={statusLabel[order.status] ?? order.status}/>{order.active_hold_count > 0 && <span class:list={['rounded-full px-2.5 py-1 text-xs font-semibold', order.breached_hold_count > 0 ? 'bg-red-100 text-red-900' : 'bg-amber-100 text-amber-950']}>{order.breached_hold_count > 0 ? 'SLA vencido' : `${order.active_hold_count} incidencia${order.active_hold_count === 1 ? '' : 's'}`}</span>}<time class="text-xs text-muted-foreground">{date(order.created_at)}</time></div></a></li>)}</ul>
     </>}
 
     {orders.length === 0 && <div class="px-5 py-14 text-center"><span class="mx-auto flex size-12 items-center justify-center rounded-2xl bg-muted text-muted-foreground"><AdminIcon name="orders"/></span><h3 class="mt-4 font-display text-lg">No hay pedidos que coincidan</h3><p class="mx-auto mt-2 max-w-md text-sm leading-6 text-muted-foreground">Prueba a quitar algún filtro o visita la tienda demo para conocer el recorrido de compra.</p><a href={filtersActive ? '/demo/admin' : MAIN_DEMO_HREF} class="mt-5 inline-flex min-h-11 items-center rounded-xl border border-border px-4 text-sm font-semibold hover:bg-muted">{filtersActive ? 'Quitar filtros' : 'Ver tienda ARCE'}</a></div>}

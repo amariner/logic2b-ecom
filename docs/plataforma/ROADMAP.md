@@ -109,7 +109,7 @@ Cada migración se diseña y ensaya sobre una copia antes de tocar el esquema vi
 | 27 | **R3.1 Índice de pedidos escalable** | Cursor, búsqueda, filtros combinables, sort estable y límites; URL compartible y consulta indexada. | ✅ 2026-08-12 |
 | 28 | **R3.2 Notas, etiquetas y timeline** | Visibilidad interna/cliente, actor, edición auditada y filtros. | ✅ 2026-08-12 |
 | 29 | **R3.3 Edición de pedido** | Añadir/quitar/cantidad/dirección con preview de delta, pago adicional o reembolso y stock. | ✅ 2026-08-12 |
-| 30 | **R3.4 Holds e incidencias** | Bloqueo manual/automático, motivo, responsable, SLA y desbloqueo; preparación no avanza en hold. | 🟡 dominio puro y ADR; DDL pendiente de autorización |
+| 30 | **R3.4 Holds e incidencias** | Bloqueo manual/automático, motivo, responsable, SLA y desbloqueo; preparación no avanza en hold. | ✅ 2026-08-13 |
 | 31 | **R3.5 Acciones masivas** | Selección estable, dry-run, job, progreso, resultados por fila y replay seguro. | ⬜ |
 | 32 | **R3.6 Ubicaciones** | Modelo y admin de almacenes/tiendas; inventario simple se backfillea a ubicación principal. | ⬜ |
 | 33 | **R3.7 Transferencias** | Borrador→enviado→recibido parcial, discrepancias y movimientos de ledger. | ⬜ |
@@ -984,28 +984,31 @@ Producción sirve D1 `0016` y Worker `6e61c22a-8291-436f-bea3-fdc27e6bb2af`.
 La ventana transversal F11.9 queda cerrada y servida el 2026-08-13 en el Worker
 `97ef7414-df2e-4d36-9220-b47fd55e5bc6`: E2E remoto 67/67 y Lighthouse 100 en
 todas las categorías salvo rendimiento móvil de portada a 99 (LCP 1,9 s,
-CLS/TBT 0). `main` incluye después `fa65ead`, que elimina la animación móvil del
-título y queda pendiente de un deploy autorizado y su remedición. El siguiente
-bloque ejecutable es R3.4, holds e incidencias; su migración aditiva requiere
-autorización expresa antes de materializarse o aplicarse.
+CLS/TBT 0). `main` incluyó después `fa65ead`, que elimina la animación móvil del
+título; ese ajuste quedó servido junto al corte R3.4 descrito a continuación.
 
-### R3.4 — Holds e incidencias (avance seguro previo al DDL)
+### R3.4 — Holds e incidencias — ✅ 2026-08-13
 
-**En curso, sin migración.** ADR-0020 fija el hold como estado operativo
-ortogonal al estado comercial: admite varios motivos simultáneos, origen manual
-o automático idempotente, responsable reasignable, SLA UTC determinista y
-resolución con versión optimista. El detalle libre reutilizará las notas
-internas R3.2 para mantener PII fuera de eventos, auditoría y logs.
+`ORD-010` queda servido como estado operativo ortogonal: alta manual o
+automática idempotente, varios holds por pedido, motivo tipado, responsable
+reasignable, SLA UTC, resolución optimista e histórico inmutable. Eventos y
+auditoría excluyen responsable, notas y PII; el texto libre continúa en las
+notas internas de R3.2.
 
-El dominio puro ya normaliza y valida altas, reasignaciones y resoluciones;
-calcula `on_track`/`breached` sin reloj global y ofrece el guard que rechaza la
-preparación mientras quede cualquier hold activo. Los sobres tipados de alta,
-reasignación y resolución tienen idempotencia por hold/versión y excluyen
-responsable, notas y PII; el registro asigna su propiedad al módulo `orders` sin
-activar productores. Gate: **74 suites/450 tests**, tipos y build en verde. No
-se ha creado tabla, migración, adaptador, API, UI ni fixture, y producción no
-cambia.
+`0017_order_holds.sql` es expand-only y fue ensayada sobre el backup remoto
+`0016` de 485.227 bytes: conservó 8 pedidos, hash legacy
+`d7f147b15c38554bd076ce648b56e3ac6756c8b0f8dff464c566901dea996202`,
+esquema canónico y restore íntegro. D1 demo sirve `0017`, 2 fixtures/3 eventos,
+1 hold activo y cero fallos de FK. El guard transaccional impide preparar un
+nuevo envío con cualquier hold activo, incluida la carrera de alta-vs-envío.
 
-Siguiente paso exacto tras autorización: materializar el DDL expand-only de
-`order_holds` + `order_hold_events`, ensayarlo sobre restore aislado y entonces
-conectar runtime, fulfillment, backup, demo inerte y panel.
+El índice filtra activas o SLA vencido; el detalle presenta responsable,
+vencimiento, resolución y actividad. `DEMO_MODE` rechaza las mutaciones con
+`403`. Gate: **77 suites/463 tests**, tipos/build, reset `0001–0017`, E2E remoto
+**71/71** y a11y afectada **4/4**. Worker servido:
+`5ec8b676-781c-4463-9a18-7aa8a597a8eb`. Backup esquema 11 y runbook en
+`OPERACION_INCIDENCIAS_PEDIDOS.md`.
+
+Siguiente bloque ejecutable: **R3.5 — acciones masivas seguras**. Diseñar antes
+de cualquier DDL la selección estable, dry-run, job, progreso, resultado por
+fila y replay; no crear migración sin superar su gate de arquitectura.

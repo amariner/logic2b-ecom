@@ -237,6 +237,8 @@ export function seedStatements(): string[] {
     'DELETE FROM audit_log',
     'DELETE FROM event_outbox_deliveries',
     'DELETE FROM event_outbox_events',
+    'DELETE FROM order_hold_events',
+    'DELETE FROM order_holds',
     'DELETE FROM order_tag_events',
     'DELETE FROM order_tag_assignments',
     'DELETE FROM order_note_revisions',
@@ -471,6 +473,43 @@ export function seedStatements(): string[] {
       `('demo-tag-event-1003-a', (SELECT id FROM orders WHERE order_number = 'BM-DEMO-1003'), (SELECT id FROM order_tags WHERE slug = 'prioritario'), 'assigned', 'prioritario', 'Prioritario', 'admin', 'demo-seed', 'Equipo demo', datetime('now', '-2 hours')), ` +
       `('demo-tag-event-1003-b', (SELECT id FROM orders WHERE order_number = 'BM-DEMO-1003'), (SELECT id FROM order_tags WHERE slug = 'revisar-direccion'), 'assigned', 'revisar-direccion', 'Revisar dirección', 'admin', 'demo-seed', 'Equipo demo', datetime('now', '-90 minutes')), ` +
       `('demo-tag-event-1006-a', (SELECT id FROM orders WHERE order_number = 'BM-DEMO-1006'), (SELECT id FROM order_tags WHERE slug = 'mayorista'), 'assigned', 'mayorista', 'Mayorista', 'admin', 'demo-seed', 'Equipo demo', datetime('now', '-1 day'))`,
+  );
+
+  // R3.4: una incidencia activa y otra resuelta demuestran varios estados sin
+  // habilitar efectos en la muestra pública. El texto libre sigue en R3.2.
+  statements.push(
+    `INSERT INTO order_holds (
+      id, order_id, status, source, reason_code, owner_kind, owner_id, owner_label,
+      due_at, idempotency_key, version, created_at, updated_at, resolved_at, resolution_code
+    ) VALUES
+      ('demo-hold-1005', (SELECT id FROM orders WHERE order_number = 'BM-DEMO-1005'),
+       'active', 'manual', 'address_issue', 'admin', 'operations', 'Operaciones',
+       strftime('%Y-%m-%dT%H:%M:%fZ', 'now', '+2 hours'), 'demo:hold:1005:address', 1,
+       strftime('%Y-%m-%dT%H:%M:%fZ', 'now', '-45 minutes'),
+       strftime('%Y-%m-%dT%H:%M:%fZ', 'now', '-45 minutes'), NULL, NULL),
+      ('demo-hold-1006', (SELECT id FROM orders WHERE order_number = 'BM-DEMO-1006'),
+       'resolved', 'automatic', 'inventory_issue', 'system', 'inventory-policy', 'Política de inventario',
+       strftime('%Y-%m-%dT%H:%M:%fZ', 'now', '-20 hours'), 'demo:hold:1006:inventory', 2,
+       strftime('%Y-%m-%dT%H:%M:%fZ', 'now', '-1 day'),
+       strftime('%Y-%m-%dT%H:%M:%fZ', 'now', '-18 hours'),
+       strftime('%Y-%m-%dT%H:%M:%fZ', 'now', '-18 hours'), 'cleared')`,
+    `INSERT INTO order_hold_events (
+      id, hold_id, order_id, event_type, hold_version, source, reason_code,
+      owner_kind, owner_id, owner_label, resolution_code,
+      actor_kind, actor_id, actor_label, created_at
+    ) VALUES
+      ('demo-hold-event-1005-a', 'demo-hold-1005',
+       (SELECT id FROM orders WHERE order_number = 'BM-DEMO-1005'),
+       'created', 1, 'manual', 'address_issue', 'admin', 'operations', 'Operaciones', NULL,
+       'admin', 'demo-seed', 'Equipo demo', strftime('%Y-%m-%dT%H:%M:%fZ', 'now', '-45 minutes')),
+      ('demo-hold-event-1006-a', 'demo-hold-1006',
+       (SELECT id FROM orders WHERE order_number = 'BM-DEMO-1006'),
+       'created', 1, 'automatic', 'inventory_issue', 'system', 'inventory-policy', 'Política de inventario', NULL,
+       'system', 'demo-seed', 'Equipo demo', strftime('%Y-%m-%dT%H:%M:%fZ', 'now', '-1 day')),
+      ('demo-hold-event-1006-b', 'demo-hold-1006',
+       (SELECT id FROM orders WHERE order_number = 'BM-DEMO-1006'),
+       'resolved', 2, NULL, NULL, NULL, NULL, NULL, 'cleared',
+       'admin', 'demo-seed', 'Equipo demo', strftime('%Y-%m-%dT%H:%M:%fZ', 'now', '-18 hours'))`,
   );
 
   // Las fixtures legacy aun insertan order_items por product_id. Congelamos

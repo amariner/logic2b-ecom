@@ -128,7 +128,7 @@ su alcance requiera.
 | ORD-007 | Reembolso total/parcial | módulo | P1 | actual | Intención previa al PSP, saldo acumulado, retry idempotente, política de envío por despliegue, estado visible, evento/email y reposición opcional. |
 | ORD-008 | Pedido preliminar/presupuesto | módulo | P2 | pendiente | Borrador, caducidad, aprobación, factura y enlace de pago. |
 | ORD-009 | Captura manual o diferida | módulo | P2 | pendiente | Autorización, captura parcial y expiración. |
-| ORD-010 | Riesgo/incidencia/bloqueo | módulo | P2 | pendiente | Hold explícito que impide preparación hasta resolución. |
+| ORD-010 | Riesgo/incidencia/bloqueo | módulo | P2 | actual | Holds manuales/automáticos múltiples con responsable, SLA, resolución optimista e histórico; cualquier activo impide nueva preparación. |
 | ORD-011 | Acciones masivas seguras | módulo | P2 | pendiente | Preview, selección estable, resultado por pedido y replay. |
 | ORD-012 | Impresión y documentos | módulo | P2 | pendiente | Albarán, factura, nota y plantilla versionada. |
 | ORD-013 | Archivo y retención | núcleo | P2 | pendiente | Política, exportación, anonimización y obligación fiscal. |

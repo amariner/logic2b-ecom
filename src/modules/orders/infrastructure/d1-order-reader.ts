@@ -1,6 +1,7 @@
 import type {
   OrderDetail,
   OrderEvent,
+  OrderHoldRead,
   OrderItem,
   OrderListFilters,
   OrderListReadQuery,
@@ -72,6 +73,15 @@ function buildFilter(filters: OrderListFilters): SqlFilter {
     )`);
     bindings.push(filters.tag);
   }
+  if (filters.hold) {
+    const breached = filters.hold === 'breached'
+      ? " AND due_at <= strftime('%Y-%m-%dT%H:%M:%fZ', 'now')"
+      : '';
+    clauses.push(`EXISTS (
+      SELECT 1 FROM order_holds oh
+      WHERE oh.order_id = orders.id AND oh.status = 'active'${breached}
+    )`);
+  }
   return Object.freeze({
     where: clauses.length > 0 ? ` WHERE ${clauses.join(' AND ')}` : '',
     bindings,
@@ -100,7 +110,12 @@ export function createD1OrderReader(db: D1Database): OrderReader {
         ? `${filter.where}${filter.where ? ' AND ' : ' WHERE '}${order.cursorClause}`
         : filter.where;
       const statement = db.prepare(
-        `SELECT id, order_number, customer_name, email, total_cents, status, created_at
+        `SELECT id, order_number, customer_name, email, total_cents, status, created_at,
+          (SELECT count(*) FROM order_holds oh
+            WHERE oh.order_id = orders.id AND oh.status = 'active') AS active_hold_count,
+          (SELECT count(*) FROM order_holds oh
+            WHERE oh.order_id = orders.id AND oh.status = 'active'
+              AND oh.due_at <= strftime('%Y-%m-%dT%H:%M:%fZ', 'now')) AS breached_hold_count
          FROM orders${where} ORDER BY ${order.orderBy} LIMIT ?`,
       ).bind(...filter.bindings, ...order.bindings, query.limit);
       return (await statement.all<OrderListRow>()).results;
@@ -147,6 +162,14 @@ export function createD1OrderReader(db: D1Database): OrderReader {
       `);
       return (await (orderId === undefined ? statement : statement.bind(orderId)).all<OrderTag>()).results;
     },
+    async holds(orderId) {
+      return (await db.prepare(`
+        SELECT id, status, source, reason_code, owner_kind, owner_id, owner_label,
+          due_at, version, created_at, updated_at, resolved_at, resolution_code
+        FROM order_holds WHERE order_id = ?
+        ORDER BY CASE status WHEN 'active' THEN 0 ELSE 1 END, due_at, created_at, id
+      `).bind(orderId).all<OrderHoldRead>()).results;
+    },
     async timeline(id) {
       return (await db.prepare(`
         SELECT * FROM (
@@ -166,8 +189,23 @@ export function createD1OrderReader(db: D1Database): OrderReader {
             tag_label_snapshot, 'internal', actor_kind, actor_label, created_at,
             2000000000 + rowid
           FROM order_tag_events WHERE order_id = ?
+          UNION ALL
+          SELECT 'hold:' || id, 'hold',
+            CASE event_type
+              WHEN 'created' THEN 'Incidencia abierta'
+              WHEN 'assigned' THEN 'Responsable actualizado'
+              ELSE 'Incidencia resuelta'
+            END,
+            CASE event_type
+              WHEN 'created' THEN reason_code
+              WHEN 'assigned' THEN owner_label
+              ELSE resolution_code
+            END,
+            'internal', actor_kind, actor_label, created_at,
+            3000000000 + rowid
+          FROM order_hold_events WHERE order_id = ?
         ) ORDER BY occurred_at DESC, sort_key DESC
-      `).bind(id, id, id).all<OrderTimelineItem>()).results;
+      `).bind(id, id, id, id).all<OrderTimelineItem>()).results;
     },
   };
 }

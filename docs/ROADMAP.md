@@ -63,12 +63,12 @@ reconciliación se conserva abajo por contexto.
 | 11 | Landing V2 «nivel Awwwards» + negocio + funnel + docs | 🟡 En curso | 2026-08-13 | **F11.1, F11.3 (2 sesiones), F11.4, F11.5, F11.6, F11.7 y F11.8 (primera pasada + pase a11y/contenido desde cloud 2026-07-24) hechos**, más F11.8b (auditor de a11y, cloud), F11.2a-1 (tienda ASFALTO / tema Street), F11.2a-2 (tienda METRIA / tema Industrial) F11.2a-3 (tienda ROMER / tema Natural) y **F11.2a-4 (tienda KALIBRE / tema Specs, local 2026-07-25) — con la que F11.2a queda CERRADA (10/10 tiendas)**; y **F11.8c (Lighthouse citable + OG de WhatsApp + URLs sin redirección, local 2026-07-26)**; y **F11.8d–e (tabla de Lighthouse cerrada y desplegada: 7 de 8 superficies a 100×4, la landing entre ellas en móvil y escritorio, local 2026-07-27)**; y **F11.9 (contacto global de WhatsApp, cerrado y servido 2026-08-13)**. Solo queda la submission a Awwwards, decisión de pago reservada a Andreu. Detalle por bloque abajo. **Plan maestro completo en [`docs/PLAN_FASE11_LANDING_V2.md`](PLAN_FASE11_LANDING_V2.md)**: bloques F11.0–F11.8 ejecutables por sesiones independientes. **Decisiones D1–D6 APROBADAS por Andreu (2026-07-23)**: JS propio ≤15 KB sin deps, capturas con browser tools en local, dirección C «Ocho tiendas, un motor», escalera de precios (Lite 590 / Kit 1.900+39 / A medida 3.400+59), WhatsApp+email, Lite publicado sin construir. Prompt de arranque: [`docs/PROMPT_FASE11.md`](PROMPT_FASE11.md). Integra 9B.5/9B.6 (imaginería y temas restantes) como prerequisito del hero |
 | 8 | Pulido de la demo (backlog abajo) | 🟡 En curso | 2026-07-19 | Backlog técnico agotado; solo quedan decisiones y pasos locales de Andreu (ver «Decisiones pendientes» y `docs/PROMPT_CLOUD.md`). Últimas tandas: novena (race de idempotencia en el pago, PII enumerable en `/demo/gracias`, cancelación de pedido pagado sin devolver stock), décima (la misma race en el PATCH de admin, campos vacíos guardados como 0, login sin rate limit), undécima (diagrama móvil de `/arquitectura`, hedge del plazo de entrega, tokens de tema en `/demo/reset`, terminología «envío»), duodécima (aviso de corte en pedidos del admin, cabeceras sin wrap a 375px, leftover «portes», token de radio del carrito, contraste del botón eliminar, H1 en valenciano, checklist de producción) y decimotercera (misma race de idempotencia en `checkout.session.expired`, divisa hardcodeada a EUR fuera de Stripe, cobertura de test de `quoteCart`/PATCH admin/emails) y decimocuarta (config parcial de Stripe → cobro sin cumplimiento, emails duplicados bajo concurrencia, `payment_status` del webhook, color de marca centralizado en `shop.config.ts`, contraste/tema en carrito y checkout) — ver sección «Fase 8» |
 | 12 | Logic2B Ecommerce: renombrado, reposicionamiento y docs de dos visiones | ✅ Hecho | 2026-08-10 | **F12.0–F12.6 cerrados:** marca, argumento, dossier, canal agencias, ayuda, índice por audiencias, OG y auditorías citables consolidados. **Plan maestro en [`docs/PLAN_FASE12_LOGIC2B_ECOMMERCE.md`](PLAN_FASE12_LOGIC2B_ECOMMERCE.md)**. |
-| 13 | Plataforma modular: del gestor mínimo a paridad extrema de capacidad | 🟡 En curso | 2026-08-13 | **R0, R1, R2.1–R2.14, Admin V2 y R3.1–R3.3 completos; R3.4 en curso:** ADR y dominio puro de holds listos, sin DDL. La migración aditiva requiere autorización expresa. Fuente de verdad en [`docs/plataforma/`](plataforma/README.md). |
+| 13 | Plataforma modular: del gestor mínimo a paridad extrema de capacidad | 🟡 En curso | 2026-08-13 | **R0, R1, R2.1–R2.14, Admin V2 y R3.1–R3.4 completos; R3.5 siguiente:** acciones masivas seguras. Fuente de verdad en [`docs/plataforma/`](plataforma/README.md). |
 
 ## Repo y entornos
 
 - GitHub: `https://github.com/amariner/logic2b-ecom` (rama `main`).
-- Cloudflare: **en producción** — Worker `ecom-logic2b` en https://ecom.logic2b.com, D1 remota `ecom-demo` (`7ae9b06d-3664-4790-a87c-04bb4c67e97a`) y cron reset cada 6 h. D1 sirve migraciones `0001`–`0016`; el corte F11.9 usa Worker `97ef7414-df2e-4d36-9220-b47fd55e5bc6`, E2E remoto 67/67 y conserva `private, no-store` + `Vary: Cookie` en superficies privadas. El repo incorpora después el ajuste móvil `fa65ead`, todavía no servido. R3.4 no cambia aún producción ni esquema.
+- Cloudflare: **en producción** — Worker `ecom-logic2b` en https://ecom.logic2b.com, D1 remota `ecom-demo` (`7ae9b06d-3664-4790-a87c-04bb4c67e97a`) y cron reset cada 6 h. D1 sirve migraciones `0001`–`0017`; el corte R3.4 usa Worker `5ec8b676-781c-4463-9a18-7aa8a597a8eb`, E2E remoto 71/71, a11y afectada 4/4 y conserva `private, no-store` + `Vary: Cookie` en superficies privadas.
 
 ## Fase 13 — Plataforma modular y paridad de capacidad
 
@@ -134,7 +134,9 @@ sus verificaciones ni sus puntos de reanudación.
 | R2.14 | Consolidación, carga y guía de migración/downgrade | ✅ 2026-08-12 — 65 suites/414 tests; 16 carreras simultáneas y restore v7 |
 | R3.1 | Índice de pedidos con cursor, filtros, FTS e índices D1 | ✅ 2026-08-12 — 420 tests; D1 `0014`, Worker `e5a71c2e…`, E2E/a11y remoto |
 | R3.2 | Notas versionadas, etiquetas y timeline unificado | ✅ 2026-08-12 — 427 tests; D1 `0015`, Worker `593ecf57…`, E2E/a11y remoto |
-| R3.3+ | Operación profesional y resto de olas | ⬜ siguiente: edición segura de pedido |
+| R3.3 | Edición segura de pedido con preview y conciliación | ✅ 2026-08-12 — D1 `0016`, Worker `6e61c22a…`, E2E/a11y remoto |
+| R3.4 | Holds e incidencias con SLA y guard de preparación | ✅ 2026-08-13 — 463 tests; D1 `0017`, Worker `5ec8b676…`, E2E 71/71 y a11y 4/4 |
+| R3.5+ | Operación profesional y resto de olas | ⬜ siguiente: acciones masivas seguras |
 
 ## Fase 12 — Logic2B Ecommerce: renombrado, reposicionamiento y las dos visiones
 
@@ -1590,28 +1592,26 @@ la cola de temas, coordinados sin mezclar worktrees ni cambios abiertos.
 
 ## Próxima sesión
 
-### R3.4 — holds e incidencias — 🟡 dominio listo; DDL bloqueado
+### R3.5 — acciones masivas seguras — ⬜ siguiente
 
-F11.9 queda cerrado y servido: contacto global nativo y progresivo,
-configuración central, origen sin query/hash, retirada ante footer/capas,
-elevación sobre barras inferiores y exclusión de impresión/capturas. El gate
-local suma 73 suites/443 tests, barrido a11y completo y verificación real
-desktop/375; el corte servido suma E2E 67/67 y Lighthouse 100×4 salvo portada
-móvil a 99 (LCP 1,9 s, CLS/TBT 0). El repo añade en `fa65ead` la estabilización
-móvil posterior al último deploy; ROADMAP distingue expresamente ambos estados.
+R3.4 queda cerrado y servido. `0017_order_holds.sql`, runtime, APIs, filtro,
+detalle, historial, backup 11 y fixtures implementan incidencias múltiples con
+responsable, SLA y resolución optimista. El guard D1 impide nueva preparación
+si queda cualquier hold activo. El rehearsal sobre el backup remoto `0016`
+conservó 8 pedidos y hash legacy; D1 demo sirve 2 holds/3 eventos, uno activo y
+cero fallos de FK.
 
-La cabeza principal está en el orden 30 de `docs/plataforma/ROADMAP.md`. El
-ADR-0020 y el dominio puro ya fijan holds manuales/automáticos idempotentes,
-motivo, responsable reasignable, SLA determinista, resolución optimista y el
-guard que bloquea preparación con cualquier incidencia activa. Los tres sobres
-de evento ya fijan idempotencia y payload sin PII, pero no tienen productor
-runtime. Gate: 74 suites/450 tests, tipos y build. No existe todavía DDL,
-adaptador, API, UI ni fixture; producción no ha cambiado.
+Gate final: 77 suites/463 tests, tipos/build, reset `0001–0017`, E2E remoto
+71/71, a11y afectada 4/4 y revisión visual 1440/375 sin overflow ni errores de
+consola. Worker `5ec8b676-781c-4463-9a18-7aa8a597a8eb`. El runbook es
+`docs/plataforma/OPERACION_INCIDENCIAS_PEDIDOS.md`; ADR-0020 queda aceptado y
+`ORD-010` marcado como actual.
 
-El siguiente paso exacto es materializar y ensayar la migración expand-only de
-`order_holds` + `order_hold_events`. El veto de arquitectura exige autorización
-expresa antes de crearla o aplicarla; después se conectan runtime, fulfillment,
-backup, demo inerte y panel.
+La cabeza principal pasa al orden 31 de `docs/plataforma/ROADMAP.md`. El
+siguiente paso exacto es diseñar R3.5 antes de materializar esquema: selección
+estable y acotada, dry-run, job durable, progreso, resultado por pedido, replay
+seguro, auditoría sin PII y aislamiento de capacidades. No crear ni aplicar DDL
+sin completar el gate de arquitectura y obtener la autorización que corresponda.
 
 Las entradas que siguen son el histórico de cierres anteriores y no cambian el
 orden actual.
@@ -1619,8 +1619,7 @@ orden actual.
 ### Cola transversal — F11.9 contacto global por WhatsApp — ✅ cerrada 2026-08-13
 
 El componente compartido y sus gates se documentan en «Fase 11». La cola
-transversal vuelve a quedar libre; no desplaza R3.4 ni se mezcla con su futura
-migración.
+transversal vuelve a quedar libre; no desplaza R3.5 ni se mezcla con su diseño.
 
 ### C15.1 — aislamiento seguro de todas las demos — ✅ cerrado 2026-08-04
 

@@ -110,8 +110,8 @@ export const MODULE_DESCRIPTORS = [
     permissions: [], events: [], subscriptions: [], jobs: [], healthchecks: [], wikiLinks: [ARCHITECTURE_WIKI], navigation: [], routes: [],
   },
   {
-    id: 'orders', version: '1.3.0', capabilities: ['ORD-001', 'ORD-002', 'ORD-004', 'ORD-005', 'ORD-007', 'AUT-001'],
-    dependencies: ['catalog', 'pricing', 'customers'], permissions: ['orders.read', 'orders.transition', 'orders.collaborate', 'orders.amend', 'orders.refund'],
+    id: 'orders', version: '1.4.0', capabilities: ['ORD-001', 'ORD-002', 'ORD-004', 'ORD-005', 'ORD-007', 'ORD-010', 'AUT-001'],
+    dependencies: ['catalog', 'pricing', 'customers'], permissions: ['orders.read', 'orders.transition', 'orders.collaborate', 'orders.amend', 'orders.refund', 'orders.hold'],
     events: ['orders.order_placed', 'orders.order_paid', 'orders.order_shipped', 'orders.order_delivered', 'orders.order_cancelled', 'orders.order_refunded', 'orders.order_partially_refunded', 'orders.order_amendment_requested', 'orders.order_amendment_applied', 'orders.order_amendment_expired', 'orders.order_hold_created', 'orders.order_hold_assigned', 'orders.order_hold_resolved'],
     subscriptions: [],
     jobs: [], healthchecks: [], wikiLinks: [ARCHITECTURE_WIKI],
@@ -123,6 +123,7 @@ export const MODULE_DESCRIPTORS = [
       { match: 'prefix', path: '/api/admin/order-notes', capabilityId: 'ORD-004' },
       { match: 'prefix', path: '/api/admin/order-tags', capabilityId: 'ORD-004' },
       { match: 'prefix', path: '/api/admin/order-amendments', capabilityId: 'ORD-005' },
+      { match: 'prefix', path: '/api/admin/order-holds', capabilityId: 'ORD-010' },
       { match: 'prefix', path: '/api/admin/orders/', capabilityId: 'ORD-002' },
     ],
   },

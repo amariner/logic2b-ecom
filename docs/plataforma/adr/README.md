@@ -25,4 +25,4 @@ para ocultar una decisión no es válido.
 | [0017](0017-indice-pedidos-cursor-fts.md) | Cursor estable, filtros combinables y búsqueda FTS de pedidos | accepted |
 | [0018](0018-colaboracion-pedidos-timeline.md) | Notas versionadas, etiquetas idempotentes y timeline compuesto | accepted |
 | [0019](0019-edicion-segura-pedidos.md) | Edición versionada, conciliación financiera y stock | accepted; R3.3 implementado |
-| [0020](0020-holds-incidencias-pedidos.md) | Holds ortogonales, SLA y bloqueo de preparación | proposed; dominio puro listo, DDL pendiente de autorización |
+| [0020](0020-holds-incidencias-pedidos.md) | Holds ortogonales, SLA y bloqueo de preparación | accepted; R3.4 servido |

@@ -6,8 +6,8 @@ import { SqliteD1 } from './sqlite-d1';
 
 describe('volcado de copia de seguridad', () => {
   it('declara el contrato que incluye la colaboración de pedidos', () => {
-    expect(BACKUP_SCHEMA_VERSION).toBe(10);
-    expect(buildBackupSql({}, '2026-08-12')).toContain('0016_order_amendments');
+    expect(BACKUP_SCHEMA_VERSION).toBe(11);
+    expect(buildBackupSql({}, '2026-08-13')).toContain('0017_order_holds');
   });
 
   it('genera INSERTs con columnas explícitas y escape de comillas', () => {
@@ -63,6 +63,8 @@ describe('volcado de copia de seguridad', () => {
       'order_amendments',
       'order_amendment_lines',
       'refund_payment_allocations',
+      'order_holds',
+      'order_hold_events',
     ]));
     for (const table of BACKUP_TABLES) expect(sql).toContain(`DELETE FROM ${table};`);
   });

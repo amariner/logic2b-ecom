@@ -1,9 +1,9 @@
 # ADR-0020 — Holds e incidencias operativas de pedido
 
-- Estado: propuesto; dominio puro aceptado, DDL pendiente de autorización
+- Estado: aceptado e implementado
 - Fecha: 2026-08-13
 - Bloque: R3.4
-- Decisión de esquema: **no autorizada todavía**
+- Decisión de esquema: autorizada por Andreu y servida el 2026-08-13
 
 ## Contexto
 
@@ -36,13 +36,12 @@ un pedido que sigue bloqueado por inventario.
    crear o resolver una incidencia.
 8. Los contratos `order_hold_created`, `order_hold_assigned` y
    `order_hold_resolved` pertenecen a `orders`. Su idempotencia usa hold y
-   versión; ningún payload transporta responsable o nota. Registrar el contrato
-   no activa un productor hasta que exista la persistencia autorizada.
+   versión; ningún payload transporta responsable o nota.
 
-## Esquema propuesto — no materializar sin autorización
+## Esquema materializado
 
-La futura migración expand-only añadirá una proyección `order_holds` y un
-histórico inmutable `order_hold_events`:
+La migración expand-only `0017_order_holds.sql` añade una proyección
+`order_holds` y un histórico inmutable `order_hold_events`:
 
 - `order_holds`: pedido, estado, origen, motivo, responsable actual, SLA,
   versión, idempotencia y timestamps de creación/resolución;
@@ -51,20 +50,20 @@ histórico inmutable `order_hold_events`:
 - índices para activos por pedido, vencidos activos e idempotencia del productor.
 
 La migración crea cero holds al aplicarse. Un Worker anterior ignora las tablas
-nuevas; no hay backfill, contracción, dependencia ni coste mensual. El DDL, el
-rehearsal y cualquier aplicación local/remota quedan explícitamente fuera hasta
-que Andreu autorice la migración.
+nuevas; no hay backfill, contracción, dependencia ni coste mensual. Se ensayó
+sobre el backup remoto `0016`, se aplicó a D1 demo y se cargaron después las
+fixtures por el canal de seed.
 
-## Integración prevista
+## Integración servida
 
-1. Un puerto de aplicación coordinará alta, asignación y resolución con
+1. El puerto de aplicación coordina alta, asignación y resolución con
    `audit_log`, evento/outbox y timeline en una batch.
-2. El guard de preparación se insertará en creación y avance de fulfillment;
-   se probará la carrera hold-vs-envío para que solo un lado sea observable.
-3. El índice expondrá filtro por hold y SLA; el detalle mostrará responsable,
-   vencimiento y resolución. La demo seguirá inerte y responderá `403` a las
+2. El guard de preparación vive en la creación de fulfillment y la carrera
+   hold-vs-envío deja solo un lado observable.
+3. El índice expone filtro por hold y SLA; el detalle muestra responsable,
+   vencimiento y resolución. La demo sigue inerte y responde `403` a las
    mutaciones.
-4. Backup/restore subirá de versión solo cuando exista el esquema autorizado.
+4. Backup/restore usa el esquema 11 y conserva proyección e histórico.
 
 ## Criterio de terminado de R3.4
 
