@@ -109,7 +109,7 @@ Cada migración se diseña y ensaya sobre una copia antes de tocar el esquema vi
 | 27 | **R3.1 Índice de pedidos escalable** | Cursor, búsqueda, filtros combinables, sort estable y límites; URL compartible y consulta indexada. | ✅ 2026-08-12 |
 | 28 | **R3.2 Notas, etiquetas y timeline** | Visibilidad interna/cliente, actor, edición auditada y filtros. | ✅ 2026-08-12 |
 | 29 | **R3.3 Edición de pedido** | Añadir/quitar/cantidad/dirección con preview de delta, pago adicional o reembolso y stock. | ✅ 2026-08-12 |
-| 30 | **R3.4 Holds e incidencias** | Bloqueo manual/automático, motivo, responsable, SLA y desbloqueo; preparación no avanza en hold. | ⬜ |
+| 30 | **R3.4 Holds e incidencias** | Bloqueo manual/automático, motivo, responsable, SLA y desbloqueo; preparación no avanza en hold. | 🟡 dominio puro y ADR; DDL pendiente de autorización |
 | 31 | **R3.5 Acciones masivas** | Selección estable, dry-run, job, progreso, resultados por fila y replay seguro. | ⬜ |
 | 32 | **R3.6 Ubicaciones** | Modelo y admin de almacenes/tiendas; inventario simple se backfillea a ubicación principal. | ⬜ |
 | 33 | **R3.7 Transferencias** | Borrador→enviado→recibido parcial, discrepancias y movimientos de ledger. | ⬜ |
@@ -988,3 +988,21 @@ CLS/TBT 0). `main` incluye después `fa65ead`, que elimina la animación móvil 
 título y queda pendiente de un deploy autorizado y su remedición. El siguiente
 bloque ejecutable es R3.4, holds e incidencias; su migración aditiva requiere
 autorización expresa antes de materializarse o aplicarse.
+
+### R3.4 — Holds e incidencias (avance seguro previo al DDL)
+
+**En curso, sin migración.** ADR-0020 fija el hold como estado operativo
+ortogonal al estado comercial: admite varios motivos simultáneos, origen manual
+o automático idempotente, responsable reasignable, SLA UTC determinista y
+resolución con versión optimista. El detalle libre reutilizará las notas
+internas R3.2 para mantener PII fuera de eventos, auditoría y logs.
+
+El dominio puro ya normaliza y valida altas, reasignaciones y resoluciones;
+calcula `on_track`/`breached` sin reloj global y ofrece el guard que rechaza la
+preparación mientras quede cualquier hold activo. Gate: **74 suites/449 tests**,
+tipos y build en verde. No se ha creado tabla, migración, adaptador, API, UI ni
+fixture, y producción no cambia.
+
+Siguiente paso exacto tras autorización: materializar el DDL expand-only de
+`order_holds` + `order_hold_events`, ensayarlo sobre restore aislado y entonces
+conectar runtime, fulfillment, backup, demo inerte y panel.

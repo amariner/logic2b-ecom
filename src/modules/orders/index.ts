@@ -72,6 +72,27 @@ export {
 } from './domain/order-amendment';
 
 export {
+  ORDER_HOLD_REASON_CODES,
+  ORDER_HOLD_RESOLUTION_CODES,
+  ORDER_HOLD_SOURCES,
+  activeOrderHoldIds,
+  assertOrderPreparationAllowed,
+  orderHoldSlaState,
+  planOrderHold,
+  planOrderHoldAssignment,
+  planOrderHoldResolution,
+  type OrderHoldOwner,
+  type OrderHoldReasonCode,
+  type OrderHoldResolutionCode,
+  type OrderHoldSlaState,
+  type OrderHoldSnapshot,
+  type OrderHoldSource,
+  type PlannedOrderHold,
+  type PlannedOrderHoldAssignment,
+  type PlannedOrderHoldResolution,
+} from './domain/order-hold';
+
+export {
   buildPaidMutation,
   stockAfterDecrement,
   type OrderForPayment,
