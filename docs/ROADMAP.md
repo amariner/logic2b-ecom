@@ -250,12 +250,19 @@ se retira ante footer, menús o diálogos y se eleva sobre barras inferiores
 declaradas; impresión y capturas automáticas la excluyen. Sin dependencia,
 backend, migración, precio ni promesa nueva.
 
-Gate previo a integración: `pnpm check` con 73 suites/443 tests, tipos y build;
-E2E local 67/67; barrido a11y de 280 superficies más seis revalidaciones
+Gate e integración: `pnpm check` con 73 suites/443 tests, tipos y build; E2E
+local y remoto 67/67; barrido a11y de 280 superficies más seis revalidaciones
 focales sin hallazgos pendientes; navegador real en escritorio/375 confirma
-44 px, foco, menú/modal, footer y barra inferior. Lighthouse local mantiene
-100 en accesibilidad, buenas prácticas y SEO y TBT 0; la mediana de rendimiento
-citable queda para el corte servido posterior al deploy.
+44 px, foco, menú/modal, footer y barra inferior. Producción sirve el contacto
+optimizado en el Worker `97ef7414-df2e-4d36-9220-b47fd55e5bc6`.
+
+La tanda completa de Lighthouse en producción deja 100 en accesibilidad,
+buenas prácticas y SEO, CLS 0 y TBT 0 en todas las superficies. Once de doce
+perfiles dan 100 de rendimiento; la portada móvil queda en 99, LCP 1,9 s, y
+dos tandas adicionales de tres pasadas confirman oscilación 98–99. El ajuste
+`fa65ead`, ya integrado en `main`, elimina la animación del título solo en
+móvil para estabilizar esa pintura; aún no está servido y requiere un nuevo
+deploy autorizado antes de repetir la medición citable.
 
 ### F11.1 — Capturas reales de tiendas, panel y flujo (2026-07-23)
 
@@ -1585,12 +1592,13 @@ la cola de temas, coordinados sin mezclar worktrees ni cambios abiertos.
 
 ### R3.4 — holds e incidencias — ⬜ siguiente
 
-F11.9 queda cerrado en repositorio: contacto global nativo y progresivo,
+F11.9 queda cerrado y servido: contacto global nativo y progresivo,
 configuración central, origen sin query/hash, retirada ante footer/capas,
 elevación sobre barras inferiores y exclusión de impresión/capturas. El gate
-local suma 73 suites/443 tests, E2E 67/67, barrido a11y completo y verificación
-real desktop/375; la evidencia del corte servido se completa en su entrada de
-cierre.
+local suma 73 suites/443 tests, barrido a11y completo y verificación real
+desktop/375; el corte servido suma E2E 67/67 y Lighthouse 100×4 salvo portada
+móvil a 99 (LCP 1,9 s, CLS/TBT 0). El repo añade en `fa65ead` la estabilización
+móvil posterior al último deploy; ROADMAP distingue expresamente ambos estados.
 
 La cabeza principal vuelve al orden 30 de `docs/plataforma/ROADMAP.md`: R3.4
 debe diseñar e implementar holds manuales/automáticos con motivo, responsable,

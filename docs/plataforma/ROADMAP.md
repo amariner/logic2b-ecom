@@ -981,6 +981,10 @@ a11y admin en verde. El rehearsal sobre backup remoto de 484.732 bytes conservó
 8 pedidos/13 líneas/0 reembolsos, hashes legacy/canónico y 0 FKs tras restore.
 Producción sirve D1 `0016` y Worker `6e61c22a-8291-436f-bea3-fdc27e6bb2af`.
 
-La ventana transversal F11.9 queda cerrada en repositorio el 2026-08-13. El
-siguiente bloque ejecutable es R3.4, holds e incidencias; su migración aditiva
-requiere autorización expresa antes de materializarse o aplicarse.
+La ventana transversal F11.9 queda cerrada y servida el 2026-08-13 en el Worker
+`97ef7414-df2e-4d36-9220-b47fd55e5bc6`: E2E remoto 67/67 y Lighthouse 100 en
+todas las categorías salvo rendimiento móvil de portada a 99 (LCP 1,9 s,
+CLS/TBT 0). `main` incluye después `fa65ead`, que elimina la animación móvil del
+título y queda pendiente de un deploy autorizado y su remedición. El siguiente
+bloque ejecutable es R3.4, holds e incidencias; su migración aditiva requiere
+autorización expresa antes de materializarse o aplicarse.
