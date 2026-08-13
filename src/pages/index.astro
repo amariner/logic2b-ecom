@@ -487,9 +487,9 @@ const jsonLd = [
 
   /* Solo pantalla: en impresión todo queda estático y completo. */
   @media screen and (prefers-reduced-motion: no-preference) {
-    /* 0,35 s y no 0,7: el H1 es el elemento LCP y Chrome no lo da por pintado
-       hasta que la animación lo deja quieto — medido, 0,7 s costaba ~0,5 s de
-       LCP móvil y con ello el 100 de rendimiento. El gesto se mantiene. */
+    /* El gesto se conserva en escritorio. En móvil se desactiva más abajo:
+       Chrome no da por estable el bloque principal hasta que termina y esa
+       espera hacía oscilar la puntuación de rendimiento entre 98 y 99. */
     .hero-title { animation: hero-title-in 0.35s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
     .hero-fade { animation: hero-fade-in 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) both; animation-delay: var(--d, 0s); }
     /* El párrafo es el LCP móvil: debe estar visible desde el primer fotograma.
@@ -504,6 +504,10 @@ const jsonLd = [
         animation-range: entry 5% entry 45%;
       }
     }
+  }
+
+  @media screen and (max-width: 700px) and (prefers-reduced-motion: no-preference) {
+    .hero-title { animation: none; }
   }
 </style>
 
