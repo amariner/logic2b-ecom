@@ -12,7 +12,7 @@
 
 Logic2B Ecommerce vende una tienda **a medida**. El problema comercial es que «a medida»
 suena caro y abstracto: el cliente no puede imaginarse su tienda. El catálogo de
-estilos resuelve eso — son 21 direcciones visuales completas, cada una derivada de
+estilos resuelve eso — son 27 direcciones visuales completas, cada una derivada de
 una referencia real de ecommerce, entre las que el cliente elige un punto de
 partida.
 
@@ -746,6 +746,18 @@ ritmo a seis luminarias propias de cerámica, piedra y metal sin separar el
 recorrido común de producto, carrito y checkout. Ficha:
 [`docs/temas/lumbre.md`](temas/lumbre.md).
 
+### 27 · MIXTA — *cuidado sin reglas*
+
+📎 **Referencia: [`27-mixta.webp`](../public/images/referencias/27-mixta.webp)**
+
+**Para quién:** skincare y cosmética, bienestar y retail selecto.
+
+Hero fotográfico a sangre, cinta lima, manifiesto tipográfico y díptico de
+rostro/cuerpo convierten la selección en una revista viva. MIXTA reúne seis
+fórmulas propias sobre una retícula de filetes mínimos y conserva producto,
+carrito, checkout y confirmación en el recorrido local compartido. Ficha:
+[`docs/temas/mixta.md`](temas/mixta.md).
+
 ---
 
 ## 6. Tabla resumen
@@ -779,6 +791,7 @@ recorrido común de producto, carrito y checkout. Ficha:
 | 24 | TRAZA | `#242321` | 3 | **irregular** | **immersive** | **fullbleed** | plain | dropdown | airy | ✅ |
 | 25 | DINTEL | `#171715` | 3 | **irregular** | **immersive** | **fullbleed** | plain | dropdown | airy | ✅ |
 | 26 | LUMBRE | `#4b251b` | 4 | uniform | **immersive** | **fullbleed** | hairline | dropdown | airy | ✅ |
+| 27 | MIXTA | `#c8ff65` | 4 | uniform | **immersive** | **fullbleed** | divided | dropdown | regular | ✅ |
 
 ---
 

@@ -1,0 +1,54 @@
+---
+/** MIXTA · retícula de producto a sangre con filetes mínimos. */
+import type { StorePaths } from '../../../collections';
+import { formatEurCents } from '../../../lib/format';
+
+type GridProduct = { slug: string; name: string; description: string; price_cents: number; image: string; stock: number; };
+interface Props { paths: StorePaths; products: GridProduct[]; }
+const { paths, products } = Astro.props;
+---
+
+<ul class="mixta-grid">
+  {products.map((product, index) => (
+    <li class="mixta-card">
+      <div class="mixta-card__media"><img src={product.image} alt={product.name} width="1024" height="1024" loading={index < 4 ? 'eager' : 'lazy'} /></div>
+      <div class="mixta-card__copy">
+        <h3><a href={paths.product(product.slug)}>{product.name}</a></h3>
+        <span>{formatEurCents(product.price_cents)}</span>
+        <p>{product.description}</p>
+      </div>
+      <button type="button" data-mixta-add={product.slug} disabled={product.stock === 0} aria-label={product.stock === 0 ? `${product.name} agotado` : `Añadir ${product.name} a la cesta`}>{product.stock === 0 ? 'Agotado' : 'Añadir +'}</button>
+    </li>
+  ))}
+</ul>
+
+<script>
+  import { addToCart } from '../../../lib/cart-client';
+  document.querySelectorAll<HTMLButtonElement>('[data-mixta-add]').forEach((button) => {
+    button.addEventListener('click', () => {
+      addToCart(button.dataset.mixtaAdd ?? '');
+      const previous = button.textContent;
+      button.textContent = 'Añadido ✓';
+      setTimeout(() => (button.textContent = previous), 850);
+    });
+  });
+</script>
+
+<style>
+  .mixta-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); margin: 0; padding: 0; border-top: var(--border-width) solid var(--mix-rule); list-style: none; }
+  .mixta-card { position: relative; min-width: 0; padding-bottom: 5.7rem; border-right: var(--border-width) solid var(--mix-rule); border-bottom: var(--border-width) solid var(--mix-rule); }
+  .mixta-card:nth-child(4n) { border-right: 0; }
+  .mixta-card__media { overflow: hidden; aspect-ratio: .82; background: var(--surface-product); }
+  .mixta-card__media img { width: 100%; height: 100%; object-fit: cover; transition: transform .45s ease; }
+  .mixta-card:hover .mixta-card__media img { transform: scale(1.018); }
+  .mixta-card__copy { padding: .75rem .8rem; }
+  .mixta-card__copy h3 { margin: 0; font: var(--weight-display) clamp(1.05rem, 1.45vw, 1.4rem)/1 var(--font-display); letter-spacing: var(--tracking-display); }
+  .mixta-card__copy h3 a::after { position: absolute; z-index: 1; inset: 0; content: ''; }
+  .mixta-card__copy span { display: block; margin-top: .35rem; font-size: .67rem; font-weight: 700; }
+  .mixta-card__copy p { margin: .55rem 0 0; color: var(--mix-muted); font-size: .62rem; line-height: 1.4; }
+  .mixta-card button { position: absolute; z-index: 2; right: .8rem; bottom: .8rem; min-height: 2.75rem; padding: .55rem 1rem; border: 0; border-radius: var(--radius-btn); color: var(--color-brand-fg); background: var(--color-brand); font: 700 .58rem/1 var(--font-accent); text-transform: uppercase; cursor: pointer; }
+  .mixta-card button:disabled { cursor: not-allowed; opacity: .55; }
+  @media (max-width: 900px) { .mixta-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } .mixta-card:nth-child(4n) { border-right: var(--border-width) solid var(--mix-rule); } .mixta-card:nth-child(2n) { border-right: 0; } }
+  @media (max-width: 520px) { .mixta-card__media { aspect-ratio: .9; } }
+  @media (prefers-reduced-motion: reduce) { .mixta-card__media img { transition: none; } }
+</style>

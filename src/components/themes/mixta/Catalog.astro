@@ -1,0 +1,146 @@
+---
+/** MIXTA · escaparate editorial de cuidado facial y corporal. */
+import type { CollectionConfig, StorePaths } from '../../../collections';
+import Filters from './Filters.astro';
+import ProductGrid from './ProductGrid.astro';
+
+type GridProduct = {
+  slug: string;
+  name: string;
+  description: string;
+  price_cents: number;
+  image: string;
+  stock: number;
+};
+
+interface Props {
+  paths: StorePaths;
+  products: GridProduct[];
+  collection: CollectionConfig;
+  category?: string | undefined;
+  sort: string;
+  search?: string | undefined;
+}
+
+const { paths, products, collection, category, sort, search } = Astro.props;
+---
+
+<div class="mixta">
+  <header class="mixta-header">
+    <nav aria-label="Colecciones MIXTA">
+      <a href={`${paths.catalog}?categoria=mix-rostro`}>Rostro</a>
+      <a href={`${paths.catalog}?categoria=mix-cuerpo`}>Cuerpo</a>
+    </nav>
+    <a class="mixta-header__brand" href={paths.catalog} aria-current="page">{collection.name}</a>
+    <nav aria-label="Acciones MIXTA">
+      <a href="#mixta-manifiesto">Fórmulas</a>
+      <a href={paths.cart}>Cesta <span data-cart-count>0</span></a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="mixta-hero" aria-labelledby="mixta-title">
+      <img src="/images/collections/mixta/hero-mixta.webp" alt="Selección de cosmética sobre una superficie cromada" width="1536" height="1024" fetchpriority="high" />
+      <div class="mixta-hero__copy">
+        <h1 id="mixta-title">Tu cuidado, a tu manera: <em>mezcla, prueba y repite.</em></h1>
+        <a href="#mixta-tienda">Explorar todo</a>
+      </div>
+    </section>
+
+    <div class="mixta-ticker" aria-label="Principios MIXTA">
+      <span>Fórmulas honestas</span><i aria-hidden="true">•</i><span>Texturas que apetece usar</span><i aria-hidden="true">•</i><span>Rituales propios</span><i aria-hidden="true">•</i><span>Cuidado sin reglas</span>
+    </div>
+
+    <section class="mixta-manifesto" id="mixta-manifiesto" aria-labelledby="mixta-manifiesto-title">
+      <p id="mixta-manifiesto-title">Una sola rutina es <em>cosa del pasado.</em> Tu piel cambia y tú también. Elige, <em>mezcla y combina</em> las fórmulas que te sientan bien hoy.</p>
+    </section>
+
+    <section class="mixta-categories" aria-label="Comprar por zona">
+      <a href={`${paths.catalog}?categoria=mix-cuerpo`}>
+        <img src="/images/collections/mixta/editorial-cuerpo.webp" alt="Textura cremosa verde para el cuidado corporal" width="1024" height="1200" loading="lazy" />
+        <span>Cuerpo</span>
+      </a>
+      <a href={`${paths.catalog}?categoria=mix-rostro`}>
+        <img src="/images/collections/mixta/editorial-rostro.webp" alt="Persona lavándose el rostro con agua" width="1024" height="1200" loading="lazy" />
+        <span>Rostro</span>
+      </a>
+    </section>
+
+    <section class="mixta-shop" id="mixta-tienda" aria-labelledby="mixta-shop-title">
+      <div class="mixta-shop__heading">
+        <div><p>Selección MIXTA</p><h2 id="mixta-shop-title">Encuentra tu combinación.</h2></div>
+        <Filters paths={paths} collection={collection} count={products.length} activeCategory={category} sort={sort} search={search} />
+      </div>
+      {search && products.length > 0 && <p class="mixta-results">{products.length} {products.length === 1 ? 'resultado' : 'resultados'} para «{search}»</p>}
+      {products.length > 0
+        ? <ProductGrid paths={paths} products={products} />
+        : <div class="mixta-empty"><p>{search ? `Nada por aquí para «${search}»` : 'No hay fórmulas en esta selección'}</p><a href={paths.catalog}>Volver a la tienda</a></div>}
+    </section>
+  </main>
+
+  <footer class="mixta-footer">
+    <strong>MIXTA</strong>
+    <p>Cuidado que se mezcla contigo.</p>
+    <nav aria-label="Enlaces MIXTA"><a href={paths.catalog} aria-current="page">Tienda</a><a href="#mixta-manifiesto">Filosofía</a><a href={paths.cart}>Cesta</a></nav>
+  </footer>
+</div>
+
+<style>
+  .mixta { --mix-ink: var(--color-foreground); --mix-muted: var(--color-muted-foreground); --mix-rule: var(--color-border); min-height: 100vh; color: var(--mix-ink); background: var(--surface-sunken); font-family: var(--font-accent); }
+  .mixta :where(a) { color: inherit; text-decoration: none; }
+  .mixta-header { position: absolute; z-index: 2; top: 3rem; left: 0; display: grid; width: 100%; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 1rem; padding: .8rem clamp(.8rem, 2vw, 2rem); color: #fff; background: #161916; font-size: .58rem; letter-spacing: .05em; text-transform: uppercase; }
+  .mixta-header nav { display: flex; gap: clamp(.75rem, 1.8vw, 1.8rem); }
+  .mixta-header nav:last-child { justify-content: flex-end; }
+  .mixta-header a { display: inline-flex; min-height: 2.75rem; align-items: center; }
+  .mixta-header a:hover, .mixta-header a:focus-visible { text-decoration: underline; text-underline-offset: .25rem; }
+  .mixta-header__brand { font: 700 clamp(1.05rem, 1.7vw, 1.55rem)/1 var(--font-accent); letter-spacing: -.06em; }
+  .mixta-hero { position: relative; min-height: min(78vw, 52rem); background: #28312d; }
+  .mixta-hero::after { position: absolute; inset: 0; background: linear-gradient(180deg, rgb(10 16 13 / .34), transparent 32%, rgb(10 16 13 / .22)); content: ''; }
+  .mixta-hero > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .mixta-hero__copy { position: absolute; z-index: 1; top: 50%; left: 50%; width: min(43rem, calc(100% - 2rem)); padding: 1rem 1.3rem; transform: translate(-50%, -43%); color: #fff; background-color: rgb(27 34 31 / .72); text-align: center; }
+  .mixta-hero h1 { max-width: 41rem; margin: 0 auto; font: 400 clamp(2rem, 4.2vw, 4.3rem)/.98 var(--font-accent); letter-spacing: -.055em; }
+  .mixta-hero h1 em { font-family: var(--font-display); font-weight: var(--weight-display); }
+  .mixta-hero__copy > a { display: inline-flex; min-width: 10rem; min-height: 3.2rem; align-items: center; justify-content: center; margin-top: 1.5rem; border: var(--border-width) solid #fff; border-radius: var(--radius-btn); font-size: .72rem; }
+  .mixta-hero__copy > a:hover, .mixta-hero__copy > a:focus-visible { color: var(--color-brand-fg); background: var(--color-brand); border-color: var(--color-brand); }
+  .mixta-ticker { display: flex; min-height: 2.35rem; align-items: center; justify-content: space-around; gap: 1.2rem; overflow: hidden; padding-inline: 1rem; color: var(--color-brand-fg); background: var(--color-brand); font-size: .58rem; font-weight: 700; letter-spacing: .045em; text-transform: uppercase; white-space: nowrap; }
+  .mixta-ticker i { font-style: normal; }
+  .mixta-manifesto { display: grid; min-height: clamp(17rem, 30vw, 28rem); place-items: center; padding: clamp(3rem, 7vw, 7rem) 1.2rem; text-align: center; }
+  .mixta-manifesto p { max-width: 52rem; margin: 0; font: 400 clamp(2rem, 4vw, 4.6rem)/1 var(--font-accent); letter-spacing: -.06em; }
+  .mixta-manifesto em { font-family: var(--font-display); font-weight: var(--weight-display); }
+  .mixta-categories { display: grid; grid-template-columns: 1fr 1fr; }
+  .mixta-categories > a { position: relative; min-height: 42rem; overflow: hidden; }
+  .mixta-categories img { width: 100%; height: 100%; object-fit: cover; transition: transform .7s ease; }
+  .mixta-categories a:hover img { transform: scale(1.012); }
+  .mixta-categories span { position: absolute; top: 50%; left: 50%; display: grid; width: clamp(9rem, 19vw, 16rem); aspect-ratio: 1.7; place-items: center; transform: translate(-50%, -50%); border: var(--border-width) solid currentColor; border-radius: 50%; color: #17200f; background-color: var(--color-brand); font: var(--weight-display) clamp(1.6rem, 3vw, 3.2rem)/1 var(--font-display); }
+  .mixta-categories > a:last-child span { color: #fff; background-color: rgb(28 31 29 / .76); }
+  .mixta-shop { padding: clamp(4rem, 8vw, 8rem) 0 0; }
+  .mixta-shop__heading { display: grid; grid-template-columns: 1fr auto; align-items: end; gap: 2rem; padding: 0 clamp(.9rem, 2vw, 2rem) 1.25rem; }
+  .mixta-shop__heading p { margin: 0 0 .35rem; color: var(--mix-muted); font-size: .58rem; letter-spacing: .055em; text-transform: uppercase; }
+  .mixta-shop__heading h2 { margin: 0; font: var(--weight-display) clamp(2.1rem, 4vw, 4.4rem)/.95 var(--font-display); letter-spacing: var(--tracking-display); }
+  .mixta-results { margin: 0; padding: .8rem clamp(.9rem, 2vw, 2rem); border-top: var(--border-width) solid var(--mix-rule); font-size: .7rem; }
+  .mixta-empty { display: grid; min-height: 24rem; place-content: center; gap: 1rem; border-top: var(--border-width) solid var(--mix-rule); text-align: center; }
+  .mixta-empty p { margin: 0; font: var(--weight-display) clamp(1.8rem, 4vw, 3.8rem)/1 var(--font-display); }
+  .mixta-empty a { min-height: 2.75rem; text-decoration: underline; text-underline-offset: .25rem; }
+  .mixta-footer { display: grid; min-height: 17rem; grid-template-columns: 1fr 1fr auto; align-items: start; gap: 2rem; padding: clamp(2rem, 4vw, 4rem) clamp(.9rem, 2vw, 2rem); color: #f5f0e6; background: #161916; }
+  .mixta-footer strong { font: 700 clamp(3rem, 8vw, 8rem)/.8 var(--font-accent); letter-spacing: -.08em; }
+  .mixta-footer p { max-width: 16rem; margin: 0; font: var(--weight-display) 1.4rem/1.1 var(--font-display); }
+  .mixta-footer nav { display: flex; flex-direction: column; gap: .25rem; font-size: .65rem; text-transform: uppercase; }
+  .mixta-footer nav a { display: inline-flex; min-height: 2.5rem; align-items: center; }
+  .mixta-footer nav a:hover, .mixta-footer nav a:focus-visible { text-decoration: underline; text-underline-offset: .25rem; }
+  @media (max-width: 720px) {
+    .mixta-header { top: 3rem; grid-template-columns: 1fr auto; }
+    .mixta-header nav:first-child, .mixta-header nav:last-child a:first-child { display: none; }
+    .mixta-header__brand { grid-column: 1; grid-row: 1; }
+    .mixta-header nav:last-child { grid-column: 2; grid-row: 1; }
+    .mixta-hero { min-height: 36rem; }
+    .mixta-hero h1 { font-size: clamp(2.2rem, 10vw, 3.4rem); }
+    .mixta-ticker { justify-content: flex-start; overflow-x: auto; }
+    .mixta-manifesto p { font-size: clamp(2rem, 9vw, 3.2rem); }
+    .mixta-categories { grid-template-columns: 1fr; }
+    .mixta-categories > a { min-height: 27rem; }
+    .mixta-shop__heading { grid-template-columns: 1fr; }
+    .mixta-footer { grid-template-columns: 1fr 1fr; }
+    .mixta-footer strong { grid-column: 1 / -1; }
+  }
+  @media (prefers-reduced-motion: reduce) { .mixta-categories img { transition: none; } }
+</style>

@@ -347,3 +347,9 @@
 [data-store-theme='brio'] :is(.text-brand, .hover\:text-brand-dark:hover) {
   color: var(--color-foreground);
 }
+
+/* TEMA MIXTA — el lima funciona como cinta y botón con texto oscuro. En las
+   superficies compartidas se mantiene como foco/relleno, no como texto claro. */
+[data-store-theme='mixta'] :is(.text-brand, .hover\:text-brand-dark:hover) {
+  color: var(--color-foreground);
+}

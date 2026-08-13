@@ -1036,6 +1036,36 @@ export const demoThemes: DemoTheme[] = [
       annotations: true, darkFooter: false,
     },
   },
+  {
+    id: 'mixta',
+    label: 'MIXTA',
+    hint: 'Editorial vivo para skincare, bienestar y catálogos que invitan a combinar.',
+    reference: { name: 'Referencia editorial de skincare multimarcas', file: '27-mixta.webp' },
+    sample: null,
+    bestFor: ['Skincare y cosmética', 'Bienestar', 'Retail selecto'],
+    status: 'ready',
+    vars: {
+      '--color-brand': '#c8ff65',
+      '--color-brand-dark': '#b5eb4f',
+      '--color-brand-fg': '#17200f',
+      '--font-display': "Georgia, 'Times New Roman', serif",
+      '--font-accent': SYSTEM_SANS,
+      '--tracking-display': '-0.045em',
+      '--weight-display': '400',
+      '--radius-btn': '9999px',
+      '--radius-card': '0',
+      '--border-width': '1px',
+      '--surface-product': '#f1eee6',
+      '--surface-sunken': '#f5f0e6',
+      '--space-density': '0.9',
+      '--grid-gap': '0px',
+    },
+    layout: {
+      gridCols: 4, gridStyle: 'uniform', nav: 'immersive', hero: 'fullbleed',
+      card: 'divided', filters: 'dropdown', density: 'regular',
+      annotations: false, darkFooter: false,
+    },
+  },
   // new-theme:themes — no borrar: `pnpm new:theme <id>` añade aquí el tema si falta.
 ];
 

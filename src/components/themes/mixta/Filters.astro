@@ -1,0 +1,35 @@
+---
+/** MIXTA · navegación GET compacta, sin estado cliente paralelo. */
+import type { CollectionConfig, StorePaths } from '../../../collections';
+interface Props { paths: StorePaths; collection: CollectionConfig; count: number; activeCategory?: string | undefined; sort: string; search?: string | undefined; }
+const { paths, collection, count, activeCategory, sort, search } = Astro.props;
+const hrefFor = (category?: string): string => {
+  const params = new URLSearchParams();
+  if (category) params.set('categoria', category);
+  if (sort !== 'featured') params.set('orden', sort);
+  if (search) params.set('q', search);
+  const query = params.toString();
+  return `${paths.catalog}${query ? `?${query}` : ''}`;
+};
+---
+
+<div class="mixta-filters">
+  <nav aria-label="Categorías MIXTA"><span>{count} fórmulas</span><a href={hrefFor()} aria-current={!activeCategory ? 'page' : undefined}>Todo</a>{collection.categories.map((item) => <a href={hrefFor(item.id)} aria-current={activeCategory === item.id ? 'page' : undefined}>{item.label}</a>)}</nav>
+  <form method="get" action={paths.catalog} role="search">
+    {activeCategory && <input type="hidden" name="categoria" value={activeCategory} />}
+    <input type="search" name="q" value={search} maxlength="60" placeholder="Buscar" aria-label="Buscar fórmulas" />
+    <select name="orden" aria-label="Ordenar fórmulas" onchange="this.form.submit()"><option value="featured" selected={sort === 'featured'}>Selección</option><option value="price-asc" selected={sort === 'price-asc'}>Precio ↑</option><option value="price-desc" selected={sort === 'price-desc'}>Precio ↓</option><option value="name" selected={sort === 'name'}>Nombre A–Z</option></select>
+  </form>
+</div>
+
+<style>
+  .mixta-filters { display: flex; align-items: center; justify-content: flex-end; gap: 1.3rem; font-size: .6rem; font-weight: 600; letter-spacing: .035em; text-transform: uppercase; }
+  .mixta-filters nav, .mixta-filters form { display: flex; align-items: center; gap: clamp(.7rem, 1.4vw, 1.3rem); }
+  .mixta-filters nav > span { color: var(--mix-muted); }
+  .mixta-filters a { display: inline-flex; min-height: 2.75rem; align-items: center; }
+  .mixta-filters a[aria-current='page'], .mixta-filters a:hover, .mixta-filters a:focus-visible { text-decoration: underline; text-decoration-thickness: .12rem; text-underline-offset: .28rem; }
+  .mixta-filters input, .mixta-filters select { min-height: 2.75rem; border: 0; border-bottom: var(--border-width) solid var(--mix-rule); border-radius: 0; color: var(--mix-ink); background: transparent; font: inherit; letter-spacing: inherit; text-transform: uppercase; }
+  .mixta-filters input { width: 5.6rem; }
+  .mixta-filters input::placeholder { color: var(--mix-muted); }
+  @media (max-width: 900px) { .mixta-filters { align-items: stretch; flex-direction: column; } .mixta-filters nav { overflow-x: auto; } .mixta-filters nav > * { flex: 0 0 auto; } .mixta-filters form { justify-content: space-between; } .mixta-filters input { width: 7rem; } }
+</style>

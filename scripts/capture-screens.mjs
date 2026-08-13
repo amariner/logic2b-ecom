@@ -128,6 +128,7 @@ const REVEAL_STRETCH = `(async () => {
 // Iris es tienda de vídeo-scrub: la estática solo sirve de PÓSTER del hero
 // (viewport), no de página completa — el escaparate se enseña con el clip.
 const STORES = [
+  { id: 'mixta', label: 'MIXTA', catalog: '/demo/tiendas/mixta', full: true, maxH: 3600, desktopQ: 66, mobileQ: 56 },
   { id: 'lumbre', label: 'LUMBRE', catalog: '/demo/tiendas/lumbre', full: true, maxH: 3600, mobileQ: 56 },
   { id: 'dintel', label: 'DINTEL', catalog: '/demo/tiendas/dintel', full: true, maxH: 3900, mobileQ: 56 },
   { id: 'traza', label: 'TRAZA', catalog: '/demo/tiendas/traza', full: true, maxH: 3600, mobileQ: 56 },
@@ -168,7 +169,7 @@ const SHOTS = [];
 
 for (const s of STORES) {
   // Escaparate (versátil: la landing recorta/enmarca por CSS). Iris = viewport.
-  SHOTS.push({ name: `store-${s.id}-catalog`, url: s.catalog, vp: DESKTOP, full: s.full, maxH: s.maxH, eval: s.eval, group: 'desktop', card: true });
+  SHOTS.push({ name: `store-${s.id}-catalog`, url: s.catalog, vp: DESKTOP, full: s.full, maxH: s.maxH, eval: s.eval, group: 'desktop', card: true, q: s.desktopQ });
   // Móvil: framing de pantalla (viewport), no página completa.
   SHOTS.push({ name: `store-${s.id}-catalog-m`, url: s.catalog, vp: MOBILE, eval: s.eval, group: 'mobile', q: s.mobileQ });
 }
@@ -176,6 +177,7 @@ for (const s of STORES) {
 // Ficha de producto: el producto firma de cada tienda. `product(slug)` respeta
 // las rutas históricas de la genérica (/demo/tienda/<slug>).
 const FICHAS = [
+  { id: 'mixta', slug: 'mix-polvo-nube', prefix: '/demo/tiendas/mixta' },
   { id: 'lumbre', slug: 'lum-soma-terracota', prefix: '/demo/tiendas/lumbre' },
   { id: 'dintel', slug: 'din-mesa-traves', prefix: '/demo/tiendas/dintel' },
   { id: 'traza', slug: 'tra-mesa-rasante', prefix: '/demo/tiendas/traza' },

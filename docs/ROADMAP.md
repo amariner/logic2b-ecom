@@ -1014,6 +1014,25 @@ completada y la siguiente referencia visual ejecutable es la posición 14
 (`8aee98009d78b485d3312aac82084e3a.jpg`). El carril principal conserva R2.13
 como cabeza.
 
+### Línea paralela · tema MIXTA (2026-08-13, sesión local)
+
+Decimocuarto elemento de `nuevos-temas/cola.json`. MIXTA traduce una referencia
+de skincare editorial mediante hero cromado a sangre, ticker lima, manifiesto
+tipográfico, díptico Cuerpo/Rostro y tienda de cuatro columnas. Seis fórmulas
+`mix-*` comparten nueve assets WebP propios. `imagegen` integrado falló por red;
+el fallback ya autorizado Higgsfield Product Photoshoot consumió 64,80 créditos
+(110,04 → 45,24).
+
+El bloque no cambia pricing, envíos, checkout, pedidos, D1 ni APIs, y no añade
+dependencias. `pnpm check` queda en verde (482 archivos sin diagnósticos, 78
+suites/469 tests y build), el E2E global verifica el aislamiento de demos y
+panel, y la auditoría a11y cubre 8 superficies con 0 errores y 0 avisos. Las
+capturas de catálogo, móvil, ficha y derivados 900/560 quedan revisadas y dentro
+de presupuesto. Ficha completa en [`docs/temas/mixta.md`](temas/mixta.md). La
+siguiente referencia visual ejecutable es la posición 15
+(`a0a43d8adc1a5e9263bae105fa4aabc4.jpg`). El carril principal conserva R3.5 y
+su gate de esquema.
+
 ### Pendiente en la Fase 9B
 
 - **Pasada de fidelidad fina** de los 4 temas contra su captura (se re-hospedaron
@@ -1613,6 +1632,11 @@ migración expand-only de `order_bulk_batches` y `order_bulk_batch_rows`. Despu�
 se encadena persistencia, job durable, API, panel, runbook, rehearsal,
 concurrencia, E2E/a11y, aplicación a D1 demo y despliegue. Hasta entonces no se
 debe crear ni aplicar esa migración.
+
+Carril visual independiente: MIXTA (posición 14) queda cerrado y la siguiente
+referencia ejecutable es la posición 15,
+`a0a43d8adc1a5e9263bae105fa4aabc4.jpg`. Este carril no autoriza ni altera el
+DDL pendiente de R3.5.
 
 Las entradas que siguen son el histórico de cierres anteriores y no cambian el
 orden actual.
