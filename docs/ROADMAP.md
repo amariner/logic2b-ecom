@@ -1031,7 +1031,11 @@ capturas de catálogo, móvil, ficha y derivados 900/560 quedan revisadas y dent
 de presupuesto. Ficha completa en [`docs/temas/mixta.md`](temas/mixta.md). La
 siguiente referencia visual ejecutable es la posición 15
 (`a0a43d8adc1a5e9263bae105fa4aabc4.jpg`). El carril principal conserva R3.5 y
-su gate de esquema.
+su gate de esquema. Integrado en `main` como `e198244` y desplegado en el Worker
+`6efcec65-de06-4123-b7c2-18a325e348d8`; smoke remoto 200 en portada, `/temas`,
+tienda y hero. Lighthouse remoto (mediana de tres) queda en 99/100/100/100 para
+portada móvil y 100/100/100/100 para portada escritorio y `/temas` en ambos
+perfiles (LCP máximo 1,8 s, CLS 0, TBT 0 ms).
 
 ### Pendiente en la Fase 9B
 
@@ -1623,7 +1627,8 @@ lote/acción/pedido.
 
 `ORD-011` y `AUT-011` quedan registradas como `installed` y sin flags. No existe
 ruta, navegación, job, efecto, UI ni DDL; D1 demo conserva `0017` y producción
-el Worker `5ec8b676-781c-4463-9a18-7aa8a597a8eb` de R3.4. Gate local: **78
+sirve el Worker `6efcec65-de06-4123-b7c2-18a325e348d8` tras el cierre visual de
+MIXTA, sin código R3.5. Gate local: **78
 suites/469 tests**, tipos y build en verde; E2E/a11y no aplican porque no cambió
 ninguna superficie servida.
 

@@ -56,3 +56,7 @@ escena segura de una persona adulta; no consumió créditos.
   reducido; **0 errores y 0 avisos en 8 superficies**.
 - Capturas: escritorio 148 KB, móvil 45 KB y ficha 20 KB; derivados 900/560 px
   revisados y dentro de presupuesto.
+- Despliegue: Worker `6efcec65-de06-4123-b7c2-18a325e348d8`; smoke 200 en
+  portada, `/temas`, tienda y hero. Lighthouse remoto (mediana de tres): portada
+  99/100/100/100 móvil y 100/100/100/100 escritorio; `/temas` 100/100/100/100
+  en ambos perfiles. LCP máximo 1,8 s, CLS 0 y TBT 0 ms.
