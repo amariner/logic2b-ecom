@@ -52,3 +52,7 @@ señalética. Se descartó y regeneró Atrio Mar porque apareció una figura hum
   reducido; **0 errores y 0 avisos en 8 superficies**.
 - Capturas: escritorio 114 KB, móvil 30 KB y ficha 28 KB; derivados 900/560 px
   revisados y dentro de presupuesto.
+- Despliegue: Worker `70c0d815-e549-4318-99f6-4947149ffd79`; smoke 200 en
+  portada, `/temas`, tienda y hero. Lighthouse remoto (mediana de tres): portada
+  99/100/100/100 móvil y 100/100/100/100 escritorio; `/temas` 100/100/100/100
+  en ambos perfiles. LCP máximo 1,8 s, CLS 0 y TBT 0 ms.
