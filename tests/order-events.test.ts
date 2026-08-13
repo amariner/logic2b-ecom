@@ -5,6 +5,9 @@ import {
   orderCancelledEvent,
   orderCorrelationId,
   orderDeliveredEvent,
+  orderHoldAssignedEvent,
+  orderHoldCreatedEvent,
+  orderHoldResolvedEvent,
   orderPaidEvent,
   orderPartiallyRefundedEvent,
   orderPlacedEvent,
@@ -76,6 +79,34 @@ describe('eventos de pedido (R1.5)', () => {
     expect(
       orderCancelledEvent(emit, { ...subject, from_status: 'pending', reason: 'payment_session_expired' }).actor.id,
     ).toBe('stripe');
+  });
+
+  it('los eventos de hold no exponen responsable, nota ni PII', () => {
+    const emit = testFactory();
+    const created = orderHoldCreatedEvent(emit, {
+      ...subject,
+      hold_id: 'hold_1',
+      source: 'automatic',
+      reason_code: 'inventory_issue',
+      due_at: '2026-08-13T12:00:00.000Z',
+      hold_version: 1,
+    });
+    const assigned = orderHoldAssignedEvent(emit, { ...subject, hold_id: 'hold_1', hold_version: 2 });
+    const resolved = orderHoldResolvedEvent(emit, {
+      ...subject,
+      hold_id: 'hold_1',
+      resolution_code: 'cleared',
+      hold_version: 3,
+    });
+
+    expect(created.actor).toMatchObject({ kind: 'system', id: 'order-hold-policy' });
+    expect(created.idempotency_key).toBe('order:BM-260806-TEST:order_hold_created:hold_1');
+    expect(assigned.idempotency_key).toBe('order:BM-260806-TEST:order_hold_assigned:hold_1:2');
+    expect(resolved.idempotency_key).toBe('order:BM-260806-TEST:order_hold_resolved:hold_1:3');
+    const serialized = JSON.stringify([created, assigned, resolved]);
+    for (const forbidden of ['owner', 'responsable', 'nota interna', 'clienta@example.com']) {
+      expect(serialized).not.toContain(forbidden);
+    }
   });
 
   it('el sobre no transporta datos personales', () => {
@@ -258,6 +289,9 @@ describe('registro de módulos y eventos (R1.5)', () => {
       'orders.order_amendment_requested',
       'orders.order_amendment_applied',
       'orders.order_amendment_expired',
+      'orders.order_hold_created',
+      'orders.order_hold_assigned',
+      'orders.order_hold_resolved',
     ]);
     for (const event of MODULE_REGISTRY.byId.orders.events) {
       expect(MODULE_REGISTRY.eventOwners[event]).toBe('orders');

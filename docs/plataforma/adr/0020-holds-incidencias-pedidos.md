@@ -34,6 +34,10 @@ un pedido que sigue bloqueado por inventario.
 7. Crear o avanzar un fulfillment debe comprobar cero holds activos dentro de
    la misma operación D1. El estado comercial, el pago y el stock no cambian al
    crear o resolver una incidencia.
+8. Los contratos `order_hold_created`, `order_hold_assigned` y
+   `order_hold_resolved` pertenecen a `orders`. Su idempotencia usa hold y
+   versión; ningún payload transporta responsable o nota. Registrar el contrato
+   no activa un productor hasta que exista la persistencia autorizada.
 
 ## Esquema propuesto — no materializar sin autorización
 

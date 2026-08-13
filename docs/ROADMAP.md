@@ -1603,9 +1603,10 @@ móvil posterior al último deploy; ROADMAP distingue expresamente ambos estados
 La cabeza principal está en el orden 30 de `docs/plataforma/ROADMAP.md`. El
 ADR-0020 y el dominio puro ya fijan holds manuales/automáticos idempotentes,
 motivo, responsable reasignable, SLA determinista, resolución optimista y el
-guard que bloquea preparación con cualquier incidencia activa. Gate: 74
-suites/449 tests, tipos y build. No existe todavía DDL, adaptador, API, UI ni
-fixture; producción no ha cambiado.
+guard que bloquea preparación con cualquier incidencia activa. Los tres sobres
+de evento ya fijan idempotencia y payload sin PII, pero no tienen productor
+runtime. Gate: 74 suites/450 tests, tipos y build. No existe todavía DDL,
+adaptador, API, UI ni fixture; producción no ha cambiado.
 
 El siguiente paso exacto es materializar y ensayar la migración expand-only de
 `order_holds` + `order_hold_events`. El veto de arquitectura exige autorización

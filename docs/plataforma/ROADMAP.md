@@ -999,9 +999,12 @@ internas R3.2 para mantener PII fuera de eventos, auditoría y logs.
 
 El dominio puro ya normaliza y valida altas, reasignaciones y resoluciones;
 calcula `on_track`/`breached` sin reloj global y ofrece el guard que rechaza la
-preparación mientras quede cualquier hold activo. Gate: **74 suites/449 tests**,
-tipos y build en verde. No se ha creado tabla, migración, adaptador, API, UI ni
-fixture, y producción no cambia.
+preparación mientras quede cualquier hold activo. Los sobres tipados de alta,
+reasignación y resolución tienen idempotencia por hold/versión y excluyen
+responsable, notas y PII; el registro asigna su propiedad al módulo `orders` sin
+activar productores. Gate: **74 suites/450 tests**, tipos y build en verde. No
+se ha creado tabla, migración, adaptador, API, UI ni fixture, y producción no
+cambia.
 
 Siguiente paso exacto tras autorización: materializar el DDL expand-only de
 `order_holds` + `order_hold_events`, ensayarlo sobre restore aislado y entonces

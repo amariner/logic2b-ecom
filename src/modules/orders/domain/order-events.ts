@@ -24,6 +24,11 @@ import {
   type EventIdentity,
 } from '../../../shared-kernel/events.ts';
 import type { OrderStatus } from '../../../lib/order-transitions.ts';
+import type {
+  OrderHoldReasonCode,
+  OrderHoldResolutionCode,
+  OrderHoldSource,
+} from './order-hold.ts';
 
 /** Versión del contrato de payload de todos los eventos de pedido. */
 export const ORDER_EVENT_VERSION = 1;
@@ -39,6 +44,9 @@ export const ORDER_EVENT_TYPES = [
   'orders.order_amendment_requested',
   'orders.order_amendment_applied',
   'orders.order_amendment_expired',
+  'orders.order_hold_created',
+  'orders.order_hold_assigned',
+  'orders.order_hold_resolved',
 ] as const;
 
 export type OrderEventType = (typeof ORDER_EVENT_TYPES)[number];
@@ -97,6 +105,22 @@ export type OrderAmendmentPayload = OrderEventSubject & Readonly<{
   changed_line_count: number;
   address_changed: boolean;
 }>;
+export type OrderHoldCreatedPayload = OrderEventSubject & Readonly<{
+  hold_id: string;
+  source: OrderHoldSource;
+  reason_code: OrderHoldReasonCode;
+  due_at: string;
+  hold_version: number;
+}>;
+export type OrderHoldAssignedPayload = OrderEventSubject & Readonly<{
+  hold_id: string;
+  hold_version: number;
+}>;
+export type OrderHoldResolvedPayload = OrderEventSubject & Readonly<{
+  hold_id: string;
+  resolution_code: OrderHoldResolutionCode;
+  hold_version: number;
+}>;
 
 export type OrderPlacedEvent = EventEnvelope<'orders.order_placed', OrderPlacedPayload>;
 export type OrderPaidEvent = EventEnvelope<'orders.order_paid', OrderPaidPayload>;
@@ -117,6 +141,10 @@ export type OrderAmendmentAppliedEvent = EventEnvelope<
 export type OrderAmendmentExpiredEvent = EventEnvelope<
   'orders.order_amendment_expired', OrderAmendmentPayload
 >;
+export type OrderHoldCreatedEvent = EventEnvelope<'orders.order_hold_created', OrderHoldCreatedPayload>;
+export type OrderHoldAssignedEvent = EventEnvelope<'orders.order_hold_assigned', OrderHoldAssignedPayload>;
+export type OrderHoldResolvedEvent = EventEnvelope<'orders.order_hold_resolved', OrderHoldResolvedPayload>;
+export type OrderHoldEvent = OrderHoldCreatedEvent | OrderHoldAssignedEvent | OrderHoldResolvedEvent;
 
 export type OrderDomainEvent =
   | OrderPlacedEvent
@@ -135,6 +163,7 @@ export const ORDER_ACTORS = {
   customer: { kind: 'customer', id: 'guest-checkout', label: 'Comprador invitado' },
   stripe: { kind: 'provider', id: 'stripe', label: 'Stripe' },
   simulated: { kind: 'system', id: 'simulated-payment', label: 'Pago simulado' },
+  holdPolicy: { kind: 'system', id: 'order-hold-policy', label: 'Política de incidencias' },
   admin: { kind: 'admin', id: 'admin-panel', label: 'Panel de pedidos' },
 } as const satisfies Record<string, EventActor>;
 
@@ -367,6 +396,72 @@ export function orderAmendmentExpiredEvent(
   return emit(draftFor('orders.order_amendment_expired', ORDER_ACTORS.stripe, payload, {
     ...options,
     idempotencySuffix: input.amendment_id,
+  }));
+}
+
+export function orderHoldCreatedEvent(
+  emit: EmitEvent,
+  input: OrderEventSubject & Readonly<{
+    hold_id: string;
+    source: OrderHoldSource;
+    reason_code: OrderHoldReasonCode;
+    due_at: string;
+    hold_version: number;
+  }>,
+  options: EmitOptions = {},
+): OrderHoldCreatedEvent {
+  const payload: OrderHoldCreatedPayload = Object.freeze({
+    order_id: input.order_id,
+    order_number: input.order_number,
+    hold_id: input.hold_id,
+    source: input.source,
+    reason_code: input.reason_code,
+    due_at: input.due_at,
+    hold_version: input.hold_version,
+  });
+  const actor = input.source === 'automatic' ? ORDER_ACTORS.holdPolicy : ORDER_ACTORS.admin;
+  return emit(draftFor('orders.order_hold_created', actor, payload, {
+    ...options,
+    idempotencySuffix: input.hold_id,
+  }));
+}
+
+export function orderHoldAssignedEvent(
+  emit: EmitEvent,
+  input: OrderEventSubject & Readonly<{ hold_id: string; hold_version: number }>,
+  options: EmitOptions = {},
+): OrderHoldAssignedEvent {
+  const payload: OrderHoldAssignedPayload = Object.freeze({
+    order_id: input.order_id,
+    order_number: input.order_number,
+    hold_id: input.hold_id,
+    hold_version: input.hold_version,
+  });
+  return emit(draftFor('orders.order_hold_assigned', ORDER_ACTORS.admin, payload, {
+    ...options,
+    idempotencySuffix: `${input.hold_id}:${input.hold_version}`,
+  }));
+}
+
+export function orderHoldResolvedEvent(
+  emit: EmitEvent,
+  input: OrderEventSubject & Readonly<{
+    hold_id: string;
+    resolution_code: OrderHoldResolutionCode;
+    hold_version: number;
+  }>,
+  options: EmitOptions = {},
+): OrderHoldResolvedEvent {
+  const payload: OrderHoldResolvedPayload = Object.freeze({
+    order_id: input.order_id,
+    order_number: input.order_number,
+    hold_id: input.hold_id,
+    resolution_code: input.resolution_code,
+    hold_version: input.hold_version,
+  });
+  return emit(draftFor('orders.order_hold_resolved', ORDER_ACTORS.admin, payload, {
+    ...options,
+    idempotencySuffix: `${input.hold_id}:${input.hold_version}`,
   }));
 }
 
