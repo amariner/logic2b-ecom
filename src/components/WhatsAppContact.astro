@@ -34,7 +34,7 @@ const href = agencyWhatsappHref(sourcePath);
   </a>
 )}
 
-<style>
+<style is:inline>
   .whatsapp-contact {
     position: fixed;
     right: max(clamp(1rem, 4vw, 2rem), env(safe-area-inset-right));
@@ -71,23 +71,23 @@ const href = agencyWhatsappHref(sourcePath);
     outline: 3px solid #25d366;
     outline-offset: 3px;
   }
-  :global(html.whatsapp-contact-enhanced) .whatsapp-contact {
+  html.whatsapp-contact-enhanced .whatsapp-contact {
     pointer-events: none;
     opacity: 0;
     transform: translateY(.75rem);
   }
-  :global(html.whatsapp-contact-enhanced) .whatsapp-contact.is-visible {
+  html.whatsapp-contact-enhanced .whatsapp-contact.is-visible {
     pointer-events: auto;
     opacity: 1;
     transform: translateY(0);
   }
-  :global(html.whatsapp-contact-enhanced) .whatsapp-contact.is-visible:hover {
+  html.whatsapp-contact-enhanced .whatsapp-contact.is-visible:hover {
     box-shadow: 0 10px 28px rgb(0 0 0 / .28);
     transform: translateY(-2px);
   }
   @media (prefers-reduced-motion: reduce) {
     .whatsapp-contact { transition: none; }
-    :global(html.whatsapp-contact-enhanced) .whatsapp-contact.is-visible:hover { transform: none; }
+    html.whatsapp-contact-enhanced .whatsapp-contact.is-visible:hover { transform: none; }
   }
   @media print {
     .whatsapp-contact { display: none; }
