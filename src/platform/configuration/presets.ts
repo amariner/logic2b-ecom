@@ -71,6 +71,9 @@ const ADVANCED_CAPABILITIES = {
   'ORD-005': { state: 'active', flags: ROUTE_EFFECT },
   'ORD-007': { state: 'active', flags: ROUTE_EFFECT },
   'ORD-010': { state: 'active', flags: ROUTE_EFFECT },
+  // R3.5: contrato instalado; ruta, job y efectos esperan el gate de esquema.
+  'ORD-011': { state: 'installed' },
+  'AUT-011': { state: 'installed' },
   'CAT-002': { state: 'active', flags: INTERNAL },
   'CAT-003': { state: 'active', flags: ROUTE },
   'CAT-007': { state: 'active', flags: ROUTE },

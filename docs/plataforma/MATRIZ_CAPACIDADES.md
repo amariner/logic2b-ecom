@@ -129,7 +129,7 @@ su alcance requiera.
 | ORD-008 | Pedido preliminar/presupuesto | módulo | P2 | pendiente | Borrador, caducidad, aprobación, factura y enlace de pago. |
 | ORD-009 | Captura manual o diferida | módulo | P2 | pendiente | Autorización, captura parcial y expiración. |
 | ORD-010 | Riesgo/incidencia/bloqueo | módulo | P2 | actual | Holds manuales/automáticos múltiples con responsable, SLA, resolución optimista e histórico; cualquier activo impide nueva preparación. |
-| ORD-011 | Acciones masivas seguras | módulo | P2 | pendiente | Preview, selección estable, resultado por pedido y replay. |
+| ORD-011 | Acciones masivas seguras | módulo | P2 | parcial | Contrato instalado y apagado: selección explícita ≤500, preview SHA-256, resultados por pedido e idempotencia/replay; faltan esquema autorizado, runtime, job, UI y operación. |
 | ORD-012 | Impresión y documentos | módulo | P2 | pendiente | Albarán, factura, nota y plantilla versionada. |
 | ORD-013 | Archivo y retención | núcleo | P2 | pendiente | Política, exportación, anonimización y obligación fiscal. |
 
@@ -285,7 +285,7 @@ su alcance requiera.
 | AUT-008 | Recetas versionadas | gestionado | P2 | pendiente | Plantillas revisables, testables y reversibles. |
 | AUT-009 | HTTP saliente seguro | módulo | P2 | pendiente | Allowlist, firma, timeout, límites y secretos. |
 | AUT-010 | Aprobación humana | módulo | P2 | pendiente | Pausa, responsable, caducidad y resolución. |
-| AUT-011 | Simulación/dry-run | módulo | P2 | pendiente | Datos de ejemplo sin efectos laterales. |
+| AUT-011 | Simulación/dry-run | módulo | P2 | parcial | Contrato puro sin escritura ni eventos, snapshot acotado y caducidad de 15 minutos; falta superficie servida tras el gate de persistencia R3.5. |
 
 ## INT — Integraciones y portabilidad
 

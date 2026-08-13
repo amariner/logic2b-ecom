@@ -104,6 +104,26 @@ export {
 } from './domain/order-hold';
 
 export {
+  ORDER_BULK_ACTION_TYPES,
+  ORDER_BULK_EXECUTION_OUTCOMES,
+  ORDER_BULK_LIMITS,
+  ORDER_BULK_PREVIEW_REASONS,
+  assertOrderBulkPreviewCurrent,
+  createOrderBulkPreview,
+  orderBulkRowIdempotencyKey,
+  summarizeOrderBulkExecution,
+  type OrderBulkAction,
+  type OrderBulkActionType,
+  type OrderBulkCandidate,
+  type OrderBulkExecutionOutcome,
+  type OrderBulkExecutionRow,
+  type OrderBulkOrderStatus,
+  type OrderBulkPreview,
+  type OrderBulkPreviewReason,
+  type OrderBulkPreviewRow,
+} from './domain/order-bulk-action';
+
+export {
   buildPaidMutation,
   stockAfterDecrement,
   type OrderForPayment,

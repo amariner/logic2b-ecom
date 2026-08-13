@@ -113,12 +113,17 @@ venta o servicios logísticos propios.
   preflight, concurrencia, backup esquema 9, rollout y rollback compatibles.
 - [`adr/0019-edicion-segura-pedidos.md`](adr/0019-edicion-segura-pedidos.md):
   versión de pedido, cobro adicional, reembolso por captura y stock de R3.3.
+- [`adr/0021-acciones-masivas-seguras.md`](adr/0021-acciones-masivas-seguras.md):
+  selección congelada, preview sin efectos y replay por pedido de R3.5;
+  persistencia todavía pendiente de autorización.
 - [`../../migrations/0016_order_amendments.sql`](../../migrations/0016_order_amendments.sql):
   expansión de cantidades vigentes, amendments y asignaciones financieras.
 - [`OPERACION_EDICION_PEDIDOS.md`](OPERACION_EDICION_PEDIDOS.md):
   preflight, rehearsal, conciliación, backup esquema 10 y rollback de R3.3.
 - [`OPERACION_INCIDENCIAS_PEDIDOS.md`](OPERACION_INCIDENCIAS_PEDIDOS.md):
   holds múltiples, SLA, guard de preparación, rehearsal, backup esquema 11 y rollback de R3.4.
+- [`../../src/modules/orders/domain/order-bulk-action.ts`](../../src/modules/orders/domain/order-bulk-action.ts):
+  contrato puro R3.5 de límites, fingerprints, elegibilidad, progreso e idempotencia por fila.
 - [`OPERACION_FULFILLMENT_LINEAS.md`](OPERACION_FULFILLMENT_LINEAS.md):
   preflight, backfill, replay, restore, corte R2.11 y operación parcial R2.12.
 - [`../../scripts/rehearse-r2-fulfillment-lines.mjs`](../../scripts/rehearse-r2-fulfillment-lines.mjs):

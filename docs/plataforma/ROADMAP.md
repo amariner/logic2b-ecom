@@ -110,7 +110,7 @@ Cada migración se diseña y ensaya sobre una copia antes de tocar el esquema vi
 | 28 | **R3.2 Notas, etiquetas y timeline** | Visibilidad interna/cliente, actor, edición auditada y filtros. | ✅ 2026-08-12 |
 | 29 | **R3.3 Edición de pedido** | Añadir/quitar/cantidad/dirección con preview de delta, pago adicional o reembolso y stock. | ✅ 2026-08-12 |
 | 30 | **R3.4 Holds e incidencias** | Bloqueo manual/automático, motivo, responsable, SLA y desbloqueo; preparación no avanza en hold. | ✅ 2026-08-13 |
-| 31 | **R3.5 Acciones masivas** | Selección estable, dry-run, job, progreso, resultados por fila y replay seguro. | ⬜ |
+| 31 | **R3.5 Acciones masivas** | Selección estable, dry-run, job, progreso, resultados por fila y replay seguro. | 🟡 contrato completo; DDL pendiente de autorización |
 | 32 | **R3.6 Ubicaciones** | Modelo y admin de almacenes/tiendas; inventario simple se backfillea a ubicación principal. | ⬜ |
 | 33 | **R3.7 Transferencias** | Borrador→enviado→recibido parcial, discrepancias y movimientos de ledger. | ⬜ |
 | 34 | **R3.8 Conteos y ajustes** | Conteo por ubicación, razón, doble control opcional y auditoría. | ⬜ |
@@ -1009,6 +1009,23 @@ vencimiento, resolución y actividad. `DEMO_MODE` rechaza las mutaciones con
 `5ec8b676-781c-4463-9a18-7aa8a597a8eb`. Backup esquema 11 y runbook en
 `OPERACION_INCIDENCIAS_PEDIDOS.md`.
 
-Siguiente bloque ejecutable: **R3.5 — acciones masivas seguras**. Diseñar antes
-de cualquier DDL la selección estable, dry-run, job, progreso, resultado por
-fila y replay; no crear migración sin superar su gate de arquitectura.
+### R3.5 — acciones masivas seguras — 🟡 contrato completo
+
+ADR-0021 cierra el gate de arquitectura previo al esquema. La primera entrega
+se limita a añadir/quitar etiqueta y crear hold; excluye estado, fulfillment,
+dinero, inventario y proveedores. La selección congela como máximo 500 ids,
+usa fingerprint SHA-256, preview sin efectos de 15 minutos y revalidación por
+pedido. El job futuro procesará 25 filas y su replay solo retomará `pending` o
+`retryable_failure` mediante idempotencia por lote/acción/pedido.
+
+El contrato puro y sus pruebas quedan integrados. `ORD-011` y `AUT-011` están
+registradas como `installed` sin ruta, navegación, job ni efectos. No se creó
+migración, endpoint, UI ni cambio remoto; D1 continúa en `0017` y producción en
+el Worker `5ec8b676-781c-4463-9a18-7aa8a597a8eb`. Gate: **78 suites/469
+tests**, tipos y build en verde; E2E/a11y no aplican porque no cambió ninguna
+superficie servida.
+
+Siguiente incremento bloqueado por decisión reservada: autorizar una migración
+expand-only para `order_bulk_batches` y `order_bulk_batch_rows`. Tras esa
+autorización se implementarán persistencia, job durable, API, panel, operación,
+rehearsal y gates concurrentes sin detener R3.5 a mitad.
