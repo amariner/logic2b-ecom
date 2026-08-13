@@ -1,0 +1,159 @@
+---
+/**
+ * Contacto comercial global de Logic2B Ecommerce.
+ *
+ * El enlace es útil desde el HTML inicial. El script solo reproduce la mejora
+ * progresiva de logic2b.com: entrada al superar el 60 % del viewport, retirada
+ * al alcanzar un pie y suspensión mientras una capa modal está abierta.
+ */
+import { agencyWhatsappHref } from '../lib/contact';
+
+// Solo la ruta: una query puede contener identificadores de checkout, filtros o
+// un `next` del login y no debe viajar a un tercero para identificar la página.
+// La 404 se prerenderiza como `/404.html`, pero ese nombre de artefacto no es
+// una página que el visitante reconozca: se identifica de forma estable.
+const sourcePath = Astro.url.pathname === '/404.html' ? '/404' : Astro.url.pathname;
+const href = agencyWhatsappHref(sourcePath);
+---
+
+{href && (
+  <a
+    href={href}
+    target="_blank"
+    rel="noopener"
+    class="whatsapp-contact"
+    aria-label="Contacta con Logic2B Ecommerce por WhatsApp"
+    data-whatsapp-contact
+  >
+    <span class="whatsapp-contact__icon" aria-hidden="true">
+      <svg viewBox="0 0 32 32" width="17" height="17" fill="currentColor">
+        <path d="M16 .4C7.4.4.5 7.3.5 15.9c0 2.8.7 5.5 2.1 7.8L.3 31.6l8.1-2.1c2.3 1.2 4.8 1.9 7.5 1.9 8.6 0 15.5-7 15.5-15.5S24.6.4 16 .4zm0 28.3c-2.4 0-4.7-.6-6.7-1.8l-.5-.3-4.8 1.3 1.3-4.7-.3-.5a12.7 12.7 0 0 1-2-6.8C2.9 8.7 8.8 2.8 16 2.8s13.1 5.9 13.1 13.1S23.2 28.7 16 28.7zm7.2-9.8c-.4-.2-2.3-1.1-2.7-1.3-.4-.1-.6-.2-.9.2-.3.4-1 1.3-1.2 1.5-.2.2-.4.3-.8.1-.4-.2-1.7-.6-3.2-2-1.2-1-2-2.4-2.2-2.8-.2-.4 0-.6.2-.8l.6-.7c.2-.2.3-.4.4-.7.1-.2 0-.5 0-.7-.1-.2-.9-2.1-1.2-2.9-.3-.7-.6-.6-.9-.6h-.7c-.2 0-.6.1-1 .5-.3.4-1.3 1.3-1.3 3.1s1.3 3.6 1.5 3.9c.2.2 2.6 4 6.4 5.6.9.4 1.6.6 2.1.8.9.3 1.7.2 2.3.1.7-.1 2.3-.9 2.6-1.8.3-.9.3-1.6.2-1.8-.1-.2-.3-.3-.7-.5z" />
+      </svg>
+    </span>
+    <span>Contacta</span>
+  </a>
+)}
+
+<style>
+  .whatsapp-contact {
+    position: fixed;
+    right: max(clamp(1rem, 4vw, 2rem), env(safe-area-inset-right));
+    bottom: calc(max(1rem, env(safe-area-inset-bottom)) + var(--whatsapp-contact-lift, 0px));
+    z-index: 80;
+    display: inline-flex;
+    min-height: 2.75rem;
+    align-items: center;
+    gap: .5625rem;
+    border: 1px solid rgb(255 255 255 / .16);
+    border-radius: 10px;
+    background: rgb(17 19 20 / .94);
+    padding: .375rem 1rem .375rem .375rem;
+    box-shadow: 0 6px 22px rgb(0 0 0 / .28);
+    color: #f7f8f8;
+    font-family: 'Inter Variable', 'Inter Fallback', system-ui, sans-serif;
+    font-size: .92rem;
+    font-weight: 600;
+    line-height: 1;
+    text-decoration: none;
+    transition: opacity 500ms cubic-bezier(.16, 1, .3, 1), transform 500ms cubic-bezier(.16, 1, .3, 1), box-shadow 180ms ease, bottom 180ms ease;
+  }
+  .whatsapp-contact__icon {
+    display: grid;
+    width: 2rem;
+    height: 2rem;
+    flex: 0 0 auto;
+    place-items: center;
+    border-radius: 5px;
+    background: #25d366;
+    color: #ffffff;
+  }
+  .whatsapp-contact:focus-visible {
+    outline: 3px solid #25d366;
+    outline-offset: 3px;
+  }
+  :global(html.whatsapp-contact-enhanced) .whatsapp-contact {
+    pointer-events: none;
+    opacity: 0;
+    transform: translateY(.75rem);
+  }
+  :global(html.whatsapp-contact-enhanced) .whatsapp-contact.is-visible {
+    pointer-events: auto;
+    opacity: 1;
+    transform: translateY(0);
+  }
+  :global(html.whatsapp-contact-enhanced) .whatsapp-contact.is-visible:hover {
+    box-shadow: 0 10px 28px rgb(0 0 0 / .28);
+    transform: translateY(-2px);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .whatsapp-contact { transition: none; }
+    :global(html.whatsapp-contact-enhanced) .whatsapp-contact.is-visible:hover { transform: none; }
+  }
+  @media print {
+    .whatsapp-contact { display: none; }
+  }
+</style>
+
+<script is:inline>
+  (() => {
+    const contact = document.querySelector('[data-whatsapp-contact]');
+    if (!(contact instanceof HTMLElement)) return;
+
+    document.documentElement.classList.add('whatsapp-contact-enhanced');
+    const footers = [...document.querySelectorAll('footer')];
+    const footerVisibility = new WeakMap();
+    let frame = 0;
+
+    const layerOpen = () =>
+      Boolean(
+        document.querySelector('dialog[open], [role="dialog"]:not([hidden])') ||
+        document.documentElement.classList.contains('mobile-menu-open') ||
+        document.body.classList.contains('noddo-menu-open') ||
+        document.body.classList.contains('overflow-hidden'),
+      );
+
+    const fixedBottomLift = () => {
+      let lift = 0;
+      for (const element of document.querySelectorAll('[data-whatsapp-obstruction]')) {
+        if (!(element instanceof HTMLElement)) continue;
+        const style = getComputedStyle(element);
+        if (!['fixed', 'sticky'].includes(style.position) || style.display === 'none' || style.visibility === 'hidden') continue;
+        const rect = element.getBoundingClientRect();
+        const sitsAtBottom = rect.bottom >= window.innerHeight - 2 && rect.top < window.innerHeight;
+        if (sitsAtBottom && rect.right > window.innerWidth * .5 && rect.height < window.innerHeight * .35) {
+          lift = Math.max(lift, Math.ceil(rect.height + 8));
+        }
+      }
+      return lift;
+    };
+
+    const update = () => {
+      frame = 0;
+      const footerVisible = footers.some((footer) => footerVisibility.get(footer) === true);
+      const shown = window.scrollY > window.innerHeight * .6 && !footerVisible && !layerOpen();
+      contact.classList.toggle('is-visible', shown);
+      contact.style.setProperty('--whatsapp-contact-lift', `${fixedBottomLift()}px`);
+    };
+    const schedule = () => { if (!frame) frame = requestAnimationFrame(update); };
+
+    if ('IntersectionObserver' in window) {
+      const observer = new IntersectionObserver((entries) => {
+        for (const entry of entries) footerVisibility.set(entry.target, entry.isIntersecting);
+        schedule();
+      }, { rootMargin: '0px 0px -24px 0px' });
+      for (const footer of footers) observer.observe(footer);
+    }
+    const layerObserver = new MutationObserver(schedule);
+    layerObserver.observe(document.body, {
+      attributes: true,
+      subtree: true,
+      attributeFilter: ['open', 'hidden', 'aria-expanded'],
+    });
+    const rootClassObserver = new MutationObserver(schedule);
+    rootClassObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+    rootClassObserver.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+    window.addEventListener('scroll', schedule, { passive: true });
+    window.addEventListener('resize', schedule, { passive: true });
+    update();
+  })();
+</script>

@@ -105,7 +105,7 @@ const CARD_WIDTHS = [900, 560];
  * aparecer en ninguna captura de la landing. Se inyecta antes de capturar.
  */
 const HIDE_DEMO_CHROME = `(() => {
-  document.querySelectorAll('[data-store-switcher], [data-demo-journey], astro-dev-toolbar').forEach((el) => { el.style.display = 'none'; });
+  document.querySelectorAll('[data-store-switcher], [data-demo-journey], [data-whatsapp-contact], astro-dev-toolbar').forEach((el) => { el.style.display = 'none'; });
   const needles = ['pago está simulado', 'tienda ficticia', 'Modo demo', 'Panel de demostración', 'Cloudflare Access'];
   const nodes = Array.from(document.querySelectorAll('body *'));
   for (const el of nodes) {

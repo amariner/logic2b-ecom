@@ -19,6 +19,23 @@ import { escapeHtml } from './format';
 export const AGENCY_EMAIL = 'hola@logic2b.com';
 /** Formato internacional sin «+» ni espacios. Vacío = el CTA cae a email. */
 export const AGENCY_WHATSAPP = '34626434316';
+/** Texto comercial compartido por el acceso flotante. La ruta se añade en SSR. */
+export const AGENCY_WHATSAPP_MESSAGE =
+  'Hola, me interesa Logic2B Ecommerce. Vengo de la página';
+
+/**
+ * Construye el enlace directo sin depender del navegador ni de JavaScript.
+ * Solo conserva el pathname: una query puede contener un identificador de
+ * checkout, un filtro o el destino del login y nunca debe viajar a un tercero.
+ * Un clon de cliente cambia número y texto en este único módulo.
+ */
+export function agencyWhatsappHref(sourcePath: string): string | null {
+  if (!AGENCY_WHATSAPP) return null;
+  const pathname = sourcePath.split(/[?#]/, 1)[0] || '/';
+  const source = pathname.startsWith('/') ? pathname : `/${pathname}`;
+  const message = `${AGENCY_WHATSAPP_MESSAGE} ${source}.`;
+  return `https://wa.me/${AGENCY_WHATSAPP}?text=${encodeURIComponent(message)}`;
+}
 
 /** Tamaño del catálogo — la pregunta que más ordena el presupuesto. */
 export const CATALOG_SIZES = [

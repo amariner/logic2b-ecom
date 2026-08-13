@@ -3,6 +3,7 @@
 import '../styles/global.css';
 import { jsonLdScript } from '../lib/format';
 import { shopConfig } from '../../shop.config';
+import WhatsAppContact from '../components/WhatsAppContact.astro';
 
 // El color de marca es única fuente de verdad en shop.config.ts (CLAUDE.md §11):
 // lo inyectamos en :root para que TODAS las utilidades `*-brand` de Tailwind lo
@@ -93,5 +94,6 @@ const ogImage = new URL(ogImagePath, Astro.site).href;
   </head>
   <body class="min-h-screen bg-white text-gray-900 antialiased">
     <slot />
+    <WhatsAppContact />
   </body>
 </html>

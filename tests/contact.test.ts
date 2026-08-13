@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { AGENCY_EMAIL, buildContactEmail, contactSchema } from '../src/lib/contact';
+import {
+  AGENCY_EMAIL,
+  AGENCY_WHATSAPP,
+  agencyWhatsappHref,
+  buildContactEmail,
+  contactSchema,
+} from '../src/lib/contact';
 
 const valid = {
   name: 'Marta Ferrer',
@@ -57,5 +63,28 @@ describe('buildContactEmail', () => {
 
   it('traduce el tamaño de catálogo a su etiqueta legible', () => {
     expect(buildContactEmail({ ...valid, catalog: '50-200' }).body_html).toContain('Entre 50 y 200');
+  });
+});
+
+describe('agencyWhatsappHref', () => {
+  it('usa el número central y conserva la ruta de origen en el mensaje', () => {
+    const href = agencyWhatsappHref('/demo/tiendas/arce');
+    expect(href).toContain(`https://wa.me/${AGENCY_WHATSAPP}?text=`);
+    expect(decodeURIComponent(href ?? '')).toContain('/demo/tiendas/arce.');
+    expect(decodeURIComponent(href ?? '')).toContain('Logic2B Ecommerce');
+  });
+
+  it('normaliza orígenes sin barra inicial', () => {
+    expect(decodeURIComponent(agencyWhatsappHref('precios') ?? '')).toContain('/precios.');
+  });
+
+  it('no transmite query ni hash del recorrido a WhatsApp', () => {
+    const href = decodeURIComponent(
+      agencyWhatsappHref('/demo/gracias?session_id=privado#pedido') ?? '',
+    );
+    expect(href).toContain('/demo/gracias.');
+    expect(href).not.toContain('session_id');
+    expect(href).not.toContain('privado');
+    expect(href).not.toContain('#pedido');
   });
 });

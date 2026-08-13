@@ -202,7 +202,7 @@ tienda conservan su radio propio. Bloques, un bloque por sesión:
 > Plan maestro: [`docs/PLAN_FASE11_LANDING_V2.md`](PLAN_FASE11_LANDING_V2.md).
 > Decisiones D1–D6 aprobadas (2026-07-23). El motor NO se toca en esta fase.
 
-### F11.9 — Botón global de contacto por WhatsApp — ⬜ pendiente (mandato 2026-08-12)
+### F11.9 — Botón global de contacto por WhatsApp — ✅ cerrado 2026-08-13
 
 Añadir un acceso flotante de WhatsApp **en todas las superficies visuales del
 proyecto**, con paridad de aspecto y comportamiento respecto al botón vivo de
@@ -240,6 +240,22 @@ mensajería transaccional R7.7: es un canal comercial directo y transversal.
 **Orden:** ejecutar F11.9 en la primera ventana transversal segura después de
 cerrar el bloque principal activo R3.3; no interrumpir una migración ni mezclar
 este cambio visual con la edición transaccional de pedidos.
+
+**Cierre:** `WhatsAppContact.astro` se monta una sola vez desde `Base.astro` y
+alcanza páginas comerciales, escaparates/recorridos, panel, login, ayuda, reset
+y 404. El `wa.me` útil sin JavaScript usa el número central aprobado y añade
+solo el pathname —nunca query ni hash— al mensaje de Logic2B Ecommerce. La
+mejora progresiva replica la píldora oscura de Logic2B, aparece tras el 60 %,
+se retira ante footer, menús o diálogos y se eleva sobre barras inferiores
+declaradas; impresión y capturas automáticas la excluyen. Sin dependencia,
+backend, migración, precio ni promesa nueva.
+
+Gate previo a integración: `pnpm check` con 73 suites/443 tests, tipos y build;
+E2E local 67/67; barrido a11y de 280 superficies más seis revalidaciones
+focales sin hallazgos pendientes; navegador real en escritorio/375 confirma
+44 px, foco, menú/modal, footer y barra inferior. Lighthouse local mantiene
+100 en accesibilidad, buenas prácticas y SEO y TBT 0; la mediana de rendimiento
+citable queda para el corte servido posterior al deploy.
 
 ### F11.1 — Capturas reales de tiendas, panel y flujo (2026-07-23)
 
@@ -1567,31 +1583,29 @@ la cola de temas, coordinados sin mezclar worktrees ni cambios abiertos.
 
 ## Próxima sesión
 
-### F11.9 — contacto global por WhatsApp — ⬜ siguiente
+### R3.4 — holds e incidencias — ⬜ siguiente
 
-R3.3 queda cerrado y desplegado con `ORD-005`: edición versionada de líneas o
-dirección, preview y revalidación servidor, Stripe Checkout para incrementos,
-reembolso durable repartido por captura y reserva/reposición de stock. La
-migración aditiva `0016`, backup esquema 10, 73 suites/440 tests, reset,
-rehearsal sobre el backup remoto, E2E y a11y cubren el contrato; D1 sirve
-`0016` y Worker `6e61c22a-8291-436f-bea3-fdc27e6bb2af`. ADR-0019 y el runbook
-operativo viven en `docs/plataforma/`.
+F11.9 queda cerrado en repositorio: contacto global nativo y progresivo,
+configuración central, origen sin query/hash, retirada ante footer/capas,
+elevación sobre barras inferiores y exclusión de impresión/capturas. El gate
+local suma 73 suites/443 tests, E2E 67/67, barrido a11y completo y verificación
+real desktop/375; la evidencia del corte servido se completa en su entrada de
+cierre.
 
-El siguiente bloque atómico es F11.9, ya mandatado y descrito en Fase 11: un
-componente compartido de contacto por WhatsApp en todas las superficies
-visuales. No es un tema ni puede duplicar lógica por colección. Tras cerrarlo,
-la cabeza principal vuelve al orden 30 de `docs/plataforma/ROADMAP.md`: R3.4,
-holds e incidencias.
+La cabeza principal vuelve al orden 30 de `docs/plataforma/ROADMAP.md`: R3.4
+debe diseñar e implementar holds manuales/automáticos con motivo, responsable,
+SLA y resolución, y bloquear cualquier preparación mientras el pedido esté en
+hold. El bloque necesita migración aditiva, por lo que el veto de arquitectura
+exige autorización expresa antes de materializarla o aplicarla.
 
 Las entradas que siguen son el histórico de cierres anteriores y no cambian el
 orden actual.
 
-### Cola transversal autorizada — F11.9 contacto global por WhatsApp
+### Cola transversal — F11.9 contacto global por WhatsApp — ✅ cerrada 2026-08-13
 
-Tras cerrar R3.3, la primera ventana visual/comercial segura ejecuta F11.9: el
-botón flotante compartido, con paridad respecto a `logic2b.com`, en todas las
-superficies visuales. Su contrato y gates están definidos en «Fase 11»; esta
-cola no desplaza el bloque principal ni debe mezclarse con su migración.
+El componente compartido y sus gates se documentan en «Fase 11». La cola
+transversal vuelve a quedar libre; no desplaza R3.4 ni se mezcla con su futura
+migración.
 
 ### C15.1 — aislamiento seguro de todas las demos — ✅ cerrado 2026-08-04
 

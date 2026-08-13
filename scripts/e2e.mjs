@@ -16,6 +16,15 @@ function check(name, condition, detail = '') {
   if (!ok) failures++;
 }
 
+function checkWhatsappContact(name, html, pathname) {
+  check(
+    `${name} incluye contacto WhatsApp con origen`,
+    html.includes('data-whatsapp-contact')
+      && html.includes('Contacta')
+      && html.includes(encodeURIComponent(pathname)),
+  );
+}
+
 async function json(res) {
   try {
     return await res.json();
@@ -29,11 +38,13 @@ const catalog = await fetch(`${BASE}/demo/tiendas/arce`);
 const catalogHtml = await catalog.text();
 check('ARCE es la demo principal disponible', catalog.ok && catalogHtml.includes('Butaca Alba'));
 check('ARCE enlaza su ficha local', catalogHtml.includes('/demo/tiendas/arce/arc-silla-alba'));
+checkWhatsappContact('catálogo ARCE', catalogHtml, '/demo/tiendas/arce');
 
 const product = await fetch(`${BASE}/demo/tiendas/arce/arc-silla-alba`);
 const productHtml = await product.text();
 check('ficha ARCE disponible', product.ok && productHtml.includes('680,00'));
 check('ficha conserva acción local de carrito', productHtml.includes('data-commerce-action="add-to-cart"'));
+checkWhatsappContact('ficha ARCE', productHtml, '/demo/tiendas/arce/arc-silla-alba');
 
 for (const [surface, path] of [
   ['cart', '/demo/tiendas/arce/carrito'],
@@ -43,6 +54,21 @@ for (const [surface, path] of [
   const response = await fetch(`${BASE}${path}`);
   const html = await response.text();
   check(`${surface} ARCE disponible`, response.ok && html.includes(`data-commerce-surface="${surface}"`));
+  checkWhatsappContact(`${surface} ARCE`, html, path);
+}
+
+for (const [surface, path] of [
+  ['landing', '/'],
+  ['arquitectura', '/arquitectura'],
+  ['catálogo de temas', '/temas'],
+  ['ayuda', '/ayuda'],
+  ['reset', '/demo/reset'],
+  ['404', '/404'],
+]) {
+  const requestPath = surface === '404' ? '/esta-ruta-no-existe' : path;
+  const response = await fetch(`${BASE}${requestPath}`);
+  const html = await response.text();
+  checkWhatsappContact(surface, html, path);
 }
 
 // ── 2. Ningún endpoint público escribe o consulta comercio en la demo ──
@@ -86,6 +112,7 @@ check('login demo devuelve cookie de sesión', login.status === 303 && cookie.st
 
 const adminResponse = await fetch(adminUrl('/demo/admin'), { headers: { cookie } });
 const adminHtml = await adminResponse.text();
+checkWhatsappContact('panel', adminHtml, '/demo/admin');
 check('panel privado no permite caché compartida', adminResponse.headers.get('cache-control')?.includes('no-store'));
 check('panel usa la identidad Logic2B Gestión', adminHtml.includes('Logic2B Gestión'));
 check('panel declara fixtures independientes', adminHtml.includes('independientes de los escaparates'));
