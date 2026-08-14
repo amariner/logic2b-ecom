@@ -201,6 +201,7 @@ const ADMIN_PAGES = [
   { id: 'producto-variantes', resolve: PRODUCT_VARIANTS_OF('sum-shell-07') },
   { id: 'ubicaciones', url: '/demo/admin/ubicaciones' },
   { id: 'transferencias', url: '/demo/admin/transferencias' },
+  { id: 'conteos', url: '/demo/admin/conteos' },
   { id: 'envios', url: '/demo/admin/envios' },
   { id: 'emails', url: '/demo/admin/emails' },
 ];

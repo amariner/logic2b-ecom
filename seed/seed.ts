@@ -258,6 +258,9 @@ export function seedStatements(): string[] {
     'DELETE FROM inventory_reservation_events',
     'DELETE FROM inventory_reservation_lines',
     'DELETE FROM inventory_reservations',
+    'DELETE FROM inventory_count_movements',
+    'DELETE FROM inventory_count_lines',
+    'DELETE FROM inventory_counts',
     'DELETE FROM inventory_transfer_movements',
     'DELETE FROM inventory_transfer_receipt_lines',
     'DELETE FROM inventory_transfer_receipts',
@@ -438,6 +441,21 @@ export function seedStatements(): string[] {
       `CASE WHEN b.on_hand >= 3 THEN 3 ELSE 1 END, 0, 0, 0, ` +
       `datetime('now', '-2 hours'), datetime('now', '-2 hours') ` +
       `FROM inventory_balances b WHERE b.on_hand > 0 ORDER BY b.variant_id LIMIT 1`,
+    `INSERT INTO inventory_counts (` +
+      `id, count_number, location_id, status, reason, requires_approval, counted_by, ` +
+      `version, create_idempotency_key, note, created_at, updated_at` +
+    `) VALUES (` +
+      `'cnt_demo_borrador', 'CNT-DEMO-0001', ` +
+      `(SELECT id FROM inventory_locations WHERE code = 'principal'), ` +
+      `'draft', 'cycle_count', 1, 'equipo-demo', 1, 'count:demo:create:0001', ` +
+      `'Conteo cíclico preparado con doble control.', datetime('now', '-1 hour'), datetime('now', '-1 hour'))`,
+    `INSERT INTO inventory_count_lines (` +
+      `id, count_id, variant_id, expected_quantity, counted_quantity, delta, ` +
+      `expected_movement_version, created_at` +
+    `) SELECT 'icl_demo_borrador_1', 'cnt_demo_borrador', b.variant_id, b.on_hand, ` +
+      `CASE WHEN b.on_hand > 0 THEN b.on_hand - 1 ELSE 0 END, ` +
+      `CASE WHEN b.on_hand > 0 THEN -1 ELSE 0 END, b.version, datetime('now', '-1 hour') ` +
+      `FROM inventory_balances b ORDER BY b.variant_id LIMIT 1`,
   );
 
   for (const prod of products) {

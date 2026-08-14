@@ -131,6 +131,12 @@ venta o servicios logísticos propios.
   borradores, líneas, recibos parciales y enlaces al ledger por ubicación.
 - [`OPERACION_TRANSFERENCIAS_INVENTARIO.md`](OPERACION_TRANSFERENCIAS_INVENTARIO.md):
   ensayo, rollout, reconciliación, incidencias y rollback expand-only R3.7.
+- [`adr/0024-conteos-ajustes-inventario.md`](adr/0024-conteos-ajustes-inventario.md):
+  foto versionada, doble control y corrección append-only de R3.8.
+- [`../../migrations/0021_inventory_counts.sql`](../../migrations/0021_inventory_counts.sql):
+  sesiones, líneas congeladas y enlaces de ajuste al ledger por ubicación.
+- [`OPERACION_CONTEOS_INVENTARIO.md`](OPERACION_CONTEOS_INVENTARIO.md):
+  ensayo, rollout, reconciliación, incidencias y rollback expand-only R3.8.
 - [`../../migrations/0016_order_amendments.sql`](../../migrations/0016_order_amendments.sql):
   expansión de cantidades vigentes, amendments y asignaciones financieras.
 - [`OPERACION_EDICION_PEDIDOS.md`](OPERACION_EDICION_PEDIDOS.md):

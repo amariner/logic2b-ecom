@@ -200,6 +200,10 @@ const transfersHtml = await (await fetch(`${BASE}/demo/admin/transferencias`, { 
 check('transferencias muestran borrador trazable y demo inerte',
   transfersHtml.includes('TRF-DEMO-0001') && transfersHtml.includes('Borrador')
     && transfersHtml.includes('stock en tránsito no se vende') && transfersHtml.includes('disabled'));
+const countsHtml = await (await fetch(`${BASE}/demo/admin/conteos`, { headers: { cookie } })).text();
+check('conteos muestran foto versionada, doble control y demo inerte',
+  countsHtml.includes('CNT-DEMO-0001') && countsHtml.includes('Conteo cíclico')
+    && countsHtml.includes('Doble') && countsHtml.includes('disabled'));
 let variantId;
 if (variantProductId) {
   const variantsHtml = await (await fetch(
@@ -282,6 +286,8 @@ for (const [label, method, path] of [
   ['alta de incidencia', 'POST', '/api/admin/order-holds'],
   ['resolución de incidencia', 'PATCH', '/api/admin/order-holds/demo-hold-active'],
   ['ubicación de inventario', 'POST', '/api/admin/inventory-locations'],
+  ['transferencia de inventario', 'POST', '/api/admin/inventory-transfers'],
+  ['conteo de inventario', 'POST', '/api/admin/inventory-counts'],
 ]) {
   const response = await fetch(adminUrl(path), {
     method,
@@ -327,8 +333,8 @@ check(
     && backupSql.includes('INSERT INTO attribute_definitions') && backupSql.includes('INSERT INTO product_attribute_values'),
 );
 check(
-  'backup esquema 14 conserva operación, ubicaciones y transferencias',
-  backupSql.includes('logic2b-backup-schema: 14')
+  'backup esquema 15 conserva operación, ubicaciones, transferencias y conteos',
+  backupSql.includes('logic2b-backup-schema: 15')
     && backupSql.includes('INSERT INTO payments')
     && backupSql.includes('INSERT INTO payment_transactions')
     && backupSql.includes('DELETE FROM refunds')
@@ -344,11 +350,13 @@ check(
     && backupSql.includes('INSERT INTO order_hold_events')
     && backupSql.includes('DELETE FROM order_bulk_batches')
     && backupSql.includes('DELETE FROM order_bulk_batch_rows')
-    && backupSql.includes('0020_inventory_transfers')
+    && backupSql.includes('0021_inventory_counts')
     && backupSql.includes('INSERT INTO inventory_locations')
     && backupSql.includes('INSERT INTO inventory_location_balances')
     && backupSql.includes('INSERT INTO inventory_transfers')
     && backupSql.includes('INSERT INTO inventory_transfer_lines')
+    && backupSql.includes('INSERT INTO inventory_counts')
+    && backupSql.includes('INSERT INTO inventory_count_lines')
 );
 
 if (failures > 0) {

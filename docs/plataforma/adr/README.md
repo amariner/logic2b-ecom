@@ -29,3 +29,4 @@ para ocultar una decisión no es válido.
 | [0021](0021-acciones-masivas-seguras.md) | Selección congelada, preview sin efectos y replay por pedido | accepted; R3.5 implementado |
 | [0022](0022-ubicaciones-inventario.md) | Ubicación principal compatible y transición desde ledger global | accepted; R3.6 implementado localmente |
 | [0023](0023-transferencias-inventario.md) | Transferencias trazables sin adelantar asignación | accepted; R3.7 implementado localmente |
+| [0024](0024-conteos-ajustes-inventario.md) | Conteos versionados, doble control y ajustes append-only | accepted; R3.8 implementado localmente |

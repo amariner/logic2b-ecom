@@ -19,7 +19,7 @@ const { title, active } = Astro.props;
 
 const nav = adminNavigationFor(runtimePlatform);
 const iconFor: Record<string, AdminIconName> = {
-  pedidos: 'orders', productos: 'products', ubicaciones: 'store', transferencias: 'shipping', envios: 'shipping', emails: 'email',
+  pedidos: 'orders', productos: 'products', ubicaciones: 'store', transferencias: 'shipping', conteos: 'products', envios: 'shipping', emails: 'email',
 };
 ---
 
@@ -69,7 +69,7 @@ const iconFor: Record<string, AdminIconName> = {
           <a href="/demo/admin/login?salir=1" class="flex size-11 items-center justify-center rounded-xl text-muted-foreground hover:bg-muted hover:text-foreground" aria-label="Cerrar sesión"><AdminIcon name="logout" /></a>
         </div>
       </div>
-      <nav class="flex gap-1 overflow-x-auto border-t border-border px-3 py-2" aria-label="Navegación móvil del panel">
+      <nav data-admin-mobile-nav class="flex gap-1 overflow-x-auto border-t border-border px-3 py-2" aria-label="Navegación móvil del panel">
         {nav.map((item) => <a href={item.href} aria-current={active === item.id ? 'page' : undefined} class:list={['flex min-h-11 shrink-0 items-center gap-2 rounded-xl px-3 text-sm font-medium', active === item.id ? 'bg-foreground text-background' : 'text-muted-foreground hover:bg-muted hover:text-foreground']}><AdminIcon name={iconFor[item.id] ?? 'orders'} class="size-4" />{item.label}</a>)}
       </nav>
       <div class="border-t border-sky-200 bg-sky-50 px-4 py-2 text-center text-[0.7rem] font-medium text-sky-950">Demo de solo lectura · datos ficticios independientes</div>
@@ -91,4 +91,8 @@ const iconFor: Record<string, AdminIconName> = {
       is:inline
     ></script>
   )}
+  <script>
+    document.querySelector<HTMLElement>('[data-admin-mobile-nav] [aria-current="page"]')
+      ?.scrollIntoView({ block: 'nearest', inline: 'center' });
+  </script>
 </Base>

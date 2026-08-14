@@ -1,0 +1,73 @@
+---
+import Admin from '../../../layouts/Admin.astro';
+import AdminPageHeader from '../../../components/admin/AdminPageHeader.astro';
+import { createInventoryCountOperations } from '../../../composition/inventory-count-operations';
+import { createInventoryLocationOperations } from '../../../composition/inventory-location-operations';
+
+export const prerender = false;
+const readOnly = Astro.locals.runtime.env.DEMO_MODE === 'true';
+const operations = createInventoryCountOperations(Astro.locals.runtime.env.DB);
+const [records, locations, stockOptions] = await Promise.all([
+  operations.list(),
+  createInventoryLocationOperations(Astro.locals.runtime.env.DB).list(),
+  operations.stockOptions(),
+]);
+const counts = (await Promise.all(records.map((record) => operations.find(record.id))))
+  .filter((detail) => detail !== null);
+const activeLocations = locations.filter((location) => location.status === 'active');
+const statusLabel = { draft: 'Borrador', pending_approval: 'Pendiente de revisión', applied: 'Aplicado' } as const;
+const statusClass = {
+  draft: 'bg-muted text-muted-foreground',
+  pending_approval: 'bg-amber-50 text-amber-900 ring-1 ring-amber-200',
+  applied: 'bg-emerald-50 text-emerald-900 ring-1 ring-emerald-200',
+} as const;
+const reasonLabel = { cycle_count: 'Conteo cíclico', reconciliation: 'Conciliación', damage: 'Daño' } as const;
+---
+
+<Admin title="Conteos" active="conteos">
+  <AdminPageHeader eyebrow="Inventario" title="Conteos y ajustes" description="Compara el stock físico por ubicación y aplica diferencias auditadas sin editar balances." />
+
+  <section class="mt-6 grid gap-4 sm:grid-cols-3" aria-label="Resumen de conteos">
+    {(['draft', 'pending_approval', 'applied'] as const).map((status) => <div class="rounded-2xl border border-border bg-card p-4 shadow-sm"><p class="text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">{statusLabel[status]}</p><p class="mt-2 font-display text-2xl">{records.filter((record) => record.status === status).length}</p></div>)}
+  </section>
+
+  <section class="mt-6 rounded-2xl border border-border bg-card shadow-sm" aria-labelledby="count-list-title">
+    <div class="flex flex-wrap items-center justify-between gap-3 border-b border-border p-5"><div><h2 id="count-list-title" class="font-display text-xl">Sesiones de conteo</h2><p class="mt-1 text-sm text-muted-foreground">{records.length} sesiones · cada una conserva la versión observada</p></div>{readOnly && <span class="rounded-full bg-sky-50 px-3 py-1 text-xs font-semibold text-sky-800 ring-1 ring-sky-200">Solo lectura</span>}</div>
+    <div class="grid gap-4 p-4 sm:p-5 xl:grid-cols-2">
+      {counts.length === 0 && <div class="rounded-2xl border border-dashed border-border p-8 text-center text-sm text-muted-foreground xl:col-span-2">Todavía no hay conteos.</div>}
+      {counts.map(({ count, lines }) => <article class="rounded-2xl border border-border p-4 sm:p-5">
+        <div class="flex flex-wrap items-start justify-between gap-3"><div><p class="font-mono text-xs text-muted-foreground">{count.count_number}</p><h3 class="mt-1 font-display text-lg">{count.location_name}</h3><p class="mt-1 text-xs text-muted-foreground">{reasonLabel[count.reason]} · contador: {count.counted_by}</p></div><span class:list={['rounded-full px-2.5 py-1 text-xs font-semibold', statusClass[count.status]]}>{statusLabel[count.status]}</span></div>
+        <dl class="mt-4 grid grid-cols-3 gap-3 border-y border-border py-4 text-sm"><div><dt class="text-xs text-muted-foreground">Líneas</dt><dd class="mt-1 font-semibold">{count.line_count}</dd></div><div><dt class="text-xs text-muted-foreground">Diferencia</dt><dd class="mt-1 font-semibold">{count.absolute_delta}</dd></div><div><dt class="text-xs text-muted-foreground">Control</dt><dd class="mt-1 font-semibold">{count.requires_approval === 1 ? 'Doble' : 'Directo'}</dd></div></dl>
+        <ul class="mt-4 space-y-2 text-sm">{lines.map((line) => <li class="flex flex-wrap justify-between gap-2 rounded-xl bg-muted/60 px-3 py-2"><span>{line.product_name}{line.variant_title && <span class="text-muted-foreground"> · {line.variant_title}</span>}</span><span class="font-mono text-xs text-muted-foreground">{line.sku} · {line.expected_quantity} → {line.counted_quantity} ({line.delta > 0 ? '+' : ''}{line.delta})</span></li>)}</ul>
+        {count.status === 'draft' && <form data-count-action data-endpoint={`/api/admin/inventory-counts/${count.id}/submit`} class="mt-4"><input type="hidden" name="expected_version" value={count.version} /><p data-action-status role="status" aria-live="polite" class="min-h-6 text-sm text-muted-foreground"></p><button type="submit" disabled={readOnly} class="min-h-11 rounded-xl bg-foreground px-5 text-sm font-semibold text-background disabled:cursor-not-allowed disabled:opacity-45">{count.requires_approval === 1 ? 'Enviar a revisión' : 'Aplicar ajuste'}</button></form>}
+        {count.status === 'pending_approval' && <form data-count-approve data-endpoint={`/api/admin/inventory-counts/${count.id}/approve`} class="mt-4 rounded-xl border border-border p-3"><input type="hidden" name="expected_version" value={count.version} /><label class="text-sm font-semibold">Referencia del revisor<input name="reviewer_id" required minlength="2" maxlength="120" disabled={readOnly} placeholder="responsable-almacen" class="mt-2 min-h-11 w-full rounded-xl border border-input bg-background px-3 font-normal disabled:opacity-100" /></label><p data-action-status role="status" aria-live="polite" class="mt-2 min-h-6 text-sm text-muted-foreground"></p><button type="submit" disabled={readOnly} class="min-h-11 rounded-xl bg-foreground px-5 text-sm font-semibold text-background disabled:cursor-not-allowed disabled:opacity-45">Revisar y aplicar</button></form>}
+      </article>)}
+    </div>
+  </section>
+
+  <section class="mt-6 grid gap-6 xl:grid-cols-[minmax(0,1fr)_22rem]">
+    <form data-count-create class="rounded-2xl border border-border bg-card p-5 shadow-sm">
+      <h2 class="font-display text-lg">Nueva sesión</h2><p class="mt-1 text-sm text-muted-foreground">Registra hasta tres variantes. La aplicación se detiene si el saldo cambia.</p>
+      <div class="mt-5 grid gap-4 sm:grid-cols-2"><label class="text-sm font-semibold">Ubicación<select name="location_id" required disabled={readOnly} class="mt-2 min-h-11 w-full rounded-xl border border-input bg-background px-3 font-normal disabled:opacity-100">{activeLocations.map((location) => <option value={location.id}>{location.name}</option>)}</select></label><label class="text-sm font-semibold">Motivo<select name="reason" disabled={readOnly} class="mt-2 min-h-11 w-full rounded-xl border border-input bg-background px-3 font-normal disabled:opacity-100"><option value="cycle_count">Conteo cíclico</option><option value="reconciliation">Conciliación</option><option value="damage">Daño</option></select></label><label class="text-sm font-semibold">Referencia del contador<input name="counted_by" required minlength="2" maxlength="120" value="operaciones" disabled={readOnly} class="mt-2 min-h-11 w-full rounded-xl border border-input bg-background px-3 font-normal disabled:opacity-100" /></label><label class="flex min-h-11 items-center gap-3 self-end rounded-xl border border-input px-3 text-sm font-semibold"><input name="requires_approval" type="checkbox" disabled={readOnly} class="size-4" /> Exigir doble control</label></div>
+      <div class="mt-4 grid gap-3">{[0, 1, 2].map((index) => <div data-count-line class="grid gap-3 rounded-xl bg-muted/60 p-3 sm:grid-cols-[minmax(0,1fr)_8rem]"><label class="text-sm font-semibold">Variante {index + 1}{index > 0 && <span class="font-normal text-muted-foreground"> · opcional</span>}<select name="variant_id" required={index === 0} disabled={readOnly} class="mt-2 min-h-11 w-full rounded-xl border border-input bg-background px-3 font-normal disabled:opacity-100"><option value="">Selecciona…</option>{stockOptions.map((option) => <option value={option.variant_id} data-location-id={option.location_id} data-on-hand={option.on_hand}>{option.product_name} · {option.sku} · físico {option.on_hand}</option>)}</select></label><label class="text-sm font-semibold">Contado<input name="counted_quantity" type="number" min="0" max="1000000" disabled={readOnly} class="mt-2 min-h-11 w-full rounded-xl border border-input bg-background px-3 font-normal disabled:opacity-100" /></label></div>)}</div>
+      <label class="mt-4 block text-sm font-semibold">Nota opcional<input name="note" maxlength="500" disabled={readOnly} class="mt-2 min-h-11 w-full rounded-xl border border-input bg-background px-3 font-normal disabled:opacity-100" /></label>
+      <p data-create-status role="status" aria-live="polite" class="mt-3 min-h-6 text-sm text-muted-foreground"></p><button type="submit" disabled={readOnly} class="min-h-11 rounded-xl bg-foreground px-5 text-sm font-semibold text-background disabled:cursor-not-allowed disabled:opacity-45">Crear borrador</button>
+    </form>
+    <aside class="h-fit rounded-2xl border border-border bg-card p-5 shadow-sm"><h2 class="font-display text-lg">Ajuste seguro</h2><ol class="mt-3 space-y-3 text-sm leading-6 text-muted-foreground"><li><strong class="text-foreground">1. Congela:</strong> saldo y versión quedan en la sesión.</li><li><strong class="text-foreground">2. Revalida:</strong> cualquier movimiento intermedio detiene el ajuste.</li><li><strong class="text-foreground">3. Corrige:</strong> la diferencia crea un movimiento auditable; nunca reescribe el historial.</li></ol></aside>
+  </section>
+
+  {!readOnly && <script>
+    const keyFor = (form: HTMLFormElement, scope: string) => form.dataset.idempotencyKey ??= `${scope}:${crypto.randomUUID()}`;
+    const show = (node: HTMLElement | null, message: string, error = false) => { if (!node) return; node.textContent = message; node.classList.toggle('text-red-700', error); };
+    const post = async (endpoint: string, body: unknown) => fetch(endpoint, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) });
+    const createForm = document.querySelector<HTMLFormElement>('[data-count-create]');
+    const locationSelect = createForm?.querySelector('[name="location_id"]') as HTMLSelectElement | null | undefined;
+    const syncOptions = () => { const location = locationSelect?.value; createForm?.querySelectorAll<HTMLOptionElement>('[data-location-id]').forEach((option) => { option.hidden = option.dataset.locationId !== location; if (option.hidden && option.selected) option.selected = false; }); };
+    const syncCounted = (select: HTMLSelectElement) => { const input = select.closest('[data-count-line]')?.querySelector<HTMLInputElement>('[name="counted_quantity"]'); if (input && select.selectedOptions[0]?.dataset.onHand !== undefined) input.value = select.selectedOptions[0].dataset.onHand!; };
+    locationSelect?.addEventListener('change', syncOptions); syncOptions();
+    createForm?.querySelectorAll('[name="variant_id"]').forEach((node) => { const select = node as unknown as HTMLSelectElement; select.addEventListener('change', () => syncCounted(select)); });
+    createForm?.addEventListener('submit', async (event) => { event.preventDefault(); const status = createForm.querySelector<HTMLElement>('[data-create-status]'); show(status, 'Guardando…'); const data = new FormData(createForm); const lines = [...createForm.querySelectorAll<HTMLElement>('[data-count-line]')].flatMap((row) => { const variantNode = row.querySelector('[name="variant_id"]') as HTMLSelectElement | null; const countedNode = row.querySelector('[name="counted_quantity"]') as HTMLInputElement | null; const variant = Number(variantNode?.value); const counted = Number(countedNode?.value); return variant > 0 && Number.isInteger(counted) && counted >= 0 ? [{ variant_id: variant, counted_quantity: counted }] : []; }); const response = await post('/api/admin/inventory-counts', { location_id: Number(data.get('location_id')), reason: String(data.get('reason')), requires_approval: data.get('requires_approval') === 'on', counted_by: String(data.get('counted_by')), note: String(data.get('note') ?? ''), lines, idempotency_key: keyFor(createForm, 'count:create') }); const payload = await response.json() as { error?: string }; if (!response.ok) return show(status, payload.error ?? 'No se pudo crear.', true); location.reload(); });
+    document.querySelectorAll<HTMLFormElement>('[data-count-action]').forEach((form) => form.addEventListener('submit', async (event) => { event.preventDefault(); const status = form.querySelector<HTMLElement>('[data-action-status]'); show(status, 'Aplicando…'); const response = await post(form.dataset.endpoint!, { expected_version: Number(new FormData(form).get('expected_version')), idempotency_key: keyFor(form, 'count:submit') }); const payload = await response.json() as { error?: string }; if (!response.ok) return show(status, payload.error ?? 'No se pudo aplicar.', true); location.reload(); }));
+    document.querySelectorAll<HTMLFormElement>('[data-count-approve]').forEach((form) => form.addEventListener('submit', async (event) => { event.preventDefault(); const status = form.querySelector<HTMLElement>('[data-action-status]'); show(status, 'Revisando…'); const data = new FormData(form); const response = await post(form.dataset.endpoint!, { expected_version: Number(data.get('expected_version')), reviewer_id: String(data.get('reviewer_id')), idempotency_key: keyFor(form, 'count:approve') }); const payload = await response.json() as { error?: string }; if (!response.ok) return show(status, payload.error ?? 'No se pudo aprobar.', true); location.reload(); }));
+  </script>}
+</Admin>

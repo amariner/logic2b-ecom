@@ -113,7 +113,7 @@ Cada migración se diseña y ensaya sobre una copia antes de tocar el esquema vi
 | 31 | **R3.5 Acciones masivas** | Selección estable, dry-run, job, progreso, resultados por fila y replay seguro. | ✅ 2026-08-14 |
 | 32 | **R3.6 Ubicaciones** | Modelo y admin de almacenes/tiendas; inventario simple se backfillea a ubicación principal. | ✅ 2026-08-14; D1 aplicada, Worker pendiente |
 | 33 | **R3.7 Transferencias** | Borrador→enviado→recibido parcial, discrepancias y movimientos de ledger. | ✅ 2026-08-14; local, sin deploy |
-| 34 | **R3.8 Conteos y ajustes** | Conteo por ubicación, razón, doble control opcional y auditoría. | ⬜ |
+| 34 | **R3.8 Conteos y ajustes** | Conteo por ubicación, razón, doble control opcional y auditoría. | ✅ 2026-08-14; local, sin deploy |
 | 35 | **R3.9 Motor de asignación** | Reglas deterministas por stock, prioridad, mercado/canal y coste; explicación guardada. | ⬜ |
 | 36 | **R3.10 Devoluciones/RMA** | Solicitud, elegibilidad, recepción, inspección, resolución, reembolso/cambio y reposición. | ⬜ |
 | 37 | **R3.11 Documentos operativos** | Albarán, factura/rectificativa mediante conector o plantilla, etiquetas internas y versionado. | ⬜ |
@@ -1072,3 +1072,30 @@ la revisión visual real confirma 0 overflow horizontal. El gate compartido
 queda en 501/504 por tres fallos exclusivos del tema Monte en curso; el corte
 limpio aislado pasa **88 suites/504 tests**, tipos y build. Sin D1 remota ni
 deploy de Worker.
+
+### R3.8 — conteos y ajustes — ✅ cerrado local 2026-08-14
+
+ADR-0024 y `0021_inventory_counts.sql` materializan sesiones por ubicación con
+saldo y versión congelados, motivos cerrados, doble control opcional y enlace
+exacto al movimiento append-only. Aplicar revalida la foto completa: cualquier
+venta, reserva, transferencia u otro ajuste intermedio invalida la sesión sin
+escribir parcialmente. Daño no aumenta stock y ninguna corrección puede dejar
+el físico por debajo del reservado.
+
+`INV-008` añade API, navegación y panel responsive. El flujo directo aplica al
+someter; el flujo controlado exige un revisor distinto del contador. Creación,
+envío a revisión y aprobación son versionados, idempotentes y auditados. La
+principal sigue pasando por el ledger global; una secundaria no altera el stock
+vendible antes de R3.9. Demo pública inerte y backup esquema 15; runbook en
+`OPERACION_CONTEOS_INVENTARIO.md`.
+
+Rehearsal sobre la D1 local real en `0020`: 282 variantes, 2 ubicaciones, 1
+transferencia, hash previo
+`f464f25cca2a6809138abf878bbfd18f6f3787eb094155c886854b93a2cbc8b6`,
+dump de 458.354 bytes, restore íntegro y cero fallos FK. `0021` y 616 sentencias
+de seed se aplicaron solo en local. E2E completo, demo inerte y a11y
+`admin:conteos` a 1440/375 están en verde. La revisión visual corrigió el foco
+horizontal de la navegación móvil sobre la sección activa y confirma 0 overflow.
+El gate compartido queda en 511/514 por tres fallos exclusivos del tema Monte;
+el corte limpio aislado pasa **92 suites/514 tests**, tipos y build. Sin D1
+remota ni deploy de Worker.

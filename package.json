@@ -28,7 +28,8 @@
     "db:rehearse:order-holds": "node scripts/rehearse-r3-order-holds.mjs",
     "db:rehearse:order-bulk-actions": "node scripts/rehearse-r3-order-bulk-actions.mjs",
     "db:rehearse:inventory-locations": "node scripts/rehearse-r3-inventory-locations.mjs",
-    "db:rehearse:inventory-transfers": "node scripts/rehearse-r3-inventory-transfers.mjs"
+    "db:rehearse:inventory-transfers": "node scripts/rehearse-r3-inventory-transfers.mjs",
+    "db:rehearse:inventory-counts": "node scripts/rehearse-r3-inventory-counts.mjs"
   },
   "dependencies": {
     "@astrojs/cloudflare": "^12.6.0",
