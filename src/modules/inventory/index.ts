@@ -32,6 +32,24 @@ export { createD1InventoryLedger } from './infrastructure/d1-inventory-ledger';
 export { createD1InventoryReservations } from './infrastructure/d1-inventory-reservations';
 export { createD1InventoryLocations, type InventoryLocationRecord } from './infrastructure/d1-inventory-locations';
 export {
+  createD1InventoryTransfers,
+  type D1InventoryTransfers,
+  type InventoryTransferDetail,
+  type InventoryTransferLineRecord,
+  type InventoryTransferRecord,
+  type InventoryTransferStockOption,
+} from './infrastructure/d1-inventory-transfers';
+export {
+  INVENTORY_TRANSFER_POLICY,
+  INVENTORY_TRANSFER_STATUSES,
+  assertInventoryTransferDraft,
+  assertInventoryTransferReceipt,
+  transferStatusAfterReceipt,
+  type InventoryTransferLineDraft,
+  type InventoryTransferReceiptDraft,
+  type InventoryTransferStatus,
+} from './domain/inventory-transfer';
+export {
   INVENTORY_LOCATION_KINDS,
   INVENTORY_LOCATION_STATUSES,
   assertInventoryLocationInput,

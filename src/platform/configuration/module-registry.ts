@@ -98,12 +98,17 @@ export const MODULE_DESCRIPTORS = [
     wikiLinks: [ARCHITECTURE_WIKI], navigation: [], routes: [],
   },
   {
-    id: 'inventory', version: '1.2.0', capabilities: ['INV-001', 'INV-004', 'INV-005'], dependencies: ['catalog'], permissions: ['inventory.locations.read', 'inventory.locations.write'],
+    id: 'inventory', version: '1.3.0', capabilities: ['INV-001', 'INV-004', 'INV-005', 'INV-007'], dependencies: ['catalog'], permissions: ['inventory.locations.read', 'inventory.locations.write', 'inventory.transfers.read', 'inventory.transfers.write'],
     events: [], subscriptions: [], jobs: ['inventory.expire-reservations'], healthchecks: [], wikiLinks: [ARCHITECTURE_WIKI],
-    navigation: [{ id: 'ubicaciones', href: '/demo/admin/ubicaciones', label: 'Ubicaciones', order: 25, capabilityId: 'INV-005' }],
+    navigation: [
+      { id: 'ubicaciones', href: '/demo/admin/ubicaciones', label: 'Ubicaciones', order: 25, capabilityId: 'INV-005' },
+      { id: 'transferencias', href: '/demo/admin/transferencias', label: 'Transferencias', order: 27, capabilityId: 'INV-007' },
+    ],
     routes: [
       { match: 'exact', path: '/demo/admin/ubicaciones', capabilityId: 'INV-005' },
       { match: 'prefix', path: '/api/admin/inventory-locations', capabilityId: 'INV-005' },
+      { match: 'exact', path: '/demo/admin/transferencias', capabilityId: 'INV-007' },
+      { match: 'prefix', path: '/api/admin/inventory-transfers', capabilityId: 'INV-007' },
     ],
   },
   {

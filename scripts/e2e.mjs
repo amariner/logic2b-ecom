@@ -196,6 +196,10 @@ const locationsHtml = await (await fetch(`${BASE}/demo/admin/ubicaciones`, { hea
 check('ubicaciones muestran principal y secundaria sin repartir stock',
   locationsHtml.includes('Almacén central') && locationsHtml.includes('Tienda de muestra')
     && locationsHtml.includes('Principal') && locationsHtml.includes('solo lectura'));
+const transfersHtml = await (await fetch(`${BASE}/demo/admin/transferencias`, { headers: { cookie } })).text();
+check('transferencias muestran borrador trazable y demo inerte',
+  transfersHtml.includes('TRF-DEMO-0001') && transfersHtml.includes('Borrador')
+    && transfersHtml.includes('stock en tránsito no se vende') && transfersHtml.includes('disabled'));
 let variantId;
 if (variantProductId) {
   const variantsHtml = await (await fetch(
@@ -323,8 +327,8 @@ check(
     && backupSql.includes('INSERT INTO attribute_definitions') && backupSql.includes('INSERT INTO product_attribute_values'),
 );
 check(
-  'backup esquema 13 conserva operación e inventario por ubicación',
-  backupSql.includes('logic2b-backup-schema: 13')
+  'backup esquema 14 conserva operación, ubicaciones y transferencias',
+  backupSql.includes('logic2b-backup-schema: 14')
     && backupSql.includes('INSERT INTO payments')
     && backupSql.includes('INSERT INTO payment_transactions')
     && backupSql.includes('DELETE FROM refunds')
@@ -340,9 +344,11 @@ check(
     && backupSql.includes('INSERT INTO order_hold_events')
     && backupSql.includes('DELETE FROM order_bulk_batches')
     && backupSql.includes('DELETE FROM order_bulk_batch_rows')
-    && backupSql.includes('0019_inventory_locations')
+    && backupSql.includes('0020_inventory_transfers')
     && backupSql.includes('INSERT INTO inventory_locations')
     && backupSql.includes('INSERT INTO inventory_location_balances')
+    && backupSql.includes('INSERT INTO inventory_transfers')
+    && backupSql.includes('INSERT INTO inventory_transfer_lines')
 );
 
 if (failures > 0) {

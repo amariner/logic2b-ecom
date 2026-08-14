@@ -125,6 +125,12 @@ venta o servicios logísticos propios.
   ubicaciones, balances/movimientos proyectados y triggers de compatibilidad.
 - [`OPERACION_UBICACIONES_INVENTARIO.md`](OPERACION_UBICACIONES_INVENTARIO.md):
   rehearsal, rollout, reconciliación y rollback de R3.6.
+- [`adr/0023-transferencias-inventario.md`](adr/0023-transferencias-inventario.md):
+  agregado versionado, stock en tránsito y compatibilidad de la principal R3.7.
+- [`../../migrations/0020_inventory_transfers.sql`](../../migrations/0020_inventory_transfers.sql):
+  borradores, líneas, recibos parciales y enlaces al ledger por ubicación.
+- [`OPERACION_TRANSFERENCIAS_INVENTARIO.md`](OPERACION_TRANSFERENCIAS_INVENTARIO.md):
+  ensayo, rollout, reconciliación, incidencias y rollback expand-only R3.7.
 - [`../../migrations/0016_order_amendments.sql`](../../migrations/0016_order_amendments.sql):
   expansión de cantidades vigentes, amendments y asignaciones financieras.
 - [`OPERACION_EDICION_PEDIDOS.md`](OPERACION_EDICION_PEDIDOS.md):

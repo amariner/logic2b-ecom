@@ -63,12 +63,12 @@ reconciliación se conserva abajo por contexto.
 | 11 | Landing V2 «nivel Awwwards» + negocio + funnel + docs | 🟡 En curso | 2026-08-13 | **F11.1, F11.3 (2 sesiones), F11.4, F11.5, F11.6, F11.7 y F11.8 (primera pasada + pase a11y/contenido desde cloud 2026-07-24) hechos**, más F11.8b (auditor de a11y, cloud), F11.2a-1 (tienda ASFALTO / tema Street), F11.2a-2 (tienda METRIA / tema Industrial) F11.2a-3 (tienda ROMER / tema Natural) y **F11.2a-4 (tienda KALIBRE / tema Specs, local 2026-07-25) — con la que F11.2a queda CERRADA (10/10 tiendas)**; y **F11.8c (Lighthouse citable + OG de WhatsApp + URLs sin redirección, local 2026-07-26)**; y **F11.8d–e (tabla de Lighthouse cerrada y desplegada: 7 de 8 superficies a 100×4, la landing entre ellas en móvil y escritorio, local 2026-07-27)**; y **F11.9 (contacto global de WhatsApp, cerrado y servido 2026-08-13)**. Solo queda la submission a Awwwards, decisión de pago reservada a Andreu. Detalle por bloque abajo. **Plan maestro completo en [`docs/PLAN_FASE11_LANDING_V2.md`](PLAN_FASE11_LANDING_V2.md)**: bloques F11.0–F11.8 ejecutables por sesiones independientes. **Decisiones D1–D6 APROBADAS por Andreu (2026-07-23)**: JS propio ≤15 KB sin deps, capturas con browser tools en local, dirección C «Ocho tiendas, un motor», escalera de precios (Lite 590 / Kit 1.900+39 / A medida 3.400+59), WhatsApp+email, Lite publicado sin construir. Prompt de arranque: [`docs/PROMPT_FASE11.md`](PROMPT_FASE11.md). Integra 9B.5/9B.6 (imaginería y temas restantes) como prerequisito del hero |
 | 8 | Pulido de la demo (backlog abajo) | 🟡 En curso | 2026-07-19 | Backlog técnico agotado; solo quedan decisiones y pasos locales de Andreu (ver «Decisiones pendientes» y `docs/PROMPT_CLOUD.md`). Últimas tandas: novena (race de idempotencia en el pago, PII enumerable en `/demo/gracias`, cancelación de pedido pagado sin devolver stock), décima (la misma race en el PATCH de admin, campos vacíos guardados como 0, login sin rate limit), undécima (diagrama móvil de `/arquitectura`, hedge del plazo de entrega, tokens de tema en `/demo/reset`, terminología «envío»), duodécima (aviso de corte en pedidos del admin, cabeceras sin wrap a 375px, leftover «portes», token de radio del carrito, contraste del botón eliminar, H1 en valenciano, checklist de producción) y decimotercera (misma race de idempotencia en `checkout.session.expired`, divisa hardcodeada a EUR fuera de Stripe, cobertura de test de `quoteCart`/PATCH admin/emails) y decimocuarta (config parcial de Stripe → cobro sin cumplimiento, emails duplicados bajo concurrencia, `payment_status` del webhook, color de marca centralizado en `shop.config.ts`, contraste/tema en carrito y checkout) — ver sección «Fase 8» |
 | 12 | Logic2B Ecommerce: renombrado, reposicionamiento y docs de dos visiones | ✅ Hecho | 2026-08-10 | **F12.0–F12.6 cerrados:** marca, argumento, dossier, canal agencias, ayuda, índice por audiencias, OG y auditorías citables consolidados. **Plan maestro en [`docs/PLAN_FASE12_LOGIC2B_ECOMMERCE.md`](PLAN_FASE12_LOGIC2B_ECOMMERCE.md)**. |
-| 13 | Plataforma modular: del gestor mínimo a paridad extrema de capacidad | 🟡 En curso | 2026-08-14 | **R0, R1, R2.1–R2.14, Admin V2 y R3.1–R3.6 completos localmente; siguiente R3.7:** transferencias. Fuente de verdad en [`docs/plataforma/`](plataforma/README.md). |
+| 13 | Plataforma modular: del gestor mínimo a paridad extrema de capacidad | 🟡 En curso | 2026-08-14 | **R0, R1, R2.1–R2.14, Admin V2 y R3.1–R3.7 completos localmente; siguiente R3.8:** conteos y ajustes. Fuente de verdad en [`docs/plataforma/`](plataforma/README.md). |
 
 ## Repo y entornos
 
 - GitHub: `https://github.com/amariner/logic2b-ecom` (rama `main`).
-- Cloudflare: **en producción** — Worker `ecom-logic2b` en https://ecom.logic2b.com, D1 remota `ecom-demo` (`7ae9b06d-3664-4790-a87c-04bb4c67e97a`) y cron reset cada 6 h. D1 sirve migraciones `0001`–`0017`; el corte R3.4 usa Worker `5ec8b676-781c-4463-9a18-7aa8a597a8eb`, E2E remoto 71/71, a11y afectada 4/4 y conserva `private, no-store` + `Vary: Cookie` en superficies privadas.
+- Cloudflare: **en producción** — Worker `ecom-logic2b` en https://ecom.logic2b.com, D1 remota `ecom-demo` (`7ae9b06d-3664-4790-a87c-04bb4c67e97a`) y cron reset cada 6 h. D1 sirve migraciones `0001`–`0019`; el corte R3.4 usa Worker `5ec8b676-781c-4463-9a18-7aa8a597a8eb`, E2E remoto 71/71, a11y afectada 4/4 y conserva `private, no-store` + `Vary: Cookie` en superficies privadas. R3.5–R3.7 permanecen en repo/local; `0020` y el Worker nuevo no están desplegados.
 
 ## Fase 13 — Plataforma modular y paridad de capacidad
 
@@ -138,7 +138,8 @@ sus verificaciones ni sus puntos de reanudación.
 | R3.4 | Holds e incidencias con SLA y guard de preparación | ✅ 2026-08-13 — 463 tests; D1 `0017`, Worker `5ec8b676…`, E2E 71/71 y a11y 4/4 |
 | R3.5 | Acciones masivas seguras | ✅ 2026-08-14 — DDL, runtime, job, API, panel, replay/reanudación y operación |
 | R3.6 | Ubicaciones | ✅ 2026-08-14 — D1 `0019`, principal compatible, admin, backup y rehearsal; Worker pendiente |
-| R3.7+ | Operación profesional y resto de olas | ⬜ siguiente: transferencias |
+| R3.7 | Transferencias | ✅ 2026-08-14 — D1 local `0020`, recepción parcial/discrepancias, ledger, admin y backup; sin deploy |
+| R3.8+ | Operación profesional y resto de olas | ⬜ siguiente: conteos y ajustes |
 
 ## Fase 12 — Logic2B Ecommerce: renombrado, reposicionamiento y las dos visiones
 
@@ -1652,17 +1653,17 @@ la cola de temas, coordinados sin mezclar worktrees ni cambios abiertos.
 
 ## Próxima sesión
 
-### R3.7 — transferencias — ⬜ siguiente bloque
+### R3.8 — conteos y ajustes — ⬜ siguiente bloque
 
-R3.6 queda cerrado con D1 remota `0019`, ubicación principal compatible,
-backfill íntegro del ledger global, admin auditado, backup esquema 13 y demo sin
-efectos. El despliegue del Worker que sirve R3.5–R3.6 requiere permiso específico
-de producción.
+R3.7 queda cerrado en repo/local con `0020`, transferencias versionadas,
+recepción parcial, discrepancias, ledger enlazado, admin responsive, backup
+esquema 14 y demo sin efectos. La D1 remota permanece en `0019` y el Worker
+servido en R3.4; desplegar R3.5–R3.7 requiere permiso específico de producción.
 
-Siguiente incremento exacto: transferencias con borrador, envío, recepción
-parcial, discrepancias y movimientos compensados entre ubicaciones. No se
-adelantan conteos R3.8 ni reglas de asignación R3.9. El carril de temas continúa
-independiente y queda fuera de este objetivo.
+Siguiente incremento exacto: conteos por variante/ubicación, sesión versionada,
+motivo, doble control opcional y ajuste append-only auditado. No se adelanta el
+motor de asignación R3.9 ni se convierte el balance en una cifra editable. El
+carril de temas continúa independiente y queda fuera de este objetivo.
 
 Las entradas que siguen son el histórico de cierres anteriores y no cambian el
 orden actual.

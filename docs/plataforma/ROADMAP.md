@@ -112,7 +112,7 @@ Cada migración se diseña y ensaya sobre una copia antes de tocar el esquema vi
 | 30 | **R3.4 Holds e incidencias** | Bloqueo manual/automático, motivo, responsable, SLA y desbloqueo; preparación no avanza en hold. | ✅ 2026-08-13 |
 | 31 | **R3.5 Acciones masivas** | Selección estable, dry-run, job, progreso, resultados por fila y replay seguro. | ✅ 2026-08-14 |
 | 32 | **R3.6 Ubicaciones** | Modelo y admin de almacenes/tiendas; inventario simple se backfillea a ubicación principal. | ✅ 2026-08-14; D1 aplicada, Worker pendiente |
-| 33 | **R3.7 Transferencias** | Borrador→enviado→recibido parcial, discrepancias y movimientos de ledger. | ⬜ |
+| 33 | **R3.7 Transferencias** | Borrador→enviado→recibido parcial, discrepancias y movimientos de ledger. | ✅ 2026-08-14; local, sin deploy |
 | 34 | **R3.8 Conteos y ajustes** | Conteo por ubicación, razón, doble control opcional y auditoría. | ⬜ |
 | 35 | **R3.9 Motor de asignación** | Reglas deterministas por stock, prioridad, mercado/canal y coste; explicación guardada. | ⬜ |
 | 36 | **R3.10 Devoluciones/RMA** | Solicitud, elegibilidad, recepción, inspección, resolución, reembolso/cambio y reposición. | ⬜ |
@@ -1048,3 +1048,27 @@ dump/restore íntegro. Gate limpio: **84 suites/494 tests**, tipos/build, E2E y
 a11y escritorio/375 en verde. D1 remota sirve `0019`: 279 balances y 279
 movimientos proyectados, 0 divergencias y 0 fallos FK. El Worker sigue pendiente
 de autorización específica de producción.
+
+### R3.7 — transferencias — ✅ cerrado local 2026-08-14
+
+ADR-0023 y `0020_inventory_transfers.sql` materializan borradores versionados,
+envío idempotente, recibos parciales, discrepancias y enlaces exactos al ledger
+append-only por ubicación. El stock enviado queda fuera de balances hasta su
+recepción; una discrepancia cierra unidades sin inventar una entrada. La
+ubicación principal continúa idéntica al ledger global y es la única vendible
+hasta el motor de asignación R3.9.
+
+`INV-007` añade API, navegación y panel responsive; el preset avanzado admite
+efectos y la demo pública solo muestra un borrador coherente. Creación, envío y
+recepción se validan en servidor, se auditan en la misma batch y soportan replay
+por idempotency key y carrera de versión. Backup esquema 14 y runbook en
+`OPERACION_TRANSFERENCIAS_INVENTARIO.md`.
+
+Rehearsal sobre la D1 local real en `0019`: 282 variantes, 2 ubicaciones, hash
+previo `54b641c88eeb2728c197f59d98d0f3f1fe15a0852601c7610a10d759361829c6`,
+dump/restore íntegro y cero fallos FK. `0020` y el fixture se aplicaron solo en
+local. E2E completo y a11y `admin:transferencias` a 1440/375 están en verde;
+la revisión visual real confirma 0 overflow horizontal. El gate compartido
+queda en 501/504 por tres fallos exclusivos del tema Monte en curso; el corte
+limpio aislado pasa **88 suites/504 tests**, tipos y build. Sin D1 remota ni
+deploy de Worker.

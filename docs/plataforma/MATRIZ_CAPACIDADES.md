@@ -66,7 +66,7 @@ su alcance requiera.
 | INV-004 | Reservas de stock | módulo | P1 | actual | Cabecera/líneas, TTL, captura/liberación/expiración y job idempotentes; instalada y apagada por defecto. |
 | INV-005 | Múltiples ubicaciones | módulo | P1 | actual | Almacenes/tiendas versionados; principal backfilleada y sincronizada con el ledger global; secundarias vacías hasta transferencias R3.7. |
 | INV-006 | Disponible, comprometido, entrante y dañado | módulo | P1 | pendiente | Estados contables distintos, no una única cifra editable. |
-| INV-007 | Transferencias entre ubicaciones | módulo | P2 | pendiente | Borrador, enviado, parcial, recibido y discrepancias. |
+| INV-007 | Transferencias entre ubicaciones | módulo | P2 | actual | Borrador, envío idempotente, recepción parcial, discrepancias y movimientos enlazados; secundarias fuera del checkout hasta R3.9. |
 | INV-008 | Conteo y ajuste con motivo | módulo | P2 | pendiente | Conteos cíclicos, aprobación opcional y auditoría. |
 | INV-009 | Alertas de stock y reposición | módulo | P2 | pendiente | Umbral por variante/ubicación y notificación agrupada. |
 | INV-010 | Órdenes de compra/proveedores | módulo | P3 | pendiente | Pedido a proveedor, recepción parcial y coste. |

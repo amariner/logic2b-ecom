@@ -1,0 +1,81 @@
+---
+import Admin from '../../../layouts/Admin.astro';
+import AdminPageHeader from '../../../components/admin/AdminPageHeader.astro';
+import { createInventoryLocationOperations } from '../../../composition/inventory-location-operations';
+import { createInventoryTransferOperations } from '../../../composition/inventory-transfer-operations';
+
+export const prerender = false;
+const readOnly = Astro.locals.runtime.env.DEMO_MODE === 'true';
+const operations = createInventoryTransferOperations(Astro.locals.runtime.env.DB);
+const [records, locations, stockOptions] = await Promise.all([
+  operations.list(),
+  createInventoryLocationOperations(Astro.locals.runtime.env.DB).list(),
+  operations.stockOptions(),
+]);
+const transfers = (await Promise.all(records.map((record) => operations.find(record.id))))
+  .filter((detail) => detail !== null);
+const activeLocations = locations.filter((location) => location.status === 'active');
+const statusLabel = { draft: 'Borrador', in_transit: 'En tránsito', partially_received: 'Recepción parcial', received: 'Recibida' } as const;
+const statusClass = {
+  draft: 'bg-muted text-muted-foreground',
+  in_transit: 'bg-amber-50 text-amber-900 ring-1 ring-amber-200',
+  partially_received: 'bg-sky-50 text-sky-900 ring-1 ring-sky-200',
+  received: 'bg-emerald-50 text-emerald-900 ring-1 ring-emerald-200',
+} as const;
+---
+
+<Admin title="Transferencias" active="transferencias">
+  <AdminPageHeader eyebrow="Inventario" title="Transferencias" description="Mueve unidades entre ubicaciones con envío, recepción parcial y discrepancias trazables." />
+
+  <section class="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4" aria-label="Resumen de transferencias">
+    {(['draft', 'in_transit', 'partially_received', 'received'] as const).map((status) => <div class="rounded-2xl border border-border bg-card p-4 shadow-sm"><p class="text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">{statusLabel[status]}</p><p class="mt-2 font-display text-2xl">{records.filter((record) => record.status === status).length}</p></div>)}
+  </section>
+
+  <section class="mt-6 rounded-2xl border border-border bg-card shadow-sm" aria-labelledby="transfer-list-title">
+    <div class="flex flex-wrap items-center justify-between gap-3 border-b border-border p-5">
+      <div><h2 id="transfer-list-title" class="font-display text-xl">Movimientos entre ubicaciones</h2><p class="mt-1 text-sm text-muted-foreground">{records.length} transferencias · el stock en tránsito no se vende</p></div>
+      {readOnly && <span class="rounded-full bg-sky-50 px-3 py-1 text-xs font-semibold text-sky-800 ring-1 ring-sky-200">Solo lectura</span>}
+    </div>
+    <div class="grid gap-4 p-4 sm:p-5 xl:grid-cols-2">
+      {transfers.length === 0 && <div class="rounded-2xl border border-dashed border-border p-8 text-center text-sm text-muted-foreground xl:col-span-2">Todavía no hay transferencias. Crea un borrador para preparar el primer movimiento.</div>}
+      {transfers.map(({ transfer, lines }) => {
+        const pending = transfer.sent_quantity - transfer.received_quantity - transfer.discrepancy_quantity;
+        return <article class="rounded-2xl border border-border p-4 sm:p-5">
+          <div class="flex flex-wrap items-start justify-between gap-3"><div><p class="font-mono text-xs text-muted-foreground">{transfer.transfer_number}</p><h3 class="mt-1 font-display text-lg">{transfer.source_name} <span aria-hidden="true">→</span> {transfer.destination_name}</h3></div><span class:list={['rounded-full px-2.5 py-1 text-xs font-semibold', statusClass[transfer.status]]}>{statusLabel[transfer.status]}</span></div>
+          <dl class="mt-4 grid grid-cols-2 gap-3 border-y border-border py-4 text-sm sm:grid-cols-4"><div><dt class="text-xs text-muted-foreground">Enviadas</dt><dd class="mt-1 font-semibold">{transfer.sent_quantity || transfer.requested_quantity}</dd></div><div><dt class="text-xs text-muted-foreground">Recibidas</dt><dd class="mt-1 font-semibold">{transfer.received_quantity}</dd></div><div><dt class="text-xs text-muted-foreground">Discrepancia</dt><dd class="mt-1 font-semibold">{transfer.discrepancy_quantity}</dd></div><div><dt class="text-xs text-muted-foreground">Pendientes</dt><dd class="mt-1 font-semibold">{pending > 0 ? pending : 0}</dd></div></dl>
+          <ul class="mt-4 space-y-2 text-sm">{lines.map((line) => <li class="flex flex-wrap justify-between gap-2 rounded-xl bg-muted/60 px-3 py-2"><span>{line.product_name}{line.variant_title && <span class="text-muted-foreground"> · {line.variant_title}</span>}</span><span class="font-mono text-xs text-muted-foreground">{line.sku} · {line.received_quantity + line.discrepancy_quantity}/{line.sent_quantity || line.requested_quantity}</span></li>)}</ul>
+
+          {transfer.status === 'draft' && <form data-transfer-action data-endpoint={`/api/admin/inventory-transfers/${transfer.id}/ship`} class="mt-4"><input type="hidden" name="expected_version" value={transfer.version} /><p data-action-status role="status" aria-live="polite" class="min-h-6 text-sm text-muted-foreground"></p><button type="submit" disabled={readOnly} class="min-h-11 rounded-xl bg-foreground px-5 text-sm font-semibold text-background disabled:cursor-not-allowed disabled:opacity-45">Marcar enviada</button></form>}
+
+          {(transfer.status === 'in_transit' || transfer.status === 'partially_received') && <form data-transfer-receive data-endpoint={`/api/admin/inventory-transfers/${transfer.id}/receive`} class="mt-4 rounded-xl border border-border p-3"><input type="hidden" name="expected_version" value={transfer.version} /><h4 class="text-sm font-semibold">Registrar recepción</h4><div class="mt-3 space-y-3">{lines.filter((line) => line.sent_quantity > line.received_quantity + line.discrepancy_quantity).map((line) => { const remaining = line.sent_quantity - line.received_quantity - line.discrepancy_quantity; return <fieldset data-receive-line data-line-id={line.id} class="grid gap-2 rounded-xl bg-muted/60 p-3 sm:grid-cols-[minmax(0,1fr)_6rem_6rem]"><legend class="sr-only">{line.product_name}</legend><div class="text-sm"><p class="font-medium">{line.product_name}</p><p class="text-xs text-muted-foreground">{remaining} pendientes</p></div><label class="text-xs font-semibold text-muted-foreground">Recibidas<input name="received_quantity" type="number" min="0" max={remaining} value={remaining} disabled={readOnly} class="mt-1 min-h-11 w-full rounded-lg border border-input bg-background px-2 text-foreground disabled:opacity-100" /></label><label class="text-xs font-semibold text-muted-foreground">Diferencia<input name="discrepancy_quantity" type="number" min="0" max={remaining} value="0" disabled={readOnly} class="mt-1 min-h-11 w-full rounded-lg border border-input bg-background px-2 text-foreground disabled:opacity-100" /></label></fieldset>; })}</div><label class="mt-3 block text-sm font-semibold">Nota opcional<input name="note" maxlength="500" disabled={readOnly} class="mt-2 min-h-11 w-full rounded-xl border border-input bg-background px-3 font-normal disabled:opacity-100" /></label><p data-action-status role="status" aria-live="polite" class="mt-2 min-h-6 text-sm text-muted-foreground"></p><button type="submit" disabled={readOnly} class="min-h-11 rounded-xl bg-foreground px-5 text-sm font-semibold text-background disabled:cursor-not-allowed disabled:opacity-45">Confirmar recepción</button></form>}
+        </article>;
+      })}
+    </div>
+  </section>
+
+  <section class="mt-6 grid gap-6 xl:grid-cols-[minmax(0,1fr)_22rem]">
+    <form data-transfer-create class="rounded-2xl border border-border bg-card p-5 shadow-sm">
+      <h2 class="font-display text-lg">Nuevo borrador</h2><p class="mt-1 text-sm text-muted-foreground">Define origen, destino y hasta tres variantes. El stock se revalida al enviar.</p>
+      <div class="mt-5 grid gap-4 sm:grid-cols-2"><label class="text-sm font-semibold">Origen<select name="source_location_id" required disabled={readOnly} class="mt-2 min-h-11 w-full rounded-xl border border-input bg-background px-3 font-normal disabled:opacity-100">{activeLocations.map((location) => <option value={location.id}>{location.name}</option>)}</select></label><label class="text-sm font-semibold">Destino<select name="destination_location_id" required disabled={readOnly} class="mt-2 min-h-11 w-full rounded-xl border border-input bg-background px-3 font-normal disabled:opacity-100">{activeLocations.map((location) => <option value={location.id}>{location.name}</option>)}</select></label></div>
+      <div class="mt-4 grid gap-3">{[0, 1, 2].map((index) => <div data-create-line class="grid gap-3 rounded-xl bg-muted/60 p-3 sm:grid-cols-[minmax(0,1fr)_7rem]"><label class="text-sm font-semibold">Variante {index + 1}{index > 0 && <span class="font-normal text-muted-foreground"> · opcional</span>}<select name="variant_id" required={index === 0} disabled={readOnly} class="mt-2 min-h-11 w-full rounded-xl border border-input bg-background px-3 font-normal disabled:opacity-100"><option value="">Selecciona…</option>{stockOptions.map((option) => <option value={option.variant_id} data-location-id={option.location_id}>{option.product_name} · {option.sku} · {option.available} disp.</option>)}</select></label><label class="text-sm font-semibold">Cantidad<input name="quantity" type="number" min="1" max="100000" value={index === 0 ? 1 : undefined} disabled={readOnly} class="mt-2 min-h-11 w-full rounded-xl border border-input bg-background px-3 font-normal disabled:opacity-100" /></label></div>)}</div>
+      <label class="mt-4 block text-sm font-semibold">Nota opcional<input name="note" maxlength="500" disabled={readOnly} class="mt-2 min-h-11 w-full rounded-xl border border-input bg-background px-3 font-normal disabled:opacity-100" /></label>
+      <p data-create-status role="status" aria-live="polite" class="mt-3 min-h-6 text-sm text-muted-foreground"></p><button type="submit" disabled={readOnly} class="min-h-11 rounded-xl bg-foreground px-5 text-sm font-semibold text-background disabled:cursor-not-allowed disabled:opacity-45">Crear borrador</button>
+    </form>
+    <aside class="h-fit rounded-2xl border border-border bg-card p-5 shadow-sm"><h2 class="font-display text-lg">Qué ocurre con el stock</h2><ol class="mt-3 space-y-3 text-sm leading-6 text-muted-foreground"><li><strong class="text-foreground">1. Borrador:</strong> no cambia ninguna cifra.</li><li><strong class="text-foreground">2. Envío:</strong> las unidades salen del origen y quedan en tránsito.</li><li><strong class="text-foreground">3. Recepción:</strong> solo lo confirmado entra al destino; la diferencia queda auditada.</li></ol></aside>
+  </section>
+
+  {!readOnly && <script>
+    const keyFor = (form: HTMLFormElement, scope: string) => form.dataset.idempotencyKey ??= `${scope}:${crypto.randomUUID()}`;
+    const show = (node: HTMLElement | null, message: string, error = false) => { if (!node) return; node.textContent = message; node.classList.toggle('text-red-700', error); };
+    const post = async (endpoint: string, body: unknown) => fetch(endpoint, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) });
+
+    const createForm = document.querySelector<HTMLFormElement>('[data-transfer-create]');
+    const sourceSelect = createForm?.querySelector('[name="source_location_id"]') as HTMLSelectElement | null | undefined;
+    const syncVariants = () => { const source = sourceSelect?.value; createForm?.querySelectorAll<HTMLOptionElement>('[data-location-id]').forEach((option) => { option.hidden = option.dataset.locationId !== source; if (option.hidden && option.selected) option.selected = false; }); };
+    sourceSelect?.addEventListener('change', syncVariants); syncVariants();
+    createForm?.addEventListener('submit', async (event) => { event.preventDefault(); const status = createForm.querySelector<HTMLElement>('[data-create-status]'); show(status, 'Guardando…'); const data = new FormData(createForm); const lines = [...createForm.querySelectorAll<HTMLElement>('[data-create-line]')].flatMap((row) => { const variantNode = row.querySelector('[name="variant_id"]') as HTMLSelectElement | null; const quantityNode = row.querySelector('[name="quantity"]') as HTMLInputElement | null; const variant = Number(variantNode?.value); const quantity = Number(quantityNode?.value); return variant > 0 && quantity > 0 ? [{ variant_id: variant, quantity }] : []; }); const response = await post('/api/admin/inventory-transfers', { source_location_id: Number(data.get('source_location_id')), destination_location_id: Number(data.get('destination_location_id')), lines, note: String(data.get('note') ?? ''), idempotency_key: keyFor(createForm, 'transfer:create') }); const payload = await response.json() as { error?: string }; if (!response.ok) return show(status, payload.error ?? 'No se pudo crear.', true); location.reload(); });
+
+    document.querySelectorAll<HTMLFormElement>('[data-transfer-action]').forEach((form) => form.addEventListener('submit', async (event) => { event.preventDefault(); const status = form.querySelector<HTMLElement>('[data-action-status]'); show(status, 'Aplicando…'); const response = await post(form.dataset.endpoint!, { expected_version: Number(new FormData(form).get('expected_version')), idempotency_key: keyFor(form, 'transfer:ship') }); const payload = await response.json() as { error?: string }; if (!response.ok) return show(status, payload.error ?? 'No se pudo enviar.', true); location.reload(); }));
+    document.querySelectorAll<HTMLFormElement>('[data-transfer-receive]').forEach((form) => form.addEventListener('submit', async (event) => { event.preventDefault(); const status = form.querySelector<HTMLElement>('[data-action-status]'); show(status, 'Registrando…'); const data = new FormData(form); const lines = [...form.querySelectorAll<HTMLElement>('[data-receive-line]')].flatMap((row) => { const received = Number(row.querySelector<HTMLInputElement>('[name="received_quantity"]')?.value ?? 0); const discrepancy = Number(row.querySelector<HTMLInputElement>('[name="discrepancy_quantity"]')?.value ?? 0); return received + discrepancy > 0 ? [{ transfer_line_id: row.dataset.lineId!, received_quantity: received, discrepancy_quantity: discrepancy }] : []; }); const response = await post(form.dataset.endpoint!, { expected_version: Number(data.get('expected_version')), idempotency_key: keyFor(form, 'transfer:receive'), note: String(data.get('note') ?? ''), lines }); const payload = await response.json() as { error?: string }; if (!response.ok) return show(status, payload.error ?? 'No se pudo recibir.', true); location.reload(); }));
+  </script>}
+</Admin>

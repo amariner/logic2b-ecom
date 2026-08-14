@@ -258,6 +258,11 @@ export function seedStatements(): string[] {
     'DELETE FROM inventory_reservation_events',
     'DELETE FROM inventory_reservation_lines',
     'DELETE FROM inventory_reservations',
+    'DELETE FROM inventory_transfer_movements',
+    'DELETE FROM inventory_transfer_receipt_lines',
+    'DELETE FROM inventory_transfer_receipts',
+    'DELETE FROM inventory_transfer_lines',
+    'DELETE FROM inventory_transfers',
     'DELETE FROM inventory_location_movements',
     'DELETE FROM inventory_location_balances',
     'DELETE FROM inventory_locations',
@@ -417,6 +422,22 @@ export function seedStatements(): string[] {
       `'system', 'demo-seed', 'seed', 'demo', 'r2:inventory:opening:' || b.variant_id, ` +
       `'inventory:variant:' || b.variant_id, b.updated_at, b.updated_at ` +
       `FROM inventory_balances b ORDER BY b.variant_id`,
+    `INSERT INTO inventory_transfers (` +
+      `id, transfer_number, source_location_id, destination_location_id, status, version, ` +
+      `create_idempotency_key, note, created_at, updated_at` +
+    `) VALUES (` +
+      `'trf_demo_borrador', 'TRF-DEMO-0001', ` +
+      `(SELECT id FROM inventory_locations WHERE code = 'principal'), ` +
+      `(SELECT id FROM inventory_locations WHERE code = 'tienda-demo'), ` +
+      `'draft', 1, 'transfer:demo:create:0001', ` +
+      `'Reposición semanal preparada para revisar.', datetime('now', '-2 hours'), datetime('now', '-2 hours'))`,
+    `INSERT INTO inventory_transfer_lines (` +
+      `id, transfer_id, variant_id, requested_quantity, sent_quantity, ` +
+      `received_quantity, discrepancy_quantity, created_at, updated_at` +
+    `) SELECT 'itl_demo_borrador_1', 'trf_demo_borrador', b.variant_id, ` +
+      `CASE WHEN b.on_hand >= 3 THEN 3 ELSE 1 END, 0, 0, 0, ` +
+      `datetime('now', '-2 hours'), datetime('now', '-2 hours') ` +
+      `FROM inventory_balances b WHERE b.on_hand > 0 ORDER BY b.variant_id LIMIT 1`,
   );
 
   for (const prod of products) {
