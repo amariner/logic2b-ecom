@@ -73,6 +73,8 @@ export const POST: APIRoute = async ({ request, locals }) => {
     const { lines, customer } = parsed.data;
     const promotionsEnabled = runtimePlatform.isCapabilityActive('PRC-004');
     const automaticDiscountsEnabled = runtimePlatform.isCapabilityActive('PRC-005');
+    const quantityTiersEnabled = runtimePlatform.isCapabilityActive('PRC-006');
+    const buyXGetYEnabled = runtimePlatform.isCapabilityActive('PRC-007');
     const promotionCustomerKeyHash = parsed.data.promotion_code === undefined
       ? null
       : await promotionCustomerHash(customer.email);
@@ -96,6 +98,8 @@ export const POST: APIRoute = async ({ request, locals }) => {
       },
       promotionCodesEnabled: promotionsEnabled,
       automaticDiscountsEnabled,
+      quantityTiersEnabled,
+      buyXGetYEnabled,
       ...(promotionCustomerKeyHash === null ? {} : { promotionCustomerKeyHash }),
     });
     if (parsed.data.promotion_code !== undefined && quote.promotion.status !== 'applied') {
@@ -229,6 +233,27 @@ export const POST: APIRoute = async ({ request, locals }) => {
               reason: quote.automatic_discount.reason,
               discount_cents: quote.automatic_discount.discount_cents,
               conflict_policy: 'promotion_code_precedence',
+            },
+          },
+        }),
+      ...(quote.quantity_offer.status !== 'applied'
+        ? {}
+        : {
+          quantityOfferApplication: {
+            offerId: quote.quantity_offer.offer_id,
+            offerVersion: quote.quantity_offer.version,
+            discountCents: quote.quantity_offer.discount_cents,
+            snapshot: {
+              schema: 1,
+              offer_id: quote.quantity_offer.offer_id,
+              version: quote.quantity_offer.version,
+              kind: quote.quantity_offer.kind,
+              reason: quote.quantity_offer.reason,
+              discount_cents: quote.quantity_offer.discount_cents,
+              evidence: quote.quantity_offer.evidence,
+              conflict_policy: 'promotion_code_then_campaign_priority',
+              amendment_policy: 'frozen_unit_price',
+              refund_policy: 'proportional_frozen_unit_price',
             },
           },
         }),

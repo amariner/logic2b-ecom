@@ -42,8 +42,10 @@ import {
 import {
   createD1AutomaticDiscounts,
   createD1PromotionCodes,
+  createD1QuantityOffers,
   type AutomaticDiscountApplication,
   type PromotionReservation,
+  type QuantityOfferApplication,
 } from '../modules/pricing';
 import {
   createD1PaymentLedger,
@@ -90,6 +92,7 @@ export function createOrderOperations(
     reservationExpiresAt?: string;
     promotionReservation?: PromotionReservation;
     automaticDiscountApplication?: AutomaticDiscountApplication;
+    quantityOfferApplication?: QuantityOfferApplication;
   }> = {},
 ) {
   const orders = createOrderWriter(db);
@@ -100,8 +103,14 @@ export function createOrderOperations(
   const payments = createD1PaymentLedger(db);
   const promotions = createD1PromotionCodes(db);
   const automaticDiscounts = createD1AutomaticDiscounts(db);
-  if (options.promotionReservation !== undefined && options.automaticDiscountApplication !== undefined) {
-    throw new RangeError('Un pedido no puede combinar código y descuento automático antes de PRC-008.');
+  const quantityOffers = createD1QuantityOffers(db);
+  const pricingSources = [
+    options.promotionReservation,
+    options.automaticDiscountApplication,
+    options.quantityOfferApplication,
+  ].filter((source) => source !== undefined).length;
+  if (pricingSources > 1) {
+    throw new RangeError('Un pedido no puede combinar fuentes de descuento antes de PRC-008.');
   }
   const reservationsEnabled = options.reservationsEnabled ??
     runtimePlatform.hasCapabilityFlag('INV-004', 'sideEffects');
@@ -198,6 +207,13 @@ export function createOrderOperations(
           : [automaticDiscounts.applicationStatement(
             order.order_number,
             options.automaticDiscountApplication,
+            identity.occurred_at,
+          )]),
+        ...(options.quantityOfferApplication === undefined
+          ? []
+          : [quantityOffers.applicationStatement(
+            order.order_number,
+            options.quantityOfferApplication,
             identity.occurred_at,
           )]),
         ...reservationStatements,

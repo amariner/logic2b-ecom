@@ -27,7 +27,7 @@ verifica que sólo haya una fuente y que el descuento cuadre con esas líneas.
 
 - una única campaña gana para todo el carrito;
 - una segunda campaña no rellena productos fuera del scope de la ganadora;
-- no hay tramos, X/Y, descuentos de cesta/envío ni apilado antes de R4.4–R4.5;
+- tramos y X/Y viven en `PRC-006/007`; descuentos de cesta/envío y apilado esperan R4.5;
 - no existe editor visual; la gestión actual es la API admin auditada;
 - la demo pública no siembra campañas ni crea pedidos reales.
 

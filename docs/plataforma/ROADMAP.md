@@ -126,7 +126,7 @@ Cada migración se diseña y ensaya sobre una copia antes de tocar el esquema vi
 | 39 | **R4.1 Motor de reglas de precio** | Contexto, prioridad, vigencia y desglose; funciones puras y trazables. | ✅ 2026-08-14; local, sin deploy |
 | 40 | **R4.2 Códigos promocionales** | Límites, scopes, uso, seguridad y devolución proporcional. | ✅ 2026-08-14; local, sin deploy |
 | 41 | **R4.3 Descuentos automáticos** | Elegibilidad y motivo visible; conflicto con códigos resuelto por matriz. | ✅ 2026-08-14; local, sin deploy |
-| 42 | **R4.4 Cantidad y compra X/Y** | Tramos, múltiplos, selección de líneas y casos de edición/devolución. | ⬜ |
+| 42 | **R4.4 Cantidad y compra X/Y** | Tramos, múltiplos, selección de líneas y casos de edición/devolución. | ✅ 2026-08-14; local, sin deploy |
 | 43 | **R4.5 Combinabilidad** | Clases producto/pedido/envío, tope, prioridad y explicación en checkout/pedido. | ⬜ |
 | 44 | **R4.6 Listas de precios** | Precio por mercado/canal/empresa con fallback y snapshot de origen. | ⬜ |
 | 45 | **R4.7 Bundles** | Fijo y componible, stock de componentes, fulfillment y devolución. | ⬜ |

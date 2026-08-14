@@ -19,7 +19,7 @@ seed. La cantidad fija descuenta cada unidad elegible; no es descuento de cesta.
 7. activar con versión esperada y probar quote, checkout, pedido y reembolso;
 8. probar además un código válido: debe ganar globalmente y explicar la
    supresión del automático;
-9. contrastar backup esquema 21 y restore antes de publicar la campaña.
+9. contrastar el backup vigente (esquema 22 desde R4.4) y restore antes de publicar la campaña.
 
 El ensayo local del 2026-08-14 conservó 8 pedidos, 13 líneas, promociones y el
 hash previo. Forward/restore dejaron las tres tablas nuevas vacías e íntegras;

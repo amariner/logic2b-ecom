@@ -185,6 +185,14 @@ venta o servicios logísticos propios.
   rollout, matriz, reconciliación, incidencias y rollback de `PRC-005`.
 - [`wiki/descuentos-automaticos-trazables.md`](wiki/descuentos-automaticos-trazables.md):
   ficha interna de campañas y límites actuales, sin editor ni ruta pública.
+- [`adr/0031-ofertas-cantidad-x-y.md`](adr/0031-ofertas-cantidad-x-y.md):
+  tramos, selección X/Y, redondeo a favor del comprador y precio congelado.
+- [`../../migrations/0028_quantity_offers.sql`](../../migrations/0028_quantity_offers.sql):
+  configuración, tramos/scopes, aplicación por pedido y guardas de evidencia.
+- [`OPERACION_OFERTAS_CANTIDAD.md`](OPERACION_OFERTAS_CANTIDAD.md):
+  rollout, reconciliación, incidencias y rollback de `PRC-006/007`.
+- [`wiki/ofertas-cantidad-x-y.md`](wiki/ofertas-cantidad-x-y.md):
+  ficha interna de capacidad y límites actuales, sin combinabilidad ni editor.
 - [`../../migrations/0016_order_amendments.sql`](../../migrations/0016_order_amendments.sql):
   expansión de cantidades vigentes, amendments y asignaciones financieras.
 - [`OPERACION_EDICION_PEDIDOS.md`](OPERACION_EDICION_PEDIDOS.md):

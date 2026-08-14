@@ -45,7 +45,7 @@ desglose, e impide que el mismo pedido tenga uso de código.
 6. pedido y reembolso usan el precio efectivo congelado por línea;
 7. configuración y estado cambian mediante API auditada y versión esperada;
 8. la demo no siembra campañas ni ejecuta compras reales;
-9. cantidad, X/Y y combinabilidad general siguen en R4.4–R4.5.
+9. cantidad y X/Y llegan mediante `PRC-006/007`; la combinabilidad general sigue en R4.5.
 
 ## Rollback
 

@@ -35,7 +35,8 @@
     "db:rehearse:documents": "node scripts/rehearse-r3-order-documents.mjs",
     "db:rehearse:price-rules": "node scripts/rehearse-r4-price-rules.mjs",
     "db:rehearse:promotion-codes": "node scripts/rehearse-r4-promotion-codes.mjs",
-    "db:rehearse:automatic-discounts": "node scripts/rehearse-r4-automatic-discounts.mjs"
+    "db:rehearse:automatic-discounts": "node scripts/rehearse-r4-automatic-discounts.mjs",
+    "db:rehearse:quantity-offers": "node scripts/rehearse-r4-quantity-offers.mjs"
   },
   "dependencies": {
     "@astrojs/cloudflare": "^12.6.0",

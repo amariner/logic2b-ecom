@@ -47,3 +47,22 @@ export {
   createD1AutomaticDiscounts,
   type AutomaticDiscountApplication,
 } from './infrastructure/d1-automatic-discounts';
+
+export {
+  QUANTITY_OFFER_STATES,
+  assertQuantityOffer,
+  resolveQuantityOffers,
+  type QuantityOffer,
+  type QuantityOfferCartLine,
+  type QuantityOfferEvidence,
+  type QuantityOfferKind,
+  type QuantityOfferResolution,
+  type QuantityOfferState,
+  type QuantityOfferTier,
+  type QuantityTierBasis,
+} from './domain/quantity-offer';
+
+export {
+  createD1QuantityOffers,
+  type QuantityOfferApplication,
+} from './infrastructure/d1-quantity-offers';

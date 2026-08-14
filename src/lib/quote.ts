@@ -10,12 +10,15 @@ import {
   evaluatePriceRules,
   createD1AutomaticDiscounts,
   createD1PromotionCodes,
+  createD1QuantityOffers,
   resolveAutomaticDiscounts,
   resolvePromotionCode,
+  resolveQuantityOffers,
   resolvePricingSourceConflict,
   type PriceBreakdown,
   type PriceRuleCandidate,
   type PriceRuleContext,
+  type QuantityOfferEvidence,
 } from '../modules/pricing';
 import { computeShippingCents, computeSubtotalCents } from './pricing';
 import { resolveZone } from './shipping';
@@ -86,10 +89,18 @@ export type QuoteResult = {
     }>;
   automatic_discount:
     | Readonly<{
-      status: 'not_applied'; reason: 'no_eligible_discount' | 'promotion_code_precedence';
+      status: 'not_applied'; reason: 'no_eligible_discount' | 'promotion_code_precedence' | 'higher_priority_campaign';
     }>
     | Readonly<{
       status: 'applied'; discount_id: string; version: number; reason: string; discount_cents: number;
+    }>;
+  quantity_offer:
+    | Readonly<{
+      status: 'not_applied'; reason: 'no_eligible_offer' | 'promotion_code_precedence' | 'higher_priority_campaign';
+    }>
+    | Readonly<{
+      status: 'applied'; offer_id: string; version: number; kind: 'quantity_tier' | 'buy_x_get_y';
+      reason: string; discount_cents: number; evidence: QuantityOfferEvidence;
     }>;
 };
 
@@ -103,6 +114,10 @@ export async function quoteCart(
     promotionCustomerKeyHash?: string;
     promotionCodesEnabled?: boolean;
     automaticDiscountsEnabled?: boolean;
+    /** Compatibilidad de tests/embebidos; activa ambos contratos R4.4. */
+    quantityOffersEnabled?: boolean;
+    quantityTiersEnabled?: boolean;
+    buyXGetYEnabled?: boolean;
   }> = {},
 ): Promise<QuoteResult> {
   // Colapsar duplicados del mismo slug antes de tocar la base
@@ -158,15 +173,42 @@ export async function quoteCart(
     }, 0),
     cartProductIds: products.map((product) => product.id),
   });
+  const quantityOffersEnabled = options.quantityOffersEnabled === true ||
+    options.quantityTiersEnabled === true || options.buyXGetYEnabled === true;
+  const quantityResolution: ReturnType<typeof resolveQuantityOffers> =
+    quantityOffersEnabled
+      ? resolveQuantityOffers({
+        offers: (await createD1QuantityOffers(db).listActive()).filter((offer) =>
+          options.quantityOffersEnabled === true ||
+          (offer.kind === 'quantity_tier' && options.quantityTiersEnabled === true) ||
+          (offer.kind === 'buy_x_get_y' && options.buyXGetYEnabled === true)),
+        context: pricingContext,
+        lines: products.map((product) => ({
+          productId: product.id,
+          unitPriceCents: product.price_cents,
+          quantity: qtyBySlug.get(product.slug) ?? 1,
+        })),
+      })
+      : Object.freeze({ status: 'not_eligible', reason: 'no_eligible_offer', evaluations: [] });
   const pricingSource = resolvePricingSourceConflict({
     promotionEligible: promotionResolution?.status === 'eligible',
     automaticEligible: automaticResolution.status === 'eligible',
+    quantityOfferEligible: quantityResolution.status === 'eligible',
+    ...(automaticResolution.status !== 'eligible'
+      ? {}
+      : { automaticCandidate: automaticResolution.candidate }),
+    ...(quantityResolution.status !== 'eligible'
+      ? {}
+      : { quantityOfferCandidate: quantityResolution.candidate }),
   });
   const promotionProductIds = new Set(
     promotionResolution?.status === 'eligible' ? promotionResolution.eligibleProductIds : [],
   );
   const automaticProductIds = new Set(
     automaticResolution.status === 'eligible' ? automaticResolution.eligibleProductIds : [],
+  );
+  const quantityProductIds = new Set(
+    quantityResolution.status === 'eligible' ? quantityResolution.eligibleProductIds : [],
   );
 
   const lines: QuoteLine[] = [...qtyBySlug.entries()].map(([slug, qty]) => {
@@ -187,7 +229,11 @@ export async function quoteCart(
       automaticResolution.status === 'eligible' && automaticProductIds.has(prod.id)
       ? [automaticResolution.candidate]
       : undefined;
-    const persistedCandidates = promotionCandidates ?? automaticCandidates;
+    const quantityCandidates = pricingSource === 'quantity_offer' &&
+      quantityResolution.status === 'eligible' && quantityProductIds.has(prod.id)
+      ? [quantityResolution.candidate]
+      : undefined;
+    const persistedCandidates = promotionCandidates ?? automaticCandidates ?? quantityCandidates;
     if (configuredCandidates !== undefined && persistedCandidates !== undefined) {
       throw new Error('La combinación de fuentes de descuento requiere PRC-008.');
     }
@@ -219,6 +265,8 @@ export async function quoteCart(
     total + (line.pricing?.applied_rule?.id.startsWith('promotion:') ? line.pricing.discount_cents : 0), 0);
   const automaticDiscountCents = servable.reduce((total, line) =>
     total + (line.pricing?.applied_rule?.id.startsWith('automatic:') ? line.pricing.discount_cents : 0), 0);
+  const quantityDiscountCents = servable.reduce((total, line) =>
+    total + (line.pricing?.applied_rule?.id.startsWith('quantity:') ? line.pricing.discount_cents : 0), 0);
   const promotion: QuoteResult['promotion'] = request.promotion_code === undefined
     ? { status: 'not_provided' }
     : promotionResolution?.status === 'eligible' && promotionDiscountCents > 0
@@ -241,9 +289,30 @@ export async function quoteCart(
     }
     : {
       status: 'not_applied',
-      reason: pricingSource === 'promotion_code' && automaticResolution.status === 'eligible'
-        ? 'promotion_code_precedence'
-        : 'no_eligible_discount',
+      reason: automaticResolution.status !== 'eligible'
+        ? 'no_eligible_discount'
+        : pricingSource === 'promotion_code'
+          ? 'promotion_code_precedence'
+          : 'higher_priority_campaign',
+    };
+  const quantity_offer: QuoteResult['quantity_offer'] = pricingSource === 'quantity_offer' &&
+      quantityResolution.status === 'eligible' && quantityDiscountCents > 0
+    ? {
+      status: 'applied',
+      offer_id: quantityResolution.offer.id,
+      version: quantityResolution.offer.version,
+      kind: quantityResolution.offer.kind,
+      reason: quantityResolution.offer.publicReason,
+      discount_cents: quantityDiscountCents,
+      evidence: quantityResolution.evidence,
+    }
+    : {
+      status: 'not_applied',
+      reason: quantityResolution.status !== 'eligible'
+        ? 'no_eligible_offer'
+        : pricingSource === 'promotion_code'
+          ? 'promotion_code_precedence'
+          : 'higher_priority_campaign',
     };
 
   let shipping_cents: number | null = null;
@@ -268,5 +337,6 @@ export async function quoteCart(
     purchasable: lines.length > 0 && lines.every((line) => line.status === 'ok'),
     promotion,
     automatic_discount,
+    quantity_offer,
   };
 }

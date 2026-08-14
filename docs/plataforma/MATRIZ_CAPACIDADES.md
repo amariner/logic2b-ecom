@@ -82,8 +82,8 @@ su alcance requiera.
 | PRC-003 | Motor de descuentos | módulo | P1 | actual | Evaluación pura por contexto/vigencia, un ganador determinista por prioridad, desglose auditable y snapshot por línea; códigos/automáticos llegan por PRC-004/005 y el apilado espera PRC-008. |
 | PRC-004 | Código promocional | módulo | P1 | actual | Hash sin texto claro, vigencia, mínimo, scope de producto, límites global/cliente, reserva/consumo concurrente y devolución por precio efectivo; segmentos esperan R5. |
 | PRC-005 | Descuento automático | módulo | P1 | actual | Campaña persistida/versionada por contexto, mínimo y scope; motivo público y aplicación por pedido; un código elegible tiene precedencia global. |
-| PRC-006 | Descuento por cantidad | módulo | P2 | pendiente | Tramos con unidades/importe y resolución B2C/B2B. |
-| PRC-007 | Compra X y consigue Y | módulo | P2 | pendiente | Selección determinista y devolución proporcional. |
+| PRC-006 | Descuento por cantidad | módulo | P2 | actual | Tramos versionados por unidades o subtotal base, scope y canal B2C/B2B, mayor umbral, API auditada y snapshot; segmentos de cliente esperan R5. |
+| PRC-007 | Compra X y consigue Y | módulo | P2 | actual | Scopes idénticos/disjuntos, múltiplos/límite, recompensa estable, prorrateo a favor del comprador y devolución/edición por precio congelado. |
 | PRC-008 | Combinación de descuentos | módulo | P2 | pendiente | Matriz explícita; nunca doble aplicación accidental. |
 | PRC-009 | Lista de precios contextual | módulo | P2 | pendiente | Mercado, canal, empresa, ubicación o contrato. |
 | PRC-010 | Tarjetas regalo | módulo | P2 | pendiente | Ledger, saldo, caducidad legal, emisión y reembolso. |

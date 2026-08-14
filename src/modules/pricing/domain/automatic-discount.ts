@@ -31,7 +31,7 @@ export type AutomaticDiscountResolution = Readonly<
   }
 >;
 
-export type PricingSource = 'promotion_code' | 'automatic_discount' | 'none';
+export type PricingSource = 'promotion_code' | 'automatic_discount' | 'quantity_offer' | 'none';
 
 function candidateOf(discount: AutomaticDiscount): PriceRuleCandidate {
   return Object.freeze({
@@ -146,12 +146,29 @@ export function resolveAutomaticDiscounts(input: Readonly<{
   });
 }
 
-/** Matriz R4.3: un código elegible gana globalmente; nunca se apilan fuentes. */
+/**
+ * Matriz R4.4: un código elegible gana globalmente. Sin código, campañas
+ * automáticas y ofertas por cantidad compiten por prioridad e id estable; no
+ * se apilan fuentes antes de PRC-008.
+ */
 export function resolvePricingSourceConflict(input: Readonly<{
   promotionEligible: boolean;
   automaticEligible: boolean;
+  quantityOfferEligible?: boolean;
+  automaticCandidate?: PriceRuleCandidate;
+  quantityOfferCandidate?: PriceRuleCandidate;
 }>): PricingSource {
   if (input.promotionEligible) return 'promotion_code';
+  if (input.automaticEligible && input.quantityOfferEligible === true &&
+      input.automaticCandidate !== undefined && input.quantityOfferCandidate !== undefined) {
+    const automatic = input.automaticCandidate;
+    const quantity = input.quantityOfferCandidate;
+    return automatic.priority < quantity.priority ||
+      (automatic.priority === quantity.priority && automatic.id < quantity.id)
+      ? 'automatic_discount'
+      : 'quantity_offer';
+  }
   if (input.automaticEligible) return 'automatic_discount';
+  if (input.quantityOfferEligible === true) return 'quantity_offer';
   return 'none';
 }

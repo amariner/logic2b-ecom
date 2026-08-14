@@ -7,7 +7,7 @@
 export type Row = Record<string, string | number | null>;
 
 /** Orden de volcado y de borrado inverso (hijos después de padres al insertar no importa: borramos primero). */
-export const BACKUP_SCHEMA_VERSION = 21;
+export const BACKUP_SCHEMA_VERSION = 22;
 
 export const BACKUP_TABLES = [
   'products',
@@ -15,6 +15,9 @@ export const BACKUP_TABLES = [
   'promotion_code_products',
   'automatic_discounts',
   'automatic_discount_products',
+  'quantity_offers',
+  'quantity_offer_tiers',
+  'quantity_offer_products',
   'product_media',
   'product_options',
   'product_option_values',
@@ -49,6 +52,7 @@ export const BACKUP_TABLES = [
   'orders',
   'order_items',
   'automatic_discount_applications',
+  'quantity_offer_applications',
   'promotion_code_usages',
   'order_holds',
   'order_hold_events',
@@ -116,7 +120,7 @@ export function buildBackupSql(tablesRows: Record<string, Row[]>, generatedAt: s
   const lines = [
     `-- Copia de seguridad Logic2B Ecommerce — ${generatedAt}`,
     `-- logic2b-backup-schema: ${BACKUP_SCHEMA_VERSION}`,
-    '-- Requiere una base con la migración 0027_automatic_discounts aplicada; las tablas/columnas explícitas abortan un restore incompatible.',
+    '-- Requiere una base con la migración 0028_quantity_offers aplicada; las tablas/columnas explícitas abortan un restore incompatible.',
     `-- Restaurar con: wrangler d1 execute <database> --remote --file <este fichero>`,
     'PRAGMA defer_foreign_keys = true;',
   ];

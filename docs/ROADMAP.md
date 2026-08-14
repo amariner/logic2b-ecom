@@ -1655,31 +1655,41 @@ la cola de temas, coordinados sin mezclar worktrees ni cambios abiertos.
 
 ## Próxima sesión
 
-### R4.4 — cantidad y compra X/Y — ⬜ siguiente bloque
+### R4.5 — combinabilidad y explicación — ⬜ siguiente bloque
 
-R4.3 queda cerrado en repositorio y D1 local con `0027`. `PRC-005` persiste
-campañas inmutables con estado/version, vigencia, moneda, mercado, canal,
-mínimo, scope y motivo público. Una sola campaña gana para todo el carrito; sus
-líneas fuera de scope conservan precio base. La matriz pura da precedencia
-global a un código elegible, deja visible el motivo de supresión y nunca apila
-fuentes. Un código rechazado permite explicar el automático en quote, pero
-checkout mantiene el 422 solicitado. El pedido congela una aplicación única y
-el trigger contrasta versión, efecto, contexto, scope, motivo e importe.
+R4.4 queda cerrado localmente con `PRC-006`, `PRC-007` y la migración expand-only
+`0028`. Los tramos miden unidades o subtotal base dentro de su scope y eligen el
+mayor umbral alcanzado. X/Y admite scopes idénticos o disjuntos, múltiplos,
+límite y selección estable de la recompensa más barata. El beneficio se
+prorratea entre líneas participantes con el menor porcentaje que cumple la
+promesa al redondear; cualquier residuo favorece al comprador. Quote, checkout
+y pedido congelan regla, unidades premio, beneficio teórico, porcentaje e
+importe real, siempre desde cantidades y precios servidor.
 
-El rehearsal sobre el dump `0026` mantuvo 8 pedidos, 13 líneas, promociones y
-el hash de datos previos; forward/restore quedaron íntegros y el dump restaurado
-ocupó 510659 bytes. La D1 local se regeneró desde cero con `0027`. El corte
-limpio pasa 117 suites/586 tests, 580 archivos tipados, build y sitemap; el E2E
-local verifica compra/admin, demo inerte y backup esquema 21. La batería
-compartida pasa 583/586 y conserva sólo los 3 fallos ajenos del tema Monte. No
-se cambió D1 remota ni Worker.
+Ediciones y cancelaciones parciales conservan el precio unitario histórico: no
+reevalúan una campaña que puede haber cambiado y cada unidad devuelve
+exactamente su parte. Un código elegible mantiene precedencia; sin código,
+automático y cantidad/X-Y compiten por prioridad/ID, pero solo una fuente puede
+persistirse. La API administrativa es versionada/auditada y la demo sigue
+siendo de solo lectura. Backup avanza a esquema 22.
 
-Siguiente incremento exacto: `PRC-006` y `PRC-007`, tramos por cantidad y
-compra X/Y con múltiplos y selección determinista de unidades/líneas. Debe
-explicar el cálculo, congelarlo en quote/pedido y cubrir edición y devolución
-sin aceptar cantidades ni importes decididos por cliente. No debe adelantar la
-combinabilidad general de R4.5. Temas y demos visuales continúan fuera de este
-objetivo por instrucción de Andreu.
+El rehearsal sobre el dump `0027` conservó 8 pedidos, 13 líneas y toda la
+evidencia promocional/automática previa; forward/restore quedaron íntegros, con
+hash `cf8da49757c7cb33e3029ad044f6d45e2ddbacd9d0c5ff6d99ea3872c415931e` y
+dump de 530633 bytes. La D1 local aplica `0028`; no se cambió D1 remota ni Worker.
+
+El corte limpio pasa 122 suites/602 tests, 590 archivos tipados, build y sitemap
+de 6 URLs. El árbol compartido pasa 599/602, 596 archivos tipados y build; los
+3 únicos fallos siguen siendo los cambios ajenos abiertos de Monte (asset,
+orden y categoría), que este bloque no toca. El E2E local verifica aislamiento,
+compra/admin inertes, bloqueo de la nueva mutación y backup esquema 22.
+
+Siguiente incremento exacto: `PRC-008`, combinabilidad explícita de descuentos.
+Debe modelar clases de producto/pedido/envío, prioridad, exclusiones, topes y
+una explicación única para quote/pedido; incluir matrices de código,
+automático, cantidad y X/Y sin doble aplicación, además de edición, devolución
+y redondeo. No debe adelantar listas de precios R4.6. Temas y demos visuales
+continúan fuera de este objetivo por instrucción de Andreu.
 
 Las entradas que siguen son el histórico de cierres anteriores y no cambian el
 orden actual.

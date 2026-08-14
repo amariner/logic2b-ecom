@@ -309,6 +309,7 @@ for (const [label, method, path] of [
   ['anulación de documento', 'POST', '/api/admin/order-documents/doc_demo_albaran_1004/void'],
   ['código promocional', 'POST', '/api/admin/promotion-codes'],
   ['descuento automático', 'POST', '/api/admin/automatic-discounts'],
+  ['oferta por cantidad', 'POST', '/api/admin/quantity-offers'],
 ]) {
   const response = await fetch(adminUrl(path), {
     method,
@@ -354,8 +355,8 @@ check(
     && backupSql.includes('INSERT INTO attribute_definitions') && backupSql.includes('INSERT INTO product_attribute_values'),
 );
 check(
-  'backup esquema 21 conserva operación, RMA, documentos y promociones',
-  backupSql.includes('logic2b-backup-schema: 21')
+  'backup esquema 22 conserva operación, RMA, documentos y promociones',
+  backupSql.includes('logic2b-backup-schema: 22')
     && backupSql.includes('INSERT INTO payments')
     && backupSql.includes('INSERT INTO payment_transactions')
     && backupSql.includes('DELETE FROM refunds')
@@ -371,11 +372,14 @@ check(
     && backupSql.includes('INSERT INTO order_hold_events')
     && backupSql.includes('DELETE FROM order_bulk_batches')
     && backupSql.includes('DELETE FROM order_bulk_batch_rows')
-    && backupSql.includes('0027_automatic_discounts')
+    && backupSql.includes('0028_quantity_offers')
     && backupSql.includes('DELETE FROM promotion_codes')
     && backupSql.includes('DELETE FROM promotion_code_usages')
     && backupSql.includes('DELETE FROM automatic_discounts')
     && backupSql.includes('DELETE FROM automatic_discount_applications')
+    && backupSql.includes('DELETE FROM quantity_offers')
+    && backupSql.includes('DELETE FROM quantity_offer_tiers')
+    && backupSql.includes('DELETE FROM quantity_offer_applications')
     && backupSql.includes('INSERT INTO inventory_locations')
     && backupSql.includes('INSERT INTO inventory_location_balances')
     && backupSql.includes('INSERT INTO inventory_transfers')
