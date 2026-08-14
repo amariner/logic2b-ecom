@@ -33,6 +33,14 @@ describe('registro de módulos (R1.4)', () => {
     }
   });
 
+  it('enlaza la guía R3 solo desde los módulos operativos que documenta', () => {
+    const link = 'docs/plataforma/wiki/operacion-pedidos-inventario-devoluciones.md';
+    expect(MODULE_REGISTRY.descriptors
+      .filter((descriptor) => descriptor.wikiLinks.includes(link))
+      .map((descriptor) => descriptor.id))
+      .toEqual(['inventory', 'orders', 'fulfillment']);
+  });
+
   it('asigna cada healthcheck R1.10 a un único módulo propietario', () => {
     expect(MODULE_REGISTRY.healthcheckOwners).toEqual({
       'notifications.resend-email': 'notifications',

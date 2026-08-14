@@ -55,6 +55,7 @@ export type ModuleDescriptor = Readonly<{
 }>;
 
 const ARCHITECTURE_WIKI = 'docs/plataforma/wiki/arquitectura-modular-ecommerce.md';
+const R3_OPERATION_WIKI = 'docs/plataforma/wiki/operacion-pedidos-inventario-devoluciones.md';
 
 /**
  * Catálogo canónico de módulos. Los arrays vacíos son declaraciones explícitas:
@@ -98,8 +99,8 @@ export const MODULE_DESCRIPTORS = [
     wikiLinks: [ARCHITECTURE_WIKI], navigation: [], routes: [],
   },
   {
-    id: 'inventory', version: '1.5.0', capabilities: ['INV-001', 'INV-004', 'INV-005', 'INV-007', 'INV-008', 'INV-011'], dependencies: ['catalog'], permissions: ['inventory.locations.read', 'inventory.locations.write', 'inventory.transfers.read', 'inventory.transfers.write', 'inventory.counts.read', 'inventory.counts.write', 'inventory.counts.approve', 'inventory.routing.read', 'inventory.routing.write'],
-    events: [], subscriptions: [], jobs: ['inventory.expire-reservations'], healthchecks: [], wikiLinks: [ARCHITECTURE_WIKI],
+    id: 'inventory', version: '1.5.1', capabilities: ['INV-001', 'INV-004', 'INV-005', 'INV-007', 'INV-008', 'INV-011'], dependencies: ['catalog'], permissions: ['inventory.locations.read', 'inventory.locations.write', 'inventory.transfers.read', 'inventory.transfers.write', 'inventory.counts.read', 'inventory.counts.write', 'inventory.counts.approve', 'inventory.routing.read', 'inventory.routing.write'],
+    events: [], subscriptions: [], jobs: ['inventory.expire-reservations'], healthchecks: [], wikiLinks: [ARCHITECTURE_WIKI, R3_OPERATION_WIKI],
     navigation: [
       { id: 'ubicaciones', href: '/demo/admin/ubicaciones', label: 'Ubicaciones', order: 25, capabilityId: 'INV-005' },
       { id: 'transferencias', href: '/demo/admin/transferencias', label: 'Transferencias', order: 27, capabilityId: 'INV-007' },
@@ -126,11 +127,11 @@ export const MODULE_DESCRIPTORS = [
     permissions: [], events: [], subscriptions: [], jobs: [], healthchecks: [], wikiLinks: [ARCHITECTURE_WIKI], navigation: [], routes: [],
   },
   {
-    id: 'orders', version: '1.7.0', capabilities: ['ORD-001', 'ORD-002', 'ORD-004', 'ORD-005', 'ORD-007', 'ORD-010', 'ORD-011', 'ORD-012', 'AUT-001', 'AUT-011'],
+    id: 'orders', version: '1.7.1', capabilities: ['ORD-001', 'ORD-002', 'ORD-004', 'ORD-005', 'ORD-007', 'ORD-010', 'ORD-011', 'ORD-012', 'AUT-001', 'AUT-011'],
     dependencies: ['catalog', 'pricing', 'customers'], permissions: ['orders.read', 'orders.transition', 'orders.collaborate', 'orders.amend', 'orders.refund', 'orders.hold', 'orders.bulk', 'orders.documents.read', 'orders.documents.write'],
     events: ['orders.order_placed', 'orders.order_paid', 'orders.order_shipped', 'orders.order_delivered', 'orders.order_cancelled', 'orders.order_refunded', 'orders.order_partially_refunded', 'orders.order_amendment_requested', 'orders.order_amendment_applied', 'orders.order_amendment_expired', 'orders.order_hold_created', 'orders.order_hold_assigned', 'orders.order_hold_resolved'],
     subscriptions: [],
-    jobs: ['orders.execute-bulk-action'], healthchecks: [], wikiLinks: [ARCHITECTURE_WIKI],
+    jobs: ['orders.execute-bulk-action'], healthchecks: [], wikiLinks: [ARCHITECTURE_WIKI, R3_OPERATION_WIKI],
     navigation: [
       { id: 'pedidos', href: '/demo/admin', label: 'Pedidos', order: 10, capabilityId: 'ORD-001' },
       { id: 'documentos', href: '/demo/admin/documentos', label: 'Documentos', order: 18, capabilityId: 'ORD-012' },
@@ -150,10 +151,10 @@ export const MODULE_DESCRIPTORS = [
     ],
   },
   {
-    id: 'fulfillment', version: '1.3.0', capabilities: ['FUL-001', 'FUL-002', 'FUL-003', 'FUL-004', 'FUL-005', 'FUL-011'],
+    id: 'fulfillment', version: '1.3.1', capabilities: ['FUL-001', 'FUL-002', 'FUL-003', 'FUL-004', 'FUL-005', 'FUL-011'],
     dependencies: ['orders', 'inventory'], permissions: ['fulfillment.read', 'fulfillment.write', 'fulfillment.export', 'fulfillment.returns.read', 'fulfillment.returns.write'],
     events: ['fulfillment.fulfillment_shipped', 'fulfillment.fulfillment_delivered', 'fulfillment.return_resolved'],
-    subscriptions: [], jobs: [], healthchecks: [], wikiLinks: [ARCHITECTURE_WIKI],
+    subscriptions: [], jobs: [], healthchecks: [], wikiLinks: [ARCHITECTURE_WIKI, R3_OPERATION_WIKI],
     navigation: [
       { id: 'envios', href: '/demo/admin/envios', label: 'Envíos', order: 30, capabilityId: 'FUL-001' },
       { id: 'devoluciones', href: '/demo/admin/devoluciones', label: 'Devoluciones', order: 32, capabilityId: 'FUL-011' },

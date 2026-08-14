@@ -155,6 +155,11 @@ venta o servicios logísticos propios.
   plantillas, versiones, artefactos, referencias externas, eventos y guardas de alcance.
 - [`OPERACION_DOCUMENTOS_PEDIDO.md`](OPERACION_DOCUMENTOS_PEDIDO.md):
   rehearsal, rollout, reconciliación, incidencias y rollback documental R3.11.
+- [`GUIA_OPERACION_R3.md`](GUIA_OPERACION_R3.md): corte `0014`–`0024`,
+  reconciliación, matriz de incidencias, recuperación y evidencia vertical R3.12.
+- [`wiki/operacion-pedidos-inventario-devoluciones.md`](wiki/operacion-pedidos-inventario-devoluciones.md):
+  ficha operativa enlazada por pedidos, inventario y fulfillment; solo enumera
+  capacidades actuales y conserva fuera las parciales, conectores y pendientes.
 - [`../../migrations/0016_order_amendments.sql`](../../migrations/0016_order_amendments.sql):
   expansión de cantidades vigentes, amendments y asignaciones financieras.
 - [`OPERACION_EDICION_PEDIDOS.md`](OPERACION_EDICION_PEDIDOS.md):

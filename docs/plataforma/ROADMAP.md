@@ -40,7 +40,7 @@ improvisan durante la implementación.
 | R0 | Investigación, taxonomía, matriz, roadmap y estrategia wiki | ✅ cerrado 2026-08-06 |
 | R1 | Cimientos modulares y observables | ✅ cerrado 2026-08-07 |
 | R2 | Núcleo transaccional profesional | ✅ R2.1–R2.14 y Admin V2 cerrados 2026-08-12 |
-| R3 | Operación de pedidos, inventario y fulfillment | ⬜ |
+| R3 | Operación de pedidos, inventario y fulfillment | ✅ cerrado 2026-08-14 |
 | R4 | Precios, promociones y modelos de venta | ⬜ |
 | R5 | Clientes, privacidad y mercados | ⬜ |
 | R6 | B2B | ⬜ |
@@ -117,7 +117,7 @@ Cada migración se diseña y ensaya sobre una copia antes de tocar el esquema vi
 | 35 | **R3.9 Motor de asignación** | Reglas deterministas por stock, prioridad, mercado/canal y coste; explicación guardada. | ✅ 2026-08-14; local, sin deploy |
 | 36 | **R3.10 Devoluciones/RMA** | Solicitud, elegibilidad, recepción, inspección, resolución, reembolso/cambio y reposición. | ✅ |
 | 37 | **R3.11 Documentos operativos** | Albarán, factura/rectificativa mediante conector o plantilla, etiquetas internas y versionado. | ✅ 2026-08-14; local, sin deploy |
-| 38 | **R3.12 Consolidación R3** | E2E multiubicación, fulfillment y devolución; runbooks de incidencias; wiki de operación publicada solo para capacidades reales. | ⬜ |
+| 38 | **R3.12 Consolidación R3** | E2E multiubicación, fulfillment y devolución; runbooks de incidencias; wiki de operación publicada solo para capacidades reales. | ✅ 2026-08-14; local, sin deploy |
 
 ## R4 — Precios, promociones y modelos de venta
 
@@ -1182,3 +1182,28 @@ la revisión visual confirma 0 overflow y que el artefacto no contiene importes.
 El gate compartido queda en 547/550 por tres fallos exclusivos del tema Monte
 en curso; el corte limpio aislado pasa **104 suites/550 tests**, tipos y build.
 Sin D1 remota ni deploy de Worker.
+
+### R3.12 — consolidación R3 — ✅ cerrado local 2026-08-14
+
+`tests/r3-consolidation-runtime.test.ts` recorre en una única base la operación
+vertical: transferencia principal→secundaria, pedido pagado con reserva, hold
+que impide preparar, resolución versionada, asignación explicada a la
+secundaria, entrega, RMA recibido e inspeccionado, reembolso, reposición en la
+ubicación receptora y backup/restore esquema 18. El stock final de red vuelve a
+ser coherente y `foreign_key_check` queda vacío antes y después del restore.
+
+`GUIA_OPERACION_R3.md` consolida el corte `0014`–`0024`, las consultas de
+reconciliación, la matriz de incidencias y la recuperación por replay o hecho
+compensatorio. `SEC-015` pasa a parcial: contención, recuperación y evidencia
+sin PII son reales; comunicación por cliente, RPO/RTO, alertas y postmortem
+recurrente siguen en R11. La ficha
+`wiki/operacion-pedidos-inventario-devoluciones.md` queda enlazada solo por los
+módulos de pedidos, inventario y fulfillment, enumera capacidades actuales y
+declara aparte las parciales, conectores y pendientes. No crea ruta indexable:
+el publicador corresponde a R8.4.
+
+El gate compartido queda en 549/552 por tres fallos exclusivos del tema Monte
+en curso; el corte limpio aislado pasa **105 suites/552 tests**, tipos y build.
+R3.12 no cambia D1, UI ni sitemap; E2E/a11y de las superficies R3 ya quedaron
+verificados en sus bloques. Sin migración remota ni deploy de Worker. La cabeza
+principal pasa a R4.1, motor de reglas de precio.

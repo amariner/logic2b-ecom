@@ -1655,21 +1655,21 @@ la cola de temas, coordinados sin mezclar worktrees ni cambios abiertos.
 
 ## Próxima sesión
 
-### R3.10 — devoluciones/RMA — ⬜ siguiente bloque
+### R4.1 — motor de reglas de precio — ⬜ siguiente bloque
 
-R3.9 queda cerrado en repo/local con `0022`: una ubicación por fulfillment,
-reglas por mercado/canal/stock/prioridad/coste, explicación persistida, traslado
-principal→secundaria sin doble descuento, política versionada y auditada, admin
-responsive, backup esquema 16 y demo sin efectos. El rehearsal sobre el dump
-real de `0021` conserva el hash legacy y restaura sin fallos FK. El corte limpio
-pasa 96 suites/525 tests, tipos y build; E2E completo y a11y escritorio/375 en
-verde. La D1 remota permanece en `0019` y el Worker servido en R3.4; desplegar
-R3.5–R3.9 requiere permiso específico de producción.
+R3 queda cerrado en repositorio/local hasta `0024`. La consolidación vertical
+recorre transferencia principal→secundaria, pedido pagado, hold, asignación,
+fulfillment, entrega, RMA, reembolso, reposición y backup/restore esquema 18.
+La guía R3 reúne reconciliación e incidencias y la wiki operativa solo enlaza
+capacidades reales. El corte limpio pasa 105 suites/552 tests, tipos y build;
+la D1 remota y el Worker no cambian y los despliegues pendientes requieren
+autorización específica de producción.
 
-Siguiente incremento exacto: solicitud de devolución, elegibilidad, recepción,
-inspección, resolución, reembolso/cambio y reposición trazable. No se adelantan
-documentos R3.11 ni cambios comerciales. El carril de temas continúa
-independiente y queda fuera de este objetivo.
+Siguiente incremento exacto: contexto, prioridad, vigencia y desglose de reglas
+de precio mediante funciones puras y trazables. Debe conservar el precio base
+actual, calcular siempre en servidor, evitar floats y no adelantar códigos
+promocionales R4.2 ni combinabilidad R4.5. El carril de temas continúa
+independiente y queda fuera de este objetivo por instrucción de Andreu.
 
 Las entradas que siguen son el histórico de cierres anteriores y no cambian el
 orden actual.
