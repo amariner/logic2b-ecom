@@ -85,7 +85,7 @@ su alcance requiera.
 | PRC-006 | Descuento por cantidad | módulo | P2 | actual | Tramos versionados por unidades o subtotal base, scope y canal B2C/B2B, mayor umbral, API auditada y snapshot; segmentos de cliente esperan R5. |
 | PRC-007 | Compra X y consigue Y | módulo | P2 | actual | Scopes idénticos/disjuntos, múltiplos/límite, recompensa estable, prorrateo a favor del comprador y devolución/edición por precio congelado. |
 | PRC-008 | Combinación de descuentos | módulo | P2 | actual | Matriz versionada de fuentes/clases, suma sobre base, tope por prioridad, explicación y aplicación canónica; sin política conserva exclusividad. |
-| PRC-009 | Lista de precios contextual | módulo | P2 | pendiente | Mercado, canal, empresa, ubicación o contrato. |
+| PRC-009 | Lista de precios contextual | módulo | P2 | actual | Precio base versionado por mercado/canal/empresa, identidad solo servidor, fallback empresa→general→catálogo por producto y snapshot/aplicación verificables; ubicación/contrato esperan su modelo propietario. |
 | PRC-010 | Tarjetas regalo | módulo | P2 | pendiente | Ledger, saldo, caducidad legal, emisión y reembolso. |
 | PRC-011 | Crédito en tienda | módulo | P2 | pendiente | Ledger por cliente y aplicación parcial al pago. |
 | PRC-012 | Paquetes/bundles | módulo | P2 | pendiente | Fijo o componible, precio y stock de componentes. |

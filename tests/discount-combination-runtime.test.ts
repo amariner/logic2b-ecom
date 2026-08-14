@@ -130,7 +130,7 @@ describe('recorrido R4.5 de combinabilidad', () => {
     db.sqlite.exec(`UPDATE discount_combination_policies SET state='disabled', version=2,
       updated_at='2099-08-14T13:00:00.000Z' WHERE id='stack-main'`);
     const backup = await exportBackup(createD1BackupReader(db.asD1()), new Date(AT));
-    expect(backup.sql).toContain('logic2b-backup-schema: 23');
+    expect(backup.sql).toContain('logic2b-backup-schema: 24');
     const restored = new SqliteD1();
     restored.sqlite.exec(backup.sql);
     expect(restored.query('SELECT policy_id, discount_cents FROM discount_combination_applications'))

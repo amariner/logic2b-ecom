@@ -37,3 +37,5 @@ para ocultar una decisión no es válido.
 | [0029](0029-codigos-promocionales-seguros.md) | Hash, scope y reserva transaccional de usos promocionales | accepted; R4.2 implementado localmente |
 | [0030](0030-descuentos-automaticos-y-precedencia.md) | Campaña automática única y precedencia global del código | accepted; R4.3 implementado localmente |
 | [0031](0031-ofertas-cantidad-x-y.md) | Tramos, selección X/Y y prorrateo congelado a favor del comprador | accepted; R4.4 implementado localmente |
+| [0032](0032-combinabilidad-explicita-descuentos.md) | Matrices explícitas, tope y aplicación canónica de descuentos | accepted; R4.5 implementado localmente |
+| [0033](0033-listas-precios-contextuales.md) | Precio contextual antes de promociones y fallback por producto | accepted; R4.6 implementado localmente |

@@ -12,9 +12,11 @@ import {
   createD1AutomaticDiscounts,
   createD1DiscountCombinations,
   createD1PromotionCodes,
+  createD1PriceLists,
   createD1QuantityOffers,
   resolveAutomaticDiscounts,
   resolvePromotionCode,
+  resolvePriceLists,
   resolveQuantityOffers,
   resolvePricingSourceConflict,
   resolveDiscountCombination,
@@ -119,6 +121,15 @@ export type QuoteResult = {
       }>[];
       excluded_sources: DiscountCombinationResolution['excluded'];
     }>;
+  price_lists:
+    | Readonly<{ status: 'not_applied'; reason: 'disabled' | 'no_eligible_list' }>
+    | Readonly<{
+      status: 'applied';
+      applications: readonly Readonly<{
+        price_list_id: string; version: number; label: string; line_count: number;
+        catalog_subtotal_cents: number; effective_subtotal_cents: number; delta_cents: number;
+      }>[];
+    }>;
 };
 
 export async function quoteCart(
@@ -136,6 +147,9 @@ export async function quoteCart(
     quantityTiersEnabled?: boolean;
     buyXGetYEnabled?: boolean;
     discountCombinationsEnabled?: boolean;
+    priceListsEnabled?: boolean;
+    /** Identidad empresarial resuelta por servidor; nunca procede del cuerpo libre del checkout. */
+    priceListCompanyKeyHash?: string;
   }> = {},
 ): Promise<QuoteResult> {
   // Colapsar duplicados del mismo slug antes de tocar la base
@@ -153,6 +167,19 @@ export async function quoteCart(
     market: 'ES',
     channel: 'storefront',
   };
+  const contextualPriceByProduct = options.priceListsEnabled === true
+    ? new Map(resolvePriceLists({
+      lists: await createD1PriceLists(db).listActive(),
+      context: pricingContext,
+      companyKeyHash: options.priceListCompanyKeyHash ?? null,
+      lines: products.map((product) => ({
+        productId: product.id,
+        catalogUnitPriceCents: product.price_cents,
+      })),
+    }).lines.map((line) => [line.productId, line]))
+    : new Map<number, undefined>();
+  const basePrice = (product: (typeof products)[number]) =>
+    contextualPriceByProduct.get(product.id)?.baseUnitPriceCents ?? product.price_cents;
   let promotionResolution: ReturnType<typeof resolvePromotionCode> | null = null;
   if (request.promotion_code !== undefined && options.promotionCodesEnabled === true) {
     let lookup: Awaited<ReturnType<ReturnType<typeof createD1PromotionCodes>['lookup']>> = null;
@@ -167,7 +194,7 @@ export async function quoteCart(
     if (lookup !== null) {
       const baseSubtotalCents = [...qtyBySlug.entries()].reduce((total, [slug, qty]) => {
         const product = bySlug.get(slug);
-        return total + (product === undefined ? 0 : product.price_cents * qty);
+        return total + (product === undefined ? 0 : basePrice(product) * qty);
       }, 0);
       promotionResolution = resolvePromotionCode({
         promotion: lookup.promotion,
@@ -187,7 +214,7 @@ export async function quoteCart(
     context: pricingContext,
     baseSubtotalCents: [...qtyBySlug.entries()].reduce((total, [slug, qty]) => {
       const product = bySlug.get(slug);
-      return total + (product === undefined ? 0 : product.price_cents * qty);
+      return total + (product === undefined ? 0 : basePrice(product) * qty);
     }, 0),
     cartProductIds: products.map((product) => product.id),
   });
@@ -203,7 +230,7 @@ export async function quoteCart(
         context: pricingContext,
         lines: products.map((product) => ({
           productId: product.id,
-          unitPriceCents: product.price_cents,
+          unitPriceCents: basePrice(product),
           quantity: qtyBySlug.get(product.slug) ?? 1,
         })),
       })
@@ -285,16 +312,21 @@ export async function quoteCart(
       throw new Error('La combinación de fuentes de descuento requiere PRC-008.');
     }
     const candidates = configuredCandidates ?? persistedCandidates;
-    const pricing = combinationActive && configuredCandidates === undefined
+    const contextualPrice = contextualPriceByProduct.get(prod.id);
+    const evaluatedPricing = combinationActive && configuredCandidates === undefined
       ? evaluateCombinedPriceRules({
-        baseUnitPriceCents: prod.price_cents, quantity: qty, context: pricingContext,
+        baseUnitPriceCents: basePrice(prod), quantity: qty, context: pricingContext,
         candidates: persistedCandidates,
         maximumDiscountBasisPoints: combinationResolution!.policy.maximumDiscountBasisPoints,
       })
       : evaluatePriceRules({
-        baseUnitPriceCents: prod.price_cents, quantity: qty, context: pricingContext,
+        baseUnitPriceCents: basePrice(prod), quantity: qty, context: pricingContext,
         ...(candidates.length === 0 ? {} : { candidates }),
       });
+    const pricing: PriceBreakdown = Object.freeze({
+      ...evaluatedPricing,
+      ...(contextualPrice === undefined ? {} : { price_origin: contextualPrice.origin }),
+    });
     return {
       slug,
       name: prod.name,
@@ -393,6 +425,29 @@ export async function quoteCart(
         ? 'disabled'
         : combinationPolicy === null ? 'no_active_policy' : 'not_enough_eligible_sources',
     };
+  const applicationByList = new Map<string, {
+    price_list_id: string; version: number; label: string; line_count: number;
+    catalog_subtotal_cents: number; effective_subtotal_cents: number; delta_cents: number;
+  }>();
+  for (const line of servable) {
+    const origin = line.pricing?.price_origin;
+    if (origin?.type !== 'price_list') continue;
+    const current = applicationByList.get(origin.price_list_id) ?? {
+      price_list_id: origin.price_list_id, version: origin.version, label: origin.label,
+      line_count: 0, catalog_subtotal_cents: 0, effective_subtotal_cents: 0, delta_cents: 0,
+    };
+    current.line_count += 1;
+    current.catalog_subtotal_cents += origin.catalog_unit_price_cents * line.qty;
+    current.effective_subtotal_cents += origin.unit_price_cents * line.qty;
+    current.delta_cents = current.effective_subtotal_cents - current.catalog_subtotal_cents;
+    applicationByList.set(origin.price_list_id, current);
+  }
+  const price_lists: QuoteResult['price_lists'] = applicationByList.size > 0
+    ? {
+      status: 'applied',
+      applications: Object.freeze([...applicationByList.values()].map((application) => Object.freeze(application))),
+    }
+    : { status: 'not_applied', reason: options.priceListsEnabled === true ? 'no_eligible_list' : 'disabled' };
 
   let shipping_cents: number | null = null;
   let shipping: QuoteResult['shipping'] = null;
@@ -418,5 +473,6 @@ export async function quoteCart(
     automatic_discount,
     quantity_offer,
     discount_combination,
+    price_lists,
   };
 }

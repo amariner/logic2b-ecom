@@ -76,6 +76,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
     const quantityTiersEnabled = runtimePlatform.isCapabilityActive('PRC-006');
     const buyXGetYEnabled = runtimePlatform.isCapabilityActive('PRC-007');
     const discountCombinationsEnabled = runtimePlatform.isCapabilityActive('PRC-008');
+    const priceListsEnabled = runtimePlatform.isCapabilityActive('PRC-009');
     const promotionCustomerKeyHash = parsed.data.promotion_code === undefined
       ? null
       : await promotionCustomerHash(customer.email);
@@ -102,6 +103,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
       quantityTiersEnabled,
       buyXGetYEnabled,
       discountCombinationsEnabled,
+      priceListsEnabled,
       ...(promotionCustomerKeyHash === null ? {} : { promotionCustomerKeyHash }),
     });
     if (parsed.data.promotion_code !== undefined && quote.promotion.status !== 'applied') {
@@ -204,6 +206,31 @@ export const POST: APIRoute = async ({ request, locals }) => {
     const orders = createOrderOperations(env.DB, undefined, undefined, {
       reservationsEnabled,
       ...(reservationExpiresAt === null ? {} : { reservationExpiresAt }),
+      ...(quote.price_lists.status !== 'applied'
+        ? {}
+        : {
+          priceListApplications: quote.price_lists.applications.map((application) => ({
+            priceListId: application.price_list_id,
+            priceListVersion: application.version,
+            catalogSubtotalCents: application.catalog_subtotal_cents,
+            effectiveSubtotalCents: application.effective_subtotal_cents,
+            lineCount: application.line_count,
+            snapshot: {
+              schema: 1,
+              price_list_id: application.price_list_id,
+              version: application.version,
+              label: application.label,
+              line_count: application.line_count,
+              catalog_subtotal_cents: application.catalog_subtotal_cents,
+              effective_subtotal_cents: application.effective_subtotal_cents,
+              delta_cents: application.delta_cents,
+              fallback_policy: 'company_then_general_then_catalog_per_product',
+              price_rule_policy: 'price_list_before_promotions',
+              amendment_policy: 'frozen_unit_price',
+              refund_policy: 'proportional_frozen_unit_price',
+            },
+          })),
+        }),
       ...(quote.promotion.status !== 'applied' || promotionCustomerKeyHash === null
         ? {}
         : {

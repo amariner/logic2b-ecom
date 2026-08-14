@@ -201,6 +201,14 @@ venta o servicios logísticos propios.
   rollout, reconciliación, incidencias y rollback de `PRC-008`.
 - [`wiki/combinacion-descuentos-explicita.md`](wiki/combinacion-descuentos-explicita.md):
   ficha interna honesta sobre combinabilidad y límites actuales.
+- [`adr/0033-listas-precios-contextuales.md`](adr/0033-listas-precios-contextuales.md):
+  precio base contextual, identidad servidor y fallback por producto.
+- [`../../migrations/0030_contextual_price_lists.sql`](../../migrations/0030_contextual_price_lists.sql):
+  listas, scopes de producto/empresa y aplicaciones verificadas por pedido.
+- [`OPERACION_LISTAS_PRECIOS.md`](OPERACION_LISTAS_PRECIOS.md):
+  rollout, rehearsal, diagnóstico, rollback y reconciliación de `PRC-009`.
+- [`wiki/listas-precios-contextuales.md`](wiki/listas-precios-contextuales.md):
+  precedencia, trazabilidad y límites actuales de las listas contextuales.
 - [`../../migrations/0016_order_amendments.sql`](../../migrations/0016_order_amendments.sql):
   expansión de cantidades vigentes, amendments y asignaciones financieras.
 - [`OPERACION_EDICION_PEDIDOS.md`](OPERACION_EDICION_PEDIDOS.md):

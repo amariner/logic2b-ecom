@@ -7,8 +7,8 @@ import { createOrderBulkActionOperations } from '../src/composition/order-bulk-a
 
 describe('volcado de copia de seguridad', () => {
   it('declara el contrato que incluye la colaboración de pedidos', () => {
-    expect(BACKUP_SCHEMA_VERSION).toBe(23);
-    expect(buildBackupSql({}, '2026-08-14')).toContain('0029_discount_combinations');
+    expect(BACKUP_SCHEMA_VERSION).toBe(24);
+    expect(buildBackupSql({}, '2026-08-14')).toContain('0030_contextual_price_lists');
   });
 
   it('genera INSERTs con columnas explícitas y escape de comillas', () => {
@@ -79,6 +79,10 @@ describe('volcado de copia de seguridad', () => {
       'discount_combination_source_pairs',
       'discount_combination_class_pairs',
       'discount_combination_applications',
+      'price_lists',
+      'price_list_products',
+      'price_list_companies',
+      'price_list_applications',
       'inventory_transfers',
       'inventory_transfer_lines',
       'inventory_transfer_receipts',

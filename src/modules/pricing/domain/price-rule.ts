@@ -8,6 +8,17 @@ export type PriceRuleContext = Readonly<{
   channel: string;
 }>;
 
+export type PriceOrigin =
+  | Readonly<{
+    type: 'catalog'; catalog_unit_price_cents: number; unit_price_cents: number;
+    fallback_depth: number;
+  }>
+  | Readonly<{
+    type: 'price_list'; price_list_id: string; version: number; label: string;
+    priority: number; catalog_unit_price_cents: number; unit_price_cents: number;
+    company_scoped: boolean; fallback_depth: number;
+  }>;
+
 export type PriceRuleCandidate = Readonly<{
   id: string;
   version: number;
@@ -58,6 +69,8 @@ export type PriceBreakdown = Readonly<{
     effect: PriceRuleCandidate['effect'];
     discount_per_unit_cents: number;
   }>;
+  /** R4.6: origen contextual del precio base antes de promociones. */
+  price_origin?: PriceOrigin;
   /** Presente en schema 2; conserva `applied_rule` como primer efecto compatible. */
   applied_rules?: readonly Readonly<{
     id: string;

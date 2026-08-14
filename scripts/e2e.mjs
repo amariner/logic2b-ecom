@@ -311,6 +311,7 @@ for (const [label, method, path] of [
   ['descuento automático', 'POST', '/api/admin/automatic-discounts'],
   ['oferta por cantidad', 'POST', '/api/admin/quantity-offers'],
   ['combinación de descuentos', 'POST', '/api/admin/discount-combinations'],
+  ['lista de precios', 'POST', '/api/admin/price-lists'],
 ]) {
   const response = await fetch(adminUrl(path), {
     method,
@@ -356,8 +357,8 @@ check(
     && backupSql.includes('INSERT INTO attribute_definitions') && backupSql.includes('INSERT INTO product_attribute_values'),
 );
 check(
-  'backup esquema 23 conserva operación, RMA, documentos y promociones',
-  backupSql.includes('logic2b-backup-schema: 23')
+  'backup esquema 24 conserva operación, RMA, documentos y pricing',
+  backupSql.includes('logic2b-backup-schema: 24')
     && backupSql.includes('INSERT INTO payments')
     && backupSql.includes('INSERT INTO payment_transactions')
     && backupSql.includes('DELETE FROM refunds')
@@ -373,7 +374,7 @@ check(
     && backupSql.includes('INSERT INTO order_hold_events')
     && backupSql.includes('DELETE FROM order_bulk_batches')
     && backupSql.includes('DELETE FROM order_bulk_batch_rows')
-    && backupSql.includes('0029_discount_combinations')
+    && backupSql.includes('0030_contextual_price_lists')
     && backupSql.includes('DELETE FROM promotion_codes')
     && backupSql.includes('DELETE FROM promotion_code_usages')
     && backupSql.includes('DELETE FROM automatic_discounts')
@@ -383,6 +384,10 @@ check(
     && backupSql.includes('DELETE FROM quantity_offer_applications')
     && backupSql.includes('DELETE FROM discount_combination_policies')
     && backupSql.includes('DELETE FROM discount_combination_applications')
+    && backupSql.includes('DELETE FROM price_lists')
+    && backupSql.includes('DELETE FROM price_list_products')
+    && backupSql.includes('DELETE FROM price_list_companies')
+    && backupSql.includes('DELETE FROM price_list_applications')
     && backupSql.includes('INSERT INTO inventory_locations')
     && backupSql.includes('INSERT INTO inventory_location_balances')
     && backupSql.includes('INSERT INTO inventory_transfers')

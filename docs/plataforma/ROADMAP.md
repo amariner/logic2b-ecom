@@ -128,7 +128,7 @@ Cada migración se diseña y ensaya sobre una copia antes de tocar el esquema vi
 | 41 | **R4.3 Descuentos automáticos** | Elegibilidad y motivo visible; conflicto con códigos resuelto por matriz. | ✅ 2026-08-14; local, sin deploy |
 | 42 | **R4.4 Cantidad y compra X/Y** | Tramos, múltiplos, selección de líneas y casos de edición/devolución. | ✅ 2026-08-14; local, sin deploy |
 | 43 | **R4.5 Combinabilidad** | Clases producto/pedido/envío, tope, prioridad y explicación en checkout/pedido. | ✅ 2026-08-14; local, sin deploy |
-| 44 | **R4.6 Listas de precios** | Precio por mercado/canal/empresa con fallback y snapshot de origen. | ⬜ |
+| 44 | **R4.6 Listas de precios** | Precio por mercado/canal/empresa con fallback y snapshot de origen. | ✅ 2026-08-14; local, sin deploy |
 | 45 | **R4.7 Bundles** | Fijo y componible, stock de componentes, fulfillment y devolución. | ⬜ |
 | 46 | **R4.8 Tarjeta regalo/crédito** | Ledger, emisión, uso parcial, saldo y reembolso; revisión legal por proyecto. | ⬜ |
 | 47 | **R4.9 Preventa/backorder** | Promesa, asignación, cobro y comunicación. | ⬜ |

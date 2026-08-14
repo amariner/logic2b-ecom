@@ -43,10 +43,12 @@ import {
   createD1AutomaticDiscounts,
   createD1DiscountCombinations,
   createD1PromotionCodes,
+  createD1PriceLists,
   createD1QuantityOffers,
   type AutomaticDiscountApplication,
   type DiscountCombinationApplication,
   type PromotionReservation,
+  type PriceListApplication,
   type QuantityOfferApplication,
 } from '../modules/pricing';
 import {
@@ -96,6 +98,7 @@ export function createOrderOperations(
     automaticDiscountApplication?: AutomaticDiscountApplication;
     quantityOfferApplication?: QuantityOfferApplication;
     discountCombinationApplication?: DiscountCombinationApplication;
+    priceListApplications?: readonly PriceListApplication[];
   }> = {},
 ) {
   const orders = createOrderWriter(db);
@@ -108,6 +111,7 @@ export function createOrderOperations(
   const automaticDiscounts = createD1AutomaticDiscounts(db);
   const quantityOffers = createD1QuantityOffers(db);
   const discountCombinations = createD1DiscountCombinations(db);
+  const priceLists = createD1PriceLists(db);
   const pricingSources = [
     options.promotionReservation,
     options.automaticDiscountApplication,
@@ -203,6 +207,11 @@ export function createOrderOperations(
         }, { eventId: identity.event_id }),
         ...outbox.deliveryStatements(identity.event_id, identity.occurred_at, consumerIds),
         ...orders.lineStatementsForOrderNumber(order.order_number, lines),
+        ...(options.priceListApplications ?? []).map((application) => priceLists.applicationStatement(
+          order.order_number,
+          application,
+          identity.occurred_at,
+        )),
         ...(options.discountCombinationApplication === undefined
           ? []
           : [discountCombinations.applicationStatement(

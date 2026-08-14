@@ -1655,48 +1655,42 @@ la cola de temas, coordinados sin mezclar worktrees ni cambios abiertos.
 
 ## Próxima sesión
 
-### R4.6 — listas de precios contextuales — ⬜ siguiente bloque
+### R4.7 — bundles fijos y componibles — ⬜ siguiente bloque
 
-R4.5 queda cerrado localmente con `PRC-008`, módulo pricing `1.5.0` y la
-migración expand-only `0029`. Una política versionada permite pares explícitos
-de fuentes y clases —producto, pedido y envío— por contexto, prioridad y tope.
-Sin política activa se conserva exactamente la precedencia exclusiva anterior.
-Con política, el código elegible entra primero y cada automático o cantidad/X-Y
-debe superar ambas matrices contra todas las fuentes ya elegidas.
+R4.6 queda cerrado localmente con `PRC-009`, módulo pricing `1.6.0` y la
+migración expand-only `0030`. La lista selecciona el precio base antes de
+promociones; no se modela como descuento ni consume el tope de `PRC-008`. El
+fallback se resuelve por producto: empresa autenticada por servidor → lista
+general → catálogo, con prioridad e ID estables dentro de cada nivel.
 
-El cálculo suma efectos sobre el mismo precio base, reserva el tope por
-prioridad y congela un snapshot de línea `schema: 2` con descuento bruto,
-aplicado y truncamiento por regla. Quote y pedido comparten una explicación
-única. La aplicación combinada es canónica para automático/cantidad y evita
-duplicados; el código conserva además su reserva concurrente por su porción
-exacta. Edición y devolución siguen usando precio unitario histórico. La clase
-de envío está modelada, pero R4.5 no inventa todavía una fuente que descuente
-portes.
+Cada snapshot de línea conserva catálogo, lista/versión, precio elegido, scope
+empresarial y profundidad de fallback. El pedido agrega una aplicación por
+lista con line count y subtotales de catálogo/lista verificados por trigger. El
+checkout no usa `customer.company` para pricing: sin hash confiable solo puede
+seleccionar listas generales. Promociones, edición, devolución y restore quedan
+cubiertos sobre el precio congelado.
 
-La API `/api/admin/discount-combinations` es versionada/auditada, el preset
-avanzado la gobierna por capability y la demo rechaza mutaciones. Backup avanza
-a esquema 23. El rehearsal sobre el dump `0028` conservó 8 pedidos y 13 líneas;
-forward/restore quedaron íntegros con hash
-`0f4d4312ea7a1c2345048662566d3ba7e41d48740f2e739200a15e9d4ab49aa8` y dump
-de 544465 bytes. Artefacto:
-`/tmp/logic2b-r45-rehearsal-final-v2/r4-discount-combinations-1786718295508`.
-La D1 local aplica `0029`, con tablas vacías, integridad y FKs limpias; no se
-tocó D1 remota ni Worker.
+La API `/api/admin/price-lists` crea listas inmutables en precios/scopes y audita
+transiciones versionadas. El preset avanzado gobierna rutas/efectos; la demo
+bloquea mutaciones. Backup avanza a esquema 24. El rehearsal sobre el dump
+`0029` conservó 8 pedidos y 13 líneas, con hash
+`d2c74820ff9fbd50068b11e54a4928ff2e46dcbb97ad05450f9811c0a6eb0e77` y dump
+de 552665 bytes. Artefacto:
+`/tmp/logic2b-r46-rehearsal/r4-price-lists-1786719301131`. La D1 local aplica
+`0030`, con tablas vacías, integridad y FKs limpias; no se tocó D1 remota ni
+Worker.
 
-El corte limpio aislado pasa 127 suites/616 tests, 600 archivos tipados, build
-y sitemap de 6 URLs. El árbol compartido pasa 613/616 y conserva únicamente los tres fallos
-ajenos abiertos de Monte (asset, orden y categoría), que este bloque no toca;
-tipos y build están en verde. El E2E Wrangler local verifica aislamiento,
-compra/admin inertes, bloqueo de la nueva mutación y backup esquema 23.
+El corte limpio aislado pasa 132 suites/629 tests, 610 archivos tipados, build y
+sitemap de 6 URLs. El árbol compartido pasa tipos (616 archivos), build y E2E
+Wrangler completo; la suite conserva solo los tres fallos ajenos de Monte
+(asset, orden y categoría), que R4.6 no toca.
 
-Siguiente incremento exacto: `PRC-009`, listas de precios por mercado, canal y
-empresa con fallback explícito y snapshot de origen. Debe definir precedencia
-frente al precio base y promociones, resolver contexto solo desde fuentes de
-servidor, evitar que guest checkout invente una empresa, conservar edición y
-devolución por precio congelado, e incluir migración/rehearsal, API auditada,
-backup, gates y explicación en quote/pedido. No debe adelantar clientes R5,
-bundles R4.7 ni temas; estos últimos siguen fuera del objetivo por instrucción
-de Andreu.
+Siguiente incremento exacto: bundles R4.7. Debe separar bundle fijo y
+componible, definir precio/snapshot sin aceptar importes cliente, reservar y
+descontar stock de componentes, conservar fulfillment y devolución por
+componentes, soportar edición segura, incluir migración/rehearsal, API auditada,
+backup, gates y documentación. No debe adelantar tarjeta regalo R4.8, clientes
+R5 ni temas; estos últimos siguen fuera del objetivo por instrucción de Andreu.
 
 Las entradas que siguen son el histórico de cierres anteriores y no cambian el
 orden actual.
