@@ -50,6 +50,7 @@ describe('registro de módulos (R1.4)', () => {
       'platform-configuration.demo-fixture-reset': 'platform-configuration',
       'notifications.event-outbox-sweep': 'notifications',
       'inventory.expire-reservations': 'inventory',
+      'orders.execute-bulk-action': 'orders',
     });
     const descriptors = mutableDescriptors();
     (descriptors[1]!.jobs as string[]).push('platform-configuration.demo-fixture-reset');

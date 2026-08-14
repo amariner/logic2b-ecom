@@ -13,6 +13,7 @@ const EFFECT: CapabilityFlags = { routes: false, navigation: false, jobs: false,
 const JOB_EFFECT: CapabilityFlags = { routes: false, navigation: false, jobs: true, sideEffects: true };
 const ROUTE_EFFECT: CapabilityFlags = { routes: true, navigation: false, jobs: false, sideEffects: true };
 const NAVIGATION_EFFECT: CapabilityFlags = { routes: true, navigation: true, jobs: false, sideEffects: true };
+const FULL_EFFECT: CapabilityFlags = { routes: true, navigation: true, jobs: true, sideEffects: true };
 
 const MINIMAL_CAPABILITIES = {
   'PLT-001': { state: 'active', flags: INTERNAL },
@@ -71,9 +72,8 @@ const ADVANCED_CAPABILITIES = {
   'ORD-005': { state: 'active', flags: ROUTE_EFFECT },
   'ORD-007': { state: 'active', flags: ROUTE_EFFECT },
   'ORD-010': { state: 'active', flags: ROUTE_EFFECT },
-  // R3.5: contrato instalado; ruta, job y efectos esperan el gate de esquema.
-  'ORD-011': { state: 'installed' },
-  'AUT-011': { state: 'installed' },
+  'AUT-011': { state: 'active', flags: ROUTE },
+  'ORD-011': { state: 'active', flags: FULL_EFFECT },
   'CAT-002': { state: 'active', flags: INTERNAL },
   'CAT-003': { state: 'active', flags: ROUTE },
   'CAT-007': { state: 'active', flags: ROUTE },

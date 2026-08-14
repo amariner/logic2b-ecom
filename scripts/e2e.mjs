@@ -126,6 +126,13 @@ check(
     && adminHtml.includes('name="min"')
     && !adminHtml.includes('name="pagina"'),
 );
+check(
+  'panel expone selección y dry-run R3.5 sin habilitar efectos en demo',
+  adminHtml.includes('id="bulk-action-form"')
+    && adminHtml.includes('data-bulk-order')
+    && adminHtml.includes('data-can-execute="false"')
+    && adminHtml.includes('nunca crea lotes ni modifica pedidos'),
+);
 const heldOrdersHtml = await (await fetch(adminUrl('/demo/admin?incidencia=active'), { headers: { cookie } })).text();
 const heldOrderId = heldOrdersHtml.match(/\/demo\/admin\/pedidos\/(\d+)"/)?.[1];
 check(
@@ -276,6 +283,30 @@ for (const [label, method, path] of [
   check(`mutación de ${label} rechazada`, response.status === 403 && responseBody?.error?.includes('solo lectura'));
 }
 
+const bulkPreviewResponse = await fetch(adminUrl('/api/admin/order-bulk-actions/preview'), {
+  method: 'POST',
+  headers: { 'content-type': 'application/json', cookie },
+  body: JSON.stringify({
+    order_ids: [Number(orderId ?? heldOrderId ?? 1)],
+    action: {
+      type: 'create_hold', reasonCode: 'other',
+      owner: { kind: 'admin', id: 'operations' }, dueAt: '2099-01-01T12:00:00.000Z',
+    },
+  }),
+});
+const bulkPreviewBody = await json(bulkPreviewResponse);
+check(
+  'dry-run masivo demo es lectura pura y devuelve fingerprint',
+  bulkPreviewResponse.status === 200
+    && String(bulkPreviewBody?.preview?.previewFingerprint ?? '').startsWith('sha256:'),
+);
+const bulkConfirmResponse = await fetch(adminUrl('/api/admin/order-bulk-actions'), {
+  method: 'POST',
+  headers: { 'content-type': 'application/json', cookie },
+  body: JSON.stringify({ preview: bulkPreviewBody?.preview }),
+});
+check('confirmación masiva demo rechazada', bulkConfirmResponse.status === 403, `HTTP ${bulkConfirmResponse.status}`);
+
 const csv = await fetch(`${BASE}/api/admin/orders/export.csv`, { headers: { cookie } });
 check('CSV de fixtures sigue disponible', csv.ok && (await csv.text()).includes('BM-'));
 const backup = await fetch(`${BASE}/api/admin/backup.sql`, { headers: { cookie } });
@@ -287,8 +318,8 @@ check(
     && backupSql.includes('INSERT INTO attribute_definitions') && backupSql.includes('INSERT INTO product_attribute_values'),
 );
 check(
-  'backup esquema 11 conserva pagos, ediciones, colaboración e incidencias',
-  backupSql.includes('logic2b-backup-schema: 11')
+  'backup esquema 12 conserva pagos, colaboración, incidencias y lotes',
+  backupSql.includes('logic2b-backup-schema: 12')
     && backupSql.includes('INSERT INTO payments')
     && backupSql.includes('INSERT INTO payment_transactions')
     && backupSql.includes('DELETE FROM refunds')
@@ -300,9 +331,11 @@ check(
     && backupSql.includes('DELETE FROM order_amendments')
     && backupSql.includes('DELETE FROM order_amendment_lines')
     && backupSql.includes('DELETE FROM refund_payment_allocations')
-    && backupSql.includes('0017_order_holds')
     && backupSql.includes('INSERT INTO order_holds')
-    && backupSql.includes('INSERT INTO order_hold_events'),
+    && backupSql.includes('INSERT INTO order_hold_events')
+    && backupSql.includes('0018_order_bulk_actions')
+    && backupSql.includes('DELETE FROM order_bulk_batches')
+    && backupSql.includes('DELETE FROM order_bulk_batch_rows'),
 );
 
 if (failures > 0) {

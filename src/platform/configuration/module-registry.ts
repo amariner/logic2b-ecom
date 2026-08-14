@@ -110,11 +110,11 @@ export const MODULE_DESCRIPTORS = [
     permissions: [], events: [], subscriptions: [], jobs: [], healthchecks: [], wikiLinks: [ARCHITECTURE_WIKI], navigation: [], routes: [],
   },
   {
-    id: 'orders', version: '1.5.0', capabilities: ['ORD-001', 'ORD-002', 'ORD-004', 'ORD-005', 'ORD-007', 'ORD-010', 'ORD-011', 'AUT-001', 'AUT-011'],
+    id: 'orders', version: '1.6.0', capabilities: ['ORD-001', 'ORD-002', 'ORD-004', 'ORD-005', 'ORD-007', 'ORD-010', 'ORD-011', 'AUT-001', 'AUT-011'],
     dependencies: ['catalog', 'pricing', 'customers'], permissions: ['orders.read', 'orders.transition', 'orders.collaborate', 'orders.amend', 'orders.refund', 'orders.hold', 'orders.bulk'],
     events: ['orders.order_placed', 'orders.order_paid', 'orders.order_shipped', 'orders.order_delivered', 'orders.order_cancelled', 'orders.order_refunded', 'orders.order_partially_refunded', 'orders.order_amendment_requested', 'orders.order_amendment_applied', 'orders.order_amendment_expired', 'orders.order_hold_created', 'orders.order_hold_assigned', 'orders.order_hold_resolved'],
     subscriptions: [],
-    jobs: [], healthchecks: [], wikiLinks: [ARCHITECTURE_WIKI],
+    jobs: ['orders.execute-bulk-action'], healthchecks: [], wikiLinks: [ARCHITECTURE_WIKI],
     navigation: [{ id: 'pedidos', href: '/demo/admin', label: 'Pedidos', order: 10, capabilityId: 'ORD-001' }],
     routes: [
       { match: 'exact', path: '/demo/admin', capabilityId: 'ORD-001' },
@@ -124,6 +124,7 @@ export const MODULE_DESCRIPTORS = [
       { match: 'prefix', path: '/api/admin/order-tags', capabilityId: 'ORD-004' },
       { match: 'prefix', path: '/api/admin/order-amendments', capabilityId: 'ORD-005' },
       { match: 'prefix', path: '/api/admin/order-holds', capabilityId: 'ORD-010' },
+      { match: 'prefix', path: '/api/admin/order-bulk-actions', capabilityId: 'ORD-011' },
       { match: 'prefix', path: '/api/admin/orders/', capabilityId: 'ORD-002' },
     ],
   },

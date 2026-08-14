@@ -112,6 +112,7 @@ export {
   createOrderBulkPreview,
   orderBulkRowIdempotencyKey,
   summarizeOrderBulkExecution,
+  verifyOrderBulkPreview,
   type OrderBulkAction,
   type OrderBulkActionType,
   type OrderBulkCandidate,
@@ -121,6 +122,7 @@ export {
   type OrderBulkPreview,
   type OrderBulkPreviewReason,
   type OrderBulkPreviewRow,
+  type VerifiedOrderBulkPreview,
 } from './domain/order-bulk-action';
 
 export {
@@ -157,3 +159,15 @@ export {
   type D1OrderHolds,
   type OrderHoldRecord,
 } from './infrastructure/d1-order-holds';
+
+export {
+  createD1OrderBulkActions,
+  type D1OrderBulkActions,
+  type OrderBulkBatchRecord,
+  type OrderBulkBatchRowRecord,
+  type OrderBulkBatchStatus,
+  type OrderBulkBatchView,
+  type OrderBulkProgress,
+  type OrderBulkResultCode,
+  type OrderBulkOutcomeInput,
+} from './infrastructure/d1-order-bulk-actions';

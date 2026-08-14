@@ -75,6 +75,12 @@ const countFor = (st: string): number => counts.find((c) => c.status === st)?.n 
 const allCount = counts.reduce((sum, c) => sum + c.n, 0);
 const canBackup = runtimePlatform.hasCapabilityFlag('INT-004', 'routes');
 const canExport = runtimePlatform.hasCapabilityFlag('FUL-003', 'routes');
+const canBulkPreview = runtimePlatform.hasCapabilityFlag('ORD-011', 'navigation') &&
+  runtimePlatform.hasCapabilityFlag('AUT-011', 'routes');
+const canBulkExecute = Astro.locals.runtime.env.DEMO_MODE !== 'true' &&
+  runtimePlatform.hasCapabilityFlag('ORD-011', 'jobs') &&
+  runtimePlatform.hasCapabilityFlag('ORD-011', 'sideEffects');
+const bulkTags = tagDefinitions.filter((item) => item.active === 1);
 const statusLabel: Record<string, string> = {
   pending: 'Pendiente', paid: 'Pagado', shipped: 'Enviado', delivered: 'Entregado', cancelled: 'Cancelado',
 };
@@ -143,14 +149,83 @@ const date = (value: string) => new Intl.DateTimeFormat('es-ES', { day: '2-digit
 
     {(invalidCursor || filterIssue) && <div class="p-5 pb-0"><AdminNotice tone="warning">{invalidCursor ? 'El cursor no pertenece a esta consulta; mostramos la primera página.' : 'Revisa el rango de fecha o importe: el valor inicial no puede superar al final.'}</AdminNotice></div>}
 
+    {canBulkPreview && <section
+      id="bulk-actions"
+      data-can-execute={canBulkExecute ? 'true' : 'false'}
+      class="border-b border-border bg-muted/30 p-4 sm:p-5"
+      aria-labelledby="bulk-actions-title"
+    >
+      <div class="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
+        <div class="max-w-xl">
+          <h3 id="bulk-actions-title" class="font-display text-lg">Acciones masivas seguras</h3>
+          <p class="mt-1 text-sm leading-6 text-muted-foreground">Congela hasta 500 pedidos, revisa el impacto y confirma después. Cada pedido se valida otra vez al ejecutar.</p>
+          <div class="mt-3 flex flex-wrap items-center gap-2 text-sm">
+            <strong><span data-bulk-count>0</span> seleccionados</strong>
+            <button type="button" data-bulk-select-page class="min-h-10 rounded-xl border border-border bg-card px-3 font-medium hover:bg-muted">Seleccionar esta página</button>
+            <button type="button" data-bulk-clear class="min-h-10 rounded-xl px-3 font-medium text-muted-foreground hover:bg-muted">Vaciar selección</button>
+          </div>
+        </div>
+        <form id="bulk-action-form" class="grid w-full gap-3 rounded-2xl border border-border bg-card p-4 xl:max-w-2xl xl:grid-cols-2">
+          <label class="text-xs font-semibold text-muted-foreground">Acción
+            <select name="action" class="mt-1 min-h-11 w-full rounded-xl border border-input bg-background px-3 text-sm text-foreground">
+              <option value="add_tag">Añadir etiqueta</option>
+              <option value="remove_tag">Quitar etiqueta</option>
+              <option value="create_hold">Crear incidencia</option>
+            </select>
+          </label>
+          <label data-bulk-tag-field class="text-xs font-semibold text-muted-foreground">Etiqueta
+            <select name="tag_id" class="mt-1 min-h-11 w-full rounded-xl border border-input bg-background px-3 text-sm text-foreground">
+              {bulkTags.map((item) => <option value={item.id}>{item.label}</option>)}
+            </select>
+          </label>
+          <div data-bulk-hold-fields class="contents" hidden>
+            <label class="text-xs font-semibold text-muted-foreground">Motivo
+              <select name="reason_code" class="mt-1 min-h-11 w-full rounded-xl border border-input bg-background px-3 text-sm text-foreground">
+                <option value="payment_review">Revisión de pago</option>
+                <option value="inventory_issue">Incidencia de inventario</option>
+                <option value="address_issue">Revisar dirección</option>
+                <option value="customer_request">Petición del cliente</option>
+                <option value="fulfillment_issue">Incidencia de preparación</option>
+                <option value="risk_review">Revisión de riesgo</option>
+                <option value="other">Otro</option>
+              </select>
+            </label>
+            <label class="text-xs font-semibold text-muted-foreground">Responsable técnico
+              <input name="owner_id" value="operations" maxlength="80" pattern="[A-Za-z0-9:_-]+" class="mt-1 min-h-11 w-full rounded-xl border border-input bg-background px-3 text-sm text-foreground" />
+            </label>
+            <label class="text-xs font-semibold text-muted-foreground">SLA
+              <input type="datetime-local" name="due_at" class="mt-1 min-h-11 w-full rounded-xl border border-input bg-background px-3 text-sm text-foreground" />
+            </label>
+          </div>
+          <button type="submit" class="min-h-11 rounded-xl bg-foreground px-4 text-sm font-semibold text-background hover:bg-foreground/85 xl:self-end">Previsualizar</button>
+        </form>
+      </div>
+
+      <div id="bulk-preview-result" class="mt-4 rounded-2xl border border-border bg-card p-4" hidden aria-live="polite">
+        <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+          <div>
+            <p class="text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">Dry-run sin efectos</p>
+            <p class="mt-2 font-semibold"><span data-bulk-ready>0</span> listos · <span data-bulk-skipped>0</span> omitidos</p>
+            <p data-bulk-status class="mt-1 text-sm text-muted-foreground"></p>
+          </div>
+          <div class="flex flex-wrap gap-2">
+            <button type="button" data-bulk-confirm class="min-h-11 rounded-xl bg-foreground px-4 text-sm font-semibold text-background hover:bg-foreground/85" hidden>Confirmar y ejecutar</button>
+            <button type="button" data-bulk-replay class="min-h-11 rounded-xl border border-border px-4 text-sm font-semibold hover:bg-muted" hidden>Reintentar fallos</button>
+          </div>
+        </div>
+        {!canBulkExecute && <div class="mt-3"><AdminNotice tone="info">La demo permite revisar el dry-run, pero nunca crea lotes ni modifica pedidos.</AdminNotice></div>}
+        <ul data-bulk-rows class="mt-3 grid gap-2 text-sm sm:grid-cols-2 xl:grid-cols-3"></ul>
+      </div>
+    </section>}
+
     {orders.length > 0 && <>
       <div class="hidden overflow-x-auto md:block">
         <table class="w-full text-sm">
-          <thead class="border-b border-border bg-muted/60 text-left text-xs uppercase tracking-[0.11em] text-muted-foreground"><tr><th class="px-5 py-3 font-semibold">Pedido</th><th class="px-5 py-3 font-semibold">Cliente</th><th class="px-5 py-3 font-semibold">Fecha</th><th class="px-5 py-3 text-right font-semibold">Total</th><th class="px-5 py-3 font-semibold">Estado</th><th class="w-12 px-3"><span class="sr-only">Abrir</span></th></tr></thead>
-          <tbody class="divide-y divide-border">{orders.map((order) => <tr class="group hover:bg-muted/50"><td class="px-5 py-4"><a href={`/demo/admin/pedidos/${order.id}`} class="font-mono font-semibold underline-offset-4 after:absolute hover:underline">{order.order_number}</a></td><td class="px-5 py-4"><p class="font-medium">{order.customer_name}</p><p class="mt-0.5 text-xs text-muted-foreground">{order.email}</p></td><td class="whitespace-nowrap px-5 py-4 text-muted-foreground">{date(order.created_at)}</td><td class="px-5 py-4 text-right font-semibold">{formatEurCents(order.total_cents)}</td><td class="px-5 py-4"><AdminStatusBadge status={order.status} label={statusLabel[order.status] ?? order.status}/>{order.active_hold_count > 0 && <span class:list={['mt-2 block w-fit rounded-full px-2.5 py-1 text-xs font-semibold', order.breached_hold_count > 0 ? 'bg-red-100 text-red-900' : 'bg-amber-100 text-amber-950']}>{order.breached_hold_count > 0 ? 'SLA vencido' : `${order.active_hold_count} incidencia${order.active_hold_count === 1 ? '' : 's'}`}</span>}</td><td class="px-3 py-4"><a href={`/demo/admin/pedidos/${order.id}`} class="flex size-11 items-center justify-center rounded-xl text-muted-foreground group-hover:bg-card group-hover:text-foreground" aria-label={`Abrir pedido ${order.order_number}`}><AdminIcon name="chevron" class="size-4"/></a></td></tr>)}</tbody>
+          <thead class="border-b border-border bg-muted/60 text-left text-xs uppercase tracking-[0.11em] text-muted-foreground"><tr>{canBulkPreview && <th class="w-14 px-3"><span class="sr-only">Seleccionar</span></th>}<th class="px-5 py-3 font-semibold">Pedido</th><th class="px-5 py-3 font-semibold">Cliente</th><th class="px-5 py-3 font-semibold">Fecha</th><th class="px-5 py-3 text-right font-semibold">Total</th><th class="px-5 py-3 font-semibold">Estado</th><th class="w-12 px-3"><span class="sr-only">Abrir</span></th></tr></thead>
+          <tbody class="divide-y divide-border">{orders.map((order) => <tr class="group hover:bg-muted/50">{canBulkPreview && <td class="px-3 py-4"><label class="flex size-11 items-center justify-center rounded-xl hover:bg-card"><span class="sr-only">Seleccionar pedido {order.order_number}</span><input type="checkbox" value={order.id} data-bulk-order class="size-5 rounded border-input accent-foreground" /></label></td>}<td class="px-5 py-4"><a href={`/demo/admin/pedidos/${order.id}`} class="font-mono font-semibold underline-offset-4 after:absolute hover:underline">{order.order_number}</a></td><td class="px-5 py-4"><p class="font-medium">{order.customer_name}</p><p class="mt-0.5 text-xs text-muted-foreground">{order.email}</p></td><td class="whitespace-nowrap px-5 py-4 text-muted-foreground">{date(order.created_at)}</td><td class="px-5 py-4 text-right font-semibold">{formatEurCents(order.total_cents)}</td><td class="px-5 py-4"><AdminStatusBadge status={order.status} label={statusLabel[order.status] ?? order.status}/>{order.active_hold_count > 0 && <span class:list={['mt-2 block w-fit rounded-full px-2.5 py-1 text-xs font-semibold', order.breached_hold_count > 0 ? 'bg-red-100 text-red-900' : 'bg-amber-100 text-amber-950']}>{order.breached_hold_count > 0 ? 'SLA vencido' : `${order.active_hold_count} incidencia${order.active_hold_count === 1 ? '' : 's'}`}</span>}</td><td class="px-3 py-4"><a href={`/demo/admin/pedidos/${order.id}`} class="flex size-11 items-center justify-center rounded-xl text-muted-foreground group-hover:bg-card group-hover:text-foreground" aria-label={`Abrir pedido ${order.order_number}`}><AdminIcon name="chevron" class="size-4"/></a></td></tr>)}</tbody>
         </table>
       </div>
-      <ul class="divide-y divide-border md:hidden">{orders.map((order) => <li><a href={`/demo/admin/pedidos/${order.id}`} class="block min-h-11 p-4 hover:bg-muted/60"><div class="flex items-start justify-between gap-3"><div><p class="font-mono text-sm font-semibold">{order.order_number}</p><p class="mt-1 text-sm font-medium">{order.customer_name}</p></div><p class="font-semibold">{formatEurCents(order.total_cents)}</p></div><div class="mt-3 flex flex-wrap items-center justify-between gap-3"><AdminStatusBadge status={order.status} label={statusLabel[order.status] ?? order.status}/>{order.active_hold_count > 0 && <span class:list={['rounded-full px-2.5 py-1 text-xs font-semibold', order.breached_hold_count > 0 ? 'bg-red-100 text-red-900' : 'bg-amber-100 text-amber-950']}>{order.breached_hold_count > 0 ? 'SLA vencido' : `${order.active_hold_count} incidencia${order.active_hold_count === 1 ? '' : 's'}`}</span>}<time class="text-xs text-muted-foreground">{date(order.created_at)}</time></div></a></li>)}</ul>
+      <ul class="divide-y divide-border md:hidden">{orders.map((order) => <li class="flex items-start gap-1 p-2">{canBulkPreview && <label class="flex size-11 shrink-0 items-center justify-center rounded-xl hover:bg-muted"><span class="sr-only">Seleccionar pedido {order.order_number}</span><input type="checkbox" value={order.id} data-bulk-order class="size-5 rounded border-input accent-foreground" /></label>}<a href={`/demo/admin/pedidos/${order.id}`} class="min-w-0 flex-1 rounded-xl p-2 hover:bg-muted/60"><div class="flex items-start justify-between gap-3"><div><p class="font-mono text-sm font-semibold">{order.order_number}</p><p class="mt-1 text-sm font-medium">{order.customer_name}</p></div><p class="font-semibold">{formatEurCents(order.total_cents)}</p></div><div class="mt-3 flex flex-wrap items-center justify-between gap-3"><AdminStatusBadge status={order.status} label={statusLabel[order.status] ?? order.status}/>{order.active_hold_count > 0 && <span class:list={['rounded-full px-2.5 py-1 text-xs font-semibold', order.breached_hold_count > 0 ? 'bg-red-100 text-red-900' : 'bg-amber-100 text-amber-950']}>{order.breached_hold_count > 0 ? 'SLA vencido' : `${order.active_hold_count} incidencia${order.active_hold_count === 1 ? '' : 's'}`}</span>}<time class="text-xs text-muted-foreground">{date(order.created_at)}</time></div></a></li>)}</ul>
     </>}
 
     {orders.length === 0 && <div class="px-5 py-14 text-center"><span class="mx-auto flex size-12 items-center justify-center rounded-2xl bg-muted text-muted-foreground"><AdminIcon name="orders"/></span><h3 class="mt-4 font-display text-lg">No hay pedidos que coincidan</h3><p class="mx-auto mt-2 max-w-md text-sm leading-6 text-muted-foreground">Prueba a quitar algún filtro o visita la tienda demo para conocer el recorrido de compra.</p><a href={filtersActive ? '/demo/admin' : MAIN_DEMO_HREF} class="mt-5 inline-flex min-h-11 items-center rounded-xl border border-border px-4 text-sm font-semibold hover:bg-muted">{filtersActive ? 'Quitar filtros' : 'Ver tienda ARCE'}</a></div>}
@@ -158,3 +233,252 @@ const date = (value: string) => new Intl.DateTimeFormat('es-ES', { day: '2-digit
     {(previousCursor || nextCursor) && <nav class="flex flex-col gap-3 border-t border-border px-4 py-3 text-sm sm:flex-row sm:items-center sm:justify-between" aria-label="Paginación de pedidos"><span class="text-muted-foreground">Mostrando {orders.length} de {total} resultados</span><div class="flex gap-2">{previousCursor && <a href={hrefFor({ status, cursor: previousCursor })} class="inline-flex min-h-11 flex-1 items-center justify-center rounded-xl border border-border px-3 font-medium hover:bg-muted sm:flex-none">Anterior</a>}{nextCursor && <a href={hrefFor({ status, cursor: nextCursor })} class="inline-flex min-h-11 flex-1 items-center justify-center rounded-xl border border-border px-3 font-medium hover:bg-muted sm:flex-none">Siguiente</a>}</div></nav>}
   </section>
 </Admin>
+
+<script>
+  type BulkPreview = {
+    action:
+      | { type: 'add_tag' | 'remove_tag'; tagId: number }
+      | { type: 'create_hold'; reasonCode: string; owner: { kind: 'admin'; id: string }; dueAt: string };
+    observedAt: string;
+    expiresAt: string;
+    selectionFingerprint: string;
+    previewFingerprint: string;
+    rows: Array<{
+      orderId: number;
+      observedVersion: number | null;
+      status: string | null;
+      eligibility: 'ready' | 'skipped';
+      reason: string;
+    }>;
+    counts: { total: number; ready: number; skipped: number };
+  };
+  type BulkView = {
+    batch: { id: string; status: string };
+    progress: {
+      total: number; pending: number; applied: number; replayed: number;
+      skipped: number; conflict: number; retryableFailure: number;
+      permanentFailure: number; completed: number;
+    };
+    rows: Array<{ order_id: number; order_number: string | null; outcome: string; result_code: string | null }>;
+  };
+
+  const panel = document.querySelector<HTMLElement>('#bulk-actions');
+  if (panel) {
+    const storageKey = 'logic2b-admin-bulk-selection';
+    const form = panel.querySelector<HTMLFormElement>('#bulk-action-form')!;
+    const result = panel.querySelector<HTMLElement>('#bulk-preview-result')!;
+    const status = panel.querySelector<HTMLElement>('[data-bulk-status]')!;
+    const count = panel.querySelector<HTMLElement>('[data-bulk-count]')!;
+    const ready = panel.querySelector<HTMLElement>('[data-bulk-ready]')!;
+    const skipped = panel.querySelector<HTMLElement>('[data-bulk-skipped]')!;
+    const rowsList = panel.querySelector<HTMLUListElement>('[data-bulk-rows]')!;
+    const confirmButton = panel.querySelector<HTMLButtonElement>('[data-bulk-confirm]')!;
+    const replayButton = panel.querySelector<HTMLButtonElement>('[data-bulk-replay]')!;
+    const actionSelect = form.elements.namedItem('action') as unknown as HTMLSelectElement;
+    const tagField = panel.querySelector<HTMLElement>('[data-bulk-tag-field]')!;
+    const holdFields = panel.querySelector<HTMLElement>('[data-bulk-hold-fields]')!;
+    const dueInput = form.elements.namedItem('due_at') as HTMLInputElement;
+    const canExecute = panel.dataset.canExecute === 'true';
+    let currentPreview: BulkPreview | null = null;
+    let currentBatchId: string | null = null;
+
+    const selected = new Set<number>();
+    try {
+      const stored: unknown = JSON.parse(sessionStorage.getItem(storageKey) ?? '[]');
+      if (Array.isArray(stored)) {
+        for (const value of stored) {
+          if (Number.isSafeInteger(value) && Number(value) > 0 && selected.size < 500) selected.add(Number(value));
+        }
+      }
+    } catch {
+      sessionStorage.removeItem(storageKey);
+    }
+
+    const checkboxes = () => [...document.querySelectorAll<HTMLInputElement>('[data-bulk-order]')];
+    const syncSelection = () => {
+      for (const checkbox of checkboxes()) checkbox.checked = selected.has(Number(checkbox.value));
+      count.textContent = String(selected.size);
+      sessionStorage.setItem(storageKey, JSON.stringify([...selected].toSorted((a, b) => a - b)));
+    };
+    for (const checkbox of checkboxes()) checkbox.addEventListener('change', () => {
+      const id = Number(checkbox.value);
+      if (checkbox.checked && selected.size < 500) selected.add(id);
+      else selected.delete(id);
+      syncSelection();
+    });
+    panel.querySelector<HTMLButtonElement>('[data-bulk-select-page]')?.addEventListener('click', () => {
+      for (const checkbox of checkboxes()) {
+        if (selected.size >= 500) break;
+        selected.add(Number(checkbox.value));
+      }
+      syncSelection();
+    });
+    panel.querySelector<HTMLButtonElement>('[data-bulk-clear]')?.addEventListener('click', () => {
+      selected.clear();
+      currentPreview = null;
+      result.hidden = true;
+      syncSelection();
+    });
+    syncSelection();
+
+    const syncActionFields = () => {
+      const hold = actionSelect.value === 'create_hold';
+      tagField.hidden = hold;
+      holdFields.hidden = !hold;
+      dueInput.required = hold;
+    };
+    actionSelect.addEventListener('change', syncActionFields);
+    const due = new Date(Date.now() + 4 * 60 * 60_000);
+    due.setMinutes(due.getMinutes() - due.getTimezoneOffset());
+    dueInput.value = due.toISOString().slice(0, 16);
+    syncActionFields();
+
+    const reasonLabel: Record<string, string> = {
+      ready: 'Listo', order_not_found: 'Pedido no encontrado', already_applied: 'Ya aplicado',
+      already_absent: 'Ya ausente', active_hold_same_reason: 'Incidencia ya activa',
+      status_not_supported: 'Estado incompatible', applied: 'Aplicado',
+      replayed_same_batch: 'Reconocido en replay', tag_not_found: 'Etiqueta no disponible',
+      hold_due_elapsed: 'SLA vencido antes de ejecutar', precondition_changed: 'Cambió durante la ejecución',
+      retryable_failure: 'Fallo reintentable', permanent_failure: 'Fallo permanente',
+    };
+    const renderRows = (items: Array<{ orderId: number; label: string; tone: string }>) => {
+      rowsList.replaceChildren(...items.slice(0, 18).map((item) => {
+        const li = document.createElement('li');
+        li.className = 'flex items-center justify-between gap-3 rounded-xl border border-border bg-background px-3 py-2';
+        const id = document.createElement('span');
+        id.className = 'font-mono text-xs font-semibold';
+        id.textContent = `#${item.orderId}`;
+        const label = document.createElement('span');
+        label.className = `text-xs font-medium ${item.tone}`;
+        label.textContent = item.label;
+        li.appendChild(id);
+        li.appendChild(label);
+        return li;
+      }));
+      if (items.length > 18) {
+        const more = document.createElement('li');
+        more.className = 'px-3 py-2 text-xs text-muted-foreground';
+        more.textContent = `Y ${items.length - 18} resultados más`;
+        rowsList.appendChild(more);
+      }
+    };
+
+    const renderPreview = (preview: BulkPreview) => {
+      result.hidden = false;
+      ready.textContent = String(preview.counts.ready);
+      skipped.textContent = String(preview.counts.skipped);
+      status.textContent = `La decisión caduca a las ${new Date(preview.expiresAt).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}.`;
+      confirmButton.hidden = !canExecute || preview.counts.ready === 0;
+      replayButton.hidden = true;
+      renderRows(preview.rows.map((row) => ({
+        orderId: row.orderId,
+        label: reasonLabel[row.reason] ?? row.reason,
+        tone: row.eligibility === 'ready' ? 'text-emerald-700' : 'text-muted-foreground',
+      })));
+    };
+
+    const renderBatch = (view: BulkView) => {
+      currentBatchId = view.batch.id;
+      result.hidden = false;
+      ready.textContent = String(view.progress.applied + view.progress.replayed);
+      skipped.textContent = String(view.progress.skipped + view.progress.conflict + view.progress.permanentFailure);
+      status.textContent = view.batch.status === 'running' || view.batch.status === 'pending'
+        ? `${view.progress.completed} de ${view.progress.total} procesados…`
+        : `Lote ${view.batch.id}: ${view.progress.applied} aplicados, ${view.progress.replayed} reconocidos, ${view.progress.conflict} conflictos.`;
+      confirmButton.hidden = true;
+      replayButton.hidden = !canExecute || view.progress.retryableFailure === 0;
+      renderRows(view.rows.map((row) => ({
+        orderId: row.order_id,
+        label: reasonLabel[row.result_code ?? row.outcome] ?? row.outcome,
+        tone: row.outcome === 'applied' || row.outcome === 'replayed'
+          ? 'text-emerald-700'
+          : row.outcome === 'conflict' || row.outcome === 'permanent_failure'
+            ? 'text-red-700'
+            : 'text-muted-foreground',
+      })));
+      if (view.batch.status === 'completed' || view.batch.status === 'completed_with_errors') {
+        selected.clear();
+        syncSelection();
+      }
+    };
+
+    const requestJson = async <T,>(url: string, init?: RequestInit): Promise<T> => {
+      const response = await fetch(url, init);
+      const body = await response.json() as T & { error?: string };
+      if (!response.ok) throw new Error(body.error ?? `Error HTTP ${response.status}`);
+      return body;
+    };
+
+    const pollBatch = async (id: string) => {
+      const payload = await requestJson<{ batch: BulkView }>(`/api/admin/order-bulk-actions/${id}`);
+      renderBatch(payload.batch);
+      if (payload.batch.batch.status === 'pending' || payload.batch.batch.status === 'running') {
+        window.setTimeout(() => void pollBatch(id).catch((error: unknown) => {
+          status.textContent = error instanceof Error ? error.message : 'No se pudo actualizar el lote.';
+        }), 900);
+      }
+    };
+
+    form.addEventListener('submit', (event) => {
+      event.preventDefault();
+      void (async () => {
+        if (selected.size === 0) throw new Error('Selecciona al menos un pedido.');
+        const data = new FormData(form);
+        const action = actionSelect.value === 'create_hold'
+          ? {
+              type: 'create_hold' as const,
+              reasonCode: String(data.get('reason_code') ?? ''),
+              owner: { kind: 'admin' as const, id: String(data.get('owner_id') ?? '') },
+              dueAt: new Date(String(data.get('due_at') ?? '')).toISOString(),
+            }
+          : {
+              type: actionSelect.value as 'add_tag' | 'remove_tag',
+              tagId: Number(data.get('tag_id')),
+            };
+        status.textContent = 'Calculando el dry-run…';
+        result.hidden = false;
+        const payload = await requestJson<{ preview: BulkPreview }>('/api/admin/order-bulk-actions/preview', {
+          method: 'POST', headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ order_ids: [...selected], action }),
+        });
+        currentPreview = payload.preview;
+        renderPreview(payload.preview);
+      })().catch((error: unknown) => {
+        result.hidden = false;
+        status.textContent = error instanceof Error ? error.message : 'No se pudo crear el dry-run.';
+      });
+    });
+
+    confirmButton.addEventListener('click', () => {
+      void (async () => {
+        if (!currentPreview) throw new Error('Genera un dry-run nuevo antes de confirmar.');
+        confirmButton.disabled = true;
+        status.textContent = 'Congelando la selección y ejecutando…';
+        const payload = await requestJson<{ batch: BulkView }>('/api/admin/order-bulk-actions', {
+          method: 'POST', headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ preview: currentPreview }),
+        });
+        renderBatch(payload.batch);
+        if (payload.batch.batch.status === 'pending' || payload.batch.batch.status === 'running') {
+          await pollBatch(payload.batch.batch.id);
+        }
+      })().catch((error: unknown) => {
+        status.textContent = error instanceof Error ? error.message : 'No se pudo ejecutar el lote.';
+      }).finally(() => { confirmButton.disabled = false; });
+    });
+
+    replayButton.addEventListener('click', () => {
+      void (async () => {
+        if (!currentBatchId) throw new Error('No hay un lote reintentable.');
+        replayButton.disabled = true;
+        const payload = await requestJson<{ batch: BulkView }>(`/api/admin/order-bulk-actions/${currentBatchId}`, {
+          method: 'POST', headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ action: 'replay' }),
+        });
+        renderBatch(payload.batch);
+      })().catch((error: unknown) => {
+        status.textContent = error instanceof Error ? error.message : 'No se pudo reintentar el lote.';
+      }).finally(() => { replayButton.disabled = false; });
+    });
+  }
+</script>

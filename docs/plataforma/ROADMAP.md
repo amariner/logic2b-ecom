@@ -110,7 +110,7 @@ Cada migración se diseña y ensaya sobre una copia antes de tocar el esquema vi
 | 28 | **R3.2 Notas, etiquetas y timeline** | Visibilidad interna/cliente, actor, edición auditada y filtros. | ✅ 2026-08-12 |
 | 29 | **R3.3 Edición de pedido** | Añadir/quitar/cantidad/dirección con preview de delta, pago adicional o reembolso y stock. | ✅ 2026-08-12 |
 | 30 | **R3.4 Holds e incidencias** | Bloqueo manual/automático, motivo, responsable, SLA y desbloqueo; preparación no avanza en hold. | ✅ 2026-08-13 |
-| 31 | **R3.5 Acciones masivas** | Selección estable, dry-run, job, progreso, resultados por fila y replay seguro. | 🟡 contrato completo; DDL pendiente de autorización |
+| 31 | **R3.5 Acciones masivas** | Selección estable, dry-run, job, progreso, resultados por fila y replay seguro. | ✅ 2026-08-14 |
 | 32 | **R3.6 Ubicaciones** | Modelo y admin de almacenes/tiendas; inventario simple se backfillea a ubicación principal. | ⬜ |
 | 33 | **R3.7 Transferencias** | Borrador→enviado→recibido parcial, discrepancias y movimientos de ledger. | ⬜ |
 | 34 | **R3.8 Conteos y ajustes** | Conteo por ubicación, razón, doble control opcional y auditoría. | ⬜ |
@@ -1009,23 +1009,23 @@ vencimiento, resolución y actividad. `DEMO_MODE` rechaza las mutaciones con
 `5ec8b676-781c-4463-9a18-7aa8a597a8eb`. Backup esquema 11 y runbook en
 `OPERACION_INCIDENCIAS_PEDIDOS.md`.
 
-### R3.5 — acciones masivas seguras — 🟡 contrato completo
+### R3.5 — acciones masivas seguras — ✅ cerrado 2026-08-14
 
-ADR-0021 cierra el gate de arquitectura previo al esquema. La primera entrega
-se limita a añadir/quitar etiqueta y crear hold; excluye estado, fulfillment,
-dinero, inventario y proveedores. La selección congela como máximo 500 ids,
-usa fingerprint SHA-256, preview sin efectos de 15 minutos y revalidación por
-pedido. El job futuro procesará 25 filas y su replay solo retomará `pending` o
-`retryable_failure` mediante idempotencia por lote/acción/pedido.
+ADR-0021 y `0018_order_bulk_actions.sql` materializan lotes tipados para añadir
+o quitar etiquetas y crear holds; estado, fulfillment, dinero, inventario y
+proveedores siguen excluidos. Hasta 500 ids se congelan con fingerprints
+SHA-256 y preview puro de 15 minutos. El job procesa chunks de 25, revalida cada
+pedido y conserva progreso, resultado y evidencia por fila.
 
-El contrato puro y sus pruebas quedan integrados. `ORD-011` y `AUT-011` están
-registradas como `installed` sin ruta, navegación, job ni efectos. No se creó
-migración, endpoint, UI ni cambio remoto; D1 continúa en `0017` y producción en
-el Worker `5ec8b676-781c-4463-9a18-7aa8a597a8eb`. Gate: **78 suites/469
-tests**, tipos y build en verde; E2E/a11y no aplican porque no cambió ninguna
-superficie servida.
+`ORD-011` y `AUT-011` están servidas en el preset avanzado. La demo conserva
+selección y dry-run, pero su manifest no contiene job/efectos y las mutaciones
+responden `403`. El replay retoma solo fallos reintentables; una interrupción
+`pending` o `dead` recupera el mismo run y nunca repite evidencia aplicada.
+Backup esquema 12 y runbook en `OPERACION_ACCIONES_MASIVAS_PEDIDOS.md`.
 
-Siguiente incremento bloqueado por decisión reservada: autorizar una migración
-expand-only para `order_bulk_batches` y `order_bulk_batch_rows`. Tras esa
-autorización se implementarán persistencia, job durable, API, panel, operación,
-rehearsal y gates concurrentes sin detener R3.5 a mitad.
+Rehearsal local: 8 pedidos, hash legacy
+`7b6b862a1830aec8b73c0d1de81cbb98476a60e5c31d200a115ac0c5e87ef499`,
+dump/restore íntegro y cero fallos FK. Gates de superficie: E2E completo y
+a11y `admin:pedidos` a 1440/375 en verde. Gate limpio aislado: **81 suites/487
+tests**, tipos y build en verde; el cierre remoto se anota tras el rollout
+coordinado.

@@ -3,11 +3,12 @@ import { BACKUP_SCHEMA_VERSION, BACKUP_TABLES, buildBackupSql, dumpTable } from 
 import { seedStatements } from '../seed/seed';
 import { createD1BackupReader, exportBackup } from '../src/platform/operations';
 import { SqliteD1 } from './sqlite-d1';
+import { createOrderBulkActionOperations } from '../src/composition/order-bulk-action-operations';
 
 describe('volcado de copia de seguridad', () => {
   it('declara el contrato que incluye la colaboración de pedidos', () => {
-    expect(BACKUP_SCHEMA_VERSION).toBe(11);
-    expect(buildBackupSql({}, '2026-08-13')).toContain('0017_order_holds');
+    expect(BACKUP_SCHEMA_VERSION).toBe(12);
+    expect(buildBackupSql({}, '2026-08-14')).toContain('0018_order_bulk_actions');
   });
 
   it('genera INSERTs con columnas explícitas y escape de comillas', () => {
@@ -65,6 +66,8 @@ describe('volcado de copia de seguridad', () => {
       'refund_payment_allocations',
       'order_holds',
       'order_hold_events',
+      'order_bulk_batches',
+      'order_bulk_batch_rows',
     ]));
     for (const table of BACKUP_TABLES) expect(sql).toContain(`DELETE FROM ${table};`);
   });
@@ -124,6 +127,16 @@ describe('volcado de copia de seguridad', () => {
       SET reserved = reserved + 1, reservation_version = reservation_version + 1
       WHERE variant_id = ?
     `).run(reservable.variant_id);
+    const bulkOperations = createOrderBulkActionOperations(source.asD1(), {
+      now: () => '2026-08-08T16:00:00.000Z',
+    });
+    const bulkOrderId = Number(source.value("SELECT id AS value FROM orders WHERE order_number = 'BM-DEMO-1004'"));
+    const bulkTagId = Number(source.value("SELECT id AS value FROM order_tags WHERE slug = 'prioritario'"));
+    const bulkPreview = await bulkOperations.preview({
+      orderIds: [bulkOrderId],
+      action: { type: 'add_tag', tagId: bulkTagId },
+    });
+    const bulkBatch = await bulkOperations.confirm(bulkPreview);
     const backup = await exportBackup(
       createD1BackupReader(source.asD1()),
       new Date('2026-08-08T16:00:00.000Z'),
@@ -147,6 +160,8 @@ describe('volcado de copia de seguridad', () => {
     `)).toEqual([{ sku: 'SUM-SHELL-07-M', option_name: 'Talla', value: 'M' }]);
     expect(restored.query('PRAGMA foreign_key_check')).toEqual([]);
     expect(restored.value("SELECT count(*) AS value FROM inventory_reservations WHERE status='active'")).toBe(1);
+    expect(restored.value(`SELECT count(*) AS value FROM order_bulk_batch_rows
+      WHERE batch_id = '${bulkBatch.view.batch.id}' AND outcome = 'pending'`)).toBe(1);
     expect(restored.value('SELECT count(*) AS value FROM orders_search')).toBe(
       restored.value('SELECT count(*) AS value FROM orders'),
     );

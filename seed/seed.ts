@@ -235,6 +235,8 @@ function attributeValueSql(attribute: SeedProductAttribute): string {
 export function seedStatements(): string[] {
   const statements: string[] = [
     'DELETE FROM audit_log',
+    'DELETE FROM order_bulk_batch_rows',
+    'DELETE FROM order_bulk_batches',
     'DELETE FROM event_outbox_deliveries',
     'DELETE FROM event_outbox_events',
     'DELETE FROM order_hold_events',

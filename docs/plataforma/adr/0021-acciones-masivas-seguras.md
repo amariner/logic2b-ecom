@@ -1,9 +1,9 @@
 # ADR-0021 — Acciones masivas seguras sobre pedidos
 
-- Estado: **aceptado para contrato; persistencia pendiente de autorización**
+- Estado: **aceptado e implementado**
 - Fecha: 2026-08-13
 - Bloque: R3.5
-- Decisión de esquema: no solicitada ni concedida
+- Decisión de esquema: autorizada por Andreu el 2026-08-14
 
 ## Contexto
 
@@ -53,7 +53,7 @@ aplica.
 
 ## Ejecución durable y concurrencia
 
-El diseño propuesto —todavía sin DDL— separa tres responsabilidades:
+El diseño implementado separa tres responsabilidades:
 
 - `order_bulk_batches`: intención inmutable, acción tipada, fingerprints,
   actor técnico, estado y contadores;
@@ -78,7 +78,7 @@ que cambió de forma incompatible termina `conflict`; no revierte las filas ya
 aplicadas ni bloquea las independientes.
 
 La idempotency key de fila se deriva como
-`bulk:<batch-id>:<action>:order:<order-id>`. La persistencia deberá imponer
+`bulk:<batch-id>:<action>:order:<order-id>`. La persistencia impone
 unicidad por lote/pedido y registrar resultado más evidencia en la misma batch
 D1 que la mutación, su auditoría y los eventos de dominio existentes.
 
@@ -97,20 +97,19 @@ fila y en las primitivas idempotentes de etiqueta/hold.
 
 - `ORD-011` gobierna rutas, navegación, job y efectos de acciones masivas.
 - `AUT-011` gobierna el contrato de dry-run sin efectos laterales.
-- Ambas quedan `installed` y sin flags en el preset avanzado hasta que exista
-  persistencia, runtime, permisos, UI y operación completos.
-- La demo pública no podrá activar job ni efectos, aunque muestre fixtures en
-  una fase posterior.
+- Ambas están activas en el preset avanzado. La demo pública conserva rutas y
+  dry-run, pero elimina job y efectos del manifest resultante.
+- La demo pública muestra el flujo y rechaza confirmación/replay antes de D1.
 - Se añade el permiso cerrado `orders.bulk`; no se reutiliza un permiso de
   transición, reembolso o fulfillment.
 - Audit log, eventos y logs solo incluirán ids, tipo de acción, motivo cerrado,
   estados, versiones y recuentos; nunca selección por email ni datos del pedido.
 
-## Gate de persistencia pendiente
+## Gate de persistencia resuelto
 
-Antes de crear una migración debe existir autorización explícita. La propuesta
-deberá ser expand-only, no crear lotes al aplicarse, ser ignorada por Workers
-anteriores y demostrar:
+La autorización explícita quedó registrada el 2026-08-14. La migración
+`0018_order_bulk_actions.sql` es expand-only, no crea lotes al aplicarse y es
+ignorada por Workers anteriores. Su rehearsal y los gates demuestran:
 
 1. límites, checks y claves únicas de lote/fila;
 2. claim/replay concurrente sin doble mutación;
@@ -136,7 +135,8 @@ anteriores y demostrar:
 
 ## Consecuencias
 
-El contrato puro, fingerprints, límites, clasificación y reglas de replay ya
-son testeables sin esquema ni side effects. El siguiente incremento requiere
-una migración nueva y queda bloqueado por su gate de autorización; hasta
-entonces no hay endpoint, job, UI, cambio en D1 ni despliegue necesario.
+El contrato, fingerprints, límites, clasificación y replay quedan respaldados
+por persistencia D1, API, job durable y progreso por fila. Los lotes terminales
+pueden purgarse sin borrar la auditoría ni la evidencia de negocio; una
+ejecución interrumpida o `dead` se reanuda sobre el mismo run antes de abrir un
+nuevo replay. Ampliar el catálogo de acciones sigue requiriendo otro ADR.

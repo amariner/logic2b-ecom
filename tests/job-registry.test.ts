@@ -20,6 +20,7 @@ describe('registro de jobs R1.11', () => {
       'platform-configuration.demo-fixture-reset': 'platform-configuration',
       'notifications.event-outbox-sweep': 'notifications',
       'inventory.expire-reservations': 'inventory',
+      'orders.execute-bulk-action': 'orders',
     });
     expect(Object.isFrozen(registry)).toBe(true);
     expect(Object.isFrozen(registry.descriptors)).toBe(true);
@@ -70,6 +71,19 @@ describe('registro de jobs R1.11', () => {
     expect(platform.scheduledJobs('*/1 * * * *').map((job) => job.id)).toEqual([
       'inventory.expire-reservations',
     ]);
+  });
+
+  it('registra el bulk como one-off cliente y nunca lo dispara un cron demo', () => {
+    const deployment = { id: 'jobs-bulk-client', mode: 'client', environment: 'development' } as const;
+    const advanced = createPlatform(createPresetManifest('advanced', deployment));
+    expect(advanced.jobRegistry.byId['orders.execute-bulk-action']).toMatchObject({
+      moduleId: 'orders', requiredCapabilityId: 'ORD-011', trigger: { kind: 'one-off' },
+      modes: ['client'],
+    });
+    expect(advanced.hasCapabilityFlag('ORD-011', 'jobs')).toBe(true);
+    expect(advanced.scheduledJobs('*/1 * * * *').map((job) => job.id)).not.toContain('orders.execute-bulk-action');
+    const demo = createPlatform(createPublicDemoManifest({ id: 'jobs-bulk-demo', environment: 'development' }));
+    expect(demo.hasCapabilityFlag('ORD-011', 'jobs')).toBe(false);
   });
 
   it('rechaza ids duplicados, propietarios y capacidades incoherentes', () => {

@@ -58,6 +58,8 @@ export type OrderBulkPreview = Readonly<{
   counts: Readonly<{ total: number; ready: number; skipped: number }>;
 }>;
 
+export type VerifiedOrderBulkPreview = OrderBulkPreview;
+
 export const ORDER_BULK_EXECUTION_OUTCOMES = [
   'pending',
   'applied',
@@ -180,6 +182,20 @@ async function sha256(value: string): Promise<`sha256:${string}`> {
   return `sha256:${hex}`;
 }
 
+function previewFingerprintInput(preview: Pick<
+  OrderBulkPreview,
+  'selectionFingerprint' | 'action' | 'observedAt' | 'expiresAt' | 'rows'
+>): string {
+  return JSON.stringify({
+    version: 1,
+    selectionFingerprint: preview.selectionFingerprint,
+    action: preview.action,
+    observedAt: preview.observedAt,
+    expiresAt: preview.expiresAt,
+    rows: preview.rows,
+  });
+}
+
 export async function createOrderBulkPreview(input: Readonly<{
   orderIds: readonly number[];
   candidates: readonly OrderBulkCandidate[];
@@ -208,13 +224,8 @@ export async function createOrderBulkPreview(input: Readonly<{
   const rows = Object.freeze(orderIds.map((orderId) => previewRow(orderId, byId.get(orderId), action)));
   const ready = rows.filter((row) => row.eligibility === 'ready').length;
   const selectionFingerprint = await sha256(JSON.stringify({ version: 1, orderIds }));
-  const previewFingerprint = await sha256(JSON.stringify({
-    version: 1,
-    selectionFingerprint,
-    action,
-    observedAt,
-    expiresAt,
-    rows,
+  const previewFingerprint = await sha256(previewFingerprintInput({
+    selectionFingerprint, action, observedAt, expiresAt, rows,
   }));
   return Object.freeze({
     action,
@@ -224,6 +235,64 @@ export async function createOrderBulkPreview(input: Readonly<{
     previewFingerprint,
     rows,
     counts: Object.freeze({ total: rows.length, ready, skipped: rows.length - ready }),
+  });
+}
+
+/**
+ * Revalida el sobre devuelto por el dry-run antes de congelarlo. El fingerprint
+ * no sustituye la autorización admin: evita confirmar por accidente una vista
+ * alterada o distinta a la que se previsualizó.
+ */
+export async function verifyOrderBulkPreview(preview: OrderBulkPreview): Promise<VerifiedOrderBulkPreview> {
+  const observedAt = timestamp(preview.observedAt, 'preview.observedAt');
+  const expiresAt = timestamp(preview.expiresAt, 'preview.expiresAt');
+  const action = normalizedAction(preview.action, observedAt);
+  const rows = [...preview.rows];
+  if (rows.length === 0 || rows.length > ORDER_BULK_LIMITS.maxOrders) {
+    throw new Error(`preview.rows debe contener entre 1 y ${ORDER_BULK_LIMITS.maxOrders} pedidos`);
+  }
+  const orderIds = uniquePositiveIntegers(rows.map((row) => row.orderId), 'preview.rows.orderId');
+  if (rows.some((row, index) => row.orderId !== orderIds[index])) {
+    throw new Error('preview.rows debe conservar el orden canónico');
+  }
+  for (const row of rows) {
+    const reason = row.reason;
+    if (!ORDER_BULK_PREVIEW_REASONS.includes(reason)) throw new Error('preview.rows.reason no es válido');
+    if ((row.eligibility === 'ready') !== (reason === 'ready')) {
+      throw new Error('preview.rows contiene una elegibilidad incoherente');
+    }
+    if (row.observedVersion === null || row.status === null) {
+      if (row.observedVersion !== null || row.status !== null || reason !== 'order_not_found') {
+        throw new Error('preview.rows contiene un snapshot incompleto');
+      }
+    } else {
+      positiveInteger(row.observedVersion, 'preview.rows.observedVersion');
+      if (!ORDER_STATUSES.includes(row.status)) throw new Error('preview.rows.status no es válido');
+    }
+  }
+  const ready = rows.filter((row) => row.eligibility === 'ready').length;
+  if (preview.counts.total !== rows.length || preview.counts.ready !== ready ||
+      preview.counts.skipped !== rows.length - ready) {
+    throw new Error('preview.counts no coincide con sus filas');
+  }
+  const selectionFingerprint = await sha256(JSON.stringify({ version: 1, orderIds }));
+  if (selectionFingerprint !== preview.selectionFingerprint) {
+    throw new Error('selectionFingerprint no coincide con la selección');
+  }
+  const previewFingerprint = await sha256(previewFingerprintInput({
+    selectionFingerprint, action, observedAt, expiresAt, rows,
+  }));
+  if (previewFingerprint !== preview.previewFingerprint) {
+    throw new Error('previewFingerprint no coincide con el preview');
+  }
+  return Object.freeze({
+    action,
+    observedAt,
+    expiresAt,
+    selectionFingerprint,
+    previewFingerprint,
+    rows: Object.freeze(rows.map((row) => Object.freeze({ ...row }))),
+    counts: Object.freeze({ ...preview.counts }),
   });
 }
 

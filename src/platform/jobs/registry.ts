@@ -41,6 +41,17 @@ export const JOB_DESCRIPTORS = [
     maxAttempts: 5,
     retryDelaysSeconds: RETRIES,
   },
+  {
+    id: 'orders.execute-bulk-action',
+    moduleId: 'orders',
+    scope: 'capability',
+    requiredCapabilityId: 'ORD-011',
+    trigger: { kind: 'one-off' },
+    modes: ['client'],
+    timeoutSeconds: 120,
+    maxAttempts: 5,
+    retryDelaysSeconds: RETRIES,
+  },
 ] as const satisfies readonly JobDescriptor[];
 
 export type JobId = (typeof JOB_DESCRIPTORS)[number]['id'];

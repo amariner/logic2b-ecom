@@ -5,6 +5,7 @@ import {
   createOrderBulkPreview,
   orderBulkRowIdempotencyKey,
   summarizeOrderBulkExecution,
+  verifyOrderBulkPreview,
   type OrderBulkCandidate,
 } from '../src/modules/orders';
 
@@ -160,5 +161,25 @@ describe('contrato puro de acciones masivas R3.5', () => {
       failed: 2,
       replayableOrderIds: [5, 7],
     });
+  });
+
+  it('verifica la integridad completa antes de confirmar el dry-run', async () => {
+    const preview = await createOrderBulkPreview({
+      orderIds: [12],
+      candidates: candidates.filter((candidate) => candidate.orderId === 12),
+      action: { type: 'add_tag', tagId: 8 },
+      observedAt: OBSERVED_AT,
+      expiresAt: EXPIRES_AT,
+    });
+    await expect(verifyOrderBulkPreview(preview)).resolves.toEqual(preview);
+    await expect(verifyOrderBulkPreview({
+      ...preview,
+      counts: { total: 1, ready: 0, skipped: 1 },
+    })).rejects.toThrow(/counts/);
+    await expect(verifyOrderBulkPreview({
+      ...preview,
+      rows: [{ ...preview.rows[0]!, reason: 'already_applied', eligibility: 'skipped' }],
+      counts: { total: 1, ready: 0, skipped: 1 },
+    })).rejects.toThrow(/previewFingerprint/);
   });
 });

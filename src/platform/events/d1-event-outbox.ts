@@ -7,6 +7,7 @@ export type EventOrderGuard = Readonly<{
   expectedStatus: string;
   requireNoActiveRefund?: boolean;
   requireNoActiveHold?: boolean;
+  forbidActiveHoldReason?: string;
   ignoreExistingIdempotencyKey?: boolean;
   payment?: Readonly<{ id: number; status: string; version: number }>;
   refund?: Readonly<{ id: number; status: string; version: number }>;
@@ -65,6 +66,15 @@ export function createD1EventOutboxWriter(db: D1Database) {
           )`
         : '';
       const holdBindings = guard.requireNoActiveHold ? [guard.orderId] : [];
+      const holdReasonGuard = guard.forbidActiveHoldReason
+        ? `AND NOT EXISTS (
+            SELECT 1 FROM order_holds
+            WHERE order_id = ? AND status = 'active' AND reason_code = ?
+          )`
+        : '';
+      const holdReasonBindings = guard.forbidActiveHoldReason
+        ? [guard.orderId, guard.forbidActiveHoldReason]
+        : [];
       const idempotencyGuard = guard.ignoreExistingIdempotencyKey
         ? 'AND NOT EXISTS (SELECT 1 FROM event_outbox_events WHERE idempotency_key = ?)'
         : '';
@@ -96,7 +106,7 @@ export function createD1EventOutboxWriter(db: D1Database) {
         )
         SELECT ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
         WHERE EXISTS (
-          SELECT 1 FROM orders WHERE id = ? AND status = ? ${refundGuard} ${holdGuard}
+          SELECT 1 FROM orders WHERE id = ? AND status = ? ${refundGuard} ${holdGuard} ${holdReasonGuard}
         )
         ${paymentGuard}
         ${refundGuardSql}
@@ -107,6 +117,7 @@ export function createD1EventOutboxWriter(db: D1Database) {
         guard.expectedStatus,
         ...refundBindings,
         ...holdBindings,
+        ...holdReasonBindings,
         ...paymentBindings,
         ...refundGuardBindings,
         ...idempotencyBindings,

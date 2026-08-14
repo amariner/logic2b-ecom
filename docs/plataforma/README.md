@@ -114,8 +114,11 @@ venta o servicios logísticos propios.
 - [`adr/0019-edicion-segura-pedidos.md`](adr/0019-edicion-segura-pedidos.md):
   versión de pedido, cobro adicional, reembolso por captura y stock de R3.3.
 - [`adr/0021-acciones-masivas-seguras.md`](adr/0021-acciones-masivas-seguras.md):
-  selección congelada, preview sin efectos y replay por pedido de R3.5;
-  persistencia todavía pendiente de autorización.
+  selección congelada, preview sin efectos y replay por pedido de R3.5.
+- [`../../migrations/0018_order_bulk_actions.sql`](../../migrations/0018_order_bulk_actions.sql):
+  lotes tipados y selección/resultados congelados por pedido.
+- [`OPERACION_ACCIONES_MASIVAS_PEDIDOS.md`](OPERACION_ACCIONES_MASIVAS_PEDIDOS.md):
+  rehearsal, rollout, reanudación, purga y rollback expand-only de R3.5.
 - [`../../migrations/0016_order_amendments.sql`](../../migrations/0016_order_amendments.sql):
   expansión de cantidades vigentes, amendments y asignaciones financieras.
 - [`OPERACION_EDICION_PEDIDOS.md`](OPERACION_EDICION_PEDIDOS.md):

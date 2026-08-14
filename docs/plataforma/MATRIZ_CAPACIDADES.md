@@ -129,7 +129,7 @@ su alcance requiera.
 | ORD-008 | Pedido preliminar/presupuesto | módulo | P2 | pendiente | Borrador, caducidad, aprobación, factura y enlace de pago. |
 | ORD-009 | Captura manual o diferida | módulo | P2 | pendiente | Autorización, captura parcial y expiración. |
 | ORD-010 | Riesgo/incidencia/bloqueo | módulo | P2 | actual | Holds manuales/automáticos múltiples con responsable, SLA, resolución optimista e histórico; cualquier activo impide nueva preparación. |
-| ORD-011 | Acciones masivas seguras | módulo | P2 | parcial | Contrato instalado y apagado: selección explícita ≤500, preview SHA-256, resultados por pedido e idempotencia/replay; faltan esquema autorizado, runtime, job, UI y operación. |
+| ORD-011 | Acciones masivas seguras | módulo | P2 | actual | Selección explícita ≤500, preview SHA-256, lote/job durable en chunks de 25, progreso y evidencia por pedido, revalidación, replay/reanudación idempotentes y demo sin efectos. |
 | ORD-012 | Impresión y documentos | módulo | P2 | pendiente | Albarán, factura, nota y plantilla versionada. |
 | ORD-013 | Archivo y retención | núcleo | P2 | pendiente | Política, exportación, anonimización y obligación fiscal. |
 
@@ -285,7 +285,7 @@ su alcance requiera.
 | AUT-008 | Recetas versionadas | gestionado | P2 | pendiente | Plantillas revisables, testables y reversibles. |
 | AUT-009 | HTTP saliente seguro | módulo | P2 | pendiente | Allowlist, firma, timeout, límites y secretos. |
 | AUT-010 | Aprobación humana | módulo | P2 | pendiente | Pausa, responsable, caducidad y resolución. |
-| AUT-011 | Simulación/dry-run | módulo | P2 | parcial | Contrato puro sin escritura ni eventos, snapshot acotado y caducidad de 15 minutos; falta superficie servida tras el gate de persistencia R3.5. |
+| AUT-011 | Simulación/dry-run | módulo | P2 | actual | Dry-run servido sin escritura ni eventos, snapshot acotado, fingerprint íntegro, caducidad de 15 minutos y confirmación exacta separada. |
 
 ## INT — Integraciones y portabilidad
 
@@ -338,7 +338,7 @@ su alcance requiera.
 | SEC-011 | CSP y cabeceras de seguridad | núcleo | P1 | parcial | Política por superficies e integraciones. |
 | SEC-012 | Accesibilidad WCAG 2.2 AA | núcleo | P0 | actual | Auditor propio y barrido global. |
 | SEC-013 | Presupuestos de rendimiento | núcleo | P1 | parcial | Lighthouse, tamaño de JS/imágenes y regresión CI. |
-| SEC-014 | Pruebas de carga y concurrencia | núcleo | P1 | parcial | Compra/inventario/fulfillment/refund incluyen 16 carreras simultáneas consolidadas en R2.14; faltan bulk e importación de olas posteriores. |
+| SEC-014 | Pruebas de carga y concurrencia | núcleo | P1 | parcial | Compra/inventario/fulfillment/refund incluyen 16 carreras simultáneas; R3.5 añade lotes mayores que un chunk y runners concurrentes sin duplicados. Falta importación de olas posteriores. |
 | SEC-015 | Runbook de incidentes | núcleo | P1 | pendiente | Detección, contención, comunicación, recuperación y postmortem. |
 | SEC-016 | Privacidad y cumplimiento | gestionado | P1 | parcial | Configuración técnica + validación legal por cliente/mercado. |
 
