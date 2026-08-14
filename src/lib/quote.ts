@@ -8,6 +8,8 @@ import { getProductsBySlugs, getRateForZone } from './db';
 import type { CatalogReadMode } from '../modules/catalog';
 import {
   evaluatePriceRules,
+  createD1PromotionCodes,
+  resolvePromotionCode,
   type PriceBreakdown,
   type PriceRuleCandidate,
   type PriceRuleContext,
@@ -26,6 +28,7 @@ export const quoteRequestSchema = z.object({
     .min(1)
     .max(50),
   postal_code: z.string().trim().min(1).max(10).optional(),
+  promotion_code: z.string().trim().min(3).max(32).optional(),
 });
 
 export type QuoteRequest = z.infer<typeof quoteRequestSchema>;
@@ -72,6 +75,12 @@ export type QuoteResult = {
   shipping: { zone: string; label: string; free_over_cents: number | null } | null;
   /** true si todas las líneas son servibles */
   purchasable: boolean;
+  promotion:
+    | Readonly<{ status: 'not_provided' }>
+    | Readonly<{ status: 'rejected'; reason: 'invalid_or_unavailable' }>
+    | Readonly<{
+      status: 'applied'; promotion_id: string; version: number; label: string; discount_cents: number;
+    }>;
 };
 
 export async function quoteCart(
@@ -81,6 +90,8 @@ export async function quoteCart(
     catalogReadMode?: CatalogReadMode;
     pricingContext?: PriceRuleContext;
     priceRulesBySlug?: Readonly<Record<string, readonly PriceRuleCandidate[]>>;
+    promotionCustomerKeyHash?: string;
+    promotionCodesEnabled?: boolean;
   }> = {},
 ): Promise<QuoteResult> {
   // Colapsar duplicados del mismo slug antes de tocar la base
@@ -98,6 +109,35 @@ export async function quoteCart(
     market: 'ES',
     channel: 'storefront',
   };
+  let promotionResolution: ReturnType<typeof resolvePromotionCode> | null = null;
+  if (request.promotion_code !== undefined && options.promotionCodesEnabled === true) {
+    let lookup: Awaited<ReturnType<ReturnType<typeof createD1PromotionCodes>['lookup']>> = null;
+    try {
+      lookup = await createD1PromotionCodes(db).lookup(
+        request.promotion_code,
+        options.promotionCustomerKeyHash ?? null,
+      );
+    } catch (error) {
+      if (!(error instanceof RangeError)) throw error;
+    }
+    if (lookup !== null) {
+      const baseSubtotalCents = [...qtyBySlug.entries()].reduce((total, [slug, qty]) => {
+        const product = bySlug.get(slug);
+        return total + (product === undefined ? 0 : product.price_cents * qty);
+      }, 0);
+      promotionResolution = resolvePromotionCode({
+        promotion: lookup.promotion,
+        context: pricingContext,
+        baseSubtotalCents,
+        cartProductIds: products.map((product) => product.id),
+        globalUsageCount: lookup.globalUsageCount,
+        customerUsageCount: lookup.customerUsageCount,
+      });
+    }
+  }
+  const promotionProductIds = new Set(
+    promotionResolution?.status === 'eligible' ? promotionResolution.eligibleProductIds : [],
+  );
 
   const lines: QuoteLine[] = [...qtyBySlug.entries()].map(([slug, qty]) => {
     const prod = bySlug.get(slug);
@@ -108,13 +148,21 @@ export async function quoteCart(
       };
     }
     const status = prod.stock === 0 ? 'out-of-stock' : prod.stock < qty ? 'insufficient-stock' : 'ok';
+    const configuredCandidates = options.priceRulesBySlug?.[slug];
+    const promotionCandidates = promotionResolution?.status === 'eligible' && promotionProductIds.has(prod.id)
+      ? [promotionResolution.candidate]
+      : undefined;
+    if (configuredCandidates !== undefined && promotionCandidates !== undefined) {
+      throw new Error('La combinación de fuentes de descuento requiere PRC-008.');
+    }
+    const candidates = configuredCandidates ?? promotionCandidates;
     const pricing = evaluatePriceRules({
       baseUnitPriceCents: prod.price_cents,
       quantity: qty,
       context: pricingContext,
-      ...(options.priceRulesBySlug?.[slug] === undefined
+      ...(candidates === undefined
         ? {}
-        : { candidates: options.priceRulesBySlug[slug] }),
+        : { candidates }),
     });
     return {
       slug,
@@ -131,6 +179,19 @@ export async function quoteCart(
 
   const servable = lines.filter((line) => line.status === 'ok');
   const subtotal_cents = computeSubtotalCents(servable);
+  const promotionDiscountCents = servable.reduce((total, line) =>
+    total + (line.pricing?.applied_rule?.id.startsWith('promotion:') ? line.pricing.discount_cents : 0), 0);
+  const promotion: QuoteResult['promotion'] = request.promotion_code === undefined
+    ? { status: 'not_provided' }
+    : promotionResolution?.status === 'eligible' && promotionDiscountCents > 0
+      ? {
+        status: 'applied',
+        promotion_id: promotionResolution.candidate.id.slice('promotion:'.length),
+        version: promotionResolution.candidate.version,
+        label: promotionResolution.candidate.label,
+        discount_cents: promotionDiscountCents,
+      }
+      : { status: 'rejected', reason: 'invalid_or_unavailable' };
 
   let shipping_cents: number | null = null;
   let shipping: QuoteResult['shipping'] = null;
@@ -152,5 +213,6 @@ export async function quoteCart(
     total_cents: shipping_cents === null ? null : subtotal_cents + shipping_cents,
     shipping,
     purchasable: lines.length > 0 && lines.every((line) => line.status === 'ok'),
+    promotion,
   };
 }

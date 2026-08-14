@@ -10,6 +10,7 @@ import { quoteCart } from '../../../lib/quote';
 import { flushEventOutbox } from '../../../composition/outbox-dispatcher';
 import { stripeClient } from '../../../lib/stripe';
 import type { NewOrderLine } from '../../../modules/orders';
+import { promotionCustomerHash } from '../../../modules/pricing';
 import { resolveCatalogReadMode } from '../../../modules/catalog';
 import { INVENTORY_RESERVATION_POLICY } from '../../../modules/inventory';
 import { runtimePlatform } from '../../../composition/runtime-platform';
@@ -43,6 +44,7 @@ const checkoutRequestSchema = z.object({
     nif: z.string().trim().max(20).optional(),
     company: z.string().trim().max(160).optional(),
   }),
+  promotion_code: z.string().trim().min(3).max(32).optional(),
 });
 
 export const POST: APIRoute = async ({ request, locals }) => {
@@ -69,11 +71,21 @@ export const POST: APIRoute = async ({ request, locals }) => {
   const started = performance.now();
   try {
     const { lines, customer } = parsed.data;
+    const promotionsEnabled = runtimePlatform.isCapabilityActive('PRC-004');
+    const promotionCustomerKeyHash = parsed.data.promotion_code === undefined
+      ? null
+      : await promotionCustomerHash(customer.email);
     const storeCollection = resolveCollection(parsed.data.collection);
     const paths = storePaths(storeCollection?.id ?? DEFAULT_COLLECTION_ID);
 
     // Revalidar TODO contra D1: precios, stock y cobertura de envío (§7.4)
-    const quote = await quoteCart(env.DB, { lines, postal_code: customer.postal_code }, {
+    const quote = await quoteCart(env.DB, {
+      lines,
+      postal_code: customer.postal_code,
+      ...(parsed.data.promotion_code === undefined
+        ? {}
+        : { promotion_code: parsed.data.promotion_code }),
+    }, {
       catalogReadMode: resolveCatalogReadMode(env.CATALOG_READ_MODE),
       pricingContext: {
         at: new Date().toISOString(),
@@ -81,7 +93,15 @@ export const POST: APIRoute = async ({ request, locals }) => {
         market: 'ES',
         channel: 'storefront',
       },
+      promotionCodesEnabled: promotionsEnabled,
+      ...(promotionCustomerKeyHash === null ? {} : { promotionCustomerKeyHash }),
     });
+    if (parsed.data.promotion_code !== undefined && quote.promotion.status !== 'applied') {
+      return Response.json(
+        { error: 'El código promocional no está disponible para este pedido.' },
+        { status: 422, headers: { 'cache-control': 'no-store' } },
+      );
+    }
     if (!quote.purchasable) {
       return Response.json({ error: 'Hay productos no disponibles en el carrito', quote }, { status: 409 });
     }
@@ -176,6 +196,23 @@ export const POST: APIRoute = async ({ request, locals }) => {
     const orders = createOrderOperations(env.DB, undefined, undefined, {
       reservationsEnabled,
       ...(reservationExpiresAt === null ? {} : { reservationExpiresAt }),
+      ...(quote.promotion.status !== 'applied' || promotionCustomerKeyHash === null
+        ? {}
+        : {
+          promotionReservation: {
+            promotionId: quote.promotion.promotion_id,
+            promotionVersion: quote.promotion.version,
+            customerKeyHash: promotionCustomerKeyHash,
+            discountCents: quote.promotion.discount_cents,
+            snapshot: {
+              schema: 1,
+              promotion_id: quote.promotion.promotion_id,
+              version: quote.promotion.version,
+              label: quote.promotion.label,
+              discount_cents: quote.promotion.discount_cents,
+            },
+          },
+        }),
     });
     const placed = await orders.placeOrder(
       {

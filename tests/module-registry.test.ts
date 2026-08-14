@@ -78,6 +78,7 @@ describe('registro de módulos (R1.4)', () => {
     expect(MODULE_REGISTRY.capabilityOwners['CAT-007']).toBe('catalog');
     expect(MODULE_REGISTRY.capabilityOwners['CAT-008']).toBe('catalog');
     expect(MODULE_REGISTRY.capabilityOwners['PRC-003']).toBe('pricing');
+    expect(MODULE_REGISTRY.capabilityOwners['PRC-004']).toBe('pricing');
     expect(MODULE_REGISTRY.capabilityOwners['ORD-007']).toBe('orders');
     expect(MODULE_REGISTRY.capabilityOwners['ORD-005']).toBe('orders');
     expect(MODULE_REGISTRY.capabilityOwners['ORD-010']).toBe('orders');
@@ -95,6 +96,7 @@ describe('registro de módulos (R1.4)', () => {
       expect.objectContaining({ path: '/api/admin/order-holds', capabilityId: 'ORD-010' }),
       expect.objectContaining({ path: '/api/admin/inventory-routing', capabilityId: 'INV-011' }),
       expect.objectContaining({ path: '/api/admin/order-documents', capabilityId: 'ORD-012' }),
+      expect.objectContaining({ path: '/api/admin/promotion-codes', capabilityId: 'PRC-004' }),
     ]));
   });
 

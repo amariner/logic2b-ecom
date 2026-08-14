@@ -57,6 +57,7 @@ export type ModuleDescriptor = Readonly<{
 const ARCHITECTURE_WIKI = 'docs/plataforma/wiki/arquitectura-modular-ecommerce.md';
 const R3_OPERATION_WIKI = 'docs/plataforma/wiki/operacion-pedidos-inventario-devoluciones.md';
 const PRICE_RULES_WIKI = 'docs/plataforma/wiki/reglas-precio-trazables.md';
+const PROMOTION_CODES_WIKI = 'docs/plataforma/wiki/codigos-promocionales-seguros.md';
 
 /**
  * Catálogo canónico de módulos. Los arrays vacíos son declaraciones explícitas:
@@ -95,9 +96,10 @@ export const MODULE_DESCRIPTORS = [
     ],
   },
   {
-    id: 'pricing', version: '1.1.0', capabilities: ['PRC-001', 'PRC-002', 'PRC-003', 'MKT-001', 'MKT-002'],
+    id: 'pricing', version: '1.2.0', capabilities: ['PRC-001', 'PRC-002', 'PRC-003', 'PRC-004', 'MKT-001', 'MKT-002'],
     dependencies: ['platform-configuration', 'catalog'], permissions: [], events: [], subscriptions: [], jobs: [], healthchecks: [],
-    wikiLinks: [ARCHITECTURE_WIKI, PRICE_RULES_WIKI], navigation: [], routes: [],
+    wikiLinks: [ARCHITECTURE_WIKI, PRICE_RULES_WIKI, PROMOTION_CODES_WIKI], navigation: [],
+    routes: [{ match: 'prefix', path: '/api/admin/promotion-codes', capabilityId: 'PRC-004' }],
   },
   {
     id: 'inventory', version: '1.5.1', capabilities: ['INV-001', 'INV-004', 'INV-005', 'INV-007', 'INV-008', 'INV-011'], dependencies: ['catalog'], permissions: ['inventory.locations.read', 'inventory.locations.write', 'inventory.transfers.read', 'inventory.transfers.write', 'inventory.counts.read', 'inventory.counts.write', 'inventory.counts.approve', 'inventory.routing.read', 'inventory.routing.write'],

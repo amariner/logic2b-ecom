@@ -1655,27 +1655,30 @@ la cola de temas, coordinados sin mezclar worktrees ni cambios abiertos.
 
 ## Próxima sesión
 
-### R4.2 — códigos promocionales — ⬜ siguiente bloque
+### R4.3 — descuentos automáticos — ⬜ siguiente bloque
 
-R4.1 queda cerrado en repositorio y D1 local con `0025`. `PRC-003` evalúa en
-servidor candidatas tipadas por instante UTC, moneda, mercado y canal; prioridad
-menor e ID estable eligen un único ganador. Todo el cálculo usa céntimos enteros
-y la quote conserva precio base, efectivo, descartes y regla aplicada. El pedido
-congela el mismo desglose por línea, mientras el backfill y el trigger mantienen
-compatibles las líneas y writers anteriores.
+R4.2 queda cerrado en repositorio y D1 local con `0026`. `PRC-004` guarda sólo
+hash y pista parcial del código, mantiene configuración y estado versionados y
+aplica vigencia, moneda, mercado, canal, mínimo, scope de producto y límites
+globales/por cliente. La API admin autenticada devuelve el código normalizado
+únicamente al crearlo; listados, quote y checkout no exponen ni texto claro ni
+hash. El alta de pedido reserva el uso dentro del batch, el pago lo consume y
+la caducidad o cancelación pendiente lo libera de forma idempotente. Pedidos y
+reembolsos conservan el precio efectivo y el snapshot trazable de R4.1.
 
-El rehearsal sobre el dump `0024` mantuvo 8 pedidos, 13 líneas y el hash de las
-columnas previas; forward y restore quedaron íntegros con 13 snapshots. La D1
-local se migró y regeneró. El corte limpio pasa 107 suites/559 tests, 559
-archivos tipados, build y sitemap. La batería compartida conserva únicamente
-los 3 fallos ajenos del tema Monte en curso. No se cambió D1 remota ni Worker.
+El rehearsal sobre el dump `0025` mantuvo 8 pedidos, 13 líneas y el hash de las
+columnas previas; forward y restore dejaron las tres tablas nuevas íntegras y el
+dump restaurado ocupó 502769 bytes. La D1 local está migrada y regenerada. El
+corte limpio pasa 112 suites/571 tests, 570 archivos tipados, build y sitemap.
+La batería compartida pasa 568/571 y conserva únicamente los 3 fallos ajenos
+del tema Monte en curso. No se cambió D1 remota ni Worker.
 
-Siguiente incremento exacto: `PRC-004`, códigos promocionales persistidos y
-versionados con normalización segura, vigencia, límites globales/por cliente,
-elegibilidad de producto y reserva/consumo idempotente en checkout. Debe
-reutilizar el motor R4.1, explicar rechazo sin enumerar datos personales y no
-adelantar descuentos automáticos R4.3 ni combinabilidad R4.5. Temas y demos
-visuales continúan fuera de este objetivo por instrucción de Andreu.
+Siguiente incremento exacto: descuentos automáticos persistidos y versionados,
+con elegibilidad calculada en servidor, motivo visible y una matriz explícita
+que resuelva el conflicto con `PRC-004`. Debe reutilizar el motor R4.1, congelar
+la decisión en quote/pedido y mantener reembolsos sobre el precio efectivo, sin
+adelantar tramos o compra X/Y de R4.4 ni combinabilidad general de R4.5. Temas y
+demos visuales continúan fuera de este objetivo por instrucción de Andreu.
 
 Las entradas que siguen son el histórico de cierres anteriores y no cambian el
 orden actual.

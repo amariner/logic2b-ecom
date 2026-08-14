@@ -34,3 +34,4 @@ para ocultar una decisión no es válido.
 | [0026](0026-devoluciones-rma.md) | RMA separado de cancelación y cierre transaccional | accepted; R3.10 implementado localmente |
 | [0027](0027-documentos-operativos-no-fiscales.md) | Snapshots operativos propios y fiscalidad externa | accepted; R3.11 implementado localmente |
 | [0028](0028-motor-reglas-precio.md) | Evaluación pura, ganador único y snapshot de precio por línea | accepted; R4.1 implementado localmente |
+| [0029](0029-codigos-promocionales-seguros.md) | Hash, scope y reserva transaccional de usos promocionales | accepted; R4.2 implementado localmente |

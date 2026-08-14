@@ -123,8 +123,8 @@ Cada migración se diseña y ensaya sobre una copia antes de tocar el esquema vi
 
 | Orden | Bloque de una sesión | Entregables y criterio específico | Estado |
 |---:|---|---|---|
-| 39 | **R4.1 Motor de reglas de precio** | Contexto, prioridad, vigencia y desglose; funciones puras y trazables. | ⬜ |
-| 40 | **R4.2 Códigos promocionales** | Límites, scopes, uso, seguridad y devolución proporcional. | ⬜ |
+| 39 | **R4.1 Motor de reglas de precio** | Contexto, prioridad, vigencia y desglose; funciones puras y trazables. | ✅ 2026-08-14; local, sin deploy |
+| 40 | **R4.2 Códigos promocionales** | Límites, scopes, uso, seguridad y devolución proporcional. | ✅ 2026-08-14; local, sin deploy |
 | 41 | **R4.3 Descuentos automáticos** | Elegibilidad y motivo visible; conflicto con códigos resuelto por matriz. | ⬜ |
 | 42 | **R4.4 Cantidad y compra X/Y** | Tramos, múltiplos, selección de líneas y casos de edición/devolución. | ⬜ |
 | 43 | **R4.5 Combinabilidad** | Clases producto/pedido/envío, tope, prioridad y explicación en checkout/pedido. | ⬜ |

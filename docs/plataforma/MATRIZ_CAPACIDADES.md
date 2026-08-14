@@ -79,8 +79,8 @@ su alcance requiera.
 |---|---|---|---|---|---|
 | PRC-001 | Precio base en céntimos | núcleo | P0 | actual | Nunca floats ni precio aceptado desde cliente. |
 | PRC-002 | Precio anterior informativo | núcleo | P1 | actual | Solo presentación; no participa en el cobro. |
-| PRC-003 | Motor de descuentos | módulo | P1 | actual | Evaluación pura por contexto/vigencia, un ganador determinista por prioridad, desglose auditable y snapshot por línea; fuentes y combinación llegan en PRC-004/005/008. |
-| PRC-004 | Código promocional | módulo | P1 | pendiente | Vigencia, límites, cliente/segmento, productos y usos. |
+| PRC-003 | Motor de descuentos | módulo | P1 | actual | Evaluación pura por contexto/vigencia, un ganador determinista por prioridad, desglose auditable y snapshot por línea; códigos llegan por PRC-004, automáticos/combinación esperan PRC-005/008. |
+| PRC-004 | Código promocional | módulo | P1 | actual | Hash sin texto claro, vigencia, mínimo, scope de producto, límites global/cliente, reserva/consumo concurrente y devolución por precio efectivo; segmentos esperan R5. |
 | PRC-005 | Descuento automático | módulo | P1 | pendiente | Se aplica por contexto sin código y explica el motivo. |
 | PRC-006 | Descuento por cantidad | módulo | P2 | pendiente | Tramos con unidades/importe y resolución B2C/B2B. |
 | PRC-007 | Compra X y consigue Y | módulo | P2 | pendiente | Selección determinista y devolución proporcional. |

@@ -40,6 +40,10 @@ import {
   type InventoryStockChange,
 } from '../modules/inventory';
 import {
+  createD1PromotionCodes,
+  type PromotionReservation,
+} from '../modules/pricing';
+import {
   createD1PaymentLedger,
   type PaymentProvider,
 } from '../modules/payments';
@@ -82,6 +86,7 @@ export function createOrderOperations(
     reservationsEnabled?: boolean;
     reservationTtlSeconds?: number;
     reservationExpiresAt?: string;
+    promotionReservation?: PromotionReservation;
   }> = {},
 ) {
   const orders = createOrderWriter(db);
@@ -90,6 +95,7 @@ export function createOrderOperations(
   const inventory = createD1InventoryLedger(db);
   const reservations = createD1InventoryReservations(db);
   const payments = createD1PaymentLedger(db);
+  const promotions = createD1PromotionCodes(db);
   const reservationsEnabled = options.reservationsEnabled ??
     runtimePlatform.hasCapabilityFlag('INV-004', 'sideEffects');
 
@@ -173,6 +179,13 @@ export function createOrderOperations(
         }, { eventId: identity.event_id }),
         ...outbox.deliveryStatements(identity.event_id, identity.occurred_at, consumerIds),
         ...orders.lineStatementsForOrderNumber(order.order_number, lines),
+        ...(options.promotionReservation === undefined
+          ? []
+          : [promotions.reservationStatement(
+            order.order_number,
+            options.promotionReservation,
+            identity.occurred_at,
+          )]),
         ...reservationStatements,
         orders.timelineStatementForOrderNumber(order.order_number, timeline),
       ]);
@@ -235,6 +248,12 @@ export function createOrderOperations(
           occurred_at: mutation.event.occurred_at,
         }, { eventId: mutation.event.event_id }),
         orders.guardedPaidStatement(mutation.orderId, mutation.paymentIntent, mutation.event.event_id),
+        promotions.transitionStatement(
+          mutation.orderId,
+          'consumed',
+          mutation.event.occurred_at,
+          mutation.event.event_id,
+        ),
         ...stockStatements,
         orders.guardedTimelineStatement(mutation.orderId, orderTimelineEntry(mutation.event), mutation.event.event_id),
       ]);
@@ -276,6 +295,7 @@ export function createOrderOperations(
         ...outbox.deliveryStatements(event.event_id, event.occurred_at, consumerIds),
         payments.cancelPendingStatement(payment, event.occurred_at, { eventId: event.event_id }),
         orders.guardedExpiredStatement(order.id, event.event_id),
+        promotions.transitionStatement(order.id, 'released', event.occurred_at, event.event_id),
         ...reservationStatements,
         orders.guardedTimelineStatement(order.id, orderTimelineEntry(event), event.event_id),
       ]);
@@ -322,6 +342,14 @@ export function createOrderOperations(
         }),
         orders.guardedTimelineStatement(input.order.id, orderTimelineEntry(event), event.event_id),
         ...paymentStatements,
+        ...(input.from === 'pending'
+          ? [promotions.transitionStatement(
+            input.order.id,
+            'released',
+            event.occurred_at,
+            event.event_id,
+          )]
+          : []),
         ...reservationStatements,
         ...stockStatements,
       ]);

@@ -2,6 +2,7 @@ import type { APIRoute } from 'astro';
 import { shopConfig } from '../../../../shop.config';
 import { quoteCart, quoteRequestSchema } from '../../../lib/quote';
 import { resolveCatalogReadMode } from '../../../modules/catalog';
+import { runtimePlatform } from '../../../composition/runtime-platform';
 
 export const prerender = false;
 
@@ -32,6 +33,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
       market: 'ES',
       channel: 'storefront',
     },
+    promotionCodesEnabled: runtimePlatform.isCapabilityActive('PRC-004'),
   });
   return Response.json(result);
 };

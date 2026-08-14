@@ -24,13 +24,13 @@ el precio base.
 R4.1 aplica como máximo una regla. Esta restricción deliberada evita combinar
 descuentos por accidente antes de que exista la matriz explícita de `PRC-008`.
 
-## Qué no promete todavía
+## Fuentes y límites actuales
 
-- no existe código que el comprador pueda introducir (`PRC-004`);
+- los códigos `PRC-004` ya son una fuente persistida; todavía no tienen editor visual;
 - no existe repositorio/editor de descuentos automáticos (`PRC-005`);
 - no hay tramos por cantidad, X/Y, listas de precios ni bundles;
-- no hay apilado, exclusiones entre campañas ni reparto proporcional para
-  devoluciones;
+- no hay apilado, exclusiones entre campañas ni descuento fijo de cesta que
+  necesite reparto entre líneas;
 - la demo pública no activa cobros ni promociones reales.
 
 La capacidad actual es el motor determinista y su evidencia, no un sistema de

@@ -169,6 +169,14 @@ venta o servicios logísticos propios.
 - [`wiki/reglas-precio-trazables.md`](wiki/reglas-precio-trazables.md):
   ficha interna enlazada solo desde `pricing`, sin ruta pública ni promesas de
   códigos, campañas o combinabilidad todavía inexistentes.
+- [`adr/0029-codigos-promocionales-seguros.md`](adr/0029-codigos-promocionales-seguros.md):
+  lookup sin texto claro, límites concurrentes y uso ligado al pedido R4.2.
+- [`../../migrations/0026_promotion_codes.sql`](../../migrations/0026_promotion_codes.sql):
+  configuración, scopes y reservas/consumos promocionales expand-only.
+- [`OPERACION_CODIGOS_PROMOCIONALES.md`](OPERACION_CODIGOS_PROMOCIONALES.md):
+  alta segura, rollout, reconciliación, incidencias y rollback de `PRC-004`.
+- [`wiki/codigos-promocionales-seguros.md`](wiki/codigos-promocionales-seguros.md):
+  ficha interna honesta sobre códigos, sin editor visual ni ruta pública.
 - [`../../migrations/0016_order_amendments.sql`](../../migrations/0016_order_amendments.sql):
   expansión de cantidades vigentes, amendments y asignaciones financieras.
 - [`OPERACION_EDICION_PEDIDOS.md`](OPERACION_EDICION_PEDIDOS.md):
