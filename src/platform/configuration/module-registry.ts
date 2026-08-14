@@ -98,8 +98,13 @@ export const MODULE_DESCRIPTORS = [
     wikiLinks: [ARCHITECTURE_WIKI], navigation: [], routes: [],
   },
   {
-    id: 'inventory', version: '1.1.0', capabilities: ['INV-001', 'INV-004'], dependencies: ['catalog'], permissions: [],
-    events: [], subscriptions: [], jobs: ['inventory.expire-reservations'], healthchecks: [], wikiLinks: [ARCHITECTURE_WIKI], navigation: [], routes: [],
+    id: 'inventory', version: '1.2.0', capabilities: ['INV-001', 'INV-004', 'INV-005'], dependencies: ['catalog'], permissions: ['inventory.locations.read', 'inventory.locations.write'],
+    events: [], subscriptions: [], jobs: ['inventory.expire-reservations'], healthchecks: [], wikiLinks: [ARCHITECTURE_WIKI],
+    navigation: [{ id: 'ubicaciones', href: '/demo/admin/ubicaciones', label: 'Ubicaciones', order: 25, capabilityId: 'INV-005' }],
+    routes: [
+      { match: 'exact', path: '/demo/admin/ubicaciones', capabilityId: 'INV-005' },
+      { match: 'prefix', path: '/api/admin/inventory-locations', capabilityId: 'INV-005' },
+    ],
   },
   {
     id: 'cart', version: '1.0.0', capabilities: ['CHK-001'], dependencies: ['catalog'], permissions: [], events: [], subscriptions: [],

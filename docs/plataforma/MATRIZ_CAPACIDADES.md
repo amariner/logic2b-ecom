@@ -61,10 +61,10 @@ su alcance requiera.
 | ID | Capacidad | Vía | Prioridad | Estado | Resultado objetivo |
 |---|---|---|---|---|---|
 | INV-001 | Stock simple por producto | núcleo | P0 | actual | Descuento en pago confirmado y restitución al cancelar pagado. |
-| INV-002 | Stock por variante | núcleo | P0 | actual | Balance global por unidad vendible; R3 añadirá ubicación principal sin alterar pedidos. |
+| INV-002 | Stock por variante | núcleo | P0 | actual | Balance por unidad vendible proyectado íntegramente en la ubicación principal sin alterar pedidos. |
 | INV-003 | Movimientos de inventario | núcleo | P0 | actual | Ledger append-only idempotente, balance reconstruible y correcciones como nuevos movimientos. |
 | INV-004 | Reservas de stock | módulo | P1 | actual | Cabecera/líneas, TTL, captura/liberación/expiración y job idempotentes; instalada y apagada por defecto. |
-| INV-005 | Múltiples ubicaciones | módulo | P1 | pendiente | Existencias y disponibilidad separadas por almacén/tienda. |
+| INV-005 | Múltiples ubicaciones | módulo | P1 | actual | Almacenes/tiendas versionados; principal backfilleada y sincronizada con el ledger global; secundarias vacías hasta transferencias R3.7. |
 | INV-006 | Disponible, comprometido, entrante y dañado | módulo | P1 | pendiente | Estados contables distintos, no una única cifra editable. |
 | INV-007 | Transferencias entre ubicaciones | módulo | P2 | pendiente | Borrador, enviado, parcial, recibido y discrepancias. |
 | INV-008 | Conteo y ajuste con motivo | módulo | P2 | pendiente | Conteos cíclicos, aprobación opcional y auditoría. |

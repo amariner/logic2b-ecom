@@ -199,6 +199,7 @@ const ADMIN_PAGES = [
   { id: 'pedido-incidencia', resolve: FIRST_ORDER_WITH_HOLD },
   { id: 'productos', url: '/demo/admin/productos' },
   { id: 'producto-variantes', resolve: PRODUCT_VARIANTS_OF('sum-shell-07') },
+  { id: 'ubicaciones', url: '/demo/admin/ubicaciones' },
   { id: 'envios', url: '/demo/admin/envios' },
   { id: 'emails', url: '/demo/admin/emails' },
 ];

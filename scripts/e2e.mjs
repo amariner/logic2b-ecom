@@ -192,6 +192,10 @@ const variantProductId = variantProductsHtml.match(/data-field="name" data-id="(
 check('productos son visibles como fixtures', productId !== undefined && productsHtml.includes('solo lectura'));
 check('controles de producto están deshabilitados', productsHtml.includes('disabled'));
 check('producto con variantes enlaza su editor', variantProductId !== undefined);
+const locationsHtml = await (await fetch(`${BASE}/demo/admin/ubicaciones`, { headers: { cookie } })).text();
+check('ubicaciones muestran principal y secundaria sin repartir stock',
+  locationsHtml.includes('Almacén central') && locationsHtml.includes('Tienda de muestra')
+    && locationsHtml.includes('Principal') && locationsHtml.includes('solo lectura'));
 let variantId;
 if (variantProductId) {
   const variantsHtml = await (await fetch(
@@ -273,6 +277,7 @@ for (const [label, method, path] of [
   ['edición de pedido', 'POST', '/api/admin/order-amendments'],
   ['alta de incidencia', 'POST', '/api/admin/order-holds'],
   ['resolución de incidencia', 'PATCH', '/api/admin/order-holds/demo-hold-active'],
+  ['ubicación de inventario', 'POST', '/api/admin/inventory-locations'],
 ]) {
   const response = await fetch(adminUrl(path), {
     method,
@@ -318,8 +323,8 @@ check(
     && backupSql.includes('INSERT INTO attribute_definitions') && backupSql.includes('INSERT INTO product_attribute_values'),
 );
 check(
-  'backup esquema 12 conserva pagos, colaboración, incidencias y lotes',
-  backupSql.includes('logic2b-backup-schema: 12')
+  'backup esquema 13 conserva operación e inventario por ubicación',
+  backupSql.includes('logic2b-backup-schema: 13')
     && backupSql.includes('INSERT INTO payments')
     && backupSql.includes('INSERT INTO payment_transactions')
     && backupSql.includes('DELETE FROM refunds')
@@ -333,9 +338,11 @@ check(
     && backupSql.includes('DELETE FROM refund_payment_allocations')
     && backupSql.includes('INSERT INTO order_holds')
     && backupSql.includes('INSERT INTO order_hold_events')
-    && backupSql.includes('0018_order_bulk_actions')
     && backupSql.includes('DELETE FROM order_bulk_batches')
-    && backupSql.includes('DELETE FROM order_bulk_batch_rows'),
+    && backupSql.includes('DELETE FROM order_bulk_batch_rows')
+    && backupSql.includes('0019_inventory_locations')
+    && backupSql.includes('INSERT INTO inventory_locations')
+    && backupSql.includes('INSERT INTO inventory_location_balances')
 );
 
 if (failures > 0) {

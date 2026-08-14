@@ -26,7 +26,8 @@
     "db:rehearse:partial-refunds": "node scripts/rehearse-r2-partial-refunds.mjs",
     "db:rehearse:order-amendments": "node scripts/rehearse-r3-order-amendments.mjs",
     "db:rehearse:order-holds": "node scripts/rehearse-r3-order-holds.mjs",
-    "db:rehearse:order-bulk-actions": "node scripts/rehearse-r3-order-bulk-actions.mjs"
+    "db:rehearse:order-bulk-actions": "node scripts/rehearse-r3-order-bulk-actions.mjs",
+    "db:rehearse:inventory-locations": "node scripts/rehearse-r3-inventory-locations.mjs"
   },
   "dependencies": {
     "@astrojs/cloudflare": "^12.6.0",

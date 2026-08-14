@@ -30,6 +30,15 @@ export type {
 
 export { createD1InventoryLedger } from './infrastructure/d1-inventory-ledger';
 export { createD1InventoryReservations } from './infrastructure/d1-inventory-reservations';
+export { createD1InventoryLocations, type InventoryLocationRecord } from './infrastructure/d1-inventory-locations';
+export {
+  INVENTORY_LOCATION_KINDS,
+  INVENTORY_LOCATION_STATUSES,
+  assertInventoryLocationInput,
+  normalizeInventoryLocationCode,
+  type InventoryLocationKind,
+  type InventoryLocationStatus,
+} from './domain/inventory-location';
 export type {
   D1InventoryLedger,
   InventoryStockChange,

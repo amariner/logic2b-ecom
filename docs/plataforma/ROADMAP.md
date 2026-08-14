@@ -111,7 +111,7 @@ Cada migración se diseña y ensaya sobre una copia antes de tocar el esquema vi
 | 29 | **R3.3 Edición de pedido** | Añadir/quitar/cantidad/dirección con preview de delta, pago adicional o reembolso y stock. | ✅ 2026-08-12 |
 | 30 | **R3.4 Holds e incidencias** | Bloqueo manual/automático, motivo, responsable, SLA y desbloqueo; preparación no avanza en hold. | ✅ 2026-08-13 |
 | 31 | **R3.5 Acciones masivas** | Selección estable, dry-run, job, progreso, resultados por fila y replay seguro. | ✅ 2026-08-14 |
-| 32 | **R3.6 Ubicaciones** | Modelo y admin de almacenes/tiendas; inventario simple se backfillea a ubicación principal. | ⬜ |
+| 32 | **R3.6 Ubicaciones** | Modelo y admin de almacenes/tiendas; inventario simple se backfillea a ubicación principal. | ✅ 2026-08-14; D1 aplicada, Worker pendiente |
 | 33 | **R3.7 Transferencias** | Borrador→enviado→recibido parcial, discrepancias y movimientos de ledger. | ⬜ |
 | 34 | **R3.8 Conteos y ajustes** | Conteo por ubicación, razón, doble control opcional y auditoría. | ⬜ |
 | 35 | **R3.9 Motor de asignación** | Reglas deterministas por stock, prioridad, mercado/canal y coste; explicación guardada. | ⬜ |
@@ -1029,3 +1029,22 @@ dump/restore íntegro y cero fallos FK. Gates de superficie: E2E completo y
 a11y `admin:pedidos` a 1440/375 en verde. Gate limpio aislado: **81 suites/487
 tests**, tipos y build en verde; el cierre remoto se anota tras el rollout
 coordinado.
+
+### R3.6 — ubicaciones — ✅ cerrado local 2026-08-14
+
+ADR-0022 y `0019_inventory_locations.sql` crean almacenes/tiendas versionados,
+una única principal y balances/movimientos por ubicación. El backfill conserva
+físico, reservado, versiones y los 282 movimientos existentes. Triggers
+expand-only reflejan todas las escrituras del ledger global, de modo que un
+Worker anterior sigue siendo compatible; las secundarias permanecen vacías
+hasta las transferencias R3.7.
+
+`INV-005` añade navegación, API y panel responsive; la demo muestra dos fixtures
+y rechaza efectos. Las mutaciones cliente son auditadas y optimistas, y la
+principal no puede desactivarse. Backup esquema 13 y runbook en
+`OPERACION_UBICACIONES_INVENTARIO.md`. Rehearsal: hash legacy
+`6c54acebbda791a1763488736ea453a3a97a796a1bf64a09b10765b00e0129b8`,
+dump/restore íntegro. Gate limpio: **84 suites/494 tests**, tipos/build, E2E y
+a11y escritorio/375 en verde. D1 remota sirve `0019`: 279 balances y 279
+movimientos proyectados, 0 divergencias y 0 fallos FK. El Worker sigue pendiente
+de autorización específica de producción.

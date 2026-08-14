@@ -258,6 +258,9 @@ export function seedStatements(): string[] {
     'DELETE FROM inventory_reservation_events',
     'DELETE FROM inventory_reservation_lines',
     'DELETE FROM inventory_reservations',
+    'DELETE FROM inventory_location_movements',
+    'DELETE FROM inventory_location_balances',
+    'DELETE FROM inventory_locations',
     'DELETE FROM inventory_movements',
     'DELETE FROM inventory_balances',
     'DELETE FROM emails_outbox',
@@ -396,6 +399,14 @@ export function seedStatements(): string[] {
   // R2.7: toda variante nace con su apertura, incluido stock cero. El stock
   // legacy se replica porque el seed histórico no distinguía pools.
   statements.push(
+    `INSERT INTO inventory_locations (` +
+      `code, name, kind, status, is_primary, timezone, created_at, updated_at` +
+    `) VALUES ('principal', 'Almacén central', 'warehouse', 'active', 1, ` +
+      `'Europe/Madrid', datetime('now'), datetime('now'))`,
+    `INSERT INTO inventory_locations (` +
+      `code, name, kind, status, is_primary, timezone, created_at, updated_at` +
+    `) VALUES ('tienda-demo', 'Tienda de muestra', 'store', 'active', 0, ` +
+      `'Europe/Madrid', datetime('now'), datetime('now'))`,
     `INSERT INTO inventory_balances (variant_id, on_hand, reserved, version, updated_at) ` +
       `SELECT pv.id, p.stock, 0, 1, datetime('now') FROM product_variants pv ` +
       `JOIN products p ON p.id = pv.product_id ORDER BY pv.id`,

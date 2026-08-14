@@ -119,6 +119,12 @@ venta o servicios logísticos propios.
   lotes tipados y selección/resultados congelados por pedido.
 - [`OPERACION_ACCIONES_MASIVAS_PEDIDOS.md`](OPERACION_ACCIONES_MASIVAS_PEDIDOS.md):
   rehearsal, rollout, reanudación, purga y rollback expand-only de R3.5.
+- [`adr/0022-ubicaciones-inventario.md`](adr/0022-ubicaciones-inventario.md):
+  ubicación principal, backfill y transición compatible del ledger global.
+- [`../../migrations/0019_inventory_locations.sql`](../../migrations/0019_inventory_locations.sql):
+  ubicaciones, balances/movimientos proyectados y triggers de compatibilidad.
+- [`OPERACION_UBICACIONES_INVENTARIO.md`](OPERACION_UBICACIONES_INVENTARIO.md):
+  rehearsal, rollout, reconciliación y rollback de R3.6.
 - [`../../migrations/0016_order_amendments.sql`](../../migrations/0016_order_amendments.sql):
   expansión de cantidades vigentes, amendments y asignaciones financieras.
 - [`OPERACION_EDICION_PEDIDOS.md`](OPERACION_EDICION_PEDIDOS.md):

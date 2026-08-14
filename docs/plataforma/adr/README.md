@@ -27,3 +27,4 @@ para ocultar una decisión no es válido.
 | [0019](0019-edicion-segura-pedidos.md) | Edición versionada, conciliación financiera y stock | accepted; R3.3 implementado |
 | [0020](0020-holds-incidencias-pedidos.md) | Holds ortogonales, SLA y bloqueo de preparación | accepted; R3.4 servido |
 | [0021](0021-acciones-masivas-seguras.md) | Selección congelada, preview sin efectos y replay por pedido | accepted; R3.5 implementado |
+| [0022](0022-ubicaciones-inventario.md) | Ubicación principal compatible y transición desde ledger global | accepted; R3.6 implementado localmente |
