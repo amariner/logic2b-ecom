@@ -145,16 +145,21 @@ export const MODULE_DESCRIPTORS = [
     ],
   },
   {
-    id: 'fulfillment', version: '1.2.0', capabilities: ['FUL-001', 'FUL-002', 'FUL-003', 'FUL-004', 'FUL-005'],
-    dependencies: ['orders', 'inventory'], permissions: ['fulfillment.read', 'fulfillment.write', 'fulfillment.export'],
-    events: ['fulfillment.fulfillment_shipped', 'fulfillment.fulfillment_delivered'],
+    id: 'fulfillment', version: '1.3.0', capabilities: ['FUL-001', 'FUL-002', 'FUL-003', 'FUL-004', 'FUL-005', 'FUL-011'],
+    dependencies: ['orders', 'inventory'], permissions: ['fulfillment.read', 'fulfillment.write', 'fulfillment.export', 'fulfillment.returns.read', 'fulfillment.returns.write'],
+    events: ['fulfillment.fulfillment_shipped', 'fulfillment.fulfillment_delivered', 'fulfillment.return_resolved'],
     subscriptions: [], jobs: [], healthchecks: [], wikiLinks: [ARCHITECTURE_WIKI],
-    navigation: [{ id: 'envios', href: '/demo/admin/envios', label: 'Envíos', order: 30, capabilityId: 'FUL-001' }],
+    navigation: [
+      { id: 'envios', href: '/demo/admin/envios', label: 'Envíos', order: 30, capabilityId: 'FUL-001' },
+      { id: 'devoluciones', href: '/demo/admin/devoluciones', label: 'Devoluciones', order: 32, capabilityId: 'FUL-011' },
+    ],
     routes: [
       { match: 'exact', path: '/demo/admin/envios', capabilityId: 'FUL-001' },
       { match: 'prefix', path: '/api/admin/shipping-rates/', capabilityId: 'FUL-001' },
       { match: 'exact', path: '/api/admin/orders/export.csv', capabilityId: 'FUL-003' },
       { match: 'prefix', path: '/api/admin/fulfillments', capabilityId: 'FUL-004' },
+      { match: 'exact', path: '/demo/admin/devoluciones', capabilityId: 'FUL-011' },
+      { match: 'prefix', path: '/api/admin/returns', capabilityId: 'FUL-011' },
     ],
   },
   {

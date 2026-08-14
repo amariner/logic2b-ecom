@@ -87,6 +87,7 @@ const ADVANCED_CAPABILITIES = {
   'FUL-003': { state: 'active', flags: ROUTE },
   'FUL-004': { state: 'active', flags: ROUTE_EFFECT },
   'FUL-005': { state: 'active', flags: INTERNAL },
+  'FUL-011': { state: 'active', flags: NAVIGATION_EFFECT },
   'STO-002': { state: 'active', flags: INTERNAL },
   'MAR-001': { state: 'active', flags: ROUTE_EFFECT },
   'INT-002': {

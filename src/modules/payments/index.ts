@@ -42,6 +42,7 @@ export type {
   PaymentLedgerGuard,
   PendingPaymentInput,
   PartialRefundIntentInput,
+  ReturnRefundIntentInput,
   RefundPaymentAllocationRecord,
   RefundItemLedgerLine,
   TotalRefundIntentInput,

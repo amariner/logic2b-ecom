@@ -247,6 +247,11 @@ export function seedStatements(): string[] {
     'DELETE FROM order_notes',
     'DELETE FROM order_tags',
     'DELETE FROM order_events',
+    'DELETE FROM return_inventory_movements',
+    'DELETE FROM return_exchange_lines',
+    'DELETE FROM return_events',
+    'DELETE FROM return_request_lines',
+    'DELETE FROM return_requests',
     'DELETE FROM refund_items',
     'DELETE FROM refunds',
     'DELETE FROM payment_transactions',
@@ -507,6 +512,49 @@ export function seedStatements(): string[] {
   // los productos y pedidos ya insertados en esta misma batch. SOLO DEMO — un
   // cliente real borra esta línea (ver seed/demo-orders.ts).
   statements.push(...demoOrderStatements());
+
+  // R3.10: expediente abierto para enseñar recepción e inspección sin mover
+  // dinero ni stock en la demo pública de solo lectura.
+  statements.push(
+    `INSERT INTO return_requests (` +
+      `id, return_number, order_id, receive_location_id, status, reason_code, ` +
+      `requested_by_kind, requested_by_id, version, create_idempotency_key, ` +
+      `authorize_idempotency_key, transit_idempotency_key, receive_idempotency_key, ` +
+      `note, requested_at, authorized_at, in_transit_at, received_at, created_at, updated_at` +
+    `) VALUES (` +
+      `'rma_demo_1001', 'RMA-DEMO-1001', ` +
+      `(SELECT id FROM orders WHERE order_number='BM-DEMO-1001'), ` +
+      `(SELECT id FROM inventory_locations WHERE code='principal'), ` +
+      `'received', 'not_as_expected', 'customer', 'demo-customer', 4, ` +
+      `'return:demo:1001:create', 'return:demo:1001:authorize', ` +
+      `'return:demo:1001:transit', 'return:demo:1001:receive', ` +
+      `'La caja exterior llegó marcada; pendiente de inspección.', ` +
+      `datetime('now','-2 days'), datetime('now','-2 days','+20 minutes'), ` +
+      `datetime('now','-1 day'), datetime('now','-3 hours'), ` +
+      `datetime('now','-2 days'), datetime('now','-3 hours'))`,
+    `INSERT INTO return_request_lines (` +
+      `id, return_id, order_id, order_item_id, variant_id, requested_quantity, ` +
+      `eligible_quantity, received_quantity, inspection, resolution, ` +
+      `unit_amount_cents, created_at, updated_at` +
+    `) SELECT 'rml_demo_1001_1', 'rma_demo_1001', o.id, oi.id, ` +
+      `COALESCE(oi.variant_id, pv.id), 1, 1, 1, 'pending', 'pending', ` +
+      `oi.unit_price_cents, datetime('now','-2 days'), datetime('now','-3 hours') ` +
+      `FROM orders o JOIN order_items oi ON oi.order_id=o.id ` +
+      `JOIN products p ON p.id=oi.product_id ` +
+      `JOIN product_variants pv ON pv.product_id=p.id AND pv.is_default=1 ` +
+      `WHERE o.order_number='BM-DEMO-1001' AND p.slug='miel-romero-500'`,
+    ...[
+      ['created', 'NULL', 'requested', 1, 'return:demo:1001:create', `datetime('now','-2 days')`],
+      ['authorized', `'requested'`, 'authorized', 2, 'return:demo:1001:authorize', `datetime('now','-2 days','+20 minutes')`],
+      ['in_transit', `'authorized'`, 'in_transit', 3, 'return:demo:1001:transit', `datetime('now','-1 day')`],
+      ['received', `'in_transit'`, 'received', 4, 'return:demo:1001:receive', `datetime('now','-3 hours')`],
+    ].map(([transition, from, to, version, key, at]) =>
+      `INSERT INTO return_events (` +
+        `return_id, transition, from_status, to_status, version_after, actor_kind, ` +
+        `actor_id, idempotency_key, detail_json, occurred_at` +
+      `) VALUES ('rma_demo_1001', '${transition}', ${from}, '${to}', ${version}, ` +
+        `'system', 'demo-seed', '${key}', '{}', ${at})`),
+  );
 
   // R3.9: una explicación congelada hace visible el contrato de asignación en
   // la demo. No mueve stock: documenta el fulfillment histórico de 1001.

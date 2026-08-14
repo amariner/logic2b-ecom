@@ -28,6 +28,16 @@ export type EventHoldGuard = Readonly<{
   holdVersion: number;
 }>;
 
+export type EventReturnGuard = Readonly<{
+  returnId: string;
+  expectedStatus: string;
+  expectedVersion: number;
+  orderId: number;
+  expectedOrderStatus: string;
+  payment?: Readonly<{ id: number; status: string; version: number }>;
+  refund?: Readonly<{ id: number; status: string; version: number }>;
+}>;
+
 function eventValues(event: EventEnvelope): readonly unknown[] {
   return [
     event.event_id,
@@ -148,6 +158,40 @@ export function createD1EventOutboxWriter(db: D1Database) {
         guard.holdStatus,
         guard.holdVersion,
         event.idempotency_key,
+      );
+    },
+
+    guardedReturnEventStatement(event: EventEnvelope, guard: EventReturnGuard): D1PreparedStatement {
+      const paymentGuard = guard.payment
+        ? 'AND EXISTS (SELECT 1 FROM payments WHERE id = ? AND status = ? AND version = ?)'
+        : '';
+      const paymentBindings = guard.payment
+        ? [guard.payment.id, guard.payment.status, guard.payment.version]
+        : [];
+      const refundGuard = guard.refund
+        ? 'AND EXISTS (SELECT 1 FROM refunds WHERE id = ? AND status = ? AND version = ?)'
+        : '';
+      const refundBindings = guard.refund
+        ? [guard.refund.id, guard.refund.status, guard.refund.version]
+        : [];
+      return db.prepare(`
+        INSERT INTO event_outbox_events (
+          event_id, event_type, event_version, occurred_at,
+          actor_kind, actor_id, actor_label,
+          entity_type, entity_id, entity_reference,
+          correlation_id, causation_id, idempotency_key, payload_json, created_at
+        ) SELECT ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+        WHERE EXISTS (
+          SELECT 1 FROM return_requests r JOIN orders o ON o.id = r.order_id
+          WHERE r.id = ? AND r.status = ? AND r.version = ?
+            AND r.order_id = ? AND o.status = ?
+        )
+        ${paymentGuard} ${refundGuard}
+        AND NOT EXISTS (SELECT 1 FROM event_outbox_events WHERE idempotency_key = ?)
+      `).bind(
+        ...eventValues(event), guard.returnId, guard.expectedStatus,
+        guard.expectedVersion, guard.orderId, guard.expectedOrderStatus,
+        ...paymentBindings, ...refundBindings, event.idempotency_key,
       );
     },
 

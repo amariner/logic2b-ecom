@@ -115,7 +115,7 @@ Cada migración se diseña y ensaya sobre una copia antes de tocar el esquema vi
 | 33 | **R3.7 Transferencias** | Borrador→enviado→recibido parcial, discrepancias y movimientos de ledger. | ✅ 2026-08-14; local, sin deploy |
 | 34 | **R3.8 Conteos y ajustes** | Conteo por ubicación, razón, doble control opcional y auditoría. | ✅ 2026-08-14; local, sin deploy |
 | 35 | **R3.9 Motor de asignación** | Reglas deterministas por stock, prioridad, mercado/canal y coste; explicación guardada. | ✅ 2026-08-14; local, sin deploy |
-| 36 | **R3.10 Devoluciones/RMA** | Solicitud, elegibilidad, recepción, inspección, resolución, reembolso/cambio y reposición. | ⬜ |
+| 36 | **R3.10 Devoluciones/RMA** | Solicitud, elegibilidad, recepción, inspección, resolución, reembolso/cambio y reposición. | ✅ |
 | 37 | **R3.11 Documentos operativos** | Albarán, factura/rectificativa mediante conector o plantilla, etiquetas internas y versionado. | ⬜ |
 | 38 | **R3.12 Consolidación R3** | E2E multiubicación, fulfillment y devolución; runbooks de incidencias; wiki de operación publicada solo para capacidades reales. | ⬜ |
 
@@ -1124,3 +1124,33 @@ están en verde; la revisión visual confirma 0 overflow y navegación móvil
 centrada. El gate compartido queda en 522/525 por tres fallos exclusivos del
 tema Monte; el corte limpio aislado pasa **96 suites/525 tests**, tipos y build.
 Sin D1 remota ni deploy de Worker.
+
+### R3.10 — devoluciones/RMA — ✅ cerrado local 2026-08-14
+
+ADR-0026 y `0023_returns_rma.sql` separan la logística inversa de la
+cancelación. Solo son elegibles unidades entregadas, no reclamadas y dentro de
+30 días. Solicitud, autorización, tránsito, recepción, inspección y resolución
+son versionadas e idempotentes, con eventos propios y FKs que demuestran pedido
+y línea.
+
+`FUL-011` añade API, navegación y panel responsive. El cierre agrupa evento,
+auditoría, reembolso real por capturas, estado, reposición condicionada y cambio
+pendiente en una única batch. Autorizar o recibir nunca mueve stock; solo una
+línea inspeccionada como `restock` crea `return_restock` en la ubicación
+receptora. La demo pública muestra un expediente recibido y rechaza efectos.
+Backup esquema 17 y runbook en `OPERACION_DEVOLUCIONES_RMA.md`.
+
+La reserva física y diferencia económica de un cambio permanecen explícitamente
+pendientes en `FUL-012`; las reglas configurables por categoría, coste y
+excepción permanecen parciales en `FUL-014`.
+
+Rehearsal sobre el dump real en `0022`: 8 pedidos, 2 entregados, 4 fulfillments,
+2 ubicaciones, hash previo
+`663bee27f8a7ac8946467ef25138ba5cf9176061e0f5a96cb31bf9241399a7a7`, dump de
+479.500 bytes, restore íntegro y cero expedientes inventados. `0023` y 625
+sentencias de seed se aplicaron solo en local. E2E completo —incluido el rechazo
+403 de alta y transición RMA— y a11y `admin:devoluciones` a 1440/375 están en
+verde; la revisión visual confirma el layout responsive. El gate compartido
+queda en 534/537 por tres fallos exclusivos del tema Monte en curso; el corte
+limpio aislado pasa **100 suites/537 tests**, tipos y build. Sin D1 remota ni
+deploy de Worker.

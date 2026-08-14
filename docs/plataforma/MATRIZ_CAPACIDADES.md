@@ -147,10 +147,10 @@ su alcance requiera.
 | FUL-008 | Recogida en tienda | módulo | P2 | pendiente | Disponibilidad, preparación, listo y recogido. |
 | FUL-009 | Entrega local | conector | P2 | conector | Ventanas, radio, capacidad y tracking. |
 | FUL-010 | Portal de devolución | módulo | P1 | pendiente | Elegibilidad, motivo, resolución y autenticación segura. |
-| FUL-011 | RMA y recepción | módulo | P1 | pendiente | Autorizada, en tránsito, recibida, inspeccionada y cerrada. |
-| FUL-012 | Cambio de producto | módulo | P2 | pendiente | Devolución + nueva reserva + diferencia de cobro. |
-| FUL-013 | Reposición condicionada | núcleo | P1 | parcial | Vuelve a disponible solo tras la decisión operativa correcta. |
-| FUL-014 | Reglas de devolución | módulo | P2 | pendiente | Ventana, categoría, estado, coste y excepciones. |
+| FUL-011 | RMA y recepción | módulo | P1 | actual | Solicitud elegible, autorización, tránsito, recepción, inspección y cierre versionado con reembolso o cambio. |
+| FUL-012 | Cambio de producto | módulo | P2 | parcial | El cierre materializa la sustitución pendiente; faltan reserva de salida y diferencia de cobro. |
+| FUL-013 | Reposición condicionada | núcleo | P1 | actual | Solo la inspección apta repone al cerrar, mediante movimiento append-only en la ubicación receptora. |
+| FUL-014 | Reglas de devolución | módulo | P2 | parcial | Ventana fija de 30 días, entrega, cantidades y motivos; faltan reglas configurables por categoría, coste y excepción. |
 | FUL-015 | Seguimiento multioperador | conector | P2 | conector | Normalización de estados y excepciones. |
 
 ## CUS — Clientes, identidad y privacidad

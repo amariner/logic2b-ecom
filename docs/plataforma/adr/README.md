@@ -30,3 +30,5 @@ para ocultar una decisión no es válido.
 | [0022](0022-ubicaciones-inventario.md) | Ubicación principal compatible y transición desde ledger global | accepted; R3.6 implementado localmente |
 | [0023](0023-transferencias-inventario.md) | Transferencias trazables sin adelantar asignación | accepted; R3.7 implementado localmente |
 | [0024](0024-conteos-ajustes-inventario.md) | Conteos versionados, doble control y ajustes append-only | accepted; R3.8 implementado localmente |
+| [0025](0025-asignacion-inventario.md) | Asignación determinista, vinculante y explicable | accepted; R3.9 implementado localmente |
+| [0026](0026-devoluciones-rma.md) | RMA separado de cancelación y cierre transaccional | accepted; R3.10 implementado localmente |

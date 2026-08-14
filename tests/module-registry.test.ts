@@ -61,7 +61,7 @@ describe('registro de módulos (R1.4)', () => {
 
   it('deriva navegación y rutas del registro con prioridad estable', () => {
     expect(MODULE_REGISTRY.navigation.map(({ id, order }) => [id, order])).toEqual([
-      ['pedidos', 10], ['productos', 20], ['ubicaciones', 25], ['transferencias', 27], ['conteos', 28], ['asignacion', 29], ['envios', 30], ['emails', 40],
+      ['pedidos', 10], ['productos', 20], ['ubicaciones', 25], ['transferencias', 27], ['conteos', 28], ['asignacion', 29], ['envios', 30], ['devoluciones', 32], ['emails', 40],
     ]);
     expect(MODULE_REGISTRY.routes[0]).toMatchObject({ match: 'exact' });
     const exportIndex = MODULE_REGISTRY.routes.findIndex((route) => route.path === '/api/admin/orders/export.csv');

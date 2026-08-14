@@ -49,6 +49,20 @@ export type AdjustmentRefundIntentInput = Readonly<{
   allocations: readonly PlannedRefundCaptureAllocation[];
 }>;
 
+export type ReturnRefundIntentInput = Readonly<{
+  order_id: number;
+  reason: string;
+  occurred_at: string;
+  idempotency_key: string;
+  lines: readonly Readonly<{
+    order_item_id: number;
+    quantity: number;
+    amount_cents: number;
+  }>[];
+  total_cents: number;
+  allocations: readonly PlannedRefundCaptureAllocation[];
+}>;
+
 export type RefundPaymentAllocationRecord = Readonly<{
   id: number;
   refund_id: number;
@@ -411,6 +425,50 @@ export function createD1PaymentLedger(db: D1Database) {
         header,
         ...allocationStatements(input.idempotency_key, input.allocations, input.occurred_at),
       ]);
+    },
+
+    createReturnRefundIntentStatements(
+      payment: PaymentLedgerEntry,
+      input: ReturnRefundIntentInput,
+    ): readonly D1PreparedStatement[] {
+      const reason = input.reason.trim();
+      if (reason.length < 1 || reason.length > 240) throw new RangeError('motivo de devolución inválido.');
+      if (!Number.isSafeInteger(input.total_cents) || input.total_cents < 1) {
+        throw new RangeError('total_cents de devolución inválido.');
+      }
+      if (input.lines.length < 1 || input.lines.some((line) =>
+        !Number.isSafeInteger(line.order_item_id) || line.order_item_id < 1 ||
+        !Number.isSafeInteger(line.quantity) || line.quantity < 1 ||
+        !Number.isSafeInteger(line.amount_cents) || line.amount_cents < 0)) {
+        throw new RangeError('líneas de devolución inválidas.');
+      }
+      const statements: D1PreparedStatement[] = [db.prepare(`
+        INSERT INTO refunds (
+          order_id, payment_id, status, reason, subtotal_cents,
+          shipping_cents, total_cents, provider_reference,
+          idempotency_key, version, created_at, updated_at, operation_type
+        )
+        SELECT o.id, p.id, 'pending', ?, ?, 0, ?, NULL, ?, 1, ?, ?, 'return'
+        FROM payments p JOIN orders o ON o.id = p.order_id
+        WHERE p.id = ? AND p.order_id = ?
+          AND p.status IN ('captured', 'partially_refunded') AND p.version = ?
+          AND o.status = 'delivered'
+          AND NOT EXISTS (SELECT 1 FROM refunds r WHERE r.idempotency_key = ?)
+      `).bind(reason, input.total_cents, input.total_cents, input.idempotency_key,
+        input.occurred_at, input.occurred_at, payment.id, input.order_id,
+        payment.version, input.idempotency_key)];
+      for (const line of input.lines) {
+        statements.push(db.prepare(`INSERT INTO refund_items (
+          refund_id, order_item_id, quantity, amount_cents, restock_decision
+        ) SELECT r.id, ?, ?, ?, 'none' FROM refunds r
+          WHERE r.idempotency_key = ?
+            AND NOT EXISTS (SELECT 1 FROM refund_items ri
+              WHERE ri.refund_id = r.id AND ri.order_item_id = ?)`)
+          .bind(line.order_item_id, line.quantity, line.amount_cents,
+            input.idempotency_key, line.order_item_id));
+      }
+      statements.push(...allocationStatements(input.idempotency_key, input.allocations, input.occurred_at));
+      return Object.freeze(statements);
     },
 
     async refundAllocations(refundId: number): Promise<readonly RefundPaymentAllocationRecord[]> {

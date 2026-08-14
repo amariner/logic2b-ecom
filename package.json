@@ -30,7 +30,8 @@
     "db:rehearse:inventory-locations": "node scripts/rehearse-r3-inventory-locations.mjs",
     "db:rehearse:inventory-transfers": "node scripts/rehearse-r3-inventory-transfers.mjs",
     "db:rehearse:inventory-counts": "node scripts/rehearse-r3-inventory-counts.mjs",
-    "db:rehearse:inventory-allocation": "node scripts/rehearse-r3-inventory-allocation.mjs"
+    "db:rehearse:inventory-allocation": "node scripts/rehearse-r3-inventory-allocation.mjs",
+    "db:rehearse:returns": "node scripts/rehearse-r3-returns.mjs"
   },
   "dependencies": {
     "@astrojs/cloudflare": "^12.6.0",

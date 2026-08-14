@@ -208,6 +208,10 @@ const routingHtml = await (await fetch(`${BASE}/demo/admin/asignacion`, { header
 check('asignación explica una decisión y mantiene reglas demo inertes',
   routingHtml.includes('BM-DEMO-1001') && routingHtml.includes('Almacén central')
     && routingHtml.includes('Stock insuficiente') && routingHtml.includes('disabled'));
+const returnsHtml = await (await fetch(`${BASE}/demo/admin/devoluciones`, { headers: { cookie } })).text();
+check('devoluciones muestran RMA recibido y demo inerte',
+  returnsHtml.includes('RMA-DEMO-1001') && returnsHtml.includes('Recibida')
+    && returnsHtml.includes('Registrar recepción') === false && returnsHtml.includes('disabled'));
 let variantId;
 if (variantProductId) {
   const variantsHtml = await (await fetch(
@@ -293,6 +297,8 @@ for (const [label, method, path] of [
   ['transferencia de inventario', 'POST', '/api/admin/inventory-transfers'],
   ['conteo de inventario', 'POST', '/api/admin/inventory-counts'],
   ['regla de asignación', 'PATCH', '/api/admin/inventory-routing'],
+  ['solicitud de devolución', 'POST', '/api/admin/returns'],
+  ['transición de devolución', 'PATCH', '/api/admin/returns/rma_demo_1001'],
 ]) {
   const response = await fetch(adminUrl(path), {
     method,
@@ -338,8 +344,8 @@ check(
     && backupSql.includes('INSERT INTO attribute_definitions') && backupSql.includes('INSERT INTO product_attribute_values'),
 );
 check(
-  'backup esquema 16 conserva operación y asignación explicable',
-  backupSql.includes('logic2b-backup-schema: 16')
+  'backup esquema 17 conserva operación, asignación y RMA',
+  backupSql.includes('logic2b-backup-schema: 17')
     && backupSql.includes('INSERT INTO payments')
     && backupSql.includes('INSERT INTO payment_transactions')
     && backupSql.includes('DELETE FROM refunds')
@@ -355,7 +361,7 @@ check(
     && backupSql.includes('INSERT INTO order_hold_events')
     && backupSql.includes('DELETE FROM order_bulk_batches')
     && backupSql.includes('DELETE FROM order_bulk_batch_rows')
-    && backupSql.includes('0022_inventory_allocation')
+    && backupSql.includes('0023_returns_rma')
     && backupSql.includes('INSERT INTO inventory_locations')
     && backupSql.includes('INSERT INTO inventory_location_balances')
     && backupSql.includes('INSERT INTO inventory_transfers')
@@ -365,6 +371,9 @@ check(
     && backupSql.includes('INSERT OR REPLACE INTO inventory_routing_policies')
     && backupSql.includes('INSERT INTO inventory_allocation_decisions')
     && backupSql.includes('INSERT INTO inventory_allocation_lines')
+    && backupSql.includes('INSERT INTO return_requests')
+    && backupSql.includes('INSERT INTO return_request_lines')
+    && backupSql.includes('INSERT INTO return_events')
 );
 
 if (failures > 0) {

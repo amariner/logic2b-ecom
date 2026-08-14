@@ -143,6 +143,12 @@ venta o servicios logísticos propios.
   políticas versionadas, explicación vinculada y enlaces de movimiento.
 - [`OPERACION_ASIGNACION_INVENTARIO.md`](OPERACION_ASIGNACION_INVENTARIO.md):
   ensayo, rollout, reconciliación, incidencias y rollback expand-only R3.9.
+- [`adr/0026-devoluciones-rma.md`](adr/0026-devoluciones-rma.md):
+  logística inversa separada y cierre transaccional de R3.10.
+- [`../../migrations/0023_returns_rma.sql`](../../migrations/0023_returns_rma.sql):
+  expedientes RMA, recepción, inspección, movimientos y cambios pendientes.
+- [`OPERACION_DEVOLUCIONES_RMA.md`](OPERACION_DEVOLUCIONES_RMA.md):
+  ensayo, rollout, conciliación, incidencias y rollback de devoluciones.
 - [`../../migrations/0016_order_amendments.sql`](../../migrations/0016_order_amendments.sql):
   expansión de cantidades vigentes, amendments y asignaciones financieras.
 - [`OPERACION_EDICION_PEDIDOS.md`](OPERACION_EDICION_PEDIDOS.md):
