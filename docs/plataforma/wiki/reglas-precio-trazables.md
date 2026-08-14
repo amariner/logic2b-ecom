@@ -26,8 +26,9 @@ descuentos por accidente antes de que exista la matriz explícita de `PRC-008`.
 
 ## Fuentes y límites actuales
 
-- los códigos `PRC-004` ya son una fuente persistida; todavía no tienen editor visual;
-- no existe repositorio/editor de descuentos automáticos (`PRC-005`);
+- códigos `PRC-004` y automáticos `PRC-005` ya son fuentes persistidas; ninguna
+  tiene todavía editor visual;
+- R4.3 fija precedencia global del código y una única campaña automática, sin apilado;
 - no hay tramos por cantidad, X/Y, listas de precios ni bundles;
 - no hay apilado, exclusiones entre campañas ni descuento fijo de cesta que
   necesite reparto entre líneas;

@@ -68,7 +68,9 @@ for (const [surface, path] of [
   const requestPath = surface === '404' ? '/esta-ruta-no-existe' : path;
   const response = await fetch(`${BASE}${requestPath}`);
   const html = await response.text();
-  checkWhatsappContact(surface, html, requestPath);
+  // La 404 es un asset prerenderizado: su origen canónico es /404 aunque el
+  // Worker lo sirva para cualquier URL inexistente.
+  checkWhatsappContact(surface, html, path);
 }
 
 // ── 2. Ningún endpoint público escribe o consulta comercio en la demo ──
@@ -305,6 +307,8 @@ for (const [label, method, path] of [
   ['transición de devolución', 'PATCH', '/api/admin/returns/rma_demo_1001'],
   ['alta de documento', 'POST', '/api/admin/order-documents'],
   ['anulación de documento', 'POST', '/api/admin/order-documents/doc_demo_albaran_1004/void'],
+  ['código promocional', 'POST', '/api/admin/promotion-codes'],
+  ['descuento automático', 'POST', '/api/admin/automatic-discounts'],
 ]) {
   const response = await fetch(adminUrl(path), {
     method,
@@ -350,8 +354,8 @@ check(
     && backupSql.includes('INSERT INTO attribute_definitions') && backupSql.includes('INSERT INTO product_attribute_values'),
 );
 check(
-  'backup esquema 20 conserva operación, RMA, documentos y promociones',
-  backupSql.includes('logic2b-backup-schema: 20')
+  'backup esquema 21 conserva operación, RMA, documentos y promociones',
+  backupSql.includes('logic2b-backup-schema: 21')
     && backupSql.includes('INSERT INTO payments')
     && backupSql.includes('INSERT INTO payment_transactions')
     && backupSql.includes('DELETE FROM refunds')
@@ -367,9 +371,11 @@ check(
     && backupSql.includes('INSERT INTO order_hold_events')
     && backupSql.includes('DELETE FROM order_bulk_batches')
     && backupSql.includes('DELETE FROM order_bulk_batch_rows')
-    && backupSql.includes('0026_promotion_codes')
+    && backupSql.includes('0027_automatic_discounts')
     && backupSql.includes('DELETE FROM promotion_codes')
     && backupSql.includes('DELETE FROM promotion_code_usages')
+    && backupSql.includes('DELETE FROM automatic_discounts')
+    && backupSql.includes('DELETE FROM automatic_discount_applications')
     && backupSql.includes('INSERT INTO inventory_locations')
     && backupSql.includes('INSERT INTO inventory_location_balances')
     && backupSql.includes('INSERT INTO inventory_transfers')

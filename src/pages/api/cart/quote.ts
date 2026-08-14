@@ -34,6 +34,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
       channel: 'storefront',
     },
     promotionCodesEnabled: runtimePlatform.isCapabilityActive('PRC-004'),
+    automaticDiscountsEnabled: runtimePlatform.isCapabilityActive('PRC-005'),
   });
   return Response.json(result);
 };

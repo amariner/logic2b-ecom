@@ -40,7 +40,9 @@ import {
   type InventoryStockChange,
 } from '../modules/inventory';
 import {
+  createD1AutomaticDiscounts,
   createD1PromotionCodes,
+  type AutomaticDiscountApplication,
   type PromotionReservation,
 } from '../modules/pricing';
 import {
@@ -87,6 +89,7 @@ export function createOrderOperations(
     reservationTtlSeconds?: number;
     reservationExpiresAt?: string;
     promotionReservation?: PromotionReservation;
+    automaticDiscountApplication?: AutomaticDiscountApplication;
   }> = {},
 ) {
   const orders = createOrderWriter(db);
@@ -96,6 +99,10 @@ export function createOrderOperations(
   const reservations = createD1InventoryReservations(db);
   const payments = createD1PaymentLedger(db);
   const promotions = createD1PromotionCodes(db);
+  const automaticDiscounts = createD1AutomaticDiscounts(db);
+  if (options.promotionReservation !== undefined && options.automaticDiscountApplication !== undefined) {
+    throw new RangeError('Un pedido no puede combinar código y descuento automático antes de PRC-008.');
+  }
   const reservationsEnabled = options.reservationsEnabled ??
     runtimePlatform.hasCapabilityFlag('INV-004', 'sideEffects');
 
@@ -184,6 +191,13 @@ export function createOrderOperations(
           : [promotions.reservationStatement(
             order.order_number,
             options.promotionReservation,
+            identity.occurred_at,
+          )]),
+        ...(options.automaticDiscountApplication === undefined
+          ? []
+          : [automaticDiscounts.applicationStatement(
+            order.order_number,
+            options.automaticDiscountApplication,
             identity.occurred_at,
           )]),
         ...reservationStatements,

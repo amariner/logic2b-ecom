@@ -44,7 +44,7 @@ perfil ni segmento y no introduce PII nueva; esas capacidades pertenecen a R5.
 6. moneda, ventana, mínimo, mercado, canal y producto se revalidan en servidor;
 7. el uso conserva versión e importe aunque la configuración se desactive;
 8. un reembolso usa `order_items.unit_price_cents`, ya proporcional al descuento;
-9. no se combina con otra fuente hasta que PRC-008 defina la matriz.
+9. R4.3 le da precedencia global sobre un automático; no existe apilado hasta PRC-008.
 
 ## Rollback
 

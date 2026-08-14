@@ -177,6 +177,14 @@ venta o servicios logísticos propios.
   alta segura, rollout, reconciliación, incidencias y rollback de `PRC-004`.
 - [`wiki/codigos-promocionales-seguros.md`](wiki/codigos-promocionales-seguros.md):
   ficha interna honesta sobre códigos, sin editor visual ni ruta pública.
+- [`adr/0030-descuentos-automaticos-y-precedencia.md`](adr/0030-descuentos-automaticos-y-precedencia.md):
+  campaña automática única, motivo público y precedencia global de código.
+- [`../../migrations/0027_automatic_discounts.sql`](../../migrations/0027_automatic_discounts.sql):
+  configuración, scopes, aplicación por pedido y guardas de fuente expand-only.
+- [`OPERACION_DESCUENTOS_AUTOMATICOS.md`](OPERACION_DESCUENTOS_AUTOMATICOS.md):
+  rollout, matriz, reconciliación, incidencias y rollback de `PRC-005`.
+- [`wiki/descuentos-automaticos-trazables.md`](wiki/descuentos-automaticos-trazables.md):
+  ficha interna de campañas y límites actuales, sin editor ni ruta pública.
 - [`../../migrations/0016_order_amendments.sql`](../../migrations/0016_order_amendments.sql):
   expansión de cantidades vigentes, amendments y asignaciones financieras.
 - [`OPERACION_EDICION_PEDIDOS.md`](OPERACION_EDICION_PEDIDOS.md):

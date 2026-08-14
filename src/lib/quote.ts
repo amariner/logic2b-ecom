@@ -8,8 +8,11 @@ import { getProductsBySlugs, getRateForZone } from './db';
 import type { CatalogReadMode } from '../modules/catalog';
 import {
   evaluatePriceRules,
+  createD1AutomaticDiscounts,
   createD1PromotionCodes,
+  resolveAutomaticDiscounts,
   resolvePromotionCode,
+  resolvePricingSourceConflict,
   type PriceBreakdown,
   type PriceRuleCandidate,
   type PriceRuleContext,
@@ -81,6 +84,13 @@ export type QuoteResult = {
     | Readonly<{
       status: 'applied'; promotion_id: string; version: number; label: string; discount_cents: number;
     }>;
+  automatic_discount:
+    | Readonly<{
+      status: 'not_applied'; reason: 'no_eligible_discount' | 'promotion_code_precedence';
+    }>
+    | Readonly<{
+      status: 'applied'; discount_id: string; version: number; reason: string; discount_cents: number;
+    }>;
 };
 
 export async function quoteCart(
@@ -92,6 +102,7 @@ export async function quoteCart(
     priceRulesBySlug?: Readonly<Record<string, readonly PriceRuleCandidate[]>>;
     promotionCustomerKeyHash?: string;
     promotionCodesEnabled?: boolean;
+    automaticDiscountsEnabled?: boolean;
   }> = {},
 ): Promise<QuoteResult> {
   // Colapsar duplicados del mismo slug antes de tocar la base
@@ -135,8 +146,27 @@ export async function quoteCart(
       });
     }
   }
+  const automaticDiscounts = options.automaticDiscountsEnabled === true
+    ? await createD1AutomaticDiscounts(db).listActive()
+    : [];
+  const automaticResolution = resolveAutomaticDiscounts({
+    discounts: automaticDiscounts,
+    context: pricingContext,
+    baseSubtotalCents: [...qtyBySlug.entries()].reduce((total, [slug, qty]) => {
+      const product = bySlug.get(slug);
+      return total + (product === undefined ? 0 : product.price_cents * qty);
+    }, 0),
+    cartProductIds: products.map((product) => product.id),
+  });
+  const pricingSource = resolvePricingSourceConflict({
+    promotionEligible: promotionResolution?.status === 'eligible',
+    automaticEligible: automaticResolution.status === 'eligible',
+  });
   const promotionProductIds = new Set(
     promotionResolution?.status === 'eligible' ? promotionResolution.eligibleProductIds : [],
+  );
+  const automaticProductIds = new Set(
+    automaticResolution.status === 'eligible' ? automaticResolution.eligibleProductIds : [],
   );
 
   const lines: QuoteLine[] = [...qtyBySlug.entries()].map(([slug, qty]) => {
@@ -149,13 +179,19 @@ export async function quoteCart(
     }
     const status = prod.stock === 0 ? 'out-of-stock' : prod.stock < qty ? 'insufficient-stock' : 'ok';
     const configuredCandidates = options.priceRulesBySlug?.[slug];
-    const promotionCandidates = promotionResolution?.status === 'eligible' && promotionProductIds.has(prod.id)
+    const promotionCandidates = pricingSource === 'promotion_code' &&
+      promotionResolution?.status === 'eligible' && promotionProductIds.has(prod.id)
       ? [promotionResolution.candidate]
       : undefined;
-    if (configuredCandidates !== undefined && promotionCandidates !== undefined) {
+    const automaticCandidates = pricingSource === 'automatic_discount' &&
+      automaticResolution.status === 'eligible' && automaticProductIds.has(prod.id)
+      ? [automaticResolution.candidate]
+      : undefined;
+    const persistedCandidates = promotionCandidates ?? automaticCandidates;
+    if (configuredCandidates !== undefined && persistedCandidates !== undefined) {
       throw new Error('La combinación de fuentes de descuento requiere PRC-008.');
     }
-    const candidates = configuredCandidates ?? promotionCandidates;
+    const candidates = configuredCandidates ?? persistedCandidates;
     const pricing = evaluatePriceRules({
       baseUnitPriceCents: prod.price_cents,
       quantity: qty,
@@ -181,6 +217,8 @@ export async function quoteCart(
   const subtotal_cents = computeSubtotalCents(servable);
   const promotionDiscountCents = servable.reduce((total, line) =>
     total + (line.pricing?.applied_rule?.id.startsWith('promotion:') ? line.pricing.discount_cents : 0), 0);
+  const automaticDiscountCents = servable.reduce((total, line) =>
+    total + (line.pricing?.applied_rule?.id.startsWith('automatic:') ? line.pricing.discount_cents : 0), 0);
   const promotion: QuoteResult['promotion'] = request.promotion_code === undefined
     ? { status: 'not_provided' }
     : promotionResolution?.status === 'eligible' && promotionDiscountCents > 0
@@ -192,6 +230,21 @@ export async function quoteCart(
         discount_cents: promotionDiscountCents,
       }
       : { status: 'rejected', reason: 'invalid_or_unavailable' };
+  const automatic_discount: QuoteResult['automatic_discount'] = pricingSource === 'automatic_discount' &&
+      automaticResolution.status === 'eligible' && automaticDiscountCents > 0
+    ? {
+      status: 'applied',
+      discount_id: automaticResolution.discount.id,
+      version: automaticResolution.discount.version,
+      reason: automaticResolution.discount.publicReason,
+      discount_cents: automaticDiscountCents,
+    }
+    : {
+      status: 'not_applied',
+      reason: pricingSource === 'promotion_code' && automaticResolution.status === 'eligible'
+        ? 'promotion_code_precedence'
+        : 'no_eligible_discount',
+    };
 
   let shipping_cents: number | null = null;
   let shipping: QuoteResult['shipping'] = null;
@@ -214,5 +267,6 @@ export async function quoteCart(
     shipping,
     purchasable: lines.length > 0 && lines.every((line) => line.status === 'ok'),
     promotion,
+    automatic_discount,
   };
 }

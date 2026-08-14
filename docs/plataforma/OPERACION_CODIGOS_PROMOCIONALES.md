@@ -19,7 +19,8 @@ no el pedido completo.
    revisar pista, scope, vigencia, mínimo y límites;
 7. activar con versión esperada y probar cotización, pedido pendiente, pago y
    caducidad con identidades de ensayo;
-8. contrastar backup esquema 20 y restore antes de publicar el código.
+8. contrastar el backup vigente (esquema 21 desde R4.3) y restore antes de
+   publicar el código.
 
 El ensayo local del 2026-08-14 conservó 8 pedidos, 13 líneas y el hash previo;
 forward/restore dejaron las tres tablas vacías e íntegras. El dump restaurado

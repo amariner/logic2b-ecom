@@ -57,5 +57,11 @@ describe('códigos promocionales R4.2', () => {
     expect(resolvePromotionCode({ ...input, baseSubtotalCents: 1999 }).status).toBe('excluded_minimum_subtotal');
     expect(resolvePromotionCode({ ...input, cartProductIds: [2] }).status).toBe('excluded_product_scope');
     expect(resolvePromotionCode({ ...input, customerUsageCount: null }).status).toBe('eligible');
+    expect(resolvePromotionCode({
+      ...input, context: { ...input.context, market: 'PT' },
+    }).status).toBe('excluded_context');
+    expect(resolvePromotionCode({
+      ...input, context: { ...input.context, at: '2026-09-01T00:00:00.000Z' },
+    }).status).toBe('excluded_context');
   });
 });

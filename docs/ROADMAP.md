@@ -1655,30 +1655,31 @@ la cola de temas, coordinados sin mezclar worktrees ni cambios abiertos.
 
 ## Próxima sesión
 
-### R4.3 — descuentos automáticos — ⬜ siguiente bloque
+### R4.4 — cantidad y compra X/Y — ⬜ siguiente bloque
 
-R4.2 queda cerrado en repositorio y D1 local con `0026`. `PRC-004` guarda sólo
-hash y pista parcial del código, mantiene configuración y estado versionados y
-aplica vigencia, moneda, mercado, canal, mínimo, scope de producto y límites
-globales/por cliente. La API admin autenticada devuelve el código normalizado
-únicamente al crearlo; listados, quote y checkout no exponen ni texto claro ni
-hash. El alta de pedido reserva el uso dentro del batch, el pago lo consume y
-la caducidad o cancelación pendiente lo libera de forma idempotente. Pedidos y
-reembolsos conservan el precio efectivo y el snapshot trazable de R4.1.
+R4.3 queda cerrado en repositorio y D1 local con `0027`. `PRC-005` persiste
+campañas inmutables con estado/version, vigencia, moneda, mercado, canal,
+mínimo, scope y motivo público. Una sola campaña gana para todo el carrito; sus
+líneas fuera de scope conservan precio base. La matriz pura da precedencia
+global a un código elegible, deja visible el motivo de supresión y nunca apila
+fuentes. Un código rechazado permite explicar el automático en quote, pero
+checkout mantiene el 422 solicitado. El pedido congela una aplicación única y
+el trigger contrasta versión, efecto, contexto, scope, motivo e importe.
 
-El rehearsal sobre el dump `0025` mantuvo 8 pedidos, 13 líneas y el hash de las
-columnas previas; forward y restore dejaron las tres tablas nuevas íntegras y el
-dump restaurado ocupó 502769 bytes. La D1 local está migrada y regenerada. El
-corte limpio pasa 112 suites/571 tests, 570 archivos tipados, build y sitemap.
-La batería compartida pasa 568/571 y conserva únicamente los 3 fallos ajenos
-del tema Monte en curso. No se cambió D1 remota ni Worker.
+El rehearsal sobre el dump `0026` mantuvo 8 pedidos, 13 líneas, promociones y
+el hash de datos previos; forward/restore quedaron íntegros y el dump restaurado
+ocupó 510659 bytes. La D1 local se regeneró desde cero con `0027`. El corte
+limpio pasa 117 suites/586 tests, 580 archivos tipados, build y sitemap; el E2E
+local verifica compra/admin, demo inerte y backup esquema 21. La batería
+compartida pasa 583/586 y conserva sólo los 3 fallos ajenos del tema Monte. No
+se cambió D1 remota ni Worker.
 
-Siguiente incremento exacto: descuentos automáticos persistidos y versionados,
-con elegibilidad calculada en servidor, motivo visible y una matriz explícita
-que resuelva el conflicto con `PRC-004`. Debe reutilizar el motor R4.1, congelar
-la decisión en quote/pedido y mantener reembolsos sobre el precio efectivo, sin
-adelantar tramos o compra X/Y de R4.4 ni combinabilidad general de R4.5. Temas y
-demos visuales continúan fuera de este objetivo por instrucción de Andreu.
+Siguiente incremento exacto: `PRC-006` y `PRC-007`, tramos por cantidad y
+compra X/Y con múltiplos y selección determinista de unidades/líneas. Debe
+explicar el cálculo, congelarlo en quote/pedido y cubrir edición y devolución
+sin aceptar cantidades ni importes decididos por cliente. No debe adelantar la
+combinabilidad general de R4.5. Temas y demos visuales continúan fuera de este
+objetivo por instrucción de Andreu.
 
 Las entradas que siguen son el histórico de cierres anteriores y no cambian el
 orden actual.

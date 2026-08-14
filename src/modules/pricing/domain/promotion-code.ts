@@ -26,7 +26,8 @@ export type PromotionCodeExclusion =
   | 'excluded_global_limit'
   | 'excluded_customer_limit'
   | 'excluded_minimum_subtotal'
-  | 'excluded_product_scope';
+  | 'excluded_product_scope'
+  | 'excluded_context';
 
 export type PromotionCodeResolution = Readonly<
   | { status: PromotionCodeExclusion; candidate: null; eligibleProductIds: readonly number[] }
@@ -111,6 +112,15 @@ export function resolvePromotionCode(input: Readonly<{
   if (promotion.state !== 'active') {
     return Object.freeze({ status: 'excluded_inactive', candidate: null, eligibleProductIds: Object.freeze([]) });
   }
+  const candidate = candidateOf(promotion);
+  if (evaluatePriceRules({
+    baseUnitPriceCents: 1000,
+    quantity: 1,
+    context: input.context,
+    candidates: [candidate],
+  }).applied_rule === null) {
+    return Object.freeze({ status: 'excluded_context', candidate: null, eligibleProductIds: Object.freeze([]) });
+  }
   if (promotion.globalUsageLimit !== null && input.globalUsageCount >= promotion.globalUsageLimit) {
     return Object.freeze({ status: 'excluded_global_limit', candidate: null, eligibleProductIds: Object.freeze([]) });
   }
@@ -128,7 +138,6 @@ export function resolvePromotionCode(input: Readonly<{
   if (eligibleProductIds.length === 0) {
     return Object.freeze({ status: 'excluded_product_scope', candidate: null, eligibleProductIds: Object.freeze([]) });
   }
-  const candidate = candidateOf(promotion);
   return Object.freeze({
     status: 'eligible',
     candidate,

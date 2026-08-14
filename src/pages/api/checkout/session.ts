@@ -72,6 +72,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
   try {
     const { lines, customer } = parsed.data;
     const promotionsEnabled = runtimePlatform.isCapabilityActive('PRC-004');
+    const automaticDiscountsEnabled = runtimePlatform.isCapabilityActive('PRC-005');
     const promotionCustomerKeyHash = parsed.data.promotion_code === undefined
       ? null
       : await promotionCustomerHash(customer.email);
@@ -94,6 +95,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
         channel: 'storefront',
       },
       promotionCodesEnabled: promotionsEnabled,
+      automaticDiscountsEnabled,
       ...(promotionCustomerKeyHash === null ? {} : { promotionCustomerKeyHash }),
     });
     if (parsed.data.promotion_code !== undefined && quote.promotion.status !== 'applied') {
@@ -210,6 +212,23 @@ export const POST: APIRoute = async ({ request, locals }) => {
               version: quote.promotion.version,
               label: quote.promotion.label,
               discount_cents: quote.promotion.discount_cents,
+            },
+          },
+        }),
+      ...(quote.automatic_discount.status !== 'applied'
+        ? {}
+        : {
+          automaticDiscountApplication: {
+            discountId: quote.automatic_discount.discount_id,
+            discountVersion: quote.automatic_discount.version,
+            discountCents: quote.automatic_discount.discount_cents,
+            snapshot: {
+              schema: 1,
+              discount_id: quote.automatic_discount.discount_id,
+              version: quote.automatic_discount.version,
+              reason: quote.automatic_discount.reason,
+              discount_cents: quote.automatic_discount.discount_cents,
+              conflict_policy: 'promotion_code_precedence',
             },
           },
         }),

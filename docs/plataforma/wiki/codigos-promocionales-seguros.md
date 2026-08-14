@@ -26,7 +26,8 @@ lo que una devolución de una unidad devuelve su precio efectivo exacto.
 - una cantidad fija se aplica por unidad elegible, no como descuento de cesta;
 - no hay segmentos ni allowlists de clientes antes de R5;
 - una compra pagada y después reembolsada sigue contando como uso;
-- no se apila con descuentos automáticos: R4.3 y R4.5 deben resolver el conflicto;
+- no se apila con descuentos automáticos: R4.3 fija precedencia global del
+  código y R4.5 conserva la combinabilidad general fuera;
 - no existe editor visual todavía; la gestión actual es la API administrativa
   autenticada y versionada;
 - la demo pública no acepta códigos ni crea pedidos reales.

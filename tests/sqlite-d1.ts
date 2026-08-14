@@ -25,6 +25,7 @@ import migration23 from '../migrations/0023_returns_rma.sql?raw';
 import migration24 from '../migrations/0024_order_documents.sql?raw';
 import migration25 from '../migrations/0025_price_rule_snapshots.sql?raw';
 import migration26 from '../migrations/0026_promotion_codes.sql?raw';
+import migration27 from '../migrations/0027_automatic_discounts.sql?raw';
 
 type SqlValue = string | number | bigint | null | Uint8Array;
 
@@ -96,6 +97,7 @@ export class SqliteD1 {
     includePartialRefundGuards = true,
     includePriceRuleSnapshots = true,
     includePromotionCodes = true,
+    includeAutomaticDiscounts = true,
   ) {
     this.sqlite.exec('PRAGMA foreign_keys = ON;');
     for (const migration of [
@@ -105,7 +107,13 @@ export class SqliteD1 {
       ...(includePartialRefundGuards ? [
         migration13, migration14, migration15, migration16, migration17, migration18,
         migration19, migration20, migration21, migration22, migration23, migration24,
-        ...(includePriceRuleSnapshots ? [migration25, ...(includePromotionCodes ? [migration26] : [])] : []),
+        ...(includePriceRuleSnapshots ? [
+          migration25,
+          ...(includePromotionCodes ? [
+            migration26,
+            ...(includeAutomaticDiscounts ? [migration27] : []),
+          ] : []),
+        ] : []),
       ] : []),
     ]) {
       this.sqlite.exec(migration);
