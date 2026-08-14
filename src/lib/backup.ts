@@ -7,10 +7,13 @@
 export type Row = Record<string, string | number | null>;
 
 /** Orden de volcado y de borrado inverso (hijos después de padres al insertar no importa: borramos primero). */
-export const BACKUP_SCHEMA_VERSION = 24;
+export const BACKUP_SCHEMA_VERSION = 25;
 
 export const BACKUP_TABLES = [
   'products',
+  'bundles',
+  'bundle_groups',
+  'bundle_components',
   'price_lists',
   'price_list_products',
   'price_list_companies',
@@ -57,6 +60,8 @@ export const BACKUP_TABLES = [
   'order_bulk_batch_rows',
   'orders',
   'order_items',
+  'order_bundle_components',
+  'bundle_applications',
   'price_list_applications',
   'discount_combination_applications',
   'automatic_discount_applications',
@@ -84,6 +89,7 @@ export const BACKUP_TABLES = [
   'return_request_lines',
   'return_events',
   'return_inventory_movements',
+  'bundle_return_inventory_movements',
   'return_exchange_lines',
   'order_documents',
   'order_document_artifacts',
@@ -128,7 +134,7 @@ export function buildBackupSql(tablesRows: Record<string, Row[]>, generatedAt: s
   const lines = [
     `-- Copia de seguridad Logic2B Ecommerce — ${generatedAt}`,
     `-- logic2b-backup-schema: ${BACKUP_SCHEMA_VERSION}`,
-    '-- Requiere una base con la migración 0030_contextual_price_lists aplicada; las tablas/columnas explícitas abortan un restore incompatible.',
+    '-- Requiere una base con la migración 0031_bundles aplicada; las tablas/columnas explícitas abortan un restore incompatible.',
     `-- Restaurar con: wrangler d1 execute <database> --remote --file <este fichero>`,
     'PRAGMA defer_foreign_keys = true;',
   ];

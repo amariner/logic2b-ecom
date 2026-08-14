@@ -108,4 +108,28 @@ describe('API admin de edición segura R3.3', () => {
     expect((await PREVIEW(context('preview', demo, {}) as Parameters<typeof PREVIEW>[0])).status).toBe(403);
     expect(demo.value('SELECT count(*) AS value FROM order_amendments')).toBe(0);
   });
+
+  it('congela la composición y cantidad comercial de una línea bundle', async () => {
+    const db = new SqliteD1();
+    seed(db);
+    db.sqlite.exec(`
+      UPDATE order_items SET pricing_snapshot_json='{"bundle":{"bundle_id":"bundle-base","version":1,
+        "components":[{"product_id":2,"quantity_per_bundle":1}]}}' WHERE id=71;
+      INSERT INTO bundles (id, product_id, label, kind, state, version, created_at, updated_at)
+      VALUES ('bundle-base', 1, 'Bundle base', 'fixed', 'disabled', 1,
+        '2026-08-14T08:00:00.000Z', '2026-08-14T08:00:00.000Z');
+      INSERT INTO bundle_components (bundle_id, group_id, product_id, quantity, is_default, sort_order)
+      VALUES ('bundle-base', NULL, 2, 1, 1, 0);
+      UPDATE bundles SET state='active' WHERE id='bundle-base';
+      INSERT INTO order_bundle_components (order_item_id, bundle_id, bundle_version, product_id,
+        variant_id, quantity_per_bundle, name_snapshot, sku_snapshot)
+      VALUES (71, 'bundle-base', 1, 2, 22, 1, 'Extra', 'EXTRA-1');
+    `);
+    const response = await PREVIEW(context('preview', db, {
+      order_id: 7, expected_version: 1, lines: [{ order_item_id: 71, quantity: 1 }],
+    }) as Parameters<typeof PREVIEW>[0]);
+    expect(response.status).toBe(422);
+    expect(await response.json()).toMatchObject({ error: expect.stringMatching(/bundle.*congeladas/) });
+    expect(db.value('SELECT count(*) AS value FROM order_amendments')).toBe(0);
+  });
 });

@@ -10,6 +10,7 @@ import {
   evaluatePriceRules,
   evaluateCombinedPriceRules,
   createD1AutomaticDiscounts,
+  createD1Bundles,
   createD1DiscountCombinations,
   createD1PromotionCodes,
   createD1PriceLists,
@@ -22,6 +23,8 @@ import {
   resolveDiscountCombination,
   resolveDiscountCombinationPolicy,
   type DiscountCombinationResolution,
+  type BundleResolution,
+  type BundleSelection,
   type DiscountSource,
   type PriceBreakdown,
   type PriceRuleCandidate,
@@ -37,6 +40,10 @@ export const quoteRequestSchema = z.object({
       z.object({
         slug: z.string().min(1).max(120),
         qty: z.number().int().min(1).max(99),
+        bundle_selections: z.array(z.object({
+          group_id: z.string().trim().min(1).max(100),
+          product_slug: z.string().trim().min(1).max(120),
+        }).strict()).max(100).optional(),
       }),
     )
     .min(1)
@@ -130,6 +137,16 @@ export type QuoteResult = {
         catalog_subtotal_cents: number; effective_subtotal_cents: number; delta_cents: number;
       }>[];
     }>;
+  bundles:
+    | Readonly<{ status: 'not_applied'; reason: 'disabled' | 'no_bundle_lines' }>
+    | Readonly<{
+      status: 'applied'; applications: readonly Readonly<{
+        bundle_id: string; version: number; product_id: number; label: string;
+        kind: 'fixed' | 'configurable'; unit_price_cents: number; quantity: number;
+        snapshot: BundleResolution['snapshot'];
+        components: readonly Readonly<{ productId: number; quantityPerBundle: number }>[];
+      }>[];
+    }>;
 };
 
 export async function quoteCart(
@@ -150,6 +167,7 @@ export async function quoteCart(
     priceListsEnabled?: boolean;
     /** Identidad empresarial resuelta por servidor; nunca procede del cuerpo libre del checkout. */
     priceListCompanyKeyHash?: string;
+    bundlesEnabled?: boolean;
   }> = {},
 ): Promise<QuoteResult> {
   // Colapsar duplicados del mismo slug antes de tocar la base
@@ -167,6 +185,33 @@ export async function quoteCart(
     market: 'ES',
     channel: 'storefront',
   };
+  const bundleByProduct = new Map<number, BundleResolution>();
+  if (options.bundlesEnabled === true) {
+    const bundles = createD1Bundles(db);
+    const selectionSlugs = request.lines.flatMap((line) =>
+      line.bundle_selections?.map((selection) => selection.product_slug) ?? []);
+    const productIdsBySlug = await bundles.productIdsBySlugs([...new Set(selectionSlugs)]);
+    const selectionFingerprintBySlug = new Map<string, string>();
+    for (const requestLine of request.lines) {
+      const normalized = [...(requestLine.bundle_selections ?? [])]
+        .map((selection) => `${selection.group_id}:${selection.product_slug}`).sort().join('|');
+      const previous = selectionFingerprintBySlug.get(requestLine.slug);
+      if (previous !== undefined && previous !== normalized) {
+        throw new RangeError('Un mismo bundle no admite composiciones distintas en una cotización.');
+      }
+      selectionFingerprintBySlug.set(requestLine.slug, normalized);
+    }
+    for (const product of products) {
+      const requestLine = request.lines.find((line) => line.slug === product.slug);
+      const selections: BundleSelection[] = (requestLine?.bundle_selections ?? []).map((selection) => {
+        const productId = productIdsBySlug.get(selection.product_slug);
+        if (productId === undefined) throw new RangeError(`Componente ${selection.product_slug} no disponible.`);
+        return Object.freeze({ groupId: selection.group_id, productId });
+      });
+      const resolution = await bundles.resolveForProduct(product.id, selections);
+      if (resolution !== null) bundleByProduct.set(product.id, resolution);
+    }
+  }
   const contextualPriceByProduct = options.priceListsEnabled === true
     ? new Map(resolvePriceLists({
       lists: await createD1PriceLists(db).listActive(),
@@ -291,7 +336,9 @@ export async function quoteCart(
         line_total_cents: 0, available_stock: 0, pricing: null, status: 'not-found',
       };
     }
-    const status = prod.stock === 0 ? 'out-of-stock' : prod.stock < qty ? 'insufficient-stock' : 'ok';
+    const bundle = bundleByProduct.get(prod.id);
+    const availableStock = bundle?.availableStock ?? prod.stock;
+    const status = availableStock === 0 ? 'out-of-stock' : availableStock < qty ? 'insufficient-stock' : 'ok';
     const configuredCandidates = options.priceRulesBySlug?.[slug];
     const promotionCandidates = selectedSources.has('promotion_code') &&
       promotionResolution?.status === 'eligible' && promotionProductIds.has(prod.id)
@@ -326,6 +373,7 @@ export async function quoteCart(
     const pricing: PriceBreakdown = Object.freeze({
       ...evaluatedPricing,
       ...(contextualPrice === undefined ? {} : { price_origin: contextualPrice.origin }),
+      ...(bundle === undefined ? {} : { bundle: bundle.snapshot }),
     });
     return {
       slug,
@@ -334,7 +382,7 @@ export async function quoteCart(
       unit_price_cents: pricing.unit_price_cents,
       qty,
       line_total_cents: status === 'ok' ? pricing.subtotal_cents : 0,
-      available_stock: prod.stock,
+      available_stock: availableStock,
       pricing,
       status,
     };
@@ -448,6 +496,22 @@ export async function quoteCart(
       applications: Object.freeze([...applicationByList.values()].map((application) => Object.freeze(application))),
     }
     : { status: 'not_applied', reason: options.priceListsEnabled === true ? 'no_eligible_list' : 'disabled' };
+  const bundleApplications = servable.flatMap((line) => {
+    const product = bySlug.get(line.slug);
+    const resolution = product === undefined ? undefined : bundleByProduct.get(product.id);
+    if (product === undefined || resolution === undefined) return [];
+    return [Object.freeze({
+      bundle_id: resolution.bundle.id, version: resolution.bundle.version,
+      product_id: product.id, label: resolution.bundle.label, kind: resolution.bundle.kind,
+      unit_price_cents: line.unit_price_cents, quantity: line.qty, snapshot: resolution.snapshot,
+      components: Object.freeze(resolution.components.map((component) => Object.freeze({
+        productId: component.productId, quantityPerBundle: component.quantity,
+      }))),
+    })];
+  });
+  const bundles: QuoteResult['bundles'] = bundleApplications.length === 0
+    ? { status: 'not_applied', reason: options.bundlesEnabled === true ? 'no_bundle_lines' : 'disabled' }
+    : { status: 'applied', applications: Object.freeze(bundleApplications) };
 
   let shipping_cents: number | null = null;
   let shipping: QuoteResult['shipping'] = null;
@@ -474,5 +538,6 @@ export async function quoteCart(
     quantity_offer,
     discount_combination,
     price_lists,
+    bundles,
   };
 }

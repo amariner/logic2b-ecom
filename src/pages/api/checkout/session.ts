@@ -25,7 +25,13 @@ export const prerender = false;
 
 const checkoutRequestSchema = z.object({
   lines: z
-    .array(z.object({ slug: z.string().min(1).max(120), qty: z.number().int().min(1).max(99) }))
+    .array(z.object({
+      slug: z.string().min(1).max(120), qty: z.number().int().min(1).max(99),
+      bundle_selections: z.array(z.object({
+        group_id: z.string().trim().min(1).max(100),
+        product_slug: z.string().trim().min(1).max(120),
+      }).strict()).max(100).optional(),
+    }))
     .min(1)
     .max(50),
   // Tienda desde la que se compra (9B.4): decide SOLO adónde se vuelve tras el
@@ -77,6 +83,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
     const buyXGetYEnabled = runtimePlatform.isCapabilityActive('PRC-007');
     const discountCombinationsEnabled = runtimePlatform.isCapabilityActive('PRC-008');
     const priceListsEnabled = runtimePlatform.isCapabilityActive('PRC-009');
+    const bundlesEnabled = runtimePlatform.isCapabilityActive('PRC-012');
     const promotionCustomerKeyHash = parsed.data.promotion_code === undefined
       ? null
       : await promotionCustomerHash(customer.email);
@@ -104,6 +111,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
       buyXGetYEnabled,
       discountCombinationsEnabled,
       priceListsEnabled,
+      bundlesEnabled,
       ...(promotionCustomerKeyHash === null ? {} : { promotionCustomerKeyHash }),
     });
     if (parsed.data.promotion_code !== undefined && quote.promotion.status !== 'applied') {
@@ -206,6 +214,19 @@ export const POST: APIRoute = async ({ request, locals }) => {
     const orders = createOrderOperations(env.DB, undefined, undefined, {
       reservationsEnabled,
       ...(reservationExpiresAt === null ? {} : { reservationExpiresAt }),
+      ...(quote.bundles.status !== 'applied'
+        ? {}
+        : {
+          bundleApplications: quote.bundles.applications.map((application) => ({
+            bundleId: application.bundle_id,
+            bundleVersion: application.version,
+            bundleProductId: application.product_id,
+            unitPriceCents: application.unit_price_cents,
+            quantity: application.quantity,
+            snapshot: application.snapshot,
+            components: application.components,
+          })),
+        }),
       ...(quote.price_lists.status !== 'applied'
         ? {}
         : {

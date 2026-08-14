@@ -39,3 +39,4 @@ para ocultar una decisión no es válido.
 | [0031](0031-ofertas-cantidad-x-y.md) | Tramos, selección X/Y y prorrateo congelado a favor del comprador | accepted; R4.4 implementado localmente |
 | [0032](0032-combinabilidad-explicita-descuentos.md) | Matrices explícitas, tope y aplicación canónica de descuentos | accepted; R4.5 implementado localmente |
 | [0033](0033-listas-precios-contextuales.md) | Precio contextual antes de promociones y fallback por producto | accepted; R4.6 implementado localmente |
+| [0034](0034-bundles-composicion-congelada.md) | Línea comercial con composición e inventario de componentes congelados | accepted; R4.7 implementado localmente |

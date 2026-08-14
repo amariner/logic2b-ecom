@@ -202,11 +202,25 @@ export function createReturnOperations(
     const location = await db.prepare(`SELECT id, is_primary FROM inventory_locations
       WHERE id=? AND status='active'`).bind(detail.request.receive_location_id).first<Location>();
     if (!location) throw new RangeError('La ubicación de recepción ya no está activa.');
-    const grouped = new Map<number, { quantity: number; lines: typeof lines }>();
+    const { results: bundleRows } = await db.prepare(`SELECT component.order_item_id,
+      component.variant_id, component.quantity_per_bundle FROM order_bundle_components component
+      WHERE component.order_item_id IN (${lines.map(() => '?').join(',')})
+      ORDER BY component.order_item_id, component.variant_id`)
+      .bind(...lines.map((line) => line.order_item_id))
+      .all<{ order_item_id: number; variant_id: number; quantity_per_bundle: number }>();
+    type RestockPart = Readonly<{ line: (typeof lines)[number]; quantity: number; bundled: boolean }>;
+    const grouped = new Map<number, { quantity: number; parts: RestockPart[] }>();
     for (const line of lines) {
-      const group = grouped.get(line.variant_id) ?? { quantity: 0, lines: [] as unknown as typeof lines };
-      grouped.set(line.variant_id, { quantity: group.quantity + line.received_quantity,
-        lines: [...group.lines, line] });
+      const bundleComponents = bundleRows.filter((component) => component.order_item_id === line.order_item_id);
+      const parts = bundleComponents.length === 0
+        ? [{ variantId: line.variant_id, quantity: line.received_quantity, bundled: false }]
+        : bundleComponents.map((component) => ({ variantId: component.variant_id,
+          quantity: line.received_quantity * component.quantity_per_bundle, bundled: true }));
+      for (const part of parts) {
+        const group = grouped.get(part.variantId) ?? { quantity: 0, parts: [] };
+        grouped.set(part.variantId, { quantity: group.quantity + part.quantity,
+          parts: [...group.parts, { line, quantity: part.quantity, bundled: part.bundled }] });
+      }
     }
     const ids = [...grouped.keys()];
     const { results: variantRows } = await db.prepare(`SELECT id, product_id, is_default
@@ -226,12 +240,19 @@ export function createReturnOperations(
           reference_type: 'return_request', reference_id: detail.request.id,
           idempotency_key: movementKey, correlation_id: `order:${detail.request.order_number}`,
         }, at, { kind: 'event', id: eventId }));
-        for (const line of group.lines) statements.push(db.prepare(`INSERT INTO return_inventory_movements (
-          return_id, return_line_id, location_movement_id, quantity, created_at
-        ) SELECT ?, ?, id, ?, ? FROM inventory_location_movements
-          WHERE idempotency_key=? AND EXISTS (SELECT 1 FROM event_outbox_events WHERE event_id=?)`)
-          .bind(detail.request.id, line.id, line.received_quantity, at,
-            `location:principal:${movementKey}`, eventId));
+        for (const part of group.parts) statements.push(part.bundled
+          ? db.prepare(`INSERT INTO bundle_return_inventory_movements (
+              return_id, return_line_id, component_variant_id, location_movement_id, quantity, created_at
+            ) SELECT ?, ?, ?, id, ?, ? FROM inventory_location_movements
+              WHERE idempotency_key=? AND EXISTS (SELECT 1 FROM event_outbox_events WHERE event_id=?)`)
+            .bind(detail.request.id, part.line.id, variantId, part.quantity, at,
+              `location:principal:${movementKey}`, eventId)
+          : db.prepare(`INSERT INTO return_inventory_movements (
+              return_id, return_line_id, location_movement_id, quantity, created_at
+            ) SELECT ?, ?, id, ?, ? FROM inventory_location_movements
+              WHERE idempotency_key=? AND EXISTS (SELECT 1 FROM event_outbox_events WHERE event_id=?)`)
+            .bind(detail.request.id, part.line.id, part.quantity, at,
+              `location:principal:${movementKey}`, eventId));
       }
       return statements;
     }
@@ -263,11 +284,17 @@ export function createReturnOperations(
         WHERE EXISTS (SELECT 1 FROM event_outbox_events WHERE event_id=?)`)
         .bind(location.id, variantId, group.quantity, planned.balance_after, planned.version_after,
           ACTOR.id, detail.request.id, key, `order:${detail.request.order_number}`, at, at, eventId));
-      for (const line of group.lines) statements.push(db.prepare(`INSERT INTO return_inventory_movements (
-        return_id, return_line_id, location_movement_id, quantity, created_at
-      ) SELECT ?, ?, id, ?, ? FROM inventory_location_movements
-        WHERE idempotency_key=? AND EXISTS (SELECT 1 FROM event_outbox_events WHERE event_id=?)`)
-        .bind(detail.request.id, line.id, line.received_quantity, at, key, eventId));
+      for (const part of group.parts) statements.push(part.bundled
+        ? db.prepare(`INSERT INTO bundle_return_inventory_movements (
+            return_id, return_line_id, component_variant_id, location_movement_id, quantity, created_at
+          ) SELECT ?, ?, ?, id, ?, ? FROM inventory_location_movements
+            WHERE idempotency_key=? AND EXISTS (SELECT 1 FROM event_outbox_events WHERE event_id=?)`)
+          .bind(detail.request.id, part.line.id, variantId, part.quantity, at, key, eventId)
+        : db.prepare(`INSERT INTO return_inventory_movements (
+            return_id, return_line_id, location_movement_id, quantity, created_at
+          ) SELECT ?, ?, id, ?, ? FROM inventory_location_movements
+            WHERE idempotency_key=? AND EXISTS (SELECT 1 FROM event_outbox_events WHERE event_id=?)`)
+          .bind(detail.request.id, part.line.id, part.quantity, at, key, eventId));
     }
     return statements;
   }

@@ -209,6 +209,14 @@ venta o servicios logísticos propios.
   rollout, rehearsal, diagnóstico, rollback y reconciliación de `PRC-009`.
 - [`wiki/listas-precios-contextuales.md`](wiki/listas-precios-contextuales.md):
   precedencia, trazabilidad y límites actuales de las listas contextuales.
+- [`adr/0034-bundles-composicion-congelada.md`](adr/0034-bundles-composicion-congelada.md):
+  unidad comercial, composición congelada e inventario por componentes.
+- [`../../migrations/0031_bundles.sql`](../../migrations/0031_bundles.sql):
+  definición fija/configurable, composición de pedido, aplicación y vínculos RMA.
+- [`OPERACION_BUNDLES.md`](OPERACION_BUNDLES.md):
+  rollout, rehearsal, diagnóstico, reconciliación y rollback de `PRC-012`.
+- [`wiki/bundles-componentes.md`](wiki/bundles-componentes.md):
+  recorrido funcional, trazabilidad y límites actuales de bundles.
 - [`../../migrations/0016_order_amendments.sql`](../../migrations/0016_order_amendments.sql):
   expansión de cantidades vigentes, amendments y asignaciones financieras.
 - [`OPERACION_EDICION_PEDIDOS.md`](OPERACION_EDICION_PEDIDOS.md):

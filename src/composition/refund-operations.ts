@@ -33,6 +33,7 @@ import { emitPlatformEvent } from './event-context';
 import { runtimePlatform } from './runtime-platform';
 import { createD1FulfillmentLedger } from '../modules/fulfillment';
 import { shopConfig } from '../../shop.config';
+import { createD1Bundles } from '../modules/pricing';
 
 export type TotalRefundInput = Readonly<{
   orderId: number;
@@ -95,6 +96,7 @@ export function createRefundOperations(
   const outbox = createD1EventOutboxWriter(db);
   const audit = createD1AuditLogWriter(db);
   const fulfillments = createD1FulfillmentLedger(db);
+  const bundles = createD1Bundles(db);
 
   async function reconcileAllocations(
     payment: PaymentLedgerEntry,
@@ -166,8 +168,11 @@ export function createRefundOperations(
     items: readonly OrderItemForPayment[],
     quantities: ReadonlyMap<number, number>,
   ): Promise<readonly D1PreparedStatement[]> {
+    const expanded = await bundles.expandRestockItems(
+      Number(event.payload.order_id), items, quantities,
+    );
     const byVariant = new Map<number, InventoryStockChange>();
-    for (const item of items) {
+    for (const { item, quantity } of expanded) {
       const current = byVariant.get(item.variant_id);
       if (current && (current.product_id !== item.product_id || current.is_default !== Boolean(item.is_default))) {
         throw new Error(`Variante ${item.variant_id}: líneas de inventario incompatibles.`);
@@ -176,7 +181,7 @@ export function createRefundOperations(
         variant_id: item.variant_id,
         product_id: item.product_id,
         is_default: Boolean(item.is_default),
-        delta: (current?.delta ?? 0) + (quantities.get(item.order_item_id) ?? 0),
+        delta: (current?.delta ?? 0) + quantity,
       });
     }
     const changes = [...byVariant.values()].filter((change) => change.delta > 0);

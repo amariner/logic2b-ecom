@@ -157,6 +157,20 @@ export function createOrderAmendmentOperations(
     if (context.order.edit_version !== input.expectedVersion) {
       throw new RangeError('el pedido cambió; vuelve a cargarlo.');
     }
+    const existingIds = input.lines.flatMap((line) => 'order_item_id' in line ? [line.order_item_id] : []);
+    const newVariantIds = input.lines.flatMap((line) => 'variant_id' in line ? [line.variant_id] : []);
+    const [existingBundle, newBundle] = await Promise.all([
+      existingIds.length === 0 ? null : db.prepare(`SELECT 1 AS present
+        FROM order_bundle_components WHERE order_item_id IN (${existingIds.map(() => '?').join(',')})
+        LIMIT 1`).bind(...existingIds).first<{ present: number }>(),
+      newVariantIds.length === 0 ? null : db.prepare(`SELECT 1 AS present FROM bundles bundle
+        JOIN product_variants variant ON variant.product_id=bundle.product_id
+        WHERE variant.id IN (${newVariantIds.map(() => '?').join(',')}) LIMIT 1`)
+        .bind(...newVariantIds).first<{ present: number }>(),
+    ]);
+    if (existingBundle || newBundle) {
+      throw new RangeError('la composición y cantidad de un bundle quedan congeladas en el pedido.');
+    }
     const initialAddressJson = input.address
       ? addressJson(input.address, resolveZone(input.address.postal_code) ?? 'invalid')
       : context.order.address_json;

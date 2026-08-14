@@ -71,6 +71,8 @@ export type PriceBreakdown = Readonly<{
   }>;
   /** R4.6: origen contextual del precio base antes de promociones. */
   price_origin?: PriceOrigin;
+  /** R4.7: composición inventariable congelada de la línea comercial. */
+  bundle?: import('./bundle').BundleResolution['snapshot'];
   /** Presente en schema 2; conserva `applied_rule` como primer efecto compatible. */
   applied_rules?: readonly Readonly<{
     id: string;

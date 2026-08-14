@@ -103,3 +103,24 @@ export {
   createD1PriceLists,
   type PriceListApplication,
 } from './infrastructure/d1-price-lists';
+
+export {
+  BUNDLE_KINDS,
+  BUNDLE_STATES,
+  assertBundle,
+  resolveBundle,
+  type BundleComponent,
+  type BundleDefinition,
+  type BundleGroup,
+  type BundleKind,
+  type BundleOption,
+  type BundleResolution,
+  type BundleSelection,
+  type BundleState,
+} from './domain/bundle';
+
+export {
+  createD1Bundles,
+  type BundleApplication,
+  type BundleInventoryItem,
+} from './infrastructure/d1-bundles';

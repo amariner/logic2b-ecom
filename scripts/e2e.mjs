@@ -312,6 +312,7 @@ for (const [label, method, path] of [
   ['oferta por cantidad', 'POST', '/api/admin/quantity-offers'],
   ['combinación de descuentos', 'POST', '/api/admin/discount-combinations'],
   ['lista de precios', 'POST', '/api/admin/price-lists'],
+  ['bundle', 'POST', '/api/admin/bundles'],
 ]) {
   const response = await fetch(adminUrl(path), {
     method,
@@ -357,8 +358,8 @@ check(
     && backupSql.includes('INSERT INTO attribute_definitions') && backupSql.includes('INSERT INTO product_attribute_values'),
 );
 check(
-  'backup esquema 24 conserva operación, RMA, documentos y pricing',
-  backupSql.includes('logic2b-backup-schema: 24')
+  'backup esquema 25 conserva operación, RMA, documentos, pricing y bundles',
+  backupSql.includes('logic2b-backup-schema: 25')
     && backupSql.includes('INSERT INTO payments')
     && backupSql.includes('INSERT INTO payment_transactions')
     && backupSql.includes('DELETE FROM refunds')
@@ -374,7 +375,7 @@ check(
     && backupSql.includes('INSERT INTO order_hold_events')
     && backupSql.includes('DELETE FROM order_bulk_batches')
     && backupSql.includes('DELETE FROM order_bulk_batch_rows')
-    && backupSql.includes('0030_contextual_price_lists')
+    && backupSql.includes('0031_bundles')
     && backupSql.includes('DELETE FROM promotion_codes')
     && backupSql.includes('DELETE FROM promotion_code_usages')
     && backupSql.includes('DELETE FROM automatic_discounts')
@@ -388,6 +389,11 @@ check(
     && backupSql.includes('DELETE FROM price_list_products')
     && backupSql.includes('DELETE FROM price_list_companies')
     && backupSql.includes('DELETE FROM price_list_applications')
+    && backupSql.includes('DELETE FROM bundles')
+    && backupSql.includes('DELETE FROM bundle_groups')
+    && backupSql.includes('DELETE FROM bundle_components')
+    && backupSql.includes('DELETE FROM order_bundle_components')
+    && backupSql.includes('DELETE FROM bundle_applications')
     && backupSql.includes('INSERT INTO inventory_locations')
     && backupSql.includes('INSERT INTO inventory_location_balances')
     && backupSql.includes('INSERT INTO inventory_transfers')
@@ -400,6 +406,7 @@ check(
     && backupSql.includes('INSERT INTO return_requests')
     && backupSql.includes('INSERT INTO return_request_lines')
     && backupSql.includes('INSERT INTO return_events')
+    && backupSql.includes('DELETE FROM bundle_return_inventory_movements')
     && backupSql.includes('INSERT INTO order_document_templates')
     && backupSql.includes('INSERT INTO order_documents')
     && backupSql.includes('INSERT INTO order_document_artifacts')

@@ -88,7 +88,7 @@ su alcance requiera.
 | PRC-009 | Lista de precios contextual | módulo | P2 | actual | Precio base versionado por mercado/canal/empresa, identidad solo servidor, fallback empresa→general→catálogo por producto y snapshot/aplicación verificables; ubicación/contrato esperan su modelo propietario. |
 | PRC-010 | Tarjetas regalo | módulo | P2 | pendiente | Ledger, saldo, caducidad legal, emisión y reembolso. |
 | PRC-011 | Crédito en tienda | módulo | P2 | pendiente | Ledger por cliente y aplicación parcial al pago. |
-| PRC-012 | Paquetes/bundles | módulo | P2 | pendiente | Fijo o componible, precio y stock de componentes. |
+| PRC-012 | Paquetes/bundles | módulo | P2 | actual | Fijo/configurable, precio de carcasa, stock/reserva por componentes, snapshot/aplicación, refund/RMA y API auditada; variantes/suplementos/picking por pieza quedan fuera. |
 | PRC-013 | Suscripciones | conector | P2 | conector | Contrato, calendario, cambios, impagos y portal. |
 | PRC-014 | Preventa/backorder | módulo | P2 | pendiente | Fecha/promesa, asignación de stock y comunicación. |
 | PRC-015 | Precio unitario | módulo | P2 | pendiente | Cantidad base y unidad para cumplimiento normativo. |

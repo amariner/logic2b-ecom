@@ -55,7 +55,7 @@ export type PaidMutationContext = Readonly<{
  */
 export function buildPaidMutation(
   order: OrderForPayment | null,
-  items: OrderItemForPayment[],
+  items: readonly OrderItemForPayment[],
   paymentIntent: string | null,
   context: PaidMutationContext,
 ): PaidMutation | null {

@@ -1655,42 +1655,43 @@ la cola de temas, coordinados sin mezclar worktrees ni cambios abiertos.
 
 ## Próxima sesión
 
-### R4.7 — bundles fijos y componibles — ⬜ siguiente bloque
+### R4.8 — tarjeta regalo y crédito en tienda — ⬜ siguiente bloque
 
-R4.6 queda cerrado localmente con `PRC-009`, módulo pricing `1.6.0` y la
-migración expand-only `0030`. La lista selecciona el precio base antes de
-promociones; no se modela como descuento ni consume el tope de `PRC-008`. El
-fallback se resuelve por producto: empresa autenticada por servidor → lista
-general → catálogo, con prioridad e ID estables dentro de cada nivel.
+R4.7 queda cerrado localmente con `PRC-012`, módulo pricing `1.7.0` y la
+migración expand-only `0031`. Un bundle es una línea comercial con precio de
+carcasa y composición congelada. Los fijos declaran componentes directos; los
+configurables usan grupos, límites, defaults y opciones resueltas por slug en
+servidor. La disponibilidad es el mínimo por componente y el navegador nunca
+aporta IDs, cantidades de inventario ni precios autoritativos.
 
-Cada snapshot de línea conserva catálogo, lista/versión, precio elegido, scope
-empresarial y profundidad de fallback. El pedido agrega una aplicación por
-lista con line count y subtotales de catálogo/lista verificados por trigger. El
-checkout no usa `customer.company` para pricing: sin hash confiable solo puede
-seleccionar listas generales. Promociones, edición, devolución y restore quedan
-cubiertos sobre el precio congelado.
+Reserva, pago y cancelación operan las variantes default de los componentes.
+Fulfillment conserva unidades comerciales con su composición trazable; un RMA
+expande cada unidad devuelta y vincula sus movimientos por componente. La
+edición segura puede actuar sobre otras líneas o dirección, pero bloquea
+cantidad/composición de una línea bundle. La API `/api/admin/bundles` crea
+definiciones inmutables y audita estados versionados; la demo bloquea efectos.
 
-La API `/api/admin/price-lists` crea listas inmutables en precios/scopes y audita
-transiciones versionadas. El preset avanzado gobierna rutas/efectos; la demo
-bloquea mutaciones. Backup avanza a esquema 24. El rehearsal sobre el dump
-`0029` conservó 8 pedidos y 13 líneas, con hash
-`d2c74820ff9fbd50068b11e54a4928ff2e46dcbb97ad05450f9811c0a6eb0e77` y dump
-de 552665 bytes. Artefacto:
-`/tmp/logic2b-r46-rehearsal/r4-price-lists-1786719301131`. La D1 local aplica
-`0030`, con tablas vacías, integridad y FKs limpias; no se tocó D1 remota ni
-Worker.
+Backup avanza a esquema 25. El rehearsal sobre el dump `0030` conservó 280
+productos, 282 variantes/balances, 8 pedidos y 13 líneas, con hash
+`4905bc205d676985f638098d203b360c7533d37defbe933b06ed228d2a3ccd2d` y dump
+de 564928 bytes. Artefacto:
+`/tmp/logic2b-r47-rehearsal-final/r4-bundles-1786721547384`. La D1 local aplica `0031`:
+seis tablas vacías, integridad y FKs limpias. D1 remota y Worker no se tocaron.
 
-El corte limpio aislado pasa 132 suites/629 tests, 610 archivos tipados, build y
-sitemap de 6 URLs. El árbol compartido pasa tipos (616 archivos), build y E2E
-Wrangler completo; la suite conserva solo los tres fallos ajenos de Monte
-(asset, orden y categoría), que R4.6 no toca.
+El corte limpio aislado del commit pasa 137 suites/644 tests, 620 archivos
+tipados, build y sitemap de 6 URLs. El árbol compartido pasa 641 pruebas no
+visuales, tipado de 626 archivos, build y E2E Wrangler completo; conserva solo
+los tres fallos ajenos de Monte (asset, orden y categoría). R4.7 no los corrige
+por instrucción expresa de Andreu. No corresponde auditoría a11y: no cambió UI.
 
-Siguiente incremento exacto: bundles R4.7. Debe separar bundle fijo y
-componible, definir precio/snapshot sin aceptar importes cliente, reservar y
-descontar stock de componentes, conservar fulfillment y devolución por
-componentes, soportar edición segura, incluir migración/rehearsal, API auditada,
-backup, gates y documentación. No debe adelantar tarjeta regalo R4.8, clientes
-R5 ni temas; estos últimos siguen fuera del objetivo por instrucción de Andreu.
+Siguiente incremento exacto: R4.8. Debe diseñar primero un ledger monetario
+append-only para tarjeta regalo y crédito en tienda, separar emisión, saldo,
+uso parcial, reverso/reembolso e idempotencia, y fijar qué ocurre ante pago
+mixto. Ningún valor o código claro será autoritativo desde cliente. Caducidad,
+dinero promocional, transferibilidad, efectivo e implicaciones legales quedan
+como puertas configurables documentadas: no se inventará una política comercial
+ni fiscal universal. Debe incluir migración/rehearsal, APIs auditadas, checkout,
+backup, gates y documentación, sin adelantar R4.9, clientes R5 ni temas.
 
 Las entradas que siguen son el histórico de cierres anteriores y no cambian el
 orden actual.

@@ -39,6 +39,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
     buyXGetYEnabled: runtimePlatform.isCapabilityActive('PRC-007'),
     discountCombinationsEnabled: runtimePlatform.isCapabilityActive('PRC-008'),
     priceListsEnabled: runtimePlatform.isCapabilityActive('PRC-009'),
+    bundlesEnabled: runtimePlatform.isCapabilityActive('PRC-012'),
   });
   return Response.json(result);
 };

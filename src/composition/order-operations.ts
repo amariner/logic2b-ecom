@@ -41,11 +41,13 @@ import {
 } from '../modules/inventory';
 import {
   createD1AutomaticDiscounts,
+  createD1Bundles,
   createD1DiscountCombinations,
   createD1PromotionCodes,
   createD1PriceLists,
   createD1QuantityOffers,
   type AutomaticDiscountApplication,
+  type BundleApplication,
   type DiscountCombinationApplication,
   type PromotionReservation,
   type PriceListApplication,
@@ -99,6 +101,7 @@ export function createOrderOperations(
     quantityOfferApplication?: QuantityOfferApplication;
     discountCombinationApplication?: DiscountCombinationApplication;
     priceListApplications?: readonly PriceListApplication[];
+    bundleApplications?: readonly BundleApplication[];
   }> = {},
 ) {
   const orders = createOrderWriter(db);
@@ -112,6 +115,7 @@ export function createOrderOperations(
   const quantityOffers = createD1QuantityOffers(db);
   const discountCombinations = createD1DiscountCombinations(db);
   const priceLists = createD1PriceLists(db);
+  const bundles = createD1Bundles(db);
   const pricingSources = [
     options.promotionReservation,
     options.automaticDiscountApplication,
@@ -126,6 +130,20 @@ export function createOrderOperations(
   }
   const reservationsEnabled = options.reservationsEnabled ??
     runtimePlatform.hasCapabilityFlag('INV-004', 'sideEffects');
+
+  function inventorySourceLines(lines: readonly NewOrderLine[]) {
+    const quantities = new Map(lines.map((line) => [line.product_id, line.qty] as const));
+    for (const application of options.bundleApplications ?? []) {
+      const ordered = quantities.get(application.bundleProductId) ?? 0;
+      if (ordered !== application.quantity) throw new RangeError('La cantidad del bundle no coincide con el pedido.');
+      quantities.delete(application.bundleProductId);
+      for (const component of application.components) {
+        quantities.set(component.productId, (quantities.get(component.productId) ?? 0) +
+          component.quantityPerBundle * application.quantity);
+      }
+    }
+    return [...quantities].filter(([, qty]) => qty > 0).map(([product_id, qty]) => ({ product_id, qty }));
+  }
 
   async function inventoryStatements(
     event: OrderDomainEvent,
@@ -182,7 +200,7 @@ export function createOrderOperations(
       const reservationStatements = reservationsEnabled
         ? await reservations.createForOrderStatements(
             order.order_number,
-            lines,
+            inventorySourceLines(lines),
             identity.occurred_at,
             { kind: 'event', id: identity.event_id },
             {
@@ -207,6 +225,11 @@ export function createOrderOperations(
         }, { eventId: identity.event_id }),
         ...outbox.deliveryStatements(identity.event_id, identity.occurred_at, consumerIds),
         ...orders.lineStatementsForOrderNumber(order.order_number, lines),
+        ...(options.bundleApplications ?? []).flatMap((application) => bundles.applicationStatements(
+          order.order_number,
+          application,
+          identity.occurred_at,
+        )),
         ...(options.priceListApplications ?? []).map((application) => priceLists.applicationStatement(
           order.order_number,
           application,
@@ -258,7 +281,8 @@ export function createOrderOperations(
         input.lookup.by === 'session'
           ? await orders.findOrderForPaymentBySession(input.lookup.stripeSessionId)
           : await orders.findOrderForPaymentById(input.lookup.orderId);
-      const items = order ? await orders.items(order.id) : [];
+      const rawItems = order ? await orders.items(order.id) : [];
+      const items = order ? await bundles.expandInventoryItems(order.id, rawItems) : rawItems;
 
       const mutation = buildPaidMutation(order, items, input.paymentIntent, {
         emit,
@@ -358,7 +382,8 @@ export function createOrderOperations(
 
     /** Transición hecha a mano desde el panel. */
     async applyPanelTransition(input: PanelTransitionInput): Promise<PanelTransitionOutcome> {
-      const items = await orders.items(input.order.id);
+      const rawItems = await orders.items(input.order.id);
+      const items = await bundles.expandInventoryItems(input.order.id, rawItems);
       const event = panelTransitionEvent(emit, input);
       const consumerIds = consumersFor(event.type);
       const stockStatements = input.transition.restoreStock

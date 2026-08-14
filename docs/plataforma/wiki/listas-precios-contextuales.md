@@ -30,7 +30,7 @@ listas generales.
 
 Las listas se administran por API auditada, con estados/versiones optimistas y
 capability `PRC-009`. La demo pública permite lectura cuando la ruta está activa
-y bloquea mutaciones. Backup/restore usa esquema 24; edición y devolución no
+y bloquea mutaciones. Backup/restore actual usa esquema 25; edición y devolución no
 reevalúan precios históricos.
 
 Operación detallada: [`../OPERACION_LISTAS_PRECIOS.md`](../OPERACION_LISTAS_PRECIOS.md).

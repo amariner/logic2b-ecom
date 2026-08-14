@@ -7,8 +7,8 @@ import { createOrderBulkActionOperations } from '../src/composition/order-bulk-a
 
 describe('volcado de copia de seguridad', () => {
   it('declara el contrato que incluye la colaboración de pedidos', () => {
-    expect(BACKUP_SCHEMA_VERSION).toBe(24);
-    expect(buildBackupSql({}, '2026-08-14')).toContain('0030_contextual_price_lists');
+    expect(BACKUP_SCHEMA_VERSION).toBe(25);
+    expect(buildBackupSql({}, '2026-08-14')).toContain('0031_bundles');
   });
 
   it('genera INSERTs con columnas explícitas y escape de comillas', () => {
@@ -83,6 +83,11 @@ describe('volcado de copia de seguridad', () => {
       'price_list_products',
       'price_list_companies',
       'price_list_applications',
+      'bundles',
+      'bundle_groups',
+      'bundle_components',
+      'order_bundle_components',
+      'bundle_applications',
       'inventory_transfers',
       'inventory_transfer_lines',
       'inventory_transfer_receipts',
@@ -99,6 +104,7 @@ describe('volcado de copia de seguridad', () => {
       'return_request_lines',
       'return_events',
       'return_inventory_movements',
+      'bundle_return_inventory_movements',
       'return_exchange_lines',
       'order_document_templates',
       'order_documents',
@@ -173,6 +179,16 @@ describe('volcado de copia de seguridad', () => {
       action: { type: 'add_tag', tagId: bulkTagId },
     });
     const bulkBatch = await bulkOperations.confirm(bulkPreview);
+    const bundleProducts = source.query<{ id: number }>('SELECT id FROM products ORDER BY id LIMIT 3');
+    source.sqlite.exec(`
+      INSERT INTO bundles (id, product_id, label, kind, state, version, created_at, updated_at)
+      VALUES ('backup-bundle', ${bundleProducts[0]!.id}, 'Bundle en backup', 'fixed', 'disabled', 1,
+        '2026-08-08T16:00:00.000Z', '2026-08-08T16:00:00.000Z');
+      INSERT INTO bundle_components (bundle_id, group_id, product_id, quantity, is_default, sort_order)
+      VALUES ('backup-bundle', NULL, ${bundleProducts[1]!.id}, 2, 1, 0),
+        ('backup-bundle', NULL, ${bundleProducts[2]!.id}, 1, 1, 1);
+      UPDATE bundles SET state='active' WHERE id='backup-bundle';
+    `);
     const backup = await exportBackup(
       createD1BackupReader(source.asD1()),
       new Date('2026-08-08T16:00:00.000Z'),
@@ -196,6 +212,10 @@ describe('volcado de copia de seguridad', () => {
     `)).toEqual([{ sku: 'SUM-SHELL-07-M', option_name: 'Talla', value: 'M' }]);
     expect(restored.query('PRAGMA foreign_key_check')).toEqual([]);
     expect(restored.value("SELECT count(*) AS value FROM inventory_reservations WHERE status='active'")).toBe(1);
+    expect(restored.query(`SELECT bundle.label, component.quantity FROM bundles bundle
+      JOIN bundle_components component ON component.bundle_id=bundle.id
+      WHERE bundle.id='backup-bundle' ORDER BY component.sort_order`))
+      .toEqual([{ label: 'Bundle en backup', quantity: 2 }, { label: 'Bundle en backup', quantity: 1 }]);
     expect(restored.value(`SELECT count(*) AS value FROM order_bulk_batch_rows
       WHERE batch_id = '${bulkBatch.view.batch.id}' AND outcome = 'pending'`)).toBe(1);
     expect(restored.value('SELECT count(*) AS value FROM orders_search')).toBe(
