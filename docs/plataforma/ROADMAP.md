@@ -114,7 +114,7 @@ Cada migración se diseña y ensaya sobre una copia antes de tocar el esquema vi
 | 32 | **R3.6 Ubicaciones** | Modelo y admin de almacenes/tiendas; inventario simple se backfillea a ubicación principal. | ✅ 2026-08-14; D1 aplicada, Worker pendiente |
 | 33 | **R3.7 Transferencias** | Borrador→enviado→recibido parcial, discrepancias y movimientos de ledger. | ✅ 2026-08-14; local, sin deploy |
 | 34 | **R3.8 Conteos y ajustes** | Conteo por ubicación, razón, doble control opcional y auditoría. | ✅ 2026-08-14; local, sin deploy |
-| 35 | **R3.9 Motor de asignación** | Reglas deterministas por stock, prioridad, mercado/canal y coste; explicación guardada. | ⬜ |
+| 35 | **R3.9 Motor de asignación** | Reglas deterministas por stock, prioridad, mercado/canal y coste; explicación guardada. | ✅ 2026-08-14; local, sin deploy |
 | 36 | **R3.10 Devoluciones/RMA** | Solicitud, elegibilidad, recepción, inspección, resolución, reembolso/cambio y reposición. | ⬜ |
 | 37 | **R3.11 Documentos operativos** | Albarán, factura/rectificativa mediante conector o plantilla, etiquetas internas y versionado. | ⬜ |
 | 38 | **R3.12 Consolidación R3** | E2E multiubicación, fulfillment y devolución; runbooks de incidencias; wiki de operación publicada solo para capacidades reales. | ⬜ |
@@ -1099,3 +1099,28 @@ horizontal de la navegación móvil sobre la sección activa y confirma 0 overfl
 El gate compartido queda en 511/514 por tres fallos exclusivos del tema Monte;
 el corte limpio aislado pasa **92 suites/514 tests**, tipos y build. Sin D1
 remota ni deploy de Worker.
+
+### R3.9 — motor de asignación — ✅ cerrado local 2026-08-14
+
+ADR-0025 y `0022_inventory_allocation.sql` vinculan cada fulfillment a una sola
+ubicación capaz de cubrirlo completo. Mercado, canal y stock filtran; prioridad,
+coste e ID desempatan de forma estable. La decisión congela versión, demanda y
+motivo de cada descarte. Principal no vuelve a consumir la venta ya descontada;
+si gana una secundaria, la misma batch libera principal/global y consume la
+secundaria, conservando el total físico de red.
+
+`INV-011` añade API, navegación y panel responsive. Las políticas se editan con
+versión optimista y auditoría; la demo muestra una explicación realista y
+rechaza efectos. Backup esquema 16 y runbook en
+`OPERACION_ASIGNACION_INVENTARIO.md`. Una carrera por la última secundaria deja
+un único ganador y revierte fulfillment, decisión y movimientos del perdedor.
+
+Rehearsal sobre el dump real en `0021`: 282 variantes, 2 ubicaciones, 1
+transferencia, 2 políticas, hash previo
+`ba963f2f647992f4c9bc8806756fa557a40cdc773f567ebfaf4af7791d7684bf`, dump de
+463.406 bytes, restore íntegro y cero fallos FK. `0022` y 620 sentencias de seed
+se aplicaron solo en local. E2E completo y a11y `admin:asignacion` a 1440/375
+están en verde; la revisión visual confirma 0 overflow y navegación móvil
+centrada. El gate compartido queda en 522/525 por tres fallos exclusivos del
+tema Monte; el corte limpio aislado pasa **96 suites/525 tests**, tipos y build.
+Sin D1 remota ni deploy de Worker.

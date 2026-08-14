@@ -23,7 +23,7 @@ describe('capability access policy (R1.3)', () => {
   it.each([
     ['minimal', ['productos'], '/demo/admin/productos'],
     ['standard', ['pedidos', 'productos', 'envios', 'emails'], '/demo/admin'],
-    ['advanced', ['pedidos', 'productos', 'ubicaciones', 'transferencias', 'conteos', 'envios', 'emails'], '/demo/admin'],
+    ['advanced', ['pedidos', 'productos', 'ubicaciones', 'transferencias', 'conteos', 'asignacion', 'envios', 'emails'], '/demo/admin'],
   ] as const)('derives %s admin navigation without orphan links', (profile, expectedIds, home) => {
     const platform = platformFor(profile);
     const navigation = adminNavigationFor(platform);
@@ -71,6 +71,8 @@ describe('capability access policy (R1.3)', () => {
     ['standard', '/api/admin/catalog-media/product/1', false],
     ['standard', '/api/admin/refunds/7', false],
     ['advanced', '/api/admin/backup.sql', true],
+    ['advanced', '/api/admin/inventory-routing', true],
+    ['standard', '/api/admin/inventory-routing', false],
   ] as const)('applies the %s preset to %s', (profile, pathname, allowed) => {
     expect(decideRouteAccess(platformFor(profile), pathname)?.allowed).toBe(allowed);
   });
@@ -99,9 +101,10 @@ describe('capability access policy (R1.3)', () => {
 
   it('preserves every public demo panel surface while disabling commercial effects', () => {
     const demo = createPlatform(platformManifest);
-    expect(adminNavigationFor(demo).map((item) => item.id)).toEqual(['pedidos', 'productos', 'ubicaciones', 'transferencias', 'conteos', 'envios', 'emails']);
+    expect(adminNavigationFor(demo).map((item) => item.id)).toEqual(['pedidos', 'productos', 'ubicaciones', 'transferencias', 'conteos', 'asignacion', 'envios', 'emails']);
     for (const pathname of [
       '/demo/admin',
+      '/demo/admin/asignacion',
       '/demo/admin/productos',
       '/demo/admin/productos/1',
       '/demo/admin/ubicaciones',

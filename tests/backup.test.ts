@@ -7,8 +7,8 @@ import { createOrderBulkActionOperations } from '../src/composition/order-bulk-a
 
 describe('volcado de copia de seguridad', () => {
   it('declara el contrato que incluye la colaboración de pedidos', () => {
-    expect(BACKUP_SCHEMA_VERSION).toBe(15);
-    expect(buildBackupSql({}, '2026-08-14')).toContain('0021_inventory_counts');
+    expect(BACKUP_SCHEMA_VERSION).toBe(16);
+    expect(buildBackupSql({}, '2026-08-14')).toContain('0022_inventory_allocation');
   });
 
   it('genera INSERTs con columnas explícitas y escape de comillas', () => {
@@ -74,6 +74,10 @@ describe('volcado de copia de seguridad', () => {
       'inventory_transfer_receipt_lines',
       'inventory_transfer_movements',
       'inventory_counts',
+      'inventory_routing_policies',
+      'inventory_allocation_decisions',
+      'inventory_allocation_lines',
+      'inventory_allocation_movements',
       'inventory_count_lines',
       'inventory_count_movements',
     ]));

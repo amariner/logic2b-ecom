@@ -20,6 +20,7 @@ import migration18 from '../migrations/0018_order_bulk_actions.sql?raw';
 import migration19 from '../migrations/0019_inventory_locations.sql?raw';
 import migration20 from '../migrations/0020_inventory_transfers.sql?raw';
 import migration21 from '../migrations/0021_inventory_counts.sql?raw';
+import migration22 from '../migrations/0022_inventory_allocation.sql?raw';
 
 type SqlValue = string | number | bigint | null | Uint8Array;
 
@@ -93,7 +94,7 @@ export class SqliteD1 {
       migration1, migration2, migration3, migration4, migration5,
       migration6, migration7, migration8, migration9, migration10,
       migration11, migration12,
-      ...(includePartialRefundGuards ? [migration13, migration14, migration15, migration16, migration17, migration18, migration19, migration20, migration21] : []),
+      ...(includePartialRefundGuards ? [migration13, migration14, migration15, migration16, migration17, migration18, migration19, migration20, migration21, migration22] : []),
     ]) {
       this.sqlite.exec(migration);
     }

@@ -7,7 +7,7 @@
 export type Row = Record<string, string | number | null>;
 
 /** Orden de volcado y de borrado inverso (hijos después de padres al insertar no importa: borramos primero). */
-export const BACKUP_SCHEMA_VERSION = 15;
+export const BACKUP_SCHEMA_VERSION = 16;
 
 export const BACKUP_TABLES = [
   'products',
@@ -22,6 +22,7 @@ export const BACKUP_TABLES = [
   'inventory_balances',
   'inventory_movements',
   'inventory_locations',
+  'inventory_routing_policies',
   'inventory_location_balances',
   'inventory_location_movements',
   'inventory_transfers',
@@ -57,6 +58,9 @@ export const BACKUP_TABLES = [
   'refund_payment_allocations',
   'fulfillments',
   'fulfillment_items',
+  'inventory_allocation_decisions',
+  'inventory_allocation_lines',
+  'inventory_allocation_movements',
   'order_events',
   'event_outbox_events',
   'event_outbox_deliveries',
@@ -78,9 +82,12 @@ function sqlValue(value: string | number | null): string {
 export function dumpTable(table: string, rows: Row[]): string[] {
   if (rows.length === 0) return [];
   const columns = Object.keys(rows[0]!);
+  // Al restaurar ubicaciones, el trigger de 0022 crea su política por defecto.
+  // Sustituirla aquí permite recuperar exactamente la configuración exportada.
+  const insert = table === 'inventory_routing_policies' ? 'INSERT OR REPLACE' : 'INSERT';
   return rows.map(
     (row) =>
-      `INSERT INTO ${table} (${columns.join(', ')}) VALUES (${columns
+      `${insert} INTO ${table} (${columns.join(', ')}) VALUES (${columns
         .map((col) => sqlValue(row[col] ?? null))
         .join(', ')});`,
   );
@@ -91,7 +98,7 @@ export function buildBackupSql(tablesRows: Record<string, Row[]>, generatedAt: s
   const lines = [
     `-- Copia de seguridad Logic2B Ecommerce — ${generatedAt}`,
     `-- logic2b-backup-schema: ${BACKUP_SCHEMA_VERSION}`,
-    '-- Requiere una base con la migración 0021_inventory_counts aplicada; las tablas/columnas explícitas abortan un restore incompatible.',
+    '-- Requiere una base con la migración 0022_inventory_allocation aplicada; las tablas/columnas explícitas abortan un restore incompatible.',
     `-- Restaurar con: wrangler d1 execute <database> --remote --file <este fichero>`,
     'PRAGMA defer_foreign_keys = true;',
   ];

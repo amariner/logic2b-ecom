@@ -70,7 +70,7 @@ su alcance requiera.
 | INV-008 | Conteo y ajuste con motivo | módulo | P2 | actual | Foto versionada por ubicación, motivo, doble control opcional, ajuste append-only y auditoría. |
 | INV-009 | Alertas de stock y reposición | módulo | P2 | pendiente | Umbral por variante/ubicación y notificación agrupada. |
 | INV-010 | Órdenes de compra/proveedores | módulo | P3 | pendiente | Pedido a proveedor, recepción parcial y coste. |
-| INV-011 | Enrutamiento por disponibilidad | módulo | P2 | pendiente | Selección determinista de ubicación con reglas explicables. |
+| INV-011 | Enrutamiento por disponibilidad | módulo | P2 | actual | Una ubicación por fulfillment; filtros de mercado/canal/stock, desempate estable, versión y explicación persistida. |
 | INV-012 | Sincronización ERP/WMS | conector | P2 | conector | Fuente de verdad definida, cursores, reconciliación y replay. |
 
 ## PRC — Precios y modelos comerciales

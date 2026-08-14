@@ -15,6 +15,7 @@ import { createD1AuditLogWriter, type AuditEventProjection } from '../platform/o
 import { createAuditDiff } from '../shared-kernel/audit';
 import type { EmitEvent } from '../shared-kernel/events';
 import { emitPlatformEvent } from './event-context';
+import { createInventoryAllocationOperations } from './inventory-allocation-operations';
 import { runtimePlatform } from './runtime-platform';
 
 export type ShipFulfillmentInput = Readonly<{
@@ -56,18 +57,25 @@ function fulfillmentOrderStatus(status: string): 'paid' | 'shipped' | 'delivered
 
 function isFulfillmentWriteConflict(error: unknown): boolean {
   const message = error instanceof Error ? error.message : String(error);
-  return message.includes('CHECK constraint failed') &&
-    (message.includes('quantity') || message.includes('fulfillment_items'));
+  return (message.includes('CHECK constraint failed') &&
+    (message.includes('quantity') || message.includes('fulfillment_items'))) ||
+    message.includes('inventory_location_movements') ||
+    message.includes('inventory_movements.variant_id') ||
+    message.includes('inventory_allocation_decisions');
 }
 
 export function createFulfillmentOperations(
   db: D1Database,
   emit: EmitEvent = emitPlatformEvent,
+  options: Readonly<{ routingEnabled?: boolean }> = {},
 ) {
   const fulfillments = createD1FulfillmentLedger(db);
   const orders = createOrderWriter(db);
   const outbox = createD1EventOutboxWriter(db);
   const audit = createD1AuditLogWriter(db);
+  const routing = createInventoryAllocationOperations(db);
+  const routingEnabled = options.routingEnabled ??
+    runtimePlatform.hasCapabilityFlag('INV-011', 'sideEffects');
 
   return Object.freeze({
     async ship(input: ShipFulfillmentInput): Promise<FulfillmentMutationOutcome> {
@@ -121,6 +129,16 @@ export function createFulfillmentOperations(
         idempotencyKey: fulfillmentKey,
       });
       const consumerIds = consumersFor(event.type);
+      const routingStatements = routingEnabled
+        ? await routing.statements({
+            orderId: order.id,
+            fulfillmentIdempotencyKey: fulfillmentKey,
+            allocations,
+            eventId: event.event_id,
+            occurredAt: event.occurred_at,
+            channel: 'storefront',
+          })
+        : [];
       const statements: D1PreparedStatement[] = [
         outbox.guardedEventStatement(event, {
           orderId: order.id,
@@ -141,6 +159,7 @@ export function createFulfillmentOperations(
           occurredAt: event.occurred_at,
           allocations,
         }),
+        ...routingStatements,
         fulfillments.guardedShipmentProjectionStatement({
           orderId: order.id,
           expectedOrderStatus: 'paid',

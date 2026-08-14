@@ -68,7 +68,7 @@ for (const [surface, path] of [
   const requestPath = surface === '404' ? '/esta-ruta-no-existe' : path;
   const response = await fetch(`${BASE}${requestPath}`);
   const html = await response.text();
-  checkWhatsappContact(surface, html, path);
+  checkWhatsappContact(surface, html, requestPath);
 }
 
 // ── 2. Ningún endpoint público escribe o consulta comercio en la demo ──
@@ -204,6 +204,10 @@ const countsHtml = await (await fetch(`${BASE}/demo/admin/conteos`, { headers: {
 check('conteos muestran foto versionada, doble control y demo inerte',
   countsHtml.includes('CNT-DEMO-0001') && countsHtml.includes('Conteo cíclico')
     && countsHtml.includes('Doble') && countsHtml.includes('disabled'));
+const routingHtml = await (await fetch(`${BASE}/demo/admin/asignacion`, { headers: { cookie } })).text();
+check('asignación explica una decisión y mantiene reglas demo inertes',
+  routingHtml.includes('BM-DEMO-1001') && routingHtml.includes('Almacén central')
+    && routingHtml.includes('Stock insuficiente') && routingHtml.includes('disabled'));
 let variantId;
 if (variantProductId) {
   const variantsHtml = await (await fetch(
@@ -288,6 +292,7 @@ for (const [label, method, path] of [
   ['ubicación de inventario', 'POST', '/api/admin/inventory-locations'],
   ['transferencia de inventario', 'POST', '/api/admin/inventory-transfers'],
   ['conteo de inventario', 'POST', '/api/admin/inventory-counts'],
+  ['regla de asignación', 'PATCH', '/api/admin/inventory-routing'],
 ]) {
   const response = await fetch(adminUrl(path), {
     method,
@@ -333,8 +338,8 @@ check(
     && backupSql.includes('INSERT INTO attribute_definitions') && backupSql.includes('INSERT INTO product_attribute_values'),
 );
 check(
-  'backup esquema 15 conserva operación, ubicaciones, transferencias y conteos',
-  backupSql.includes('logic2b-backup-schema: 15')
+  'backup esquema 16 conserva operación y asignación explicable',
+  backupSql.includes('logic2b-backup-schema: 16')
     && backupSql.includes('INSERT INTO payments')
     && backupSql.includes('INSERT INTO payment_transactions')
     && backupSql.includes('DELETE FROM refunds')
@@ -350,13 +355,16 @@ check(
     && backupSql.includes('INSERT INTO order_hold_events')
     && backupSql.includes('DELETE FROM order_bulk_batches')
     && backupSql.includes('DELETE FROM order_bulk_batch_rows')
-    && backupSql.includes('0021_inventory_counts')
+    && backupSql.includes('0022_inventory_allocation')
     && backupSql.includes('INSERT INTO inventory_locations')
     && backupSql.includes('INSERT INTO inventory_location_balances')
     && backupSql.includes('INSERT INTO inventory_transfers')
     && backupSql.includes('INSERT INTO inventory_transfer_lines')
     && backupSql.includes('INSERT INTO inventory_counts')
     && backupSql.includes('INSERT INTO inventory_count_lines')
+    && backupSql.includes('INSERT OR REPLACE INTO inventory_routing_policies')
+    && backupSql.includes('INSERT INTO inventory_allocation_decisions')
+    && backupSql.includes('INSERT INTO inventory_allocation_lines')
 );
 
 if (failures > 0) {

@@ -71,6 +71,7 @@ const ADVANCED_CAPABILITIES = {
   'INV-005': { state: 'active', flags: NAVIGATION_EFFECT },
   'INV-007': { state: 'active', flags: NAVIGATION_EFFECT },
   'INV-008': { state: 'active', flags: NAVIGATION_EFFECT },
+  'INV-011': { state: 'active', flags: NAVIGATION_EFFECT },
   'ORD-004': { state: 'active', flags: ROUTE_EFFECT },
   'ORD-005': { state: 'active', flags: ROUTE_EFFECT },
   'ORD-007': { state: 'active', flags: ROUTE_EFFECT },

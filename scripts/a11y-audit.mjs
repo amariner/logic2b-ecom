@@ -202,6 +202,7 @@ const ADMIN_PAGES = [
   { id: 'ubicaciones', url: '/demo/admin/ubicaciones' },
   { id: 'transferencias', url: '/demo/admin/transferencias' },
   { id: 'conteos', url: '/demo/admin/conteos' },
+  { id: 'asignacion', url: '/demo/admin/asignacion' },
   { id: 'envios', url: '/demo/admin/envios' },
   { id: 'emails', url: '/demo/admin/emails' },
 ];

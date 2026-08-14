@@ -75,6 +75,19 @@ export {
   type InventoryLocationKind,
   type InventoryLocationStatus,
 } from './domain/inventory-location';
+export {
+  planInventoryRouting,
+  type InventoryRoutingCandidate,
+  type InventoryRoutingCandidateExplanation,
+  type InventoryRoutingDemand,
+  type InventoryRoutingPlan,
+} from './domain/inventory-allocation';
+export {
+  createD1InventoryAllocation,
+  type D1InventoryAllocation,
+  type InventoryAllocationDecisionRecord,
+  type InventoryRoutingPolicyRecord,
+} from './infrastructure/d1-inventory-allocation';
 export type {
   D1InventoryLedger,
   InventoryStockChange,

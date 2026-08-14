@@ -251,6 +251,9 @@ export function seedStatements(): string[] {
     'DELETE FROM refunds',
     'DELETE FROM payment_transactions',
     'DELETE FROM payments',
+    'DELETE FROM inventory_allocation_movements',
+    'DELETE FROM inventory_allocation_lines',
+    'DELETE FROM inventory_allocation_decisions',
     'DELETE FROM fulfillment_items',
     'DELETE FROM fulfillments',
     'DELETE FROM order_items',
@@ -268,6 +271,7 @@ export function seedStatements(): string[] {
     'DELETE FROM inventory_transfers',
     'DELETE FROM inventory_location_movements',
     'DELETE FROM inventory_location_balances',
+    'DELETE FROM inventory_routing_policies',
     'DELETE FROM inventory_locations',
     'DELETE FROM inventory_movements',
     'DELETE FROM inventory_balances',
@@ -503,6 +507,45 @@ export function seedStatements(): string[] {
   // los productos y pedidos ya insertados en esta misma batch. SOLO DEMO — un
   // cliente real borra esta línea (ver seed/demo-orders.ts).
   statements.push(...demoOrderStatements());
+
+  // R3.9: una explicación congelada hace visible el contrato de asignación en
+  // la demo. No mueve stock: documenta el fulfillment histórico de 1001.
+  statements.push(
+    `UPDATE inventory_routing_policies SET priority = CASE ` +
+      `WHEN location_id = (SELECT id FROM inventory_locations WHERE code = 'principal') THEN 100 ELSE 50 END, ` +
+      `handling_cost_cents = CASE WHEN location_id = (SELECT id FROM inventory_locations WHERE code = 'principal') THEN 0 ELSE 150 END, ` +
+      `updated_at = datetime('now')`,
+    `INSERT INTO inventory_allocation_decisions (` +
+      `id, fulfillment_id, order_id, location_id, market, channel, policy_version, ` +
+      `idempotency_key, explanation_json, created_at` +
+    `) SELECT 'aln_demo_1001', f.id, f.order_id, ` +
+      `(SELECT id FROM inventory_locations WHERE code = 'principal'), 'ES', 'storefront', 1, ` +
+      `'allocation:demo:1001', json_object(` +
+        `'contract', 'logic2b.inventory-routing.v1', 'market', 'ES', 'channel', 'storefront', ` +
+        `'selected_location_id', (SELECT id FROM inventory_locations WHERE code = 'principal'), ` +
+        `'demands', json_array(), 'candidates', json_array(` +
+          `json_object('location_id', (SELECT id FROM inventory_locations WHERE code = 'tienda-demo'), ` +
+            `'code', 'tienda-demo', 'eligible', json('false'), 'reason', 'stock', ` +
+            `'priority', 50, 'handling_cost_cents', 150), ` +
+          `json_object('location_id', (SELECT id FROM inventory_locations WHERE code = 'principal'), ` +
+            `'code', 'principal', 'eligible', json('true'), 'reason', 'eligible', ` +
+            `'priority', 100, 'handling_cost_cents', 0)` +
+        `)` +
+      `), f.created_at FROM fulfillments f JOIN orders o ON o.id = f.order_id ` +
+      `WHERE o.order_number = 'BM-DEMO-1001'`,
+    `INSERT INTO inventory_allocation_lines (` +
+      `decision_id, fulfillment_id, order_id, order_item_id, variant_id, quantity, available_before, created_at` +
+    `) SELECT 'aln_demo_1001', fi.fulfillment_id, fi.order_id, fi.order_item_id, ` +
+      `COALESCE(oi.variant_id, pv.id), ` +
+      `fi.quantity, b.on_hand - b.reserved + fi.quantity, f.created_at ` +
+      `FROM fulfillment_items fi JOIN fulfillments f ON f.id = fi.fulfillment_id ` +
+      `JOIN orders o ON o.id = fi.order_id JOIN order_items oi ON oi.id = fi.order_item_id ` +
+      `JOIN product_variants pv ON pv.product_id = oi.product_id AND pv.is_default = 1 ` +
+      `JOIN inventory_locations l ON l.code = 'principal' ` +
+      `JOIN inventory_location_balances b ON b.location_id = l.id ` +
+        `AND b.variant_id = COALESCE(oi.variant_id, pv.id) ` +
+      `WHERE o.order_number = 'BM-DEMO-1001'`,
+  );
 
   // R3.2: colaboración ficticia visible en el panel público de solo lectura.
   statements.push(

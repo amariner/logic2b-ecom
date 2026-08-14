@@ -98,12 +98,13 @@ export const MODULE_DESCRIPTORS = [
     wikiLinks: [ARCHITECTURE_WIKI], navigation: [], routes: [],
   },
   {
-    id: 'inventory', version: '1.4.0', capabilities: ['INV-001', 'INV-004', 'INV-005', 'INV-007', 'INV-008'], dependencies: ['catalog'], permissions: ['inventory.locations.read', 'inventory.locations.write', 'inventory.transfers.read', 'inventory.transfers.write', 'inventory.counts.read', 'inventory.counts.write', 'inventory.counts.approve'],
+    id: 'inventory', version: '1.5.0', capabilities: ['INV-001', 'INV-004', 'INV-005', 'INV-007', 'INV-008', 'INV-011'], dependencies: ['catalog'], permissions: ['inventory.locations.read', 'inventory.locations.write', 'inventory.transfers.read', 'inventory.transfers.write', 'inventory.counts.read', 'inventory.counts.write', 'inventory.counts.approve', 'inventory.routing.read', 'inventory.routing.write'],
     events: [], subscriptions: [], jobs: ['inventory.expire-reservations'], healthchecks: [], wikiLinks: [ARCHITECTURE_WIKI],
     navigation: [
       { id: 'ubicaciones', href: '/demo/admin/ubicaciones', label: 'Ubicaciones', order: 25, capabilityId: 'INV-005' },
       { id: 'transferencias', href: '/demo/admin/transferencias', label: 'Transferencias', order: 27, capabilityId: 'INV-007' },
       { id: 'conteos', href: '/demo/admin/conteos', label: 'Conteos', order: 28, capabilityId: 'INV-008' },
+      { id: 'asignacion', href: '/demo/admin/asignacion', label: 'Asignación', order: 29, capabilityId: 'INV-011' },
     ],
     routes: [
       { match: 'exact', path: '/demo/admin/ubicaciones', capabilityId: 'INV-005' },
@@ -112,6 +113,8 @@ export const MODULE_DESCRIPTORS = [
       { match: 'prefix', path: '/api/admin/inventory-transfers', capabilityId: 'INV-007' },
       { match: 'exact', path: '/demo/admin/conteos', capabilityId: 'INV-008' },
       { match: 'prefix', path: '/api/admin/inventory-counts', capabilityId: 'INV-008' },
+      { match: 'exact', path: '/demo/admin/asignacion', capabilityId: 'INV-011' },
+      { match: 'prefix', path: '/api/admin/inventory-routing', capabilityId: 'INV-011' },
     ],
   },
   {

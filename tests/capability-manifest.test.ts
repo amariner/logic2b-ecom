@@ -65,6 +65,7 @@ describe('capability manifest (R1.2)', () => {
     expect(CAPABILITY_PRESETS.advanced['INV-004']?.state).toBe('active');
     expect(CAPABILITY_PRESETS.advanced['INV-007']?.state).toBe('active');
     expect(CAPABILITY_PRESETS.advanced['INV-008']?.state).toBe('active');
+    expect(CAPABILITY_PRESETS.advanced['INV-011']?.state).toBe('active');
     expect('ORD-007' in CAPABILITY_PRESETS.standard).toBe(false);
     expect('ORD-005' in CAPABILITY_PRESETS.standard).toBe(false);
     expect('ORD-010' in CAPABILITY_PRESETS.standard).toBe(false);
@@ -72,6 +73,7 @@ describe('capability manifest (R1.2)', () => {
     expect('AUT-011' in CAPABILITY_PRESETS.standard).toBe(false);
     expect('INV-007' in CAPABILITY_PRESETS.standard).toBe(false);
     expect('INV-008' in CAPABILITY_PRESETS.standard).toBe(false);
+    expect('INV-011' in CAPABILITY_PRESETS.standard).toBe(false);
   });
 
   it('resolves omitted capabilities as absent with every runtime flag off', () => {

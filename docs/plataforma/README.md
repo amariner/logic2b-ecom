@@ -137,6 +137,12 @@ venta o servicios logísticos propios.
   sesiones, líneas congeladas y enlaces de ajuste al ledger por ubicación.
 - [`OPERACION_CONTEOS_INVENTARIO.md`](OPERACION_CONTEOS_INVENTARIO.md):
   ensayo, rollout, reconciliación, incidencias y rollback expand-only R3.8.
+- [`adr/0025-asignacion-inventario.md`](adr/0025-asignacion-inventario.md):
+  selección determinista y traslado contable sin doble consumo de R3.9.
+- [`../../migrations/0022_inventory_allocation.sql`](../../migrations/0022_inventory_allocation.sql):
+  políticas versionadas, explicación vinculada y enlaces de movimiento.
+- [`OPERACION_ASIGNACION_INVENTARIO.md`](OPERACION_ASIGNACION_INVENTARIO.md):
+  ensayo, rollout, reconciliación, incidencias y rollback expand-only R3.9.
 - [`../../migrations/0016_order_amendments.sql`](../../migrations/0016_order_amendments.sql):
   expansión de cantidades vigentes, amendments y asignaciones financieras.
 - [`OPERACION_EDICION_PEDIDOS.md`](OPERACION_EDICION_PEDIDOS.md):
