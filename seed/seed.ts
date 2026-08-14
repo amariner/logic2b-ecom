@@ -30,6 +30,10 @@ function sqlJson(value: unknown): string {
 
 /** Colección por defecto de un producto del seed que no la declare. */
 const DEFAULT_COLLECTION = 'demo';
+const DEMO_PACKING_SLIP_HTML = '<!doctype html><html lang="es"><meta charset="utf-8"><title>Albarán ALB-DEMO-1004</title><body><h1>Albarán de demostración</h1><p>Pedido BM-DEMO-1004 · documento logístico no fiscal.</p></body></html>';
+const DEMO_PACKING_SLIP_SHA256 = '67d90502fadb0bd5f8eb5707dfc94a23081d51be5428ccd417afad6c53d67d13';
+const DEMO_INVOICE_SNAPSHOT = '{"schema":1,"issuedAt":"demo-seed","document":{"number":"FAC-DEMO-1004","type":"external_invoice","version":1,"source":"external"},"order":{"number":"BM-DEMO-1004"},"external":{"provider":"gestoria-demo","reference":"FACT-DEMO-1004"}}';
+const DEMO_INVOICE_SHA256 = 'f361e71ed902d3ac92d669abd9406c83a9c5ac3093762bb14115bfc09764f58b';
 
 /**
  * El precio anterior tachado tiene que ser MAYOR que el que se cobra: si no, no
@@ -246,6 +250,10 @@ export function seedStatements(): string[] {
     'DELETE FROM order_note_revisions',
     'DELETE FROM order_notes',
     'DELETE FROM order_tags',
+    'DELETE FROM order_document_events',
+    'DELETE FROM order_document_artifacts',
+    'DELETE FROM order_documents',
+    'DELETE FROM order_document_templates',
     'DELETE FROM order_events',
     'DELETE FROM return_inventory_movements',
     'DELETE FROM return_exchange_lines',
@@ -512,6 +520,61 @@ export function seedStatements(): string[] {
   // los productos y pedidos ya insertados en esta misma batch. SOLO DEMO — un
   // cliente real borra esta línea (ver seed/demo-orders.ts).
   statements.push(...demoOrderStatements());
+
+  // R3.11: plantillas declarativas y dos documentos ficticios. El albarán es
+  // un artefacto propio sin importes; la factura es solo una referencia a la
+  // herramienta externa que supuestamente la emitió.
+  statements.push(
+    `INSERT INTO order_document_templates (` +
+      `id, template_key, document_type, version, renderer, config_json, active, created_at` +
+    `) VALUES ('tpl_packing_slip_v1', 'packing-slip-default', 'packing_slip', 1, ` +
+      `'packing-slip-v1', '{}', 1, datetime('now','-10 days'))`,
+    `INSERT INTO order_document_templates (` +
+      `id, template_key, document_type, version, renderer, config_json, active, created_at` +
+    `) VALUES ('tpl_internal_label_v1', 'internal-label-default', 'internal_label', 1, ` +
+      `'internal-label-v1', '{}', 1, datetime('now','-10 days'))`,
+    `INSERT INTO order_documents (` +
+      `id, document_number, order_id, document_type, source, template_id, fulfillment_id, ` +
+      `document_version, lifecycle_version, status, snapshot_json, content_sha256, ` +
+      `idempotency_key, issued_at, created_at, updated_at` +
+    `) SELECT 'doc_demo_albaran_1004', 'ALB-DEMO-1004', o.id, 'packing_slip', ` +
+      `'generated', 'tpl_packing_slip_v1', f.id, 1, 1, 'active', ` +
+      `'{' || '"schema":1,"issuedAt":"demo-seed","document":{"number":"ALB-DEMO-1004",' || ` +
+      `'"type":"packing_slip","version":1,"templateId":"tpl_packing_slip_v1","templateVersion":1},' || ` +
+      `'"order":{"number":"BM-DEMO-1004"}' || '}', ` +
+      `${sqlString(DEMO_PACKING_SLIP_SHA256)}, 'document:demo:albaran:1004', ` +
+      `datetime('now','-1 day'), datetime('now','-1 day'), datetime('now','-1 day') ` +
+      `FROM orders o JOIN fulfillments f ON f.order_id=o.id ` +
+      `WHERE o.order_number='BM-DEMO-1004' ORDER BY f.id LIMIT 1`,
+    `INSERT INTO order_document_artifacts (` +
+      `document_id, content_type, content_text, content_sha256, byte_size, created_at` +
+    `) VALUES ('doc_demo_albaran_1004', 'text/html', ${sqlString(DEMO_PACKING_SLIP_HTML)}, ` +
+      `${sqlString(DEMO_PACKING_SLIP_SHA256)}, ${new TextEncoder().encode(DEMO_PACKING_SLIP_HTML).byteLength}, ` +
+      `datetime('now','-1 day'))`,
+    `INSERT INTO order_document_events (` +
+      `document_id, transition, from_status, to_status, lifecycle_version_after, actor_kind, ` +
+      `actor_id, idempotency_key, detail_json, occurred_at` +
+    `) VALUES ('doc_demo_albaran_1004', 'created', NULL, 'active', 1, 'system', ` +
+      `'demo-seed', 'document:demo:albaran:1004:created', '{}', datetime('now','-1 day'))`,
+    `INSERT INTO order_documents (` +
+      `id, document_number, order_id, document_type, source, document_version, ` +
+      `lifecycle_version, status, expected_amount_cents, currency, external_provider, ` +
+      `external_reference, external_url, snapshot_json, content_sha256, idempotency_key, ` +
+      `issued_at, created_at, updated_at` +
+    `) SELECT 'doc_demo_factura_1004', 'FAC-DEMO-1004', o.id, 'external_invoice', ` +
+      `'external', 1, 1, 'active', o.total_cents, upper(o.currency), 'gestoria-demo', ` +
+      `'FACT-DEMO-1004', 'https://example.com/documentos/FACT-DEMO-1004', ` +
+      `${sqlString(DEMO_INVOICE_SNAPSHOT)}, ${sqlString(DEMO_INVOICE_SHA256)}, ` +
+      `'document:demo:factura:1004', datetime('now','-18 hours'), ` +
+      `datetime('now','-18 hours'), datetime('now','-18 hours') ` +
+      `FROM orders o WHERE o.order_number='BM-DEMO-1004'`,
+    `INSERT INTO order_document_events (` +
+      `document_id, transition, from_status, to_status, lifecycle_version_after, actor_kind, ` +
+      `actor_id, idempotency_key, detail_json, occurred_at` +
+    `) VALUES ('doc_demo_factura_1004', 'created', NULL, 'active', 1, 'provider', ` +
+      `'gestoria-demo', 'document:demo:factura:1004:created', ` +
+      `'{}', datetime('now','-18 hours'))`,
+  );
 
   // R3.10: expediente abierto para enseñar recepción e inspección sin mover
   // dinero ni stock en la demo pública de solo lectura.

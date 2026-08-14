@@ -7,8 +7,8 @@ import { createOrderBulkActionOperations } from '../src/composition/order-bulk-a
 
 describe('volcado de copia de seguridad', () => {
   it('declara el contrato que incluye la colaboración de pedidos', () => {
-    expect(BACKUP_SCHEMA_VERSION).toBe(17);
-    expect(buildBackupSql({}, '2026-08-14')).toContain('0023_returns_rma');
+    expect(BACKUP_SCHEMA_VERSION).toBe(18);
+    expect(buildBackupSql({}, '2026-08-14')).toContain('0024_order_documents');
   });
 
   it('genera INSERTs con columnas explícitas y escape de comillas', () => {
@@ -85,6 +85,10 @@ describe('volcado de copia de seguridad', () => {
       'return_events',
       'return_inventory_movements',
       'return_exchange_lines',
+      'order_document_templates',
+      'order_documents',
+      'order_document_artifacts',
+      'order_document_events',
     ]));
     for (const table of BACKUP_TABLES) expect(sql).toContain(`DELETE FROM ${table};`);
   });

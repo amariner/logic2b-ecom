@@ -32,3 +32,4 @@ para ocultar una decisión no es válido.
 | [0024](0024-conteos-ajustes-inventario.md) | Conteos versionados, doble control y ajustes append-only | accepted; R3.8 implementado localmente |
 | [0025](0025-asignacion-inventario.md) | Asignación determinista, vinculante y explicable | accepted; R3.9 implementado localmente |
 | [0026](0026-devoluciones-rma.md) | RMA separado de cancelación y cierre transaccional | accepted; R3.10 implementado localmente |
+| [0027](0027-documentos-operativos-no-fiscales.md) | Snapshots operativos propios y fiscalidad externa | accepted; R3.11 implementado localmente |

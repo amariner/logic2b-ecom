@@ -130,7 +130,7 @@ su alcance requiera.
 | ORD-009 | Captura manual o diferida | módulo | P2 | pendiente | Autorización, captura parcial y expiración. |
 | ORD-010 | Riesgo/incidencia/bloqueo | módulo | P2 | actual | Holds manuales/automáticos múltiples con responsable, SLA, resolución optimista e histórico; cualquier activo impide nueva preparación. |
 | ORD-011 | Acciones masivas seguras | módulo | P2 | actual | Selección explícita ≤500, preview SHA-256, lote/job durable en chunks de 25, progreso y evidencia por pedido, revalidación, replay/reanudación idempotentes y demo sin efectos. |
-| ORD-012 | Impresión y documentos | módulo | P2 | pendiente | Albarán, factura, nota y plantilla versionada. |
+| ORD-012 | Impresión y documentos | módulo | P2 | actual | Albarán/etiqueta sin importes con snapshot, plantilla, checksum y versión; factura/rectificativa solo como referencia emitida por proveedor fiscal externo. |
 | ORD-013 | Archivo y retención | núcleo | P2 | pendiente | Política, exportación, anonimización y obligación fiscal. |
 
 ## FUL — Preparación, envío y devoluciones

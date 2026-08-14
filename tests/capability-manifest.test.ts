@@ -61,6 +61,7 @@ describe('capability manifest (R1.2)', () => {
     expect(CAPABILITY_PRESETS.advanced['ORD-005']?.state).toBe('active');
     expect(CAPABILITY_PRESETS.advanced['ORD-010']?.state).toBe('active');
     expect(CAPABILITY_PRESETS.advanced['ORD-011']?.state).toBe('active');
+    expect(CAPABILITY_PRESETS.advanced['ORD-012']?.state).toBe('active');
     expect(CAPABILITY_PRESETS.advanced['AUT-011']?.state).toBe('active');
     expect(CAPABILITY_PRESETS.advanced['INV-004']?.state).toBe('active');
     expect(CAPABILITY_PRESETS.advanced['INV-007']?.state).toBe('active');
@@ -70,6 +71,7 @@ describe('capability manifest (R1.2)', () => {
     expect('ORD-005' in CAPABILITY_PRESETS.standard).toBe(false);
     expect('ORD-010' in CAPABILITY_PRESETS.standard).toBe(false);
     expect('ORD-011' in CAPABILITY_PRESETS.standard).toBe(false);
+    expect('ORD-012' in CAPABILITY_PRESETS.standard).toBe(false);
     expect('AUT-011' in CAPABILITY_PRESETS.standard).toBe(false);
     expect('INV-007' in CAPABILITY_PRESETS.standard).toBe(false);
     expect('INV-008' in CAPABILITY_PRESETS.standard).toBe(false);

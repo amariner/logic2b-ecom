@@ -149,6 +149,12 @@ venta o servicios logísticos propios.
   expedientes RMA, recepción, inspección, movimientos y cambios pendientes.
 - [`OPERACION_DEVOLUCIONES_RMA.md`](OPERACION_DEVOLUCIONES_RMA.md):
   ensayo, rollout, conciliación, incidencias y rollback de devoluciones.
+- [`adr/0027-documentos-operativos-no-fiscales.md`](adr/0027-documentos-operativos-no-fiscales.md):
+  snapshots logísticos propios y frontera explícita con la emisión fiscal externa.
+- [`../../migrations/0024_order_documents.sql`](../../migrations/0024_order_documents.sql):
+  plantillas, versiones, artefactos, referencias externas, eventos y guardas de alcance.
+- [`OPERACION_DOCUMENTOS_PEDIDO.md`](OPERACION_DOCUMENTOS_PEDIDO.md):
+  rehearsal, rollout, reconciliación, incidencias y rollback documental R3.11.
 - [`../../migrations/0016_order_amendments.sql`](../../migrations/0016_order_amendments.sql):
   expansión de cantidades vigentes, amendments y asignaciones financieras.
 - [`OPERACION_EDICION_PEDIDOS.md`](OPERACION_EDICION_PEDIDOS.md):

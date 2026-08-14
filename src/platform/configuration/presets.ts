@@ -78,6 +78,7 @@ const ADVANCED_CAPABILITIES = {
   'ORD-010': { state: 'active', flags: ROUTE_EFFECT },
   'AUT-011': { state: 'active', flags: ROUTE },
   'ORD-011': { state: 'active', flags: FULL_EFFECT },
+  'ORD-012': { state: 'active', flags: NAVIGATION_EFFECT },
   'CAT-002': { state: 'active', flags: INTERNAL },
   'CAT-003': { state: 'active', flags: ROUTE },
   'CAT-007': { state: 'active', flags: ROUTE },

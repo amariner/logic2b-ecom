@@ -212,6 +212,10 @@ const returnsHtml = await (await fetch(`${BASE}/demo/admin/devoluciones`, { head
 check('devoluciones muestran RMA recibido y demo inerte',
   returnsHtml.includes('RMA-DEMO-1001') && returnsHtml.includes('Recibida')
     && returnsHtml.includes('Registrar recepción') === false && returnsHtml.includes('disabled'));
+const documentsHtml = await (await fetch(`${BASE}/demo/admin/documentos`, { headers: { cookie } })).text();
+check('documentos separan artefacto logístico y referencia fiscal sin efectos',
+  documentsHtml.includes('ALB-DEMO-1004') && documentsHtml.includes('FAC-DEMO-1004')
+    && documentsHtml.includes('Logic2B no actúa como software fiscal') && documentsHtml.includes('disabled'));
 let variantId;
 if (variantProductId) {
   const variantsHtml = await (await fetch(
@@ -299,6 +303,8 @@ for (const [label, method, path] of [
   ['regla de asignación', 'PATCH', '/api/admin/inventory-routing'],
   ['solicitud de devolución', 'POST', '/api/admin/returns'],
   ['transición de devolución', 'PATCH', '/api/admin/returns/rma_demo_1001'],
+  ['alta de documento', 'POST', '/api/admin/order-documents'],
+  ['anulación de documento', 'POST', '/api/admin/order-documents/doc_demo_albaran_1004/void'],
 ]) {
   const response = await fetch(adminUrl(path), {
     method,
@@ -344,8 +350,8 @@ check(
     && backupSql.includes('INSERT INTO attribute_definitions') && backupSql.includes('INSERT INTO product_attribute_values'),
 );
 check(
-  'backup esquema 17 conserva operación, asignación y RMA',
-  backupSql.includes('logic2b-backup-schema: 17')
+  'backup esquema 18 conserva operación, RMA y documentos',
+  backupSql.includes('logic2b-backup-schema: 18')
     && backupSql.includes('INSERT INTO payments')
     && backupSql.includes('INSERT INTO payment_transactions')
     && backupSql.includes('DELETE FROM refunds')
@@ -361,7 +367,7 @@ check(
     && backupSql.includes('INSERT INTO order_hold_events')
     && backupSql.includes('DELETE FROM order_bulk_batches')
     && backupSql.includes('DELETE FROM order_bulk_batch_rows')
-    && backupSql.includes('0023_returns_rma')
+    && backupSql.includes('0024_order_documents')
     && backupSql.includes('INSERT INTO inventory_locations')
     && backupSql.includes('INSERT INTO inventory_location_balances')
     && backupSql.includes('INSERT INTO inventory_transfers')
@@ -374,6 +380,10 @@ check(
     && backupSql.includes('INSERT INTO return_requests')
     && backupSql.includes('INSERT INTO return_request_lines')
     && backupSql.includes('INSERT INTO return_events')
+    && backupSql.includes('INSERT INTO order_document_templates')
+    && backupSql.includes('INSERT INTO order_documents')
+    && backupSql.includes('INSERT INTO order_document_artifacts')
+    && backupSql.includes('INSERT INTO order_document_events')
 );
 
 if (failures > 0) {

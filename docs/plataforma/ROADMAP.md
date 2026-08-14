@@ -116,7 +116,7 @@ Cada migración se diseña y ensaya sobre una copia antes de tocar el esquema vi
 | 34 | **R3.8 Conteos y ajustes** | Conteo por ubicación, razón, doble control opcional y auditoría. | ✅ 2026-08-14; local, sin deploy |
 | 35 | **R3.9 Motor de asignación** | Reglas deterministas por stock, prioridad, mercado/canal y coste; explicación guardada. | ✅ 2026-08-14; local, sin deploy |
 | 36 | **R3.10 Devoluciones/RMA** | Solicitud, elegibilidad, recepción, inspección, resolución, reembolso/cambio y reposición. | ✅ |
-| 37 | **R3.11 Documentos operativos** | Albarán, factura/rectificativa mediante conector o plantilla, etiquetas internas y versionado. | ⬜ |
+| 37 | **R3.11 Documentos operativos** | Albarán, factura/rectificativa mediante conector o plantilla, etiquetas internas y versionado. | ✅ 2026-08-14; local, sin deploy |
 | 38 | **R3.12 Consolidación R3** | E2E multiubicación, fulfillment y devolución; runbooks de incidencias; wiki de operación publicada solo para capacidades reales. | ⬜ |
 
 ## R4 — Precios, promociones y modelos de venta
@@ -1154,3 +1154,31 @@ verde; la revisión visual confirma el layout responsive. El gate compartido
 queda en 534/537 por tres fallos exclusivos del tema Monte en curso; el corte
 limpio aislado pasa **100 suites/537 tests**, tipos y build. Sin D1 remota ni
 deploy de Worker.
+
+### R3.11 — documentos operativos — ✅ cerrado local 2026-08-14
+
+ADR-0027 y `0024_order_documents.sql` separan dos responsabilidades: Logic2B
+genera albaranes y etiquetas internas no fiscales, mientras facturas y
+rectificativas solo registran referencias emitidas por un proveedor fiscal
+externo. Los importes de esas referencias se recalculan desde pedido o
+reembolso; el navegador nunca los decide y ningún artefacto fiscal se almacena
+o renderiza aquí.
+
+`ORD-012` añade API, navegación y panel responsive. Los documentos generados
+son snapshots inmutables con plantilla, versión, checksum y artefacto HTML; una
+sustitución crea una versión nueva y conserva el linaje. Las referencias
+externas guardan proveedor, URL HTTPS y trazabilidad, pero no contenido local.
+Alta, sustitución y anulación son versionadas, idempotentes y auditadas. La demo
+muestra un albarán y una referencia de factura, y rechaza todos los efectos.
+Backup esquema 18 y runbook en `OPERACION_DOCUMENTOS_PEDIDO.md`.
+
+Rehearsal sobre el dump real en `0023`: 8 pedidos, 4 fulfillments y 0
+devoluciones/reembolsos, hash previo
+`dc08c070b9e8a990a497f16daea1bccd922375b36bfdf8702e8ae75a05a9aade`, dump de
+489.234 bytes, restore íntegro y cero documentos inventados. `0024` y 629
+sentencias de seed se aplicaron solo en local. E2E completo —incluido el rechazo
+403 de alta y anulación— y a11y `admin:documentos` a 1440/375 están en verde;
+la revisión visual confirma 0 overflow y que el artefacto no contiene importes.
+El gate compartido queda en 547/550 por tres fallos exclusivos del tema Monte
+en curso; el corte limpio aislado pasa **104 suites/550 tests**, tipos y build.
+Sin D1 remota ni deploy de Worker.

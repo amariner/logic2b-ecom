@@ -126,6 +126,41 @@ export {
 } from './domain/order-bulk-action';
 
 export {
+  EXTERNAL_ORDER_DOCUMENT_TYPES,
+  GENERATED_ORDER_DOCUMENT_TYPES,
+  ORDER_DOCUMENT_TYPES,
+  assertOrderDocumentVoid,
+  planExternalOrderDocument,
+  planGeneratedOrderDocument,
+  type ExistingOrderDocument,
+  type ExternalOrderDocumentDraft,
+  type ExternalOrderDocumentType,
+  type GeneratedOrderDocumentDraft,
+  type GeneratedOrderDocumentType,
+  type OrderDocumentStatus,
+  type OrderDocumentType,
+  type PlannedExternalOrderDocument,
+  type PlannedGeneratedOrderDocument,
+} from './domain/order-document';
+
+export {
+  renderOrderDocument,
+  type OrderDocumentSnapshot,
+} from './application/order-document-renderer';
+
+export {
+  createD1OrderDocuments,
+  type D1OrderDocuments,
+  type ExternalDocumentContext,
+  type GeneratedDocumentContext,
+  type OrderDocumentAdminOptions,
+  type OrderDocumentDetail,
+  type OrderDocumentEventRecord,
+  type OrderDocumentRecord,
+  type OrderDocumentTemplateRecord,
+} from './infrastructure/d1-order-documents';
+
+export {
   buildPaidMutation,
   stockAfterDecrement,
   type OrderForPayment,

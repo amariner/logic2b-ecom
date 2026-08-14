@@ -23,7 +23,7 @@ describe('capability access policy (R1.3)', () => {
   it.each([
     ['minimal', ['productos'], '/demo/admin/productos'],
     ['standard', ['pedidos', 'productos', 'envios', 'emails'], '/demo/admin'],
-    ['advanced', ['pedidos', 'productos', 'ubicaciones', 'transferencias', 'conteos', 'asignacion', 'envios', 'devoluciones', 'emails'], '/demo/admin'],
+    ['advanced', ['pedidos', 'documentos', 'productos', 'ubicaciones', 'transferencias', 'conteos', 'asignacion', 'envios', 'devoluciones', 'emails'], '/demo/admin'],
   ] as const)('derives %s admin navigation without orphan links', (profile, expectedIds, home) => {
     const platform = platformFor(profile);
     const navigation = adminNavigationFor(platform);
@@ -73,6 +73,8 @@ describe('capability access policy (R1.3)', () => {
     ['advanced', '/api/admin/backup.sql', true],
     ['advanced', '/api/admin/inventory-routing', true],
     ['advanced', '/api/admin/returns', true],
+    ['advanced', '/api/admin/order-documents', true],
+    ['standard', '/api/admin/order-documents', false],
     ['standard', '/api/admin/returns', false],
     ['standard', '/api/admin/inventory-routing', false],
   ] as const)('applies the %s preset to %s', (profile, pathname, allowed) => {
@@ -103,7 +105,7 @@ describe('capability access policy (R1.3)', () => {
 
   it('preserves every public demo panel surface while disabling commercial effects', () => {
     const demo = createPlatform(platformManifest);
-    expect(adminNavigationFor(demo).map((item) => item.id)).toEqual(['pedidos', 'productos', 'ubicaciones', 'transferencias', 'conteos', 'asignacion', 'envios', 'devoluciones', 'emails']);
+    expect(adminNavigationFor(demo).map((item) => item.id)).toEqual(['pedidos', 'documentos', 'productos', 'ubicaciones', 'transferencias', 'conteos', 'asignacion', 'envios', 'devoluciones', 'emails']);
     for (const pathname of [
       '/demo/admin',
       '/demo/admin/asignacion',
@@ -118,6 +120,8 @@ describe('capability access policy (R1.3)', () => {
       '/demo/admin/envios',
       '/demo/admin/devoluciones',
       '/api/admin/returns',
+      '/demo/admin/documentos',
+      '/api/admin/order-documents',
       '/demo/admin/emails',
       '/api/admin/orders/export.csv',
       '/api/admin/backup.sql',
