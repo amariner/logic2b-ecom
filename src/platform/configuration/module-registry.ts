@@ -60,6 +60,7 @@ const PRICE_RULES_WIKI = 'docs/plataforma/wiki/reglas-precio-trazables.md';
 const PROMOTION_CODES_WIKI = 'docs/plataforma/wiki/codigos-promocionales-seguros.md';
 const AUTOMATIC_DISCOUNTS_WIKI = 'docs/plataforma/wiki/descuentos-automaticos-trazables.md';
 const QUANTITY_OFFERS_WIKI = 'docs/plataforma/wiki/ofertas-cantidad-x-y.md';
+const DISCOUNT_COMBINATIONS_WIKI = 'docs/plataforma/wiki/combinacion-descuentos-explicita.md';
 
 /**
  * Catálogo canónico de módulos. Los arrays vacíos son declaraciones explícitas:
@@ -98,13 +99,14 @@ export const MODULE_DESCRIPTORS = [
     ],
   },
   {
-    id: 'pricing', version: '1.4.0', capabilities: ['PRC-001', 'PRC-002', 'PRC-003', 'PRC-004', 'PRC-005', 'PRC-006', 'PRC-007', 'MKT-001', 'MKT-002'],
+    id: 'pricing', version: '1.5.0', capabilities: ['PRC-001', 'PRC-002', 'PRC-003', 'PRC-004', 'PRC-005', 'PRC-006', 'PRC-007', 'PRC-008', 'MKT-001', 'MKT-002'],
     dependencies: ['platform-configuration', 'catalog'], permissions: [], events: [], subscriptions: [], jobs: [], healthchecks: [],
-    wikiLinks: [ARCHITECTURE_WIKI, PRICE_RULES_WIKI, PROMOTION_CODES_WIKI, AUTOMATIC_DISCOUNTS_WIKI, QUANTITY_OFFERS_WIKI], navigation: [],
+    wikiLinks: [ARCHITECTURE_WIKI, PRICE_RULES_WIKI, PROMOTION_CODES_WIKI, AUTOMATIC_DISCOUNTS_WIKI, QUANTITY_OFFERS_WIKI, DISCOUNT_COMBINATIONS_WIKI], navigation: [],
     routes: [
       { match: 'prefix', path: '/api/admin/promotion-codes', capabilityId: 'PRC-004' },
       { match: 'prefix', path: '/api/admin/automatic-discounts', capabilityId: 'PRC-005' },
       { match: 'prefix', path: '/api/admin/quantity-offers', capabilityId: 'PRC-006' },
+      { match: 'prefix', path: '/api/admin/discount-combinations', capabilityId: 'PRC-008' },
     ],
   },
   {

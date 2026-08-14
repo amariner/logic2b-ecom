@@ -193,6 +193,14 @@ venta o servicios logísticos propios.
   rollout, reconciliación, incidencias y rollback de `PRC-006/007`.
 - [`wiki/ofertas-cantidad-x-y.md`](wiki/ofertas-cantidad-x-y.md):
   ficha interna de capacidad y límites actuales, sin combinabilidad ni editor.
+- [`adr/0032-combinabilidad-explicita-descuentos.md`](adr/0032-combinabilidad-explicita-descuentos.md):
+  matrices de fuentes/clases, tope agregado y aplicación canónica por pedido.
+- [`../../migrations/0029_discount_combinations.sql`](../../migrations/0029_discount_combinations.sql):
+  políticas, pares, aplicaciones y guardas de snapshot combinado.
+- [`OPERACION_COMBINACION_DESCUENTOS.md`](OPERACION_COMBINACION_DESCUENTOS.md):
+  rollout, reconciliación, incidencias y rollback de `PRC-008`.
+- [`wiki/combinacion-descuentos-explicita.md`](wiki/combinacion-descuentos-explicita.md):
+  ficha interna honesta sobre combinabilidad y límites actuales.
 - [`../../migrations/0016_order_amendments.sql`](../../migrations/0016_order_amendments.sql):
   expansión de cantidades vigentes, amendments y asignaciones financieras.
 - [`OPERACION_EDICION_PEDIDOS.md`](OPERACION_EDICION_PEDIDOS.md):

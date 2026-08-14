@@ -75,6 +75,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
     const automaticDiscountsEnabled = runtimePlatform.isCapabilityActive('PRC-005');
     const quantityTiersEnabled = runtimePlatform.isCapabilityActive('PRC-006');
     const buyXGetYEnabled = runtimePlatform.isCapabilityActive('PRC-007');
+    const discountCombinationsEnabled = runtimePlatform.isCapabilityActive('PRC-008');
     const promotionCustomerKeyHash = parsed.data.promotion_code === undefined
       ? null
       : await promotionCustomerHash(customer.email);
@@ -100,6 +101,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
       automaticDiscountsEnabled,
       quantityTiersEnabled,
       buyXGetYEnabled,
+      discountCombinationsEnabled,
       ...(promotionCustomerKeyHash === null ? {} : { promotionCustomerKeyHash }),
     });
     if (parsed.data.promotion_code !== undefined && quote.promotion.status !== 'applied') {
@@ -220,6 +222,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
           },
         }),
       ...(quote.automatic_discount.status !== 'applied'
+          || quote.discount_combination.status === 'applied'
         ? {}
         : {
           automaticDiscountApplication: {
@@ -237,6 +240,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
           },
         }),
       ...(quote.quantity_offer.status !== 'applied'
+          || quote.discount_combination.status === 'applied'
         ? {}
         : {
           quantityOfferApplication: {
@@ -252,6 +256,32 @@ export const POST: APIRoute = async ({ request, locals }) => {
               discount_cents: quote.quantity_offer.discount_cents,
               evidence: quote.quantity_offer.evidence,
               conflict_policy: 'promotion_code_then_campaign_priority',
+              amendment_policy: 'frozen_unit_price',
+              refund_policy: 'proportional_frozen_unit_price',
+            },
+          },
+        }),
+      ...(quote.discount_combination.status !== 'applied'
+        ? {}
+        : {
+          discountCombinationApplication: {
+            policyId: quote.discount_combination.policy_id,
+            policyVersion: quote.discount_combination.version,
+            discountCents: quote.discount_combination.discount_cents,
+            snapshot: {
+              schema: 1,
+              policy_id: quote.discount_combination.policy_id,
+              version: quote.discount_combination.version,
+              label: quote.discount_combination.label,
+              maximum_discount_basis_points:
+                quote.discount_combination.maximum_discount_basis_points,
+              discount_cents: quote.discount_combination.discount_cents,
+              selected_sources: quote.discount_combination.selected_sources,
+              excluded_sources: quote.discount_combination.excluded_sources,
+              quantity_evidence: quote.quantity_offer.status === 'applied'
+                ? quote.quantity_offer.evidence
+                : null,
+              evaluation_policy: 'additive_on_base_priority_cap',
               amendment_policy: 'frozen_unit_price',
               refund_policy: 'proportional_frozen_unit_price',
             },

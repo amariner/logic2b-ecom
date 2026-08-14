@@ -66,3 +66,25 @@ export {
   createD1QuantityOffers,
   type QuantityOfferApplication,
 } from './infrastructure/d1-quantity-offers';
+
+export {
+  DISCOUNT_CLASSES,
+  DISCOUNT_COMBINATION_POLICY_STATES,
+  DISCOUNT_SOURCES,
+  assertDiscountCombinationPolicy,
+  evaluateCombinedPriceRules,
+  resolveDiscountCombination,
+  resolveDiscountCombinationPolicy,
+  type DiscountClass,
+  type DiscountCombinationCandidate,
+  type DiscountCombinationExclusionReason,
+  type DiscountCombinationPolicy,
+  type DiscountCombinationPolicyState,
+  type DiscountCombinationResolution,
+  type DiscountSource,
+} from './domain/discount-combination';
+
+export {
+  createD1DiscountCombinations,
+  type DiscountCombinationApplication,
+} from './infrastructure/d1-discount-combinations';

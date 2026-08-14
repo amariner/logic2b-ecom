@@ -30,7 +30,8 @@ export type PriceRuleEvaluationStatus =
   | 'excluded_channel'
   | 'excluded_not_started'
   | 'excluded_expired'
-  | 'superseded_priority';
+  | 'superseded_priority'
+  | 'capped';
 
 export type PriceRuleEvaluation = Readonly<{
   ruleId: string;
@@ -40,7 +41,7 @@ export type PriceRuleEvaluation = Readonly<{
 }>;
 
 export type PriceBreakdown = Readonly<{
-  schema: 1;
+  schema: 1 | 2;
   context: PriceRuleContext;
   currency: string;
   base_unit_price_cents: number;
@@ -57,6 +58,17 @@ export type PriceBreakdown = Readonly<{
     effect: PriceRuleCandidate['effect'];
     discount_per_unit_cents: number;
   }>;
+  /** Presente en schema 2; conserva `applied_rule` como primer efecto compatible. */
+  applied_rules?: readonly Readonly<{
+    id: string;
+    version: number;
+    label: string;
+    priority: number;
+    effect: PriceRuleCandidate['effect'];
+    raw_discount_per_unit_cents: number;
+    discount_per_unit_cents: number;
+    capped: boolean;
+  }>[];
   evaluations: readonly PriceRuleEvaluation[];
 }>;
 
@@ -138,8 +150,8 @@ function discountPerUnit(baseUnitPriceCents: number, effect: PriceRuleCandidate[
 }
 
 /**
- * R4.1 aplica como máximo una regla. La combinabilidad es una decisión separada
- * de R4.5; hasta entonces prioridad menor e id estable eligen un único ganador.
+ * Sin una política de combinabilidad, prioridad menor e ID estable eligen un
+ * único ganador. R4.5 compone varias evaluaciones con un contrato separado.
  */
 export function evaluatePriceRules(input: Readonly<{
   baseUnitPriceCents: number;

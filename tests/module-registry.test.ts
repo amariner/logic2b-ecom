@@ -82,6 +82,7 @@ describe('registro de módulos (R1.4)', () => {
     expect(MODULE_REGISTRY.capabilityOwners['PRC-005']).toBe('pricing');
     expect(MODULE_REGISTRY.capabilityOwners['PRC-006']).toBe('pricing');
     expect(MODULE_REGISTRY.capabilityOwners['PRC-007']).toBe('pricing');
+    expect(MODULE_REGISTRY.capabilityOwners['PRC-008']).toBe('pricing');
     expect(MODULE_REGISTRY.capabilityOwners['ORD-007']).toBe('orders');
     expect(MODULE_REGISTRY.capabilityOwners['ORD-005']).toBe('orders');
     expect(MODULE_REGISTRY.capabilityOwners['ORD-010']).toBe('orders');
@@ -102,6 +103,7 @@ describe('registro de módulos (R1.4)', () => {
       expect.objectContaining({ path: '/api/admin/promotion-codes', capabilityId: 'PRC-004' }),
       expect.objectContaining({ path: '/api/admin/automatic-discounts', capabilityId: 'PRC-005' }),
       expect.objectContaining({ path: '/api/admin/quantity-offers', capabilityId: 'PRC-006' }),
+      expect.objectContaining({ path: '/api/admin/discount-combinations', capabilityId: 'PRC-008' }),
     ]));
   });
 

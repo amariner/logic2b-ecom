@@ -41,9 +41,11 @@ import {
 } from '../modules/inventory';
 import {
   createD1AutomaticDiscounts,
+  createD1DiscountCombinations,
   createD1PromotionCodes,
   createD1QuantityOffers,
   type AutomaticDiscountApplication,
+  type DiscountCombinationApplication,
   type PromotionReservation,
   type QuantityOfferApplication,
 } from '../modules/pricing';
@@ -93,6 +95,7 @@ export function createOrderOperations(
     promotionReservation?: PromotionReservation;
     automaticDiscountApplication?: AutomaticDiscountApplication;
     quantityOfferApplication?: QuantityOfferApplication;
+    discountCombinationApplication?: DiscountCombinationApplication;
   }> = {},
 ) {
   const orders = createOrderWriter(db);
@@ -104,13 +107,18 @@ export function createOrderOperations(
   const promotions = createD1PromotionCodes(db);
   const automaticDiscounts = createD1AutomaticDiscounts(db);
   const quantityOffers = createD1QuantityOffers(db);
+  const discountCombinations = createD1DiscountCombinations(db);
   const pricingSources = [
     options.promotionReservation,
     options.automaticDiscountApplication,
     options.quantityOfferApplication,
   ].filter((source) => source !== undefined).length;
-  if (pricingSources > 1) {
-    throw new RangeError('Un pedido no puede combinar fuentes de descuento antes de PRC-008.');
+  if (options.discountCombinationApplication === undefined && pricingSources > 1) {
+    throw new RangeError('Un pedido no puede combinar fuentes sin una aplicación PRC-008.');
+  }
+  if (options.discountCombinationApplication !== undefined &&
+      (options.automaticDiscountApplication !== undefined || options.quantityOfferApplication !== undefined)) {
+    throw new RangeError('La aplicación combinada es el registro canónico de campañas automáticas y de cantidad.');
   }
   const reservationsEnabled = options.reservationsEnabled ??
     runtimePlatform.hasCapabilityFlag('INV-004', 'sideEffects');
@@ -195,6 +203,13 @@ export function createOrderOperations(
         }, { eventId: identity.event_id }),
         ...outbox.deliveryStatements(identity.event_id, identity.occurred_at, consumerIds),
         ...orders.lineStatementsForOrderNumber(order.order_number, lines),
+        ...(options.discountCombinationApplication === undefined
+          ? []
+          : [discountCombinations.applicationStatement(
+            order.order_number,
+            options.discountCombinationApplication,
+            identity.occurred_at,
+          )]),
         ...(options.promotionReservation === undefined
           ? []
           : [promotions.reservationStatement(

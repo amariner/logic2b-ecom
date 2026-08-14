@@ -8,13 +8,19 @@ import { getProductsBySlugs, getRateForZone } from './db';
 import type { CatalogReadMode } from '../modules/catalog';
 import {
   evaluatePriceRules,
+  evaluateCombinedPriceRules,
   createD1AutomaticDiscounts,
+  createD1DiscountCombinations,
   createD1PromotionCodes,
   createD1QuantityOffers,
   resolveAutomaticDiscounts,
   resolvePromotionCode,
   resolveQuantityOffers,
   resolvePricingSourceConflict,
+  resolveDiscountCombination,
+  resolveDiscountCombinationPolicy,
+  type DiscountCombinationResolution,
+  type DiscountSource,
   type PriceBreakdown,
   type PriceRuleCandidate,
   type PriceRuleContext,
@@ -102,6 +108,17 @@ export type QuoteResult = {
       status: 'applied'; offer_id: string; version: number; kind: 'quantity_tier' | 'buy_x_get_y';
       reason: string; discount_cents: number; evidence: QuantityOfferEvidence;
     }>;
+  discount_combination:
+    | Readonly<{ status: 'not_applied'; reason: 'disabled' | 'no_active_policy' | 'not_enough_eligible_sources' }>
+    | Readonly<{
+      status: 'applied'; policy_id: string; version: number; label: string;
+      maximum_discount_basis_points: number; discount_cents: number;
+      selected_sources: readonly Readonly<{
+        source: DiscountSource; discount_class: 'product' | 'order' | 'shipping';
+        rule_id: string; rule_version: number; discount_cents: number;
+      }>[];
+      excluded_sources: DiscountCombinationResolution['excluded'];
+    }>;
 };
 
 export async function quoteCart(
@@ -118,6 +135,7 @@ export async function quoteCart(
     quantityOffersEnabled?: boolean;
     quantityTiersEnabled?: boolean;
     buyXGetYEnabled?: boolean;
+    discountCombinationsEnabled?: boolean;
   }> = {},
 ): Promise<QuoteResult> {
   // Colapsar duplicados del mismo slug antes de tocar la base
@@ -201,6 +219,33 @@ export async function quoteCart(
       ? {}
       : { quantityOfferCandidate: quantityResolution.candidate }),
   });
+  const combinationCandidates = [
+    ...(promotionResolution?.status === 'eligible' ? [{
+      source: 'promotion_code' as const, discountClass: 'order' as const,
+      candidate: promotionResolution.candidate, eligibleProductIds: promotionResolution.eligibleProductIds,
+    }] : []),
+    ...(automaticResolution.status === 'eligible' ? [{
+      source: 'automatic_discount' as const, discountClass: 'product' as const,
+      candidate: automaticResolution.candidate, eligibleProductIds: automaticResolution.eligibleProductIds,
+    }] : []),
+    ...(quantityResolution.status === 'eligible' ? [{
+      source: 'quantity_offer' as const, discountClass: 'product' as const,
+      candidate: quantityResolution.candidate, eligibleProductIds: quantityResolution.eligibleProductIds,
+    }] : []),
+  ];
+  const combinationPolicy = options.discountCombinationsEnabled === true
+    ? resolveDiscountCombinationPolicy({
+      policies: await createD1DiscountCombinations(db).listActive(),
+      context: pricingContext,
+    })
+    : null;
+  const combinationResolution = combinationPolicy === null || combinationCandidates.length < 1
+    ? null
+    : resolveDiscountCombination({ policy: combinationPolicy, candidates: combinationCandidates });
+  const combinationActive = (combinationResolution?.selected.length ?? 0) >= 2;
+  const selectedSources = new Set<DiscountSource>(combinationActive
+    ? combinationResolution!.selected.map((item) => item.source)
+    : pricingSource === 'none' ? [] : [pricingSource]);
   const promotionProductIds = new Set(
     promotionResolution?.status === 'eligible' ? promotionResolution.eligibleProductIds : [],
   );
@@ -221,31 +266,35 @@ export async function quoteCart(
     }
     const status = prod.stock === 0 ? 'out-of-stock' : prod.stock < qty ? 'insufficient-stock' : 'ok';
     const configuredCandidates = options.priceRulesBySlug?.[slug];
-    const promotionCandidates = pricingSource === 'promotion_code' &&
+    const promotionCandidates = selectedSources.has('promotion_code') &&
       promotionResolution?.status === 'eligible' && promotionProductIds.has(prod.id)
       ? [promotionResolution.candidate]
       : undefined;
-    const automaticCandidates = pricingSource === 'automatic_discount' &&
+    const automaticCandidates = selectedSources.has('automatic_discount') &&
       automaticResolution.status === 'eligible' && automaticProductIds.has(prod.id)
       ? [automaticResolution.candidate]
       : undefined;
-    const quantityCandidates = pricingSource === 'quantity_offer' &&
+    const quantityCandidates = selectedSources.has('quantity_offer') &&
       quantityResolution.status === 'eligible' && quantityProductIds.has(prod.id)
       ? [quantityResolution.candidate]
       : undefined;
-    const persistedCandidates = promotionCandidates ?? automaticCandidates ?? quantityCandidates;
-    if (configuredCandidates !== undefined && persistedCandidates !== undefined) {
+    const persistedCandidates = [
+      ...(promotionCandidates ?? []), ...(automaticCandidates ?? []), ...(quantityCandidates ?? []),
+    ];
+    if (configuredCandidates !== undefined && persistedCandidates.length > 0) {
       throw new Error('La combinación de fuentes de descuento requiere PRC-008.');
     }
     const candidates = configuredCandidates ?? persistedCandidates;
-    const pricing = evaluatePriceRules({
-      baseUnitPriceCents: prod.price_cents,
-      quantity: qty,
-      context: pricingContext,
-      ...(candidates === undefined
-        ? {}
-        : { candidates }),
-    });
+    const pricing = combinationActive && configuredCandidates === undefined
+      ? evaluateCombinedPriceRules({
+        baseUnitPriceCents: prod.price_cents, quantity: qty, context: pricingContext,
+        candidates: persistedCandidates,
+        maximumDiscountBasisPoints: combinationResolution!.policy.maximumDiscountBasisPoints,
+      })
+      : evaluatePriceRules({
+        baseUnitPriceCents: prod.price_cents, quantity: qty, context: pricingContext,
+        ...(candidates.length === 0 ? {} : { candidates }),
+      });
     return {
       slug,
       name: prod.name,
@@ -261,12 +310,18 @@ export async function quoteCart(
 
   const servable = lines.filter((line) => line.status === 'ok');
   const subtotal_cents = computeSubtotalCents(servable);
-  const promotionDiscountCents = servable.reduce((total, line) =>
-    total + (line.pricing?.applied_rule?.id.startsWith('promotion:') ? line.pricing.discount_cents : 0), 0);
-  const automaticDiscountCents = servable.reduce((total, line) =>
-    total + (line.pricing?.applied_rule?.id.startsWith('automatic:') ? line.pricing.discount_cents : 0), 0);
-  const quantityDiscountCents = servable.reduce((total, line) =>
-    total + (line.pricing?.applied_rule?.id.startsWith('quantity:') ? line.pricing.discount_cents : 0), 0);
+  const sourceDiscount = (prefix: string) => servable.reduce((total, line) => {
+    const pricing = line.pricing;
+    if (pricing === null) return total;
+    if (pricing.schema === 2) {
+      return total + (pricing.applied_rules ?? []).reduce((sum, rule) =>
+        sum + (rule.id.startsWith(prefix) ? rule.discount_per_unit_cents * line.qty : 0), 0);
+    }
+    return total + (pricing.applied_rule?.id.startsWith(prefix) ? pricing.discount_cents : 0);
+  }, 0);
+  const promotionDiscountCents = sourceDiscount('promotion:');
+  const automaticDiscountCents = sourceDiscount('automatic:');
+  const quantityDiscountCents = sourceDiscount('quantity:');
   const promotion: QuoteResult['promotion'] = request.promotion_code === undefined
     ? { status: 'not_provided' }
     : promotionResolution?.status === 'eligible' && promotionDiscountCents > 0
@@ -278,7 +333,7 @@ export async function quoteCart(
         discount_cents: promotionDiscountCents,
       }
       : { status: 'rejected', reason: 'invalid_or_unavailable' };
-  const automatic_discount: QuoteResult['automatic_discount'] = pricingSource === 'automatic_discount' &&
+  const automatic_discount: QuoteResult['automatic_discount'] = selectedSources.has('automatic_discount') &&
       automaticResolution.status === 'eligible' && automaticDiscountCents > 0
     ? {
       status: 'applied',
@@ -295,7 +350,7 @@ export async function quoteCart(
           ? 'promotion_code_precedence'
           : 'higher_priority_campaign',
     };
-  const quantity_offer: QuoteResult['quantity_offer'] = pricingSource === 'quantity_offer' &&
+  const quantity_offer: QuoteResult['quantity_offer'] = selectedSources.has('quantity_offer') &&
       quantityResolution.status === 'eligible' && quantityDiscountCents > 0
     ? {
       status: 'applied',
@@ -313,6 +368,30 @@ export async function quoteCart(
         : pricingSource === 'promotion_code'
           ? 'promotion_code_precedence'
           : 'higher_priority_campaign',
+    };
+  const sourceDiscounts: Readonly<Record<DiscountSource, number>> = {
+    promotion_code: promotionDiscountCents,
+    automatic_discount: automaticDiscountCents,
+    quantity_offer: quantityDiscountCents,
+  };
+  const discount_combination: QuoteResult['discount_combination'] = combinationActive
+    ? {
+      status: 'applied', policy_id: combinationResolution!.policy.id,
+      version: combinationResolution!.policy.version, label: combinationResolution!.policy.label,
+      maximum_discount_basis_points: combinationResolution!.policy.maximumDiscountBasisPoints,
+      discount_cents: Object.values(sourceDiscounts).reduce((total, value) => total + value, 0),
+      selected_sources: combinationResolution!.selected.map((item) => ({
+        source: item.source, discount_class: item.discountClass,
+        rule_id: item.candidate.id, rule_version: item.candidate.version,
+        discount_cents: sourceDiscounts[item.source],
+      })),
+      excluded_sources: combinationResolution!.excluded,
+    }
+    : {
+      status: 'not_applied',
+      reason: options.discountCombinationsEnabled !== true
+        ? 'disabled'
+        : combinationPolicy === null ? 'no_active_policy' : 'not_enough_eligible_sources',
     };
 
   let shipping_cents: number | null = null;
@@ -338,5 +417,6 @@ export async function quoteCart(
     promotion,
     automatic_discount,
     quantity_offer,
+    discount_combination,
   };
 }

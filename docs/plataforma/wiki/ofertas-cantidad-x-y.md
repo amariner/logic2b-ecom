@@ -20,8 +20,8 @@ seleccionadas, beneficio teórico, porcentaje proporcional y descuento real.
 
 ## Límites actuales
 
-- no se apilan código, automático y cantidad/X-Y;
-- no existen topes agregados ni clases de combinabilidad hasta R4.5;
+- solo se apilan código, automático y cantidad/X-Y cuando `PRC-008` permite
+  explícitamente todos sus pares de fuente/clase y el tope;
 - una edición mantiene el precio histórico y no vuelve a evaluar la campaña;
 - no hay editor visual, segmentación B2B ni mínimos/múltiplos de catálogo;
 - la demo pública no activa compras ni mutaciones.

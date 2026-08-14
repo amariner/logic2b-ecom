@@ -12,8 +12,9 @@ el motivo público que también queda congelado en el pedido.
 
 ## Qué ocurre con un código
 
-Un código elegible tiene precedencia global: no se mezcla con el automático y
-la quote explica `promotion_code_precedence`. Si el código no es válido, el
+Sin política PRC-008, un código elegible tiene precedencia global y la quote
+explica `promotion_code_precedence`. Una política puede permitir explícitamente
+la combinación por fuente/clase y tope. Si el código no es válido, el
 automático elegible sigue visible, pero checkout rechaza el código solicitado
 en vez de ignorarlo silenciosamente.
 
@@ -21,13 +22,15 @@ en vez de ignorarlo silenciosamente.
 
 Cada pedido con campaña guarda ID, versión, importe y snapshot de decisión. Las
 líneas conservan precio base, efectivo, contexto, efecto y motivo. El trigger D1
-verifica que sólo haya una fuente y que el descuento cuadre con esas líneas.
+verifica la aplicación exclusiva o la aplicación combinada canónica y que el
+descuento cuadre con esas líneas.
 
 ## Límites expresos
 
 - una única campaña gana para todo el carrito;
 - una segunda campaña no rellena productos fuera del scope de la ganadora;
-- tramos y X/Y viven en `PRC-006/007`; descuentos de cesta/envío y apilado esperan R4.5;
+- tramos y X/Y viven en `PRC-006/007`; `PRC-008` permite apilado explícito,
+  pero no introduce una fuente real de descuento de envío;
 - no existe editor visual; la gestión actual es la API admin auditada;
 - la demo pública no siembra campañas ni crea pedidos reales.
 

@@ -1655,41 +1655,48 @@ la cola de temas, coordinados sin mezclar worktrees ni cambios abiertos.
 
 ## Próxima sesión
 
-### R4.5 — combinabilidad y explicación — ⬜ siguiente bloque
+### R4.6 — listas de precios contextuales — ⬜ siguiente bloque
 
-R4.4 queda cerrado localmente con `PRC-006`, `PRC-007` y la migración expand-only
-`0028`. Los tramos miden unidades o subtotal base dentro de su scope y eligen el
-mayor umbral alcanzado. X/Y admite scopes idénticos o disjuntos, múltiplos,
-límite y selección estable de la recompensa más barata. El beneficio se
-prorratea entre líneas participantes con el menor porcentaje que cumple la
-promesa al redondear; cualquier residuo favorece al comprador. Quote, checkout
-y pedido congelan regla, unidades premio, beneficio teórico, porcentaje e
-importe real, siempre desde cantidades y precios servidor.
+R4.5 queda cerrado localmente con `PRC-008`, módulo pricing `1.5.0` y la
+migración expand-only `0029`. Una política versionada permite pares explícitos
+de fuentes y clases —producto, pedido y envío— por contexto, prioridad y tope.
+Sin política activa se conserva exactamente la precedencia exclusiva anterior.
+Con política, el código elegible entra primero y cada automático o cantidad/X-Y
+debe superar ambas matrices contra todas las fuentes ya elegidas.
 
-Ediciones y cancelaciones parciales conservan el precio unitario histórico: no
-reevalúan una campaña que puede haber cambiado y cada unidad devuelve
-exactamente su parte. Un código elegible mantiene precedencia; sin código,
-automático y cantidad/X-Y compiten por prioridad/ID, pero solo una fuente puede
-persistirse. La API administrativa es versionada/auditada y la demo sigue
-siendo de solo lectura. Backup avanza a esquema 22.
+El cálculo suma efectos sobre el mismo precio base, reserva el tope por
+prioridad y congela un snapshot de línea `schema: 2` con descuento bruto,
+aplicado y truncamiento por regla. Quote y pedido comparten una explicación
+única. La aplicación combinada es canónica para automático/cantidad y evita
+duplicados; el código conserva además su reserva concurrente por su porción
+exacta. Edición y devolución siguen usando precio unitario histórico. La clase
+de envío está modelada, pero R4.5 no inventa todavía una fuente que descuente
+portes.
 
-El rehearsal sobre el dump `0027` conservó 8 pedidos, 13 líneas y toda la
-evidencia promocional/automática previa; forward/restore quedaron íntegros, con
-hash `cf8da49757c7cb33e3029ad044f6d45e2ddbacd9d0c5ff6d99ea3872c415931e` y
-dump de 530633 bytes. La D1 local aplica `0028`; no se cambió D1 remota ni Worker.
+La API `/api/admin/discount-combinations` es versionada/auditada, el preset
+avanzado la gobierna por capability y la demo rechaza mutaciones. Backup avanza
+a esquema 23. El rehearsal sobre el dump `0028` conservó 8 pedidos y 13 líneas;
+forward/restore quedaron íntegros con hash
+`0f4d4312ea7a1c2345048662566d3ba7e41d48740f2e739200a15e9d4ab49aa8` y dump
+de 544465 bytes. Artefacto:
+`/tmp/logic2b-r45-rehearsal-final-v2/r4-discount-combinations-1786718295508`.
+La D1 local aplica `0029`, con tablas vacías, integridad y FKs limpias; no se
+tocó D1 remota ni Worker.
 
-El corte limpio pasa 122 suites/602 tests, 590 archivos tipados, build y sitemap
-de 6 URLs. El árbol compartido pasa 599/602, 596 archivos tipados y build; los
-3 únicos fallos siguen siendo los cambios ajenos abiertos de Monte (asset,
-orden y categoría), que este bloque no toca. El E2E local verifica aislamiento,
-compra/admin inertes, bloqueo de la nueva mutación y backup esquema 22.
+El corte limpio aislado pasa 127 suites/616 tests, 600 archivos tipados, build
+y sitemap de 6 URLs. El árbol compartido pasa 613/616 y conserva únicamente los tres fallos
+ajenos abiertos de Monte (asset, orden y categoría), que este bloque no toca;
+tipos y build están en verde. El E2E Wrangler local verifica aislamiento,
+compra/admin inertes, bloqueo de la nueva mutación y backup esquema 23.
 
-Siguiente incremento exacto: `PRC-008`, combinabilidad explícita de descuentos.
-Debe modelar clases de producto/pedido/envío, prioridad, exclusiones, topes y
-una explicación única para quote/pedido; incluir matrices de código,
-automático, cantidad y X/Y sin doble aplicación, además de edición, devolución
-y redondeo. No debe adelantar listas de precios R4.6. Temas y demos visuales
-continúan fuera de este objetivo por instrucción de Andreu.
+Siguiente incremento exacto: `PRC-009`, listas de precios por mercado, canal y
+empresa con fallback explícito y snapshot de origen. Debe definir precedencia
+frente al precio base y promociones, resolver contexto solo desde fuentes de
+servidor, evitar que guest checkout invente una empresa, conservar edición y
+devolución por precio congelado, e incluir migración/rehearsal, API auditada,
+backup, gates y explicación en quote/pedido. No debe adelantar clientes R5,
+bundles R4.7 ni temas; estos últimos siguen fuera del objetivo por instrucción
+de Andreu.
 
 Las entradas que siguen son el histórico de cierres anteriores y no cambian el
 orden actual.

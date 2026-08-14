@@ -58,6 +58,7 @@ describe('capability manifest (R1.2)', () => {
     expect(CAPABILITY_PRESETS.advanced['PRC-005']?.state).toBe('active');
     expect(CAPABILITY_PRESETS.advanced['PRC-006']?.state).toBe('active');
     expect(CAPABILITY_PRESETS.advanced['PRC-007']?.state).toBe('active');
+    expect(CAPABILITY_PRESETS.advanced['PRC-008']?.state).toBe('active');
     expect('CAT-007' in CAPABILITY_PRESETS.standard).toBe(false);
     expect('CAT-008' in CAPABILITY_PRESETS.standard).toBe(false);
     expect('PRC-003' in CAPABILITY_PRESETS.standard).toBe(false);
@@ -65,6 +66,7 @@ describe('capability manifest (R1.2)', () => {
     expect('PRC-005' in CAPABILITY_PRESETS.standard).toBe(false);
     expect('PRC-006' in CAPABILITY_PRESETS.standard).toBe(false);
     expect('PRC-007' in CAPABILITY_PRESETS.standard).toBe(false);
+    expect('PRC-008' in CAPABILITY_PRESETS.standard).toBe(false);
     expect(CAPABILITY_PRESETS.standard['CHK-003']?.state).toBe('active');
     expect(CAPABILITY_PRESETS.advanced['INT-004']?.state).toBe('active');
     expect(CAPABILITY_PRESETS.advanced['ORD-007']?.state).toBe('active');

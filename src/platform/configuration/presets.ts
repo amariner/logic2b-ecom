@@ -89,6 +89,7 @@ const ADVANCED_CAPABILITIES = {
   'PRC-005': { state: 'active', flags: ROUTE_EFFECT },
   'PRC-006': { state: 'active', flags: ROUTE_EFFECT },
   'PRC-007': { state: 'active', flags: ROUTE_EFFECT },
+  'PRC-008': { state: 'active', flags: ROUTE_EFFECT },
   'FUL-002': { state: 'active', flags: ROUTE },
   'FUL-003': { state: 'active', flags: ROUTE },
   'FUL-004': { state: 'active', flags: ROUTE_EFFECT },
