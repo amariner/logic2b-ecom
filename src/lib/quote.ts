@@ -6,6 +6,12 @@
 import { z } from 'zod';
 import { getProductsBySlugs, getRateForZone } from './db';
 import type { CatalogReadMode } from '../modules/catalog';
+import {
+  evaluatePriceRules,
+  type PriceBreakdown,
+  type PriceRuleCandidate,
+  type PriceRuleContext,
+} from '../modules/pricing';
 import { computeShippingCents, computeSubtotalCents } from './pricing';
 import { resolveZone } from './shipping';
 
@@ -51,6 +57,8 @@ export type QuoteLine = {
   qty: number;
   line_total_cents: number;
   available_stock: number;
+  /** Desglose servidor; null únicamente cuando el producto no existe. */
+  pricing: PriceBreakdown | null;
   /** ok = servible; el resto son motivos por los que la línea no puede comprarse tal cual */
   status: 'ok' | 'not-found' | 'out-of-stock' | 'insufficient-stock';
 };
@@ -69,7 +77,11 @@ export type QuoteResult = {
 export async function quoteCart(
   db: D1Database,
   request: QuoteRequest,
-  options: Readonly<{ catalogReadMode?: CatalogReadMode }> = {},
+  options: Readonly<{
+    catalogReadMode?: CatalogReadMode;
+    pricingContext?: PriceRuleContext;
+    priceRulesBySlug?: Readonly<Record<string, readonly PriceRuleCandidate[]>>;
+  }> = {},
 ): Promise<QuoteResult> {
   // Colapsar duplicados del mismo slug antes de tocar la base
   const qtyBySlug = aggregateLineQuantities(request.lines);
@@ -80,21 +92,39 @@ export async function quoteCart(
     options.catalogReadMode ?? 'legacy',
   );
   const bySlug = new Map(products.map((prod) => [prod.slug, prod]));
+  const pricingContext = options.pricingContext ?? {
+    at: new Date().toISOString(),
+    currency: 'EUR',
+    market: 'ES',
+    channel: 'storefront',
+  };
 
   const lines: QuoteLine[] = [...qtyBySlug.entries()].map(([slug, qty]) => {
     const prod = bySlug.get(slug);
     if (!prod) {
-      return { slug, name: slug, image: '', unit_price_cents: 0, qty, line_total_cents: 0, available_stock: 0, status: 'not-found' };
+      return {
+        slug, name: slug, image: '', unit_price_cents: 0, qty,
+        line_total_cents: 0, available_stock: 0, pricing: null, status: 'not-found',
+      };
     }
     const status = prod.stock === 0 ? 'out-of-stock' : prod.stock < qty ? 'insufficient-stock' : 'ok';
+    const pricing = evaluatePriceRules({
+      baseUnitPriceCents: prod.price_cents,
+      quantity: qty,
+      context: pricingContext,
+      ...(options.priceRulesBySlug?.[slug] === undefined
+        ? {}
+        : { candidates: options.priceRulesBySlug[slug] }),
+    });
     return {
       slug,
       name: prod.name,
       image: prod.image,
-      unit_price_cents: prod.price_cents,
+      unit_price_cents: pricing.unit_price_cents,
       qty,
-      line_total_cents: status === 'ok' ? prod.price_cents * qty : 0,
+      line_total_cents: status === 'ok' ? pricing.subtotal_cents : 0,
       available_stock: prod.stock,
+      pricing,
       status,
     };
   });

@@ -1,4 +1,5 @@
 import type { APIRoute } from 'astro';
+import { shopConfig } from '../../../../shop.config';
 import { quoteCart, quoteRequestSchema } from '../../../lib/quote';
 import { resolveCatalogReadMode } from '../../../modules/catalog';
 
@@ -25,6 +26,12 @@ export const POST: APIRoute = async ({ request, locals }) => {
 
   const result = await quoteCart(locals.runtime.env.DB, parsed.data, {
     catalogReadMode: resolveCatalogReadMode(locals.runtime.env.CATALOG_READ_MODE),
+    pricingContext: {
+      at: new Date().toISOString(),
+      currency: shopConfig.currency.toUpperCase(),
+      market: 'ES',
+      channel: 'storefront',
+    },
   });
   return Response.json(result);
 };

@@ -33,3 +33,4 @@ para ocultar una decisión no es válido.
 | [0025](0025-asignacion-inventario.md) | Asignación determinista, vinculante y explicable | accepted; R3.9 implementado localmente |
 | [0026](0026-devoluciones-rma.md) | RMA separado de cancelación y cierre transaccional | accepted; R3.10 implementado localmente |
 | [0027](0027-documentos-operativos-no-fiscales.md) | Snapshots operativos propios y fiscalidad externa | accepted; R3.11 implementado localmente |
+| [0028](0028-motor-reglas-precio.md) | Evaluación pura, ganador único y snapshot de precio por línea | accepted; R4.1 implementado localmente |

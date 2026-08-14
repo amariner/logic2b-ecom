@@ -32,7 +32,8 @@
     "db:rehearse:inventory-counts": "node scripts/rehearse-r3-inventory-counts.mjs",
     "db:rehearse:inventory-allocation": "node scripts/rehearse-r3-inventory-allocation.mjs",
     "db:rehearse:returns": "node scripts/rehearse-r3-returns.mjs",
-    "db:rehearse:documents": "node scripts/rehearse-r3-order-documents.mjs"
+    "db:rehearse:documents": "node scripts/rehearse-r3-order-documents.mjs",
+    "db:rehearse:price-rules": "node scripts/rehearse-r4-price-rules.mjs"
   },
   "dependencies": {
     "@astrojs/cloudflare": "^12.6.0",

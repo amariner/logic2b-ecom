@@ -1655,21 +1655,27 @@ la cola de temas, coordinados sin mezclar worktrees ni cambios abiertos.
 
 ## Próxima sesión
 
-### R4.1 — motor de reglas de precio — ⬜ siguiente bloque
+### R4.2 — códigos promocionales — ⬜ siguiente bloque
 
-R3 queda cerrado en repositorio/local hasta `0024`. La consolidación vertical
-recorre transferencia principal→secundaria, pedido pagado, hold, asignación,
-fulfillment, entrega, RMA, reembolso, reposición y backup/restore esquema 18.
-La guía R3 reúne reconciliación e incidencias y la wiki operativa solo enlaza
-capacidades reales. El corte limpio pasa 105 suites/552 tests, tipos y build;
-la D1 remota y el Worker no cambian y los despliegues pendientes requieren
-autorización específica de producción.
+R4.1 queda cerrado en repositorio y D1 local con `0025`. `PRC-003` evalúa en
+servidor candidatas tipadas por instante UTC, moneda, mercado y canal; prioridad
+menor e ID estable eligen un único ganador. Todo el cálculo usa céntimos enteros
+y la quote conserva precio base, efectivo, descartes y regla aplicada. El pedido
+congela el mismo desglose por línea, mientras el backfill y el trigger mantienen
+compatibles las líneas y writers anteriores.
 
-Siguiente incremento exacto: contexto, prioridad, vigencia y desglose de reglas
-de precio mediante funciones puras y trazables. Debe conservar el precio base
-actual, calcular siempre en servidor, evitar floats y no adelantar códigos
-promocionales R4.2 ni combinabilidad R4.5. El carril de temas continúa
-independiente y queda fuera de este objetivo por instrucción de Andreu.
+El rehearsal sobre el dump `0024` mantuvo 8 pedidos, 13 líneas y el hash de las
+columnas previas; forward y restore quedaron íntegros con 13 snapshots. La D1
+local se migró y regeneró. El corte limpio pasa 107 suites/559 tests, 559
+archivos tipados, build y sitemap. La batería compartida conserva únicamente
+los 3 fallos ajenos del tema Monte en curso. No se cambió D1 remota ni Worker.
+
+Siguiente incremento exacto: `PRC-004`, códigos promocionales persistidos y
+versionados con normalización segura, vigencia, límites globales/por cliente,
+elegibilidad de producto y reserva/consumo idempotente en checkout. Debe
+reutilizar el motor R4.1, explicar rechazo sin enumerar datos personales y no
+adelantar descuentos automáticos R4.3 ni combinabilidad R4.5. Temas y demos
+visuales continúan fuera de este objetivo por instrucción de Andreu.
 
 Las entradas que siguen son el histórico de cierres anteriores y no cambian el
 orden actual.

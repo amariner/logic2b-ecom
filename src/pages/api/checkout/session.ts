@@ -75,6 +75,12 @@ export const POST: APIRoute = async ({ request, locals }) => {
     // Revalidar TODO contra D1: precios, stock y cobertura de envío (§7.4)
     const quote = await quoteCart(env.DB, { lines, postal_code: customer.postal_code }, {
       catalogReadMode: resolveCatalogReadMode(env.CATALOG_READ_MODE),
+      pricingContext: {
+        at: new Date().toISOString(),
+        currency: shopConfig.currency.toUpperCase(),
+        market: 'ES',
+        channel: 'storefront',
+      },
     });
     if (!quote.purchasable) {
       return Response.json({ error: 'Hay productos no disponibles en el carrito', quote }, { status: 409 });
@@ -160,6 +166,8 @@ export const POST: APIRoute = async ({ request, locals }) => {
       product_id: idBySlug.get(line.slug) ?? 0,
       name_snapshot: line.name,
       unit_price_cents: line.unit_price_cents,
+      base_unit_price_cents: line.pricing!.base_unit_price_cents,
+      pricing_snapshot_json: JSON.stringify(line.pricing),
       qty: line.qty,
     }));
 

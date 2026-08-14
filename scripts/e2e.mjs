@@ -350,8 +350,8 @@ check(
     && backupSql.includes('INSERT INTO attribute_definitions') && backupSql.includes('INSERT INTO product_attribute_values'),
 );
 check(
-  'backup esquema 18 conserva operación, RMA y documentos',
-  backupSql.includes('logic2b-backup-schema: 18')
+  'backup esquema 19 conserva operación, RMA, documentos y snapshots de precio',
+  backupSql.includes('logic2b-backup-schema: 19')
     && backupSql.includes('INSERT INTO payments')
     && backupSql.includes('INSERT INTO payment_transactions')
     && backupSql.includes('DELETE FROM refunds')
@@ -367,7 +367,7 @@ check(
     && backupSql.includes('INSERT INTO order_hold_events')
     && backupSql.includes('DELETE FROM order_bulk_batches')
     && backupSql.includes('DELETE FROM order_bulk_batch_rows')
-    && backupSql.includes('0024_order_documents')
+    && backupSql.includes('0025_price_rule_snapshots')
     && backupSql.includes('INSERT INTO inventory_locations')
     && backupSql.includes('INSERT INTO inventory_location_balances')
     && backupSql.includes('INSERT INTO inventory_transfers')

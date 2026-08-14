@@ -106,6 +106,37 @@ describe('quoteCart', () => {
     expect(result.lines[0]!.status).toBe('ok');
     expect(result.subtotal_cents).toBe(890 * 3);
     expect(result.purchasable).toBe(true);
+    expect(result.lines[0]?.pricing).toMatchObject({
+      base_unit_price_cents: 890,
+      unit_price_cents: 890,
+      discount_cents: 0,
+    });
+  });
+
+  it('aplica una regla inyectada y conserva el desglose autoritativo', async () => {
+    const db = new FakeD1([product()]) as unknown as D1Database;
+    const result = await quoteCart(db, { lines: [{ slug: 'aove-picual', qty: 2 }] }, {
+      pricingContext: {
+        at: '2026-08-14T10:00:00.000Z', currency: 'EUR', market: 'ES', channel: 'storefront',
+      },
+      priceRulesBySlug: {
+        'aove-picual': [{
+          id: 'automatico-verano', version: 1, label: 'Verano', priority: 10,
+          activeFrom: '2026-08-01T00:00:00.000Z', activeUntil: '2026-09-01T00:00:00.000Z',
+          markets: ['ES'], channels: ['storefront'], currency: 'EUR',
+          effect: { type: 'percentage_off', basisPoints: 2500 },
+        }],
+      },
+    });
+
+    expect(result.lines[0]).toMatchObject({ unit_price_cents: 668, line_total_cents: 1336 });
+    expect(result.subtotal_cents).toBe(1336);
+    expect(result.lines[0]?.pricing).toMatchObject({
+      base_unit_price_cents: 890,
+      discount_cents: 444,
+      applied_rule: { id: 'automatico-verano', version: 1 },
+      context: { market: 'ES', channel: 'storefront' },
+    });
   });
 
   it('CP con zona válida pero sin tarifa activa → envío y total quedan null aunque el pedido sea servible', async () => {

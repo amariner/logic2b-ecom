@@ -160,6 +160,15 @@ venta o servicios logísticos propios.
 - [`wiki/operacion-pedidos-inventario-devoluciones.md`](wiki/operacion-pedidos-inventario-devoluciones.md):
   ficha operativa enlazada por pedidos, inventario y fulfillment; solo enumera
   capacidades actuales y conserva fuera las parciales, conectores y pendientes.
+- [`adr/0028-motor-reglas-precio.md`](adr/0028-motor-reglas-precio.md):
+  evaluación pura por contexto, prioridad estable y snapshot auditable por línea.
+- [`../../migrations/0025_price_rule_snapshots.sql`](../../migrations/0025_price_rule_snapshots.sql):
+  expansión compatible del precio base y desglose congelado de cada línea.
+- [`OPERACION_REGLAS_PRECIO.md`](OPERACION_REGLAS_PRECIO.md): rehearsal,
+  rollout, reconciliación y rollback expand-only del motor R4.1.
+- [`wiki/reglas-precio-trazables.md`](wiki/reglas-precio-trazables.md):
+  ficha interna enlazada solo desde `pricing`, sin ruta pública ni promesas de
+  códigos, campañas o combinabilidad todavía inexistentes.
 - [`../../migrations/0016_order_amendments.sql`](../../migrations/0016_order_amendments.sql):
   expansión de cantidades vigentes, amendments y asignaciones financieras.
 - [`OPERACION_EDICION_PEDIDOS.md`](OPERACION_EDICION_PEDIDOS.md):

@@ -28,6 +28,8 @@ export type NewOrderLine = Readonly<{
   product_id: number;
   name_snapshot: string;
   unit_price_cents: number;
+  base_unit_price_cents?: number;
+  pricing_snapshot_json?: string;
   qty: number;
 }>;
 
@@ -74,7 +76,8 @@ export function createD1OrderWriter(db: D1Database) {
       return lines.map((line) => db.prepare(`
         INSERT INTO order_items (
           order_id, product_id, variant_id, name_snapshot, sku_snapshot,
-          product_name_snapshot, variant_name_snapshot, unit_price_cents, qty
+          product_name_snapshot, variant_name_snapshot, unit_price_cents,
+          base_unit_price_cents, pricing_snapshot_json, qty
         )
         VALUES (
           (SELECT o.id FROM orders o
@@ -87,7 +90,7 @@ export function createD1OrderWriter(db: D1Database) {
           (SELECT sku FROM product_variants WHERE product_id = ? AND is_default = 1),
           ?,
           (SELECT NULLIF(title, '') FROM product_variants WHERE product_id = ? AND is_default = 1),
-          ?, ?
+          ?, ?, ?, ?
         )
       `).bind(
         line.product_id || null,
@@ -99,6 +102,19 @@ export function createD1OrderWriter(db: D1Database) {
         line.name_snapshot,
         line.product_id || null,
         line.unit_price_cents,
+        line.base_unit_price_cents ?? line.unit_price_cents,
+        line.pricing_snapshot_json ?? JSON.stringify({
+          schema: 1,
+          source: 'order-writer-fallback',
+          base_unit_price_cents: line.unit_price_cents,
+          unit_price_cents: line.unit_price_cents,
+          quantity: line.qty,
+          base_subtotal_cents: line.unit_price_cents * line.qty,
+          discount_cents: 0,
+          subtotal_cents: line.unit_price_cents * line.qty,
+          applied_rule: null,
+          evaluations: [],
+        }),
         line.qty,
       ));
     },

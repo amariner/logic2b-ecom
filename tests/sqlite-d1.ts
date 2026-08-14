@@ -23,6 +23,7 @@ import migration21 from '../migrations/0021_inventory_counts.sql?raw';
 import migration22 from '../migrations/0022_inventory_allocation.sql?raw';
 import migration23 from '../migrations/0023_returns_rma.sql?raw';
 import migration24 from '../migrations/0024_order_documents.sql?raw';
+import migration25 from '../migrations/0025_price_rule_snapshots.sql?raw';
 
 type SqlValue = string | number | bigint | null | Uint8Array;
 
@@ -90,13 +91,17 @@ export class SqliteD1 {
   readonly sqlite = new DatabaseSync(':memory:');
   private batchTail: Promise<unknown> = Promise.resolve();
 
-  constructor(includePartialRefundGuards = true) {
+  constructor(includePartialRefundGuards = true, includePriceRuleSnapshots = true) {
     this.sqlite.exec('PRAGMA foreign_keys = ON;');
     for (const migration of [
       migration1, migration2, migration3, migration4, migration5,
       migration6, migration7, migration8, migration9, migration10,
       migration11, migration12,
-      ...(includePartialRefundGuards ? [migration13, migration14, migration15, migration16, migration17, migration18, migration19, migration20, migration21, migration22, migration23, migration24] : []),
+      ...(includePartialRefundGuards ? [
+        migration13, migration14, migration15, migration16, migration17, migration18,
+        migration19, migration20, migration21, migration22, migration23, migration24,
+        ...(includePriceRuleSnapshots ? [migration25] : []),
+      ] : []),
     ]) {
       this.sqlite.exec(migration);
     }

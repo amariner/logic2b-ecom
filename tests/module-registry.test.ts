@@ -77,6 +77,7 @@ describe('registro de módulos (R1.4)', () => {
     expect(exportIndex).toBeLessThan(ordersPrefixIndex);
     expect(MODULE_REGISTRY.capabilityOwners['CAT-007']).toBe('catalog');
     expect(MODULE_REGISTRY.capabilityOwners['CAT-008']).toBe('catalog');
+    expect(MODULE_REGISTRY.capabilityOwners['PRC-003']).toBe('pricing');
     expect(MODULE_REGISTRY.capabilityOwners['ORD-007']).toBe('orders');
     expect(MODULE_REGISTRY.capabilityOwners['ORD-005']).toBe('orders');
     expect(MODULE_REGISTRY.capabilityOwners['ORD-010']).toBe('orders');
