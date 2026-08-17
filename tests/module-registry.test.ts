@@ -89,6 +89,7 @@ describe('registro de módulos (R1.4)', () => {
     expect(MODULE_REGISTRY.capabilityOwners['ORD-007']).toBe('orders');
     expect(MODULE_REGISTRY.capabilityOwners['ORD-008']).toBe('orders');
     expect(MODULE_REGISTRY.capabilityOwners['CHK-011']).toBe('checkout');
+    expect(MODULE_REGISTRY.capabilityOwners['CUS-002']).toBe('customers');
     expect(MODULE_REGISTRY.capabilityOwners['ORD-005']).toBe('orders');
     expect(MODULE_REGISTRY.capabilityOwners['ORD-010']).toBe('orders');
     expect(MODULE_REGISTRY.capabilityOwners['ORD-011']).toBe('orders');

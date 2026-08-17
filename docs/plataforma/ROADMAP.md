@@ -168,7 +168,7 @@ suites/715 tests; producción permanece en `0032`.
 
 | Orden | Bloque de una sesión | Entregables y criterio específico | Estado |
 |---:|---|---|---|
-| 51 | **R5.1 Perfil de cliente** | Identidad deduplicable, direcciones y relación con pedidos sin romper guest checkout. | ⬜ |
+| 51 | **R5.1 Perfil de cliente** | Identidad deduplicable, direcciones y relación con pedidos sin romper guest checkout. | 🟡 ADR/dominio/puerto en verde; gate D1 pendiente |
 | 52 | **R5.2 Consentimientos** | Canal, finalidad, versión legal, fuente, región, timestamp y retirada. | ⬜ |
 | 53 | **R5.3 Derechos de datos** | Exportar, corregir, anonimizar/borrar con excepciones fiscales y audit log. | ⬜ |
 | 54 | **R5.4 Cuentas passwordless** | Login seguro, sesiones, revocación y anti-enumeración; módulo opcional. | ⬜ |
@@ -180,6 +180,13 @@ suites/715 tests; producción permanece en `0032`.
 | 60 | **R5.10 Impuestos** | Adaptador, snapshots, redondeo, exenciones y validación VAT ID. | ⬜ |
 | 61 | **R5.11 Multidivisa y métodos locales** | Presentación, cobro, reembolso y conciliación. | ⬜ |
 | 62 | **R5.12 Consolidación R5** | E2E dos mercados, privacidad y cuenta opcional; revisión SEO/legal/seguridad. | ⬜ |
+
+R5.1 dispone del corte previo al esquema: ADR-0039, `CUS-002` instalada sin
+superficies, normalización + HMAC por despliegue, resolución atómica expresada
+en el puerto, direcciones versionadas, asociación nullable de pedido y merge
+revisado con control optimista. `pnpm check` pasa 157 suites/720 tests. No hay
+DDL, backfill, UI, rutas, efectos ni cambios en D1/Worker; la migración
+expand-only requiere autorización explícita.
 
 ## R6 — B2B
 

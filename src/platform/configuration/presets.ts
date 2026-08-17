@@ -102,6 +102,9 @@ const ADVANCED_CAPABILITIES = {
   // vigencia, puerta de conversión y adaptador de enlace alojado.
   'ORD-008': { state: 'installed' },
   'CHK-011': { state: 'installed' },
+  // R5.1 instala identidad/dominio, pero no crea perfiles hasta disponer de
+  // persistencia expand-only y un secreto HMAC por despliegue.
+  'CUS-002': { state: 'installed' },
   'FUL-002': { state: 'active', flags: ROUTE },
   'FUL-003': { state: 'active', flags: ROUTE },
   'FUL-004': { state: 'active', flags: ROUTE_EFFECT },

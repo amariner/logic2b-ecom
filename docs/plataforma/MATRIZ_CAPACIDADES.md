@@ -158,7 +158,7 @@ su alcance requiera.
 | ID | Capacidad | Vía | Prioridad | Estado | Resultado objetivo |
 |---|---|---|---|---|---|
 | CUS-001 | Compra como invitado | núcleo | P0 | actual | Email/dirección por pedido sin cuenta obligatoria. |
-| CUS-002 | Perfil de cliente deduplicado | módulo | P1 | pendiente | Identidades, direcciones, pedidos y consentimientos relacionados. |
+| CUS-002 | Perfil de cliente deduplicado | módulo | P1 | especificado | Identidad HMAC, merge revisado, direcciones versionadas y relación opcional con pedidos; persistencia espera el gate D1 y consentimientos R5.2. |
 | CUS-003 | Cuentas sin contraseña | módulo | P2 | pendiente | Magic link/passkey, sesiones, revocación y protección anti-enumeración. |
 | CUS-004 | Historial y seguimiento de pedidos | módulo | P2 | pendiente | Acceso autenticado o tokenizado sin exponer PII. |
 | CUS-005 | Autoservicio de devolución | módulo | P2 | pendiente | Conecta cuenta/pedido con FUL-010. |

@@ -255,6 +255,9 @@ venta o servicios logísticos propios.
   contrato ejecutable de los once modelos, sus 66 parejas y evidencia durable.
 - [`wiki/modelos-venta-r4.md`](wiki/modelos-venta-r4.md):
   índice funcional de R4 y orden común de precio, descuento, venta y pago.
+- [`adr/0039-perfil-cliente-identidad-opaca.md`](adr/0039-perfil-cliente-identidad-opaca.md):
+  contrato previo al esquema para identidad HMAC, guest checkout, revisiones de
+  dirección, merge explícito y snapshots históricos inmutables.
 - [`../../migrations/0016_order_amendments.sql`](../../migrations/0016_order_amendments.sql):
   expansión de cantidades vigentes, amendments y asignaciones financieras.
 - [`OPERACION_EDICION_PEDIDOS.md`](OPERACION_EDICION_PEDIDOS.md):

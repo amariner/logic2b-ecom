@@ -44,3 +44,4 @@ para ocultar una decisión no es válido.
 | [0036](0036-preventa-backorder-compromiso.md) | Compromiso diferido, cupo, FIFO y stock físico no negativo | accepted; R4.9 implementado localmente |
 | [0037](0037-suscripciones-adaptador-verificado.md) | Suscripciones neutrales, hechos verificados, impago y portal alojado | accepted; R4.10 implementado localmente |
 | [0038](0038-presupuestos-depositos-transiciones-explicitas.md) | Presupuesto, depósito/saldo y conversión explícita sin reservar antes de tiempo | accepted; R4.11 implementado localmente |
+| [0039](0039-perfil-cliente-identidad-opaca.md) | Perfil deduplicable, guest intacto y snapshots de pedido inmutables | accepted (diseño); gate D1 pendiente |

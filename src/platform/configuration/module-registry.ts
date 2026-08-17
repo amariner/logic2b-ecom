@@ -69,6 +69,7 @@ const PREORDERS_WIKI = 'docs/plataforma/wiki/preventa-backorder-explicita.md';
 const SUBSCRIPTIONS_WIKI = 'docs/plataforma/wiki/suscripciones-por-adaptador.md';
 const PRELIMINARY_ORDERS_WIKI = 'docs/plataforma/wiki/presupuestos-depositos.md';
 const R4_MODELS_WIKI = 'docs/plataforma/wiki/modelos-venta-r4.md';
+const CUSTOMER_PROFILE_ADR = 'docs/plataforma/adr/0039-perfil-cliente-identidad-opaca.md';
 
 /**
  * Catálogo canónico de módulos. Los arrays vacíos son declaraciones explícitas:
@@ -146,8 +147,9 @@ export const MODULE_DESCRIPTORS = [
     jobs: [], healthchecks: [], wikiLinks: [ARCHITECTURE_WIKI], navigation: [], routes: [],
   },
   {
-    id: 'customers', version: '1.0.0', capabilities: ['CUS-001'], dependencies: ['platform-configuration'],
-    permissions: [], events: [], subscriptions: [], jobs: [], healthchecks: [], wikiLinks: [ARCHITECTURE_WIKI], navigation: [], routes: [],
+    id: 'customers', version: '1.1.0', capabilities: ['CUS-001', 'CUS-002'], dependencies: ['platform-configuration'],
+    permissions: [], events: [], subscriptions: [], jobs: [], healthchecks: [],
+    wikiLinks: [ARCHITECTURE_WIKI, CUSTOMER_PROFILE_ADR], navigation: [], routes: [],
   },
   {
     id: 'orders', version: '1.10.0', capabilities: ['ORD-001', 'ORD-002', 'ORD-004', 'ORD-005', 'ORD-007', 'ORD-008', 'ORD-010', 'ORD-011', 'ORD-012', 'AUT-001', 'AUT-011'],
