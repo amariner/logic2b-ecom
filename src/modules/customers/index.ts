@@ -26,3 +26,26 @@ export {
   CustomerProfileConflictError,
   createD1CustomerProfileRepository,
 } from './infrastructure/d1-customer-profile-repository';
+export {
+  CONSENT_ACTIONS,
+  CONSENT_CHANNELS,
+  CONSENT_SOURCE_KINDS,
+  communicationDecision,
+  consentState,
+  recordConsent,
+  type CommunicationDecision,
+  type ConsentAction,
+  type ConsentChannel,
+  type ConsentCommand,
+  type ConsentEvidence,
+  type ConsentScope,
+  type ConsentSource,
+  type ConsentSourceKind,
+  type ConsentState,
+  type ConsentSubject,
+  type ConsentWriteOutcome,
+  type GrantConsentCommand,
+  type LegalNoticeVersion,
+  type WithdrawConsentCommand,
+} from './domain/consent';
+export type { ConsentRepository } from './application/consent-repository';

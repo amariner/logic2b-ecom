@@ -100,6 +100,10 @@ describe('repositorio D1 R5.1', () => {
       subtotal_cents: 1000, shipping_cents: 0, total_cents: 1000,
       stripe_session_id: 'session-profile', currency: 'EUR',
     }).run();
+    // La precondición temporal pertenece al caso, no al reloj del proceso que
+    // ejecute la suite. El default SQL `now` haría este test caducar.
+    await db.prepare(`UPDATE orders SET updated_at = ?
+      WHERE order_number = 'ORDER-PROFILE'`).bind(AT).run();
     const repository = createD1CustomerProfileRepository(db.asD1());
     await repository.associateOrder({
       orderId: Number(db.value("SELECT id AS value FROM orders WHERE order_number='ORDER-PROFILE'")),

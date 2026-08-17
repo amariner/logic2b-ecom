@@ -169,7 +169,7 @@ suites/715 tests; producción permanece en `0032`.
 | Orden | Bloque de una sesión | Entregables y criterio específico | Estado |
 |---:|---|---|---|
 | 51 | **R5.1 Perfil de cliente** | Identidad deduplicable, direcciones y relación con pedidos sin romper guest checkout. | ✅ 2026-08-17 — D1 `0036`, backup 30 y rehearsal local; capacidad instalada, rollout pendiente |
-| 52 | **R5.2 Consentimientos** | Canal, finalidad, versión legal, fuente, región, timestamp y retirada. | ⬜ |
+| 52 | **R5.2 Consentimientos** | Canal, finalidad, versión legal, fuente, región, timestamp y retirada. | 🟡 2026-08-17 — contrato/ADR instalado; DDL y captura pendientes de gates propios |
 | 53 | **R5.3 Derechos de datos** | Exportar, corregir, anonimizar/borrar con excepciones fiscales y audit log. | ⬜ |
 | 54 | **R5.4 Cuentas passwordless** | Login seguro, sesiones, revocación y anti-enumeración; módulo opcional. | ⬜ |
 | 55 | **R5.5 Autoservicio** | Pedidos, direcciones y devolución sobre permisos mínimos. | ⬜ |
@@ -190,6 +190,15 @@ y 8 pagos. No hubo backfill, UI, rutas, dependencias, D1 remota ni Worker;
 `CUS-002` permanece instalada hasta consentimiento y rollout por proyecto.
 `pnpm check` pasa 159 suites/729 tests, tipos, build y sitemap; el E2E local
 completo conserva la demo sin escrituras y valida backup esquema 30.
+
+R5.2 fija en ADR-0040 el contrato previo al esquema: evidencia append-only por
+sujeto, canal y finalidad; aviso versionado, fuente, región y dos timestamps;
+grant afirmativo, retirada, reconsentimiento, versión optimista e idempotencia.
+Preferencia y consentimiento permanecen separados, y las comunicaciones
+transaccionales necesarias no se bloquean por ausencia de grant. `CUS-007`
+queda instalada e inerte en el preset avanzado, sin UI, rutas, jobs, proveedor,
+texto o criterio legal. La futura `0037` y el backup 31 conservan una puerta de
+autorización de esquema; no existe backfill inferido desde pedidos o perfiles.
 
 ## R6 — B2B
 
