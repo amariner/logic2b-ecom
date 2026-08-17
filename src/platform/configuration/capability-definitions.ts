@@ -115,7 +115,7 @@ export const CAPABILITY_DEFINITIONS: Readonly<Record<CapabilityId, CapabilityDef
   'ORD-004': { dependencies: ['ORD-001', 'AUT-001'] },
   'ORD-005': { dependencies: ['ORD-002', 'INV-004', 'FUL-001', 'INT-001', 'AUT-002'] },
   'ORD-007': { dependencies: ['ORD-002', 'INV-001', 'AUT-002', 'INT-001', 'MAR-003'] },
-  'ORD-008': { dependencies: ['ORD-001', 'PRC-001', 'CUS-001'] },
+  'ORD-008': { dependencies: ['ORD-001', 'PRC-001', 'CUS-001', 'INV-004'] },
   'ORD-010': { dependencies: ['ORD-002', 'ORD-004', 'FUL-004', 'AUT-001'] },
   'ORD-011': { dependencies: ['ORD-002', 'ORD-004', 'ORD-010', 'AUT-011'] },
   'ORD-012': { dependencies: ['ORD-002', 'ORD-007', 'FUL-004', 'AUT-001'] },

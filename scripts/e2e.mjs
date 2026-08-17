@@ -314,6 +314,8 @@ for (const [label, method, path] of [
   ['lista de precios', 'POST', '/api/admin/price-lists'],
   ['bundle', 'POST', '/api/admin/bundles'],
   ['plan de suscripción', 'POST', '/api/admin/subscriptions/plans'],
+  ['presupuesto', 'POST', '/api/admin/preliminary-orders'],
+  ['enlace de pago de presupuesto', 'POST', '/api/admin/preliminary-order-payment-links'],
 ]) {
   const response = await fetch(adminUrl(path), {
     method,
@@ -322,7 +324,9 @@ for (const [label, method, path] of [
   });
   const responseBody = await json(response);
   const blockedByReadOnly = response.status === 403 && responseBody?.error?.includes('solo lectura');
-  const capabilityNotExposed = label === 'plan de suscripción' && response.status === 404;
+  const capabilityNotExposed = [
+    'plan de suscripción', 'presupuesto', 'enlace de pago de presupuesto',
+  ].includes(label) && response.status === 404;
   check(`mutación de ${label} rechazada`, blockedByReadOnly || capabilityNotExposed);
 }
 
@@ -361,8 +365,8 @@ check(
     && backupSql.includes('INSERT INTO attribute_definitions') && backupSql.includes('INSERT INTO product_attribute_values'),
 );
 check(
-  'backup esquema 28 conserva operación, RMA, pricing, valor almacenado, preventa y suscripciones',
-  backupSql.includes('logic2b-backup-schema: 28')
+  'backup esquema 29 conserva operación, RMA, pricing, modelos de venta y presupuestos',
+  backupSql.includes('logic2b-backup-schema: 29')
     && backupSql.includes('INSERT INTO payments')
     && backupSql.includes('INSERT INTO payment_transactions')
     && backupSql.includes('DELETE FROM refunds')
@@ -378,7 +382,7 @@ check(
     && backupSql.includes('INSERT INTO order_hold_events')
     && backupSql.includes('DELETE FROM order_bulk_batches')
     && backupSql.includes('DELETE FROM order_bulk_batch_rows')
-    && backupSql.includes('0034_provider_subscriptions')
+    && backupSql.includes('0035_preliminary_orders_deposits')
     && backupSql.includes('DELETE FROM promotion_codes')
     && backupSql.includes('DELETE FROM promotion_code_usages')
     && backupSql.includes('DELETE FROM automatic_discounts')
@@ -411,6 +415,11 @@ check(
     && backupSql.includes('DELETE FROM subscription_provider_events')
     && backupSql.includes('DELETE FROM subscription_events')
     && backupSql.includes('DELETE FROM subscription_cycles')
+    && backupSql.includes('DELETE FROM preliminary_orders')
+    && backupSql.includes('DELETE FROM preliminary_order_lines')
+    && backupSql.includes('DELETE FROM preliminary_order_payment_links')
+    && backupSql.includes('DELETE FROM preliminary_order_payments')
+    && backupSql.includes('DELETE FROM preliminary_order_events')
     && backupSql.includes('INSERT INTO inventory_locations')
     && backupSql.includes('INSERT INTO inventory_location_balances')
     && backupSql.includes('INSERT INTO inventory_transfers')

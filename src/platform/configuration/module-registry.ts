@@ -148,8 +148,8 @@ export const MODULE_DESCRIPTORS = [
     permissions: [], events: [], subscriptions: [], jobs: [], healthchecks: [], wikiLinks: [ARCHITECTURE_WIKI], navigation: [], routes: [],
   },
   {
-    id: 'orders', version: '1.8.0', capabilities: ['ORD-001', 'ORD-002', 'ORD-004', 'ORD-005', 'ORD-007', 'ORD-008', 'ORD-010', 'ORD-011', 'ORD-012', 'AUT-001', 'AUT-011'],
-    dependencies: ['catalog', 'pricing', 'customers'], permissions: ['orders.read', 'orders.transition', 'orders.collaborate', 'orders.amend', 'orders.refund', 'orders.hold', 'orders.bulk', 'orders.documents.read', 'orders.documents.write'],
+    id: 'orders', version: '1.9.0', capabilities: ['ORD-001', 'ORD-002', 'ORD-004', 'ORD-005', 'ORD-007', 'ORD-008', 'ORD-010', 'ORD-011', 'ORD-012', 'AUT-001', 'AUT-011'],
+    dependencies: ['catalog', 'pricing', 'customers', 'inventory'], permissions: ['orders.read', 'orders.transition', 'orders.collaborate', 'orders.amend', 'orders.refund', 'orders.hold', 'orders.bulk', 'orders.documents.read', 'orders.documents.write', 'orders.preliminary.read', 'orders.preliminary.write'],
     events: ['orders.order_placed', 'orders.order_paid', 'orders.order_shipped', 'orders.order_delivered', 'orders.order_cancelled', 'orders.order_refunded', 'orders.order_partially_refunded', 'orders.order_amendment_requested', 'orders.order_amendment_applied', 'orders.order_amendment_expired', 'orders.order_hold_created', 'orders.order_hold_assigned', 'orders.order_hold_resolved'],
     subscriptions: [],
     jobs: ['orders.execute-bulk-action'], healthchecks: [], wikiLinks: [ARCHITECTURE_WIKI, R3_OPERATION_WIKI],
@@ -164,6 +164,7 @@ export const MODULE_DESCRIPTORS = [
       { match: 'prefix', path: '/api/admin/order-notes', capabilityId: 'ORD-004' },
       { match: 'prefix', path: '/api/admin/order-tags', capabilityId: 'ORD-004' },
       { match: 'prefix', path: '/api/admin/order-amendments', capabilityId: 'ORD-005' },
+      { match: 'prefix', path: '/api/admin/preliminary-orders', capabilityId: 'ORD-008' },
       { match: 'prefix', path: '/api/admin/order-holds', capabilityId: 'ORD-010' },
       { match: 'prefix', path: '/api/admin/order-bulk-actions', capabilityId: 'ORD-011' },
       { match: 'exact', path: '/demo/admin/documentos', capabilityId: 'ORD-012' },
@@ -220,12 +221,13 @@ export const MODULE_DESCRIPTORS = [
     routes: [{ match: 'prefix', path: '/api/admin/subscriptions', capabilityId: 'PRC-013' }],
   },
   {
-    id: 'checkout', version: '1.1.0', capabilities: ['CHK-002', 'CHK-003', 'CHK-011'],
+    id: 'checkout', version: '1.2.0', capabilities: ['CHK-002', 'CHK-003', 'CHK-011'],
     dependencies: ['cart', 'catalog', 'pricing', 'inventory', 'fulfillment', 'customers', 'payments', 'orders'],
     permissions: [], events: [], subscriptions: [], jobs: [], healthchecks: [], wikiLinks: [ARCHITECTURE_WIKI], navigation: [],
     routes: [
       { match: 'exact', path: '/api/cart/quote', capabilityId: 'CHK-002' },
       { match: 'exact', path: '/api/checkout/session', capabilityId: 'CHK-003' },
+      { match: 'prefix', path: '/api/admin/preliminary-order-payment-links', capabilityId: 'CHK-011' },
     ],
   },
   {

@@ -4,11 +4,12 @@ import { seedStatements } from '../seed/seed';
 import { createD1BackupReader, exportBackup } from '../src/platform/operations';
 import { SqliteD1 } from './sqlite-d1';
 import { createOrderBulkActionOperations } from '../src/composition/order-bulk-action-operations';
+import { createPreliminaryOrderOperations } from '../src/composition/preliminary-order-operations';
 
 describe('volcado de copia de seguridad', () => {
   it('declara el contrato que incluye la colaboración de pedidos', () => {
-    expect(BACKUP_SCHEMA_VERSION).toBe(28);
-    expect(buildBackupSql({}, '2026-08-17')).toContain('0034_provider_subscriptions');
+    expect(BACKUP_SCHEMA_VERSION).toBe(29);
+    expect(buildBackupSql({}, '2026-08-17')).toContain('0035_preliminary_orders_deposits');
   });
 
   it('genera INSERTs con columnas explícitas y escape de comillas', () => {
@@ -119,6 +120,11 @@ describe('volcado de copia de seguridad', () => {
       'subscription_provider_events',
       'subscription_events',
       'subscription_cycles',
+      'preliminary_orders',
+      'preliminary_order_lines',
+      'preliminary_order_payment_links',
+      'preliminary_order_payments',
+      'preliminary_order_events',
     ]));
     for (const table of BACKUP_TABLES) expect(sql).toContain(`DELETE FROM ${table};`);
   });
@@ -140,6 +146,16 @@ describe('volcado de copia de seguridad', () => {
   it('restaura productos v2, combinaciones y pedidos sin romper FKs', async () => {
     const source = new SqliteD1();
     await source.batch(seedStatements().map((sql) => source.prepare(sql)));
+    const quoteVariant = source.query<{ id: number }>(
+      "SELECT id FROM product_variants WHERE status='active' ORDER BY id LIMIT 1",
+    )[0]!;
+    await createPreliminaryOrderOperations(source.asD1()).create({
+      email: 'backup-quote@example.com', customerName: 'Backup quote', addressJson: '{}',
+      currency: 'EUR', shippingCents: 0, depositCents: 0, conversionGate: 'approval',
+      expiresAt: '2027-01-01T00:00:00.000Z',
+      lines: [{ variantId: quoteVariant.id, quantity: 1 }],
+      idempotencyKey: 'preliminary:backup:create',
+    });
     const reservable = source.query<{
       variant_id: number; reserved: number; reservation_version: number;
     }>(`

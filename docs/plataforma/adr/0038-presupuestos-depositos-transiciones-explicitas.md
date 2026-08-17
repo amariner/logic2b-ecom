@@ -1,6 +1,6 @@
 # ADR-0038 — Presupuestos, depósitos y conversión mediante transiciones explícitas
 
-- Estado: propuesto; contrato de dominio implementado, persistencia pendiente de autorización
+- Estado: aceptado; R4.11 implementado localmente
 - Fecha: 2026-08-17
 - Bloque: R4.11
 - Capacidades: `ORD-008`, `CHK-011`
@@ -18,13 +18,14 @@ del enlace de pago son decisiones comerciales o de integración. R4.11 debe
 representarlas y verificarlas sin inventar porcentajes, plazos ni proveedor. La
 tarjeta permanece en una sesión alojada y Logic2B solo recibe hechos verificados.
 
-## Decisión propuesta
+## Decisión
 
 1. `ORD-008` pertenece a `orders` y posee el presupuesto preliminar, sus líneas
    congeladas, estados, versión y conversión. `CHK-011` pertenece a `checkout` y
    orquesta enlaces de pago alojados contra el saldo que publica `orders`.
-2. Ambas capacidades quedan `installed` en el preset avanzado. No activan rutas,
-   navegación, jobs ni efectos hasta que el proyecto aporte términos y adaptador.
+2. Ambas capacidades quedan `installed` en el preset avanzado. Sus rutas están
+   registradas pero permanecen inaccesibles, sin navegación, jobs ni efectos,
+   hasta que el proyecto aporte términos y un adaptador real.
 3. El agregado separa tres ejes que no deben colapsarse:
    - estado comercial: `draft`, `issued`, `approved`, `converted`, `expired` o
      `cancelled`;
@@ -62,9 +63,9 @@ tarjeta permanece en una sesión alojada y Logic2B solo recibe hechos verificado
 12. La demo pública permanece de solo lectura. No se añade adaptador simulado
     público ni webhook que acepte hechos sin firma.
 
-## Persistencia propuesta — gate pendiente
+## Persistencia implementada
 
-La migración expand-only `0035_preliminary_orders_deposits.sql` deberá añadir,
+La migración expand-only `0035_preliminary_orders_deposits.sql` añade,
 sin backfill ni modificación de pedidos existentes:
 
 - `preliminary_orders`: estado, versión, moneda, totales, depósito, saldo
@@ -91,9 +92,9 @@ una referencia/idempotencia de pago solo se aplica una vez
 una conversión solo materializa un pedido
 ```
 
-La migración, el repositorio D1, el composition root, las APIs administrativas,
-el rehearsal y el backup no se implementan hasta recibir la autorización de
-migración exigida por el consejo.
+La autorización explícita se recibió el 2026-08-17. Repositorio D1, composition
+root, APIs administrativas, rehearsal y backup esquema 29 quedan implementados
+y probados. La migración se aplicó solo a D1 local; no hubo rollout remoto.
 
 ## Fronteras
 
@@ -104,19 +105,24 @@ migración exigida por el consejo.
 - No se reserva ni consume inventario antes de convertir explícitamente.
 - No se despliega ni se toca D1 remota dentro del gate de diseño.
 
-## Verificación del corte previo al gate
+## Verificación
 
 - Reducer puro de emisión, aprobación, caducidad, cancelación y versión.
 - Aritmética exacta depósito/saldo y rechazo de floats o pagos manipulados.
 - Tres puertas de conversión sin efectos implícitos.
 - Plan de enlace alojado con caducidad explícita y URL fuera del contrato
   persistible.
-- Propiedad modular de `ORD-008` y `CHK-011`, ambas instaladas sin superficie.
-- Tests de arquitectura, manifest y registro de módulos.
+- Conversión transaccional a pedido con reserva, captura previa trasladada al
+  ledger y consumo de stock al completar el saldo.
+- Replay y carrera de conversión sin duplicar pedido, reserva, asiento o venta.
+- Adaptador `simulated-hosted-payment` interno, determinista, sin red, claves o
+  dinero; rechaza webhooks públicos.
+- APIs administrativas auditadas y protegidas por capacidad; demo read-only.
+- Backup/restore esquema 29, rehearsal `0035`, FKs e integridad en verde.
 
-## Rollback del corte previo al gate
+## Rollback
 
-Retirar `ORD-008` y `CHK-011` del preset y del registro elimina el contrato no
-activado. No hay datos, rutas ni efectos que recuperar. Tras la futura
-persistencia, el rollback será expand-only: se desactivarán rutas/efectos y se
-conservarán presupuestos, pagos y vínculos para conciliación.
+Desactivar `routes` y `sideEffects` de `ORD-008`/`CHK-011` detiene nuevas
+operaciones. No se revierten ni borran `preliminary_order_*`: presupuestos,
+pagos y vínculos se conservan para conciliación y los Workers anteriores los
+ignoran. Un restore exige backup esquema 29 sobre una base con `0035` aplicada.

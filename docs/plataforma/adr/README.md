@@ -43,4 +43,4 @@ para ocultar una decisión no es válido.
 | [0035](0035-valor-almacenado-ledger.md) | Ledger de tarjeta regalo/crédito, pago mixto y reembolso al medio original | accepted; R4.8 desplegado |
 | [0036](0036-preventa-backorder-compromiso.md) | Compromiso diferido, cupo, FIFO y stock físico no negativo | accepted; R4.9 implementado localmente |
 | [0037](0037-suscripciones-adaptador-verificado.md) | Suscripciones neutrales, hechos verificados, impago y portal alojado | accepted; R4.10 implementado localmente |
-| [0038](0038-presupuestos-depositos-transiciones-explicitas.md) | Presupuesto, depósito/saldo y conversión explícita sin reservar antes de tiempo | proposed; dominio previo al gate D1 |
+| [0038](0038-presupuestos-depositos-transiciones-explicitas.md) | Presupuesto, depósito/saldo y conversión explícita sin reservar antes de tiempo | accepted; R4.11 implementado localmente |

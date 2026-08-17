@@ -63,7 +63,7 @@ reconciliación se conserva abajo por contexto.
 | 11 | Landing V2 «nivel Awwwards» + negocio + funnel + docs | 🟡 En curso | 2026-08-13 | **F11.1, F11.3 (2 sesiones), F11.4, F11.5, F11.6, F11.7 y F11.8 (primera pasada + pase a11y/contenido desde cloud 2026-07-24) hechos**, más F11.8b (auditor de a11y, cloud), F11.2a-1 (tienda ASFALTO / tema Street), F11.2a-2 (tienda METRIA / tema Industrial) F11.2a-3 (tienda ROMER / tema Natural) y **F11.2a-4 (tienda KALIBRE / tema Specs, local 2026-07-25) — con la que F11.2a queda CERRADA (10/10 tiendas)**; y **F11.8c (Lighthouse citable + OG de WhatsApp + URLs sin redirección, local 2026-07-26)**; y **F11.8d–e (tabla de Lighthouse cerrada y desplegada: 7 de 8 superficies a 100×4, la landing entre ellas en móvil y escritorio, local 2026-07-27)**; y **F11.9 (contacto global de WhatsApp, cerrado y servido 2026-08-13)**. Solo queda la submission a Awwwards, decisión de pago reservada a Andreu. Detalle por bloque abajo. **Plan maestro completo en [`docs/PLAN_FASE11_LANDING_V2.md`](PLAN_FASE11_LANDING_V2.md)**: bloques F11.0–F11.8 ejecutables por sesiones independientes. **Decisiones D1–D6 APROBADAS por Andreu (2026-07-23)**: JS propio ≤15 KB sin deps, capturas con browser tools en local, dirección C «Ocho tiendas, un motor», escalera de precios (Lite 590 / Kit 1.900+39 / A medida 3.400+59), WhatsApp+email, Lite publicado sin construir. Prompt de arranque: [`docs/PROMPT_FASE11.md`](PROMPT_FASE11.md). Integra 9B.5/9B.6 (imaginería y temas restantes) como prerequisito del hero |
 | 8 | Pulido de la demo (backlog abajo) | 🟡 En curso | 2026-07-19 | Backlog técnico agotado; solo quedan decisiones y pasos locales de Andreu (ver «Decisiones pendientes» y `docs/PROMPT_CLOUD.md`). Últimas tandas: novena (race de idempotencia en el pago, PII enumerable en `/demo/gracias`, cancelación de pedido pagado sin devolver stock), décima (la misma race en el PATCH de admin, campos vacíos guardados como 0, login sin rate limit), undécima (diagrama móvil de `/arquitectura`, hedge del plazo de entrega, tokens de tema en `/demo/reset`, terminología «envío»), duodécima (aviso de corte en pedidos del admin, cabeceras sin wrap a 375px, leftover «portes», token de radio del carrito, contraste del botón eliminar, H1 en valenciano, checklist de producción) y decimotercera (misma race de idempotencia en `checkout.session.expired`, divisa hardcodeada a EUR fuera de Stripe, cobertura de test de `quoteCart`/PATCH admin/emails) y decimocuarta (config parcial de Stripe → cobro sin cumplimiento, emails duplicados bajo concurrencia, `payment_status` del webhook, color de marca centralizado en `shop.config.ts`, contraste/tema en carrito y checkout) — ver sección «Fase 8» |
 | 12 | Logic2B Ecommerce: renombrado, reposicionamiento y docs de dos visiones | ✅ Hecho | 2026-08-10 | **F12.0–F12.6 cerrados:** marca, argumento, dossier, canal agencias, ayuda, índice por audiencias, OG y auditorías citables consolidados. **Plan maestro en [`docs/PLAN_FASE12_LOGIC2B_ECOMMERCE.md`](PLAN_FASE12_LOGIC2B_ECOMMERCE.md)**. |
-| 13 | Plataforma modular: del gestor mínimo a paridad extrema de capacidad | 🟡 En curso | 2026-08-17 | **R0–R3.12 y R4.1–R4.8 desplegados; R4.9–R4.10 cerrados localmente; siguiente R4.11:** presupuestos y depósitos. Fuente de verdad en [`docs/plataforma/`](plataforma/README.md). |
+| 13 | Plataforma modular: del gestor mínimo a paridad extrema de capacidad | 🟡 En curso | 2026-08-17 | **R0–R3.12 y R4.1–R4.8 desplegados; R4.9–R4.11 cerrados localmente; siguiente R4.12:** consolidación de dinero y modelos de venta. Fuente de verdad en [`docs/plataforma/`](plataforma/README.md). |
 
 ## Repo y entornos
 
@@ -148,7 +148,7 @@ sus verificaciones ni sus puntos de reanudación.
 | R4.1–R4.8 | Reglas de precio, promociones, cantidad, combinabilidad, listas, bundles y valor almacenado | ✅ 2026-08-17 — D1 `0025`–`0032`, E2E remoto y Worker desplegados |
 | R4.9 | Preventa/backorder | ✅ 2026-08-17 — `PRC-014`, D1 `0033`, backup 27 y rehearsal local; rollout pendiente |
 | R4.10 | Suscripciones por adaptador | ✅ 2026-08-17 — `PRC-013`, módulo subscriptions, D1 `0034`, backup 28 y rehearsal local; capacidad instalada, rollout pendiente |
-| R4.11 | Presupuestos y depósitos | 🟡 ADR/dominio en verde; migración D1 pendiente de autorización |
+| R4.11 | Presupuestos y depósitos | ✅ 2026-08-17 — `ORD-008`/`CHK-011`, D1 local `0035`, backup 29, rehearsal, API y E2E; rollout pendiente |
 
 ## Fase 12 — Logic2B Ecommerce: renombrado, reposicionamiento y las dos visiones
 
@@ -1681,35 +1681,51 @@ la cola de temas, coordinados sin mezclar worktrees ni cambios abiertos.
 
 ## Próxima sesión
 
-### R4.11 — presupuestos y depósitos — 🟡 en progreso, gate D1 pendiente
+### R4.12 — consolidación de dinero y modelos de venta
 
-El corte previo a la migración queda implementado con ADR-0038, `ORD-008` en
-`orders` y `CHK-011` en `checkout`, ambas capacidades `installed` y sin rutas,
-navegación, jobs o efectos. El agregado tipa borrador, emisión, aprobación,
-caducidad, cancelación, pago y conversión con versión optimista. Depósito y
-saldo son céntimos explícitos; `approval`, `deposit` y `full_payment` son puertas
-congeladas aportadas por cada proyecto, nunca defaults comerciales.
+Cerrar la ola R4 sin nueva capacidad comercial: construir una matriz ejecutable
+que cruce precio base/lista, código, automático, cantidad, combinabilidad,
+bundle, valor almacenado, preventa, suscripción y presupuesto. Añadir property
+tests sobre céntimos, límites, prorrateo, replay y conservación de totales; un
+journey de consolidación que demuestre que ninguna combinación duplica captura,
+descuento, reserva, devolución o saldo; y una wiki índice que enlace el estado y
+los límites reales de cada modelo.
 
-`HostedPaymentLinkAdapter` mantiene proveedor, firma y URL fuera de `orders`.
-El plan servidor incluye etapa, importe, moneda, versión, idempotencia y
-caducidad; la URL solo existe en la respuesta efímera del adaptador. Aprobar o
-cobrar no crea pedido ni toca stock: la conversión sigue siendo una transición
-separada. La matriz deja `ORD-008`/`CHK-011` como `especificado`, no disponible.
+Antes de cerrar: revisar que capacidades instaladas sigan sin rutas/efectos,
+que los modelos incompatibles fallen de forma explícita y que backup/restore
+conserve todas las evidencias. Ejecutar `pnpm check` y E2E si el journey toca
+compra/admin. No se prevé migración ni deploy; cualquier DDL descubierto abre
+un gate nuevo. Por instrucción vigente, no seleccionar ni crear temas.
 
-Gate de este corte: `pnpm check` con 668 archivos sin diagnósticos, 151 suites y
-699 tests, más build y sitemap verdes. No cambió UI ni runtime HTTP, por lo que
-E2E/a11y no aplicaban. No se creó migración, no se tocó D1 local/remota ni
-Worker y no hubo dependencias nuevas.
+#### Corte anterior R4.11
 
-Continuación exacta tras autorización: crear y ensayar la migración expand-only
-`0035_preliminary_orders_deposits.sql`, repositorio/caso de uso D1, adaptador
-simulado interno, API administrativa auditada, backup/rehearsal y E2E de replay,
-concurrencia, depósito, saldo y conversión. Sin autorización, R4.11 conserva la
-cabeza del carril principal y no se salta a R4.12.
+R4.11 queda cerrado localmente tras la autorización explícita de migración.
+ADR-0038 pasa a aceptado y la migración expand-only `0035` añade presupuesto,
+líneas, enlaces, pagos y eventos con checks/triggers de versión, etapa, importe,
+moneda y conversión única. El dominio cubre borrador, emisión, aprobación,
+caducidad, cancelación, depósito, saldo y tres puertas de conversión sin fijar
+porcentajes, plazos o términos comerciales.
 
-Estado servido: producción continúa en `0032` y Worker
-`76af7637-8fe3-4aae-8c87-6e78d72e72ad`; `0033`–`0034` siguen pendientes de
-rollout y este corte R4.11 solo existe en el repositorio de trabajo.
+La composición D1 congela precios del servidor, audita mutaciones y materializa
+pedido, líneas, intención, outbox y reserva de inventario. Los cobros previos se
+trasladan al ledger; al completar el total, el pedido consume la reserva y el
+stock una vez. Replay y carreras concurrentes no duplican presupuesto, pago,
+pedido, reserva ni asiento. `simulated-hosted-payment` es interno, sin red,
+credenciales o dinero, y rechaza webhooks públicos. La URL alojada nunca se
+persiste.
+
+`ORD-008` y `CHK-011` quedan `installed`; rutas admin registradas pero apagadas
+en presets, demo read-only y sin navegación. Backup avanza a esquema 29. El
+rehearsal sobre `0034` conservó 284 productos, 286 variantes/balances, 8
+pedidos, 13 líneas y 8 pagos, hash
+`41ca1202d81edd0f37fb21df9afe6e281cff934a28b5d792a71447d202fa3120` y dump
+de 602654 bytes. D1 local aplicó `0035` con tablas vacías y FKs limpias.
+
+Gate: `pnpm check` con 678 archivos sin diagnósticos, 155 suites/711 tests,
+build/sitemap verdes y E2E local completo, incluida la ausencia de las rutas
+instaladas y backup 29. No cambió UI, por lo que a11y no aplicaba. No hubo
+dependencias, D1 remota, Worker ni deploy: producción continúa en `0032` y
+`76af7637-8fe3-4aae-8c87-6e78d72e72ad`; `0033`–`0035` esperan rollout separado.
 
 #### Corte anterior R4.10
 

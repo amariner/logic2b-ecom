@@ -243,8 +243,14 @@ venta o servicios logísticos propios.
 - [`wiki/suscripciones-por-adaptador.md`](wiki/suscripciones-por-adaptador.md):
   recorrido funcional y fronteras de seguridad/comercio de R4.10.
 - [`adr/0038-presupuestos-depositos-transiciones-explicitas.md`](adr/0038-presupuestos-depositos-transiciones-explicitas.md):
-  contrato propuesto R4.11 de borrador, vigencia, depósito/saldo, enlace alojado
-  y conversión explícita; la persistencia espera autorización.
+  contrato R4.11 de borrador, vigencia, depósito/saldo, enlace alojado y
+  conversión explícita implementado localmente.
+- [`../../migrations/0035_preliminary_orders_deposits.sql`](../../migrations/0035_preliminary_orders_deposits.sql):
+  presupuestos, líneas, enlaces, pagos y eventos expand-only de R4.11.
+- [`OPERACION_PRESUPUESTOS_DEPOSITOS.md`](OPERACION_PRESUPUESTOS_DEPOSITOS.md):
+  rollout, conciliación, incidencias y rollback de `ORD-008`/`CHK-011`.
+- [`wiki/presupuestos-depositos.md`](wiki/presupuestos-depositos.md):
+  recorrido funcional y fronteras de dinero, inventario y seguridad.
 - [`../../migrations/0016_order_amendments.sql`](../../migrations/0016_order_amendments.sql):
   expansión de cantidades vigentes, amendments y asignaciones financieras.
 - [`OPERACION_EDICION_PEDIDOS.md`](OPERACION_EDICION_PEDIDOS.md):
