@@ -108,6 +108,9 @@ const ADVANCED_CAPABILITIES = {
   // R5.2 fija evidencia y decisiones puras. Persistencia, captura y envíos
   // requieren gates separados, por eso el preset no concede efectos.
   'CUS-007': { state: 'installed' },
+  // R5.3 solo instala lifecycle, dry-run y doble control. Persistencia y
+  // cualquier exportación o mutación mantienen gates independientes.
+  'CUS-008': { state: 'installed' },
   'FUL-002': { state: 'active', flags: ROUTE },
   'FUL-003': { state: 'active', flags: ROUTE },
   'FUL-004': { state: 'active', flags: ROUTE_EFFECT },

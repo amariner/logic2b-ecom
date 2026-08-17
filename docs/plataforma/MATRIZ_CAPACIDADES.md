@@ -164,7 +164,7 @@ su alcance requiera.
 | CUS-005 | Autoservicio de devolución | módulo | P2 | pendiente | Conecta cuenta/pedido con FUL-010. |
 | CUS-006 | Direcciones guardadas | módulo | P2 | pendiente | Normalización, predeterminada y control del cliente. |
 | CUS-007 | Consentimientos por canal/finalidad | núcleo | P1 | parcial | ADR, dominio, D1 y backup implementan evidencia append-only, alcance, aviso versionado, fuente, región, retirada, reconsentimiento, idempotencia y carrera; captura, política legal y rollout esperan gates propios. |
-| CUS-008 | Exportación y borrado de datos | núcleo | P1 | pendiente | Solicitud verificable, excepciones legales y auditoría. |
+| CUS-008 | Exportación y borrado de datos | núcleo | P1 | parcial | ADR, lifecycle append-only, verificación, plan dry-run por propietario, fingerprint y doble control implementados; persistencia, política, autenticación y ejecución esperan gates propios. |
 | CUS-009 | Segmentos calculados | módulo | P2 | pendiente | Reglas versionadas y recálculo; no etiquetas manuales opacas. |
 | CUS-010 | Saldo/crédito | módulo | P2 | pendiente | Se apoya en PRC-011 y ledger. |
 | CUS-011 | SSO/proveedor de identidad | conector | P3 | conector | OIDC/SAML por proyecto con mapeo explícito. |

@@ -53,3 +53,25 @@ export {
   ConsentConflictError,
   createD1ConsentRepository,
 } from './infrastructure/d1-consent-repository';
+export {
+  DATA_RIGHTS_ACTIONS,
+  DATA_RIGHTS_OWNER_OPERATIONS,
+  DATA_RIGHTS_REQUEST_KINDS,
+  dataRightsState,
+  recordDataRightsEvidence,
+  type DataRightsAction,
+  type DataRightsCommand,
+  type DataRightsEvidence,
+  type DataRightsEvidenceDetails,
+  type DataRightsOwnerOperation,
+  type DataRightsPlan,
+  type DataRightsPlanDecision,
+  type DataRightsRequestKind,
+  type DataRightsState,
+  type DataRightsSubject,
+  type DataRightsWriteOutcome,
+} from './domain/data-rights';
+export type {
+  DataRightsOwner,
+  DataRightsRepository,
+} from './application/data-rights-repository';

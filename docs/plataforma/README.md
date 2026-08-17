@@ -261,6 +261,9 @@ venta o servicios logísticos propios.
 - [`adr/0040-consentimiento-evidencia-versionada.md`](adr/0040-consentimiento-evidencia-versionada.md):
   alcance por canal/finalidad, grant explícito, retirada append-only,
   preferencia separada y frontera de comunicaciones transaccionales de R5.2.
+- [`adr/0041-derechos-datos-plan-verificable.md`](adr/0041-derechos-datos-plan-verificable.md):
+  solicitud verificada, plan dry-run por propietario, fingerprint, doble
+  control y frontera explícita previa a persistencia o ejecución de R5.3.
 - [`../../migrations/0037_consent_evidence.sql`](../../migrations/0037_consent_evidence.sql):
   evidencia versionada, índices por sujeto/alcance y guards de append/retirada.
 - [`OPERACION_CONSENTIMIENTOS.md`](OPERACION_CONSENTIMIENTOS.md): rollout,

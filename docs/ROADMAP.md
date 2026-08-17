@@ -152,6 +152,7 @@ sus verificaciones ni sus puntos de reanudación.
 | R4.12 | Consolidación de dinero y modelos de venta | ✅ 2026-08-17 — 11 modelos, 66 parejas, 13.500 propiedades y wiki índice; sin DDL/deploy |
 | R5.1 | Perfil de cliente deduplicable | ✅ 2026-08-17 — D1 `0036`, repositorio transaccional, checkout opcional, backup 30 y rehearsal local; rollout pendiente |
 | R5.2 | Consentimiento versionado | ✅ 2026-08-17 — ADR-0040, D1 `0037`, repositorio concurrente, backup 31, rehearsal y E2E local; `CUS-007` instalada e inerte |
+| R5.3a | Derechos de datos verificables | ✅ 2026-08-17 — ADR-0041, lifecycle, dry-run, doble control y puertos; `CUS-008` instalada e inerte, sin DDL ni efectos |
 
 ## Fase 12 — Logic2B Ecommerce: renombrado, reposicionamiento y las dos visiones
 
@@ -1684,37 +1685,32 @@ la cola de temas, coordinados sin mezclar worktrees ni cambios abiertos.
 
 ## Próxima sesión
 
-### R5.3 — derechos de datos verificables — siguiente bloque
+### R5.3b — persistencia de solicitudes de derechos — siguiente bloque
 
-R5.2 queda cerrado localmente con ADR-0040, `0037_consent_evidence.sql`, dominio,
-puerto y repositorio D1. La evidencia es append-only por sujeto/canal/finalidad;
-grant, retirada y reconsentimiento conservan aviso, fuente, región, instantes,
-versión e idempotencia. Dos retries iguales convergen y dos comandos distintos
-de la misma versión dejan un ganador. `CUS-007` sigue `installed` e inerte, sin
-captura, UI, rutas, jobs, proveedor, texto o decisión legal.
+R5.3a queda cerrado como contrato reversible en ADR-0041. `CUS-008` está
+`installed` e inerte en advanced, sin flags ni superficies. El lifecycle
+append-only cubre recepción, verificación, plan dry-run, aprobación/rechazo,
+inicio, finalización/fallo y cancelación; versión optimista e idempotencia
+protegen cada hecho. El plan contiene una decisión por propietario, referencias
+opacas y fingerprint; su aprobación exige actor distinto y bloquea cualquier
+`manual_review`. Pedidos, pagos, documentos y audit log no se eliminan por
+defecto.
 
-Backup avanza a esquema 31 y restaura grants antes de retiradas. El rehearsal
-sobre la copia local en `0036` conservó 284 productos, 286 variantes/balances,
-8 pedidos, 13 líneas y 8 pagos, con hash
-`eff16b7d1cd6c2eedcfc639ae2cd2514b0ed0c9520f669b1cb5cf95d3fed77c2`;
-el restore quedó íntegro. Local sirve `0037` con cero evidencias y FKs; producción
-continúa en `0032`.
+No se fijan plazos, base legal, prueba de identidad suficiente, excepciones o
+promesas de borrado. Tampoco se ha creado DDL, repositorio D1, backup 32,
+rehearsal, ruta HTTP, UI, job, exportación ni adaptador que modifique datos.
+Producción continúa en `0032`; la D1 local continúa en `0037`.
 
-Gate: `pnpm check` con 695 archivos sin diagnósticos, 162 suites/744 tests,
-build y sitemap verdes. El E2E local completo valida aislamiento de demo y
-backup esquema 31. El barrido fijó el reloj de un fixture R4.9 caducable sin
-relajar TTL o transiciones reales. No hubo dependencia, a11y —sin UI—, D1
-remota, Worker o deploy.
+Gate: `pnpm check` con 698 archivos sin diagnósticos, 163 suites/751 tests,
+build y sitemap verdes. No aplica E2E ni a11y porque R5.3a no introduce runtime,
+ruta o UI; tampoco hubo dependencia, D1 remota, Worker o deploy.
 
-Continuación exacta: diseñar R5.3 sin fijar plazos de conservación, base legal
-ni excepciones universales. Modelar solicitud verificable de acceso,
-rectificación, restricción y anonimización/borrado como lifecycle versionado;
-separar identidad solicitante, autoridad del dato, acción propuesta, revisión,
-ejecución y evidencia. Pedidos, pagos, documentos y audit log no se eliminan
-por defecto: cada propietario declara export/corrección/redacción y la política
-aprobada decide retención o excepción. Empezar por ADR, dominio, puerto y tests
-de verificación, idempotencia, doble control y plan dry-run; cualquier DDL,
-export HTTP o mutación real conserva gates propios.
+Continuación exacta, tras autorización explícita de esquema: diseñar y ensayar
+`0038` expand-only para solicitudes y evidencia de derechos; implementar append
+atómico, versión/idempotencia concurrentes, lectura por `requestId`, backup 32
+y rehearsal desde `0037`, sin backfill, PII, artefactos exportados ni ejecución
+de decisiones. Export HTTP y toda corrección, restricción, anonimización o
+borrado conservarán gates separados aun después de persistir el lifecycle.
 
 Carril visual: ENSAMBLE permanece preservado en
 `codex-goal-ensamble-in-progress-2026-08-17-retry6`. El generador integrado

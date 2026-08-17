@@ -170,7 +170,7 @@ suites/715 tests; producción permanece en `0032`.
 |---:|---|---|---|
 | 51 | **R5.1 Perfil de cliente** | Identidad deduplicable, direcciones y relación con pedidos sin romper guest checkout. | ✅ 2026-08-17 — D1 `0036`, backup 30 y rehearsal local; capacidad instalada, rollout pendiente |
 | 52 | **R5.2 Consentimientos** | Canal, finalidad, versión legal, fuente, región, timestamp y retirada. | ✅ 2026-08-17 — D1 `0037`, repositorio atómico, backup 31 y rehearsal local; captura/rollout pendientes |
-| 53 | **R5.3 Derechos de datos** | Exportar, corregir, anonimizar/borrar con excepciones fiscales y audit log. | ⬜ |
+| 53 | **R5.3 Derechos de datos** | Exportar, corregir, anonimizar/borrar con excepciones fiscales y audit log. | 🟨 2026-08-17 — contrato R5.3a instalado; persistencia y ejecución pendientes de gates propios |
 | 54 | **R5.4 Cuentas passwordless** | Login seguro, sesiones, revocación y anti-enumeración; módulo opcional. | ⬜ |
 | 55 | **R5.5 Autoservicio** | Pedidos, direcciones y devolución sobre permisos mínimos. | ⬜ |
 | 56 | **R5.6 Segmentación** | Lenguaje de filtros limitado, templates y recálculo observable. | ⬜ |
@@ -201,6 +201,15 @@ texto o criterio legal. La D1 local sirve `0037`, el repositorio hace append
 atómico bajo carrera y el backup 31 restaura grants/retiradas en orden. El
 rehearsal conserva el hash legacy y no existe backfill inferido. Producción
 continúa en `0032`; captura y rollout mantienen gates propios.
+
+R5.3a acepta ADR-0041 y deja `CUS-008` instalada e inerte. El dominio modela
+solicitudes de acceso, rectificación, restricción y borrado/anonimización como
+evidencia append-only: identidad verificada, plan dry-run por propietario,
+fingerprint, aprobación con actor distinto y ejecución ligada al plan aprobado.
+Referencias de payload, prueba y artefacto son opacas; no se almacenan PII,
+tokens, filas o SQL. Pedidos, pagos, documentos y audit log conservan su propia
+autoridad y no se borran por defecto. No hay DDL, repositorio D1, rutas, UI,
+jobs, exportación ni mutaciones; cada uno mantiene su gate posterior.
 
 ## R6 — B2B
 
