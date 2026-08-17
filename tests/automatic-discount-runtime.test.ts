@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { BACKUP_SCHEMA_VERSION } from '../src/lib/backup';
 import { createOrderOperations } from '../src/composition/order-operations';
 import { quoteCart } from '../src/lib/quote';
 import { promotionCodeHash, promotionCustomerHash } from '../src/modules/pricing';
@@ -91,7 +92,7 @@ describe('recorrido de descuento automático R4.3', () => {
       causationId: placed!.event.event_id,
     })).toBe(true);
     const backup = await exportBackup(createD1BackupReader(db.asD1()), new Date(AT));
-    expect(backup.sql).toContain('logic2b-backup-schema: 29');
+    expect(backup.sql).toContain(`logic2b-backup-schema: ${BACKUP_SCHEMA_VERSION}`);
     const restored = new SqliteD1();
     restored.sqlite.exec(backup.sql);
     expect(restored.query('SELECT discount_id, discount_version, discount_cents FROM automatic_discount_applications'))

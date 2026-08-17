@@ -8,8 +8,8 @@ import { createPreliminaryOrderOperations } from '../src/composition/preliminary
 
 describe('volcado de copia de seguridad', () => {
   it('declara el contrato que incluye la colaboración de pedidos', () => {
-    expect(BACKUP_SCHEMA_VERSION).toBe(29);
-    expect(buildBackupSql({}, '2026-08-17')).toContain('0035_preliminary_orders_deposits');
+    expect(BACKUP_SCHEMA_VERSION).toBe(30);
+    expect(buildBackupSql({}, '2026-08-17')).toContain('0036_customer_profiles');
   });
 
   it('genera INSERTs con columnas explícitas y escape de comillas', () => {
@@ -125,6 +125,9 @@ describe('volcado de copia de seguridad', () => {
       'preliminary_order_payment_links',
       'preliminary_order_payments',
       'preliminary_order_events',
+      'customer_profiles',
+      'customer_address_revisions',
+      'customer_profile_merges',
     ]));
     for (const table of BACKUP_TABLES) expect(sql).toContain(`DELETE FROM ${table};`);
   });
@@ -146,6 +149,24 @@ describe('volcado de copia de seguridad', () => {
   it('restaura productos v2, combinaciones y pedidos sin romper FKs', async () => {
     const source = new SqliteD1();
     await source.batch(seedStatements().map((sql) => source.prepare(sql)));
+    source.sqlite.exec(`
+      INSERT INTO customer_profiles (
+        id, primary_email, email_identity_hash, status, version, created_at, updated_at
+      ) VALUES ('cus_backup', 'backup-profile@example.com', '${'c'.repeat(64)}',
+        'active', 1, '2026-08-08T16:00:00.000Z', '2026-08-08T16:00:00.000Z');
+      INSERT INTO customer_address_revisions (
+        address_id, customer_profile_id, revision, recipient_name, phone,
+        street, city, region, postal_code, country_code, valid_from
+      ) VALUES ('addr_backup', 'cus_backup', 1, 'Backup Customer', NULL,
+        'Carrer Major 1', 'Castelló', NULL, '12001', 'ES', '2026-08-08T16:00:00.000Z');
+      INSERT INTO customer_address_revisions (
+        address_id, customer_profile_id, revision, recipient_name, phone,
+        street, city, region, postal_code, country_code, valid_from
+      ) VALUES ('addr_backup', 'cus_backup', 2, 'Backup Customer', NULL,
+        'Carrer Major 2', 'Castelló', NULL, '12001', 'ES', '2026-08-08T17:00:00.000Z');
+      UPDATE orders SET customer_profile_id='cus_backup'
+      WHERE id=(SELECT id FROM orders ORDER BY id LIMIT 1);
+    `);
     const quoteVariant = source.query<{ id: number }>(
       "SELECT id FROM product_variants WHERE status='active' ORDER BY id LIMIT 1",
     )[0]!;
@@ -246,5 +267,11 @@ describe('volcado de copia de seguridad', () => {
     expect(restored.value('SELECT count(*) AS value FROM orders_search')).toBe(
       restored.value('SELECT count(*) AS value FROM orders'),
     );
+    expect(restored.query(`SELECT profile.primary_email, address.street
+      FROM customer_profiles profile JOIN customer_address_revisions address
+        ON address.customer_profile_id=profile.id
+      WHERE profile.id='cus_backup' AND address.valid_to IS NULL`)).toEqual([{
+      primary_email: 'backup-profile@example.com', street: 'Carrer Major 2',
+    }]);
   });
 });

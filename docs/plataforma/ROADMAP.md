@@ -168,7 +168,7 @@ suites/715 tests; producción permanece en `0032`.
 
 | Orden | Bloque de una sesión | Entregables y criterio específico | Estado |
 |---:|---|---|---|
-| 51 | **R5.1 Perfil de cliente** | Identidad deduplicable, direcciones y relación con pedidos sin romper guest checkout. | 🟡 ADR/dominio/puerto en verde; gate D1 pendiente |
+| 51 | **R5.1 Perfil de cliente** | Identidad deduplicable, direcciones y relación con pedidos sin romper guest checkout. | ✅ 2026-08-17 — D1 `0036`, backup 30 y rehearsal local; capacidad instalada, rollout pendiente |
 | 52 | **R5.2 Consentimientos** | Canal, finalidad, versión legal, fuente, región, timestamp y retirada. | ⬜ |
 | 53 | **R5.3 Derechos de datos** | Exportar, corregir, anonimizar/borrar con excepciones fiscales y audit log. | ⬜ |
 | 54 | **R5.4 Cuentas passwordless** | Login seguro, sesiones, revocación y anti-enumeración; módulo opcional. | ⬜ |
@@ -181,12 +181,15 @@ suites/715 tests; producción permanece en `0032`.
 | 61 | **R5.11 Multidivisa y métodos locales** | Presentación, cobro, reembolso y conciliación. | ⬜ |
 | 62 | **R5.12 Consolidación R5** | E2E dos mercados, privacidad y cuenta opcional; revisión SEO/legal/seguridad. | ⬜ |
 
-R5.1 dispone del corte previo al esquema: ADR-0039, `CUS-002` instalada sin
-superficies, normalización + HMAC por despliegue, resolución atómica expresada
-en el puerto, direcciones versionadas, asociación nullable de pedido y merge
-revisado con control optimista. `pnpm check` pasa 157 suites/720 tests. No hay
-DDL, backfill, UI, rutas, efectos ni cambios en D1/Worker; la migración
-expand-only requiere autorización explícita.
+R5.1 cerró localmente con ADR-0039, `0036`, repositorio D1, HMAC por despliegue,
+direcciones append-only, merge revisado y asociación nullable de pedido. Dos
+altas concurrentes convergen, guest continúa siendo válido y ninguna respuesta
+pública distingue alta/reutilización. Backup avanza a esquema 30; rehearsal y
+restore conservaron 284 productos, 286 variantes/balances, 8 pedidos, 13 líneas
+y 8 pagos. No hubo backfill, UI, rutas, dependencias, D1 remota ni Worker;
+`CUS-002` permanece instalada hasta consentimiento y rollout por proyecto.
+`pnpm check` pasa 159 suites/729 tests, tipos, build y sitemap; el E2E local
+completo conserva la demo sin escrituras y valida backup esquema 30.
 
 ## R6 — B2B
 

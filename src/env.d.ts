@@ -10,6 +10,8 @@ type Env = {
   /** Si falta, el checkout simula el pago (demo). Con clave → Stripe real. */
   STRIPE_SECRET_KEY?: string;
   STRIPE_WEBHOOK_SECRET?: string;
+  /** HMAC R5.1 por despliegue; si falta, checkout conserva el modo invitado. */
+  CUSTOMER_PROFILE_HMAC_SECRET?: string;
   ADMIN_COOKIE_SECRET: string;
   /** Solo producción: si falta (o DEMO_MODE=true), los emails se quedan en la outbox. */
   RESEND_API_KEY?: string;

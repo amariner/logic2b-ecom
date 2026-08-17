@@ -1,6 +1,6 @@
 # ADR-0039 — Perfil deduplicable con identidad opaca y guest checkout intacto
 
-- Estado: aceptado (diseño); persistencia pendiente de autorización
+- Estado: aceptado e implementado localmente; rollout remoto pendiente
 - Fecha: 2026-08-17
 - Bloque: R5.1
 - Capacidades: `CUS-001`, `CUS-002`
@@ -22,8 +22,9 @@ defaults legales o promesas implícitas de este bloque.
 ## Decisión
 
 1. `CUS-001` continúa activo y suficiente para comprar. `CUS-002` queda
-   `installed`, sin rutas, navegación, jobs ni efectos hasta completar su gate
-   D1. Un pedido puede conservar `customer_profile_id = NULL` para siempre.
+   `installed`, sin rutas, navegación, jobs ni efectos hasta un rollout por
+   proyecto posterior a R5.2. Un pedido puede conservar
+   `customer_profile_id = NULL` para siempre.
 2. El perfil usa un identificador interno opaco, no email ni número secuencial
    público. El email se normaliza con NFKC, trim y lowercase para construir su
    identidad canónica.
@@ -31,7 +32,7 @@ defaults legales o promesas implícitas de este bloque.
    propio de cada despliegue. El secreto no vive en D1, logs, backup, eventos ni
    navegador. Un SHA-256 sin secreto o una búsqueda pública por email quedan
    prohibidos.
-4. La implementación D1 resolverá alta/reutilización en una única transacción,
+4. La implementación D1 resuelve alta/reutilización en una única transacción,
    con `UNIQUE(email_identity_hash)`. Ante una carrera, el perdedor relee la
    fila ganadora; nunca crea una segunda identidad ni devuelve diferencias que
    permitan enumerar si un email existe.
@@ -68,9 +69,9 @@ defaults legales o promesas implícitas de este bloque.
 - puerto de repositorio que exige resolución atómica, append de dirección,
   asociación opcional y merge revisado.
 
-## Gate D1 propuesto (no autorizado todavía)
+## Gate D1 implementado
 
-La migración futura será expand-only y, como mínimo, propondrá:
+La migración expand-only `0036_customer_profiles.sql` materializa:
 
 - `customer_profiles` con id opaco, email normalizado, HMAC único, estado,
   destino de merge y versión;
@@ -78,10 +79,10 @@ La migración futura será expand-only y, como mínimo, propondrá:
   datos de entrega;
 - `customer_profile_merges` append-only con actor, versiones e idempotencia;
 - columna nullable `orders.customer_profile_id` con FK e índice;
-- triggers/checks de estado, versión, unicidad y no auto-referencia;
+- triggers/checks de estado, versión, unicidad, append de dirección y merge;
 - inclusión en backup/restore y rehearsal sin imprimir PII.
 
-No habrá backfill automático desde `orders.email`: compartir texto no demuestra
+No hay backfill automático desde `orders.email`: compartir texto no demuestra
 que dos pedidos deban pertenecer al mismo perfil. El eventual enlace histórico
 requerirá una política y verificación separadas.
 
@@ -91,8 +92,9 @@ requerirá una política y verificación separadas.
 - No se captura ni infiere consentimiento.
 - No se fija retención, base legal, borrado o excepción fiscal.
 - No se expone búsqueda de email, existencia de perfil ni hash de identidad.
-- No se modifica checkout, pedido, UI, D1 local/remota, Worker o temas en este
-  corte de diseño.
+- Checkout solo compone la asociación cuando un manifest activa explícitamente
+  `CUS-002.sideEffects` y el despliegue aporta el secreto; en otro caso sigue
+  siendo guest. No se añaden UI, rutas, cuentas ni autoservicio.
 
 ## Verificación
 
@@ -102,11 +104,12 @@ requerirá una política y verificación separadas.
 - guest checkout representado por asociación nula;
 - revisión de dirección sin mutar la versión previa;
 - merge con revisión, hash coincidente y control optimista;
-- presets/registro declaran `CUS-002` instalado pero sin superficies.
+- repositorio D1 y checkout opcional convergen bajo carrera sin enumeración;
+- backup esquema 30 y rehearsal/restore conservan los datos legacy;
+- presets/registro mantienen `CUS-002` instalado y sin superficies.
 
 ## Rollback
 
-Antes del DDL, retirar `CUS-002` del preset y el contrato no cambia datos ni
-runtime. Después de persistir, desactivarlo deberá impedir nuevas asociaciones
+Desactivar `CUS-002.sideEffects` impide nuevas asociaciones
 sin borrar perfiles, revisiones o vínculos necesarios para privacidad y
 trazabilidad.

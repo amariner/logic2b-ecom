@@ -22,6 +22,8 @@ export type NewOrderInput = Readonly<{
   total_cents: number;
   stripe_session_id: string;
   currency: string;
+  /** FK interna opcional; email/dirección del pedido siguen siendo snapshots. */
+  customer_profile_id?: string | null;
 }>;
 
 export type NewOrderLine = Readonly<{
@@ -56,8 +58,8 @@ export function createD1OrderWriter(db: D1Database) {
     insertPendingOrderStatement(order: NewOrderInput): D1PreparedStatement {
       return db
         .prepare(
-          `INSERT INTO orders (order_number, email, customer_name, address_json, subtotal_cents, shipping_cents, total_cents, status, stripe_session_id, currency)
-     VALUES (?, ?, ?, ?, ?, ?, ?, 'pending', ?, ?)`,
+          `INSERT INTO orders (order_number, email, customer_name, address_json, subtotal_cents, shipping_cents, total_cents, status, stripe_session_id, currency, customer_profile_id)
+     VALUES (?, ?, ?, ?, ?, ?, ?, 'pending', ?, ?, ?)`,
         )
         .bind(
           order.order_number,
@@ -69,6 +71,7 @@ export function createD1OrderWriter(db: D1Database) {
           order.total_cents,
           order.stripe_session_id,
           order.currency,
+          order.customer_profile_id ?? null,
         );
     },
 

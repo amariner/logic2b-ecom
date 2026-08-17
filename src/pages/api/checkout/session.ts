@@ -21,6 +21,7 @@ import {
   createOperationId,
 } from '../../../platform/operations';
 import { createD1StoredValue, type StoredValueAuthorization } from '../../../modules/payments';
+import { resolveCheckoutCustomerProfile } from '../../../composition/customer-profile-association';
 
 export const prerender = false;
 
@@ -162,6 +163,16 @@ export const POST: APIRoute = async ({ request, locals }) => {
     }
 
     const orderNumber = generateOrderNumber();
+    const checkoutAt = new Date().toISOString();
+    const customerProfile = await resolveCheckoutCustomerProfile({
+      db: env.DB,
+      enabled: runtimePlatform.hasCapabilityFlag('CUS-002', 'sideEffects'),
+      email: customer.email,
+      at: checkoutAt,
+      ...(env.CUSTOMER_PROFILE_HMAC_SECRET === undefined
+        ? {}
+        : { identitySecret: env.CUSTOMER_PROFILE_HMAC_SECRET }),
+    });
     const origin = new URL(request.url).origin;
     const externalPaymentCents = quote.total_cents - (storedValueAuthorization?.amountCents ?? 0);
     const simulate = isSimulatedPayment(env) || externalPaymentCents === 0;
@@ -395,6 +406,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
         total_cents: quote.total_cents,
         stripe_session_id: sessionId,
         currency: shopConfig.currency.toUpperCase(),
+        customer_profile_id: customerProfile.customerProfileId,
       },
       orderLines,
       simulate ? 'simulated' : 'stripe',

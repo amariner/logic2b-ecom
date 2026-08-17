@@ -15,8 +15,8 @@ export type ResolveOrCreateCustomerProfileInput = Readonly<{
 }>;
 
 /**
- * Puerto de persistencia R5.1. La implementación D1 futura debe ejecutar cada
- * método en una transacción y aplicar control optimista; no existe fallback a
+ * Puerto de persistencia R5.1. La implementación D1 ejecuta cada mutación de
+ * forma atómica y aplica control optimista; no existe fallback a
  * una secuencia read-then-write vulnerable a carreras.
  */
 export interface CustomerProfileRepository {
@@ -38,6 +38,7 @@ export interface CustomerProfileRepository {
     at: string;
   }>): Promise<CustomerOrderAssociation>;
   merge(input: Readonly<{
+    idempotencyKey: string;
     sourceProfileId: string;
     targetProfileId: string;
     expectedSourceVersion: number;

@@ -37,5 +37,6 @@
   }
   // Secretos (via `wrangler secret put`, nunca aquí):
   //   STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET, ADMIN_COOKIE_SECRET
+  //   CUSTOMER_PROFILE_HMAC_SECRET (HMAC R5.1 propio de cada despliegue)
   //   RESEND_API_KEY (solo tienda real: activa el envío de emails via Resend)
 }

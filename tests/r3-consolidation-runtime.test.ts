@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { BACKUP_SCHEMA_VERSION } from '../src/lib/backup';
 import { createFulfillmentOperations } from '../src/composition/fulfillment-operations';
 import { createInventoryTransferOperations } from '../src/composition/inventory-transfer-operations';
 import { createOrderHoldOperations } from '../src/composition/order-hold-operations';
@@ -171,7 +172,7 @@ describe('R3.12 consolidación operativa', () => {
     const backup = await exportBackup(
       createD1BackupReader(db.asD1()), new Date('2026-08-14T17:00:00.000Z'),
     );
-    expect(backup.sql).toContain('logic2b-backup-schema: 29');
+    expect(backup.sql).toContain(`logic2b-backup-schema: ${BACKUP_SCHEMA_VERSION}`);
     const restored = new SqliteD1();
     restored.sqlite.exec(backup.sql);
     expect(restored.query('SELECT status FROM orders')).toEqual([{ status: 'delivered' }]);

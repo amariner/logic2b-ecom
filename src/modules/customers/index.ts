@@ -22,3 +22,7 @@ export {
   type CustomerProfileRepository,
   type ResolveOrCreateCustomerProfileInput,
 } from './application/customer-profile-repository';
+export {
+  CustomerProfileConflictError,
+  createD1CustomerProfileRepository,
+} from './infrastructure/d1-customer-profile-repository';

@@ -256,8 +256,12 @@ venta o servicios logísticos propios.
 - [`wiki/modelos-venta-r4.md`](wiki/modelos-venta-r4.md):
   índice funcional de R4 y orden común de precio, descuento, venta y pago.
 - [`adr/0039-perfil-cliente-identidad-opaca.md`](adr/0039-perfil-cliente-identidad-opaca.md):
-  contrato previo al esquema para identidad HMAC, guest checkout, revisiones de
-  dirección, merge explícito y snapshots históricos inmutables.
+  identidad HMAC, guest checkout, revisiones de dirección, merge explícito y
+  snapshots históricos inmutables de R5.1.
+- [`../../migrations/0036_customer_profiles.sql`](../../migrations/0036_customer_profiles.sql):
+  perfiles, revisiones, merges y relación nullable de pedido expand-only.
+- [`OPERACION_PERFILES_CLIENTE.md`](OPERACION_PERFILES_CLIENTE.md): rehearsal,
+  activación, reconciliación, secreto por despliegue y rollback de `CUS-002`.
 - [`../../migrations/0016_order_amendments.sql`](../../migrations/0016_order_amendments.sql):
   expansión de cantidades vigentes, amendments y asignaciones financieras.
 - [`OPERACION_EDICION_PEDIDOS.md`](OPERACION_EDICION_PEDIDOS.md):

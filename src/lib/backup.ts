@@ -7,7 +7,7 @@
 export type Row = Record<string, string | number | null>;
 
 /** Orden de volcado y de borrado inverso (hijos después de padres al insertar no importa: borramos primero). */
-export const BACKUP_SCHEMA_VERSION = 29;
+export const BACKUP_SCHEMA_VERSION = 30;
 
 export const BACKUP_TABLES = [
   'products',
@@ -61,6 +61,9 @@ export const BACKUP_TABLES = [
   'order_tags',
   'order_bulk_batches',
   'order_bulk_batch_rows',
+  'customer_profiles',
+  'customer_address_revisions',
+  'customer_profile_merges',
   'orders',
   'preliminary_orders',
   'preliminary_order_lines',
@@ -135,7 +138,12 @@ export function dumpTable(table: string, rows: Row[]): string[] {
   if (rows.length === 0) return [];
   const orderedRows = table === 'order_documents'
     ? [...rows].sort((left, right) => Number(left.document_version) - Number(right.document_version))
-    : rows;
+    : table === 'customer_profiles'
+      ? orderCustomerProfilesForRestore(rows)
+      : table === 'customer_address_revisions'
+        ? [...rows].sort((left, right) => String(left.address_id).localeCompare(String(right.address_id)) ||
+          Number(left.revision) - Number(right.revision))
+        : rows;
   const columns = Object.keys(orderedRows[0]!);
   // Al restaurar ubicaciones, el trigger de 0022 crea su política por defecto.
   // Sustituirla aquí permite recuperar exactamente la configuración exportada.
@@ -148,12 +156,34 @@ export function dumpTable(table: string, rows: Row[]): string[] {
   );
 }
 
+/** Inserta primero cada destino de merge para satisfacer la FK autorreferente. */
+function orderCustomerProfilesForRestore(rows: Row[]): Row[] {
+  const remaining = new Map(rows.map((row) => [String(row.id), row]));
+  const ordered: Row[] = [];
+  const inserted = new Set<string>();
+  while (remaining.size > 0) {
+    const ready = [...remaining.entries()].filter(([, row]) => {
+      const target = row.merged_into_profile_id;
+      return target === null || target === undefined || inserted.has(String(target)) || !remaining.has(String(target));
+    });
+    if (ready.length === 0) {
+      throw new RangeError('Los perfiles del backup contienen un ciclo de merges.');
+    }
+    for (const [id, row] of ready) {
+      ordered.push(row);
+      inserted.add(id);
+      remaining.delete(id);
+    }
+  }
+  return ordered;
+}
+
 /** Dump completo: limpieza (hijos primero) + INSERTs en orden de FK. */
 export function buildBackupSql(tablesRows: Record<string, Row[]>, generatedAt: string): string {
   const lines = [
     `-- Copia de seguridad Logic2B Ecommerce — ${generatedAt}`,
     `-- logic2b-backup-schema: ${BACKUP_SCHEMA_VERSION}`,
-    '-- Requiere una base con la migración 0035_preliminary_orders_deposits aplicada; las tablas/columnas explícitas abortan un restore incompatible.',
+    '-- Requiere una base con la migración 0036_customer_profiles aplicada; las tablas/columnas explícitas abortan un restore incompatible.',
     `-- Restaurar con: wrangler d1 execute <database> --remote --file <este fichero>`,
     'PRAGMA defer_foreign_keys = true;',
   ];

@@ -43,7 +43,8 @@
     "db:rehearse:stored-value": "node scripts/rehearse-r4-stored-value.mjs",
     "db:rehearse:preorders": "node scripts/rehearse-r4-preorders.mjs",
     "db:rehearse:subscriptions": "node scripts/rehearse-r4-subscriptions.mjs",
-    "db:rehearse:preliminary-orders": "node scripts/rehearse-r4-preliminary-orders.mjs"
+    "db:rehearse:preliminary-orders": "node scripts/rehearse-r4-preliminary-orders.mjs",
+    "db:rehearse:customer-profiles": "node scripts/rehearse-r5-customer-profiles.mjs"
   },
   "dependencies": {
     "@astrojs/cloudflare": "^12.6.0",
