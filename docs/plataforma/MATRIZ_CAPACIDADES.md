@@ -86,8 +86,8 @@ su alcance requiera.
 | PRC-007 | Compra X y consigue Y | módulo | P2 | actual | Scopes idénticos/disjuntos, múltiplos/límite, recompensa estable, prorrateo a favor del comprador y devolución/edición por precio congelado. |
 | PRC-008 | Combinación de descuentos | módulo | P2 | actual | Matriz versionada de fuentes/clases, suma sobre base, tope por prioridad, explicación y aplicación canónica; sin política conserva exclusividad. |
 | PRC-009 | Lista de precios contextual | módulo | P2 | actual | Precio base versionado por mercado/canal/empresa, identidad solo servidor, fallback empresa→general→catálogo por producto y snapshot/aplicación verificables; ubicación/contrato esperan su modelo propietario. |
-| PRC-010 | Tarjetas regalo | módulo | P2 | pendiente | Ledger, saldo, caducidad legal, emisión y reembolso. |
-| PRC-011 | Crédito en tienda | módulo | P2 | pendiente | Ledger por cliente y aplicación parcial al pago. |
+| PRC-010 | Tarjetas regalo | módulo | P2 | actual | Código hasheado, ledger versionado, emisión auditada, reserva/uso parcial, pago mixto y reembolso al saldo original; política legal por proyecto. |
+| PRC-011 | Crédito en tienda | módulo | P2 | actual | Cuenta por identidad opaca de servidor, ledger compartido y aplicación parcial; perfil/autoservicio esperan R5. |
 | PRC-012 | Paquetes/bundles | módulo | P2 | actual | Fijo/configurable, precio de carcasa, stock/reserva por componentes, snapshot/aplicación, refund/RMA y API auditada; variantes/suplementos/picking por pieza quedan fuera. |
 | PRC-013 | Suscripciones | conector | P2 | conector | Contrato, calendario, cambios, impagos y portal. |
 | PRC-014 | Preventa/backorder | módulo | P2 | pendiente | Fecha/promesa, asignación de stock y comunicación. |

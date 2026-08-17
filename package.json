@@ -39,7 +39,8 @@
     "db:rehearse:quantity-offers": "node scripts/rehearse-r4-quantity-offers.mjs",
     "db:rehearse:discount-combinations": "node scripts/rehearse-r4-discount-combinations.mjs",
     "db:rehearse:price-lists": "node scripts/rehearse-r4-price-lists.mjs",
-    "db:rehearse:bundles": "node scripts/rehearse-r4-bundles.mjs"
+    "db:rehearse:bundles": "node scripts/rehearse-r4-bundles.mjs",
+    "db:rehearse:stored-value": "node scripts/rehearse-r4-stored-value.mjs"
   },
   "dependencies": {
     "@astrojs/cloudflare": "^12.6.0",

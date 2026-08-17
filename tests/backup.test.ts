@@ -7,8 +7,8 @@ import { createOrderBulkActionOperations } from '../src/composition/order-bulk-a
 
 describe('volcado de copia de seguridad', () => {
   it('declara el contrato que incluye la colaboración de pedidos', () => {
-    expect(BACKUP_SCHEMA_VERSION).toBe(25);
-    expect(buildBackupSql({}, '2026-08-14')).toContain('0031_bundles');
+    expect(BACKUP_SCHEMA_VERSION).toBe(26);
+    expect(buildBackupSql({}, '2026-08-14')).toContain('0032_stored_value');
   });
 
   it('genera INSERTs con columnas explícitas y escape de comillas', () => {

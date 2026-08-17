@@ -55,7 +55,9 @@ import {
 } from '../modules/pricing';
 import {
   createD1PaymentLedger,
+  createD1StoredValue,
   type PaymentProvider,
+  type StoredValueAuthorization,
 } from '../modules/payments';
 import { createAuditDiff } from '../shared-kernel/audit';
 import type { EmitEvent, ReserveEventIdentity } from '../shared-kernel/events';
@@ -102,6 +104,7 @@ export function createOrderOperations(
     discountCombinationApplication?: DiscountCombinationApplication;
     priceListApplications?: readonly PriceListApplication[];
     bundleApplications?: readonly BundleApplication[];
+    storedValueAuthorization?: StoredValueAuthorization;
   }> = {},
 ) {
   const orders = createOrderWriter(db);
@@ -110,6 +113,7 @@ export function createOrderOperations(
   const inventory = createD1InventoryLedger(db);
   const reservations = createD1InventoryReservations(db);
   const payments = createD1PaymentLedger(db);
+  const storedValue = createD1StoredValue(db);
   const promotions = createD1PromotionCodes(db);
   const automaticDiscounts = createD1AutomaticDiscounts(db);
   const quantityOffers = createD1QuantityOffers(db);
@@ -130,6 +134,18 @@ export function createOrderOperations(
   }
   const reservationsEnabled = options.reservationsEnabled ??
     runtimePlatform.hasCapabilityFlag('INV-004', 'sideEffects');
+
+  async function storedValueReleaseStatements(
+    orderId: number,
+    occurredAt: string,
+    eventId: string,
+  ): Promise<readonly D1PreparedStatement[]> {
+    const reservation = await storedValue.reservationForOrder(orderId);
+    if (!reservation || reservation.status !== 'active') return [];
+    const account = await storedValue.findById(reservation.account_id);
+    if (!account) throw new Error(`Pedido ${orderId}: cuenta de valor almacenado ausente.`);
+    return storedValue.releaseStatements(reservation, account, occurredAt, { eventId });
+  }
 
   function inventorySourceLines(lines: readonly NewOrderLine[]) {
     const quantities = new Map(lines.map((line) => [line.product_id, line.qty] as const));
@@ -222,6 +238,9 @@ export function createOrderOperations(
           provider_reference: order.stripe_session_id,
           currency: order.currency,
           occurred_at: identity.occurred_at,
+          ...(options.storedValueAuthorization === undefined
+            ? {}
+            : { stored_value_expected_cents: options.storedValueAuthorization.amountCents }),
         }, { eventId: identity.event_id }),
         ...outbox.deliveryStatements(identity.event_id, identity.occurred_at, consumerIds),
         ...orders.lineStatementsForOrderNumber(order.order_number, lines),
@@ -230,6 +249,14 @@ export function createOrderOperations(
           application,
           identity.occurred_at,
         )),
+        ...(options.storedValueAuthorization === undefined
+          ? []
+          : storedValue.reservationStatements(
+            order.order_number,
+            options.storedValueAuthorization,
+            identity.occurred_at,
+            { eventId: identity.event_id },
+          )),
         ...(options.priceListApplications ?? []).map((application) => priceLists.applicationStatement(
           order.order_number,
           application,
@@ -295,6 +322,16 @@ export function createOrderOperations(
       }
       const payment = await payments.findByOrderId(order.id);
       if (payment === null) throw new Error(`Pedido ${order.id}: intención de pago ausente.`);
+      const storedReservation = await storedValue.reservationForOrder(order.id);
+      if ((payment.stored_value_expected_cents ?? 0) !== (storedReservation?.amount_cents ?? 0)) {
+        throw new Error(`Pedido ${order.id}: reserva de valor almacenado incoherente.`);
+      }
+      const storedAccount = storedReservation
+        ? await storedValue.findById(storedReservation.account_id)
+        : null;
+      if (storedReservation && !storedAccount) {
+        throw new Error(`Pedido ${order.id}: cuenta de valor almacenado ausente.`);
+      }
       const consumerIds = consumersFor(mutation.event.type);
       const reservation = reservationsEnabled
         ? await reservations.findForOrder(order.order_number)
@@ -320,11 +357,19 @@ export function createOrderOperations(
         ...payments.captureStatements(payment, {
           provider: input.source,
           provider_reference: mutation.paymentIntent,
-          amount_cents: order.total_cents,
+          amount_cents: payment.expected_amount_cents,
           currency: order.currency,
           idempotency_key: `${mutation.event.idempotency_key}:capture`,
           occurred_at: mutation.event.occurred_at,
         }, { eventId: mutation.event.event_id }),
+        ...(storedReservation && storedAccount
+          ? storedValue.captureStatements(
+            storedReservation,
+            storedAccount,
+            mutation.event.occurred_at,
+            { eventId: mutation.event.event_id },
+          )
+          : []),
         orders.guardedPaidStatement(mutation.orderId, mutation.paymentIntent, mutation.event.event_id),
         promotions.transitionStatement(
           mutation.orderId,
@@ -367,6 +412,9 @@ export function createOrderOperations(
             `${event.idempotency_key}:reservation`,
           )
         : [];
+      const storedReleaseStatements = await storedValueReleaseStatements(
+        order.id, event.occurred_at, event.event_id,
+      );
       const results = await orders.commitResults([
         outbox.guardedEventStatement(event, { orderId: order.id, expectedStatus: 'pending' }),
         audit.eventStatement(event.event_id, orderAuditProjection(event)),
@@ -375,6 +423,7 @@ export function createOrderOperations(
         orders.guardedExpiredStatement(order.id, event.event_id),
         promotions.transitionStatement(order.id, 'released', event.occurred_at, event.event_id),
         ...reservationStatements,
+        ...storedReleaseStatements,
         orders.guardedTimelineStatement(order.id, orderTimelineEntry(event), event.event_id),
       ]);
       return results[0]?.meta.changes === 1;
@@ -403,6 +452,9 @@ export function createOrderOperations(
       const paymentStatements = input.transition.to === 'cancelled'
         ? await paymentCancellationStatements(input.order.id, input.from, event.event_id, event.occurred_at)
         : [];
+      const storedReleaseStatements = input.from === 'pending' && input.transition.to === 'cancelled'
+        ? await storedValueReleaseStatements(input.order.id, event.occurred_at, event.event_id)
+        : [];
       const results = await orders.commitResults([
         outbox.guardedEventStatement(event, {
           orderId: input.order.id,
@@ -430,6 +482,7 @@ export function createOrderOperations(
           )]
           : []),
         ...reservationStatements,
+        ...storedReleaseStatements,
         ...stockStatements,
       ]);
       if (results[0]?.meta.changes !== 1) return { outcome: 'conflict', queuedMessages: 0 };

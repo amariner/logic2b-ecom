@@ -8,9 +8,12 @@ import {
 } from '../modules/orders';
 import {
   createD1PaymentLedger,
+  createD1StoredValue,
+  paymentSettlementCents,
   planPartialRefund,
   planRefundCaptureAllocations,
   planTotalRefund,
+  planStoredValueRefund,
   type PaymentLedgerEntry,
   type PaymentRefundGateway,
   type PartialRefundRequestLine,
@@ -19,6 +22,7 @@ import {
   type RefundRestockDecision,
   type RefundLedgerEntry,
   type RefundPaymentAllocationRecord,
+  type StoredValueRefundAllocationRecord,
 } from '../modules/payments';
 import {
   createD1InventoryLedger,
@@ -92,6 +96,7 @@ export function createRefundOperations(
 ) {
   const orders = createOrderWriter(db);
   const payments = createD1PaymentLedger(db);
+  const storedValue = createD1StoredValue(db);
   const inventory = createD1InventoryLedger(db);
   const outbox = createD1EventOutboxWriter(db);
   const audit = createD1AuditLogWriter(db);
@@ -101,18 +106,23 @@ export function createRefundOperations(
   async function reconcileAllocations(
     payment: PaymentLedgerEntry,
     refund: RefundLedgerEntry,
-    gateway: PaymentRefundGateway,
+    gateway: PaymentRefundGateway | null,
   ): Promise<
     | Readonly<{
         outcome: 'succeeded';
         refund: RefundLedgerEntry;
         allocations: readonly RefundPaymentAllocationRecord[];
+        storedAllocations: readonly StoredValueRefundAllocationRecord[];
         causationId: string;
       }>
     | Readonly<{ outcome: 'processing' | 'failed' | 'requires_review' | 'conflict' }>
   > {
-    const allocations = await payments.refundAllocations(refund.id);
-    if (allocations.length === 0) return { outcome: 'conflict' };
+    const [allocations, storedAllocations] = await Promise.all([
+      payments.refundAllocations(refund.id),
+      storedValue.refundAllocations(refund.id),
+    ]);
+    if (allocations.length === 0 && storedAllocations.length === 0) return { outcome: 'conflict' };
+    if (allocations.length > 0 && gateway === null) return { outcome: 'conflict' };
     const occurredAt = new Date().toISOString();
     const gatewayStatuses: Array<'succeeded' | 'processing' | 'failed' | 'requires_review'> = [];
     const outcomeStatements: D1PreparedStatement[] = [];
@@ -121,7 +131,7 @@ export function createRefundOperations(
         gatewayStatuses.push('succeeded');
         continue;
       }
-      const result = await gateway.refund({
+      const result = await gateway!.refund({
         paymentReference: allocation.payment_reference,
         amountCents: allocation.amount_cents,
         currency: payment.currency,
@@ -144,9 +154,10 @@ export function createRefundOperations(
       const results = await db.batch([payments.refundStatusStatement(current, status, occurredAt)]);
       return results[0]?.meta.changes === 1 ? { outcome: status } : { outcome: 'conflict' };
     }
-    const [currentRefund, currentAllocations] = await Promise.all([
+    const [currentRefund, currentAllocations, currentStoredAllocations] = await Promise.all([
       payments.findRefundByIdempotencyKey(refund.idempotency_key),
       payments.refundAllocations(refund.id),
+      storedValue.refundAllocations(refund.id),
     ]);
     if (!currentRefund || currentAllocations.some((allocation) =>
       allocation.status !== 'processing' && allocation.status !== 'succeeded')) {
@@ -156,10 +167,11 @@ export function createRefundOperations(
       outcome: 'succeeded',
       refund: currentRefund,
       allocations: currentAllocations,
+      storedAllocations: currentStoredAllocations,
       causationId: currentAllocations
         .map((allocation) => allocation.provider_reference)
         .filter((reference): reference is string => Boolean(reference))
-        .join(','),
+        .join(',') || `stored-value:${refund.id}`,
     };
   }
 
@@ -223,11 +235,6 @@ export function createRefundOperations(
         // repone ni abona como "total" unidades que ya salieron físicamente.
         return { outcome: 'invalid_state', queuedMessages: 0 };
       }
-      const gateway = resolveGateway(payment.provider);
-      if (!gateway || gateway.provider !== payment.provider || !payment.provider_reference?.trim()) {
-        return { outcome: 'gateway_unavailable', queuedMessages: 0 };
-      }
-
       const items = await orders.items(order.id);
       const restockDecision: RefundRestockDecision = input.restock ? 'restock' : 'none';
       const planned = planTotalRefund(
@@ -240,20 +247,34 @@ export function createRefundOperations(
         })),
         restockDecision,
       );
+      const storedApplication = await storedValue.refundableApplication(order.id);
+      const tenderPlan = planStoredValueRefund(
+        planned.total_cents,
+        storedApplication?.refundable_cents ?? 0,
+      );
+      const gateway = tenderPlan.externalCents > 0 ? resolveGateway(payment.provider) : null;
+      if (tenderPlan.externalCents > 0 &&
+          (!gateway || gateway.provider !== payment.provider || !payment.provider_reference?.trim())) {
+        return { outcome: 'gateway_unavailable', queuedMessages: 0 };
+      }
       const idempotencyKey = `r2:refund:order:${order.id}:total`;
       if (!refund) {
-        const allocations = planRefundCaptureAllocations(
-          await payments.refundableCaptures(order.id),
-          planned.total_cents,
+        const allocations = tenderPlan.externalCents === 0 ? [] : planRefundCaptureAllocations(
+          await payments.refundableCaptures(order.id), tenderPlan.externalCents,
         );
-        await orders.commitResults(payments.createTotalRefundIntentStatements(payment, {
+        await orders.commitResults([
+          ...payments.createTotalRefundIntentStatements(payment, {
           order_id: order.id,
           reason: input.reason,
           occurred_at: new Date().toISOString(),
           idempotency_key: idempotencyKey,
           planned,
           allocations,
-        }));
+          }),
+          ...(tenderPlan.storedValueCents === 0 ? [] : [storedValue.refundAllocationStatement(
+            idempotencyKey, tenderPlan.storedValueCents, new Date().toISOString(),
+          )]),
+        ]);
         refund = await payments.findTotalRefundByOrderId(order.id);
       }
       if (!refund) return { outcome: 'conflict', queuedMessages: 0 };
@@ -314,6 +335,15 @@ export function createRefundOperations(
               { eventId: event.event_id },
             )
           : []),
+        ...(await Promise.all(reconciled.storedAllocations
+          .filter((allocation) => allocation.status === 'pending')
+          .map(async (allocation) => {
+            const account = await storedValue.findById(allocation.account_id);
+            if (!account) throw new Error(`Saldo ${allocation.account_id} ausente.`);
+            return storedValue.refundSuccessStatements(
+              allocation, account, order.id, event.occurred_at, { eventId: event.event_id },
+            );
+          }))).flat(),
         ...payments.completeAllocatedRefundStatements(
           payment,
           refund,
@@ -357,11 +387,6 @@ export function createRefundOperations(
       if (refund && refund.operation_type !== 'partial_cancellation') {
         return { outcome: 'conflict', queuedMessages: 0 };
       }
-      const gateway = resolveGateway(payment.provider);
-      if (!gateway || gateway.provider !== payment.provider || !payment.provider_reference?.trim()) {
-        return { outcome: 'gateway_unavailable', queuedMessages: 0 };
-      }
-
       const [items, balances] = await Promise.all([
         orders.items(order.id),
         fulfillments.lineBalances(order.id),
@@ -393,20 +418,36 @@ export function createRefundOperations(
         throw error;
       }
 
+      const storedApplication = await storedValue.refundableApplication(order.id);
+      const tenderPlan = planStoredValueRefund(
+        planned.total_cents,
+        storedApplication?.refundable_cents ?? 0,
+      );
+      const gateway = tenderPlan.externalCents > 0 ? resolveGateway(payment.provider) : null;
+      if (tenderPlan.externalCents > 0 &&
+          (!gateway || gateway.provider !== payment.provider || !payment.provider_reference?.trim())) {
+        return { outcome: 'gateway_unavailable', queuedMessages: 0 };
+      }
+
       if (!refund) {
         try {
-          const allocations = planRefundCaptureAllocations(
-            await payments.refundableCaptures(order.id),
-            planned.total_cents,
+          const allocations = tenderPlan.externalCents === 0 ? [] : planRefundCaptureAllocations(
+            await payments.refundableCaptures(order.id), tenderPlan.externalCents,
           );
-          await orders.commitResults(payments.createPartialRefundIntentStatements(payment, {
+          const occurredAt = new Date().toISOString();
+          await orders.commitResults([
+            ...payments.createPartialRefundIntentStatements(payment, {
             order_id: order.id,
             reason: input.reason,
-            occurred_at: new Date().toISOString(),
+            occurred_at: occurredAt,
             idempotency_key: idempotencyKey,
             planned,
             allocations,
-          }));
+            }),
+            ...(tenderPlan.storedValueCents === 0 ? [] : [storedValue.refundAllocationStatement(
+              idempotencyKey, tenderPlan.storedValueCents, occurredAt,
+            )]),
+          ]);
         } catch (error) {
           const raced = await payments.findRefundByIdempotencyKey(idempotencyKey);
           if (!raced && isPartialRefundWriteConflict(error)) {
@@ -449,8 +490,8 @@ export function createRefundOperations(
         return { outcome: 'conflict', queuedMessages: 0 };
       }
       const paymentStatusAfter = payment.refunded_cents + refund.total_cents ===
-        payment.expected_amount_cents ? 'refunded' : 'partially_refunded';
-      if (payment.refunded_cents + refund.total_cents > payment.expected_amount_cents) {
+        paymentSettlementCents(payment) ? 'refunded' : 'partially_refunded';
+      if (payment.refunded_cents + refund.total_cents > paymentSettlementCents(payment)) {
         return { outcome: 'requires_review', queuedMessages: 0 };
       }
       const [currentBalances, groups] = await Promise.all([
@@ -529,6 +570,15 @@ export function createRefundOperations(
               { eventId: event.event_id },
             )
           : []),
+        ...(await Promise.all(reconciled.storedAllocations
+          .filter((allocation) => allocation.status === 'pending')
+          .map(async (allocation) => {
+            const account = await storedValue.findById(allocation.account_id);
+            if (!account) throw new Error(`Saldo ${allocation.account_id} ausente.`);
+            return storedValue.refundSuccessStatements(
+              allocation, account, order.id, event.occurred_at, { eventId: event.event_id },
+            );
+          }))).flat(),
         ...payments.completeAllocatedRefundStatements(
           payment,
           refund,

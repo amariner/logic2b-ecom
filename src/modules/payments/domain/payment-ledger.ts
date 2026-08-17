@@ -20,6 +20,8 @@ export type PaymentLedgerEntry = Readonly<{
   provider_reference: string | null;
   currency: string;
   expected_amount_cents: number;
+  /** Parte del total comercial liquidada por tarjeta regalo/crédito. */
+  stored_value_expected_cents?: number;
   status: PaymentStatus;
   version: number;
   refunded_cents: number;
@@ -195,6 +197,14 @@ export function planPaymentCapture(
   });
 }
 
+export function paymentSettlementCents(payment: PaymentLedgerEntry): number {
+  assertMoney(payment.expected_amount_cents, 'payment.expected_amount_cents');
+  assertMoney(payment.stored_value_expected_cents ?? 0, 'payment.stored_value_expected_cents');
+  const total = payment.expected_amount_cents + (payment.stored_value_expected_cents ?? 0);
+  assertMoney(total, 'payment.settlement_cents');
+  return total;
+}
+
 /** Congela el reembolso total desde snapshots servidor; stock y dinero son decisiones separadas. */
 export function planTotalRefund(
   payment: PaymentLedgerEntry,
@@ -214,7 +224,7 @@ export function planTotalRefund(
   if (order.total_cents !== order.subtotal_cents + order.shipping_cents) {
     throw new RangeError('el total del pedido no coincide con subtotal y envío.');
   }
-  if (payment.expected_amount_cents - (payment.adjustment_refunded_cents ?? 0) !== order.total_cents) {
+  if (paymentSettlementCents(payment) - (payment.adjustment_refunded_cents ?? 0) !== order.total_cents) {
     throw new RangeError('el importe del pago no coincide con el pedido.');
   }
   if (lines.length < 1) throw new RangeError('el reembolso total necesita al menos una línea.');
@@ -261,7 +271,7 @@ export function planPartialRefund(
   assertMoney(order.shipping_cents, 'order.shipping_cents');
   assertMoney(order.total_cents, 'order.total_cents');
   if (order.total_cents !== order.subtotal_cents + order.shipping_cents ||
-      payment.expected_amount_cents - (payment.adjustment_refunded_cents ?? 0) !== order.total_cents) {
+      paymentSettlementCents(payment) - (payment.adjustment_refunded_cents ?? 0) !== order.total_cents) {
     throw new RangeError('el pago y el total del pedido no coinciden.');
   }
   if (requested.length < 1) throw new RangeError('selecciona al menos una línea para cancelar.');
@@ -327,7 +337,8 @@ export function planPartialRefund(
   assertMoney(total, 'total_cents');
   const refundedAfter = payment.refunded_cents + total;
   assertMoney(refundedAfter, 'refunded_after_cents');
-  if (refundedAfter > payment.expected_amount_cents) {
+  const settlementCents = paymentSettlementCents(payment);
+  if (refundedAfter > settlementCents) {
     throw new RangeError('el reembolso acumulado supera la captura.');
   }
   return Object.freeze({
@@ -337,7 +348,7 @@ export function planPartialRefund(
     lines: Object.freeze(plannedLines),
     restock_decision: restockDecision,
     remaining_quantity: outstandingQuantity - selectedQuantity,
-    payment_status_after: refundedAfter === payment.expected_amount_cents
+    payment_status_after: refundedAfter === settlementCents
       ? 'refunded'
       : 'partially_refunded',
   });

@@ -91,7 +91,7 @@ describe('recorrido de descuento automático R4.3', () => {
       causationId: placed!.event.event_id,
     })).toBe(true);
     const backup = await exportBackup(createD1BackupReader(db.asD1()), new Date(AT));
-    expect(backup.sql).toContain('logic2b-backup-schema: 25');
+    expect(backup.sql).toContain('logic2b-backup-schema: 26');
     const restored = new SqliteD1();
     restored.sqlite.exec(backup.sql);
     expect(restored.query('SELECT discount_id, discount_version, discount_cents FROM automatic_discount_applications'))

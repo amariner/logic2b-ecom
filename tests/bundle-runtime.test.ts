@@ -149,10 +149,11 @@ describe('recorrido R4.7 de bundles', () => {
     expect(db.query('SELECT quantity FROM fulfillment_items')).toEqual([{ quantity: 2 }]);
     expect(db.value('SELECT count(*) AS value FROM order_bundle_components')).toBe(2);
 
+    const deliveredAt = String(db.value(`SELECT max(delivered_at) AS value FROM fulfillments`));
     const returns = createReturnOperations(db.asD1(), () => ({ provider: 'simulated',
       refund: async (request) => ({ status: 'succeeded' as const,
         providerReference: `sim_return_${request.idempotencyKey}` }) }), undefined,
-    () => '2026-08-14T23:00:00.000Z');
+    () => deliveredAt);
     const locationId = Number(db.value("SELECT id AS value FROM inventory_locations WHERE code='principal'"));
     const orderItemId = Number(db.value('SELECT id AS value FROM order_items WHERE order_id=?', placed!.orderId));
     const created = await returns.create({ orderId: placed!.orderId, receiveLocationId: locationId,

@@ -108,7 +108,7 @@ describe('recorrido R4.4 de cantidad y X/Y', () => {
     expect(amendment).toMatchObject({ subtotal_after_cents: 1332, delta_cents: -666, status: 'pending_refund' });
 
     const backup = await exportBackup(createD1BackupReader(db.asD1()), new Date(AT));
-    expect(backup.sql).toContain('logic2b-backup-schema: 25');
+    expect(backup.sql).toContain('logic2b-backup-schema: 26');
     const restored = new SqliteD1();
     restored.sqlite.exec(backup.sql);
     expect(restored.query('SELECT offer_id, offer_version, discount_cents FROM quantity_offer_applications'))

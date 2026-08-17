@@ -217,6 +217,15 @@ venta o servicios logísticos propios.
   rollout, rehearsal, diagnóstico, reconciliación y rollback de `PRC-012`.
 - [`wiki/bundles-componentes.md`](wiki/bundles-componentes.md):
   recorrido funcional, trazabilidad y límites actuales de bundles.
+- [`adr/0035-valor-almacenado-ledger.md`](adr/0035-valor-almacenado-ledger.md):
+  saldo proyectado desde ledger, código hasheado, pago mixto y devolución al
+  medio original de `PRC-010/011`.
+- [`../../migrations/0032_stored_value.sql`](../../migrations/0032_stored_value.sql):
+  expansión compatible de cuentas, reservas, aplicaciones, reembolsos y ledger.
+- [`OPERACION_VALOR_ALMACENADO.md`](OPERACION_VALOR_ALMACENADO.md):
+  rehearsal, rollout, reconciliación, incidencias y rollback de valor almacenado.
+- [`wiki/tarjetas-regalo-credito-tienda.md`](wiki/tarjetas-regalo-credito-tienda.md):
+  alcance, pago mixto y puertas legales por proyecto sin promesas públicas.
 - [`../../migrations/0016_order_amendments.sql`](../../migrations/0016_order_amendments.sql):
   expansión de cantidades vigentes, amendments y asignaciones financieras.
 - [`OPERACION_EDICION_PEDIDOS.md`](OPERACION_EDICION_PEDIDOS.md):

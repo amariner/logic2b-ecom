@@ -1655,7 +1655,33 @@ la cola de temas, coordinados sin mezclar worktrees ni cambios abiertos.
 
 ## Próxima sesión
 
-### R4.8 — tarjeta regalo y crédito en tienda — ⬜ siguiente bloque
+### R4.9 — preventa y backorder — ⬜ siguiente bloque
+
+R4.8 queda cerrado con `PRC-010/011`, módulo pricing `1.8.0` y la migración
+expand-only `0032`. Tarjeta regalo y crédito comparten un ledger append-only:
+emisión, reserva, captura, liberación y reembolso proyectan saldo y reservado
+con versión. El código claro se entrega una sola vez y solo persiste su hash;
+el crédito usa identidad opaca de servidor sin adelantar perfiles R5.
+
+Checkout autoriza importe y moneda en servidor, reserva antes del PSP y separa
+`payments.expected_amount_cents` externo de `stored_value_expected_cents`; su
+suma coincide con el total comercial. Pago, expiración/cancelación y reembolso
+mixto se cierran en batches idempotentes. El reembolso repone primero el medio
+almacenado para impedir convertir valor promocional en efectivo. APIs admin,
+auditoría, backup esquema 26, ADR, runbook, wiki y rehearsal completan el bloque;
+caducidad, financiación, transferibilidad y cash-out exigen revisión legal por
+proyecto. La demo permanece de solo lectura.
+
+Gate conjunto de integración y evidencia de producción: pendiente de completar
+en esta sesión antes del push/deploy autorizado.
+
+Siguiente incremento exacto: R4.9. Debe modelar preventa/backorder sin vender
+stock inexistente en silencio: promesa fechada y versionada, política de cobro,
+asignación posterior, estados visibles y comunicación. Cualquier plazo o
+promesa comercial concreta sigue reservado a Andreu; no adelantar suscripciones
+R4.10, clientes R5 ni conectores.
+
+### R4.7 — bundles fijos y configurables — ✅ 2026-08-14
 
 R4.7 queda cerrado localmente con `PRC-012`, módulo pricing `1.7.0` y la
 migración expand-only `0031`. Un bundle es una línea comercial con precio de
@@ -1683,15 +1709,6 @@ tipados, build y sitemap de 6 URLs. El árbol compartido pasa 641 pruebas no
 visuales, tipado de 626 archivos, build y E2E Wrangler completo; conserva solo
 los tres fallos ajenos de Monte (asset, orden y categoría). R4.7 no los corrige
 por instrucción expresa de Andreu. No corresponde auditoría a11y: no cambió UI.
-
-Siguiente incremento exacto: R4.8. Debe diseñar primero un ledger monetario
-append-only para tarjeta regalo y crédito en tienda, separar emisión, saldo,
-uso parcial, reverso/reembolso e idempotencia, y fijar qué ocurre ante pago
-mixto. Ningún valor o código claro será autoritativo desde cliente. Caducidad,
-dinero promocional, transferibilidad, efectivo e implicaciones legales quedan
-como puertas configurables documentadas: no se inventará una política comercial
-ni fiscal universal. Debe incluir migración/rehearsal, APIs auditadas, checkout,
-backup, gates y documentación, sin adelantar R4.9, clientes R5 ni temas.
 
 Las entradas que siguen son el histórico de cierres anteriores y no cambian el
 orden actual.

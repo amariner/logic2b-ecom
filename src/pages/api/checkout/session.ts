@@ -20,6 +20,7 @@ import {
   createConsoleObservability,
   createOperationId,
 } from '../../../platform/operations';
+import { createD1StoredValue, type StoredValueAuthorization } from '../../../modules/payments';
 
 export const prerender = false;
 
@@ -51,6 +52,14 @@ const checkoutRequestSchema = z.object({
     company: z.string().trim().max(160).optional(),
   }),
   promotion_code: z.string().trim().min(3).max(32).optional(),
+  gift_card_code: z.string().trim().min(20).max(100).optional(),
+  /** Cero/ausente = usar todo lo posible; el servidor limita por saldo y total. */
+  gift_card_amount_cents: z.number().int().min(0).optional(),
+}).superRefine((value, context) => {
+  if (value.gift_card_amount_cents !== undefined && value.gift_card_code === undefined) {
+    context.addIssue({ code: 'custom', path: ['gift_card_amount_cents'],
+      message: 'El importe requiere una tarjeta regalo.' });
+  }
 });
 
 export const POST: APIRoute = async ({ request, locals }) => {
@@ -127,9 +136,33 @@ export const POST: APIRoute = async ({ request, locals }) => {
       return Response.json({ error: 'No hay cobertura de envío para ese código postal' }, { status: 422 });
     }
 
+    let storedValueAuthorization: StoredValueAuthorization | null = null;
+    if (parsed.data.gift_card_code !== undefined) {
+      if (!runtimePlatform.isCapabilityActive('PRC-010')) {
+        return Response.json({ error: 'La tarjeta regalo no está disponible.' }, { status: 422 });
+      }
+      try {
+        storedValueAuthorization = await createD1StoredValue(env.DB).authorizeGiftCard({
+          code: parsed.data.gift_card_code,
+          requestedCents: parsed.data.gift_card_amount_cents ?? 0,
+          orderTotalCents: quote.total_cents,
+          currency: shopConfig.currency.toUpperCase(),
+          at: new Date().toISOString(),
+        });
+      } catch (error) {
+        if (error instanceof RangeError) storedValueAuthorization = null;
+        else throw error;
+      }
+      if (storedValueAuthorization === null) {
+        return Response.json({ error: 'La tarjeta regalo no está disponible para este pedido.' },
+          { status: 422, headers: { 'cache-control': 'no-store' } });
+      }
+    }
+
     const orderNumber = generateOrderNumber();
     const origin = new URL(request.url).origin;
-    const simulate = isSimulatedPayment(env);
+    const externalPaymentCents = quote.total_cents - (storedValueAuthorization?.amountCents ?? 0);
+    const simulate = isSimulatedPayment(env) || externalPaymentCents === 0;
     const reservationsEnabled = runtimePlatform.hasCapabilityFlag('INV-004', 'sideEffects');
     const reservationExpiresAt = reservationsEnabled
       ? new Date(Date.now() + INVENTORY_RESERVATION_POLICY.ttlSeconds * 1000).toISOString()
@@ -162,15 +195,22 @@ export const POST: APIRoute = async ({ request, locals }) => {
       const stripe = stripeClient(env.STRIPE_SECRET_KEY!);
 
       // line_items construidos EN SERVIDOR desde la quote (nunca del cliente)
-      const lineItems = quote.lines.map((line) => ({
+      const lineItems = storedValueAuthorization === null ? quote.lines.map((line) => ({
         quantity: line.qty,
         price_data: {
           currency: shopConfig.currency,
           unit_amount: line.unit_price_cents,
           product_data: { name: line.name },
         },
-      }));
-      if (quote.shipping_cents > 0) {
+      })) : [{
+        quantity: 1,
+        price_data: {
+          currency: shopConfig.currency,
+          unit_amount: externalPaymentCents,
+          product_data: { name: `Importe pendiente — ${orderNumber}` },
+        },
+      }];
+      if (storedValueAuthorization === null && quote.shipping_cents > 0) {
         lineItems.push({
           quantity: 1,
           price_data: {
@@ -335,6 +375,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
             },
           },
         }),
+      ...(storedValueAuthorization === null ? {} : { storedValueAuthorization }),
     });
     const placed = await orders.placeOrder(
       {
@@ -379,7 +420,11 @@ export const POST: APIRoute = async ({ request, locals }) => {
       durationMs: performance.now() - started,
     });
     return Response.json(
-      { url: redirectUrl, order_number: orderNumber },
+      { url: redirectUrl, order_number: orderNumber,
+        stored_value: storedValueAuthorization === null ? null : {
+          applied_cents: storedValueAuthorization.amountCents,
+          external_payment_cents: externalPaymentCents,
+        } },
       { headers: { 'x-operation-id': operationId } },
     );
   } catch (error) {

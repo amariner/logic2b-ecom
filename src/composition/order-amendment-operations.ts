@@ -21,6 +21,9 @@ import {
 } from '../modules/orders';
 import {
   createD1PaymentLedger,
+  createD1StoredValue,
+  paymentSettlementCents,
+  planStoredValueRefund,
   planRefundCaptureAllocations,
   type PaymentRefundGatewayResolver,
   type RefundGatewayStatus,
@@ -146,6 +149,7 @@ export function createOrderAmendmentOperations(
   const amendments = createD1OrderAmendments(db);
   const orders = createOrderWriter(db);
   const payments = createD1PaymentLedger(db);
+  const storedValue = createD1StoredValue(db);
   const reservations = createD1InventoryReservations(db);
   const inventory = createD1InventoryLedger(db);
   const outbox = createD1EventOutboxWriter(db);
@@ -371,19 +375,25 @@ export function createOrderAmendmentOperations(
     if (plan.status === 'pending_refund') {
       const payment = await payments.findByOrderId(plan.order_id);
       if (!payment) return { outcome: 'invalid_state', amendment: null };
-      const allocations = planRefundCaptureAllocations(
-        await payments.refundableCaptures(plan.order_id),
-        -plan.delta_cents,
+      const storedApplication = await storedValue.refundableApplication(plan.order_id);
+      const tenderPlan = planStoredValueRefund(-plan.delta_cents,
+        storedApplication?.refundable_cents ?? 0);
+      const allocations = tenderPlan.externalCents === 0 ? [] : planRefundCaptureAllocations(
+        await payments.refundableCaptures(plan.order_id), tenderPlan.externalCents,
       );
+      const refundKey = `r3:amendment:${input.amendmentId}:refund`;
       statements.push(...payments.createAdjustmentRefundIntentStatements(payment, {
         amendment_id: input.amendmentId,
         order_id: plan.order_id,
         reason: input.reason,
         occurred_at: createdAt,
-        idempotency_key: `r3:amendment:${input.amendmentId}:refund`,
+        idempotency_key: refundKey,
         total_cents: -plan.delta_cents,
         allocations,
       }));
+      if (tenderPlan.storedValueCents > 0) statements.push(storedValue.refundAllocationStatement(
+        refundKey, tenderPlan.storedValueCents, createdAt,
+      ));
     }
     try {
       const results = await orders.commitResults(statements);
@@ -423,12 +433,16 @@ export function createOrderAmendmentOperations(
     let payment = await payments.findByOrderId(amendment.order_id);
     let refund = await payments.findRefundByAmendmentId(amendment.id);
     if (!payment || !refund) return { outcome: 'invalid_state', amendment };
-    const gateway = resolveRefundGateway(payment.provider);
-    if (!gateway || gateway.provider !== payment.provider) {
+    const [allocations, storedAllocations] = await Promise.all([
+      payments.refundAllocations(refund.id), storedValue.refundAllocations(refund.id),
+    ]);
+    if (allocations.length === 0 && storedAllocations.length === 0) {
+      return { outcome: 'invalid_state', amendment };
+    }
+    const gateway = allocations.length > 0 ? resolveRefundGateway(payment.provider) : null;
+    if (allocations.length > 0 && (!gateway || gateway.provider !== payment.provider)) {
       return { outcome: 'gateway_unavailable', amendment };
     }
-    const allocations = await payments.refundAllocations(refund.id);
-    if (allocations.length === 0) return { outcome: 'invalid_state', amendment };
     const occurredAt = new Date().toISOString();
     const statuses: RefundGatewayStatus[] = [];
     const outcomeStatements: D1PreparedStatement[] = [];
@@ -437,7 +451,7 @@ export function createOrderAmendmentOperations(
         statuses.push('succeeded');
         continue;
       }
-      const result = await gateway.refund({
+      const result = await gateway!.refund({
         paymentReference: allocation.payment_reference,
         amountCents: allocation.amount_cents,
         currency: payment.currency,
@@ -466,19 +480,24 @@ export function createOrderAmendmentOperations(
         amendment: await amendments.findById(amendment.id),
       };
     }
-    const currentAllocations = await payments.refundAllocations(refund.id);
+    const [currentAllocations, currentStoredAllocations] = await Promise.all([
+      payments.refundAllocations(refund.id), storedValue.refundAllocations(refund.id),
+    ]);
     payment = await payments.findByOrderId(amendment.order_id);
     if (!payment || currentAllocations.some((allocation) =>
-      allocation.status !== 'processing' && allocation.status !== 'succeeded')) {
+      allocation.status !== 'processing' && allocation.status !== 'succeeded') ||
+      currentStoredAllocations.some((allocation) =>
+        allocation.status !== 'pending' && allocation.status !== 'succeeded')) {
       return { outcome: 'conflict', amendment };
     }
     const lines = await amendments.lines(amendment.id);
     const event = orderAmendmentAppliedEvent(
       emit,
       eventInput(amendment, lines.length),
-      { causationId: currentAllocations.map((allocation) => allocation.provider_reference).filter(Boolean).join(',') },
+      { causationId: currentAllocations.map((allocation) => allocation.provider_reference)
+        .filter(Boolean).join(',') || `stored-value:${refund.id}` },
     );
-    const paymentStatusAfter = payment.refunded_cents + refund.total_cents === payment.expected_amount_cents
+    const paymentStatusAfter = payment.refunded_cents + refund.total_cents === paymentSettlementCents(payment)
       ? 'refunded'
       : 'partially_refunded';
     const statements: D1PreparedStatement[] = [
@@ -498,6 +517,15 @@ export function createOrderAmendmentOperations(
           allocation,
           occurredAt,
           { eventId: event.event_id },
+        ));
+      }
+    }
+    for (const allocation of currentStoredAllocations) {
+      if (allocation.status === 'pending') {
+        const account = await storedValue.findById(allocation.account_id);
+        if (!account) return { outcome: 'conflict', amendment };
+        statements.push(...storedValue.refundSuccessStatements(
+          allocation, account, amendment.order_id, occurredAt, { eventId: event.event_id },
         ));
       }
     }

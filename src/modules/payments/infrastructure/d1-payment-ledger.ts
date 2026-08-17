@@ -19,6 +19,7 @@ export type PendingPaymentInput = Readonly<{
   provider_reference: string;
   currency: string;
   occurred_at: string;
+  stored_value_expected_cents?: number;
 }>;
 
 export type TotalRefundIntentInput = Readonly<{
@@ -46,7 +47,7 @@ export type AdjustmentRefundIntentInput = Readonly<{
   occurred_at: string;
   idempotency_key: string;
   total_cents: number;
-  allocations: readonly PlannedRefundCaptureAllocation[];
+  allocations?: readonly PlannedRefundCaptureAllocation[];
 }>;
 
 export type ReturnRefundIntentInput = Readonly<{
@@ -60,7 +61,7 @@ export type ReturnRefundIntentInput = Readonly<{
     amount_cents: number;
   }>[];
   total_cents: number;
-  allocations: readonly PlannedRefundCaptureAllocation[];
+  allocations?: readonly PlannedRefundCaptureAllocation[];
 }>;
 
 export type RefundPaymentAllocationRecord = Readonly<{
@@ -122,25 +123,33 @@ export function createD1PaymentLedger(db: D1Database) {
       input: PendingPaymentInput,
       guard: PaymentLedgerGuard,
     ): D1PreparedStatement {
+      const storedValueCents = input.stored_value_expected_cents ?? 0;
+      if (!Number.isSafeInteger(storedValueCents) || storedValueCents < 0) {
+        throw new RangeError('stored_value_expected_cents inválido.');
+      }
       return db.prepare(`
         INSERT INTO payments (
           order_id, provider, provider_reference, currency,
-          expected_amount_cents, status, version, idempotency_key,
+          expected_amount_cents, stored_value_expected_cents, status, version, idempotency_key,
           created_at, updated_at
         )
         SELECT
-          o.id, ?, ?, o.currency, o.total_cents, 'pending', 1,
+          o.id, ?, ?, o.currency, o.total_cents-?, ?, 'pending', 1,
           'r2:payment:order:' || o.id || ':primary', ?, ?
         FROM orders o
         WHERE o.order_number = ? AND o.currency = ?
+          AND o.total_cents >= ?
           AND EXISTS (SELECT 1 FROM event_outbox_events WHERE event_id = ?)
       `).bind(
         input.provider,
         input.provider_reference,
+        storedValueCents,
+        storedValueCents,
         input.occurred_at,
         input.occurred_at,
         orderNumber,
         input.currency,
+        storedValueCents,
         guard.eventId,
       );
     },
@@ -148,11 +157,16 @@ export function createD1PaymentLedger(db: D1Database) {
     findByOrderId(orderId: number): Promise<PaymentLedgerEntry | null> {
       return db.prepare(`
         SELECT id, order_id, provider, provider_reference, currency,
-               expected_amount_cents, status, version,
+               expected_amount_cents, stored_value_expected_cents, status, version,
                COALESCE((
                  SELECT sum(t.amount_cents) FROM payment_transactions t
                  WHERE t.payment_id = payments.id
                    AND t.type = 'refund' AND t.status = 'succeeded'
+               ), 0) + COALESCE((
+                 SELECT sum(allocation.amount_cents)
+                 FROM stored_value_refund_allocations allocation
+                 JOIN refunds refund ON refund.id=allocation.refund_id
+                 WHERE refund.payment_id=payments.id AND allocation.status='succeeded'
                ), 0) AS refunded_cents,
                COALESCE((
                  SELECT sum(r.total_cents) FROM refunds r
@@ -311,7 +325,7 @@ export function createD1PaymentLedger(db: D1Database) {
           line.order_item_id,
         ));
       }
-      if (input.allocations) {
+      if (input.allocations && input.allocations.length > 0) {
         statements.push(...allocationStatements(input.idempotency_key, input.allocations, input.occurred_at));
       }
       return statements;
@@ -375,7 +389,7 @@ export function createD1PaymentLedger(db: D1Database) {
           line.order_item_id,
         ));
       }
-      if (input.allocations) {
+      if (input.allocations && input.allocations.length > 0) {
         statements.push(...allocationStatements(input.idempotency_key, input.allocations, input.occurred_at));
       }
       return statements;
@@ -423,7 +437,9 @@ export function createD1PaymentLedger(db: D1Database) {
       );
       return Object.freeze([
         header,
-        ...allocationStatements(input.idempotency_key, input.allocations, input.occurred_at),
+        ...(input.allocations && input.allocations.length > 0
+          ? allocationStatements(input.idempotency_key, input.allocations, input.occurred_at)
+          : []),
       ]);
     },
 
@@ -467,7 +483,9 @@ export function createD1PaymentLedger(db: D1Database) {
           .bind(line.order_item_id, line.quantity, line.amount_cents,
             input.idempotency_key, line.order_item_id));
       }
-      statements.push(...allocationStatements(input.idempotency_key, input.allocations, input.occurred_at));
+      if (input.allocations && input.allocations.length > 0) {
+        statements.push(...allocationStatements(input.idempotency_key, input.allocations, input.occurred_at));
+      }
       return Object.freeze(statements);
     },
 
@@ -591,23 +609,44 @@ export function createD1PaymentLedger(db: D1Database) {
               SELECT 1 FROM refund_payment_allocations allocation
               WHERE allocation.refund_id = ? AND allocation.status <> 'succeeded'
             )
+            AND NOT EXISTS (
+              SELECT 1 FROM stored_value_refund_allocations allocation
+              WHERE allocation.refund_id = ? AND allocation.status <> 'succeeded'
+            )
+            AND EXISTS (
+              SELECT 1 FROM refund_payment_allocations allocation WHERE allocation.refund_id = ?
+              UNION ALL
+              SELECT 1 FROM stored_value_refund_allocations allocation WHERE allocation.refund_id = ?
+            )
             AND EXISTS (SELECT 1 FROM event_outbox_events WHERE event_id = ?)
         `).bind(
           paymentStatusAfter, occurredAt, payment.id, payment.status,
-          payment.version, refund.id, guard.eventId,
+          payment.version, refund.id, refund.id, refund.id, refund.id, guard.eventId,
         ),
         db.prepare(`
           UPDATE refunds
           SET status = 'succeeded',
               provider_reference = (
-                SELECT min(provider_reference) FROM refund_payment_allocations
-                WHERE refund_id = refunds.id AND status = 'succeeded'
+                SELECT COALESCE(
+                  (SELECT min(provider_reference) FROM refund_payment_allocations
+                   WHERE refund_id = refunds.id AND status = 'succeeded'),
+                  'stored-value:' || refunds.id
+                )
               ),
               version = version + 1, updated_at = ?
           WHERE id = ? AND version = ? AND status <> 'succeeded'
             AND NOT EXISTS (
               SELECT 1 FROM refund_payment_allocations allocation
               WHERE allocation.refund_id = refunds.id AND allocation.status <> 'succeeded'
+            )
+            AND NOT EXISTS (
+              SELECT 1 FROM stored_value_refund_allocations allocation
+              WHERE allocation.refund_id = refunds.id AND allocation.status <> 'succeeded'
+            )
+            AND EXISTS (
+              SELECT 1 FROM refund_payment_allocations allocation WHERE allocation.refund_id = refunds.id
+              UNION ALL
+              SELECT 1 FROM stored_value_refund_allocations allocation WHERE allocation.refund_id = refunds.id
             )
             AND EXISTS (SELECT 1 FROM event_outbox_events WHERE event_id = ?)
         `).bind(occurredAt, refund.id, refund.version, guard.eventId),

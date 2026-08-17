@@ -171,7 +171,7 @@ describe('R3.12 consolidación operativa', () => {
     const backup = await exportBackup(
       createD1BackupReader(db.asD1()), new Date('2026-08-14T17:00:00.000Z'),
     );
-    expect(backup.sql).toContain('logic2b-backup-schema: 25');
+    expect(backup.sql).toContain('logic2b-backup-schema: 26');
     const restored = new SqliteD1();
     restored.sqlite.exec(backup.sql);
     expect(restored.query('SELECT status FROM orders')).toEqual([{ status: 'delivered' }]);
