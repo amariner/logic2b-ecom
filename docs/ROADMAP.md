@@ -1075,6 +1075,23 @@ archivos sin diagnósticos, 78 suites/469 tests y build en verde. Producción
 sirve el Worker `25e45570-3864-4ab8-a218-89b7a3cad823`; smoke remoto 200 en
 portada y `/temas` sin referencias a COTA, y 404 en la tienda y el asset
 retirados.
+### Línea paralela · tema SARGA (2026-08-10, sesión local)
+
+Dirección paralela recuperada de la misma referencia de sastrería que originó
+la posición 5. NERA conserva la titularidad y el estado cerrado de esa posición
+en `nuevos-temas/cola.json`; SARGA se integra como interpretación alternativa,
+sin reescribir la cola. Su hero de campaña, carrusel de cuatro prendas aisladas
+y mosaico editorial asimétrico reúnen 4 productos `sar-*` en tres categorías y
+8 assets WebP propios.
+
+La herramienta integrada de OpenAI falló por red antes de producir el primer
+asset; con la autorización expresa del usuario se completó la imaginería con
+Higgsfield Product Photoshoot, en llamadas individuales. El tema toca solo su
+kit y los registros previstos. **No modifica lógica de precios, envíos,
+checkout, pedidos, D1 ni APIs.** Ficha completa en
+[`docs/temas/sarga.md`](temas/sarga.md). Verificación local: 364 archivos Astro
+sin diagnósticos, 49 suites y 332 tests, build en verde; catálogo, ficha,
+carrito y checkout con **0 errores y 0 avisos a11y** en 9 superficies.
 
 ### Pendiente en la Fase 9B
 

@@ -651,6 +651,17 @@ producto sobre blanco. Ocho productos y once assets propios replican el ritmo y
 la jerarquía de la referencia con identidad NERA. Ficha:
 [`docs/temas/nera.md`](temas/nera.md).
 
+### 18b · SARGA — *sastrería contemporánea*
+
+📎 **Referencia: [`18-sarga.webp`](../public/images/referencias/18-sarga.webp)**
+
+**Para quién:** moda contemporánea, sastrería de autor y colecciones cortas.
+
+Interpretación paralela de la referencia de sastrería de la posición 5: hero
+blanco con campaña en los extremos, cuatro prendas aisladas y mosaico editorial
+asimétrico. Cuatro productos y ocho assets propios completan el recorrido sin
+duplicar la lógica comercial. Ficha: [`docs/temas/sarga.md`](temas/sarga.md).
+
 ### 19 · VISO — *óptica futurista*
 
 📎 **Referencia: [`19-viso.webp`](../public/images/referencias/19-viso.webp)**
@@ -795,6 +806,7 @@ confirmación en el recorrido compartido. Ficha:
 | 16 | SUMMIT | `#8b4e2e` | 3 | **irregular** | **immersive** | **fullbleed** | divided | dropdown | compact | ✅ |
 | 17 | LÍTICA | `#9a3f1f` | 3 | **irregular** | top | **split** | divided | dropdown | compact | ✅ |
 | 18 | NERA | `#55788a` | 4 | uniform | top | **fullbleed** | divided | dropdown | compact | ✅ |
+| 18b | SARGA | `#20201f` | 4 | **irregular** | **immersive** | **fullbleed** | divided | dropdown | compact | ✅ |
 | 19 | VISO | `#9b4520` | 4 | **irregular** | top | **split** | plain | dropdown | compact | ✅ |
 | 20 | ORBE | `#465344` | 4 | uniform | top | **split** | divided | dropdown | compact | ✅ |
 | 21 | ALVA | `#282522` | 4 | uniform | top | **split** | divided | dropdown | compact | ✅ |

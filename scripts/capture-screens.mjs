@@ -128,6 +128,7 @@ const REVEAL_STRETCH = `(async () => {
 // Iris es tienda de vídeo-scrub: la estática solo sirve de PÓSTER del hero
 // (viewport), no de página completa — el escaparate se enseña con el clip.
 const STORES = [
+  { id: 'sarga', label: 'SARGA', catalog: '/demo/tiendas/sarga', full: true, maxH: 3000 },
   { id: 'monte', label: 'MONTE', catalog: '/demo/tiendas/monte', full: true, maxH: 3600, desktopQ: 66, mobileQ: 56 },
   { id: 'mixta', label: 'MIXTA', catalog: '/demo/tiendas/mixta', full: true, maxH: 3600, desktopQ: 66, mobileQ: 56 },
   { id: 'lumbre', label: 'LUMBRE', catalog: '/demo/tiendas/lumbre', full: true, maxH: 3600, mobileQ: 56 },
@@ -178,6 +179,7 @@ for (const s of STORES) {
 // Ficha de producto: el producto firma de cada tienda. `product(slug)` respeta
 // las rutas históricas de la genérica (/demo/tienda/<slug>).
 const FICHAS = [
+  { id: 'sarga', slug: 'sar-blazer-negro', prefix: '/demo/tiendas/sarga' },
   { id: 'monte', slug: 'mon-pepper', prefix: '/demo/tiendas/monte' },
   { id: 'mixta', slug: 'mix-polvo-nube', prefix: '/demo/tiendas/mixta' },
   { id: 'lumbre', slug: 'lum-soma-terracota', prefix: '/demo/tiendas/lumbre' },

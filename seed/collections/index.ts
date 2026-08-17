@@ -39,6 +39,7 @@ import { dintelSeedProducts } from './dintel.ts';
 import { lumbreSeedProducts } from './lumbre.ts';
 import { mixtaSeedProducts } from './mixta.ts';
 import { monteSeedProducts } from './monte.ts';
+import { sargaSeedProducts } from './sarga.ts';
 // new-theme:seed-imports — no borrar: `pnpm new:theme <id>` añade aquí su import.
 
 export const collectionSeedProducts: readonly SeedProduct[] = [
@@ -71,5 +72,6 @@ export const collectionSeedProducts: readonly SeedProduct[] = [
   ...lumbreSeedProducts,
   ...mixtaSeedProducts,
   ...monteSeedProducts,
+  ...sargaSeedProducts,
   // new-theme:seed-entries — no borrar: `pnpm new:theme <id>` añade aquí su spread.
 ];

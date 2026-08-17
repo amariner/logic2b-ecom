@@ -41,6 +41,7 @@ import DintelCatalog from '../themes/dintel/Catalog.astro';
 import LumbreCatalog from '../themes/lumbre/Catalog.astro';
 import MixtaCatalog from '../themes/mixta/Catalog.astro';
 import MonteCatalog from '../themes/monte/Catalog.astro';
+import SargaCatalog from '../themes/sarga/Catalog.astro';
 
 interface Props {
   collection: CollectionConfig;
@@ -109,6 +110,7 @@ const catalogViews = {
   lumbre: LumbreCatalog,
   mixta: MixtaCatalog,
   monte: MonteCatalog,
+  sarga: SargaCatalog,
 } as const;
 const ThemedCatalog = catalogViews[collection.themeId as keyof typeof catalogViews] ?? null;
 ---
