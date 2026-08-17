@@ -126,6 +126,30 @@ export {
 } from './domain/order-bulk-action';
 
 export {
+  PRELIMINARY_ORDER_CONVERSION_GATES,
+  PRELIMINARY_ORDER_PAYMENT_STAGES,
+  PRELIMINARY_ORDER_PAYMENT_STATUSES,
+  PRELIMINARY_ORDER_STATUSES,
+  applyConfirmedPreliminaryOrderPayment,
+  approvePreliminaryOrder,
+  assertPreliminaryOrder,
+  cancelPreliminaryOrder,
+  convertPreliminaryOrder,
+  createPreliminaryOrderDraft,
+  expirePreliminaryOrder,
+  issuePreliminaryOrder,
+  nextPreliminaryOrderPayment,
+  type ConfirmedPreliminaryOrderPayment,
+  type PreliminaryOrder,
+  type PreliminaryOrderConversionGate,
+  type PreliminaryOrderDraft,
+  type PreliminaryOrderPaymentPlan,
+  type PreliminaryOrderPaymentStage,
+  type PreliminaryOrderPaymentStatus,
+  type PreliminaryOrderStatus,
+} from './domain/preliminary-order';
+
+export {
   EXTERNAL_ORDER_DOCUMENT_TYPES,
   GENERATED_ORDER_DOCUMENT_TYPES,
   ORDER_DOCUMENT_TYPES,

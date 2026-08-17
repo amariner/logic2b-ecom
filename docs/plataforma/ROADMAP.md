@@ -133,7 +133,7 @@ Cada migración se diseña y ensaya sobre una copia antes de tocar el esquema vi
 | 46 | **R4.8 Tarjeta regalo/crédito** | Ledger, emisión, uso parcial, saldo y reembolso; revisión legal por proyecto. | ✅ 2026-08-17; desplegado con `0032` |
 | 47 | **R4.9 Preventa/backorder** | Promesa, asignación, cobro y comunicación. | ✅ 2026-08-17; local, `0033` pendiente de rollout |
 | 48 | **R4.10 Suscripciones por adaptador** | Contrato proveedor, eventos, cambio/pausa/cancelación, impago y portal. | ✅ 2026-08-17; local, `0034` pendiente de rollout; capacidad instalada |
-| 49 | **R4.11 Presupuestos y depósitos** | Draft order, caducidad, aprobación, enlace de pago y saldo. | ⬜ |
+| 49 | **R4.11 Presupuestos y depósitos** | Draft order, caducidad, aprobación, enlace de pago y saldo. | 🟡 dominio/ADR; migración pendiente de autorización |
 | 50 | **R4.12 Consolidación R4** | Matriz exhaustiva de reglas, property tests de dinero y wiki de cada modelo. | ⬜ |
 
 El corte conjunto del 2026-08-17 llevó `0020`–`0032` a la D1 demo y publicó el
@@ -151,6 +151,12 @@ R4.10 cerró también en local: `PRC-013`, módulo `subscriptions`, adaptador
 simulado sin red, eventos/impago/portal, `0034` y backup 28. Rehearsal/restore,
 150 suites/691 tests y E2E local quedaron verdes. La capacidad permanece
 instalada, no activa; D1 remota y Worker no cambiaron.
+
+R4.11 tiene cerrado el corte previo al gate: ADR-0038, dominio puro versionado,
+puertas explícitas de conversión y puerto de enlace alojado, con `ORD-008` y
+`CHK-011` instaladas sin superficie. `pnpm check` pasa 151 suites/699 tests. La
+migración expand-only `0035`, persistencia, API y operación esperan autorización
+expresa; hasta entonces ambas capacidades siguen `especificado`, no disponibles.
 
 ## R5 — Clientes, privacidad y mercados
 

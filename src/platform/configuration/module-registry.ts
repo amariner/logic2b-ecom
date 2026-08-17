@@ -148,7 +148,7 @@ export const MODULE_DESCRIPTORS = [
     permissions: [], events: [], subscriptions: [], jobs: [], healthchecks: [], wikiLinks: [ARCHITECTURE_WIKI], navigation: [], routes: [],
   },
   {
-    id: 'orders', version: '1.7.1', capabilities: ['ORD-001', 'ORD-002', 'ORD-004', 'ORD-005', 'ORD-007', 'ORD-010', 'ORD-011', 'ORD-012', 'AUT-001', 'AUT-011'],
+    id: 'orders', version: '1.8.0', capabilities: ['ORD-001', 'ORD-002', 'ORD-004', 'ORD-005', 'ORD-007', 'ORD-008', 'ORD-010', 'ORD-011', 'ORD-012', 'AUT-001', 'AUT-011'],
     dependencies: ['catalog', 'pricing', 'customers'], permissions: ['orders.read', 'orders.transition', 'orders.collaborate', 'orders.amend', 'orders.refund', 'orders.hold', 'orders.bulk', 'orders.documents.read', 'orders.documents.write'],
     events: ['orders.order_placed', 'orders.order_paid', 'orders.order_shipped', 'orders.order_delivered', 'orders.order_cancelled', 'orders.order_refunded', 'orders.order_partially_refunded', 'orders.order_amendment_requested', 'orders.order_amendment_applied', 'orders.order_amendment_expired', 'orders.order_hold_created', 'orders.order_hold_assigned', 'orders.order_hold_resolved'],
     subscriptions: [],
@@ -220,7 +220,7 @@ export const MODULE_DESCRIPTORS = [
     routes: [{ match: 'prefix', path: '/api/admin/subscriptions', capabilityId: 'PRC-013' }],
   },
   {
-    id: 'checkout', version: '1.0.0', capabilities: ['CHK-002', 'CHK-003'],
+    id: 'checkout', version: '1.1.0', capabilities: ['CHK-002', 'CHK-003', 'CHK-011'],
     dependencies: ['cart', 'catalog', 'pricing', 'inventory', 'fulfillment', 'customers', 'payments', 'orders'],
     permissions: [], events: [], subscriptions: [], jobs: [], healthchecks: [], wikiLinks: [ARCHITECTURE_WIKI], navigation: [],
     routes: [

@@ -242,6 +242,9 @@ venta o servicios logísticos propios.
   rollout, reconciliación, incidencias y rollback de `PRC-013`.
 - [`wiki/suscripciones-por-adaptador.md`](wiki/suscripciones-por-adaptador.md):
   recorrido funcional y fronteras de seguridad/comercio de R4.10.
+- [`adr/0038-presupuestos-depositos-transiciones-explicitas.md`](adr/0038-presupuestos-depositos-transiciones-explicitas.md):
+  contrato propuesto R4.11 de borrador, vigencia, depósito/saldo, enlace alojado
+  y conversión explícita; la persistencia espera autorización.
 - [`../../migrations/0016_order_amendments.sql`](../../migrations/0016_order_amendments.sql):
   expansión de cantidades vigentes, amendments y asignaciones financieras.
 - [`OPERACION_EDICION_PEDIDOS.md`](OPERACION_EDICION_PEDIDOS.md):

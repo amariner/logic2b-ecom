@@ -108,7 +108,7 @@ su alcance requiera.
 | CHK-008 | Envío dividido | módulo | P2 | pendiente | Grupos de fulfillment con precio y promesa propios. |
 | CHK-009 | Múltiples pasarelas | módulo | P2 | pendiente | Payment intent interno y adaptadores sin bifurcar pedido. |
 | CHK-010 | Métodos locales y multidivisa | conector | P2 | conector | Disponibilidad por mercado y conciliación en moneda de liquidación. |
-| CHK-011 | Pago parcial/depósito | módulo | P2 | pendiente | Saldo pendiente, vencimientos y ledger. |
+| CHK-011 | Pago parcial/depósito | módulo | P2 | especificado | Contrato puro de depósito/saldo y enlace alojado; persistencia, ledger y activación esperan el gate D1. |
 | CHK-012 | Validaciones extensibles | módulo | P2 | pendiente | Políticas puras de carrito/checkout con mensajes seguros. |
 | CHK-013 | Recuperación de checkout abandonado | módulo | P2 | pendiente | Consentimiento, enlace seguro, expiración y atribución. |
 | CHK-014 | Riesgo y fraude | conector | P2 | conector | Señales del PSP, revisión, decisión y auditoría. |
@@ -126,7 +126,7 @@ su alcance requiera.
 | ORD-005 | Edición de pedido | módulo | P1 | actual | Añadir/quitar/cambiar cantidad o dirección con preview servidor, cobro alojado/reembolso por captura y stock reservado/repuesto. |
 | ORD-006 | Cancelación parcial | módulo | P1 | actual | Selección por línea/cantidad no enviada, motivo, reserva concurrente y stock opcional coherente. |
 | ORD-007 | Reembolso total/parcial | módulo | P1 | actual | Intención previa al PSP, saldo acumulado, retry idempotente, política de envío por despliegue, estado visible, evento/email y reposición opcional. |
-| ORD-008 | Pedido preliminar/presupuesto | módulo | P2 | pendiente | Borrador, caducidad, aprobación, factura y enlace de pago. |
+| ORD-008 | Pedido preliminar/presupuesto | módulo | P2 | especificado | Estados, vigencia, aprobación y puerta de conversión tipados; persistencia y operación esperan el gate D1. |
 | ORD-009 | Captura manual o diferida | módulo | P2 | pendiente | Autorización, captura parcial y expiración. |
 | ORD-010 | Riesgo/incidencia/bloqueo | módulo | P2 | actual | Holds manuales/automáticos múltiples con responsable, SLA, resolución optimista e histórico; cualquier activo impide nueva preparación. |
 | ORD-011 | Acciones masivas seguras | módulo | P2 | actual | Selección explícita ≤500, preview SHA-256, lote/job durable en chunks de 25, progreso y evidencia por pedido, revalidación, replay/reanudación idempotentes y demo sin efectos. |

@@ -148,7 +148,7 @@ sus verificaciones ni sus puntos de reanudación.
 | R4.1–R4.8 | Reglas de precio, promociones, cantidad, combinabilidad, listas, bundles y valor almacenado | ✅ 2026-08-17 — D1 `0025`–`0032`, E2E remoto y Worker desplegados |
 | R4.9 | Preventa/backorder | ✅ 2026-08-17 — `PRC-014`, D1 `0033`, backup 27 y rehearsal local; rollout pendiente |
 | R4.10 | Suscripciones por adaptador | ✅ 2026-08-17 — `PRC-013`, módulo subscriptions, D1 `0034`, backup 28 y rehearsal local; capacidad instalada, rollout pendiente |
-| R4.11 | Presupuestos y depósitos | ⬜ siguiente bloque |
+| R4.11 | Presupuestos y depósitos | 🟡 ADR/dominio en verde; migración D1 pendiente de autorización |
 
 ## Fase 12 — Logic2B Ecommerce: renombrado, reposicionamiento y las dos visiones
 
@@ -1681,7 +1681,37 @@ la cola de temas, coordinados sin mezclar worktrees ni cambios abiertos.
 
 ## Próxima sesión
 
-### R4.11 — presupuestos y depósitos — ⬜ siguiente bloque
+### R4.11 — presupuestos y depósitos — 🟡 en progreso, gate D1 pendiente
+
+El corte previo a la migración queda implementado con ADR-0038, `ORD-008` en
+`orders` y `CHK-011` en `checkout`, ambas capacidades `installed` y sin rutas,
+navegación, jobs o efectos. El agregado tipa borrador, emisión, aprobación,
+caducidad, cancelación, pago y conversión con versión optimista. Depósito y
+saldo son céntimos explícitos; `approval`, `deposit` y `full_payment` son puertas
+congeladas aportadas por cada proyecto, nunca defaults comerciales.
+
+`HostedPaymentLinkAdapter` mantiene proveedor, firma y URL fuera de `orders`.
+El plan servidor incluye etapa, importe, moneda, versión, idempotencia y
+caducidad; la URL solo existe en la respuesta efímera del adaptador. Aprobar o
+cobrar no crea pedido ni toca stock: la conversión sigue siendo una transición
+separada. La matriz deja `ORD-008`/`CHK-011` como `especificado`, no disponible.
+
+Gate de este corte: `pnpm check` con 668 archivos sin diagnósticos, 151 suites y
+699 tests, más build y sitemap verdes. No cambió UI ni runtime HTTP, por lo que
+E2E/a11y no aplicaban. No se creó migración, no se tocó D1 local/remota ni
+Worker y no hubo dependencias nuevas.
+
+Continuación exacta tras autorización: crear y ensayar la migración expand-only
+`0035_preliminary_orders_deposits.sql`, repositorio/caso de uso D1, adaptador
+simulado interno, API administrativa auditada, backup/rehearsal y E2E de replay,
+concurrencia, depósito, saldo y conversión. Sin autorización, R4.11 conserva la
+cabeza del carril principal y no se salta a R4.12.
+
+Estado servido: producción continúa en `0032` y Worker
+`76af7637-8fe3-4aae-8c87-6e78d72e72ad`; `0033`–`0034` siguen pendientes de
+rollout y este corte R4.11 solo existe en el repositorio de trabajo.
+
+#### Corte anterior R4.10
 
 R4.10 queda cerrado localmente con `PRC-013`, el nuevo módulo `subscriptions`
 `1.0.0`, ADR-0037 y la migración expand-only `0034`. El puerto neutral cubre
@@ -1707,10 +1737,8 @@ de 587808 bytes. D1 local aplicó `0034` con las cinco tablas vacías y FKs
 limpias. No se tocó D1 remota ni Worker: producción continúa en `0032` y
 `76af7637-8fe3-4aae-8c87-6e78d72e72ad`; el rollout debe aplicar antes `0033`.
 
-Siguiente incremento exacto: R4.11. Debe modelar draft order, caducidad,
-aprobación, enlace de pago, depósito y saldo sin inventar porcentaje, vigencia,
-condiciones comerciales ni proveedor. No convertir el presupuesto en pedido ni
-reservar/cobrar stock antes de la transición explícita correspondiente.
+R4.11 conserva esas fronteras y no se considera cerrado hasta completar su gate
+de persistencia y operación.
 
 ### R4.7 — bundles fijos y configurables — ✅ 2026-08-14
 

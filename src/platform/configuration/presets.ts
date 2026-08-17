@@ -98,6 +98,10 @@ const ADVANCED_CAPABILITIES = {
   // precio o cadencia comercial. Un proyecto debe activarlo explícitamente.
   'PRC-013': { state: 'installed' },
   'PRC-014': { state: 'active', flags: ROUTE_EFFECT },
+  // R4.11 solo instala el contrato: cada proyecto debe aportar importes,
+  // vigencia, puerta de conversión y adaptador de enlace alojado.
+  'ORD-008': { state: 'installed' },
+  'CHK-011': { state: 'installed' },
   'FUL-002': { state: 'active', flags: ROUTE },
   'FUL-003': { state: 'active', flags: ROUTE },
   'FUL-004': { state: 'active', flags: ROUTE_EFFECT },
