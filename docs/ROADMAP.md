@@ -63,12 +63,19 @@ reconciliación se conserva abajo por contexto.
 | 11 | Landing V2 «nivel Awwwards» + negocio + funnel + docs | 🟡 En curso | 2026-08-13 | **F11.1, F11.3 (2 sesiones), F11.4, F11.5, F11.6, F11.7 y F11.8 (primera pasada + pase a11y/contenido desde cloud 2026-07-24) hechos**, más F11.8b (auditor de a11y, cloud), F11.2a-1 (tienda ASFALTO / tema Street), F11.2a-2 (tienda METRIA / tema Industrial) F11.2a-3 (tienda ROMER / tema Natural) y **F11.2a-4 (tienda KALIBRE / tema Specs, local 2026-07-25) — con la que F11.2a queda CERRADA (10/10 tiendas)**; y **F11.8c (Lighthouse citable + OG de WhatsApp + URLs sin redirección, local 2026-07-26)**; y **F11.8d–e (tabla de Lighthouse cerrada y desplegada: 7 de 8 superficies a 100×4, la landing entre ellas en móvil y escritorio, local 2026-07-27)**; y **F11.9 (contacto global de WhatsApp, cerrado y servido 2026-08-13)**. Solo queda la submission a Awwwards, decisión de pago reservada a Andreu. Detalle por bloque abajo. **Plan maestro completo en [`docs/PLAN_FASE11_LANDING_V2.md`](PLAN_FASE11_LANDING_V2.md)**: bloques F11.0–F11.8 ejecutables por sesiones independientes. **Decisiones D1–D6 APROBADAS por Andreu (2026-07-23)**: JS propio ≤15 KB sin deps, capturas con browser tools en local, dirección C «Ocho tiendas, un motor», escalera de precios (Lite 590 / Kit 1.900+39 / A medida 3.400+59), WhatsApp+email, Lite publicado sin construir. Prompt de arranque: [`docs/PROMPT_FASE11.md`](PROMPT_FASE11.md). Integra 9B.5/9B.6 (imaginería y temas restantes) como prerequisito del hero |
 | 8 | Pulido de la demo (backlog abajo) | 🟡 En curso | 2026-07-19 | Backlog técnico agotado; solo quedan decisiones y pasos locales de Andreu (ver «Decisiones pendientes» y `docs/PROMPT_CLOUD.md`). Últimas tandas: novena (race de idempotencia en el pago, PII enumerable en `/demo/gracias`, cancelación de pedido pagado sin devolver stock), décima (la misma race en el PATCH de admin, campos vacíos guardados como 0, login sin rate limit), undécima (diagrama móvil de `/arquitectura`, hedge del plazo de entrega, tokens de tema en `/demo/reset`, terminología «envío»), duodécima (aviso de corte en pedidos del admin, cabeceras sin wrap a 375px, leftover «portes», token de radio del carrito, contraste del botón eliminar, H1 en valenciano, checklist de producción) y decimotercera (misma race de idempotencia en `checkout.session.expired`, divisa hardcodeada a EUR fuera de Stripe, cobertura de test de `quoteCart`/PATCH admin/emails) y decimocuarta (config parcial de Stripe → cobro sin cumplimiento, emails duplicados bajo concurrencia, `payment_status` del webhook, color de marca centralizado en `shop.config.ts`, contraste/tema en carrito y checkout) — ver sección «Fase 8» |
 | 12 | Logic2B Ecommerce: renombrado, reposicionamiento y docs de dos visiones | ✅ Hecho | 2026-08-10 | **F12.0–F12.6 cerrados:** marca, argumento, dossier, canal agencias, ayuda, índice por audiencias, OG y auditorías citables consolidados. **Plan maestro en [`docs/PLAN_FASE12_LOGIC2B_ECOMMERCE.md`](PLAN_FASE12_LOGIC2B_ECOMMERCE.md)**. |
-| 13 | Plataforma modular: del gestor mínimo a paridad extrema de capacidad | 🟡 En curso | 2026-08-14 | **R0, R1, R2.1–R2.14, Admin V2 y R3.1–R3.9 completos localmente; siguiente R3.10:** devoluciones/RMA. Fuente de verdad en [`docs/plataforma/`](plataforma/README.md). |
+| 13 | Plataforma modular: del gestor mínimo a paridad extrema de capacidad | 🟡 En curso | 2026-08-17 | **R0–R3.12 y R4.1–R4.8 completos y desplegados; siguiente R4.9:** preventa/backorder. Fuente de verdad en [`docs/plataforma/`](plataforma/README.md). |
 
 ## Repo y entornos
 
 - GitHub: `https://github.com/amariner/logic2b-ecom` (rama `main`).
-- Cloudflare: **en producción** — Worker `ecom-logic2b` en https://ecom.logic2b.com, D1 remota `ecom-demo` (`7ae9b06d-3664-4790-a87c-04bb4c67e97a`) y cron reset cada 6 h. D1 sirve migraciones `0001`–`0019`; el corte R3.4 usa Worker `5ec8b676-781c-4463-9a18-7aa8a597a8eb`, E2E remoto 71/71, a11y afectada 4/4 y conserva `private, no-store` + `Vary: Cookie` en superficies privadas. R3.5–R3.9 permanecen en repo/local; `0020`–`0022` y el Worker nuevo no están desplegados.
+- Cloudflare: **en producción** — Worker `ecom-logic2b` versión
+  `76af7637-8fe3-4aae-8c87-6e78d72e72ad` en https://ecom.logic2b.com, D1
+  remota `ecom-demo` (`7ae9b06d-3664-4790-a87c-04bb4c67e97a`) y tres crons
+  activos. D1 sirve `0001`–`0032`, sin migraciones pendientes ni violaciones
+  FK; los fixtures actuales pasan el E2E remoto completo. SARGA y MONTE,
+  incluidas sus capturas, responden 200. Lighthouse 12 queda en
+  100/100/100/100 salvo el rendimiento móvil de portada, estable en 99 con
+  LCP 2,0 s, CLS 0 y TBT 0 ms.
 
 ## Fase 13 — Plataforma modular y paridad de capacidad
 
@@ -137,11 +144,9 @@ sus verificaciones ni sus puntos de reanudación.
 | R3.3 | Edición segura de pedido con preview y conciliación | ✅ 2026-08-12 — D1 `0016`, Worker `6e61c22a…`, E2E/a11y remoto |
 | R3.4 | Holds e incidencias con SLA y guard de preparación | ✅ 2026-08-13 — 463 tests; D1 `0017`, Worker `5ec8b676…`, E2E 71/71 y a11y 4/4 |
 | R3.5 | Acciones masivas seguras | ✅ 2026-08-14 — DDL, runtime, job, API, panel, replay/reanudación y operación |
-| R3.6 | Ubicaciones | ✅ 2026-08-14 — D1 `0019`, principal compatible, admin, backup y rehearsal; Worker pendiente |
-| R3.7 | Transferencias | ✅ 2026-08-14 — D1 local `0020`, recepción parcial/discrepancias, ledger, admin y backup; sin deploy |
-| R3.8 | Conteos y ajustes | ✅ 2026-08-14 — D1 local `0021`, foto versionada, doble control, ledger y admin; sin deploy |
-| R3.9 | Motor de asignación | ✅ 2026-08-14 — D1 local `0022`, decisión vinculante/explicable, carrera segura, admin y backup; sin deploy |
-| R3.10+ | Operación profesional y resto de olas | ⬜ siguiente: devoluciones/RMA |
+| R3.6–R3.12 | Ubicaciones, transferencias, conteos, asignación, RMA, documentos y consolidación | ✅ 2026-08-17 — D1 `0019`–`0024`, fixtures y Worker desplegados |
+| R4.1–R4.8 | Reglas de precio, promociones, cantidad, combinabilidad, listas, bundles y valor almacenado | ✅ 2026-08-17 — D1 `0025`–`0032`, E2E remoto y Worker desplegados |
+| R4.9 | Preventa/backorder | ⬜ siguiente bloque |
 
 ## Fase 12 — Logic2B Ecommerce: renombrado, reposicionamiento y las dos visiones
 
@@ -1091,7 +1096,9 @@ kit y los registros previstos. **No modifica lógica de precios, envíos,
 checkout, pedidos, D1 ni APIs.** Ficha completa en
 [`docs/temas/sarga.md`](temas/sarga.md). Verificación local: 364 archivos Astro
 sin diagnósticos, 49 suites y 332 tests, build en verde; catálogo, ficha,
-carrito y checkout con **0 errores y 0 avisos a11y** en 9 superficies.
+carrito y checkout con **0 errores y 0 avisos a11y** en 9 superficies. Integrado
+con el catálogo actual y desplegado el 2026-08-17 en el Worker
+`76af7637-8fe3-4aae-8c87-6e78d72e72ad`; tienda, ficha y assets responden 200.
 
 ### Pendiente en la Fase 9B
 
@@ -1689,8 +1696,16 @@ auditoría, backup esquema 26, ADR, runbook, wiki y rehearsal completan el bloqu
 caducidad, financiación, transferibilidad y cash-out exigen revisión legal por
 proyecto. La demo permanece de solo lectura.
 
-Gate conjunto de integración y evidencia de producción: pendiente de completar
-en esta sesión antes del push/deploy autorizado.
+Gate conjunto cerrado el 2026-08-17: `pnpm check` con 639 archivos sin
+diagnósticos, 141 suites/654 tests y build verde; E2E local y remoto completos;
+SARGA y MONTE con 0 errores/avisos a11y en 16 superficies. Las migraciones
+`0020`–`0032` se ensayaron secuencialmente sobre el backup de los fixtures
+remotos, se aplicaron con bookmark de Time Travel previo y quedaron sin FKs ni
+pendientes. Producción sirve el Worker `76af7637-8fe3-4aae-8c87-6e78d72e72ad`;
+portada, `/temas`, tiendas, fichas y APIs protegidas pasan smoke. Lighthouse
+recupera 100 en buenas prácticas tras incorporar las capturas MONTE; portada
+móvil conserva el 99 de rendimiento ya documentado, con LCP 2,0 s, CLS 0 y
+TBT 0 ms.
 
 Siguiente incremento exacto: R4.9. Debe modelar preventa/backorder sin vender
 stock inexistente en silencio: promesa fechada y versionada, política de cobro,
