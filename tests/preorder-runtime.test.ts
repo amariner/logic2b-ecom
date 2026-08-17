@@ -5,6 +5,7 @@ import { createFulfillmentOperations } from '../src/composition/fulfillment-oper
 import { createRefundOperations } from '../src/composition/refund-operations';
 import { quoteCart } from '../src/lib/quote';
 import type { NewOrderLine } from '../src/modules/orders';
+import { createEventFactory, createEventIdentityFactory } from '../src/shared-kernel/events';
 import { SqliteD1 } from './sqlite-d1';
 
 const AT = '2026-08-17T12:00:00.000Z';
@@ -45,7 +46,12 @@ async function quote(db: SqliteD1, quantity = 4) {
 
 function service(db: SqliteD1, result: Awaited<ReturnType<typeof quote>>) {
   if (result.preorders.status !== 'applied') throw new Error('Aplicación diferida ausente.');
-  return createOrderOperations(db.asD1(), undefined, undefined, {
+  const deps = {
+    clock: { now: () => new Date(AT) },
+    ids: { next: () => crypto.randomUUID() },
+  };
+  return createOrderOperations(db.asD1(), createEventFactory(deps),
+    createEventIdentityFactory(deps), {
     reservationsEnabled: true,
     reservationExpiresAt: '2026-08-17T12:31:00.000Z',
     preorderApplications: result.preorders.applications,

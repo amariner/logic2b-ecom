@@ -8,8 +8,8 @@ import { createPreliminaryOrderOperations } from '../src/composition/preliminary
 
 describe('volcado de copia de seguridad', () => {
   it('declara el contrato que incluye la colaboración de pedidos', () => {
-    expect(BACKUP_SCHEMA_VERSION).toBe(30);
-    expect(buildBackupSql({}, '2026-08-17')).toContain('0036_customer_profiles');
+    expect(BACKUP_SCHEMA_VERSION).toBe(31);
+    expect(buildBackupSql({}, '2026-08-17')).toContain('0037_consent_evidence');
   });
 
   it('genera INSERTs con columnas explícitas y escape de comillas', () => {
@@ -128,6 +128,7 @@ describe('volcado de copia de seguridad', () => {
       'customer_profiles',
       'customer_address_revisions',
       'customer_profile_merges',
+      'customer_consent_evidence',
     ]));
     for (const table of BACKUP_TABLES) expect(sql).toContain(`DELETE FROM ${table};`);
   });
@@ -164,6 +165,28 @@ describe('volcado de copia de seguridad', () => {
         street, city, region, postal_code, country_code, valid_from
       ) VALUES ('addr_backup', 'cus_backup', 2, 'Backup Customer', NULL,
         'Carrer Major 2', 'Castelló', NULL, '12001', 'ES', '2026-08-08T17:00:00.000Z');
+      INSERT INTO customer_consent_evidence (
+        id, customer_profile_id, contact_identity_hash, channel, purpose_id,
+        action, notice_id, notice_version, source_kind, source_reference,
+        region, occurred_at, recorded_at, withdraws_evidence_id, version,
+        idempotency_key
+      ) VALUES (
+        'consent_backup_001', 'cus_backup', NULL, 'email', 'marketing.newsletter',
+        'granted', 'privacy.marketing', '2026-08-08', 'storefront', 'form_footer',
+        'ES', '2026-08-08T16:05:00.000Z', '2026-08-08T16:05:01.000Z', NULL, 1,
+        'idem:backup:consent:grant'
+      );
+      INSERT INTO customer_consent_evidence (
+        id, customer_profile_id, contact_identity_hash, channel, purpose_id,
+        action, notice_id, notice_version, source_kind, source_reference,
+        region, occurred_at, recorded_at, withdraws_evidence_id, version,
+        idempotency_key
+      ) VALUES (
+        'consent_backup_002', 'cus_backup', NULL, 'email', 'marketing.newsletter',
+        'withdrawn', 'privacy.marketing', '2026-08-08', 'storefront', 'center_preferences',
+        'ES', '2026-08-08T16:10:00.000Z', '2026-08-08T16:10:01.000Z',
+        'consent_backup_001', 2, 'idem:backup:consent:withdraw'
+      );
       UPDATE orders SET customer_profile_id='cus_backup'
       WHERE id=(SELECT id FROM orders ORDER BY id LIMIT 1);
     `);
@@ -273,5 +296,10 @@ describe('volcado de copia de seguridad', () => {
       WHERE profile.id='cus_backup' AND address.valid_to IS NULL`)).toEqual([{
       primary_email: 'backup-profile@example.com', street: 'Carrer Major 2',
     }]);
+    expect(restored.query(`SELECT action, withdraws_evidence_id, version
+      FROM customer_consent_evidence ORDER BY version`)).toEqual([
+      { action: 'granted', withdraws_evidence_id: null, version: 1 },
+      { action: 'withdrawn', withdraws_evidence_id: 'consent_backup_001', version: 2 },
+    ]);
   });
 });

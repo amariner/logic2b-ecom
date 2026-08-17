@@ -261,6 +261,10 @@ venta o servicios logísticos propios.
 - [`adr/0040-consentimiento-evidencia-versionada.md`](adr/0040-consentimiento-evidencia-versionada.md):
   alcance por canal/finalidad, grant explícito, retirada append-only,
   preferencia separada y frontera de comunicaciones transaccionales de R5.2.
+- [`../../migrations/0037_consent_evidence.sql`](../../migrations/0037_consent_evidence.sql):
+  evidencia versionada, índices por sujeto/alcance y guards de append/retirada.
+- [`OPERACION_CONSENTIMIENTOS.md`](OPERACION_CONSENTIMIENTOS.md): rollout,
+  reconciliación, backup 31, rehearsal y rollback de `CUS-007`.
 - [`../../migrations/0036_customer_profiles.sql`](../../migrations/0036_customer_profiles.sql):
   perfiles, revisiones, merges y relación nullable de pedido expand-only.
 - [`OPERACION_PERFILES_CLIENTE.md`](OPERACION_PERFILES_CLIENTE.md): rehearsal,

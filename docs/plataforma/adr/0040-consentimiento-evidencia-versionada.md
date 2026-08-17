@@ -1,6 +1,6 @@
 # ADR-0040 — Consentimiento como evidencia versionada por canal y finalidad
 
-- Estado: aceptado como contrato; persistencia y captura pendientes
+- Estado: aceptado e implementado localmente; captura/rollout pendientes
 - Fecha: 2026-08-17
 - Bloque: R5.2
 - Capacidad: `CUS-007`
@@ -79,16 +79,22 @@ admite lookup público por email, actualización ni borrado del historial.
 - Retirada no significa borrado: reconciliar privacidad y obligaciones de
   conservación pertenece a R5.3 y a la política aprobada del proyecto.
 
-## Gate de persistencia
+## Persistencia implementada
 
-El futuro esquema expand-only se reservará como
-`0037_consent_evidence.sql`. Antes de crearlo requiere autorización expresa de
-esquema y deberá definir inserción/versionado atómicos, unicidad de
-idempotencia, integridad de la referencia de retirada y consultas acotadas por
-sujeto/canal/finalidad. También deberá elevar el backup a esquema 31 y ensayar
-migración, restore, concurrencia y `foreign_key_check` sobre una copia real.
+Tras autorización expresa, `0037_consent_evidence.sql` materializa una tabla
+append-only con sujeto perfil/HMAC excluyentes, FK opcional al perfil, alcance,
+aviso, fuente, región, instantes, retirada autorreferenciada, versión e
+idempotencia. Índices parciales separan perfil y guest. Los guards exigen
+perfil activo al escribir, versión siguiente, tiempo no regresivo, retirada
+del grant vigente e inmutabilidad por `UPDATE`.
 
-No habrá backfill desde pedidos, perfiles, outbox o preferencias: los datos
+El repositorio compone insert y lectura en una batch, recupera una carrera solo
+si encuentra un retry idéntico y devuelve errores genéricos. Backup avanza a
+esquema 31 y ordena versiones para restaurar grants antes de retiradas. El
+rehearsal sobre la copia local en `0036` conservó íntegros todos los datos
+anteriores y dejó cero evidencias/FKs inventadas. Producción no cambió.
+
+No hay backfill desde pedidos, perfiles, outbox o preferencias: los datos
 históricos no demuestran una acción afirmativa ni qué aviso se presentó.
 
 ## Verificación
@@ -101,6 +107,7 @@ históricos no demuestran una acción afirmativa ni qué aviso se presentó.
 - preferencia suscrita insuficiente y opt-out más restrictivo;
 - comunicaciones transaccionales necesarias independientes de `CUS-007`;
 - manifest y registro mantienen la capacidad instalada e inerte.
+- esquema, repositorio, carrera, backup 31 y rehearsal/restore local.
 
 ## Rollback
 

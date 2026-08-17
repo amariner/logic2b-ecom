@@ -49,3 +49,7 @@ export {
   type WithdrawConsentCommand,
 } from './domain/consent';
 export type { ConsentRepository } from './application/consent-repository';
+export {
+  ConsentConflictError,
+  createD1ConsentRepository,
+} from './infrastructure/d1-consent-repository';

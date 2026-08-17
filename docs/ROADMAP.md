@@ -63,7 +63,7 @@ reconciliación se conserva abajo por contexto.
 | 11 | Landing V2 «nivel Awwwards» + negocio + funnel + docs | 🟡 En curso | 2026-08-13 | **F11.1, F11.3 (2 sesiones), F11.4, F11.5, F11.6, F11.7 y F11.8 (primera pasada + pase a11y/contenido desde cloud 2026-07-24) hechos**, más F11.8b (auditor de a11y, cloud), F11.2a-1 (tienda ASFALTO / tema Street), F11.2a-2 (tienda METRIA / tema Industrial) F11.2a-3 (tienda ROMER / tema Natural) y **F11.2a-4 (tienda KALIBRE / tema Specs, local 2026-07-25) — con la que F11.2a queda CERRADA (10/10 tiendas)**; y **F11.8c (Lighthouse citable + OG de WhatsApp + URLs sin redirección, local 2026-07-26)**; y **F11.8d–e (tabla de Lighthouse cerrada y desplegada: 7 de 8 superficies a 100×4, la landing entre ellas en móvil y escritorio, local 2026-07-27)**; y **F11.9 (contacto global de WhatsApp, cerrado y servido 2026-08-13)**. Solo queda la submission a Awwwards, decisión de pago reservada a Andreu. Detalle por bloque abajo. **Plan maestro completo en [`docs/PLAN_FASE11_LANDING_V2.md`](PLAN_FASE11_LANDING_V2.md)**: bloques F11.0–F11.8 ejecutables por sesiones independientes. **Decisiones D1–D6 APROBADAS por Andreu (2026-07-23)**: JS propio ≤15 KB sin deps, capturas con browser tools en local, dirección C «Ocho tiendas, un motor», escalera de precios (Lite 590 / Kit 1.900+39 / A medida 3.400+59), WhatsApp+email, Lite publicado sin construir. Prompt de arranque: [`docs/PROMPT_FASE11.md`](PROMPT_FASE11.md). Integra 9B.5/9B.6 (imaginería y temas restantes) como prerequisito del hero |
 | 8 | Pulido de la demo (backlog abajo) | 🟡 En curso | 2026-07-19 | Backlog técnico agotado; solo quedan decisiones y pasos locales de Andreu (ver «Decisiones pendientes» y `docs/PROMPT_CLOUD.md`). Últimas tandas: novena (race de idempotencia en el pago, PII enumerable en `/demo/gracias`, cancelación de pedido pagado sin devolver stock), décima (la misma race en el PATCH de admin, campos vacíos guardados como 0, login sin rate limit), undécima (diagrama móvil de `/arquitectura`, hedge del plazo de entrega, tokens de tema en `/demo/reset`, terminología «envío»), duodécima (aviso de corte en pedidos del admin, cabeceras sin wrap a 375px, leftover «portes», token de radio del carrito, contraste del botón eliminar, H1 en valenciano, checklist de producción) y decimotercera (misma race de idempotencia en `checkout.session.expired`, divisa hardcodeada a EUR fuera de Stripe, cobertura de test de `quoteCart`/PATCH admin/emails) y decimocuarta (config parcial de Stripe → cobro sin cumplimiento, emails duplicados bajo concurrencia, `payment_status` del webhook, color de marca centralizado en `shop.config.ts`, contraste/tema en carrito y checkout) — ver sección «Fase 8» |
 | 12 | Logic2B Ecommerce: renombrado, reposicionamiento y docs de dos visiones | ✅ Hecho | 2026-08-10 | **F12.0–F12.6 cerrados:** marca, argumento, dossier, canal agencias, ayuda, índice por audiencias, OG y auditorías citables consolidados. **Plan maestro en [`docs/PLAN_FASE12_LOGIC2B_ECOMMERCE.md`](PLAN_FASE12_LOGIC2B_ECOMMERCE.md)**. |
-| 13 | Plataforma modular: del gestor mínimo a paridad extrema de capacidad | 🟡 En curso | 2026-08-17 | **R0–R3.12, R4 y contrato R5.2 completos; R4.9–R5.1 siguen locales:** consentimiento versionado diseñado e instalado sin efectos. Siguiente gate: persistencia R5.2. Fuente de verdad en [`docs/plataforma/`](plataforma/README.md). |
+| 13 | Plataforma modular: del gestor mínimo a paridad extrema de capacidad | 🟡 En curso | 2026-08-17 | **R0–R3.12, R4 y R5.1–R5.2 completos; R4.9–R5.2 siguen locales:** consentimiento versionado durable e instalado sin efectos. Siguiente R5.3. Fuente de verdad en [`docs/plataforma/`](plataforma/README.md). |
 
 ## Repo y entornos
 
@@ -151,7 +151,7 @@ sus verificaciones ni sus puntos de reanudación.
 | R4.11 | Presupuestos y depósitos | ✅ 2026-08-17 — `ORD-008`/`CHK-011`, D1 local `0035`, backup 29, rehearsal, API y E2E; rollout pendiente |
 | R4.12 | Consolidación de dinero y modelos de venta | ✅ 2026-08-17 — 11 modelos, 66 parejas, 13.500 propiedades y wiki índice; sin DDL/deploy |
 | R5.1 | Perfil de cliente deduplicable | ✅ 2026-08-17 — D1 `0036`, repositorio transaccional, checkout opcional, backup 30 y rehearsal local; rollout pendiente |
-| R5.2a | Contrato de consentimiento versionado | ✅ 2026-08-17 — ADR-0040, dominio/puerto, `CUS-007` instalada e inerte, 160 suites/735 tests; sin DDL ni efectos |
+| R5.2 | Consentimiento versionado | ✅ 2026-08-17 — ADR-0040, D1 `0037`, repositorio concurrente, backup 31, rehearsal y E2E local; `CUS-007` instalada e inerte |
 
 ## Fase 12 — Logic2B Ecommerce: renombrado, reposicionamiento y las dos visiones
 
@@ -1684,28 +1684,37 @@ la cola de temas, coordinados sin mezclar worktrees ni cambios abiertos.
 
 ## Próxima sesión
 
-### R5.2b — persistencia de consentimientos — siguiente gate
+### R5.3 — derechos de datos verificables — siguiente bloque
 
-R5.2a queda cerrado con ADR-0040, dominio puro y puerto de persistencia. La
-evidencia es append-only por sujeto/canal/finalidad; conserva aviso versionado,
-fuente, región, instantes, retirada y clave idempotente. Grant exige afirmación
-explícita, reconsentir crea una nueva versión y una preferencia nunca concede
-consentimiento. Las comunicaciones transaccionales necesarias conservan su
-autoridad independiente. `CUS-007` está `installed` e inerte en advanced, sin
-UI, rutas, jobs, proveedores ni efectos.
+R5.2 queda cerrado localmente con ADR-0040, `0037_consent_evidence.sql`, dominio,
+puerto y repositorio D1. La evidencia es append-only por sujeto/canal/finalidad;
+grant, retirada y reconsentimiento conservan aviso, fuente, región, instantes,
+versión e idempotencia. Dos retries iguales convergen y dos comandos distintos
+de la misma versión dejan un ganador. `CUS-007` sigue `installed` e inerte, sin
+captura, UI, rutas, jobs, proveedor, texto o decisión legal.
 
-Gate: `pnpm check` con 692 archivos sin diagnósticos, 160 suites/735 tests,
-build y sitemap verdes. El barrido detectó y corrigió un fixture R5.1 que
-dependía de la hora del proceso, sin relajar el guard temporal real. E2E y a11y
-no aplican porque no cambió runtime ni UI. No hubo dependencia, D1 local/remota,
-Worker o deploy.
+Backup avanza a esquema 31 y restaura grants antes de retiradas. El rehearsal
+sobre la copia local en `0036` conservó 284 productos, 286 variantes/balances,
+8 pedidos, 13 líneas y 8 pagos, con hash
+`eff16b7d1cd6c2eedcfc639ae2cd2514b0ed0c9520f669b1cb5cf95d3fed77c2`;
+el restore quedó íntegro. Local sirve `0037` con cero evidencias y FKs; producción
+continúa en `0032`.
 
-Continuación exacta tras autorización explícita de esquema: diseñar y aplicar
-solo en D1 local `0037_consent_evidence.sql`, implementar el repositorio con
-append/versionado atómicos, elevar backup a esquema 31 y ejecutar rehearsal/
-restore sobre copia real. No hacer backfill desde pedidos, perfiles, outbox o
-preferencias; no fijar texto, base jurídica o retención; no activar marketing,
-proveedores, captura o UI. Producción continúa en `0032` y queda fuera del gate.
+Gate: `pnpm check` con 695 archivos sin diagnósticos, 162 suites/744 tests,
+build y sitemap verdes. El E2E local completo valida aislamiento de demo y
+backup esquema 31. El barrido fijó el reloj de un fixture R4.9 caducable sin
+relajar TTL o transiciones reales. No hubo dependencia, a11y —sin UI—, D1
+remota, Worker o deploy.
+
+Continuación exacta: diseñar R5.3 sin fijar plazos de conservación, base legal
+ni excepciones universales. Modelar solicitud verificable de acceso,
+rectificación, restricción y anonimización/borrado como lifecycle versionado;
+separar identidad solicitante, autoridad del dato, acción propuesta, revisión,
+ejecución y evidencia. Pedidos, pagos, documentos y audit log no se eliminan
+por defecto: cada propietario declara export/corrección/redacción y la política
+aprobada decide retención o excepción. Empezar por ADR, dominio, puerto y tests
+de verificación, idempotencia, doble control y plan dry-run; cualquier DDL,
+export HTTP o mutación real conserva gates propios.
 
 Carril visual: ENSAMBLE permanece preservado en
 `codex-goal-ensamble-in-progress-2026-08-17-retry6`. El generador integrado
