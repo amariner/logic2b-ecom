@@ -42,8 +42,8 @@ function snapshot(db) {
   return {
     orders: db.prepare('SELECT * FROM orders ORDER BY id').all(),
     payments: db.prepare(`SELECT id,order_id,provider,provider_reference,currency,
-      expected_amount_cents,status,version,refunded_cents,adjustment_refunded_cents,
-      idempotency_key,created_at,updated_at FROM payments ORDER BY id`).all(),
+      expected_amount_cents,status,version,idempotency_key,created_at,updated_at
+      FROM payments ORDER BY id`).all(),
     transactions: db.prepare('SELECT * FROM payment_transactions ORDER BY id').all(),
     refunds: db.prepare('SELECT * FROM refunds ORDER BY id').all(),
     bundles: db.prepare('SELECT * FROM bundles ORDER BY id').all(),
