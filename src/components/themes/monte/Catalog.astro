@@ -1,0 +1,107 @@
+---
+/** MONTE · catálogo editorial de marroquinería. */
+import type { CollectionConfig, StorePaths } from '../../../collections';
+import Filters from './Filters.astro';
+import ProductGrid from './ProductGrid.astro';
+
+type GridProduct = {
+  slug: string;
+  name: string;
+  description: string;
+  price_cents: number;
+  image: string;
+  stock: number;
+};
+
+interface Props {
+  paths: StorePaths;
+  products: GridProduct[];
+  collection: CollectionConfig;
+  category?: string | undefined;
+  sort: string;
+  search?: string | undefined;
+}
+
+const { paths, products, collection, category, sort, search } = Astro.props;
+---
+
+<div class="monte-shell">
+  <header class="monte-header">
+    <a href={paths.catalog} aria-current="page">{collection.name}</a>
+    <span>Collection / 001—003</span>
+    <a href={paths.cart}>Cesta <span data-cart-count>0</span></a>
+  </header>
+
+  <main>
+    <section class="monte-intro" aria-labelledby="monte-title">
+      <div>
+        <h1 id="monte-title">{collection.name}</h1>
+        <span>001</span>
+      </div>
+      <p>{collection.description}</p>
+    </section>
+
+    <section class="monte-shop" aria-labelledby="monte-shop-title">
+      <div class="monte-shop__head">
+        <div>
+          <p>Boston shoulder / three finishes</p>
+          <h2 id="monte-shop-title">Una forma.<br />Tres caracteres.</h2>
+        </div>
+        <Filters paths={paths} collection={collection} count={products.length} activeCategory={category} sort={sort} search={search} />
+      </div>
+      {products.length > 0
+        ? <ProductGrid paths={paths} products={products} />
+        : <div class="monte-empty"><p>{search ? `Nada por aquí para «${search}»` : 'No hay piezas en esta selección'}</p><a href={paths.catalog}>Volver a la colección</a></div>}
+    </section>
+
+    <section class="monte-detail" aria-labelledby="monte-detail-title">
+      <div><span>Material / 01</span><p>100 % piel vacuna exterior<br />con forro de ante tonal</p></div>
+      <div><span id="monte-detail-title">Size</span><p>W 34 cm ×<br />D 17,5 cm ×<br />H 16 cm</p></div>
+      <a href={paths.product('mon-pepper')}>Bag detail <span aria-hidden="true">→</span></a>
+    </section>
+  </main>
+
+  <footer class="monte-footer"><strong>MONTE</strong><p>{collection.tagline}</p><a href={paths.catalog}>Volver arriba ↑</a></footer>
+</div>
+
+<style>
+  .monte-shell { --monte-rule: color-mix(in srgb, var(--color-foreground) 48%, transparent); min-height: 100vh; color: var(--color-foreground); background: var(--surface-sunken); font-family: var(--font-accent); }
+  .monte-shell :where(a) { color: inherit; text-decoration: none; }
+  .monte-header { display: grid; min-height: 4.5rem; grid-template-columns: 1fr auto 1fr; align-items: center; padding: 0 clamp(1rem, 2.2vw, 2.2rem); border-bottom: var(--border-width) solid var(--monte-rule); font-size: .66rem; letter-spacing: .08em; text-transform: uppercase; }
+  .monte-header > a:first-child { font-size: 1rem; letter-spacing: -.04em; }
+  .monte-header > a:last-child { justify-self: end; }
+  .monte-header a { display: inline-flex; min-height: 2.75rem; align-items: center; }
+  .monte-header a:hover, .monte-header a:focus-visible { text-decoration: underline; text-underline-offset: .35rem; }
+  .monte-intro { padding: clamp(2.2rem, 5vw, 5.5rem) clamp(1rem, 2.2vw, 2.2rem) clamp(3rem, 7vw, 7rem); }
+  .monte-intro > div { display: flex; align-items: start; justify-content: space-between; }
+  .monte-intro h1 { margin: 0; font: var(--weight-display) clamp(5.2rem, 17vw, 16rem)/.72 var(--font-display); letter-spacing: var(--tracking-display); }
+  .monte-intro span { padding-top: .25rem; font-size: clamp(1.8rem, 4vw, 4.6rem); letter-spacing: -.06em; }
+  .monte-intro > p { max-width: 25rem; margin: clamp(2rem, 5vw, 5rem) 0 0 auto; font-size: clamp(.85rem, 1.1vw, 1.05rem); line-height: 1.35; }
+  .monte-shop { border-top: var(--border-width) solid var(--monte-rule); }
+  .monte-shop__head { display: grid; grid-template-columns: 1fr minmax(20rem, .75fr); align-items: end; gap: 2rem; padding: clamp(2rem, 4vw, 4rem) clamp(1rem, 2.2vw, 2.2rem); }
+  .monte-shop__head p { margin: 0 0 1rem; font-size: .62rem; letter-spacing: .08em; text-transform: uppercase; }
+  .monte-shop__head h2 { margin: 0; font: var(--weight-display) clamp(2.8rem, 6vw, 6.2rem)/.84 var(--font-display); letter-spacing: var(--tracking-display); }
+  .monte-empty { display: grid; min-height: 26rem; place-content: center; gap: 1rem; border-top: var(--border-width) solid var(--monte-rule); text-align: center; }
+  .monte-empty p { margin: 0; font-size: clamp(2rem, 4vw, 4rem); letter-spacing: -.05em; }
+  .monte-empty a { min-height: 2.75rem; text-decoration: underline; text-underline-offset: .3rem; }
+  .monte-detail { display: grid; min-height: 32rem; grid-template-columns: 1fr .75fr; gap: 1px; padding: clamp(3rem, 7vw, 7rem) clamp(1rem, 2.2vw, 2.2rem); border-top: var(--border-width) solid var(--monte-rule); }
+  .monte-detail > div { display: flex; min-height: 15rem; flex-direction: column; justify-content: space-between; border-left: var(--border-width) solid var(--monte-rule); padding-left: 1rem; }
+  .monte-detail span { font-size: .62rem; letter-spacing: .08em; text-transform: uppercase; }
+  .monte-detail p { margin: 0; font-size: clamp(1.4rem, 3vw, 3.4rem); letter-spacing: -.06em; line-height: .92; }
+  .monte-detail > a { align-self: end; min-height: 2.75rem; padding-top: .9rem; border-top: var(--border-width) solid var(--monte-rule); font-size: .75rem; letter-spacing: .07em; text-transform: uppercase; }
+  .monte-detail > a span { margin-left: 1rem; font-size: 1rem; }
+  .monte-footer { display: grid; min-height: 17rem; grid-template-columns: 1fr 1fr auto; align-items: start; gap: 2rem; padding: clamp(2rem, 4vw, 4rem) clamp(1rem, 2.2vw, 2.2rem); color: var(--color-brand-fg); background: var(--color-brand); }
+  .monte-footer strong { font: var(--weight-display) clamp(3rem, 9vw, 9rem)/.75 var(--font-display); letter-spacing: var(--tracking-display); }
+  .monte-footer p { max-width: 18rem; margin: 0; font-size: 1.2rem; }
+  .monte-footer a { min-height: 2.75rem; font-size: .68rem; text-transform: uppercase; }
+  @media (max-width: 760px) {
+    .monte-header { grid-template-columns: 1fr auto; }
+    .monte-header > span { display: none; }
+    .monte-intro h1 { font-size: clamp(5rem, 27vw, 8rem); }
+    .monte-shop__head, .monte-detail { grid-template-columns: 1fr; }
+    .monte-detail { gap: 3rem; }
+    .monte-detail > a { align-self: auto; }
+    .monte-footer { grid-template-columns: 1fr 1fr; }
+    .monte-footer strong { grid-column: 1 / -1; }
+  }
+</style>

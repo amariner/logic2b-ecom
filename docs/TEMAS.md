@@ -758,6 +758,18 @@ fórmulas propias sobre una retícula de filetes mínimos y conserva producto,
 carrito, checkout y confirmación en el recorrido local compartido. Ficha:
 [`docs/temas/mixta.md`](temas/mixta.md).
 
+### 29 · MONTE — *volumen sereno, oficio preciso*
+
+📎 **Referencia: [`29-monte.webp`](../public/images/referencias/29-monte.webp)**
+
+**Para quién:** marroquinería, accesorios y producto de autor.
+
+Nombre y numeración monumentales, fondo marfil, descripción técnica y ficha de
+dimensiones convierten cada bolso en una pieza de archivo. MONTE presenta tres
+acabados propios de la silueta Boston y conserva producto, cesta, checkout y
+confirmación en el recorrido compartido. Ficha:
+[`docs/temas/monte.md`](temas/monte.md).
+
 ---
 
 ## 6. Tabla resumen
@@ -792,6 +804,7 @@ carrito, checkout y confirmación en el recorrido local compartido. Ficha:
 | 25 | DINTEL | `#171715` | 3 | **irregular** | **immersive** | **fullbleed** | plain | dropdown | airy | ✅ |
 | 26 | LUMBRE | `#4b251b` | 4 | uniform | **immersive** | **fullbleed** | hairline | dropdown | airy | ✅ |
 | 27 | MIXTA | `#c8ff65` | 4 | uniform | **immersive** | **fullbleed** | divided | dropdown | regular | ✅ |
+| 29 | MONTE | `#181714` | 3 | **irregular** | top | **fullbleed** | hairline | dropdown | airy | ✅ |
 
 ---
 

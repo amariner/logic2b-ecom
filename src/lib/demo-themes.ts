@@ -1066,6 +1066,36 @@ export const demoThemes: DemoTheme[] = [
       annotations: false, darkFooter: false,
     },
   },
+  {
+    id: 'monte',
+    label: 'MONTE',
+    hint: 'Ficha editorial precisa para marroquinería, accesorios y producto de autor.',
+    reference: { name: 'Referencia editorial de marroquinería MONTE', file: '29-monte.webp' },
+    sample: null,
+    bestFor: ['Marroquinería', 'Accesorios', 'Producto de autor'],
+    status: 'ready',
+    vars: {
+      '--color-brand': '#181714',
+      '--color-brand-dark': '#050505',
+      '--color-brand-fg': '#f6f0e6',
+      '--font-display': SYSTEM_SANS,
+      '--font-accent': SYSTEM_SANS,
+      '--tracking-display': '-0.055em',
+      '--weight-display': '400',
+      '--radius-btn': '0',
+      '--radius-card': '0',
+      '--border-width': '1px',
+      '--surface-product': '#e4e1dc',
+      '--surface-sunken': '#f4eee4',
+      '--space-density': '0.85',
+      '--grid-gap': '1px',
+    },
+    layout: {
+      gridCols: 3, gridStyle: 'irregular', nav: 'top', hero: 'fullbleed',
+      card: 'hairline', filters: 'dropdown', density: 'airy',
+      annotations: true, darkFooter: false,
+    },
+  },
   // new-theme:themes — no borrar: `pnpm new:theme <id>` añade aquí el tema si falta.
 ];
 
