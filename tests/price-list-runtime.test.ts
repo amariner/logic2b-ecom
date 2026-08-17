@@ -126,7 +126,7 @@ describe('recorrido R4.6 de listas de precios', () => {
     db.sqlite.exec(`UPDATE price_lists SET state='disabled', version=2,
       updated_at='2099-08-14T13:00:00.000Z' WHERE id='general-b2b'`);
     const backup = await exportBackup(createD1BackupReader(db.asD1()), new Date(AT));
-    expect(backup.sql).toContain('logic2b-backup-schema: 27');
+    expect(backup.sql).toContain('logic2b-backup-schema: 28');
     const restored = new SqliteD1();
     restored.sqlite.exec(backup.sql);
     expect(restored.query('SELECT price_list_id, effective_subtotal_cents FROM price_list_applications'))

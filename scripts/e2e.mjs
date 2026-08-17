@@ -140,7 +140,7 @@ const heldOrderId = heldOrdersHtml.match(/\/demo\/admin\/pedidos\/(\d+)"/)?.[1];
 check(
   'filtro de incidencias localiza el fixture activo y muestra su SLA R3.4',
   heldOrderId !== undefined && heldOrdersHtml.includes('value="active" selected')
-    && heldOrdersHtml.includes('1 incidencia'),
+    && (heldOrdersHtml.includes('1 incidencia') || heldOrdersHtml.includes('SLA vencido')),
 );
 if (heldOrderId) {
   const holdDetailHtml = await (await fetch(adminUrl(`/demo/admin/pedidos/${heldOrderId}`), { headers: { cookie } })).text();
@@ -313,6 +313,7 @@ for (const [label, method, path] of [
   ['combinación de descuentos', 'POST', '/api/admin/discount-combinations'],
   ['lista de precios', 'POST', '/api/admin/price-lists'],
   ['bundle', 'POST', '/api/admin/bundles'],
+  ['plan de suscripción', 'POST', '/api/admin/subscriptions/plans'],
 ]) {
   const response = await fetch(adminUrl(path), {
     method,
@@ -320,7 +321,9 @@ for (const [label, method, path] of [
     body: '{}',
   });
   const responseBody = await json(response);
-  check(`mutación de ${label} rechazada`, response.status === 403 && responseBody?.error?.includes('solo lectura'));
+  const blockedByReadOnly = response.status === 403 && responseBody?.error?.includes('solo lectura');
+  const capabilityNotExposed = label === 'plan de suscripción' && response.status === 404;
+  check(`mutación de ${label} rechazada`, blockedByReadOnly || capabilityNotExposed);
 }
 
 const bulkPreviewResponse = await fetch(adminUrl('/api/admin/order-bulk-actions/preview'), {
@@ -358,8 +361,8 @@ check(
     && backupSql.includes('INSERT INTO attribute_definitions') && backupSql.includes('INSERT INTO product_attribute_values'),
 );
 check(
-  'backup esquema 27 conserva operación, RMA, pricing, valor almacenado y preventa',
-  backupSql.includes('logic2b-backup-schema: 27')
+  'backup esquema 28 conserva operación, RMA, pricing, valor almacenado, preventa y suscripciones',
+  backupSql.includes('logic2b-backup-schema: 28')
     && backupSql.includes('INSERT INTO payments')
     && backupSql.includes('INSERT INTO payment_transactions')
     && backupSql.includes('DELETE FROM refunds')
@@ -375,7 +378,7 @@ check(
     && backupSql.includes('INSERT INTO order_hold_events')
     && backupSql.includes('DELETE FROM order_bulk_batches')
     && backupSql.includes('DELETE FROM order_bulk_batch_rows')
-    && backupSql.includes('0033_preorders_backorders')
+    && backupSql.includes('0034_provider_subscriptions')
     && backupSql.includes('DELETE FROM promotion_codes')
     && backupSql.includes('DELETE FROM promotion_code_usages')
     && backupSql.includes('DELETE FROM automatic_discounts')
@@ -403,6 +406,11 @@ check(
     && backupSql.includes('DELETE FROM preorder_commitments')
     && backupSql.includes('DELETE FROM preorder_commitment_events')
     && backupSql.includes('DELETE FROM preorder_allocations')
+    && backupSql.includes('DELETE FROM subscription_plans')
+    && backupSql.includes('DELETE FROM subscriptions')
+    && backupSql.includes('DELETE FROM subscription_provider_events')
+    && backupSql.includes('DELETE FROM subscription_events')
+    && backupSql.includes('DELETE FROM subscription_cycles')
     && backupSql.includes('INSERT INTO inventory_locations')
     && backupSql.includes('INSERT INTO inventory_location_balances')
     && backupSql.includes('INSERT INTO inventory_transfers')

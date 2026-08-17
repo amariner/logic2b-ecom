@@ -132,7 +132,7 @@ Cada migración se diseña y ensaya sobre una copia antes de tocar el esquema vi
 | 45 | **R4.7 Bundles** | Fijo y componible, stock de componentes, fulfillment y devolución. | ✅ 2026-08-14; local, sin deploy |
 | 46 | **R4.8 Tarjeta regalo/crédito** | Ledger, emisión, uso parcial, saldo y reembolso; revisión legal por proyecto. | ✅ 2026-08-17; desplegado con `0032` |
 | 47 | **R4.9 Preventa/backorder** | Promesa, asignación, cobro y comunicación. | ✅ 2026-08-17; local, `0033` pendiente de rollout |
-| 48 | **R4.10 Suscripciones por adaptador** | Contrato proveedor, eventos, cambio/pausa/cancelación, impago y portal. | ⬜ |
+| 48 | **R4.10 Suscripciones por adaptador** | Contrato proveedor, eventos, cambio/pausa/cancelación, impago y portal. | ✅ 2026-08-17; local, `0034` pendiente de rollout; capacidad instalada |
 | 49 | **R4.11 Presupuestos y depósitos** | Draft order, caducidad, aprobación, enlace de pago y saldo. | ⬜ |
 | 50 | **R4.12 Consolidación R4** | Matriz exhaustiva de reglas, property tests de dinero y wiki de cada modelo. | ⬜ |
 
@@ -146,6 +146,11 @@ R4.9 cerró después en local: `0033` y backup 27 pasaron rehearsal/restore,
 `pnpm check` cerró 146 suites/680 tests, el E2E local quedó completo y el panel
 pasó 8 superficies a11y 1440/375. D1 remota y Worker siguen en el corte `0032`
 hasta un rollout autorizado separado.
+
+R4.10 cerró también en local: `PRC-013`, módulo `subscriptions`, adaptador
+simulado sin red, eventos/impago/portal, `0034` y backup 28. Rehearsal/restore,
+150 suites/691 tests y E2E local quedaron verdes. La capacidad permanece
+instalada, no activa; D1 remota y Worker no cambiaron.
 
 ## R5 — Clientes, privacidad y mercados
 

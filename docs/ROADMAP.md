@@ -63,7 +63,7 @@ reconciliación se conserva abajo por contexto.
 | 11 | Landing V2 «nivel Awwwards» + negocio + funnel + docs | 🟡 En curso | 2026-08-13 | **F11.1, F11.3 (2 sesiones), F11.4, F11.5, F11.6, F11.7 y F11.8 (primera pasada + pase a11y/contenido desde cloud 2026-07-24) hechos**, más F11.8b (auditor de a11y, cloud), F11.2a-1 (tienda ASFALTO / tema Street), F11.2a-2 (tienda METRIA / tema Industrial) F11.2a-3 (tienda ROMER / tema Natural) y **F11.2a-4 (tienda KALIBRE / tema Specs, local 2026-07-25) — con la que F11.2a queda CERRADA (10/10 tiendas)**; y **F11.8c (Lighthouse citable + OG de WhatsApp + URLs sin redirección, local 2026-07-26)**; y **F11.8d–e (tabla de Lighthouse cerrada y desplegada: 7 de 8 superficies a 100×4, la landing entre ellas en móvil y escritorio, local 2026-07-27)**; y **F11.9 (contacto global de WhatsApp, cerrado y servido 2026-08-13)**. Solo queda la submission a Awwwards, decisión de pago reservada a Andreu. Detalle por bloque abajo. **Plan maestro completo en [`docs/PLAN_FASE11_LANDING_V2.md`](PLAN_FASE11_LANDING_V2.md)**: bloques F11.0–F11.8 ejecutables por sesiones independientes. **Decisiones D1–D6 APROBADAS por Andreu (2026-07-23)**: JS propio ≤15 KB sin deps, capturas con browser tools en local, dirección C «Ocho tiendas, un motor», escalera de precios (Lite 590 / Kit 1.900+39 / A medida 3.400+59), WhatsApp+email, Lite publicado sin construir. Prompt de arranque: [`docs/PROMPT_FASE11.md`](PROMPT_FASE11.md). Integra 9B.5/9B.6 (imaginería y temas restantes) como prerequisito del hero |
 | 8 | Pulido de la demo (backlog abajo) | 🟡 En curso | 2026-07-19 | Backlog técnico agotado; solo quedan decisiones y pasos locales de Andreu (ver «Decisiones pendientes» y `docs/PROMPT_CLOUD.md`). Últimas tandas: novena (race de idempotencia en el pago, PII enumerable en `/demo/gracias`, cancelación de pedido pagado sin devolver stock), décima (la misma race en el PATCH de admin, campos vacíos guardados como 0, login sin rate limit), undécima (diagrama móvil de `/arquitectura`, hedge del plazo de entrega, tokens de tema en `/demo/reset`, terminología «envío»), duodécima (aviso de corte en pedidos del admin, cabeceras sin wrap a 375px, leftover «portes», token de radio del carrito, contraste del botón eliminar, H1 en valenciano, checklist de producción) y decimotercera (misma race de idempotencia en `checkout.session.expired`, divisa hardcodeada a EUR fuera de Stripe, cobertura de test de `quoteCart`/PATCH admin/emails) y decimocuarta (config parcial de Stripe → cobro sin cumplimiento, emails duplicados bajo concurrencia, `payment_status` del webhook, color de marca centralizado en `shop.config.ts`, contraste/tema en carrito y checkout) — ver sección «Fase 8» |
 | 12 | Logic2B Ecommerce: renombrado, reposicionamiento y docs de dos visiones | ✅ Hecho | 2026-08-10 | **F12.0–F12.6 cerrados:** marca, argumento, dossier, canal agencias, ayuda, índice por audiencias, OG y auditorías citables consolidados. **Plan maestro en [`docs/PLAN_FASE12_LOGIC2B_ECOMMERCE.md`](PLAN_FASE12_LOGIC2B_ECOMMERCE.md)**. |
-| 13 | Plataforma modular: del gestor mínimo a paridad extrema de capacidad | 🟡 En curso | 2026-08-17 | **R0–R3.12 y R4.1–R4.8 desplegados; R4.9 cerrado localmente; siguiente R4.10:** suscripciones por adaptador. Fuente de verdad en [`docs/plataforma/`](plataforma/README.md). |
+| 13 | Plataforma modular: del gestor mínimo a paridad extrema de capacidad | 🟡 En curso | 2026-08-17 | **R0–R3.12 y R4.1–R4.8 desplegados; R4.9–R4.10 cerrados localmente; siguiente R4.11:** presupuestos y depósitos. Fuente de verdad en [`docs/plataforma/`](plataforma/README.md). |
 
 ## Repo y entornos
 
@@ -147,7 +147,8 @@ sus verificaciones ni sus puntos de reanudación.
 | R3.6–R3.12 | Ubicaciones, transferencias, conteos, asignación, RMA, documentos y consolidación | ✅ 2026-08-17 — D1 `0019`–`0024`, fixtures y Worker desplegados |
 | R4.1–R4.8 | Reglas de precio, promociones, cantidad, combinabilidad, listas, bundles y valor almacenado | ✅ 2026-08-17 — D1 `0025`–`0032`, E2E remoto y Worker desplegados |
 | R4.9 | Preventa/backorder | ✅ 2026-08-17 — `PRC-014`, D1 `0033`, backup 27 y rehearsal local; rollout pendiente |
-| R4.10 | Suscripciones por adaptador | ⬜ siguiente bloque |
+| R4.10 | Suscripciones por adaptador | ✅ 2026-08-17 — `PRC-013`, módulo subscriptions, D1 `0034`, backup 28 y rehearsal local; capacidad instalada, rollout pendiente |
+| R4.11 | Presupuestos y depósitos | ⬜ siguiente bloque |
 
 ## Fase 12 — Logic2B Ecommerce: renombrado, reposicionamiento y las dos visiones
 
@@ -1680,35 +1681,36 @@ la cola de temas, coordinados sin mezclar worktrees ni cambios abiertos.
 
 ## Próxima sesión
 
-### R4.10 — suscripciones por adaptador — ⬜ siguiente bloque
+### R4.11 — presupuestos y depósitos — ⬜ siguiente bloque
 
-R4.9 queda cerrado localmente con `PRC-014`, módulo pricing `1.9.0` y la
-migración expand-only `0033`. Preventa y backorder separan cantidad inmediata y
-diferida sin volver negativo el inventario. Política, cupo, mensaje y ventana
-son versionados; el pedido congela su snapshot y R4.9 solo admite `charge_now`
-mediante Stripe alojado.
+R4.10 queda cerrado localmente con `PRC-013`, el nuevo módulo `subscriptions`
+`1.0.0`, ADR-0037 y la migración expand-only `0034`. El puerto neutral cubre
+alta, activación, cambio de plan, pausa/reanudación, cancelación inmediata o al
+final de periodo, hechos idempotentes, impago/recuperación y portal alojado. El
+adaptador `simulated-subscriptions` es determinista y no usa red, claves ni
+dinero; rechaza webhooks públicos. Plan, importe y cadencia siempre llegan de la
+configuración del proyecto y quedan congelados por alta.
 
-Checkout reserva solo stock inmediato; pago confirma el compromiso sin consumir
-existencias inexistentes. La asignación manual consume ledger global y ubicación
-principal por FIFO y emite un aviso específico. Fulfillment, cancelación,
-reembolso parcial/total y edición impiden stock fantasma. API admin, auditoría,
-estados visibles en pedido, confirmación de pago, backup esquema 27, ADR, runbook
-y wiki completan el bloque. La demo permanece de solo lectura.
+D1 conserva referencias opacas, hash del hecho verificado, historial
+versionado y ciclo/último intento, sin payload remoto, datos de tarjeta ni URL
+de portal. La API administrativa audita cada mutación y la demo sigue de solo
+lectura. La capacidad queda `installed` en los presets: ningún despliegue adopta
+automáticamente proveedor, precio, dunning o promesa comercial. No se crean
+perfiles R5, pedidos recurrentes, stock ni fulfillment implícitos.
 
-Gate local: `pnpm check` con 650 archivos sin diagnósticos, 146 suites/680 tests
-y build verde; E2E completo y a11y del panel en 8 superficies 1440/375 con 0
-errores/avisos. El rehearsal de `0033` conservó 284 productos, 286
-variantes/balances, 8 pedidos y
-13 líneas, con hash
-`823329189cfb73d9e8b69236a24c2c16b541aab3269df95b995c40a7aaebb8b6` y dump
-de 574057 bytes. No se aplicó D1 remota ni se desplegó: producción continúa en
-`0032` y el Worker `76af7637-8fe3-4aae-8c87-6e78d72e72ad` hasta un rollout
-autorizado separado.
+Gate local: `pnpm check` con 664 archivos sin diagnósticos, 150 suites/691 tests
+y build verde; E2E completo de aislamiento y backup. No hubo cambio visual, por
+lo que a11y no aplicaba. El rehearsal de `0034` conservó 284 productos, 286
+variantes/balances, 8 pedidos, 13 líneas y 8 pagos, con hash
+`7ec9d78d2ca38b42f54d5a174a8f918f9557177416daf5f08678921bf1f2a678` y dump
+de 587808 bytes. D1 local aplicó `0034` con las cinco tablas vacías y FKs
+limpias. No se tocó D1 remota ni Worker: producción continúa en `0032` y
+`76af7637-8fe3-4aae-8c87-6e78d72e72ad`; el rollout debe aplicar antes `0033`.
 
-Siguiente incremento exacto: R4.10. Debe definir suscripciones detrás de un
-adaptador, con contrato proveedor, eventos idempotentes, cambio/pausa/cancelación,
-impago y portal. No elegir proveedor, precios, cadencia comercial ni realizar
-gasto sin decisión explícita; no adelantar perfiles R5 ni conectores ajenos.
+Siguiente incremento exacto: R4.11. Debe modelar draft order, caducidad,
+aprobación, enlace de pago, depósito y saldo sin inventar porcentaje, vigencia,
+condiciones comerciales ni proveedor. No convertir el presupuesto en pedido ni
+reservar/cobrar stock antes de la transición explícita correspondiente.
 
 ### R4.7 — bundles fijos y configurables — ✅ 2026-08-14
 

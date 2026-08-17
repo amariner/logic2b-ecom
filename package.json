@@ -41,7 +41,8 @@
     "db:rehearse:price-lists": "node scripts/rehearse-r4-price-lists.mjs",
     "db:rehearse:bundles": "node scripts/rehearse-r4-bundles.mjs",
     "db:rehearse:stored-value": "node scripts/rehearse-r4-stored-value.mjs",
-    "db:rehearse:preorders": "node scripts/rehearse-r4-preorders.mjs"
+    "db:rehearse:preorders": "node scripts/rehearse-r4-preorders.mjs",
+    "db:rehearse:subscriptions": "node scripts/rehearse-r4-subscriptions.mjs"
   },
   "dependencies": {
     "@astrojs/cloudflare": "^12.6.0",

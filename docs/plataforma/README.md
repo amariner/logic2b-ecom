@@ -234,6 +234,14 @@ venta o servicios logísticos propios.
   rollout, reconciliación, incidencias y rollback de preventa/backorder.
 - [`wiki/preventa-backorder-explicita.md`](wiki/preventa-backorder-explicita.md):
   recorrido y límites honestos del modelo de venta diferida.
+- [`adr/0037-suscripciones-adaptador-verificado.md`](adr/0037-suscripciones-adaptador-verificado.md):
+  puerto neutral, hechos verificados, estados, impago y portal alojado.
+- [`../../migrations/0034_provider_subscriptions.sql`](../../migrations/0034_provider_subscriptions.sql):
+  planes, proyección, inbox idempotente, eventos y ciclos expand-only.
+- [`OPERACION_SUSCRIPCIONES.md`](OPERACION_SUSCRIPCIONES.md):
+  rollout, reconciliación, incidencias y rollback de `PRC-013`.
+- [`wiki/suscripciones-por-adaptador.md`](wiki/suscripciones-por-adaptador.md):
+  recorrido funcional y fronteras de seguridad/comercio de R4.10.
 - [`../../migrations/0016_order_amendments.sql`](../../migrations/0016_order_amendments.sql):
   expansión de cantidades vigentes, amendments y asignaciones financieras.
 - [`OPERACION_EDICION_PEDIDOS.md`](OPERACION_EDICION_PEDIDOS.md):

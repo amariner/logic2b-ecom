@@ -109,6 +109,7 @@ describe('registro de módulos (R1.4)', () => {
       expect.objectContaining({ path: '/api/admin/discount-combinations', capabilityId: 'PRC-008' }),
       expect.objectContaining({ path: '/api/admin/price-lists', capabilityId: 'PRC-009' }),
       expect.objectContaining({ path: '/api/admin/bundles', capabilityId: 'PRC-012' }),
+      expect.objectContaining({ path: '/api/admin/subscriptions', capabilityId: 'PRC-013' }),
       expect.objectContaining({ path: '/api/admin/preorders', capabilityId: 'PRC-014' }),
     ]));
   });
@@ -116,7 +117,9 @@ describe('registro de módulos (R1.4)', () => {
   it.each([
     ['minimal', ['platform-configuration', 'platform-security', 'catalog', 'pricing', 'storefront']],
     ['standard', ['platform-configuration', 'platform-security', 'catalog', 'pricing', 'inventory', 'cart', 'customers', 'orders', 'fulfillment', 'notifications', 'payments', 'checkout', 'storefront']],
-    ['advanced', MODULE_REGISTRY.descriptors.map((descriptor) => descriptor.id)],
+    ['advanced', MODULE_REGISTRY.descriptors
+      .filter((descriptor) => descriptor.id !== 'subscriptions')
+      .map((descriptor) => descriptor.id)],
   ] as const)('compone solo los módulos operativos del preset %s', (preset, expected) => {
     const platform = createPlatform(createPresetManifest(preset, deployment));
     expect(platform.modules.map((module) => module.descriptor.id)).toEqual(expected);

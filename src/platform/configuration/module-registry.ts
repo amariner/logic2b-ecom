@@ -11,6 +11,7 @@ export const MODULE_IDS = [
   'cart',
   'checkout',
   'payments',
+  'subscriptions',
   'orders',
   'fulfillment',
   'customers',
@@ -65,6 +66,7 @@ const PRICE_LISTS_WIKI = 'docs/plataforma/wiki/listas-precios-contextuales.md';
 const BUNDLES_WIKI = 'docs/plataforma/wiki/bundles-componentes.md';
 const STORED_VALUE_WIKI = 'docs/plataforma/wiki/tarjetas-regalo-credito-tienda.md';
 const PREORDERS_WIKI = 'docs/plataforma/wiki/preventa-backorder-explicita.md';
+const SUBSCRIPTIONS_WIKI = 'docs/plataforma/wiki/suscripciones-por-adaptador.md';
 
 /**
  * Catálogo canónico de módulos. Los arrays vacíos son declaraciones explícitas:
@@ -201,6 +203,21 @@ export const MODULE_DESCRIPTORS = [
     id: 'payments', version: '1.1.0', capabilities: ['CHK-004', 'INT-001'], dependencies: ['platform-configuration'],
     permissions: [], events: [], subscriptions: [], jobs: [], healthchecks: ['payments.stripe-checkout'], wikiLinks: [ARCHITECTURE_WIKI], navigation: [],
     routes: [{ match: 'exact', path: '/api/webhooks/stripe', capabilityId: 'CHK-004' }],
+  },
+  {
+    id: 'subscriptions', version: '1.0.0', capabilities: ['PRC-013'],
+    dependencies: ['platform-configuration', 'catalog', 'pricing', 'payments', 'orders'],
+    permissions: ['subscriptions.read', 'subscriptions.write'],
+    events: [
+      'subscriptions.subscription_created', 'subscriptions.subscription_activated',
+      'subscriptions.payment_succeeded', 'subscriptions.payment_failed',
+      'subscriptions.subscription_paused', 'subscriptions.subscription_resumed',
+      'subscriptions.plan_changed', 'subscriptions.cancellation_scheduled',
+      'subscriptions.subscription_cancelled',
+    ],
+    subscriptions: [], jobs: [], healthchecks: [], wikiLinks: [ARCHITECTURE_WIKI, SUBSCRIPTIONS_WIKI],
+    navigation: [],
+    routes: [{ match: 'prefix', path: '/api/admin/subscriptions', capabilityId: 'PRC-013' }],
   },
   {
     id: 'checkout', version: '1.0.0', capabilities: ['CHK-002', 'CHK-003'],

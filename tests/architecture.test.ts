@@ -20,6 +20,7 @@ type ModuleName =
   | 'cart'
   | 'checkout'
   | 'payments'
+  | 'subscriptions'
   | 'orders'
   | 'fulfillment'
   | 'customers'
@@ -68,6 +69,7 @@ const ALLOWED_MODULE_DEPENDENCIES: Readonly<Record<ModuleName, readonly ModuleNa
   cart: ['shared-kernel', 'catalog'],
   checkout: ['shared-kernel', 'platform/configuration', 'cart', 'catalog', 'pricing', 'inventory', 'fulfillment', 'customers', 'payments', 'orders'],
   payments: ['shared-kernel', 'platform/configuration'],
+  subscriptions: ['shared-kernel'],
   orders: ['shared-kernel', 'platform/configuration', 'catalog', 'pricing', 'customers'],
   fulfillment: ['shared-kernel', 'platform/configuration', 'orders', 'inventory'],
   customers: ['shared-kernel', 'platform/configuration'],

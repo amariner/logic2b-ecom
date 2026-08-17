@@ -94,6 +94,9 @@ const ADVANCED_CAPABILITIES = {
   'PRC-010': { state: 'active', flags: ROUTE_EFFECT },
   'PRC-011': { state: 'active', flags: ROUTE_EFFECT },
   'PRC-012': { state: 'active', flags: ROUTE_EFFECT },
+  // El contrato R4.10 queda instalado, pero ningún preset decide proveedor,
+  // precio o cadencia comercial. Un proyecto debe activarlo explícitamente.
+  'PRC-013': { state: 'installed' },
   'PRC-014': { state: 'active', flags: ROUTE_EFFECT },
   'FUL-002': { state: 'active', flags: ROUTE },
   'FUL-003': { state: 'active', flags: ROUTE },
