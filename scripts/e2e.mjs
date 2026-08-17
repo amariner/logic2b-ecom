@@ -358,8 +358,8 @@ check(
     && backupSql.includes('INSERT INTO attribute_definitions') && backupSql.includes('INSERT INTO product_attribute_values'),
 );
 check(
-  'backup esquema 25 conserva operación, RMA, documentos, pricing y bundles',
-  backupSql.includes('logic2b-backup-schema: 25')
+  'backup esquema 26 conserva operación, RMA, documentos, pricing, bundles y valor almacenado',
+  backupSql.includes('logic2b-backup-schema: 26')
     && backupSql.includes('INSERT INTO payments')
     && backupSql.includes('INSERT INTO payment_transactions')
     && backupSql.includes('DELETE FROM refunds')
@@ -375,7 +375,7 @@ check(
     && backupSql.includes('INSERT INTO order_hold_events')
     && backupSql.includes('DELETE FROM order_bulk_batches')
     && backupSql.includes('DELETE FROM order_bulk_batch_rows')
-    && backupSql.includes('0031_bundles')
+    && backupSql.includes('0032_stored_value')
     && backupSql.includes('DELETE FROM promotion_codes')
     && backupSql.includes('DELETE FROM promotion_code_usages')
     && backupSql.includes('DELETE FROM automatic_discounts')
@@ -394,6 +394,11 @@ check(
     && backupSql.includes('DELETE FROM bundle_components')
     && backupSql.includes('DELETE FROM order_bundle_components')
     && backupSql.includes('DELETE FROM bundle_applications')
+    && backupSql.includes('DELETE FROM stored_value_accounts')
+    && backupSql.includes('DELETE FROM stored_value_reservations')
+    && backupSql.includes('DELETE FROM stored_value_applications')
+    && backupSql.includes('DELETE FROM stored_value_refund_allocations')
+    && backupSql.includes('DELETE FROM stored_value_ledger_entries')
     && backupSql.includes('INSERT INTO inventory_locations')
     && backupSql.includes('INSERT INTO inventory_location_balances')
     && backupSql.includes('INSERT INTO inventory_transfers')
