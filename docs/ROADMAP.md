@@ -63,7 +63,7 @@ reconciliación se conserva abajo por contexto.
 | 11 | Landing V2 «nivel Awwwards» + negocio + funnel + docs | 🟡 En curso | 2026-08-13 | **F11.1, F11.3 (2 sesiones), F11.4, F11.5, F11.6, F11.7 y F11.8 (primera pasada + pase a11y/contenido desde cloud 2026-07-24) hechos**, más F11.8b (auditor de a11y, cloud), F11.2a-1 (tienda ASFALTO / tema Street), F11.2a-2 (tienda METRIA / tema Industrial) F11.2a-3 (tienda ROMER / tema Natural) y **F11.2a-4 (tienda KALIBRE / tema Specs, local 2026-07-25) — con la que F11.2a queda CERRADA (10/10 tiendas)**; y **F11.8c (Lighthouse citable + OG de WhatsApp + URLs sin redirección, local 2026-07-26)**; y **F11.8d–e (tabla de Lighthouse cerrada y desplegada: 7 de 8 superficies a 100×4, la landing entre ellas en móvil y escritorio, local 2026-07-27)**; y **F11.9 (contacto global de WhatsApp, cerrado y servido 2026-08-13)**. Solo queda la submission a Awwwards, decisión de pago reservada a Andreu. Detalle por bloque abajo. **Plan maestro completo en [`docs/PLAN_FASE11_LANDING_V2.md`](PLAN_FASE11_LANDING_V2.md)**: bloques F11.0–F11.8 ejecutables por sesiones independientes. **Decisiones D1–D6 APROBADAS por Andreu (2026-07-23)**: JS propio ≤15 KB sin deps, capturas con browser tools en local, dirección C «Ocho tiendas, un motor», escalera de precios (Lite 590 / Kit 1.900+39 / A medida 3.400+59), WhatsApp+email, Lite publicado sin construir. Prompt de arranque: [`docs/PROMPT_FASE11.md`](PROMPT_FASE11.md). Integra 9B.5/9B.6 (imaginería y temas restantes) como prerequisito del hero |
 | 8 | Pulido de la demo (backlog abajo) | 🟡 En curso | 2026-07-19 | Backlog técnico agotado; solo quedan decisiones y pasos locales de Andreu (ver «Decisiones pendientes» y `docs/PROMPT_CLOUD.md`). Últimas tandas: novena (race de idempotencia en el pago, PII enumerable en `/demo/gracias`, cancelación de pedido pagado sin devolver stock), décima (la misma race en el PATCH de admin, campos vacíos guardados como 0, login sin rate limit), undécima (diagrama móvil de `/arquitectura`, hedge del plazo de entrega, tokens de tema en `/demo/reset`, terminología «envío»), duodécima (aviso de corte en pedidos del admin, cabeceras sin wrap a 375px, leftover «portes», token de radio del carrito, contraste del botón eliminar, H1 en valenciano, checklist de producción) y decimotercera (misma race de idempotencia en `checkout.session.expired`, divisa hardcodeada a EUR fuera de Stripe, cobertura de test de `quoteCart`/PATCH admin/emails) y decimocuarta (config parcial de Stripe → cobro sin cumplimiento, emails duplicados bajo concurrencia, `payment_status` del webhook, color de marca centralizado en `shop.config.ts`, contraste/tema en carrito y checkout) — ver sección «Fase 8» |
 | 12 | Logic2B Ecommerce: renombrado, reposicionamiento y docs de dos visiones | ✅ Hecho | 2026-08-10 | **F12.0–F12.6 cerrados:** marca, argumento, dossier, canal agencias, ayuda, índice por audiencias, OG y auditorías citables consolidados. **Plan maestro en [`docs/PLAN_FASE12_LOGIC2B_ECOMMERCE.md`](PLAN_FASE12_LOGIC2B_ECOMMERCE.md)**. |
-| 13 | Plataforma modular: del gestor mínimo a paridad extrema de capacidad | 🟡 En curso | 2026-08-17 | **R0–R3.12 y R4.1–R4.8 desplegados; R4.9–R4.11 cerrados localmente; siguiente R4.12:** consolidación de dinero y modelos de venta. Fuente de verdad en [`docs/plataforma/`](plataforma/README.md). |
+| 13 | Plataforma modular: del gestor mínimo a paridad extrema de capacidad | 🟡 En curso | 2026-08-17 | **R0–R3.12 y R4 completa; R4.9–R4.11 siguen locales; siguiente R5.1:** perfil de cliente deduplicable sin romper guest checkout. Fuente de verdad en [`docs/plataforma/`](plataforma/README.md). |
 
 ## Repo y entornos
 
@@ -149,6 +149,7 @@ sus verificaciones ni sus puntos de reanudación.
 | R4.9 | Preventa/backorder | ✅ 2026-08-17 — `PRC-014`, D1 `0033`, backup 27 y rehearsal local; rollout pendiente |
 | R4.10 | Suscripciones por adaptador | ✅ 2026-08-17 — `PRC-013`, módulo subscriptions, D1 `0034`, backup 28 y rehearsal local; capacidad instalada, rollout pendiente |
 | R4.11 | Presupuestos y depósitos | ✅ 2026-08-17 — `ORD-008`/`CHK-011`, D1 local `0035`, backup 29, rehearsal, API y E2E; rollout pendiente |
+| R4.12 | Consolidación de dinero y modelos de venta | ✅ 2026-08-17 — 11 modelos, 66 parejas, 13.500 propiedades y wiki índice; sin DDL/deploy |
 
 ## Fase 12 — Logic2B Ecommerce: renombrado, reposicionamiento y las dos visiones
 
@@ -1681,21 +1682,40 @@ la cola de temas, coordinados sin mezclar worktrees ni cambios abiertos.
 
 ## Próxima sesión
 
-### R4.12 — consolidación de dinero y modelos de venta
+### R5.1 — perfil de cliente deduplicable
 
-Cerrar la ola R4 sin nueva capacidad comercial: construir una matriz ejecutable
-que cruce precio base/lista, código, automático, cantidad, combinabilidad,
-bundle, valor almacenado, preventa, suscripción y presupuesto. Añadir property
-tests sobre céntimos, límites, prorrateo, replay y conservación de totales; un
-journey de consolidación que demuestre que ninguna combinación duplica captura,
-descuento, reserva, devolución o saldo; y una wiki índice que enlace el estado y
-los límites reales de cada modelo.
+Diseñar identidad de cliente sin convertir el guest checkout en registro
+obligatorio. Antes de cualquier DDL: ADR con identificadores internos, email
+normalizado/hash para deduplicación, relación opcional de pedidos, direcciones
+versionadas y política de merge/revisión. El perfil no puede alterar snapshots
+históricos, enumerar emails, asumir consentimiento ni crear contraseña.
 
-Antes de cerrar: revisar que capacidades instaladas sigan sin rutas/efectos,
-que los modelos incompatibles fallen de forma explícita y que backup/restore
-conserve todas las evidencias. Ejecutar `pnpm check` y E2E si el journey toca
-compra/admin. No se prevé migración ni deploy; cualquier DDL descubierto abre
-un gate nuevo. Por instrucción vigente, no seleccionar ni crear temas.
+Implementar primero dominio puro y contrato de repositorio con pruebas de
+normalización, carrera de alta/merge, guest sin perfil y conflicto de identidades.
+La futura migración debe ser expand-only, sin backfill automático de clientes y
+requiere autorización explícita nueva. No desplegar, usar datos reales ni tocar
+temas.
+
+#### Corte anterior R4.12
+
+R4.12 cierra la ola de modelos de venta sin DDL, rutas ni efectos. La matriz
+canónica enumera 11 modelos, 14 capacidades, autoridad monetaria y tablas de
+evidencia; genera las 66 parejas y obliga a declarar fundación, orden de precio,
+política de combinación, compatibilidad, medio de pago, incompatibilidad de
+línea o lifecycle separado.
+
+El corpus reproducible ejecuta 12.000 casos de precio simple/combinado y topes,
+500 recorridos X/Y con devolución al medio original y 1.000 combinaciones de
+depósito/saldo. También verifica que estados `actual`/`installed` coincidan con
+el preset avanzado y que toda evidencia pertenezca al backup esquema 29. La
+wiki índice enlaza contrato, operación y límites de cada bloque R4.
+
+Gate: `pnpm check` con 680 archivos sin diagnósticos, 156 suites/715 tests,
+build y sitemap verdes. No se tocó compra/admin/UI, así que no hubo nuevo E2E o
+a11y; sigue vigente el E2E R4.11. No hubo migración, dependencia, D1 remota,
+Worker ni deploy. Producción continúa en `0032` y
+`76af7637-8fe3-4aae-8c87-6e78d72e72ad`. Por instrucción vigente no se tocaron
+temas.
 
 #### Corte anterior R4.11
 

@@ -251,6 +251,10 @@ venta o servicios logísticos propios.
   rollout, conciliación, incidencias y rollback de `ORD-008`/`CHK-011`.
 - [`wiki/presupuestos-depositos.md`](wiki/presupuestos-depositos.md):
   recorrido funcional y fronteras de dinero, inventario y seguridad.
+- [`MATRIZ_MODELOS_VENTA_R4.md`](MATRIZ_MODELOS_VENTA_R4.md):
+  contrato ejecutable de los once modelos, sus 66 parejas y evidencia durable.
+- [`wiki/modelos-venta-r4.md`](wiki/modelos-venta-r4.md):
+  índice funcional de R4 y orden común de precio, descuento, venta y pago.
 - [`../../migrations/0016_order_amendments.sql`](../../migrations/0016_order_amendments.sql):
   expansión de cantidades vigentes, amendments y asignaciones financieras.
 - [`OPERACION_EDICION_PEDIDOS.md`](OPERACION_EDICION_PEDIDOS.md):

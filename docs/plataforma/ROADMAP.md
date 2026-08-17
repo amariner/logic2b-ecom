@@ -134,7 +134,7 @@ Cada migración se diseña y ensaya sobre una copia antes de tocar el esquema vi
 | 47 | **R4.9 Preventa/backorder** | Promesa, asignación, cobro y comunicación. | ✅ 2026-08-17; local, `0033` pendiente de rollout |
 | 48 | **R4.10 Suscripciones por adaptador** | Contrato proveedor, eventos, cambio/pausa/cancelación, impago y portal. | ✅ 2026-08-17; local, `0034` pendiente de rollout; capacidad instalada |
 | 49 | **R4.11 Presupuestos y depósitos** | Draft order, caducidad, aprobación, enlace de pago y saldo. | ✅ 2026-08-17; local, `0035` pendiente de rollout; capacidades instaladas |
-| 50 | **R4.12 Consolidación R4** | Matriz exhaustiva de reglas, property tests de dinero y wiki de cada modelo. | ⬜ |
+| 50 | **R4.12 Consolidación R4** | Matriz exhaustiva de reglas, property tests de dinero y wiki de cada modelo. | ✅ 2026-08-17; 66 parejas, 13.500 casos y evidencia en backup |
 
 El corte conjunto del 2026-08-17 llevó `0020`–`0032` a la D1 demo y publicó el
 Worker `76af7637-8fe3-4aae-8c87-6e78d72e72ad`. Se conservó un bookmark de Time
@@ -157,6 +157,12 @@ versionados, depósito/saldo, enlace alojado simulado interno, conversión con
 pedido/reserva, auditoría, APIs admin, backup 29 y rehearsal/restore. `ORD-008`
 y `CHK-011` permanecen instaladas, sin activar términos ni proveedor. D1 remota
 y Worker no cambiaron.
+
+R4.12 cerró la ola sin DDL ni efectos nuevos: matriz ejecutable de 11 modelos,
+14 capacidades y 66 parejas; estados de preset y tablas de evidencia verificados;
+12.000 propiedades de precio/tope, 500 de X/Y/reembolso y 1.000 de depósito/saldo.
+La wiki R4 enlaza el contrato y límites de cada modelo. `pnpm check` pasa 156
+suites/715 tests; producción permanece en `0032`.
 
 ## R5 — Clientes, privacidad y mercados
 

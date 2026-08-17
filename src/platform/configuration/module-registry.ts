@@ -67,6 +67,8 @@ const BUNDLES_WIKI = 'docs/plataforma/wiki/bundles-componentes.md';
 const STORED_VALUE_WIKI = 'docs/plataforma/wiki/tarjetas-regalo-credito-tienda.md';
 const PREORDERS_WIKI = 'docs/plataforma/wiki/preventa-backorder-explicita.md';
 const SUBSCRIPTIONS_WIKI = 'docs/plataforma/wiki/suscripciones-por-adaptador.md';
+const PRELIMINARY_ORDERS_WIKI = 'docs/plataforma/wiki/presupuestos-depositos.md';
+const R4_MODELS_WIKI = 'docs/plataforma/wiki/modelos-venta-r4.md';
 
 /**
  * Catálogo canónico de módulos. Los arrays vacíos son declaraciones explícitas:
@@ -105,9 +107,9 @@ export const MODULE_DESCRIPTORS = [
     ],
   },
   {
-    id: 'pricing', version: '1.9.0', capabilities: ['PRC-001', 'PRC-002', 'PRC-003', 'PRC-004', 'PRC-005', 'PRC-006', 'PRC-007', 'PRC-008', 'PRC-009', 'PRC-010', 'PRC-011', 'PRC-012', 'PRC-014', 'MKT-001', 'MKT-002'],
+    id: 'pricing', version: '2.0.0', capabilities: ['PRC-001', 'PRC-002', 'PRC-003', 'PRC-004', 'PRC-005', 'PRC-006', 'PRC-007', 'PRC-008', 'PRC-009', 'PRC-010', 'PRC-011', 'PRC-012', 'PRC-014', 'MKT-001', 'MKT-002'],
     dependencies: ['platform-configuration', 'catalog'], permissions: [], events: [], subscriptions: [], jobs: [], healthchecks: [],
-    wikiLinks: [ARCHITECTURE_WIKI, PRICE_RULES_WIKI, PROMOTION_CODES_WIKI, AUTOMATIC_DISCOUNTS_WIKI, QUANTITY_OFFERS_WIKI, DISCOUNT_COMBINATIONS_WIKI, PRICE_LISTS_WIKI, BUNDLES_WIKI, STORED_VALUE_WIKI, PREORDERS_WIKI], navigation: [],
+    wikiLinks: [ARCHITECTURE_WIKI, R4_MODELS_WIKI, PRICE_RULES_WIKI, PROMOTION_CODES_WIKI, AUTOMATIC_DISCOUNTS_WIKI, QUANTITY_OFFERS_WIKI, DISCOUNT_COMBINATIONS_WIKI, PRICE_LISTS_WIKI, BUNDLES_WIKI, STORED_VALUE_WIKI, PREORDERS_WIKI], navigation: [],
     routes: [
       { match: 'prefix', path: '/api/admin/promotion-codes', capabilityId: 'PRC-004' },
       { match: 'prefix', path: '/api/admin/automatic-discounts', capabilityId: 'PRC-005' },
@@ -148,11 +150,11 @@ export const MODULE_DESCRIPTORS = [
     permissions: [], events: [], subscriptions: [], jobs: [], healthchecks: [], wikiLinks: [ARCHITECTURE_WIKI], navigation: [], routes: [],
   },
   {
-    id: 'orders', version: '1.9.0', capabilities: ['ORD-001', 'ORD-002', 'ORD-004', 'ORD-005', 'ORD-007', 'ORD-008', 'ORD-010', 'ORD-011', 'ORD-012', 'AUT-001', 'AUT-011'],
+    id: 'orders', version: '1.10.0', capabilities: ['ORD-001', 'ORD-002', 'ORD-004', 'ORD-005', 'ORD-007', 'ORD-008', 'ORD-010', 'ORD-011', 'ORD-012', 'AUT-001', 'AUT-011'],
     dependencies: ['catalog', 'pricing', 'customers', 'inventory'], permissions: ['orders.read', 'orders.transition', 'orders.collaborate', 'orders.amend', 'orders.refund', 'orders.hold', 'orders.bulk', 'orders.documents.read', 'orders.documents.write', 'orders.preliminary.read', 'orders.preliminary.write'],
     events: ['orders.order_placed', 'orders.order_paid', 'orders.order_shipped', 'orders.order_delivered', 'orders.order_cancelled', 'orders.order_refunded', 'orders.order_partially_refunded', 'orders.order_amendment_requested', 'orders.order_amendment_applied', 'orders.order_amendment_expired', 'orders.order_hold_created', 'orders.order_hold_assigned', 'orders.order_hold_resolved'],
     subscriptions: [],
-    jobs: ['orders.execute-bulk-action'], healthchecks: [], wikiLinks: [ARCHITECTURE_WIKI, R3_OPERATION_WIKI],
+    jobs: ['orders.execute-bulk-action'], healthchecks: [], wikiLinks: [ARCHITECTURE_WIKI, R3_OPERATION_WIKI, R4_MODELS_WIKI, PRELIMINARY_ORDERS_WIKI],
     navigation: [
       { id: 'pedidos', href: '/demo/admin', label: 'Pedidos', order: 10, capabilityId: 'ORD-001' },
       { id: 'documentos', href: '/demo/admin/documentos', label: 'Documentos', order: 18, capabilityId: 'ORD-012' },
@@ -206,7 +208,7 @@ export const MODULE_DESCRIPTORS = [
     routes: [{ match: 'exact', path: '/api/webhooks/stripe', capabilityId: 'CHK-004' }],
   },
   {
-    id: 'subscriptions', version: '1.0.0', capabilities: ['PRC-013'],
+    id: 'subscriptions', version: '1.1.0', capabilities: ['PRC-013'],
     dependencies: ['platform-configuration', 'catalog', 'pricing', 'payments', 'orders'],
     permissions: ['subscriptions.read', 'subscriptions.write'],
     events: [
@@ -216,14 +218,14 @@ export const MODULE_DESCRIPTORS = [
       'subscriptions.plan_changed', 'subscriptions.cancellation_scheduled',
       'subscriptions.subscription_cancelled',
     ],
-    subscriptions: [], jobs: [], healthchecks: [], wikiLinks: [ARCHITECTURE_WIKI, SUBSCRIPTIONS_WIKI],
+    subscriptions: [], jobs: [], healthchecks: [], wikiLinks: [ARCHITECTURE_WIKI, R4_MODELS_WIKI, SUBSCRIPTIONS_WIKI],
     navigation: [],
     routes: [{ match: 'prefix', path: '/api/admin/subscriptions', capabilityId: 'PRC-013' }],
   },
   {
-    id: 'checkout', version: '1.2.0', capabilities: ['CHK-002', 'CHK-003', 'CHK-011'],
+    id: 'checkout', version: '1.3.0', capabilities: ['CHK-002', 'CHK-003', 'CHK-011'],
     dependencies: ['cart', 'catalog', 'pricing', 'inventory', 'fulfillment', 'customers', 'payments', 'orders'],
-    permissions: [], events: [], subscriptions: [], jobs: [], healthchecks: [], wikiLinks: [ARCHITECTURE_WIKI], navigation: [],
+    permissions: [], events: [], subscriptions: [], jobs: [], healthchecks: [], wikiLinks: [ARCHITECTURE_WIKI, R4_MODELS_WIKI, PRELIMINARY_ORDERS_WIKI], navigation: [],
     routes: [
       { match: 'exact', path: '/api/cart/quote', capabilityId: 'CHK-002' },
       { match: 'exact', path: '/api/checkout/session', capabilityId: 'CHK-003' },
