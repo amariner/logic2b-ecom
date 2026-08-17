@@ -124,3 +124,34 @@ export {
   type BundleApplication,
   type BundleInventoryItem,
 } from './infrastructure/d1-bundles';
+
+export {
+  PREORDER_COMMITMENT_STATES,
+  PREORDER_KINDS,
+  PREORDER_PAYMENT_POLICIES,
+  PREORDER_POLICY_STATES,
+  allocatePreorderCommitment,
+  assertPreorderCommitment,
+  assertPreorderPolicy,
+  cancelPreorderCommitment,
+  confirmPreorderPayment,
+  planPreorderAllocations,
+  resolvePreorderLine,
+  type PreorderAllocationPlan,
+  type PreorderCommitment,
+  type PreorderCommitmentMutation,
+  type PreorderCommitmentState,
+  type PreorderKind,
+  type PreorderLineResolution,
+  type PreorderPaymentPolicy,
+  type PreorderPolicy,
+  type PreorderPolicyState,
+  type PreorderSnapshot,
+} from './domain/preorder';
+
+export {
+  createD1Preorders,
+  type D1Preorders,
+  type PreorderApplication,
+  type PreorderCommitmentRecord,
+} from './infrastructure/d1-preorders';

@@ -17,6 +17,7 @@ import type { EmitEvent } from '../shared-kernel/events';
 import { emitPlatformEvent } from './event-context';
 import { createInventoryAllocationOperations } from './inventory-allocation-operations';
 import { runtimePlatform } from './runtime-platform';
+import { createD1Preorders } from '../modules/pricing';
 
 export type ShipFulfillmentInput = Readonly<{
   orderId: number;
@@ -74,6 +75,7 @@ export function createFulfillmentOperations(
   const outbox = createD1EventOutboxWriter(db);
   const audit = createD1AuditLogWriter(db);
   const routing = createInventoryAllocationOperations(db);
+  const preorders = createD1Preorders(db);
   const routingEnabled = options.routingEnabled ??
     runtimePlatform.hasCapabilityFlag('INV-011', 'sideEffects');
 
@@ -110,13 +112,26 @@ export function createFulfillmentOperations(
       }
 
       const balances = await fulfillments.lineBalances(order.id);
+      const preorderCommitments = await preorders.commitmentsForOrder(order.id);
+      const preorderByItem = new Map(preorderCommitments.map((item) => [item.orderItemId, item] as const));
+      const physicallyFulfillableBalances = balances.map((balance) => {
+        const commitment = preorderByItem.get(balance.order_item_id);
+        if (!commitment) return balance;
+        const physicalQuantity = commitment.immediateQuantity + commitment.allocatedQuantity -
+          commitment.restoredQuantity;
+        if (balance.fulfilled_quantity > physicalQuantity) {
+          throw new Error(`Línea ${balance.order_item_id}: fulfillment superior al stock asignado.`);
+        }
+        return Object.freeze({ ...balance,
+          ordered_quantity: physicalQuantity + balance.cancelled_quantity });
+      });
       const expectedCommittedQuantity = balances.reduce(
         (sum, balance) => sum + balance.fulfilled_quantity + balance.cancelled_quantity,
         0,
       );
       const allocations = input.allocations === undefined
-        ? planOutstandingFulfillment(balances)
-        : planRequestedFulfillment(balances, input.allocations);
+        ? planOutstandingFulfillment(physicallyFulfillableBalances)
+        : planRequestedFulfillment(physicallyFulfillableBalances, input.allocations);
       const remainingQuantity = totalRemaining(balances) -
         allocations.reduce((sum, allocation) => sum + allocation.quantity, 0);
       const completesOrder = remainingQuantity === 0;

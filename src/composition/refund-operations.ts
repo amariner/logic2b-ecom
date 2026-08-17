@@ -37,7 +37,7 @@ import { emitPlatformEvent } from './event-context';
 import { runtimePlatform } from './runtime-platform';
 import { createD1FulfillmentLedger } from '../modules/fulfillment';
 import { shopConfig } from '../../shop.config';
-import { createD1Bundles } from '../modules/pricing';
+import { createD1Bundles, createD1Preorders } from '../modules/pricing';
 
 export type TotalRefundInput = Readonly<{
   orderId: number;
@@ -102,6 +102,42 @@ export function createRefundOperations(
   const audit = createD1AuditLogWriter(db);
   const fulfillments = createD1FulfillmentLedger(db);
   const bundles = createD1Bundles(db);
+  const preorders = createD1Preorders(db);
+
+  async function preorderRefundAdjustments(
+    event: OrderDomainEvent,
+    orderId: number,
+    quantities: ReadonlyMap<number, number>,
+  ): Promise<Readonly<{
+    physicalQuantities: ReadonlyMap<number, number>;
+    statements: readonly D1PreparedStatement[];
+  }>> {
+    const commitments = await preorders.commitmentsForOrder(orderId);
+    if (commitments.length === 0) return { physicalQuantities: quantities, statements: [] };
+    const physicalQuantities = new Map(quantities);
+    const statements: D1PreparedStatement[] = [];
+    for (const commitment of commitments) {
+      const requested = quantities.get(commitment.orderItemId) ?? 0;
+      if (requested === 0) continue;
+      const pendingDeferred = commitment.deferredQuantity - commitment.allocatedQuantity -
+        commitment.cancelledQuantity;
+      const activeDeferred = commitment.deferredQuantity - commitment.cancelledQuantity -
+        commitment.restoredQuantity;
+      const deferredCancellation = Math.min(requested, activeDeferred);
+      const physicalCancellation = requested - Math.min(requested, pendingDeferred);
+      physicalQuantities.set(commitment.orderItemId, physicalCancellation);
+      if (deferredCancellation > 0) {
+        statements.push(...preorders.cancellationStatements(
+          commitment,
+          deferredCancellation,
+          event.occurred_at,
+          event.event_id,
+          event.idempotency_key,
+        ));
+      }
+    }
+    return Object.freeze({ physicalQuantities, statements: Object.freeze(statements) });
+  }
 
   async function reconcileAllocations(
     payment: PaymentLedgerEntry,
@@ -236,6 +272,10 @@ export function createRefundOperations(
         return { outcome: 'invalid_state', queuedMessages: 0 };
       }
       const items = await orders.items(order.id);
+      const preorderCommitments = await preorders.commitmentsForOrder(order.id);
+      if (preorderCommitments.length > 0 && !input.restock) {
+        return { outcome: 'invalid_state', queuedMessages: 0 };
+      }
       const restockDecision: RefundRestockDecision = input.restock ? 'restock' : 'none';
       const planned = planTotalRefund(
         payment,
@@ -300,11 +340,17 @@ export function createRefundOperations(
         restock: refund.restock_decision === 'restock',
       }, { causationId: reconciled.causationId });
       const consumerIds = consumersFor(event.type);
+      const requestedQuantities = new Map(
+        planned.lines.map((line) => [line.order_item_id, line.quantity] as const),
+      );
+      const preorderAdjustments = await preorderRefundAdjustments(
+        event, order.id, requestedQuantities,
+      );
       const stockStatements = refund.restock_decision === 'restock'
         ? await restockStatements(
             event,
             items,
-            new Map(planned.lines.map((line) => [line.order_item_id, line.quantity] as const)),
+            preorderAdjustments.physicalQuantities,
           )
         : [];
       const results = await orders.commitResults([
@@ -359,6 +405,7 @@ export function createRefundOperations(
           eventId: event.event_id,
         }),
         orders.guardedTimelineStatement(order.id, orderTimelineEntry(event), event.event_id),
+        ...preorderAdjustments.statements,
         ...stockStatements,
       ]);
       if (results[0]?.meta.changes !== 1) {
@@ -391,6 +438,10 @@ export function createRefundOperations(
         orders.items(order.id),
         fulfillments.lineBalances(order.id),
       ]);
+      const preorderCommitments = await preorders.commitmentsForOrder(order.id);
+      if (preorderCommitments.length > 0 && !input.restock) {
+        return { outcome: 'invalid_state', queuedMessages: 0 };
+      }
       const balanceByItem = new Map(balances.map((line) => [line.order_item_id, line] as const));
       const restockDecision: RefundRestockDecision = input.restock ? 'restock' : 'none';
       let planned;
@@ -533,11 +584,17 @@ export function createRefundOperations(
         remaining_quantity: remainingQuantity,
       }, { causationId: reconciled.causationId });
       const consumerIds = consumersFor(event.type);
+      const requestedQuantities = new Map(
+        refundItems.map((line) => [line.order_item_id, line.quantity] as const),
+      );
+      const preorderAdjustments = await preorderRefundAdjustments(
+        event, order.id, requestedQuantities,
+      );
       const stockStatements = refund.restock_decision === 'restock'
         ? await restockStatements(
             event,
             items,
-            new Map(refundItems.map((line) => [line.order_item_id, line.quantity] as const)),
+            preorderAdjustments.physicalQuantities,
           )
         : [];
       const results = await orders.commitResults([
@@ -594,6 +651,7 @@ export function createRefundOperations(
           eventId: event.event_id,
         }),
         orders.guardedTimelineStatement(order.id, orderTimelineEntry(event), event.event_id),
+        ...preorderAdjustments.statements,
         ...stockStatements,
       ]);
       if (results[0]?.meta.changes !== 1) {

@@ -226,6 +226,14 @@ venta o servicios logísticos propios.
   rehearsal, rollout, reconciliación, incidencias y rollback de valor almacenado.
 - [`wiki/tarjetas-regalo-credito-tienda.md`](wiki/tarjetas-regalo-credito-tienda.md):
   alcance, pago mixto y puertas legales por proyecto sin promesas públicas.
+- [`adr/0036-preventa-backorder-compromiso.md`](adr/0036-preventa-backorder-compromiso.md):
+  promesa versionada, cupo diferido, asignación FIFO y stock físico innegociable.
+- [`../../migrations/0033_preorders_backorders.sql`](../../migrations/0033_preorders_backorders.sql):
+  políticas, compromisos, eventos y asignaciones expand-only de `PRC-014`.
+- [`OPERACION_PREVENTA_BACKORDER.md`](OPERACION_PREVENTA_BACKORDER.md):
+  rollout, reconciliación, incidencias y rollback de preventa/backorder.
+- [`wiki/preventa-backorder-explicita.md`](wiki/preventa-backorder-explicita.md):
+  recorrido y límites honestos del modelo de venta diferida.
 - [`../../migrations/0016_order_amendments.sql`](../../migrations/0016_order_amendments.sql):
   expansión de cantidades vigentes, amendments y asignaciones financieras.
 - [`OPERACION_EDICION_PEDIDOS.md`](OPERACION_EDICION_PEDIDOS.md):

@@ -31,6 +31,7 @@ import migration29 from '../migrations/0029_discount_combinations.sql?raw';
 import migration30 from '../migrations/0030_contextual_price_lists.sql?raw';
 import migration31 from '../migrations/0031_bundles.sql?raw';
 import migration32 from '../migrations/0032_stored_value.sql?raw';
+import migration33 from '../migrations/0033_preorders_backorders.sql?raw';
 
 type SqlValue = string | number | bigint | null | Uint8Array;
 
@@ -108,6 +109,7 @@ export class SqliteD1 {
     includePriceLists = true,
     includeBundles = true,
     includeStoredValue = true,
+    includePreorders = true,
   ) {
     this.sqlite.exec('PRAGMA foreign_keys = ON;');
     for (const migration of [
@@ -126,7 +128,9 @@ export class SqliteD1 {
               ...(includeQuantityOffers ? [migration28, ...(includeDiscountCombinations
                 ? [migration29, ...(includePriceLists
                   ? [migration30, ...(includeBundles
-                    ? [migration31, ...(includeStoredValue ? [migration32] : [])]
+                    ? [migration31, ...(includeStoredValue
+                      ? [migration32, ...(includePreorders ? [migration33] : [])]
+                      : [])]
                     : [])]
                   : [])]
                 : [])] : []),

@@ -2,6 +2,7 @@
 
 import { deliverPendingEmailBatch } from '../lib/send-email';
 import { createOrderReader } from '../modules/orders';
+import { createD1Preorders } from '../modules/pricing';
 import { createOutboxWriter, orderNotificationsFor, type OrderEmailData } from '../modules/notifications';
 import {
   createD1EventOutboxRepository,
@@ -47,6 +48,8 @@ async function notificationData(db: D1Database, delivery: ClaimedOutboxDelivery)
   }
   const detail = await createOrderReader(db).detail(Number(delivery.event.entity.id));
   if (!detail) throw new OperationalError('outbox.order_not_found', false);
+  const commitments = await createD1Preorders(db).commitmentsForOrder(detail.order.id);
+  const preorderByItem = new Map(commitments.map((item) => [item.orderItemId, item] as const));
   return {
     order_number: detail.order.order_number,
     customer_name: detail.order.customer_name,
@@ -59,6 +62,12 @@ async function notificationData(db: D1Database, delivery: ClaimedOutboxDelivery)
       name_snapshot: item.name_snapshot,
       unit_price_cents: item.unit_price_cents,
       qty: item.qty,
+      ...(preorderByItem.get(item.order_item_id) ? { preorder: {
+        deferred_quantity: preorderByItem.get(item.order_item_id)!.deferredQuantity,
+        public_message: preorderByItem.get(item.order_item_id)!.snapshot.public_message,
+        availability_starts_at: preorderByItem.get(item.order_item_id)!.snapshot.availability_starts_at,
+        availability_ends_at: preorderByItem.get(item.order_item_id)!.snapshot.availability_ends_at,
+      } } : {}),
     })),
   };
 }

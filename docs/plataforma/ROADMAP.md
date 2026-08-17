@@ -131,7 +131,7 @@ Cada migración se diseña y ensaya sobre una copia antes de tocar el esquema vi
 | 44 | **R4.6 Listas de precios** | Precio por mercado/canal/empresa con fallback y snapshot de origen. | ✅ 2026-08-14; local, sin deploy |
 | 45 | **R4.7 Bundles** | Fijo y componible, stock de componentes, fulfillment y devolución. | ✅ 2026-08-14; local, sin deploy |
 | 46 | **R4.8 Tarjeta regalo/crédito** | Ledger, emisión, uso parcial, saldo y reembolso; revisión legal por proyecto. | ✅ 2026-08-17; desplegado con `0032` |
-| 47 | **R4.9 Preventa/backorder** | Promesa, asignación, cobro y comunicación. | ⬜ |
+| 47 | **R4.9 Preventa/backorder** | Promesa, asignación, cobro y comunicación. | ✅ 2026-08-17; local, `0033` pendiente de rollout |
 | 48 | **R4.10 Suscripciones por adaptador** | Contrato proveedor, eventos, cambio/pausa/cancelación, impago y portal. | ⬜ |
 | 49 | **R4.11 Presupuestos y depósitos** | Draft order, caducidad, aprobación, enlace de pago y saldo. | ⬜ |
 | 50 | **R4.12 Consolidación R4** | Matriz exhaustiva de reglas, property tests de dinero y wiki de cada modelo. | ⬜ |
@@ -141,6 +141,11 @@ Worker `76af7637-8fe3-4aae-8c87-6e78d72e72ad`. Se conservó un bookmark de Time
 Travel y un backup operativo antes del cambio; los trece rehearsals, FKs, E2E
 remoto y smoke de rutas quedaron verdes. El seed remoto se regeneró después de
 las migraciones para que el panel de demostración enseñe los fixtures R3/R4.
+
+R4.9 cerró después en local: `0033` y backup 27 pasaron rehearsal/restore,
+`pnpm check` cerró 146 suites/680 tests, el E2E local quedó completo y el panel
+pasó 8 superficies a11y 1440/375. D1 remota y Worker siguen en el corte `0032`
+hasta un rollout autorizado separado.
 
 ## R5 — Clientes, privacidad y mercados
 

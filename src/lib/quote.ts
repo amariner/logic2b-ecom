@@ -15,6 +15,7 @@ import {
   createD1PromotionCodes,
   createD1PriceLists,
   createD1QuantityOffers,
+  createD1Preorders,
   resolveAutomaticDiscounts,
   resolvePromotionCode,
   resolvePriceLists,
@@ -29,6 +30,7 @@ import {
   type PriceBreakdown,
   type PriceRuleCandidate,
   type PriceRuleContext,
+  type PreorderApplication,
   type QuantityOfferEvidence,
 } from '../modules/pricing';
 import { computeShippingCents, computeSubtotalCents } from './pricing';
@@ -83,6 +85,14 @@ export type QuoteLine = {
   available_stock: number;
   /** Desglose servidor; null únicamente cuando el producto no existe. */
   pricing: PriceBreakdown | null;
+  availability:
+    | Readonly<{ status: 'immediate'; immediate_quantity: number; deferred_quantity: 0 }>
+    | Readonly<{
+      status: 'deferred'; kind: 'preorder' | 'backorder'; immediate_quantity: number;
+      deferred_quantity: number; message: string; availability_starts_at: string;
+      availability_ends_at: string;
+    }>
+    | null;
   /** ok = servible; el resto son motivos por los que la línea no puede comprarse tal cual */
   status: 'ok' | 'not-found' | 'out-of-stock' | 'insufficient-stock';
 };
@@ -147,6 +157,9 @@ export type QuoteResult = {
         components: readonly Readonly<{ productId: number; quantityPerBundle: number }>[];
       }>[];
     }>;
+  preorders:
+    | Readonly<{ status: 'not_applied'; reason: 'disabled' | 'no_deferred_lines' }>
+    | Readonly<{ status: 'applied'; applications: readonly PreorderApplication[] }>;
 };
 
 export async function quoteCart(
@@ -168,6 +181,7 @@ export async function quoteCart(
     /** Identidad empresarial resuelta por servidor; nunca procede del cuerpo libre del checkout. */
     priceListCompanyKeyHash?: string;
     bundlesEnabled?: boolean;
+    preordersEnabled?: boolean;
   }> = {},
 ): Promise<QuoteResult> {
   // Colapsar duplicados del mismo slug antes de tocar la base
@@ -327,18 +341,41 @@ export async function quoteCart(
   const quantityProductIds = new Set(
     quantityResolution.status === 'eligible' ? quantityResolution.eligibleProductIds : [],
   );
+  const preorderResolutions = options.preordersEnabled === true
+    ? await createD1Preorders(db).resolveForProducts(products
+      .filter((product) => !bundleByProduct.has(product.id))
+      .map((product) => ({
+        productId: product.id,
+        requestedQuantity: qtyBySlug.get(product.slug) ?? 1,
+        availableQuantity: product.stock,
+      })), pricingContext.at)
+    : new Map<number, never>();
+  const preorderApplications: PreorderApplication[] = [];
 
   const lines: QuoteLine[] = [...qtyBySlug.entries()].map(([slug, qty]) => {
     const prod = bySlug.get(slug);
     if (!prod) {
       return {
         slug, name: slug, image: '', unit_price_cents: 0, qty,
-        line_total_cents: 0, available_stock: 0, pricing: null, status: 'not-found',
+        line_total_cents: 0, available_stock: 0, pricing: null, availability: null,
+        status: 'not-found',
       };
     }
     const bundle = bundleByProduct.get(prod.id);
     const availableStock = bundle?.availableStock ?? prod.stock;
-    const status = availableStock === 0 ? 'out-of-stock' : availableStock < qty ? 'insufficient-stock' : 'ok';
+    const physicalStatus = availableStock === 0
+      ? 'out-of-stock'
+      : availableStock < qty ? 'insufficient-stock' : 'ok';
+    const preorder = preorderResolutions.get(prod.id);
+    const capacityRejected = preorder?.policy?.state === 'active' &&
+      preorder.resolution.status === 'rejected' &&
+      preorder.resolution.reason === 'insufficient_deferred_capacity';
+    const status = preorder?.resolution.status === 'deferred' ||
+      preorder?.resolution.status === 'available'
+      ? 'ok'
+      : capacityRejected
+        ? preorder.resolution.immediateQuantity === 0 ? 'out-of-stock' : 'insufficient-stock'
+        : physicalStatus;
     const configuredCandidates = options.priceRulesBySlug?.[slug];
     const promotionCandidates = selectedSources.has('promotion_code') &&
       promotionResolution?.status === 'eligible' && promotionProductIds.has(prod.id)
@@ -375,6 +412,33 @@ export async function quoteCart(
       ...(contextualPrice === undefined ? {} : { price_origin: contextualPrice.origin }),
       ...(bundle === undefined ? {} : { bundle: bundle.snapshot }),
     });
+    const availability: QuoteLine['availability'] = preorder?.resolution.status === 'deferred'
+      ? Object.freeze({
+        status: 'deferred' as const,
+        kind: preorder.resolution.snapshot.kind,
+        immediate_quantity: preorder.resolution.immediateQuantity,
+        deferred_quantity: preorder.resolution.deferredQuantity,
+        message: preorder.resolution.snapshot.public_message,
+        availability_starts_at: preorder.resolution.snapshot.availability_starts_at,
+        availability_ends_at: preorder.resolution.snapshot.availability_ends_at,
+      })
+      : status === 'ok'
+        ? Object.freeze({ status: 'immediate' as const, immediate_quantity: qty,
+          deferred_quantity: 0 as const })
+        : null;
+    if (preorder?.resolution.status === 'deferred' && preorder.policy !== null) {
+      preorderApplications.push(Object.freeze({
+        policyId: preorder.policy.id,
+        policyVersion: preorder.policy.version,
+        policyCapacityVersion: preorder.policy.capacityVersion,
+        productId: prod.id,
+        variantId: preorder.policy.variantId,
+        kind: preorder.policy.kind,
+        immediateQuantity: preorder.resolution.immediateQuantity,
+        deferredQuantity: preorder.resolution.deferredQuantity,
+        snapshot: preorder.resolution.snapshot,
+      }));
+    }
     return {
       slug,
       name: prod.name,
@@ -384,6 +448,7 @@ export async function quoteCart(
       line_total_cents: status === 'ok' ? pricing.subtotal_cents : 0,
       available_stock: availableStock,
       pricing,
+      availability,
       status,
     };
   });
@@ -512,6 +577,10 @@ export async function quoteCart(
   const bundles: QuoteResult['bundles'] = bundleApplications.length === 0
     ? { status: 'not_applied', reason: options.bundlesEnabled === true ? 'no_bundle_lines' : 'disabled' }
     : { status: 'applied', applications: Object.freeze(bundleApplications) };
+  const preorders: QuoteResult['preorders'] = preorderApplications.length === 0
+    ? { status: 'not_applied', reason: options.preordersEnabled === true
+      ? 'no_deferred_lines' : 'disabled' }
+    : { status: 'applied', applications: Object.freeze(preorderApplications) };
 
   let shipping_cents: number | null = null;
   let shipping: QuoteResult['shipping'] = null;
@@ -539,5 +608,6 @@ export async function quoteCart(
     discount_combination,
     price_lists,
     bundles,
+    preorders,
   };
 }

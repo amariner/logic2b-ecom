@@ -93,6 +93,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
     const discountCombinationsEnabled = runtimePlatform.isCapabilityActive('PRC-008');
     const priceListsEnabled = runtimePlatform.isCapabilityActive('PRC-009');
     const bundlesEnabled = runtimePlatform.isCapabilityActive('PRC-012');
+    const preordersEnabled = runtimePlatform.hasCapabilityFlag('PRC-014', 'sideEffects');
     const promotionCustomerKeyHash = parsed.data.promotion_code === undefined
       ? null
       : await promotionCustomerHash(customer.email);
@@ -121,6 +122,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
       discountCombinationsEnabled,
       priceListsEnabled,
       bundlesEnabled,
+      preordersEnabled,
       ...(promotionCustomerKeyHash === null ? {} : { promotionCustomerKeyHash }),
     });
     if (parsed.data.promotion_code !== undefined && quote.promotion.status !== 'applied') {
@@ -200,7 +202,9 @@ export const POST: APIRoute = async ({ request, locals }) => {
         price_data: {
           currency: shopConfig.currency,
           unit_amount: line.unit_price_cents,
-          product_data: { name: line.name },
+          product_data: { name: line.availability?.status === 'deferred'
+            ? `${line.name} — ${line.availability.message}`
+            : line.name },
         },
       })) : [{
         quantity: 1,
@@ -267,6 +271,9 @@ export const POST: APIRoute = async ({ request, locals }) => {
             components: application.components,
           })),
         }),
+      ...(quote.preorders.status !== 'applied'
+        ? {}
+        : { preorderApplications: quote.preorders.applications }),
       ...(quote.price_lists.status !== 'applied'
         ? {}
         : {

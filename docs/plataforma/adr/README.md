@@ -40,3 +40,5 @@ para ocultar una decisión no es válido.
 | [0032](0032-combinabilidad-explicita-descuentos.md) | Matrices explícitas, tope y aplicación canónica de descuentos | accepted; R4.5 implementado localmente |
 | [0033](0033-listas-precios-contextuales.md) | Precio contextual antes de promociones y fallback por producto | accepted; R4.6 implementado localmente |
 | [0034](0034-bundles-composicion-congelada.md) | Línea comercial con composición e inventario de componentes congelados | accepted; R4.7 implementado localmente |
+| [0035](0035-valor-almacenado-ledger.md) | Ledger de tarjeta regalo/crédito, pago mixto y reembolso al medio original | accepted; R4.8 desplegado |
+| [0036](0036-preventa-backorder-compromiso.md) | Compromiso diferido, cupo, FIFO y stock físico no negativo | accepted; R4.9 implementado localmente |

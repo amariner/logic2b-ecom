@@ -90,7 +90,7 @@ su alcance requiera.
 | PRC-011 | Crédito en tienda | módulo | P2 | actual | Cuenta por identidad opaca de servidor, ledger compartido y aplicación parcial; perfil/autoservicio esperan R5. |
 | PRC-012 | Paquetes/bundles | módulo | P2 | actual | Fijo/configurable, precio de carcasa, stock/reserva por componentes, snapshot/aplicación, refund/RMA y API auditada; variantes/suplementos/picking por pieza quedan fuera. |
 | PRC-013 | Suscripciones | conector | P2 | conector | Contrato, calendario, cambios, impagos y portal. |
-| PRC-014 | Preventa/backorder | módulo | P2 | pendiente | Fecha/promesa, asignación de stock y comunicación. |
+| PRC-014 | Preventa/backorder | módulo | P2 | actual | Política y cupo versionados, `charge_now`, snapshot visible, compromiso por línea, FIFO, asignación global/local, guards de fulfillment/reembolso y comunicación; plazos comerciales y cobro posterior quedan fuera. |
 | PRC-015 | Precio unitario | módulo | P2 | pendiente | Cantidad base y unidad para cumplimiento normativo. |
 | PRC-016 | Precio dinámico asistido | gestionado | P3 | gestionado | Recomendación con aprobación; nunca cambio autónomo opaco. |
 

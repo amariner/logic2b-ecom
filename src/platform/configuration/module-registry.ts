@@ -64,6 +64,7 @@ const DISCOUNT_COMBINATIONS_WIKI = 'docs/plataforma/wiki/combinacion-descuentos-
 const PRICE_LISTS_WIKI = 'docs/plataforma/wiki/listas-precios-contextuales.md';
 const BUNDLES_WIKI = 'docs/plataforma/wiki/bundles-componentes.md';
 const STORED_VALUE_WIKI = 'docs/plataforma/wiki/tarjetas-regalo-credito-tienda.md';
+const PREORDERS_WIKI = 'docs/plataforma/wiki/preventa-backorder-explicita.md';
 
 /**
  * Catálogo canónico de módulos. Los arrays vacíos son declaraciones explícitas:
@@ -102,9 +103,9 @@ export const MODULE_DESCRIPTORS = [
     ],
   },
   {
-    id: 'pricing', version: '1.8.0', capabilities: ['PRC-001', 'PRC-002', 'PRC-003', 'PRC-004', 'PRC-005', 'PRC-006', 'PRC-007', 'PRC-008', 'PRC-009', 'PRC-010', 'PRC-011', 'PRC-012', 'MKT-001', 'MKT-002'],
+    id: 'pricing', version: '1.9.0', capabilities: ['PRC-001', 'PRC-002', 'PRC-003', 'PRC-004', 'PRC-005', 'PRC-006', 'PRC-007', 'PRC-008', 'PRC-009', 'PRC-010', 'PRC-011', 'PRC-012', 'PRC-014', 'MKT-001', 'MKT-002'],
     dependencies: ['platform-configuration', 'catalog'], permissions: [], events: [], subscriptions: [], jobs: [], healthchecks: [],
-    wikiLinks: [ARCHITECTURE_WIKI, PRICE_RULES_WIKI, PROMOTION_CODES_WIKI, AUTOMATIC_DISCOUNTS_WIKI, QUANTITY_OFFERS_WIKI, DISCOUNT_COMBINATIONS_WIKI, PRICE_LISTS_WIKI, BUNDLES_WIKI, STORED_VALUE_WIKI], navigation: [],
+    wikiLinks: [ARCHITECTURE_WIKI, PRICE_RULES_WIKI, PROMOTION_CODES_WIKI, AUTOMATIC_DISCOUNTS_WIKI, QUANTITY_OFFERS_WIKI, DISCOUNT_COMBINATIONS_WIKI, PRICE_LISTS_WIKI, BUNDLES_WIKI, STORED_VALUE_WIKI, PREORDERS_WIKI], navigation: [],
     routes: [
       { match: 'prefix', path: '/api/admin/promotion-codes', capabilityId: 'PRC-004' },
       { match: 'prefix', path: '/api/admin/automatic-discounts', capabilityId: 'PRC-005' },
@@ -113,6 +114,7 @@ export const MODULE_DESCRIPTORS = [
       { match: 'prefix', path: '/api/admin/price-lists', capabilityId: 'PRC-009' },
       { match: 'prefix', path: '/api/admin/bundles', capabilityId: 'PRC-012' },
       { match: 'prefix', path: '/api/admin/stored-value', capabilityId: 'PRC-010' },
+      { match: 'prefix', path: '/api/admin/preorders', capabilityId: 'PRC-014' },
     ],
   },
   {

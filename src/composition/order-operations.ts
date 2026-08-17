@@ -46,12 +46,14 @@ import {
   createD1PromotionCodes,
   createD1PriceLists,
   createD1QuantityOffers,
+  createD1Preorders,
   type AutomaticDiscountApplication,
   type BundleApplication,
   type DiscountCombinationApplication,
   type PromotionReservation,
   type PriceListApplication,
   type QuantityOfferApplication,
+  type PreorderApplication,
 } from '../modules/pricing';
 import {
   createD1PaymentLedger,
@@ -105,6 +107,7 @@ export function createOrderOperations(
     priceListApplications?: readonly PriceListApplication[];
     bundleApplications?: readonly BundleApplication[];
     storedValueAuthorization?: StoredValueAuthorization;
+    preorderApplications?: readonly PreorderApplication[];
   }> = {},
 ) {
   const orders = createOrderWriter(db);
@@ -120,6 +123,7 @@ export function createOrderOperations(
   const discountCombinations = createD1DiscountCombinations(db);
   const priceLists = createD1PriceLists(db);
   const bundles = createD1Bundles(db);
+  const preorders = createD1Preorders(db);
   const pricingSources = [
     options.promotionReservation,
     options.automaticDiscountApplication,
@@ -149,6 +153,17 @@ export function createOrderOperations(
 
   function inventorySourceLines(lines: readonly NewOrderLine[]) {
     const quantities = new Map(lines.map((line) => [line.product_id, line.qty] as const));
+    for (const application of options.preorderApplications ?? []) {
+      const ordered = quantities.get(application.productId);
+      if (ordered === undefined || ordered !== application.immediateQuantity + application.deferredQuantity) {
+        throw new RangeError('La cantidad diferida no coincide con el pedido.');
+      }
+      if ((options.bundleApplications ?? []).some((bundle) => bundle.bundleProductId === application.productId)) {
+        throw new RangeError('R4.9 no admite diferir una carcasa bundle.');
+      }
+      if (application.immediateQuantity === 0) quantities.delete(application.productId);
+      else quantities.set(application.productId, application.immediateQuantity);
+    }
     for (const application of options.bundleApplications ?? []) {
       const ordered = quantities.get(application.bundleProductId) ?? 0;
       if (ordered !== application.quantity) throw new RangeError('La cantidad del bundle no coincide con el pedido.');
@@ -213,10 +228,11 @@ export function createOrderOperations(
       const identity = reserveIdentity();
       const timeline = { from_status: null, to_status: 'pending', note: 'Pedido creado, esperando pago' } as const;
       const consumerIds = consumersFor('orders.order_placed');
-      const reservationStatements = reservationsEnabled
+      const reservationSourceLines = inventorySourceLines(lines);
+      const reservationStatements = reservationsEnabled && reservationSourceLines.length > 0
         ? await reservations.createForOrderStatements(
             order.order_number,
-            inventorySourceLines(lines),
+            reservationSourceLines,
             identity.occurred_at,
             { kind: 'event', id: identity.event_id },
             {
@@ -249,6 +265,8 @@ export function createOrderOperations(
           application,
           identity.occurred_at,
         )),
+        ...(options.preorderApplications ?? []).flatMap((application) =>
+          preorders.commitmentStatements(order.order_number, application, identity.occurred_at)),
         ...(options.storedValueAuthorization === undefined
           ? []
           : storedValue.reservationStatements(
@@ -333,6 +351,10 @@ export function createOrderOperations(
         throw new Error(`Pedido ${order.id}: cuenta de valor almacenado ausente.`);
       }
       const consumerIds = consumersFor(mutation.event.type);
+      const preorderCommitments = await preorders.commitmentsForOrder(order.id);
+      if (preorderCommitments.length > 0 && !reservationsEnabled) {
+        throw new Error(`Pedido ${order.id}: PRC-014 exige reservas de inventario activas.`);
+      }
       const reservation = reservationsEnabled
         ? await reservations.findForOrder(order.order_number)
         : null;
@@ -344,7 +366,9 @@ export function createOrderOperations(
             mutation.event.occurred_at,
             `${mutation.event.idempotency_key}:reservation`,
           )
-        : await inventoryStatements(
+        : preorderCommitments.length > 0
+          ? []
+          : await inventoryStatements(
             mutation.event,
             mutation.stockDecrements,
             'sale',
@@ -370,6 +394,12 @@ export function createOrderOperations(
             { eventId: mutation.event.event_id },
           )
           : []),
+        ...preorderCommitments.flatMap((commitment) =>
+          preorders.paymentConfirmationStatements(
+            commitment,
+            mutation.event.occurred_at,
+            mutation.event.event_id,
+          )),
         orders.guardedPaidStatement(mutation.orderId, mutation.paymentIntent, mutation.event.event_id),
         promotions.transitionStatement(
           mutation.orderId,
@@ -415,6 +445,13 @@ export function createOrderOperations(
       const storedReleaseStatements = await storedValueReleaseStatements(
         order.id, event.occurred_at, event.event_id,
       );
+      const preorderCommitments = await preorders.commitmentsForOrder(order.id);
+      const preorderCancellationStatements = preorderCommitments.flatMap((commitment) => {
+        const active = commitment.deferredQuantity - commitment.cancelledQuantity - commitment.restoredQuantity;
+        return active > 0 ? preorders.cancellationStatements(
+          commitment, active, event.occurred_at, event.event_id, event.idempotency_key,
+        ) : [];
+      });
       const results = await orders.commitResults([
         outbox.guardedEventStatement(event, { orderId: order.id, expectedStatus: 'pending' }),
         audit.eventStatement(event.event_id, orderAuditProjection(event)),
@@ -424,6 +461,7 @@ export function createOrderOperations(
         promotions.transitionStatement(order.id, 'released', event.occurred_at, event.event_id),
         ...reservationStatements,
         ...storedReleaseStatements,
+        ...preorderCancellationStatements,
         orders.guardedTimelineStatement(order.id, orderTimelineEntry(event), event.event_id),
       ]);
       return results[0]?.meta.changes === 1;
@@ -435,8 +473,16 @@ export function createOrderOperations(
       const items = await bundles.expandInventoryItems(input.order.id, rawItems);
       const event = panelTransitionEvent(emit, input);
       const consumerIds = consumersFor(event.type);
+      const preorderCommitments = await preorders.commitmentsForOrder(input.order.id);
+      const preorderByItem = new Map(preorderCommitments.map((commitment) => [commitment.orderItemId, commitment]));
+      const restockItems = items.map((item) => {
+        const commitment = preorderByItem.get(item.order_item_id);
+        if (!commitment) return item;
+        return Object.freeze({ ...item,
+          qty: commitment.immediateQuantity + commitment.allocatedQuantity - commitment.restoredQuantity });
+      }).filter((item) => item.qty > 0);
       const stockStatements = input.transition.restoreStock
-        ? await inventoryStatements(event, items, 'cancellation_restock', 1)
+        ? await inventoryStatements(event, restockItems, 'cancellation_restock', 1)
         : [];
       const reservation = reservationsEnabled && input.transition.to === 'cancelled'
         ? await reservations.findForOrder(input.order.order_number)
@@ -455,6 +501,12 @@ export function createOrderOperations(
       const storedReleaseStatements = input.from === 'pending' && input.transition.to === 'cancelled'
         ? await storedValueReleaseStatements(input.order.id, event.occurred_at, event.event_id)
         : [];
+      const preorderCancellationStatements = preorderCommitments.flatMap((commitment) => {
+        const active = commitment.deferredQuantity - commitment.cancelledQuantity - commitment.restoredQuantity;
+        return active > 0 ? preorders.cancellationStatements(
+          commitment, active, event.occurred_at, event.event_id, event.idempotency_key,
+        ) : [];
+      });
       const results = await orders.commitResults([
         outbox.guardedEventStatement(event, {
           orderId: input.order.id,
@@ -483,6 +535,7 @@ export function createOrderOperations(
           : []),
         ...reservationStatements,
         ...storedReleaseStatements,
+        ...preorderCancellationStatements,
         ...stockStatements,
       ]);
       if (results[0]?.meta.changes !== 1) return { outcome: 'conflict', queuedMessages: 0 };

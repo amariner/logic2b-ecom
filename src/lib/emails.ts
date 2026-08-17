@@ -18,8 +18,18 @@ export type OrderEmailData = {
   subtotal_cents: number;
   shipping_cents: number;
   total_cents: number;
-  items: { order_item_id?: number; name_snapshot: string; unit_price_cents: number; qty: number }[];
+  items: { order_item_id?: number; name_snapshot: string; unit_price_cents: number; qty: number;
+    preorder?: Readonly<{ deferred_quantity: number; public_message: string;
+      availability_starts_at: string; availability_ends_at: string }> }[];
 };
+
+export type PreorderAllocatedEmailData = Readonly<{
+  order_number: string;
+  customer_name: string;
+  email: string;
+  item_name: string;
+  quantity: number;
+}>;
 
 export type PartialRefundEmailData = Readonly<{
   total_cents: number;
@@ -43,7 +53,12 @@ const itemsTable = (data: OrderEmailData): string => `
 ${data.items
   .map(
     (item) =>
-      `<tr><td style="padding:4px 0">${escapeHtml(item.name_snapshot)} × ${item.qty}</td>` +
+      `<tr><td style="padding:4px 0">${escapeHtml(item.name_snapshot)} × ${item.qty}` +
+      (item.preorder ? `<br><span style="font-size:12px;color:#57534e">${item.preorder.deferred_quantity} ` +
+        `ud. diferida(s): ${escapeHtml(item.preorder.public_message)} ` +
+        `(${escapeHtml(item.preorder.availability_starts_at)} – ` +
+        `${escapeHtml(item.preorder.availability_ends_at)}; disponibilidad, no fecha de envío)</span>` : '') +
+      `</td>` +
       `<td style="text-align:right">${formatShopCents(item.unit_price_cents * item.qty)}</td></tr>`,
   )
   .join('')}
@@ -77,6 +92,20 @@ export function merchantNewOrderEmail(data: OrderEmailData): EmailMessage {
       `Nuevo pedido de ${escapeHtml(data.customer_name)}`,
       `<p style="font-size:14px">Pedido <strong>${orderNumber}</strong> pagado (${escapeHtml(data.email)}). ` +
         `Dirección y etiqueta de envío en el panel.</p>${itemsTable(data)}`,
+    ),
+  };
+}
+
+export function preorderAllocatedEmail(data: PreorderAllocatedEmailData): EmailMessage {
+  return {
+    to_addr: data.email,
+    subject: `Stock asignado al pedido ${data.order_number} — ${shopConfig.name}`,
+    body_html: wrap(
+      `Ya hemos asignado el stock, ${escapeHtml(data.customer_name)}`,
+      `<p style="font-size:14px">Las ${data.quantity} unidad(es) diferida(s) de ` +
+        `<strong>${escapeHtml(data.item_name)}</strong> del pedido ` +
+        `<strong>${escapeHtml(data.order_number)}</strong> ya tienen stock asignado.</p>` +
+        '<p style="font-size:14px">Esto no equivale todavía a un envío. Te avisaremos cuando salga de la tienda.</p>',
     ),
   };
 }

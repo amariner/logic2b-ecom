@@ -163,7 +163,7 @@ export function createOrderAmendmentOperations(
     }
     const existingIds = input.lines.flatMap((line) => 'order_item_id' in line ? [line.order_item_id] : []);
     const newVariantIds = input.lines.flatMap((line) => 'variant_id' in line ? [line.variant_id] : []);
-    const [existingBundle, newBundle] = await Promise.all([
+    const [existingBundle, newBundle, existingPreorder, newPreorder] = await Promise.all([
       existingIds.length === 0 ? null : db.prepare(`SELECT 1 AS present
         FROM order_bundle_components WHERE order_item_id IN (${existingIds.map(() => '?').join(',')})
         LIMIT 1`).bind(...existingIds).first<{ present: number }>(),
@@ -171,9 +171,18 @@ export function createOrderAmendmentOperations(
         JOIN product_variants variant ON variant.product_id=bundle.product_id
         WHERE variant.id IN (${newVariantIds.map(() => '?').join(',')}) LIMIT 1`)
         .bind(...newVariantIds).first<{ present: number }>(),
+      existingIds.length === 0 ? null : db.prepare(`SELECT 1 AS present
+        FROM preorder_commitments WHERE order_item_id IN (${existingIds.map(() => '?').join(',')})
+        LIMIT 1`).bind(...existingIds).first<{ present: number }>(),
+      newVariantIds.length === 0 ? null : db.prepare(`SELECT 1 AS present
+        FROM preorder_policies WHERE variant_id IN (${newVariantIds.map(() => '?').join(',')})
+          AND state='active' LIMIT 1`).bind(...newVariantIds).first<{ present: number }>(),
     ]);
     if (existingBundle || newBundle) {
       throw new RangeError('la composición y cantidad de un bundle quedan congeladas en el pedido.');
+    }
+    if (existingPreorder || newPreorder) {
+      throw new RangeError('la cantidad y promesa de una línea de preventa quedan congeladas en el pedido.');
     }
     const initialAddressJson = input.address
       ? addressJson(input.address, resolveZone(input.address.postal_code) ?? 'invalid')

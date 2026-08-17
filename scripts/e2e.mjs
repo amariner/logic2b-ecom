@@ -358,8 +358,8 @@ check(
     && backupSql.includes('INSERT INTO attribute_definitions') && backupSql.includes('INSERT INTO product_attribute_values'),
 );
 check(
-  'backup esquema 26 conserva operación, RMA, documentos, pricing, bundles y valor almacenado',
-  backupSql.includes('logic2b-backup-schema: 26')
+  'backup esquema 27 conserva operación, RMA, pricing, valor almacenado y preventa',
+  backupSql.includes('logic2b-backup-schema: 27')
     && backupSql.includes('INSERT INTO payments')
     && backupSql.includes('INSERT INTO payment_transactions')
     && backupSql.includes('DELETE FROM refunds')
@@ -375,7 +375,7 @@ check(
     && backupSql.includes('INSERT INTO order_hold_events')
     && backupSql.includes('DELETE FROM order_bulk_batches')
     && backupSql.includes('DELETE FROM order_bulk_batch_rows')
-    && backupSql.includes('0032_stored_value')
+    && backupSql.includes('0033_preorders_backorders')
     && backupSql.includes('DELETE FROM promotion_codes')
     && backupSql.includes('DELETE FROM promotion_code_usages')
     && backupSql.includes('DELETE FROM automatic_discounts')
@@ -399,6 +399,10 @@ check(
     && backupSql.includes('DELETE FROM stored_value_applications')
     && backupSql.includes('DELETE FROM stored_value_refund_allocations')
     && backupSql.includes('DELETE FROM stored_value_ledger_entries')
+    && backupSql.includes('DELETE FROM preorder_policies')
+    && backupSql.includes('DELETE FROM preorder_commitments')
+    && backupSql.includes('DELETE FROM preorder_commitment_events')
+    && backupSql.includes('DELETE FROM preorder_allocations')
     && backupSql.includes('INSERT INTO inventory_locations')
     && backupSql.includes('INSERT INTO inventory_location_balances')
     && backupSql.includes('INSERT INTO inventory_transfers')
