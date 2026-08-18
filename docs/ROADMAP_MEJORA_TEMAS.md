@@ -221,7 +221,7 @@ deploy autorizado cuando cambien sus capturas o contenido.
 |---|---|---|
 | TH0.1 | Rama, mandato, rúbrica, cola y protocolo de reanudación | ✅ 2026-08-18 |
 | TH0.2 | Informe automático de inventario, rutas, registros, JS, assets, metas, schema y pesos de los 33 temas | ✅ 2026-08-18 |
-| TH0.3 | Auditoría visual/producto de las superficies compartidas y matriz de gaps P0–P3 | pendiente |
+| TH0.3 | Auditoría visual/producto de las superficies compartidas y matriz de gaps P0–P3 | ✅ 2026-08-18 |
 | TH0.4 | Guardas contra deriva entre registro, colección, auditor, capturas, galería y ficha | pendiente |
 | TH0.5 | Cerrar C14.3: migrar NODDO, Sitēga y STRETCH al mismo contrato local de ficha/cesta/checkout/gracias | pendiente |
 | TH0.6 | Consolidación de arquitectura: regresión de las 33 tiendas y actualización de contratos/docs | pendiente |
@@ -329,12 +329,12 @@ La ficha `docs/temas/<id>.md` añade al final:
 
 ## 9. Siguiente bloque
 
-**TH0.3 — auditoría visual/producto de las superficies compartidas.** Usar la
-línea base de TH0.2 para inspeccionar catálogo, ficha, cesta, checkout, gracias,
-`Shop.astro`, `/temas` y sus estados comunes; convertir los hallazgos en una
-matriz P0–P3 con alcance, evidencia y bloque destino. Todavía no rediseña un
-tema individual: distingue primero defectos del contrato común, excepciones
-heredadas y deuda puramente visual.
+**TH0.4 — guardas contra deriva de los registros de temas.** Convertir las
+comparaciones reproducibles de TH0.2 en gates que fallen con mensajes útiles si
+un tema desaparece de colección, seed, catálogo, auditor, capturas, galería o
+ficha. Cubrir primero las divergencias reales de SILLAGE y ARGENT, alinear el
+scaffold y evitar que el snapshot dependa de mantener diez listas a mano. No
+rediseña temas ni cambia el recorrido comercial.
 
 ## 10. Cierres del carril
 
@@ -360,3 +360,18 @@ heredadas y deuda puramente visual.
 - Verificado: snapshot regenerado y `--check` estable; `pnpm check` pasa el
   typecheck de 723 archivos, 169 suites/786 tests y el build con sitemap. No
   aplica E2E/a11y visual porque TH0.2 solo añade análisis estático y docs.
+
+### TH0.3 — auditoría visual/producto compartida (2026-08-18)
+
+- `docs/audits/THEME_SHARED_SURFACES_AUDIT.md` evalúa `Shop`, catálogo, ficha,
+  cesta, checkout, gracias y `/temas`; separa contrato común, excepciones y
+  deuda por tema y asigna cada gap a TH0.4/TH0.5/TH0.6, TH1–TH4 o TH5.
+- No aparece ningún P0. Los P1 centrales son el chrome perdido en 10 temas
+  inmersivos, el switcher fijo que tapa controles a 375 px, la ficha genérica
+  de 29 rutas dinámicas, la ausencia de fallback sin JS y la publicación de
+  referencias ajenas en `/temas`. La matriz conserva además la deuda objetiva
+  de registros, evidencia, canonical, pesos y formatos detectada en TH0.2.
+- Evidencia servida a 375/768/1440 sin overflow; ARCE, ARISTA, La Botiga y
+  `/temas` suman 28 superficies de auditoría con 0 errores y 0 avisos. Se
+  verificaron cesta vacía/activa, envío, checkout, confirmación ausente,
+  noindex y Product+Offer. No hubo cambio de UI, E2E, captura, deploy ni datos.
