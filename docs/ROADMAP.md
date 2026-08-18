@@ -1719,11 +1719,22 @@ WebP propios generados por OpenAI `imagegen` en llamadas individuales y pausas
 de al menos ocho segundos, sin usar Higgsfield. Catálogo, filtro, ficha, cesta y
 checkout conservan el motor compartido; no hubo D1, API, dependencia ni coste
 recurrente nuevo. `pnpm check` pasa 713 archivos, 163 suites/751 tests y build;
-E2E verde, a11y 0/0 en 8 superficies y capturas dentro de presupuesto. El
-siguiente bloque independiente es la consolidación visual de toda la biblioteca:
-barrido de fidelidad y regresión de escaparates, contratos de catálogo, pesos,
-a11y y aislamiento E2E, sin abrir otra vertical ni alterar negocio. Producción y
-Lighthouse se registrarán al cerrar el deploy de ARISTA.
+E2E verde, a11y 0/0 en 8 superficies y capturas dentro de presupuesto.
+Producción sirve el Worker `09fa587b-23ca-411e-92d7-76b51bcc250e`; smoke de
+landing, `/temas`, tienda, ficha y cuatro assets verde. Lighthouse de landing:
+móvil 95/100/100/100 (LCP 2,1 s, CLS 0, TBT 0; rendimiento osciló 95–99) y
+escritorio 100×4 (LCP 0,5 s, CLS 0, TBT 0). La deuda móvil del rail sigue
+separada del tema.
+
+Consolidación visual cerrada el 2026-08-18: 342 superficies de todas las
+tiendas, páginas públicas y panel pasan a11y/responsive/reduced-motion con 0
+errores y 0 avisos; E2E global verde y los 15 contratos de catálogo/storefront
+pasan. Las 134 capturas de catálogo, móvil y tarjetas quedan dentro de sus
+presupuestos tras recomprimir LUMBRE de 151,1 a 132 KB sin regenerar su imagen.
+No quedan referencias ejecutables en la cola. El siguiente bloque del carril
+principal sigue siendo R5.3b y conserva su gate de autorización explícita para
+crear y ensayar el esquema `0038`; no se abre migración, D1 ni runtime antes de
+esa autorización.
 
 #### Corte anterior R4.12
 

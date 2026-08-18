@@ -53,9 +53,10 @@ aceptarla.
 - ✅ Contraste, jerarquía, foco, teclado y `prefers-reduced-motion` revisados.
   No se declara variante oscura: el contrato global retiró esas superficies.
 - ✅ Auditoría a11y: 8 superficies, 0 errores y 0 avisos.
-- ✅ Cinco salidas visuales verificadas; catálogo 151 KB, móvil 33 KB y ficha
-  28 KB. El catálogo queda 1 KB sobre el objetivo orientativo para preservar
-  gradientes y textura cerámica.
+- ✅ Cinco salidas visuales verificadas; catálogo 132 KB, móvil 33 KB y ficha
+  28 KB. La consolidación del 2026-08-18 recomprimió el WebP de catálogo sin
+  regenerar la imagen ni perder sus gradientes y textura cerámica; ya queda por
+  debajo del objetivo de 150 KB.
 - ✅ `pnpm check`: 445 archivos sin diagnósticos, 65 suites/414 tests y build.
 - ✅ E2E global: aislamiento de escaparates y panel read-only verificado.
 - ✅ Lighthouse local rápido: a11y/SEO 100 en portada y `/temas`; rendimiento
