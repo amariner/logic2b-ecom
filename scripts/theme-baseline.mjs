@@ -156,6 +156,28 @@ function addFinding(findings, severity, id, title, themes, evidence, destination
   findings.push({ severity, id, title, themes: unique(themes), evidence, destination });
 }
 
+/**
+ * Gate de integridad del escaparate. Mantiene el diagnóstico rico del informe,
+ * pero separa las divergencias que nunca deben llegar a una rama verde.
+ */
+export function themeIntegrityErrors(report) {
+  const errors = [];
+  for (const [name, registry] of Object.entries(report.registries)) {
+    const details = [];
+    if (registry.missing.length > 0) details.push(`faltan: ${registry.missing.join(', ')}`);
+    if (registry.extra.length > 0) details.push(`sobran: ${registry.extra.join(', ')}`);
+    if (details.length > 0) errors.push(`registro ${name} — ${details.join(' · ')}`);
+  }
+  for (const theme of report.themes) {
+    const missingCaptures = REQUIRED_CAPTURES.filter((name) => !theme.evidence.captures[name]);
+    if (missingCaptures.length > 0) errors.push(`capturas ${theme.id} — faltan: ${missingCaptures.join(', ')}`);
+    if (theme.catalog.missingAssets.length > 0) {
+      errors.push(`assets ${theme.id} — faltan: ${theme.catalog.missingAssets.join(', ')}`);
+    }
+  }
+  return errors;
+}
+
 export function buildThemeBaseline(rootDir = process.cwd()) {
   const root = resolve(rootDir);
   const themeSource = read(root, 'src/lib/demo-themes.ts');
@@ -176,7 +198,7 @@ export function buildThemeBaseline(rootDir = process.cwd()) {
 
   const catalogSource = read(root, 'src/components/store/CatalogPage.astro');
   const catalogObject = sliceBalanced(catalogSource, 'const catalogViews', '{', '}');
-  const catalogIds = unique([...catalogObject.matchAll(/^\s{2}([a-z0-9-]+):/gm)].map((match) => match[1]));
+  const catalogIds = unique([...catalogObject.matchAll(/^\s{2}(?:['"])?([a-z0-9-]+)(?:['"])?:/gm)].map((match) => match[1]));
 
   const a11ySource = read(root, 'scripts/a11y-audit.mjs');
   const a11yIds = unique(idsInObjects(sliceBalanced(a11ySource, 'const STORES', '[', ']')).filter((id) => id !== 'demo'));
@@ -362,7 +384,7 @@ function mark(value) {
 
 export function renderThemeBaselineMarkdown(report) {
   const lines = [
-    '# Línea base automática de los 33 temas',
+    `# Línea base automática de los ${report.scope.themes} temas`,
     '',
     '> Generado por `node scripts/theme-baseline.mjs --write`. No editar las tablas a mano.',
     '',
@@ -442,6 +464,13 @@ function main() {
     return;
   }
   if (args.has('--check')) {
+    const integrityErrors = themeIntegrityErrors(report);
+    if (integrityErrors.length > 0) {
+      process.stderr.write(`Deriva de temas detectada:\n${integrityErrors.map((error) => `  - ${error}`).join('\n')}\n`);
+      process.stderr.write('Ejecuta pnpm new:theme <id> para alinear registros y genera sus capturas antes de continuar.\n');
+      process.exitCode = 1;
+      return;
+    }
     const expectedJson = `${JSON.stringify(report, null, 2)}\n`;
     const currentMarkdown = existsSync(join(root, REPORT_MD)) ? read(root, REPORT_MD) : '';
     const currentJson = existsSync(join(root, REPORT_JSON)) ? read(root, REPORT_JSON) : '';

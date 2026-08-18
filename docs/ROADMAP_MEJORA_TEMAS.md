@@ -222,7 +222,7 @@ deploy autorizado cuando cambien sus capturas o contenido.
 | TH0.1 | Rama, mandato, rúbrica, cola y protocolo de reanudación | ✅ 2026-08-18 |
 | TH0.2 | Informe automático de inventario, rutas, registros, JS, assets, metas, schema y pesos de los 33 temas | ✅ 2026-08-18 |
 | TH0.3 | Auditoría visual/producto de las superficies compartidas y matriz de gaps P0–P3 | ✅ 2026-08-18 |
-| TH0.4 | Guardas contra deriva entre registro, colección, auditor, capturas, galería y ficha | pendiente |
+| TH0.4 | Guardas contra deriva entre registro, colección, auditor, capturas, galería y ficha | ✅ 2026-08-18 |
 | TH0.5 | Cerrar C14.3: migrar NODDO, Sitēga y STRETCH al mismo contrato local de ficha/cesta/checkout/gracias | pendiente |
 | TH0.6 | Consolidación de arquitectura: regresión de las 33 tiendas y actualización de contratos/docs | pendiente |
 
@@ -329,12 +329,11 @@ La ficha `docs/temas/<id>.md` añade al final:
 
 ## 9. Siguiente bloque
 
-**TH0.4 — guardas contra deriva de los registros de temas.** Convertir las
-comparaciones reproducibles de TH0.2 en gates que fallen con mensajes útiles si
-un tema desaparece de colección, seed, catálogo, auditor, capturas, galería o
-ficha. Cubrir primero las divergencias reales de SILLAGE y ARGENT, alinear el
-scaffold y evitar que el snapshot dependa de mantener diez listas a mano. No
-rediseña temas ni cambia el recorrido comercial.
+**TH0.5 — migración de las tres excepciones comerciales.** Llevar NODDO, Sitēga
+y STRETCH al contrato local común de ficha, cesta, checkout y gracias, incluida
+la clave `ecom-cart:<collection>` y Product + Offer. Preservar su dirección de
+arte mediante slots/hooks existentes o una ampliación común justificada; no
+crear otro fork, no tocar D1 y no convertir el recorrido demo en pedidos reales.
 
 ## 10. Cierres del carril
 
@@ -375,3 +374,22 @@ rediseña temas ni cambia el recorrido comercial.
   `/temas` suman 28 superficies de auditoría con 0 errores y 0 avisos. Se
   verificaron cesta vacía/activa, envío, checkout, confirmación ausente,
   noindex y Product+Offer. No hubo cambio de UI, E2E, captura, deploy ni datos.
+
+### TH0.4 — guardas contra deriva (2026-08-18)
+
+- `pnpm audit:themes:check` forma parte de `pnpm check` y falla con el registro,
+  tema o asset exacto si colección, seed, catálogo, auditor, receta de capturas,
+  galería, ficha documental, componentes o las cinco evidencias visuales dejan
+  de cubrir el registro canónico.
+- `pnpm new:theme <id>` alinea esos registros mediante marcadores acotados,
+  admite ids kebab-case y se prueba en un workspace temporal: una segunda pasada
+  no modifica ningún archivo. El scaffold no toca APIs, migraciones ni comercio.
+- Se cerró la deuda real: SILLAGE pasa a `galleryOrder`; ARGENT dispone de
+  catálogo completo, móvil, ficha y tarjetas 560/900, revisadas visualmente y
+  dentro de presupuesto. El baseline queda en 33/33 para los diez registros y
+  33/33 juegos de evidencia; los P1 bajan de cuatro a los dos de TH0.5.
+- Verificado: `pnpm check` pasa 724 archivos, 170 suites/790 tests, el nuevo gate
+  y build+sitemap; landing a11y 3/3 con 0 errores y 0 avisos, sin overflow y con
+  la imagen SILLAGE real cargada. No aplica E2E: no cambió el recorrido
+  comercial. Consejo de producto, UX/UI, frontend, full-stack, SEO y arquitectura
+  conforme; sin dependencia, migración, coste, deploy ni veto arquitectónico.

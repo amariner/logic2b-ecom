@@ -14,19 +14,21 @@
  *   + entrada en src/collections/index.ts (marcadores new-theme:*)
  *   + entrada en seed/collections/index.ts
  *   + entrada del tema en src/lib/demo-themes.ts SI FALTA (tokens de Base)
+ *   + vista de catálogo, auditor a11y, receta de capturas y galería comercial
  *
  * QUEDA A MANO (a propósito): valores de tokens, diseño real de los
  * componentes, catálogo completo, copy y receta de imaginería.
  *
- * GUARDARRAÍL: este script solo escribe en las rutas de arriba. Se niega a
- * tocar cualquier otra cosa de `src/lib/`, `src/pages/api/` o `migrations/` —
- * si un tema parece necesitarlo, es trabajo de MOTOR: parar y consultar.
+ * GUARDARRAÍL: además del kit solo parchea registros exactos mediante
+ * marcadores `new-theme:*`. Se niega a tocar APIs, migraciones u otro motor.
  */
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
+const root = process.env.NEW_THEME_ROOT
+  ? resolve(process.env.NEW_THEME_ROOT)
+  : resolve(dirname(fileURLToPath(import.meta.url)), '..');
 
 // ── Argumento ───────────────────────────────────────────────────────────────
 const id = process.argv[2];
@@ -50,6 +52,10 @@ const ALLOWED = [
   `docs/temas/${id}.md`,
   'src/collections/index.ts',
   'src/lib/demo-themes.ts',
+  'src/components/store/CatalogPage.astro',
+  'scripts/a11y-audit.mjs',
+  'scripts/capture-screens.mjs',
+  'src/pages/index.astro',
 ];
 function assertAllowed(rel) {
   if (!ALLOWED.some((a) => rel === a || rel.startsWith(a))) {
@@ -75,12 +81,19 @@ function writeNew(rel, content) {
   created.push(rel);
 }
 
+function escapeRegExp(value) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
 /** Inserta `line` justo encima del marcador, si aún no está (idempotente). */
-function patchAtMarker(rel, marker, line, mustContainToSkip) {
+function patchAtMarker(rel, marker, line, registeredPattern) {
   assertAllowed(rel);
   const abs = join(root, rel);
   const src = readFileSync(abs, 'utf8');
-  if (src.includes(mustContainToSkip)) {
+  const isRegistered = typeof registeredPattern === 'string'
+    ? src.includes(registeredPattern)
+    : registeredPattern.test(src);
+  if (isRegistered) {
     skipped.push(`${rel} (ya registrado)`);
     return;
   }
@@ -95,7 +108,10 @@ function patchAtMarker(rel, marker, line, mustContainToSkip) {
   patched.push(rel);
 }
 
-const cap = id[0].toUpperCase() + id.slice(1);
+const symbol = id.replace(/-([a-z0-9])/g, (_match, character) => character.toUpperCase());
+const cap = id.split('-').map((part) => part[0].toUpperCase() + part.slice(1)).join(' ');
+const componentName = symbol[0].toUpperCase() + symbol.slice(1);
+const escapedId = escapeRegExp(id);
 
 // ── src/collections/<id>.ts ─────────────────────────────────────────────────
 writeNew(
@@ -108,7 +124,7 @@ writeNew(
  */
 import type { CollectionConfig } from './types';
 
-export const ${id}Collection: CollectionConfig = {
+export const ${symbol}Collection: CollectionConfig = {
   id: '${id}',
   themeId: '${id}',
 
@@ -149,7 +165,7 @@ const c = (prod: Omit<SeedProduct, 'collection'>): SeedProduct => ({
   collection: '${id}',
 });
 
-export const ${id}SeedProducts: readonly SeedProduct[] = [
+export const ${symbol}SeedProducts: readonly SeedProduct[] = [
   c({ slug: '${ns}-producto-1', name: 'Producto 1', description: 'TODO', price_cents: 1900, stock: 10, category: '${ns}-categoria-1' }),
   c({ slug: '${ns}-producto-2', name: 'Producto 2', description: 'TODO', price_cents: 2900, stock: 8, category: '${ns}-categoria-1' }),
   c({ slug: '${ns}-producto-3', name: 'Producto 3', description: 'TODO', price_cents: 4900, stock: 5, category: '${ns}-categoria-2' }),
@@ -364,26 +380,63 @@ writeNew(
 patchAtMarker(
   'src/collections/index.ts',
   '// new-theme:imports',
-  `import { ${id}Collection } from '../collections/${id}';`,
-  `collections/${id}'`,
+  `import { ${symbol}Collection } from '../collections/${id}';`,
+  new RegExp(`from ['"](?:\\.\\.\\/collections\\/|\\.\\/)${escapedId}['"]`),
 );
 patchAtMarker(
   'src/collections/index.ts',
   '// new-theme:entries',
-  `${id}Collection,`,
-  `${id}Collection,`,
+  `${symbol}Collection,`,
+  new RegExp(`^\\s*${symbol}Collection,$`, 'm'),
 );
 patchAtMarker(
   'seed/collections/index.ts',
   '// new-theme:seed-imports',
-  `import { ${id}SeedProducts } from './${id}.ts';`,
-  `./${id}.ts'`,
+  `import { ${symbol}SeedProducts } from './${id}.ts';`,
+  new RegExp(`from ['"]\\.\\/${escapedId}\\.ts['"]`),
 );
 patchAtMarker(
   'seed/collections/index.ts',
   '// new-theme:seed-entries',
-  `...${id}SeedProducts,`,
-  `...${id}SeedProducts,`,
+  `...${symbol}SeedProducts,`,
+  new RegExp(`^\\s*\\.\\.\\.${symbol}SeedProducts,$`, 'm'),
+);
+
+patchAtMarker(
+  'src/components/store/CatalogPage.astro',
+  '// new-theme:catalog-imports',
+  `import ${componentName}Catalog from '../themes/${id}/Catalog.astro';`,
+  new RegExp(`themes\\/${escapedId}\\/Catalog\\.astro`),
+);
+patchAtMarker(
+  'src/components/store/CatalogPage.astro',
+  '// new-theme:catalog-entries',
+  `'${id}': ${componentName}Catalog,`,
+  new RegExp(`^\\s*['"]?${escapedId}['"]?\\s*:`, 'm'),
+);
+patchAtMarker(
+  'scripts/a11y-audit.mjs',
+  '// new-theme:a11y',
+  `{ id: '${id}', label: '${cap}', prefix: '/demo/tiendas/${id}', slug: '${ns}-producto-1', cartKey: 'ecom-cart:${id}' },`,
+  new RegExp(`\\bid:\\s*['"]${escapedId}['"]`),
+);
+patchAtMarker(
+  'scripts/capture-screens.mjs',
+  '// new-theme:capture-catalog',
+  `{ id: '${id}', label: '${cap}', catalog: '/demo/tiendas/${id}', full: true, maxH: 3000 },`,
+  new RegExp(`\\bid:\\s*['"]${escapedId}['"][^\\n]*\\bcatalog:`),
+);
+patchAtMarker(
+  'scripts/capture-screens.mjs',
+  '// new-theme:capture-product',
+  `{ id: '${id}', slug: '${ns}-producto-1', prefix: '/demo/tiendas/${id}' },`,
+  new RegExp(`\\bid:\\s*['"]${escapedId}['"][^\\n]*\\bslug:`),
+);
+patchAtMarker(
+  'src/pages/index.astro',
+  '// new-theme:gallery',
+  `'${id}',`,
+  new RegExp(`['"]${escapedId}['"]\\s*,`),
 );
 
 // Entrada del tema en demo-themes.ts SOLO si falta (los 8 conocidos ya existen).
@@ -440,5 +493,6 @@ Siguientes pasos (docs/CHECKLIST_TEMA.md):
   2. Catálogo real en seed/collections/${id}.ts (slugs ${ns}-*)
   3. Tokens del tema en src/lib/demo-themes.ts (mirando la captura)
   4. Componentes en src/components/themes/${id}/
-  5. pnpm check && pnpm build && verificación en navegador
+  5. node scripts/capture-screens.mjs --only=${id} (crea catálogo, móvil, ficha y tarjetas)
+  6. pnpm check && verificación en navegador
 `);

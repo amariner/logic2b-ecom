@@ -164,6 +164,7 @@ const STORES = [
   { id: 'forma', label: 'Forma', catalog: '/demo/tiendas/forma', full: true, maxH: 3000 },
   { id: 'stretch', label: 'STRETCH', catalog: '/demo/tiendas/stretch', full: true, maxH: 3000, eval: REVEAL_STRETCH },
   { id: 'arce', label: 'ARCE', catalog: '/demo/tiendas/arce', full: true, maxH: 3000 },
+  // new-theme:capture-catalog — no borrar: `pnpm new:theme <id>` añade aquí la tienda.
   { id: 'demo', label: 'La Botiga', catalog: '/demo/tienda', full: true, maxH: 1700 },
 ];
 
@@ -215,6 +216,7 @@ const FICHAS = [
   { id: 'forma', slug: 'for-clear-01', prefix: '/demo/tiendas/forma' },
   { id: 'stretch', slug: 'illuminating-cleansing-gel', prefix: '/demo/tiendas/stretch' },
   { id: 'arce', slug: 'arc-silla-alba', prefix: '/demo/tiendas/arce' },
+  // new-theme:capture-product — no borrar: `pnpm new:theme <id>` añade aquí la ficha.
   { id: 'demo', slug: 'aove-coupage-750', prefix: '/demo/tienda' },
 ];
 for (const f of FICHAS) {

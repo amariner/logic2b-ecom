@@ -45,6 +45,7 @@ import SargaCatalog from '../themes/sarga/Catalog.astro';
 import EnsambleCatalog from '../themes/ensamble/Catalog.astro';
 import EjeCatalog from '../themes/eje/Catalog.astro';
 import AristaCatalog from '../themes/arista/Catalog.astro';
+// new-theme:catalog-imports — no borrar: `pnpm new:theme <id>` añade aquí su vista.
 
 interface Props {
   collection: CollectionConfig;
@@ -117,6 +118,7 @@ const catalogViews = {
   ensamble: EnsambleCatalog,
   eje: EjeCatalog,
   arista: AristaCatalog,
+  // new-theme:catalog-entries — no borrar: `pnpm new:theme <id>` añade aquí su entrada.
 } as const;
 const ThemedCatalog = catalogViews[collection.themeId as keyof typeof catalogViews] ?? null;
 ---

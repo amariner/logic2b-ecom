@@ -86,10 +86,8 @@
       "extra": []
     },
     "homeGallery": {
-      "count": 32,
-      "missing": [
-        "sillage"
-      ],
+      "count": 33,
+      "missing": [],
       "extra": []
     },
     "docs": {
@@ -106,27 +104,17 @@
   "summary": {
     "severities": {
       "P0": 0,
-      "P1": 4,
+      "P1": 2,
       "P2": 3,
       "P3": 2
     },
     "sharedContract": 30,
     "privateCommerce": 3,
-    "completeCaptureSets": 32,
+    "completeCaptureSets": 33,
     "assetBytes": 35258052,
     "scriptBytes": 28882
   },
   "findings": [
-    {
-      "severity": "P1",
-      "id": "TH0.2-P1-01",
-      "title": "Deriva entre registros explícitos",
-      "themes": [
-        "sillage"
-      ],
-      "evidence": "Algún tema no está en colección, seed, catálogo, auditor, capturas, galería o ficha.",
-      "destination": "TH0.4 · guardas contra deriva."
-    },
     {
       "severity": "P1",
       "id": "TH0.2-P1-02",
@@ -150,16 +138,6 @@
       ],
       "evidence": "Las rutas privadas no componen ProductPage ni emiten JSON-LD propio.",
       "destination": "TH0.5 · migración al contrato local común."
-    },
-    {
-      "severity": "P1",
-      "id": "TH0.2-P1-04",
-      "title": "Evidencia visual incompleta",
-      "themes": [
-        "argent"
-      ],
-      "evidence": "argent: catalog, mobile, product",
-      "destination": "TH0.3 · auditoría visual y regeneración de evidencia."
     },
     {
       "severity": "P2",
@@ -1317,9 +1295,9 @@
         "sample": false,
         "samplePath": null,
         "captures": {
-          "catalog": false,
-          "mobile": false,
-          "product": false,
+          "catalog": true,
+          "mobile": true,
+          "product": true,
           "card560": true,
           "card900": true
         }
@@ -1353,7 +1331,7 @@
         "a11y": true,
         "captureCatalog": true,
         "captureProduct": true,
-        "homeGallery": false,
+        "homeGallery": true,
         "docs": true,
         "components": true
       },

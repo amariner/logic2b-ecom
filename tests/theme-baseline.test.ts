@@ -1,11 +1,16 @@
 import { describe, expect, it } from 'vitest';
-import { buildThemeBaseline, renderThemeBaselineMarkdown } from '../scripts/theme-baseline.mjs';
+import {
+  buildThemeBaseline,
+  renderThemeBaselineMarkdown,
+  themeIntegrityErrors,
+} from '../scripts/theme-baseline.mjs';
 
 describe('línea base reproducible de temas', () => {
   const report = buildThemeBaseline();
 
   it('cubre exactamente los temas no-base del registro', () => {
-    expect(report.scope.themes).toBe(33);
+    expect(report.scope.themes).toBe(report.scope.ids.length);
+    expect(report.scope.themes).toBeGreaterThanOrEqual(33);
     expect(report.scope.ids).not.toContain('base');
     expect(report.themes.map((theme) => theme.id)).toEqual(report.scope.ids);
   });
@@ -27,6 +32,23 @@ describe('línea base reproducible de temas', () => {
     expect(report.registries.seeds.missing).toEqual([]);
   });
 
+  it('bloquea toda deriva de registros, evidencias y assets con mensajes útiles', () => {
+    expect(themeIntegrityErrors(report)).toEqual([]);
+
+    const drifted = structuredClone(report);
+    drifted.registries.homeGallery.missing = ['sillage'];
+    drifted.themes.find((theme) => theme.id === 'argent')!.evidence.captures.product = false;
+    drifted.themes.find((theme) => theme.id === 'arce')!.catalog.missingAssets = ['/images/collections/arce/fantasma.webp'];
+
+    const errors = themeIntegrityErrors(drifted);
+    expect(errors).toHaveLength(3);
+    expect(errors).toEqual(expect.arrayContaining([
+      'registro homeGallery — faltan: sillage',
+      'assets arce — faltan: /images/collections/arce/fantasma.webp',
+      'capturas argent — faltan: product',
+    ]));
+  });
+
   it('hace visibles las tres excepciones comerciales heredadas', () => {
     const privateThemes = report.themes
       .filter((theme) => !theme.routes.sharedContract || theme.storage.privateKeys.length > 0)
@@ -40,7 +62,7 @@ describe('línea base reproducible de temas', () => {
     const second = buildThemeBaseline();
     expect(second).toEqual(report);
     const markdown = renderThemeBaselineMarkdown(report);
-    expect(markdown).toContain('# Línea base automática de los 33 temas');
+    expect(markdown).toContain(`# Línea base automática de los ${report.scope.themes} temas`);
     expect(markdown).toContain('## Hallazgos P0–P3');
     expect(markdown).toContain('## Divergencias entre registros');
   });

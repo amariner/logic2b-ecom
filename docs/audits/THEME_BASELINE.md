@@ -12,11 +12,11 @@ El informe cubre **33 escaparates** (Base y la colección transaccional `demo` q
 
 ## Resumen
 
-- Registros canónicos: themes 33/33 · collections 33/33 · seeds 33/33 · catalogViews 33/33 · a11y 33/33 · captureCatalog 33/33 · captureProduct 33/33 · homeGallery 32/33 · docs 33/33 · components 33/33
+- Registros canónicos: themes 33/33 · collections 33/33 · seeds 33/33 · catalogViews 33/33 · a11y 33/33 · captureCatalog 33/33 · captureProduct 33/33 · homeGallery 33/33 · docs 33/33 · components 33/33
 - Contrato compartido completo: **30/33** · recorrido/storage privado: **3**.
-- Evidencia completa (catálogo, móvil, ficha, 560 y 900): **32/33**.
+- Evidencia completa (catálogo, móvil, ficha, 560 y 900): **33/33**.
 - Inventario de assets: **33.62 MB** · JS propio crudo: **28.2 KB**.
-- Hallazgos: **P0 0 · P1 4 · P2 3 · P3 2**.
+- Hallazgos: **P0 0 · P1 2 · P2 3 · P3 2**.
 
 ## Hallazgos P0–P3
 
@@ -26,13 +26,9 @@ El informe cubre **33 escaparates** (Base y la colección transaccional `demo` q
 
 ### P1
 
-- **TH0.2-P1-01 · Deriva entre registros explícitos.** Temas: sillage. Algún tema no está en colección, seed, catálogo, auditor, capturas, galería o ficha. Destino: TH0.4 · guardas contra deriva.
-
 - **TH0.2-P1-02 · Recorrido comercial o storage privado.** Temas: noddo, sitega, stretch. noddo: noddo-demo-cart · sitega: sitega-demo-cart · stretch: stretch-demo-cart Destino: TH0.5 · migración al contrato local común.
 
 - **TH0.2-P1-03 · Ficha sin Product + Offer compartido.** Temas: noddo, sitega, stretch. Las rutas privadas no componen ProductPage ni emiten JSON-LD propio. Destino: TH0.5 · migración al contrato local común.
-
-- **TH0.2-P1-04 · Evidencia visual incompleta.** Temas: argent. argent: catalog, mobile, product Destino: TH0.3 · auditoría visual y regeneración de evidencia.
 
 ### P2
 
@@ -66,8 +62,8 @@ El informe cubre **33 escaparates** (Base y la colección transaccional `demo` q
 | sitega | 10/10 | custom / privado | N✓ C— J— | ✓✓✓✓✓ | 8 | 3.84 MB · jpg×9 | 24.3 KB / 2.3 KB |
 | forma | 10/10 | custom / común | N✓ C— J✓ | ✓✓✓✓✓ | 6 | 4.58 MB · jpg×14 | 25.2 KB / 0 B |
 | stretch | 10/10 | custom / privado | N✓ C— J— | ✓✓✓✓✓ | 7 | 757.9 KB · jpg×5 | 30.0 KB / 5.8 KB |
-| argent | 10/10 | dynamic / común | N✓ C— J✓ | ———✓✓ | 5 | 3.75 MB · webp×8 | 20.2 KB / 390 B |
-| sillage | 9/10 | dynamic / común | N✓ C— J✓ | ✓✓✓✓✓ | 8 | 495.5 KB · webp×14 | 20.5 KB / 393 B |
+| argent | 10/10 | dynamic / común | N✓ C— J✓ | ✓✓✓✓✓ | 5 | 3.75 MB · webp×8 | 20.2 KB / 390 B |
+| sillage | 10/10 | dynamic / común | N✓ C— J✓ | ✓✓✓✓✓ | 8 | 495.5 KB · webp×14 | 20.5 KB / 393 B |
 | summit | 10/10 | dynamic / común | N✓ C— J✓ | ✓✓✓✓✓ | 7 | 555.9 KB · webp×9 | 21.3 KB / 391 B |
 | litica | 10/10 | dynamic / común | N✓ C— J✓ | ✓✓✓✓✓ | 6 | 525.6 KB · webp×10 | 24.0 KB / 391 B |
 | nera | 10/10 | dynamic / común | N✓ C— J✓ | ✓✓✓✓✓ | 8 | 1.47 MB · webp×11 | 20.5 KB / 386 B |
@@ -99,7 +95,7 @@ Leyenda de SEO: N `noindex`, C canonical, J Product + Offer. Capturas: catálogo
 | a11y | 33 | — | — |
 | captureCatalog | 33 | — | — |
 | captureProduct | 33 | — | — |
-| homeGallery | 32 | sillage | — |
+| homeGallery | 33 | — | — |
 | docs | 33 | — | — |
 | components | 33 | — | — |
 

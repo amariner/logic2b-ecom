@@ -116,6 +116,7 @@ const STORES = [
     cartValue: JSON.stringify([{ slug: 'illuminating-cleansing-gel', name: 'Gel limpiador iluminador', price: '36,00 €', image: '/images/collections/stretch/cleanser.jpg', qty: 2 }]),
   },
   { id: 'arce', label: 'ARCE', prefix: '/demo/tiendas/arce', slug: 'arc-silla-alba', cartKey: 'ecom-cart:arce' },
+  // new-theme:a11y — no borrar: `pnpm new:theme <id>` añade aquí la tienda.
   { id: 'demo', label: 'La Botiga', prefix: '/demo/tienda', slug: 'aove-coupage-750', cartKey: 'ecom-demo-cart', legacy: true },
 ];
 
