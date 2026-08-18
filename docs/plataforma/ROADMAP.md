@@ -171,7 +171,7 @@ suites/715 tests; producción permanece en `0032`.
 | 51 | **R5.1 Perfil de cliente** | Identidad deduplicable, direcciones y relación con pedidos sin romper guest checkout. | ✅ 2026-08-17 — D1 `0036`, backup 30 y rehearsal local; capacidad instalada, rollout pendiente |
 | 52 | **R5.2 Consentimientos** | Canal, finalidad, versión legal, fuente, región, timestamp y retirada. | ✅ 2026-08-17 — D1 `0037`, repositorio atómico, backup 31 y rehearsal local; captura/rollout pendientes |
 | 53 | **R5.3 Derechos de datos** | Exportar, corregir, anonimizar/borrar con excepciones fiscales y audit log. | 🟨 2026-08-18 — contrato y persistencia R5.3a–b instalados; política, superficies y ejecución pendientes de gates propios |
-| 54 | **R5.4 Cuentas passwordless** | Login seguro, sesiones, revocación y anti-enumeración; módulo opcional. | ⬜ |
+| 54 | **R5.4 Cuentas passwordless** | Login seguro, sesiones, revocación y anti-enumeración; módulo opcional. | 🟨 2026-08-18 — contrato R5.4a instalado; persistencia, proveedor y superficies pendientes de gates propios |
 | 55 | **R5.5 Autoservicio** | Pedidos, direcciones y devolución sobre permisos mínimos. | ⬜ |
 | 56 | **R5.6 Segmentación** | Lenguaje de filtros limitado, templates y recálculo observable. | ⬜ |
 | 57 | **R5.7 Modelo de mercados** | Contexto de país/idioma/moneda/dominio, resolución y fallback. | ⬜ |
@@ -221,6 +221,17 @@ integridad limpias. D1 local sirve `0038`; producción continúa en `0032`.
 `CUS-008` sigue inerte: export HTTP, autenticación, UI, jobs y toda ejecución
 mantienen gates separados. El siguiente bloque ejecutable es R5.4a, contrato y
 threat model de cuentas passwordless sin esquema ni proveedor.
+
+R5.4a acepta ADR-0042 y registra `CUS-003` como instalada e inerte. Identidad
+autenticable y perfil permanecen separados; comprar, consentir o deduplicar no
+crea credenciales. El dominio modela magic link/WebAuthn por adaptador,
+challenge con digest de un uso y TTL máximo de 15 minutos, sesión opaca con
+ventana máxima de 7 días/corte absoluto de 30, rotación, revocación y scopes
+limitados a autenticación propia/gestión de sesiones. La respuesta pública es
+idéntica exista o no identidad. No hay DDL, repositorio, proveedor, cookie,
+ruta, email o UI. El siguiente bloque R5.4b requiere autorización expresa para
+el esquema expand-only `0039` antes de persistir identidades, challenges y
+familias/sesiones.
 
 ## R6 — B2B
 

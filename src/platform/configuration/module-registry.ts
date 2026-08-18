@@ -72,6 +72,7 @@ const R4_MODELS_WIKI = 'docs/plataforma/wiki/modelos-venta-r4.md';
 const CUSTOMER_PROFILE_ADR = 'docs/plataforma/adr/0039-perfil-cliente-identidad-opaca.md';
 const CUSTOMER_CONSENT_ADR = 'docs/plataforma/adr/0040-consentimiento-evidencia-versionada.md';
 const CUSTOMER_DATA_RIGHTS_ADR = 'docs/plataforma/adr/0041-derechos-datos-plan-verificable.md';
+const CUSTOMER_PASSWORDLESS_ADR = 'docs/plataforma/adr/0042-autenticacion-passwordless-revocable.md';
 
 /**
  * Catálogo canónico de módulos. Los arrays vacíos son declaraciones explícitas:
@@ -149,9 +150,9 @@ export const MODULE_DESCRIPTORS = [
     jobs: [], healthchecks: [], wikiLinks: [ARCHITECTURE_WIKI], navigation: [], routes: [],
   },
   {
-    id: 'customers', version: '1.3.0', capabilities: ['CUS-001', 'CUS-002', 'CUS-007', 'CUS-008'], dependencies: ['platform-configuration'],
+    id: 'customers', version: '1.4.0', capabilities: ['CUS-001', 'CUS-002', 'CUS-003', 'CUS-007', 'CUS-008'], dependencies: ['platform-configuration'],
     permissions: [], events: [], subscriptions: [], jobs: [], healthchecks: [],
-    wikiLinks: [ARCHITECTURE_WIKI, CUSTOMER_PROFILE_ADR, CUSTOMER_CONSENT_ADR, CUSTOMER_DATA_RIGHTS_ADR], navigation: [], routes: [],
+    wikiLinks: [ARCHITECTURE_WIKI, CUSTOMER_PROFILE_ADR, CUSTOMER_CONSENT_ADR, CUSTOMER_DATA_RIGHTS_ADR, CUSTOMER_PASSWORDLESS_ADR], navigation: [], routes: [],
   },
   {
     id: 'orders', version: '1.10.0', capabilities: ['ORD-001', 'ORD-002', 'ORD-004', 'ORD-005', 'ORD-007', 'ORD-008', 'ORD-010', 'ORD-011', 'ORD-012', 'AUT-001', 'AUT-011'],

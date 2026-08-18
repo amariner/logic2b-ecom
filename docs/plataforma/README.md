@@ -269,6 +269,9 @@ venta o servicios logísticos propios.
   guards de versión, contexto, tiempo e inmutabilidad.
 - [`OPERACION_DERECHOS_DATOS.md`](OPERACION_DERECHOS_DATOS.md): rehearsal,
   concurrencia, backup 32, gates de activación, reconciliación y rollback.
+- [`adr/0042-autenticacion-passwordless-revocable.md`](adr/0042-autenticacion-passwordless-revocable.md):
+  identidad autenticable separada, challenge de un uso, sesión opaca rotatoria,
+  revocación, scopes mínimos y threat model anti-enumeración de R5.4a.
 - [`../../migrations/0037_consent_evidence.sql`](../../migrations/0037_consent_evidence.sql):
   evidencia versionada, índices por sujeto/alcance y guards de append/retirada.
 - [`OPERACION_CONSENTIMIENTOS.md`](OPERACION_CONSENTIMIENTOS.md): rollout,

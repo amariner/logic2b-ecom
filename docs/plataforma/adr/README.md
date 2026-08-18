@@ -47,3 +47,4 @@ para ocultar una decisión no es válido.
 | [0039](0039-perfil-cliente-identidad-opaca.md) | Perfil deduplicable, guest intacto y snapshots de pedido inmutables | accepted; R5.1 implementado localmente |
 | [0040](0040-consentimiento-evidencia-versionada.md) | Evidencia por canal/finalidad, retirada y preferencia separada | accepted; R5.2 implementado localmente |
 | [0041](0041-derechos-datos-plan-verificable.md) | Solicitud verificada, plan dry-run por propietario y doble control | accepted; persistence implemented, execution gated |
+| [0042](0042-autenticacion-passwordless-revocable.md) | Challenge de un uso y sesión opaca, rotatoria, revocable y anti-enumeración | accepted as contract; persistence and surfaces pending |
