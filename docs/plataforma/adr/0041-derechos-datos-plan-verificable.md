@@ -1,6 +1,6 @@
 # ADR-0041 — Derechos de datos como solicitud verificada y plan revisable
 
-- Estado: aceptado como contrato; persistencia y ejecución pendientes
+- Estado: aceptado; persistencia implementada en R5.3b, ejecución pendiente
 - Fecha: 2026-08-17
 - Bloque: R5.3
 - Capacidad: `CUS-008`
@@ -42,16 +42,17 @@ seguro sin convertir esas decisiones en defaults legales.
    idéntico recupera evidencia; reutilizar la clave con otro comando falla.
 9. Pedidos, pagos, fulfillments, documentos y audit log permanecen bajo sus
    propietarios. No se borran por defecto ni se promete anonimización total.
-10. `CUS-008` queda instalada e inerte: sin DDL, rutas, export HTTP, UI, jobs o
+10. `CUS-008` queda instalada e inerte: `0038` conserva el lifecycle y sus
+    referencias opacas, pero no existen rutas, export HTTP, UI, jobs o
     mutaciones hasta gates posteriores.
 
-## Contrato previo al esquema
+## Contrato de persistencia
 
 El dominio ofrece un reducer del historial y comandos que prueban el lifecycle,
-verificación, dry-run, doble control, fingerprint e idempotencia. El puerto de
-repositorio solo permite historial, estado y append. El puerto de propietario
-solo declara capacidades y construye una decisión de preview; todavía no
-expone ejecución.
+verificación, dry-run, doble control, fingerprint e idempotencia. `0038` y el
+repositorio D1 implementan historial, estado y append atómico con decisiones y
+referencias normalizadas, sin JSON libre. El puerto de propietario solo declara
+capacidades y construye una decisión de preview; todavía no expone ejecución.
 
 ## Fronteras
 
@@ -62,13 +63,14 @@ expone ejecución.
 - No se borran datos ni se implementa cascade/anonymize.
 - El audit log no entra en el backup HTTP ni se convierte en prueba pública.
 
-## Gate futuro
+## Gates posteriores
 
-La persistencia futura requerirá autorización expresa de esquema. Deberá
-guardar solicitudes/evidencias append-only, proteger referencias, soportar
-versionado e idempotencia atómicos y elevar backup/rehearsal sin incluir
-artefactos sensibles. La ejecución real necesitará además política aprobada,
-autenticación, permisos, rate limit, auditoría y adaptadores por propietario.
+Andreu autorizó expresamente `0038` el 2026-08-18. La persistencia guarda
+solicitudes/evidencias append-only, protege referencias, soporta versión e
+idempotencia atómicas y eleva backup/rehearsal sin artefactos sensibles. La
+ejecución real necesita todavía política aprobada, autenticación, permisos,
+rate limit, auditoría y adaptadores por propietario. Cada superficie y cada
+operación destructiva conservan su propio gate.
 
 ## Verificación
 
@@ -82,6 +84,5 @@ autenticación, permisos, rate limit, auditoría y adaptadores por propietario.
 
 ## Rollback
 
-Mientras no exista persistencia, retirar `CUS-008` del manifest revierte la
-composición. Cuando haya solicitudes durables, desactivar ejecución deberá
-conservar su historial; nunca se hará rollback borrando evidencia.
+Retirar flags/consumidores futuros revierte el comportamiento, pero las tablas
+y solicitudes durables se conservan. Nunca se hará rollback borrando evidencia.

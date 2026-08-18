@@ -8,8 +8,8 @@ import { createPreliminaryOrderOperations } from '../src/composition/preliminary
 
 describe('volcado de copia de seguridad', () => {
   it('declara el contrato que incluye la colaboración de pedidos', () => {
-    expect(BACKUP_SCHEMA_VERSION).toBe(31);
-    expect(buildBackupSql({}, '2026-08-17')).toContain('0037_consent_evidence');
+    expect(BACKUP_SCHEMA_VERSION).toBe(32);
+    expect(buildBackupSql({}, '2026-08-18')).toContain('0038_data_rights_evidence');
   });
 
   it('genera INSERTs con columnas explícitas y escape de comillas', () => {
@@ -129,6 +129,9 @@ describe('volcado de copia de seguridad', () => {
       'customer_address_revisions',
       'customer_profile_merges',
       'customer_consent_evidence',
+      'customer_data_rights_evidence',
+      'customer_data_rights_plan_decisions',
+      'customer_data_rights_artifact_references',
     ]));
     for (const table of BACKUP_TABLES) expect(sql).toContain(`DELETE FROM ${table};`);
   });
@@ -187,6 +190,31 @@ describe('volcado de copia de seguridad', () => {
         'ES', '2026-08-08T16:10:00.000Z', '2026-08-08T16:10:01.000Z',
         'consent_backup_001', 2, 'idem:backup:consent:withdraw'
       );
+      INSERT INTO customer_data_rights_evidence (
+        id, request_id, customer_profile_id, contact_identity_hash, request_kind,
+        action, actor_id, occurred_at, recorded_at, version, idempotency_key,
+        request_payload_reference, verification_method_id,
+        verification_evidence_reference, plan_id, plan_fingerprint,
+        plan_created_by, plan_created_at, reason_id
+      ) VALUES
+        ('rights_backup_001', 'request:backup:1', 'cus_backup', NULL, 'access',
+          'requested', 'actor:requester:1', '2026-08-08T16:15:00.000Z',
+          '2026-08-08T16:15:00.000Z', 1, 'idem:backup:rights:request',
+          NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+        ('rights_backup_002', 'request:backup:1', 'cus_backup', NULL, 'access',
+          'identity_verified', 'actor:verifier:1', '2026-08-08T16:16:00.000Z',
+          '2026-08-08T16:16:00.000Z', 2, 'idem:backup:rights:verify',
+          NULL, 'method:account_session', 'proof:session:backup',
+          NULL, NULL, NULL, NULL, NULL),
+        ('rights_backup_003', 'request:backup:1', 'cus_backup', NULL, 'access',
+          'plan_attached', 'actor:planner:1', '2026-08-08T16:17:00.000Z',
+          '2026-08-08T16:17:00.000Z', 3, 'idem:backup:rights:plan',
+          NULL, NULL, NULL, 'plan:backup:1', '${'d'.repeat(64)}',
+          'actor:planner:1', '2026-08-08T16:16:30.000Z', NULL);
+      INSERT INTO customer_data_rights_plan_decisions (
+        evidence_id, owner_id, operation, policy_reason_id, payload_reference, position
+      ) VALUES ('rights_backup_003', 'orders:snapshots', 'retain',
+        'policy:fiscal_retention', NULL, 0);
       UPDATE orders SET customer_profile_id='cus_backup'
       WHERE id=(SELECT id FROM orders ORDER BY id LIMIT 1);
     `);
@@ -300,6 +328,16 @@ describe('volcado de copia de seguridad', () => {
       FROM customer_consent_evidence ORDER BY version`)).toEqual([
       { action: 'granted', withdraws_evidence_id: null, version: 1 },
       { action: 'withdrawn', withdraws_evidence_id: 'consent_backup_001', version: 2 },
+    ]);
+    expect(restored.query(`SELECT evidence.action, evidence.version, decision.operation
+      FROM customer_data_rights_evidence evidence
+      LEFT JOIN customer_data_rights_plan_decisions decision
+        ON decision.evidence_id=evidence.id
+      WHERE evidence.request_id='request:backup:1'
+      ORDER BY evidence.version`)).toEqual([
+      { action: 'requested', version: 1, operation: null },
+      { action: 'identity_verified', version: 2, operation: null },
+      { action: 'plan_attached', version: 3, operation: 'retain' },
     ]);
   });
 });

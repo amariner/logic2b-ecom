@@ -263,7 +263,12 @@ venta o servicios logísticos propios.
   preferencia separada y frontera de comunicaciones transaccionales de R5.2.
 - [`adr/0041-derechos-datos-plan-verificable.md`](adr/0041-derechos-datos-plan-verificable.md):
   solicitud verificada, plan dry-run por propietario, fingerprint, doble
-  control y frontera explícita previa a persistencia o ejecución de R5.3.
+  control y frontera explícita entre persistencia y ejecución de R5.3.
+- [`../../migrations/0038_data_rights_evidence.sql`](../../migrations/0038_data_rights_evidence.sql):
+  evidencia por solicitud, decisiones y referencias opacas normalizadas con
+  guards de versión, contexto, tiempo e inmutabilidad.
+- [`OPERACION_DERECHOS_DATOS.md`](OPERACION_DERECHOS_DATOS.md): rehearsal,
+  concurrencia, backup 32, gates de activación, reconciliación y rollback.
 - [`../../migrations/0037_consent_evidence.sql`](../../migrations/0037_consent_evidence.sql):
   evidencia versionada, índices por sujeto/alcance y guards de append/retirada.
 - [`OPERACION_CONSENTIMIENTOS.md`](OPERACION_CONSENTIMIENTOS.md): rollout,

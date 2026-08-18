@@ -170,7 +170,7 @@ suites/715 tests; producción permanece en `0032`.
 |---:|---|---|---|
 | 51 | **R5.1 Perfil de cliente** | Identidad deduplicable, direcciones y relación con pedidos sin romper guest checkout. | ✅ 2026-08-17 — D1 `0036`, backup 30 y rehearsal local; capacidad instalada, rollout pendiente |
 | 52 | **R5.2 Consentimientos** | Canal, finalidad, versión legal, fuente, región, timestamp y retirada. | ✅ 2026-08-17 — D1 `0037`, repositorio atómico, backup 31 y rehearsal local; captura/rollout pendientes |
-| 53 | **R5.3 Derechos de datos** | Exportar, corregir, anonimizar/borrar con excepciones fiscales y audit log. | 🟨 2026-08-17 — contrato R5.3a instalado; persistencia y ejecución pendientes de gates propios |
+| 53 | **R5.3 Derechos de datos** | Exportar, corregir, anonimizar/borrar con excepciones fiscales y audit log. | 🟨 2026-08-18 — contrato y persistencia R5.3a–b instalados; política, superficies y ejecución pendientes de gates propios |
 | 54 | **R5.4 Cuentas passwordless** | Login seguro, sesiones, revocación y anti-enumeración; módulo opcional. | ⬜ |
 | 55 | **R5.5 Autoservicio** | Pedidos, direcciones y devolución sobre permisos mínimos. | ⬜ |
 | 56 | **R5.6 Segmentación** | Lenguaje de filtros limitado, templates y recálculo observable. | ⬜ |
@@ -210,6 +210,17 @@ Referencias de payload, prueba y artefacto son opacas; no se almacenan PII,
 tokens, filas o SQL. Pedidos, pagos, documentos y audit log conservan su propia
 autoridad y no se borran por defecto. No hay DDL, repositorio D1, rutas, UI,
 jobs, exportación ni mutaciones; cada uno mantiene su gate posterior.
+
+R5.3b materializa la persistencia tras autorización expresa de esquema. `0038`
+crea evidencia por solicitud y tablas normalizadas para decisiones del plan y
+referencias opacas de artefactos, sin JSON libre, backfill o PII. El repositorio
+inserta todo en una `D1.batch`, valida versión/idempotencia bajo carrera y lee
+exclusivamente por `requestId`; backup avanza a esquema 32. El rehearsal desde
+`0037` conserva el hash legacy y restaura las tres tablas vacías con FKs e
+integridad limpias. D1 local sirve `0038`; producción continúa en `0032`.
+`CUS-008` sigue inerte: export HTTP, autenticación, UI, jobs y toda ejecución
+mantienen gates separados. El siguiente bloque ejecutable es R5.4a, contrato y
+threat model de cuentas passwordless sin esquema ni proveedor.
 
 ## R6 — B2B
 

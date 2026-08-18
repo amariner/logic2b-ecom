@@ -46,4 +46,4 @@ para ocultar una decisión no es válido.
 | [0038](0038-presupuestos-depositos-transiciones-explicitas.md) | Presupuesto, depósito/saldo y conversión explícita sin reservar antes de tiempo | accepted; R4.11 implementado localmente |
 | [0039](0039-perfil-cliente-identidad-opaca.md) | Perfil deduplicable, guest intacto y snapshots de pedido inmutables | accepted; R5.1 implementado localmente |
 | [0040](0040-consentimiento-evidencia-versionada.md) | Evidencia por canal/finalidad, retirada y preferencia separada | accepted; R5.2 implementado localmente |
-| [0041](0041-derechos-datos-plan-verificable.md) | Solicitud verificada, plan dry-run por propietario y doble control | accepted as contract; persistence and execution pending |
+| [0041](0041-derechos-datos-plan-verificable.md) | Solicitud verificada, plan dry-run por propietario y doble control | accepted; persistence implemented, execution gated |

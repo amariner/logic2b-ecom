@@ -63,7 +63,7 @@ reconciliación se conserva abajo por contexto.
 | 11 | Landing V2 «nivel Awwwards» + negocio + funnel + docs | 🟡 En curso | 2026-08-13 | **F11.1, F11.3 (2 sesiones), F11.4, F11.5, F11.6, F11.7 y F11.8 (primera pasada + pase a11y/contenido desde cloud 2026-07-24) hechos**, más F11.8b (auditor de a11y, cloud), F11.2a-1 (tienda ASFALTO / tema Street), F11.2a-2 (tienda METRIA / tema Industrial) F11.2a-3 (tienda ROMER / tema Natural) y **F11.2a-4 (tienda KALIBRE / tema Specs, local 2026-07-25) — con la que F11.2a queda CERRADA (10/10 tiendas)**; y **F11.8c (Lighthouse citable + OG de WhatsApp + URLs sin redirección, local 2026-07-26)**; y **F11.8d–e (tabla de Lighthouse cerrada y desplegada: 7 de 8 superficies a 100×4, la landing entre ellas en móvil y escritorio, local 2026-07-27)**; y **F11.9 (contacto global de WhatsApp, cerrado y servido 2026-08-13)**. Solo queda la submission a Awwwards, decisión de pago reservada a Andreu. Detalle por bloque abajo. **Plan maestro completo en [`docs/PLAN_FASE11_LANDING_V2.md`](PLAN_FASE11_LANDING_V2.md)**: bloques F11.0–F11.8 ejecutables por sesiones independientes. **Decisiones D1–D6 APROBADAS por Andreu (2026-07-23)**: JS propio ≤15 KB sin deps, capturas con browser tools en local, dirección C «Ocho tiendas, un motor», escalera de precios (Lite 590 / Kit 1.900+39 / A medida 3.400+59), WhatsApp+email, Lite publicado sin construir. Prompt de arranque: [`docs/PROMPT_FASE11.md`](PROMPT_FASE11.md). Integra 9B.5/9B.6 (imaginería y temas restantes) como prerequisito del hero |
 | 8 | Pulido de la demo (backlog abajo) | 🟡 En curso | 2026-07-19 | Backlog técnico agotado; solo quedan decisiones y pasos locales de Andreu (ver «Decisiones pendientes» y `docs/PROMPT_CLOUD.md`). Últimas tandas: novena (race de idempotencia en el pago, PII enumerable en `/demo/gracias`, cancelación de pedido pagado sin devolver stock), décima (la misma race en el PATCH de admin, campos vacíos guardados como 0, login sin rate limit), undécima (diagrama móvil de `/arquitectura`, hedge del plazo de entrega, tokens de tema en `/demo/reset`, terminología «envío»), duodécima (aviso de corte en pedidos del admin, cabeceras sin wrap a 375px, leftover «portes», token de radio del carrito, contraste del botón eliminar, H1 en valenciano, checklist de producción) y decimotercera (misma race de idempotencia en `checkout.session.expired`, divisa hardcodeada a EUR fuera de Stripe, cobertura de test de `quoteCart`/PATCH admin/emails) y decimocuarta (config parcial de Stripe → cobro sin cumplimiento, emails duplicados bajo concurrencia, `payment_status` del webhook, color de marca centralizado en `shop.config.ts`, contraste/tema en carrito y checkout) — ver sección «Fase 8» |
 | 12 | Logic2B Ecommerce: renombrado, reposicionamiento y docs de dos visiones | ✅ Hecho | 2026-08-10 | **F12.0–F12.6 cerrados:** marca, argumento, dossier, canal agencias, ayuda, índice por audiencias, OG y auditorías citables consolidados. **Plan maestro en [`docs/PLAN_FASE12_LOGIC2B_ECOMMERCE.md`](PLAN_FASE12_LOGIC2B_ECOMMERCE.md)**. |
-| 13 | Plataforma modular: del gestor mínimo a paridad extrema de capacidad | 🟡 En curso | 2026-08-17 | **R0–R3.12, R4 y R5.1–R5.2 completos; R4.9–R5.2 siguen locales:** consentimiento versionado durable e instalado sin efectos. Siguiente R5.3. Fuente de verdad en [`docs/plataforma/`](plataforma/README.md). |
+| 13 | Plataforma modular: del gestor mínimo a paridad extrema de capacidad | 🟡 En curso | 2026-08-18 | **R0–R3.12, R4 y R5.1–R5.3b completos; R4.9–R5.3b siguen locales:** solicitudes de derechos durables e inertes, sin superficies ni ejecución. Siguiente R5.4a. Fuente de verdad en [`docs/plataforma/`](plataforma/README.md). |
 
 ## Repo y entornos
 
@@ -153,6 +153,7 @@ sus verificaciones ni sus puntos de reanudación.
 | R5.1 | Perfil de cliente deduplicable | ✅ 2026-08-17 — D1 `0036`, repositorio transaccional, checkout opcional, backup 30 y rehearsal local; rollout pendiente |
 | R5.2 | Consentimiento versionado | ✅ 2026-08-17 — ADR-0040, D1 `0037`, repositorio concurrente, backup 31, rehearsal y E2E local; `CUS-007` instalada e inerte |
 | R5.3a | Derechos de datos verificables | ✅ 2026-08-17 — ADR-0041, lifecycle, dry-run, doble control y puertos; `CUS-008` instalada e inerte, sin DDL ni efectos |
+| R5.3b | Persistencia de solicitudes de derechos | ✅ 2026-08-18 — D1 `0038`, repositorio concurrente, backup 32 y rehearsal/restore local; sin PII, rutas ni ejecución |
 
 ## Fase 12 — Logic2B Ecommerce: renombrado, reposicionamiento y las dos visiones
 
@@ -1685,32 +1686,36 @@ la cola de temas, coordinados sin mezclar worktrees ni cambios abiertos.
 
 ## Próxima sesión
 
-### R5.3b — persistencia de solicitudes de derechos — siguiente bloque
+### R5.4a — contrato de autenticación passwordless — siguiente bloque
 
-R5.3a queda cerrado como contrato reversible en ADR-0041. `CUS-008` está
-`installed` e inerte en advanced, sin flags ni superficies. El lifecycle
-append-only cubre recepción, verificación, plan dry-run, aprobación/rechazo,
-inicio, finalización/fallo y cancelación; versión optimista e idempotencia
-protegen cada hecho. El plan contiene una decisión por propietario, referencias
-opacas y fingerprint; su aprobación exige actor distinto y bloquea cualquier
-`manual_review`. Pedidos, pagos, documentos y audit log no se eliminan por
-defecto.
+R5.3b queda cerrado tras la autorización expresa de Andreu. `0038` añade tres
+tablas expand-only: evidencia por solicitud, decisiones normalizadas del plan y
+referencias opacas de artefactos. No existe JSON libre, columna de PII ni
+backfill; los checks y triggers rechazan referencias no opacas, contexto
+mezclado, saltos de versión, tiempo regresivo y mutación. El repositorio escribe evidencia y sus hijos en una sola
+`D1.batch`, recupera retries idénticos y devuelve un conflicto estable al
+perdedor de una carrera. Solo permite lectura por `requestId`.
 
-No se fijan plazos, base legal, prueba de identidad suficiente, excepciones o
-promesas de borrado. Tampoco se ha creado DDL, repositorio D1, backup 32,
-rehearsal, ruta HTTP, UI, job, exportación ni adaptador que modifique datos.
-Producción continúa en `0032`; la D1 local continúa en `0037`.
+Backup avanza a esquema 32 y restaura evidencia antes que decisiones y
+referencias. El rehearsal desde una baseline local exacta en `0037` conservó
+294 productos, 296 variantes/balances, 8 pedidos, 13 líneas y 8 pagos; hash
+`490d23851d7f5917f0267c508ebc2e750bf34a9b047d022ec16a109073e01894`, dump
+642.313 bytes, FKs e integridad verdes y cero filas inventadas. D1 local sirve
+`0038`; producción continúa en `0032`. `CUS-008` permanece instalada e inerte:
+sin HTTP, UI, job, descarga, política ni ejecución. Estos efectos conservan sus
+gates propios.
 
-Gate: `pnpm check` con 698 archivos sin diagnósticos, 163 suites/751 tests,
-build y sitemap verdes. No aplica E2E ni a11y porque R5.3a no introduce runtime,
-ruta o UI; tampoco hubo dependencia, D1 remota, Worker o deploy.
+Gate de cierre: `pnpm check` pasa 165 suites/760 tests, typecheck de 716 archivos
+sin diagnósticos, build y sitemap; el E2E local completo conserva la demo
+inerte y valida el backup esquema 32. No aplica a11y porque no existe superficie
+visible. No hubo dependencia, D1 remota, Worker ni deploy.
 
-Continuación exacta, tras autorización explícita de esquema: diseñar y ensayar
-`0038` expand-only para solicitudes y evidencia de derechos; implementar append
-atómico, versión/idempotencia concurrentes, lectura por `requestId`, backup 32
-y rehearsal desde `0037`, sin backfill, PII, artefactos exportados ni ejecución
-de decisiones. Export HTTP y toda corrección, restricción, anonimización o
-borrado conservarán gates separados aun después de persistir el lifecycle.
+Continuación exacta: abrir R5.4a como contrato previo al esquema para cuentas
+passwordless opcionales. Definir threat model, identidad autenticable separada
+del perfil, challenge de un solo uso, sesión rotatoria/revocable,
+anti-enumeración, scopes mínimos y puertos de proveedor; mantener `CUS-003`
+inerte, sin DDL, email real, ruta, cookie o UI. Persistencia, proveedor y
+activación conservarán gates separados.
 
 Carril visual: ARISTA cierra el 2026-08-18 las posiciones 17–19 y deja la cola
 sin referencias ejecutables. La referencia 19 se convirtió en un catálogo
@@ -1731,10 +1736,9 @@ tiendas, páginas públicas y panel pasan a11y/responsive/reduced-motion con 0
 errores y 0 avisos; E2E global verde y los 15 contratos de catálogo/storefront
 pasan. Las 134 capturas de catálogo, móvil y tarjetas quedan dentro de sus
 presupuestos tras recomprimir LUMBRE de 151,1 a 132 KB sin regenerar su imagen.
-No quedan referencias ejecutables en la cola. El siguiente bloque del carril
-principal sigue siendo R5.3b y conserva su gate de autorización explícita para
-crear y ensayar el esquema `0038`; no se abre migración, D1 ni runtime antes de
-esa autorización.
+No quedan referencias ejecutables en la cola. R5.3b ya cerró tras autorización
+expresa y el siguiente bloque del carril principal es R5.4a, contrato de
+autenticación passwordless sin esquema, proveedor o superficie.
 
 Consolidación del rail móvil cerrada en repositorio el 2026-08-18: la portada
 conserva el bucle completo de 33 escaparates en escritorio y presenta en móvil

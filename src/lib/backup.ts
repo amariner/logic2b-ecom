@@ -7,7 +7,7 @@
 export type Row = Record<string, string | number | null>;
 
 /** Orden de volcado y de borrado inverso (hijos después de padres al insertar no importa: borramos primero). */
-export const BACKUP_SCHEMA_VERSION = 31;
+export const BACKUP_SCHEMA_VERSION = 32;
 
 export const BACKUP_TABLES = [
   'products',
@@ -65,6 +65,9 @@ export const BACKUP_TABLES = [
   'customer_address_revisions',
   'customer_profile_merges',
   'customer_consent_evidence',
+  'customer_data_rights_evidence',
+  'customer_data_rights_plan_decisions',
+  'customer_data_rights_artifact_references',
   'orders',
   'preliminary_orders',
   'preliminary_order_lines',
@@ -147,7 +150,17 @@ export function dumpTable(table: string, rows: Row[]): string[] {
         : table === 'customer_consent_evidence'
           ? [...rows].sort((left, right) => Number(left.version) - Number(right.version) ||
             String(left.id).localeCompare(String(right.id)))
-        : rows;
+          : table === 'customer_data_rights_evidence'
+            ? [...rows].sort((left, right) =>
+              String(left.request_id).localeCompare(String(right.request_id)) ||
+              Number(left.version) - Number(right.version) ||
+              String(left.id).localeCompare(String(right.id)))
+            : table === 'customer_data_rights_plan_decisions' ||
+                table === 'customer_data_rights_artifact_references'
+              ? [...rows].sort((left, right) =>
+                String(left.evidence_id).localeCompare(String(right.evidence_id)) ||
+                Number(left.position) - Number(right.position))
+              : rows;
   const columns = Object.keys(orderedRows[0]!);
   // Al restaurar ubicaciones, el trigger de 0022 crea su política por defecto.
   // Sustituirla aquí permite recuperar exactamente la configuración exportada.
@@ -187,7 +200,7 @@ export function buildBackupSql(tablesRows: Record<string, Row[]>, generatedAt: s
   const lines = [
     `-- Copia de seguridad Logic2B Ecommerce — ${generatedAt}`,
     `-- logic2b-backup-schema: ${BACKUP_SCHEMA_VERSION}`,
-    '-- Requiere una base con la migración 0037_consent_evidence aplicada; las tablas/columnas explícitas abortan un restore incompatible.',
+    '-- Requiere una base con la migración 0038_data_rights_evidence aplicada; las tablas/columnas explícitas abortan un restore incompatible.',
     `-- Restaurar con: wrangler d1 execute <database> --remote --file <este fichero>`,
     'PRAGMA defer_foreign_keys = true;',
   ];

@@ -75,3 +75,7 @@ export type {
   DataRightsOwner,
   DataRightsRepository,
 } from './application/data-rights-repository';
+export {
+  DataRightsConflictError,
+  createD1DataRightsRepository,
+} from './infrastructure/d1-data-rights-repository';
