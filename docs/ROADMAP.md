@@ -1712,10 +1712,15 @@ y rehearsal desde `0037`, sin backfill, PII, artefactos exportados ni ejecución
 de decisiones. Export HTTP y toda corrección, restricción, anonimización o
 borrado conservarán gates separados aun después de persistir el lifecycle.
 
-Carril visual: ENSAMBLE permanece preservado en
-`codex-goal-ensamble-in-progress-2026-08-17-retry6`. El generador integrado
-falló por conexión seis veces; reintentarlo por CLI/proveedor o consumir
-créditos requiere permiso específico.
+Carril visual: ENSAMBLE queda cerrado el 2026-08-18. La referencia 17 se
+convirtió en un archivo editorial responsive de mobiliario con tres piezas,
+tres WebP propios generados por OpenAI `imagegen` en llamadas individuales y
+pausas de al menos ocho segundos, sin usar Higgsfield. Catálogo, ficha, cesta y
+checkout conservan el motor compartido; no hubo D1, API, dependencia ni coste
+recurrente nuevo. `pnpm check` pasa 703 archivos, 163 suites/751 tests y build;
+E2E verde, a11y 0/0 en 8 superficies y capturas dentro de presupuesto. El
+siguiente bloque independiente del carril visual es la posición 18,
+`d1d7bc5c43ce55b0febbbc1996b51765.jpg`.
 
 #### Corte anterior R4.12
 

@@ -1126,6 +1126,36 @@ export const demoThemes: DemoTheme[] = [
       annotations: false, darkFooter: false,
     },
   },
+  {
+    id: 'ensamble',
+    label: 'ENSAMBLE',
+    hint: 'Archivo editorial de mobiliario para estudios, diseñadores y objetos en serie corta.',
+    reference: { name: 'Referencia editorial de estudio de mobiliario', file: '30-ensamble.webp' },
+    sample: null,
+    bestFor: ['Mobiliario de autor', 'Estudios de diseño', 'Interiorismo'],
+    status: 'ready',
+    vars: {
+      '--color-brand': '#2d211c',
+      '--color-brand-dark': '#17110e',
+      '--color-brand-fg': '#f8f4ed',
+      '--font-display': "Georgia, 'Times New Roman', serif",
+      '--font-accent': MONO,
+      '--tracking-display': '-0.045em',
+      '--weight-display': '400',
+      '--radius-btn': '0',
+      '--radius-card': '0',
+      '--border-width': '1px',
+      '--surface-product': '#e8e2d7',
+      '--surface-sunken': '#f5f2ec',
+      '--space-density': '0.85',
+      '--grid-gap': 'clamp(0.75rem, 1.35vw, 1.4rem)',
+    },
+    layout: {
+      gridCols: 3, gridStyle: 'irregular', nav: 'top', hero: 'none',
+      card: 'hairline', filters: 'dropdown', density: 'airy',
+      annotations: true, darkFooter: false,
+    },
+  },
   // new-theme:themes — no borrar: `pnpm new:theme <id>` añade aquí el tema si falta.
 ];
 

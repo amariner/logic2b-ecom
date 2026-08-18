@@ -1,0 +1,60 @@
+---
+/** ENSAMBLE · índice compacto de categorías, búsqueda y orden. */
+import type { CollectionConfig, StorePaths } from '../../../collections';
+
+interface Props {
+  paths: StorePaths;
+  collection: CollectionConfig;
+  count: number;
+  activeCategory?: string | undefined;
+  sort: string;
+  search?: string | undefined;
+}
+
+const { paths, collection, count, activeCategory, sort, search } = Astro.props;
+---
+
+<div class="ensamble-filters">
+  <p>Índice / {String(count).padStart(2, '0')}</p>
+  <nav aria-label="Categorías">
+    <a href={paths.catalog} aria-current={!activeCategory ? 'page' : undefined}>Todo</a>
+    {collection.categories.map((cat) => (
+      <a href={`${paths.catalog}?categoria=${cat.id}`} aria-current={activeCategory === cat.id ? 'page' : undefined}>{cat.label}</a>
+    ))}
+  </nav>
+  <form method="get" action={paths.catalog} role="search">
+    {activeCategory && <input type="hidden" name="categoria" value={activeCategory} />}
+    {sort !== 'featured' && <input type="hidden" name="orden" value={sort} />}
+    <label><span class="sr-only">Buscar en ENSAMBLE</span><input type="search" name="q" value={search} maxlength="60" placeholder="Buscar pieza" /></label>
+    <button type="submit">Buscar</button>
+  </form>
+  <form method="get" action={paths.catalog}>
+    {activeCategory && <input type="hidden" name="categoria" value={activeCategory} />}
+    {search && <input type="hidden" name="q" value={search} />}
+    <label><span class="sr-only">Ordenar catálogo</span><select name="orden" onchange="this.form?.requestSubmit()">
+      <option value="featured" selected={sort === 'featured'}>Archivo</option>
+      <option value="price-asc" selected={sort === 'price-asc'}>Precio ↑</option>
+      <option value="price-desc" selected={sort === 'price-desc'}>Precio ↓</option>
+      <option value="name" selected={sort === 'name'}>Nombre A—Z</option>
+    </select></label>
+  </form>
+</div>
+
+<style>
+  .ensamble-filters { display: grid; grid-template-columns: 1fr 2fr 1.3fr .7fr; align-items: center; gap: 1rem; min-height: 4.5rem; padding: .45rem clamp(1rem, 2vw, 2rem); border-top: var(--border-width) solid var(--color-border); font-size: .58rem; letter-spacing: .06em; text-transform: uppercase; }
+  .ensamble-filters p { margin: 0; }
+  .ensamble-filters nav, .ensamble-filters form { display: flex; align-items: center; gap: clamp(.6rem, 1.5vw, 1.4rem); }
+  .ensamble-filters nav a, .ensamble-filters button { display: inline-flex; min-height: 2.75rem; align-items: center; }
+  .ensamble-filters nav a[aria-current='page'], .ensamble-filters nav a:hover, .ensamble-filters nav a:focus-visible { text-decoration: underline; text-underline-offset: .3rem; }
+  .ensamble-filters input, .ensamble-filters select, .ensamble-filters button { min-height: 2.75rem; border: 0; border-bottom: var(--border-width) solid var(--color-border); border-radius: 0; color: inherit; background: transparent; font: inherit; letter-spacing: inherit; text-transform: uppercase; }
+  .ensamble-filters input { width: min(9rem, 24vw); }
+  .ensamble-filters input::placeholder { color: var(--color-muted-foreground); opacity: 1; }
+  .ensamble-filters button { cursor: pointer; }
+  @media (max-width: 760px) {
+    .ensamble-filters { grid-template-columns: 1fr auto; padding-block: .8rem; }
+    .ensamble-filters > p { display: none; }
+    .ensamble-filters nav { grid-column: 1 / -1; overflow-x: auto; }
+    .ensamble-filters nav > * { flex: 0 0 auto; }
+    .ensamble-filters input { width: min(8rem, 35vw); }
+  }
+</style>

@@ -1,0 +1,94 @@
+---
+/** ENSAMBLE · archivo editorial de mobiliario. */
+import type { CollectionConfig, StorePaths } from '../../../collections';
+import Filters from './Filters.astro';
+import ProductGrid from './ProductGrid.astro';
+
+type GridProduct = {
+  slug: string;
+  name: string;
+  description: string;
+  price_cents: number;
+  image: string;
+  stock: number;
+};
+
+interface Props {
+  paths: StorePaths;
+  products: GridProduct[];
+  collection: CollectionConfig;
+  category?: string | undefined;
+  sort: string;
+  search?: string | undefined;
+}
+
+const { paths, products, collection, category, sort, search } = Astro.props;
+---
+
+<div class="ensamble-shell">
+  <header class="ensamble-header">
+    <a href={paths.catalog} aria-current="page"><strong>{collection.name}</strong> <span>Studio</span></a>
+    <p>Objects / 2026</p>
+    <a href={paths.cart}>Cesta <span data-cart-count>0</span></a>
+  </header>
+
+  <main>
+    <section class="ensamble-intro" aria-labelledby="ensamble-title">
+      <div>
+        <p>Archivo independiente de mobiliario</p>
+        <h1 id="ensamble-title">{collection.tagline}</h1>
+      </div>
+      <p>{collection.description}</p>
+    </section>
+
+    <Filters paths={paths} collection={collection} count={products.length} activeCategory={category} sort={sort} search={search} />
+
+    {products.length > 0 ? (
+      <ProductGrid paths={paths} products={products} />
+    ) : (
+      <div class="ensamble-empty">
+        <p>{search ? `Nada por aquí para «${search}»` : 'No hay piezas en esta selección'}</p>
+        <a href={paths.catalog}>Volver al archivo</a>
+      </div>
+    )}
+  </main>
+
+  <footer class="ensamble-footer">
+    <strong>{collection.name}</strong>
+    <p>Series cortas · hechas para permanecer</p>
+    <a href={paths.catalog}>Volver arriba ↑</a>
+  </footer>
+</div>
+
+<style>
+  .ensamble-shell { min-height: 100vh; color: var(--color-foreground); background: var(--color-background); font-family: var(--font-accent); }
+  .ensamble-shell :where(a) { color: inherit; text-decoration: none; }
+  .ensamble-header { display: grid; min-height: 5rem; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 1rem; padding: .7rem clamp(1rem, 2vw, 2rem); border-bottom: var(--border-width) solid var(--color-border); }
+  .ensamble-header > a:first-child { font: 400 clamp(1.45rem, 2.2vw, 2.25rem)/1 var(--font-display); letter-spacing: var(--tracking-display); }
+  .ensamble-header > a:first-child span { margin-left: .35rem; font-weight: 400; }
+  .ensamble-header p, .ensamble-header > a:last-child { margin: 0; font-size: .62rem; letter-spacing: .08em; text-transform: uppercase; }
+  .ensamble-header > a:last-child { justify-self: end; }
+  .ensamble-header a { display: inline-flex; min-height: 2.75rem; align-items: center; }
+  .ensamble-header a:hover, .ensamble-header a:focus-visible { text-decoration: underline; text-underline-offset: .35rem; }
+  .ensamble-intro { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(16rem, .85fr); gap: clamp(2rem, 8vw, 9rem); padding: clamp(3rem, 7vw, 7rem) clamp(1rem, 2vw, 2rem) clamp(4rem, 9vw, 9rem); }
+  .ensamble-intro p { margin: 0; color: var(--color-muted-foreground); font-size: .67rem; line-height: 1.6; }
+  .ensamble-intro > div > p { letter-spacing: .08em; text-transform: uppercase; }
+  .ensamble-intro h1 { max-width: 13ch; margin: clamp(1.4rem, 3vw, 3rem) 0 0; font: var(--weight-display) clamp(3.1rem, 7vw, 7.4rem)/.9 var(--font-display); letter-spacing: var(--tracking-display); }
+  .ensamble-intro > p { max-width: 31rem; align-self: end; font-size: clamp(.72rem, .85vw, .86rem); }
+  .ensamble-empty { display: grid; min-height: 34rem; place-content: center; gap: 1.25rem; padding: 2rem; border-top: var(--border-width) solid var(--color-border); text-align: center; }
+  .ensamble-empty p { margin: 0; font: 400 clamp(2rem, 5vw, 5rem)/.95 var(--font-display); }
+  .ensamble-empty a { min-height: 2.75rem; text-decoration: underline; text-underline-offset: .35rem; }
+  .ensamble-footer { display: grid; min-height: 18rem; grid-template-columns: 1fr 1fr auto; align-items: start; gap: 2rem; padding: clamp(2rem, 4vw, 4rem) clamp(1rem, 2vw, 2rem); border-top: var(--border-width) solid var(--color-border); }
+  .ensamble-footer strong { font: 400 clamp(3.5rem, 10vw, 10rem)/.75 var(--font-display); letter-spacing: var(--tracking-display); }
+  .ensamble-footer p { max-width: 14rem; margin: 0; font-size: .65rem; line-height: 1.5; text-transform: uppercase; }
+  .ensamble-footer a { min-height: 2.75rem; font-size: .62rem; text-transform: uppercase; }
+  @media (max-width: 720px) {
+    .ensamble-header { grid-template-columns: 1fr auto; }
+    .ensamble-header p { display: none; }
+    .ensamble-header > a:first-child { font-size: 1.2rem; }
+    .ensamble-intro { grid-template-columns: 1fr; gap: 2.5rem; padding-block: 3.5rem 5rem; }
+    .ensamble-intro h1 { font-size: clamp(3rem, 15vw, 5.4rem); }
+    .ensamble-footer { grid-template-columns: 1fr 1fr; }
+    .ensamble-footer strong { grid-column: 1 / -1; }
+  }
+</style>
