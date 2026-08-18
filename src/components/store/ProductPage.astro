@@ -16,11 +16,12 @@ interface Props {
   product: ProductRow;
   related: { slug: string; name: string; price_cents: number; image: string; stock: number }[];
   site: URL | undefined;
+  customPresentation?: boolean;
 }
 
-const { collection, product, related, site } = Astro.props;
+const { collection, product, related, site, customPresentation = false } = Astro.props;
 const paths = storePaths(collection.id);
-const hasCustomPresentation = Astro.slots.has('presentation');
+const hasCustomPresentation = customPresentation;
 
 const categoryLabel = labelForCategory(collection, product.category);
 

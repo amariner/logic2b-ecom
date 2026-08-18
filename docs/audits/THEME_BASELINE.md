@@ -13,10 +13,10 @@ El informe cubre **33 escaparates** (Base y la colección transaccional `demo` q
 ## Resumen
 
 - Registros canónicos: themes 33/33 · collections 33/33 · seeds 33/33 · catalogViews 33/33 · a11y 33/33 · captureCatalog 33/33 · captureProduct 33/33 · homeGallery 33/33 · docs 33/33 · components 33/33
-- Contrato compartido completo: **30/33** · recorrido/storage privado: **3**.
+- Contrato compartido completo: **33/33** · recorrido/storage privado: **0**.
 - Evidencia completa (catálogo, móvil, ficha, 560 y 900): **33/33**.
-- Inventario de assets: **33.62 MB** · JS propio crudo: **28.2 KB**.
-- Hallazgos: **P0 0 · P1 2 · P2 3 · P3 2**.
+- Inventario de assets: **33.62 MB** · JS propio crudo: **21.9 KB**.
+- Hallazgos: **P0 0 · P1 0 · P2 3 · P3 2**.
 
 ## Hallazgos P0–P3
 
@@ -26,9 +26,7 @@ El informe cubre **33 escaparates** (Base y la colección transaccional `demo` q
 
 ### P1
 
-- **TH0.2-P1-02 · Recorrido comercial o storage privado.** Temas: noddo, sitega, stretch. noddo: noddo-demo-cart · sitega: sitega-demo-cart · stretch: stretch-demo-cart Destino: TH0.5 · migración al contrato local común.
-
-- **TH0.2-P1-03 · Ficha sin Product + Offer compartido.** Temas: noddo, sitega, stretch. Las rutas privadas no componen ProductPage ni emiten JSON-LD propio. Destino: TH0.5 · migración al contrato local común.
+- Sin hallazgos.
 
 ### P2
 
@@ -58,10 +56,10 @@ El informe cubre **33 escaparates** (Base y la colección transaccional `demo` q
 | launch | 10/10 | dynamic / común | N✓ C— J✓ | ✓✓✓✓✓ | 5 | 55.0 KB · webp×5 | 25.1 KB / 372 B |
 | street | 10/10 | dynamic / común | N✓ C— J✓ | ✓✓✓✓✓ | 12 | 392.8 KB · webp×16 | 49.8 KB / 381 B |
 | iris | 10/10 | dynamic / común | N✓ C— J✓ | ✓✓✓✓✓ | 6 | 1.79 MB · jpg×1 mp4×1 webp×6 | 26.4 KB / 5.1 KB |
-| noddo | 10/10 | custom / privado | N✓ C— J— | ✓✓✓✓✓ | 12 | 2.61 MB · jpg×16 webp×12 | 35.3 KB / 5.6 KB |
-| sitega | 10/10 | custom / privado | N✓ C— J— | ✓✓✓✓✓ | 8 | 3.84 MB · jpg×9 | 24.3 KB / 2.3 KB |
+| noddo | 10/10 | dynamic / común | N✓ C— J✓ | ✓✓✓✓✓ | 12 | 2.61 MB · jpg×16 webp×12 | 27.6 KB / 3.4 KB |
+| sitega | 10/10 | dynamic / común | N✓ C— J✓ | ✓✓✓✓✓ | 8 | 3.84 MB · jpg×9 | 17.8 KB / 387 B |
 | forma | 10/10 | custom / común | N✓ C— J✓ | ✓✓✓✓✓ | 6 | 4.58 MB · jpg×14 | 25.2 KB / 0 B |
-| stretch | 10/10 | custom / privado | N✓ C— J— | ✓✓✓✓✓ | 7 | 757.9 KB · jpg×5 | 30.0 KB / 5.8 KB |
+| stretch | 10/10 | dynamic / común | N✓ C— J✓ | ✓✓✓✓✓ | 7 | 757.9 KB · jpg×5 | 23.2 KB / 3.6 KB |
 | argent | 10/10 | dynamic / común | N✓ C— J✓ | ✓✓✓✓✓ | 5 | 3.75 MB · webp×8 | 20.2 KB / 390 B |
 | sillage | 10/10 | dynamic / común | N✓ C— J✓ | ✓✓✓✓✓ | 8 | 495.5 KB · webp×14 | 20.5 KB / 393 B |
 | summit | 10/10 | dynamic / común | N✓ C— J✓ | ✓✓✓✓✓ | 7 | 555.9 KB · webp×9 | 21.3 KB / 391 B |

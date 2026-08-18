@@ -104,41 +104,17 @@
   "summary": {
     "severities": {
       "P0": 0,
-      "P1": 2,
+      "P1": 0,
       "P2": 3,
       "P3": 2
     },
-    "sharedContract": 30,
-    "privateCommerce": 3,
+    "sharedContract": 33,
+    "privateCommerce": 0,
     "completeCaptureSets": 33,
     "assetBytes": 35258052,
-    "scriptBytes": 28882
+    "scriptBytes": 22410
   },
   "findings": [
-    {
-      "severity": "P1",
-      "id": "TH0.2-P1-02",
-      "title": "Recorrido comercial o storage privado",
-      "themes": [
-        "noddo",
-        "sitega",
-        "stretch"
-      ],
-      "evidence": "noddo: noddo-demo-cart · sitega: sitega-demo-cart · stretch: stretch-demo-cart",
-      "destination": "TH0.5 · migración al contrato local común."
-    },
-    {
-      "severity": "P1",
-      "id": "TH0.2-P1-03",
-      "title": "Ficha sin Product + Offer compartido",
-      "themes": [
-        "noddo",
-        "sitega",
-        "stretch"
-      ],
-      "evidence": "Las rutas privadas no componen ProductPage ni emiten JSON-LD propio.",
-      "destination": "TH0.5 · migración al contrato local común."
-    },
     {
       "severity": "P2",
       "id": "TH0.2-P2-01",
@@ -960,34 +936,26 @@
         "components": true
       },
       "routes": {
-        "mode": "custom",
+        "mode": "dynamic",
         "sharedSurfaces": {
-          "product": false,
-          "cart": false,
-          "checkout": false,
-          "thanks": false
+          "product": true,
+          "cart": true,
+          "checkout": true,
+          "thanks": true
         },
-        "sharedContract": false,
-        "customFiles": [
-          "src/pages/demo/tiendas/noddo/[slug].astro",
-          "src/pages/demo/tiendas/noddo/carrito.astro",
-          "src/pages/demo/tiendas/noddo/checkout.astro",
-          "src/pages/demo/tiendas/noddo/gracias.astro",
-          "src/pages/demo/tiendas/noddo/index.astro"
-        ]
+        "sharedContract": true,
+        "customFiles": []
       },
       "storage": {
         "expectedCartKey": "ecom-cart:noddo",
-        "configuredCartKey": "noddo-demo-cart",
-        "privateKeys": [
-          "noddo-demo-cart"
-        ]
+        "configuredCartKey": "ecom-cart:noddo",
+        "privateKeys": []
       },
       "metadata": {
         "noindex": true,
         "description": true,
         "canonical": false,
-        "productJsonLd": false
+        "productJsonLd": true
       },
       "evidence": {
         "doc": true,
@@ -1016,10 +984,10 @@
         }
       },
       "source": {
-        "files": 11,
-        "bytes": 36164,
-        "scriptBlocks": 5,
-        "scriptBytes": 5758
+        "files": 6,
+        "bytes": 28277,
+        "scriptBlocks": 3,
+        "scriptBytes": 3442
       }
     },
     {
@@ -1038,34 +1006,26 @@
         "components": true
       },
       "routes": {
-        "mode": "custom",
+        "mode": "dynamic",
         "sharedSurfaces": {
-          "product": false,
-          "cart": false,
-          "checkout": false,
-          "thanks": false
+          "product": true,
+          "cart": true,
+          "checkout": true,
+          "thanks": true
         },
-        "sharedContract": false,
-        "customFiles": [
-          "src/pages/demo/tiendas/sitega/[slug].astro",
-          "src/pages/demo/tiendas/sitega/carrito.astro",
-          "src/pages/demo/tiendas/sitega/checkout.astro",
-          "src/pages/demo/tiendas/sitega/gracias.astro",
-          "src/pages/demo/tiendas/sitega/index.astro"
-        ]
+        "sharedContract": true,
+        "customFiles": []
       },
       "storage": {
         "expectedCartKey": "ecom-cart:sitega",
-        "configuredCartKey": "sitega-demo-cart",
-        "privateKeys": [
-          "sitega-demo-cart"
-        ]
+        "configuredCartKey": "ecom-cart:sitega",
+        "privateKeys": []
       },
       "metadata": {
         "noindex": true,
         "description": true,
         "canonical": false,
-        "productJsonLd": false
+        "productJsonLd": true
       },
       "evidence": {
         "doc": true,
@@ -1093,10 +1053,10 @@
         }
       },
       "source": {
-        "files": 11,
-        "bytes": 24905,
-        "scriptBlocks": 4,
-        "scriptBytes": 2322
+        "files": 6,
+        "bytes": 18267,
+        "scriptBlocks": 2,
+        "scriptBytes": 387
       }
     },
     {
@@ -1190,34 +1150,26 @@
         "components": true
       },
       "routes": {
-        "mode": "custom",
+        "mode": "dynamic",
         "sharedSurfaces": {
-          "product": false,
-          "cart": false,
-          "checkout": false,
-          "thanks": false
+          "product": true,
+          "cart": true,
+          "checkout": true,
+          "thanks": true
         },
-        "sharedContract": false,
-        "customFiles": [
-          "src/pages/demo/tiendas/stretch/[slug].astro",
-          "src/pages/demo/tiendas/stretch/carrito.astro",
-          "src/pages/demo/tiendas/stretch/checkout.astro",
-          "src/pages/demo/tiendas/stretch/gracias.astro",
-          "src/pages/demo/tiendas/stretch/index.astro"
-        ]
+        "sharedContract": true,
+        "customFiles": []
       },
       "storage": {
         "expectedCartKey": "ecom-cart:stretch",
-        "configuredCartKey": "stretch-demo-cart",
-        "privateKeys": [
-          "stretch-demo-cart"
-        ]
+        "configuredCartKey": "ecom-cart:stretch",
+        "privateKeys": []
       },
       "metadata": {
         "noindex": true,
         "description": true,
         "canonical": false,
-        "productJsonLd": false
+        "productJsonLd": true
       },
       "evidence": {
         "doc": true,
@@ -1245,10 +1197,10 @@
         }
       },
       "source": {
-        "files": 11,
-        "bytes": 30731,
-        "scriptBlocks": 4,
-        "scriptBytes": 5893
+        "files": 6,
+        "bytes": 23777,
+        "scriptBlocks": 2,
+        "scriptBytes": 3672
       }
     },
     {

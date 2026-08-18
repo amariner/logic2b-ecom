@@ -49,13 +49,14 @@ describe('línea base reproducible de temas', () => {
     ]));
   });
 
-  it('hace visibles las tres excepciones comerciales heredadas', () => {
+  it('mantiene los 33 temas sobre el mismo contrato comercial', () => {
     const privateThemes = report.themes
       .filter((theme) => !theme.routes.sharedContract || theme.storage.privateKeys.length > 0)
       .map((theme) => theme.id)
       .toSorted();
-    expect(privateThemes).toEqual(['noddo', 'sitega', 'stretch']);
-    expect(report.findings.find((finding) => finding.id === 'TH0.2-P1-02')?.themes).toEqual(privateThemes);
+    expect(privateThemes).toEqual([]);
+    expect(report.findings.find((finding) => finding.id === 'TH0.2-P1-02')).toBeUndefined();
+    expect(report.findings.find((finding) => finding.id === 'TH0.2-P1-03')).toBeUndefined();
   });
 
   it('produce un informe determinista con severidades y leyendas', () => {

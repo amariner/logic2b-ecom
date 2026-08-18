@@ -1,53 +1,26 @@
 ---
-import type { StretchProduct } from '../../../collections/stretch-products';
+import type { ProductRow } from '../../../lib/db';
+import { parseSpecs } from '../../../lib/db';
+import { formatEurCents } from '../../../lib/format';
 
-interface Props { product: StretchProduct }
-const { product } = Astro.props as Props;
+interface Props { product: ProductRow }
+const { product } = Astro.props;
+const specs = parseSpecs(product.specs_json);
+const hasOffer = product.compare_at_price_cents !== null && product.compare_at_price_cents > product.price_cents;
 ---
 
-<article class="grid min-h-[calc(100vh-78px)] bg-[#f9f4f0] text-black lg:grid-cols-2">
-  <div class="relative min-h-[58vh] overflow-hidden bg-[#eee8e2] lg:min-h-0">
-    <img
-      src={product.image}
-      alt={product.name}
-      width="1195"
-      height="1600"
-      loading="eager"
-      decoding="async"
-      class="absolute inset-0 h-full w-full object-cover"
-    />
-    <span class="absolute bottom-5 left-5 rounded-full bg-[#f9f4f0]/90 px-4 py-2 text-[10px] uppercase tracking-[.15em] backdrop-blur-sm">
-      Fórmula consciente
-    </span>
-  </div>
-
-  <div class="flex flex-col justify-between px-6 py-10 sm:px-10 lg:px-14 lg:py-14 xl:px-20">
-    <div>
-      <p class="text-[10px] uppercase tracking-[.18em] text-black/60">{product.category} / STRETCH</p>
-      <h1 class="mt-7 max-w-xl text-5xl font-light leading-[.94] tracking-[-.055em] sm:text-6xl xl:text-7xl">{product.name}</h1>
-      <div class="mt-7 flex items-baseline gap-3 text-lg">
-        {product.oldPrice && <del class="text-black/60">{product.oldPrice}</del>}
-        <strong class="font-medium">{product.price}</strong>
-      </div>
-      <p class="mt-10 max-w-lg text-sm leading-7 text-black/60">{product.description}</p>
-      <dl class="mt-10 divide-y divide-black/10 border-y border-black/10 text-sm">
-        {product.specs.map(([label, value]) => (
-          <div class="flex items-center justify-between gap-6 py-4">
-            <dt class="text-black/60">{label}</dt>
-            <dd class="text-right">{value}</dd>
-          </div>
-        ))}
-      </dl>
+<div class="bg-[#f9f4f0] text-black">
+  <header class="flex items-center justify-between border-b border-black/10 px-5 py-5 sm:px-8 lg:px-10"><a href="/demo/tiendas/stretch" class="text-lg font-bold uppercase tracking-[.2em]">STRETCH</a><nav class="flex items-center gap-5 text-[10px] uppercase tracking-[.12em]"><a href="/demo/tiendas/stretch#productos">Tienda</a><a href="/demo/tiendas/stretch/carrito" class="rounded-full border border-black px-4 py-2">Carrito <span data-stretch-count>0</span></a></nav></header>
+  <article class="grid min-h-[calc(100vh-78px)] lg:grid-cols-2">
+    <div class="relative min-h-[58vh] overflow-hidden bg-[#eee8e2] lg:min-h-0" data-commerce-part="media"><img src={product.image} alt={product.name} width="800" height="800" fetchpriority="high" class="absolute inset-0 h-full w-full object-cover" /><span class="absolute bottom-5 left-5 rounded-full bg-[#f9f4f0]/90 px-4 py-2 text-[10px] uppercase tracking-[.15em] backdrop-blur-sm">Fórmula consciente</span></div>
+    <div class="flex flex-col justify-between px-6 py-10 sm:px-10 lg:px-14 lg:py-14 xl:px-20" data-commerce-part="details">
+      <div><p class="text-[10px] uppercase tracking-[.18em] text-black/60">{product.category} / STRETCH</p><h1 class="mt-7 max-w-xl text-5xl font-light leading-[.94] tracking-[-.055em] sm:text-6xl xl:text-7xl">{product.name}</h1><div class="mt-7 flex items-baseline gap-3 text-lg">{hasOffer && <del class="text-black/60">{formatEurCents(product.compare_at_price_cents!)}</del>}<strong class="font-medium">{formatEurCents(product.price_cents)}</strong></div><p class="mt-10 max-w-lg text-sm leading-7 text-black/60">{product.description}</p>{specs.length > 0 && <dl class="mt-10 divide-y divide-black/10 border-y border-black/10 text-sm">{specs.map((spec) => <div class="flex items-center justify-between gap-6 py-4"><dt class="text-black/60">{spec.label}</dt><dd class="text-right">{spec.value}</dd></div>)}</dl>}</div>
+      <div class="mt-12" data-commerce-part="purchase">{product.stock > 0 ? <button type="button" data-commerce-action="add-to-cart" data-product-slug={product.slug} class="w-full rounded-full bg-black px-6 py-4 text-[11px] uppercase tracking-[.15em] text-white transition hover:-translate-y-0.5 hover:bg-[#282828]">Añadir al carrito</button> : <p class="text-[11px] uppercase tracking-[.15em] text-black/60">Agotado temporalmente</p>}<div class="mt-5 flex justify-between gap-4 text-[10px] uppercase tracking-[.12em] text-black/60"><span>Envío gratuito +50 €</span><span>Pago demo seguro</span></div></div>
     </div>
+  </article>
+</div>
 
-    <div class="mt-12">
-      <button type="button" data-stretch-add={product.slug} class="stretch-product-button w-full rounded-full bg-black px-6 py-4 text-[11px] uppercase tracking-[.15em] text-white transition hover:-translate-y-0.5 hover:bg-[#282828]">
-        Añadir al carrito
-      </button>
-      <div class="mt-5 flex justify-between gap-4 text-[10px] uppercase tracking-[.12em] text-black/60">
-        <span>Envío gratuito +50 €</span>
-        <span>Pago demo seguro</span>
-      </div>
-    </div>
-  </div>
-</article>
+<script>
+  import { bindCartBadge } from '../../../lib/cart-client';
+  document.querySelectorAll<HTMLElement>('[data-stretch-count]').forEach(bindCartBadge);
+</script>

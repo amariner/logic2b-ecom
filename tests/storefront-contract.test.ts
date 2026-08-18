@@ -111,7 +111,10 @@ describe('contrato de las demos de tienda', () => {
 
 describe('aislamiento de las rutas públicas', () => {
   it('catálogo, ficha y confirmación no consultan D1 ni pedidos', () => {
-    expect(Object.keys(storefrontRoutes).length).toBeGreaterThan(20);
+    expect(Object.keys(storefrontRoutes).length).toBeGreaterThanOrEqual(12);
+    for (const id of ['noddo', 'sitega', 'stretch']) {
+      expect(Object.keys(storefrontRoutes).some((path) => path.includes(`/tiendas/${id}/`)), id).toBe(false);
+    }
     expect(Object.keys(storefrontComponents).length).toBeGreaterThan(30);
     expect(catalogPageSource).toContain('getDemoProducts');
     expect(dynamicProductRoute).toContain('getDemoProduct');

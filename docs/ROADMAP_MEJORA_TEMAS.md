@@ -223,7 +223,7 @@ deploy autorizado cuando cambien sus capturas o contenido.
 | TH0.2 | Informe automático de inventario, rutas, registros, JS, assets, metas, schema y pesos de los 33 temas | ✅ 2026-08-18 |
 | TH0.3 | Auditoría visual/producto de las superficies compartidas y matriz de gaps P0–P3 | ✅ 2026-08-18 |
 | TH0.4 | Guardas contra deriva entre registro, colección, auditor, capturas, galería y ficha | ✅ 2026-08-18 |
-| TH0.5 | Cerrar C14.3: migrar NODDO, Sitēga y STRETCH al mismo contrato local de ficha/cesta/checkout/gracias | pendiente |
+| TH0.5 | Cerrar C14.3: migrar NODDO, Sitēga y STRETCH al mismo contrato local de ficha/cesta/checkout/gracias | ✅ 2026-08-18 |
 | TH0.6 | Consolidación de arquitectura: regresión de las 33 tiendas y actualización de contratos/docs | pendiente |
 
 TH0 no rediseña las 33 tiendas. Elimina incertidumbre y excepciones para que el
@@ -329,11 +329,11 @@ La ficha `docs/temas/<id>.md` añade al final:
 
 ## 9. Siguiente bloque
 
-**TH0.5 — migración de las tres excepciones comerciales.** Llevar NODDO, Sitēga
-y STRETCH al contrato local común de ficha, cesta, checkout y gracias, incluida
-la clave `ecom-cart:<collection>` y Product + Offer. Preservar su dirección de
-arte mediante slots/hooks existentes o una ampliación común justificada; no
-crear otro fork, no tocar D1 y no convertir el recorrido demo en pedidos reales.
+**TH0.6 — consolidación de la arquitectura compartida.** Ejecutar la regresión
+de las 33 tiendas y cerrar una sola vez los gaps transversales del contrato:
+chrome de temas inmersivos, solapamientos móviles, fallback honesto sin JS,
+canonical, prioridad LCP y feedback/navegación de ficha y cesta. Actualizar
+contratos y documentación sin rediseñar temas individuales ni tocar D1.
 
 ## 10. Cierres del carril
 
@@ -393,3 +393,24 @@ crear otro fork, no tocar D1 y no convertir el recorrido demo en pedidos reales.
   la imagen SILLAGE real cargada. No aplica E2E: no cambió el recorrido
   comercial. Consejo de producto, UX/UI, frontend, full-stack, SEO y arquitectura
   conforme; sin dependencia, migración, coste, deploy ni veto arquitectónico.
+
+### TH0.5 — contrato comercial común para NODDO, Sitēga y STRETCH (2026-08-18)
+
+- Las tres tiendas pasan a las rutas dinámicas compartidas de ficha, cesta,
+  checkout y gracias. Se eliminan 15 rutas privadas y tres fuentes paralelas de
+  producto; el baseline queda en 33/33 contratos comunes y 0 recorridos privados.
+- Los catálogos siguen recibiendo el seed canónico y conservan su composición;
+  sus tres `ProductDetail` se registran como presentaciones de `ProductPage`,
+  que mantiene noindex y Product + Offer. Los slugs quedan namespaceados y la
+  persistencia usa `ecom-cart:<collection>` sin claves privadas.
+- La presentación condicional se hace explícita para no vaciar las fichas de los
+  otros 30 temas. El runner de capturas acota fuentes/decodificación y STRETCH
+  ajusta su WebP móvil a 52 KB; se regeneraron y revisaron los 15 assets de
+  catálogo, móvil, ficha y tarjetas 560/900, todos dentro de presupuesto.
+- Verificado: `pnpm check` pasa 706 archivos, 170 suites/790 tests, baseline y
+  build+sitemap; E2E completo en verde; NODDO, Sitēga y STRETCH suman 27/27
+  superficies a11y con 0 errores y 0 avisos. Browser confirma imágenes, slugs,
+  Product + Offer y flujo producto → cesta → envío → checkout → gracias sin
+  overflow. P0/P1 quedan en 0; restan tres P2 y dos P3 asignados a TH0.6/TH5.
+- No hubo dependencia, migración, D1, pedido real, coste, deploy ni cambio de
+  promesa comercial.

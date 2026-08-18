@@ -10,6 +10,15 @@ const notFound = collection ? null : await notFoundResponse(Astro.locals.runtime
 if (!collection || notFound) {
   return notFound;
 }
+
+const headings = {
+  noddo: 'Delivery.',
+  sitega: 'Envío.',
+  stretch: 'Tus datos.',
+} as const;
+const heading = headings[collection.id as keyof typeof headings];
 ---
 
-<CheckoutPage collection={collection} />
+<CheckoutPage collection={collection}>
+  {heading && <h1 slot="heading" class="font-display text-5xl leading-none tracking-[-.06em] text-foreground sm:text-6xl">{heading}</h1>}
+</CheckoutPage>

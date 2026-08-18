@@ -57,7 +57,7 @@ assets de producto rotos y el recorrido local no toca D1 ni endpoints de cobro.
 | TH0.3-P1-03 | La ruta dinámica no selecciona presentación de ficha por tema: 29 escaparates montan el fallback de `ProductPage`. Seis `ProductDetail.astro` existentes (Minimal, Editorial, Guide, Launch, Iris y NODDO) no están cableados al contrato. | `src/pages/demo/tiendas/[collection]/[slug].astro`; búsqueda de imports: solo Forma, Sitēga y STRETCH consumen un ProductDetail. | La dirección de arte cae de forma brusca tras el catálogo; ARCE pasa de un hero editorial a una ficha genérica. | TH0.6 fija registro/slots sin forks; TH1–TH4 completan contenido y presentación. |
 | TH0.3-P1-04 | No existe fallback honesto sin JavaScript para el recorrido local. | `CartPage.astro:33-40` deja carga visible; `ThanksPage.astro:19-42` oculta éxito y ausencia; checkout no tiene destino HTML ni `<noscript>`. | Con JS bloqueado la cesta queda calculando, el checkout no concluye y gracias aparece vacía. | TH0.6, fallback explicativo y navegación recuperable. |
 | TH0.3-P1-05 | `/temas`, que es indexable, publica el nombre de la referencia externa en todas las tarjetas. | `src/pages/temas.astro:271`; ejemplos servidos: Teenage Engineering, TAGARNO y Up There Athletics. | Contradice la regla del carril «nunca publica la referencia ajena» y resta identidad propia al portfolio. | TH5.2 elimina la atribución pública y sustituye por criterio/sector propio. |
-| TH0.3-P1-06 | NODDO, Sitēga y STRETCH mantienen rutas, storage y schema privados. | TH0.2-P1-02/P1-03: `*-demo-cart`, sin Product + Offer compartido. | Tres recorridos no reciben mejoras ni guardas comunes. | TH0.5. |
+| TH0.3-P1-06 | NODDO, Sitēga y STRETCH mantienen rutas, storage y schema privados. | TH0.2-P1-02/P1-03: `*-demo-cart`, sin Product + Offer compartido. | Tres recorridos no reciben mejoras ni guardas comunes. | ✅ Resuelto en TH0.5: rutas dinámicas, `ecom-cart:<collection>` y Product + Offer comunes. |
 | TH0.3-P1-07 | La evidencia/galería explícita sigue incompleta. | TH0.2-P1-01/P1-04: SILLAGE falta en `galleryOrder`; ARGENT carece de captura completa, móvil y ficha. | El escaparate comercial y el protocolo de QA no representan los 33 temas de forma consistente. | TH0.4 guarda registros; TH3.5 regenera evidencia ARGENT. |
 
 ### P2
@@ -83,8 +83,8 @@ assets de producto rotos y el recorrido local no toca D1 ni endpoints de cobro.
 
 1. TH0.4 puede convertir la deriva objetiva de SILLAGE/ARGENT. en guardas sin
    tocar presentación.
-2. TH0.5 migra las tres excepciones privadas; no debe intentar resolver el
-   chrome inmersivo con otro fork.
+2. TH0.5 migró las tres excepciones privadas sin crear otro fork; el chrome
+   inmersivo sigue deliberadamente asignado a TH0.6.
 3. TH0.6 debe resolver una vez chrome, solapamientos, fallback JS, canonical y
    feedback de ficha antes de que ARCE fije el estándar visual.
 4. TH1–TH4 profesionalizan contenido y dirección de arte por tema sobre ese
@@ -93,3 +93,17 @@ assets de producto rotos y el recorrido local no toca D1 ni endpoints de cobro.
 No se cambió código servido ni se desplegó. Solo se creó estado efímero dentro
 del navegador local de prueba (una línea de cesta y un CP); no se escribió en
 D1 ni en servicios remotos.
+
+## Resolución posterior: TH0.5
+
+El 2026-08-18 se cerró `TH0.3-P1-06`: NODDO, Sitēga y STRETCH pasan a las rutas
+dinámicas de ficha, cesta, checkout y gracias; eliminan 15 rutas y tres fuentes
+de producto duplicadas; y usan el storage namespaceado común. Sus catálogos y
+presentaciones de ficha conservan la dirección de arte mediante componentes
+registrados, mientras `ProductPage` aporta noindex y Product + Offer.
+
+El baseline posterior registra 33/33 temas bajo el contrato compartido y cero
+rutas o claves privadas. La comprobación servida cubrió 27 superficies a11y con
+0 errores y 0 avisos, el E2E completo y el recorrido en browser de las tres
+tiendas. Esta resolución no cambia los restantes gaps de TH0.6 ni la deuda de
+assets asignada a TH1–TH5.

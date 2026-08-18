@@ -1,29 +1,28 @@
 ---
-/**
- * NODDO · ProductDetail — ficha de producto del tema.
- *
- * HOY la ficha la sirve Base para todos los temas (hereda tokens por CSS vars);
- * este componente existe para cuando el tema necesite redefinir su ESTRUCTURA.
- * Se cablea en la ruta de ficha (9B.4). Si con Base + tokens basta: bórralo y
- * anótalo en la ficha de entrega (docs/temas/noddo.md).
- */
-interface Props {
-  product: {
-    slug: string;
-    name: string;
-    description: string;
-    price_cents: number;
-    image: string;
-    stock: number;
-    subtitle?: string | null;
-    compare_at_price_cents?: number | null;
-  };
-}
+import type { ProductRow } from '../../../lib/db';
+import { parseSpecs } from '../../../lib/db';
+import { formatEurCents } from '../../../lib/format';
 
+interface Props { product: ProductRow }
 const { product } = Astro.props;
+const specs = parseSpecs(product.specs_json);
 ---
 
-{/* TODO(tema noddo): estructura propia de ficha, o borrar este stub. */}
-<article class="text-foreground">
-  <h1 class="font-display">{product.name}</h1>
-</article>
+<div class="min-h-screen bg-[#f7f7f5] text-[#111]">
+  <header class="flex items-center justify-between border-b border-black/10 px-5 py-5 md:px-8">
+    <a href="/demo/tiendas/noddo" class="text-xl font-black tracking-[-.08em]">NODDO®</a>
+    <nav class="flex items-center gap-6 text-[11px] uppercase tracking-[.12em]"><a href="/demo/tiendas/noddo">Product line</a><a href="/demo/tiendas/noddo/carrito" class="rounded-full border border-black px-4 py-2">Cart <span data-noddo-count>0</span></a></nav>
+  </header>
+  <article class="grid min-h-[calc(100vh-81px)] md:grid-cols-[1.25fr_.75fr]">
+    <div class="flex items-center justify-center bg-[#ececea] p-6 md:p-12" data-commerce-part="media"><img src={product.image} alt={product.name} width="800" height="800" fetchpriority="high" class="max-h-[76vh] w-full object-contain" /></div>
+    <div class="flex flex-col justify-between p-7 md:p-12" data-commerce-part="details">
+      <div><p class="font-mono text-[10px] uppercase tracking-[.18em] text-black/60">{product.category} / NODDO</p><h1 class="mt-6 text-5xl font-medium leading-[.85] tracking-[-.07em] md:text-7xl">{product.name}</h1>{product.subtitle && <p class="mt-4 text-sm uppercase tracking-[.12em] text-black/60">{product.subtitle}</p>}<p class="mt-5 text-xl">{formatEurCents(product.price_cents)}</p><p class="mt-10 max-w-md leading-relaxed text-black/60">{product.description}</p>{specs.length > 0 && <dl class="mt-10 divide-y divide-black/10 border-y border-black/10 text-sm">{specs.map((spec) => <div class="flex justify-between py-3"><dt class="text-black/60">{spec.label}</dt><dd>{spec.value}</dd></div>)}</dl>}</div>
+      <div class="mt-10" data-commerce-part="purchase">{product.stock > 0 ? <button type="button" data-commerce-action="add-to-cart" data-product-slug={product.slug} class="w-full rounded-full bg-black px-6 py-4 text-sm uppercase tracking-[.12em] text-white">Añadir al carrito</button> : <p class="text-sm uppercase tracking-[.12em] text-black/60">Agotado temporalmente</p>}<p class="mt-4 text-center text-xs text-black/60">Demo visual · no se realizará ningún cobro</p></div>
+    </div>
+  </article>
+</div>
+
+<script>
+  import { bindCartBadge } from '../../../lib/cart-client';
+  document.querySelectorAll<HTMLElement>('[data-noddo-count]').forEach(bindCartBadge);
+</script>

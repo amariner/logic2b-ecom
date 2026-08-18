@@ -1,22 +1,24 @@
 ---
 import type { CollectionConfig, StorePaths } from '../../../collections';
-import { noddoProductBySlug } from '../../../collections/noddo-products';
+import type { ProductRow } from '../../../lib/db';
 
 interface Props {
   paths: StorePaths;
-  products: unknown[];
+  products: ProductRow[];
   collection: CollectionConfig;
   category?: string | undefined;
   sort: string;
   search?: string | undefined;
 }
 
+const { products } = Astro.props;
+const productBySlug = new Map(products.map((product) => [product.slug, product]));
 const root = '/images/collections/noddo/generated';
 const cards = [
-  { id: 'power', slug:'power-node', image: `${root}/power-node.jpg`, alt: 'Sistema vertical de adquisición de datos', kind: 'intelligence', className: 'noddo-card--tall' },
-  { id: 'dock', slug:'dock-line', image: `${root}/dock-line.jpg`, alt: 'Estación de carga vista de perfil', kind: 'furniture', className: '' },
-  { id: 'sensor', slug:'sense-cylinder', image: `${root}/sense-cylinder.jpg`, alt: 'Sensor doméstico cilíndrico', kind: 'intelligence', className: '' },
-  { id: 'wall', slug:'wall-control', image: `${root}/wall-control.jpg`, alt: 'Control mural inteligente', kind: 'service', className: '' },
+  { id: 'power', slug:'nod-thermo-01', image: `${root}/power-node.jpg`, alt: 'Sistema vertical de adquisición de datos', kind: 'intelligence', className: 'noddo-card--tall' },
+  { id: 'dock', slug:'nod-dock-01', image: `${root}/dock-line.jpg`, alt: 'Estación de carga vista de perfil', kind: 'furniture', className: '' },
+  { id: 'sensor', slug:'nod-sense-air', image: `${root}/sense-cylinder.jpg`, alt: 'Sensor doméstico cilíndrico', kind: 'intelligence', className: '' },
+  { id: 'wall', slug:'nod-plug-duo', image: `${root}/wall-control.jpg`, alt: 'Control mural inteligente', kind: 'service', className: '' },
 ] as const;
 ---
 
@@ -82,7 +84,7 @@ const cards = [
       {cards.map((card) => (
         <article data-noddo-card data-kind={card.kind} class:list={['group relative overflow-hidden rounded-md bg-[#eee]', card.className]}>
           <img src={card.image} alt={card.alt} loading="lazy" class="h-full w-full object-cover transition duration-700 group-hover:scale-[1.015]" />
-          <a href={`/demo/tiendas/noddo/${card.slug}`} class="absolute inset-0" aria-label={`Ver ${noddoProductBySlug.get(card.slug)?.name ?? card.alt}`}></a>
+          <a href={`/demo/tiendas/noddo/${card.slug}`} class="absolute inset-0" aria-label={`Ver ${productBySlug.get(card.slug)?.name ?? card.alt}`}></a>
         </article>
       ))}
       <div aria-hidden="true" class="hidden items-center justify-center bg-background sm:flex"><span class="font-display text-7xl font-light text-black/10">07</span></div>
@@ -92,17 +94,17 @@ const cards = [
 
     <article data-noddo-card data-kind="intelligence" class="group relative mt-1.5 overflow-hidden rounded-md bg-[#eee]">
       <img src={`${root}/thermo-20.jpg`} alt="Termostato inteligente de 20 grados" loading="lazy" class="block aspect-[2.02] w-full object-cover transition duration-700 group-hover:scale-[1.01]" />
-      <a href="/demo/tiendas/noddo/thermo-20" class="absolute inset-0" aria-label="Ver Thermo 20 grados"></a>
+      <a href="/demo/tiendas/noddo/nod-thermo-mini" class="absolute inset-0" aria-label="Ver Thermo Mini"></a>
     </article>
 
     <div class="mt-1.5 grid gap-1.5 sm:grid-cols-[.72fr_1.3fr]">
       <article data-noddo-card data-kind="self" class="group relative overflow-hidden rounded-md bg-[#eee]">
         <img src={`${root}/air-tower.jpg`} alt="Torre portátil de ventilación" loading="lazy" class="block h-full min-h-72 w-full object-cover transition duration-700 group-hover:scale-[1.015]" />
-        <a href="/demo/tiendas/noddo/air-tower" class="absolute inset-0" aria-label="Ver Air Tower"></a>
+        <a href="/demo/tiendas/noddo/nod-air-01" class="absolute inset-0" aria-label="Ver Air 01"></a>
       </article>
       <article data-noddo-card data-kind="furniture" class="group relative overflow-hidden rounded-md bg-[#eee]">
         <img src={`${root}/dual-control.jpg`} alt="Controlador doméstico de dos mandos" loading="lazy" class="block h-full min-h-72 w-full object-cover transition duration-700 group-hover:scale-[1.015]" />
-        <a href="/demo/tiendas/noddo/dual-control" class="absolute inset-0" aria-label="Ver Dual Control"></a>
+        <a href="/demo/tiendas/noddo/nod-tone-pair" class="absolute inset-0" aria-label="Ver Tone Pair"></a>
       </article>
     </div>
   </section>
@@ -227,6 +229,8 @@ const cards = [
 </style>
 
 <script>
+  import { bindCartBadge } from '../../../lib/cart-client';
+
   const scrollHeader = document.querySelector<HTMLElement>('[data-noddo-scroll-header]');
   const hero = document.querySelector<HTMLElement>('#inicio');
   const menu = document.querySelector<HTMLElement>('[data-noddo-menu]');
@@ -260,16 +264,7 @@ const cards = [
   window.addEventListener('resize', updateScrollHeader);
   updateScrollHeader();
 
-  const updateNoddoCartCount = (): void => {
-    let count = 0;
-    try {
-      const cart = JSON.parse(localStorage.getItem('noddo-demo-cart') ?? '[]') as Array<{ qty?: number }>;
-      count = cart.reduce((sum, item) => sum + (Number(item.qty) || 0), 0);
-    } catch { count = 0; }
-    document.querySelectorAll<HTMLElement>('[data-noddo-count]').forEach((element) => { element.textContent = String(count); });
-  };
-  window.addEventListener('storage', updateNoddoCartCount);
-  updateNoddoCartCount();
+  document.querySelectorAll<HTMLElement>('[data-noddo-count]').forEach(bindCartBadge);
 
   const filters = [...document.querySelectorAll<HTMLButtonElement>('[data-noddo-filter]')];
   const cards = [...document.querySelectorAll<HTMLElement>('[data-noddo-card]')];

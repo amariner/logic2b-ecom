@@ -162,7 +162,7 @@ const STORES = [
   { id: 'noddo', label: 'NODDO', catalog: '/demo/tiendas/noddo', full: true, maxH: 2400 },
   { id: 'sitega', label: 'Sitēga', catalog: '/demo/tiendas/sitega', full: true, maxH: 3000 },
   { id: 'forma', label: 'Forma', catalog: '/demo/tiendas/forma', full: true, maxH: 3000 },
-  { id: 'stretch', label: 'STRETCH', catalog: '/demo/tiendas/stretch', full: true, maxH: 3000, eval: REVEAL_STRETCH },
+  { id: 'stretch', label: 'STRETCH', catalog: '/demo/tiendas/stretch', full: true, maxH: 3000, mobileQ: 36, eval: REVEAL_STRETCH },
   { id: 'arce', label: 'ARCE', catalog: '/demo/tiendas/arce', full: true, maxH: 3000 },
   // new-theme:capture-catalog — no borrar: `pnpm new:theme <id>` añade aquí la tienda.
   { id: 'demo', label: 'La Botiga', catalog: '/demo/tienda', full: true, maxH: 1700 },
@@ -211,10 +211,10 @@ const FICHAS = [
   { id: 'industrial', slug: 'ind-mv-320', prefix: '/demo/tiendas/industrial' },
   { id: 'natural', slug: 'nat-serum-niacinamida', prefix: '/demo/tiendas/natural' },
   { id: 'specs', slug: 'spe-platina-base', prefix: '/demo/tiendas/specs' },
-  { id: 'noddo', slug: 'power-node', prefix: '/demo/tiendas/noddo' },
-  { id: 'sitega', slug: 'basin-soft', prefix: '/demo/tiendas/sitega' },
+  { id: 'noddo', slug: 'nod-thermo-01', prefix: '/demo/tiendas/noddo' },
+  { id: 'sitega', slug: 'sit-basin-soft', prefix: '/demo/tiendas/sitega' },
   { id: 'forma', slug: 'for-clear-01', prefix: '/demo/tiendas/forma' },
-  { id: 'stretch', slug: 'illuminating-cleansing-gel', prefix: '/demo/tiendas/stretch' },
+  { id: 'stretch', slug: 'str-illuminating-cleansing-gel', prefix: '/demo/tiendas/stretch' },
   { id: 'arce', slug: 'arc-silla-alba', prefix: '/demo/tiendas/arce' },
   // new-theme:capture-product — no borrar: `pnpm new:theme <id>` añade aquí la ficha.
   { id: 'demo', slug: 'aove-coupage-750', prefix: '/demo/tienda' },
@@ -411,6 +411,10 @@ async function adminCookie() {
 // pintado un WebP recién solicitado; `decode()` evita capturas con los huecos
 // grises de las tarjetas aunque la red termine un instante después.
 const SETTLE_JS = `(async () => {
+  const bounded = (promise, timeout = 5000) => Promise.race([
+    promise,
+    new Promise((resolve) => setTimeout(resolve, timeout)),
+  ]);
   const deadline = performance.now() + 10000;
   while (document.images.length === 0 && performance.now() < deadline) {
     await new Promise((resolve) => setTimeout(resolve, 50));
@@ -419,11 +423,11 @@ const SETTLE_JS = `(async () => {
   const h = document.body.scrollHeight;
   for (let y = 0; y <= h; y += 500) { window.scrollTo(0, y); await new Promise(r => setTimeout(r, 40)); }
   window.scrollTo(0, 0);
-  try { await document.fonts.ready; } catch {}
+  try { await bounded(document.fonts.ready); } catch {}
   const imgs = Array.from(document.images);
   await Promise.all(imgs.map(async (img) => {
     if (img.complete && img.naturalWidth > 0) {
-      try { await img.decode(); } catch {}
+      try { await bounded(img.decode()); } catch {}
       return;
     }
     await new Promise((resolve) => {
@@ -433,7 +437,7 @@ const SETTLE_JS = `(async () => {
       setTimeout(done, 8000);
     });
     if (img.naturalWidth > 0) {
-      try { await img.decode(); } catch {}
+      try { await bounded(img.decode()); } catch {}
     }
   }));
   const missing = imgs.filter((img) => img.naturalWidth === 0).map((img) => img.currentSrc || img.src);

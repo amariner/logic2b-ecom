@@ -11,6 +11,15 @@ if (!collection || notFound) {
   return notFound;
 }
 
+const backLabels = {
+  noddo: 'Volver a NODDO',
+  sitega: 'Volver a Sitēga',
+  stretch: 'Volver a STRETCH',
+} as const;
+const backLabel = backLabels[collection.id as keyof typeof backLabels];
+
 ---
 
-<ThanksPage collection={collection} />
+<ThanksPage collection={collection}>
+  {backLabel && <Fragment slot="back-label">{backLabel}</Fragment>}
+</ThanksPage>
