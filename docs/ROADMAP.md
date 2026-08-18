@@ -1748,8 +1748,14 @@ global de CSS/tipografía separada de este rail; CLS y TBT permanecen en cero.
 Navegador real confirma seis tarjetas, cero overflow y animación ausente a
 375 px, mientras 1440 px conserva las 66 tarjetas duplicadas y el movimiento de
 ambas columnas. La auditoría `site:landing` pasa 3/3 superficies con 0 errores y
-0 avisos. Sin D1, API, dependencia ni cambio de temas; deploy y Lighthouse de
-producción quedan pendientes del cierre de este bloque.
+0 avisos y `pnpm check` conserva 713 archivos, 163 suites/751 tests y build
+verdes. Sin D1, API, dependencia ni cambio de temas. Producción sirve el Worker
+`91465d13-1fc5-422b-8fe8-b4a600a09f1e`; smoke de portada, `/temas` y CSS verde,
+y navegador real confirma seis tarjetas, animación `none` y cero overflow a
+375 px. Lighthouse de producción da mediana móvil 98/100/100/100 (rango de
+rendimiento 96–100, LCP 2,1 s, CLS/TBT 0, 23 imágenes y ~303 KB) y escritorio
+100×4 (LCP 0,5 s). La oscilación restante de Speed Index/LCP textual permanece
+como deuda global de portada, no del rail ni de una tienda concreta.
 
 #### Corte anterior R4.12
 
