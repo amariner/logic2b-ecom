@@ -208,6 +208,72 @@ function orderCustomerProfilesForRestore(rows: Row[]): Row[] {
   return ordered;
 }
 
+/**
+ * Los triggers de 0039 solo permiten insertar familias/sesiones en su estado
+ * inicial. El backup conserva el estado final, así que el restore reconstruye
+ * primero toda la cadena activa y reproduce después sus transiciones.
+ */
+function initialCustomerSessionFamilies(rows: Row[]): Row[] {
+  return rows.map((row) => {
+    const version = customerSessionFamilyVersion(row);
+    if (row.status === 'active' || version === 1) return { ...row };
+    return {
+      ...row,
+      status: 'active',
+      revoked_at: null,
+      revocation_reason_id: null,
+      transition_idempotency_key: null,
+      version: version - 1,
+    };
+  });
+}
+
+function customerSessionFamilyVersion(row: Row): number {
+  const version = Number(row.version);
+  if (!Number.isSafeInteger(version) || version < 1) {
+    throw new RangeError('Una familia del backup debe tener versión final >= 1.');
+  }
+  return version;
+}
+
+function initialCustomerSessions(rows: Row[]): Row[] {
+  return rows.map((row) => ({
+    ...row,
+    status: 'active',
+    replaced_by_session_id: null,
+    revoked_at: null,
+    revocation_reason_id: null,
+    transition_idempotency_key: null,
+    version: 1,
+  }));
+}
+
+function customerSessionTransitionSql(rows: Row[]): string[] {
+  return [...rows]
+    .sort((left, right) => String(left.family_id).localeCompare(String(right.family_id)) ||
+      Number(left.generation) - Number(right.generation))
+    .filter((row) => row.status !== 'active')
+    .map((row) => `UPDATE customer_sessions SET status = ${sqlValue(row.status ?? null)}, ` +
+      `replaced_by_session_id = ${sqlValue(row.replaced_by_session_id ?? null)}, ` +
+      `revoked_at = ${sqlValue(row.revoked_at ?? null)}, ` +
+      `revocation_reason_id = ${sqlValue(row.revocation_reason_id ?? null)}, ` +
+      `transition_idempotency_key = ${sqlValue(row.transition_idempotency_key ?? null)}, ` +
+      `version = ${sqlValue(row.version ?? null)} ` +
+      `WHERE id = ${sqlValue(row.id ?? null)} AND status = 'active' AND version = 1;`);
+}
+
+function customerSessionFamilyTransitionSql(rows: Row[]): string[] {
+  return rows
+    .filter((row) => row.status !== 'active' && customerSessionFamilyVersion(row) >= 2)
+    .map((row) => `UPDATE customer_session_families SET status = ${sqlValue(row.status ?? null)}, ` +
+      `revoked_at = ${sqlValue(row.revoked_at ?? null)}, ` +
+      `revocation_reason_id = ${sqlValue(row.revocation_reason_id ?? null)}, ` +
+      `transition_idempotency_key = ${sqlValue(row.transition_idempotency_key ?? null)}, ` +
+      `version = ${sqlValue(row.version ?? null)} ` +
+      `WHERE id = ${sqlValue(row.id ?? null)} AND status = 'active' ` +
+      `AND version = ${customerSessionFamilyVersion(row) - 1};`);
+}
+
 /** Dump completo: limpieza (hijos primero) + INSERTs en orden de FK. */
 export function buildBackupSql(tablesRows: Record<string, Row[]>, generatedAt: string): string {
   const lines = [
@@ -220,7 +286,21 @@ export function buildBackupSql(tablesRows: Record<string, Row[]>, generatedAt: s
   for (const table of [...BACKUP_TABLES].reverse()) {
     lines.push(`DELETE FROM ${table};`);
   }
+  const sessionFamilies = tablesRows.customer_session_families ?? [];
+  const sessions = tablesRows.customer_sessions ?? [];
   for (const table of BACKUP_TABLES) {
+    if (table === 'customer_session_families') {
+      lines.push(...dumpTable(table, initialCustomerSessionFamilies(sessionFamilies)));
+      continue;
+    }
+    if (table === 'customer_sessions') {
+      lines.push(...dumpTable(table, initialCustomerSessions(sessions)));
+      continue;
+    }
+    if (table === 'customer_passwordless_challenges') {
+      lines.push(...customerSessionTransitionSql(sessions));
+      lines.push(...customerSessionFamilyTransitionSql(sessionFamilies));
+    }
     lines.push(...dumpTable(table, tablesRows[table] ?? []));
   }
   return lines.join('\n') + '\n';

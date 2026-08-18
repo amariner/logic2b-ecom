@@ -272,10 +272,16 @@ venta o servicios logísticos propios.
 - [`adr/0042-autenticacion-passwordless-revocable.md`](adr/0042-autenticacion-passwordless-revocable.md):
   identidad autenticable separada, challenge de un uso, sesión opaca rotatoria,
   revocación, scopes mínimos y threat model anti-enumeración de R5.4a.
+- [`adr/0043-superficie-passwordless-email-segura.md`](adr/0043-superficie-passwordless-email-segura.md):
+  contrato R5.4c de magic link por Resend directo, orden
+  `prepare → persist → deliver`, origen/cookie/CSRF/CSP, rate limit por capas y
+  recuperación sin bypass; núcleo/backup/manifest endurecidos, aún sin
+  proveedor ni HTTP/UI.
 - [`../../migrations/0039_customer_passwordless_auth.sql`](../../migrations/0039_customer_passwordless_auth.sql):
   identidades, challenges y familias/sesiones expand-only de R5.4b.
 - [`OPERACION_PASSWORDLESS.md`](OPERACION_PASSWORDLESS.md): rehearsal, backup
-  33, concurrencia, gates de proveedor/superficie, reconciliación y rollback.
+  33, concurrencia, hardening R5.4c, transporte fragmento→POST y activación
+  R5.4d, reconciliación, recuperación y rollback.
 - [`../../migrations/0037_consent_evidence.sql`](../../migrations/0037_consent_evidence.sql):
   evidencia versionada, índices por sujeto/alcance y guards de append/retirada.
 - [`OPERACION_CONSENTIMIENTOS.md`](OPERACION_CONSENTIMIENTOS.md): rollout,
@@ -376,7 +382,9 @@ venta o servicios logísticos propios.
 ## Reglas de verdad
 
 - El estado de una capacidad lo manda `MATRIZ_CAPACIDADES.md`, no el copy.
-- La próxima sesión la manda la sección «Siguiente bloque» de `ROADMAP.md`.
+- La próxima sesión la manda la última sección canónica «Siguiente bloque» de
+  `ROADMAP.md`; la sección numerada 13 conserva solo el historial R2/R3. El
+  estado integrado se replica en `../ROADMAP.md` bajo «Próxima sesión».
 - Una página pública nunca puede decir «disponible» si no existe una prueba
   automatizada y una ruta operativa real.
 - «Integrable» exige contrato, tratamiento de errores, reintentos, trazabilidad

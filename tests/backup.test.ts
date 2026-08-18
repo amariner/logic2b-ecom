@@ -222,7 +222,7 @@ describe('volcado de copia de seguridad', () => {
       INSERT INTO customer_auth_identities (
         id, customer_profile_id, contact_identity_hash, status, created_at,
         revoked_at, creation_idempotency_key
-      ) VALUES ('auth_identity:backup:1', 'cus_backup', '${'e'.repeat(64)}',
+      ) VALUES ('auth_identity:backup:1', 'cus_backup', '${'c'.repeat(64)}',
         'active', '2026-08-08T16:18:00.000Z', NULL,
         'auth:identity:backup:create');
       INSERT INTO customer_session_families (
@@ -232,6 +232,21 @@ describe('volcado de copia de seguridad', () => {
       ) VALUES ('session_family:backup:1', 'auth_identity:backup:1', 'cus_backup',
         'active', '2026-08-08T16:20:00.000Z', '2026-09-07T16:20:00.000Z',
         NULL, NULL, NULL, 1);
+      INSERT INTO customer_session_families (
+        id, identity_id, customer_profile_id, status, created_at,
+        absolute_expires_at, revoked_at, revocation_reason_id,
+        transition_idempotency_key, version
+      ) VALUES
+        ('session_family:backup:active-v7', 'auth_identity:backup:1', 'cus_backup',
+          'active', '2026-08-08T16:20:00.000Z', '2026-09-07T16:20:00.000Z',
+          NULL, NULL, NULL, 7),
+        ('session_family:backup:expired-v7', 'auth_identity:backup:1', 'cus_backup',
+          'active', '2026-08-08T16:20:00.000Z', '2026-09-07T16:20:00.000Z',
+          NULL, NULL, NULL, 6),
+        ('session_family:backup:revoked-v1', 'auth_identity:backup:1', 'cus_backup',
+          'revoked', '2026-08-08T16:20:00.000Z', '2026-09-07T16:20:00.000Z',
+          '2026-08-08T16:22:00.000Z', 'reason:security_event',
+          'auth:family:backup:revoked-v1', 1);
       INSERT INTO customer_sessions (
         id, family_id, identity_id, customer_profile_id, token_digest,
         can_revoke_sessions, status, issued_at, expires_at, absolute_expires_at,
@@ -241,15 +256,79 @@ describe('volcado de copia de seguridad', () => {
         'auth_identity:backup:1', 'cus_backup', '${'f'.repeat(64)}', 1, 'active',
         '2026-08-08T16:20:00.000Z', '2026-08-09T16:20:00.000Z',
         '2026-09-07T16:20:00.000Z', 1, NULL, NULL, NULL, NULL, NULL, 1);
+      INSERT INTO customer_sessions (
+        id, family_id, identity_id, customer_profile_id, token_digest,
+        can_revoke_sessions, status, issued_at, expires_at, absolute_expires_at,
+        generation, rotated_from_session_id, replaced_by_session_id, revoked_at,
+        revocation_reason_id, transition_idempotency_key, version
+      ) VALUES ('customer_session:backup:2', 'session_family:backup:1',
+        'auth_identity:backup:1', 'cus_backup', '${'2'.repeat(64)}', 1, 'active',
+        '2026-08-08T16:21:00.000Z', '2026-08-09T16:21:00.000Z',
+        '2026-09-07T16:20:00.000Z', 2, 'customer_session:backup:1', NULL,
+        NULL, NULL, NULL, 1);
+      INSERT INTO customer_sessions (
+        id, family_id, identity_id, customer_profile_id, token_digest,
+        can_revoke_sessions, status, issued_at, expires_at, absolute_expires_at,
+        generation, rotated_from_session_id, replaced_by_session_id, revoked_at,
+        revocation_reason_id, transition_idempotency_key, version
+      ) VALUES ('customer_session:backup:3', 'session_family:backup:1',
+        'auth_identity:backup:1', 'cus_backup', '${'3'.repeat(64)}', 1, 'active',
+        '2026-08-08T16:22:00.000Z', '2026-08-09T16:22:00.000Z',
+        '2026-09-07T16:20:00.000Z', 3, 'customer_session:backup:2', NULL,
+        NULL, NULL, NULL, 1);
+      INSERT INTO customer_sessions (
+        id, family_id, identity_id, customer_profile_id, token_digest,
+        can_revoke_sessions, status, issued_at, expires_at, absolute_expires_at,
+        generation, rotated_from_session_id, replaced_by_session_id, revoked_at,
+        revocation_reason_id, transition_idempotency_key, version
+      ) VALUES
+        ('customer_session:backup:active-v7', 'session_family:backup:active-v7',
+          'auth_identity:backup:1', 'cus_backup', '${'4'.repeat(64)}', 0, 'active',
+          '2026-08-08T16:20:00.000Z', '2026-08-09T16:20:00.000Z',
+          '2026-09-07T16:20:00.000Z', 1, NULL, NULL, NULL, NULL, NULL, 1),
+        ('customer_session:backup:expired-v7', 'session_family:backup:expired-v7',
+          'auth_identity:backup:1', 'cus_backup', '${'5'.repeat(64)}', 0, 'active',
+          '2026-08-08T16:20:00.000Z', '2026-08-09T16:20:00.000Z',
+          '2026-09-07T16:20:00.000Z', 1, NULL, NULL, NULL, NULL, NULL, 1);
+      UPDATE customer_sessions SET status='rotated',
+        replaced_by_session_id='customer_session:backup:2',
+        transition_idempotency_key='auth:session:backup:rotate', version=2
+      WHERE id='customer_session:backup:1';
+      UPDATE customer_sessions SET status='rotated',
+        replaced_by_session_id='customer_session:backup:3',
+        transition_idempotency_key='auth:session:backup:rotate:2', version=2
+      WHERE id='customer_session:backup:2';
+      UPDATE customer_sessions SET status='revoked',
+        revoked_at='2026-08-08T16:23:00.000Z',
+        revocation_reason_id='reason:security_event',
+        transition_idempotency_key='auth:session:backup:revoke', version=2
+      WHERE id='customer_session:backup:3';
+      UPDATE customer_sessions SET status='expired',
+        transition_idempotency_key='auth:session:backup:expired-v7', version=2
+      WHERE id='customer_session:backup:expired-v7';
+      UPDATE customer_session_families SET status='expired',
+        transition_idempotency_key='auth:family:backup:expired-v7', version=7
+      WHERE id='session_family:backup:expired-v7';
+      UPDATE customer_session_families SET status='revoked',
+        revoked_at='2026-08-08T16:23:00.000Z',
+        revocation_reason_id='reason:security_event',
+        transition_idempotency_key='auth:family:backup:revoke', version=2
+      WHERE id='session_family:backup:1';
       INSERT INTO customer_passwordless_challenges (
         id, identity_id, method, purpose, provider_reference, secret_digest,
         status, requested_at, expires_at, consumed_at, consumed_by_session_id,
         transition_idempotency_key, version
-      ) VALUES ('auth_challenge:backup:1', 'auth_identity:backup:1',
-        'email_magic_link', 'sign_in', 'provider_challenge:backup:1',
-        '${'1'.repeat(64)}', 'consumed', '2026-08-08T16:19:00.000Z',
-        '2026-08-08T16:29:00.000Z', '2026-08-08T16:20:00.000Z',
-        'customer_session:backup:1', 'auth:challenge:backup:consume', 2);
+      ) VALUES
+        ('auth_challenge:backup:1', 'auth_identity:backup:1',
+          'email_magic_link', 'sign_in', 'provider_challenge:backup:1',
+          '${'1'.repeat(64)}', 'consumed', '2026-08-08T16:19:00.000Z',
+          '2026-08-08T16:29:00.000Z', '2026-08-08T16:20:00.000Z',
+          'customer_session:backup:1', 'auth:challenge:backup:consume', 2),
+        ('auth_challenge:backup:final', 'auth_identity:backup:1',
+          'email_magic_link', 'sign_in', 'provider_challenge:backup:final',
+          '${'6'.repeat(64)}', 'consumed', '2026-08-08T16:21:00.000Z',
+          '2026-08-08T16:31:00.000Z', '2026-08-08T16:22:00.000Z',
+          'customer_session:backup:3', 'auth:challenge:backup:final', 2);
       UPDATE orders SET customer_profile_id='cus_backup'
       WHERE id=(SELECT id FROM orders ORDER BY id LIMIT 1);
     `);
@@ -374,16 +453,71 @@ describe('volcado de copia de seguridad', () => {
       { action: 'identity_verified', version: 2, operation: null },
       { action: 'plan_attached', version: 3, operation: 'retain' },
     ]);
-    expect(restored.query(`SELECT identity.id AS identity_id,
+    expect(restored.query(`SELECT identity.id AS identity_id, challenge.id AS challenge_id,
       session.status AS session_status, challenge.status AS challenge_status
       FROM customer_auth_identities identity
       JOIN customer_sessions session ON session.identity_id=identity.id
       JOIN customer_passwordless_challenges challenge
         ON challenge.consumed_by_session_id=session.id
-      WHERE identity.id='auth_identity:backup:1'`)).toEqual([{
-      identity_id: 'auth_identity:backup:1',
-      session_status: 'active',
-      challenge_status: 'consumed',
+      WHERE identity.id='auth_identity:backup:1' ORDER BY challenge.id`)).toEqual([
+      {
+        identity_id: 'auth_identity:backup:1', challenge_id: 'auth_challenge:backup:1',
+        session_status: 'rotated', challenge_status: 'consumed',
+      },
+      {
+        identity_id: 'auth_identity:backup:1', challenge_id: 'auth_challenge:backup:final',
+        session_status: 'revoked', challenge_status: 'consumed',
+      },
+    ]);
+    expect(restored.query(`SELECT id, status, generation, rotated_from_session_id,
+      replaced_by_session_id, revocation_reason_id, version
+      FROM customer_sessions WHERE family_id='session_family:backup:1'
+      ORDER BY generation`)).toEqual([
+      {
+        id: 'customer_session:backup:1', status: 'rotated', generation: 1,
+        rotated_from_session_id: null,
+        replaced_by_session_id: 'customer_session:backup:2',
+        revocation_reason_id: null, version: 2,
+      },
+      {
+        id: 'customer_session:backup:2', status: 'rotated', generation: 2,
+        rotated_from_session_id: 'customer_session:backup:1',
+        replaced_by_session_id: 'customer_session:backup:3',
+        revocation_reason_id: null, version: 2,
+      },
+      {
+        id: 'customer_session:backup:3', status: 'revoked', generation: 3,
+        rotated_from_session_id: 'customer_session:backup:2',
+        replaced_by_session_id: null,
+        revocation_reason_id: 'reason:security_event', version: 2,
+      },
+    ]);
+    expect(restored.query(`SELECT status, revocation_reason_id, version
+      FROM customer_session_families WHERE id='session_family:backup:1'`)).toEqual([{
+      status: 'revoked', revocation_reason_id: 'reason:security_event', version: 2,
     }]);
-  });
+    expect(restored.query(`SELECT id, status, version
+      FROM customer_session_families
+      WHERE id IN ('session_family:backup:active-v7',
+        'session_family:backup:expired-v7', 'session_family:backup:revoked-v1')
+      ORDER BY id`)).toEqual([
+      { id: 'session_family:backup:active-v7', status: 'active', version: 7 },
+      { id: 'session_family:backup:expired-v7', status: 'expired', version: 7 },
+      { id: 'session_family:backup:revoked-v1', status: 'revoked', version: 1 },
+    ]);
+    expect(restored.query(`SELECT id, family_id, status, version
+      FROM customer_sessions
+      WHERE family_id IN ('session_family:backup:active-v7',
+        'session_family:backup:expired-v7')
+      ORDER BY id`)).toEqual([
+      {
+        id: 'customer_session:backup:active-v7',
+        family_id: 'session_family:backup:active-v7', status: 'active', version: 1,
+      },
+      {
+        id: 'customer_session:backup:expired-v7',
+        family_id: 'session_family:backup:expired-v7', status: 'expired', version: 2,
+      },
+    ]);
+  }, 15_000);
 });

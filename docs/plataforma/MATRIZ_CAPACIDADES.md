@@ -159,7 +159,7 @@ su alcance requiera.
 |---|---|---|---|---|---|
 | CUS-001 | Compra como invitado | núcleo | P0 | actual | Email/dirección por pedido sin cuenta obligatoria. |
 | CUS-002 | Perfil de cliente deduplicado | módulo | P1 | parcial | Identidad HMAC, D1 transaccional, merge revisado, direcciones versionadas y relación opcional con pedidos están implementados; activación espera consentimiento R5.2 y rollout por proyecto. |
-| CUS-003 | Cuentas sin contraseña | módulo | P2 | parcial | ADR, dominio, D1 `0039` y backup 33 fijan identidad separada, challenge de un uso, sesión opaca rotatoria/revocable, scopes mínimos y respuesta anti-enumeración; proveedor, secretos y superficies esperan gates propios. |
+| CUS-003 | Cuentas sin contraseña | módulo | P2 | parcial | ADR-0042, D1 `0039`/backup 33 y ADR-0043 fijan identidad separada y Resend directo sin tracking; R5.4c corrige `prepare→persist→deliver`, limita sign-in a `customer:self`, endurece contexto/replay/restore y tipa manifest fail-closed. Env, adaptador, throttle/audit durables, cookie inicial real/dummy, sustitución/revocación atómicas, transporte fragmento→POST, HTTP/UI y entrega real esperan R5.4d, sin WebAuthn, step-up ni acceso R5.5. |
 | CUS-004 | Historial y seguimiento de pedidos | módulo | P2 | pendiente | Acceso autenticado o tokenizado sin exponer PII. |
 | CUS-005 | Autoservicio de devolución | módulo | P2 | pendiente | Conecta cuenta/pedido con FUL-010. |
 | CUS-006 | Direcciones guardadas | módulo | P2 | pendiente | Normalización, predeterminada y control del cliente. |

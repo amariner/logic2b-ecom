@@ -2,13 +2,21 @@ import { describe, expect, expectTypeOf, it } from 'vitest';
 import { platformManifest } from '../platform.config';
 import { createPlatform } from '../src/composition/create-platform';
 import {
+  CUSTOMER_SESSION_MAX_ABSOLUTE_TTL_MS,
+  CUSTOMER_SESSION_MAX_IDLE_TTL_MS,
+  PASSWORDLESS_CHALLENGE_MAX_TTL_MS,
+} from '../src/modules/customers';
+import {
+  CAPABILITY_DEFINITIONS,
   CAPABILITY_IDS,
   CAPABILITY_PRESETS,
   CAPABILITY_STATES,
+  CONFIGURED_CAPABILITY_IDS,
   CapabilityManifestError,
   createPresetManifest,
   resolveCapabilityManifest,
   validateCapabilityManifest,
+  type CapabilityConfigById,
   type CapabilityState,
 } from '../src/platform/configuration';
 
@@ -27,6 +35,46 @@ type MutableManifest = {
   deployment: Record<string, unknown>;
   capabilities: Record<string, unknown>;
 };
+
+const INERT_FLAGS = { routes: false, navigation: false, jobs: false, sideEffects: false } as const;
+const CUSTOMER_AUTH_FLAGS = { routes: true, navigation: false, jobs: false, sideEffects: true } as const;
+
+const CUSTOMER_PASSWORDLESS_CONFIG = {
+  methods: ['email_magic_link'],
+  provider: 'resend',
+  origin: 'https://shop.example.com',
+  challengeTtlSeconds: 600,
+  session: {
+    idleTtlSeconds: 24 * 60 * 60,
+    absoluteTtlSeconds: 14 * 24 * 60 * 60,
+  },
+  secretRefs: ['CUSTOMER_PROFILE_HMAC_SECRET', 'CUSTOMER_AUTH_CSRF_SECRET', 'RESEND_API_KEY'],
+  rateLimit: {
+    enforcement: 'edge-durable',
+    failClosed: true,
+    attestationRef: 'cloudflare:rate-limit:customer-auth:v1',
+  },
+  tracking: {
+    click: false,
+    open: false,
+    attestationRef: 'resend:tracking-disabled:customer-auth:v1',
+  },
+} as const satisfies CapabilityConfigById['CUS-003'];
+
+function activeCustomerPasswordlessManifest(): MutableManifest {
+  const input = mutableCopy(createPresetManifest('advanced', deployment)) as unknown as MutableManifest;
+  input.capabilities['CUS-002'] = { state: 'active', flags: INERT_FLAGS };
+  input.capabilities['CUS-003'] = {
+    state: 'active',
+    flags: CUSTOMER_AUTH_FLAGS,
+    config: mutableCopy(CUSTOMER_PASSWORDLESS_CONFIG),
+  };
+  return input;
+}
+
+function customerPasswordlessConfig(input: MutableManifest): Record<string, unknown> {
+  return (input.capabilities['CUS-003'] as Record<string, unknown>).config as Record<string, unknown>;
+}
 
 describe('capability manifest (R1.2)', () => {
   it('fixes the six lifecycle states from ADR-0004', () => {
@@ -172,6 +220,202 @@ describe('capability manifest (R1.2)', () => {
     expect(result.issues.map((issue) => issue.code)).toEqual(
       expect.arrayContaining(['unknown-capability', 'unknown-field', 'invalid-config']),
     );
+  });
+
+  it('installs the CUS-003 contract without activating it in any preset', () => {
+    expect(CONFIGURED_CAPABILITY_IDS).toContain('CUS-003');
+    expect(CAPABILITY_DEFINITIONS['CUS-003'].dependencies).toContain('INT-002');
+    expect('CUS-003' in CAPABILITY_PRESETS.minimal).toBe(false);
+    expect('CUS-003' in CAPABILITY_PRESETS.standard).toBe(false);
+    expect(CAPABILITY_PRESETS.advanced['CUS-003']).toEqual({ state: 'installed' });
+  });
+
+  it('accepts only the explicit passwordless email contract and freezes it deeply', () => {
+    expect(CUSTOMER_PASSWORDLESS_CONFIG.challengeTtlSeconds * 1_000).toBeLessThanOrEqual(
+      PASSWORDLESS_CHALLENGE_MAX_TTL_MS,
+    );
+    expect(CUSTOMER_PASSWORDLESS_CONFIG.session.idleTtlSeconds * 1_000).toBeLessThanOrEqual(
+      CUSTOMER_SESSION_MAX_IDLE_TTL_MS,
+    );
+    expect(CUSTOMER_PASSWORDLESS_CONFIG.session.absoluteTtlSeconds * 1_000).toBeLessThanOrEqual(
+      CUSTOMER_SESSION_MAX_ABSOLUTE_TTL_MS,
+    );
+
+    const result = validateCapabilityManifest(activeCustomerPasswordlessManifest());
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    const config = result.value.capabilities['CUS-003'].config;
+    expect(config).toEqual(CUSTOMER_PASSWORDLESS_CONFIG);
+    expect(Object.isFrozen(config)).toBe(true);
+    expect(Object.isFrozen(config?.methods)).toBe(true);
+    expect(Object.isFrozen(config?.session)).toBe(true);
+    expect(Object.isFrozen(config?.secretRefs)).toBe(true);
+    expect(Object.isFrozen(config?.rateLimit)).toBe(true);
+    expect(Object.isFrozen(config?.tracking)).toBe(true);
+  });
+
+  it.each([
+    ['WebAuthn habilitado', (config: Record<string, unknown>) => { config.methods = ['webauthn']; }],
+    ['más de un método', (config: Record<string, unknown>) => { config.methods = ['email_magic_link', 'webauthn']; }],
+    ['otro proveedor', (config: Record<string, unknown>) => { config.provider = 'custom'; }],
+    ['origin HTTP', (config: Record<string, unknown>) => { config.origin = 'http://shop.example.com'; }],
+    ['origin con slash', (config: Record<string, unknown>) => { config.origin = 'https://shop.example.com/'; }],
+    ['origin con path', (config: Record<string, unknown>) => { config.origin = 'https://shop.example.com/access'; }],
+    ['origin con query', (config: Record<string, unknown>) => { config.origin = 'https://shop.example.com?from=auth'; }],
+    ['origin con hash', (config: Record<string, unknown>) => { config.origin = 'https://shop.example.com#auth'; }],
+    ['TTL distinto de 600 s', (config: Record<string, unknown>) => { config.challengeTtlSeconds = 601; }],
+    ['secretRefs reordenados', (config: Record<string, unknown>) => {
+      config.secretRefs = ['CUSTOMER_AUTH_CSRF_SECRET', 'CUSTOMER_PROFILE_HMAC_SECRET', 'RESEND_API_KEY'];
+    }],
+    ['secreto estático para proof o sesión', (config: Record<string, unknown>) => {
+      config.secretRefs = ['CUSTOMER_PROFILE_HMAC_SECRET', 'CUSTOMER_AUTH_TOKEN_SECRET', 'RESEND_API_KEY'];
+    }],
+    ['secreto literal', (config: Record<string, unknown>) => {
+      config.secretRefs = ['CUSTOMER_PROFILE_HMAC_SECRET', 'raw-secret', 'RESEND_API_KEY'];
+    }],
+    ['campo raíz desconocido', (config: Record<string, unknown>) => { config.cookieSecret = 'forbidden'; }],
+    ['idle superior a 7 días', (config: Record<string, unknown>) => {
+      (config.session as Record<string, unknown>).idleTtlSeconds = 7 * 24 * 60 * 60 + 1;
+    }],
+    ['absolute superior a 30 días', (config: Record<string, unknown>) => {
+      (config.session as Record<string, unknown>).absoluteTtlSeconds = 30 * 24 * 60 * 60 + 1;
+    }],
+    ['idle superior a absolute', (config: Record<string, unknown>) => {
+      (config.session as Record<string, unknown>).idleTtlSeconds = 2 * 24 * 60 * 60;
+      (config.session as Record<string, unknown>).absoluteTtlSeconds = 24 * 60 * 60;
+    }],
+    ['sesión con segundos fraccionarios', (config: Record<string, unknown>) => {
+      (config.session as Record<string, unknown>).idleTtlSeconds = 60.5;
+    }],
+    ['rate limit de isolate', (config: Record<string, unknown>) => {
+      (config.rateLimit as Record<string, unknown>).enforcement = 'isolate';
+    }],
+    ['rate limit fail-open', (config: Record<string, unknown>) => {
+      (config.rateLimit as Record<string, unknown>).failClosed = false;
+    }],
+    ['atestación vacía', (config: Record<string, unknown>) => {
+      (config.rateLimit as Record<string, unknown>).attestationRef = '';
+    }],
+    ['atestación no opaca', (config: Record<string, unknown>) => {
+      (config.rateLimit as Record<string, unknown>).attestationRef = 'https://example.com/policy?token=secret';
+    }],
+    ['campo rate limit desconocido', (config: Record<string, unknown>) => {
+      (config.rateLimit as Record<string, unknown>).fallback = 'allow';
+    }],
+    ['click tracking activo', (config: Record<string, unknown>) => {
+      (config.tracking as Record<string, unknown>).click = true;
+    }],
+    ['open tracking activo', (config: Record<string, unknown>) => {
+      (config.tracking as Record<string, unknown>).open = true;
+    }],
+    ['atestación de tracking ausente', (config: Record<string, unknown>) => {
+      (config.tracking as Record<string, unknown>).attestationRef = '';
+    }],
+    ['campo tracking desconocido', (config: Record<string, unknown>) => {
+      (config.tracking as Record<string, unknown>).redirectHost = 'links.example.com';
+    }],
+  ])('rejects CUS-003 configuration with %s', (_label, mutate) => {
+    const input = activeCustomerPasswordlessManifest();
+    mutate(customerPasswordlessConfig(input));
+    const result = validateCapabilityManifest(input);
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.issues).toContainEqual(expect.objectContaining({
+      path: 'capabilities.CUS-003.config',
+      code: 'invalid-config',
+    }));
+  });
+
+  it('fails fast when operational CUS-003 lacks its security configuration', () => {
+    const input = activeCustomerPasswordlessManifest();
+    delete (input.capabilities['CUS-003'] as Record<string, unknown>).config;
+    expect(() => resolveCapabilityManifest(input)).toThrow(CapabilityManifestError);
+    try {
+      resolveCapabilityManifest(input);
+    } catch (error) {
+      expect(error).toBeInstanceOf(CapabilityManifestError);
+      expect((error as CapabilityManifestError).issues).toContainEqual(expect.objectContaining({
+        path: 'capabilities.CUS-003.config',
+        code: 'invalid-config',
+      }));
+    }
+  });
+
+  it.each([
+    { routes: false, navigation: false, jobs: false, sideEffects: true },
+    { routes: true, navigation: false, jobs: false, sideEffects: false },
+    { routes: true, navigation: true, jobs: false, sideEffects: true },
+    { routes: true, navigation: false, jobs: true, sideEffects: true },
+  ])('rejects partial or over-broad CUS-003 flags: %o', (flags) => {
+    const input = activeCustomerPasswordlessManifest();
+    (input.capabilities['CUS-003'] as Record<string, unknown>).flags = flags;
+    const result = validateCapabilityManifest(input);
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.issues).toContainEqual(expect.objectContaining({
+      path: 'capabilities.CUS-003.flags',
+      code: 'invalid-flags',
+    }));
+  });
+
+  it('rejects degraded CUS-003 until a safe fallback exists', () => {
+    const input = activeCustomerPasswordlessManifest();
+    input.capabilities['CUS-003'] = {
+      ...(input.capabilities['CUS-003'] as Record<string, unknown>),
+      state: 'degraded',
+      degradation: { reason: 'Proveedor no disponible.', fallback: 'Acceso deshabilitado.' },
+    };
+    const result = validateCapabilityManifest(input);
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.issues).toContainEqual(expect.objectContaining({
+      path: 'capabilities.CUS-003.state',
+      code: 'invalid-state',
+    }));
+  });
+
+  it('fails closed when the durable Resend dependency is not operational', () => {
+    const input = activeCustomerPasswordlessManifest();
+    input.capabilities['INT-002'] = { state: 'installed' };
+    const result = validateCapabilityManifest(input);
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.issues).toContainEqual(expect.objectContaining({
+      path: 'capabilities.CUS-003',
+      code: 'missing-dependency',
+    }));
+  });
+
+  it('rejects capture delivery as an operational Resend dependency', () => {
+    const input = activeCustomerPasswordlessManifest();
+    input.capabilities['INT-002'] = {
+      state: 'active',
+      flags: INERT_FLAGS,
+      config: { provider: 'resend', delivery: 'capture' },
+    };
+    const result = validateCapabilityManifest(input);
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.issues).toContainEqual(expect.objectContaining({
+      path: 'capabilities.CUS-003.config',
+      code: 'invalid-config',
+    }));
+  });
+
+  it('rejects Resend send configuration when side effects remain disabled', () => {
+    const input = activeCustomerPasswordlessManifest();
+    input.capabilities['INT-002'] = {
+      state: 'active',
+      flags: INERT_FLAGS,
+      config: { provider: 'resend', delivery: 'send', secretRef: 'RESEND_API_KEY' },
+    };
+    const result = validateCapabilityManifest(input);
+    expect(result.ok).toBe(false);
+    if (result.ok) return;
+    expect(result.issues).toContainEqual(expect.objectContaining({
+      path: 'capabilities.CUS-003.config',
+      code: 'invalid-config',
+    }));
   });
 
   it('fails early with structured issues instead of partially starting', () => {

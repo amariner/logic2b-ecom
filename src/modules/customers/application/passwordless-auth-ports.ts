@@ -5,9 +5,26 @@ import type {
   PasswordlessMethod,
 } from '../domain/passwordless-auth';
 
+export type ActiveCustomerSessionContext = Readonly<{
+  session: CustomerSession;
+  identity: CustomerAuthIdentity;
+  family: Readonly<{
+    id: string;
+    status: 'active';
+    absoluteExpiresAt: string;
+    version: number;
+  }>;
+  profile: Readonly<{
+    id: string;
+    status: 'active';
+    emailIdentityHash: string;
+  }>;
+}>;
+
 /** Persistencia futura. Crear/consumir y rotar/revocar deben ser transacciones atómicas. */
 export interface CustomerAuthenticationRepository {
   identityByContactHash(contactIdentityHash: string): Promise<CustomerAuthIdentity | null>;
+  identityById(identityId: string): Promise<CustomerAuthIdentity | null>;
   createIdentity(input: Readonly<{
     identity: CustomerAuthIdentity;
     idempotencyKey: string;
@@ -25,7 +42,12 @@ export interface CustomerAuthenticationRepository {
     expectedVersion: number;
     idempotencyKey: string;
   }>): Promise<'transitioned' | 'replayed'>;
-  sessionByTokenDigest(tokenDigest: string): Promise<CustomerSession | null>;
+  activeSessionContextByTokenDigest(
+    tokenDigest: string,
+    at: string,
+  ): Promise<ActiveCustomerSessionContext | null>;
+  /** Compatibilidad interna: exige contexto activo, coherente y vigente en `at`. */
+  sessionByTokenDigest(tokenDigest: string, at: string): Promise<CustomerSession | null>;
   rotateSession(input: Readonly<{
     previous: CustomerSession;
     current: CustomerSession;
@@ -46,19 +68,33 @@ export interface CustomerAuthenticationRepository {
 }
 
 /**
- * Adaptador de prueba passwordless. Resuelve fuera del dominio el destino
- * protegido y el proof crudo; solo devuelve referencias/digests opacos.
+ * Adaptador de prueba passwordless. `prepare` es puro respecto a efectos
+ * externos: crea el proof efímero y su digest para que la aplicación persista
+ * primero el challenge. Solo después puede llamar a `deliver`; el proof crudo
+ * vive en memoria durante esa llamada y nunca entra en D1 ni en una outbox.
  */
 export interface PasswordlessProofProvider {
   readonly id: string;
   readonly methods: readonly PasswordlessMethod[];
-  begin(input: Readonly<{
+  prepare(input: Readonly<{
     method: PasswordlessMethod;
     challengeId: string;
-    destinationReference: string;
+    expectedOrigin: string;
     expiresAt: string;
   }>): Promise<Readonly<{
     providerReference: string;
+    proof: string;
+    proofDigest: string;
+  }>>;
+  deliver(input: Readonly<{
+    method: PasswordlessMethod;
+    challengeId: string;
+    providerReference: string;
+    destinationReference: string;
+    proof: string;
+    expectedOrigin: string;
+    expiresAt: string;
+  }>): Promise<Readonly<{
     deliveryAccepted: boolean;
   }>>;
   verify(input: Readonly<{

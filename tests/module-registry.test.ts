@@ -41,6 +41,14 @@ describe('registro de módulos (R1.4)', () => {
       .toEqual(['inventory', 'orders', 'fulfillment']);
   });
 
+  it('versiona y enlaza el contrato de superficie passwordless desde customers', () => {
+    const customers = MODULE_REGISTRY.descriptors.find((descriptor) => descriptor.id === 'customers');
+    expect(customers).toMatchObject({ version: '1.5.1' });
+    expect(customers?.wikiLinks).toContain(
+      'docs/plataforma/adr/0043-superficie-passwordless-email-segura.md',
+    );
+  });
+
   it('asigna cada healthcheck R1.10 a un único módulo propietario', () => {
     expect(MODULE_REGISTRY.healthcheckOwners).toEqual({
       'notifications.resend-email': 'notifications',

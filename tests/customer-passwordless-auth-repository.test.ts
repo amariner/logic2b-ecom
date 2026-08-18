@@ -30,7 +30,7 @@ function identity(): CustomerAuthIdentity {
   return {
     id: 'auth_identity:1',
     customerProfileId: 'customer_profile:auth:1',
-    contactIdentityHash: 'c'.repeat(64),
+    contactIdentityHash: 'b'.repeat(64),
     status: 'active',
     createdAt: iso(0),
     revokedAt: null,
@@ -73,7 +73,7 @@ function consumedAndSession(input: Readonly<{
     id: sessionId,
     familyId: input.familyId ?? 'session_family:1',
     tokenDigest: input.token ?? 'd'.repeat(64),
-    scopes: ['customer:self', 'customer:sessions:revoke'],
+    scopes: ['customer:self'],
     issuedAt: iso(60_000),
     expiresAt: iso(24 * 60 * 60 * 1000),
     absoluteExpiresAt: iso(30 * 24 * 60 * 60 * 1000),
@@ -106,12 +106,65 @@ describe('repositorio D1 passwordless R5.4b', () => {
     expect(await repository.createChallenge(challenge)).toBe('replayed');
     expect(await repository.identityByContactHash(identity().contactIdentityHash))
       .toEqual(identity());
+    expect(await repository.identityById(identity().id)).toEqual(identity());
     const stored = JSON.stringify([
       ...db.query('SELECT * FROM customer_auth_identities'),
       ...db.query('SELECT * FROM customer_passwordless_challenges'),
     ]);
     expect(stored).not.toContain('private@example.com');
     expect(stored).not.toContain('raw-magic-link-token');
+  });
+
+  it('rechaza una identidad cuyo hash no coincide con el perfil activo', async () => {
+    const db = new SqliteD1();
+    insertProfile(db);
+    const repository = createD1CustomerAuthenticationRepository(db.asD1());
+
+    await expect(repository.createIdentity({
+      identity: { ...identity(), contactIdentityHash: 'c'.repeat(64) },
+      idempotencyKey: 'auth:identity:create:mismatch',
+    })).rejects.toBeInstanceOf(CustomerAuthenticationConflictError);
+    expect(await repository.identityById(identity().id)).toBeNull();
+  });
+
+  it('no permite crear una identidad ya revocada que bloquearía el perfil', async () => {
+    const db = new SqliteD1();
+    insertProfile(db);
+    const repository = createD1CustomerAuthenticationRepository(db.asD1());
+
+    await expect(repository.createIdentity({
+      identity: { ...identity(), status: 'revoked', revokedAt: iso(60_000) },
+      idempotencyKey: 'auth:identity:create:revoked',
+    })).rejects.toBeInstanceOf(CustomerAuthenticationConflictError);
+    expect(await repository.identityById(identity().id)).toBeNull();
+  });
+
+  it('no crea challenges si el perfil pierde coherencia con la identidad', async () => {
+    const db = new SqliteD1();
+    const repository = await configuredRepository(db);
+    db.sqlite.prepare(`UPDATE customer_profiles SET email_identity_hash = ?,
+      version = version + 1, updated_at = ? WHERE id = ?`)
+      .run('6'.repeat(64), iso(30_000), identity().customerProfileId);
+
+    await expect(repository.createChallenge(pendingChallenge()))
+      .rejects.toBeInstanceOf(CustomerAuthenticationConflictError);
+    expect(db.value('SELECT count(*) AS value FROM customer_passwordless_challenges')).toBe(0);
+  });
+
+  it('no crea challenges para un perfil fusionado', async () => {
+    const db = new SqliteD1();
+    const repository = await configuredRepository(db);
+    db.sqlite.prepare(`INSERT INTO customer_profiles (
+      id, primary_email, email_identity_hash, status, version, created_at, updated_at
+    ) VALUES ('customer_profile:target', 'target@example.com', ?, 'active', 1, ?, ?)`)
+      .run('7'.repeat(64), iso(0), iso(0));
+    db.sqlite.prepare(`UPDATE customer_profiles SET status = 'merged',
+      merged_into_profile_id = 'customer_profile:target', version = version + 1,
+      updated_at = ? WHERE id = ?`).run(iso(30_000), identity().customerProfileId);
+
+    await expect(repository.createChallenge(pendingChallenge()))
+      .rejects.toBeInstanceOf(CustomerAuthenticationConflictError);
+    expect(db.value('SELECT count(*) AS value FROM customer_passwordless_challenges')).toBe(0);
   });
 
   it('consume challenge y emite familia+sesión en una única operación reproducible', async () => {
@@ -129,11 +182,126 @@ describe('repositorio D1 passwordless R5.4b', () => {
 
     expect(await repository.consumeChallenge(command)).toBe('consumed');
     expect(await repository.consumeChallenge(command)).toBe('replayed');
-    expect(await repository.sessionByTokenDigest(planned.session.tokenDigest))
+    expect(await repository.sessionByTokenDigest(planned.session.tokenDigest, iso(2 * 60_000)))
       .toEqual(planned.session);
+    expect(await repository.activeSessionContextByTokenDigest(
+      planned.session.tokenDigest,
+      iso(2 * 60_000),
+    ))
+      .toMatchObject({
+        session: planned.session,
+        identity: identity(),
+        family: { id: planned.session.familyId, status: 'active' },
+        profile: {
+          id: planned.session.customerProfileId,
+          status: 'active',
+          emailIdentityHash: identity().contactIdentityHash,
+        },
+      });
+    expect(await repository.activeSessionContextByTokenDigest(
+      planned.session.tokenDigest,
+      iso(30_000),
+    )).toBeNull();
+    expect(await repository.activeSessionContextByTokenDigest(
+      planned.session.tokenDigest,
+      planned.session.expiresAt,
+    )).toBeNull();
     expect(db.value('SELECT count(*) AS value FROM customer_session_families')).toBe(1);
     expect(db.value('SELECT count(*) AS value FROM customer_sessions')).toBe(1);
     expect(await repository.challenge(pending.id)).toEqual(planned.challenge);
+  });
+
+  it('rechaza scopes elevados o no canónicos antes de persistir una sesión', async () => {
+    for (const scopes of [
+      ['customer:self', 'customer:sessions:revoke'],
+      ['customer:sessions:revoke', 'customer:self'],
+    ] as const) {
+      const db = new SqliteD1();
+      const repository = await configuredRepository(db);
+      const pending = pendingChallenge();
+      await repository.createChallenge(pending);
+      const planned = consumedAndSession({ challenge: pending });
+      const forged: CustomerSession = { ...planned.session, scopes };
+
+      await expect(repository.consumeChallenge({
+        challenge: planned.challenge,
+        session: forged,
+        expectedVersion: 1,
+        idempotencyKey: planned.key,
+      })).rejects.toBeInstanceOf(CustomerAuthenticationConflictError);
+      expect(db.value('SELECT count(*) AS value FROM customer_session_families')).toBe(0);
+      expect(db.value('SELECT count(*) AS value FROM customer_sessions')).toBe(0);
+      expect(await repository.challenge(pending.id)).toEqual(pending);
+    }
+  });
+
+  it('rechaza emitir después del vencimiento del challenge sin tocar D1', async () => {
+    const db = new SqliteD1();
+    const repository = await configuredRepository(db);
+    const pending = pendingChallenge();
+    await repository.createChallenge(pending);
+    const planned = consumedAndSession({ challenge: pending });
+    const lateSession: CustomerSession = {
+      ...planned.session,
+      issuedAt: pending.expiresAt,
+    };
+
+    await expect(repository.consumeChallenge({
+      challenge: { ...planned.challenge, consumedAt: null },
+      session: planned.session,
+      expectedVersion: 1,
+      idempotencyKey: planned.key,
+    })).rejects.toBeInstanceOf(CustomerAuthenticationConflictError);
+    await expect(repository.consumeChallenge({
+      challenge: planned.challenge,
+      session: lateSession,
+      expectedVersion: 1,
+      idempotencyKey: planned.key,
+    })).rejects.toBeInstanceOf(CustomerAuthenticationConflictError);
+    expect(db.value('SELECT count(*) AS value FROM customer_session_families')).toBe(0);
+    expect(db.value('SELECT count(*) AS value FROM customer_sessions')).toBe(0);
+    expect(await repository.challenge(pending.id)).toEqual(pending);
+  });
+
+  it('rechaza persistir una sesión manual desde un challenge de step-up', async () => {
+    const db = new SqliteD1();
+    const repository = await configuredRepository(db);
+    const pending = createPasswordlessChallenge({
+      id: 'auth_challenge:step-up',
+      identity: identity(),
+      method: 'email_magic_link',
+      purpose: 'step_up',
+      providerReference: 'provider_challenge:step-up',
+      secretDigest: '8'.repeat(64),
+      requestedAt: iso(0),
+      expiresAt: iso(10 * 60 * 1000),
+    });
+    await repository.createChallenge(pending);
+    const key = 'auth:challenge:consume:step-up';
+    const consumed = consumePasswordlessChallenge(pending, {
+      proofDigest: pending.secretDigest,
+      sessionId: 'customer_session:step-up',
+      consumedAt: iso(60_000),
+      expectedVersion: 1,
+      idempotencyKey: key,
+    }).value;
+    const base = consumedAndSession();
+    const forged: CustomerSession = {
+      ...base.session,
+      id: 'customer_session:step-up',
+      familyId: 'session_family:step-up',
+      tokenDigest: '9'.repeat(64),
+    };
+
+    await expect(repository.consumeChallenge({
+      challenge: consumed,
+      session: forged,
+      expectedVersion: 1,
+      idempotencyKey: key,
+    })).rejects.toBeInstanceOf(CustomerAuthenticationConflictError);
+    expect(db.value('SELECT count(*) AS value FROM customer_session_families')).toBe(0);
+    expect(db.value('SELECT count(*) AS value FROM customer_sessions')).toBe(0);
+    expect(await repository.challenge(pending.id)).toEqual(pending);
   });
 
   it('deja un único ganador cuando dos sesiones compiten por el mismo challenge', async () => {
@@ -163,6 +331,39 @@ describe('repositorio D1 passwordless R5.4b', () => {
     expect(db.query('PRAGMA foreign_key_check')).toEqual([]);
   });
 
+  it('confirma el consumo desde la misma batch aunque una revocación lo superseda al devolver', async () => {
+    const db = new SqliteD1();
+    const repository = await configuredRepository(db);
+    const pending = pendingChallenge();
+    await repository.createChallenge(pending);
+    const planned = consumedAndSession({ challenge: pending });
+    const base = db.asD1();
+    const interleavingDb = {
+      prepare: base.prepare.bind(base),
+      batch: async (statements: D1PreparedStatement[]) => {
+        const results = await base.batch(statements);
+        db.sqlite.prepare(`UPDATE customer_sessions SET status = 'revoked',
+          revoked_at = ?, revocation_reason_id = ?, transition_idempotency_key = ?,
+          version = version + 1 WHERE id = ?`).run(
+          iso(2 * 60_000), 'reason:security_event',
+          'auth:session:revoke:after-consume', planned.session.id,
+        );
+        return results;
+      },
+    } as unknown as D1Database;
+    const interleavedRepository = createD1CustomerAuthenticationRepository(interleavingDb);
+
+    expect(await interleavedRepository.consumeChallenge({
+      challenge: planned.challenge,
+      session: planned.session,
+      expectedVersion: 1,
+      idempotencyKey: planned.key,
+    })).toBe('consumed');
+    expect(db.value(`SELECT count(*) AS value FROM customer_sessions
+      WHERE id = '${planned.session.id}' AND status = 'revoked'`)).toBe(1);
+    expect(await repository.challenge(pending.id)).toEqual(planned.challenge);
+  });
+
   it('rota token atómicamente e invalida la sesión previa con retry seguro', async () => {
     const db = new SqliteD1();
     const repository = await configuredRepository(db);
@@ -183,9 +384,11 @@ describe('repositorio D1 passwordless R5.4b', () => {
 
     expect(await repository.rotateSession({ ...rotated, idempotencyKey: key })).toBe('rotated');
     expect(await repository.rotateSession({ ...rotated, idempotencyKey: key })).toBe('replayed');
-    expect(await repository.sessionByTokenDigest(issued.session.tokenDigest))
-      .toMatchObject({ status: 'rotated', replacedBySessionId: 'customer_session:2' });
-    expect(await repository.sessionByTokenDigest(rotated.current.tokenDigest))
+    expect(await repository.sessionByTokenDigest(
+      issued.session.tokenDigest,
+      iso(3 * 60_000),
+    )).toBeNull();
+    expect(await repository.sessionByTokenDigest(rotated.current.tokenDigest, iso(3 * 60_000)))
       .toEqual(rotated.current);
   });
 
@@ -249,6 +452,90 @@ describe('repositorio D1 passwordless R5.4b', () => {
       { status: 'revoked', total: 1 },
       { status: 'rotated', total: 1 },
     ]);
+    expect(await repository.sessionByTokenDigest(
+      rotated.current.tokenDigest,
+      iso(4 * 60_000),
+    )).toBeNull();
+  });
+
+  it('no acepta como replay una revocación familiar concurrente con datos divergentes', async () => {
+    const db = new SqliteD1();
+    const repository = await configuredRepository(db);
+    const pending = pendingChallenge();
+    await repository.createChallenge(pending);
+    const issued = consumedAndSession({ challenge: pending });
+    await repository.consumeChallenge({ challenge: issued.challenge, session: issued.session,
+      expectedVersion: 1, idempotencyKey: issued.key });
+
+    const outcomes = await Promise.allSettled([
+      repository.revokeSessionFamily({
+        familyId: issued.session.familyId,
+        occurredAt: iso(3 * 60_000),
+        reasonId: 'reason:security_event',
+        expectedVersion: 1,
+        idempotencyKey: 'auth:family:revoke:race',
+      }),
+      repository.revokeSessionFamily({
+        familyId: issued.session.familyId,
+        occurredAt: iso(4 * 60_000),
+        reasonId: 'reason:user_logout',
+        expectedVersion: 1,
+        idempotencyKey: 'auth:family:revoke:race',
+      }),
+    ]);
+
+    expect(outcomes.filter(({ status }) => status === 'fulfilled')).toHaveLength(1);
+    expect(outcomes.filter(({ status }) => status === 'rejected')).toHaveLength(1);
+  });
+
+  it('deja de autorizar una sesión si el perfil se fusiona o pierde coherencia', async () => {
+    const db = new SqliteD1();
+    const repository = await configuredRepository(db);
+    const pending = pendingChallenge();
+    await repository.createChallenge(pending);
+    const issued = consumedAndSession({ challenge: pending });
+    await repository.consumeChallenge({ challenge: issued.challenge, session: issued.session,
+      expectedVersion: 1, idempotencyKey: issued.key });
+    expect(await repository.activeSessionContextByTokenDigest(
+      issued.session.tokenDigest,
+      iso(3 * 60_000),
+    ))
+      .not.toBeNull();
+
+    db.sqlite.prepare(`UPDATE customer_profiles SET email_identity_hash = ?,
+      version=version+1, updated_at=? WHERE id='customer_profile:auth:1'`)
+      .run('6'.repeat(64), iso(90_000));
+    expect(await repository.activeSessionContextByTokenDigest(
+      issued.session.tokenDigest,
+      iso(3 * 60_000),
+    ))
+      .toBeNull();
+    db.sqlite.prepare(`UPDATE customer_profiles SET email_identity_hash = ?,
+      version=version+1, updated_at=? WHERE id='customer_profile:auth:1'`)
+      .run(identity().contactIdentityHash, iso(100_000));
+    expect(await repository.activeSessionContextByTokenDigest(
+      issued.session.tokenDigest,
+      iso(3 * 60_000),
+    ))
+      .not.toBeNull();
+
+    db.sqlite.prepare(`INSERT INTO customer_profiles (
+      id, primary_email, email_identity_hash, status, version, created_at, updated_at
+    ) VALUES ('customer_profile:target', 'target@example.com', ?, 'active', 1, ?, ?)`)
+      .run('7'.repeat(64), iso(0), iso(0));
+    db.sqlite.exec(`UPDATE customer_profiles SET status='merged',
+      merged_into_profile_id='customer_profile:target', version=version+1,
+      updated_at='${iso(2 * 60_000)}' WHERE id='customer_profile:auth:1'`);
+
+    expect(await repository.activeSessionContextByTokenDigest(
+      issued.session.tokenDigest,
+      iso(3 * 60_000),
+    ))
+      .toBeNull();
+    expect(await repository.sessionByTokenDigest(
+      issued.session.tokenDigest,
+      iso(3 * 60_000),
+    )).toBeNull();
   });
 
   it('persiste expiración ya decidida por dominio y devuelve conflictos estables', async () => {
@@ -270,6 +557,114 @@ describe('repositorio D1 passwordless R5.4b', () => {
     expect(message).not.toContain('private@example.com');
     expect(message).not.toContain(SECRET);
     expect(message).not.toContain('customer_passwordless_challenge');
+  });
+
+  it('rechaza un cierre de challenge no canónico sin aplicar la transición', async () => {
+    const db = new SqliteD1();
+    const repository = await configuredRepository(db);
+    const pending = pendingChallenge();
+    await repository.createChallenge(pending);
+    const key = 'auth:challenge:revoke:forged-terminal';
+    const revoked = revokePasswordlessChallenge(pending, {
+      occurredAt: iso(30_000), expectedVersion: 1, idempotencyKey: key,
+    }).value;
+
+    await expect(repository.transitionChallenge({
+      challenge: {
+        ...revoked,
+        consumedAt: iso(30_000),
+        consumedBySessionId: 'customer_session:forged',
+      },
+      expectedVersion: 1,
+      idempotencyKey: key,
+    })).rejects.toBeInstanceOf(CustomerAuthenticationConflictError);
+    expect(await repository.challenge(pending.id)).toEqual(pending);
+  });
+
+  it('rechaza formas no canónicas de rotación sin crear la generación nueva', async () => {
+    const db = new SqliteD1();
+    const repository = await configuredRepository(db);
+    const pending = pendingChallenge();
+    await repository.createChallenge(pending);
+    const issued = consumedAndSession({ challenge: pending });
+    await repository.consumeChallenge({ challenge: issued.challenge, session: issued.session,
+      expectedVersion: 1, idempotencyKey: issued.key });
+    const key = 'auth:session:rotate:forged-terminal';
+    const rotated = rotateCustomerSession(issued.session, {
+      newSessionId: 'customer_session:forged:2',
+      newTokenDigest: '7'.repeat(64),
+      rotatedAt: iso(2 * 60_000),
+      expiresAt: iso(24 * 60 * 60 * 1000),
+      expectedVersion: 1,
+      idempotencyKey: key,
+    }).value;
+    const attempts = [
+      {
+        previous: {
+          ...rotated.previous,
+          replacedBySessionId: 'customer_session:other',
+        },
+        current: rotated.current,
+      },
+      {
+        previous: {
+          ...rotated.previous,
+          revokedAt: iso(2 * 60_000),
+          revocationReasonId: 'reason:forged',
+        },
+        current: rotated.current,
+      },
+      {
+        previous: rotated.previous,
+        current: {
+          ...rotated.current,
+          transitionIdempotencyKey: 'auth:session:unexpected-terminal',
+          version: 2,
+        },
+      },
+    ] as const;
+
+    for (const attempt of attempts) {
+      await expect(repository.rotateSession({ ...attempt, idempotencyKey: key }))
+        .rejects.toBeInstanceOf(CustomerAuthenticationConflictError);
+      expect(db.value('SELECT count(*) AS value FROM customer_sessions')).toBe(1);
+      expect(await repository.sessionByTokenDigest(
+        issued.session.tokenDigest,
+        iso(3 * 60_000),
+      )).toEqual(issued.session);
+    }
+  });
+
+  it('rechaza una revocación no canónica sin invalidar la sesión', async () => {
+    const db = new SqliteD1();
+    const repository = await configuredRepository(db);
+    const pending = pendingChallenge();
+    await repository.createChallenge(pending);
+    const issued = consumedAndSession({ challenge: pending });
+    await repository.consumeChallenge({ challenge: issued.challenge, session: issued.session,
+      expectedVersion: 1, idempotencyKey: issued.key });
+    const key = 'auth:session:revoke:forged-terminal';
+    const revoked = revokeCustomerSession(issued.session, {
+      revokedAt: iso(3 * 60_000),
+      reasonId: 'reason:user_logout',
+      expectedVersion: 1,
+      idempotencyKey: key,
+    }).value;
+    const attempts: readonly CustomerSession[] = [
+      { ...revoked, replacedBySessionId: 'customer_session:other' },
+      { ...revoked, revokedAt: null },
+      { ...revoked, revocationReasonId: null },
+    ];
+
+    for (const session of attempts) {
+      await expect(repository.revokeSession({
+        session, expectedVersion: 1, idempotencyKey: key,
+      })).rejects.toBeInstanceOf(CustomerAuthenticationConflictError);
+      expect(await repository.sessionByTokenDigest(
+        issued.session.tokenDigest,
+        iso(4 * 60_000),
+      )).toEqual(issued.session);
+    }
   });
 
   it('rechaza campos inmutables manipulados sin aplicar una transición parcial', async () => {
@@ -300,7 +695,10 @@ describe('repositorio D1 passwordless R5.4b', () => {
       expectedVersion: 1,
       idempotencyKey: key,
     })).rejects.toBeInstanceOf(CustomerAuthenticationConflictError);
-    expect(await repository.sessionByTokenDigest(issued.session.tokenDigest))
+    expect(await repository.sessionByTokenDigest(
+      issued.session.tokenDigest,
+      iso(4 * 60_000),
+    ))
       .toEqual(issued.session);
   });
 });

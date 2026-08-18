@@ -131,7 +131,7 @@ export const CAPABILITY_DEFINITIONS: Readonly<Record<CapabilityId, CapabilityDef
   'FUL-011': { dependencies: ['FUL-005', 'INV-005', 'ORD-007'] },
   'CUS-001': { dependencies: ['PLT-004'] },
   'CUS-002': { dependencies: ['CUS-001'] },
-  'CUS-003': { dependencies: ['CUS-002', 'SEC-003', 'SEC-004'] },
+  'CUS-003': { dependencies: ['CUS-002', 'INT-002', 'SEC-003', 'SEC-004'] },
   'CUS-007': { dependencies: ['CUS-001'] },
   'CUS-008': { dependencies: ['CUS-001'] },
   'STO-001': { dependencies: ['CAT-001', 'PRC-001', 'SEC-012'] },
@@ -167,6 +167,31 @@ export type CapabilityConfigById = {
   'INT-002':
     | Readonly<{ provider: 'resend'; delivery: 'capture' }>
     | Readonly<{ provider: 'resend'; delivery: 'send'; secretRef: 'RESEND_API_KEY' }>;
+  'CUS-003': Readonly<{
+    methods: readonly ['email_magic_link'];
+    provider: 'resend';
+    origin: `https://${string}`;
+    challengeTtlSeconds: 600;
+    session: Readonly<{
+      idleTtlSeconds: number;
+      absoluteTtlSeconds: number;
+    }>;
+    secretRefs: readonly [
+      'CUSTOMER_PROFILE_HMAC_SECRET',
+      'CUSTOMER_AUTH_CSRF_SECRET',
+      'RESEND_API_KEY',
+    ];
+    rateLimit: Readonly<{
+      enforcement: 'edge-durable';
+      failClosed: true;
+      attestationRef: string;
+    }>;
+    tracking: Readonly<{
+      click: false;
+      open: false;
+      attestationRef: string;
+    }>;
+  }>;
 };
 
 export type ConfiguredCapabilityId = keyof CapabilityConfigById;
@@ -179,4 +204,5 @@ export const CONFIGURED_CAPABILITY_IDS = [
   'MAR-003',
   'INT-001',
   'INT-002',
+  'CUS-003',
 ] as const satisfies readonly ConfiguredCapabilityId[];

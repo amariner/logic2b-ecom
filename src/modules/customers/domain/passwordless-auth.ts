@@ -282,9 +282,14 @@ export function issueCustomerSession(input: Readonly<{
 }>): CustomerSession {
   const identity = assertCustomerAuthIdentity(input.identity);
   const id = opaque(input.id, 'auth.session.id');
+  const scopes = normalizedScopes(input.scopes);
   if (identity.status !== 'active' || input.challenge.status !== 'consumed' ||
+      input.challenge.consumedAt === null ||
+      input.challenge.purpose !== 'sign_in' ||
+      scopes.length !== 1 || scopes[0] !== 'customer:self' ||
       input.challenge.identityId !== identity.id || input.challenge.consumedBySessionId !== id ||
-      Date.parse(input.issuedAt) < Date.parse(input.challenge.consumedAt!)) {
+      Date.parse(input.issuedAt) < Date.parse(input.challenge.consumedAt) ||
+      Date.parse(input.issuedAt) >= Date.parse(input.challenge.expiresAt)) {
     return conflict();
   }
   sessionWindow(input);
@@ -294,7 +299,7 @@ export function issueCustomerSession(input: Readonly<{
     identityId: identity.id,
     customerProfileId: identity.customerProfileId,
     tokenDigest: digest(input.tokenDigest, 'auth.session.tokenDigest'),
-    scopes: normalizedScopes(input.scopes),
+    scopes,
     status: 'active',
     issuedAt: input.issuedAt,
     expiresAt: input.expiresAt,
@@ -406,6 +411,9 @@ export function customerSessionDecision(input: Readonly<{
 }>): CustomerSessionDecision {
   const now = instant(input.now, 'auth.session.now');
   if (input.session.status !== 'active') return Object.freeze({ allowed: false, reason: 'inactive' });
+  if (now < Date.parse(input.session.issuedAt)) {
+    return Object.freeze({ allowed: false, reason: 'inactive' });
+  }
   if (now >= Date.parse(input.session.expiresAt) || now >= Date.parse(input.session.absoluteExpiresAt)) {
     return Object.freeze({ allowed: false, reason: 'expired' });
   }

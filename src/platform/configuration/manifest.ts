@@ -103,6 +103,11 @@ const DISABLED_FLAGS: CapabilityFlags = Object.freeze({
 const capabilityIdSet = new Set<string>(CAPABILITY_IDS);
 const capabilityStateSet = new Set<string>(CAPABILITY_STATES);
 const configuredCapabilityIdSet = new Set<string>(CONFIGURED_CAPABILITY_IDS);
+const CUSTOMER_PASSWORDLESS_CHALLENGE_TTL_SECONDS = 10 * 60;
+const CUSTOMER_PASSWORDLESS_MAX_CHALLENGE_TTL_SECONDS = 15 * 60;
+const CUSTOMER_PASSWORDLESS_MAX_IDLE_TTL_SECONDS = 7 * 24 * 60 * 60;
+const CUSTOMER_PASSWORDLESS_MAX_ABSOLUTE_TTL_SECONDS = 30 * 24 * 60 * 60;
+const ATTESTATION_REF = /^[a-z][a-z0-9]*(?:[._:/-][a-z0-9][a-z0-9-]*)+$/u;
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
@@ -188,6 +193,76 @@ function readFlags(value: unknown, path: string, issues: CapabilityManifestIssue
   });
 }
 
+function isExactHttpsOrigin(value: unknown): value is `https://${string}` {
+  if (typeof value !== 'string') return false;
+  try {
+    const parsed = new URL(value);
+    return parsed.protocol === 'https:' && parsed.origin === value;
+  } catch {
+    return false;
+  }
+}
+
+function isPositiveIntegerWithin(value: unknown, maximum: number): value is number {
+  return Number.isInteger(value) && (value as number) > 0 && (value as number) <= maximum;
+}
+
+function validCustomerPasswordlessConfig(value: Record<string, unknown>): boolean {
+  if (
+    unknownFields(value, [
+      'methods',
+      'provider',
+      'origin',
+      'challengeTtlSeconds',
+      'session',
+      'secretRefs',
+      'rateLimit',
+      'tracking',
+    ]).length > 0 ||
+    !Array.isArray(value.methods) ||
+    value.methods.length !== 1 ||
+    value.methods[0] !== 'email_magic_link' ||
+    value.provider !== 'resend' ||
+    !isExactHttpsOrigin(value.origin) ||
+    value.challengeTtlSeconds !== CUSTOMER_PASSWORDLESS_CHALLENGE_TTL_SECONDS ||
+    value.challengeTtlSeconds > CUSTOMER_PASSWORDLESS_MAX_CHALLENGE_TTL_SECONDS ||
+    !Array.isArray(value.secretRefs) ||
+    value.secretRefs.length !== 3 ||
+    value.secretRefs[0] !== 'CUSTOMER_PROFILE_HMAC_SECRET' ||
+    value.secretRefs[1] !== 'CUSTOMER_AUTH_CSRF_SECRET' ||
+    value.secretRefs[2] !== 'RESEND_API_KEY'
+  ) {
+    return false;
+  }
+
+  if (
+    !isRecord(value.session) ||
+    unknownFields(value.session, ['idleTtlSeconds', 'absoluteTtlSeconds']).length > 0 ||
+    !isPositiveIntegerWithin(value.session.idleTtlSeconds, CUSTOMER_PASSWORDLESS_MAX_IDLE_TTL_SECONDS) ||
+    !isPositiveIntegerWithin(value.session.absoluteTtlSeconds, CUSTOMER_PASSWORDLESS_MAX_ABSOLUTE_TTL_SECONDS) ||
+    value.session.idleTtlSeconds > value.session.absoluteTtlSeconds
+  ) {
+    return false;
+  }
+
+  const validRateLimit = isRecord(value.rateLimit) &&
+    unknownFields(value.rateLimit, ['enforcement', 'failClosed', 'attestationRef']).length === 0 &&
+    value.rateLimit.enforcement === 'edge-durable' &&
+    value.rateLimit.failClosed === true &&
+    typeof value.rateLimit.attestationRef === 'string' &&
+    value.rateLimit.attestationRef.length >= 8 &&
+    value.rateLimit.attestationRef.length <= 200 &&
+    ATTESTATION_REF.test(value.rateLimit.attestationRef);
+  const validTracking = isRecord(value.tracking) &&
+    unknownFields(value.tracking, ['click', 'open', 'attestationRef']).length === 0 &&
+    value.tracking.click === false && value.tracking.open === false &&
+    typeof value.tracking.attestationRef === 'string' &&
+    value.tracking.attestationRef.length >= 8 &&
+    value.tracking.attestationRef.length <= 200 &&
+    ATTESTATION_REF.test(value.tracking.attestationRef);
+  return validRateLimit && validTracking;
+}
+
 function validConfig(id: ConfiguredCapabilityId, value: unknown): boolean {
   if (!isRecord(value)) return false;
   switch (id) {
@@ -232,14 +307,21 @@ function validConfig(id: ConfiguredCapabilityId, value: unknown): boolean {
             value.secretRef === 'RESEND_API_KEY' &&
             unknownFields(value, ['provider', 'delivery', 'secretRef']).length === 0))
       );
+    case 'CUS-003':
+      return validCustomerPasswordlessConfig(value);
   }
 }
 
-function freezeConfig(value: Record<string, unknown>): Readonly<Record<string, unknown>> {
-  const clone = Object.fromEntries(
-    Object.entries(value).map(([key, item]) => [key, Array.isArray(item) ? Object.freeze([...item]) : item]),
+function freezeConfigValue(value: unknown): unknown {
+  if (Array.isArray(value)) return Object.freeze(value.map(freezeConfigValue));
+  if (!isRecord(value)) return value;
+  return Object.freeze(
+    Object.fromEntries(Object.entries(value).map(([key, item]) => [key, freezeConfigValue(item)])),
   );
-  return Object.freeze(clone);
+}
+
+function freezeConfig(value: Record<string, unknown>): Readonly<Record<string, unknown>> {
+  return freezeConfigValue(value) as Readonly<Record<string, unknown>>;
 }
 
 function dependencyAccepts(dependentState: CapabilityState, dependencyState: CapabilityState): boolean {
@@ -397,6 +479,37 @@ export function validateCapabilityManifest(input: unknown): CapabilityManifestVa
         });
       }
     }
+  }
+  const customerPasswordless = resolved['CUS-003'];
+  const emailIntegration = resolved['INT-002'];
+  const emailIntegrationConfig = emailIntegration.config as CapabilityConfigById['INT-002'] | undefined;
+  if (customerPasswordless.state === 'degraded') {
+    issues.push({
+      path: 'capabilities.CUS-003.state',
+      code: 'invalid-state',
+      message: 'CUS-003 no admite degraded hasta definir un fallback de autenticación seguro.',
+    });
+  }
+  if (
+    customerPasswordless.state === 'active' &&
+    (!customerPasswordless.flags.routes || !customerPasswordless.flags.sideEffects ||
+      customerPasswordless.flags.navigation || customerPasswordless.flags.jobs)
+  ) {
+    issues.push({
+      path: 'capabilities.CUS-003.flags',
+      code: 'invalid-flags',
+      message: 'CUS-003 activa exige solo routes=true y sideEffects=true.',
+    });
+  }
+  if (
+    (customerPasswordless.state === 'active' || customerPasswordless.state === 'degraded') &&
+    (emailIntegrationConfig?.delivery !== 'send' || !emailIntegration.flags.sideEffects)
+  ) {
+    issues.push({
+      path: 'capabilities.CUS-003.config',
+      code: 'invalid-config',
+      message: 'CUS-003 exige INT-002 con entrega Resend real, nunca capture.',
+    });
   }
   for (const required of ['PLT-001', 'PLT-004'] as const) {
     if (resolved[required].state !== 'active') {

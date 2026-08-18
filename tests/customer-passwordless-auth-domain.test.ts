@@ -66,7 +66,7 @@ function activeSession(): CustomerSession {
     id: 'customer_session:1',
     familyId: 'session_family:1',
     tokenDigest: 'd'.repeat(64),
-    scopes: ['customer:self', 'customer:sessions:revoke'],
+    scopes: ['customer:self'],
     issuedAt: iso(60_000),
     expiresAt: iso(24 * 60 * 60 * 1000),
     absoluteExpiresAt: iso(30 * 24 * 60 * 60 * 1000),
@@ -148,7 +148,7 @@ describe('autenticación passwordless R5.4a', () => {
   it('emite sesión solo desde challenge consumido para la misma identidad', () => {
     expect(activeSession()).toMatchObject({
       status: 'active', generation: 1, identityId: 'auth_identity:1',
-      customerProfileId: 'customer_profile:1', scopes: ['customer:self', 'customer:sessions:revoke'],
+      customerProfileId: 'customer_profile:1', scopes: ['customer:self'],
     });
     expect(() => issueCustomerSession({
       challenge: pendingChallenge(),
@@ -161,6 +161,67 @@ describe('autenticación passwordless R5.4a', () => {
       expiresAt: iso(24 * 60 * 60 * 1000),
       absoluteExpiresAt: iso(CUSTOMER_SESSION_MAX_ABSOLUTE_TTL_MS),
     })).toThrow(PasswordlessAuthConflictError);
+    expect(() => issueCustomerSession({
+      challenge: consumedChallenge(),
+      identity: identity(),
+      id: 'customer_session:1',
+      familyId: 'session_family:1',
+      tokenDigest: 'd'.repeat(64),
+      scopes: ['customer:self', 'customer:sessions:revoke'],
+      issuedAt: iso(60_000),
+      expiresAt: iso(24 * 60 * 60 * 1000),
+      absoluteExpiresAt: iso(CUSTOMER_SESSION_MAX_ABSOLUTE_TTL_MS),
+    })).toThrow(PasswordlessAuthConflictError);
+    expect(() => issueCustomerSession({
+      challenge: { ...consumedChallenge(), consumedAt: null },
+      identity: identity(),
+      id: 'customer_session:1',
+      familyId: 'session_family:1',
+      tokenDigest: 'd'.repeat(64),
+      scopes: ['customer:self'],
+      issuedAt: iso(60_000),
+      expiresAt: iso(24 * 60 * 60 * 1000),
+      absoluteExpiresAt: iso(CUSTOMER_SESSION_MAX_ABSOLUTE_TTL_MS),
+    })).toThrow(PasswordlessAuthConflictError);
+  });
+
+  it('no emite una sesión cuando el challenge ya ha vencido', () => {
+    const challenge = consumedChallenge();
+    expect(() => issueCustomerSession({
+      challenge,
+      identity: identity(),
+      id: 'customer_session:1',
+      familyId: 'session_family:expired-challenge',
+      tokenDigest: 'd'.repeat(64),
+      scopes: ['customer:self'],
+      issuedAt: challenge.expiresAt,
+      expiresAt: iso(24 * 60 * 60 * 1000),
+      absoluteExpiresAt: iso(CUSTOMER_SESSION_MAX_ABSOLUTE_TTL_MS),
+    })).toThrow(PasswordlessAuthConflictError);
+  });
+
+  it('no convierte challenges de step-up o vinculación en una sesión nueva', () => {
+    for (const purpose of ['step_up', 'link_contact'] as const) {
+      const pending = pendingChallenge({ purpose });
+      const consumed = consumePasswordlessChallenge(pending, {
+        proofDigest: SECRET,
+        sessionId: 'customer_session:purpose',
+        consumedAt: iso(60_000),
+        expectedVersion: 1,
+        idempotencyKey: `auth:challenge:consume:${purpose}`,
+      }).value;
+      expect(() => issueCustomerSession({
+        challenge: consumed,
+        identity: identity(),
+        id: 'customer_session:purpose',
+        familyId: 'session_family:purpose',
+        tokenDigest: 'd'.repeat(64),
+        scopes: ['customer:self'],
+        issuedAt: iso(60_000),
+        expiresAt: iso(24 * 60 * 60 * 1000),
+        absoluteExpiresAt: iso(CUSTOMER_SESSION_MAX_ABSOLUTE_TTL_MS),
+      })).toThrow(PasswordlessAuthConflictError);
+    }
   });
 
   it('rota token y sesión sin elevar scopes ni reactivar el token anterior', () => {
@@ -190,6 +251,10 @@ describe('autenticación passwordless R5.4a', () => {
 
   it('revoca sesión con retry seguro y deniega identidad o scope ajenos', () => {
     const session = activeSession();
+    expect(customerSessionDecision({
+      session, identityId: session.identityId,
+      requiredScope: 'customer:self', now: iso(30_000),
+    })).toEqual({ allowed: false, reason: 'inactive' });
     expect(customerSessionDecision({
       session, identityId: session.identityId,
       requiredScope: 'customer:self', now: iso(2 * 60 * 1000),

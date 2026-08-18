@@ -41,8 +41,8 @@ improvisan durante la implementación.
 | R1 | Cimientos modulares y observables | ✅ cerrado 2026-08-07 |
 | R2 | Núcleo transaccional profesional | ✅ R2.1–R2.14 y Admin V2 cerrados 2026-08-12 |
 | R3 | Operación de pedidos, inventario y fulfillment | ✅ cerrado 2026-08-14 |
-| R4 | Precios, promociones y modelos de venta | ⬜ |
-| R5 | Clientes, privacidad y mercados | ⬜ |
+| R4 | Precios, promociones y modelos de venta | ✅ cerrado 2026-08-17 |
+| R5 | Clientes, privacidad y mercados | 🟨 en curso; R5.1–R5.4c cerrados |
 | R6 | B2B | ⬜ |
 | R7 | Marketing, analítica y automatización | ⬜ |
 | R8 | Storefront componible, búsqueda y contenido | ⬜ |
@@ -171,7 +171,7 @@ suites/715 tests; producción permanece en `0032`.
 | 51 | **R5.1 Perfil de cliente** | Identidad deduplicable, direcciones y relación con pedidos sin romper guest checkout. | ✅ 2026-08-17 — D1 `0036`, backup 30 y rehearsal local; capacidad instalada, rollout pendiente |
 | 52 | **R5.2 Consentimientos** | Canal, finalidad, versión legal, fuente, región, timestamp y retirada. | ✅ 2026-08-17 — D1 `0037`, repositorio atómico, backup 31 y rehearsal local; captura/rollout pendientes |
 | 53 | **R5.3 Derechos de datos** | Exportar, corregir, anonimizar/borrar con excepciones fiscales y audit log. | 🟨 2026-08-18 — contrato y persistencia R5.3a–b instalados; política, superficies y ejecución pendientes de gates propios |
-| 54 | **R5.4 Cuentas passwordless** | Login seguro, sesiones, revocación y anti-enumeración; módulo opcional. | 🟨 2026-08-18 — contrato R5.4a y persistencia local R5.4b instalados; proveedor, secretos y superficies pendientes de gates propios |
+| 54 | **R5.4 Cuentas passwordless** | Login seguro, sesiones, revocación y anti-enumeración; módulo opcional. | 🟨 2026-08-19 — R5.4a–b instalan dominio/D1 y R5.4c endurece núcleo/backup/manifest, acepta seguridad de frontera y pasa 170 suites/845 tests; proveedor y HTTP esperan R5.4d |
 | 55 | **R5.5 Autoservicio** | Pedidos, direcciones y devolución sobre permisos mínimos. | ⬜ |
 | 56 | **R5.6 Segmentación** | Lenguaje de filtros limitado, templates y recálculo observable. | ⬜ |
 | 57 | **R5.7 Modelo de mercados** | Contexto de país/idioma/moneda/dominio, resolución y fallback. | ⬜ |
@@ -242,10 +242,30 @@ comparan antes de escribir. Backup avanza a esquema 33. El rehearsal desde
 `0038` conserva catálogo, inventario, pedidos, pagos y clientes con hash
 `72ba73e985b69b4430a7e10e08a28859661bcd8eb406530945846c213082dffe`, dump
 658.708 bytes, FKs e integridad verdes y cero credenciales inventadas. D1 local
-sirve `0039`; producción continúa en `0032`. `CUS-003` sigue inerte. R5.4c
-requiere decisión explícita de proveedor, secretos, dominio/origin, política de
-cookie/recuperación y autorización de superficies antes de cualquier email,
-WebAuthn, ruta o UI.
+sirve `0039`; producción continúa en `0032`. `CUS-003` sigue inerte.
+
+R5.4c acepta ADR-0043 y resuelve el contrato de superficie sin abrirla. El
+método inicial será `email_magic_link` por Resend directo, nunca mediante
+`emails_outbox`; el flujo separa `prepare → persist → deliver`, fija proof de
+256 bits/TTL 10 minutos, origen HTTPS exacto, continuación relativa,
+`__Host-l2b-customer-session`, secretos separados, CSRF/CSP y recuperación sin
+bypass. El enlace transportará challenge+proof solo en fragmento; un JS externo
+first-party lo limpia y, tras confirmación, ejecuta `consume` por POST. La
+cookie HttpOnly real/dummy nace siempre en la solicitud inicial y debe coincidir
+con el mismo navegador; el GET nunca la crea. Resend opera sin click/open
+tracking acreditado. CSP permite únicamente `script-src 'self'`; nada entra en
+query o logs.
+
+R5.4c ya corrige el puerto `prepare/deliver`, limita sesión a `sign_in`, exige
+contexto sesión/familia/identidad/perfil activo y coherente, endurece replay y
+restore, e instala el manifest tipado/fail-closed de `CUS-003`. Rate limit
+combina borde, binding por IP y throttle durable por HMAC de contacto; esta
+última capa y cualquier DDL permanecen en R5.4d. La emisión inicial concede
+exactamente `customer:self`; sustitución atómica de pending challenges,
+revocación durable al detectar incoherencia, revoke-all, step-up y elevación
+siguen como gates explícitos. WebAuthn queda diferido. No se añaden DDL, env,
+rutas, adaptador Resend, email, UI, Worker o producción; `CUS-003` continúa
+`installed` y `parcial`, guest checkout intacto.
 
 ## R6 — B2B
 
@@ -924,7 +944,11 @@ UIA.1–UIA.4 queda cerrado como un único corte coherente:
    11 migraciones, 8 pedidos/8 pagos, cero reembolsos/asientos de devolución,
    cero estados activos y cero errores FK; E2E remoto **39/39** tras propagación.
 
-## 13. Siguiente bloque
+## 13. Historial R2.11–R3.12
+
+Esta sección conserva la secuencia histórica que antes se titulaba «Siguiente
+bloque». Ya está cerrada y no dirige la reanudación actual; la cabeza canónica
+se mantiene al final del documento.
 
 ### R2.11 — Fulfillment por líneas — ✅ 2026-08-11
 
@@ -1301,3 +1325,43 @@ en curso; el corte limpio aislado pasa **105 suites/552 tests**, tipos y build.
 R3.12 no cambia D1, UI ni sitemap; E2E/a11y de las superficies R3 ya quedaron
 verificados en sus bloques. Sin migración remota ni deploy de Worker. La cabeza
 principal pasa a R4.1, motor de reglas de precio.
+
+## 14. Siguiente bloque
+
+### R5.4d — implementación local de la superficie passwordless
+
+Implementar ADR-0043 sin adelantar R5.5:
+
+1. orquestar `prepare → persist → deliver` con un adaptador Resend directo,
+   idempotente, sin almacenar proof/URL y con click/open tracking deshabilitados
+   y verificados por atestación real;
+2. ampliar puerto/repositorio con creación+sustitución atómica de pending
+   challenges, revocación de familia incoherente y revoke-all por identidad/
+   perfil; mantener acknowledgement `202` idéntico ante ausencia, supresión o
+   fallo del proveedor;
+3. registrar solo bajo `CUS-003 active` las rutas `/cuenta/acceso`,
+   `/cuenta/acceso/confirmar` y `/cuenta/sesiones`: challenge+proof solo en
+   fragmento, GET genérico sin consumo, JS externo `script-src 'self'` que lo
+   limpia y POST `consume` únicamente tras confirmación;
+4. emitir en el POST inicial una cookie de intento HttpOnly real/dummy uniforme,
+   firmada y ligada al challenge/navegador; el GET no puede crearla. Exigirla al
+   consumir, con origin/CSRF, cookie de sesión `__Host-`, TTL idle/absoluto,
+   cabeceras `no-store`/`no-referrer` y sin query ni tokens en logs;
+5. diseñar y pedir la puerta antes de cualquier migración para revocación o
+   versionado de identidad y throttle durable; ensayar forward/restore y
+   excluir buckets efímeros del backup;
+6. componer rate limit de borde, binding por IP y contacto/challenge durable;
+   auditar éxitos de sesión/capacidad de forma durable y atómica con referencias
+   opacas, y dejar fallos/límites exclusivamente en métricas agregadas;
+7. probar ausencia/presencia, proveedor aceptado/rechazado, replay, dos consumos
+   concurrentes, sustitución de pending, GET de scanner, limpieza del fragmento,
+   cookie previa/`consume` en el mismo navegador, perfil fusionado, revocación
+   durable, origin, CSRF, cookies, CSP y límites; ejecutar `pnpm check`, E2E y
+   a11y 1440/375 si se abre UI;
+8. conservar la demo pública con `CUS-003 installed`, cero rutas/efectos y guest
+   checkout intacto. No aplicar D1 remota, secretos reales, deploy ni declarar
+   la capacidad operativa sin un rollout aislado autorizado.
+
+La primera superficie solo emite `customer:self`; step-up,
+`customer:sessions:revoke`, revoke-all de autoservicio, cross-device y acceso
+R5.5 quedan fuera hasta disponer de sus transiciones y políticas propias.

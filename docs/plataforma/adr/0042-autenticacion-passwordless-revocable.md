@@ -1,6 +1,6 @@
 # ADR-0042 — Autenticación passwordless opaca, rotatoria y revocable
 
-- Estado: aceptado; persistencia local implementada, proveedor y superficies pendientes
+- Estado: aceptado; persistencia local implementada y superficie decidida en ADR-0043, implementación pendiente
 - Fecha: 2026-08-18
 - Bloque: R5.4a
 - Capacidad: `CUS-003`
@@ -26,9 +26,10 @@ revocar inmediatamente una sesión comprometida.
    `customer_profiles`. Mantiene una referencia opaca al perfil y una identidad
    de contacto HMAC; no almacena email en challenges o sesiones. Crear perfil,
    comprar o consentir marketing no crea credenciales.
-3. Los métodos iniciales son `email_magic_link` y `webauthn`, detrás de un
-   `PasswordlessProofProvider`. El dominio no recibe dependencias de SDK ni
-   decide proveedor.
+3. El dominio reconoce `email_magic_link` y `webauthn` detrás de un
+   `PasswordlessProofProvider`, sin recibir dependencias de SDK ni decidir
+   proveedor. ADR-0043 supersede la elección de superficie: solo
+   `email_magic_link` es inicial y WebAuthn queda diferido.
 4. Un challenge contiene solo referencias y digest, nunca proof/token crudo.
    Es de un solo uso, versionado, revocable y con TTL máximo de 15 minutos. Un
    consumo idéntico se reproduce; otro consumo, proof o sesión falla con una
@@ -46,7 +47,10 @@ revocar inmediatamente una sesión comprometida.
 8. R5.4a solo reconoce `customer:self` y `customer:sessions:revoke`. El primero
    vincula la sesión a su propia identidad, no concede por sí mismo leer
    pedidos, direcciones, devoluciones, consentimientos o derechos de datos.
-   Esos permisos pertenecen a R5.5 y exigen ownership probado.
+   R5.4c limita la sesión inicial exactamente a `customer:self`; el segundo
+   scope no se concede hasta que un bloque posterior diseñe step-up y una
+   transición atómica propia. Los permisos de recurso pertenecen a R5.5 y
+   exigen ownership probado.
 9. Cambiar/vincular contacto, actuar sobre derechos, exportar datos y revocar
    todas las sesiones requieren step-up y políticas posteriores. Un merge de
    perfiles no transfiere ni fusiona sesiones silenciosamente.
@@ -59,14 +63,14 @@ revocar inmediatamente una sesión comprometida.
 |---|---|
 | Enumeración de email/cuenta | Respuesta, código y forma uniformes; rate limit por señales no enumerables. |
 | Robo/replay de magic link | Entropía alta, digest durable, TTL ≤15 min, un uso y host/path fijo. |
-| Token en logs/referrer | Proof se consume en frontera; no entra en logs, métricas, URLs posteriores ni D1. |
+| Token en logs/referrer | El transporte lleva proof+id de challenge solo en el fragmento inicial y lo limpia antes de cualquier POST; no entra en query, logs, métricas ni URLs posteriores. D1 conserva el challenge y solo el digest del proof. |
 | Open redirect | Continuación relativa desde allowlist; el proveedor no decide destino libre. |
 | Session fixation | `session_id` y token nuevos al autenticar y en cada rotación. |
 | Robo de cookie | `HttpOnly`, `Secure`, host-only, `SameSite`, CSP/CSRF y revocación servidor en el bloque de superficie. |
 | Sesión eterna | Ventana ≤7 días, corte absoluto ≤30 días y rotación sin extenderlo. |
 | WebAuthn de otro sitio | Adapter verifica RP ID, origin, challenge, presencia/verificación y contador cuando aplique. |
 | Cuenta ≠ ownership | Scopes mínimos; R5.5 prueba asociación antes de cada recurso. |
-| Perfil fusionado/revocado | Resolver explícitamente la identidad y revocar familia; nunca reasignar en silencio. |
+| Perfil fusionado/revocado | Denegar siempre y nunca reasignar en silencio; antes de abrir HTTP, añadir revocación familiar durable y atómica. |
 
 ## Contrato instalado
 
@@ -80,8 +84,17 @@ revocar inmediatamente una sesión comprometida.
 - acknowledgement público anti-enumeración.
 
 Los puertos de aplicación separan persistencia transaccional y proveedor de
-proof. `CUS-003` queda `installed` en advanced, sin flags, rutas, navegación,
-jobs ni efectos.
+proof. R5.4c corrige el proveedor a `prepare`/`deliver` alrededor de la
+persistencia, restringe emisión a challenges `sign_in`, exige contexto activo y
+coherente para resolver sesiones, valida replay exacto y hace restaurable el
+estado final bajo los triggers. `CUS-003` queda `installed`, sin flags, rutas,
+navegación, jobs ni efectos externos.
+
+El corte instalado deniega el contexto si perfil/identidad/familia dejan de ser
+coherentes, pero no ejecuta todavía la revocación durable al detectarlo. El
+repositorio tampoco sustituye pending challenges ni revoca todas las familias
+por identidad/perfil. ADR-0043 convierte esas operaciones, el step-up y la
+elevación de scope en gates explícitos del bloque de superficie.
 
 ## Fronteras de R5.4a
 
@@ -103,8 +116,20 @@ ensaya sin secrets ni proofs. La D1 local sirve el corte; producción no cambia.
 
 Abrir una superficie requiere además proveedor elegido, secreto por despliegue,
 origin/host allowlist, cookie segura, CSRF, rate limit, respuestas uniformes,
-auditoría sin PII, recuperación y runbook. WebAuthn exige pruebas de RP/origin y
-contadores; email exige entrega real, URL canónica y protección del token.
+auditoría durable y atómica sin PII, recuperación y runbook. También requiere
+las operaciones transaccionales de sustitución de pending challenges,
+revocación de familia incoherente y revoke-all. WebAuthn exige pruebas de RP/
+origin y contadores; email exige entrega real, URL canónica y protección del
+token.
+
+R5.4c resuelve esas decisiones en
+[ADR-0043](0043-superficie-passwordless-email-segura.md): el primer método será
+magic link por Resend directo con orden `prepare → persist → deliver`, origen
+exacto, sesión/cookie propia, CSRF/CSP, rate limit por capas y recuperación sin
+bypass. También instala el contrato de manifest tipado/fail-closed y los
+endurecimientos internos anteriores. Esto no abre todavía HTTP/UI, no configura
+env ni activa `CUS-003`; proveedor, transporte y cualquier DDL adicional
+pertenecen a R5.4d. WebAuthn continúa diferido.
 
 ## Verificación
 
@@ -119,6 +144,7 @@ contadores; email exige entrega real, URL canónica y protección del token.
 ## Rollback
 
 Mientras no existan superficies, mantener `CUS-003` sin flags bloquea toda
-emisión. Cuando existan sesiones, el rollback será de
-comportamiento: bloquear emisión, revocar familias y conservar evidencia mínima
-según la política aprobada; nunca reactivar tokens antiguos.
+emisión. Cuando existan sesiones, el rollback será de comportamiento: bloquear
+emisión, ejecutar la operación auditada de revocación total que deberá añadir
+el bloque de superficie y conservar evidencia mínima según la política
+aprobada; nunca reactivar tokens antiguos.

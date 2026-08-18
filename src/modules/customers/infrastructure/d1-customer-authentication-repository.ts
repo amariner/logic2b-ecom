@@ -1,4 +1,7 @@
-import type { CustomerAuthenticationRepository } from '../application/passwordless-auth-ports';
+import type {
+  ActiveCustomerSessionContext,
+  CustomerAuthenticationRepository,
+} from '../application/passwordless-auth-ports';
 import {
   assertCustomerAuthIdentity,
   type CustomerAuthIdentity,
@@ -66,6 +69,22 @@ type FamilyRow = Readonly<{
   version: number;
 }>;
 
+type ActiveSessionContextRow = SessionRow & Readonly<{
+  auth_identity_id: string;
+  auth_identity_profile_id: string;
+  auth_contact_identity_hash: string;
+  auth_identity_status: 'active';
+  auth_identity_created_at: string;
+  auth_identity_revoked_at: null;
+  auth_identity_creation_idempotency_key: string;
+  family_status: 'active';
+  family_absolute_expires_at: string;
+  family_version: number;
+  profile_id: string;
+  profile_status: 'active';
+  profile_email_identity_hash: string;
+}>;
+
 const IDENTITY_COLUMNS = `id, customer_profile_id, contact_identity_hash, status,
   created_at, revoked_at, creation_idempotency_key`;
 const CHALLENGE_COLUMNS = `id, identity_id, method, purpose, provider_reference,
@@ -76,6 +95,21 @@ const SESSION_COLUMNS = `id, family_id, identity_id, customer_profile_id,
   absolute_expires_at, generation, rotated_from_session_id,
   replaced_by_session_id, revoked_at, revocation_reason_id,
   transition_idempotency_key, version`;
+const FAMILY_COLUMNS = `id, identity_id, customer_profile_id, status,
+  created_at, absolute_expires_at, revoked_at, revocation_reason_id,
+  transition_idempotency_key, version`;
+const QUALIFIED_SESSION_COLUMNS = `session.id AS id, session.family_id AS family_id,
+  session.identity_id AS identity_id, session.customer_profile_id AS customer_profile_id,
+  session.token_digest AS token_digest, session.can_revoke_sessions AS can_revoke_sessions,
+  session.status AS status, session.issued_at AS issued_at,
+  session.expires_at AS expires_at, session.absolute_expires_at AS absolute_expires_at,
+  session.generation AS generation,
+  session.rotated_from_session_id AS rotated_from_session_id,
+  session.replaced_by_session_id AS replaced_by_session_id,
+  session.revoked_at AS revoked_at,
+  session.revocation_reason_id AS revocation_reason_id,
+  session.transition_idempotency_key AS transition_idempotency_key,
+  session.version AS version`;
 
 const OPAQUE_ID_PATTERN = /^[a-z][a-z0-9]*(?:[_:-][a-z0-9]+)+$/u;
 const HASH_PATTERN = /^[a-f0-9]{64}$/u;
@@ -102,6 +136,11 @@ function opaque(value: string): string {
 
 function digest(value: string): string {
   if (!HASH_PATTERN.test(value)) return conflict();
+  return value;
+}
+
+function instant(value: string): string {
+  if (!value.endsWith('Z') || !Number.isFinite(Date.parse(value))) return conflict();
   return value;
 }
 
@@ -172,6 +211,11 @@ function same(left: unknown, right: unknown): boolean {
   return JSON.stringify(left) === JSON.stringify(right);
 }
 
+function firstBatchRow<T>(result: D1Result<unknown> | undefined): T | null {
+  const row = result?.results?.[0];
+  return row === undefined ? null : row as T;
+}
+
 function pendingBefore(
   challenge: PasswordlessChallenge,
   expectedVersion: number,
@@ -223,19 +267,48 @@ function sessionValues(session: CustomerSession): readonly (string | number | nu
   ];
 }
 
+function guardedSessionInsert(db: D1Database, session: CustomerSession): D1PreparedStatement {
+  return db.prepare(`INSERT INTO customer_sessions (
+    id, family_id, identity_id, customer_profile_id, token_digest,
+    can_revoke_sessions, status, issued_at, expires_at, absolute_expires_at,
+    generation, rotated_from_session_id, replaced_by_session_id,
+    revoked_at, revocation_reason_id, transition_idempotency_key, version
+  ) SELECT ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+  FROM customer_session_families family
+  JOIN customer_auth_identities identity ON identity.id = family.identity_id
+  JOIN customer_profiles profile ON profile.id = family.customer_profile_id
+  WHERE family.id = ? AND family.status = 'active'
+    AND family.identity_id = ? AND family.customer_profile_id = ?
+    AND family.absolute_expires_at = ?
+    AND identity.status = 'active' AND identity.customer_profile_id = profile.id
+    AND profile.status = 'active' AND profile.merged_into_profile_id IS NULL
+    AND identity.contact_identity_hash = profile.email_identity_hash`).bind(
+    ...sessionValues(session),
+    session.familyId,
+    session.identityId,
+    session.customerProfileId,
+    session.absoluteExpiresAt,
+  );
+}
+
 function validScopes(scopes: readonly CustomerSessionScope[]): boolean {
-  return scopes.length >= 1 && scopes.length <= 2 && scopes.includes('customer:self') &&
-    new Set(scopes).size === scopes.length &&
-    scopes.every((scope) => scope === 'customer:self' || scope === 'customer:sessions:revoke');
+  return (scopes.length === 1 && scopes[0] === 'customer:self') ||
+    (scopes.length === 2 && scopes[0] === 'customer:self' &&
+      scopes[1] === 'customer:sessions:revoke');
 }
 
 /** Persistencia interna; no busca emails, no recibe tokens crudos y no abre superficies. */
 export function createD1CustomerAuthenticationRepository(
   db: D1Database,
 ): CustomerAuthenticationRepository {
-  async function identityById(identityId: string): Promise<IdentityRow | null> {
+  async function identityRowById(identityId: string): Promise<IdentityRow | null> {
     return db.prepare(`SELECT ${IDENTITY_COLUMNS} FROM customer_auth_identities WHERE id = ?`)
       .bind(opaque(identityId)).first<IdentityRow>();
+  }
+
+  async function identityById(identityId: string): Promise<CustomerAuthIdentity | null> {
+    const row = await identityRowById(identityId);
+    return row === null ? null : identityOf(row);
   }
 
   async function identityByContactHash(contactIdentityHash: string): Promise<CustomerAuthIdentity | null> {
@@ -250,19 +323,29 @@ export function createD1CustomerAuthenticationRepository(
     idempotencyKey: string;
   }>): Promise<'created' | 'replayed'> {
     const identity = assertCustomerAuthIdentity(input.identity);
+    if (identity.status !== 'active' || identity.revokedAt !== null) return conflict();
     const key = idempotencyKey(input.idempotencyKey);
     try {
-      const result = await db.prepare(`INSERT OR IGNORE INTO customer_auth_identities (
-        id, customer_profile_id, contact_identity_hash, status, created_at,
-        revoked_at, creation_idempotency_key
-      ) VALUES (?, ?, ?, ?, ?, ?, ?)`).bind(
-        identity.id, identity.customerProfileId, identity.contactIdentityHash,
-        identity.status, identity.createdAt, identity.revokedAt, key,
-      ).run();
-      const stored = await identityById(identity.id);
+      const results = await db.batch([
+        db.prepare(`INSERT OR IGNORE INTO customer_auth_identities (
+          id, customer_profile_id, contact_identity_hash, status, created_at,
+          revoked_at, creation_idempotency_key
+        ) SELECT ?, ?, ?, ?, ?, ?, ?
+        FROM customer_profiles profile
+        WHERE profile.id = ? AND profile.status = 'active'
+          AND profile.merged_into_profile_id IS NULL
+          AND profile.email_identity_hash = ?`).bind(
+          identity.id, identity.customerProfileId, identity.contactIdentityHash,
+          identity.status, identity.createdAt, identity.revokedAt, key,
+          identity.customerProfileId, identity.contactIdentityHash,
+        ),
+        db.prepare(`SELECT ${IDENTITY_COLUMNS}
+          FROM customer_auth_identities WHERE id = ?`).bind(identity.id),
+      ]);
+      const stored = firstBatchRow<IdentityRow>(results[1]);
       if (stored === null || stored.creation_idempotency_key !== key ||
           !same(identityOf(stored), identity)) return conflict();
-      return result.meta.changes === 1 ? 'created' : 'replayed';
+      return results[0]?.meta.changes === 1 ? 'created' : 'replayed';
     } catch (error) {
       if (error instanceof CustomerAuthenticationConflictError) throw error;
       return conflict();
@@ -279,19 +362,37 @@ export function createD1CustomerAuthenticationRepository(
   async function createChallenge(value: PasswordlessChallenge): Promise<'created' | 'replayed'> {
     if (value.status !== 'pending' || value.version !== 1) return conflict();
     try {
-      const result = await db.prepare(`INSERT OR IGNORE INTO customer_passwordless_challenges (
-        id, identity_id, method, purpose, provider_reference, secret_digest,
-        status, requested_at, expires_at, consumed_at, consumed_by_session_id,
-        transition_idempotency_key, version
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`).bind(
-        value.id, value.identityId, value.method, value.purpose, value.providerReference,
-        value.secretDigest, value.status, value.requestedAt, value.expiresAt,
-        value.consumedAt, value.consumedBySessionId,
-        value.transitionIdempotencyKey, value.version,
-      ).run();
-      const stored = await challenge(value.id);
+      const results = await db.batch([
+        db.prepare(`INSERT OR IGNORE INTO customer_passwordless_challenges (
+          id, identity_id, method, purpose, provider_reference, secret_digest,
+          status, requested_at, expires_at, consumed_at, consumed_by_session_id,
+          transition_idempotency_key, version
+        ) SELECT ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+        FROM customer_auth_identities identity
+        JOIN customer_profiles profile ON profile.id = identity.customer_profile_id
+        WHERE identity.id = ? AND identity.status = 'active'
+          AND profile.status = 'active' AND profile.merged_into_profile_id IS NULL
+          AND identity.contact_identity_hash = profile.email_identity_hash`).bind(
+          value.id, value.identityId, value.method, value.purpose, value.providerReference,
+          value.secretDigest, value.status, value.requestedAt, value.expiresAt,
+          value.consumedAt, value.consumedBySessionId,
+          value.transitionIdempotencyKey, value.version,
+          value.identityId,
+        ),
+        db.prepare(`SELECT ${CHALLENGE_COLUMNS}
+          FROM customer_passwordless_challenges challenge
+          WHERE challenge.id = ? AND EXISTS (
+            SELECT 1 FROM customer_auth_identities identity
+            JOIN customer_profiles profile ON profile.id = identity.customer_profile_id
+            WHERE identity.id = challenge.identity_id AND identity.status = 'active'
+              AND profile.status = 'active' AND profile.merged_into_profile_id IS NULL
+              AND identity.contact_identity_hash = profile.email_identity_hash
+          )`).bind(value.id),
+      ]);
+      const storedRow = firstBatchRow<ChallengeRow>(results[1]);
+      const stored = storedRow === null ? null : challengeOf(storedRow);
       if (stored === null || !same(stored, value)) return conflict();
-      return result.meta.changes === 1 ? 'created' : 'replayed';
+      return results[0]?.meta.changes === 1 ? 'created' : 'replayed';
     } catch (error) {
       if (error instanceof CustomerAuthenticationConflictError) throw error;
       return conflict();
@@ -304,17 +405,74 @@ export function createD1CustomerAuthenticationRepository(
     return row === null ? null : sessionOf(row);
   }
 
-  async function sessionByTokenDigest(tokenDigest: string): Promise<CustomerSession | null> {
-    const row = await db.prepare(`SELECT ${SESSION_COLUMNS}
-      FROM customer_sessions WHERE token_digest = ?`)
-      .bind(digest(tokenDigest)).first<SessionRow>();
-    return row === null ? null : sessionOf(row);
+  async function activeSessionContextByTokenDigest(
+    tokenDigest: string,
+    at: string,
+  ): Promise<ActiveCustomerSessionContext | null> {
+    const now = instant(at);
+    const row = await db.prepare(`SELECT ${QUALIFIED_SESSION_COLUMNS},
+      identity.id AS auth_identity_id,
+      identity.customer_profile_id AS auth_identity_profile_id,
+      identity.contact_identity_hash AS auth_contact_identity_hash,
+      identity.status AS auth_identity_status,
+      identity.created_at AS auth_identity_created_at,
+      identity.revoked_at AS auth_identity_revoked_at,
+      identity.creation_idempotency_key AS auth_identity_creation_idempotency_key,
+      family.status AS family_status,
+      family.absolute_expires_at AS family_absolute_expires_at,
+      family.version AS family_version,
+      profile.id AS profile_id,
+      profile.status AS profile_status,
+      profile.email_identity_hash AS profile_email_identity_hash
+      FROM customer_sessions session
+      JOIN customer_session_families family ON family.id = session.family_id
+        AND family.identity_id = session.identity_id
+        AND family.customer_profile_id = session.customer_profile_id
+        AND family.absolute_expires_at = session.absolute_expires_at
+      JOIN customer_auth_identities identity ON identity.id = session.identity_id
+        AND identity.customer_profile_id = session.customer_profile_id
+      JOIN customer_profiles profile ON profile.id = session.customer_profile_id
+      WHERE session.token_digest = ? AND session.status = 'active'
+        AND family.status = 'active' AND identity.status = 'active'
+        AND profile.status = 'active' AND profile.merged_into_profile_id IS NULL
+        AND identity.contact_identity_hash = profile.email_identity_hash
+        AND julianday(?) >= julianday(session.issued_at)
+        AND julianday(?) < julianday(session.expires_at)
+        AND julianday(?) < julianday(session.absolute_expires_at)`)
+      .bind(digest(tokenDigest), now, now, now).first<ActiveSessionContextRow>();
+    if (row === null) return null;
+    const identity = identityOf({
+      id: row.auth_identity_id,
+      customer_profile_id: row.auth_identity_profile_id,
+      contact_identity_hash: row.auth_contact_identity_hash,
+      status: row.auth_identity_status,
+      created_at: row.auth_identity_created_at,
+      revoked_at: row.auth_identity_revoked_at,
+      creation_idempotency_key: row.auth_identity_creation_idempotency_key,
+    });
+    return Object.freeze({
+      session: sessionOf(row),
+      identity,
+      family: Object.freeze({
+        id: row.family_id,
+        status: row.family_status,
+        absoluteExpiresAt: row.family_absolute_expires_at,
+        version: row.family_version,
+      }),
+      profile: Object.freeze({
+        id: row.profile_id,
+        status: row.profile_status,
+        emailIdentityHash: row.profile_email_identity_hash,
+      }),
+    });
+  }
+
+  async function sessionByTokenDigest(tokenDigest: string, at: string): Promise<CustomerSession | null> {
+    return (await activeSessionContextByTokenDigest(tokenDigest, at))?.session ?? null;
   }
 
   async function family(familyId: string): Promise<FamilyRow | null> {
-    return db.prepare(`SELECT id, identity_id, customer_profile_id, status,
-      created_at, absolute_expires_at, revoked_at, revocation_reason_id,
-      transition_idempotency_key, version
+    return db.prepare(`SELECT ${FAMILY_COLUMNS}
       FROM customer_session_families WHERE id = ?`)
       .bind(opaque(familyId)).first<FamilyRow>();
   }
@@ -328,11 +486,19 @@ export function createD1CustomerAuthenticationRepository(
     const key = idempotencyKey(input.idempotencyKey);
     const planned = input.challenge;
     const session = input.session;
-    if (planned.status !== 'consumed' || planned.transitionIdempotencyKey !== key ||
+    const sessionIssuedAt = Date.parse(instant(session.issuedAt));
+    const challengeExpiresAt = Date.parse(instant(planned.expiresAt));
+    const challengeConsumedAt = planned.consumedAt === null
+      ? null
+      : Date.parse(instant(planned.consumedAt));
+    if (planned.status !== 'consumed' || challengeConsumedAt === null ||
+        planned.transitionIdempotencyKey !== key ||
+        planned.purpose !== 'sign_in' ||
         planned.version !== input.expectedVersion + 1 ||
         planned.consumedBySessionId !== session.id || session.status !== 'active' ||
         session.generation !== 1 || session.identityId !== planned.identityId ||
-        !validScopes(session.scopes)) return conflict();
+        sessionIssuedAt < challengeConsumedAt || sessionIssuedAt >= challengeExpiresAt ||
+        session.scopes.length !== 1 || session.scopes[0] !== 'customer:self') return conflict();
     const stored = await challenge(planned.id);
     if (stored?.status === 'consumed') {
       const storedSession = await sessionById(session.id);
@@ -343,32 +509,39 @@ export function createD1CustomerAuthenticationRepository(
       return conflict();
     }
     try {
-      await db.batch([
+      const results = await db.batch([
         db.prepare(`INSERT OR IGNORE INTO customer_session_families (
           id, identity_id, customer_profile_id, status, created_at,
           absolute_expires_at, revoked_at, revocation_reason_id,
           transition_idempotency_key, version
-        ) VALUES (?, ?, ?, 'active', ?, ?, NULL, NULL, NULL, 1)`).bind(
+        ) SELECT ?, ?, ?, 'active', ?, ?, NULL, NULL, NULL, 1
+        FROM customer_auth_identities identity
+        JOIN customer_profiles profile ON profile.id = identity.customer_profile_id
+        WHERE identity.id = ? AND identity.status = 'active'
+          AND identity.customer_profile_id = ?
+          AND profile.status = 'active' AND profile.merged_into_profile_id IS NULL
+          AND identity.contact_identity_hash = profile.email_identity_hash`).bind(
           session.familyId, session.identityId, session.customerProfileId,
           session.issuedAt, session.absoluteExpiresAt,
+          session.identityId, session.customerProfileId,
         ),
-        db.prepare(`INSERT INTO customer_sessions (
-          id, family_id, identity_id, customer_profile_id, token_digest,
-          can_revoke_sessions, status, issued_at, expires_at, absolute_expires_at,
-          generation, rotated_from_session_id, replaced_by_session_id,
-          revoked_at, revocation_reason_id, transition_idempotency_key, version
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`).bind(
-          ...sessionValues(session),
-        ),
+        guardedSessionInsert(db, session),
         db.prepare(`UPDATE customer_passwordless_challenges SET
           status = ?, consumed_at = ?, consumed_by_session_id = ?,
           transition_idempotency_key = ?, version = ? WHERE id = ?`).bind(
           planned.status, planned.consumedAt, planned.consumedBySessionId,
           key, planned.version, planned.id,
         ),
+        db.prepare(`SELECT ${CHALLENGE_COLUMNS}
+          FROM customer_passwordless_challenges WHERE id = ?`).bind(planned.id),
+        db.prepare(`SELECT ${SESSION_COLUMNS}
+          FROM customer_sessions WHERE id = ?`).bind(session.id),
       ]);
-      if (!same(await challenge(planned.id), planned) ||
-          !same(await sessionById(session.id), session)) return conflict();
+      const storedChallengeRow = firstBatchRow<ChallengeRow>(results[3]);
+      const storedSessionRow = firstBatchRow<SessionRow>(results[4]);
+      const storedChallenge = storedChallengeRow === null ? null : challengeOf(storedChallengeRow);
+      const storedSession = storedSessionRow === null ? null : sessionOf(storedSessionRow);
+      if (!same(storedChallenge, planned) || !same(storedSession, session)) return conflict();
       return 'consumed';
     } catch {
       const replayChallenge = await challenge(planned.id).catch(() => null);
@@ -386,6 +559,7 @@ export function createD1CustomerAuthenticationRepository(
     const key = idempotencyKey(input.idempotencyKey);
     const planned = input.challenge;
     if (!['revoked', 'expired'].includes(planned.status) ||
+        planned.consumedAt !== null || planned.consumedBySessionId !== null ||
         planned.transitionIdempotencyKey !== key ||
         planned.version !== input.expectedVersion + 1) return conflict();
     const stored = await challenge(planned.id);
@@ -394,11 +568,17 @@ export function createD1CustomerAuthenticationRepository(
       return conflict();
     }
     try {
-      await db.prepare(`UPDATE customer_passwordless_challenges SET status = ?,
-        transition_idempotency_key = ?, version = ? WHERE id = ?`).bind(
-        planned.status, key, planned.version, planned.id,
-      ).run();
-      if (!same(await challenge(planned.id), planned)) return conflict();
+      const results = await db.batch([
+        db.prepare(`UPDATE customer_passwordless_challenges SET status = ?,
+          transition_idempotency_key = ?, version = ? WHERE id = ?`).bind(
+          planned.status, key, planned.version, planned.id,
+        ),
+        db.prepare(`SELECT ${CHALLENGE_COLUMNS}
+          FROM customer_passwordless_challenges WHERE id = ?`).bind(planned.id),
+      ]);
+      const storedRow = firstBatchRow<ChallengeRow>(results[1]);
+      const confirmed = storedRow === null ? null : challengeOf(storedRow);
+      if (!same(confirmed, planned)) return conflict();
       return 'transitioned';
     } catch {
       if (same(await challenge(planned.id).catch(() => null), planned)) return 'replayed';
@@ -415,7 +595,13 @@ export function createD1CustomerAuthenticationRepository(
     const previous = input.previous;
     const current = input.current;
     if (previous.status !== 'rotated' || previous.transitionIdempotencyKey !== key ||
+        previous.replacedBySessionId !== current.id || previous.revokedAt !== null ||
+        previous.revocationReasonId !== null || previous.version < 2 ||
         current.status !== 'active' || current.rotatedFromSessionId !== previous.id ||
+        current.replacedBySessionId !== null || current.revokedAt !== null ||
+        current.revocationReasonId !== null || current.transitionIdempotencyKey !== null ||
+        current.version !== 1 || current.id === previous.id ||
+        current.tokenDigest === previous.tokenDigest ||
         current.familyId !== previous.familyId || current.identityId !== previous.identityId ||
         current.customerProfileId !== previous.customerProfileId ||
         current.generation !== previous.generation + 1 ||
@@ -428,21 +614,21 @@ export function createD1CustomerAuthenticationRepository(
     if (storedPrevious === null ||
         !same(storedPrevious, activeBefore(previous, previous.version - 1))) return conflict();
     try {
-      await db.batch([
-        db.prepare(`INSERT INTO customer_sessions (
-          id, family_id, identity_id, customer_profile_id, token_digest,
-          can_revoke_sessions, status, issued_at, expires_at, absolute_expires_at,
-          generation, rotated_from_session_id, replaced_by_session_id,
-          revoked_at, revocation_reason_id, transition_idempotency_key, version
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`).bind(
-          ...sessionValues(current),
-        ),
+      const results = await db.batch([
+        guardedSessionInsert(db, current),
         db.prepare(`UPDATE customer_sessions SET status = 'rotated',
           replaced_by_session_id = ?, transition_idempotency_key = ?, version = ?
           WHERE id = ?`).bind(current.id, key, previous.version, previous.id),
+        db.prepare(`SELECT ${SESSION_COLUMNS}
+          FROM customer_sessions WHERE id = ?`).bind(previous.id),
+        db.prepare(`SELECT ${SESSION_COLUMNS}
+          FROM customer_sessions WHERE id = ?`).bind(current.id),
       ]);
-      if (!same(await sessionById(previous.id), previous) ||
-          !same(await sessionById(current.id), current)) return conflict();
+      const storedPreviousRow = firstBatchRow<SessionRow>(results[2]);
+      const storedCurrentRow = firstBatchRow<SessionRow>(results[3]);
+      const storedPreviousAfter = storedPreviousRow === null ? null : sessionOf(storedPreviousRow);
+      const storedCurrentAfter = storedCurrentRow === null ? null : sessionOf(storedCurrentRow);
+      if (!same(storedPreviousAfter, previous) || !same(storedCurrentAfter, current)) return conflict();
       return 'rotated';
     } catch {
       if (same(await sessionById(previous.id).catch(() => null), previous) &&
@@ -459,6 +645,8 @@ export function createD1CustomerAuthenticationRepository(
     const key = idempotencyKey(input.idempotencyKey);
     const planned = input.session;
     if (planned.status !== 'revoked' || planned.transitionIdempotencyKey !== key ||
+        planned.replacedBySessionId !== null || planned.revokedAt === null ||
+        planned.revocationReasonId === null ||
         planned.version !== input.expectedVersion + 1) return conflict();
     const stored = await sessionById(planned.id);
     if (same(stored, planned)) return 'replayed';
@@ -466,12 +654,18 @@ export function createD1CustomerAuthenticationRepository(
       return conflict();
     }
     try {
-      await db.prepare(`UPDATE customer_sessions SET status = 'revoked',
-        revoked_at = ?, revocation_reason_id = ?, transition_idempotency_key = ?,
-        version = ? WHERE id = ?`).bind(
-        planned.revokedAt, planned.revocationReasonId, key, planned.version, planned.id,
-      ).run();
-      if (!same(await sessionById(planned.id), planned)) return conflict();
+      const results = await db.batch([
+        db.prepare(`UPDATE customer_sessions SET status = 'revoked',
+          revoked_at = ?, revocation_reason_id = ?, transition_idempotency_key = ?,
+          version = ? WHERE id = ?`).bind(
+          planned.revokedAt, planned.revocationReasonId, key, planned.version, planned.id,
+        ),
+        db.prepare(`SELECT ${SESSION_COLUMNS}
+          FROM customer_sessions WHERE id = ?`).bind(planned.id),
+      ]);
+      const storedRow = firstBatchRow<SessionRow>(results[1]);
+      const confirmed = storedRow === null ? null : sessionOf(storedRow);
+      if (!same(confirmed, planned)) return conflict();
       return 'revoked';
     } catch {
       if (same(await sessionById(planned.id).catch(() => null), planned)) return 'replayed';
@@ -491,7 +685,8 @@ export function createD1CustomerAuthenticationRepository(
     const stored = await family(familyId);
     if (stored?.status === 'revoked' && stored.transition_idempotency_key === key &&
         stored.revoked_at === input.occurredAt &&
-        stored.revocation_reason_id === input.reasonId) {
+        stored.revocation_reason_id === input.reasonId &&
+        stored.version === input.expectedVersion + 1) {
       return Number(await db.prepare(`SELECT count(*) AS total FROM customer_sessions
         WHERE family_id = ? AND status = 'revoked'
           AND transition_idempotency_key = ?`).bind(familyId, key).first<number>('total') ?? 0);
@@ -510,11 +705,21 @@ export function createD1CustomerAuthenticationRepository(
           WHERE family_id = ? AND status = 'active'`).bind(
           input.occurredAt, input.reasonId, key, familyId,
         ),
+        db.prepare(`SELECT ${FAMILY_COLUMNS}
+          FROM customer_session_families WHERE id = ?`).bind(familyId),
       ]);
+      const confirmed = firstBatchRow<FamilyRow>(results[2]);
+      if (confirmed?.status !== 'revoked' || confirmed.transition_idempotency_key !== key ||
+          confirmed.revoked_at !== input.occurredAt ||
+          confirmed.revocation_reason_id !== input.reasonId ||
+          confirmed.version !== input.expectedVersion + 1) return conflict();
       return results[1]?.meta.changes ?? 0;
     } catch {
       const replay = await family(familyId).catch(() => null);
-      if (replay?.status === 'revoked' && replay.transition_idempotency_key === key) {
+      if (replay?.status === 'revoked' && replay.transition_idempotency_key === key &&
+          replay.revoked_at === input.occurredAt &&
+          replay.revocation_reason_id === input.reasonId &&
+          replay.version === input.expectedVersion + 1) {
         return Number(await db.prepare(`SELECT count(*) AS total FROM customer_sessions
           WHERE family_id = ? AND status = 'revoked'
             AND transition_idempotency_key = ?`).bind(familyId, key).first<number>('total') ?? 0);
@@ -525,11 +730,13 @@ export function createD1CustomerAuthenticationRepository(
 
   return Object.freeze({
     identityByContactHash,
+    identityById,
     createIdentity,
     challenge,
     createChallenge,
     consumeChallenge,
     transitionChallenge,
+    activeSessionContextByTokenDigest,
     sessionByTokenDigest,
     rotateSession,
     revokeSession,
