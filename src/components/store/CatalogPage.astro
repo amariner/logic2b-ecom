@@ -189,6 +189,7 @@ const ThemedCatalog = catalogViews[collection.themeId as keyof typeof catalogVie
               <option value={opt.id} selected={opt.id === sort}>{opt.label}</option>
             ))}
           </select>
+          <button type="submit" class="ml-1 rounded-btn border border-border bg-card px-3 py-1.5 font-medium text-foreground hover:border-foreground">Aplicar</button>
         </form>
       </div>
     </div>
@@ -201,7 +202,7 @@ const ThemedCatalog = catalogViews[collection.themeId as keyof typeof catalogVie
     )}
 
     <ul class="mt-8 grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 sm:gap-x-6 lg:grid-cols-4">
-      {products.map((prod) => (
+      {products.map((prod, index) => (
         <li class="group flex flex-col">
           <a href={paths.product(prod.slug)} class="flex flex-1 flex-col">
             <div class="overflow-hidden rounded-2xl bg-muted">
@@ -210,7 +211,8 @@ const ThemedCatalog = catalogViews[collection.themeId as keyof typeof catalogVie
                 alt={prod.name}
                 width="800"
                 height="800"
-                loading="lazy"
+                loading={index === 0 ? 'eager' : 'lazy'}
+                fetchpriority={index === 0 ? 'high' : 'auto'}
                 class="aspect-square w-full object-cover transition duration-300 group-hover:scale-[1.04]"
               />
             </div>

@@ -12,7 +12,7 @@
 
 Logic2B Ecommerce vende una tienda **a medida**. El problema comercial es que «a medida»
 suena caro y abstracto: el cliente no puede imaginarse su tienda. El catálogo de
-estilos resuelve eso — son 28 direcciones visuales completas, cada una derivada de
+estilos resuelve eso — son 33 direcciones visuales completas, cada una derivada de
 una referencia real de ecommerce, entre las que el cliente elige un punto de
 partida.
 

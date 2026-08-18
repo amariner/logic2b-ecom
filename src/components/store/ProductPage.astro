@@ -72,6 +72,8 @@ const jsonLd = {
           alt={product.name}
           width="800"
           height="800"
+          loading="eager"
+          fetchpriority="high"
           class="aspect-square w-full object-cover"
         />
       </div>
@@ -169,6 +171,26 @@ const jsonLd = {
     </>}
   </main>
 
+  <div
+    data-cart-feedback
+    role="status"
+    aria-live="polite"
+    hidden
+    class="fixed inset-x-4 bottom-20 z-[70] rounded-2xl border border-border bg-popover px-4 py-3 text-sm text-foreground shadow-xl sm:left-auto sm:right-6 sm:w-auto"
+  >
+    Producto añadido. <a href={paths.cart} class="font-semibold text-brand underline underline-offset-2">Ver carrito</a>
+  </div>
+
+  <noscript>
+    <style is:inline>
+      [data-commerce-action="add-to-cart"] { display: none !important; }
+    </style>
+    <p class="mx-auto my-6 max-w-xl rounded-2xl border border-border bg-muted p-4 text-center text-sm text-muted-foreground">
+      La cesta de esta demo funciona en tu navegador y necesita JavaScript.
+      <a href={paths.catalog} class="font-semibold text-foreground underline underline-offset-2">Volver al catálogo</a>.
+    </p>
+  </noscript>
+
   <script type="application/ld+json" set:html={jsonLdScript(jsonLd)} is:inline />
 
   <script>
@@ -177,6 +199,7 @@ const jsonLd = {
 
     const btn = document.querySelector<HTMLButtonElement>(PRODUCT_COMMERCE_SELECTORS.addToCart);
     const qtyInput = document.querySelector<HTMLInputElement>(PRODUCT_COMMERCE_SELECTORS.quantity);
+    const feedback = document.querySelector<HTMLElement>('[data-cart-feedback]');
     btn?.addEventListener('click', () => {
       // Redondear hacia abajo: un valor no entero (p. ej. "2.5") no debe colarse
       // en el carrito — readCart() lo descartaría en silencio más adelante.
@@ -184,6 +207,7 @@ const jsonLd = {
       addToCart(btn.dataset.productSlug ?? '', qty);
       const prev = btn.textContent;
       btn.textContent = 'Añadido ✓';
+      feedback?.removeAttribute('hidden');
       setTimeout(() => (btn.textContent = prev), 900);
     });
   </script>

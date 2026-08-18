@@ -59,6 +59,12 @@ describe('línea base reproducible de temas', () => {
     expect(report.findings.find((finding) => finding.id === 'TH0.2-P1-03')).toBeUndefined();
   });
 
+  it('propaga canonical común y el recuento editorial del registro', () => {
+    expect(report.themes.every((theme) => theme.metadata.canonical)).toBe(true);
+    expect(report.findings.find((finding) => finding.id === 'TH0.2-P2-01')).toBeUndefined();
+    expect(report.findings.find((finding) => finding.id === 'TH0.2-P3-02')).toBeUndefined();
+  });
+
   it('produce un informe determinista con severidades y leyendas', () => {
     const second = buildThemeBaseline();
     expect(second).toEqual(report);

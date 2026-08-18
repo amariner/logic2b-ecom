@@ -224,7 +224,7 @@ deploy autorizado cuando cambien sus capturas o contenido.
 | TH0.3 | Auditoría visual/producto de las superficies compartidas y matriz de gaps P0–P3 | ✅ 2026-08-18 |
 | TH0.4 | Guardas contra deriva entre registro, colección, auditor, capturas, galería y ficha | ✅ 2026-08-18 |
 | TH0.5 | Cerrar C14.3: migrar NODDO, Sitēga y STRETCH al mismo contrato local de ficha/cesta/checkout/gracias | ✅ 2026-08-18 |
-| TH0.6 | Consolidación de arquitectura: regresión de las 33 tiendas y actualización de contratos/docs | pendiente |
+| TH0.6 | Consolidación de arquitectura: regresión de las 33 tiendas y actualización de contratos/docs | ✅ 2026-08-18 |
 
 TH0 no rediseña las 33 tiendas. Elimina incertidumbre y excepciones para que el
 pulido posterior no multiplique deuda.
@@ -329,11 +329,10 @@ La ficha `docs/temas/<id>.md` añade al final:
 
 ## 9. Siguiente bloque
 
-**TH0.6 — consolidación de la arquitectura compartida.** Ejecutar la regresión
-de las 33 tiendas y cerrar una sola vez los gaps transversales del contrato:
-chrome de temas inmersivos, solapamientos móviles, fallback honesto sin JS,
-canonical, prioridad LCP y feedback/navegación de ficha y cesta. Actualizar
-contratos y documentación sin rediseñar temas individuales ni tocar D1.
+**TH1.1 — auditoría y brief de producto/conversión de ARCE.** Fijar audiencia,
+tarea principal, propuesta, alcance y puntuación inicial; recorrer catálogo,
+ficha, cesta, checkout y confirmación en los tres anchos; y convertir los gaps
+observados en un brief verificable para TH1.2, sin implementar aún el rediseño.
 
 ## 10. Cierres del carril
 
@@ -414,3 +413,24 @@ contratos y documentación sin rediseñar temas individuales ni tocar D1.
   overflow. P0/P1 quedan en 0; restan tres P2 y dos P3 asignados a TH0.6/TH5.
 - No hubo dependencia, migración, D1, pedido real, coste, deploy ni cambio de
   promesa comercial.
+
+### TH0.6 — consolidación de la arquitectura compartida (2026-08-18)
+
+- Los 33 temas comparten canonical, chrome y salida hacia cesta en las
+  superficies de comercio; solo el catálogo inmersivo conserva su composición
+  sin cabecera global. El selector de temas deja de flotar sobre controles en
+  móvil.
+- Ficha, cesta, checkout y gracias incorporan estados honestos sin JavaScript.
+  La ficha ofrece feedback persistente y enlace a cesta, la cesta activa permite
+  seguir comprando y el banner explica que la simulación es local y no crea
+  pedidos reales.
+- La imagen principal compartida y la primera imagen del catálogo fallback
+  declaran prioridad de carga. El baseline reconoce 33/33 rutas canónicas y
+  conserva 33/33 recorridos bajo el contrato común, sin rutas privadas.
+- Verificado: `pnpm check` pasa 706 archivos, 170 suites/792 tests, baseline y
+  build+sitemap; E2E completo en verde; los 33 temas suman 345/345 superficies
+  a11y con 0 errores y 0 avisos. La regresión HTML confirma H1, canonical y
+  fallbacks en presentaciones estándar y custom.
+- El baseline queda con P0/P1 en 0; permanecen dos P2 de assets/formato y un P3
+  de samples estáticos, asignados a TH1–TH5. No hubo dependencia, migración,
+  escritura en D1, pedido real, coste ni cambio de promesa comercial.

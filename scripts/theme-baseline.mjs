@@ -233,6 +233,8 @@ export function buildThemeBaseline(rootDir = process.cwd()) {
     checkout: read(root, 'src/pages/demo/tiendas/[collection]/checkout.astro'),
     thanks: read(root, 'src/pages/demo/tiendas/[collection]/gracias.astro'),
   };
+  const shopLayoutSource = read(root, 'src/layouts/Shop.astro');
+  const sharedCanonical = shopLayoutSource.includes('canonicalPath={Astro.url.pathname}');
 
   const themes = themeIds.map((id) => {
     const entry = themeEntry(themeSource, id);
@@ -298,7 +300,11 @@ export function buildThemeBaseline(rootDir = process.cwd()) {
       metadata: {
         noindex: Object.values(routeSources).every((source) => source.includes('Shop') || Object.values(SURFACE_COMPONENTS).some((name) => source.includes(name))),
         description: Object.values(routeSources).every((source) => source.includes('description=') || Object.values(SURFACE_COMPONENTS).some((name) => source.includes(name))),
-        canonical: Object.values(routeSources).every((source) => source.includes('canonicalPath=') || source.includes('rel="canonical"')),
+        canonical: Object.values(routeSources).every((source) =>
+          source.includes('canonicalPath=')
+          || source.includes('rel="canonical"')
+          || (sharedCanonical && (source.includes('Shop') || Object.values(SURFACE_COMPONENTS).some((name) => source.includes(name)))),
+        ),
         productJsonLd: routeSources.product.includes('ProductPage') || routeSources.product.includes('application/ld+json'),
       },
       evidence: {

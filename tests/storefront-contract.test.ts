@@ -5,6 +5,7 @@ import catalogPageSource from '../src/components/store/CatalogPage.astro?raw';
 import checkoutPageSource from '../src/components/store/CheckoutPage.astro?raw';
 import productPageSource from '../src/components/store/ProductPage.astro?raw';
 import thanksPageSource from '../src/components/store/ThanksPage.astro?raw';
+import shopLayoutSource from '../src/layouts/Shop.astro?raw';
 import dynamicProductRoute from '../src/pages/demo/tiendas/[collection]/[slug].astro?raw';
 import dynamicThanksRoute from '../src/pages/demo/tiendas/[collection]/gracias.astro?raw';
 import quoteApiSource from '../src/pages/api/cart/quote.ts?raw';
@@ -106,6 +107,21 @@ describe('contrato de las demos de tienda', () => {
     });
     expect(productPageSource).toContain('PRODUCT_COMMERCE_SELECTORS.addToCart');
     expect(productPageSource).toContain('PRODUCT_COMMERCE_SELECTORS.quantity');
+    expect(productPageSource).toContain('data-cart-feedback');
+    expect(productPageSource).toContain('aria-live="polite"');
+    expect(productPageSource).toContain('fetchpriority="high"');
+  });
+
+  it('mantiene navegación, canonical y recuperación sin JavaScript', () => {
+    expect(shopLayoutSource).toContain('canonicalPath={Astro.url.pathname}');
+    expect(shopLayoutSource).toContain('isImmersiveCatalog');
+    expect(shopLayoutSource).toContain('data-store-switcher');
+    expect(catalogPageSource).toContain('type="submit"');
+    expect(catalogPageSource).toContain("index === 0 ? 'high' : 'auto'");
+    for (const source of [productPageSource, cartPageSource, checkoutPageSource, thanksPageSource]) {
+      expect(source).toContain('<noscript>');
+    }
+    expect(cartPageSource).toContain('Seguir comprando');
   });
 });
 

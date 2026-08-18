@@ -20,6 +20,4 @@ const backLabel = backLabels[collection.id as keyof typeof backLabels];
 
 ---
 
-<ThanksPage collection={collection}>
-  {backLabel && <Fragment slot="back-label">{backLabel}</Fragment>}
-</ThanksPage>
+<ThanksPage collection={collection} backLabel={backLabel} />

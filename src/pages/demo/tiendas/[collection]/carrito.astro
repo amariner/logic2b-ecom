@@ -19,6 +19,4 @@ const headings = {
 const heading = headings[collection.id as keyof typeof headings];
 ---
 
-<CartPage collection={collection}>
-  {heading && <h1 slot="heading" class="font-display text-5xl leading-none tracking-[-.06em] text-foreground sm:text-6xl">{heading}</h1>}
-</CartPage>
+<CartPage collection={collection} heading={heading} />
