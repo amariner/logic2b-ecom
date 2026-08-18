@@ -73,6 +73,9 @@ actual siempre vive en [`ROADMAP.md`](ROADMAP.md).
 
 ## Temas y experiencia visual
 
+- [`ROADMAP_MEJORA_TEMAS.md`](ROADMAP_MEJORA_TEMAS.md): profesionalización de
+  los 33 temas existentes como productos completos; fuente de verdad para
+  «continúa mejorando los temas».
 - [`NUEVOS_TEMAS.md`](NUEVOS_TEMAS.md),
   [`../nuevos-temas/cola.json`](../nuevos-temas/cola.json) y
   [`CHECKLIST_TEMA.md`](CHECKLIST_TEMA.md): orden, estado y definición de

@@ -23,6 +23,12 @@ carril visual de temas. Pertenecer a la ruta no sustituye la autorización
 explícita necesaria para gastar dinero, usar credenciales, desplegar sobre datos
 reales o tomar decisiones comerciales reservadas a Andreu.
 
+Si Andreu usa **«continúa mejorando los temas»** o una instrucción equivalente,
+manda el carril específico `docs/ROADMAP_MEJORA_TEMAS.md` sobre la «Próxima
+sesión» general. Ese trabajo vive en `codex/theme-product-hardening` y revisa los
+temas existentes como productos completos —producto, UX/UI, arquitectura
+frontend, SEO, marketing, accesibilidad y rendimiento— sin bifurcar el motor.
+
 ---
 
 ## 1. ROL Y CONTEXTO
