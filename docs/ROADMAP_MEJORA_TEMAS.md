@@ -220,7 +220,7 @@ deploy autorizado cuando cambien sus capturas o contenido.
 | Bloque | Entrega | Estado |
 |---|---|---|
 | TH0.1 | Rama, mandato, rúbrica, cola y protocolo de reanudación | ✅ 2026-08-18 |
-| TH0.2 | Informe automático de inventario, rutas, registros, JS, assets, metas, schema y pesos de los 33 temas | pendiente |
+| TH0.2 | Informe automático de inventario, rutas, registros, JS, assets, metas, schema y pesos de los 33 temas | ✅ 2026-08-18 |
 | TH0.3 | Auditoría visual/producto de las superficies compartidas y matriz de gaps P0–P3 | pendiente |
 | TH0.4 | Guardas contra deriva entre registro, colección, auditor, capturas, galería y ficha | pendiente |
 | TH0.5 | Cerrar C14.3: migrar NODDO, Sitēga y STRETCH al mismo contrato local de ficha/cesta/checkout/gracias | pendiente |
@@ -329,9 +329,34 @@ La ficha `docs/temas/<id>.md` añade al final:
 
 ## 9. Siguiente bloque
 
-**TH0.2 — línea base automática de los 33 temas.** Crear un inventario
-reproducible que detecte tema/colección/ruta/ficha/capturas, divergencias entre
-los registros explícitos, scripts o claves de cesta privadas, metadatos y
-JSON-LD, cantidad y formato de assets, JavaScript propio y peso aproximado por
-escaparate. El bloque termina con un informe versionado, hallazgos P0–P3 y el
-estado de TH0.2 actualizado; todavía no rediseña ningún tema.
+**TH0.3 — auditoría visual/producto de las superficies compartidas.** Usar la
+línea base de TH0.2 para inspeccionar catálogo, ficha, cesta, checkout, gracias,
+`Shop.astro`, `/temas` y sus estados comunes; convertir los hallazgos en una
+matriz P0–P3 con alcance, evidencia y bloque destino. Todavía no rediseña un
+tema individual: distingue primero defectos del contrato común, excepciones
+heredadas y deuda puramente visual.
+
+## 10. Cierres del carril
+
+### TH0.2 — línea base automática de los 33 temas (2026-08-18)
+
+- `scripts/theme-baseline.mjs` compara de forma estática y reproducible los
+  registros de temas, colecciones, seeds, catálogos, auditor a11y, capturas,
+  galería, fichas y componentes. También registra rutas, contrato compartido,
+  claves privadas, noindex/canonical/Product+Offer, productos, formatos, bytes
+  de assets y JavaScript propio sin arrancar Astro ni consultar D1.
+- `pnpm audit:themes` regenera el informe humano
+  `docs/audits/THEME_BASELINE.md` y el snapshot máquina-legible
+  `docs/audits/theme-baseline.json`; `--check` detecta un snapshot obsoleto.
+- Línea base: 33/33 colecciones, seeds, vistas de catálogo, auditor y registros
+  de captura; 30/33 recorridos usan íntegramente el contrato común y 32/33
+  conservan el juego de evidencia visual completo.
+- Hallazgos: P0 0; P1 deriva de SILLAGE en la galería, recorrido/storage y
+  Product+Offer privados en NODDO/Sitēga/STRETCH, y capturas incompletas de
+  ARGENT.; P2 canonical común ausente, cuatro directorios por encima de 2,5 MB
+  y cinco temas con JPG/MP4; P3 fallbacks estáticos ausentes y recuento antiguo
+  en `docs/TEMAS.md`. Cada hallazgo queda asignado a TH0.3, TH0.4, TH0.5, TH0.6
+  o TH5.2; este bloque no corrige ni rediseña todavía.
+- Verificado: snapshot regenerado y `--check` estable; `pnpm check` pasa el
+  typecheck de 723 archivos, 169 suites/786 tests y el build con sitemap. No
+  aplica E2E/a11y visual porque TH0.2 solo añade análisis estático y docs.

@@ -1,0 +1,2588 @@
+{
+  "schemaVersion": 1,
+  "scope": {
+    "themes": 33,
+    "ids": [
+      "editorial",
+      "industrial",
+      "natural",
+      "guide",
+      "specs",
+      "minimal",
+      "arce",
+      "launch",
+      "street",
+      "iris",
+      "noddo",
+      "sitega",
+      "forma",
+      "stretch",
+      "argent",
+      "sillage",
+      "summit",
+      "litica",
+      "nera",
+      "viso",
+      "orbe",
+      "alva",
+      "brio",
+      "bruma",
+      "traza",
+      "dintel",
+      "lumbre",
+      "mixta",
+      "monte",
+      "sarga",
+      "ensamble",
+      "eje",
+      "arista"
+    ]
+  },
+  "methodology": {
+    "assetBytes": "Suma de archivos bajo public/images/collections/<id>; techo de inventario, no transferencia de red.",
+    "scriptBytes": "Contenido fuente de bloques <script> en componentes y rutas propias; no bundle ni gzip.",
+    "requiredCaptures": [
+      "catalog",
+      "mobile",
+      "product",
+      "card560",
+      "card900"
+    ]
+  },
+  "registries": {
+    "themes": {
+      "count": 33,
+      "missing": [],
+      "extra": []
+    },
+    "collections": {
+      "count": 33,
+      "missing": [],
+      "extra": []
+    },
+    "seeds": {
+      "count": 33,
+      "missing": [],
+      "extra": []
+    },
+    "catalogViews": {
+      "count": 33,
+      "missing": [],
+      "extra": []
+    },
+    "a11y": {
+      "count": 33,
+      "missing": [],
+      "extra": []
+    },
+    "captureCatalog": {
+      "count": 33,
+      "missing": [],
+      "extra": []
+    },
+    "captureProduct": {
+      "count": 33,
+      "missing": [],
+      "extra": []
+    },
+    "homeGallery": {
+      "count": 32,
+      "missing": [
+        "sillage"
+      ],
+      "extra": []
+    },
+    "docs": {
+      "count": 33,
+      "missing": [],
+      "extra": []
+    },
+    "components": {
+      "count": 33,
+      "missing": [],
+      "extra": []
+    }
+  },
+  "summary": {
+    "severities": {
+      "P0": 0,
+      "P1": 4,
+      "P2": 3,
+      "P3": 2
+    },
+    "sharedContract": 30,
+    "privateCommerce": 3,
+    "completeCaptureSets": 32,
+    "assetBytes": 35258052,
+    "scriptBytes": 28882
+  },
+  "findings": [
+    {
+      "severity": "P1",
+      "id": "TH0.2-P1-01",
+      "title": "Deriva entre registros explícitos",
+      "themes": [
+        "sillage"
+      ],
+      "evidence": "Algún tema no está en colección, seed, catálogo, auditor, capturas, galería o ficha.",
+      "destination": "TH0.4 · guardas contra deriva."
+    },
+    {
+      "severity": "P1",
+      "id": "TH0.2-P1-02",
+      "title": "Recorrido comercial o storage privado",
+      "themes": [
+        "noddo",
+        "sitega",
+        "stretch"
+      ],
+      "evidence": "noddo: noddo-demo-cart · sitega: sitega-demo-cart · stretch: stretch-demo-cart",
+      "destination": "TH0.5 · migración al contrato local común."
+    },
+    {
+      "severity": "P1",
+      "id": "TH0.2-P1-03",
+      "title": "Ficha sin Product + Offer compartido",
+      "themes": [
+        "noddo",
+        "sitega",
+        "stretch"
+      ],
+      "evidence": "Las rutas privadas no componen ProductPage ni emiten JSON-LD propio.",
+      "destination": "TH0.5 · migración al contrato local común."
+    },
+    {
+      "severity": "P1",
+      "id": "TH0.2-P1-04",
+      "title": "Evidencia visual incompleta",
+      "themes": [
+        "argent"
+      ],
+      "evidence": "argent: catalog, mobile, product",
+      "destination": "TH0.3 · auditoría visual y regeneración de evidencia."
+    },
+    {
+      "severity": "P2",
+      "id": "TH0.2-P2-01",
+      "title": "Demos noindex sin canonical explícita",
+      "themes": [
+        "alva",
+        "arce",
+        "argent",
+        "arista",
+        "brio",
+        "bruma",
+        "dintel",
+        "editorial",
+        "eje",
+        "ensamble",
+        "forma",
+        "guide",
+        "industrial",
+        "iris",
+        "launch",
+        "litica",
+        "lumbre",
+        "minimal",
+        "mixta",
+        "monte",
+        "natural",
+        "nera",
+        "noddo",
+        "orbe",
+        "sarga",
+        "sillage",
+        "sitega",
+        "specs",
+        "street",
+        "stretch",
+        "summit",
+        "traza",
+        "viso"
+      ],
+      "evidence": "Shop activa noindex,follow pero no entrega canonicalPath al layout Base.",
+      "destination": "TH0.6 · consolidación del contrato SEO compartido."
+    },
+    {
+      "severity": "P2",
+      "id": "TH0.2-P2-02",
+      "title": "Directorio de assets por encima de 2,5 MB",
+      "themes": [
+        "argent",
+        "forma",
+        "noddo",
+        "sitega"
+      ],
+      "evidence": "noddo: 2.61 MB · sitega: 3.84 MB · forma: 4.58 MB · argent: 3.75 MB",
+      "destination": "TH0.3 · medir payload servido y priorizar optimización."
+    },
+    {
+      "severity": "P2",
+      "id": "TH0.2-P2-03",
+      "title": "Assets raster/vídeo fuera del formato base",
+      "themes": [
+        "forma",
+        "iris",
+        "noddo",
+        "sitega",
+        "stretch"
+      ],
+      "evidence": "iris: jpg×1, mp4×1, webp×6 · noddo: jpg×16, webp×12 · sitega: jpg×9 · forma: jpg×14 · stretch: jpg×5",
+      "destination": "TH0.3 · validar necesidad, compresión y carga real por viewport."
+    },
+    {
+      "severity": "P3",
+      "id": "TH0.2-P3-01",
+      "title": "Muestra estática de fallback ausente",
+      "themes": [
+        "alva",
+        "arce",
+        "argent",
+        "arista",
+        "brio",
+        "bruma",
+        "dintel",
+        "eje",
+        "ensamble",
+        "forma",
+        "iris",
+        "litica",
+        "lumbre",
+        "mixta",
+        "monte",
+        "nera",
+        "noddo",
+        "orbe",
+        "sarga",
+        "sillage",
+        "sitega",
+        "stretch",
+        "summit",
+        "traza",
+        "viso"
+      ],
+      "evidence": "La tarjeta de /temas funciona por captura viva, pero el fallback sample declarado no existe.",
+      "destination": "TH5.2 · productización de /temas."
+    },
+    {
+      "severity": "P3",
+      "id": "TH0.2-P3-02",
+      "title": "Recuento editorial de temas desactualizado",
+      "themes": [],
+      "evidence": "docs/TEMAS.md declara 28; el registro contiene 33.",
+      "destination": "TH0.6 · actualización de contratos y documentación."
+    }
+  ],
+  "themes": [
+    {
+      "id": "editorial",
+      "status": "ready",
+      "registries": {
+        "themes": true,
+        "collections": true,
+        "seeds": true,
+        "catalogViews": true,
+        "a11y": true,
+        "captureCatalog": true,
+        "captureProduct": true,
+        "homeGallery": true,
+        "docs": true,
+        "components": true
+      },
+      "routes": {
+        "mode": "dynamic",
+        "sharedSurfaces": {
+          "product": true,
+          "cart": true,
+          "checkout": true,
+          "thanks": true
+        },
+        "sharedContract": true,
+        "customFiles": []
+      },
+      "storage": {
+        "expectedCartKey": "ecom-cart:editorial",
+        "configuredCartKey": "ecom-cart:editorial",
+        "privateKeys": []
+      },
+      "metadata": {
+        "noindex": true,
+        "description": true,
+        "canonical": false,
+        "productJsonLd": true
+      },
+      "evidence": {
+        "doc": true,
+        "reference": true,
+        "referenceFile": "01-editorial.webp",
+        "sample": true,
+        "samplePath": "/images/temas/editorial.webp",
+        "captures": {
+          "catalog": true,
+          "mobile": true,
+          "product": true,
+          "card560": true,
+          "card900": true
+        }
+      },
+      "catalog": {
+        "products": 10,
+        "missingAssets": []
+      },
+      "assets": {
+        "files": 10,
+        "bytes": 214144,
+        "formats": {
+          "webp": 10
+        }
+      },
+      "source": {
+        "files": 7,
+        "bytes": 17731,
+        "scriptBlocks": 1,
+        "scriptBytes": 341
+      }
+    },
+    {
+      "id": "industrial",
+      "status": "ready",
+      "registries": {
+        "themes": true,
+        "collections": true,
+        "seeds": true,
+        "catalogViews": true,
+        "a11y": true,
+        "captureCatalog": true,
+        "captureProduct": true,
+        "homeGallery": true,
+        "docs": true,
+        "components": true
+      },
+      "routes": {
+        "mode": "dynamic",
+        "sharedSurfaces": {
+          "product": true,
+          "cart": true,
+          "checkout": true,
+          "thanks": true
+        },
+        "sharedContract": true,
+        "customFiles": []
+      },
+      "storage": {
+        "expectedCartKey": "ecom-cart:industrial",
+        "configuredCartKey": "ecom-cart:industrial",
+        "privateKeys": []
+      },
+      "metadata": {
+        "noindex": true,
+        "description": true,
+        "canonical": false,
+        "productJsonLd": true
+      },
+      "evidence": {
+        "doc": true,
+        "reference": true,
+        "referenceFile": "02-industrial.webp",
+        "sample": true,
+        "samplePath": "/images/temas/industrial.webp",
+        "captures": {
+          "catalog": true,
+          "mobile": true,
+          "product": true,
+          "card560": true,
+          "card900": true
+        }
+      },
+      "catalog": {
+        "products": 10,
+        "missingAssets": []
+      },
+      "assets": {
+        "files": 10,
+        "bytes": 126752,
+        "formats": {
+          "webp": 10
+        }
+      },
+      "source": {
+        "files": 6,
+        "bytes": 30876,
+        "scriptBlocks": 1,
+        "scriptBytes": 533
+      }
+    },
+    {
+      "id": "natural",
+      "status": "ready",
+      "registries": {
+        "themes": true,
+        "collections": true,
+        "seeds": true,
+        "catalogViews": true,
+        "a11y": true,
+        "captureCatalog": true,
+        "captureProduct": true,
+        "homeGallery": true,
+        "docs": true,
+        "components": true
+      },
+      "routes": {
+        "mode": "dynamic",
+        "sharedSurfaces": {
+          "product": true,
+          "cart": true,
+          "checkout": true,
+          "thanks": true
+        },
+        "sharedContract": true,
+        "customFiles": []
+      },
+      "storage": {
+        "expectedCartKey": "ecom-cart:natural",
+        "configuredCartKey": "ecom-cart:natural",
+        "privateKeys": []
+      },
+      "metadata": {
+        "noindex": true,
+        "description": true,
+        "canonical": false,
+        "productJsonLd": true
+      },
+      "evidence": {
+        "doc": true,
+        "reference": true,
+        "referenceFile": "03-natural.webp",
+        "sample": true,
+        "samplePath": "/images/temas/natural.webp",
+        "captures": {
+          "catalog": true,
+          "mobile": true,
+          "product": true,
+          "card560": true,
+          "card900": true
+        }
+      },
+      "catalog": {
+        "products": 12,
+        "missingAssets": []
+      },
+      "assets": {
+        "files": 13,
+        "bytes": 125280,
+        "formats": {
+          "webp": 13
+        }
+      },
+      "source": {
+        "files": 6,
+        "bytes": 36093,
+        "scriptBlocks": 1,
+        "scriptBytes": 524
+      }
+    },
+    {
+      "id": "guide",
+      "status": "ready",
+      "registries": {
+        "themes": true,
+        "collections": true,
+        "seeds": true,
+        "catalogViews": true,
+        "a11y": true,
+        "captureCatalog": true,
+        "captureProduct": true,
+        "homeGallery": true,
+        "docs": true,
+        "components": true
+      },
+      "routes": {
+        "mode": "dynamic",
+        "sharedSurfaces": {
+          "product": true,
+          "cart": true,
+          "checkout": true,
+          "thanks": true
+        },
+        "sharedContract": true,
+        "customFiles": []
+      },
+      "storage": {
+        "expectedCartKey": "ecom-cart:guide",
+        "configuredCartKey": "ecom-cart:guide",
+        "privateKeys": []
+      },
+      "metadata": {
+        "noindex": true,
+        "description": true,
+        "canonical": false,
+        "productJsonLd": true
+      },
+      "evidence": {
+        "doc": true,
+        "reference": true,
+        "referenceFile": "04-guide.webp",
+        "sample": true,
+        "samplePath": "/images/temas/guide.webp",
+        "captures": {
+          "catalog": true,
+          "mobile": true,
+          "product": true,
+          "card560": true,
+          "card900": true
+        }
+      },
+      "catalog": {
+        "products": 8,
+        "missingAssets": []
+      },
+      "assets": {
+        "files": 8,
+        "bytes": 113554,
+        "formats": {
+          "webp": 8
+        }
+      },
+      "source": {
+        "files": 8,
+        "bytes": 18050,
+        "scriptBlocks": 1,
+        "scriptBytes": 379
+      }
+    },
+    {
+      "id": "specs",
+      "status": "ready",
+      "registries": {
+        "themes": true,
+        "collections": true,
+        "seeds": true,
+        "catalogViews": true,
+        "a11y": true,
+        "captureCatalog": true,
+        "captureProduct": true,
+        "homeGallery": true,
+        "docs": true,
+        "components": true
+      },
+      "routes": {
+        "mode": "dynamic",
+        "sharedSurfaces": {
+          "product": true,
+          "cart": true,
+          "checkout": true,
+          "thanks": true
+        },
+        "sharedContract": true,
+        "customFiles": []
+      },
+      "storage": {
+        "expectedCartKey": "ecom-cart:specs",
+        "configuredCartKey": "ecom-cart:specs",
+        "privateKeys": []
+      },
+      "metadata": {
+        "noindex": true,
+        "description": true,
+        "canonical": false,
+        "productJsonLd": true
+      },
+      "evidence": {
+        "doc": true,
+        "reference": true,
+        "referenceFile": "05-specs.webp",
+        "sample": true,
+        "samplePath": "/images/temas/specs.webp",
+        "captures": {
+          "catalog": true,
+          "mobile": true,
+          "product": true,
+          "card560": true,
+          "card900": true
+        }
+      },
+      "catalog": {
+        "products": 9,
+        "missingAssets": []
+      },
+      "assets": {
+        "files": 9,
+        "bytes": 151192,
+        "formats": {
+          "webp": 9
+        }
+      },
+      "source": {
+        "files": 5,
+        "bytes": 32806,
+        "scriptBlocks": 1,
+        "scriptBytes": 518
+      }
+    },
+    {
+      "id": "minimal",
+      "status": "ready",
+      "registries": {
+        "themes": true,
+        "collections": true,
+        "seeds": true,
+        "catalogViews": true,
+        "a11y": true,
+        "captureCatalog": true,
+        "captureProduct": true,
+        "homeGallery": true,
+        "docs": true,
+        "components": true
+      },
+      "routes": {
+        "mode": "dynamic",
+        "sharedSurfaces": {
+          "product": true,
+          "cart": true,
+          "checkout": true,
+          "thanks": true
+        },
+        "sharedContract": true,
+        "customFiles": []
+      },
+      "storage": {
+        "expectedCartKey": "ecom-cart:minimal",
+        "configuredCartKey": "ecom-cart:minimal",
+        "privateKeys": []
+      },
+      "metadata": {
+        "noindex": true,
+        "description": true,
+        "canonical": false,
+        "productJsonLd": true
+      },
+      "evidence": {
+        "doc": true,
+        "reference": true,
+        "referenceFile": "06-minimal.webp",
+        "sample": true,
+        "samplePath": "/images/temas/minimal.webp",
+        "captures": {
+          "catalog": true,
+          "mobile": true,
+          "product": true,
+          "card560": true,
+          "card900": true
+        }
+      },
+      "catalog": {
+        "products": 8,
+        "missingAssets": []
+      },
+      "assets": {
+        "files": 8,
+        "bytes": 116134,
+        "formats": {
+          "webp": 8
+        }
+      },
+      "source": {
+        "files": 8,
+        "bytes": 16244,
+        "scriptBlocks": 0,
+        "scriptBytes": 0
+      }
+    },
+    {
+      "id": "arce",
+      "status": "ready",
+      "registries": {
+        "themes": true,
+        "collections": true,
+        "seeds": true,
+        "catalogViews": true,
+        "a11y": true,
+        "captureCatalog": true,
+        "captureProduct": true,
+        "homeGallery": true,
+        "docs": true,
+        "components": true
+      },
+      "routes": {
+        "mode": "dynamic",
+        "sharedSurfaces": {
+          "product": true,
+          "cart": true,
+          "checkout": true,
+          "thanks": true
+        },
+        "sharedContract": true,
+        "customFiles": []
+      },
+      "storage": {
+        "expectedCartKey": "ecom-cart:arce",
+        "configuredCartKey": "ecom-cart:arce",
+        "privateKeys": []
+      },
+      "metadata": {
+        "noindex": true,
+        "description": true,
+        "canonical": false,
+        "productJsonLd": true
+      },
+      "evidence": {
+        "doc": true,
+        "reference": true,
+        "referenceFile": "14-arce.webp",
+        "sample": false,
+        "samplePath": null,
+        "captures": {
+          "catalog": true,
+          "mobile": true,
+          "product": true,
+          "card560": true,
+          "card900": true
+        }
+      },
+      "catalog": {
+        "products": 8,
+        "missingAssets": []
+      },
+      "assets": {
+        "files": 9,
+        "bytes": 1041650,
+        "formats": {
+          "webp": 9
+        }
+      },
+      "source": {
+        "files": 3,
+        "bytes": 21933,
+        "scriptBlocks": 1,
+        "scriptBytes": 759
+      }
+    },
+    {
+      "id": "launch",
+      "status": "ready",
+      "registries": {
+        "themes": true,
+        "collections": true,
+        "seeds": true,
+        "catalogViews": true,
+        "a11y": true,
+        "captureCatalog": true,
+        "captureProduct": true,
+        "homeGallery": true,
+        "docs": true,
+        "components": true
+      },
+      "routes": {
+        "mode": "dynamic",
+        "sharedSurfaces": {
+          "product": true,
+          "cart": true,
+          "checkout": true,
+          "thanks": true
+        },
+        "sharedContract": true,
+        "customFiles": []
+      },
+      "storage": {
+        "expectedCartKey": "ecom-cart:launch",
+        "configuredCartKey": "ecom-cart:launch",
+        "privateKeys": []
+      },
+      "metadata": {
+        "noindex": true,
+        "description": true,
+        "canonical": false,
+        "productJsonLd": true
+      },
+      "evidence": {
+        "doc": true,
+        "reference": true,
+        "referenceFile": "07-launch.webp",
+        "sample": true,
+        "samplePath": "/images/temas/launch.webp",
+        "captures": {
+          "catalog": true,
+          "mobile": true,
+          "product": true,
+          "card560": true,
+          "card900": true
+        }
+      },
+      "catalog": {
+        "products": 5,
+        "missingAssets": []
+      },
+      "assets": {
+        "files": 5,
+        "bytes": 56282,
+        "formats": {
+          "webp": 5
+        }
+      },
+      "source": {
+        "files": 9,
+        "bytes": 25711,
+        "scriptBlocks": 1,
+        "scriptBytes": 372
+      }
+    },
+    {
+      "id": "street",
+      "status": "ready",
+      "registries": {
+        "themes": true,
+        "collections": true,
+        "seeds": true,
+        "catalogViews": true,
+        "a11y": true,
+        "captureCatalog": true,
+        "captureProduct": true,
+        "homeGallery": true,
+        "docs": true,
+        "components": true
+      },
+      "routes": {
+        "mode": "dynamic",
+        "sharedSurfaces": {
+          "product": true,
+          "cart": true,
+          "checkout": true,
+          "thanks": true
+        },
+        "sharedContract": true,
+        "customFiles": []
+      },
+      "storage": {
+        "expectedCartKey": "ecom-cart:street",
+        "configuredCartKey": "ecom-cart:street",
+        "privateKeys": []
+      },
+      "metadata": {
+        "noindex": true,
+        "description": true,
+        "canonical": false,
+        "productJsonLd": true
+      },
+      "evidence": {
+        "doc": true,
+        "reference": true,
+        "referenceFile": "08-street.webp",
+        "sample": true,
+        "samplePath": "/images/temas/street.webp",
+        "captures": {
+          "catalog": true,
+          "mobile": true,
+          "product": true,
+          "card560": true,
+          "card900": true
+        }
+      },
+      "catalog": {
+        "products": 12,
+        "missingAssets": []
+      },
+      "assets": {
+        "files": 16,
+        "bytes": 402272,
+        "formats": {
+          "webp": 16
+        }
+      },
+      "source": {
+        "files": 11,
+        "bytes": 50988,
+        "scriptBlocks": 1,
+        "scriptBytes": 381
+      }
+    },
+    {
+      "id": "iris",
+      "status": "ready",
+      "registries": {
+        "themes": true,
+        "collections": true,
+        "seeds": true,
+        "catalogViews": true,
+        "a11y": true,
+        "captureCatalog": true,
+        "captureProduct": true,
+        "homeGallery": true,
+        "docs": true,
+        "components": true
+      },
+      "routes": {
+        "mode": "dynamic",
+        "sharedSurfaces": {
+          "product": true,
+          "cart": true,
+          "checkout": true,
+          "thanks": true
+        },
+        "sharedContract": true,
+        "customFiles": []
+      },
+      "storage": {
+        "expectedCartKey": "ecom-cart:iris",
+        "configuredCartKey": "ecom-cart:iris",
+        "privateKeys": []
+      },
+      "metadata": {
+        "noindex": true,
+        "description": true,
+        "canonical": false,
+        "productJsonLd": true
+      },
+      "evidence": {
+        "doc": true,
+        "reference": true,
+        "referenceFile": "09-iris.webp",
+        "sample": false,
+        "samplePath": null,
+        "captures": {
+          "catalog": true,
+          "mobile": true,
+          "product": true,
+          "card560": true,
+          "card900": true
+        }
+      },
+      "catalog": {
+        "products": 6,
+        "missingAssets": []
+      },
+      "assets": {
+        "files": 8,
+        "bytes": 1875229,
+        "formats": {
+          "jpg": 1,
+          "mp4": 1,
+          "webp": 6
+        }
+      },
+      "source": {
+        "files": 4,
+        "bytes": 27013,
+        "scriptBlocks": 2,
+        "scriptBytes": 5241
+      }
+    },
+    {
+      "id": "noddo",
+      "status": "ready",
+      "registries": {
+        "themes": true,
+        "collections": true,
+        "seeds": true,
+        "catalogViews": true,
+        "a11y": true,
+        "captureCatalog": true,
+        "captureProduct": true,
+        "homeGallery": true,
+        "docs": true,
+        "components": true
+      },
+      "routes": {
+        "mode": "custom",
+        "sharedSurfaces": {
+          "product": false,
+          "cart": false,
+          "checkout": false,
+          "thanks": false
+        },
+        "sharedContract": false,
+        "customFiles": [
+          "src/pages/demo/tiendas/noddo/[slug].astro",
+          "src/pages/demo/tiendas/noddo/carrito.astro",
+          "src/pages/demo/tiendas/noddo/checkout.astro",
+          "src/pages/demo/tiendas/noddo/gracias.astro",
+          "src/pages/demo/tiendas/noddo/index.astro"
+        ]
+      },
+      "storage": {
+        "expectedCartKey": "ecom-cart:noddo",
+        "configuredCartKey": "noddo-demo-cart",
+        "privateKeys": [
+          "noddo-demo-cart"
+        ]
+      },
+      "metadata": {
+        "noindex": true,
+        "description": true,
+        "canonical": false,
+        "productJsonLd": false
+      },
+      "evidence": {
+        "doc": true,
+        "reference": true,
+        "referenceFile": "10-noddo.webp",
+        "sample": false,
+        "samplePath": null,
+        "captures": {
+          "catalog": true,
+          "mobile": true,
+          "product": true,
+          "card560": true,
+          "card900": true
+        }
+      },
+      "catalog": {
+        "products": 12,
+        "missingAssets": []
+      },
+      "assets": {
+        "files": 28,
+        "bytes": 2732504,
+        "formats": {
+          "jpg": 16,
+          "webp": 12
+        }
+      },
+      "source": {
+        "files": 11,
+        "bytes": 36164,
+        "scriptBlocks": 5,
+        "scriptBytes": 5758
+      }
+    },
+    {
+      "id": "sitega",
+      "status": "ready",
+      "registries": {
+        "themes": true,
+        "collections": true,
+        "seeds": true,
+        "catalogViews": true,
+        "a11y": true,
+        "captureCatalog": true,
+        "captureProduct": true,
+        "homeGallery": true,
+        "docs": true,
+        "components": true
+      },
+      "routes": {
+        "mode": "custom",
+        "sharedSurfaces": {
+          "product": false,
+          "cart": false,
+          "checkout": false,
+          "thanks": false
+        },
+        "sharedContract": false,
+        "customFiles": [
+          "src/pages/demo/tiendas/sitega/[slug].astro",
+          "src/pages/demo/tiendas/sitega/carrito.astro",
+          "src/pages/demo/tiendas/sitega/checkout.astro",
+          "src/pages/demo/tiendas/sitega/gracias.astro",
+          "src/pages/demo/tiendas/sitega/index.astro"
+        ]
+      },
+      "storage": {
+        "expectedCartKey": "ecom-cart:sitega",
+        "configuredCartKey": "sitega-demo-cart",
+        "privateKeys": [
+          "sitega-demo-cart"
+        ]
+      },
+      "metadata": {
+        "noindex": true,
+        "description": true,
+        "canonical": false,
+        "productJsonLd": false
+      },
+      "evidence": {
+        "doc": true,
+        "reference": true,
+        "referenceFile": "11-sitega.webp",
+        "sample": false,
+        "samplePath": null,
+        "captures": {
+          "catalog": true,
+          "mobile": true,
+          "product": true,
+          "card560": true,
+          "card900": true
+        }
+      },
+      "catalog": {
+        "products": 8,
+        "missingAssets": []
+      },
+      "assets": {
+        "files": 9,
+        "bytes": 4026162,
+        "formats": {
+          "jpg": 9
+        }
+      },
+      "source": {
+        "files": 11,
+        "bytes": 24905,
+        "scriptBlocks": 4,
+        "scriptBytes": 2322
+      }
+    },
+    {
+      "id": "forma",
+      "status": "ready",
+      "registries": {
+        "themes": true,
+        "collections": true,
+        "seeds": true,
+        "catalogViews": true,
+        "a11y": true,
+        "captureCatalog": true,
+        "captureProduct": true,
+        "homeGallery": true,
+        "docs": true,
+        "components": true
+      },
+      "routes": {
+        "mode": "custom",
+        "sharedSurfaces": {
+          "product": true,
+          "cart": true,
+          "checkout": true,
+          "thanks": true
+        },
+        "sharedContract": true,
+        "customFiles": [
+          "src/pages/demo/tiendas/forma/[slug].astro",
+          "src/pages/demo/tiendas/forma/carrito.astro",
+          "src/pages/demo/tiendas/forma/checkout.astro",
+          "src/pages/demo/tiendas/forma/gracias.astro",
+          "src/pages/demo/tiendas/forma/index.astro"
+        ]
+      },
+      "storage": {
+        "expectedCartKey": "ecom-cart:forma",
+        "configuredCartKey": "ecom-cart:forma",
+        "privateKeys": []
+      },
+      "metadata": {
+        "noindex": true,
+        "description": true,
+        "canonical": false,
+        "productJsonLd": true
+      },
+      "evidence": {
+        "doc": true,
+        "reference": true,
+        "referenceFile": "12-forma.webp",
+        "sample": false,
+        "samplePath": null,
+        "captures": {
+          "catalog": true,
+          "mobile": true,
+          "product": true,
+          "card560": true,
+          "card900": true
+        }
+      },
+      "catalog": {
+        "products": 6,
+        "missingAssets": []
+      },
+      "assets": {
+        "files": 14,
+        "bytes": 4805886,
+        "formats": {
+          "jpg": 14
+        }
+      },
+      "source": {
+        "files": 12,
+        "bytes": 25803,
+        "scriptBlocks": 0,
+        "scriptBytes": 0
+      }
+    },
+    {
+      "id": "stretch",
+      "status": "ready",
+      "registries": {
+        "themes": true,
+        "collections": true,
+        "seeds": true,
+        "catalogViews": true,
+        "a11y": true,
+        "captureCatalog": true,
+        "captureProduct": true,
+        "homeGallery": true,
+        "docs": true,
+        "components": true
+      },
+      "routes": {
+        "mode": "custom",
+        "sharedSurfaces": {
+          "product": false,
+          "cart": false,
+          "checkout": false,
+          "thanks": false
+        },
+        "sharedContract": false,
+        "customFiles": [
+          "src/pages/demo/tiendas/stretch/[slug].astro",
+          "src/pages/demo/tiendas/stretch/carrito.astro",
+          "src/pages/demo/tiendas/stretch/checkout.astro",
+          "src/pages/demo/tiendas/stretch/gracias.astro",
+          "src/pages/demo/tiendas/stretch/index.astro"
+        ]
+      },
+      "storage": {
+        "expectedCartKey": "ecom-cart:stretch",
+        "configuredCartKey": "stretch-demo-cart",
+        "privateKeys": [
+          "stretch-demo-cart"
+        ]
+      },
+      "metadata": {
+        "noindex": true,
+        "description": true,
+        "canonical": false,
+        "productJsonLd": false
+      },
+      "evidence": {
+        "doc": true,
+        "reference": true,
+        "referenceFile": "13-stretch.webp",
+        "sample": false,
+        "samplePath": null,
+        "captures": {
+          "catalog": true,
+          "mobile": true,
+          "product": true,
+          "card560": true,
+          "card900": true
+        }
+      },
+      "catalog": {
+        "products": 7,
+        "missingAssets": []
+      },
+      "assets": {
+        "files": 5,
+        "bytes": 776075,
+        "formats": {
+          "jpg": 5
+        }
+      },
+      "source": {
+        "files": 11,
+        "bytes": 30731,
+        "scriptBlocks": 4,
+        "scriptBytes": 5893
+      }
+    },
+    {
+      "id": "argent",
+      "status": "ready",
+      "registries": {
+        "themes": true,
+        "collections": true,
+        "seeds": true,
+        "catalogViews": true,
+        "a11y": true,
+        "captureCatalog": true,
+        "captureProduct": true,
+        "homeGallery": true,
+        "docs": true,
+        "components": true
+      },
+      "routes": {
+        "mode": "dynamic",
+        "sharedSurfaces": {
+          "product": true,
+          "cart": true,
+          "checkout": true,
+          "thanks": true
+        },
+        "sharedContract": true,
+        "customFiles": []
+      },
+      "storage": {
+        "expectedCartKey": "ecom-cart:argent",
+        "configuredCartKey": "ecom-cart:argent",
+        "privateKeys": []
+      },
+      "metadata": {
+        "noindex": true,
+        "description": true,
+        "canonical": false,
+        "productJsonLd": true
+      },
+      "evidence": {
+        "doc": true,
+        "reference": true,
+        "referenceFile": "14-argent.webp",
+        "sample": false,
+        "samplePath": null,
+        "captures": {
+          "catalog": false,
+          "mobile": false,
+          "product": false,
+          "card560": true,
+          "card900": true
+        }
+      },
+      "catalog": {
+        "products": 5,
+        "missingAssets": []
+      },
+      "assets": {
+        "files": 8,
+        "bytes": 3927070,
+        "formats": {
+          "webp": 8
+        }
+      },
+      "source": {
+        "files": 5,
+        "bytes": 20705,
+        "scriptBlocks": 1,
+        "scriptBytes": 390
+      }
+    },
+    {
+      "id": "sillage",
+      "status": "ready",
+      "registries": {
+        "themes": true,
+        "collections": true,
+        "seeds": true,
+        "catalogViews": true,
+        "a11y": true,
+        "captureCatalog": true,
+        "captureProduct": true,
+        "homeGallery": false,
+        "docs": true,
+        "components": true
+      },
+      "routes": {
+        "mode": "dynamic",
+        "sharedSurfaces": {
+          "product": true,
+          "cart": true,
+          "checkout": true,
+          "thanks": true
+        },
+        "sharedContract": true,
+        "customFiles": []
+      },
+      "storage": {
+        "expectedCartKey": "ecom-cart:sillage",
+        "configuredCartKey": "ecom-cart:sillage",
+        "privateKeys": []
+      },
+      "metadata": {
+        "noindex": true,
+        "description": true,
+        "canonical": false,
+        "productJsonLd": true
+      },
+      "evidence": {
+        "doc": true,
+        "reference": true,
+        "referenceFile": "15-sillage.webp",
+        "sample": false,
+        "samplePath": null,
+        "captures": {
+          "catalog": true,
+          "mobile": true,
+          "product": true,
+          "card560": true,
+          "card900": true
+        }
+      },
+      "catalog": {
+        "products": 8,
+        "missingAssets": []
+      },
+      "assets": {
+        "files": 14,
+        "bytes": 507422,
+        "formats": {
+          "webp": 14
+        }
+      },
+      "source": {
+        "files": 5,
+        "bytes": 20973,
+        "scriptBlocks": 1,
+        "scriptBytes": 393
+      }
+    },
+    {
+      "id": "summit",
+      "status": "ready",
+      "registries": {
+        "themes": true,
+        "collections": true,
+        "seeds": true,
+        "catalogViews": true,
+        "a11y": true,
+        "captureCatalog": true,
+        "captureProduct": true,
+        "homeGallery": true,
+        "docs": true,
+        "components": true
+      },
+      "routes": {
+        "mode": "dynamic",
+        "sharedSurfaces": {
+          "product": true,
+          "cart": true,
+          "checkout": true,
+          "thanks": true
+        },
+        "sharedContract": true,
+        "customFiles": []
+      },
+      "storage": {
+        "expectedCartKey": "ecom-cart:summit",
+        "configuredCartKey": "ecom-cart:summit",
+        "privateKeys": []
+      },
+      "metadata": {
+        "noindex": true,
+        "description": true,
+        "canonical": false,
+        "productJsonLd": true
+      },
+      "evidence": {
+        "doc": true,
+        "reference": true,
+        "referenceFile": "16-summit.webp",
+        "sample": false,
+        "samplePath": null,
+        "captures": {
+          "catalog": true,
+          "mobile": true,
+          "product": true,
+          "card560": true,
+          "card900": true
+        }
+      },
+      "catalog": {
+        "products": 7,
+        "missingAssets": []
+      },
+      "assets": {
+        "files": 9,
+        "bytes": 569216,
+        "formats": {
+          "webp": 9
+        }
+      },
+      "source": {
+        "files": 5,
+        "bytes": 21795,
+        "scriptBlocks": 1,
+        "scriptBytes": 391
+      }
+    },
+    {
+      "id": "litica",
+      "status": "ready",
+      "registries": {
+        "themes": true,
+        "collections": true,
+        "seeds": true,
+        "catalogViews": true,
+        "a11y": true,
+        "captureCatalog": true,
+        "captureProduct": true,
+        "homeGallery": true,
+        "docs": true,
+        "components": true
+      },
+      "routes": {
+        "mode": "dynamic",
+        "sharedSurfaces": {
+          "product": true,
+          "cart": true,
+          "checkout": true,
+          "thanks": true
+        },
+        "sharedContract": true,
+        "customFiles": []
+      },
+      "storage": {
+        "expectedCartKey": "ecom-cart:litica",
+        "configuredCartKey": "ecom-cart:litica",
+        "privateKeys": []
+      },
+      "metadata": {
+        "noindex": true,
+        "description": true,
+        "canonical": false,
+        "productJsonLd": true
+      },
+      "evidence": {
+        "doc": true,
+        "reference": true,
+        "referenceFile": "17-litica.webp",
+        "sample": false,
+        "samplePath": null,
+        "captures": {
+          "catalog": true,
+          "mobile": true,
+          "product": true,
+          "card560": true,
+          "card900": true
+        }
+      },
+      "catalog": {
+        "products": 6,
+        "missingAssets": []
+      },
+      "assets": {
+        "files": 10,
+        "bytes": 538222,
+        "formats": {
+          "webp": 10
+        }
+      },
+      "source": {
+        "files": 5,
+        "bytes": 24598,
+        "scriptBlocks": 1,
+        "scriptBytes": 391
+      }
+    },
+    {
+      "id": "nera",
+      "status": "ready",
+      "registries": {
+        "themes": true,
+        "collections": true,
+        "seeds": true,
+        "catalogViews": true,
+        "a11y": true,
+        "captureCatalog": true,
+        "captureProduct": true,
+        "homeGallery": true,
+        "docs": true,
+        "components": true
+      },
+      "routes": {
+        "mode": "dynamic",
+        "sharedSurfaces": {
+          "product": true,
+          "cart": true,
+          "checkout": true,
+          "thanks": true
+        },
+        "sharedContract": true,
+        "customFiles": []
+      },
+      "storage": {
+        "expectedCartKey": "ecom-cart:nera",
+        "configuredCartKey": "ecom-cart:nera",
+        "privateKeys": []
+      },
+      "metadata": {
+        "noindex": true,
+        "description": true,
+        "canonical": false,
+        "productJsonLd": true
+      },
+      "evidence": {
+        "doc": true,
+        "reference": true,
+        "referenceFile": "18-nera.webp",
+        "sample": false,
+        "samplePath": null,
+        "captures": {
+          "catalog": true,
+          "mobile": true,
+          "product": true,
+          "card560": true,
+          "card900": true
+        }
+      },
+      "catalog": {
+        "products": 8,
+        "missingAssets": []
+      },
+      "assets": {
+        "files": 11,
+        "bytes": 1543376,
+        "formats": {
+          "webp": 11
+        }
+      },
+      "source": {
+        "files": 5,
+        "bytes": 20982,
+        "scriptBlocks": 1,
+        "scriptBytes": 386
+      }
+    },
+    {
+      "id": "viso",
+      "status": "ready",
+      "registries": {
+        "themes": true,
+        "collections": true,
+        "seeds": true,
+        "catalogViews": true,
+        "a11y": true,
+        "captureCatalog": true,
+        "captureProduct": true,
+        "homeGallery": true,
+        "docs": true,
+        "components": true
+      },
+      "routes": {
+        "mode": "dynamic",
+        "sharedSurfaces": {
+          "product": true,
+          "cart": true,
+          "checkout": true,
+          "thanks": true
+        },
+        "sharedContract": true,
+        "customFiles": []
+      },
+      "storage": {
+        "expectedCartKey": "ecom-cart:viso",
+        "configuredCartKey": "ecom-cart:viso",
+        "privateKeys": []
+      },
+      "metadata": {
+        "noindex": true,
+        "description": true,
+        "canonical": false,
+        "productJsonLd": true
+      },
+      "evidence": {
+        "doc": true,
+        "reference": true,
+        "referenceFile": "19-viso.webp",
+        "sample": false,
+        "samplePath": null,
+        "captures": {
+          "catalog": true,
+          "mobile": true,
+          "product": true,
+          "card560": true,
+          "card900": true
+        }
+      },
+      "catalog": {
+        "products": 6,
+        "missingAssets": []
+      },
+      "assets": {
+        "files": 9,
+        "bytes": 1250464,
+        "formats": {
+          "webp": 9
+        }
+      },
+      "source": {
+        "files": 5,
+        "bytes": 16344,
+        "scriptBlocks": 1,
+        "scriptBytes": 365
+      }
+    },
+    {
+      "id": "orbe",
+      "status": "ready",
+      "registries": {
+        "themes": true,
+        "collections": true,
+        "seeds": true,
+        "catalogViews": true,
+        "a11y": true,
+        "captureCatalog": true,
+        "captureProduct": true,
+        "homeGallery": true,
+        "docs": true,
+        "components": true
+      },
+      "routes": {
+        "mode": "dynamic",
+        "sharedSurfaces": {
+          "product": true,
+          "cart": true,
+          "checkout": true,
+          "thanks": true
+        },
+        "sharedContract": true,
+        "customFiles": []
+      },
+      "storage": {
+        "expectedCartKey": "ecom-cart:orbe",
+        "configuredCartKey": "ecom-cart:orbe",
+        "privateKeys": []
+      },
+      "metadata": {
+        "noindex": true,
+        "description": true,
+        "canonical": false,
+        "productJsonLd": true
+      },
+      "evidence": {
+        "doc": true,
+        "reference": true,
+        "referenceFile": "20-orbe.webp",
+        "sample": false,
+        "samplePath": null,
+        "captures": {
+          "catalog": true,
+          "mobile": true,
+          "product": true,
+          "card560": true,
+          "card900": true
+        }
+      },
+      "catalog": {
+        "products": 6,
+        "missingAssets": []
+      },
+      "assets": {
+        "files": 9,
+        "bytes": 1279088,
+        "formats": {
+          "webp": 9
+        }
+      },
+      "source": {
+        "files": 5,
+        "bytes": 19148,
+        "scriptBlocks": 1,
+        "scriptBytes": 391
+      }
+    },
+    {
+      "id": "alva",
+      "status": "ready",
+      "registries": {
+        "themes": true,
+        "collections": true,
+        "seeds": true,
+        "catalogViews": true,
+        "a11y": true,
+        "captureCatalog": true,
+        "captureProduct": true,
+        "homeGallery": true,
+        "docs": true,
+        "components": true
+      },
+      "routes": {
+        "mode": "dynamic",
+        "sharedSurfaces": {
+          "product": true,
+          "cart": true,
+          "checkout": true,
+          "thanks": true
+        },
+        "sharedContract": true,
+        "customFiles": []
+      },
+      "storage": {
+        "expectedCartKey": "ecom-cart:alva",
+        "configuredCartKey": "ecom-cart:alva",
+        "privateKeys": []
+      },
+      "metadata": {
+        "noindex": true,
+        "description": true,
+        "canonical": false,
+        "productJsonLd": true
+      },
+      "evidence": {
+        "doc": true,
+        "reference": true,
+        "referenceFile": "21-alva.webp",
+        "sample": false,
+        "samplePath": null,
+        "captures": {
+          "catalog": true,
+          "mobile": true,
+          "product": true,
+          "card560": true,
+          "card900": true
+        }
+      },
+      "catalog": {
+        "products": 8,
+        "missingAssets": []
+      },
+      "assets": {
+        "files": 12,
+        "bytes": 1026620,
+        "formats": {
+          "webp": 12
+        }
+      },
+      "source": {
+        "files": 5,
+        "bytes": 20604,
+        "scriptBlocks": 1,
+        "scriptBytes": 391
+      }
+    },
+    {
+      "id": "brio",
+      "status": "ready",
+      "registries": {
+        "themes": true,
+        "collections": true,
+        "seeds": true,
+        "catalogViews": true,
+        "a11y": true,
+        "captureCatalog": true,
+        "captureProduct": true,
+        "homeGallery": true,
+        "docs": true,
+        "components": true
+      },
+      "routes": {
+        "mode": "dynamic",
+        "sharedSurfaces": {
+          "product": true,
+          "cart": true,
+          "checkout": true,
+          "thanks": true
+        },
+        "sharedContract": true,
+        "customFiles": []
+      },
+      "storage": {
+        "expectedCartKey": "ecom-cart:brio",
+        "configuredCartKey": "ecom-cart:brio",
+        "privateKeys": []
+      },
+      "metadata": {
+        "noindex": true,
+        "description": true,
+        "canonical": false,
+        "productJsonLd": true
+      },
+      "evidence": {
+        "doc": true,
+        "reference": true,
+        "referenceFile": "22-brio.webp",
+        "sample": false,
+        "samplePath": null,
+        "captures": {
+          "catalog": true,
+          "mobile": true,
+          "product": true,
+          "card560": true,
+          "card900": true
+        }
+      },
+      "catalog": {
+        "products": 6,
+        "missingAssets": []
+      },
+      "assets": {
+        "files": 8,
+        "bytes": 787968,
+        "formats": {
+          "webp": 8
+        }
+      },
+      "source": {
+        "files": 5,
+        "bytes": 20240,
+        "scriptBlocks": 1,
+        "scriptBytes": 386
+      }
+    },
+    {
+      "id": "bruma",
+      "status": "ready",
+      "registries": {
+        "themes": true,
+        "collections": true,
+        "seeds": true,
+        "catalogViews": true,
+        "a11y": true,
+        "captureCatalog": true,
+        "captureProduct": true,
+        "homeGallery": true,
+        "docs": true,
+        "components": true
+      },
+      "routes": {
+        "mode": "dynamic",
+        "sharedSurfaces": {
+          "product": true,
+          "cart": true,
+          "checkout": true,
+          "thanks": true
+        },
+        "sharedContract": true,
+        "customFiles": []
+      },
+      "storage": {
+        "expectedCartKey": "ecom-cart:bruma",
+        "configuredCartKey": "ecom-cart:bruma",
+        "privateKeys": []
+      },
+      "metadata": {
+        "noindex": true,
+        "description": true,
+        "canonical": false,
+        "productJsonLd": true
+      },
+      "evidence": {
+        "doc": true,
+        "reference": true,
+        "referenceFile": "23-bruma.webp",
+        "sample": false,
+        "samplePath": null,
+        "captures": {
+          "catalog": true,
+          "mobile": true,
+          "product": true,
+          "card560": true,
+          "card900": true
+        }
+      },
+      "catalog": {
+        "products": 8,
+        "missingAssets": []
+      },
+      "assets": {
+        "files": 8,
+        "bytes": 556292,
+        "formats": {
+          "webp": 8
+        }
+      },
+      "source": {
+        "files": 5,
+        "bytes": 13566,
+        "scriptBlocks": 1,
+        "scriptBytes": 397
+      }
+    },
+    {
+      "id": "traza",
+      "status": "ready",
+      "registries": {
+        "themes": true,
+        "collections": true,
+        "seeds": true,
+        "catalogViews": true,
+        "a11y": true,
+        "captureCatalog": true,
+        "captureProduct": true,
+        "homeGallery": true,
+        "docs": true,
+        "components": true
+      },
+      "routes": {
+        "mode": "dynamic",
+        "sharedSurfaces": {
+          "product": true,
+          "cart": true,
+          "checkout": true,
+          "thanks": true
+        },
+        "sharedContract": true,
+        "customFiles": []
+      },
+      "storage": {
+        "expectedCartKey": "ecom-cart:traza",
+        "configuredCartKey": "ecom-cart:traza",
+        "privateKeys": []
+      },
+      "metadata": {
+        "noindex": true,
+        "description": true,
+        "canonical": false,
+        "productJsonLd": true
+      },
+      "evidence": {
+        "doc": true,
+        "reference": true,
+        "referenceFile": "24-traza.webp",
+        "sample": false,
+        "samplePath": null,
+        "captures": {
+          "catalog": true,
+          "mobile": true,
+          "product": true,
+          "card560": true,
+          "card900": true
+        }
+      },
+      "catalog": {
+        "products": 8,
+        "missingAssets": []
+      },
+      "assets": {
+        "files": 8,
+        "bytes": 2093134,
+        "formats": {
+          "webp": 8
+        }
+      },
+      "source": {
+        "files": 5,
+        "bytes": 13772,
+        "scriptBlocks": 1,
+        "scriptBytes": 397
+      }
+    },
+    {
+      "id": "dintel",
+      "status": "ready",
+      "registries": {
+        "themes": true,
+        "collections": true,
+        "seeds": true,
+        "catalogViews": true,
+        "a11y": true,
+        "captureCatalog": true,
+        "captureProduct": true,
+        "homeGallery": true,
+        "docs": true,
+        "components": true
+      },
+      "routes": {
+        "mode": "dynamic",
+        "sharedSurfaces": {
+          "product": true,
+          "cart": true,
+          "checkout": true,
+          "thanks": true
+        },
+        "sharedContract": true,
+        "customFiles": []
+      },
+      "storage": {
+        "expectedCartKey": "ecom-cart:dintel",
+        "configuredCartKey": "ecom-cart:dintel",
+        "privateKeys": []
+      },
+      "metadata": {
+        "noindex": true,
+        "description": true,
+        "canonical": false,
+        "productJsonLd": true
+      },
+      "evidence": {
+        "doc": true,
+        "reference": true,
+        "referenceFile": "25-dintel.webp",
+        "sample": false,
+        "samplePath": null,
+        "captures": {
+          "catalog": true,
+          "mobile": true,
+          "product": true,
+          "card560": true,
+          "card900": true
+        }
+      },
+      "catalog": {
+        "products": 8,
+        "missingAssets": []
+      },
+      "assets": {
+        "files": 8,
+        "bytes": 426556,
+        "formats": {
+          "webp": 8
+        }
+      },
+      "source": {
+        "files": 5,
+        "bytes": 18208,
+        "scriptBlocks": 1,
+        "scriptBytes": 399
+      }
+    },
+    {
+      "id": "lumbre",
+      "status": "ready",
+      "registries": {
+        "themes": true,
+        "collections": true,
+        "seeds": true,
+        "catalogViews": true,
+        "a11y": true,
+        "captureCatalog": true,
+        "captureProduct": true,
+        "homeGallery": true,
+        "docs": true,
+        "components": true
+      },
+      "routes": {
+        "mode": "dynamic",
+        "sharedSurfaces": {
+          "product": true,
+          "cart": true,
+          "checkout": true,
+          "thanks": true
+        },
+        "sharedContract": true,
+        "customFiles": []
+      },
+      "storage": {
+        "expectedCartKey": "ecom-cart:lumbre",
+        "configuredCartKey": "ecom-cart:lumbre",
+        "privateKeys": []
+      },
+      "metadata": {
+        "noindex": true,
+        "description": true,
+        "canonical": false,
+        "productJsonLd": true
+      },
+      "evidence": {
+        "doc": true,
+        "reference": true,
+        "referenceFile": "26-lumbre.webp",
+        "sample": false,
+        "samplePath": null,
+        "captures": {
+          "catalog": true,
+          "mobile": true,
+          "product": true,
+          "card560": true,
+          "card900": true
+        }
+      },
+      "catalog": {
+        "products": 6,
+        "missingAssets": []
+      },
+      "assets": {
+        "files": 10,
+        "bytes": 715436,
+        "formats": {
+          "webp": 10
+        }
+      },
+      "source": {
+        "files": 5,
+        "bytes": 18868,
+        "scriptBlocks": 1,
+        "scriptBytes": 399
+      }
+    },
+    {
+      "id": "mixta",
+      "status": "ready",
+      "registries": {
+        "themes": true,
+        "collections": true,
+        "seeds": true,
+        "catalogViews": true,
+        "a11y": true,
+        "captureCatalog": true,
+        "captureProduct": true,
+        "homeGallery": true,
+        "docs": true,
+        "components": true
+      },
+      "routes": {
+        "mode": "dynamic",
+        "sharedSurfaces": {
+          "product": true,
+          "cart": true,
+          "checkout": true,
+          "thanks": true
+        },
+        "sharedContract": true,
+        "customFiles": []
+      },
+      "storage": {
+        "expectedCartKey": "ecom-cart:mixta",
+        "configuredCartKey": "ecom-cart:mixta",
+        "privateKeys": []
+      },
+      "metadata": {
+        "noindex": true,
+        "description": true,
+        "canonical": false,
+        "productJsonLd": true
+      },
+      "evidence": {
+        "doc": true,
+        "reference": true,
+        "referenceFile": "27-mixta.webp",
+        "sample": false,
+        "samplePath": null,
+        "captures": {
+          "catalog": true,
+          "mobile": true,
+          "product": true,
+          "card560": true,
+          "card900": true
+        }
+      },
+      "catalog": {
+        "products": 6,
+        "missingAssets": []
+      },
+      "assets": {
+        "files": 9,
+        "bytes": 467606,
+        "formats": {
+          "webp": 9
+        }
+      },
+      "source": {
+        "files": 5,
+        "bytes": 19102,
+        "scriptBlocks": 1,
+        "scriptBytes": 397
+      }
+    },
+    {
+      "id": "monte",
+      "status": "ready",
+      "registries": {
+        "themes": true,
+        "collections": true,
+        "seeds": true,
+        "catalogViews": true,
+        "a11y": true,
+        "captureCatalog": true,
+        "captureProduct": true,
+        "homeGallery": true,
+        "docs": true,
+        "components": true
+      },
+      "routes": {
+        "mode": "dynamic",
+        "sharedSurfaces": {
+          "product": true,
+          "cart": true,
+          "checkout": true,
+          "thanks": true
+        },
+        "sharedContract": true,
+        "customFiles": []
+      },
+      "storage": {
+        "expectedCartKey": "ecom-cart:monte",
+        "configuredCartKey": "ecom-cart:monte",
+        "privateKeys": []
+      },
+      "metadata": {
+        "noindex": true,
+        "description": true,
+        "canonical": false,
+        "productJsonLd": true
+      },
+      "evidence": {
+        "doc": true,
+        "reference": true,
+        "referenceFile": "29-monte.webp",
+        "sample": false,
+        "samplePath": null,
+        "captures": {
+          "catalog": true,
+          "mobile": true,
+          "product": true,
+          "card560": true,
+          "card900": true
+        }
+      },
+      "catalog": {
+        "products": 3,
+        "missingAssets": []
+      },
+      "assets": {
+        "files": 3,
+        "bytes": 633480,
+        "formats": {
+          "webp": 3
+        }
+      },
+      "source": {
+        "files": 5,
+        "bytes": 14410,
+        "scriptBlocks": 0,
+        "scriptBytes": 0
+      }
+    },
+    {
+      "id": "sarga",
+      "status": "ready",
+      "registries": {
+        "themes": true,
+        "collections": true,
+        "seeds": true,
+        "catalogViews": true,
+        "a11y": true,
+        "captureCatalog": true,
+        "captureProduct": true,
+        "homeGallery": true,
+        "docs": true,
+        "components": true
+      },
+      "routes": {
+        "mode": "dynamic",
+        "sharedSurfaces": {
+          "product": true,
+          "cart": true,
+          "checkout": true,
+          "thanks": true
+        },
+        "sharedContract": true,
+        "customFiles": []
+      },
+      "storage": {
+        "expectedCartKey": "ecom-cart:sarga",
+        "configuredCartKey": "ecom-cart:sarga",
+        "privateKeys": []
+      },
+      "metadata": {
+        "noindex": true,
+        "description": true,
+        "canonical": false,
+        "productJsonLd": true
+      },
+      "evidence": {
+        "doc": true,
+        "reference": true,
+        "referenceFile": "18-sarga.webp",
+        "sample": false,
+        "samplePath": null,
+        "captures": {
+          "catalog": true,
+          "mobile": true,
+          "product": true,
+          "card560": true,
+          "card900": true
+        }
+      },
+      "catalog": {
+        "products": 4,
+        "missingAssets": []
+      },
+      "assets": {
+        "files": 8,
+        "bytes": 1383700,
+        "formats": {
+          "webp": 8
+        }
+      },
+      "source": {
+        "files": 5,
+        "bytes": 20330,
+        "scriptBlocks": 1,
+        "scriptBytes": 388
+      }
+    },
+    {
+      "id": "ensamble",
+      "status": "ready",
+      "registries": {
+        "themes": true,
+        "collections": true,
+        "seeds": true,
+        "catalogViews": true,
+        "a11y": true,
+        "captureCatalog": true,
+        "captureProduct": true,
+        "homeGallery": true,
+        "docs": true,
+        "components": true
+      },
+      "routes": {
+        "mode": "dynamic",
+        "sharedSurfaces": {
+          "product": true,
+          "cart": true,
+          "checkout": true,
+          "thanks": true
+        },
+        "sharedContract": true,
+        "customFiles": []
+      },
+      "storage": {
+        "expectedCartKey": "ecom-cart:ensamble",
+        "configuredCartKey": "ecom-cart:ensamble",
+        "privateKeys": []
+      },
+      "metadata": {
+        "noindex": true,
+        "description": true,
+        "canonical": false,
+        "productJsonLd": true
+      },
+      "evidence": {
+        "doc": true,
+        "reference": true,
+        "referenceFile": "30-ensamble.webp",
+        "sample": false,
+        "samplePath": null,
+        "captures": {
+          "catalog": true,
+          "mobile": true,
+          "product": true,
+          "card560": true,
+          "card900": true
+        }
+      },
+      "catalog": {
+        "products": 3,
+        "missingAssets": []
+      },
+      "assets": {
+        "files": 3,
+        "bytes": 401592,
+        "formats": {
+          "webp": 3
+        }
+      },
+      "source": {
+        "files": 5,
+        "bytes": 15526,
+        "scriptBlocks": 0,
+        "scriptBytes": 0
+      }
+    },
+    {
+      "id": "eje",
+      "status": "ready",
+      "registries": {
+        "themes": true,
+        "collections": true,
+        "seeds": true,
+        "catalogViews": true,
+        "a11y": true,
+        "captureCatalog": true,
+        "captureProduct": true,
+        "homeGallery": true,
+        "docs": true,
+        "components": true
+      },
+      "routes": {
+        "mode": "dynamic",
+        "sharedSurfaces": {
+          "product": true,
+          "cart": true,
+          "checkout": true,
+          "thanks": true
+        },
+        "sharedContract": true,
+        "customFiles": []
+      },
+      "storage": {
+        "expectedCartKey": "ecom-cart:eje",
+        "configuredCartKey": "ecom-cart:eje",
+        "privateKeys": []
+      },
+      "metadata": {
+        "noindex": true,
+        "description": true,
+        "canonical": false,
+        "productJsonLd": true
+      },
+      "evidence": {
+        "doc": true,
+        "reference": true,
+        "referenceFile": "31-eje.webp",
+        "sample": false,
+        "samplePath": null,
+        "captures": {
+          "catalog": true,
+          "mobile": true,
+          "product": true,
+          "card560": true,
+          "card900": true
+        }
+      },
+      "catalog": {
+        "products": 3,
+        "missingAssets": []
+      },
+      "assets": {
+        "files": 4,
+        "bytes": 312126,
+        "formats": {
+          "webp": 4
+        }
+      },
+      "source": {
+        "files": 5,
+        "bytes": 16056,
+        "scriptBlocks": 0,
+        "scriptBytes": 0
+      }
+    },
+    {
+      "id": "arista",
+      "status": "ready",
+      "registries": {
+        "themes": true,
+        "collections": true,
+        "seeds": true,
+        "catalogViews": true,
+        "a11y": true,
+        "captureCatalog": true,
+        "captureProduct": true,
+        "homeGallery": true,
+        "docs": true,
+        "components": true
+      },
+      "routes": {
+        "mode": "dynamic",
+        "sharedSurfaces": {
+          "product": true,
+          "cart": true,
+          "checkout": true,
+          "thanks": true
+        },
+        "sharedContract": true,
+        "customFiles": []
+      },
+      "storage": {
+        "expectedCartKey": "ecom-cart:arista",
+        "configuredCartKey": "ecom-cart:arista",
+        "privateKeys": []
+      },
+      "metadata": {
+        "noindex": true,
+        "description": true,
+        "canonical": false,
+        "productJsonLd": true
+      },
+      "evidence": {
+        "doc": true,
+        "reference": true,
+        "referenceFile": "32-arista.webp",
+        "sample": false,
+        "samplePath": "/images/temas/arista.webp",
+        "captures": {
+          "catalog": true,
+          "mobile": true,
+          "product": true,
+          "card560": true,
+          "card900": true
+        }
+      },
+      "catalog": {
+        "products": 4,
+        "missingAssets": []
+      },
+      "assets": {
+        "files": 4,
+        "bytes": 275568,
+        "formats": {
+          "webp": 4
+        }
+      },
+      "source": {
+        "files": 5,
+        "bytes": 14263,
+        "scriptBlocks": 0,
+        "scriptBytes": 0
+      }
+    }
+  ]
+}
