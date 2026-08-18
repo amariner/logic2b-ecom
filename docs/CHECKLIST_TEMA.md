@@ -11,7 +11,8 @@
 - [ ] **Abrir la captura** `public/images/referencias/??-<id>.webp` y tenerla al
       lado toda la sesión. El criterio es **RÉPLICA**, no «inspirado en».
 - [ ] `pnpm new:theme <id>` si el esqueleto no existe (idempotente: re-ejecutarlo
-      no pisa nada).
+      no pisa nada). Además del kit, alinea automáticamente colección, seed,
+      tema, catálogo, auditor a11y, receta de capturas, galería y ficha.
 
 ## 1. Colección y catálogo
 
@@ -73,7 +74,7 @@
       nuevo en `Gestor tienda`, que usa fixtures independientes.
 - [ ] `node scripts/a11y-audit.mjs --only=<id>` en verde (contra `wrangler dev`).
       Barre catálogo/ficha/carrito/checkout a 1440, 375, oscuro y reduced-motion.
-- [ ] `pnpm check` en verde (types + tests + build).
+- [ ] `pnpm check` en verde (types + tests + gate de registros/capturas + build).
 
 ### Lo que el auditor NO puede ver (revisión a ojo, siempre)
 
@@ -143,11 +144,12 @@
       ficheros tocados y si hizo falta rozar el motor (**debe ser NO**; si fue
       sí, va al ROADMAP como deuda de motor).
 - [ ] Estado del tema a `'ready'` en `demo-themes.ts` solo si está completo.
-- [ ] **La tienda entra en los cinco sitios donde el orden es explícito**, o
-      queda a medias: `catalogViews` (`CatalogPage.astro`), `STORES` de
-      `scripts/a11y-audit.mjs`, `STORES`+`FICHAS` de `capture-screens.mjs` (y
-      ejecutarlo: `/estilos` enseña la captura y sin ella sale rota),
-      `SWITCHER_ORDER` (`Shop.astro`) y `galleryOrder` (`index.astro`).
+- [ ] Reejecutar `pnpm new:theme <id>` y `pnpm audit:themes:check`: el scaffold
+      alinea los registros explícitos y el gate enumera cualquier colección,
+      seed, catálogo, auditor, captura, galería o ficha que falte o sobre.
+- [ ] Ejecutar `node scripts/capture-screens.mjs --only=<id>`: el scaffold
+      registra la receta, pero solo la captura servida puede producir la
+      evidencia real que exige el gate.
 - [ ] **Las capturas de la galería del héroe van en dos anchos** (`-560` y
       `-900`): las genera `capture-screens.mjs` sola con `card: true`, pero si
       se añaden a mano hay que hacer las dos — la landing las sirve con

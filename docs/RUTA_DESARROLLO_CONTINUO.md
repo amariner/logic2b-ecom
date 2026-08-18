@@ -39,6 +39,12 @@ Este objetivo incluye **todo el desarrollo del producto y del escaparate**:
   común cuando llegue su bloque arquitectónico;
 - regresiones, accesibilidad, rendimiento, SEO, documentación y despliegue.
 
+La orden específica **«continúa mejorando los temas»** no crea temas nuevos ni
+selecciona el siguiente bloque de plataforma: activa
+[`ROADMAP_MEJORA_TEMAS.md`](ROADMAP_MEJORA_TEMAS.md), que profesionaliza la
+biblioteca existente en la rama `codex/theme-product-hardening` y conserva sus
+propias cola, rúbrica y criterio de integración.
+
 Los temas no se tratan como una distracción ni se ejecutan todos de golpe. Son
 un carril visual del mismo producto, con bloques, dependencias y criterios de
 terminado propios. Pueden avanzar en paralelo desde un worktree independiente o

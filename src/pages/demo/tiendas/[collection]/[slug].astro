@@ -4,6 +4,9 @@
  * validados; un slug de OTRA colección no resuelve aquí (404).
  */
 import ProductPage from '../../../../components/store/ProductPage.astro';
+import NoddoProductDetail from '../../../../components/themes/noddo/ProductDetail.astro';
+import SitegaProductDetail from '../../../../components/themes/sitega/ProductDetail.astro';
+import StretchProductDetail from '../../../../components/themes/stretch/ProductDetail.astro';
 import { getDemoProduct, getDemoRelated } from '../../../../composition/demo-catalog';
 import { resolveCollection } from '../../../../collections';
 import { notFoundResponse } from '../../../../lib/not-found';
@@ -19,6 +22,20 @@ if (!collection || !product || notFound) {
 }
 
 const related = getDemoRelated(product);
+const productPresentations = {
+  noddo: NoddoProductDetail,
+  sitega: SitegaProductDetail,
+  stretch: StretchProductDetail,
+} as const;
+const ProductPresentation = productPresentations[collection.id as keyof typeof productPresentations];
 ---
 
-<ProductPage collection={collection} product={product} related={related} site={Astro.site} />
+<ProductPage
+  collection={collection}
+  product={product}
+  related={related}
+  site={Astro.site}
+  customPresentation={Boolean(ProductPresentation)}
+>
+  {ProductPresentation && <ProductPresentation slot="presentation" product={product} />}
+</ProductPage>

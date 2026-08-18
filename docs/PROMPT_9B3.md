@@ -143,15 +143,19 @@ public/images/collections/<id>/.gitkeep
 docs/temas/<id>.md                (ficha de entrega)
 ```
 
-Y parchea (append idempotente) la entrada en `src/collections/index.ts` y, si
-falta, la del tema en `demo-themes.ts` con los 14 tokens copiados de Base.
+Y parchea mediante marcadores idempotentes colección, seed, tema, vista de
+catálogo, auditor a11y, receta de catálogo/ficha para capturas y galería. Si
+falta el tema en `demo-themes.ts`, lo crea con los 14 tokens copiados de Base.
+`pnpm audit:themes:check`, incluido en `pnpm check`, falla con el registro o la
+captura concreta que quede incompleta.
 
 **Queda a mano y debe quedar:** valores de tokens, diseño real de los
 componentes, catálogo, copy y receta de imaginería.
 
-**Guardarraíl del propio scaffold:** no escribe en `src/lib/` (salvo la línea del
-registro), ni en `src/pages/api/`, ni en `migrations/`. El scaffold enseña la
-frontera con lo que se niega a generar.
+**Guardarraíl del propio scaffold:** fuera del kit solo escribe en los archivos
+de registro exactos y sobre marcadores `new-theme:*`; no toca `src/pages/api/`,
+`migrations/` ni lógica comercial. El scaffold enseña la frontera con lo que se
+niega a generar.
 
 Más `docs/CHECKLIST_TEMA.md`, corto y real, derivado de las sesiones ya hechas —
 incluyendo los gotchas de § 5.

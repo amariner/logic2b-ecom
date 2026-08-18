@@ -67,9 +67,16 @@ const nav = isDefaultStore
 // ruta (los filtros de catálogo viajan en query string y no cambian la página).
 const currentPath = Astro.url.pathname.replace(/\/+$/, '') || '/';
 const activeHref = nav.find((link) => (link.href.replace(/\/+$/, '') || '/') === currentPath)?.href;
+const catalogPath = paths.catalog.replace(/\/+$/, '') || '/';
+const isImmersiveCatalog = immersive && currentPath === catalogPath;
 ---
 
-<Base title={`${title} — ${collection.name}`} description={description} noindex>
+<Base
+  title={`${title} — ${collection.name}`}
+  description={description}
+  noindex
+  canonicalPath={Astro.url.pathname}
+>
   <div
     data-store-theme={theme.id}
     data-store-collection={collection.id}
@@ -79,9 +86,10 @@ const activeHref = nav.find((link) => (link.href.replace(/\/+$/, '') || '/') ===
     {/* relative z-30: los temas inmersivos ponen un vídeo fijo por debajo. */}
     <DemoJourneyBanner themeName={collection.name} />
 
-    {/* Tema inmersivo (Iris): pinta su propio header sobre el hero; sin
-        SiteHeader ni footer estándar. El banner de demo de arriba se queda. */}
-    {immersive ? (
+    {/* El catálogo inmersivo conserva su chrome editorial. En ficha, cesta,
+        checkout y gracias vuelve el chrome común: marca, salida a tienda,
+        carrito y pie no pueden desaparecer al avanzar en la compra. */}
+    {isImmersiveCatalog ? (
       <slot />
     ) : useSidebar ? (
       <Fragment>
@@ -157,6 +165,16 @@ const activeHref = nav.find((link) => (link.href.replace(/\/+$/, '') || '/') ===
     .shop-footer--dark .shop-footer__body { color: #d4d4d4; }
     .shop-footer--dark .shop-footer__name,
     .shop-footer--dark .shop-footer__link:hover { color: #ffffff; }
+
+    /* En móvil el selector forma parte del flujo al final de la página. Así no
+       puede tapar cantidad, CP, formulario ni CTA en ninguna superficie. */
+    @media (max-width: 639px) {
+      [data-store-switcher] {
+        position: static;
+        width: max-content;
+        margin: 1.5rem auto;
+      }
+    }
   </style>
 
   <script>

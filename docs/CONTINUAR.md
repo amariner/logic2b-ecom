@@ -11,6 +11,12 @@
 > nuevo mensaje. Incluye tanto el carril principal como la cola de temas y demos
 > visuales, seleccionados en los puntos seguros definidos por la ruta.
 
+> Cuando la frase sea **«continúa mejorando los temas»**, aplicar en cambio
+> [`ROADMAP_MEJORA_TEMAS.md`](ROADMAP_MEJORA_TEMAS.md): su cola sustituye a la
+> «Próxima sesión» general y se trabaja en `codex/theme-product-hardening`.
+> Conserva los mismos ocho pasos y gates, pero integra en esa rama y no despliega
+> ni fusiona a `main` sin una instrucción expresa.
+
 ## Contexto fijo
 
 - La web pública sigue siendo una **demo/muestra**: sus escaparates simulan

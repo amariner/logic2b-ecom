@@ -1686,6 +1686,12 @@ encadenar bloques atómicos según
 la ruta o encontrar un bloqueo real. El objetivo incluye el carril principal y
 la cola de temas, coordinados sin mezclar worktrees ni cambios abiertos.
 
+Si recibe **«continúa mejorando los temas»**, no toma R5.4c ni la cola de temas
+nuevos: continúa el primer bloque incompleto de
+[`ROADMAP_MEJORA_TEMAS.md`](ROADMAP_MEJORA_TEMAS.md) en
+`codex/theme-product-hardening`. Ese carril endurece los 33 temas existentes y
+solo vuelve a `main` o a producción por instrucción expresa.
+
 ## Próxima sesión
 
 ### R5.4c — superficie passwordless — bloque bloqueado por proveedor y seguridad

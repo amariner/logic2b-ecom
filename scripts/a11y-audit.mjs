@@ -100,22 +100,11 @@ const STORES = [
   { id: 'guide', label: 'Cafetal', prefix: '/demo/tiendas/guide', slug: 'cof-molinillo-manual', cartKey: 'ecom-cart:guide' },
   { id: 'iris', label: 'Iris', prefix: '/demo/tiendas/iris', slug: 'iri-sport-pro', cartKey: 'ecom-cart:iris' },
   { id: 'forma', label: 'Forma', prefix: '/demo/tiendas/forma', slug: 'for-clear-01', cartKey: 'ecom-cart:forma' },
-  // Estas tres carcasas visuales tienen un carrito de muestra independiente
-  // de D1. Se siembra la forma real que leen sus páginas, no un `{slug, qty}`
-  // común, y se omite el estado de portes porque usan su propia simulación.
-  {
-    id: 'noddo', label: 'NODDO', prefix: '/demo/tiendas/noddo', slug: 'power-node', cartKey: 'noddo-demo-cart', canQuote: false,
-    cartValue: JSON.stringify([{ slug: 'power-node', name: 'Power Node', price: '129,00 €', image: '/images/collections/noddo/generated/power-node.jpg', qty: 2 }]),
-  },
-  {
-    id: 'sitega', label: 'Sitēga', prefix: '/demo/tiendas/sitega', slug: 'basin-soft', cartKey: 'sitega-demo-cart', canQuote: false,
-    cartValue: JSON.stringify([{ slug: 'basin-soft', name: 'Soft 01', price: '289,00 €', image: '/images/collections/sitega/basin-soft.jpg', qty: 2 }]),
-  },
-  {
-    id: 'stretch', label: 'STRETCH', prefix: '/demo/tiendas/stretch', slug: 'illuminating-cleansing-gel', cartKey: 'stretch-demo-cart', canQuote: false,
-    cartValue: JSON.stringify([{ slug: 'illuminating-cleansing-gel', name: 'Gel limpiador iluminador', price: '36,00 €', image: '/images/collections/stretch/cleanser.jpg', qty: 2 }]),
-  },
+  { id: 'noddo', label: 'NODDO', prefix: '/demo/tiendas/noddo', slug: 'nod-thermo-01', cartKey: 'ecom-cart:noddo' },
+  { id: 'sitega', label: 'Sitēga', prefix: '/demo/tiendas/sitega', slug: 'sit-basin-soft', cartKey: 'ecom-cart:sitega' },
+  { id: 'stretch', label: 'STRETCH', prefix: '/demo/tiendas/stretch', slug: 'str-illuminating-cleansing-gel', cartKey: 'ecom-cart:stretch' },
   { id: 'arce', label: 'ARCE', prefix: '/demo/tiendas/arce', slug: 'arc-silla-alba', cartKey: 'ecom-cart:arce' },
+  // new-theme:a11y — no borrar: `pnpm new:theme <id>` añade aquí la tienda.
   { id: 'demo', label: 'La Botiga', prefix: '/demo/tienda', slug: 'aove-coupage-750', cartKey: 'ecom-demo-cart', legacy: true },
 ];
 

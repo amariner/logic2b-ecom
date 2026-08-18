@@ -1,7 +1,18 @@
 ---
 import type { CollectionConfig, StorePaths } from '../../../collections';
-import { stretchProducts } from '../../../collections/stretch-products';
-interface Props { paths:StorePaths; collection:CollectionConfig; products:unknown[]; category?:string|undefined; sort:string; search?:string|undefined; }
+import type { ProductRow } from '../../../lib/db';
+import { formatEurCents } from '../../../lib/format';
+interface Props { paths:StorePaths; collection:CollectionConfig; products:ProductRow[]; category?:string|undefined; sort:string; search?:string|undefined; }
+const { products } = Astro.props;
+const merchandising = {
+  'str-illuminating-cleansing-gel': ['ILUMINAR', ''],
+  'str-unifying-serum-spray': ['UNIFICAR', 'AFINAR POROS'],
+  'str-super-glow-set': ['LUZ NATURAL', 'SET'],
+  'str-radiance-day-oil': ['PROTEGER', 'ILUMINAR'],
+  'str-deep-moisture-cream': ['HIDRATAR', 'NUTRIR'],
+  'str-night-repair-elixir': ['RENOVAR', 'NOCHE'],
+  'str-gentle-exfoliating-toner': ['ALISAR', 'REFINAR'],
+} as const;
 const heroVideos=[
   'https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260516_112022_cddf2487-4ffe-45b6-ba4c-99ab79003cc5.mp4',
   'https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260518_175400_b46d1cd2-2050-45e2-9d13-b9c0bacb16b3.mp4',
@@ -43,7 +54,7 @@ const categories=[
 
   <section id="productos" data-stretch-reveal class="translate-y-6 px-4 py-12 opacity-0 transition duration-1000 sm:px-6 sm:py-16 lg:px-10">
     <div class="mb-9 flex items-center gap-6"><button type="button" data-stretch-tab="all" aria-pressed="true" class="flex items-center gap-3 text-2xl font-medium sm:text-4xl md:text-5xl"><span>Más vendidos</span><i class="inline-block h-5 w-5 rounded-full bg-[#1a1a1a] sm:h-6 sm:w-6"></i></button><button type="button" data-stretch-tab="sets" aria-pressed="false" class="flex items-center gap-3 text-2xl font-medium text-gray-700 transition hover:text-gray-900 sm:text-4xl md:text-5xl">Sets</button></div>
-    <div data-stretch-products class="stretch-scroll flex overflow-x-auto pb-2">{stretchProducts.map((product,index)=><article data-stretch-product data-set={product.oldPrice?'true':'false'} class="group -ml-px flex w-[260px] shrink-0 flex-col border border-gray-200 bg-[#F9F4F0] opacity-0 transition duration-500 first:ml-0 sm:w-[280px] md:w-[300px] lg:w-[calc(25%+1px)]" style={`transition-delay:${200+index*80}ms`}><div class="flex h-14 flex-col justify-center px-4 text-xs uppercase tracking-wider"><strong>{product.category}</strong>{product.subcategory&&<span class="mt-0.5 text-gray-600">{product.subcategory}</span>}</div><a href={`/demo/tiendas/stretch/${product.slug}`} class="mx-4 overflow-hidden rounded-lg bg-[#F9F4F0]"><img src={product.image} alt={product.name} loading="lazy" class="aspect-[3/4] w-full object-cover transition-transform duration-500 group-hover:scale-105"/></a><div class="px-4 pb-6 pt-5 text-center"><h2 class="text-sm">{product.name}</h2><p class="mt-2 text-sm">{product.oldPrice&&<del class="mr-2 text-gray-600">{product.oldPrice}</del>}{product.price}</p></div></article>)}</div>
+    <div data-stretch-products class="stretch-scroll flex overflow-x-auto pb-2">{products.map((product,index) => { const labels = merchandising[product.slug as keyof typeof merchandising] ?? ['CUIDADO', '']; const hasOffer = product.compare_at_price_cents !== null && product.compare_at_price_cents > product.price_cents; return <article data-stretch-product data-set={hasOffer?'true':'false'} class="group -ml-px flex w-[260px] shrink-0 flex-col border border-gray-200 bg-[#F9F4F0] opacity-0 transition duration-500 first:ml-0 sm:w-[280px] md:w-[300px] lg:w-[calc(25%+1px)]" style={`transition-delay:${200+index*80}ms`}><div class="flex h-14 flex-col justify-center px-4 text-xs uppercase tracking-wider"><strong>{labels[0]}</strong>{labels[1]&&<span class="mt-0.5 text-gray-600">{labels[1]}</span>}</div><a href={`/demo/tiendas/stretch/${product.slug}`} class="mx-4 overflow-hidden rounded-lg bg-[#F9F4F0]"><img src={product.image} alt={product.name} loading="lazy" class="aspect-[3/4] w-full object-cover transition-transform duration-500 group-hover:scale-105"/></a><div class="px-4 pb-6 pt-5 text-center"><h2 class="text-sm">{product.name}</h2><p class="mt-2 text-sm">{hasOffer&&<del class="mr-2 text-gray-600">{formatEurCents(product.compare_at_price_cents!)}</del>}{formatEurCents(product.price_cents)}</p></div></article>})}</div>
     <div class="mx-auto mt-8 max-w-[280px] sm:mt-10"><div class="h-0.5 overflow-hidden rounded-full bg-gray-300"><span data-stretch-progress class="block h-full w-[30%] bg-[#1a1a1a] transition-transform"></span></div></div>
   </section>
 

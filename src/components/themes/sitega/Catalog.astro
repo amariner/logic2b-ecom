@@ -1,28 +1,30 @@
 ---
 import type { CollectionConfig, StorePaths } from '../../../collections';
-import { sitegaProductBySlug } from '../../../collections/sitega-products';
+import type { ProductRow } from '../../../lib/db';
 
 interface Props {
   paths: StorePaths;
   collection: CollectionConfig;
-  products: unknown[];
+  products: ProductRow[];
   category?: string | undefined;
   sort: string;
   search?: string | undefined;
 }
 
+const { products } = Astro.props;
+const productBySlug = new Map(products.map((product) => [product.slug, product]));
 const root = '/images/collections/sitega';
 const cards = [
-  { slug:'basin-soft', image:`${root}/basin-soft.jpg`, alt:'Lavabo cerámico blanco redondeado', kind:'umyvalniki', className:'sitega-card--large' },
-  { slug:'basin-oval', image:`${root}/basin-oval.jpg`, alt:'Lavabo ovalado blanco', kind:'umyvalniki', className:'' },
-  { slug:'basin-black', image:`${root}/basin-black.jpg`, alt:'Lavabo cerámico negro mate', kind:'umyvalniki', className:'sitega-card--wide' },
-  { slug:'basin-table', image:`${root}/basin-table.jpg`, alt:'Lavabo rectangular blanco', kind:'kollekcii', className:'sitega-card--wide' },
-  { slug:'basin-pedestal', image:`${root}/basin-pedestal.jpg`, alt:'Lavabo sobre pedestal taupe', kind:'kollekcii', className:'' },
-  { slug:'basin-stone', image:`${root}/basin-stone.jpg`, alt:'Lavabo de piedra carbón', kind:'kollekcii', className:'' },
-  { slug:'faucet-arc', image:`${root}/faucet-arc.jpg`, alt:'Grifería de arco negro mate', kind:'smesiteli', className:'' },
-  { slug:'faucet-wall', image:`${root}/faucet-wall.jpg`, alt:'Grifería mural grafito', kind:'smesiteli', className:'' },
+  { slug:'sit-basin-soft', image:`${root}/basin-soft.jpg`, alt:'Lavabo cerámico blanco redondeado', kind:'umyvalniki', className:'sitega-card--large' },
+  { slug:'sit-basin-oval', image:`${root}/basin-oval.jpg`, alt:'Lavabo ovalado blanco', kind:'umyvalniki', className:'' },
+  { slug:'sit-basin-black', image:`${root}/basin-black.jpg`, alt:'Lavabo cerámico negro mate', kind:'umyvalniki', className:'sitega-card--wide' },
+  { slug:'sit-basin-table', image:`${root}/basin-table.jpg`, alt:'Lavabo rectangular blanco', kind:'kollekcii', className:'sitega-card--wide' },
+  { slug:'sit-basin-pedestal', image:`${root}/basin-pedestal.jpg`, alt:'Lavabo sobre pedestal taupe', kind:'kollekcii', className:'' },
+  { slug:'sit-basin-stone', image:`${root}/basin-stone.jpg`, alt:'Lavabo de piedra carbón', kind:'kollekcii', className:'' },
+  { slug:'sit-faucet-arc', image:`${root}/faucet-arc.jpg`, alt:'Grifería de arco negro mate', kind:'smesiteli', className:'' },
+  { slug:'sit-faucet-wall', image:`${root}/faucet-wall.jpg`, alt:'Grifería mural grafito', kind:'smesiteli', className:'' },
 ] as const;
-const productName = (slug: string) => sitegaProductBySlug.get(slug)?.name ?? slug;
+const productName = (slug: string) => productBySlug.get(slug)?.name ?? slug;
 ---
 
 <main class="sitega-shell w-full bg-white text-[#111]">
@@ -55,11 +57,11 @@ const productName = (slug: string) => sitegaProductBySlug.get(slug)?.name ?? slu
 
     <section class="grid grid-cols-2 gap-1 px-5 sm:grid-cols-4 sm:px-10">
       <div class="flex flex-col justify-end p-4 text-[10px] leading-relaxed sm:p-8"><p>Creemos que cada detalle puede abrir una nueva experiencia: formas sencillas, materiales silenciosos y precisión al tacto.</p><a href="#detalle" class="mt-8 self-start rounded-full border border-black px-3 py-1.5 text-[8px] uppercase">Sobre la marca ↗</a></div>
-      <article data-sitega-card data-kind="kollekcii" class="group relative col-span-1 overflow-hidden bg-[#eee] sm:col-span-2"><img src={`${root}/basin-table.jpg`} alt="Lavabo rectangular de Sitēga" loading="lazy" class="block aspect-[1.12] h-full w-full object-cover transition duration-700 group-hover:scale-[1.02]" /><a href="/demo/tiendas/sitega/basin-table" class="absolute inset-0" aria-label="Ver Table 05"></a><span class="absolute bottom-2 left-2 text-[7px] uppercase tracking-[.08em] text-black/60">Table 05 ↗</span></article>
-      <article data-sitega-card data-kind="kollekcii" class="group relative overflow-hidden bg-[#eee]"><img src={`${root}/basin-pedestal.jpg`} alt="Lavabo sobre pedestal de Sitēga" loading="lazy" class="block aspect-square h-full w-full object-cover transition duration-700 group-hover:scale-[1.02]" /><a href="/demo/tiendas/sitega/basin-pedestal" class="absolute inset-0" aria-label="Ver Pedestal 08"></a><span class="absolute bottom-2 left-2 text-[7px] uppercase tracking-[.08em] text-black/60">Pedestal 08 ↗</span></article>
+      <article data-sitega-card data-kind="kollekcii" class="group relative col-span-1 overflow-hidden bg-[#eee] sm:col-span-2"><img src={`${root}/basin-table.jpg`} alt="Lavabo rectangular de Sitēga" loading="lazy" class="block aspect-[1.12] h-full w-full object-cover transition duration-700 group-hover:scale-[1.02]" /><a href="/demo/tiendas/sitega/sit-basin-table" class="absolute inset-0" aria-label="Ver Table 05"></a><span class="absolute bottom-2 left-2 text-[7px] uppercase tracking-[.08em] text-black/60">Table 05 ↗</span></article>
+      <article data-sitega-card data-kind="kollekcii" class="group relative overflow-hidden bg-[#eee]"><img src={`${root}/basin-pedestal.jpg`} alt="Lavabo sobre pedestal de Sitēga" loading="lazy" class="block aspect-square h-full w-full object-cover transition duration-700 group-hover:scale-[1.02]" /><a href="/demo/tiendas/sitega/sit-basin-pedestal" class="absolute inset-0" aria-label="Ver Pedestal 08"></a><span class="absolute bottom-2 left-2 text-[7px] uppercase tracking-[.08em] text-black/60">Pedestal 08 ↗</span></article>
     </section>
 
-    <section id="colecciones" class="px-5 py-20 sm:px-10 sm:py-28"><h2 class="font-display text-5xl font-light tracking-[-.06em] sm:text-7xl">Colecciones <sup class="text-sm">(03)</sup></h2><div class="mt-8 grid grid-cols-3 gap-2 bg-black p-2">{[['basin-soft','Soft'],['basin-black','Black'],['basin-stone','Stone']].map(([slug,label]) => <a href={`/demo/tiendas/sitega/${slug}`} class="group relative aspect-square overflow-hidden bg-[#333]"><img src={`${root}/${slug}.jpg`} alt={`${label} collection`} loading="lazy" class="h-full w-full object-cover transition duration-700 group-hover:scale-[1.04]" /><span class="absolute bottom-2 left-2 text-[8px] text-white">{label} ↗</span></a>)}</div></section>
+    <section id="colecciones" class="px-5 py-20 sm:px-10 sm:py-28"><h2 class="font-display text-5xl font-light tracking-[-.06em] sm:text-7xl">Colecciones <sup class="text-sm">(03)</sup></h2><div class="mt-8 grid grid-cols-3 gap-2 bg-black p-2">{[['basin-soft','Soft'],['basin-black','Black'],['basin-stone','Stone']].map(([asset,label]) => <a href={`/demo/tiendas/sitega/sit-${asset}`} class="group relative aspect-square overflow-hidden bg-[#333]"><img src={`${root}/${asset}.jpg`} alt={`${label} collection`} loading="lazy" class="h-full w-full object-cover transition duration-700 group-hover:scale-[1.04]" /><span class="absolute bottom-2 left-2 text-[8px] text-white">{label} ↗</span></a>)}</div></section>
 
     <section class="px-5 sm:px-10"><div class="relative overflow-hidden bg-[#ddd]"><img src={`${root}/hero.jpg`} alt="Sitēga bathroom detail" loading="lazy" class="aspect-[2.1] w-full object-cover" /><span class="absolute inset-0 grid place-items-center"><span class="grid h-12 w-12 place-items-center rounded-full bg-white/90 text-sm">▶</span></span><p class="absolute bottom-2 left-2 text-[8px] uppercase">La marca</p><p class="absolute bottom-2 right-2 text-[8px] uppercase">About</p></div></section>
 
