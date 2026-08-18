@@ -1720,7 +1720,12 @@ checkout conservan el motor compartido; no hubo D1, API, dependencia ni coste
 recurrente nuevo. `pnpm check` pasa 703 archivos, 163 suites/751 tests y build;
 E2E verde, a11y 0/0 en 8 superficies y capturas dentro de presupuesto. El
 siguiente bloque independiente del carril visual es la posición 18,
-`d1d7bc5c43ce55b0febbbc1996b51765.jpg`.
+`d1d7bc5c43ce55b0febbbc1996b51765.jpg`. Producción sirve el Worker
+`8ef1e720-0fd2-4dd2-858e-0fa025e930a9`; smoke de landing, `/temas`, tienda y
+assets verde. Priorizar las tarjetas visibles del rail elevó la mediana
+Lighthouse móvil de 97 a 99, con A11y/BP/SEO 100, LCP 2,1 s, CLS 0 y TBT 0;
+escritorio conserva 100×4. Recuperar el 100 móvil requiere un bloque de
+rendimiento del rail completo, no un parche privado de ENSAMBLE.
 
 #### Corte anterior R4.12
 

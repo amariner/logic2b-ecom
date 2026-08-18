@@ -43,3 +43,7 @@
   galería 560/900 generadas y dentro del presupuesto.
 - Revisión visual de catálogo y ficha completada; índices, dimensiones y precios
   corresponden al producto aunque cambie el orden destacado.
+- Producción: Worker `8ef1e720-0fd2-4dd2-858e-0fa025e930a9`; landing, `/temas`,
+  tienda y tres assets con smoke HTTP 200. Lighthouse de la landing: móvil
+  99/100/100/100 y escritorio 100/100/100/100. La deuda móvil queda separada
+  del tema: el rail completo oscila en Speed Index aunque CLS y TBT son cero.
