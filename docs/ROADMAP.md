@@ -1720,7 +1720,7 @@ de al menos ocho segundos, sin usar Higgsfield. Catálogo, filtro, ficha, cesta 
 checkout conservan el motor compartido; no hubo D1, API, dependencia ni coste
 recurrente nuevo. `pnpm check` pasa 713 archivos, 163 suites/751 tests y build;
 E2E verde, a11y 0/0 en 8 superficies y capturas dentro de presupuesto.
-Producción sirve el Worker `09fa587b-23ca-411e-92d7-76b51bcc250e`; smoke de
+Producción sirve el Worker `80258066-ea30-40d4-bcc2-75bfd0f95f16`; smoke de
 landing, `/temas`, tienda, ficha y cuatro assets verde. Lighthouse de landing:
 móvil 95/100/100/100 (LCP 2,1 s, CLS 0, TBT 0; rendimiento osciló 95–99) y
 escritorio 100×4 (LCP 0,5 s, CLS 0, TBT 0). La deuda móvil del rail sigue

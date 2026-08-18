@@ -46,7 +46,7 @@
 - Revisión visual a 1440 y 375 px sin overflow; cuatro imágenes decodificadas,
   filtro por aplique operativo, ficha con cuatro especificaciones, cesta con
   badge y línea correctos, menú accesible y demo marcada `noindex,follow`.
-- Producción: Worker `09fa587b-23ca-411e-92d7-76b51bcc250e`; landing,
+- Producción: Worker `80258066-ea30-40d4-bcc2-75bfd0f95f16`; landing,
   `/temas`, tienda, ficha y cuatro assets con smoke HTTP 200. Lighthouse de la
   landing: móvil 95/100/100/100 (LCP 2,1 s, CLS 0, TBT 0; rango de rendimiento
   95–99) y escritorio 100×4 (LCP 0,5 s, CLS 0, TBT 0). La variación móvil del
