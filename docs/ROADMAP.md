@@ -1720,10 +1720,11 @@ ficha, cesta y checkout conservan el motor compartido; no hubo D1, API,
 dependencia ni coste recurrente nuevo. `pnpm check` pasa 708 archivos, 163
 suites/751 tests y build; E2E verde, a11y 0/0 en 8 superficies y capturas dentro
 de presupuesto. El siguiente bloque independiente del carril visual es la
-posición 19, `dc28330a6fa92b0343b28a809688037d.jpg`. Producción sigue sirviendo
-el Worker `8ef1e720-0fd2-4dd2-858e-0fa025e930a9` hasta integrar y desplegar
-EJE. La deuda global de rendimiento del rail se mantiene separada: la última
-medición de landing fue móvil 99/100/100/100 y escritorio 100×4.
+posición 19, `dc28330a6fa92b0343b28a809688037d.jpg`. Producción sirve el Worker
+`3e07c603-a83c-4b2e-962a-5fe6acae140c`; smoke de landing, `/temas`, tienda,
+ficha y cuatro assets verde. La mediana Lighthouse de landing se mantiene en
+móvil 99/100/100/100 (LCP 2,1 s, CLS 0, TBT 0) y escritorio 100×4 (LCP 0,6 s,
+CLS 0, TBT 0); la deuda global del rail sigue separada del tema.
 
 #### Corte anterior R4.12
 

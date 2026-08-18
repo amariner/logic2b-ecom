@@ -43,3 +43,7 @@
   galería 560/900 generadas y dentro del presupuesto.
 - Revisión visual de catálogo, móvil y ficha completada; precios, nombres,
   categorías, imágenes y especificaciones proceden del seed compartido.
+- Producción: Worker `3e07c603-a83c-4b2e-962a-5fe6acae140c`; landing, `/temas`,
+  tienda, ficha y cuatro assets con smoke HTTP 200. Lighthouse de la landing:
+  móvil 99/100/100/100 (LCP 2,1 s, CLS 0, TBT 0) y escritorio 100×4
+  (LCP 0,6 s, CLS 0, TBT 0). La deuda móvil sigue aislada en el rail global.
