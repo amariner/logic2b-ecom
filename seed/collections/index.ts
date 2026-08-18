@@ -41,6 +41,7 @@ import { mixtaSeedProducts } from './mixta.ts';
 import { monteSeedProducts } from './monte.ts';
 import { sargaSeedProducts } from './sarga.ts';
 import { ensambleSeedProducts } from './ensamble.ts';
+import { ejeSeedProducts } from './eje.ts';
 // new-theme:seed-imports — no borrar: `pnpm new:theme <id>` añade aquí su import.
 
 export const collectionSeedProducts: readonly SeedProduct[] = [
@@ -75,5 +76,6 @@ export const collectionSeedProducts: readonly SeedProduct[] = [
   ...monteSeedProducts,
   ...sargaSeedProducts,
   ...ensambleSeedProducts,
+  ...ejeSeedProducts,
   // new-theme:seed-entries — no borrar: `pnpm new:theme <id>` añade aquí su spread.
 ];

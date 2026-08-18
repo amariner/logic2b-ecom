@@ -44,6 +44,7 @@ import { mixtaCollection } from '../collections/mixta';
 import { monteCollection } from '../collections/monte';
 import { sargaCollection } from '../collections/sarga';
 import { ensambleCollection } from '../collections/ensamble';
+import { ejeCollection } from '../collections/eje';
 // new-theme:imports — no borrar: `pnpm new:theme <id>` añade aquí su import.
 import type { CollectionCategory, CollectionConfig } from './types';
 
@@ -89,6 +90,7 @@ export const collections: readonly CollectionConfig[] = [
   monteCollection,
   sargaCollection,
   ensambleCollection,
+  ejeCollection,
   // new-theme:entries — no borrar: `pnpm new:theme <id>` añade aquí su entrada.
 ];
 

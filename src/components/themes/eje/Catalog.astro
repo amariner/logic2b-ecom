@@ -1,0 +1,108 @@
+---
+/** EJE · estudio de mobiliario colaborativo. */
+import type { CollectionConfig, StorePaths } from '../../../collections';
+import Filters from './Filters.astro';
+import ProductGrid from './ProductGrid.astro';
+
+type GridProduct = {
+  slug: string;
+  name: string;
+  price_cents: number;
+  image: string;
+  stock: number;
+  subtitle?: string | null | undefined;
+};
+
+interface Props {
+  products: GridProduct[];
+  paths: StorePaths;
+  collection: CollectionConfig;
+  category?: string | undefined;
+  sort: string;
+  search?: string | undefined;
+}
+
+const { products, paths, collection, category, sort, search } = Astro.props;
+---
+
+<main class="eje-shell">
+  <section class="eje-hero" aria-labelledby="eje-title">
+    <div class="eje-hero__scene">
+      <img src="/images/collections/eje/eje-hero-reunion.webp" alt="Reunión informal alrededor de un sistema modular EJE" width="1408" height="896" fetchpriority="high" />
+    </div>
+    <div class="eje-hero__statement">
+      <div class="eje-hero__blur" aria-hidden="true"></div>
+      <p>Nuevo sistema / 2026</p>
+      <h1 id="eje-title">Estructuras para encontrarse.</h1>
+      <a href="#productos">Explorar EJE</a>
+    </div>
+  </section>
+
+  <section class="eje-products" id="productos" aria-labelledby="eje-products-title">
+    <Filters paths={paths} collection={collection} count={products.length} activeCategory={category} sort={sort} search={search} />
+    {products.length > 0 ? (
+      <ProductGrid paths={paths} products={products} />
+    ) : (
+      <div class="eje-empty">
+        <p>{search ? `Nada por aquí para «${search}»` : 'No hay productos en esta categoría'}</p>
+        <a href={paths.catalog}>Volver a la colección</a>
+      </div>
+    )}
+
+    <section class="eje-principle" aria-labelledby="eje-principle-title">
+      <div class="eje-principle__diagram" aria-hidden="true"><span></span><span></span><span></span></div>
+      <div class="eje-principle__copy">
+        <p>Diseño para espacios compartidos</p>
+        <h2 id="eje-principle-title">Una forma abierta cambia cómo empieza una conversación.</h2>
+        <a href={paths.product('eje-banco-bulevar')}>Conocer el sistema <span aria-hidden="true">↗</span></a>
+      </div>
+      <strong class="eje-principle__vertical eje-principle__vertical--one" aria-hidden="true">FORMA</strong>
+      <strong class="eje-principle__vertical eje-principle__vertical--two" aria-hidden="true">ENCUENTRO</strong>
+    </section>
+  </section>
+</main>
+
+<style>
+  .eje-shell { min-height: 100vh; color: var(--color-foreground); background: var(--color-background); font-family: var(--font-accent); }
+  .eje-shell :where(a) { color: inherit; text-decoration: none; }
+  .eje-hero { display: grid; min-height: min(52rem, 78vh); grid-template-columns: 1fr 1fr; }
+  .eje-hero__scene, .eje-hero__statement { position: relative; overflow: hidden; min-height: 38rem; }
+  .eje-hero__scene img { width: 100%; height: 100%; object-fit: cover; }
+  .eje-hero__statement { display: grid; align-content: end; padding: clamp(2rem, 5vw, 5.5rem); color: var(--color-brand-fg); background: #363230; isolation: isolate; }
+  .eje-hero__blur { position: absolute; z-index: -2; inset: -8%; background: url('/images/collections/eje/eje-hero-reunion.webp') center / cover; filter: blur(32px) saturate(.55); transform: scale(1.16); }
+  .eje-hero__statement::after { position: absolute; z-index: -1; inset: 0; background: rgb(25 24 23 / .44); content: ''; }
+  .eje-hero__statement p { margin: 0 0 clamp(4rem, 12vh, 10rem); font-size: .62rem; letter-spacing: .08em; text-transform: uppercase; }
+  .eje-hero h1 { max-width: 11ch; margin: 0; font: var(--weight-display) clamp(3.25rem, 6vw, 6.8rem)/.88 var(--font-display); letter-spacing: var(--tracking-display); }
+  .eje-hero__statement > a { width: fit-content; min-height: 2.75rem; margin-top: 1.6rem; padding: .85rem 1.4rem; color: var(--color-foreground); background: var(--color-background); font-size: .64rem; letter-spacing: .05em; text-transform: uppercase; }
+  .eje-hero__statement > a:hover, .eje-hero__statement > a:focus-visible { color: var(--color-brand-fg); background: var(--color-brand); }
+  .eje-products { padding-top: clamp(4rem, 8vw, 7.5rem); }
+  .eje-empty { display: grid; min-height: 28rem; place-content: center; gap: 1rem; text-align: center; }
+  .eje-empty p { margin: 0; font: var(--weight-display) clamp(2rem, 5vw, 5rem)/.95 var(--font-display); }
+  .eje-empty a { min-height: 2.75rem; text-decoration: underline; text-underline-offset: .3rem; }
+  .eje-principle { position: relative; display: grid; min-height: 48rem; grid-template-columns: minmax(0, 1.15fr) minmax(18rem, .85fr); gap: clamp(2rem, 6vw, 7rem); margin-top: clamp(5rem, 10vw, 10rem); padding: clamp(2rem, 5vw, 5rem); background: var(--surface-sunken); }
+  .eje-principle__diagram { position: relative; min-height: 34rem; overflow: hidden; background: var(--surface-product); }
+  .eje-principle__diagram::before { position: absolute; inset: 14%; border: 2px solid var(--color-brand); border-radius: 50%; content: ''; }
+  .eje-principle__diagram::after { position: absolute; top: 50%; right: 8%; left: 8%; height: 2px; background: var(--color-brand); content: ''; transform: rotate(-18deg); }
+  .eje-principle__diagram span { position: absolute; width: 2.2rem; height: 2.2rem; border: 2px solid var(--color-brand); border-radius: 50%; background: var(--surface-product); }
+  .eje-principle__diagram span:nth-child(1) { top: 21%; left: 22%; }
+  .eje-principle__diagram span:nth-child(2) { top: 58%; left: 48%; }
+  .eje-principle__diagram span:nth-child(3) { right: 18%; bottom: 19%; }
+  .eje-principle__copy { align-self: end; padding: 0 clamp(1rem, 4vw, 4rem) 3rem 0; }
+  .eje-principle__copy > p { font-size: .62rem; letter-spacing: .08em; text-transform: uppercase; }
+  .eje-principle__copy h2 { max-width: 13ch; margin: 1.5rem 0 2rem; font: var(--weight-display) clamp(2.5rem, 5vw, 5.4rem)/.92 var(--font-display); letter-spacing: var(--tracking-display); }
+  .eje-principle__copy a { display: inline-flex; min-height: 2.75rem; align-items: center; gap: .7rem; border-bottom: var(--border-width) solid currentColor; font-size: .68rem; text-transform: uppercase; }
+  .eje-principle__vertical { position: absolute; top: 1rem; font: var(--weight-display) clamp(2rem, 4vw, 4.8rem)/1 var(--font-display); letter-spacing: -.05em; writing-mode: vertical-rl; }
+  .eje-principle__vertical--one { left: calc(58% - 1rem); }
+  .eje-principle__vertical--two { right: 1rem; }
+  @media (max-width: 760px) {
+    .eje-hero { grid-template-columns: 1fr; }
+    .eje-hero__scene, .eje-hero__statement { min-height: 29rem; }
+    .eje-hero__statement p { margin-bottom: 5rem; }
+    .eje-hero h1 { font-size: clamp(3.2rem, 15vw, 5.5rem); }
+    .eje-principle { grid-template-columns: 1fr; padding: 1rem; }
+    .eje-principle__diagram { min-height: 26rem; }
+    .eje-principle__copy { padding: 1rem 4rem 3rem 0; }
+    .eje-principle__vertical--one { display: none; }
+  }
+  @media (prefers-reduced-motion: reduce) { .eje-hero__blur { filter: blur(28px) saturate(.55); } }
+</style>

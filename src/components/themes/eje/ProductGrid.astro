@@ -1,0 +1,56 @@
+---
+/** EJE · tres fichas de producto sobre plano gris-lila. */
+import type { StorePaths } from '../../../collections';
+import { formatEurCents } from '../../../lib/format';
+type GridProduct = {
+  slug: string;
+  name: string;
+  price_cents: number;
+  image: string;
+  stock: number;
+  subtitle?: string | null | undefined;
+};
+
+interface Props {
+  products: GridProduct[];
+  paths: StorePaths;
+}
+
+const { products, paths } = Astro.props;
+---
+
+<ul class="eje-grid">
+  {products.map((product, index) => (
+    <li class="eje-card">
+      <a href={paths.product(product.slug)}>
+        <div class="eje-card__media">
+          <img src={product.image} alt={product.name} width="1200" height="1200" loading={index === 0 ? 'eager' : 'lazy'} />
+        </div>
+        <div class="eje-card__copy">
+          <div><h2>{product.name}</h2><p>{product.subtitle}</p></div>
+          <span>{formatEurCents(product.price_cents)}</span>
+        </div>
+      </a>
+    </li>
+  ))}
+</ul>
+
+<style>
+  .eje-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--grid-gap); margin: 0; padding: 0 clamp(1rem, 3vw, 3rem); list-style: none; }
+  .eje-card { min-width: 0; background: var(--surface-product); }
+  .eje-card > a { display: grid; min-height: 100%; grid-template-rows: 1fr auto; }
+  .eje-card__media { display: grid; aspect-ratio: 1 / .92; place-items: center; overflow: hidden; padding: clamp(1.4rem, 5vw, 5rem); }
+  .eje-card__media img { width: 100%; height: 100%; object-fit: contain; transition: transform .45s ease; }
+  .eje-card:hover .eje-card__media img { transform: scale(1.025); }
+  .eje-card__copy { display: flex; align-items: end; justify-content: space-between; gap: 1rem; min-height: 5.5rem; padding: .9rem 1rem 1rem; }
+  .eje-card__copy h2 { margin: 0; font: var(--weight-display) clamp(1.1rem, 1.6vw, 1.7rem)/1 var(--font-display); letter-spacing: var(--tracking-display); }
+  .eje-card__copy p { margin: .35rem 0 0; color: var(--color-muted-foreground); font-size: .6rem; text-transform: uppercase; }
+  .eje-card__copy > span { flex: 0 0 auto; color: var(--color-muted-foreground); font-size: .65rem; }
+  .eje-card a:focus-visible { outline: .18rem solid var(--color-brand); outline-offset: -.18rem; }
+  @media (max-width: 760px) {
+    .eje-grid { display: flex; overflow-x: auto; padding-right: 4rem; scroll-snap-type: x mandatory; }
+    .eje-card { flex: 0 0 78vw; scroll-snap-align: start; }
+    .eje-card__media { padding: 2rem; }
+  }
+  @media (prefers-reduced-motion: reduce) { .eje-card__media img { transition: none; } }
+</style>

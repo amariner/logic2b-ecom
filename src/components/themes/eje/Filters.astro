@@ -1,0 +1,53 @@
+---
+/** EJE · cabecera editorial con filtros progresivos. */
+import type { CollectionConfig, StorePaths } from '../../../collections';
+
+interface Props {
+  collection: CollectionConfig;
+  count: number;
+  activeCategory?: string | undefined;
+  sort: string;
+  search?: string | undefined;
+  paths: StorePaths;
+}
+
+const { paths, collection, count, activeCategory, sort, search } = Astro.props;
+---
+
+<header class="eje-filters">
+  <div><p>Selección / {String(count).padStart(2, '0')}</p><h2 id="eje-products-title">Piezas destacadas</h2></div>
+  <details>
+    <summary>Filtrar colección <span aria-hidden="true">＋</span></summary>
+    <div class="eje-filters__panel">
+      <nav aria-label="Categorías">
+        <a href={paths.catalog} aria-current={!activeCategory ? 'page' : undefined}>Todo</a>
+        {collection.categories.map((cat) => <a href={`${paths.catalog}?categoria=${cat.id}`} aria-current={activeCategory === cat.id ? 'page' : undefined}>{cat.label}</a>)}
+      </nav>
+      <form action={paths.catalog} method="get">
+        {activeCategory && <input type="hidden" name="categoria" value={activeCategory} />}
+        <label><span>Buscar</span><input type="search" name="q" value={search} placeholder="Nombre o material" /></label>
+        <label><span>Ordenar</span><select name="orden"><option value="featured" selected={sort === 'featured'}>Destacados</option><option value="price-asc" selected={sort === 'price-asc'}>Precio ↑</option><option value="price-desc" selected={sort === 'price-desc'}>Precio ↓</option><option value="name" selected={sort === 'name'}>Nombre</option></select></label>
+        <button type="submit">Aplicar</button>
+      </form>
+    </div>
+  </details>
+</header>
+
+<style>
+  .eje-filters { display: flex; align-items: end; justify-content: space-between; gap: 2rem; padding: 0 clamp(1rem, 3vw, 3rem) clamp(2rem, 4vw, 4rem); }
+  .eje-filters p { margin: 0 0 1.1rem; color: var(--color-muted-foreground); font-size: .58rem; letter-spacing: .08em; text-transform: uppercase; }
+  .eje-filters h2 { margin: 0; font: var(--weight-display) clamp(2.2rem, 4vw, 4.5rem)/.92 var(--font-display); letter-spacing: var(--tracking-display); }
+  .eje-filters details { position: relative; min-width: min(18rem, 100%); }
+  .eje-filters summary { display: flex; min-height: 2.75rem; align-items: center; justify-content: space-between; border-bottom: var(--border-width) solid var(--color-border); font-size: .65rem; cursor: pointer; text-transform: uppercase; }
+  .eje-filters summary::-webkit-details-marker { display: none; }
+  .eje-filters__panel { position: absolute; z-index: 5; top: 100%; right: 0; width: min(28rem, 90vw); padding: 1.2rem; border: var(--border-width) solid var(--color-border); color: var(--color-foreground); background: var(--color-background); box-shadow: 0 1rem 2rem rgb(0 0 0 / .08); }
+  .eje-filters nav { display: flex; flex-wrap: wrap; gap: .6rem 1rem; }
+  .eje-filters nav a { display: inline-flex; min-height: 2.75rem; align-items: center; border-bottom: var(--border-width) solid var(--color-border); font-size: .68rem; text-transform: uppercase; }
+  .eje-filters nav a[aria-current='page'] { text-decoration: underline; text-underline-offset: .3rem; }
+  .eje-filters nav a:focus-visible { outline: .18rem solid var(--color-brand); outline-offset: .15rem; }
+  .eje-filters form { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem; }
+  .eje-filters label span { display: block; margin-bottom: .4rem; font-size: .55rem; text-transform: uppercase; }
+  .eje-filters input, .eje-filters select, .eje-filters button { width: 100%; min-height: 2.75rem; border: var(--border-width) solid var(--color-border); border-radius: 0; padding: .65rem; color: inherit; background: transparent; font: inherit; }
+  .eje-filters button { grid-column: 1 / -1; color: var(--color-brand-fg); background: var(--color-brand); cursor: pointer; text-transform: uppercase; }
+  @media (max-width: 760px) { .eje-filters { align-items: stretch; flex-direction: column; } .eje-filters details { min-width: 100%; } }
+</style>

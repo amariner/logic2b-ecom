@@ -1156,6 +1156,36 @@ export const demoThemes: DemoTheme[] = [
       annotations: true, darkFooter: false,
     },
   },
+  {
+    id: 'eje',
+    label: 'EJE',
+    hint: 'Estudio contemporáneo para mobiliario, espacios colectivos y producto de diseño.',
+    reference: { name: 'Referencia de estudio de mobiliario colaborativo', file: '31-eje.webp' },
+    sample: null,
+    bestFor: ['Mobiliario contract', 'Estudios de producto', 'Espacios colectivos'],
+    status: 'ready',
+    vars: {
+      '--color-brand': '#252423',
+      '--color-brand-dark': '#0e0e0d',
+      '--color-brand-fg': '#f8f7f5',
+      '--font-display': SYSTEM_SANS,
+      '--font-accent': SYSTEM_SANS,
+      '--tracking-display': '-0.055em',
+      '--weight-display': '400',
+      '--radius-btn': '0',
+      '--radius-card': '0',
+      '--border-width': '1px',
+      '--surface-product': '#f0eef2',
+      '--surface-sunken': '#f5f4f2',
+      '--space-density': '0.85',
+      '--grid-gap': 'clamp(0.5rem, 1vw, 1rem)',
+    },
+    layout: {
+      gridCols: 3, gridStyle: 'uniform', nav: 'top', hero: 'fullbleed',
+      card: 'hairline', filters: 'dropdown', density: 'airy',
+      annotations: true, darkFooter: false,
+    },
+  },
   // new-theme:themes — no borrar: `pnpm new:theme <id>` añade aquí el tema si falta.
 ];
 

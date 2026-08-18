@@ -1712,20 +1712,18 @@ y rehearsal desde `0037`, sin backfill, PII, artefactos exportados ni ejecución
 de decisiones. Export HTTP y toda corrección, restricción, anonimización o
 borrado conservarán gates separados aun después de persistir el lifecycle.
 
-Carril visual: ENSAMBLE queda cerrado el 2026-08-18. La referencia 17 se
-convirtió en un archivo editorial responsive de mobiliario con tres piezas,
-tres WebP propios generados por OpenAI `imagegen` en llamadas individuales y
-pausas de al menos ocho segundos, sin usar Higgsfield. Catálogo, ficha, cesta y
-checkout conservan el motor compartido; no hubo D1, API, dependencia ni coste
-recurrente nuevo. `pnpm check` pasa 703 archivos, 163 suites/751 tests y build;
-E2E verde, a11y 0/0 en 8 superficies y capturas dentro de presupuesto. El
-siguiente bloque independiente del carril visual es la posición 18,
-`d1d7bc5c43ce55b0febbbc1996b51765.jpg`. Producción sirve el Worker
-`8ef1e720-0fd2-4dd2-858e-0fa025e930a9`; smoke de landing, `/temas`, tienda y
-assets verde. Priorizar las tarjetas visibles del rail elevó la mediana
-Lighthouse móvil de 97 a 99, con A11y/BP/SEO 100, LCP 2,1 s, CLS 0 y TBT 0;
-escritorio conserva 100×4. Recuperar el 100 móvil requiere un bloque de
-rendimiento del rail completo, no un parche privado de ENSAMBLE.
+Carril visual: EJE queda cerrado el 2026-08-18. La referencia 18 se convirtió
+en un estudio responsive de mobiliario colaborativo con hero cenital, tres
+piezas y cuatro WebP propios generados por OpenAI `imagegen` en llamadas
+individuales y pausas de al menos ocho segundos, sin usar Higgsfield. Catálogo,
+ficha, cesta y checkout conservan el motor compartido; no hubo D1, API,
+dependencia ni coste recurrente nuevo. `pnpm check` pasa 708 archivos, 163
+suites/751 tests y build; E2E verde, a11y 0/0 en 8 superficies y capturas dentro
+de presupuesto. El siguiente bloque independiente del carril visual es la
+posición 19, `dc28330a6fa92b0343b28a809688037d.jpg`. Producción sigue sirviendo
+el Worker `8ef1e720-0fd2-4dd2-858e-0fa025e930a9` hasta integrar y desplegar
+EJE. La deuda global de rendimiento del rail se mantiene separada: la última
+medición de landing fue móvil 99/100/100/100 y escritorio 100×4.
 
 #### Corte anterior R4.12
 
