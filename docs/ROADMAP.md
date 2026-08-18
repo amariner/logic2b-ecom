@@ -63,7 +63,7 @@ reconciliación se conserva abajo por contexto.
 | 11 | Landing V2 «nivel Awwwards» + negocio + funnel + docs | 🟡 En curso | 2026-08-13 | **F11.1, F11.3 (2 sesiones), F11.4, F11.5, F11.6, F11.7 y F11.8 (primera pasada + pase a11y/contenido desde cloud 2026-07-24) hechos**, más F11.8b (auditor de a11y, cloud), F11.2a-1 (tienda ASFALTO / tema Street), F11.2a-2 (tienda METRIA / tema Industrial) F11.2a-3 (tienda ROMER / tema Natural) y **F11.2a-4 (tienda KALIBRE / tema Specs, local 2026-07-25) — con la que F11.2a queda CERRADA (10/10 tiendas)**; y **F11.8c (Lighthouse citable + OG de WhatsApp + URLs sin redirección, local 2026-07-26)**; y **F11.8d–e (tabla de Lighthouse cerrada y desplegada: 7 de 8 superficies a 100×4, la landing entre ellas en móvil y escritorio, local 2026-07-27)**; y **F11.9 (contacto global de WhatsApp, cerrado y servido 2026-08-13)**. Solo queda la submission a Awwwards, decisión de pago reservada a Andreu. Detalle por bloque abajo. **Plan maestro completo en [`docs/PLAN_FASE11_LANDING_V2.md`](PLAN_FASE11_LANDING_V2.md)**: bloques F11.0–F11.8 ejecutables por sesiones independientes. **Decisiones D1–D6 APROBADAS por Andreu (2026-07-23)**: JS propio ≤15 KB sin deps, capturas con browser tools en local, dirección C «Ocho tiendas, un motor», escalera de precios (Lite 590 / Kit 1.900+39 / A medida 3.400+59), WhatsApp+email, Lite publicado sin construir. Prompt de arranque: [`docs/PROMPT_FASE11.md`](PROMPT_FASE11.md). Integra 9B.5/9B.6 (imaginería y temas restantes) como prerequisito del hero |
 | 8 | Pulido de la demo (backlog abajo) | 🟡 En curso | 2026-07-19 | Backlog técnico agotado; solo quedan decisiones y pasos locales de Andreu (ver «Decisiones pendientes» y `docs/PROMPT_CLOUD.md`). Últimas tandas: novena (race de idempotencia en el pago, PII enumerable en `/demo/gracias`, cancelación de pedido pagado sin devolver stock), décima (la misma race en el PATCH de admin, campos vacíos guardados como 0, login sin rate limit), undécima (diagrama móvil de `/arquitectura`, hedge del plazo de entrega, tokens de tema en `/demo/reset`, terminología «envío»), duodécima (aviso de corte en pedidos del admin, cabeceras sin wrap a 375px, leftover «portes», token de radio del carrito, contraste del botón eliminar, H1 en valenciano, checklist de producción) y decimotercera (misma race de idempotencia en `checkout.session.expired`, divisa hardcodeada a EUR fuera de Stripe, cobertura de test de `quoteCart`/PATCH admin/emails) y decimocuarta (config parcial de Stripe → cobro sin cumplimiento, emails duplicados bajo concurrencia, `payment_status` del webhook, color de marca centralizado en `shop.config.ts`, contraste/tema en carrito y checkout) — ver sección «Fase 8» |
 | 12 | Logic2B Ecommerce: renombrado, reposicionamiento y docs de dos visiones | ✅ Hecho | 2026-08-10 | **F12.0–F12.6 cerrados:** marca, argumento, dossier, canal agencias, ayuda, índice por audiencias, OG y auditorías citables consolidados. **Plan maestro en [`docs/PLAN_FASE12_LOGIC2B_ECOMMERCE.md`](PLAN_FASE12_LOGIC2B_ECOMMERCE.md)**. |
-| 13 | Plataforma modular: del gestor mínimo a paridad extrema de capacidad | 🟡 En curso | 2026-08-18 | **R0–R3.12, R4 y R5.1–R5.4a completos; R4.9–R5.3b siguen locales:** contrato passwordless revocable instalado sin persistencia ni superficies. Siguiente R5.4b con gate de esquema. Fuente de verdad en [`docs/plataforma/`](plataforma/README.md). |
+| 13 | Plataforma modular: del gestor mínimo a paridad extrema de capacidad | 🟡 En curso | 2026-08-18 | **R0–R3.12, R4 y R5.1–R5.4b completos; R4.9–R5.4b siguen locales:** persistencia passwordless revocable instalada e inerte, sin proveedor ni superficies. Siguiente R5.4c con gates de proveedor/seguridad. Fuente de verdad en [`docs/plataforma/`](plataforma/README.md). |
 
 ## Repo y entornos
 
@@ -155,6 +155,7 @@ sus verificaciones ni sus puntos de reanudación.
 | R5.3a | Derechos de datos verificables | ✅ 2026-08-17 — ADR-0041, lifecycle, dry-run, doble control y puertos; `CUS-008` instalada e inerte, sin DDL ni efectos |
 | R5.3b | Persistencia de solicitudes de derechos | ✅ 2026-08-18 — D1 `0038`, repositorio concurrente, backup 32 y rehearsal/restore local; sin PII, rutas ni ejecución |
 | R5.4a | Contrato de autenticación passwordless | ✅ 2026-08-18 — ADR-0042, challenge de un uso, sesión opaca rotatoria/revocable, scopes y anti-enumeración; sin DDL ni superficies |
+| R5.4b | Persistencia de autenticación passwordless | ✅ 2026-08-18 — D1 `0039`, repositorio concurrente, backup 33 y rehearsal/restore local; sin proveedor, secretos ni superficies |
 
 ## Fase 12 — Logic2B Ecommerce: renombrado, reposicionamiento y las dos visiones
 
@@ -1687,28 +1688,33 @@ la cola de temas, coordinados sin mezclar worktrees ni cambios abiertos.
 
 ## Próxima sesión
 
-### R5.4b — persistencia passwordless — bloque bloqueado por gate de esquema
+### R5.4c — superficie passwordless — bloque bloqueado por proveedor y seguridad
 
-R5.4a queda cerrado con ADR-0042 y `CUS-003` instalada e inerte. El dominio
-separa identidad autenticable y perfil, limita challenges a un uso y quince
-minutos, emite sesiones opacas desde prueba consumida, rota token e identificador
-sin elevar scopes y conserva un corte absoluto revocable. La respuesta pública
-es uniforme exista o no identidad. Los puertos aíslan persistencia y proveedor;
-no hay DDL, repositorio D1, email, cookie, endpoint, navegación, UI ni acceso a
-pedidos, direcciones o derechos de datos.
+R5.4b queda cerrado tras la autorización expresa de Andreu. `0039` añade
+identidad autenticable, familia, sesión y challenge sin backfill ni PII. D1
+solo conserva HMAC/digests y referencias opacas. El repositorio consume
+challenge+familia+sesión y rota generación anterior+nueva en batches atómicas;
+revocación individual/familiar, retry y carreras convergen sin elevar scopes ni
+aplicar transiciones parciales. `CUS-003` continúa `installed`, sin flags.
 
-Gate de cierre: `pnpm check` pasa 166 suites/770 tests, typecheck de 719 archivos
-sin diagnósticos, build y sitemap. No aplica E2E, a11y, backup, migración o deploy
-porque el bloque no abre superficie ni persistencia. Producción continúa en
-`0032`; D1 local continúa en `0038`. No hubo dependencia, coste recurrente,
-credenciales ni superficie PCI nueva.
+Backup avanza a esquema 33. El rehearsal desde una baseline local exacta en
+`0038` conservó 294 productos, 296 variantes/balances, 8 pedidos, 13 líneas y
+8 pagos; hash
+`72ba73e985b69b4430a7e10e08a28859661bcd8eb406530945846c213082dffe`, dump
+658.708 bytes, restore/FKs/integridad verdes y cero credenciales inventadas.
+D1 local sirve `0039`; producción continúa en `0032`.
 
-Continuación exacta: R5.4b debe diseñar y ensayar el esquema expand-only `0039`
-para identidades, challenges y familias/sesiones, con consumo+emisión y
-rotación atómicos, índices por digest, backup 33, restore, concurrencia y
-rollback. **No es ejecutable sin autorización expresa de Andreu para modificar
-el esquema D1.** Proveedor, secretos, email/WebAuthn, cookie, HTTP, UI y
-activación siguen siendo gates posteriores e independientes.
+Gate de cierre: `pnpm check` pasa 168 suites/782 tests, typecheck de 722 archivos
+sin diagnósticos, build y sitemap; el E2E local completo valida el backup 33 y
+conserva la demo inerte. No aplica a11y porque no existe superficie. No hubo
+dependencia, credencial, D1 remota, Worker, deploy, coste recurrente ni
+superficie PCI nueva.
+
+Continuación exacta: R5.4c necesita una decisión explícita sobre método/proveedor
+inicial (email magic link y entrega, WebAuthn o ambos), dominio/origin/RP ID,
+secretos por despliegue, cookie/CSRF/CSP, rate limit, recuperación y autorización
+para abrir HTTP/UI. Hasta resolver esos gates no se implementa email, WebAuthn,
+cookie, ruta, navegación o activación. R5.5 no se adelanta.
 
 Carril visual: ARISTA cierra el 2026-08-18 las posiciones 17–19 y deja la cola
 sin referencias ejecutables. La referencia 19 se convirtió en un catálogo
@@ -1729,9 +1735,9 @@ tiendas, páginas públicas y panel pasan a11y/responsive/reduced-motion con 0
 errores y 0 avisos; E2E global verde y los 15 contratos de catálogo/storefront
 pasan. Las 134 capturas de catálogo, móvil y tarjetas quedan dentro de sus
 presupuestos tras recomprimir LUMBRE de 151,1 a 132 KB sin regenerar su imagen.
-No quedan referencias ejecutables en la cola. R5.4a ya cerró sin esquema,
-proveedor o superficie; el siguiente bloque del carril principal es R5.4b y
-permanece bloqueado hasta autorización expresa para modificar el esquema D1.
+No quedan referencias ejecutables en la cola. R5.4b ya cerró con persistencia
+local e inerte; el siguiente bloque del carril principal es R5.4c y permanece
+bloqueado hasta decidir proveedor/método y autorizar su superficie de seguridad.
 
 Consolidación del rail móvil cerrada en repositorio el 2026-08-18: la portada
 conserva el bucle completo de 33 escaparates en escritorio y presenta en móvil

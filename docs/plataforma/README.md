@@ -272,6 +272,10 @@ venta o servicios logísticos propios.
 - [`adr/0042-autenticacion-passwordless-revocable.md`](adr/0042-autenticacion-passwordless-revocable.md):
   identidad autenticable separada, challenge de un uso, sesión opaca rotatoria,
   revocación, scopes mínimos y threat model anti-enumeración de R5.4a.
+- [`../../migrations/0039_customer_passwordless_auth.sql`](../../migrations/0039_customer_passwordless_auth.sql):
+  identidades, challenges y familias/sesiones expand-only de R5.4b.
+- [`OPERACION_PASSWORDLESS.md`](OPERACION_PASSWORDLESS.md): rehearsal, backup
+  33, concurrencia, gates de proveedor/superficie, reconciliación y rollback.
 - [`../../migrations/0037_consent_evidence.sql`](../../migrations/0037_consent_evidence.sql):
   evidencia versionada, índices por sujeto/alcance y guards de append/retirada.
 - [`OPERACION_CONSENTIMIENTOS.md`](OPERACION_CONSENTIMIENTOS.md): rollout,

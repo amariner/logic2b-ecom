@@ -111,3 +111,7 @@ export type {
   CustomerAuthenticationRepository,
   PasswordlessProofProvider,
 } from './application/passwordless-auth-ports';
+export {
+  CustomerAuthenticationConflictError,
+  createD1CustomerAuthenticationRepository,
+} from './infrastructure/d1-customer-authentication-repository';

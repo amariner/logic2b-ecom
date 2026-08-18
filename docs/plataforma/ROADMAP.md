@@ -171,7 +171,7 @@ suites/715 tests; producción permanece en `0032`.
 | 51 | **R5.1 Perfil de cliente** | Identidad deduplicable, direcciones y relación con pedidos sin romper guest checkout. | ✅ 2026-08-17 — D1 `0036`, backup 30 y rehearsal local; capacidad instalada, rollout pendiente |
 | 52 | **R5.2 Consentimientos** | Canal, finalidad, versión legal, fuente, región, timestamp y retirada. | ✅ 2026-08-17 — D1 `0037`, repositorio atómico, backup 31 y rehearsal local; captura/rollout pendientes |
 | 53 | **R5.3 Derechos de datos** | Exportar, corregir, anonimizar/borrar con excepciones fiscales y audit log. | 🟨 2026-08-18 — contrato y persistencia R5.3a–b instalados; política, superficies y ejecución pendientes de gates propios |
-| 54 | **R5.4 Cuentas passwordless** | Login seguro, sesiones, revocación y anti-enumeración; módulo opcional. | 🟨 2026-08-18 — contrato R5.4a instalado; persistencia, proveedor y superficies pendientes de gates propios |
+| 54 | **R5.4 Cuentas passwordless** | Login seguro, sesiones, revocación y anti-enumeración; módulo opcional. | 🟨 2026-08-18 — contrato R5.4a y persistencia local R5.4b instalados; proveedor, secretos y superficies pendientes de gates propios |
 | 55 | **R5.5 Autoservicio** | Pedidos, direcciones y devolución sobre permisos mínimos. | ⬜ |
 | 56 | **R5.6 Segmentación** | Lenguaje de filtros limitado, templates y recálculo observable. | ⬜ |
 | 57 | **R5.7 Modelo de mercados** | Contexto de país/idioma/moneda/dominio, resolución y fallback. | ⬜ |
@@ -232,6 +232,20 @@ idéntica exista o no identidad. No hay DDL, repositorio, proveedor, cookie,
 ruta, email o UI. El siguiente bloque R5.4b requiere autorización expresa para
 el esquema expand-only `0039` antes de persistir identidades, challenges y
 familias/sesiones.
+
+R5.4b materializa la persistencia tras autorización expresa de Andreu. `0039`
+añade identidad, familia, sesión y challenge sin backfill, PII ni token/proof
+crudo. El repositorio crea identidades/challenges idempotentes, consume
+challenge+familia+sesión y rota generación anterior+nueva en batches atómicas;
+la revocación individual/familiar es durable y los campos inmutables se
+comparan antes de escribir. Backup avanza a esquema 33. El rehearsal desde
+`0038` conserva catálogo, inventario, pedidos, pagos y clientes con hash
+`72ba73e985b69b4430a7e10e08a28859661bcd8eb406530945846c213082dffe`, dump
+658.708 bytes, FKs e integridad verdes y cero credenciales inventadas. D1 local
+sirve `0039`; producción continúa en `0032`. `CUS-003` sigue inerte. R5.4c
+requiere decisión explícita de proveedor, secretos, dominio/origin, política de
+cookie/recuperación y autorización de superficies antes de cualquier email,
+WebAuthn, ruta o UI.
 
 ## R6 — B2B
 

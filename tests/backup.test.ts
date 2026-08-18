@@ -8,8 +8,8 @@ import { createPreliminaryOrderOperations } from '../src/composition/preliminary
 
 describe('volcado de copia de seguridad', () => {
   it('declara el contrato que incluye la colaboración de pedidos', () => {
-    expect(BACKUP_SCHEMA_VERSION).toBe(32);
-    expect(buildBackupSql({}, '2026-08-18')).toContain('0038_data_rights_evidence');
+    expect(BACKUP_SCHEMA_VERSION).toBe(33);
+    expect(buildBackupSql({}, '2026-08-18')).toContain('0039_customer_passwordless_auth');
   });
 
   it('genera INSERTs con columnas explícitas y escape de comillas', () => {
@@ -132,6 +132,10 @@ describe('volcado de copia de seguridad', () => {
       'customer_data_rights_evidence',
       'customer_data_rights_plan_decisions',
       'customer_data_rights_artifact_references',
+      'customer_auth_identities',
+      'customer_session_families',
+      'customer_sessions',
+      'customer_passwordless_challenges',
     ]));
     for (const table of BACKUP_TABLES) expect(sql).toContain(`DELETE FROM ${table};`);
   });
@@ -215,6 +219,37 @@ describe('volcado de copia de seguridad', () => {
         evidence_id, owner_id, operation, policy_reason_id, payload_reference, position
       ) VALUES ('rights_backup_003', 'orders:snapshots', 'retain',
         'policy:fiscal_retention', NULL, 0);
+      INSERT INTO customer_auth_identities (
+        id, customer_profile_id, contact_identity_hash, status, created_at,
+        revoked_at, creation_idempotency_key
+      ) VALUES ('auth_identity:backup:1', 'cus_backup', '${'e'.repeat(64)}',
+        'active', '2026-08-08T16:18:00.000Z', NULL,
+        'auth:identity:backup:create');
+      INSERT INTO customer_session_families (
+        id, identity_id, customer_profile_id, status, created_at,
+        absolute_expires_at, revoked_at, revocation_reason_id,
+        transition_idempotency_key, version
+      ) VALUES ('session_family:backup:1', 'auth_identity:backup:1', 'cus_backup',
+        'active', '2026-08-08T16:20:00.000Z', '2026-09-07T16:20:00.000Z',
+        NULL, NULL, NULL, 1);
+      INSERT INTO customer_sessions (
+        id, family_id, identity_id, customer_profile_id, token_digest,
+        can_revoke_sessions, status, issued_at, expires_at, absolute_expires_at,
+        generation, rotated_from_session_id, replaced_by_session_id, revoked_at,
+        revocation_reason_id, transition_idempotency_key, version
+      ) VALUES ('customer_session:backup:1', 'session_family:backup:1',
+        'auth_identity:backup:1', 'cus_backup', '${'f'.repeat(64)}', 1, 'active',
+        '2026-08-08T16:20:00.000Z', '2026-08-09T16:20:00.000Z',
+        '2026-09-07T16:20:00.000Z', 1, NULL, NULL, NULL, NULL, NULL, 1);
+      INSERT INTO customer_passwordless_challenges (
+        id, identity_id, method, purpose, provider_reference, secret_digest,
+        status, requested_at, expires_at, consumed_at, consumed_by_session_id,
+        transition_idempotency_key, version
+      ) VALUES ('auth_challenge:backup:1', 'auth_identity:backup:1',
+        'email_magic_link', 'sign_in', 'provider_challenge:backup:1',
+        '${'1'.repeat(64)}', 'consumed', '2026-08-08T16:19:00.000Z',
+        '2026-08-08T16:29:00.000Z', '2026-08-08T16:20:00.000Z',
+        'customer_session:backup:1', 'auth:challenge:backup:consume', 2);
       UPDATE orders SET customer_profile_id='cus_backup'
       WHERE id=(SELECT id FROM orders ORDER BY id LIMIT 1);
     `);
@@ -339,5 +374,16 @@ describe('volcado de copia de seguridad', () => {
       { action: 'identity_verified', version: 2, operation: null },
       { action: 'plan_attached', version: 3, operation: 'retain' },
     ]);
+    expect(restored.query(`SELECT identity.id AS identity_id,
+      session.status AS session_status, challenge.status AS challenge_status
+      FROM customer_auth_identities identity
+      JOIN customer_sessions session ON session.identity_id=identity.id
+      JOIN customer_passwordless_challenges challenge
+        ON challenge.consumed_by_session_id=session.id
+      WHERE identity.id='auth_identity:backup:1'`)).toEqual([{
+      identity_id: 'auth_identity:backup:1',
+      session_status: 'active',
+      challenge_status: 'consumed',
+    }]);
   });
 });

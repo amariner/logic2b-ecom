@@ -7,7 +7,7 @@
 export type Row = Record<string, string | number | null>;
 
 /** Orden de volcado y de borrado inverso (hijos después de padres al insertar no importa: borramos primero). */
-export const BACKUP_SCHEMA_VERSION = 32;
+export const BACKUP_SCHEMA_VERSION = 33;
 
 export const BACKUP_TABLES = [
   'products',
@@ -68,6 +68,10 @@ export const BACKUP_TABLES = [
   'customer_data_rights_evidence',
   'customer_data_rights_plan_decisions',
   'customer_data_rights_artifact_references',
+  'customer_auth_identities',
+  'customer_session_families',
+  'customer_sessions',
+  'customer_passwordless_challenges',
   'orders',
   'preliminary_orders',
   'preliminary_order_lines',
@@ -160,6 +164,15 @@ export function dumpTable(table: string, rows: Row[]): string[] {
               ? [...rows].sort((left, right) =>
                 String(left.evidence_id).localeCompare(String(right.evidence_id)) ||
                 Number(left.position) - Number(right.position))
+              : table === 'customer_sessions'
+                ? [...rows].sort((left, right) =>
+                  String(left.family_id).localeCompare(String(right.family_id)) ||
+                  Number(left.generation) - Number(right.generation))
+                : table === 'customer_passwordless_challenges'
+                  ? [...rows].sort((left, right) =>
+                    String(left.identity_id).localeCompare(String(right.identity_id)) ||
+                    String(left.requested_at).localeCompare(String(right.requested_at)) ||
+                    String(left.id).localeCompare(String(right.id)))
               : rows;
   const columns = Object.keys(orderedRows[0]!);
   // Al restaurar ubicaciones, el trigger de 0022 crea su política por defecto.
@@ -200,7 +213,7 @@ export function buildBackupSql(tablesRows: Record<string, Row[]>, generatedAt: s
   const lines = [
     `-- Copia de seguridad Logic2B Ecommerce — ${generatedAt}`,
     `-- logic2b-backup-schema: ${BACKUP_SCHEMA_VERSION}`,
-    '-- Requiere una base con la migración 0038_data_rights_evidence aplicada; las tablas/columnas explícitas abortan un restore incompatible.',
+    '-- Requiere una base con la migración 0039_customer_passwordless_auth aplicada; las tablas/columnas explícitas abortan un restore incompatible.',
     `-- Restaurar con: wrangler d1 execute <database> --remote --file <este fichero>`,
     'PRAGMA defer_foreign_keys = true;',
   ];

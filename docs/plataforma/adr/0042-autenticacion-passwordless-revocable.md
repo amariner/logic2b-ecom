@@ -1,6 +1,6 @@
 # ADR-0042 — Autenticación passwordless opaca, rotatoria y revocable
 
-- Estado: aceptado como contrato; persistencia, proveedor y superficies pendientes
+- Estado: aceptado; persistencia local implementada, proveedor y superficies pendientes
 - Fecha: 2026-08-18
 - Bloque: R5.4a
 - Capacidad: `CUS-003`
@@ -92,12 +92,14 @@ jobs ni efectos.
 - No se concede acceso a pedidos, direcciones, RMA o datos personales.
 - No se modifica el login administrativo ni Cloudflare Access.
 
-## Gates posteriores
+## Persistencia autorizada
 
-La persistencia requiere autorización expresa de esquema. Debe separar
-identidades, challenges y familias/sesiones; insertar consumo+sesión y
-rotación anterior+nueva atómicamente; indexar solo hashes; ensayar backup y
-restore sin secrets ni proofs.
+Andreu autorizó expresamente R5.4b el 2026-08-18. `0039` separa identidades,
+challenges y familias/sesiones; consumo+sesión y rotación anterior+nueva son
+atómicos, solo se indexan hashes/referencias opacas y el backup esquema 33 se
+ensaya sin secrets ni proofs. La D1 local sirve el corte; producción no cambia.
+
+## Gates posteriores
 
 Abrir una superficie requiere además proveedor elegido, secreto por despliegue,
 origin/host allowlist, cookie segura, CSRF, rate limit, respuestas uniformes,
@@ -116,7 +118,7 @@ contadores; email exige entrega real, URL canónica y protección del token.
 
 ## Rollback
 
-Mientras no exista persistencia, retirar `CUS-003` del manifest y sus contratos
-revierte la composición. Cuando existan sesiones, el rollback será de
+Mientras no existan superficies, mantener `CUS-003` sin flags bloquea toda
+emisión. Cuando existan sesiones, el rollback será de
 comportamiento: bloquear emisión, revocar familias y conservar evidencia mínima
 según la política aprobada; nunca reactivar tokens antiguos.

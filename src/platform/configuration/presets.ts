@@ -105,8 +105,8 @@ const ADVANCED_CAPABILITIES = {
   // R5.1 instala identidad/dominio, pero no crea perfiles hasta disponer de
   // persistencia expand-only y un secreto HMAC por despliegue.
   'CUS-002': { state: 'installed' },
-  // R5.4a instala threat model y contratos; no concede rutas, cookies,
-  // proveedor, persistencia ni acceso a pedidos/direcciones.
+  // R5.4a-b instala threat model, contratos y persistencia; no concede rutas,
+  // cookies, proveedor ni acceso a pedidos/direcciones.
   'CUS-003': { state: 'installed' },
   // R5.2 fija evidencia y decisiones puras. Persistencia, captura y envíos
   // requieren gates separados, por eso el preset no concede efectos.

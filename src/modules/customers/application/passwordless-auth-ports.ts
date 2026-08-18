@@ -8,25 +8,39 @@ import type {
 /** Persistencia futura. Crear/consumir y rotar/revocar deben ser transacciones atómicas. */
 export interface CustomerAuthenticationRepository {
   identityByContactHash(contactIdentityHash: string): Promise<CustomerAuthIdentity | null>;
+  createIdentity(input: Readonly<{
+    identity: CustomerAuthIdentity;
+    idempotencyKey: string;
+  }>): Promise<'created' | 'replayed'>;
   challenge(challengeId: string): Promise<PasswordlessChallenge | null>;
   createChallenge(challenge: PasswordlessChallenge): Promise<'created' | 'replayed'>;
   consumeChallenge(input: Readonly<{
-    challengeId: string;
-    proofDigest: string;
+    challenge: PasswordlessChallenge;
     session: CustomerSession;
     expectedVersion: number;
     idempotencyKey: string;
   }>): Promise<'consumed' | 'replayed'>;
+  transitionChallenge(input: Readonly<{
+    challenge: PasswordlessChallenge;
+    expectedVersion: number;
+    idempotencyKey: string;
+  }>): Promise<'transitioned' | 'replayed'>;
   sessionByTokenDigest(tokenDigest: string): Promise<CustomerSession | null>;
   rotateSession(input: Readonly<{
     previous: CustomerSession;
     current: CustomerSession;
     idempotencyKey: string;
   }>): Promise<'rotated' | 'replayed'>;
+  revokeSession(input: Readonly<{
+    session: CustomerSession;
+    expectedVersion: number;
+    idempotencyKey: string;
+  }>): Promise<'revoked' | 'replayed'>;
   revokeSessionFamily(input: Readonly<{
     familyId: string;
     occurredAt: string;
     reasonId: string;
+    expectedVersion: number;
     idempotencyKey: string;
   }>): Promise<number>;
 }
