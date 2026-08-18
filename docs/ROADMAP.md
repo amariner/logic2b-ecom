@@ -1736,6 +1736,21 @@ principal sigue siendo R5.3b y conserva su gate de autorización explícita para
 crear y ensayar el esquema `0038`; no se abre migración, D1 ni runtime antes de
 esa autorización.
 
+Consolidación del rail móvil cerrada en repositorio el 2026-08-18: la portada
+conserva el bucle completo de 33 escaparates en escritorio y presenta en móvil
+una muestra estática de seis tarjetas con acceso al catálogo completo. El
+navegador deja de desplazar todas las capturas por el umbral de carga diferida:
+Lighthouse local baja la página de 49 a 23 imágenes y de ~898 a ~298 KB
+transferidos; el Speed Index deja el peor caso de ~4,7 s y queda entre
+~1,2–2,0 s en tres pasadas.
+El LCP textual local continúa en ~2,7 s y mantiene rendimiento 95–96, deuda
+global de CSS/tipografía separada de este rail; CLS y TBT permanecen en cero.
+Navegador real confirma seis tarjetas, cero overflow y animación ausente a
+375 px, mientras 1440 px conserva las 66 tarjetas duplicadas y el movimiento de
+ambas columnas. La auditoría `site:landing` pasa 3/3 superficies con 0 errores y
+0 avisos. Sin D1, API, dependencia ni cambio de temas; deploy y Lighthouse de
+producción quedan pendientes del cierre de este bloque.
+
 #### Corte anterior R4.12
 
 R4.12 cierra la ola de modelos de venta sin DDL, rutas ni efectos. La matriz

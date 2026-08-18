@@ -280,7 +280,18 @@ const right = stores.filter((_, index) => index % 2 === 1);
       min-height: 0;
       gap: 0.65rem;
     }
-    .airtable-theme-rail-track { gap: 0.65rem; }
+    /* En móvil el rail es una muestra estática. El bucle infinito hacía que
+       las 33 capturas cruzasen el umbral de `loading="lazy"` durante la
+       medición y convertía ~140 KB visibles en casi 0,9 MB de red. */
+    .airtable-theme-rail-column .airtable-theme-rail-track {
+      gap: 0.65rem;
+      animation: none;
+      will-change: auto;
+    }
+    .airtable-theme-card[aria-hidden='true'],
+    .airtable-theme-card:not([aria-hidden]):nth-child(n + 4) {
+      display: none;
+    }
     .airtable-theme-card-meta { padding: 0.55rem; }
     .airtable-theme-card-style { display: none; }
   }
