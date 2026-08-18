@@ -1,0 +1,43 @@
+---
+/** ARISTA · controles GET mínimos, plegados como en una ficha técnica. */
+import type { CollectionConfig, StorePaths } from '../../../collections';
+
+interface Props {
+  collection: CollectionConfig;
+  count: number;
+  activeCategory?: string | undefined;
+  sort: string;
+  search?: string | undefined;
+  paths: StorePaths;
+}
+
+const { paths, collection, count, activeCategory, sort, search } = Astro.props;
+---
+
+<div class="arista-filters">
+  <p><span>Catálogo</span><strong>{String(count).padStart(2, '0')} sistemas</strong></p>
+  <details>
+    <summary>Filtrar / ordenar <span aria-hidden="true">＋</span></summary>
+    <form method="get" action={paths.catalog}>
+      <label>Categoría<select name="categoria"><option value="">Todas</option>{collection.categories.map((cat) => <option value={cat.id} selected={activeCategory === cat.id}>{cat.label}</option>)}</select></label>
+      <label>Orden<select name="orden"><option value="featured" selected={sort === 'featured'}>Selección</option><option value="price-asc" selected={sort === 'price-asc'}>Precio ↑</option><option value="price-desc" selected={sort === 'price-desc'}>Precio ↓</option><option value="name" selected={sort === 'name'}>Nombre</option></select></label>
+      <label>Buscar<input name="q" value={search} type="search" maxlength="60" placeholder="Nombre o sistema" /></label>
+      <button type="submit">Aplicar</button>
+    </form>
+  </details>
+</div>
+
+<style>
+  .arista-filters { display: flex; align-items: end; justify-content: space-between; gap: 2rem; padding: 1rem 0; border-top: var(--border-width) solid var(--ari-rule); border-bottom: var(--border-width) solid var(--ari-rule); font-size: .56rem; text-transform: uppercase; }
+  .arista-filters p { display: flex; gap: clamp(2rem, 7vw, 7rem); margin: 0; }
+  .arista-filters p span { color: var(--color-muted-foreground); }
+  .arista-filters p strong { font-weight: 500; }
+  .arista-filters details { position: relative; width: min(20rem, 100%); }
+  .arista-filters summary { display: flex; min-height: 2.75rem; align-items: center; justify-content: space-between; cursor: pointer; }
+  .arista-filters summary::-webkit-details-marker { display: none; }
+  .arista-filters form { position: absolute; z-index: 5; top: 100%; right: 0; display: grid; width: min(31rem, 92vw); grid-template-columns: 1fr 1fr; gap: .9rem; padding: 1rem; border: var(--border-width) solid var(--ari-rule); color: var(--color-foreground); background: var(--color-background); box-shadow: 0 1rem 2rem rgb(0 0 0 / .08); }
+  .arista-filters label { display: grid; gap: .35rem; color: var(--color-muted-foreground); }
+  .arista-filters input, .arista-filters select, .arista-filters button { min-height: 2.75rem; border: var(--border-width) solid var(--ari-rule); border-radius: var(--radius-btn); padding: .65rem; color: var(--color-foreground); background: var(--color-background); font: inherit; text-transform: uppercase; }
+  .arista-filters button { align-self: end; color: var(--color-brand-fg); background: var(--color-brand); cursor: pointer; }
+  @media (max-width: 720px) { .arista-filters { align-items: stretch; flex-direction: column; } .arista-filters details { width: 100%; } .arista-filters form { grid-template-columns: 1fr; } }
+</style>

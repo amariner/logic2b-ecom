@@ -1186,6 +1186,36 @@ export const demoThemes: DemoTheme[] = [
       annotations: true, darkFooter: false,
     },
   },
+  {
+    id: 'arista',
+    label: 'ARISTA',
+    hint: 'Iluminación arquitectónica, retícula asimétrica y ficha técnica precisa.',
+    reference: { name: 'Onok / Duo Wall', file: '32-arista.webp' },
+    sample: '/images/temas/arista.webp',
+    bestFor: ['Iluminación', 'Arquitectura e interiorismo', 'Catálogo técnico'],
+    status: 'ready',
+    vars: {
+      '--color-brand': '#9a4d20',
+      '--color-brand-dark': '#6e3214',
+      '--color-brand-fg': '#ffffff',
+      '--font-display': SYSTEM_SANS,
+      '--font-accent': MONO,
+      '--tracking-display': '-0.055em',
+      '--weight-display': '400',
+      '--radius-btn': '0rem',
+      '--radius-card': '0rem',
+      '--border-width': '1px',
+      '--surface-product': '#e7e7e9',
+      '--surface-sunken': '#f2f1ef',
+      '--space-density': '0.75',
+      '--grid-gap': '0.65rem',
+    },
+    layout: {
+      gridCols: 4, gridStyle: 'irregular', nav: 'top', hero: 'none',
+      card: 'plain', filters: 'dropdown', density: 'compact',
+      annotations: true, darkFooter: false,
+    },
+  },
   // new-theme:themes — no borrar: `pnpm new:theme <id>` añade aquí el tema si falta.
 ];
 

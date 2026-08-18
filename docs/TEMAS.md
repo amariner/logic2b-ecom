@@ -781,6 +781,18 @@ acabados propios de la silueta Boston y conserva producto, cesta, checkout y
 confirmación en el recorrido compartido. Ficha:
 [`docs/temas/monte.md`](temas/monte.md).
 
+### 32 · ARISTA — *luz que dibuja arquitectura*
+
+📎 **Referencia: [`32-arista.webp`](../public/images/referencias/32-arista.webp)**
+
+**Para quién:** iluminación arquitectónica, prescripción técnica e interiorismo.
+
+Un campo blanco radical, el rótulo «Perfiles», numeración monumental y una
+retícula asimétrica convierten cuatro sistemas lineales en material de
+arquitectura. ARISTA conserva filtros, ficha técnica, cesta y checkout en el
+recorrido local compartido. Ficha:
+[`docs/temas/arista.md`](temas/arista.md).
+
 ---
 
 ## 6. Tabla resumen
@@ -817,6 +829,7 @@ confirmación en el recorrido compartido. Ficha:
 | 26 | LUMBRE | `#4b251b` | 4 | uniform | **immersive** | **fullbleed** | hairline | dropdown | airy | ✅ |
 | 27 | MIXTA | `#c8ff65` | 4 | uniform | **immersive** | **fullbleed** | divided | dropdown | regular | ✅ |
 | 29 | MONTE | `#181714` | 3 | **irregular** | top | **fullbleed** | hairline | dropdown | airy | ✅ |
+| 32 | ARISTA | `#9a4d20` | 4 | **irregular** | top | none | plain | dropdown | compact | ✅ |
 
 ---
 

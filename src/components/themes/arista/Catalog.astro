@@ -1,0 +1,81 @@
+---
+/** ARISTA · catálogo técnico de iluminación en retícula asimétrica. */
+import type { CollectionConfig, StorePaths } from '../../../collections';
+import Filters from './Filters.astro';
+import ProductGrid from './ProductGrid.astro';
+
+type GridProduct = {
+  slug: string;
+  name: string;
+  subtitle?: string | null | undefined;
+  price_cents: number;
+  image: string;
+  stock: number;
+};
+
+interface Props {
+  products: GridProduct[];
+  paths: StorePaths;
+  collection: CollectionConfig;
+  category?: string | undefined;
+  sort: string;
+  search?: string | undefined;
+}
+
+const { products, paths, collection, category, sort, search } = Astro.props;
+---
+
+<main class="arista-shell">
+  <section class="arista-intro" aria-labelledby="arista-title">
+    <div class="arista-intro__eyebrow"><span>ARISTA / 2026</span><span>Sistemas lineales de precisión</span></div>
+    <h1 id="arista-title">Perfiles</h1>
+    <div class="arista-intro__foot">
+      <a href="#arista-catalogo"><span aria-hidden="true">↖</span> Catálogo</a>
+      <p>{collection.tagline}</p>
+    </div>
+  </section>
+
+  <section id="arista-catalogo" aria-labelledby="arista-catalogo-title">
+    <h2 class="sr-only" id="arista-catalogo-title">Catálogo ARISTA</h2>
+    <Filters paths={paths} collection={collection} count={products.length} activeCategory={category} sort={sort} search={search} />
+    {products.length > 0 ? (
+      <ProductGrid paths={paths} products={products} />
+    ) : (
+      <div class="arista-empty">
+        <p>{search ? `Nada por aquí para «${search}»` : 'No hay perfiles en esta selección'}</p>
+        <a href={paths.catalog}>Volver al catálogo</a>
+      </div>
+    )}
+  </section>
+
+  <footer class="arista-footer">
+    <strong>ARISTA</strong><p>Integración · Control · Confort visual</p><a href="#arista-title">Arriba ↑</a>
+  </footer>
+</main>
+
+<style>
+  .arista-shell { --ari-rule: color-mix(in srgb, var(--color-foreground) 18%, transparent); min-height: 100vh; padding: 0 clamp(.8rem, 1.5vw, 1.5rem); color: var(--color-foreground); background: var(--color-background); font-family: var(--font-accent); }
+  .arista-shell :where(a) { color: inherit; text-decoration: none; }
+  .arista-intro { display: grid; min-height: clamp(28rem, 64vw, 57rem); grid-template-rows: auto 1fr auto; padding: 1.1rem 0 2rem; }
+  .arista-intro__eyebrow { display: flex; justify-content: space-between; gap: 1rem; color: var(--color-muted-foreground); font-size: .56rem; letter-spacing: .03em; text-transform: uppercase; }
+  .arista-intro h1 { align-self: center; margin: 0; font: var(--weight-display) clamp(5rem, 16vw, 15.5rem)/.72 var(--font-display); letter-spacing: var(--tracking-display); }
+  .arista-intro__foot { display: grid; grid-template-columns: 1fr minmax(14rem, 32rem); gap: 2rem; align-items: end; }
+  .arista-intro__foot a { display: inline-flex; min-height: 2.75rem; align-items: center; gap: .4rem; font-size: .62rem; text-transform: uppercase; }
+  .arista-intro__foot a:hover, .arista-intro__foot a:focus-visible { text-decoration: underline; text-underline-offset: .28rem; }
+  .arista-intro__foot p { margin: 0; font: var(--weight-display) clamp(1.5rem, 3.1vw, 3.2rem)/.96 var(--font-display); letter-spacing: var(--tracking-display); }
+  .arista-empty { display: grid; min-height: 34rem; place-content: center; gap: 1rem; text-align: center; }
+  .arista-empty p { margin: 0; font: var(--weight-display) clamp(2rem, 4vw, 4.5rem)/.92 var(--font-display); }
+  .arista-empty a { min-height: 2.75rem; text-decoration: underline; text-underline-offset: .25rem; }
+  .arista-footer { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; align-items: start; margin-top: clamp(6rem, 14vw, 14rem); padding: 1rem 0 2rem; border-top: var(--border-width) solid var(--ari-rule); font-size: .56rem; letter-spacing: .03em; text-transform: uppercase; }
+  .arista-footer p { margin: 0; text-align: center; }
+  .arista-footer a { justify-self: end; min-height: 2.75rem; }
+  @media (max-width: 720px) {
+    .arista-intro { min-height: 34rem; }
+    .arista-intro__eyebrow span:last-child { display: none; }
+    .arista-intro h1 { font-size: clamp(4.7rem, 25vw, 7rem); }
+    .arista-intro__foot { grid-template-columns: 1fr; }
+    .arista-intro__foot p { max-width: 12ch; }
+    .arista-footer { grid-template-columns: 1fr auto; }
+    .arista-footer p { display: none; }
+  }
+</style>

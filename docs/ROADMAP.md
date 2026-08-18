@@ -1712,19 +1712,18 @@ y rehearsal desde `0037`, sin backfill, PII, artefactos exportados ni ejecución
 de decisiones. Export HTTP y toda corrección, restricción, anonimización o
 borrado conservarán gates separados aun después de persistir el lifecycle.
 
-Carril visual: EJE queda cerrado el 2026-08-18. La referencia 18 se convirtió
-en un estudio responsive de mobiliario colaborativo con hero cenital, tres
-piezas y cuatro WebP propios generados por OpenAI `imagegen` en llamadas
-individuales y pausas de al menos ocho segundos, sin usar Higgsfield. Catálogo,
-ficha, cesta y checkout conservan el motor compartido; no hubo D1, API,
-dependencia ni coste recurrente nuevo. `pnpm check` pasa 708 archivos, 163
-suites/751 tests y build; E2E verde, a11y 0/0 en 8 superficies y capturas dentro
-de presupuesto. El siguiente bloque independiente del carril visual es la
-posición 19, `dc28330a6fa92b0343b28a809688037d.jpg`. Producción sirve el Worker
-`3e07c603-a83c-4b2e-962a-5fe6acae140c`; smoke de landing, `/temas`, tienda,
-ficha y cuatro assets verde. La mediana Lighthouse de landing se mantiene en
-móvil 99/100/100/100 (LCP 2,1 s, CLS 0, TBT 0) y escritorio 100×4 (LCP 0,6 s,
-CLS 0, TBT 0); la deuda global del rail sigue separada del tema.
+Carril visual: ARISTA cierra el 2026-08-18 las posiciones 17–19 y deja la cola
+sin referencias ejecutables. La referencia 19 se convirtió en un catálogo
+técnico responsive de iluminación arquitectónica con cuatro sistemas y cuatro
+WebP propios generados por OpenAI `imagegen` en llamadas individuales y pausas
+de al menos ocho segundos, sin usar Higgsfield. Catálogo, filtro, ficha, cesta y
+checkout conservan el motor compartido; no hubo D1, API, dependencia ni coste
+recurrente nuevo. `pnpm check` pasa 713 archivos, 163 suites/751 tests y build;
+E2E verde, a11y 0/0 en 8 superficies y capturas dentro de presupuesto. El
+siguiente bloque independiente es la consolidación visual de toda la biblioteca:
+barrido de fidelidad y regresión de escaparates, contratos de catálogo, pesos,
+a11y y aislamiento E2E, sin abrir otra vertical ni alterar negocio. Producción y
+Lighthouse se registrarán al cerrar el deploy de ARISTA.
 
 #### Corte anterior R4.12
 

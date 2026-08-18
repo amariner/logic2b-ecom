@@ -68,6 +68,7 @@ const MOBILE = { w: 375, h: 812, dsf: 1, mobile: true };
 // ── Superficies ────────────────────────────────────────────────────────────
 // Las tiendas vivas. `demo` (La Botiga) conserva las rutas históricas.
 const STORES = [
+  { id: 'arista', label: 'ARISTA', prefix: '/demo/tiendas/arista', slug: 'ari-duo-muro', cartKey: 'ecom-cart:arista', canQuote: false },
   { id: 'eje', label: 'EJE', prefix: '/demo/tiendas/eje', slug: 'eje-silla-torno', cartKey: 'ecom-cart:eje', canQuote: false },
   { id: 'ensamble', label: 'ENSAMBLE', prefix: '/demo/tiendas/ensamble', slug: 'ens-mesa-umbral', cartKey: 'ecom-cart:ensamble', canQuote: false },
   { id: 'sarga', label: 'SARGA', prefix: '/demo/tiendas/sarga', slug: 'sar-blazer-negro', cartKey: 'ecom-cart:sarga', canQuote: false },
