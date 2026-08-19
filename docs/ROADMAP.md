@@ -157,7 +157,7 @@ sus verificaciones ni sus puntos de reanudación.
 | R5.4a | Contrato de autenticación passwordless | ✅ 2026-08-18 — ADR-0042, challenge de un uso, sesión opaca rotatoria/revocable, scopes y anti-enumeración; sin DDL ni superficies |
 | R5.4b | Persistencia de autenticación passwordless | ✅ 2026-08-18 — D1 `0039`, repositorio concurrente, backup 33 y rehearsal/restore local; sin proveedor, secretos ni superficies |
 | R5.4c | Contrato y hardening passwordless | ✅ 2026-08-19 — ADR-0043, puerto `prepare→persist→deliver`, sign-in exacto `customer:self`, contexto/replay/backup endurecidos y manifest CUS-003 fail-closed; `pnpm check` 170 suites/845 tests y 706 archivos tipados, sin proveedor ni HTTP |
-| R5.4d | Superficie passwordless local y rollout fail-closed | ✅ 2026-08-19 — Resend directo con tracking verificado, cookie previa/fragmento/CSRF/CSP, throttle y auditoría durables, confirmación de entrega, gate de capacidad, HTTP/UI y migración `0040`; `pnpm check` 185 suites/958 tests y 739 archivos tipados, auditoría local 8/8 sin errores/avisos; demo `installed`, D1 remota sin migrar y entrega real sujeta a preflight aislado |
+| R5.4d | Superficie passwordless local y rollout fail-closed | ✅ 2026-08-19 — Resend directo con tracking verificado, cookie previa/fragmento/CSRF/CSP, throttle y auditoría durables, confirmación de entrega, gate de capacidad, HTTP/UI y migración `0040`; `pnpm check` 185 suites/958 tests y 739 archivos tipados, auditoría local 8/8; Worker `f6ed17ef…` desplegado inerte, demo `installed`, D1 remota sin migrar y entrega real sujeta a preflight aislado |
 
 ## Fase 12 — Logic2B Ecommerce: renombrado, reposicionamiento y las dos visiones
 
@@ -1720,6 +1720,11 @@ auditan con el arnés local, sin proveedor ni credenciales reales.
 externo verificado. `pnpm audit:customer-account` confirma seis variantes 404
 en la demo, preflight 503 genérico y ocho superficies a 1440/375 con cero
 errores y cero avisos.
+
+Producción sirve el Worker `f6ed17ef-37f6-4076-b23c-adf4cdeb1e6c`. El smoke
+remoto confirma `/` en 200 y las seis variantes de las tres rutas de cuenta en
+404, sin cookie y con `Cache-Control: no-store`; la D1 sigue en `0032` y no se
+aplicó `0040`.
 
 El corte no aplica `0040` sobre la D1 remota, no instala secretos reales ni
 activa el preset público. `CUS-003` continúa `installed` y `parcial`; las tres

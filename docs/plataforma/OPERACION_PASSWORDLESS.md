@@ -44,6 +44,12 @@ autorizado y ordenado. La D1 local sirve `0039` con cero identidades,
 challenges, familias y sesiones inventadas; el rehearsal aplica `0040` sobre
 una copia aislada, nunca sobre la demo.
 
+El Worker de producción `f6ed17ef-37f6-4076-b23c-adf4cdeb1e6c` incorpora el
+código R5.4d inerte. El smoke del 2026-08-19 devuelve 200 en `/` y 404 en las
+seis variantes con/sin barra de acceso, confirmación y sesiones; no emite cookie
+y conserva `no-store`/`nosniff`. No se aplicó `0040` ni se añadió binding o
+secreto de cliente.
+
 ## Preflight y rehearsal
 
 1. Confirmar backup y Time Travel del D1 objetivo.
