@@ -85,6 +85,7 @@ reconciliación se conserva abajo por contexto.
 > [`MATRIZ_CAPACIDADES.md`](plataforma/MATRIZ_CAPACIDADES.md) ·
 > [`ROADMAP.md`](plataforma/ROADMAP.md) ·
 > [`WIKI_SEO.md`](plataforma/WIKI_SEO.md) ·
+> [`ESTADO_DOCUMENTAL.md`](plataforma/ESTADO_DOCUMENTAL.md) ·
 > [`PROMPT_FASE13.md`](PROMPT_FASE13.md).
 
 **Mandato de Andreu (2026-08-06):** conservar el backend mínimo como ventaja
@@ -106,6 +107,12 @@ documentación por audiencias. El orden de producto pasa a la Fase 13. Cada bloq
 R continúa siendo una unidad atómica:
 una sesión normal ejecuta uno y Goal mode puede encadenar varios sin saltarse
 sus verificaciones ni sus puntos de reanudación.
+
+Desde 2026-08-19, [`CAPACIDADES_CLIENTE.md`](CAPACIDADES_CLIENTE.md) conserva
+la vista para comercios y agencias y `ESTADO_DOCUMENTAL.md` obliga a mantenerla
+alineada con matriz, roadmap, ADR y operación. La ficha explica incluido,
+activable, integrable, a medida y en ruta; no convierte trabajo local, una demo
+inerte o una intención del roadmap en alcance disponible.
 
 ### Estado F13
 

@@ -25,9 +25,11 @@ Un bloque solo pasa a `cerrado` cuando:
 5. E2E, accesibilidad, Lighthouse o prueba de carga se ejecutan si aplica;
 6. la matriz cambia al estado real, nunca al deseado;
 7. se crea o actualiza la ficha de wiki, como borrador si aún no es publicable;
-8. este roadmap registra fecha, resumen y siguiente bloque;
-9. no añade navegación ni configuración a clientes con el módulo desactivado;
-10. el repositorio queda integrado según el protocolo de `docs/CONTINUAR.md`.
+8. se revisa `../CAPACIDADES_CLIENTE.md` si cambia lo que puede incluirse,
+   activarse, integrarse o desarrollarse por proyecto;
+9. este roadmap registra fecha, resumen y siguiente bloque;
+10. no añade navegación ni configuración a clientes con el módulo desactivado;
+11. el repositorio queda integrado según el protocolo de `docs/CONTINUAR.md`.
 
 Las migraciones, dependencias, servicios con coste, superficie PCI o cambios de
 promesa siguen siendo puertas de decisión. El diseño se prepara antes; no se

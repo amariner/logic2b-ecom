@@ -148,6 +148,7 @@ src/collections/      # una tienda del escaparate = colección + tema, sin motor
 scripts/bootstrap.sh  # arranque local y aprovisionamiento Cloudflare (--remote)
 scripts/*.mjs         # auditores y generadores de assets (tabla de arriba)
 docs/CLIENTE.md       # manual de 1 página para el comercio
+docs/CAPACIDADES_CLIENTE.md # qué incluye, qué se activa por proyecto y qué se hace a medida
 docs/PRODUCCION.md    # checklist de demo → tienda de cliente real
 docs/LIGHTHOUSE.md    # notas de Lighthouse citables (las regenera el script)
 docs/CHECKLIST_TEMA.md # receta y gotchas ya pagados de una sesión de tema

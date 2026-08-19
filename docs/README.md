@@ -33,6 +33,9 @@ actual siempre vive en [`ROADMAP.md`](ROADMAP.md).
 
 - [`CLIENTE.md`](CLIENTE.md): manual operativo de una página para pedidos,
   etiquetas y tracking.
+- [`CAPACIDADES_CLIENTE.md`](CAPACIDADES_CLIENTE.md): qué incluye el motor, qué
+  puede activarse o integrarse por proyecto, qué está en ruta y cómo pedir un
+  desarrollo a medida.
 - [`plantillas/guion-video-panel.md`](plantillas/guion-video-panel.md): guion
   reproducible para enseñar Logic2B Gestión.
 - La ayuda ampliada y los escenarios del primer mes viven en `/ayuda`.
@@ -48,6 +51,9 @@ actual siempre vive en [`ROADMAP.md`](ROADMAP.md).
   de R0–R11.
 - [`plataforma/MATRIZ_CAPACIDADES.md`](plataforma/MATRIZ_CAPACIDADES.md): estado
   comercial canónico de cada capacidad.
+- [`plataforma/ESTADO_DOCUMENTAL.md`](plataforma/ESTADO_DOCUMENTAL.md): contrato
+  para mantener alineadas la evidencia técnica, el roadmap y la comunicación a
+  cliente.
 - [`plataforma/MODELO_TRANSACCIONAL_R2.md`](plataforma/MODELO_TRANSACCIONAL_R2.md):
   modelo, invariantes, compatibilidad y transición de datos de R2.
 - [`plataforma/arquitectura/README.md`](plataforma/arquitectura/README.md) y

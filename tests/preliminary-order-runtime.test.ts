@@ -7,6 +7,7 @@ const APPROVED_AT = '2026-08-18T09:01:00.000Z';
 const DEPOSIT_PAID_AT = '2026-08-18T09:03:00.000Z';
 const CONVERTED_AT = '2026-08-18T09:04:00.000Z';
 const BALANCE_PAID_AT = '2026-08-18T09:06:00.000Z';
+const RESERVATION_EXPIRES_AT = '2099-08-19T09:04:00.000Z';
 
 function seedProduct(db: SqliteD1, stock = 4): void {
   db.sqlite.exec(`
@@ -96,7 +97,7 @@ describe('presupuestos y depósitos R4.11 en runtime D1', () => {
 
     expect(await operations.convert({
       id, expectedVersion: 4, idempotencyKey: 'preliminary:convert:one',
-      convertedAt: CONVERTED_AT, reservationExpiresAt: '2026-08-19T09:04:00.000Z',
+      convertedAt: CONVERTED_AT, reservationExpiresAt: RESERVATION_EXPIRES_AT,
     })).toBe('applied');
     expect(db.query('SELECT on_hand,reserved FROM inventory_balances')).toEqual([
       { on_hand: 4, reserved: 2 },
@@ -141,9 +142,9 @@ describe('presupuestos y depósitos R4.11 en runtime D1', () => {
 
     const results = await Promise.all([
       operations.convert({ id, expectedVersion: 4, idempotencyKey: 'preliminary:convert:race:a',
-        convertedAt: CONVERTED_AT, reservationExpiresAt: '2026-08-19T09:04:00.000Z' }),
+        convertedAt: CONVERTED_AT, reservationExpiresAt: RESERVATION_EXPIRES_AT }),
       operations.convert({ id, expectedVersion: 4, idempotencyKey: 'preliminary:convert:race:b',
-        convertedAt: CONVERTED_AT, reservationExpiresAt: '2026-08-19T09:04:00.000Z' }),
+        convertedAt: CONVERTED_AT, reservationExpiresAt: RESERVATION_EXPIRES_AT }),
     ]);
     expect(results.sort()).toEqual(['applied', 'duplicate']);
     expect(db.value('SELECT count(*) AS value FROM orders')).toBe(1);
@@ -165,7 +166,7 @@ describe('presupuestos y depósitos R4.11 en runtime D1', () => {
 
     expect(await operations.convert({
       id, expectedVersion: 4, idempotencyKey: 'preliminary:convert:not-sellable',
-      convertedAt: CONVERTED_AT, reservationExpiresAt: '2026-08-19T09:04:00.000Z',
+      convertedAt: CONVERTED_AT, reservationExpiresAt: RESERVATION_EXPIRES_AT,
     })).toBe('not-sellable');
     expect(db.value('SELECT count(*) AS value FROM orders')).toBe(0);
     expect(db.value('SELECT count(*) AS value FROM inventory_reservations')).toBe(0);

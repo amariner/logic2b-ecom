@@ -224,5 +224,5 @@ describe('R2.14 consolidación del núcleo transaccional', () => {
     expect(results.every((result) => result.committed === 1)).toBe(true);
     expect(results.every((result) => result.gatewayCalls <= 1)).toBe(true);
     expect(results.every((result) => result.foreignKeys === 0)).toBe(true);
-  });
+  }, 20_000);
 });

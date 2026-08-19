@@ -32,6 +32,8 @@ venta o servicios logísticos propios.
   lectura de las nueve ediciones, tendencias y consecuencias para el producto.
 - [`MATRIZ_CAPACIDADES.md`](MATRIZ_CAPACIDADES.md): inventario canónico de
   dominios, capacidades, forma de entrega, prioridad y estado real.
+- [`ESTADO_DOCUMENTAL.md`](ESTADO_DOCUMENTAL.md): traducción gobernada entre el
+  estado técnico, la ruta de desarrollo y la comunicación a comercio/agencia.
 - [`ROADMAP.md`](ROADMAP.md): orden de ejecución por bloques de una sesión,
   dependencias y criterios de cierre.
 - [`WIKI_SEO.md`](WIKI_SEO.md): arquitectura editorial y técnica de la futura
@@ -385,6 +387,9 @@ venta o servicios logísticos propios.
 ## Reglas de verdad
 
 - El estado de una capacidad lo manda `MATRIZ_CAPACIDADES.md`, no el copy.
+- La explicación para comercio y agencias parte de
+  [`../CAPACIDADES_CLIENTE.md`](../CAPACIDADES_CLIENTE.md) y usa el mapeo de
+  [`ESTADO_DOCUMENTAL.md`](ESTADO_DOCUMENTAL.md); nunca sustituye a la matriz.
 - La próxima sesión la manda la última sección canónica «Siguiente bloque» de
   `ROADMAP.md`; la sección numerada 13 conserva solo el historial R2/R3. El
   estado integrado se replica en `../ROADMAP.md` bajo «Próxima sesión».

@@ -66,6 +66,12 @@ implementar». No se crean tres URLs para la misma intención.
 `excluido` no genera página funcional. Puede explicarse en una guía de decisión
 si ayuda al comprador a entender por qué se integra un especialista.
 
+La ficha [`../CAPACIDADES_CLIENTE.md`](../CAPACIDADES_CLIENTE.md) es la vista
+general para comercio y agencias; solo traduce los estados según
+[`ESTADO_DOCUMENTAL.md`](ESTADO_DOCUMENTAL.md). Una página pública indexable
+sigue requiriendo sus propias evidencias y revisión: aparecer en la ficha no la
+convierte en URL publicable.
+
 ## 4. Modelo de contenido
 
 Cada documento de la futura colección `src/content/funcionalidades/` deberá

@@ -60,10 +60,16 @@
    **deja la ventana del login cerrada durante 60 s**: si el a11y del panel va
    detrás, avisa y reintenta solo. Un único servidor local: `astro dev` y
    `wrangler dev` a la vez se pelean por la D1 y el segundo se cuelga.
+   Toda capacidad visible en la demo debe añadir o conservar una prueba que
+   confirme `DEMO_MODE=true`, efectos/jobs apagados y cero llamadas reales a
+   pagos, email, proveedores o mutaciones durables.
 6. **Documentar** — actualizar `docs/ROADMAP.md`: estado del bloque con fecha y
    resumen, y **reescribir la sección «Próxima sesión»** para que el siguiente
-   chat sepa qué toca sin pensar. Si es un tema, actualizar también su ficha,
-   capturas y `nuevos-temas/cola.json`.
+   chat sepa qué toca sin pensar. Actualizar también la matriz y, cuando cambie
+   lo que puede explicarse o solicitarse comercialmente,
+   [`CAPACIDADES_CLIENTE.md`](CAPACIDADES_CLIENTE.md), siguiendo
+   [`plataforma/ESTADO_DOCUMENTAL.md`](plataforma/ESTADO_DOCUMENTAL.md). Si es
+   un tema, actualizar también su ficha, capturas y `nuevos-temas/cola.json`.
 7. **Integrar** — commit descriptivo en inglés + push a `origin/main`. En
    cloud: abrir el PR según la mecánica del entorno y **mergearlo a `main` en
    la misma sesión** — Andreu delegó explícitamente (2026-07-25) el permiso de

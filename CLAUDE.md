@@ -54,6 +54,13 @@ Estos principios mandan sobre cualquier decisión técnica. Si algo entra en con
 - **Rendimiento y SEO de serie.** Astro estático/híbrido en el edge. Core Web Vitals perfectos es argumento de venta, no un extra.
 - **Envíos simples por defecto.** Tarifa plana / por tramos calculada en servidor. Nada de APIs de transportistas en la v1; el comercio genera etiquetas fuera (Packlink/SendCloud) desde un export CSV.
 - **Reutilizable entre clientes.** Todo lo específico de una tienda vive en `shop.config.ts` y en el seed. Nada hardcodeado por el código.
+- **Demo técnica siempre inerte.** La demo puede enseñar visualmente capacidades
+  reales del motor y recorrer estados simulados, pero nunca ejecuta cobros,
+  envíos de email, webhooks, jobs, mutaciones durables ni llamadas con efectos a
+  proveedores. `DEMO_MODE=true` y el manifest de demo deben cortar esos efectos
+  en servidor, aunque exista un botón o formulario demostrativo. La lógica
+  productiva queda probada y documentada para despliegues aislados de cliente;
+  la muestra pública usa fixtures, captura local o simulación reversible.
 
 ---
 
