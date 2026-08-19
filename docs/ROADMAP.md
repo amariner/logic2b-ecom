@@ -164,7 +164,7 @@ inerte o una intención del roadmap en alcance disponible.
 | R5.4a | Contrato de autenticación passwordless | ✅ 2026-08-18 — ADR-0042, challenge de un uso, sesión opaca rotatoria/revocable, scopes y anti-enumeración; sin DDL ni superficies |
 | R5.4b | Persistencia de autenticación passwordless | ✅ 2026-08-18 — D1 `0039`, repositorio concurrente, backup 33 y rehearsal/restore local; sin proveedor, secretos ni superficies |
 | R5.4c | Contrato y hardening passwordless | ✅ 2026-08-19 — ADR-0043, puerto `prepare→persist→deliver`, sign-in exacto `customer:self`, contexto/replay/backup endurecidos y manifest CUS-003 fail-closed; `pnpm check` 170 suites/845 tests y 706 archivos tipados, sin proveedor ni HTTP |
-| R5.4d | Superficie passwordless local y rollout fail-closed | ✅ 2026-08-19 — Resend directo con tracking verificado, cookie previa/fragmento/CSRF/CSP, throttle y auditoría durables, confirmación de entrega, gate de capacidad, HTTP/UI y migración `0040`; `pnpm check` 185 suites/958 tests y 739 archivos tipados; D1 remota migrada 0033–0040 con cero activaciones/identidades, Worker `3497a1de…` inerte y E2E remoto completo verde; entrega real sujeta a preflight aislado |
+| R5.4d | Superficie passwordless local y rollout fail-closed | ✅ 2026-08-19 — Resend directo con tracking verificado, cookie previa/fragmento/CSRF/CSP, throttle y auditoría durables, confirmación de entrega, gate de capacidad, HTTP/UI y migración `0040`; `pnpm check` 185 suites/958 tests y 739 archivos tipados; D1 remota migrada 0033–0040 con cero activaciones/identidades, Worker `a5cc8d85…` inerte y E2E remoto completo verde; entrega real sujeta a preflight aislado |
 
 ## Fase 12 — Logic2B Ecommerce: renombrado, reposicionamiento y las dos visiones
 
@@ -1728,7 +1728,7 @@ externo verificado. `pnpm audit:customer-account` confirma seis variantes 404
 en la demo, preflight 503 genérico y ocho superficies a 1440/375 con cero
 errores y cero avisos.
 
-Producción sirve el Worker `3497a1de-76a1-4d0e-99a2-598042097252`. D1 quedó
+Producción sirve el Worker `a5cc8d85-04e9-43e3-b6bc-92a065056521`. D1 quedó
 migrada de `0032` a `0040` con Time Travel previo, 294 productos y 8 pedidos
 conservados, cero fallos FK y cero filas de activación/identidad de cliente. El
 smoke confirma `/` en 200, cuenta en 404 y quote/checkout/webhook en 410; el E2E
