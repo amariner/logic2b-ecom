@@ -273,15 +273,18 @@ venta o servicios logísticos propios.
   identidad autenticable separada, challenge de un uso, sesión opaca rotatoria,
   revocación, scopes mínimos y threat model anti-enumeración de R5.4a.
 - [`adr/0043-superficie-passwordless-email-segura.md`](adr/0043-superficie-passwordless-email-segura.md):
-  contrato R5.4c de magic link por Resend directo, orden
+  contrato R5.4c–d de magic link por Resend directo, orden
   `prepare → persist → deliver`, origen/cookie/CSRF/CSP, rate limit por capas y
-  recuperación sin bypass; núcleo/backup/manifest endurecidos, aún sin
-  proveedor ni HTTP/UI.
+  recuperación sin bypass; proveedor, HTTP/UI y gates durables implementados
+  localmente sin activar la demo.
 - [`../../migrations/0039_customer_passwordless_auth.sql`](../../migrations/0039_customer_passwordless_auth.sql):
   identidades, challenges y familias/sesiones expand-only de R5.4b.
+- [`../../migrations/0040_customer_passwordless_security.sql`](../../migrations/0040_customer_passwordless_security.sql):
+  throttle efímero, confirmación de entrega, auditoría/revocación y transición
+  durable fail-closed de `CUS-003`, sin activar la capacidad al aplicarla.
 - [`OPERACION_PASSWORDLESS.md`](OPERACION_PASSWORDLESS.md): rehearsal, backup
-  33, concurrencia, hardening R5.4c, transporte fragmento→POST y activación
-  R5.4d, reconciliación, recuperación y rollback.
+  33, concurrencia, transporte fragmento→POST, preflight/activación aislados,
+  reconciliación, recuperación y rollback de R5.4d.
 - [`../../migrations/0037_consent_evidence.sql`](../../migrations/0037_consent_evidence.sql):
   evidencia versionada, índices por sujeto/alcance y guards de append/retirada.
 - [`OPERACION_CONSENTIMIENTOS.md`](OPERACION_CONSENTIMIENTOS.md): rollout,

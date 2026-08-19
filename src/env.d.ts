@@ -12,6 +12,15 @@ type Env = {
   STRIPE_WEBHOOK_SECRET?: string;
   /** HMAC R5.1 por despliegue; si falta, checkout conserva el modo invitado. */
   CUSTOMER_PROFILE_HMAC_SECRET?: string;
+  /** HMAC exclusivo de cookies/CSRF de cuenta; nunca reutiliza ADMIN_COOKIE_SECRET. */
+  CUSTOMER_AUTH_CSRF_SECRET?: string;
+  /** Binding Cloudflare de límite por IP. Obligatorio solo con CUS-003 active. */
+  CUSTOMER_AUTH_RATE_LIMIT?: RateLimit;
+  /** Referencias operativas no secretas exigidas por el preflight de CUS-003. */
+  CUSTOMER_AUTH_RATE_LIMIT_ATTESTATION?: string;
+  CUSTOMER_AUTH_RESEND_TRACKING_ATTESTATION?: string;
+  /** Identificador del dominio emisor verificado en Resend; no es una credencial. */
+  CUSTOMER_AUTH_RESEND_DOMAIN_ID?: string;
   ADMIN_COOKIE_SECRET: string;
   /** Solo producción: si falta (o DEMO_MODE=true), los emails se quedan en la outbox. */
   RESEND_API_KEY?: string;
@@ -20,5 +29,7 @@ type Env = {
 type Runtime = import('@astrojs/cloudflare').Runtime<Env>;
 
 declare namespace App {
-  interface Locals extends Runtime {}
+  interface Locals extends Runtime {
+    customerAccountHttp?: import('./modules/customers/presentation/customer-account-http').CustomerAccountHttp;
+  }
 }

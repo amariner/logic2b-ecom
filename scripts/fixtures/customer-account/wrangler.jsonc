@@ -1,0 +1,14 @@
+{
+  "$schema": "../../../node_modules/wrangler/config-schema.json",
+  "name": "customer-account-local-audit",
+  "compatibility_date": "2026-07-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "main": "../../../dist/_worker.js/index.js",
+  "assets": {
+    "binding": "ASSETS",
+    "directory": "../../../dist"
+  },
+  "vars": {
+    "DEMO_MODE": "false"
+  }
+}

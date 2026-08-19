@@ -62,10 +62,24 @@ export function adminHomeHrefFor(access: CapabilityAccess): string | null {
   return adminNavigationFor(access)[0]?.href ?? null;
 }
 
+/**
+ * Astro acepta por defecto una barra final opcional. Las decisiones de acceso
+ * deben ver ambas formas como la misma ruta para que una variante no pueda
+ * saltarse el manifest ni los guards del middleware.
+ */
+export function canonicalRoutePathname(pathname: string): string {
+  if (pathname === '/') return pathname;
+  return pathname.replace(/\/+$/, '') || '/';
+}
+
 export function routeCapability(pathname: string): CapabilityId | null {
-  const route = MODULE_REGISTRY.routes.find((candidate) =>
-    candidate.match === 'exact' ? pathname === candidate.path : pathname.startsWith(candidate.path),
-  );
+  const canonicalPathname = canonicalRoutePathname(pathname);
+  const route = MODULE_REGISTRY.routes.find((candidate) => {
+    const candidatePath = canonicalRoutePathname(candidate.path);
+    return candidate.match === 'exact'
+      ? canonicalPathname === candidatePath
+      : canonicalPathname === candidatePath || canonicalPathname.startsWith(`${candidatePath}/`);
+  });
   return route?.capabilityId ?? null;
 }
 

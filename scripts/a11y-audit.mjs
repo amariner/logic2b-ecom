@@ -61,6 +61,7 @@ const CHROME_CANDIDATES = [
 const args = process.argv.slice(2);
 const ONLY = args.find((a) => a.startsWith('--only='))?.slice('--only='.length);
 const AS_JSON = args.includes('--json');
+const INCLUDE_CUSTOMER_ACCOUNT = process.env.AUDIT_CUSTOMER_ACCOUNT === 'true';
 
 const DESKTOP = { w: 1440, h: 900, dsf: 1, mobile: false };
 const MOBILE = { w: 375, h: 812, dsf: 1, mobile: true };
@@ -263,6 +264,63 @@ for (const p of SITE_PAGES) {
   SURFACES.push({ name: `site:${p.id}@375`, url: p.url, vp: MOBILE });
 }
 SURFACES.push({ name: 'site:landing@motion', url: '/', vp: DESKTOP, reducedMotion: true });
+
+// R5.4d: estas rutas no existen en la demo y por eso no forman parte de la
+// batería ordinaria. El arnés local explícito activa un manifest cliente y una
+// composición visual inerte para auditar las páginas Astro reales sin DB,
+// secretos ni proveedor. El estado `ready` prueba además que el módulo externo
+// capturó y limpió el fragmento antes de exponer el botón de confirmación.
+if (INCLUDE_CUSTOMER_ACCOUNT) {
+  const challenge = encodeURIComponent('customer_auth:local-audit');
+  // 32 bytes cero en base64url sin padding: también cumple la canonicidad del
+  // proof, no solo su longitud/alfabeto.
+  const proof = 'A'.repeat(43);
+  const readyUrl = `/cuenta/acceso/confirmar#challenge=${challenge}&proof=${proof}`;
+  const confirmReady = `(() => {
+    const root = document.querySelector('[data-customer-auth-confirm]');
+    const button = document.querySelector('[data-customer-auth-confirm-button]');
+    return location.pathname === '/cuenta/acceso/confirmar' && location.hash === '' &&
+      root?.dataset.customerAuthState === 'ready' && button?.disabled === false
+      ? 'ready-clean' : 'not-ready';
+  })()`;
+  const confirmInvalid = `(() => {
+    const root = document.querySelector('[data-customer-auth-confirm]');
+    const button = document.querySelector('[data-customer-auth-confirm-button]');
+    return location.hash === '' && root?.dataset.customerAuthState === 'invalid' &&
+      button?.disabled === true ? 'invalid-clean' : 'not-invalid';
+  })()`;
+
+  for (const vp of [DESKTOP, MOBILE]) {
+    const suffix = vp === MOBILE ? '@375' : '';
+    SURFACES.push({
+      name: `customer-account:access${suffix}`,
+      url: '/cuenta/acceso',
+      vp,
+    });
+    SURFACES.push({
+      name: `customer-account:confirm-ready${suffix}`,
+      url: readyUrl,
+      vp,
+      eval: confirmReady,
+      expect: 'ready-clean',
+    });
+    // Intercalar otra ruta fuerza una navegación de documento antes de probar
+    // el segundo fragmento; dos hashes consecutivos en la misma URL no
+    // recargarían el módulo de inicialización.
+    SURFACES.push({
+      name: `customer-account:sessions${suffix}`,
+      url: '/cuenta/sesiones',
+      vp,
+    });
+    SURFACES.push({
+      name: `customer-account:confirm-invalid${suffix}`,
+      url: '/cuenta/acceso/confirmar#invalid',
+      vp,
+      eval: confirmInvalid,
+      expect: 'invalid-clean',
+    });
+  }
+}
 
 // ─────────────────────────────────────────────────────────────────────────
 // La batería, como fuente inyectable. Se ejecuta DENTRO de la página.

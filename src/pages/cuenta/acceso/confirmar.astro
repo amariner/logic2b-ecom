@@ -1,0 +1,84 @@
+---
+import CustomerAccount from '../../../layouts/CustomerAccount.astro';
+import {
+  CUSTOMER_ACCOUNT_ROUTES,
+  customerAccountHttpFromLocals,
+} from '../../../modules/customers/presentation/customer-account-http';
+
+export const prerender = false;
+
+const accountHttp = customerAccountHttpFromLocals(Astro.locals);
+const method = Astro.request.method.toUpperCase();
+
+if (method === 'POST') {
+  if (accountHttp === null) {
+    return new Response('Acceso no disponible.', { status: 503 });
+  }
+  return accountHttp.consumeAccess(Astro.request);
+}
+if (method !== 'GET' && method !== 'HEAD') {
+  return new Response('Método no permitido.', {
+    status: 405,
+    headers: { allow: 'GET, HEAD, POST' },
+  });
+}
+
+const confirmation = accountHttp === null
+  ? { csrfToken: '' }
+  : await accountHttp.confirmationView(Astro.request);
+---
+
+<CustomerAccount
+  title="Confirma tu acceso"
+  description="Confirmación segura del enlace de acceso a tu cuenta de cliente."
+>
+  <section
+    class="rounded-2xl border border-border bg-background p-6 shadow-sm sm:p-8"
+    aria-labelledby="confirm-title"
+    data-customer-auth-confirm
+    data-customer-auth-csrf={confirmation.csrfToken}
+  >
+    <p class="text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">Un último paso</p>
+    <h1 id="confirm-title" class="mt-2 font-display text-3xl leading-tight">Confirma que quieres entrar</h1>
+    <p class="mt-3 text-sm leading-6 text-muted-foreground">
+      El enlace no se utiliza al abrir esta página. Pulsa el botón para confirmar el acceso en este navegador.
+    </p>
+
+    <form
+      method="post"
+      action={CUSTOMER_ACCOUNT_ROUTES.confirmAccess}
+      class="mt-6"
+      data-customer-auth-confirm-form
+    >
+      <button
+        type="submit"
+        disabled
+        class="min-h-12 w-full appearance-none rounded-xl bg-foreground px-5 font-semibold text-background shadow-sm hover:bg-foreground/85 disabled:cursor-not-allowed disabled:!bg-muted disabled:!text-foreground disabled:opacity-100 disabled:shadow-none disabled:hover:!bg-muted disabled:[-webkit-text-fill-color:var(--foreground)]"
+        data-customer-auth-confirm-button
+      >Confirmar acceso</button>
+      <p
+        class="mt-4 min-h-6 text-sm leading-6 text-muted-foreground"
+        role="status"
+        aria-live="polite"
+        data-customer-auth-confirm-status
+      >Comprobando el enlace…</p>
+    </form>
+
+    <noscript>
+      <p class="mt-5 rounded-xl border border-border bg-muted p-4 text-sm leading-6 text-muted-foreground">
+        Para confirmar este enlace necesitas activar JavaScript. No se ha iniciado ninguna sesión.
+      </p>
+    </noscript>
+
+    <p class="mt-5 border-t border-border pt-5 text-sm leading-6 text-muted-foreground">
+      Si el enlace ha caducado o lo abriste en otro navegador, solicita uno nuevo.
+      <a class="font-semibold text-foreground underline underline-offset-4" href={CUSTOMER_ACCOUNT_ROUTES.access}>Volver al acceso</a>.
+    </p>
+  </section>
+
+  <script>
+    import { initialisePasswordlessConfirmation } from '../../../modules/customers/presentation/customer-passwordless-confirm';
+
+    initialisePasswordlessConfirmation();
+  </script>
+</CustomerAccount>

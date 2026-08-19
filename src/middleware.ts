@@ -8,7 +8,15 @@ import { defineMiddleware } from 'astro:middleware';
 import { ADMIN_COOKIE_NAME, resolveCookieSecret, verifySessionToken } from './lib/admin-auth';
 import { RateLimiter, type RateLimitRule } from './lib/rate-limit';
 import { runtimePlatform } from './composition/runtime-platform';
-import { decideRouteAccess } from './platform/configuration';
+import { canonicalRoutePathname, decideRouteAccess } from './platform/configuration';
+import { createRuntimeCustomerAccountHttp } from './composition/runtime-customer-account';
+import { customerPasswordlessRuntimeObservability } from './composition/customer-passwordless-observability';
+import { enforceCustomerAccountEdgeRate } from './composition/customer-account-edge';
+import { CUSTOMER_ACCOUNT_ROUTES } from './modules/customers/presentation/customer-account-http';
+import {
+  customerAccountHeaders,
+  withCustomerAccountHeaders,
+} from './modules/customers/presentation/passwordless-http';
 
 function needsAuth(pathname: string): boolean {
   if (pathname.startsWith('/api/admin')) return true;
@@ -28,10 +36,13 @@ const PUBLIC_API_RULES: Record<string, RateLimitRule> = {
   // el mismo código correría en una tienda real) admitía intentos ilimitados.
   '/demo/admin/login': { limit: 10, windowMs: 60_000 },
 };
+const CUSTOMER_ACCOUNT_ROUTE_PATHS = new Set<string>(Object.values(CUSTOMER_ACCOUNT_ROUTES));
 
 export const onRequest = defineMiddleware(async (context, next) => {
-  const { pathname, search } = context.url;
+  const { search } = context.url;
+  const pathname = canonicalRoutePathname(context.url.pathname);
   const adminSurface = pathname.startsWith('/api/admin') || pathname.startsWith('/demo/admin');
+  const customerAccountSurface = CUSTOMER_ACCOUNT_ROUTE_PATHS.has(pathname);
   const privateResponse = async (): Promise<Response> => {
     const response = await next();
     const headers = new Headers(response.headers);
@@ -49,13 +60,56 @@ export const onRequest = defineMiddleware(async (context, next) => {
       );
     }
     if (routeAccess.status === 404) {
-      const notFound = await context.rewrite('/404');
-      return new Response(notFound.body, { status: 404, headers: notFound.headers });
+      // Astro no permite reescribir desde middleware hacia una ruta
+      // prerenderizada. Responder aquí conserva el 404 fail-closed también en
+      // el adaptador Cloudflare y evita tocar env/DB para una capacidad ausente.
+      return new Response('Página no encontrada.', {
+        status: 404,
+        headers: {
+          'content-type': 'text/plain; charset=utf-8',
+          'cache-control': 'no-store',
+          'x-content-type-options': 'nosniff',
+        },
+      });
     }
     return new Response('Esta sección no está habilitada.', {
       status: 403,
       headers: { 'content-type': 'text/plain; charset=utf-8', 'cache-control': 'no-store' },
     });
+  }
+
+  if (customerAccountSurface) {
+    try {
+      if (context.request.method === 'POST' &&
+          (pathname === CUSTOMER_ACCOUNT_ROUTES.access ||
+            pathname === CUSTOMER_ACCOUNT_ROUTES.confirmAccess)) {
+        const edgeResponse = await enforceCustomerAccountEdgeRate({
+          request: context.request,
+          pathname,
+          binding: context.locals.runtime.env.CUSTOMER_AUTH_RATE_LIMIT,
+          observability: customerPasswordlessRuntimeObservability,
+        });
+        if (edgeResponse !== null) return edgeResponse;
+      }
+      const accountHttp = await createRuntimeCustomerAccountHttp(
+        context.locals.runtime.env,
+        (promise) => context.locals.runtime.ctx.waitUntil(promise),
+      );
+      if (accountHttp === null) {
+        return new Response('Acceso no disponible.', {
+          status: 503,
+          headers: customerAccountHeaders({ 'content-type': 'text/plain; charset=utf-8' }),
+        });
+      }
+      context.locals.customerAccountHttp = accountHttp;
+      return withCustomerAccountHeaders(await next());
+    } catch {
+      customerPasswordlessRuntimeObservability.count({ stage: 'runtime', outcome: 'unavailable' });
+      return new Response('Acceso no disponible.', {
+        status: 503,
+        headers: customerAccountHeaders({ 'content-type': 'text/plain; charset=utf-8' }),
+      });
+    }
   }
 
   const rule = context.request.method === 'POST' ? PUBLIC_API_RULES[pathname] : undefined;

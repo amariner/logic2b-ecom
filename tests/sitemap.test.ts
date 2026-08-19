@@ -22,6 +22,7 @@ describe('selección de URLs del sitemap', () => {
     const excluded = [
       page('/demo/tienda', '<link rel="canonical" href="https://ecom.logic2b.com/demo/tienda">'),
       page('/api/contact', '<link rel="canonical" href="https://ecom.logic2b.com/api/contact">'),
+      page('/cuenta/acceso', '<link rel="canonical" href="https://ecom.logic2b.com/cuenta/acceso">'),
       page('/404', '<link rel="canonical" href="https://ecom.logic2b.com/404">'),
       page('/ayuda', '<meta name="robots" content="noindex,follow"><link rel="canonical" href="https://ecom.logic2b.com/ayuda">'),
       page('/alias', '<link rel="canonical" href="https://ecom.logic2b.com/precios">'),

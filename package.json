@@ -6,7 +6,7 @@
   "description": "Logic2B Ecommerce — plantilla de ecommerce ultraligera sobre Astro 5 + Cloudflare (demo: ecom.logic2b.com)",
   "scripts": {
     "dev": "astro dev",
-    "build": "astro build && node scripts/generate-sitemap.mjs",
+    "build": "astro build && node scripts/assert-customer-account-build.mjs && node scripts/generate-sitemap.mjs",
     "preview": "wrangler dev",
     "deploy": "pnpm build && wrangler deploy",
     "typecheck": "astro check",
@@ -14,6 +14,7 @@
     "check": "pnpm typecheck && pnpm test && pnpm audit:themes:check && pnpm build",
     "test": "vitest run",
     "test:e2e": "node scripts/e2e.mjs",
+    "audit:customer-account": "node scripts/audit-customer-account-local.mjs",
     "audit:lh": "node scripts/lighthouse.mjs",
     "audit:themes": "node scripts/theme-baseline.mjs --write",
     "audit:themes:check": "node scripts/theme-baseline.mjs --check",
@@ -49,7 +50,8 @@
     "db:rehearse:customer-profiles": "node scripts/rehearse-r5-customer-profiles.mjs",
     "db:rehearse:consent-evidence": "node scripts/rehearse-r5-consent-evidence.mjs",
     "db:rehearse:data-rights-evidence": "node scripts/rehearse-r5-data-rights-evidence.mjs",
-    "db:rehearse:passwordless-auth": "node scripts/rehearse-r5-passwordless-auth.mjs"
+    "db:rehearse:passwordless-auth": "node scripts/rehearse-r5-passwordless-auth.mjs",
+    "db:rehearse:passwordless-security": "node scripts/rehearse-r5-passwordless-security.mjs"
   },
   "dependencies": {
     "@astrojs/cloudflare": "^12.6.0",

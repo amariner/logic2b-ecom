@@ -108,9 +108,52 @@ export {
   type PasswordlessPublicAcknowledgement,
 } from './domain/passwordless-auth';
 export type {
+  CustomerAuthAuditCommand,
+  CustomerAuthCapabilityReadiness,
+  CustomerAuthCapabilityState,
+  CustomerAuthRateLimitOutcome,
+  CustomerAuthRateLimitRepository,
   CustomerAuthenticationRepository,
+  CustomerSessionFamilyRevocationTarget,
   PasswordlessProofProvider,
 } from './application/passwordless-auth-ports';
+export {
+  silentCustomerPasswordlessObservability,
+  type CustomerPasswordlessMetric,
+  type CustomerPasswordlessObservability,
+} from './application/passwordless-observability';
+export {
+  CUSTOMER_AUTH_ATTEMPT_COOKIE_NAME,
+  CUSTOMER_AUTH_ATTEMPT_COOKIE_OPTIONS,
+  CUSTOMER_AUTH_ATTEMPT_MAX_TTL_MS,
+  PASSWORDLESS_PROOF_BYTES,
+  createCustomerAuthAttempt,
+  createPasswordlessProof,
+  customerAuthAttemptCsrfToken,
+  customerSessionCsrfToken,
+  isPasswordlessProof,
+  passwordlessProofDigest,
+  verifyCustomerAuthAttempt,
+  verifyCustomerSessionCsrfToken,
+  type CustomerAuthAttempt,
+  type PreparedPasswordlessProof,
+} from './infrastructure/passwordless-web-crypto';
+export {
+  ResendPasswordlessConfigurationError,
+  attestResendPasswordlessTracking,
+  createResendPasswordlessProofProvider,
+  type ResendPasswordlessProofProviderConfig,
+  type ResendPasswordlessTrackingAttestation,
+  type ResendPasswordlessTrackingConfig,
+} from './infrastructure/resend-passwordless-proof-provider';
+export {
+  CustomerAuthRateLimitConflictError,
+  createD1CustomerAuthRateLimitRepository,
+} from './infrastructure/d1-customer-auth-rate-limit-repository';
+export {
+  createCustomerPasswordlessConsoleObservability,
+  type CustomerPasswordlessMetricSink,
+} from './infrastructure/customer-passwordless-console-observability';
 export {
   CustomerAuthenticationConflictError,
   createD1CustomerAuthenticationRepository,

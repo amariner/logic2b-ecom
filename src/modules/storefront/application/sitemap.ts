@@ -4,7 +4,7 @@ const SITEMAP_NAMESPACE = 'http://www.sitemaps.org/schemas/sitemap/0.9';
 
 export const SITEMAP_ORIGIN = 'https://ecom.logic2b.com';
 
-export const PRIVATE_SITEMAP_PREFIXES = ['/api', '/demo'] as const;
+export const PRIVATE_SITEMAP_PREFIXES = ['/api', '/demo', '/cuenta'] as const;
 
 export type SitemapEntry = Readonly<{
   loc: string;

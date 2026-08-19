@@ -1,6 +1,10 @@
 import type {
   ActiveCustomerSessionContext,
+  CustomerAuthAuditCommand,
+  CustomerAuthCapabilityReadiness,
+  CustomerAuthCapabilityState,
   CustomerAuthenticationRepository,
+  CustomerSessionFamilyRevocationTarget,
 } from '../application/passwordless-auth-ports';
 import {
   assertCustomerAuthIdentity,
@@ -9,6 +13,7 @@ import {
   type CustomerSessionScope,
   type PasswordlessChallenge,
 } from '../domain/passwordless-auth';
+import { createAuditDiff, serializeAuditDiff } from '../../../shared-kernel/audit';
 
 type IdentityRow = Readonly<{
   id: string;
@@ -69,6 +74,79 @@ type FamilyRow = Readonly<{
   version: number;
 }>;
 
+type AuditRow = Readonly<{
+  audit_id: string;
+  occurred_at: string;
+  actor_kind: 'customer' | 'system';
+  actor_id: string;
+  actor_label: null;
+  action: string;
+  entity_type: string;
+  entity_id: string;
+  entity_reference: null;
+  correlation_id: string;
+  source_event_id: null;
+  diff_json: string;
+  created_at: string;
+}>;
+
+type RevokeAllOperationRow = Readonly<{
+  idempotency_key: string;
+  target_kind: CustomerSessionFamilyRevocationTarget['kind'];
+  target_id: string;
+  occurred_at: string;
+  reason_id: string;
+  audit_id: string;
+  audit_correlation_id: string;
+  status: 'pending' | 'completed';
+  families_revoked: number;
+  sessions_revoked: number;
+  created_at: string;
+}>;
+
+type CapabilityOperationRow = Readonly<{
+  idempotency_key: string;
+  capability_id: 'CUS-003';
+  from_state: CustomerAuthCapabilityState;
+  to_state: CustomerAuthCapabilityState;
+  expected_version: number;
+  resulting_version: number;
+  occurred_at: string;
+  audit_id: string;
+  audit_correlation_id: string;
+  status: 'pending' | 'completed';
+  created_at: string;
+}>;
+
+type CapabilityStateRow = Readonly<{
+  capability_id: 'CUS-003';
+  state: CustomerAuthCapabilityState;
+  version: number;
+  transitioned_at: string;
+  transition_idempotency_key: string;
+  audit_id: string;
+}>;
+
+type ChallengeDeliveryRow = Readonly<{
+  challenge_id: string;
+  provider_reference: string;
+  accepted_at: string;
+  idempotency_key: string;
+  created_at: string;
+}>;
+
+type SessionFamilySecurityRow = FamilyRow & Readonly<{
+  session_status: CustomerSession['status'];
+  auth_identity_id: string;
+  auth_identity_profile_id: string;
+  auth_contact_identity_hash: string;
+  auth_identity_status: CustomerAuthIdentity['status'];
+  profile_id: string;
+  profile_status: 'active' | 'merged';
+  profile_merged_into_profile_id: string | null;
+  profile_email_identity_hash: string;
+}>;
+
 type ActiveSessionContextRow = SessionRow & Readonly<{
   auth_identity_id: string;
   auth_identity_profile_id: string;
@@ -112,7 +190,40 @@ const QUALIFIED_SESSION_COLUMNS = `session.id AS id, session.family_id AS family
   session.version AS version`;
 
 const OPAQUE_ID_PATTERN = /^[a-z][a-z0-9]*(?:[_:-][a-z0-9]+)+$/u;
+const OPERATION_KEY_PATTERN = /^[a-z][a-z0-9]*(?:[_:/-][a-z0-9]+)+$/u;
+const REASON_ID_PATTERN = /^[a-z][a-z0-9]*(?:[._:-][a-z0-9]+)+$/u;
 const HASH_PATTERN = /^[a-f0-9]{64}$/u;
+const AUDIT_COLUMNS = `audit_id, occurred_at, actor_kind, actor_id, actor_label,
+  action, entity_type, entity_id, entity_reference, correlation_id,
+  source_event_id, diff_json, created_at`;
+const AUDIT_MATCH_PREDICATE = `EXISTS (SELECT 1 FROM audit_log audit
+  WHERE audit.audit_id = ? AND audit.occurred_at = ?
+    AND audit.actor_kind = ? AND audit.actor_id = ? AND audit.actor_label IS ?
+    AND audit.action = ? AND audit.entity_type = ? AND audit.entity_id = ?
+    AND audit.entity_reference IS ? AND audit.correlation_id = ?
+    AND audit.source_event_id IS ? AND audit.diff_json = ?
+    AND audit.created_at = ?)`;
+const REVOKE_ALL_OPERATION_COLUMNS = `idempotency_key, target_kind, target_id,
+  occurred_at, reason_id, audit_id, audit_correlation_id, status,
+  families_revoked, sessions_revoked, created_at`;
+const REVOKE_ALL_OPERATION_MATCH_PREDICATE = `EXISTS (
+  SELECT 1 FROM customer_auth_revoke_all_operations operation
+  WHERE operation.idempotency_key = ? AND operation.target_kind = ?
+    AND operation.target_id = ? AND operation.occurred_at = ?
+    AND operation.reason_id = ? AND operation.audit_id = ?
+    AND operation.audit_correlation_id = ? AND operation.status = 'pending'
+    AND operation.created_at = ?
+)`;
+const CAPABILITY_OPERATION_COLUMNS = `idempotency_key, capability_id,
+  from_state, to_state, expected_version, resulting_version, occurred_at,
+  audit_id, audit_correlation_id, status, created_at`;
+const CAPABILITY_STATE_COLUMNS = `capability_id, state, version,
+  transitioned_at, transition_idempotency_key, audit_id`;
+const CHALLENGE_DELIVERY_COLUMNS = `challenge_id, provider_reference,
+  accepted_at, idempotency_key, created_at`;
+const SESSION_GUARD_ACTOR_ID = 'customer_auth:session_guard';
+const INCIDENT_RESPONSE_ACTOR_ID = 'customer_auth:incident_response';
+const CAPABILITY_GATE_ACTOR_ID = 'customer_auth:capability_gate';
 
 export class CustomerAuthenticationConflictError extends Error {
   readonly code = 'customer_authentication_persistence_conflict';
@@ -148,6 +259,181 @@ function idempotencyKey(value: string): string {
   if (value.length < 8 || value.length > 200 || value.trim() !== value ||
       /[\u0000-\u001f\u007f]/u.test(value)) return conflict();
   return value;
+}
+
+function operationKey(value: string): string {
+  if (value.length < 8 || value.length > 160 || !OPERATION_KEY_PATTERN.test(value)) {
+    return conflict();
+  }
+  return value;
+}
+
+function reasonId(value: string): string {
+  if (value.length > 120 || !REASON_ID_PATTERN.test(value)) return conflict();
+  return value;
+}
+
+function boundedOpaque(value: string, maximum: number): string {
+  const normalized = opaque(value);
+  if (normalized.length > maximum) return conflict();
+  return normalized;
+}
+
+type SecurityAuditSpec = Readonly<{
+  actorKind: AuditRow['actor_kind'];
+  actorId: string;
+  action: string;
+  entityType: string;
+  entityId: string;
+  before: Readonly<Record<string, unknown>>;
+  after: Readonly<Record<string, unknown>>;
+  allowedFields: readonly string[];
+}>;
+
+function securityAudit(
+  command: CustomerAuthAuditCommand,
+  expectedAt: string,
+  spec: SecurityAuditSpec,
+): AuditRow {
+  const occurredAt = instant(command.occurredAt);
+  if (occurredAt !== instant(expectedAt)) return conflict();
+  const auditId = boundedOpaque(command.auditId, 80);
+  const correlationId = boundedOpaque(command.correlationId, 160);
+  const actorId = boundedOpaque(spec.actorId, 100);
+  const entityId = boundedOpaque(spec.entityId, 100);
+  if (!/^[a-z][a-z0-9_]*\.[a-z][a-z0-9_]*$/u.test(spec.action) ||
+      spec.action.length > 100 ||
+      !/^[a-z][a-z0-9_]*$/u.test(spec.entityType) || spec.entityType.length > 80) {
+    return conflict();
+  }
+  return Object.freeze({
+    audit_id: auditId,
+    occurred_at: occurredAt,
+    actor_kind: spec.actorKind,
+    actor_id: actorId,
+    actor_label: null,
+    action: spec.action,
+    entity_type: spec.entityType,
+    entity_id: entityId,
+    entity_reference: null,
+    correlation_id: correlationId,
+    source_event_id: null,
+    diff_json: serializeAuditDiff(createAuditDiff(
+      spec.before,
+      spec.after,
+      spec.allowedFields,
+    )),
+    created_at: occurredAt,
+  });
+}
+
+function auditValues(row: AuditRow): readonly (string | null)[] {
+  return [
+    row.audit_id, row.occurred_at, row.actor_kind, row.actor_id, row.actor_label,
+    row.action, row.entity_type, row.entity_id, row.entity_reference,
+    row.correlation_id, row.source_event_id, row.diff_json, row.created_at,
+  ];
+}
+
+function auditStatement(
+  db: D1Database,
+  row: AuditRow,
+  guardSql: string,
+  guardValues: readonly (string | number | null)[],
+): D1PreparedStatement {
+  return db.prepare(`INSERT OR IGNORE INTO audit_log (${AUDIT_COLUMNS})
+    SELECT ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? WHERE ${guardSql}`)
+    .bind(...auditValues(row), ...guardValues);
+}
+
+function sameAudit(left: AuditRow | null, right: AuditRow): boolean {
+  return left !== null && JSON.stringify(left) === JSON.stringify(right);
+}
+
+type RevokeAllOperationCommand = Readonly<{
+  idempotencyKey: string;
+  target: CustomerSessionFamilyRevocationTarget;
+  occurredAt: string;
+  reasonId: string;
+  audit: AuditRow;
+}>;
+
+function revokeAllOperationMatchValues(
+  command: RevokeAllOperationCommand,
+): readonly string[] {
+  return [
+    command.idempotencyKey,
+    command.target.kind,
+    command.target.id,
+    command.occurredAt,
+    command.reasonId,
+    command.audit.audit_id,
+    command.audit.correlation_id,
+    command.occurredAt,
+  ];
+}
+
+function sameRevokeAllOperation(
+  row: RevokeAllOperationRow,
+  command: RevokeAllOperationCommand,
+): boolean {
+  return row.idempotency_key === command.idempotencyKey &&
+    row.target_kind === command.target.kind && row.target_id === command.target.id &&
+    row.occurred_at === command.occurredAt && row.reason_id === command.reasonId &&
+    row.audit_id === command.audit.audit_id &&
+    row.audit_correlation_id === command.audit.correlation_id &&
+    row.status === 'completed' && row.created_at === command.occurredAt &&
+    Number.isSafeInteger(row.families_revoked) && row.families_revoked >= 0 &&
+    Number.isSafeInteger(row.sessions_revoked) && row.sessions_revoked >= 0;
+}
+
+type CapabilityOperationCommand = Readonly<{
+  idempotencyKey: string;
+  fromState: CustomerAuthCapabilityState;
+  toState: CustomerAuthCapabilityState;
+  expectedVersion: number;
+  resultingVersion: number;
+  occurredAt: string;
+  audit: AuditRow;
+}>;
+
+function sameCapabilityOperation(
+  row: CapabilityOperationRow,
+  command: CapabilityOperationCommand,
+): boolean {
+  return row.idempotency_key === command.idempotencyKey &&
+    row.capability_id === 'CUS-003' && row.from_state === command.fromState &&
+    row.to_state === command.toState && row.expected_version === command.expectedVersion &&
+    row.resulting_version === command.resultingVersion &&
+    row.occurred_at === command.occurredAt && row.audit_id === command.audit.audit_id &&
+    row.audit_correlation_id === command.audit.correlation_id &&
+    row.status === 'completed' && row.created_at === command.occurredAt;
+}
+
+function sameCapabilityState(
+  row: CapabilityStateRow | null,
+  command: CapabilityOperationCommand,
+): boolean {
+  return row !== null && row.capability_id === 'CUS-003' &&
+    row.state === command.toState && row.version === command.resultingVersion &&
+    row.transitioned_at === command.occurredAt &&
+    row.transition_idempotency_key === command.idempotencyKey &&
+    row.audit_id === command.audit.audit_id;
+}
+
+function sameChallengeDelivery(
+  row: ChallengeDeliveryRow | null,
+  input: Readonly<{
+    challengeId: string;
+    providerReference: string;
+    acceptedAt: string;
+    idempotencyKey: string;
+  }>,
+): boolean {
+  return row !== null && row.challenge_id === input.challengeId &&
+    row.provider_reference === input.providerReference &&
+    row.accepted_at === input.acceptedAt &&
+    row.idempotency_key === input.idempotencyKey && row.created_at === input.acceptedAt;
 }
 
 function identityOf(row: IdentityRow): CustomerAuthIdentity {
@@ -230,6 +516,20 @@ function pendingBefore(
   });
 }
 
+function sameChallengeEmission(
+  stored: PasswordlessChallenge,
+  requested: PasswordlessChallenge,
+): boolean {
+  return requested.status === 'pending' && requested.version === 1 &&
+    requested.consumedAt === null && requested.consumedBySessionId === null &&
+    requested.transitionIdempotencyKey === null &&
+    stored.id === requested.id && stored.identityId === requested.identityId &&
+    stored.method === requested.method && stored.purpose === requested.purpose &&
+    stored.providerReference === requested.providerReference &&
+    stored.secretDigest === requested.secretDigest &&
+    stored.requestedAt === requested.requestedAt && stored.expiresAt === requested.expiresAt;
+}
+
 function activeBefore(
   session: CustomerSession,
   expectedVersion: number,
@@ -267,7 +567,12 @@ function sessionValues(session: CustomerSession): readonly (string | number | nu
   ];
 }
 
-function guardedSessionInsert(db: D1Database, session: CustomerSession): D1PreparedStatement {
+function guardedSessionInsert(
+  db: D1Database,
+  session: CustomerSession,
+  audit?: AuditRow,
+): D1PreparedStatement {
+  const auditGuard = audit === undefined ? '' : ` AND ${AUDIT_MATCH_PREDICATE}`;
   return db.prepare(`INSERT INTO customer_sessions (
     id, family_id, identity_id, customer_profile_id, token_digest,
     can_revoke_sessions, status, issued_at, expires_at, absolute_expires_at,
@@ -282,12 +587,13 @@ function guardedSessionInsert(db: D1Database, session: CustomerSession): D1Prepa
     AND family.absolute_expires_at = ?
     AND identity.status = 'active' AND identity.customer_profile_id = profile.id
     AND profile.status = 'active' AND profile.merged_into_profile_id IS NULL
-    AND identity.contact_identity_hash = profile.email_identity_hash`).bind(
+    AND identity.contact_identity_hash = profile.email_identity_hash${auditGuard}`).bind(
     ...sessionValues(session),
     session.familyId,
     session.identityId,
     session.customerProfileId,
     session.absoluteExpiresAt,
+    ...(audit === undefined ? [] : auditValues(audit)),
   );
 }
 
@@ -301,6 +607,33 @@ function validScopes(scopes: readonly CustomerSessionScope[]): boolean {
 export function createD1CustomerAuthenticationRepository(
   db: D1Database,
 ): CustomerAuthenticationRepository {
+  async function auditById(auditId: string): Promise<AuditRow | null> {
+    return db.prepare(`SELECT ${AUDIT_COLUMNS} FROM audit_log WHERE audit_id = ?`)
+      .bind(boundedOpaque(auditId, 80)).first<AuditRow>();
+  }
+
+  async function revokeAllOperationByKey(
+    idempotencyKeyValue: string,
+  ): Promise<RevokeAllOperationRow | null> {
+    return db.prepare(`SELECT ${REVOKE_ALL_OPERATION_COLUMNS}
+      FROM customer_auth_revoke_all_operations WHERE idempotency_key = ?`)
+      .bind(operationKey(idempotencyKeyValue)).first<RevokeAllOperationRow>();
+  }
+
+  async function capabilityOperationByKey(
+    idempotencyKeyValue: string,
+  ): Promise<CapabilityOperationRow | null> {
+    return db.prepare(`SELECT ${CAPABILITY_OPERATION_COLUMNS}
+      FROM customer_auth_capability_operations WHERE idempotency_key = ?`)
+      .bind(operationKey(idempotencyKeyValue)).first<CapabilityOperationRow>();
+  }
+
+  async function capabilityStateRow(): Promise<CapabilityStateRow | null> {
+    return db.prepare(`SELECT ${CAPABILITY_STATE_COLUMNS}
+      FROM customer_auth_capability_state WHERE capability_id = 'CUS-003'`)
+      .first<CapabilityStateRow>();
+  }
+
   async function identityRowById(identityId: string): Promise<IdentityRow | null> {
     return db.prepare(`SELECT ${IDENTITY_COLUMNS} FROM customer_auth_identities WHERE id = ?`)
       .bind(opaque(identityId)).first<IdentityRow>();
@@ -399,6 +732,75 @@ export function createD1CustomerAuthenticationRepository(
     }
   }
 
+  /**
+   * 0040 revoca los pending anteriores en el AFTER INSERT. INSERT OR IGNORE no
+   * dispara el trigger, así que un replay no puede superseder un intento nuevo.
+   */
+  async function createChallengeSupersedingPending(
+    value: PasswordlessChallenge,
+  ): Promise<'created' | 'replayed'> {
+    try {
+      return await createChallenge(value);
+    } catch (error) {
+      if (error instanceof CustomerAuthenticationConflictError) {
+        const stored = await challenge(value.id).catch(() => null);
+        if (stored !== null && sameChallengeEmission(stored, value)) return 'replayed';
+      }
+      throw error;
+    }
+  }
+
+  async function confirmChallengeDelivery(input: Readonly<{
+    challengeId: string;
+    providerReference: string;
+    acceptedAt: string;
+    idempotencyKey: string;
+  }>): Promise<'confirmed' | 'replayed'> {
+    const command = Object.freeze({
+      challengeId: opaque(input.challengeId),
+      providerReference: opaque(input.providerReference),
+      acceptedAt: instant(input.acceptedAt),
+      idempotencyKey: operationKey(input.idempotencyKey),
+    });
+    const byKey = (): Promise<ChallengeDeliveryRow | null> =>
+      db.prepare(`SELECT ${CHALLENGE_DELIVERY_COLUMNS}
+        FROM customer_passwordless_challenge_deliveries WHERE idempotency_key = ?`)
+        .bind(command.idempotencyKey).first<ChallengeDeliveryRow>();
+    const byChallenge = (): Promise<ChallengeDeliveryRow | null> =>
+      db.prepare(`SELECT ${CHALLENGE_DELIVERY_COLUMNS}
+        FROM customer_passwordless_challenge_deliveries WHERE challenge_id = ?`)
+        .bind(command.challengeId).first<ChallengeDeliveryRow>();
+    const existing = await byKey();
+    const existingChallenge = await byChallenge();
+    if (existing !== null || existingChallenge !== null) {
+      if (sameChallengeDelivery(existing, command) &&
+          sameChallengeDelivery(existingChallenge, command)) return 'replayed';
+      return conflict();
+    }
+    try {
+      const results = await db.batch([
+        db.prepare(`INSERT INTO customer_passwordless_challenge_deliveries (
+          challenge_id, provider_reference, accepted_at, idempotency_key, created_at
+        ) VALUES (?, ?, ?, ?, ?)`).bind(
+          command.challengeId, command.providerReference, command.acceptedAt,
+          command.idempotencyKey, command.acceptedAt,
+        ),
+        db.prepare(`SELECT ${CHALLENGE_DELIVERY_COLUMNS}
+          FROM customer_passwordless_challenge_deliveries WHERE challenge_id = ?`)
+          .bind(command.challengeId),
+      ]);
+      const stored = firstBatchRow<ChallengeDeliveryRow>(results[1]);
+      if (!sameChallengeDelivery(stored, command)) return conflict();
+      return 'confirmed';
+    } catch {
+      const replayByKey = await byKey().catch(() => null);
+      const replayByChallenge = await byChallenge().catch(() => null);
+      if (sameChallengeDelivery(replayByKey, command) &&
+          sameChallengeDelivery(replayByChallenge, command)) return 'replayed';
+      return conflict();
+    }
+  }
+
   async function sessionById(sessionId: string): Promise<CustomerSession | null> {
     const row = await db.prepare(`SELECT ${SESSION_COLUMNS} FROM customer_sessions WHERE id = ?`)
       .bind(opaque(sessionId)).first<SessionRow>();
@@ -477,11 +879,52 @@ export function createD1CustomerAuthenticationRepository(
       .bind(opaque(familyId)).first<FamilyRow>();
   }
 
+  async function sessionFamilySecurityByTokenDigest(
+    tokenDigest: string,
+  ): Promise<SessionFamilySecurityRow | null> {
+    return db.prepare(`SELECT
+      family.id AS id, family.identity_id AS identity_id,
+      family.customer_profile_id AS customer_profile_id,
+      family.status AS status, family.created_at AS created_at,
+      family.absolute_expires_at AS absolute_expires_at,
+      family.revoked_at AS revoked_at,
+      family.revocation_reason_id AS revocation_reason_id,
+      family.transition_idempotency_key AS transition_idempotency_key,
+      family.version AS version,
+      session.status AS session_status,
+      identity.id AS auth_identity_id,
+      identity.customer_profile_id AS auth_identity_profile_id,
+      identity.contact_identity_hash AS auth_contact_identity_hash,
+      identity.status AS auth_identity_status,
+      profile.id AS profile_id, profile.status AS profile_status,
+      profile.merged_into_profile_id AS profile_merged_into_profile_id,
+      profile.email_identity_hash AS profile_email_identity_hash
+      FROM customer_sessions session
+      JOIN customer_session_families family ON family.id = session.family_id
+        AND family.identity_id = session.identity_id
+        AND family.customer_profile_id = session.customer_profile_id
+        AND family.absolute_expires_at = session.absolute_expires_at
+      JOIN customer_auth_identities identity ON identity.id = family.identity_id
+      JOIN customer_profiles profile ON profile.id = family.customer_profile_id
+      WHERE session.token_digest = ?`).bind(digest(tokenDigest))
+      .first<SessionFamilySecurityRow>();
+  }
+
+  function coherentSessionFamily(row: SessionFamilySecurityRow): boolean {
+    return row.status === 'active' && row.auth_identity_status === 'active' &&
+      row.auth_identity_id === row.identity_id &&
+      row.auth_identity_profile_id === row.customer_profile_id &&
+      row.profile_id === row.customer_profile_id && row.profile_status === 'active' &&
+      row.profile_merged_into_profile_id === null &&
+      row.auth_contact_identity_hash === row.profile_email_identity_hash;
+  }
+
   async function consumeChallenge(input: Readonly<{
     challenge: PasswordlessChallenge;
     session: CustomerSession;
     expectedVersion: number;
     idempotencyKey: string;
+    audit: CustomerAuthAuditCommand;
   }>): Promise<'consumed' | 'replayed'> {
     const key = idempotencyKey(input.idempotencyKey);
     const planned = input.challenge;
@@ -499,18 +942,47 @@ export function createD1CustomerAuthenticationRepository(
         session.generation !== 1 || session.identityId !== planned.identityId ||
         sessionIssuedAt < challengeConsumedAt || sessionIssuedAt >= challengeExpiresAt ||
         session.scopes.length !== 1 || session.scopes[0] !== 'customer:self') return conflict();
+    const audit = securityAudit(input.audit, session.issuedAt, {
+      actorKind: 'customer',
+      actorId: session.identityId,
+      action: 'auth.session_issued',
+      entityType: 'customer_session',
+      entityId: session.id,
+      before: { status: null, generation: null },
+      after: { status: 'active', generation: session.generation },
+      allowedFields: ['status', 'generation'],
+    });
     const stored = await challenge(planned.id);
     if (stored?.status === 'consumed') {
       const storedSession = await sessionById(session.id);
-      if (same(stored, planned) && same(storedSession, session)) return 'replayed';
+      if (same(stored, planned) && same(storedSession, session) &&
+          sameAudit(await auditById(audit.audit_id), audit)) return 'replayed';
       return conflict();
     }
     if (stored === null || !same(stored, pendingBefore(planned, input.expectedVersion))) {
       return conflict();
     }
+    const existingAudit = await auditById(audit.audit_id);
+    if (existingAudit !== null && !sameAudit(existingAudit, audit)) return conflict();
     try {
       const results = await db.batch([
-        db.prepare(`INSERT OR IGNORE INTO customer_session_families (
+        auditStatement(db, audit, `EXISTS (
+          SELECT 1 FROM customer_passwordless_challenges
+          WHERE id = ? AND identity_id = ? AND status = 'pending' AND version = ?
+        ) AND EXISTS (
+          SELECT 1 FROM customer_passwordless_challenge_deliveries delivery
+          WHERE delivery.challenge_id = ? AND delivery.provider_reference = ?
+            AND julianday(delivery.accepted_at) <= julianday(?)
+        ) AND (
+          SELECT count(*) FROM customer_auth_throttle_events
+          WHERE scope = 'challenge_failure' AND subject_digest = ?
+            AND expires_at > ?
+        ) < 5`, [
+          planned.id, planned.identityId, input.expectedVersion,
+          planned.id, planned.providerReference, planned.consumedAt,
+          planned.secretDigest, session.issuedAt,
+        ]),
+        db.prepare(`INSERT INTO customer_session_families (
           id, identity_id, customer_profile_id, status, created_at,
           absolute_expires_at, revoked_at, revocation_reason_id,
           transition_idempotency_key, version
@@ -520,33 +992,52 @@ export function createD1CustomerAuthenticationRepository(
         WHERE identity.id = ? AND identity.status = 'active'
           AND identity.customer_profile_id = ?
           AND profile.status = 'active' AND profile.merged_into_profile_id IS NULL
-          AND identity.contact_identity_hash = profile.email_identity_hash`).bind(
+          AND identity.contact_identity_hash = profile.email_identity_hash
+          AND ${AUDIT_MATCH_PREDICATE}`).bind(
           session.familyId, session.identityId, session.customerProfileId,
           session.issuedAt, session.absoluteExpiresAt,
           session.identityId, session.customerProfileId,
+          ...auditValues(audit),
         ),
-        guardedSessionInsert(db, session),
+        guardedSessionInsert(db, session, audit),
         db.prepare(`UPDATE customer_passwordless_challenges SET
           status = ?, consumed_at = ?, consumed_by_session_id = ?,
-          transition_idempotency_key = ?, version = ? WHERE id = ?`).bind(
+          transition_idempotency_key = ?, version = ?
+          WHERE id = ? AND status = 'pending' AND version = ?
+            AND EXISTS (
+              SELECT 1 FROM customer_passwordless_challenge_deliveries delivery
+              WHERE delivery.challenge_id = customer_passwordless_challenges.id
+                AND delivery.provider_reference =
+                  customer_passwordless_challenges.provider_reference
+                AND julianday(delivery.accepted_at) <= julianday(?)
+            )
+            AND ${AUDIT_MATCH_PREDICATE}`).bind(
           planned.status, planned.consumedAt, planned.consumedBySessionId,
-          key, planned.version, planned.id,
+          key, planned.version, planned.id, input.expectedVersion,
+          planned.consumedAt,
+          ...auditValues(audit),
         ),
         db.prepare(`SELECT ${CHALLENGE_COLUMNS}
           FROM customer_passwordless_challenges WHERE id = ?`).bind(planned.id),
         db.prepare(`SELECT ${SESSION_COLUMNS}
           FROM customer_sessions WHERE id = ?`).bind(session.id),
+        db.prepare(`SELECT ${AUDIT_COLUMNS} FROM audit_log WHERE audit_id = ?`)
+          .bind(audit.audit_id),
       ]);
-      const storedChallengeRow = firstBatchRow<ChallengeRow>(results[3]);
-      const storedSessionRow = firstBatchRow<SessionRow>(results[4]);
+      const storedChallengeRow = firstBatchRow<ChallengeRow>(results[4]);
+      const storedSessionRow = firstBatchRow<SessionRow>(results[5]);
+      const storedAudit = firstBatchRow<AuditRow>(results[6]);
       const storedChallenge = storedChallengeRow === null ? null : challengeOf(storedChallengeRow);
       const storedSession = storedSessionRow === null ? null : sessionOf(storedSessionRow);
-      if (!same(storedChallenge, planned) || !same(storedSession, session)) return conflict();
+      if (!same(storedChallenge, planned) || !same(storedSession, session) ||
+          !sameAudit(storedAudit, audit)) return conflict();
       return 'consumed';
     } catch {
       const replayChallenge = await challenge(planned.id).catch(() => null);
       const replaySession = await sessionById(session.id).catch(() => null);
-      if (same(replayChallenge, planned) && same(replaySession, session)) return 'replayed';
+      const replayAudit = await auditById(audit.audit_id).catch(() => null);
+      if (same(replayChallenge, planned) && same(replaySession, session) &&
+          sameAudit(replayAudit, audit)) return 'replayed';
       return conflict();
     }
   }
@@ -590,6 +1081,7 @@ export function createD1CustomerAuthenticationRepository(
     previous: CustomerSession;
     current: CustomerSession;
     idempotencyKey: string;
+    audit: CustomerAuthAuditCommand;
   }>): Promise<'rotated' | 'replayed'> {
     const key = idempotencyKey(input.idempotencyKey);
     const previous = input.previous;
@@ -607,32 +1099,58 @@ export function createD1CustomerAuthenticationRepository(
         current.generation !== previous.generation + 1 ||
         current.absoluteExpiresAt !== previous.absoluteExpiresAt ||
         !same(current.scopes, previous.scopes) || !validScopes(current.scopes)) return conflict();
+    const audit = securityAudit(input.audit, current.issuedAt, {
+      actorKind: 'customer',
+      actorId: previous.identityId,
+      action: 'auth.session_rotated',
+      entityType: 'customer_session',
+      entityId: previous.id,
+      before: { status: 'active', generation: previous.generation },
+      after: { status: 'rotated', generation: current.generation },
+      allowedFields: ['status', 'generation'],
+    });
     const storedPrevious = await sessionById(previous.id);
-    if (same(storedPrevious, previous) && same(await sessionById(current.id), current)) {
+    if (same(storedPrevious, previous) && same(await sessionById(current.id), current) &&
+        sameAudit(await auditById(audit.audit_id), audit)) {
       return 'replayed';
     }
     if (storedPrevious === null ||
         !same(storedPrevious, activeBefore(previous, previous.version - 1))) return conflict();
+    const existingAudit = await auditById(audit.audit_id);
+    if (existingAudit !== null && !sameAudit(existingAudit, audit)) return conflict();
     try {
       const results = await db.batch([
-        guardedSessionInsert(db, current),
+        auditStatement(db, audit, `EXISTS (
+          SELECT 1 FROM customer_sessions
+          WHERE id = ? AND status = 'active' AND version = ?
+        )`, [previous.id, previous.version - 1]),
+        guardedSessionInsert(db, current, audit),
         db.prepare(`UPDATE customer_sessions SET status = 'rotated',
           replaced_by_session_id = ?, transition_idempotency_key = ?, version = ?
-          WHERE id = ?`).bind(current.id, key, previous.version, previous.id),
+          WHERE id = ? AND status = 'active' AND version = ?
+            AND ${AUDIT_MATCH_PREDICATE}`).bind(
+          current.id, key, previous.version, previous.id, previous.version - 1,
+          ...auditValues(audit),
+        ),
         db.prepare(`SELECT ${SESSION_COLUMNS}
           FROM customer_sessions WHERE id = ?`).bind(previous.id),
         db.prepare(`SELECT ${SESSION_COLUMNS}
           FROM customer_sessions WHERE id = ?`).bind(current.id),
+        db.prepare(`SELECT ${AUDIT_COLUMNS} FROM audit_log WHERE audit_id = ?`)
+          .bind(audit.audit_id),
       ]);
-      const storedPreviousRow = firstBatchRow<SessionRow>(results[2]);
-      const storedCurrentRow = firstBatchRow<SessionRow>(results[3]);
+      const storedPreviousRow = firstBatchRow<SessionRow>(results[3]);
+      const storedCurrentRow = firstBatchRow<SessionRow>(results[4]);
+      const storedAudit = firstBatchRow<AuditRow>(results[5]);
       const storedPreviousAfter = storedPreviousRow === null ? null : sessionOf(storedPreviousRow);
       const storedCurrentAfter = storedCurrentRow === null ? null : sessionOf(storedCurrentRow);
-      if (!same(storedPreviousAfter, previous) || !same(storedCurrentAfter, current)) return conflict();
+      if (!same(storedPreviousAfter, previous) || !same(storedCurrentAfter, current) ||
+          !sameAudit(storedAudit, audit)) return conflict();
       return 'rotated';
     } catch {
       if (same(await sessionById(previous.id).catch(() => null), previous) &&
-          same(await sessionById(current.id).catch(() => null), current)) return 'replayed';
+          same(await sessionById(current.id).catch(() => null), current) &&
+          sameAudit(await auditById(audit.audit_id).catch(() => null), audit)) return 'replayed';
       return conflict();
     }
   }
@@ -641,6 +1159,7 @@ export function createD1CustomerAuthenticationRepository(
     session: CustomerSession;
     expectedVersion: number;
     idempotencyKey: string;
+    audit: CustomerAuthAuditCommand;
   }>): Promise<'revoked' | 'replayed'> {
     const key = idempotencyKey(input.idempotencyKey);
     const planned = input.session;
@@ -648,27 +1167,51 @@ export function createD1CustomerAuthenticationRepository(
         planned.replacedBySessionId !== null || planned.revokedAt === null ||
         planned.revocationReasonId === null ||
         planned.version !== input.expectedVersion + 1) return conflict();
+    const audit = securityAudit(input.audit, planned.revokedAt, {
+      actorKind: 'customer',
+      actorId: planned.identityId,
+      action: 'auth.session_revoked',
+      entityType: 'customer_session',
+      entityId: planned.id,
+      before: { status: 'active', reason: null },
+      after: { status: 'revoked', reason: reasonId(planned.revocationReasonId) },
+      allowedFields: ['status', 'reason'],
+    });
     const stored = await sessionById(planned.id);
-    if (same(stored, planned)) return 'replayed';
+    if (same(stored, planned) && sameAudit(await auditById(audit.audit_id), audit)) {
+      return 'replayed';
+    }
     if (stored === null || !same(stored, activeBefore(planned, input.expectedVersion))) {
       return conflict();
     }
+    const existingAudit = await auditById(audit.audit_id);
+    if (existingAudit !== null && !sameAudit(existingAudit, audit)) return conflict();
     try {
       const results = await db.batch([
+        auditStatement(db, audit, `EXISTS (
+          SELECT 1 FROM customer_sessions
+          WHERE id = ? AND status = 'active' AND version = ?
+        )`, [planned.id, input.expectedVersion]),
         db.prepare(`UPDATE customer_sessions SET status = 'revoked',
           revoked_at = ?, revocation_reason_id = ?, transition_idempotency_key = ?,
-          version = ? WHERE id = ?`).bind(
-          planned.revokedAt, planned.revocationReasonId, key, planned.version, planned.id,
+          version = ? WHERE id = ? AND status = 'active' AND version = ?
+            AND ${AUDIT_MATCH_PREDICATE}`).bind(
+          planned.revokedAt, planned.revocationReasonId, key, planned.version,
+          planned.id, input.expectedVersion, ...auditValues(audit),
         ),
         db.prepare(`SELECT ${SESSION_COLUMNS}
           FROM customer_sessions WHERE id = ?`).bind(planned.id),
+        db.prepare(`SELECT ${AUDIT_COLUMNS} FROM audit_log WHERE audit_id = ?`)
+          .bind(audit.audit_id),
       ]);
-      const storedRow = firstBatchRow<SessionRow>(results[1]);
+      const storedRow = firstBatchRow<SessionRow>(results[2]);
+      const storedAudit = firstBatchRow<AuditRow>(results[3]);
       const confirmed = storedRow === null ? null : sessionOf(storedRow);
-      if (!same(confirmed, planned)) return conflict();
+      if (!same(confirmed, planned) || !sameAudit(storedAudit, audit)) return conflict();
       return 'revoked';
     } catch {
-      if (same(await sessionById(planned.id).catch(() => null), planned)) return 'replayed';
+      if (same(await sessionById(planned.id).catch(() => null), planned) &&
+          sameAudit(await auditById(audit.audit_id).catch(() => null), audit)) return 'replayed';
       return conflict();
     }
   }
@@ -679,51 +1222,497 @@ export function createD1CustomerAuthenticationRepository(
     reasonId: string;
     expectedVersion: number;
     idempotencyKey: string;
+    audit: CustomerAuthAuditCommand;
   }>): Promise<number> {
     const familyId = opaque(input.familyId);
     const key = idempotencyKey(input.idempotencyKey);
+    const occurredAt = instant(input.occurredAt);
+    const reason = reasonId(input.reasonId);
     const stored = await family(familyId);
+    if (stored === null) return conflict();
+    const audit = securityAudit(input.audit, occurredAt, {
+      actorKind: 'customer',
+      actorId: stored.identity_id,
+      action: 'auth.family_revoked',
+      entityType: 'customer_session_family',
+      entityId: familyId,
+      before: { status: 'active', reason: null },
+      after: { status: 'revoked', reason },
+      allowedFields: ['status', 'reason'],
+    });
     if (stored?.status === 'revoked' && stored.transition_idempotency_key === key &&
-        stored.revoked_at === input.occurredAt &&
-        stored.revocation_reason_id === input.reasonId &&
-        stored.version === input.expectedVersion + 1) {
+        stored.revoked_at === occurredAt &&
+        stored.revocation_reason_id === reason &&
+        stored.version === input.expectedVersion + 1 &&
+        sameAudit(await auditById(audit.audit_id), audit)) {
       return Number(await db.prepare(`SELECT count(*) AS total FROM customer_sessions
         WHERE family_id = ? AND status = 'revoked'
           AND transition_idempotency_key = ?`).bind(familyId, key).first<number>('total') ?? 0);
     }
     if (stored === null || stored.status !== 'active' ||
         stored.version !== input.expectedVersion) return conflict();
+    const existingAudit = await auditById(audit.audit_id);
+    if (existingAudit !== null && !sameAudit(existingAudit, audit)) return conflict();
     try {
       const results = await db.batch([
+        auditStatement(db, audit, `EXISTS (
+          SELECT 1 FROM customer_session_families
+          WHERE id = ? AND status = 'active' AND version = ?
+        )`, [familyId, input.expectedVersion]),
         db.prepare(`UPDATE customer_session_families SET status = 'revoked',
           revoked_at = ?, revocation_reason_id = ?, transition_idempotency_key = ?,
-          version = ? WHERE id = ?`).bind(
-          input.occurredAt, input.reasonId, key, input.expectedVersion + 1, familyId,
+          version = ? WHERE id = ? AND status = 'active' AND version = ?
+            AND ${AUDIT_MATCH_PREDICATE}`).bind(
+          occurredAt, reason, key, input.expectedVersion + 1, familyId,
+          input.expectedVersion, ...auditValues(audit),
         ),
         db.prepare(`UPDATE customer_sessions SET status = 'revoked', revoked_at = ?,
           revocation_reason_id = ?, transition_idempotency_key = ?, version = version + 1
-          WHERE family_id = ? AND status = 'active'`).bind(
-          input.occurredAt, input.reasonId, key, familyId,
+          WHERE family_id = ? AND status = 'active'
+            AND ${AUDIT_MATCH_PREDICATE}`).bind(
+          occurredAt, reason, key, familyId, ...auditValues(audit),
         ),
         db.prepare(`SELECT ${FAMILY_COLUMNS}
           FROM customer_session_families WHERE id = ?`).bind(familyId),
+        db.prepare(`SELECT ${AUDIT_COLUMNS} FROM audit_log WHERE audit_id = ?`)
+          .bind(audit.audit_id),
       ]);
-      const confirmed = firstBatchRow<FamilyRow>(results[2]);
+      const confirmed = firstBatchRow<FamilyRow>(results[3]);
+      const storedAudit = firstBatchRow<AuditRow>(results[4]);
       if (confirmed?.status !== 'revoked' || confirmed.transition_idempotency_key !== key ||
-          confirmed.revoked_at !== input.occurredAt ||
-          confirmed.revocation_reason_id !== input.reasonId ||
-          confirmed.version !== input.expectedVersion + 1) return conflict();
-      return results[1]?.meta.changes ?? 0;
+          confirmed.revoked_at !== occurredAt ||
+          confirmed.revocation_reason_id !== reason ||
+          confirmed.version !== input.expectedVersion + 1 ||
+          !sameAudit(storedAudit, audit)) return conflict();
+      return results[2]?.meta.changes ?? 0;
     } catch {
       const replay = await family(familyId).catch(() => null);
       if (replay?.status === 'revoked' && replay.transition_idempotency_key === key &&
-          replay.revoked_at === input.occurredAt &&
-          replay.revocation_reason_id === input.reasonId &&
-          replay.version === input.expectedVersion + 1) {
+          replay.revoked_at === occurredAt &&
+          replay.revocation_reason_id === reason &&
+          replay.version === input.expectedVersion + 1 &&
+          sameAudit(await auditById(audit.audit_id).catch(() => null), audit)) {
         return Number(await db.prepare(`SELECT count(*) AS total FROM customer_sessions
           WHERE family_id = ? AND status = 'revoked'
             AND transition_idempotency_key = ?`).bind(familyId, key).first<number>('total') ?? 0);
       }
+      return conflict();
+    }
+  }
+
+  async function revokeIncoherentSessionFamilyByTokenDigest(input: Readonly<{
+    tokenDigest: string;
+    occurredAt: string;
+    reasonId: string;
+    idempotencyKey: string;
+    audit: CustomerAuthAuditCommand;
+  }>): Promise<'revoked' | 'replayed' | 'coherent' | 'not_found'> {
+    const tokenDigest = digest(input.tokenDigest);
+    const occurredAt = instant(input.occurredAt);
+    const reason = reasonId(input.reasonId);
+    const key = idempotencyKey(input.idempotencyKey);
+    const stored = await sessionFamilySecurityByTokenDigest(tokenDigest);
+    if (stored === null) return 'not_found';
+    if (coherentSessionFamily(stored)) return 'coherent';
+    const audit = securityAudit(input.audit, occurredAt, {
+      actorKind: 'system',
+      actorId: SESSION_GUARD_ACTOR_ID,
+      action: 'auth.family_revoked',
+      entityType: 'customer_session_family',
+      entityId: stored.id,
+      before: { status: 'active', reason: null },
+      after: { status: 'revoked', reason },
+      allowedFields: ['status', 'reason'],
+    });
+    if (stored.status === 'revoked' && stored.transition_idempotency_key === key &&
+        stored.revoked_at === occurredAt && stored.revocation_reason_id === reason &&
+        sameAudit(await auditById(audit.audit_id), audit)) return 'replayed';
+    if (stored.status !== 'active') return 'not_found';
+    const existingAudit = await auditById(audit.audit_id);
+    if (existingAudit !== null && !sameAudit(existingAudit, audit)) return conflict();
+    const incoherentGuard = `EXISTS (
+      SELECT 1 FROM customer_sessions guarded_session
+      JOIN customer_session_families guarded_family
+        ON guarded_family.id = guarded_session.family_id
+        AND guarded_family.identity_id = guarded_session.identity_id
+        AND guarded_family.customer_profile_id = guarded_session.customer_profile_id
+        AND guarded_family.absolute_expires_at = guarded_session.absolute_expires_at
+      JOIN customer_auth_identities guarded_identity
+        ON guarded_identity.id = guarded_family.identity_id
+      JOIN customer_profiles guarded_profile
+        ON guarded_profile.id = guarded_family.customer_profile_id
+      WHERE guarded_session.token_digest = ? AND guarded_family.id = ?
+        AND guarded_family.status = 'active' AND guarded_family.version = ?
+        AND NOT (
+          guarded_identity.status = 'active'
+          AND guarded_identity.customer_profile_id = guarded_family.customer_profile_id
+          AND guarded_profile.status = 'active'
+          AND guarded_profile.merged_into_profile_id IS NULL
+          AND guarded_identity.contact_identity_hash = guarded_profile.email_identity_hash
+        )
+    )`;
+    try {
+      const results = await db.batch([
+        auditStatement(db, audit, incoherentGuard,
+          [tokenDigest, stored.id, stored.version]),
+        db.prepare(`UPDATE customer_session_families SET status = 'revoked',
+          revoked_at = ?, revocation_reason_id = ?, transition_idempotency_key = ?,
+          version = version + 1
+          WHERE id = ? AND status = 'active' AND version = ?
+            AND ${AUDIT_MATCH_PREDICATE}`).bind(
+          occurredAt, reason, key, stored.id, stored.version, ...auditValues(audit),
+        ),
+        db.prepare(`UPDATE customer_sessions SET status = 'revoked',
+          revoked_at = ?, revocation_reason_id = ?, transition_idempotency_key = ?,
+          version = version + 1 WHERE family_id = ? AND status = 'active'
+            AND ${AUDIT_MATCH_PREDICATE}`).bind(
+          occurredAt, reason, key, stored.id, ...auditValues(audit),
+        ),
+        db.prepare(`SELECT ${FAMILY_COLUMNS}
+          FROM customer_session_families WHERE id = ?`).bind(stored.id),
+        db.prepare(`SELECT ${AUDIT_COLUMNS} FROM audit_log WHERE audit_id = ?`)
+          .bind(audit.audit_id),
+      ]);
+      const confirmed = firstBatchRow<FamilyRow>(results[3]);
+      const storedAudit = firstBatchRow<AuditRow>(results[4]);
+      if (confirmed?.status === 'revoked' &&
+          confirmed.transition_idempotency_key === key &&
+          confirmed.revoked_at === occurredAt &&
+          confirmed.revocation_reason_id === reason &&
+          confirmed.version === stored.version + 1 && sameAudit(storedAudit, audit)) {
+        return 'revoked';
+      }
+      const current = await sessionFamilySecurityByTokenDigest(tokenDigest);
+      if (current === null || current.status !== 'active') return 'not_found';
+      if (coherentSessionFamily(current)) return 'coherent';
+      return conflict();
+    } catch {
+      const replay = await sessionFamilySecurityByTokenDigest(tokenDigest).catch(() => null);
+      if (replay?.status === 'revoked' && replay.transition_idempotency_key === key &&
+          replay.revoked_at === occurredAt && replay.revocation_reason_id === reason &&
+          sameAudit(await auditById(audit.audit_id).catch(() => null), audit)) {
+        return 'replayed';
+      }
+      return conflict();
+    }
+  }
+
+  function targetSql(target: CustomerSessionFamilyRevocationTarget, alias: string): string {
+    return target.kind === 'identity'
+      ? `${alias}.identity_id = ?`
+      : `${alias}.customer_profile_id = ?`;
+  }
+
+  async function revokeAllSessionFamilies(input: Readonly<{
+    target: CustomerSessionFamilyRevocationTarget;
+    occurredAt: string;
+    reasonId: string;
+    idempotencyKey: string;
+    audit: CustomerAuthAuditCommand;
+  }>): Promise<Readonly<{
+    outcome: 'revoked' | 'replayed';
+    familiesRevoked: number;
+    sessionsRevoked: number;
+  }>> {
+    const target = Object.freeze({
+      kind: input.target.kind,
+      id: opaque(input.target.id),
+    }) as CustomerSessionFamilyRevocationTarget;
+    const occurredAt = instant(input.occurredAt);
+    const reason = reasonId(input.reasonId);
+    const key = operationKey(input.idempotencyKey);
+    const audit = securityAudit(input.audit, occurredAt, {
+      actorKind: 'system',
+      actorId: INCIDENT_RESPONSE_ACTOR_ID,
+      action: 'auth.sessions_revoked_all',
+      entityType: target.kind === 'identity' ? 'customer_auth_identity' : 'customer_profile',
+      entityId: target.id,
+      before: { status: 'active', reason: null },
+      after: { status: 'revoked', reason },
+      allowedFields: ['status', 'reason'],
+    });
+    const operation = Object.freeze({
+      idempotencyKey: key,
+      target,
+      occurredAt,
+      reasonId: reason,
+      audit,
+    });
+    const existingOperation = await revokeAllOperationByKey(key);
+    if (existingOperation !== null) {
+      if (!sameRevokeAllOperation(existingOperation, operation) ||
+          !sameAudit(await auditById(audit.audit_id), audit)) return conflict();
+      return Object.freeze({
+        outcome: 'replayed',
+        familiesRevoked: existingOperation.families_revoked,
+        sessionsRevoked: existingOperation.sessions_revoked,
+      });
+    }
+    const existingAudit = await auditById(audit.audit_id);
+    if (existingAudit !== null) return conflict();
+    const targetExists = target.kind === 'identity'
+      ? `EXISTS (SELECT 1 FROM customer_auth_identities WHERE id = ?)`
+      : `EXISTS (SELECT 1 FROM customer_profiles WHERE id = ?)`;
+    try {
+      const results = await db.batch([
+        auditStatement(db, audit, `${targetExists} AND NOT EXISTS (
+          SELECT 1 FROM customer_auth_revoke_all_operations
+          WHERE idempotency_key = ?
+        )`, [target.id, key]),
+        db.prepare(`INSERT OR IGNORE INTO customer_auth_revoke_all_operations (
+          idempotency_key, target_kind, target_id, occurred_at, reason_id,
+          audit_id, audit_correlation_id, status, families_revoked,
+          sessions_revoked, created_at
+        ) SELECT ?, ?, ?, ?, ?, ?, ?, 'pending',
+          (SELECT count(*) FROM customer_session_families family
+            WHERE ${targetSql(target, 'family')} AND status = 'active'),
+          (SELECT count(*) FROM customer_sessions session
+            WHERE ${targetSql(target, 'session')} AND status = 'active'), ?
+        WHERE changes() = 1 AND ${AUDIT_MATCH_PREDICATE}`).bind(
+          key, target.kind, target.id, occurredAt, reason,
+          audit.audit_id, audit.correlation_id,
+          target.id, target.id, occurredAt, ...auditValues(audit),
+        ),
+        db.prepare(`UPDATE customer_session_families AS family
+          SET status = 'revoked', revoked_at = ?, revocation_reason_id = ?,
+            transition_idempotency_key = ? || ':' || printf('%016x', rowid),
+            version = version + 1
+          WHERE ${targetSql(target, 'family')} AND status = 'active'
+            AND ${REVOKE_ALL_OPERATION_MATCH_PREDICATE}
+            AND ${AUDIT_MATCH_PREDICATE}`).bind(
+          occurredAt, reason, key, target.id,
+          ...revokeAllOperationMatchValues(operation), ...auditValues(audit),
+        ),
+        db.prepare(`UPDATE customer_sessions AS session
+          SET status = 'revoked', revoked_at = ?, revocation_reason_id = ?,
+            transition_idempotency_key = ?, version = version + 1
+          WHERE ${targetSql(target, 'session')} AND status = 'active'
+            AND ${REVOKE_ALL_OPERATION_MATCH_PREDICATE}
+            AND ${AUDIT_MATCH_PREDICATE}`).bind(
+          occurredAt, reason, key, target.id,
+          ...revokeAllOperationMatchValues(operation), ...auditValues(audit),
+        ),
+        db.prepare(`UPDATE customer_auth_revoke_all_operations
+          SET status = 'completed'
+          WHERE idempotency_key = ? AND status = 'pending'
+            AND ${REVOKE_ALL_OPERATION_MATCH_PREDICATE}
+            AND ${AUDIT_MATCH_PREDICATE}`).bind(
+          key, ...revokeAllOperationMatchValues(operation), ...auditValues(audit),
+        ),
+        db.prepare(`SELECT ${REVOKE_ALL_OPERATION_COLUMNS}
+          FROM customer_auth_revoke_all_operations WHERE idempotency_key = ?`)
+          .bind(key),
+        db.prepare(`SELECT ${AUDIT_COLUMNS} FROM audit_log WHERE audit_id = ?`)
+          .bind(audit.audit_id),
+      ]);
+      const storedOperation = firstBatchRow<RevokeAllOperationRow>(results[5]);
+      const storedAudit = firstBatchRow<AuditRow>(results[6]);
+      if (storedOperation === null || !sameRevokeAllOperation(storedOperation, operation) ||
+          !sameAudit(storedAudit, audit)) return conflict();
+      return Object.freeze({
+        outcome: results[1]?.meta.changes === 1 ? 'revoked' : 'replayed',
+        familiesRevoked: storedOperation.families_revoked,
+        sessionsRevoked: storedOperation.sessions_revoked,
+      });
+    } catch {
+      const replayOperation = await revokeAllOperationByKey(key).catch(() => null);
+      if (replayOperation !== null && sameRevokeAllOperation(replayOperation, operation) &&
+          sameAudit(await auditById(audit.audit_id).catch(() => null), audit)) {
+        return Object.freeze({
+          outcome: 'replayed',
+          familiesRevoked: replayOperation.families_revoked,
+          sessionsRevoked: replayOperation.sessions_revoked,
+        });
+      }
+      return conflict();
+    }
+  }
+
+  async function transitionCustomerAuthCapability(input: Readonly<{
+    fromState: CustomerAuthCapabilityState;
+    toState: CustomerAuthCapabilityState;
+    expectedVersion: number;
+    occurredAt: string;
+    idempotencyKey: string;
+    audit: CustomerAuthAuditCommand;
+  }>): Promise<Readonly<{
+    outcome: 'transitioned' | 'replayed';
+    state: CustomerAuthCapabilityState;
+    version: number;
+  }>> {
+    const fromState = input.fromState;
+    const toState = input.toState;
+    if (!['installed', 'active'].includes(fromState) ||
+        !['installed', 'active'].includes(toState) || fromState === toState ||
+        !Number.isSafeInteger(input.expectedVersion) || input.expectedVersion < 0 ||
+        (input.expectedVersion === 0 &&
+          (fromState !== 'installed' || toState !== 'active'))) return conflict();
+    const expectedVersion = input.expectedVersion;
+    const resultingVersion = expectedVersion + 1;
+    const occurredAt = instant(input.occurredAt);
+    const key = operationKey(input.idempotencyKey);
+    const audit = securityAudit(input.audit, occurredAt, {
+      actorKind: 'system',
+      actorId: CAPABILITY_GATE_ACTOR_ID,
+      action: 'auth.capability_transitioned',
+      entityType: 'platform_capability',
+      entityId: 'capability:cus-003',
+      before: { state: fromState, version: expectedVersion },
+      after: { state: toState, version: resultingVersion },
+      allowedFields: ['state', 'version'],
+    });
+    const operation = Object.freeze({
+      idempotencyKey: key,
+      fromState,
+      toState,
+      expectedVersion,
+      resultingVersion,
+      occurredAt,
+      audit,
+    });
+    const replayResult = (): Readonly<{
+      outcome: 'replayed'; state: CustomerAuthCapabilityState; version: number;
+    }> => Object.freeze({ outcome: 'replayed', state: toState, version: resultingVersion });
+    const existingOperation = await capabilityOperationByKey(key);
+    if (existingOperation !== null) {
+      if (!sameCapabilityOperation(existingOperation, operation) ||
+          !sameAudit(await auditById(audit.audit_id), audit)) return conflict();
+      return replayResult();
+    }
+    if (await auditById(audit.audit_id) !== null) return conflict();
+    try {
+      const stateTransition = expectedVersion === 0
+        ? db.prepare(`INSERT INTO customer_auth_capability_state (
+            capability_id, state, version, transitioned_at,
+            transition_idempotency_key, audit_id
+          ) VALUES ('CUS-003', ?, ?, ?, ?, ?)`).bind(
+            toState, resultingVersion, occurredAt, key, audit.audit_id,
+          )
+        : db.prepare(`UPDATE customer_auth_capability_state SET
+            state = ?, version = ?, transitioned_at = ?,
+            transition_idempotency_key = ?, audit_id = ?
+          WHERE capability_id = 'CUS-003' AND state = ? AND version = ?`).bind(
+            toState, resultingVersion, occurredAt, key, audit.audit_id,
+            fromState, expectedVersion,
+          );
+      const results = await db.batch([
+        db.prepare(`INSERT INTO audit_log (${AUDIT_COLUMNS})
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`)
+          .bind(...auditValues(audit)),
+        db.prepare(`INSERT INTO customer_auth_capability_operations (
+          idempotency_key, capability_id, from_state, to_state,
+          expected_version, resulting_version, occurred_at, audit_id,
+          audit_correlation_id, status, created_at
+        ) VALUES (?, 'CUS-003', ?, ?, ?, ?, ?, ?, ?, 'pending', ?)`).bind(
+          key, fromState, toState, expectedVersion, resultingVersion,
+          occurredAt, audit.audit_id, audit.correlation_id, occurredAt,
+        ),
+        stateTransition,
+        db.prepare(`UPDATE customer_auth_capability_operations
+          SET status = 'completed'
+          WHERE idempotency_key = ? AND status = 'pending'`).bind(key),
+        db.prepare(`SELECT ${CAPABILITY_OPERATION_COLUMNS}
+          FROM customer_auth_capability_operations WHERE idempotency_key = ?`)
+          .bind(key),
+        db.prepare(`SELECT ${AUDIT_COLUMNS} FROM audit_log WHERE audit_id = ?`)
+          .bind(audit.audit_id),
+        db.prepare(`SELECT ${CAPABILITY_STATE_COLUMNS}
+          FROM customer_auth_capability_state WHERE capability_id = 'CUS-003'`),
+      ]);
+      const storedOperation = firstBatchRow<CapabilityOperationRow>(results[4]);
+      const storedAudit = firstBatchRow<AuditRow>(results[5]);
+      const storedState = firstBatchRow<CapabilityStateRow>(results[6]);
+      if (storedOperation === null || !sameCapabilityOperation(storedOperation, operation) ||
+          !sameAudit(storedAudit, audit) || !sameCapabilityState(storedState, operation)) {
+        return conflict();
+      }
+      return Object.freeze({
+        outcome: 'transitioned',
+        state: toState,
+        version: resultingVersion,
+      });
+    } catch {
+      const replayOperation = await capabilityOperationByKey(key).catch(() => null);
+      if (replayOperation !== null && sameCapabilityOperation(replayOperation, operation) &&
+          sameAudit(await auditById(audit.audit_id).catch(() => null), audit)) {
+        return replayResult();
+      }
+      return conflict();
+    }
+  }
+
+  async function customerAuthCapabilityReadiness(): Promise<CustomerAuthCapabilityReadiness> {
+    try {
+      const state = await capabilityStateRow();
+      const summary = await db.prepare(`SELECT
+        count(*) AS total,
+        coalesce(min(resulting_version), 0) AS minimum_version,
+        coalesce(max(resulting_version), 0) AS maximum_version,
+        count(DISTINCT resulting_version) AS distinct_versions
+      FROM customer_auth_capability_operations`).first<Readonly<{
+        total: number;
+        minimum_version: number;
+        maximum_version: number;
+        distinct_versions: number;
+      }>>();
+      const invalid = await db.prepare(`SELECT count(*) AS value
+        FROM customer_auth_capability_operations operation
+        LEFT JOIN customer_auth_capability_operations previous
+          ON previous.capability_id = operation.capability_id
+          AND previous.resulting_version = operation.expected_version
+        LEFT JOIN audit_log audit ON audit.audit_id = operation.audit_id
+        WHERE operation.status <> 'completed'
+          OR (operation.resulting_version = 1 AND NOT (
+            operation.expected_version = 0
+            AND operation.from_state = 'installed'
+            AND operation.to_state = 'active'
+          ))
+          OR (operation.resulting_version > 1 AND NOT (
+            previous.status = 'completed'
+            AND previous.to_state = operation.from_state
+          ))
+          OR audit.audit_id IS NULL
+          OR audit.occurred_at <> operation.occurred_at
+          OR audit.actor_kind <> 'system'
+          OR audit.actor_id <> 'customer_auth:capability_gate'
+          OR audit.actor_label IS NOT NULL
+          OR audit.action <> 'auth.capability_transitioned'
+          OR audit.entity_type <> 'platform_capability'
+          OR audit.entity_id <> 'capability:cus-003'
+          OR audit.entity_reference IS NOT NULL
+          OR audit.correlation_id <> operation.audit_correlation_id
+          OR audit.source_event_id IS NOT NULL
+          OR audit.diff_json <> '{"state":{"before":"' || operation.from_state
+            || '","after":"' || operation.to_state || '"},"version":{"before":'
+            || operation.expected_version || ',"after":' || operation.resulting_version || '}}'
+          OR audit.created_at <> operation.occurred_at`).first<number>('value');
+      if (summary === null) return conflict();
+      const total = Number(summary.total);
+      if (state === null) {
+        if (total !== 0 || Number(invalid) !== 0) return conflict();
+        return Object.freeze({
+          capabilityId: 'CUS-003',
+          state: 'installed',
+          version: 0,
+          readyForActiveRuntime: false,
+        });
+      }
+      const latest = await capabilityOperationByKey(state.transition_idempotency_key);
+      if (latest === null || latest.status !== 'completed' ||
+          latest.to_state !== state.state || latest.resulting_version !== state.version ||
+          latest.occurred_at !== state.transitioned_at || latest.audit_id !== state.audit_id ||
+          Number(invalid) !== 0 || total !== state.version ||
+          Number(summary.minimum_version) !== 1 ||
+          Number(summary.maximum_version) !== state.version ||
+          Number(summary.distinct_versions) !== total) return conflict();
+      return Object.freeze({
+        capabilityId: 'CUS-003',
+        state: state.state,
+        version: state.version,
+        readyForActiveRuntime: state.state === 'active',
+      });
+    } catch (error) {
+      if (error instanceof CustomerAuthenticationConflictError) throw error;
       return conflict();
     }
   }
@@ -734,6 +1723,8 @@ export function createD1CustomerAuthenticationRepository(
     createIdentity,
     challenge,
     createChallenge,
+    createChallengeSupersedingPending,
+    confirmChallengeDelivery,
     consumeChallenge,
     transitionChallenge,
     activeSessionContextByTokenDigest,
@@ -741,5 +1732,9 @@ export function createD1CustomerAuthenticationRepository(
     rotateSession,
     revokeSession,
     revokeSessionFamily,
+    revokeIncoherentSessionFamilyByTokenDigest,
+    revokeAllSessionFamilies,
+    transitionCustomerAuthCapability,
+    customerAuthCapabilityReadiness,
   });
 }

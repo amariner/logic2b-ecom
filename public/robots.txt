@@ -2,5 +2,6 @@ User-agent: *
 Allow: /
 Disallow: /demo/
 Disallow: /api/
+Disallow: /cuenta/
 
 Sitemap: https://ecom.logic2b.com/sitemap.xml

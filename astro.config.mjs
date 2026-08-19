@@ -28,5 +28,15 @@ export default defineConfig({
   }),
   vite: {
     plugins: [tailwindcss()],
+    build: {
+      // La confirmación passwordless debe cumplir `script-src 'self'` sin
+      // `unsafe-inline`. Astro embebe automáticamente los entrypoints < 4 KiB;
+      // este único módulo sensible se conserva siempre como asset first-party.
+      assetsInlineLimit(filePath) {
+        return filePath.includes('confirmar.astro_astro_type_script_index_0')
+          ? false
+          : undefined;
+      },
+    },
   },
 });

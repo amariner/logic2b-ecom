@@ -21,6 +21,34 @@ export type ActiveCustomerSessionContext = Readonly<{
   }>;
 }>;
 
+/**
+ * Identidad mínima de un hecho de seguridad. El repositorio fija acción,
+ * entidad y diff; ningún caller puede inyectar PII ni material de autenticación.
+ */
+export type CustomerAuthAuditCommand = Readonly<{
+  auditId: string;
+  occurredAt: string;
+  correlationId: string;
+}>;
+
+export type CustomerSessionFamilyRevocationTarget =
+  | Readonly<{ kind: 'identity'; id: string }>
+  | Readonly<{ kind: 'profile'; id: string }>;
+
+export type CustomerAuthRateLimitOutcome = Readonly<{
+  outcome: 'accepted' | 'limited' | 'replayed';
+  limited: boolean;
+}>;
+
+export type CustomerAuthCapabilityState = 'installed' | 'active';
+
+export type CustomerAuthCapabilityReadiness = Readonly<{
+  capabilityId: 'CUS-003';
+  state: CustomerAuthCapabilityState;
+  version: number;
+  readyForActiveRuntime: boolean;
+}>;
+
 /** Persistencia futura. Crear/consumir y rotar/revocar deben ser transacciones atómicas. */
 export interface CustomerAuthenticationRepository {
   identityByContactHash(contactIdentityHash: string): Promise<CustomerAuthIdentity | null>;
@@ -31,11 +59,21 @@ export interface CustomerAuthenticationRepository {
   }>): Promise<'created' | 'replayed'>;
   challenge(challengeId: string): Promise<PasswordlessChallenge | null>;
   createChallenge(challenge: PasswordlessChallenge): Promise<'created' | 'replayed'>;
+  createChallengeSupersedingPending(
+    challenge: PasswordlessChallenge,
+  ): Promise<'created' | 'replayed'>;
+  confirmChallengeDelivery(input: Readonly<{
+    challengeId: string;
+    providerReference: string;
+    acceptedAt: string;
+    idempotencyKey: string;
+  }>): Promise<'confirmed' | 'replayed'>;
   consumeChallenge(input: Readonly<{
     challenge: PasswordlessChallenge;
     session: CustomerSession;
     expectedVersion: number;
     idempotencyKey: string;
+    audit: CustomerAuthAuditCommand;
   }>): Promise<'consumed' | 'replayed'>;
   transitionChallenge(input: Readonly<{
     challenge: PasswordlessChallenge;
@@ -52,11 +90,13 @@ export interface CustomerAuthenticationRepository {
     previous: CustomerSession;
     current: CustomerSession;
     idempotencyKey: string;
+    audit: CustomerAuthAuditCommand;
   }>): Promise<'rotated' | 'replayed'>;
   revokeSession(input: Readonly<{
     session: CustomerSession;
     expectedVersion: number;
     idempotencyKey: string;
+    audit: CustomerAuthAuditCommand;
   }>): Promise<'revoked' | 'replayed'>;
   revokeSessionFamily(input: Readonly<{
     familyId: string;
@@ -64,7 +104,65 @@ export interface CustomerAuthenticationRepository {
     reasonId: string;
     expectedVersion: number;
     idempotencyKey: string;
+    audit: CustomerAuthAuditCommand;
   }>): Promise<number>;
+  revokeIncoherentSessionFamilyByTokenDigest(input: Readonly<{
+    tokenDigest: string;
+    occurredAt: string;
+    reasonId: string;
+    idempotencyKey: string;
+    audit: CustomerAuthAuditCommand;
+  }>): Promise<'revoked' | 'replayed' | 'coherent' | 'not_found'>;
+  revokeAllSessionFamilies(input: Readonly<{
+    target: CustomerSessionFamilyRevocationTarget;
+    occurredAt: string;
+    reasonId: string;
+    idempotencyKey: string;
+    audit: CustomerAuthAuditCommand;
+  }>): Promise<Readonly<{
+    outcome: 'revoked' | 'replayed';
+    familiesRevoked: number;
+    sessionsRevoked: number;
+  }>>;
+  transitionCustomerAuthCapability(input: Readonly<{
+    fromState: CustomerAuthCapabilityState;
+    toState: CustomerAuthCapabilityState;
+    expectedVersion: number;
+    occurredAt: string;
+    idempotencyKey: string;
+    audit: CustomerAuthAuditCommand;
+  }>): Promise<Readonly<{
+    outcome: 'transitioned' | 'replayed';
+    state: CustomerAuthCapabilityState;
+    version: number;
+  }>>;
+  customerAuthCapabilityReadiness(): Promise<CustomerAuthCapabilityReadiness>;
+}
+
+/** Persistencia efímera y durable; nunca recibe email, IP ni challenge crudos. */
+export interface CustomerAuthRateLimitRepository {
+  recordContactStart(input: Readonly<{
+    contactIdentityHash: string;
+    occurredAt: string;
+    expiresAt: string;
+    idempotencyKey: string;
+  }>): Promise<CustomerAuthRateLimitOutcome & Readonly<{
+    count15m: number;
+    count24h: number;
+  }>>;
+  recordChallengeFailure(input: Readonly<{
+    challengeDigest: string;
+    occurredAt: string;
+    expiresAt: string;
+    idempotencyKey: string;
+  }>): Promise<CustomerAuthRateLimitOutcome & Readonly<{
+    failures: number;
+  }>>;
+  challengeFailureState(input: Readonly<{
+    challengeDigest: string;
+    at: string;
+  }>): Promise<Readonly<{ limited: boolean; failures: number }>>;
+  purgeExpired(at: string): Promise<number>;
 }
 
 /**

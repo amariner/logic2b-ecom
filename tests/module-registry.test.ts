@@ -43,10 +43,15 @@ describe('registro de módulos (R1.4)', () => {
 
   it('versiona y enlaza el contrato de superficie passwordless desde customers', () => {
     const customers = MODULE_REGISTRY.descriptors.find((descriptor) => descriptor.id === 'customers');
-    expect(customers).toMatchObject({ version: '1.5.1' });
+    expect(customers).toMatchObject({ version: '1.6.0' });
     expect(customers?.wikiLinks).toContain(
       'docs/plataforma/adr/0043-superficie-passwordless-email-segura.md',
     );
+    expect(customers?.routes).toEqual([
+      { match: 'exact', path: '/cuenta/acceso', capabilityId: 'CUS-003' },
+      { match: 'exact', path: '/cuenta/acceso/confirmar', capabilityId: 'CUS-003' },
+      { match: 'exact', path: '/cuenta/sesiones', capabilityId: 'CUS-003' },
+    ]);
   });
 
   it('asigna cada healthcheck R1.10 a un único módulo propietario', () => {
@@ -125,6 +130,9 @@ describe('registro de módulos (R1.4)', () => {
       expect.objectContaining({ path: '/api/admin/bundles', capabilityId: 'PRC-012' }),
       expect.objectContaining({ path: '/api/admin/subscriptions', capabilityId: 'PRC-013' }),
       expect.objectContaining({ path: '/api/admin/preorders', capabilityId: 'PRC-014' }),
+      expect.objectContaining({ path: '/cuenta/acceso', capabilityId: 'CUS-003' }),
+      expect.objectContaining({ path: '/cuenta/acceso/confirmar', capabilityId: 'CUS-003' }),
+      expect.objectContaining({ path: '/cuenta/sesiones', capabilityId: 'CUS-003' }),
     ]));
   });
 

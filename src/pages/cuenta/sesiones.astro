@@ -1,0 +1,76 @@
+---
+import CustomerAccount from '../../layouts/CustomerAccount.astro';
+import {
+  CUSTOMER_ACCOUNT_ROUTES,
+  customerAccountHttpFromLocals,
+  type CurrentCustomerSessionView,
+} from '../../modules/customers/presentation/customer-account-http';
+
+export const prerender = false;
+
+const accountHttp = customerAccountHttpFromLocals(Astro.locals);
+const method = Astro.request.method.toUpperCase();
+
+if (method === 'POST') {
+  if (accountHttp === null) {
+    return new Response('Acceso no disponible.', { status: 503 });
+  }
+  return accountHttp.logout(Astro.request);
+}
+if (method !== 'GET' && method !== 'HEAD') {
+  return new Response('Método no permitido.', {
+    status: 405,
+    headers: { allow: 'GET, HEAD, POST' },
+  });
+}
+if (accountHttp === null) {
+  return new Response('Acceso no disponible.', { status: 503 });
+}
+
+const result = await accountHttp.currentSession(Astro.request);
+if (result instanceof Response) return result;
+const view: CurrentCustomerSessionView = result;
+
+function formatInstant(value: string): string {
+  const date = new Date(value);
+  return Number.isFinite(date.getTime())
+    ? new Intl.DateTimeFormat('es-ES', { dateStyle: 'medium', timeStyle: 'short' }).format(date)
+    : 'No disponible';
+}
+---
+
+<CustomerAccount
+  title="Tu sesión"
+  description="Consulta y cierra la sesión actual de tu cuenta de cliente."
+>
+  <section class="rounded-2xl border border-border bg-background p-6 shadow-sm sm:p-8" aria-labelledby="sessions-title">
+    <p class="text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">Cuenta de cliente</p>
+    <h1 id="sessions-title" class="mt-2 font-display text-3xl leading-tight">Sesión actual</h1>
+    <p class="mt-3 text-sm leading-6 text-muted-foreground">
+      Has iniciado sesión en este navegador. Desde aquí solo puedes revisar y cerrar esta sesión.
+    </p>
+
+    <dl class="mt-6 divide-y divide-border rounded-xl border border-border bg-muted/45 px-4">
+      <div class="flex flex-col gap-1 py-4 sm:flex-row sm:items-center sm:justify-between">
+        <dt class="text-sm font-medium text-muted-foreground">Inicio</dt>
+        <dd class="text-sm font-semibold">{formatInstant(view.session.issuedAt)}</dd>
+      </div>
+      <div class="flex flex-col gap-1 py-4 sm:flex-row sm:items-center sm:justify-between">
+        <dt class="text-sm font-medium text-muted-foreground">Caducidad por inactividad</dt>
+        <dd class="text-sm font-semibold">{formatInstant(view.session.expiresAt)}</dd>
+      </div>
+      <div class="flex flex-col gap-1 py-4 sm:flex-row sm:items-center sm:justify-between">
+        <dt class="text-sm font-medium text-muted-foreground">Cierre máximo</dt>
+        <dd class="text-sm font-semibold">{formatInstant(view.session.absoluteExpiresAt)}</dd>
+      </div>
+    </dl>
+
+    <form method="post" action={CUSTOMER_ACCOUNT_ROUTES.sessions} class="mt-6">
+      <input type="hidden" name="csrfToken" value={view.csrfToken} />
+      <button
+        type="submit"
+        class="min-h-12 w-full rounded-xl border border-border bg-background px-5 font-semibold text-foreground shadow-sm hover:bg-muted"
+      >Cerrar esta sesión</button>
+    </form>
+  </section>
+</CustomerAccount>

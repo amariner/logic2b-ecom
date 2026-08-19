@@ -50,6 +50,7 @@ export {
   ADMIN_NAVIGATION_ITEMS,
   adminHomeHrefFor,
   adminNavigationFor,
+  canonicalRoutePathname,
   decideCapabilityAccess,
   decideRouteAccess,
   routeCapability,

@@ -10,10 +10,12 @@ CSP, rate limit por capas y recuperación sin bypass. También corrige el puerto
 endurece dominio/repositorio/replay y restore, y añade el contrato tipado y
 fail-closed de manifest para `CUS-003`.
 
-`CUS-003` permanece `installed` e inerte: R5.4c no añade DDL, valores de env,
-proveedor operativo, email/WebAuthn, cookie real, endpoint, UI, navegación ni
-permiso para leer pedidos, direcciones o derechos de datos. La demo pública no
-cambia y producción continúa sin esta capacidad.
+R5.4d implementa localmente Resend directo, cookie/CSRF, HTTP/UI, throttle y
+auditoría durables, revocación defensiva, confirmación de entrega y gate de
+activación. `CUS-003` permanece `installed` e inerte en la demo: no se aplican
+`0033`–`0040` a D1 remota, no se configuran secretos reales ni se concede
+permiso para leer pedidos, direcciones o derechos de datos. Producción puede
+servir el código desactivado sin adquirir rutas ni efectos.
 
 El manifest rechaza campos extra y solo acepta `email_magic_link`, proveedor
 `resend`, origin HTTPS exacto, challenge de 600 segundos, idle ≤7 días, corte
@@ -28,7 +30,8 @@ estar operativo como `active`, con `routes=true`, `sideEffects=true` y
 `delivery=send` y `sideEffects=true`, nunca `capture` ni un transporte inerte.
 Ningún preset activa aún la capacidad.
 
-Las cuatro tablas separan identidad autenticable, familia, sesión y challenge.
+Las cuatro tablas de `0039` separan identidad autenticable, familia, sesión y
+challenge.
 D1 solo conserva HMAC/digests SHA-256 y referencias opacas; no guarda email,
 proof/token crudo, IP, user-agent, passkey, URL de acceso ni clave privada. Los
 scopes del modelo son explícitos: `customer:self` es inherente a toda sesión y
@@ -36,9 +39,10 @@ scopes del modelo son explícitos: `customer:self` es inherente a toda sesión y
 R5.4c solo permite emitir sign-in con el primero. Conceder el segundo exige el
 step-up/transición atómica diferidos.
 
-Producción continúa en `0032`. `0033`–`0039` requieren un rollout remoto
+Producción continúa en `0032`. `0033`–`0040` requieren un rollout remoto
 autorizado y ordenado. La D1 local sirve `0039` con cero identidades,
-challenges, familias y sesiones inventadas.
+challenges, familias y sesiones inventadas; el rehearsal aplica `0040` sobre
+una copia aislada, nunca sobre la demo.
 
 ## Preflight y rehearsal
 
@@ -58,12 +62,40 @@ challenges, familias y sesiones inventadas.
    inventario, pedidos, pagos, perfiles, consentimientos y derechos de datos.
 6. Comprobar las cuatro tablas nuevas vacías, triggers/índices presentes y
    `foreign_key_check`/`integrity_check` limpios.
+7. Exportar esa base ya en `0039` y ensayar el hardening expand-only:
+
+   ```bash
+   pnpm db:rehearse:passwordless-security -- \
+     --baseline /ruta/baseline-0039.sql \
+     --output-dir /ruta/aislada-0040
+   ```
+
+8. Exigir hash de negocio idéntico, cinco tablas y doce triggers de `0040`,
+   cero filas inventadas, cero pending duplicados, restore limpio y estado de
+   capacidad ausente (`installed/v0`).
 
 El rehearsal local del 2026-08-18 conservó 294 productos, 296 variantes y
 balances, 8 pedidos, 13 líneas y 8 pagos, con hash
 `72ba73e985b69b4430a7e10e08a28859661bcd8eb406530945846c213082dffe`.
 El dump restaurable final ocupa 658.708 bytes; no inventó perfiles,
 consentimientos, solicitudes de derechos ni credenciales.
+
+El rehearsal de `0040` del 2026-08-19 conservó el hash de negocio
+`d28852…`, produjo un dump restaurable de 256.900 bytes y verificó las cinco
+tablas, doce triggers, FKs e integridad sin activar `CUS-003`.
+
+## Evidencia local de superficie
+
+```bash
+pnpm audit:customer-account
+```
+
+El arnés no lee credenciales reales ni modifica manifests. Arranca de forma
+secuencial tres entornos efímeros: demo real (`404` en las seis variantes con/
+sin barra), manifest cliente con runtime real y secretos ausentes (`503`
+fail-closed), y superficie visual activa con seams inertes. En el último prueba
+HTTP, cabeceras, ausencia de cookies en GET, limpieza del fragmento y a11y a
+1440/375. No demuestra entrega Resend real ni autoriza el rollout.
 
 ## Escritura y concurrencia
 
@@ -86,23 +118,30 @@ consentimientos, solicitudes de derechos ni credenciales.
   scope `customer:self`.
 - Un replay de revocación solo se acepta si coinciden clave, motivo, instante y
   versión esperada; una coincidencia parcial falla en cerrado.
-- R5.4c deniega un contexto cuyo perfil resulte fusionado, revocado o
-  incoherente, pero aún no revoca durablemente esa familia. Tampoco sustituye
-  atómicamente challenges pendientes ni ofrece revoke-all por identidad/perfil;
-  esas operaciones son gates de persistencia de R5.4d.
+- R5.4d revoca durablemente una familia cuyo perfil resulte fusionado, revocado
+  o incoherente, sustituye atómicamente challenges pending y ofrece revoke-all
+  por identidad/perfil con ledger y auditoría. Un replay exacto conserva sus
+  contadores; reutilizar la clave con otro payload falla en cerrado.
+- La aceptación de Resend se confirma en un ledger inmutable. El trigger y el
+  batch de consumo exigen esa fila; una respuesta externa ambigua nunca basta
+  para emitir sesión.
+- El estado `installed ↔ active` de `CUS-003` usa CAS y auditoría system. La
+  ausencia es `installed/v0`; desactivar exige cero familias activas.
 
-## Contrato de entrega R5.4c
+## Entrega implementada en R5.4d
 
 El primer método es exclusivamente `email_magic_link`. WebAuthn no comparte un
 fallback implícito: queda diferido hasta disponer de ADR, RP ID/origins y
 persistencia de credenciales/contadores propios.
 
-El adaptador Resend de R5.4d no reutilizará `emails_outbox`, porque el cuerpo
-persistido y respaldado revelaría el proof. La aplicación preparará en memoria
-un proof de 256 bits y su digest, persistirá primero un challenge con TTL de 10
-minutos y referencia determinista, y solo entonces entregará el enlace mediante
-`fetch` directo con una clave de idempotencia derivada del challenge. Un fallo
-de entrega revoca el challenge y nunca modifica el acknowledgement `202`.
+El adaptador Resend no reutiliza `emails_outbox`, porque el cuerpo persistido y
+respaldado revelaría el proof. La aplicación prepara en memoria un proof de 256
+bits y su digest, persiste primero un challenge con TTL de 10 minutos y
+referencia determinista, y solo entonces entrega el enlace mediante `fetch`
+directo con una clave de idempotencia derivada del challenge. Tras la aceptación
+externa confirma D1; sin esa confirmación el challenge no es consumible aunque
+también falle la revocación defensiva. Un fallo nunca modifica el acknowledgement
+`202`.
 El dominio emisor debe acreditar `click_tracking=false` y
 `open_tracking=false` en preflight; el click tracking reescribe cada enlace a
 un redirect del proveedor y es incompatible con el bearer secret.
@@ -144,9 +183,9 @@ errores, y un GET de scanner nunca crea el vínculo de navegador.
 El `Max-Age` de cookie de sesión es el menor entre siete días, idle/
 `expires_at` restante y corte absoluto restante. Una lectura no prolonga
 sesión. Sign-in crea token y `session_id` nuevos con scope exacto
-`customer:self`; rotar o elevar mediante step-up, revocar todas las sesiones y
-definir qué familia sustituye un nuevo magic link quedan diferidos hasta un
-comando atómico propio. Toda mutación valida origin exacto, incluso con JSON, y
+`customer:self`; rotar o elevar mediante step-up, exponer revoke-all como
+autoservicio y definir qué familia sustituye un nuevo magic link quedan
+diferidos hasta un comando de sesión propio. Toda mutación valida origin exacto, incluso con JSON, y
 el flujo de intento y las mutaciones autenticadas exigen un CSRF HMAC ligado a
 intento/challenge o a sesión/generación, respectivamente.
 
@@ -158,25 +197,25 @@ imágenes/conexiones solo propios, `form-action 'self'`, `frame-ancestors 'none'
 
 ## Rate limit y observabilidad
 
-R5.4d debe componer tres capas antes de abrir la ruta:
+R5.4d compone tres capas antes de abrir la ruta:
 
 1. regla de borde para autenticación;
 2. binding Worker con 10 inicios/minuto por IP y 10 verificaciones/minuto por IP;
 3. contador durable por HMAC de contacto: 3/15 minutos y 10/24 horas, más cinco
    verificaciones fallidas por challenge.
 
-La capa durable aún no existe: DDL, retención máxima de 24 horas, exclusión del
-backup y rehearsal pertenecen a R5.4d y conservan su puerta de migración. El
-limitador actual por isolate es solo fallback local. Un límite global por IP
-puede responder `429`; el límite por contacto cuenta presencia y ausencia por
-igual, suprime entrega y devuelve el mismo `202`. No se guardan IP/email crudos,
-no hay sleeps y las métricas solo contienen etapa/resultado agregados.
+`0040` materializa la capa durable, la excluye del backup y purga eventos
+vencidos oportunistamente en el flujo real. El limitador por isolate es solo
+fallback local. Un límite global por IP puede responder `429`; el límite por
+contacto cuenta presencia y ausencia por igual, suprime entrega y devuelve el
+mismo `202`. No se guardan IP/email crudos, no hay sleeps y las métricas solo
+contienen etapa/resultado agregados.
 
-Antes de activar, las transiciones exitosas de sesión emitida, rotada o
-revocada, logout, familia revocada y cambio de capacidad deben escribir un hecho
-de seguridad durable en la misma transición D1. Actor y entidad son referencias
-opacas, nunca email, HMAC, proof, token o challenge. Fallos públicos, proveedor
-y rate limits producen solo métricas agregadas para no crear PII ni una outbox
+Las transiciones exitosas de sesión emitida, rotada o revocada, logout, familia
+revocada/revoke-all y cambio de capacidad escriben un hecho de seguridad
+durable en la misma transición D1. Actor y entidad son referencias opacas,
+nunca email, HMAC, proof, token o challenge. Fallos públicos, proveedor y rate
+limits producen solo métricas agregadas para no crear PII ni una outbox
 controlable por un atacante.
 
 ## Recuperación, rotación e incidentes
@@ -188,28 +227,30 @@ controlable por un atacante.
   permanece disponible.
 - Una caída de Resend revoca el challenge fallido y genera alerta agregada; la
   persona puede iniciar otro intento.
-- Ante compromiso se bloquea emisión y nunca se reactiva un token. Antes de
-  poder prometer revocación total, R5.4d debe añadir una operación transaccional
-  e idempotente `revokeAllSessionFamilies` por identidad/perfil, con auditoría y
-  pruebas de carreras/rotaciones. Después se rotan secreto CSRF y credencial de
-  entrega si aplica.
+- Ante compromiso se bloquea emisión y nunca se reactiva un token. Se ejecuta
+  `revokeAllSessionFamilies` por identidad/perfil, transaccional, idempotente y
+  auditado; después se rotan secreto CSRF y credencial de entrega si aplica.
 - `0039` hace inmutable y no versiona el HMAC de identidad. Rotarlo requiere
-  migración y rehash controlado; R5.4c no promete rotación en caliente.
+  migración y rehash controlado; R5.4d no promete rotación en caliente.
 
-## Activación pendiente — R5.4d
+## Activación por cliente pendiente
 
-Endurecer núcleo y manifest no autoriza a exponer autenticación. R5.4d debe
-ampliar el puerto con sustitución atómica de pending challenges, revocación de
-familia incoherente y revoke-all; implementar Resend directo con tracking
-deshabilitado y el transporte POST inicial/cookie previa → fragmento → JS
-externo → `consume`; materializar env, cookies, origin, CSRF/CSP, auditoría y
-rate limit; ensayar cualquier migración; y cubrir replay, carreras, respuestas
-uniformes, mismo navegador, E2E y a11y. Step-up, elevación y acceso R5.5 siguen
-diferidos.
+La implementación local no autoriza a exponer autenticación. Un rollout debe:
 
-Hasta entonces no se registra ninguna ruta o navegación y `CUS-003` no pasa a
-`active`. R5.5 tampoco concede acceso por el mero hecho de existir una sesión:
-cada recurso exigirá ownership y scopes propios.
+1. respaldar y ensayar `0033`–`0040` sobre una copia exacta del D1 objetivo;
+2. aplicar las migraciones expand-only en orden y verificar integridad;
+3. configurar secretos distintos, binding por IP y sus atestaciones sin
+   imprimir valores;
+4. acreditar en la API de Resend que click/open tracking siguen deshabilitados;
+5. transicionar `CUS-003 installed/v0 → active/v1` mediante el comando durable
+   auditado y comprobar readiness antes de componer el proveedor;
+6. ejecutar smoke aislado de entrega real, mismo navegador, consumo, sesión y
+   logout; solo después abrir DNS/tráfico del cliente.
+
+La demo no realiza ninguno de esos pasos: su manifest sigue `installed`, no
+registra navegación y las rutas se cortan en 404 antes de DB/env. Step-up,
+elevación y acceso R5.5 siguen diferidos; cada recurso exigirá ownership y
+scopes propios.
 
 ## Backup, reconciliación y rollback
 
@@ -218,14 +259,17 @@ en su estado inicial activo. Después reproduce en orden las transiciones finale
 de sesión y familia antes de insertar challenges. Así respeta los triggers y,
 con `PRAGMA defer_foreign_keys`, conserva las referencias entre sesión anterior/
 siguiente y challenge consumido. Restaurar exige una base con `0039` aplicada.
+Si el origen ya usa `0040`, se aplica también esa migración al destino antes del
+restore. Throttle, operaciones revoke-all, confirmaciones de entrega y ledgers/
+estado de capacidad se excluyen: el destino termina `installed/v0` y requiere
+una transición nueva, nunca hereda una activación.
 
 La reconciliación comprueba FKs, una generación por familia, un digest por
 token/challenge, TTL, sesión activa única, enlace de rotación bidireccional y
 challenges consumidos por una sesión de la misma identidad. Los informes son
 agregados y nunca imprimen hashes, ids de sujeto o claves de idempotencia.
 
-El rollback seguro es de comportamiento: mantener `CUS-003` sin flags y
-bloquear emisión. Si alguna vez se activa, la operación auditada de revocación
-total exigida a R5.4d debe ejecutarse antes de volver a `installed`. No contraer
-tablas ni reactivar tokens antiguos; retirar datos o rotar el HMAC de identidad
-exige política, migración y rehearsal propios.
+El rollback seguro es de comportamiento: bloquear emisión, ejecutar revoke-all,
+verificar cero familias activas y transicionar de forma auditada a `installed`.
+No contraer tablas ni reactivar tokens antiguos; retirar datos o rotar el HMAC
+de identidad exige política, migración y rehearsal propios.

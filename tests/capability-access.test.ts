@@ -49,6 +49,17 @@ describe('capability access policy (R1.3)', () => {
     expect(decideRouteAccess(closed, '/demo/admin/productos')).toMatchObject({ allowed: false, status: 403 });
   });
 
+  it('normaliza prefijos por segmento sin capturar rutas hermanas', () => {
+    const advanced = platformFor('advanced');
+    expect(decideRouteAccess(advanced, '/demo/admin/productos/')).toMatchObject({
+      allowed: true, capabilityId: 'CAT-001',
+    });
+    expect(decideRouteAccess(advanced, '/api/admin/inventory-locations/')).toMatchObject({
+      allowed: true, capabilityId: 'INV-005',
+    });
+    expect(decideRouteAccess(advanced, '/api/admin/inventory-locations-evil')).toBeNull();
+  });
+
   it('protege los campos avanzados del PATCH compartido con CAT-003', () => {
     expect(productPatchSource).toContain("runtimePlatform.isCapabilityActive('CAT-003')");
     expect(productPatchSource).toContain("error: 'Recurso no disponible.'");
@@ -105,6 +116,21 @@ describe('capability access policy (R1.3)', () => {
 
   it('preserves every public demo panel surface while disabling commercial effects', () => {
     const demo = createPlatform(platformManifest);
+    for (const pathname of [
+      '/cuenta/acceso',
+      '/cuenta/acceso/',
+      '/cuenta/acceso/confirmar',
+      '/cuenta/acceso/confirmar/',
+      '/cuenta/sesiones',
+      '/cuenta/sesiones/',
+    ]) {
+      expect(decideRouteAccess(demo, pathname)).toMatchObject({
+        allowed: false,
+        status: 404,
+        capabilityId: 'CUS-003',
+        state: 'installed',
+      });
+    }
     expect(adminNavigationFor(demo).map((item) => item.id)).toEqual(['pedidos', 'documentos', 'productos', 'ubicaciones', 'transferencias', 'conteos', 'asignacion', 'envios', 'devoluciones', 'emails']);
     for (const pathname of [
       '/demo/admin',

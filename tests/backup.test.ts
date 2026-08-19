@@ -328,7 +328,17 @@ describe('volcado de copia de seguridad', () => {
           'email_magic_link', 'sign_in', 'provider_challenge:backup:final',
           '${'6'.repeat(64)}', 'consumed', '2026-08-08T16:21:00.000Z',
           '2026-08-08T16:31:00.000Z', '2026-08-08T16:22:00.000Z',
-          'customer_session:backup:3', 'auth:challenge:backup:final', 2);
+          'customer_session:backup:3', 'auth:challenge:backup:final', 2),
+        ('auth_challenge:backup:pending-before-terminal', 'auth_identity:backup:1',
+          'email_magic_link', 'sign_in',
+          'provider_challenge:backup:pending-before-terminal', '${'7'.repeat(64)}',
+          'pending', '2026-08-08T16:24:00.000Z', '2026-08-08T16:34:00.000Z',
+          NULL, NULL, NULL, 1),
+        ('auth_challenge:backup:terminal-after-pending', 'auth_identity:backup:1',
+          'email_magic_link', 'sign_in',
+          'provider_challenge:backup:terminal-after-pending', '${'8'.repeat(64)}',
+          'revoked', '2026-08-08T16:25:00.000Z', '2026-08-08T16:35:00.000Z',
+          NULL, NULL, 'auth:challenge:backup:terminal', 2);
       UPDATE orders SET customer_profile_id='cus_backup'
       WHERE id=(SELECT id FROM orders ORDER BY id LIMIT 1);
     `);
@@ -467,6 +477,20 @@ describe('volcado de copia de seguridad', () => {
       {
         identity_id: 'auth_identity:backup:1', challenge_id: 'auth_challenge:backup:final',
         session_status: 'revoked', challenge_status: 'consumed',
+      },
+    ]);
+    expect(restored.query(`SELECT id, status, version
+      FROM customer_passwordless_challenges
+      WHERE id IN ('auth_challenge:backup:pending-before-terminal',
+        'auth_challenge:backup:terminal-after-pending')
+      ORDER BY requested_at`)).toEqual([
+      {
+        id: 'auth_challenge:backup:pending-before-terminal',
+        status: 'pending', version: 1,
+      },
+      {
+        id: 'auth_challenge:backup:terminal-after-pending',
+        status: 'revoked', version: 2,
       },
     ]);
     expect(restored.query(`SELECT id, status, generation, rotated_from_session_id,

@@ -1,8 +1,8 @@
 # ADR-0043 — Superficie passwordless por email con frontera segura
 
-- Estado: aceptado; hardening interno integrado, proveedor/HTTP pendientes
+- Estado: aceptado; R5.4d implementado localmente, rollout aislado pendiente
 - Fecha: 2026-08-19
-- Bloque: R5.4c
+- Bloque: R5.4c–d
 - Capacidad: `CUS-003`
 - Continúa: ADR-0042
 
@@ -20,7 +20,8 @@ forma parte del backup, por lo que persistiría el proof que ADR-0042 prohíbe.
 Además, el puerto genérico instalado no recibía el proof ni la URL y devolvía la
 referencia del proveedor demasiado tarde para persistir el challenge antes de
 enviar. R5.4c corrige esa frontera, endurece núcleo, repositorio, backup y
-manifest; R5.4d implementará proveedor y superficie HTTP.
+manifest. R5.4d implementa el proveedor, la superficie HTTP y sus gates
+durables sin activar la demo pública.
 
 ## Decisión
 
@@ -38,14 +39,16 @@ manifest; R5.4d implementará proveedor y superficie HTTP.
      `resend_magic:<challengeId>` únicamente en memoria;
    - `persist` permanece en el repositorio y crea o resuelve la identidad y
      guarda el challenge antes de cualquier llamada externa;
-   - `deliver` recibe el proof solo después de persistir. El adaptador pendiente
-     enviará directamente a Resend fuera del camino de respuesta y usará
-     `customer-auth/<challengeId>` como `Idempotency-Key`.
+   - `deliver` recibe el proof solo después de persistir. El adaptador R5.4d
+     envía directamente a Resend fuera del camino de respuesta, usa
+     `customer-auth/<challengeId>` como `Idempotency-Key` y revalida el tracking
+     del dominio antes de cada envío.
 4. `emails_outbox`, event outbox, audit log, métricas y backups nunca reciben la
-   URL ni el proof. Si la entrega falla, el challenge se revoca. Antes de abrir
-   la superficie, R5.4d debe añadir un comando atómico que cree el nuevo
-   challenge y revoque los pendientes anteriores de la misma identidad; el
-   puerto instalado todavía no puede prometer esa sustitución bajo carrera.
+   URL ni el proof. `0040` sustituye atómicamente los pending anteriores al
+   insertar uno nuevo y conserva una confirmación de aceptación sin PII ni
+   bearer material. D1 impide consumir mientras esa confirmación no exista. Si
+   Resend falla o confirmar su aceptación no es durable, el challenge queda
+   inutilizable aunque falle también la revocación defensiva.
 5. El inicio público devuelve siempre el mismo `202`, cuerpo, cabeceras y forma,
    exista o no perfil, esté limitado el contacto o acepte o no Resend. La llamada
    de red no se espera para construir la respuesta.
@@ -57,18 +60,18 @@ manifest; R5.4d implementará proveedor y superficie HTTP.
   o consentir nunca crea credenciales por sí solo.
 - Cada decisión de sesión vuelve a comprobar identidad y perfil activos. Un
   perfil fusionado, revocado o incoherente invalida la autorización y nunca
-  reasigna la sesión al perfil destino. R5.4c garantiza la denegación; la
-  revocación durable de la familia detectada requiere una operación atómica
-  adicional y es un gate explícito de R5.4d.
+  reasigna la sesión al perfil destino. R5.4c garantiza la denegación y R5.4d
+  añade la revocación durable e idempotente de la familia detectada.
 - El núcleo solo emite una sesión desde un challenge consumido con propósito
   `sign_in`. El repositorio exige sesión, familia, identidad y perfil activos,
   con ids, corte absoluto y HMAC de contacto coherentes; un replay de revocación
   solo coincide si también coinciden motivo, instante y versión esperada.
 - Guest checkout continúa disponible con `CUS-003` activo o inactivo. La sesión
   inicial concede exactamente `customer:self`; `customer:sessions:revoke`,
-  step-up, revoke-all y cualquier elevación quedan diferidos hasta diseñar una
-  transición atómica propia. R5.5 sigue siendo propietario del acceso a
-  pedidos, direcciones y devoluciones.
+  step-up y cualquier elevación quedan diferidos hasta diseñar una transición
+  atómica propia. R5.4d incorpora revoke-all interno para respuesta a incidentes,
+  pero no lo expone como autoservicio. R5.5 sigue siendo propietario del acceso
+  a pedidos, direcciones y devoluciones.
 
 ### Origen, rutas y continuación
 
@@ -78,7 +81,7 @@ manifest; R5.4d implementará proveedor y superficie HTTP.
 - No existen comodines. Alias de host redirigen al canónico antes de entrar en
   autenticación. Desarrollo y tests inyectan origins locales exactos; no hay
   fallback de producción a `localhost`.
-- La superficie prevista para R5.4d es `/cuenta/acceso`,
+- La superficie implementada por R5.4d es `/cuenta/acceso`,
   `/cuenta/acceso/confirmar` y `/cuenta/sesiones`. Cualquier continuación se
   elige de una allowlist de rutas relativas; por defecto termina en
   `/cuenta/sesiones` y nunca acepta una URL aportada por el proveedor.
@@ -132,7 +135,7 @@ manifest; R5.4d implementará proveedor y superficie HTTP.
 - Resend puede rotarse sustituyendo su credencial. Rotar el secreto CSRF exige
   revocar las sesiones vigentes. `0039` no versiona y hace inmutable el HMAC de
   identidad: su rotación necesita una migración y rehash controlado, por lo que
-  no se promete rotación en caliente en R5.4c.
+  no se promete rotación en caliente en R5.4d.
 
 ### Cookie, sesión y CSRF
 
@@ -188,17 +191,18 @@ La defensa es por capas y usa señales que no se devuelven ni registran:
 
 El límite por IP puede devolver `429` con `Retry-After`. El límite por contacto
 cuenta emails existentes y ausentes de la misma forma y conserva el `202`
-uniforme. La capa durable, su retención máxima de 24 horas, exclusión del backup
-y DDL exacto pertenecen a R5.4d y mantienen una puerta de migración. El
-limitador actual por isolate queda solo como fallback local; no demuestra este
-contrato. No se persisten IP/email crudos ni se usan sleeps artificiales.
+uniforme. `0040` implementa la capa durable, purga oportunistamente al vencer su
+retención máxima de 24 horas y la excluye del backup. El binding por IP sigue
+siendo un gate de cada despliegue activo; el limitador por isolate queda solo
+como fallback local. No se persisten IP/email crudos ni se usan sleeps
+artificiales.
 
 La observabilidad de intentos fallidos, proveedor y rate limit solo admite
 contadores agregados por etapa y resultado. No emite URL, email, HMAC, IP,
 proof, challenge, sesión ni errores libres del proveedor. Antes de activar,
-R5.4d debe añadir hechos de seguridad durables y atómicos con la transición D1
-para sesión emitida, rotada o revocada, logout, familia revocada y cambio de
-capacidad. Actor y entidad serán referencias opacas; nunca email, HMAC, proof,
+R5.4d añade hechos de seguridad durables y atómicos con la transición D1 para
+sesión emitida, rotada o revocada, logout, familia revocada/revoke-all y cambio
+de capacidad. Actor y entidad son referencias opacas; nunca email, HMAC, proof,
 token o challenge. Los fallos públicos no se convierten en filas de auditoría
 por intento.
 
@@ -213,11 +217,10 @@ por intento.
 - Ante caída de Resend se conserva la respuesta pública, se revoca el challenge
   fallido y se alerta solo de forma agregada.
 - Ante sospecha de compromiso se bloquea emisión y no se reactiva ningún token.
-  La revocación total requiere en R5.4d una operación transaccional e idempotente
-  `revokeAllSessionFamilies` por identidad/perfil, con auditoría y pruebas de
-  carrera; el repositorio actual solo revoca una familia conocida. Después se
-  rota CSRF/credencial de entrega si aplica. Comprometer el HMAC de identidad
-  obliga al procedimiento de migración, no a cambiarlo a ciegas.
+  R5.4d aporta `revokeAllSessionFamilies` transaccional e idempotente por
+  identidad/perfil, con ledger, auditoría y pruebas de carrera. Después se rota
+  CSRF/credencial de entrega si aplica. Comprometer el HMAC de identidad obliga
+  al procedimiento de migración, no a cambiarlo a ciegas.
 
 ## Frontera de R5.4c
 
@@ -227,46 +230,66 @@ resuelve contexto activo y coherente; valida replay estricto; restaura sesiones
 reproduciendo transiciones compatibles con los triggers; y añade el contrato
 tipado/fail-closed de manifest para `CUS-003`.
 
-Ese contexto coherente deniega perfiles inválidos y aplica tiempo en cada
-lectura, pero no revoca todavía de forma durable la familia que descubre
-incoherente. Tampoco sustituye pending challenges, rota/eleva una sesión ni
-revoca todas las familias: son ampliaciones explícitas del puerto de R5.4d, no
-garantías atribuidas a este corte.
+En el corte R5.4c ese contexto coherente denegaba perfiles inválidos y aplicaba
+tiempo en cada lectura, pero todavía no revocaba de forma durable la familia ni
+sustituía pending challenges o revocaba todas las familias. Esas garantías se
+materializan en R5.4d; rotar/elevar una sesión continúa fuera del contrato.
 
 No añade DDL, valores de env, rutas, cookies reales, emails, adaptador Resend,
 UI, navegación, Worker ni cambios de producción. `CUS-003` permanece
 `installed` y `parcial`; la demo pública no adquiere una cuenta ni una
 integración externa.
 
-## Criterio de cierre de R5.4d
+## Implementación local R5.4d
 
-R5.4d implementará este contrato únicamente cuando:
+R5.4d añade la migración expand-only `0040`, el adaptador Resend, composición,
+HTTP/UI y pruebas. La migración incorpora throttle durable, sustitución de
+pending, auditoría de sesión, revocación defensiva/revoke-all y dos gates
+adicionales:
 
-1. la orquestación persista antes de invocar un adaptador Resend idempotente,
+- la aceptación de entrega queda en un ledger inmutable sin proof, URL ni PII;
+  un trigger y el consumo atómico rechazan todo challenge no confirmado;
+- el estado de `CUS-003` usa CAS, ledger y auditoría system. La ausencia es
+  `installed/v0`, `active` exige una cadena íntegra y volver a `installed`
+  requiere cero familias activas.
+
+Los ledgers operacionales de `0040` no entran en backup. El restore conserva el
+estado de negocio y vuelve deliberadamente a `installed/v0`, por lo que nunca
+reactiva una capacidad por accidente. La demo tampoco activa flags: las rutas
+canónicas y con barra final quedan en 404 antes de leer env, D1 o proveedor.
+
+## Estado del criterio de cierre de R5.4d
+
+El corte local satisface:
+
+1. la orquestación persiste antes de invocar un adaptador Resend idempotente,
    sin outboxes persistentes y con click/open tracking deshabilitados y
    atestados en preflight;
-2. el puerto/repositorio añadan sustitución atómica de pending challenges,
+2. el puerto/repositorio añaden sustitución atómica de pending challenges,
    revocación durable de la familia incoherente y revoke-all por identidad/
-   perfil; cualquier DDL para ello, versionado de identidad o rate limit durable
-   se apruebe, ensaye y restaure antes de aplicarse;
-3. el runtime respete el manifest tipado, resuelva origin/secret refs y registre
+   perfil; `0040` se ensaya y restaura localmente antes de cualquier aplicación
+   remota, mientras el versionado de identidad conserva su gate posterior;
+3. el runtime respeta el manifest tipado, resuelve origin/secret refs y registra
    rutas y políticas únicamente bajo una configuración activa válida;
-4. el POST inicial emita cookie real/dummy indistinguible y el GET nunca la
-   cree; `consume` exija la cookie previa del mismo navegador, origin y CSRF;
-5. hechos de sesión/capacidad se auditen de forma durable y atómica, mientras
-   fallos y límites solo produzcan métricas agregadas;
-6. tests cubran presencia/ausencia, proveedor y tracking aceptados/rechazados,
+4. el POST inicial emite cookie real/dummy indistinguible y el GET nunca la
+   crea; `consume` exige la cookie previa del mismo navegador, origin y CSRF;
+5. hechos de sesión/capacidad se auditan de forma durable y atómica, mientras
+   fallos y límites solo producen métricas agregadas;
+6. tests cubren presencia/ausencia, proveedor y tracking aceptados/rechazados,
    replay, sustitución y consumo concurrentes, fragmento limpiado, cookie previa
    del mismo navegador, perfil incoherente, revocación, origin/CSRF, TTL de
    cookies, CSP y límites;
-7. E2E y a11y verifiquen la superficie local de cliente y la ausencia total de
+7. E2E y a11y verifican la superficie local de cliente y la ausencia total de
    rutas/efectos en la demo;
-8. no se declare `CUS-003` operativa ni se despliegue hasta probar entrega real
-   en un despliegue aislado autorizado.
+8. `CUS-003` no se declara operativa: la entrega real, secretos, binding,
+   aplicación remota de `0040` y transición durable exigen un despliegue
+   aislado autorizado. El Worker puede incorporar el código inerte mientras el
+   manifest público permanezca `installed`; eso no abre rutas ni efectos.
 
 ## Rollback
 
-Mientras R5.4d no exista, rollback significa conservar `CUS-003` sin flags. Una
-vez activa, se bloquea emisión, se ejecuta la operación auditada de revocación
-total exigida por R5.4d y se vuelve a `installed`; se conservan evidencias
-mínimas y nunca se reactivan tokens ni se contrae D1.
+Mientras no haya rollout, rollback significa conservar `CUS-003` sin flags y
+no aplicar `0040` remotamente. Una vez activa, se bloquea emisión, se ejecuta
+`revokeAllSessionFamilies`, se verifica cero familias activas y se transiciona
+de forma auditada a `installed`; se conservan evidencias mínimas y nunca se
+reactivan tokens ni se contrae D1.
