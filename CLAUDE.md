@@ -60,7 +60,10 @@ Estos principios mandan sobre cualquier decisión técnica. Si algo entra en con
   proveedores. `DEMO_MODE=true` y el manifest de demo deben cortar esos efectos
   en servidor, aunque exista un botón o formulario demostrativo. La lógica
   productiva queda probada y documentada para despliegues aislados de cliente;
-  la muestra pública usa fixtures, captura local o simulación reversible.
+  la muestra pública usa fixtures, captura local o simulación reversible. Toda
+  capacidad con valor visible para un decisor debe terminar con una evidencia
+  visual inerte o quedar marcada como `demo visual pendiente`; el cierre técnico
+  por sí solo no autoriza comunicarla como demostrable.
 
 ---
 

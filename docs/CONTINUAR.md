@@ -70,6 +70,9 @@
    [`CAPACIDADES_CLIENTE.md`](CAPACIDADES_CLIENTE.md), siguiendo
    [`plataforma/ESTADO_DOCUMENTAL.md`](plataforma/ESTADO_DOCUMENTAL.md). Si es
    un tema, actualizar también su ficha, capturas y `nuevos-temas/cola.json`.
+   Si la capacidad aporta valor visible, entregar además su representación
+   visual inerte o registrar `demo visual pendiente`; sin una de las dos no se
+   comunica como demostrable.
 7. **Integrar** — commit descriptivo en inglés + push a `origin/main`. En
    cloud: abrir el PR según la mecánica del entorno y **mergearlo a `main` en
    la misma sesión** — Andreu delegó explícitamente (2026-07-25) el permiso de

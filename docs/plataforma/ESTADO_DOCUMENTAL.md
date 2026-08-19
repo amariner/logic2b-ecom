@@ -52,6 +52,10 @@ que se represente en ella debe cumplir simultáneamente:
 6. La implementación real permanece detrás de capacidad, configuración,
    preflight y despliegue aislado de cliente. Su activación nunca se deriva de
    que la UI exista.
+7. Toda capacidad orientada a comercio/agencia aporta una superficie visual
+   inerte con fixtures o queda marcada como **demo visual pendiente** en matriz
+   o roadmap. Mientras falte, puede estar cerrada técnicamente, pero no se
+   presenta como demostrable a un posible cliente.
 
 La revisión de producto debe permitir que un CEO de ecommerce entienda qué
 resuelve la capacidad y qué vería su equipo. La revisión técnica debe garantizar
@@ -95,6 +99,8 @@ Antes de integrar un bloque, confirmar:
       su panel real.
 - [ ] La demo puede enseñar el flujo sin ejecutar ninguna acción externa o
       durable, y sus controles de aislamiento están probados.
+- [ ] La capacidad tiene evidencia visual comprensible para un decisor o deja
+      registrada de forma explícita la deuda de demo visual.
 - [ ] Cualquier contenido indexable cumple la revisión producto/backend/SEO de
       `WIKI_SEO.md`.
 
