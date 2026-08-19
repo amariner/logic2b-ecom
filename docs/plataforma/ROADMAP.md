@@ -173,7 +173,7 @@ suites/715 tests; producción permanece en `0032`.
 | 51 | **R5.1 Perfil de cliente** | Identidad deduplicable, direcciones y relación con pedidos sin romper guest checkout. | ✅ 2026-08-17 — D1 `0036`, backup 30 y rehearsal local; capacidad instalada, rollout pendiente |
 | 52 | **R5.2 Consentimientos** | Canal, finalidad, versión legal, fuente, región, timestamp y retirada. | ✅ 2026-08-17 — D1 `0037`, repositorio atómico, backup 31 y rehearsal local; captura/rollout pendientes |
 | 53 | **R5.3 Derechos de datos** | Exportar, corregir, anonimizar/borrar con excepciones fiscales y audit log. | 🟨 2026-08-18 — contrato y persistencia R5.3a–b instalados; política, superficies y ejecución pendientes de gates propios |
-| 54 | **R5.4 Cuentas passwordless** | Login seguro, sesiones, revocación y anti-enumeración; módulo opcional. | ✅ 2026-08-19 — R5.4a–d implementan dominio, D1, Resend directo, transporte mismo navegador, throttle/auditoría, gate durable, HTTP/UI y pruebas locales; 185 suites/958 tests, auditoría 8/8; Worker `f6ed17ef…` inerte, `CUS-003` instalada y rollout real aislado |
+| 54 | **R5.4 Cuentas passwordless** | Login seguro, sesiones, revocación y anti-enumeración; módulo opcional. | ✅ 2026-08-19 — R5.4a–d implementan dominio, D1, Resend directo, transporte mismo navegador, throttle/auditoría, gate durable y HTTP/UI; 185 suites/958 tests; D1 remota en `0040`, Worker `3497a1de…` inerte, `CUS-003` instalada y rollout real aislado |
 | 55 | **R5.5 Autoservicio** | Pedidos, direcciones y devolución sobre permisos mínimos. | ⬜ |
 | 56 | **R5.6 Segmentación** | Lenguaje de filtros limitado, templates y recálculo observable. | ⬜ |
 | 57 | **R5.7 Modelo de mercados** | Contexto de país/idioma/moneda/dominio, resolución y fallback. | ⬜ |
@@ -287,16 +287,19 @@ durable y volver a `installed` requiere cero familias activas. Los ledgers
 operacionales no se exportan: un restore queda fail-closed y exige reactivación.
 
 La demo mantiene `CUS-003 installed`, por lo que las rutas canónicas y con barra
-final son 404 antes de leer D1, secretos, binding o proveedor. `0040` no se
-aplica a producción y no se configuran credenciales reales. La activación por
+final son 404 antes de leer D1, secretos, binding o proveedor. El esquema
+`0033`–`0040` está aplicado en producción, pero no existen filas de activación
+ni identidades y no se configuran credenciales reales. La activación por
 cliente conserva un gate propio con baseline/rehearsal, secretos separados,
 binding, atestación Resend, transición durable y smoke aislado. WebAuthn,
 step-up, elevación, cross-device y ownership de R5.5 permanecen diferidos.
 `pnpm check` pasa 185 suites/958 tests y 739 archivos tipados; el arnés local
 confirma demo/preflight y ocho superficies a 1440/375 con 0 errores/avisos.
-El Worker `f6ed17ef-37f6-4076-b23c-adf4cdeb1e6c` sirve este código inerte. El
-smoke remoto conserva la portada en 200 y las seis variantes de cuenta en 404;
-D1 permanece en `0032` y `0040` no se aplicó.
+El Worker `3497a1de-76a1-4d0e-99a2-598042097252` sirve este código inerte. El
+smoke remoto conserva la portada en 200, cuenta en 404 y quote, checkout y
+webhook en 410. D1 conserva 294 productos y 8 pedidos, llega a 40 migraciones,
+no tiene errores FK y mantiene cero activaciones/identidades de cliente; el E2E
+de producción confirma que todas las mutaciones de la demo siguen rechazadas.
 
 ## R6 — B2B
 
