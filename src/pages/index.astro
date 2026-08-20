@@ -30,7 +30,7 @@ import { demoThemes, defaultTheme, getTheme } from '../lib/demo-themes';
 import { landingNav, MAIN_DEMO_HREF, MAIN_DEMO_NAME, DEMO_ADMIN_HREF } from '../lib/nav';
 import { AGENCY_EMAIL, AGENCY_WHATSAPP } from '../lib/contact';
 
-// ── Galería del hero — derivada del registro de tiendas (clonable) ──────────
+// ── Galería del hero — derivada del registro reutilizable de tiendas ────────
 // La tienda más reciente abre la fila; la demo genérica
 // continúa disponible dentro del resto de la galería.
 const galleryOrder = [
@@ -117,6 +117,10 @@ const flow = [
 // ── FAQ ─────────────────────────────────────────────────────────────────────
 const faqs = [
   {
+    q: '¿Logic2B Ecommerce es un SaaS o una plantilla?',
+    a: 'No. Es la infraestructura tecnológica propia con la que Logic2B construye y gestiona cada proyecto a medida. Tú recibes un ecommerce adaptado y un panel sencillo; nosotros mantenemos la complejidad técnica y su evolución.',
+  },
+  {
     q: '¿Qué pasa con los pagos? ¿Es seguro?',
     a: 'El pago ocurre en la pasarela elegida. Los datos de tarjeta nunca pasan por tu tienda ni por nuestros servidores.',
   },
@@ -140,7 +144,7 @@ const jsonLd = [
     '@type': 'Service',
     name: 'Logic2B Ecommerce',
     description:
-      'Tienda online a medida que arranca como MVP y escala de 10 referencias a un millón sin cambiar de plataforma: ultrarrápida, con diseño propio y con el posicionamiento (SEO, GEO y campañas) del mismo equipo que la construye.',
+      'Servicio de comercio electrónico a medida construido sobre la infraestructura tecnológica propia de Logic2B: ecommerce adaptado, panel sencillo, mantenimiento y evolución sin migraciones.',
     provider: { '@type': 'Organization', name: 'Logic2B', url: 'https://logic2b.com' },
     areaServed: 'ES',
     serviceType: 'Desarrollo de comercio electrónico',
@@ -164,7 +168,7 @@ const jsonLd = [
 
 <Base
   title="Logic2B Ecommerce — tiendas online a medida, con el marketing incluido"
-  description="Tu tienda online a medida: 10 productos o un millón. Arranca como MVP, crece sin cambiar de plataforma y la cuota crece contigo: cobramos más cuando tu tráfico y tus ventas suben. Hecha en Castellón por Logic2B."
+  description="Ecommerce a medida sobre la infraestructura tecnológica propia de Logic2B. Un panel sencillo, complejidad técnica gestionada y crecimiento sin migrar ni reconstruir."
   canonicalPath="/"
   preloadDisplayFont
   jsonLd={jsonLd}
@@ -202,6 +206,42 @@ const jsonLd = [
 
     <!-- ── Tecnología e integraciones ────────────────────────────────────── -->
     <LogoMarquee />
+
+    <!-- ── Posicionamiento: qué compra realmente el cliente ─────────────── -->
+    <section class="mx-auto max-w-6xl px-5 py-14 sm:py-20" aria-labelledby="positioning-title">
+      <div class="grid gap-8 lg:grid-cols-[minmax(0,1.1fr)_minmax(320px,.9fr)] lg:items-start lg:gap-14">
+        <div>
+          <p class="airtable-section-kicker">La diferencia de fondo</p>
+          <h2 id="positioning-title" class="mt-3 max-w-3xl font-display text-3xl leading-tight sm:text-5xl">
+            No es un SaaS.<br />No es una plantilla cerrada.
+          </h2>
+          <p class="mt-6 max-w-3xl text-lg leading-relaxed text-muted-foreground">
+            <strong class="text-foreground">Logic2B Ecommerce es nuestra infraestructura tecnológica para crear y gestionar proyectos de comercio electrónico a medida.</strong>
+            Cada cliente recibe una tienda adaptada a su negocio, no acceso a un producto igual para todos.
+          </p>
+          <p class="mt-4 max-w-3xl leading-relaxed text-muted-foreground">
+            Catálogo, pedidos, pagos, inventario, promociones, integraciones,
+            seguridad y escalabilidad ya están resueltos. Así tu inversión se
+            concentra donde aporta valor: estrategia, diseño, contenido,
+            desarrollo específico y acompañamiento continuo.
+          </p>
+        </div>
+
+        <aside class="rounded-3xl bg-foreground p-7 text-background sm:p-9" aria-label="Qué recibe el cliente">
+          <p class="text-xs font-semibold uppercase tracking-[.18em] text-background/60">Lo que recibes</p>
+          <p class="mt-4 font-display text-2xl leading-tight sm:text-3xl">Tu ecommerce. Un panel sencillo. Un equipo detrás.</p>
+          <p class="mt-5 leading-relaxed text-background/70">
+            Logic2B asume la complejidad técnica, el mantenimiento y la
+            evolución. Cuando el proyecto crece, la tecnología crece con él sin
+            obligarte a migrar ni reconstruir la tienda.
+          </p>
+          <div class="mt-7 border-t border-background/20 pt-5 text-sm leading-relaxed text-background/70">
+            Trabajamos directamente con gerentes y empresas, o como equipo
+            técnico de <a href="/agencias" class="font-semibold text-background underline decoration-background/40 underline-offset-4">marca blanca para agencias</a>.
+          </div>
+        </aside>
+      </div>
+    </section>
 
     <!-- ── El flujo del pedido, con capturas reales ──────────────────────── -->
     <section class="airtable-features border-y border-border bg-muted">

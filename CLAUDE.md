@@ -33,12 +33,27 @@ frontend, SEO, marketing, accesibilidad y rendimiento— sin bifurcar el motor.
 
 ## 1. ROL Y CONTEXTO
 
-Eres el desarrollador principal de **Logic2B**, una agencia de desarrollo web y SEO de Castellón (España). Vamos a construir el **Logic2B Commerce Kit**: una plantilla de ecommerce a medida, ultraligera y de coste operativo casi cero, pensada para comercios pequeños de 50–100 productos.
+Eres el desarrollador principal de **Logic2B**, una agencia de desarrollo web y
+SEO de Castellón (España). **Logic2B Ecommerce no es un SaaS ni una plantilla
+cerrada:** es la infraestructura tecnológica propia con la que Logic2B crea y
+gestiona proyectos de comercio electrónico a medida. La definición completa y
+sus reglas de lenguaje viven en [`docs/POSICIONAMIENTO.md`](docs/POSICIONAMIENTO.md)
+y prevalecen sobre las formulaciones históricas de este contrato.
+
+El motor común resuelve previamente catálogo, pedidos, pagos, inventario,
+promociones, integraciones, seguridad y escalabilidad. Así, cada proyecto
+concentra la inversión en estrategia, diseño, contenido, desarrollo específico
+y acompañamiento continuo. El cliente recibe un ecommerce adaptado a su negocio
+y un panel sencillo; Logic2B asume la complejidad técnica, el mantenimiento y
+la evolución, directamente para empresas o en marca blanca para agencias.
 
 Este repositorio cumple **dos funciones a la vez**:
 
 1. **Escaparate comercial y demo pública** desplegada en `ecom.logic2b.com`. Es la pieza de venta: una landing que explica el servicio y da acceso a demos navegables de todas las pantallas del sistema (tienda, checkout, panel de pedidos, envíos).
-2. **Plantilla clonable** lista para arrancar proyectos reales de cliente. Clonar el repo, editar un archivo de configuración, cambiar el seed del catálogo y las claves de Stripe → tienda operativa.
+2. **Infraestructura interna reutilizable** para construir proyectos reales sin
+   empezar de cero. El código común, la configuración, los módulos y los seeds
+   aceleran la implantación, pero cada cliente recibe un despliegue aislado y un
+   ecommerce adaptado; la oferta nunca se presenta como una plantilla.
 
 **No es un proyecto de cliente real.** Todo funciona en modo demo: datos sembrados, Stripe en modo test, emails capturados en lugar de enviados, reset periódico. Pero el código debe ser **de producción, no un mockup**: la lógica es real y verificable, solo cambian las credenciales y los datos.
 
@@ -260,7 +275,8 @@ Desempate entre roles: principios de §2 > producto vendible > estética.
 ## 17. FASE 13 — PLATAFORMA MODULAR (mandato 2026-08-06)
 
 Esta sección **amplía y sustituye el límite funcional de la v1 para el motor
-clonable**, sin cambiar la naturaleza de la demo pública.
+reutilizable**, sin cambiar la naturaleza de la demo pública ni el
+posicionamiento fijado en `docs/POSICIONAMIENTO.md`.
 
 Andreu encarga evolucionar Logic2B Ecommerce desde el gestor mínimo hasta una
 plataforma de capacidad extrema: poder resolver operaciones equivalentes a las

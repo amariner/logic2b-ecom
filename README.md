@@ -1,11 +1,23 @@
 # Logic2B Ecommerce
 
-Plantilla de ecommerce ultraligera y de coste operativo ~0 €/mes, pensada para comercios pequeños de 50–100 productos. Demo pública en **[ecom.logic2b.com](https://ecom.logic2b.com)**.
+Infraestructura tecnológica propia con la que Logic2B crea y gestiona proyectos
+de comercio electrónico a medida. **No es un SaaS ni una plantilla cerrada.**
+Demo pública en **[ecom.logic2b.com](https://ecom.logic2b.com)** y definición
+canónica en **[docs/POSICIONAMIENTO.md](docs/POSICIONAMIENTO.md)**.
 
 Este repositorio es dos cosas a la vez:
 
 1. **Demo comercial** — landing de venta del servicio + escaparate principal navegable (**ARCE**) y panel de gestión de ejemplo con login y datos simulados.
-2. **Plantilla clonable** — para arrancar la tienda de un cliente real: editar `shop.config.ts`, reemplazar el seed, poner claves reales de Stripe y desplegar.
+2. **Motor interno reutilizable** — la base probada sobre la que Logic2B diseña,
+   desarrolla, despliega y mantiene un ecommerce aislado y adaptado para cada
+   cliente.
+
+Catálogo, pedidos, pagos, inventario, promociones, integraciones, seguridad y
+escalabilidad se resuelven en la base común. El trabajo de cada proyecto se
+concentra en estrategia, diseño, contenido, desarrollo específico y
+acompañamiento continuo. El comercio opera desde un panel sencillo; Logic2B
+asume la complejidad técnica y la evolución, también como equipo de marca
+blanca para otras agencias.
 
 ## Stack
 
@@ -148,6 +160,7 @@ src/collections/      # una tienda del escaparate = colección + tema, sin motor
 scripts/bootstrap.sh  # arranque local y aprovisionamiento Cloudflare (--remote)
 scripts/*.mjs         # auditores y generadores de assets (tabla de arriba)
 docs/CLIENTE.md       # manual de 1 página para el comercio
+docs/POSICIONAMIENTO.md # definición canónica y reglas de lenguaje
 docs/CAPACIDADES_CLIENTE.md # qué incluye, qué se activa por proyecto y qué se hace a medida
 docs/PRODUCCION.md    # checklist de demo → tienda de cliente real
 docs/LIGHTHOUSE.md    # notas de Lighthouse citables (las regenera el script)
@@ -157,4 +170,8 @@ docs/ROADMAP.md       # estado del proyecto y decisiones
 
 ## De demo a tienda real
 
-Checklist completa en [docs/PRODUCCION.md](docs/PRODUCCION.md). En resumen: personalizar `shop.config.ts` + seed, mover la tienda fuera de `/demo/*`, claves live de Stripe, `DEMO_MODE` fuera, quitar el cron de reset, admin tras Cloudflare Access, `RESEND_API_KEY` para los emails y dominio del cliente. Todo es configuración: no queda desarrollo pendiente.
+Checklist técnica en [docs/PRODUCCION.md](docs/PRODUCCION.md). En resumen:
+aislar el despliegue, configurar dominio, catálogo, pagos, email, acceso y
+operación, y construir o activar lo acordado para ese negocio. La base común
+evita repetir infraestructura; no sustituye el análisis, el diseño ni el
+desarrollo específico del proyecto.

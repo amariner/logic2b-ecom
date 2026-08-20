@@ -1,5 +1,10 @@
 # Colaboración con agencias — Logic2B Ecommerce
 
+> Este canal aplica el posicionamiento canónico de
+> [`POSICIONAMIENTO.md`](POSICIONAMIENTO.md): Logic2B Ecommerce no es un SaaS ni
+> una plantilla cerrada, sino la infraestructura propia con la que construimos
+> y gestionamos cada proyecto a medida.
+
 Documento de trabajo para agencias de diseño, marketing, branding y comunicación
 que necesitan entregar ecommerce a medida sin incorporar un equipo técnico
 propio. La colaboración puede ser completamente de marca blanca: la agencia

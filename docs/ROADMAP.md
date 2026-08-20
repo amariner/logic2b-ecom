@@ -18,7 +18,21 @@
 
 ## Objetivo
 
-Demo pública + plantilla clonable de ecommerce ultraligero (Astro 5 + Cloudflare D1/Workers + Stripe Checkout) desplegada en `ecom.logic2b.com`. Especificación completa en `CLAUDE.md`.
+Demo pública + infraestructura tecnológica interna para crear y gestionar
+proyectos de comercio electrónico a medida (Astro 5 + Cloudflare D1/Workers +
+pagos alojados), desplegada como muestra en `ecom.logic2b.com`. Logic2B
+Ecommerce **no es un SaaS ni una plantilla cerrada**: cada cliente recibe un
+ecommerce adaptado y un despliegue aislado; Logic2B asume la complejidad,
+mantenimiento y evolución. Especificación completa en `CLAUDE.md` y definición
+canónica en [`docs/POSICIONAMIENTO.md`](POSICIONAMIENTO.md).
+
+## ✅ POSICIONAMIENTO CANÓNICO (2026-08-20)
+
+Mandato de Andreu incorporado a la venta y al contrato interno: la reutilización
+es una ventaja de producción de Logic2B, no el producto que se vende. El mensaje
+queda reflejado en portada, dossier, arquitectura y canal de agencias; y se
+gobierna desde `docs/POSICIONAMIENTO.md`, enlazado por `CLAUDE.md`, README e
+índice documental. No cambia precios, plazos ni estado real de capacidades.
 
 ## ✅ RECONCILIACIÓN RESUELTA (2026-07-20)
 

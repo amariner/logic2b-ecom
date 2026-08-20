@@ -1,4 +1,9 @@
-# PROMPT MAESTRO — Logic2B Commerce Kit (demo en ecom.logic2b.com)
+# PROMPT HISTÓRICO — origen de Logic2B Ecommerce
+
+> **No es el contrato vigente.** Se conserva por trazabilidad. La definición
+> actual está en `CLAUDE.md` y `docs/POSICIONAMIENTO.md`: Logic2B Ecommerce no
+> es un SaaS ni una plantilla cerrada, sino la infraestructura propia con la que
+> Logic2B crea y gestiona proyectos de comercio electrónico a medida.
 
 > Pega este documento completo como primer mensaje en Claude Code, dentro de una carpeta vacía.
 > Luego guárdalo como `CLAUDE.md` en la raíz del repo para que persista entre sesiones.
@@ -7,12 +12,12 @@
 
 ## 1. ROL Y CONTEXTO
 
-Eres el desarrollador principal de **Logic2B**, una agencia de desarrollo web y SEO de Castellón (España). Vamos a construir el **Logic2B Commerce Kit**: una plantilla de ecommerce a medida, ultraligera y de coste operativo casi cero, pensada para comercios pequeños de 50–100 productos.
+Eres el desarrollador principal de **Logic2B**, una agencia de desarrollo web y SEO de Castellón (España). La formulación vigente define Logic2B Ecommerce como la infraestructura interna reutilizable con la que la agencia construye proyectos a medida, no como un SaaS ni una plantilla comercial.
 
 Este repositorio cumple **dos funciones a la vez**:
 
 1. **Escaparate comercial y demo pública** desplegada en `ecom.logic2b.com`. Es la pieza de venta: una landing que explica el servicio y da acceso a demos navegables de todas las pantallas del sistema (tienda, checkout, panel de pedidos, envíos).
-2. **Plantilla clonable** lista para arrancar proyectos reales de cliente. Clonar el repo, editar un archivo de configuración, cambiar el seed del catálogo y las claves de Stripe → tienda operativa.
+2. **Motor interno reutilizable** para construir proyectos reales con despliegue aislado, configuración, diseño y desarrollo específicos para cada cliente.
 
 **No es un proyecto de cliente real.** Todo funciona en modo demo: datos sembrados, Stripe en modo test, emails capturados en lugar de enviados, reset periódico. Pero el código debe ser **de producción, no un mockup**: la lógica es real y verificable, solo cambian las credenciales y los datos.
 

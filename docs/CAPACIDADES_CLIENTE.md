@@ -4,6 +4,11 @@
 > activarse en un proyecto y cómo pedimos desarrollos nuevos. No sustituye al
 > alcance, presupuesto ni calendario acordados para una tienda concreta.
 
+Logic2B Ecommerce no se contrata como SaaS ni como plantilla cerrada. Estas
+capacidades forman la infraestructura interna con la que Logic2B construye,
+mantiene y hace evolucionar un ecommerce adaptado a cada negocio. La definición
+completa vive en [`POSICIONAMIENTO.md`](POSICIONAMIENTO.md).
+
 ## Cómo leer este documento
 
 No todas las tiendas necesitan las mismas piezas. Logic2B parte de un núcleo

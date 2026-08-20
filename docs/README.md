@@ -6,6 +6,8 @@ actual siempre vive en [`ROADMAP.md`](ROADMAP.md).
 
 ## Comercial y dirección
 
+- [`POSICIONAMIENTO.md`](POSICIONAMIENTO.md): definición canónica del producto,
+  propuesta de valor, audiencias y reglas de lenguaje internas y comerciales.
 - [`PLAN_FASE12_LOGIC2B_ECOMMERCE.md`](PLAN_FASE12_LOGIC2B_ECOMMERCE.md):
   posicionamiento, escalabilidad, backend mínimo y mapa de audiencias.
 - [`ANALISIS_MENSUALIDAD.md`](ANALISIS_MENSUALIDAD.md): modelo de asistencia y

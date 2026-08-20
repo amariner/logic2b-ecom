@@ -5,11 +5,16 @@
 
 ## La tesis
 
-Logic2B Ecommerce no es un SaaS multiinquilino ni un panel universal. Cada
-cliente recibe un despliegue aislado, una base sólida y únicamente los módulos
-que necesita. La amplitud de la plataforma se conserva en el código compartido,
-los contratos y los conectores; la complejidad que ve cada comercio se mantiene
-proporcional a su negocio.
+Logic2B Ecommerce no es un SaaS ni una plantilla cerrada. Es la infraestructura
+tecnológica propia con la que Logic2B crea y gestiona proyectos de comercio
+electrónico a medida, según la definición canónica de
+[`../POSICIONAMIENTO.md`](../POSICIONAMIENTO.md).
+
+Cada cliente recibe un despliegue aislado, un ecommerce adaptado, un panel
+sencillo y únicamente los módulos que necesita. La amplitud de la plataforma se
+conserva en el código compartido, los contratos y los conectores; Logic2B asume
+la complejidad técnica, el mantenimiento y la evolución para que la inversión
+del proyecto se concentre en el negocio y su experiencia propia.
 
 La paridad de capacidad no significa copiar todos los productos de una gran
 plataforma. Significa poder resolver el mismo resultado comercial por una de

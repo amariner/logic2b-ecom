@@ -1,6 +1,10 @@
-# De demo a tienda real — checklist
+# Implantación técnica de un proyecto — checklist
 
-Pasos para convertir esta plantilla en la tienda de un cliente. En orden; todo es configuración, no hay desarrollo pendiente.
+Pasos comunes para aislar y poner en producción la base de un proyecto de
+cliente. No describen una plantilla autoservicio ni sustituyen el análisis, el
+diseño, los contenidos, las integraciones o el desarrollo específico acordado.
+El posicionamiento canónico vive en
+[`POSICIONAMIENTO.md`](POSICIONAMIENTO.md).
 
 ## 1. Personalizar la tienda
 
@@ -11,7 +15,8 @@ Pasos para convertir esta plantilla en la tienda de un cliente. En orden; todo e
 
 ## 2. Rutas: la tienda deja de ser "demo"
 
-En la plantilla `/` es la landing comercial de Logic2B y la tienda vive bajo `/demo/*` con `noindex`. Para un cliente:
+En la muestra pública, `/` es la landing comercial de Logic2B y la tienda vive
+bajo `/demo/*` con `noindex`. En un proyecto de cliente:
 
 - [ ] Sustituir `src/pages/index.astro` por la home del comercio y mover `src/pages/demo/{tienda,carrito,checkout,gracias}` a la raíz de `src/pages/` (actualizar los enlaces internos y `src/lib/cart-client.ts` si cambia alguna URL).
 - [ ] Quitar el banner de demo y el `noindex` de `src/layouts/Shop.astro`.
