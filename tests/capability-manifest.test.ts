@@ -115,6 +115,7 @@ describe('capability manifest (R1.2)', () => {
     expect(CAPABILITY_PRESETS.advanced['CUS-002']?.state).toBe('installed');
     expect(CAPABILITY_PRESETS.advanced['CUS-003']?.state).toBe('installed');
     expect(CAPABILITY_PRESETS.advanced['CUS-004']?.state).toBe('installed');
+    expect(CAPABILITY_PRESETS.advanced['CUS-006']?.state).toBe('installed');
     expect(CAPABILITY_PRESETS.advanced['CUS-007']?.state).toBe('installed');
     expect(CAPABILITY_PRESETS.advanced['CUS-008']?.state).toBe('installed');
     expect('CAT-007' in CAPABILITY_PRESETS.standard).toBe(false);
@@ -131,6 +132,7 @@ describe('capability manifest (R1.2)', () => {
     expect('CUS-002' in CAPABILITY_PRESETS.standard).toBe(false);
     expect('CUS-003' in CAPABILITY_PRESETS.standard).toBe(false);
     expect('CUS-004' in CAPABILITY_PRESETS.standard).toBe(false);
+    expect('CUS-006' in CAPABILITY_PRESETS.standard).toBe(false);
     expect('CUS-007' in CAPABILITY_PRESETS.standard).toBe(false);
     expect('CUS-008' in CAPABILITY_PRESETS.standard).toBe(false);
     expect(CAPABILITY_PRESETS.standard['CHK-003']?.state).toBe('active');

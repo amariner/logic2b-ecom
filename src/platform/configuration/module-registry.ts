@@ -153,8 +153,8 @@ export const MODULE_DESCRIPTORS = [
     jobs: [], healthchecks: [], wikiLinks: [ARCHITECTURE_WIKI], navigation: [], routes: [],
   },
   {
-    id: 'customers', version: '1.9.0', capabilities: ['CUS-001', 'CUS-002', 'CUS-003', 'CUS-004', 'CUS-007', 'CUS-008'], dependencies: ['platform-configuration'],
-    permissions: ['customer:orders:read'], events: [], subscriptions: [], jobs: [], healthchecks: [],
+    id: 'customers', version: '1.10.0', capabilities: ['CUS-001', 'CUS-002', 'CUS-003', 'CUS-004', 'CUS-006', 'CUS-007', 'CUS-008'], dependencies: ['platform-configuration'],
+    permissions: ['customer:orders:read', 'customer:addresses:read', 'customer:addresses:write'], events: [], subscriptions: [], jobs: [], healthchecks: [],
     wikiLinks: [ARCHITECTURE_WIKI, CUSTOMER_PROFILE_ADR, CUSTOMER_CONSENT_ADR, CUSTOMER_DATA_RIGHTS_ADR, CUSTOMER_PASSWORDLESS_ADR, CUSTOMER_PASSWORDLESS_SURFACE_ADR, CUSTOMER_RESOURCE_OWNERSHIP_ADR, CUSTOMER_PASSWORDLESS_RUNBOOK], navigation: [],
     routes: [
       { match: 'exact', path: '/cuenta/acceso', capabilityId: 'CUS-003' },

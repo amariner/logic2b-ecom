@@ -174,7 +174,7 @@ suites/715 tests; producción permanece en `0032`.
 | 52 | **R5.2 Consentimientos** | Canal, finalidad, versión legal, fuente, región, timestamp y retirada. | ✅ 2026-08-17 — D1 `0037`, repositorio atómico, backup 31 y rehearsal local; captura/rollout pendientes |
 | 53 | **R5.3 Derechos de datos** | Exportar, corregir, anonimizar/borrar con excepciones fiscales y audit log. | 🟨 2026-08-18 — contrato y persistencia R5.3a–b instalados; política, superficies y ejecución pendientes de gates propios |
 | 54 | **R5.4 Cuentas passwordless** | Login seguro, sesiones, revocación y anti-enumeración; módulo opcional. | ✅ 2026-08-19 — R5.4a–d implementan dominio, D1, Resend directo, transporte mismo navegador, throttle/auditoría, gate durable y HTTP/UI; 185 suites/958 tests; D1 remota en `0040`, Worker `a5cc8d85…` inerte, `CUS-003` instalada y rollout real aislado |
-| 55 | **R5.5 Autoservicio** | Pedidos, direcciones y devolución sobre permisos mínimos. | 🟨 R5.5a–d 2026-08-21 — historial/seguimiento owner-only completo en local e inactivo; direcciones y devolución pendientes |
+| 55 | **R5.5 Autoservicio** | Pedidos, direcciones y devolución sobre permisos mínimos. | 🟨 R5.5a–e 2026-08-22 — pedidos completos en local; persistencia/CAS de direcciones cerrados e inactivos; superficie de direcciones y devolución pendientes |
 | 56 | **R5.6 Segmentación** | Lenguaje de filtros limitado, templates y recálculo observable. | ⬜ |
 | 57 | **R5.7 Modelo de mercados** | Contexto de país/idioma/moneda/dominio, resolución y fallback. | ⬜ |
 | 58 | **R5.8 Traducciones y URLs** | Campos traducibles, flujo editorial, canonical, hreflang y sitemap. | ⬜ |
@@ -343,6 +343,22 @@ privada, rate limit por IP/superficie y métricas sin PII.
 cero overflow. `pnpm check` pasa 190 suites/993 tests, 756 archivos tipados,
 baseline y build; el E2E global mantiene demo, API y páginas cerradas. No hubo
 DDL, D1 remota, Worker, proveedor, activación ni deploy.
+
+R5.5e instala `CUS-006` sin flags ni rutas y materializa el selector de
+direcciones mediante `0042`. `customer_address_access_refs` contiene solo
+`address_id` y un `addr_` aleatorio de 128 bits; la revisión vigente conserva
+el owner canónico y aporta directamente la versión CAS. Reader, lectura de PII
+autorizada y append condicionado revalidan perfil activo, owner y revisión en
+SQL. Concurrencia, colisión, merge, inmutabilidad y purga de la última revisión
+quedan cubiertos sin duplicar recipient, teléfono o dirección.
+
+`customers@1.10.0` declara los permisos exactos
+`customer:addresses:read/write`. El backup sube a esquema 35; el rehearsal
+aislado sobre 0041 conserva 294 productos, 296 variantes/balances, 8
+pedidos/pagos e inyecta una dirección legacy sintética para probar backfill y
+restore exactos, con integridad/FKs limpias. `pnpm check` pasa 191 suites/998
+tests, 757 archivos tipados, baseline y build. Solo D1 local recibió `0042`;
+no hay HTTP/UI, activación, migración remota ni deploy.
 
 ## R6 — B2B
 
@@ -1405,24 +1421,24 @@ principal pasa a R4.1, motor de reglas de precio.
 
 ## 14. Siguiente bloque
 
-### R5.5e — referencias y ownership de direcciones guardadas
+### R5.5f — API y superficie local de direcciones guardadas
 
-R5.5d queda cerrado local: `GET /api/customer/orders`, `/cuenta/pedidos` y su
-detalle completan el recorrido owner-only de `CUS-004`. Cursor, filtro D1,
-sesión/capability/scope, cache, rate limit y telemetría no aceptan ni exponen
-selectores PII. `pnpm check` pasa 190 suites/993 tests y 756 archivos tipados;
-HTTP aislado, a11y 0/0 en 18 superficies, revisión 1440/375 y E2E global quedan
-verdes. La capacidad permanece instalada e inactiva, sin deploy.
+R5.5e queda cerrado local con `CUS-006 installed`, migración `0042`, backup 35
+y selector `addr_` estable sin PII duplicada. Owner y CAS proceden de la
+revisión vigente; lectura y append vuelven a comprobar selector, perfil activo,
+owner y versión dentro de SQL. El rehearsal forward/restore y `pnpm check`
+quedan verdes. Solo se migró la D1 local.
 
 Siguiente corte:
 
-1. registrar `CUS-006` con dependencias y permisos exactos
-   `customer:addresses:read/write`, instalado sin flags en advanced;
-2. migración expand-only de referencia `addr_` aleatoria por `address_id`
-   estable, sin copiar recipient, teléfono ni dirección;
-3. owner canónico = revisión vigente→perfil activo y versión CAS ligada a la
-   revisión actual; revisar/escribir debe revalidar dentro de la transacción;
-4. backfill, generación para altas nuevas, colisión/concurrencia, merge y
-   borrado/retención coherentes con R5.1/R5.3;
-5. reader D1, backup siguiente y rehearsal/restore con FKs limpias;
-6. sin HTTP/UI, activación, migración remota ni deploy en este corte.
+1. definir casos de uso de índice, alta y revisión sin aceptar profile/address
+   internos, email, recipient, teléfono o calle como prueba de ownership;
+2. añadir idempotencia durable para altas/revisiones y CAS de la revisión
+   vigente dentro de la misma transacción;
+3. exponer API local detrás de sesión R5.4, `CUS-006`, scopes read/write, CSRF,
+   rate limit y respuestas anti-enumeración equivalentes;
+4. construir `/cuenta/direcciones` SSR accesible con vacío, validación,
+   conflicto y navegación condicionada, sin activar la capacidad por defecto;
+5. cubrir IDOR, replay, carrera, merge/revocación, headers/cache, a11y,
+   responsive, backup/rehearsal si cambia DDL y E2E local;
+6. sin activación, migración remota, proveedor ni deploy en este corte.

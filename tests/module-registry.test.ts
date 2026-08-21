@@ -43,7 +43,7 @@ describe('registro de módulos (R1.4)', () => {
 
   it('versiona y enlaza el contrato de superficie passwordless desde customers', () => {
     const customers = MODULE_REGISTRY.descriptors.find((descriptor) => descriptor.id === 'customers');
-    expect(customers).toMatchObject({ version: '1.9.0' });
+    expect(customers).toMatchObject({ version: '1.10.0' });
     expect(customers?.wikiLinks).toContain(
       'docs/plataforma/adr/0043-superficie-passwordless-email-segura.md',
     );
@@ -58,6 +58,9 @@ describe('registro de módulos (R1.4)', () => {
       { match: 'prefix', path: '/api/customer/orders/', capabilityId: 'CUS-004' },
     ]);
     expect(customers?.permissions).toContain('customer:orders:read');
+    expect(customers?.permissions).toEqual(expect.arrayContaining([
+      'customer:addresses:read', 'customer:addresses:write',
+    ]));
   });
 
   it('asigna cada healthcheck R1.10 a un único módulo propietario', () => {
@@ -111,6 +114,7 @@ describe('registro de módulos (R1.4)', () => {
     expect(MODULE_REGISTRY.capabilityOwners['CUS-002']).toBe('customers');
     expect(MODULE_REGISTRY.capabilityOwners['CUS-003']).toBe('customers');
     expect(MODULE_REGISTRY.capabilityOwners['CUS-004']).toBe('customers');
+    expect(MODULE_REGISTRY.capabilityOwners['CUS-006']).toBe('customers');
     expect(MODULE_REGISTRY.capabilityOwners['CUS-007']).toBe('customers');
     expect(MODULE_REGISTRY.capabilityOwners['CUS-008']).toBe('customers');
     expect(MODULE_REGISTRY.capabilityOwners['ORD-005']).toBe('orders');

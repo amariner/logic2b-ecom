@@ -1,5 +1,8 @@
 import type {
+  CustomerAddressAccessView,
   CustomerOrderAccessView,
+  CustomerOwnedAddressReader,
+  CustomerOwnedAddressRevisionWriter,
   CustomerOrderListCursor,
   CustomerOwnedOrderReader,
   CustomerOwnedOrderListReader,
@@ -10,6 +13,7 @@ import {
   type CustomerResourceOwnership,
   type CustomerResourceTarget,
 } from '../domain/resource-ownership';
+import { createCustomerAddressRevision } from '../domain/customer-profile';
 
 type OrderOwnershipRow = Readonly<{
   public_ref: string;
@@ -29,6 +33,44 @@ type OwnedOrderRow = Readonly<{
   tracking_carrier: string | null;
   tracking_number: string | null;
 }>;
+
+type AddressOwnershipRow = Readonly<{
+  public_ref: string;
+  revision: number;
+  customer_profile_id: string;
+  profile_status: 'active' | 'merged' | null;
+  merged_into_profile_id: string | null;
+}>;
+
+type OwnedAddressRow = Readonly<{
+  public_ref: string;
+  revision: number;
+  recipient_name: string;
+  phone: string | null;
+  street: string;
+  city: string;
+  region: string | null;
+  postal_code: string;
+  country_code: string;
+  valid_from: string;
+}>;
+
+function addressView(row: OwnedAddressRow): CustomerAddressAccessView {
+  return Object.freeze({
+    publicRef: row.public_ref,
+    revision: row.revision,
+    data: Object.freeze({
+      recipientName: row.recipient_name,
+      phone: row.phone,
+      street: row.street,
+      city: row.city,
+      region: row.region,
+      postalCode: row.postal_code,
+      countryCode: row.country_code,
+    }),
+    validFrom: row.valid_from,
+  });
+}
 
 function orderView(row: OwnedOrderRow): CustomerOrderAccessView {
   const tracking = row.tracking_carrier !== null && row.tracking_number !== null
@@ -81,6 +123,142 @@ export function createD1CustomerOrderOwnershipReader(
         ownerProfileId: row.customer_profile_id,
         state,
         version: row.ownership_version,
+      });
+    },
+  });
+}
+
+/** Owner canónico de dirección = revisión vigente → perfil; versión = revisión. */
+export function createD1CustomerAddressOwnershipReader(
+  db: D1Database,
+): CustomerResourceOwnershipReader {
+  return Object.freeze({
+    async resolve(target: CustomerResourceTarget): Promise<CustomerResourceOwnership | null> {
+      if (target.kind !== 'address') return null;
+      let normalized: CustomerResourceTarget;
+      try {
+        normalized = customerResourceTarget('address', target.publicRef);
+      } catch {
+        return null;
+      }
+      const row = await db.prepare(`
+        SELECT access.public_ref, current.revision, current.customer_profile_id,
+          profile.status AS profile_status, profile.merged_into_profile_id
+        FROM customer_address_access_refs access
+        JOIN customer_address_revisions current
+          ON current.address_id = access.address_id AND current.valid_to IS NULL
+        LEFT JOIN customer_profiles profile ON profile.id = current.customer_profile_id
+        WHERE access.public_ref = ?
+      `).bind(normalized.publicRef).first<AddressOwnershipRow>();
+      if (row === null) return null;
+      const state = row.profile_status === 'active' && row.merged_into_profile_id === null
+        ? 'owned'
+        : 'incoherent';
+      return Object.freeze({
+        target: normalized,
+        ownerProfileId: row.customer_profile_id,
+        state,
+        version: row.revision,
+      });
+    },
+  });
+}
+
+/** Devuelve PII solo después de revalidar owner, perfil activo y CAS en SQL. */
+export function createD1CustomerOwnedAddressReader(db: D1Database): CustomerOwnedAddressReader {
+  return Object.freeze({
+    async readOwned(
+      input: Parameters<CustomerOwnedAddressReader['readOwned']>[0],
+    ): Promise<CustomerAddressAccessView | null> {
+      if (input.target.kind !== 'address') return null;
+      let target: CustomerResourceTarget;
+      try {
+        target = customerResourceTarget('address', input.target.publicRef);
+      } catch {
+        return null;
+      }
+      const row = await db.prepare(`
+        SELECT access.public_ref, current.revision, current.recipient_name,
+          current.phone, current.street, current.city, current.region,
+          current.postal_code, current.country_code, current.valid_from
+        FROM customer_address_access_refs access
+        JOIN customer_address_revisions current
+          ON current.address_id = access.address_id AND current.valid_to IS NULL
+        JOIN customer_profiles profile ON profile.id = current.customer_profile_id
+        WHERE access.public_ref = ? AND current.revision = ?
+          AND current.customer_profile_id = ?
+          AND profile.status = 'active' AND profile.merged_into_profile_id IS NULL
+      `).bind(
+        target.publicRef,
+        input.expectedOwnershipVersion,
+        input.ownerProfileId,
+      ).first<OwnedAddressRow>();
+      return row === null ? null : addressView(row);
+    },
+  });
+}
+
+/** Una única sentencia revalida selector, owner, perfil y revisión antes del append. */
+export function createD1CustomerOwnedAddressRevisionWriter(
+  db: D1Database,
+): CustomerOwnedAddressRevisionWriter {
+  return Object.freeze({
+    async appendOwned(
+      input: Parameters<CustomerOwnedAddressRevisionWriter['appendOwned']>[0],
+    ): Promise<CustomerAddressAccessView | null> {
+      if (input.target.kind !== 'address' ||
+          !Number.isSafeInteger(input.expectedOwnershipVersion) ||
+          input.expectedOwnershipVersion < 1) return null;
+      let target: CustomerResourceTarget;
+      let normalized: ReturnType<typeof createCustomerAddressRevision>;
+      try {
+        target = customerResourceTarget('address', input.target.publicRef);
+        normalized = createCustomerAddressRevision({
+          addressId: 'address:owned-write',
+          customerProfileId: input.ownerProfileId,
+          data: input.data,
+          at: input.occurredAt,
+        });
+      } catch {
+        return null;
+      }
+      try {
+        const result = await db.prepare(`
+          INSERT INTO customer_address_revisions (
+            address_id, customer_profile_id, revision, recipient_name, phone,
+            street, city, region, postal_code, country_code, valid_from, valid_to
+          )
+          SELECT current.address_id, current.customer_profile_id,
+            current.revision + 1, ?, ?, ?, ?, ?, ?, ?, ?, NULL
+          FROM customer_address_access_refs access
+          JOIN customer_address_revisions current
+            ON current.address_id = access.address_id AND current.valid_to IS NULL
+          JOIN customer_profiles profile ON profile.id = current.customer_profile_id
+          WHERE access.public_ref = ? AND current.customer_profile_id = ?
+            AND current.revision = ?
+            AND profile.status = 'active' AND profile.merged_into_profile_id IS NULL
+        `).bind(
+          normalized.data.recipientName,
+          normalized.data.phone,
+          normalized.data.street,
+          normalized.data.city,
+          normalized.data.region,
+          normalized.data.postalCode,
+          normalized.data.countryCode,
+          normalized.validFrom,
+          target.publicRef,
+          input.ownerProfileId,
+          input.expectedOwnershipVersion,
+        ).run();
+        if (result.meta.changes !== 1) return null;
+      } catch {
+        return null;
+      }
+      return Object.freeze({
+        publicRef: target.publicRef,
+        revision: input.expectedOwnershipVersion + 1,
+        data: normalized.data,
+        validFrom: normalized.validFrom,
       });
     },
   });

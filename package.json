@@ -52,7 +52,8 @@
     "db:rehearse:data-rights-evidence": "node scripts/rehearse-r5-data-rights-evidence.mjs",
     "db:rehearse:passwordless-auth": "node scripts/rehearse-r5-passwordless-auth.mjs",
     "db:rehearse:passwordless-security": "node scripts/rehearse-r5-passwordless-security.mjs",
-    "db:rehearse:customer-order-access": "node scripts/rehearse-r5-customer-order-access.mjs"
+    "db:rehearse:customer-order-access": "node scripts/rehearse-r5-customer-order-access.mjs",
+    "db:rehearse:customer-address-access": "node scripts/rehearse-r5-customer-address-access.mjs"
   },
   "dependencies": {
     "@astrojs/cloudflare": "^12.6.0",

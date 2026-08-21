@@ -110,6 +110,8 @@ const ADVANCED_CAPABILITIES = {
   'CUS-003': { state: 'installed' },
   // R5.5b instala referencias y reader; no concede rutas ni lectura de pedidos.
   'CUS-004': { state: 'installed' },
+  // R5.5e instala selectores y CAS de direcciones; no concede rutas ni acceso.
+  'CUS-006': { state: 'installed' },
   // R5.2 fija evidencia y decisiones puras. Persistencia, captura y envíos
   // requieren gates separados, por eso el preset no concede efectos.
   'CUS-007': { state: 'installed' },

@@ -5,6 +5,7 @@ import type {
   CustomerResourceOwnership,
   CustomerResourceTarget,
 } from '../domain/resource-ownership';
+import type { CustomerAddressData } from '../domain/customer-profile';
 
 /**
  * Resuelve la asociación canónica en servidor. Nunca busca por email, número
@@ -58,6 +59,37 @@ export interface CustomerOwnedOrderListReader {
     cursor: CustomerOrderListCursor | null;
     limit: number;
   }>): Promise<CustomerOrderListReadPage>;
+}
+
+export type CustomerAddressAccessView = Readonly<{
+  publicRef: string;
+  revision: number;
+  data: CustomerAddressData;
+  validFrom: string;
+}>;
+
+/** Lectura owner-only: owner, perfil activo y revisión CAS se repiten en SQL. */
+export interface CustomerOwnedAddressReader {
+  readOwned(input: Readonly<{
+    target: CustomerResourceTarget;
+    ownerProfileId: string;
+    expectedOwnershipVersion: number;
+  }>): Promise<CustomerAddressAccessView | null>;
+}
+
+/**
+ * Writer interno previo a HTTP: selecciona por `addr_` y hace INSERT…SELECT
+ * condicionado por owner/revisión vigente. No permite una secuencia vulnerable
+ * resolve→write; la futura superficie añadirá su contrato de idempotencia.
+ */
+export interface CustomerOwnedAddressRevisionWriter {
+  appendOwned(input: Readonly<{
+    target: CustomerResourceTarget;
+    ownerProfileId: string;
+    expectedOwnershipVersion: number;
+    data: CustomerAddressData;
+    occurredAt: string;
+  }>): Promise<CustomerAddressAccessView | null>;
 }
 
 export type CustomerOwnedMutationOutcome<TResult> =

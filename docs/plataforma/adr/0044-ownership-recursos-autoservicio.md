@@ -192,13 +192,32 @@ como gates de las futuras mutaciones.
 - Sin activar `CUS-004`, `CUS-005`, `CUS-006` ni `customer:sessions:revoke`.
 - Sin fijar retención, base legal o promesa comercial universal.
 
+R5.5e materializa la migración expand-only `0042`. La tabla
+`customer_address_access_refs` solo conserva `address_id` y un selector
+`addr_` aleatorio de 128 bits: recipient, teléfono y dirección permanecen
+exclusivamente en las revisiones R5.1. El backfill agrupa por identidad estable
+y la primera revisión futura genera el selector dentro de su transacción.
+
+Owner y versión no se duplican: el reader une el selector con la revisión
+vigente y su perfil, y toma `revision` como CAS. La lectura de contenido y el
+append interno repiten selector, owner, perfil activo y versión dentro de su
+SQL; dos writes con la misma revisión dejan un solo ganador. Un perfil
+fusionado queda incoherente y la purga de la última revisión retira el selector,
+sin rotarlo mientras el historial exista.
+
+`CUS-006` queda instalado sin flags en advanced y declara exactamente
+`customer:addresses:read/write`. El backup sube a 35 y restaura el selector
+antes del historial para conservarlo; el rehearsal sobre 0041 inyecta una
+dirección legacy sintética y demuestra forward/dump/restore con integridad y
+FKs limpias. No hay HTTP, UI, activación, D1 remota ni deploy.
+
 ## Siguiente gate
 
-R5.5e debe materializar referencias `addr_` y ownership versionado para las
-direcciones R5.1 antes de abrir `CUS-006`. El `address_id` estable conserva la
-identidad del recurso y la revisión vigente aporta owner y CAS. El corte exige
-backfill/generación atómicos, reader D1, backup/rehearsal y cero PII duplicada;
-HTTP/UI y activación permanecen fuera.
+R5.5f puede abrir la vertical local de `CUS-006` detrás de sus gates: índice,
+alta y revisión por referencia pública, sesión/perfil coherentes, scopes
+separados, CSRF, idempotencia durable y CAS transaccional; después, una página
+SSR accesible con estados de vacío/error/conflicto y pruebas IDOR. La capacidad
+seguirá instalada e inactiva y el corte no migrará ni desplegará remoto.
 
 ## Rollback
 
