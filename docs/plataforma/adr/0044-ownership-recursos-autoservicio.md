@@ -1,6 +1,6 @@
 # ADR-0044 — Ownership por recurso y permisos mínimos de autoservicio
 
-- Estado: aceptado; contrato de dominio instalado, persistencia y superficies pendientes
+- Estado: aceptado; contrato y persistencia de pedidos instalados, superficie pendiente
 - Fecha: 2026-08-21
 - Bloque: R5.5a
 - Capacidades: `CUS-004`, `CUS-005`, `CUS-006`
@@ -112,9 +112,25 @@ dirección, token, cookie, proof, HMAC de contacto ni texto libre.
 - auditoría tipada sin PII;
 - authorizer de composición para sesión, gates y repositorio.
 
-No existe adaptador D1 todavía. El puerto no permite buscar por email o número
-de pedido y un writer que haga `resolve` seguido de `UPDATE/INSERT` no cumple el
-contrato.
+R5.5b añade `migrations/0041_customer_order_access.sql` y el adaptador
+`d1-customer-resource-ownership-reader.ts`. Cada pedido obtiene una referencia
+`ord_` seguida de 128 bits aleatorios y una versión de ownership. El backfill
+solo crea esa referencia: no toca `orders.customer_profile_id`, por lo que la
+historia guest continúa guest. Altas nuevas y cambios de owner actualizan la
+evidencia dentro de la misma transacción; borrar una orden elimina su referencia
+dependiente.
+
+El reader acepta exclusivamente una referencia opaca de pedido, resuelve el
+owner canónico y clasifica guest, owner activo o estado incoherente sin leer
+email, número de pedido, dirección ni tracking. No existe todavía authorizer
+HTTP ni writer de RMA/direcciones; un writer que haga `resolve` seguido de
+`UPDATE/INSERT` sigue sin cumplir el contrato.
+
+`CUS-004` queda instalado solo en el preset avanzado, sin flag activa, ruta,
+navegación, UI ni efecto. El backup sube a esquema 34 e incluye referencias y
+versiones exactas. El rehearsal aislado sobre el baseline `0040` conserva 294
+productos, 296 variantes, 296 balances, 8 pedidos, 8 pagos y los 8 pedidos
+guest, con `foreign_key_check` limpio y dump/restore equivalente.
 
 ## Retención, auditoría y gates por capacidad
 
@@ -162,14 +178,16 @@ de PII en auditoría.
 
 ## Siguiente gate
 
-R5.5b debe diseñar y ensayar la persistencia expand-only de referencias públicas
-y el reader de ownership de pedidos antes de exponer historial. Es una migración
-D1 y requiere autorización expresa según el veto de arquitectura. Debe preservar
-pedidos guest, no hacer backfill de owners y ensayar backup/restore sobre el
-baseline real antes de cualquier superficie.
+R5.5c debe componer la lectura HTTP autenticada de pedidos sobre la sesión de
+R5.4, el gate activo de `CUS-004`, `customer:orders:read` y este reader. Ausencia,
+guest, owner ajeno, perfil fusionado, sesión revocada y referencia inválida deben
+conservar la misma respuesta pública anti-enumeración. El corte necesita pruebas
+IDOR/anti-enumeración, headers privados, ausencia de PII en logs y ningún claim
+automático de historia guest.
 
 ## Rollback
 
-El corte solo añade tipos, tests y documentación. Retirar la composición futura
-de los puertos deja `CUS-003 installed` y guest checkout sin cambios; no hay
-datos ni tokens que revertir.
+Mientras `CUS-004` permanezca instalado e inactivo, retirar su composición deja
+checkout guest y `CUS-003` sin cambios. La tabla de referencias es expand-only y
+se conserva durante rollback de código para no rotar selectores; solo se elimina
+después de backup verificado y de demostrar que ninguna superficie los emitió.

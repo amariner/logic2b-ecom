@@ -8,8 +8,8 @@ import { createPreliminaryOrderOperations } from '../src/composition/preliminary
 
 describe('volcado de copia de seguridad', () => {
   it('declara el contrato que incluye la colaboración de pedidos', () => {
-    expect(BACKUP_SCHEMA_VERSION).toBe(33);
-    expect(buildBackupSql({}, '2026-08-18')).toContain('0039_customer_passwordless_auth');
+    expect(BACKUP_SCHEMA_VERSION).toBe(34);
+    expect(buildBackupSql({}, '2026-08-21')).toContain('0041_customer_order_access');
   });
 
   it('genera INSERTs con columnas explícitas y escape de comillas', () => {
@@ -136,6 +136,7 @@ describe('volcado de copia de seguridad', () => {
       'customer_session_families',
       'customer_sessions',
       'customer_passwordless_challenges',
+      'customer_order_access_refs',
     ]));
     for (const table of BACKUP_TABLES) expect(sql).toContain(`DELETE FROM ${table};`);
   });
@@ -442,6 +443,14 @@ describe('volcado de copia de seguridad', () => {
     expect(restored.value('SELECT count(*) AS value FROM orders_search')).toBe(
       restored.value('SELECT count(*) AS value FROM orders'),
     );
+    expect(restored.query(`SELECT access.public_ref, access.ownership_version
+      FROM customer_order_access_refs access
+      JOIN orders ON orders.id=access.order_id
+      ORDER BY orders.id`)).toEqual(source.query(`
+      SELECT access.public_ref, access.ownership_version
+      FROM customer_order_access_refs access
+      JOIN orders ON orders.id=access.order_id
+      ORDER BY orders.id`));
     expect(restored.query(`SELECT profile.primary_email, address.street
       FROM customer_profiles profile JOIN customer_address_revisions address
         ON address.customer_profile_id=profile.id

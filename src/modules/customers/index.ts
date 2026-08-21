@@ -186,3 +186,6 @@ export type {
   CustomerResourceAuthorizer,
   CustomerResourceOwnershipReader,
 } from './application/resource-ownership-ports';
+export {
+  createD1CustomerOrderOwnershipReader,
+} from './infrastructure/d1-customer-resource-ownership-reader';

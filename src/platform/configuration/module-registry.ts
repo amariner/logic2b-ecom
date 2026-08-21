@@ -74,6 +74,7 @@ const CUSTOMER_CONSENT_ADR = 'docs/plataforma/adr/0040-consentimiento-evidencia-
 const CUSTOMER_DATA_RIGHTS_ADR = 'docs/plataforma/adr/0041-derechos-datos-plan-verificable.md';
 const CUSTOMER_PASSWORDLESS_ADR = 'docs/plataforma/adr/0042-autenticacion-passwordless-revocable.md';
 const CUSTOMER_PASSWORDLESS_SURFACE_ADR = 'docs/plataforma/adr/0043-superficie-passwordless-email-segura.md';
+const CUSTOMER_RESOURCE_OWNERSHIP_ADR = 'docs/plataforma/adr/0044-ownership-recursos-autoservicio.md';
 const CUSTOMER_PASSWORDLESS_RUNBOOK = 'docs/plataforma/OPERACION_PASSWORDLESS.md';
 
 /**
@@ -152,9 +153,9 @@ export const MODULE_DESCRIPTORS = [
     jobs: [], healthchecks: [], wikiLinks: [ARCHITECTURE_WIKI], navigation: [], routes: [],
   },
   {
-    id: 'customers', version: '1.6.0', capabilities: ['CUS-001', 'CUS-002', 'CUS-003', 'CUS-007', 'CUS-008'], dependencies: ['platform-configuration'],
+    id: 'customers', version: '1.7.0', capabilities: ['CUS-001', 'CUS-002', 'CUS-003', 'CUS-004', 'CUS-007', 'CUS-008'], dependencies: ['platform-configuration'],
     permissions: [], events: [], subscriptions: [], jobs: [], healthchecks: [],
-    wikiLinks: [ARCHITECTURE_WIKI, CUSTOMER_PROFILE_ADR, CUSTOMER_CONSENT_ADR, CUSTOMER_DATA_RIGHTS_ADR, CUSTOMER_PASSWORDLESS_ADR, CUSTOMER_PASSWORDLESS_SURFACE_ADR, CUSTOMER_PASSWORDLESS_RUNBOOK], navigation: [],
+    wikiLinks: [ARCHITECTURE_WIKI, CUSTOMER_PROFILE_ADR, CUSTOMER_CONSENT_ADR, CUSTOMER_DATA_RIGHTS_ADR, CUSTOMER_PASSWORDLESS_ADR, CUSTOMER_PASSWORDLESS_SURFACE_ADR, CUSTOMER_RESOURCE_OWNERSHIP_ADR, CUSTOMER_PASSWORDLESS_RUNBOOK], navigation: [],
     routes: [
       { match: 'exact', path: '/cuenta/acceso', capabilityId: 'CUS-003' },
       { match: 'exact', path: '/cuenta/acceso/confirmar', capabilityId: 'CUS-003' },

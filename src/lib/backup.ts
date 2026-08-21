@@ -7,7 +7,7 @@
 export type Row = Record<string, string | number | null>;
 
 /** Orden de volcado y de borrado inverso (hijos después de padres al insertar no importa: borramos primero). */
-export const BACKUP_SCHEMA_VERSION = 33;
+export const BACKUP_SCHEMA_VERSION = 34;
 
 export const BACKUP_TABLES = [
   'products',
@@ -73,6 +73,7 @@ export const BACKUP_TABLES = [
   'customer_sessions',
   'customer_passwordless_challenges',
   'orders',
+  'customer_order_access_refs',
   'preliminary_orders',
   'preliminary_order_lines',
   'preliminary_order_payment_links',
@@ -279,7 +280,7 @@ export function buildBackupSql(tablesRows: Record<string, Row[]>, generatedAt: s
   const lines = [
     `-- Copia de seguridad Logic2B Ecommerce — ${generatedAt}`,
     `-- logic2b-backup-schema: ${BACKUP_SCHEMA_VERSION}`,
-    '-- Requiere una base con la migración 0039_customer_passwordless_auth aplicada; las tablas/columnas explícitas abortan un restore incompatible.',
+    '-- Requiere una base con la migración 0041_customer_order_access aplicada; las tablas/columnas explícitas abortan un restore incompatible.',
     `-- Restaurar con: wrangler d1 execute <database> --remote --file <este fichero>`,
     'PRAGMA defer_foreign_keys = true;',
   ];
@@ -289,6 +290,12 @@ export function buildBackupSql(tablesRows: Record<string, Row[]>, generatedAt: s
   const sessionFamilies = tablesRows.customer_session_families ?? [];
   const sessions = tablesRows.customer_sessions ?? [];
   for (const table of BACKUP_TABLES) {
+    // El trigger de 0041 crea referencias nuevas al restaurar `orders`.
+    // Sustituirlas aquí recupera exactamente los selectores y versiones del
+    // origen en lugar de duplicarlos o rotarlos silenciosamente.
+    if (table === 'customer_order_access_refs') {
+      lines.push('DELETE FROM customer_order_access_refs;');
+    }
     if (table === 'customer_session_families') {
       lines.push(...dumpTable(table, initialCustomerSessionFamilies(sessionFamilies)));
       continue;

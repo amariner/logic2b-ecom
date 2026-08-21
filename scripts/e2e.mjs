@@ -365,8 +365,8 @@ check(
     && backupSql.includes('INSERT INTO attribute_definitions') && backupSql.includes('INSERT INTO product_attribute_values'),
 );
 check(
-  'backup esquema 33 conserva operación, clientes, consentimientos, derechos, autenticación, RMA, pricing, modelos de venta y presupuestos',
-  backupSql.includes('logic2b-backup-schema: 33')
+  'backup esquema 34 conserva operación, clientes, consentimientos, derechos, autenticación, RMA, pricing, modelos de venta y presupuestos',
+  backupSql.includes('logic2b-backup-schema: 34')
     && backupSql.includes('INSERT INTO payments')
     && backupSql.includes('INSERT INTO payment_transactions')
     && backupSql.includes('DELETE FROM refunds')
@@ -382,7 +382,7 @@ check(
     && backupSql.includes('INSERT INTO order_hold_events')
     && backupSql.includes('DELETE FROM order_bulk_batches')
     && backupSql.includes('DELETE FROM order_bulk_batch_rows')
-    && backupSql.includes('0039_customer_passwordless_auth')
+    && backupSql.includes('0041_customer_order_access')
     && backupSql.includes('DELETE FROM customer_profiles')
     && backupSql.includes('DELETE FROM customer_address_revisions')
     && backupSql.includes('DELETE FROM customer_profile_merges')

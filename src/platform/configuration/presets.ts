@@ -108,6 +108,8 @@ const ADVANCED_CAPABILITIES = {
   // R5.4a-b instala threat model, contratos y persistencia; no concede rutas,
   // cookies, proveedor ni acceso a pedidos/direcciones.
   'CUS-003': { state: 'installed' },
+  // R5.5b instala referencias y reader; no concede rutas ni lectura de pedidos.
+  'CUS-004': { state: 'installed' },
   // R5.2 fija evidencia y decisiones puras. Persistencia, captura y envíos
   // requieren gates separados, por eso el preset no concede efectos.
   'CUS-007': { state: 'installed' },

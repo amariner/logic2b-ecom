@@ -284,11 +284,19 @@ venta o servicios logísticos propios.
   `prepare → persist → deliver`, origen/cookie/CSRF/CSP, rate limit por capas y
   recuperación sin bypass; proveedor, HTTP/UI y gates durables implementados
   localmente sin activar la demo.
+- [`adr/0044-ownership-recursos-autoservicio.md`](adr/0044-ownership-recursos-autoservicio.md):
+  autenticación, permiso y owner separados; scopes mínimos, referencias opacas,
+  CAS transaccional y forma pública anti-enumeración para pedidos, RMA y
+  direcciones.
 - [`../../migrations/0039_customer_passwordless_auth.sql`](../../migrations/0039_customer_passwordless_auth.sql):
   identidades, challenges y familias/sesiones expand-only de R5.4b.
 - [`../../migrations/0040_customer_passwordless_security.sql`](../../migrations/0040_customer_passwordless_security.sql):
   throttle efímero, confirmación de entrega, auditoría/revocación y transición
   durable fail-closed de `CUS-003`, sin activar la capacidad al aplicarla.
+- [`../../migrations/0041_customer_order_access.sql`](../../migrations/0041_customer_order_access.sql):
+  referencia pública aleatoria y versión de ownership por pedido, backfill sin
+  reclamar historia guest y generación atómica para altas nuevas; backup 34 y
+  reader D1 instalados sin abrir superficie.
 - [`OPERACION_PASSWORDLESS.md`](OPERACION_PASSWORDLESS.md): rehearsal, backup
   33, concurrencia, transporte fragmento→POST, preflight/activación aislados,
   reconciliación, recuperación y rollback de R5.4d.

@@ -174,7 +174,7 @@ suites/715 tests; producción permanece en `0032`.
 | 52 | **R5.2 Consentimientos** | Canal, finalidad, versión legal, fuente, región, timestamp y retirada. | ✅ 2026-08-17 — D1 `0037`, repositorio atómico, backup 31 y rehearsal local; captura/rollout pendientes |
 | 53 | **R5.3 Derechos de datos** | Exportar, corregir, anonimizar/borrar con excepciones fiscales y audit log. | 🟨 2026-08-18 — contrato y persistencia R5.3a–b instalados; política, superficies y ejecución pendientes de gates propios |
 | 54 | **R5.4 Cuentas passwordless** | Login seguro, sesiones, revocación y anti-enumeración; módulo opcional. | ✅ 2026-08-19 — R5.4a–d implementan dominio, D1, Resend directo, transporte mismo navegador, throttle/auditoría, gate durable y HTTP/UI; 185 suites/958 tests; D1 remota en `0040`, Worker `a5cc8d85…` inerte, `CUS-003` instalada y rollout real aislado |
-| 55 | **R5.5 Autoservicio** | Pedidos, direcciones y devolución sobre permisos mínimos. | 🟨 R5.5a 2026-08-21 — ownership/scopes/puertos especificados; persistencia y superficies pendientes |
+| 55 | **R5.5 Autoservicio** | Pedidos, direcciones y devolución sobre permisos mínimos. | 🟨 R5.5a–b 2026-08-21 — contrato, referencia/versionado D1, reader y backup instalados; HTTP y superficies pendientes |
 | 56 | **R5.6 Segmentación** | Lenguaje de filtros limitado, templates y recálculo observable. | ⬜ |
 | 57 | **R5.7 Modelo de mercados** | Contexto de país/idioma/moneda/dominio, resolución y fallback. | ⬜ |
 | 58 | **R5.8 Traducciones y URLs** | Campos traducibles, flujo editorial, canonical, hreflang y sitemap. | ⬜ |
@@ -317,6 +317,18 @@ fusionar perfiles. Los puertos propuestos obligan a CAS transaccional y
 auditoría tipada sin PII. `pnpm check` pasa 186 suites/965 tests, 742 archivos
 tipados, baseline de temas y build. El corte no añade DDL, adaptador, UI, ruta,
 navegación, provider, efecto, deploy ni activación.
+
+R5.5b materializa ese contrato para pedidos con la migración expand-only `0041`:
+una referencia `ord_` de 128 bits aleatorios y una versión por orden, generadas
+atómicamente para altas nuevas y backfilleadas sin modificar ningún owner. El
+reader D1 solo acepta la referencia opaca y resuelve el owner canónico; no busca
+por ids comerciales ni PII. Colisión, concurrencia, cambio versionado, perfil
+fusionado, integridad y borrado dependiente quedan probados. El backup sube a
+esquema 34 y el rehearsal conserva 294 productos, 296 variantes/balances, 8
+pedidos/pagos y los 8 pedidos guest antes y después de dump/restore. `CUS-004`
+queda instalado solo en advanced, sin flag, ruta, UI, navegación ni deploy.
+`pnpm check` pasa 187 suites/969 tests y 744 archivos tipados; el E2E local
+completo permanece verde.
 
 ## R6 — B2B
 
@@ -1379,21 +1391,24 @@ principal pasa a R4.1, motor de reglas de precio.
 
 ## 14. Siguiente bloque
 
-### R5.5b — persistencia de referencias y ownership de pedidos
+### R5.5c — lectura HTTP autenticada e IDOR
 
-Materializar el primer recurso de `CUS-004` sin abrir todavía historial público:
+Componer la primera superficie de lectura de `CUS-004` sin abrir todavía
+mutaciones ni reclamar historia guest:
 
-1. autorización expresa de la migración D1 y ADR-0044 como contrato inmutable;
-2. migración expand-only para una referencia pública aleatoria por pedido y su
-   versión de ownership, sin derivarla de `id`, `order_number`, email o PII;
-3. backfill de referencias para filas existentes, pero nunca de
-   `customer_profile_id`: los pedidos guest continúan guest;
-4. reader D1 que resuelva únicamente referencia opaca→owner canónico y no
-   exponga diferencias entre ausencia, guest u owner ajeno;
-5. índice/constraints, colisiones y concurrencia de generación probados;
-6. backup/restore y rehearsal sobre copia del baseline real, conservando
-   pedidos, pagos, stock, perfiles y cero asociaciones inventadas;
-7. manifest de `CUS-004` todavía no activo, sin rutas, navegación, UI, emails,
-   proveedor, Worker o deploy;
-8. `pnpm check` verde y siguiente corte R5.5c documentado para lectura HTTP
-   autenticada con pruebas IDOR/anti-enumeración.
+1. endpoint server-side por referencia `ord_…`, nunca por id, número de pedido,
+   email, dirección o tracking;
+2. sesión R5.4 activa y coherente, capability `CUS-004` activa y permiso exacto
+   `customer:orders:read` antes de devolver datos;
+3. authorizer sobre el reader D1 de R5.5b y owner exacto del mismo perfil activo;
+4. respuesta `404 customer.resource.not_found` indistinguible para ausencia,
+   referencia inválida, guest, owner ajeno, perfil fusionado, identidad/sesión
+   revocada, capability apagada o scope ausente;
+5. DTO mínimo de historial/seguimiento sin dirección completa, contacto,
+   referencias de pago ni campos operativos internos;
+6. headers privados/no-store, logs y auditoría tipada sin PII, y límites de
+   entrada/rate limit coherentes con la superficie de cuenta;
+7. pruebas HTTP IDOR y anti-enumeración, incluyendo formas, headers y ausencia
+   de consultas por PII; E2E solo si se abre navegación o UI;
+8. `CUS-004` sigue inerte por defecto y sin deploy hasta completar preflight y
+   autorización de activación.
