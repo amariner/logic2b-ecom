@@ -180,6 +180,8 @@ export {
   type CustomerSelfServiceCapability,
 } from './domain/resource-ownership';
 export type {
+  CustomerOrderAccessView,
+  CustomerOwnedOrderReader,
   CustomerOwnedMutationOutcome,
   CustomerOwnedResourceWriter,
   CustomerResourceAccessAuditWriter,
@@ -187,5 +189,6 @@ export type {
   CustomerResourceOwnershipReader,
 } from './application/resource-ownership-ports';
 export {
+  createD1CustomerOwnedOrderReader,
   createD1CustomerOrderOwnershipReader,
 } from './infrastructure/d1-customer-resource-ownership-reader';

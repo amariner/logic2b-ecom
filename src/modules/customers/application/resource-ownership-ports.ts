@@ -14,6 +14,30 @@ export interface CustomerResourceOwnershipReader {
   resolve(target: CustomerResourceTarget): Promise<CustomerResourceOwnership | null>;
 }
 
+export type CustomerOrderAccessView = Readonly<{
+  publicRef: string;
+  orderNumber: string;
+  status: string;
+  totalCents: number;
+  currency: string;
+  createdAt: string;
+  updatedAt: string;
+  tracking: Readonly<{ carrier: string; number: string }> | null;
+}>;
+
+/**
+ * Lee el DTO mínimo solo si owner y versión siguen siendo los autorizados.
+ * La precondición forma parte del SQL para que una reasignación concurrente
+ * convierta la lectura en ausencia, nunca en una fuga al owner anterior.
+ */
+export interface CustomerOwnedOrderReader {
+  readOwned(input: Readonly<{
+    target: CustomerResourceTarget;
+    ownerProfileId: string;
+    expectedOwnershipVersion: number;
+  }>): Promise<CustomerOrderAccessView | null>;
+}
+
 export type CustomerOwnedMutationOutcome<TResult> =
   | Readonly<{ outcome: 'applied' | 'replayed'; result: TResult }>
   | Readonly<{ outcome: 'denied' | 'ownership_changed'; result: null }>;

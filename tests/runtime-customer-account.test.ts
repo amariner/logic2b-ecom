@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import { createRuntimeCustomerAccountHttp } from '../src/composition/runtime-customer-account';
+import { createRuntimeCustomerOrderAccessHttp } from '../src/composition/runtime-customer-order-access';
 import type { Platform } from '../src/composition/create-platform';
 import type { PasswordlessProofProvider } from '../src/modules/customers/application/passwordless-auth-ports';
 import type { CapabilityConfigById } from '../src/platform/configuration';
@@ -8,6 +9,7 @@ import { passwordlessProofDigest } from '../src/modules/customers/infrastructure
 import { createD1CustomerAuthenticationRepository } from '../src/modules/customers/infrastructure/d1-customer-authentication-repository';
 import { SqliteD1 } from './sqlite-d1';
 import { shopConfig } from '../shop.config';
+import { CUSTOMER_AUTH_SESSION_COOKIE_NAME } from '../src/modules/customers/presentation/passwordless-http';
 
 const AT = '2026-08-19T10:00:00.000Z';
 const PROFILE_SECRET = 'runtime-profile-secret-'.padEnd(40, 'p');
@@ -26,6 +28,7 @@ const activeConfig = Object.freeze({
 
 function activePlatform(): Platform {
   return {
+    isCapabilityActive: (id: string) => id === 'CUS-003' || id === 'CUS-004',
     capability: () => ({
       id: 'CUS-003', state: 'active',
       flags: { routes: true, navigation: false, jobs: false, sideEffects: true },
@@ -40,6 +43,7 @@ describe('wiring runtime de cuenta', () => {
       get: () => { throw new Error('el runtime no debe leerse con CUS-003 installed'); },
     }) as Env;
     await expect(createRuntimeCustomerAccountHttp(unreadable, () => undefined)).resolves.toBeNull();
+    await expect(createRuntimeCustomerOrderAccessHttp(unreadable)).resolves.toBeNull();
   });
 
   it('compone el rollout active completo y difiere Resend después de persistir', async () => {
@@ -113,5 +117,74 @@ describe('wiring runtime de cuenta', () => {
     expect(observability.count).toHaveBeenCalledWith({
       stage: 'provider_delivery', outcome: 'delivered',
     });
+  });
+
+  it('compone token→sesión D1→owner→DTO sin construir proveedor', async () => {
+    const db = new SqliteD1();
+    const authentication = createD1CustomerAuthenticationRepository(db.asD1());
+    await authentication.transitionCustomerAuthCapability({
+      fromState: 'installed',
+      toState: 'active',
+      expectedVersion: 0,
+      occurredAt: AT,
+      idempotencyKey: 'customer-auth/capability/order-access-active',
+      audit: {
+        auditId: 'customer_auth_audit:order_access_active',
+        occurredAt: AT,
+        correlationId: 'customer_auth_correlation:order_access_active',
+      },
+    });
+    const token = 'A'.repeat(43);
+    const hash = 'd'.repeat(64);
+    db.sqlite.exec(`
+      INSERT INTO customer_profiles (
+        id, primary_email, email_identity_hash, status, version, created_at, updated_at
+      ) VALUES ('customer_profile:runtime_order', 'runtime-order@example.test', '${hash}',
+        'active', 1, '${AT}', '${AT}');
+      INSERT INTO customer_auth_identities (
+        id, customer_profile_id, contact_identity_hash, status, created_at,
+        revoked_at, creation_idempotency_key
+      ) VALUES ('auth_identity:runtime_order', 'customer_profile:runtime_order', '${hash}',
+        'active', '${AT}', NULL, 'auth:identity:runtime_order');
+      INSERT INTO customer_session_families (
+        id, identity_id, customer_profile_id, status, created_at,
+        absolute_expires_at, revoked_at, revocation_reason_id,
+        transition_idempotency_key, version
+      ) VALUES ('session_family:runtime_order', 'auth_identity:runtime_order',
+        'customer_profile:runtime_order', 'active', '${AT}',
+        '2026-09-18T10:00:00.000Z', NULL, NULL, NULL, 1);
+    `);
+    db.sqlite.prepare(`INSERT INTO customer_sessions (
+      id, family_id, identity_id, customer_profile_id, token_digest,
+      can_revoke_sessions, status, issued_at, expires_at, absolute_expires_at,
+      generation, rotated_from_session_id, replaced_by_session_id, revoked_at,
+      revocation_reason_id, transition_idempotency_key, version
+    ) VALUES ('customer_session:runtime_order', 'session_family:runtime_order',
+      'auth_identity:runtime_order', 'customer_profile:runtime_order', ?, 0, 'active',
+      ?, '2026-08-20T10:00:00.000Z', '2026-09-18T10:00:00.000Z',
+      1, NULL, NULL, NULL, NULL, NULL, 1)`).run(await passwordlessProofDigest(token), AT);
+    db.sqlite.exec(`INSERT INTO orders (
+      order_number, email, customer_name, address_json, subtotal_cents,
+      shipping_cents, total_cents, status, stripe_session_id, currency,
+      customer_profile_id
+    ) VALUES ('ORDER-RUNTIME-ACCESS', 'runtime-order@example.test', 'Runtime', '{}',
+      1000, 0, 1000, 'paid', 'stripe-runtime-order', 'EUR',
+      'customer_profile:runtime_order')`);
+    const publicRef = String(db.value(`SELECT access.public_ref AS value
+      FROM customer_order_access_refs access JOIN orders ON orders.id=access.order_id
+      WHERE orders.order_number='ORDER-RUNTIME-ACCESS'`));
+    const observability = { count: vi.fn() };
+    const http = await createRuntimeCustomerOrderAccessHttp({
+      DB: db.asD1(), DEMO_MODE: 'false', ADMIN_COOKIE_SECRET: 'unused',
+    }, { platform: activePlatform(), now: () => AT, observability });
+    const response = await http!.read(new Request(
+      `https://shop.example/api/customer/orders/${publicRef}`,
+      { headers: { cookie: `${CUSTOMER_AUTH_SESSION_COOKIE_NAME}=${token}` } },
+    ), publicRef);
+    expect(response.status).toBe(200);
+    expect(await response.json()).toMatchObject({
+      order: { publicRef, orderNumber: 'ORDER-RUNTIME-ACCESS', status: 'paid' },
+    });
+    expect(observability.count).toHaveBeenCalledWith({ outcome: 'allowed' });
   });
 });

@@ -43,7 +43,7 @@ describe('registro de módulos (R1.4)', () => {
 
   it('versiona y enlaza el contrato de superficie passwordless desde customers', () => {
     const customers = MODULE_REGISTRY.descriptors.find((descriptor) => descriptor.id === 'customers');
-    expect(customers).toMatchObject({ version: '1.7.0' });
+    expect(customers).toMatchObject({ version: '1.8.0' });
     expect(customers?.wikiLinks).toContain(
       'docs/plataforma/adr/0043-superficie-passwordless-email-segura.md',
     );
@@ -54,7 +54,9 @@ describe('registro de módulos (R1.4)', () => {
       { match: 'exact', path: '/cuenta/acceso', capabilityId: 'CUS-003' },
       { match: 'exact', path: '/cuenta/acceso/confirmar', capabilityId: 'CUS-003' },
       { match: 'exact', path: '/cuenta/sesiones', capabilityId: 'CUS-003' },
+      { match: 'prefix', path: '/api/customer/orders/', capabilityId: 'CUS-004' },
     ]);
+    expect(customers?.permissions).toContain('customer:orders:read');
   });
 
   it('asigna cada healthcheck R1.10 a un único módulo propietario', () => {

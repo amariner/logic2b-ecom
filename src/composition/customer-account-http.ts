@@ -6,6 +6,7 @@ import {
 import {
   CUSTOMER_AUTH_SESSION_COOKIE_NAME,
   customerAccountHeaders,
+  customerHostCookieValue,
   customerSessionCookieOptions,
   hasExactCustomerAuthOrigin,
 } from '../modules/customers/presentation/passwordless-http';
@@ -38,18 +39,6 @@ function forbidden(): Response {
     status: 403,
     headers: { 'content-type': 'text/plain; charset=utf-8' },
   });
-}
-
-function cookie(request: Request, name: string): string | null {
-  const header = request.headers.get('cookie');
-  if (header === null) return null;
-  for (const item of header.split(';')) {
-    const separator = item.indexOf('=');
-    if (separator < 1 || item.slice(0, separator).trim() !== name) continue;
-    const value = item.slice(separator + 1).trim();
-    return value.length === 0 || value.length > 4_096 ? null : value;
-  }
-  return null;
 }
 
 function hostCookie(name: string, value: string, maxAge: number): string {
@@ -145,7 +134,7 @@ export function createCustomerAccountHttp(dependencies: Dependencies): CustomerA
     async confirmationView(request: Request) {
       return Object.freeze({
         csrfToken: await application.confirmationCsrf(
-          cookie(request, CUSTOMER_AUTH_ATTEMPT_COOKIE_NAME),
+          customerHostCookieValue(request, CUSTOMER_AUTH_ATTEMPT_COOKIE_NAME),
         ),
       });
     },
@@ -155,7 +144,7 @@ export function createCustomerAccountHttp(dependencies: Dependencies): CustomerA
       const headers = new Headers();
       headers.append('set-cookie', deleteHostCookie(CUSTOMER_AUTH_ATTEMPT_COOKIE_NAME));
       const payload = exactConsumePayload(await bodyRecord(request));
-      const attemptCookie = cookie(request, CUSTOMER_AUTH_ATTEMPT_COOKIE_NAME);
+      const attemptCookie = customerHostCookieValue(request, CUSTOMER_AUTH_ATTEMPT_COOKIE_NAME);
       if (payload === null || attemptCookie === null) {
         return redirect(CUSTOMER_ACCOUNT_ROUTES.access, 303, headers);
       }
@@ -180,7 +169,7 @@ export function createCustomerAccountHttp(dependencies: Dependencies): CustomerA
     },
 
     async currentSession(request: Request) {
-      const sessionToken = cookie(request, CUSTOMER_AUTH_SESSION_COOKIE_NAME);
+      const sessionToken = customerHostCookieValue(request, CUSTOMER_AUTH_SESSION_COOKIE_NAME);
       if (sessionToken === null) return redirect(CUSTOMER_ACCOUNT_ROUTES.access);
       const context = await application.currentSession(sessionToken, clock());
       if (context === null) {
@@ -200,7 +189,7 @@ export function createCustomerAccountHttp(dependencies: Dependencies): CustomerA
 
     async logout(request: Request): Promise<Response> {
       if (!hasExactCustomerAuthOrigin(request, expectedOrigin)) return forbidden();
-      const sessionToken = cookie(request, CUSTOMER_AUTH_SESSION_COOKIE_NAME);
+      const sessionToken = customerHostCookieValue(request, CUSTOMER_AUTH_SESSION_COOKIE_NAME);
       const values = await bodyRecord(request);
       if (sessionToken === null || typeof values?.csrfToken !== 'string') return forbidden();
       const outcome = await application.logout({

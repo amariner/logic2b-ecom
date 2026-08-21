@@ -1,5 +1,18 @@
 export const CUSTOMER_AUTH_SESSION_COOKIE_NAME = '__Host-l2b-customer-session';
 
+/** Lee una cookie __Host sin decodificar ni aceptar valores vacíos o enormes. */
+export function customerHostCookieValue(request: Request, name: string): string | null {
+  const header = request.headers.get('cookie');
+  if (header === null) return null;
+  for (const item of header.split(';')) {
+    const separator = item.indexOf('=');
+    if (separator < 1 || item.slice(0, separator).trim() !== name) continue;
+    const value = item.slice(separator + 1).trim();
+    return value.length === 0 || value.length > 4_096 ? null : value;
+  }
+  return null;
+}
+
 export const CUSTOMER_ACCOUNT_CONTENT_SECURITY_POLICY = [
   "default-src 'none'",
   "script-src 'self'",

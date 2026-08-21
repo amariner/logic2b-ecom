@@ -1,6 +1,6 @@
 # ADR-0044 — Ownership por recurso y permisos mínimos de autoservicio
 
-- Estado: aceptado; contrato y persistencia de pedidos instalados, superficie pendiente
+- Estado: aceptado; contrato, persistencia y detalle HTTP de pedidos instalados
 - Fecha: 2026-08-21
 - Bloque: R5.5a
 - Capacidades: `CUS-004`, `CUS-005`, `CUS-006`
@@ -122,13 +122,22 @@ dependiente.
 
 El reader acepta exclusivamente una referencia opaca de pedido, resuelve el
 owner canónico y clasifica guest, owner activo o estado incoherente sin leer
-email, número de pedido, dirección ni tracking. No existe todavía authorizer
-HTTP ni writer de RMA/direcciones; un writer que haga `resolve` seguido de
-`UPDATE/INSERT` sigue sin cumplir el contrato.
+email, número de pedido, dirección ni tracking. R5.5c compone sobre él el
+authorizer y `GET /api/customer/orders/:ord_ref`: sesión, capability, scope y
+owner son gates separados; la carga final compara owner y versión para cerrar
+la carrera autorización→lectura. No existe todavía writer de RMA/direcciones;
+un writer que haga `resolve` seguido de `UPDATE/INSERT` sigue sin cumplir el
+contrato.
 
-`CUS-004` queda instalado solo en el preset avanzado, sin flag activa, ruta,
-navegación, UI ni efecto. El backup sube a esquema 34 e incluye referencias y
-versiones exactas. El rehearsal aislado sobre el baseline `0040` conserva 294
+El detalle solo selecciona referencia pública, número comercial, estado,
+importe/divisa, fechas y tracking. No devuelve contacto, dirección, referencias
+de pago ni ids internos. Fallos de sesión y ownership comparten 404 y headers;
+la clave de rate limit y las métricas no contienen la referencia ni PII.
+
+`CUS-004` queda instalado solo en el preset avanzado y la ruta está declarada en
+el registro, pero sin flag activa, navegación, UI ni efecto por defecto. El
+backup sube a esquema 34 e incluye referencias y versiones exactas. El rehearsal
+aislado sobre el baseline `0040` conserva 294
 productos, 296 variantes, 296 balances, 8 pedidos, 8 pagos y los 8 pedidos
 guest, con `foreign_key_check` limpio y dump/restore equivalente.
 
@@ -162,10 +171,10 @@ activa en bloque.
 | Scope confundido | Matriz cerrada por CUS-004/005/006; no hay implicación transversal. |
 | Enumeración por errores | Misma forma pública para ausencia y denegación. |
 
-Las pruebas del corte cubren cada amenaza contractual salvo la concurrencia D1,
-que es gate del bloque de persistencia. Las futuras suites HTTP deben comprobar
-además tiempos/headers equivalentes, rate limit, CSRF en mutaciones y ausencia
-de PII en auditoría.
+Las pruebas cubren las amenazas contractuales, concurrencia de persistencia,
+formas/headers HTTP equivalentes, rate limit, cambio de owner entre autorización
+y lectura y ausencia de PII en DTO/métricas. CSRF y CAS de escritura permanecen
+como gates de las futuras mutaciones.
 
 ## Fronteras de R5.5a
 
@@ -178,12 +187,11 @@ de PII en auditoría.
 
 ## Siguiente gate
 
-R5.5c debe componer la lectura HTTP autenticada de pedidos sobre la sesión de
-R5.4, el gate activo de `CUS-004`, `customer:orders:read` y este reader. Ausencia,
-guest, owner ajeno, perfil fusionado, sesión revocada y referencia inválida deben
-conservar la misma respuesta pública anti-enumeración. El corte necesita pruebas
-IDOR/anti-enumeración, headers privados, ausencia de PII en logs y ningún claim
-automático de historia guest.
+R5.5d debe añadir un índice paginado que derive el perfil exclusivamente de la
+sesión y nunca acepte owner o selectores PII. La UI de historial y seguimiento
+reutiliza el detalle R5.5c, conserva estados vacío/error seguros, navegación por
+capability y cache privada. El corte necesita aislamiento entre perfiles,
+cursor opaco, a11y/E2E local y ningún claim automático de historia guest.
 
 ## Rollback
 

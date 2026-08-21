@@ -1391,24 +1391,29 @@ principal pasa a R4.1, motor de reglas de precio.
 
 ## 14. Siguiente bloque
 
-### R5.5c — lectura HTTP autenticada e IDOR
+### R5.5d — índice autenticado y superficie de cuenta
 
-Componer la primera superficie de lectura de `CUS-004` sin abrir todavía
-mutaciones ni reclamar historia guest:
+R5.5c queda cerrado local: `GET /api/customer/orders/:ord_ref` compone sesión
+R5.4 activa y coherente, `CUS-004 active`, permiso exacto
+`customer:orders:read`, reader de ownership y lectura owner+versión. La segunda
+consulta evita devolver datos si el owner cambia entre autorización y carga.
+Todos los fallos convergen en `404 customer.resource.not_found`; el DTO, las
+métricas y la clave de rate limit no exponen contacto, dirección, pago,
+referencia de pedido ni ids internos. La demo conserva el cierre fail-closed.
 
-1. endpoint server-side por referencia `ord_…`, nunca por id, número de pedido,
-   email, dirección o tracking;
-2. sesión R5.4 activa y coherente, capability `CUS-004` activa y permiso exacto
-   `customer:orders:read` antes de devolver datos;
-3. authorizer sobre el reader D1 de R5.5b y owner exacto del mismo perfil activo;
-4. respuesta `404 customer.resource.not_found` indistinguible para ausencia,
-   referencia inválida, guest, owner ajeno, perfil fusionado, identidad/sesión
-   revocada, capability apagada o scope ausente;
-5. DTO mínimo de historial/seguimiento sin dirección completa, contacto,
-   referencias de pago ni campos operativos internos;
-6. headers privados/no-store, logs y auditoría tipada sin PII, y límites de
-   entrada/rate limit coherentes con la superficie de cuenta;
-7. pruebas HTTP IDOR y anti-enumeración, incluyendo formas, headers y ausencia
-   de consultas por PII; E2E solo si se abre navegación o UI;
-8. `CUS-004` sigue inerte por defecto y sin deploy hasta completar preflight y
-   autorización de activación.
+`customers@1.8.0` declara permiso y ruta. `pnpm check` pasa 189 suites/976 tests,
+751 archivos tipados, build y baseline; el E2E local completo queda verde. No
+hubo DDL, D1 remota, Worker, UI, navegación, proveedor, activación ni deploy.
+
+Siguiente corte:
+
+1. reader D1 e índice HTTP paginado por cursor opaco, filtrado únicamente por el
+   perfil de la sesión; nunca acepta owner, email o número de pedido del cliente;
+2. mismo gate de sesión/capability/scope, cache privada/no-store y telemetría sin
+   PII ni referencias;
+3. superficie responsive de cuenta con listado, vacío seguro, estados y tracking
+   mínimo, más detalle sobre la ruta R5.5c;
+4. navegación completamente gobernada por `CUS-004`, sin reclamar pedidos guest
+   ni abrir la demo mientras la capacidad siga inactiva;
+5. pruebas de cursor, aislamiento entre perfiles, HTTP/UI, a11y y E2E local;
+6. sin activación ni deploy hasta preflight y autorización separados.

@@ -295,8 +295,11 @@ venta o servicios logísticos propios.
   durable fail-closed de `CUS-003`, sin activar la capacidad al aplicarla.
 - [`../../migrations/0041_customer_order_access.sql`](../../migrations/0041_customer_order_access.sql):
   referencia pública aleatoria y versión de ownership por pedido, backfill sin
-  reclamar historia guest y generación atómica para altas nuevas; backup 34 y
-  reader D1 instalados sin abrir superficie.
+  reclamar historia guest y generación atómica para altas nuevas; backup 34,
+  authorizer y lectura HTTP owner-only instalados sin activar `CUS-004`.
+- [`../../src/pages/api/customer/orders/[ref].ts`](../../src/pages/api/customer/orders/[ref].ts):
+  detalle mínimo por referencia opaca con sesión, capability, scope y owner
+  exactos; respuesta 404 uniforme, cache privada y telemetría sin PII.
 - [`OPERACION_PASSWORDLESS.md`](OPERACION_PASSWORDLESS.md): rehearsal, backup
   33, concurrencia, transporte fragmento→POST, preflight/activación aislados,
   reconciliación, recuperación y rollback de R5.4d.

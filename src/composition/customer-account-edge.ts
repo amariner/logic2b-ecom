@@ -1,7 +1,9 @@
 import type { CustomerPasswordlessObservability } from '../modules/customers/application/passwordless-observability';
 import { CUSTOMER_ACCOUNT_ROUTES } from '../modules/customers/presentation/customer-account-http';
+import { CUSTOMER_ORDER_API_PREFIX } from '../modules/customers/presentation/customer-order-access-http';
 import { customerAccountHeaders } from '../modules/customers/presentation/passwordless-http';
 import { canonicalRoutePathname } from '../platform/configuration';
+import type { CustomerOrderAccessMetric } from './customer-order-access-http';
 
 const RATE_LIMITED_ROUTES = new Set<string>([
   CUSTOMER_ACCOUNT_ROUTES.access,
@@ -38,6 +40,37 @@ export async function enforceCustomerAccountEdgeRate(input: Readonly<{
   }
   if (outcome.success) return null;
   input.observability.count({ stage: 'edge_rate', outcome: 'limited' });
+  return new Response('Demasiadas solicitudes. Inténtalo de nuevo dentro de un minuto.', {
+    status: 429,
+    headers: customerAccountHeaders({
+      'content-type': 'text/plain; charset=utf-8',
+      'retry-after': '60',
+    }),
+  });
+}
+
+/** Límite por IP y superficie, no por referencia, para impedir enumeración distribuida. */
+export async function enforceCustomerOrderAccessEdgeRate(input: Readonly<{
+  request: Request;
+  pathname: string;
+  binding: RateLimit | undefined;
+  observability: Readonly<{ count(metric: CustomerOrderAccessMetric): void }>;
+}>): Promise<Response | null> {
+  const pathname = canonicalRoutePathname(input.pathname);
+  if (input.request.method !== 'GET' || !pathname.startsWith(CUSTOMER_ORDER_API_PREFIX)) return null;
+  if (input.binding === undefined) {
+    input.observability.count({ outcome: 'denied', reason: 'edge_rate_unavailable' });
+    return unavailable();
+  }
+  const ip = input.request.headers.get('cf-connecting-ip') ?? 'local';
+  try {
+    const outcome = await input.binding.limit({ key: `${CUSTOMER_ORDER_API_PREFIX}:${ip}` });
+    if (outcome.success) return null;
+  } catch {
+    input.observability.count({ outcome: 'denied', reason: 'edge_rate_unavailable' });
+    return unavailable();
+  }
+  input.observability.count({ outcome: 'denied', reason: 'edge_rate_limited' });
   return new Response('Demasiadas solicitudes. Inténtalo de nuevo dentro de un minuto.', {
     status: 429,
     headers: customerAccountHeaders({

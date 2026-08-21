@@ -31,5 +31,6 @@ type Runtime = import('@astrojs/cloudflare').Runtime<Env>;
 declare namespace App {
   interface Locals extends Runtime {
     customerAccountHttp?: import('./modules/customers/presentation/customer-account-http').CustomerAccountHttp;
+    customerOrderAccessHttp?: import('./modules/customers/presentation/customer-order-access-http').CustomerOrderAccessHttp;
   }
 }

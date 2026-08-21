@@ -30,4 +30,16 @@ describe('gate middleware de cuenta en demo', () => {
     expect(middlewareSource).not.toContain("context.rewrite('/404')");
     expect(middlewareSource).toContain("return new Response('Página no encontrada.'");
   });
+
+  it('cierra la API de pedidos por CUS-004 antes de runtime y con forma anti-enumeración', () => {
+    const pathname = `/api/customer/orders/ord_${'a'.repeat(32)}`;
+    expect(decideRouteAccess(createPlatform(platformManifest), pathname)).toMatchObject({
+      allowed: false,
+      status: 404,
+      capabilityId: 'CUS-004',
+    });
+    expect(middlewareSource.indexOf('const routeAccess = decideRouteAccess'))
+      .toBeLessThan(middlewareSource.indexOf('if (customerOrderSurface)'));
+    expect(middlewareSource).toContain("code: 'customer.resource.not_found'");
+  });
 });

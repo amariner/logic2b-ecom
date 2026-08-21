@@ -93,6 +93,13 @@ const reset = await fetch(`${BASE}/api/demo/reset`, {
   headers: ORIGIN,
 });
 check('reset público retirado', reset.status === 410, `HTTP ${reset.status}`);
+const customerOrder = await fetch(`${BASE}/api/customer/orders/ord_${'a'.repeat(32)}`);
+const customerOrderBody = await customerOrder.json().catch(() => null);
+check(
+  'historial cliente permanece 404 anti-enumeración con CUS-004 installed',
+  customerOrder.status === 404 && customerOrderBody?.error?.code === 'customer.resource.not_found',
+  `HTTP ${customerOrder.status}`,
+);
 
 // ── 3. Panel protegido y con identidad/fixtures independientes ───────
 const noAuth = await fetch(`${BASE}/api/admin/orders/export.csv`);
