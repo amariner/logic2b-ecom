@@ -174,7 +174,7 @@ suites/715 tests; producción permanece en `0032`.
 | 52 | **R5.2 Consentimientos** | Canal, finalidad, versión legal, fuente, región, timestamp y retirada. | ✅ 2026-08-17 — D1 `0037`, repositorio atómico, backup 31 y rehearsal local; captura/rollout pendientes |
 | 53 | **R5.3 Derechos de datos** | Exportar, corregir, anonimizar/borrar con excepciones fiscales y audit log. | 🟨 2026-08-18 — contrato y persistencia R5.3a–b instalados; política, superficies y ejecución pendientes de gates propios |
 | 54 | **R5.4 Cuentas passwordless** | Login seguro, sesiones, revocación y anti-enumeración; módulo opcional. | ✅ 2026-08-19 — R5.4a–d implementan dominio, D1, Resend directo, transporte mismo navegador, throttle/auditoría, gate durable y HTTP/UI; 185 suites/958 tests; D1 remota en `0040`, Worker `a5cc8d85…` inerte, `CUS-003` instalada y rollout real aislado |
-| 55 | **R5.5 Autoservicio** | Pedidos, direcciones y devolución sobre permisos mínimos. | 🟨 R5.5a–b 2026-08-21 — contrato, referencia/versionado D1, reader y backup instalados; HTTP y superficies pendientes |
+| 55 | **R5.5 Autoservicio** | Pedidos, direcciones y devolución sobre permisos mínimos. | 🟨 R5.5a–d 2026-08-21 — historial/seguimiento owner-only completo en local e inactivo; direcciones y devolución pendientes |
 | 56 | **R5.6 Segmentación** | Lenguaje de filtros limitado, templates y recálculo observable. | ⬜ |
 | 57 | **R5.7 Modelo de mercados** | Contexto de país/idioma/moneda/dominio, resolución y fallback. | ⬜ |
 | 58 | **R5.8 Traducciones y URLs** | Campos traducibles, flujo editorial, canonical, hreflang y sitemap. | ⬜ |
@@ -329,6 +329,20 @@ pedidos/pagos y los 8 pedidos guest antes y después de dump/restore. `CUS-004`
 queda instalado solo en advanced, sin flag, ruta, UI, navegación ni deploy.
 `pnpm check` pasa 187 suites/969 tests y 744 archivos tipados; el E2E local
 completo permanece verde.
+
+R5.5c–d completan la vertical de lectura de `CUS-004` sin activarla. Detalle e
+índice exigen sesión R5.4 coherente, capability activa, scope exacto y owner del
+mismo perfil; la carga del detalle revalida owner+versión. El índice pagina diez
+pedidos por cursor opaco y filtra perfil dentro del SQL, sin aceptar owner,
+email o número comercial desde el cliente. Las páginas SSR de historial y
+seguimiento no añaden JS, incluyen navegación, vacío/error y comparten cache
+privada, rate limit por IP/superficie y métricas sin PII.
+
+`customers@1.9.0` declara API y páginas. El arnés local inerte verifica HTTP y
+18 superficies a 1440/375 con 0 errores/avisos; la revisión visual confirma
+cero overflow. `pnpm check` pasa 190 suites/993 tests, 756 archivos tipados,
+baseline y build; el E2E global mantiene demo, API y páginas cerradas. No hubo
+DDL, D1 remota, Worker, proveedor, activación ni deploy.
 
 ## R6 — B2B
 
@@ -1391,29 +1405,24 @@ principal pasa a R4.1, motor de reglas de precio.
 
 ## 14. Siguiente bloque
 
-### R5.5d — índice autenticado y superficie de cuenta
+### R5.5e — referencias y ownership de direcciones guardadas
 
-R5.5c queda cerrado local: `GET /api/customer/orders/:ord_ref` compone sesión
-R5.4 activa y coherente, `CUS-004 active`, permiso exacto
-`customer:orders:read`, reader de ownership y lectura owner+versión. La segunda
-consulta evita devolver datos si el owner cambia entre autorización y carga.
-Todos los fallos convergen en `404 customer.resource.not_found`; el DTO, las
-métricas y la clave de rate limit no exponen contacto, dirección, pago,
-referencia de pedido ni ids internos. La demo conserva el cierre fail-closed.
-
-`customers@1.8.0` declara permiso y ruta. `pnpm check` pasa 189 suites/976 tests,
-751 archivos tipados, build y baseline; el E2E local completo queda verde. No
-hubo DDL, D1 remota, Worker, UI, navegación, proveedor, activación ni deploy.
+R5.5d queda cerrado local: `GET /api/customer/orders`, `/cuenta/pedidos` y su
+detalle completan el recorrido owner-only de `CUS-004`. Cursor, filtro D1,
+sesión/capability/scope, cache, rate limit y telemetría no aceptan ni exponen
+selectores PII. `pnpm check` pasa 190 suites/993 tests y 756 archivos tipados;
+HTTP aislado, a11y 0/0 en 18 superficies, revisión 1440/375 y E2E global quedan
+verdes. La capacidad permanece instalada e inactiva, sin deploy.
 
 Siguiente corte:
 
-1. reader D1 e índice HTTP paginado por cursor opaco, filtrado únicamente por el
-   perfil de la sesión; nunca acepta owner, email o número de pedido del cliente;
-2. mismo gate de sesión/capability/scope, cache privada/no-store y telemetría sin
-   PII ni referencias;
-3. superficie responsive de cuenta con listado, vacío seguro, estados y tracking
-   mínimo, más detalle sobre la ruta R5.5c;
-4. navegación completamente gobernada por `CUS-004`, sin reclamar pedidos guest
-   ni abrir la demo mientras la capacidad siga inactiva;
-5. pruebas de cursor, aislamiento entre perfiles, HTTP/UI, a11y y E2E local;
-6. sin activación ni deploy hasta preflight y autorización separados.
+1. registrar `CUS-006` con dependencias y permisos exactos
+   `customer:addresses:read/write`, instalado sin flags en advanced;
+2. migración expand-only de referencia `addr_` aleatoria por `address_id`
+   estable, sin copiar recipient, teléfono ni dirección;
+3. owner canónico = revisión vigente→perfil activo y versión CAS ligada a la
+   revisión actual; revisar/escribir debe revalidar dentro de la transacción;
+4. backfill, generación para altas nuevas, colisión/concurrencia, merge y
+   borrado/retención coherentes con R5.1/R5.3;
+5. reader D1, backup siguiente y rehearsal/restore con FKs limpias;
+6. sin HTTP/UI, activación, migración remota ni deploy en este corte.

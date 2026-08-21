@@ -313,6 +313,31 @@ if (INCLUDE_CUSTOMER_ACCOUNT) {
       vp,
     });
     SURFACES.push({
+      name: `customer-account:orders${suffix}`,
+      url: '/cuenta/pedidos',
+      vp,
+    });
+    SURFACES.push({
+      name: `customer-account:orders-empty${suffix}`,
+      url: '/cuenta/pedidos?cursor=empty',
+      vp,
+    });
+    SURFACES.push({
+      name: `customer-account:orders-error${suffix}`,
+      url: '/cuenta/pedidos?cursor=invalid',
+      vp,
+    });
+    SURFACES.push({
+      name: `customer-account:order-detail${suffix}`,
+      url: `/cuenta/pedidos/ord_${'f'.repeat(32)}`,
+      vp,
+    });
+    SURFACES.push({
+      name: `customer-account:order-missing${suffix}`,
+      url: `/cuenta/pedidos/ord_${'0'.repeat(32)}`,
+      vp,
+    });
+    SURFACES.push({
       name: `customer-account:confirm-invalid${suffix}`,
       url: '/cuenta/acceso/confirmar#invalid',
       vp,

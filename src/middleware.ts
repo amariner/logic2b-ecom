@@ -20,7 +20,11 @@ import {
   createRuntimeCustomerOrderAccessHttp,
   customerOrderAccessRuntimeObservability,
 } from './composition/runtime-customer-order-access';
-import { CUSTOMER_ORDER_API_PREFIX } from './modules/customers/presentation/customer-order-access-http';
+import {
+  CUSTOMER_ORDER_API_PATH,
+  CUSTOMER_ORDER_API_PREFIX,
+  isCustomerOrderAccessPath,
+} from './modules/customers/presentation/customer-order-access-http';
 import {
   customerAccountHeaders,
   withCustomerAccountHeaders,
@@ -51,7 +55,9 @@ export const onRequest = defineMiddleware(async (context, next) => {
   const pathname = canonicalRoutePathname(context.url.pathname);
   const adminSurface = pathname.startsWith('/api/admin') || pathname.startsWith('/demo/admin');
   const customerAccountSurface = CUSTOMER_ACCOUNT_ROUTE_PATHS.has(pathname);
-  const customerOrderSurface = pathname.startsWith(CUSTOMER_ORDER_API_PREFIX);
+  const customerOrderSurface = isCustomerOrderAccessPath(pathname);
+  const customerOrderApiSurface = pathname === CUSTOMER_ORDER_API_PATH ||
+    pathname.startsWith(CUSTOMER_ORDER_API_PREFIX);
   const privateResponse = async (): Promise<Response> => {
     const response = await next();
     const headers = new Headers(response.headers);
@@ -62,7 +68,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
 
   const routeAccess = decideRouteAccess(runtimePlatform, pathname);
   if (routeAccess && !routeAccess.allowed) {
-    if (customerOrderSurface && routeAccess.status === 404) {
+    if (customerOrderApiSurface && routeAccess.status === 404) {
       return Response.json({ error: { code: 'customer.resource.not_found' } }, {
         status: 404,
         headers: customerAccountHeaders(),

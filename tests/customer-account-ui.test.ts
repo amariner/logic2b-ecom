@@ -3,6 +3,9 @@ import customerAccountLayout from '../src/layouts/CustomerAccount.astro?raw';
 import accessPage from '../src/pages/cuenta/acceso/index.astro?raw';
 import confirmPage from '../src/pages/cuenta/acceso/confirmar.astro?raw';
 import sessionsPage from '../src/pages/cuenta/sesiones.astro?raw';
+import ordersPage from '../src/pages/cuenta/pedidos/index.astro?raw';
+import orderDetailPage from '../src/pages/cuenta/pedidos/[ref].astro?raw';
+import orderIndexApi from '../src/pages/api/customer/orders/index.ts?raw';
 import confirmScript from '../src/modules/customers/presentation/customer-passwordless-confirm.ts?raw';
 import astroConfig from '../astro.config.mjs?raw';
 
@@ -74,5 +77,34 @@ describe('superficie visual de cuenta', () => {
     expect(sessionsPage).toContain('Cerrar esta sesión');
     expect(sessionsPage).not.toContain('Cerrar todas');
     expect(sessionsPage).not.toContain('revokeAll');
+    expect(sessionsPage).toContain('view.ordersAvailable');
+    expect(sessionsPage).toContain('Ver mis pedidos');
+  });
+
+  it('renderiza historial y detalle sin JS, con estados y navegación accesibles', () => {
+    for (const source of [ordersPage, orderDetailPage]) {
+      expect(source).toContain('CustomerAccount');
+      expect(source).toContain('export const prerender = false');
+      expect(source).not.toMatch(/<script\b/iu);
+      expect(source).not.toContain('runtime.env');
+      expect(source).not.toContain('analytics');
+      expect(source).toContain('aria-label="Cuenta de cliente"');
+      expect(source).toContain('aria-current="page"');
+    }
+    expect(ordersPage).toContain('http.listView(Astro.request');
+    expect(ordersPage).toContain('Todavía no hay pedidos vinculados');
+    expect(ordersPage).toContain('No hemos podido abrir esa página');
+    expect(ordersPage).toContain('rel="next"');
+    expect(orderDetailPage).toContain('http.readView(Astro.request');
+    expect(orderDetailPage).toContain('Pedido no encontrado');
+    expect(orderDetailPage).toContain('Seguimiento');
+  });
+
+  it('la API de índice solo acepta cursor y no ofrece selectores alternativos', () => {
+    expect(orderIndexApi).toContain("key !== 'cursor'");
+    expect(orderIndexApi).toContain("search.getAll('cursor').length > 1");
+    expect(orderIndexApi).not.toContain("search.get('email')");
+    expect(orderIndexApi).not.toContain("search.get('owner')");
+    expect(orderIndexApi).not.toContain("search.get('orderNumber')");
   });
 });

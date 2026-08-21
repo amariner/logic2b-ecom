@@ -1,0 +1,138 @@
+---
+import CustomerAccount from '../../../layouts/CustomerAccount.astro';
+import {
+  CUSTOMER_ORDER_PAGE_PATH,
+  customerOrderAccessHttpFromLocals,
+  type CustomerOrderListView,
+} from '../../../modules/customers/presentation/customer-order-access-http';
+
+export const prerender = false;
+
+const method = Astro.request.method.toUpperCase();
+if (method !== 'GET' && method !== 'HEAD') {
+  return new Response('Método no permitido.', { status: 405, headers: { allow: 'GET, HEAD' } });
+}
+const http = customerOrderAccessHttpFromLocals(Astro.locals);
+if (http === null) return new Response('Acceso no disponible.', { status: 503 });
+
+const search = Astro.url.searchParams;
+const invalidQuery = [...search.keys()].some((key) => key !== 'cursor') ||
+  search.getAll('cursor').length > 1;
+const result = invalidQuery
+  ? new Response(null, { status: 400 })
+  : await http.listView(Astro.request, search.get('cursor'));
+if (result instanceof Response && result.status >= 300 && result.status < 400) return result;
+
+const view: CustomerOrderListView | null = result instanceof Response ? null : result;
+const invalidCursor = result instanceof Response && result.status === 400;
+if (result instanceof Response) Astro.response.status = result.status;
+
+const statusLabels: Readonly<Record<string, string>> = Object.freeze({
+  pending: 'Pendiente',
+  paid: 'Pagado',
+  shipped: 'Enviado',
+  delivered: 'Entregado',
+  cancelled: 'Cancelado',
+  refunded: 'Reembolsado',
+});
+
+function date(value: string): string {
+  const parsed = new Date(value);
+  return Number.isFinite(parsed.getTime())
+    ? new Intl.DateTimeFormat('es-ES', { dateStyle: 'medium' }).format(parsed)
+    : 'Fecha no disponible';
+}
+
+function money(cents: number, currency: string): string {
+  try {
+    return new Intl.NumberFormat('es-ES', { style: 'currency', currency }).format(cents / 100);
+  } catch {
+    return `${(cents / 100).toFixed(2)} ${currency}`;
+  }
+}
+---
+
+<CustomerAccount
+  title="Mis pedidos"
+  description="Consulta el estado y seguimiento de tus pedidos."
+  width="wide"
+>
+  <div class="w-full">
+    <nav aria-label="Cuenta de cliente" class="mb-6 flex flex-wrap gap-2 text-sm">
+      <a href={CUSTOMER_ORDER_PAGE_PATH} aria-current="page" class="rounded-lg bg-foreground px-4 py-2 font-semibold text-background">Pedidos</a>
+      <a href="/cuenta/sesiones" class="rounded-lg border border-border bg-background px-4 py-2 font-semibold hover:bg-muted">Sesión</a>
+    </nav>
+
+    <section class="rounded-2xl border border-border bg-background p-6 shadow-sm sm:p-8" aria-labelledby="orders-title">
+      <p class="text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">Cuenta de cliente</p>
+      <div class="mt-2 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <h1 id="orders-title" class="font-display text-3xl leading-tight">Mis pedidos</h1>
+          <p class="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">
+            Consulta el estado de cada compra vinculada a esta cuenta.
+          </p>
+        </div>
+        {view && view.orders.length > 0 && (
+          <p class="text-sm font-medium text-muted-foreground">{view.orders.length} en esta página</p>
+        )}
+      </div>
+
+      {invalidCursor && (
+        <div role="alert" class="mt-8 rounded-xl border border-border bg-muted/45 p-5">
+          <h2 class="font-display text-xl">No hemos podido abrir esa página</h2>
+          <p class="mt-2 text-sm leading-6 text-muted-foreground">El enlace de paginación ya no es válido.</p>
+          <a href={CUSTOMER_ORDER_PAGE_PATH} class="mt-4 inline-flex min-h-11 items-center font-semibold underline underline-offset-4">Volver al inicio</a>
+        </div>
+      )}
+
+      {view && view.orders.length === 0 && (
+        <div class="mt-8 rounded-xl border border-dashed border-border bg-muted/35 p-8 text-center">
+          <h2 class="font-display text-xl">Todavía no hay pedidos vinculados</h2>
+          <p class="mx-auto mt-2 max-w-md text-sm leading-6 text-muted-foreground">
+            Las compras como invitado no se añaden automáticamente a una cuenta.
+          </p>
+        </div>
+      )}
+
+      {view && view.orders.length > 0 && (
+        <ul class="mt-8 grid gap-4" aria-label="Pedidos vinculados">
+          {view.orders.map((order) => (
+            <li>
+              <a
+                href={`${CUSTOMER_ORDER_PAGE_PATH}/${encodeURIComponent(order.publicRef)}`}
+                class="group block rounded-xl border border-border bg-background p-5 shadow-sm transition-colors hover:bg-muted/45 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              >
+                <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                  <div>
+                    <p class="text-sm text-muted-foreground">{date(order.createdAt)}</p>
+                    <h2 class="mt-1 font-display text-xl">Pedido {order.orderNumber}</h2>
+                  </div>
+                  <div class="sm:text-right">
+                    <p class="font-semibold">{money(order.totalCents, order.currency)}</p>
+                    <p class="mt-1 text-sm font-medium text-muted-foreground">{statusLabels[order.status] ?? 'En proceso'}</p>
+                  </div>
+                </div>
+                <div class="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-border pt-4 text-sm">
+                  <span class="text-muted-foreground">
+                    {order.tracking ? `Seguimiento: ${order.tracking.carrier}` : 'Seguimiento todavía no disponible'}
+                  </span>
+                  <span class="font-semibold underline-offset-4 group-hover:underline">Ver detalle</span>
+                </div>
+              </a>
+            </li>
+          ))}
+        </ul>
+      )}
+
+      {view?.nextCursor && (
+        <div class="mt-6 border-t border-border pt-6 text-center">
+          <a
+            rel="next"
+            href={`${CUSTOMER_ORDER_PAGE_PATH}?cursor=${encodeURIComponent(view.nextCursor)}`}
+            class="inline-flex min-h-12 items-center justify-center rounded-xl border border-border bg-background px-6 font-semibold shadow-sm hover:bg-muted"
+          >Más pedidos</a>
+        </div>
+      )}
+    </section>
+  </div>
+</CustomerAccount>

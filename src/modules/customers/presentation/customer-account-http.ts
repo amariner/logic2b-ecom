@@ -19,6 +19,8 @@ export type CurrentCustomerSessionView = Readonly<{
     expiresAt: string;
     absoluteExpiresAt: string;
   }>;
+  /** Solo true cuando CUS-004 tiene rutas activas en este despliegue. */
+  ordersAvailable: boolean;
 }>;
 
 /**

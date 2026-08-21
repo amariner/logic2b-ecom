@@ -100,6 +100,17 @@ check(
   customerOrder.status === 404 && customerOrderBody?.error?.code === 'customer.resource.not_found',
   `HTTP ${customerOrder.status}`,
 );
+const customerOrders = await fetch(`${BASE}/api/customer/orders`);
+const customerOrdersBody = await customerOrders.json().catch(() => null);
+check(
+  'índice cliente permanece 404 anti-enumeración con CUS-004 installed',
+  customerOrders.status === 404 && customerOrdersBody?.error?.code === 'customer.resource.not_found',
+  `HTTP ${customerOrders.status}`,
+);
+for (const path of ['/cuenta/pedidos', `/cuenta/pedidos/ord_${'a'.repeat(32)}`]) {
+  const page = await fetch(`${BASE}${path}`);
+  check(`superficie cliente ${path} permanece ausente`, page.status === 404, `HTTP ${page.status}`);
+}
 
 // ── 3. Panel protegido y con identidad/fixtures independientes ───────
 const noAuth = await fetch(`${BASE}/api/admin/orders/export.csv`);

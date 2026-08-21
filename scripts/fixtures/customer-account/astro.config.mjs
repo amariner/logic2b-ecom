@@ -13,6 +13,7 @@ const root = fileURLToPath(new URL('../../../', import.meta.url));
 const platformConfig = fileURLToPath(new URL('./platform.config.ts', import.meta.url));
 const runtimeFixture = fileURLToPath(new URL('./runtime-customer-account.ts', import.meta.url));
 const edgeFixture = fileURLToPath(new URL('./customer-account-edge.ts', import.meta.url));
+const orderRuntimeFixture = fileURLToPath(new URL('./runtime-customer-order-access.ts', import.meta.url));
 const alias = [];
 
 if (mode !== 'demo') {
@@ -22,6 +23,7 @@ if (mode !== 'demo') {
 if (mode === 'surface') {
   alias.push(
     { find: './composition/runtime-customer-account', replacement: runtimeFixture },
+    { find: './composition/runtime-customer-order-access', replacement: orderRuntimeFixture },
     { find: './composition/customer-account-edge', replacement: edgeFixture },
   );
 }

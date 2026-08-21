@@ -1,6 +1,6 @@
 # ADR-0044 — Ownership por recurso y permisos mínimos de autoservicio
 
-- Estado: aceptado; contrato, persistencia y detalle HTTP de pedidos instalados
+- Estado: aceptado; vertical de lectura de pedidos instalada e inactiva
 - Fecha: 2026-08-21
 - Bloque: R5.5a
 - Capacidades: `CUS-004`, `CUS-005`, `CUS-006`
@@ -134,8 +134,15 @@ importe/divisa, fechas y tracking. No devuelve contacto, dirección, referencias
 de pago ni ids internos. Fallos de sesión y ownership comparten 404 y headers;
 la clave de rate limit y las métricas no contienen la referencia ni PII.
 
-`CUS-004` queda instalado solo en el preset avanzado y la ruta está declarada en
-el registro, pero sin flag activa, navegación, UI ni efecto por defecto. El
+R5.5d añade `GET /api/customer/orders` y `/cuenta/pedidos`. El índice deriva el
+perfil exclusivamente de la sesión, filtra owner activo en SQL y pagina diez
+filas con cursor que solo contiene instante y referencia pública. Rechaza owner,
+email, número comercial y cualquier parámetro alternativo. Las páginas SSR no
+añaden JavaScript y comparten los mismos gates, cache privada y límite por IP;
+la sesión solo enlaza el historial cuando `CUS-004` tiene rutas activas.
+
+`CUS-004` queda instalado solo en el preset avanzado y API/páginas están
+declaradas en el registro, pero sin flag activa ni efecto por defecto. El
 backup sube a esquema 34 e incluye referencias y versiones exactas. El rehearsal
 aislado sobre el baseline `0040` conserva 294
 productos, 296 variantes, 296 balances, 8 pedidos, 8 pagos y los 8 pedidos
@@ -187,11 +194,11 @@ como gates de las futuras mutaciones.
 
 ## Siguiente gate
 
-R5.5d debe añadir un índice paginado que derive el perfil exclusivamente de la
-sesión y nunca acepte owner o selectores PII. La UI de historial y seguimiento
-reutiliza el detalle R5.5c, conserva estados vacío/error seguros, navegación por
-capability y cache privada. El corte necesita aislamiento entre perfiles,
-cursor opaco, a11y/E2E local y ningún claim automático de historia guest.
+R5.5e debe materializar referencias `addr_` y ownership versionado para las
+direcciones R5.1 antes de abrir `CUS-006`. El `address_id` estable conserva la
+identidad del recurso y la revisión vigente aporta owner y CAS. El corte exige
+backfill/generación atómicos, reader D1, backup/rehearsal y cero PII duplicada;
+HTTP/UI y activación permanecen fuera.
 
 ## Rollback
 

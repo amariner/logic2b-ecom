@@ -19,6 +19,7 @@ type Dependencies = Readonly<{
   expectedOrigin: string;
   defer: (promise: Promise<unknown>) => void;
   now?: () => string;
+  ordersAvailable?: boolean;
 }>;
 
 const MAX_REQUEST_BODY_LENGTH = 4_096;
@@ -179,6 +180,7 @@ export function createCustomerAccountHttp(dependencies: Dependencies): CustomerA
       }
       return Object.freeze({
         csrfToken: await application.sessionCsrf(context),
+        ordersAvailable: dependencies.ordersAvailable ?? false,
         session: Object.freeze({
           issuedAt: context.session.issuedAt,
           expiresAt: context.session.expiresAt,

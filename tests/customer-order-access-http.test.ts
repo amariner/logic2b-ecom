@@ -2,6 +2,8 @@ import { describe, expect, it, vi } from 'vitest';
 import { createCustomerOrderAccessHttp } from '../src/composition/customer-order-access-http';
 import { createCustomerResourceAuthorizer } from '../src/composition/customer-resource-authorization';
 import {
+  createCustomerOrderListService,
+  createD1CustomerOwnedOrderListReader,
   createD1CustomerOrderOwnershipReader,
   createD1CustomerOwnedOrderReader,
   type CustomerOwnershipSubject,
@@ -73,6 +75,7 @@ function http(db: SqliteD1, input: Readonly<{
   capabilities?: readonly CustomerSelfServiceCapability[];
   scopes?: readonly CustomerResourceScope[];
   orders?: CustomerOwnedOrderReader;
+  orderList?: ReturnType<typeof createCustomerOrderListService>;
 }> = {}) {
   const metrics = { count: vi.fn() };
   const ownership = createD1CustomerOrderOwnershipReader(db.asD1());
@@ -82,6 +85,9 @@ function http(db: SqliteD1, input: Readonly<{
       sessionSubject: vi.fn(async () => input.subject === undefined ? subject() : input.subject),
       authorizer: createCustomerResourceAuthorizer(ownership),
       orders: input.orders ?? createD1CustomerOwnedOrderReader(db.asD1()),
+      orderList: input.orderList ?? createCustomerOrderListService(
+        createD1CustomerOwnedOrderListReader(db.asD1()),
+      ),
       activeCapabilities: input.capabilities ?? ['CUS-004'],
       grantedScopes: input.scopes ?? ['customer:orders:read'],
       observability: metrics,
@@ -181,5 +187,76 @@ describe('lectura HTTP autenticada de pedidos R5.5c', () => {
     const response = await http(db, { orders: racing }).value.read(request(), publicRef);
     expect(response.status).toBe(404);
     expect(await response.json()).toEqual({ error: { code: 'customer.resource.not_found' } });
+  });
+});
+
+describe('índice HTTP autenticado de pedidos R5.5d', () => {
+  it('pagina solo pedidos del perfil de sesión y nunca mezcla otro owner', async () => {
+    const db = new SqliteD1();
+    profile(db, 'customer_profile:one', 'a');
+    profile(db, 'customer_profile:two', 'b');
+    for (let index = 0; index < 12; index += 1) order(db, `one-${index}`, 'customer_profile:one');
+    for (let index = 0; index < 3; index += 1) order(db, `two-${index}`, 'customer_profile:two');
+
+    const access = http(db).value;
+    const first = await access.list(request(), null);
+    expect(first.status).toBe(200);
+    const firstBody = await first.json() as { orders: Array<{ orderNumber: string }>; nextCursor: string | null };
+    expect(firstBody.orders).toHaveLength(10);
+    expect(firstBody.orders.every((entry) => entry.orderNumber.startsWith('ORDER-ACCESS-one-'))).toBe(true);
+    expect(firstBody.nextCursor).toEqual(expect.any(String));
+
+    const second = await access.list(request(), firstBody.nextCursor);
+    const secondBody = await second.json() as { orders: Array<{ orderNumber: string }>; nextCursor: string | null };
+    expect(secondBody.orders).toHaveLength(2);
+    expect(secondBody.orders.every((entry) => entry.orderNumber.startsWith('ORDER-ACCESS-one-'))).toBe(true);
+    expect(secondBody.nextCursor).toBeNull();
+  });
+
+  it('rechaza cursor manipulado sin consultar otro owner', async () => {
+    const db = new SqliteD1();
+    profile(db, 'customer_profile:one', 'a');
+    const access = http(db);
+    const response = await access.value.list(request(), 'owner=customer_profile:two');
+    expect(response.status).toBe(400);
+    await expect(response.json()).resolves.toEqual({ error: { code: 'customer.request.invalid' } });
+    expect(access.metrics.count).toHaveBeenLastCalledWith({ outcome: 'denied', reason: 'invalid_cursor' });
+  });
+
+  it('redirige la vista sin sesión y conserva 404 uniforme en la API', async () => {
+    const db = new SqliteD1();
+    const access = http(db).value;
+    const page = await access.listView(request(false), null);
+    expect(page).toBeInstanceOf(Response);
+    expect((page as Response).status).toBe(303);
+    expect((page as Response).headers.get('location')).toBe('/cuenta/acceso');
+    const api = await access.list(request(false), null);
+    expect(api.status).toBe(404);
+    await expect(api.json()).resolves.toEqual({ error: { code: 'customer.resource.not_found' } });
+  });
+
+  it('no consulta el índice si capability, scope o perfil activo fallan', async () => {
+    const db = new SqliteD1();
+    const listOwned = vi.fn(async () => ({ orders: [], nextCursor: null }));
+    const orderList = createCustomerOrderListService({ listOwned });
+    const active = subject();
+    const merged = Object.freeze({
+      ...active,
+      profile: Object.freeze({
+        id: active.profile.id,
+        status: 'merged' as const,
+        mergedIntoProfileId: 'customer_profile:two',
+      }),
+    });
+    for (const input of [
+      { capabilities: [] as const, orderList },
+      { scopes: [] as const, orderList },
+      { subject: merged, orderList },
+    ]) {
+      const response = await http(db, input).value.list(request(), null);
+      expect(response.status).toBe(404);
+      await expect(response.json()).resolves.toEqual({ error: { code: 'customer.resource.not_found' } });
+    }
+    expect(listOwned).not.toHaveBeenCalled();
   });
 });

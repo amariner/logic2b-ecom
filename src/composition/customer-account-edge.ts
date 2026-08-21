@@ -1,6 +1,6 @@
 import type { CustomerPasswordlessObservability } from '../modules/customers/application/passwordless-observability';
 import { CUSTOMER_ACCOUNT_ROUTES } from '../modules/customers/presentation/customer-account-http';
-import { CUSTOMER_ORDER_API_PREFIX } from '../modules/customers/presentation/customer-order-access-http';
+import { isCustomerOrderAccessPath } from '../modules/customers/presentation/customer-order-access-http';
 import { customerAccountHeaders } from '../modules/customers/presentation/passwordless-http';
 import { canonicalRoutePathname } from '../platform/configuration';
 import type { CustomerOrderAccessMetric } from './customer-order-access-http';
@@ -57,14 +57,14 @@ export async function enforceCustomerOrderAccessEdgeRate(input: Readonly<{
   observability: Readonly<{ count(metric: CustomerOrderAccessMetric): void }>;
 }>): Promise<Response | null> {
   const pathname = canonicalRoutePathname(input.pathname);
-  if (input.request.method !== 'GET' || !pathname.startsWith(CUSTOMER_ORDER_API_PREFIX)) return null;
+  if (!['GET', 'HEAD'].includes(input.request.method) || !isCustomerOrderAccessPath(pathname)) return null;
   if (input.binding === undefined) {
     input.observability.count({ outcome: 'denied', reason: 'edge_rate_unavailable' });
     return unavailable();
   }
   const ip = input.request.headers.get('cf-connecting-ip') ?? 'local';
   try {
-    const outcome = await input.binding.limit({ key: `${CUSTOMER_ORDER_API_PREFIX}:${ip}` });
+    const outcome = await input.binding.limit({ key: `/customer-order-access:${ip}` });
     if (outcome.success) return null;
   } catch {
     input.observability.count({ outcome: 'denied', reason: 'edge_rate_unavailable' });

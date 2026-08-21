@@ -300,6 +300,12 @@ venta o servicios logísticos propios.
 - [`../../src/pages/api/customer/orders/[ref].ts`](../../src/pages/api/customer/orders/[ref].ts):
   detalle mínimo por referencia opaca con sesión, capability, scope y owner
   exactos; respuesta 404 uniforme, cache privada y telemetría sin PII.
+- [`../../src/pages/cuenta/pedidos/index.astro`](../../src/pages/cuenta/pedidos/index.astro):
+  historial SSR paginado por cursor owner-only, con vacío/error, navegación y
+  detalle responsive sin JavaScript; permanece ausente con `CUS-004 installed`.
+- [`../../scripts/audit-customer-account-local.mjs`](../../scripts/audit-customer-account-local.mjs):
+  arnés cliente aislado de cuenta, historial y seguimiento; comprueba demo,
+  preflight, HTTP y a11y 1440/375 sin DB, secretos ni proveedor en el modo visual.
 - [`OPERACION_PASSWORDLESS.md`](OPERACION_PASSWORDLESS.md): rehearsal, backup
   33, concurrencia, transporte fragmento→POST, preflight/activación aislados,
   reconciliación, recuperación y rollback de R5.4d.

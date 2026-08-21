@@ -6,3 +6,7 @@
 export async function enforceCustomerAccountEdgeRate(): Promise<null> {
   return null;
 }
+
+export async function enforceCustomerOrderAccessEdgeRate(): Promise<null> {
+  return null;
+}

@@ -4,12 +4,15 @@ import '../styles/global.css';
 interface Props {
   title: string;
   description?: string | undefined;
+  width?: 'narrow' | 'wide' | undefined;
 }
 
 const {
   title,
   description = 'Acceso seguro a tu cuenta de cliente.',
+  width = 'narrow',
 } = Astro.props;
+const contentWidth = width === 'wide' ? 'max-w-5xl' : 'max-w-lg';
 ---
 
 <!doctype html>
@@ -41,7 +44,7 @@ const {
         </div>
       </header>
 
-      <main id="contenido" class="mx-auto flex w-full max-w-lg flex-1 items-center px-5 py-10 sm:px-8 sm:py-16">
+      <main id="contenido" class:list={['mx-auto flex w-full flex-1 items-center px-5 py-10 sm:px-8 sm:py-16', contentWidth]}>
         <div class="w-full">
           <slot />
         </div>

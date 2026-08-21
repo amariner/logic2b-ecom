@@ -42,4 +42,16 @@ describe('gate middleware de cuenta en demo', () => {
       .toBeLessThan(middlewareSource.indexOf('if (customerOrderSurface)'));
     expect(middlewareSource).toContain("code: 'customer.resource.not_found'");
   });
+
+  it.each([
+    '/api/customer/orders',
+    '/cuenta/pedidos',
+    `/cuenta/pedidos/ord_${'a'.repeat(32)}`,
+  ])('cierra %s por CUS-004 antes de runtime', (pathname) => {
+    expect(decideRouteAccess(createPlatform(platformManifest), pathname)).toMatchObject({
+      allowed: false,
+      status: 404,
+      capabilityId: 'CUS-004',
+    });
+  });
 });

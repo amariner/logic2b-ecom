@@ -29,6 +29,8 @@ const activeConfig = Object.freeze({
 function activePlatform(): Platform {
   return {
     isCapabilityActive: (id: string) => id === 'CUS-003' || id === 'CUS-004',
+    hasCapabilityFlag: (id: string, flag: string) =>
+      (id === 'CUS-003' || id === 'CUS-004') && flag === 'routes',
     capability: () => ({
       id: 'CUS-003', state: 'active',
       flags: { routes: true, navigation: false, jobs: false, sideEffects: true },

@@ -82,8 +82,9 @@ export async function createRuntimeCustomerAccountHttp(
   defer: (promise: Promise<unknown>) => void,
   options: RuntimeCustomerAccountOptions = {},
 ): Promise<CustomerAccountHttp | null> {
+  const platform = options.platform ?? runtimePlatform;
   const configuration = resolveCustomerPasswordlessRuntimeConfiguration(
-    options.platform ?? runtimePlatform,
+    platform,
     env,
   );
   if (configuration === null) return null;
@@ -106,6 +107,8 @@ export async function createRuntimeCustomerAccountHttp(
     application,
     expectedOrigin: configuration.origin,
     defer,
+    ordersAvailable: platform.isCapabilityActive('CUS-004') &&
+      platform.hasCapabilityFlag('CUS-004', 'routes'),
     ...(options.now === undefined ? {} : { now: options.now }),
   });
 }

@@ -181,7 +181,10 @@ export {
 } from './domain/resource-ownership';
 export type {
   CustomerOrderAccessView,
+  CustomerOrderListCursor,
+  CustomerOrderListReadPage,
   CustomerOwnedOrderReader,
+  CustomerOwnedOrderListReader,
   CustomerOwnedMutationOutcome,
   CustomerOwnedResourceWriter,
   CustomerResourceAccessAuditWriter,
@@ -189,6 +192,13 @@ export type {
   CustomerResourceOwnershipReader,
 } from './application/resource-ownership-ports';
 export {
+  createD1CustomerOwnedOrderListReader,
   createD1CustomerOwnedOrderReader,
   createD1CustomerOrderOwnershipReader,
 } from './infrastructure/d1-customer-resource-ownership-reader';
+export {
+  CUSTOMER_ORDER_LIST_PAGE_SIZE,
+  createCustomerOrderListService,
+  decodeCustomerOrderListCursor,
+  encodeCustomerOrderListCursor,
+} from './application/customer-order-list';

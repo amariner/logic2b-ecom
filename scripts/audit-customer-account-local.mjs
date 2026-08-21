@@ -1,5 +1,5 @@
 /**
- * Evidencia local R5.4d sin activar la demo ni usar credenciales reales.
+ * Evidencia local R5.4d–R5.5d sin activar la demo ni usar credenciales reales.
  *
  * Compila y ejecuta tres Workers efímeros y secuenciales:
  *   1. composición real de la demo: las rutas de cuenta deben ser 404;
@@ -17,6 +17,8 @@ import { fileURLToPath } from 'node:url';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const FIXTURE_CONFIG = 'scripts/fixtures/customer-account/astro.config.mjs';
+const ASTRO_BIN = join(ROOT, 'node_modules', '.bin', 'astro');
+const WRANGLER_BIN = join(ROOT, 'node_modules', '.bin', 'wrangler');
 const ACCOUNT_PATHS = [
   '/cuenta/acceso',
   '/cuenta/acceso/',
@@ -24,6 +26,9 @@ const ACCOUNT_PATHS = [
   '/cuenta/acceso/confirmar/',
   '/cuenta/sesiones',
   '/cuenta/sesiones/',
+  '/cuenta/pedidos',
+  `/cuenta/pedidos/ord_${'f'.repeat(32)}`,
+  '/api/customer/orders',
 ];
 const SECRET_ENV_NAMES = [
   'ADMIN_COOKIE_SECRET',
@@ -94,8 +99,6 @@ async function stop(child) {
 async function start(mode) {
   const port = await availablePort();
   const args = [
-    'exec',
-    'wrangler',
     'dev',
     '--config',
     'scripts/fixtures/customer-account/wrangler.jsonc',
@@ -107,7 +110,7 @@ async function start(mode) {
     CUSTOMER_ACCOUNT_AUDIT_CACHE_DIR: `/private/tmp/logic-ecom-customer-account-${mode}-${port}`,
     ...(mode === 'demo' ? {} : { CUSTOMER_ACCOUNT_AUDIT_MODE: mode }),
   });
-  const child = spawn('pnpm', args, {
+  const child = spawn(WRANGLER_BIN, args, {
     cwd: ROOT,
     env,
     stdio: ['ignore', 'pipe', 'pipe'],
@@ -139,8 +142,8 @@ async function start(mode) {
 
 async function build(mode) {
   await run(
-    'pnpm',
-    ['exec', 'astro', 'build', '--config', FIXTURE_CONFIG],
+    ASTRO_BIN,
+    ['build', '--config', FIXTURE_CONFIG],
     safeEnvironment({
       CUSTOMER_ACCOUNT_AUDIT_MODE: mode,
       CUSTOMER_ACCOUNT_AUDIT_CACHE_DIR: `/private/tmp/logic-ecom-customer-account-build-${mode}-${process.pid}`,
@@ -180,7 +183,7 @@ async function demoAbsence() {
 
 async function activePreflightFailsClosed() {
   await withServer('preflight', async (base) => {
-    for (const path of ['/cuenta/acceso', '/cuenta/sesiones']) {
+    for (const path of ['/cuenta/acceso', '/cuenta/sesiones', '/cuenta/pedidos', '/api/customer/orders']) {
       const response = await fetch(`${base}${path}`, { redirect: 'manual' });
       const body = await response.text();
       check(`preflight ${path} falla cerrado sin secretos`, response.status === 503, `HTTP ${response.status}`);
@@ -227,6 +230,37 @@ async function activeSurfaceAudit() {
     const sessionsHtml = await sessions.text();
     check('superficie activa sirve la sesión actual', sessions.status === 200 && sessionsHtml.includes('Sesión actual'));
     check('sesiones conserva cabeceras privadas', secureAccountHeaders(sessions));
+    check('sesiones enlaza pedidos solo con CUS-004 activa', sessionsHtml.includes('Ver mis pedidos'));
+
+    const orders = await fetch(`${base}/cuenta/pedidos`);
+    const ordersHtml = await orders.text();
+    check('superficie activa sirve historial owner-only',
+      orders.status === 200 && ordersHtml.includes('L2B-2026-0042'));
+    check('historial conserva cabeceras privadas', secureAccountHeaders(orders));
+    check('historial no renderiza contacto ni dirección',
+      !ordersHtml.includes('cliente@example.test') && !ordersHtml.includes('Calle'));
+
+    const emptyOrders = await fetch(`${base}/cuenta/pedidos?cursor=empty`);
+    check('historial vacío conserva una explicación segura',
+      emptyOrders.status === 200 && (await emptyOrders.text()).includes('Todavía no hay pedidos vinculados'));
+    const invalidOrders = await fetch(`${base}/cuenta/pedidos?cursor=invalid`);
+    check('cursor inválido conserva un error recuperable',
+      invalidOrders.status === 400 && (await invalidOrders.text()).includes('Volver al inicio'));
+
+    const detail = await fetch(`${base}/cuenta/pedidos/ord_${'f'.repeat(32)}`);
+    const detailHtml = await detail.text();
+    check('superficie activa sirve detalle y seguimiento',
+      detail.status === 200 && detailHtml.includes('PQ42FIXTURE'));
+    check('detalle conserva cabeceras privadas', secureAccountHeaders(detail));
+    const missingDetail = await fetch(`${base}/cuenta/pedidos/ord_${'0'.repeat(32)}`);
+    check('detalle ausente conserva estado genérico',
+      missingDetail.status === 404 && (await missingDetail.text()).includes('Pedido no encontrado'));
+
+    const orderApi = await fetch(`${base}/api/customer/orders`);
+    const orderApiBody = await orderApi.json();
+    check('índice API activo devuelve DTO mínimo',
+      orderApi.status === 200 && orderApiBody.orders?.[0]?.orderNumber === 'L2B-2026-0042');
+    check('índice API conserva cabeceras privadas', secureAccountHeaders(orderApi));
 
     const acknowledgement = await fetch(`${base}/cuenta/acceso`, {
       method: 'POST',
@@ -253,21 +287,21 @@ async function activeSurfaceAudit() {
 
 async function main() {
   if (only === undefined || only === 'demo') {
-    console.log('R5.4d · ausencia de la demo');
+    console.log('R5.4d–R5.5d · ausencia de la demo');
     await build('demo');
     await demoAbsence();
   }
   if (only === undefined || only === 'preflight') {
-    console.log(`${only === undefined ? '\n' : ''}R5.4d · preflight activo fail-closed`);
+    console.log(`${only === undefined ? '\n' : ''}R5.4d–R5.5d · preflight activo fail-closed`);
     await build('preflight');
     await activePreflightFailsClosed();
   }
   if (only === undefined || only === 'surface') {
-    console.log(`${only === undefined ? '\n' : ''}R5.4d · superficie activa aislada`);
+    console.log(`${only === undefined ? '\n' : ''}R5.4d–R5.5d · superficie activa aislada`);
     await build('surface');
     await activeSurfaceAudit();
   }
-  console.log('\n✓ Evidencia local R5.4d completada para las fases seleccionadas.');
+  console.log('\n✓ Evidencia local R5.4d–R5.5d completada para las fases seleccionadas.');
 }
 
 main().catch((error) => {

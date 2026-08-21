@@ -77,7 +77,7 @@ reconciliación se conserva abajo por contexto.
 | 11 | Landing V2 «nivel Awwwards» + negocio + funnel + docs | 🟡 En curso | 2026-08-13 | **F11.1, F11.3 (2 sesiones), F11.4, F11.5, F11.6, F11.7 y F11.8 (primera pasada + pase a11y/contenido desde cloud 2026-07-24) hechos**, más F11.8b (auditor de a11y, cloud), F11.2a-1 (tienda ASFALTO / tema Street), F11.2a-2 (tienda METRIA / tema Industrial) F11.2a-3 (tienda ROMER / tema Natural) y **F11.2a-4 (tienda KALIBRE / tema Specs, local 2026-07-25) — con la que F11.2a queda CERRADA (10/10 tiendas)**; y **F11.8c (Lighthouse citable + OG de WhatsApp + URLs sin redirección, local 2026-07-26)**; y **F11.8d–e (tabla de Lighthouse cerrada y desplegada: 7 de 8 superficies a 100×4, la landing entre ellas en móvil y escritorio, local 2026-07-27)**; y **F11.9 (contacto global de WhatsApp, cerrado y servido 2026-08-13)**. Solo queda la submission a Awwwards, decisión de pago reservada a Andreu. Detalle por bloque abajo. **Plan maestro completo en [`docs/PLAN_FASE11_LANDING_V2.md`](PLAN_FASE11_LANDING_V2.md)**: bloques F11.0–F11.8 ejecutables por sesiones independientes. **Decisiones D1–D6 APROBADAS por Andreu (2026-07-23)**: JS propio ≤15 KB sin deps, capturas con browser tools en local, dirección C «Ocho tiendas, un motor», escalera de precios (Lite 590 / Kit 1.900+39 / A medida 3.400+59), WhatsApp+email, Lite publicado sin construir. Prompt de arranque: [`docs/PROMPT_FASE11.md`](PROMPT_FASE11.md). Integra 9B.5/9B.6 (imaginería y temas restantes) como prerequisito del hero |
 | 8 | Pulido de la demo (backlog abajo) | 🟡 En curso | 2026-07-19 | Backlog técnico agotado; solo quedan decisiones y pasos locales de Andreu (ver «Decisiones pendientes» y `docs/PROMPT_CLOUD.md`). Últimas tandas: novena (race de idempotencia en el pago, PII enumerable en `/demo/gracias`, cancelación de pedido pagado sin devolver stock), décima (la misma race en el PATCH de admin, campos vacíos guardados como 0, login sin rate limit), undécima (diagrama móvil de `/arquitectura`, hedge del plazo de entrega, tokens de tema en `/demo/reset`, terminología «envío»), duodécima (aviso de corte en pedidos del admin, cabeceras sin wrap a 375px, leftover «portes», token de radio del carrito, contraste del botón eliminar, H1 en valenciano, checklist de producción) y decimotercera (misma race de idempotencia en `checkout.session.expired`, divisa hardcodeada a EUR fuera de Stripe, cobertura de test de `quoteCart`/PATCH admin/emails) y decimocuarta (config parcial de Stripe → cobro sin cumplimiento, emails duplicados bajo concurrencia, `payment_status` del webhook, color de marca centralizado en `shop.config.ts`, contraste/tema en carrito y checkout) — ver sección «Fase 8» |
 | 12 | Logic2B Ecommerce: renombrado, reposicionamiento y docs de dos visiones | ✅ Hecho | 2026-08-10 | **F12.0–F12.6 cerrados:** marca, argumento, dossier, canal agencias, ayuda, índice por audiencias, OG y auditorías citables consolidados. **Plan maestro en [`docs/PLAN_FASE12_LOGIC2B_ECOMMERCE.md`](PLAN_FASE12_LOGIC2B_ECOMMERCE.md)**. |
-| 13 | Plataforma modular: del gestor mínimo a paridad extrema de capacidad | 🟡 En curso | 2026-08-21 | **R0–R3.12, R4, R5.1–R5.4d y R5.5a–c completos; R4.9–R5.5c conservan rollout propio:** D1 producción permanece en `0040`; `0041` y la lectura autenticada por referencia están verificadas solo en local, con `CUS-004 installed` e inactivo. Siguiente R5.5d, índice autenticado y superficie de cuenta sin activar ni desplegar. Fuente de verdad en [`docs/plataforma/`](plataforma/README.md). |
+| 13 | Plataforma modular: del gestor mínimo a paridad extrema de capacidad | 🟡 En curso | 2026-08-21 | **R0–R3.12, R4, R5.1–R5.4d y R5.5a–d completos; R4.9–R5.5d conservan rollout propio:** D1 producción permanece en `0040`; `0041`, API e interfaz owner-only están verificadas solo en local, con `CUS-004 installed` e inactivo. Siguiente R5.5e, referencias y ownership de direcciones guardadas, sin activar ni desplegar. Fuente de verdad en [`docs/plataforma/`](plataforma/README.md). |
 
 ## Repo y entornos
 
@@ -182,6 +182,7 @@ inerte o una intención del roadmap en alcance disponible.
 | R5.5a | Ownership y permisos mínimos de autoservicio | ✅ 2026-08-21 — ADR-0044, scopes separados CUS-004/005/006, referencias opacas, 404 anti-enumeración, CAS de ownership y puertos sin PII; `pnpm check` 186 suites/965 tests y 742 archivos tipados, sin DDL, UI, rutas, efectos ni deploy |
 | R5.5b | Persistencia de referencias y ownership de pedidos | ✅ 2026-08-21 — D1 local `0041`, referencia `ord_` aleatoria/versionada, reader owner canónico, backup 34 y rehearsal/restore sobre 8 pedidos guest; `CUS-004` instalado e inerte, `pnpm check` 187 suites/969 tests, 744 archivos tipados y E2E local verde; sin HTTP, UI, activación ni deploy |
 | R5.5c | Lectura HTTP autenticada e IDOR | ✅ 2026-08-21 — `GET /api/customer/orders/:ord_ref`, sesión R5.4 + capability/scope/owner exactos, segunda lectura owner+versión contra TOCTOU, DTO mínimo, 404 y headers uniformes, rate limit sin referencia en clave y métricas sin PII; `pnpm check` 189 suites/976 tests, 751 archivos tipados y E2E local verde; `CUS-004` sigue inactivo, sin UI, activación ni deploy |
+| R5.5d | Índice autenticado y superficie de cuenta | ✅ 2026-08-21 — `GET /api/customer/orders`, cursor opaco owner-only y páginas `/cuenta/pedidos`; navegación, vacío/error, detalle y tracking sin JS, rate limit compartido y fixture aislada; `pnpm check` 190 suites/993 tests y 756 archivos tipados, a11y 0/0 en 18 superficies, revisión 1440/375 y E2E local verdes; `CUS-004` sigue inactivo, sin DDL, activación ni deploy |
 
 ## Fase 12 — Logic2B Ecommerce: renombrado, reposicionamiento y las dos visiones
 
@@ -1720,33 +1721,31 @@ solo vuelve a `main` o a producción por instrucción expresa.
 
 ## Próxima sesión
 
-### R5.5d — índice autenticado y superficie de cuenta
+### R5.5e — referencias y ownership de direcciones guardadas
 
-R5.5c compone `GET /api/customer/orders/:ord_ref` sobre sesión R5.4 activa,
-`CUS-004 active`, permiso exacto `customer:orders:read` y owner del mismo perfil.
-La segunda lectura compara owner y versión para cerrar la carrera autorización→
-lectura. Ausencia, referencia inválida, pedido guest o ajeno, perfil fusionado,
-sesión/identidad revocada, scope ausente y capability apagada exponen el mismo
-`404 customer.resource.not_found`, con headers privados/no-store. El DTO no
-incluye dirección, contacto, referencias de pago ni ids internos; rate limit y
-métricas tampoco reciben la referencia o PII.
+R5.5d completa localmente el recorrido de lectura de `CUS-004`. El índice
+`GET /api/customer/orders` deriva el perfil solo de la sesión, pagina diez
+pedidos con cursor opaco y rechaza parámetros alternativos; la consulta filtra
+owner y perfil activo dentro de D1. `/cuenta/pedidos` y su detalle son SSR, sin
+JavaScript, con navegación condicionada, vacío/error, estados y tracking. API,
+índice y detalle comparten rate limit por IP/superficie, headers privados y
+telemetría sin referencia ni PII.
 
-Las suites prueban éxito owner, IDOR, anti-enumeración, selectores alternativos,
-cambio concurrente de owner, binding ausente y límite por IP/superficie. El
-registro declara la ruta y el permiso en `customers@1.8.0`; `pnpm check` pasa
-189 suites/976 tests y 751 archivos tipados, y el E2E local completo confirma
-que la demo devuelve el cierre uniforme. No hubo DDL, migración remota, Worker,
-UI, navegación, proveedor, activación ni deploy.
+El arnés local activa una composición inerte sin DB, cookies, secretos ni red y
+prueba HTTP real más 18 superficies a 1440/375 con 0 errores y 0 avisos; la
+revisión visual confirma cero overflow. `customers@1.9.0`, `pnpm check` con 190
+suites/993 tests y 756 archivos tipados, build y E2E global quedan verdes. No
+hubo DDL, D1 remota, Worker, proveedor, activación ni deploy; la demo conserva
+API y páginas en 404 antes del runtime.
 
-Continuación exacta: R5.5d debe añadir un índice server-side paginado por cursor
-opaco que solo enumere pedidos del perfil activo, reutilice el mismo gate de
-sesión/capability/scope y no acepte email, número de pedido ni owner desde el
-cliente. Sobre ese índice se construirá una superficie de cuenta responsive con
-estados y seguimiento mínimos, navegación y estados vacío/error seguros. Detalle
-e índice deben conservar cache privada/no-store, no filtrar PII, no reclamar
-historia guest y permanecer inaccesibles mientras `CUS-004` esté inactivo. El
-corte exige tests de paginación/aislamiento, HTTP, UI, a11y y E2E local; no se
-despliega ni activa sin un preflight separado.
+Continuación exacta: R5.5e debe instalar `CUS-006` en el registro/preset avanzado
+y materializar referencias `addr_` opacas para las direcciones versionadas de
+R5.1. La referencia representa el `address_id` estable; la revisión vigente y
+el perfil activo son el ownership canónico. El bloque debe definir versionado
+CAS para lectura/escritura, backfill sin exponer dirección/contacto, reader D1,
+backup y rehearsal/restore, colisiones/concurrencia y perfil fusionado. No abre
+HTTP/UI ni activa la capacidad; cualquier migración remota o deploy conserva un
+preflight y autorización separados.
 
 Carril visual: ARISTA cierra el 2026-08-18 las posiciones 17–19 y deja la cola
 sin referencias ejecutables. La referencia 19 se convirtió en un catálogo

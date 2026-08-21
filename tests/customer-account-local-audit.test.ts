@@ -23,6 +23,11 @@ describe('arnés local R5.4d', () => {
       capabilityId: 'CUS-003',
       state: 'active',
     });
+    expect(decideRouteAccess(audit, '/cuenta/pedidos')).toMatchObject({
+      allowed: true,
+      capabilityId: 'CUS-004',
+      state: 'active',
+    });
     expect(audit.manifest.deployment).toMatchObject({
       id: 'customer-account-local-audit',
       mode: 'client',
@@ -37,6 +42,7 @@ describe('arnés local R5.4d', () => {
     expect(auditConfig).toContain("if (mode === 'surface')");
     expect(auditConfig).toContain("find: '../../platform.config'");
     expect(auditConfig).toContain("find: './composition/runtime-customer-account'");
+    expect(auditConfig).toContain("find: './composition/runtime-customer-order-access'");
     expect(auditConfig).toContain("find: './composition/customer-account-edge'");
   });
 
@@ -54,6 +60,8 @@ describe('arnés local R5.4d', () => {
     expect(auditScript).toContain('falla cerrado sin secretos');
     expect(auditScript).toContain("['scripts/a11y-audit.mjs', '--only=customer-account:']");
     expect(auditScript).toContain("AUDIT_CUSTOMER_ACCOUNT: 'true'");
+    expect(auditScript).toContain('superficie activa sirve historial owner-only');
+    expect(auditScript).toContain('índice API activo devuelve DTO mínimo');
     expect(auditScript).toContain("['demo', 'preflight', 'surface']");
     expect(auditScript).not.toMatch(/\b(?:writeFile|copyFile|rename|unlink)\b/u);
   });

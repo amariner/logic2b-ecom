@@ -38,6 +38,28 @@ export interface CustomerOwnedOrderReader {
   }>): Promise<CustomerOrderAccessView | null>;
 }
 
+export type CustomerOrderListCursor = Readonly<{
+  createdAt: string;
+  publicRef: string;
+}>;
+
+export type CustomerOrderListReadPage = Readonly<{
+  orders: readonly CustomerOrderAccessView[];
+  nextCursor: CustomerOrderListCursor | null;
+}>;
+
+/**
+ * Índice owner-only. El caller aporta el perfil resuelto desde la sesión; el
+ * navegador nunca puede elegirlo. El cursor solo ordena dentro de ese owner.
+ */
+export interface CustomerOwnedOrderListReader {
+  listOwned(input: Readonly<{
+    ownerProfileId: string;
+    cursor: CustomerOrderListCursor | null;
+    limit: number;
+  }>): Promise<CustomerOrderListReadPage>;
+}
+
 export type CustomerOwnedMutationOutcome<TResult> =
   | Readonly<{ outcome: 'applied' | 'replayed'; result: TResult }>
   | Readonly<{ outcome: 'denied' | 'ownership_changed'; result: null }>;

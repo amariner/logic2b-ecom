@@ -1,9 +1,11 @@
 import type { CustomerOrderAccessHttp } from '../modules/customers/presentation/customer-order-access-http';
 import { createD1CustomerAuthenticationRepository } from '../modules/customers/infrastructure/d1-customer-authentication-repository';
 import {
+  createD1CustomerOwnedOrderListReader,
   createD1CustomerOrderOwnershipReader,
   createD1CustomerOwnedOrderReader,
 } from '../modules/customers/infrastructure/d1-customer-resource-ownership-reader';
+import { createCustomerOrderListService } from '../modules/customers/application/customer-order-list';
 import { passwordlessProofDigest } from '../modules/customers/infrastructure/passwordless-web-crypto';
 import type { CustomerOwnershipSubject } from '../modules/customers/domain/resource-ownership';
 import type { Platform } from './create-platform';
@@ -79,6 +81,7 @@ export async function createRuntimeCustomerOrderAccessHttp(
     sessionSubject: subject,
     authorizer: createCustomerResourceAuthorizer(ownership),
     orders: createD1CustomerOwnedOrderReader(env.DB),
+    orderList: createCustomerOrderListService(createD1CustomerOwnedOrderListReader(env.DB)),
     activeCapabilities: ['CUS-004'],
     grantedScopes: ['customer:orders:read'],
     observability: options.observability ?? customerOrderAccessRuntimeObservability,

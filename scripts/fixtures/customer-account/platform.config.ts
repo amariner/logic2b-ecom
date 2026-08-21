@@ -17,6 +17,13 @@ const CUSTOMER_ACCOUNT = Object.freeze({
   sideEffects: true,
 });
 
+const CUSTOMER_ORDER_READ = Object.freeze({
+  routes: true,
+  navigation: false,
+  jobs: false,
+  sideEffects: false,
+});
+
 const baseline = createPresetManifest('advanced', {
   id: 'customer-account-local-audit',
   mode: 'client',
@@ -62,5 +69,6 @@ export const platformManifest = Object.freeze({
         }),
       }),
     }),
+    'CUS-004': Object.freeze({ state: 'active', flags: CUSTOMER_ORDER_READ }),
   }),
 }) satisfies CapabilityManifestInput;
