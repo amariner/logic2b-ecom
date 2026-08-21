@@ -158,3 +158,31 @@ export {
   CustomerAuthenticationConflictError,
   createD1CustomerAuthenticationRepository,
 } from './infrastructure/d1-customer-authentication-repository';
+export {
+  CUSTOMER_RESOURCE_ACTIONS,
+  CUSTOMER_RESOURCE_KINDS,
+  CUSTOMER_RESOURCE_SCOPES,
+  CUSTOMER_SELF_SERVICE_CAPABILITIES,
+  customerOwnedWritePrecondition,
+  customerResourceAccessDecision,
+  customerResourcePublicDenial,
+  customerResourceTarget,
+  type CustomerOwnedWritePrecondition,
+  type CustomerOwnershipSubject,
+  type CustomerResourceAccessDecision,
+  type CustomerResourceAccessRequest,
+  type CustomerResourceAction,
+  type CustomerResourceDenialReason,
+  type CustomerResourceKind,
+  type CustomerResourceOwnership,
+  type CustomerResourceScope,
+  type CustomerResourceTarget,
+  type CustomerSelfServiceCapability,
+} from './domain/resource-ownership';
+export type {
+  CustomerOwnedMutationOutcome,
+  CustomerOwnedResourceWriter,
+  CustomerResourceAccessAuditWriter,
+  CustomerResourceAuthorizer,
+  CustomerResourceOwnershipReader,
+} from './application/resource-ownership-ports';

@@ -174,7 +174,7 @@ suites/715 tests; producción permanece en `0032`.
 | 52 | **R5.2 Consentimientos** | Canal, finalidad, versión legal, fuente, región, timestamp y retirada. | ✅ 2026-08-17 — D1 `0037`, repositorio atómico, backup 31 y rehearsal local; captura/rollout pendientes |
 | 53 | **R5.3 Derechos de datos** | Exportar, corregir, anonimizar/borrar con excepciones fiscales y audit log. | 🟨 2026-08-18 — contrato y persistencia R5.3a–b instalados; política, superficies y ejecución pendientes de gates propios |
 | 54 | **R5.4 Cuentas passwordless** | Login seguro, sesiones, revocación y anti-enumeración; módulo opcional. | ✅ 2026-08-19 — R5.4a–d implementan dominio, D1, Resend directo, transporte mismo navegador, throttle/auditoría, gate durable y HTTP/UI; 185 suites/958 tests; D1 remota en `0040`, Worker `a5cc8d85…` inerte, `CUS-003` instalada y rollout real aislado |
-| 55 | **R5.5 Autoservicio** | Pedidos, direcciones y devolución sobre permisos mínimos. | ⬜ |
+| 55 | **R5.5 Autoservicio** | Pedidos, direcciones y devolución sobre permisos mínimos. | 🟨 R5.5a 2026-08-21 — ownership/scopes/puertos especificados; persistencia y superficies pendientes |
 | 56 | **R5.6 Segmentación** | Lenguaje de filtros limitado, templates y recálculo observable. | ⬜ |
 | 57 | **R5.7 Modelo de mercados** | Contexto de país/idioma/moneda/dominio, resolución y fallback. | ⬜ |
 | 58 | **R5.8 Traducciones y URLs** | Campos traducibles, flujo editorial, canonical, hreflang y sitemap. | ⬜ |
@@ -300,6 +300,23 @@ smoke remoto conserva la portada en 200, cuenta en 404 y quote, checkout y
 webhook en 410. D1 conserva 294 productos y 8 pedidos, llega a 40 migraciones,
 no tiene errores FK y mantiene cero activaciones/identidades de cliente; el E2E
 de producción confirma que todas las mutaciones de la demo siguen rechazadas.
+
+R5.5a acepta ADR-0044 e instala el contrato previo a persistencia. Autenticación,
+permiso y ownership son gates distintos: `customer:self` solo identifica al
+sujeto y cada acción exige capacidad activa, scope mínimo y asociación exacta
+del recurso al mismo perfil activo. `CUS-004`, `CUS-005` y `CUS-006` quedan
+separadas por vocabulario cerrado; crear una devolución prueba el pedido y la
+futura escritura debe repetir owner/versión dentro de su transacción.
+
+Pedidos, direcciones y RMA usarán referencias públicas opacas con al menos 128
+bits de entropía. Email, número de pedido, dirección y tracking nunca prueban
+propiedad. Ausencia, guest, owner ajeno, perfil fusionado, identidad revocada,
+scope ausente y capability apagada convergen en el mismo 404 público. No se
+reclama historia guest por coincidencia de contacto ni se heredan recursos al
+fusionar perfiles. Los puertos propuestos obligan a CAS transaccional y
+auditoría tipada sin PII. `pnpm check` pasa 186 suites/965 tests, 742 archivos
+tipados, baseline de temas y build. El corte no añade DDL, adaptador, UI, ruta,
+navegación, provider, efecto, deploy ni activación.
 
 ## R6 — B2B
 
@@ -1362,25 +1379,21 @@ principal pasa a R4.1, motor de reglas de precio.
 
 ## 14. Siguiente bloque
 
-### R5.5a — contrato de ownership y permisos mínimos
+### R5.5b — persistencia de referencias y ownership de pedidos
 
-Definir el límite de autoservicio antes de añadir persistencia o rutas:
+Materializar el primer recurso de `CUS-004` sin abrir todavía historial público:
 
-1. aceptar un ADR que separe autenticación, perfil y ownership de cada recurso;
-   una sesión `customer:self` nunca concede acceso global por sí sola;
-2. modelar la decisión server-side para pedido, dirección y devolución, con
-   asociación al perfil activo, scopes mínimos y denegación de perfiles
-   fusionados, revocados o incoherentes;
-3. fijar identificadores opacos y respuestas resistentes a enumeración/IDOR;
-   email, número de pedido, dirección o datos públicos no son prueba;
-4. mantener guest checkout y los accesos tokenizados actuales sin convertirlos
-   implícitamente en cuentas ni reclamar recursos históricos;
-5. separar `CUS-004`, `CUS-005` y `CUS-006`, sus permisos, propietarios de datos,
-   retención, auditoría y gates; no mezclar devolución con la sesión base;
-6. incluir threat model de cuenta compartida, cambio de email, merge, sesión
-   revocada, recursos de otro perfil y carreras de asociación;
-7. proponer puertos y pruebas de propiedad/denegación sin DDL, UI, navegación,
-   migración remota, proveedor o deploy en este primer corte;
-8. conservar `CUS-003 installed` en la demo. Step-up,
-   `customer:sessions:revoke`, cross-device y WebAuthn continúan fuera hasta
-   contrato propio.
+1. autorización expresa de la migración D1 y ADR-0044 como contrato inmutable;
+2. migración expand-only para una referencia pública aleatoria por pedido y su
+   versión de ownership, sin derivarla de `id`, `order_number`, email o PII;
+3. backfill de referencias para filas existentes, pero nunca de
+   `customer_profile_id`: los pedidos guest continúan guest;
+4. reader D1 que resuelva únicamente referencia opaca→owner canónico y no
+   exponga diferencias entre ausencia, guest u owner ajeno;
+5. índice/constraints, colisiones y concurrencia de generación probados;
+6. backup/restore y rehearsal sobre copia del baseline real, conservando
+   pedidos, pagos, stock, perfiles y cero asociaciones inventadas;
+7. manifest de `CUS-004` todavía no activo, sin rutas, navegación, UI, emails,
+   proveedor, Worker o deploy;
+8. `pnpm check` verde y siguiente corte R5.5c documentado para lectura HTTP
+   autenticada con pruebas IDOR/anti-enumeración.
