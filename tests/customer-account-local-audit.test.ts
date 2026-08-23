@@ -28,6 +28,11 @@ describe('arnés local R5.4d', () => {
       capabilityId: 'CUS-004',
       state: 'active',
     });
+    expect(decideRouteAccess(audit, '/cuenta/direcciones')).toMatchObject({
+      allowed: true,
+      capabilityId: 'CUS-006',
+      state: 'active',
+    });
     expect(audit.manifest.deployment).toMatchObject({
       id: 'customer-account-local-audit',
       mode: 'client',
@@ -43,6 +48,7 @@ describe('arnés local R5.4d', () => {
     expect(auditConfig).toContain("find: '../../platform.config'");
     expect(auditConfig).toContain("find: './composition/runtime-customer-account'");
     expect(auditConfig).toContain("find: './composition/runtime-customer-order-access'");
+    expect(auditConfig).toContain("find: './composition/runtime-customer-address'");
     expect(auditConfig).toContain("find: './composition/customer-account-edge'");
   });
 

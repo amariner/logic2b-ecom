@@ -54,4 +54,18 @@ describe('gate middleware de cuenta en demo', () => {
       capabilityId: 'CUS-004',
     });
   });
+
+  it.each([
+    '/api/customer/addresses',
+    `/api/customer/addresses/addr_${'a'.repeat(32)}`,
+    '/cuenta/direcciones',
+  ])('cierra %s por CUS-006 antes de runtime', (pathname) => {
+    expect(decideRouteAccess(createPlatform(platformManifest), pathname)).toMatchObject({
+      allowed: false,
+      status: 404,
+      capabilityId: 'CUS-006',
+    });
+    expect(middlewareSource.indexOf('const routeAccess = decideRouteAccess'))
+      .toBeLessThan(middlewareSource.indexOf('if (customerAddressSurface)'));
+  });
 });

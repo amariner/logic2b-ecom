@@ -41,6 +41,7 @@ import migration39 from '../migrations/0039_customer_passwordless_auth.sql?raw';
 import migration40 from '../migrations/0040_customer_passwordless_security.sql?raw';
 import migration41 from '../migrations/0041_customer_order_access.sql?raw';
 import migration42 from '../migrations/0042_customer_address_access.sql?raw';
+import migration43 from '../migrations/0043_customer_address_commands.sql?raw';
 
 type SqlValue = string | number | bigint | null | Uint8Array;
 
@@ -128,6 +129,7 @@ export class SqliteD1 {
     includeCustomerPasswordlessSecurity = true,
     includeCustomerOrderAccess = true,
     includeCustomerAddressAccess = true,
+    includeCustomerAddressCommands = true,
   ) {
     this.sqlite.exec('PRAGMA foreign_keys = ON;');
     for (const migration of [
@@ -157,7 +159,8 @@ export class SqliteD1 {
                                     ? [migration39, ...(includeCustomerPasswordlessSecurity
                                       ? [migration40, ...(includeCustomerOrderAccess
                                         ? [migration41, ...(includeCustomerAddressAccess
-                                          ? [migration42] : [])] : [])] : [])] : [])]
+                                          ? [migration42, ...(includeCustomerAddressCommands
+                                            ? [migration43] : [])] : [])] : [])] : [])] : [])]
                                   : [])]
                                 : [])]
                               : [])]

@@ -6,6 +6,9 @@ import sessionsPage from '../src/pages/cuenta/sesiones.astro?raw';
 import ordersPage from '../src/pages/cuenta/pedidos/index.astro?raw';
 import orderDetailPage from '../src/pages/cuenta/pedidos/[ref].astro?raw';
 import orderIndexApi from '../src/pages/api/customer/orders/index.ts?raw';
+import addressesPage from '../src/pages/cuenta/direcciones/index.astro?raw';
+import addressIndexApi from '../src/pages/api/customer/addresses/index.ts?raw';
+import addressDetailApi from '../src/pages/api/customer/addresses/[ref].ts?raw';
 import confirmScript from '../src/modules/customers/presentation/customer-passwordless-confirm.ts?raw';
 import astroConfig from '../astro.config.mjs?raw';
 
@@ -79,6 +82,32 @@ describe('superficie visual de cuenta', () => {
     expect(sessionsPage).not.toContain('revokeAll');
     expect(sessionsPage).toContain('view.ordersAvailable');
     expect(sessionsPage).toContain('Ver mis pedidos');
+    expect(sessionsPage).toContain('view.addressesAvailable');
+    expect(sessionsPage).toContain('Gestionar mis direcciones');
+  });
+
+  it('renderiza direcciones sin JS, con estados accesibles y comandos protegidos', () => {
+    expect(addressesPage).toContain('CustomerAccount');
+    expect(addressesPage).toContain('export const prerender = false');
+    expect(addressesPage).not.toMatch(/<script\b/iu);
+    expect(addressesPage).not.toContain('runtime.env');
+    expect(addressesPage).toContain('aria-label="Cuenta de cliente"');
+    expect(addressesPage).toContain('aria-current="page"');
+    expect(addressesPage).toContain('Todavía no tienes direcciones guardadas');
+    expect(addressesPage).toContain('La dirección ha cambiado en otra sesión');
+    expect(addressesPage).toContain('type="hidden" name="csrfToken"');
+    expect(addressesPage).toContain('type="hidden" name="idempotencyKey"');
+    expect(addressesPage).toContain('type="hidden" name="revision"');
+    expect(addressesPage).toContain('min-h-12');
+  });
+
+  it('expone solo índice, alta y revisión por referencia pública', () => {
+    expect(addressIndexApi).toContain('http.list(request)');
+    expect(addressIndexApi).toContain('http.create(request)');
+    expect(addressIndexApi).not.toContain("search.get('owner')");
+    expect(addressIndexApi).not.toContain("search.get('email')");
+    expect(addressDetailApi).toContain('http.revise(request, params.ref)');
+    expect(addressDetailApi).not.toContain('customerProfileId');
   });
 
   it('renderiza historial y detalle sin JS, con estados y navegación accesibles', () => {

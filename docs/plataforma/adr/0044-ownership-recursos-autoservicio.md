@@ -213,11 +213,18 @@ FKs limpias. No hay HTTP, UI, activación, D1 remota ni deploy.
 
 ## Siguiente gate
 
-R5.5f puede abrir la vertical local de `CUS-006` detrás de sus gates: índice,
-alta y revisión por referencia pública, sesión/perfil coherentes, scopes
-separados, CSRF, idempotencia durable y CAS transaccional; después, una página
-SSR accesible con estados de vacío/error/conflicto y pruebas IDOR. La capacidad
-seguirá instalada e inactiva y el corte no migrará ni desplegará remoto.
+R5.5f ya abre la vertical local de `CUS-006` detrás de sus gates: índice, alta
+y revisión por referencia pública, sesión/perfil coherentes, scopes separados,
+CSRF, idempotencia durable y CAS transaccional. La página SSR cubre vacío,
+validación y conflicto; la fixture inerte verifica IDOR, responsive y a11y. La
+capacidad sigue instalada e inactiva y producción no recibió migración ni
+deploy.
+
+R5.5g debe aplicar el mismo contrato a `CUS-005` sin confundir solicitud del
+cliente con la operación de RMA del backoffice. Owner y elegibilidad nacen del
+pedido seleccionado por `ord_`; la creación revalida ambos dentro de su
+transacción. HTTP y portal quedan fuera hasta cerrar persistencia, replay,
+carrera, backup y restore.
 
 ## Rollback
 

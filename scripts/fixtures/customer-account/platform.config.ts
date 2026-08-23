@@ -70,5 +70,6 @@ export const platformManifest = Object.freeze({
       }),
     }),
     'CUS-004': Object.freeze({ state: 'active', flags: CUSTOMER_ORDER_READ }),
+    'CUS-006': Object.freeze({ state: 'active', flags: CUSTOMER_ORDER_READ }),
   }),
 }) satisfies CapabilityManifestInput;

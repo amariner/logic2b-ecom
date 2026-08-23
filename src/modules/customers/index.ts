@@ -26,6 +26,15 @@ export {
   CustomerProfileConflictError,
   createD1CustomerProfileRepository,
 } from './infrastructure/d1-customer-profile-repository';
+export type {
+  CustomerAddressRepository,
+  CustomerAddressWriteOutcome,
+} from './application/customer-address-repository';
+export {
+  createCustomerAddressService,
+  type CustomerAddressService,
+} from './application/customer-address-service';
+export { createD1CustomerAddressRepository } from './infrastructure/d1-customer-address-repository';
 export {
   CONSENT_ACTIONS,
   CONSENT_CHANNELS,

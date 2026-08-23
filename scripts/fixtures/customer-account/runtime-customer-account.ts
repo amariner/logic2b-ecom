@@ -32,6 +32,7 @@ const http = Object.freeze({
     return Object.freeze({
       csrfToken: CSRF_TOKEN,
       ordersAvailable: true,
+      addressesAvailable: true,
       session: Object.freeze({
         issuedAt: FIXTURE_AT,
         expiresAt: '2026-08-20T12:00:00.000Z',

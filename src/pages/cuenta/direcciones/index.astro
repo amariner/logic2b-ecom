@@ -1,0 +1,208 @@
+---
+import CustomerAccount from '../../../layouts/CustomerAccount.astro';
+import {
+  CUSTOMER_ADDRESS_PAGE_PATH,
+  customerAddressHttpFromLocals,
+  type CustomerAddressListView,
+} from '../../../modules/customers/presentation/customer-address-http';
+
+export const prerender = false;
+
+const method = Astro.request.method.toUpperCase();
+if (!['GET', 'HEAD', 'POST'].includes(method)) {
+  return new Response('Método no permitido.', { status: 405, headers: { allow: 'GET, HEAD, POST' } });
+}
+const http = customerAddressHttpFromLocals(Astro.locals);
+if (http === null) return new Response('Acceso no disponible.', { status: 503 });
+
+let feedback: 'saved' | 'invalid' | 'conflict' | 'forbidden' | null =
+  Astro.url.searchParams.get('saved') === '1' ? 'saved' : null;
+
+async function formMeta(request: Readonly<{
+  headers: Headers;
+  body: ReadableStream<Uint8Array> | null;
+}>): Promise<URLSearchParams | null> {
+  if (!request.headers.get('content-type')?.toLowerCase()
+    .startsWith('application/x-www-form-urlencoded')) return null;
+  const declared = request.headers.get('content-length');
+  if (declared !== null && (!/^(?:0|[1-9]\d*)$/u.test(declared) || Number(declared) > 16_384)) {
+    return null;
+  }
+  const reader = request.body?.getReader();
+  if (reader === undefined) return null;
+  const decoder = new TextDecoder('utf-8', { fatal: true });
+  let body = '';
+  let bytes = 0;
+  try {
+    while (true) {
+      const chunk = await reader.read();
+      if (chunk.done) break;
+      bytes += chunk.value.byteLength;
+      if (bytes > 16_384) {
+        await reader.cancel().catch(() => undefined);
+        return null;
+      }
+      body += decoder.decode(chunk.value, { stream: true });
+    }
+    body += decoder.decode();
+  } catch {
+    await reader.cancel().catch(() => undefined);
+    return null;
+  }
+  const form = new URLSearchParams(body);
+  const keys = [...form.keys()];
+  return new Set(keys).size === keys.length ? form : null;
+}
+
+if (method === 'POST') {
+  const form = await formMeta(Astro.request.clone());
+  const operation = form?.get('operation');
+  const result = operation === 'create'
+    ? await http.create(Astro.request)
+    : operation === 'revise'
+      ? await http.revise(Astro.request, form?.get('publicRef') ?? undefined)
+      : new Response(null, { status: 400 });
+  if (result.status >= 200 && result.status < 300) {
+    return Astro.redirect(`${CUSTOMER_ADDRESS_PAGE_PATH}?saved=1`, 303);
+  }
+  Astro.response.status = result.status;
+  feedback = result.status === 409 ? 'conflict' : result.status === 403
+    ? 'forbidden' : 'invalid';
+}
+
+const viewRequest = method === 'POST'
+  ? new Request(Astro.request.url, { method: 'GET', headers: Astro.request.headers })
+  : Astro.request;
+const viewResult = await http.listView(viewRequest);
+if (viewResult instanceof Response) return viewResult;
+const view: CustomerAddressListView = viewResult;
+
+function idempotencyKey(prefix: string): string {
+  return `${prefix}-${crypto.randomUUID()}`;
+}
+---
+
+<CustomerAccount
+  title="Mis direcciones"
+  description="Guarda y actualiza tus direcciones de entrega de forma segura."
+  width="wide"
+>
+  <div class="w-full">
+    <nav aria-label="Cuenta de cliente" class="mb-6 flex flex-wrap gap-2 text-sm">
+      {view.ordersAvailable && (
+        <a href="/cuenta/pedidos" class="rounded-lg border border-border bg-background px-4 py-2 font-semibold hover:bg-muted">Pedidos</a>
+      )}
+      <a href={CUSTOMER_ADDRESS_PAGE_PATH} aria-current="page" class="rounded-lg bg-foreground px-4 py-2 font-semibold text-background">Direcciones</a>
+      <a href="/cuenta/sesiones" class="rounded-lg border border-border bg-background px-4 py-2 font-semibold hover:bg-muted">Sesión</a>
+    </nav>
+
+    <section class="rounded-2xl border border-border bg-background p-6 shadow-sm sm:p-8" aria-labelledby="addresses-title">
+      <p class="text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">Cuenta de cliente</p>
+      <h1 id="addresses-title" class="mt-2 font-display text-3xl leading-tight">Mis direcciones</h1>
+      <p class="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">
+        Gestiona los datos que utilizaremos para preparar tus próximos envíos.
+      </p>
+
+      {feedback === 'saved' && (
+        <p role="status" class="mt-6 rounded-xl border border-border bg-muted/45 p-4 font-medium">La dirección se ha guardado.</p>
+      )}
+      {feedback === 'conflict' && (
+        <div role="alert" class="mt-6 rounded-xl border border-border bg-muted/45 p-4">
+          <p class="font-semibold">La dirección ha cambiado en otra sesión.</p>
+          <p class="mt-1 text-sm text-muted-foreground">Revisa los datos actuales y vuelve a intentarlo.</p>
+        </div>
+      )}
+      {feedback === 'forbidden' && (
+        <p role="alert" class="mt-6 rounded-xl border border-border bg-muted/45 p-4 font-medium">La sesión ya no permite realizar este cambio.</p>
+      )}
+      {feedback === 'invalid' && (
+        <p role="alert" class="mt-6 rounded-xl border border-border bg-muted/45 p-4 font-medium">Revisa todos los campos e inténtalo de nuevo.</p>
+      )}
+
+      {view.addresses.length === 0 ? (
+        <div class="mt-8 rounded-xl border border-dashed border-border bg-muted/35 p-6 text-center">
+          <h2 class="font-display text-xl">Todavía no tienes direcciones guardadas</h2>
+          <p class="mx-auto mt-2 max-w-md text-sm leading-6 text-muted-foreground">Añade la primera para tenerla disponible en futuras compras.</p>
+        </div>
+      ) : (
+        <ul class="mt-8 grid gap-4 lg:grid-cols-2" aria-label="Direcciones guardadas">
+          {view.addresses.map((address) => (
+            <li class="rounded-xl border border-border bg-background p-5 shadow-sm">
+              <h2 class="font-display text-xl">{address.data.recipientName}</h2>
+              <address class="mt-2 not-italic text-sm leading-6 text-muted-foreground">
+                {address.data.street}<br />
+                {address.data.postalCode} {address.data.city}
+                {address.data.region ? `, ${address.data.region}` : ''}<br />
+                {address.data.countryCode}
+                {address.data.phone && <><br />{address.data.phone}</>}
+              </address>
+              <details class="mt-5 border-t border-border pt-4">
+                <summary class="min-h-11 cursor-pointer font-semibold underline underline-offset-4">Editar dirección</summary>
+                <form method="post" action={CUSTOMER_ADDRESS_PAGE_PATH} class="mt-4 grid gap-4 sm:grid-cols-2">
+                  <input type="hidden" name="operation" value="revise" />
+                  <input type="hidden" name="publicRef" value={address.publicRef} />
+                  <input type="hidden" name="revision" value={address.revision} />
+                  <input type="hidden" name="csrfToken" value={view.csrfToken} />
+                  <input type="hidden" name="idempotencyKey" value={idempotencyKey('address-revise')} />
+                  <label class="grid gap-1 text-sm font-medium sm:col-span-2">Nombre completo
+                    <input required minlength="2" maxlength="160" autocomplete="name" name="recipientName" value={address.data.recipientName} class="min-h-12 rounded-lg border border-border bg-background px-3" />
+                  </label>
+                  <label class="grid gap-1 text-sm font-medium sm:col-span-2">Dirección
+                    <input required minlength="3" maxlength="200" autocomplete="street-address" name="street" value={address.data.street} class="min-h-12 rounded-lg border border-border bg-background px-3" />
+                  </label>
+                  <label class="grid gap-1 text-sm font-medium">Código postal
+                    <input required maxlength="20" autocomplete="postal-code" name="postalCode" value={address.data.postalCode} class="min-h-12 rounded-lg border border-border bg-background px-3" />
+                  </label>
+                  <label class="grid gap-1 text-sm font-medium">Ciudad
+                    <input required minlength="2" maxlength="100" autocomplete="address-level2" name="city" value={address.data.city} class="min-h-12 rounded-lg border border-border bg-background px-3" />
+                  </label>
+                  <label class="grid gap-1 text-sm font-medium">Provincia o región
+                    <input maxlength="100" autocomplete="address-level1" name="region" value={address.data.region ?? ''} class="min-h-12 rounded-lg border border-border bg-background px-3" />
+                  </label>
+                  <label class="grid gap-1 text-sm font-medium">País (ISO)
+                    <input required minlength="2" maxlength="2" pattern="[A-Za-z]{2}" autocomplete="country" name="countryCode" value={address.data.countryCode} class="min-h-12 rounded-lg border border-border bg-background px-3 uppercase" />
+                  </label>
+                  <label class="grid gap-1 text-sm font-medium sm:col-span-2">Teléfono (opcional)
+                    <input minlength="3" maxlength="30" autocomplete="tel" name="phone" value={address.data.phone ?? ''} class="min-h-12 rounded-lg border border-border bg-background px-3" />
+                  </label>
+                  <button type="submit" class="min-h-12 rounded-xl bg-foreground px-5 font-semibold text-background sm:col-span-2">Guardar cambios</button>
+                </form>
+              </details>
+            </li>
+          ))}
+        </ul>
+      )}
+    </section>
+
+    <section class="mt-6 rounded-2xl border border-border bg-background p-6 shadow-sm sm:p-8" aria-labelledby="new-address-title">
+      <h2 id="new-address-title" class="font-display text-2xl">Añadir una dirección</h2>
+      <form method="post" action={CUSTOMER_ADDRESS_PAGE_PATH} class="mt-6 grid gap-4 sm:grid-cols-2">
+        <input type="hidden" name="operation" value="create" />
+        <input type="hidden" name="csrfToken" value={view.csrfToken} />
+        <input type="hidden" name="idempotencyKey" value={idempotencyKey('address-create')} />
+        <label class="grid gap-1 text-sm font-medium sm:col-span-2">Nombre completo
+          <input required minlength="2" maxlength="160" autocomplete="name" name="recipientName" class="min-h-12 rounded-lg border border-border bg-background px-3" />
+        </label>
+        <label class="grid gap-1 text-sm font-medium sm:col-span-2">Dirección
+          <input required minlength="3" maxlength="200" autocomplete="street-address" name="street" class="min-h-12 rounded-lg border border-border bg-background px-3" />
+        </label>
+        <label class="grid gap-1 text-sm font-medium">Código postal
+          <input required maxlength="20" autocomplete="postal-code" name="postalCode" class="min-h-12 rounded-lg border border-border bg-background px-3" />
+        </label>
+        <label class="grid gap-1 text-sm font-medium">Ciudad
+          <input required minlength="2" maxlength="100" autocomplete="address-level2" name="city" class="min-h-12 rounded-lg border border-border bg-background px-3" />
+        </label>
+        <label class="grid gap-1 text-sm font-medium">Provincia o región
+          <input maxlength="100" autocomplete="address-level1" name="region" class="min-h-12 rounded-lg border border-border bg-background px-3" />
+        </label>
+        <label class="grid gap-1 text-sm font-medium">País (ISO)
+          <input required minlength="2" maxlength="2" pattern="[A-Za-z]{2}" autocomplete="country" name="countryCode" value="ES" class="min-h-12 rounded-lg border border-border bg-background px-3 uppercase" />
+        </label>
+        <label class="grid gap-1 text-sm font-medium sm:col-span-2">Teléfono (opcional)
+          <input minlength="3" maxlength="30" autocomplete="tel" name="phone" class="min-h-12 rounded-lg border border-border bg-background px-3" />
+        </label>
+        <button type="submit" class="min-h-12 rounded-xl bg-foreground px-5 font-semibold text-background sm:col-span-2">Guardar dirección</button>
+      </form>
+    </section>
+  </div>
+</CustomerAccount>

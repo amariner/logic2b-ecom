@@ -21,6 +21,8 @@ export type CurrentCustomerSessionView = Readonly<{
   }>;
   /** Solo true cuando CUS-004 tiene rutas activas en este despliegue. */
   ordersAvailable: boolean;
+  /** Solo true cuando CUS-006 tiene rutas activas en este despliegue. */
+  addressesAvailable: boolean;
 }>;
 
 /**

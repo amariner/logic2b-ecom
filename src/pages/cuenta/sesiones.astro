@@ -72,7 +72,14 @@ function formatInstant(value: string): string {
       >Ver mis pedidos</a>
     )}
 
-    <form method="post" action={CUSTOMER_ACCOUNT_ROUTES.sessions} class={view.ordersAvailable ? 'mt-3' : 'mt-6'}>
+    {view.addressesAvailable && (
+      <a
+        href="/cuenta/direcciones"
+        class="mt-3 inline-flex min-h-12 w-full items-center justify-center rounded-xl border border-border bg-background px-5 text-center font-semibold shadow-sm hover:bg-muted"
+      >Gestionar mis direcciones</a>
+    )}
+
+    <form method="post" action={CUSTOMER_ACCOUNT_ROUTES.sessions} class={view.ordersAvailable || view.addressesAvailable ? 'mt-3' : 'mt-6'}>
       <input type="hidden" name="csrfToken" value={view.csrfToken} />
       <button
         type="submit"

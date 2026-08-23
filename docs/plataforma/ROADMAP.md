@@ -174,7 +174,7 @@ suites/715 tests; producción permanece en `0032`.
 | 52 | **R5.2 Consentimientos** | Canal, finalidad, versión legal, fuente, región, timestamp y retirada. | ✅ 2026-08-17 — D1 `0037`, repositorio atómico, backup 31 y rehearsal local; captura/rollout pendientes |
 | 53 | **R5.3 Derechos de datos** | Exportar, corregir, anonimizar/borrar con excepciones fiscales y audit log. | 🟨 2026-08-18 — contrato y persistencia R5.3a–b instalados; política, superficies y ejecución pendientes de gates propios |
 | 54 | **R5.4 Cuentas passwordless** | Login seguro, sesiones, revocación y anti-enumeración; módulo opcional. | ✅ 2026-08-19 — R5.4a–d implementan dominio, D1, Resend directo, transporte mismo navegador, throttle/auditoría, gate durable y HTTP/UI; 185 suites/958 tests; D1 remota en `0040`, Worker `a5cc8d85…` inerte, `CUS-003` instalada y rollout real aislado |
-| 55 | **R5.5 Autoservicio** | Pedidos, direcciones y devolución sobre permisos mínimos. | 🟨 R5.5a–e 2026-08-22 — pedidos completos en local; persistencia/CAS de direcciones cerrados e inactivos; superficie de direcciones y devolución pendientes |
+| 55 | **R5.5 Autoservicio** | Pedidos, direcciones y devolución sobre permisos mínimos. | 🟨 R5.5a–f 2026-08-23 — pedidos y direcciones completos en código/fixture local e inactivos; aplicación persistente de `0043` y autoservicio de devolución pendientes |
 | 56 | **R5.6 Segmentación** | Lenguaje de filtros limitado, templates y recálculo observable. | ⬜ |
 | 57 | **R5.7 Modelo de mercados** | Contexto de país/idioma/moneda/dominio, resolución y fallback. | ⬜ |
 | 58 | **R5.8 Traducciones y URLs** | Campos traducibles, flujo editorial, canonical, hreflang y sitemap. | ⬜ |
@@ -359,6 +359,25 @@ pedidos/pagos e inyecta una dirección legacy sintética para probar backfill y
 restore exactos, con integridad/FKs limpias. `pnpm check` pasa 191 suites/998
 tests, 757 archivos tipados, baseline y build. Solo D1 local recibió `0042`;
 no hay HTTP/UI, activación, migración remota ni deploy.
+
+R5.5f completa la vertical de direcciones sin activarla. `GET/POST
+/api/customer/addresses` y `PATCH /api/customer/addresses/:addr_ref` exigen
+sesión/perfil coherentes, `CUS-006`, scope exacto, CSRF en mutaciones, rate
+limit compartido y respuestas IDOR uniformes. El cliente nunca elige perfil,
+`address_id`, email ni PII como owner. La revisión usa selector+owner+versión
+dentro del `INSERT…SELECT`; la clave idempotente y el fingerprint viven en la
+revisión canónica y un retry idéntico reproduce el resultado sin duplicar PII.
+
+`/cuenta/direcciones` es SSR sin JavaScript, ofrece índice, vacío, alta,
+edición, validación y conflicto, y condiciona navegación según capacidades.
+La fixture inerte recorre cuenta, pedidos y direcciones a 1440/375: 22
+superficies, 0 errores y 0 avisos. `customers@1.11.0`, backup 36 y el rehearsal
+forward/dump/restore de `0043` conservan 294 productos, 296 variantes, 8
+pedidos y 8 pagos; `pnpm check` pasa 194 suites/1.014 tests, 769 archivos
+tipados, baseline y build. La aplicación a la D1 persistente local fue vetada
+por falta de autorización explícita para esa operación concreta: permanece en
+`0042`; producción continúa en `0040`. `CUS-006` sigue installed sin flags y
+no hubo activación, secretos, proveedor, migración remota ni deploy.
 
 ## R6 — B2B
 
@@ -1421,24 +1440,24 @@ principal pasa a R4.1, motor de reglas de precio.
 
 ## 14. Siguiente bloque
 
-### R5.5f — API y superficie local de direcciones guardadas
+### R5.5g — Contrato y persistencia owner-only de devoluciones
 
-R5.5e queda cerrado local con `CUS-006 installed`, migración `0042`, backup 35
-y selector `addr_` estable sin PII duplicada. Owner y CAS proceden de la
-revisión vigente; lectura y append vuelven a comprobar selector, perfil activo,
-owner y versión dentro de SQL. El rehearsal forward/restore y `pnpm check`
-quedan verdes. Solo se migró la D1 local.
+R5.5f queda cerrado en código y fixture local: API/SSR de direcciones, CSRF,
+idempotencia durable, CAS y anti-enumeración pasan tests y auditoría responsive.
+`0043` y backup 36 pasan rehearsal/restore, pero la D1 persistente local se
+mantiene en `0042` porque la aplicación concreta requiere autorización
+explícita. Producción continúa en `0040`; `CUS-006` sigue installed e inactiva.
 
 Siguiente corte:
 
-1. definir casos de uso de índice, alta y revisión sin aceptar profile/address
-   internos, email, recipient, teléfono o calle como prueba de ownership;
-2. añadir idempotencia durable para altas/revisiones y CAS de la revisión
-   vigente dentro de la misma transacción;
-3. exponer API local detrás de sesión R5.4, `CUS-006`, scopes read/write, CSRF,
-   rate limit y respuestas anti-enumeración equivalentes;
-4. construir `/cuenta/direcciones` SSR accesible con vacío, validación,
-   conflicto y navegación condicionada, sin activar la capacidad por defecto;
-5. cubrir IDOR, replay, carrera, merge/revocación, headers/cache, a11y,
-   responsive, backup/rehearsal si cambia DDL y E2E local;
-6. sin activación, migración remota, proveedor ni deploy en este corte.
+1. delimitar `CUS-005` frente a `FUL-010`: el cliente solicita y consulta; el
+   backoffice conserva autorización, recepción, inspección y resolución;
+2. definir elegibilidad owner-only desde `ord_`, cantidades pendientes y
+   estado entregado, sin aceptar email, order number ni PII como prueba;
+3. materializar referencia pública, versión, idempotencia y snapshot mínimo de
+   solicitud de devolución con una migración expand-only y backup/rehearsal;
+4. hacer que creación y carrera revaliden owner del pedido, elegibilidad y CAS
+   dentro de la misma transacción, con replay seguro y merge/revocación cerrados;
+5. dejar HTTP, UI, activación, D1 remota y deploy para el bloque posterior;
+6. antes de aplicar cualquier migración persistente, obtener autorización
+   explícita de Andreu para el target exacto.

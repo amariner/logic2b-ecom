@@ -1,5 +1,5 @@
 /**
- * Evidencia local R5.4d–R5.5d sin activar la demo ni usar credenciales reales.
+ * Evidencia local R5.4d–R5.5f sin activar la demo ni usar credenciales reales.
  *
  * Compila y ejecuta tres Workers efímeros y secuenciales:
  *   1. composición real de la demo: las rutas de cuenta deben ser 404;
@@ -29,6 +29,8 @@ const ACCOUNT_PATHS = [
   '/cuenta/pedidos',
   `/cuenta/pedidos/ord_${'f'.repeat(32)}`,
   '/api/customer/orders',
+  '/cuenta/direcciones',
+  '/api/customer/addresses',
 ];
 const SECRET_ENV_NAMES = [
   'ADMIN_COOKIE_SECRET',
@@ -183,7 +185,8 @@ async function demoAbsence() {
 
 async function activePreflightFailsClosed() {
   await withServer('preflight', async (base) => {
-    for (const path of ['/cuenta/acceso', '/cuenta/sesiones', '/cuenta/pedidos', '/api/customer/orders']) {
+    for (const path of ['/cuenta/acceso', '/cuenta/sesiones', '/cuenta/pedidos',
+      '/api/customer/orders', '/cuenta/direcciones', '/api/customer/addresses']) {
       const response = await fetch(`${base}${path}`, { redirect: 'manual' });
       const body = await response.text();
       check(`preflight ${path} falla cerrado sin secretos`, response.status === 503, `HTTP ${response.status}`);
@@ -231,6 +234,7 @@ async function activeSurfaceAudit() {
     check('superficie activa sirve la sesión actual', sessions.status === 200 && sessionsHtml.includes('Sesión actual'));
     check('sesiones conserva cabeceras privadas', secureAccountHeaders(sessions));
     check('sesiones enlaza pedidos solo con CUS-004 activa', sessionsHtml.includes('Ver mis pedidos'));
+    check('sesiones enlaza direcciones solo con CUS-006 activa', sessionsHtml.includes('Gestionar mis direcciones'));
 
     const orders = await fetch(`${base}/cuenta/pedidos`);
     const ordersHtml = await orders.text();
@@ -262,6 +266,25 @@ async function activeSurfaceAudit() {
       orderApi.status === 200 && orderApiBody.orders?.[0]?.orderNumber === 'L2B-2026-0042');
     check('índice API conserva cabeceras privadas', secureAccountHeaders(orderApi));
 
+    const addresses = await fetch(`${base}/cuenta/direcciones`);
+    const addressesHtml = await addresses.text();
+    check('superficie activa sirve direcciones owner-only',
+      addresses.status === 200 && addressesHtml.includes('Carrer Major 12'));
+    check('direcciones conserva cabeceras privadas', secureAccountHeaders(addresses));
+    check('direcciones incluye CSRF, idempotencia y CAS sin JS',
+      addressesHtml.includes('name="csrfToken"') &&
+      addressesHtml.includes('name="idempotencyKey"') &&
+      addressesHtml.includes('name="revision"') && !addressesHtml.includes('<script'));
+    const emptyAddresses = await fetch(`${base}/cuenta/direcciones?empty=1`);
+    check('direcciones vacías conservan una explicación segura',
+      emptyAddresses.status === 200 &&
+      (await emptyAddresses.text()).includes('Todavía no tienes direcciones guardadas'));
+    const addressApi = await fetch(`${base}/api/customer/addresses`);
+    const addressApiBody = await addressApi.json();
+    check('índice API de direcciones devuelve solo el DTO owner-only',
+      addressApi.status === 200 && addressApiBody.addresses?.[0]?.publicRef?.startsWith('addr_'));
+    check('API de direcciones conserva cabeceras privadas', secureAccountHeaders(addressApi));
+
     const acknowledgement = await fetch(`${base}/cuenta/acceso`, {
       method: 'POST',
       redirect: 'manual',
@@ -287,21 +310,21 @@ async function activeSurfaceAudit() {
 
 async function main() {
   if (only === undefined || only === 'demo') {
-    console.log('R5.4d–R5.5d · ausencia de la demo');
+    console.log('R5.4d–R5.5f · ausencia de la demo');
     await build('demo');
     await demoAbsence();
   }
   if (only === undefined || only === 'preflight') {
-    console.log(`${only === undefined ? '\n' : ''}R5.4d–R5.5d · preflight activo fail-closed`);
+    console.log(`${only === undefined ? '\n' : ''}R5.4d–R5.5f · preflight activo fail-closed`);
     await build('preflight');
     await activePreflightFailsClosed();
   }
   if (only === undefined || only === 'surface') {
-    console.log(`${only === undefined ? '\n' : ''}R5.4d–R5.5d · superficie activa aislada`);
+    console.log(`${only === undefined ? '\n' : ''}R5.4d–R5.5f · superficie activa aislada`);
     await build('surface');
     await activeSurfaceAudit();
   }
-  console.log('\n✓ Evidencia local R5.4d–R5.5d completada para las fases seleccionadas.');
+  console.log('\n✓ Evidencia local R5.4d–R5.5f completada para las fases seleccionadas.');
 }
 
 main().catch((error) => {

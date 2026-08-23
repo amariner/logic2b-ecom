@@ -13,6 +13,7 @@ import { createRuntimeCustomerAccountHttp } from './composition/runtime-customer
 import { customerPasswordlessRuntimeObservability } from './composition/customer-passwordless-observability';
 import {
   enforceCustomerAccountEdgeRate,
+  enforceCustomerAddressEdgeRate,
   enforceCustomerOrderAccessEdgeRate,
 } from './composition/customer-account-edge';
 import { CUSTOMER_ACCOUNT_ROUTES } from './modules/customers/presentation/customer-account-http';
@@ -25,6 +26,15 @@ import {
   CUSTOMER_ORDER_API_PREFIX,
   isCustomerOrderAccessPath,
 } from './modules/customers/presentation/customer-order-access-http';
+import {
+  CUSTOMER_ADDRESS_API_PATH,
+  CUSTOMER_ADDRESS_API_PREFIX,
+  isCustomerAddressPath,
+} from './modules/customers/presentation/customer-address-http';
+import {
+  createRuntimeCustomerAddressHttp,
+  customerAddressRuntimeObservability,
+} from './composition/runtime-customer-address';
 import {
   customerAccountHeaders,
   withCustomerAccountHeaders,
@@ -56,8 +66,11 @@ export const onRequest = defineMiddleware(async (context, next) => {
   const adminSurface = pathname.startsWith('/api/admin') || pathname.startsWith('/demo/admin');
   const customerAccountSurface = CUSTOMER_ACCOUNT_ROUTE_PATHS.has(pathname);
   const customerOrderSurface = isCustomerOrderAccessPath(pathname);
+  const customerAddressSurface = isCustomerAddressPath(pathname);
   const customerOrderApiSurface = pathname === CUSTOMER_ORDER_API_PATH ||
     pathname.startsWith(CUSTOMER_ORDER_API_PREFIX);
+  const customerAddressApiSurface = pathname === CUSTOMER_ADDRESS_API_PATH ||
+    pathname.startsWith(CUSTOMER_ADDRESS_API_PREFIX);
   const privateResponse = async (): Promise<Response> => {
     const response = await next();
     const headers = new Headers(response.headers);
@@ -68,7 +81,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
 
   const routeAccess = decideRouteAccess(runtimePlatform, pathname);
   if (routeAccess && !routeAccess.allowed) {
-    if (customerOrderApiSurface && routeAccess.status === 404) {
+    if ((customerOrderApiSurface || customerAddressApiSurface) && routeAccess.status === 404) {
       return Response.json({ error: { code: 'customer.resource.not_found' } }, {
         status: 404,
         headers: customerAccountHeaders(),
@@ -154,6 +167,34 @@ export const onRequest = defineMiddleware(async (context, next) => {
     } catch {
       customerOrderAccessRuntimeObservability.count({
         outcome: 'denied', reason: 'runtime_unavailable',
+      });
+      return new Response('Acceso no disponible.', {
+        status: 503,
+        headers: customerAccountHeaders({ 'content-type': 'text/plain; charset=utf-8' }),
+      });
+    }
+  }
+
+  if (customerAddressSurface) {
+    try {
+      const edgeResponse = await enforceCustomerAddressEdgeRate({
+        request: context.request,
+        pathname,
+        binding: context.locals.runtime.env.CUSTOMER_AUTH_RATE_LIMIT,
+        observability: customerAddressRuntimeObservability,
+      });
+      if (edgeResponse !== null) return edgeResponse;
+      const addressHttp = await createRuntimeCustomerAddressHttp(context.locals.runtime.env);
+      if (addressHttp === null) {
+        return Response.json({ error: { code: 'customer.resource.not_found' } }, {
+          status: 404, headers: customerAccountHeaders(),
+        });
+      }
+      context.locals.customerAddressHttp = addressHttp;
+      return withCustomerAccountHeaders(await next());
+    } catch {
+      customerAddressRuntimeObservability.count({
+        operation: 'list', outcome: 'denied', reason: 'runtime_unavailable',
       });
       return new Response('Acceso no disponible.', {
         status: 503,

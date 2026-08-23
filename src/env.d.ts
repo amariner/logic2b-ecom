@@ -32,5 +32,6 @@ declare namespace App {
   interface Locals extends Runtime {
     customerAccountHttp?: import('./modules/customers/presentation/customer-account-http').CustomerAccountHttp;
     customerOrderAccessHttp?: import('./modules/customers/presentation/customer-order-access-http').CustomerOrderAccessHttp;
+    customerAddressHttp?: import('./modules/customers/presentation/customer-address-http').CustomerAddressHttp;
   }
 }

@@ -318,6 +318,16 @@ if (INCLUDE_CUSTOMER_ACCOUNT) {
       vp,
     });
     SURFACES.push({
+      name: `customer-account:addresses${suffix}`,
+      url: '/cuenta/direcciones',
+      vp,
+    });
+    SURFACES.push({
+      name: `customer-account:addresses-empty${suffix}`,
+      url: '/cuenta/direcciones?empty=1',
+      vp,
+    });
+    SURFACES.push({
       name: `customer-account:orders-empty${suffix}`,
       url: '/cuenta/pedidos?cursor=empty',
       vp,

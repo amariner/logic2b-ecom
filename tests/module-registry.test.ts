@@ -43,7 +43,7 @@ describe('registro de módulos (R1.4)', () => {
 
   it('versiona y enlaza el contrato de superficie passwordless desde customers', () => {
     const customers = MODULE_REGISTRY.descriptors.find((descriptor) => descriptor.id === 'customers');
-    expect(customers).toMatchObject({ version: '1.10.0' });
+    expect(customers).toMatchObject({ version: '1.11.0' });
     expect(customers?.wikiLinks).toContain(
       'docs/plataforma/adr/0043-superficie-passwordless-email-segura.md',
     );
@@ -56,6 +56,8 @@ describe('registro de módulos (R1.4)', () => {
       { match: 'exact', path: '/cuenta/sesiones', capabilityId: 'CUS-003' },
       { match: 'prefix', path: '/cuenta/pedidos', capabilityId: 'CUS-004' },
       { match: 'prefix', path: '/api/customer/orders/', capabilityId: 'CUS-004' },
+      { match: 'prefix', path: '/cuenta/direcciones', capabilityId: 'CUS-006' },
+      { match: 'prefix', path: '/api/customer/addresses', capabilityId: 'CUS-006' },
     ]);
     expect(customers?.permissions).toContain('customer:orders:read');
     expect(customers?.permissions).toEqual(expect.arrayContaining([

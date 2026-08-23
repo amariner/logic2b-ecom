@@ -109,6 +109,8 @@ export async function createRuntimeCustomerAccountHttp(
     defer,
     ordersAvailable: platform.isCapabilityActive('CUS-004') &&
       platform.hasCapabilityFlag('CUS-004', 'routes'),
+    addressesAvailable: platform.isCapabilityActive('CUS-006') &&
+      platform.hasCapabilityFlag('CUS-006', 'routes'),
     ...(options.now === undefined ? {} : { now: options.now }),
   });
 }
