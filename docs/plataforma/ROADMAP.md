@@ -174,7 +174,7 @@ suites/715 tests; producción permanece en `0032`.
 | 52 | **R5.2 Consentimientos** | Canal, finalidad, versión legal, fuente, región, timestamp y retirada. | ✅ 2026-08-17 — D1 `0037`, repositorio atómico, backup 31 y rehearsal local; captura/rollout pendientes |
 | 53 | **R5.3 Derechos de datos** | Exportar, corregir, anonimizar/borrar con excepciones fiscales y audit log. | 🟨 2026-08-18 — contrato y persistencia R5.3a–b instalados; política, superficies y ejecución pendientes de gates propios |
 | 54 | **R5.4 Cuentas passwordless** | Login seguro, sesiones, revocación y anti-enumeración; módulo opcional. | ✅ 2026-08-19 — R5.4a–d implementan dominio, D1, Resend directo, transporte mismo navegador, throttle/auditoría, gate durable y HTTP/UI; 185 suites/958 tests; D1 remota en `0040`, Worker `a5cc8d85…` inerte, `CUS-003` instalada y rollout real aislado |
-| 55 | **R5.5 Autoservicio** | Pedidos, direcciones y devolución sobre permisos mínimos. | 🟨 R5.5a–f 2026-08-23 — pedidos y direcciones completos en código/fixture local e inactivos; aplicación persistente de `0043` y autoservicio de devolución pendientes |
+| 55 | **R5.5 Autoservicio** | Pedidos, direcciones y devolución sobre permisos mínimos. | 🟨 R5.5a–f 2026-08-24 — pedidos y direcciones desplegados con D1 `0043`, pero installed/inactivos; autoservicio de devolución pendiente |
 | 56 | **R5.6 Segmentación** | Lenguaje de filtros limitado, templates y recálculo observable. | ⬜ |
 | 57 | **R5.7 Modelo de mercados** | Contexto de país/idioma/moneda/dominio, resolución y fallback. | ⬜ |
 | 58 | **R5.8 Traducciones y URLs** | Campos traducibles, flujo editorial, canonical, hreflang y sitemap. | ⬜ |
@@ -374,10 +374,14 @@ La fixture inerte recorre cuenta, pedidos y direcciones a 1440/375: 22
 superficies, 0 errores y 0 avisos. `customers@1.11.0`, backup 36 y el rehearsal
 forward/dump/restore de `0043` conservan 294 productos, 296 variantes, 8
 pedidos y 8 pagos; `pnpm check` pasa 194 suites/1.014 tests, 769 archivos
-tipados, baseline y build. La aplicación a la D1 persistente local fue vetada
-por falta de autorización explícita para esa operación concreta: permanece en
-`0042`; producción continúa en `0040`. `CUS-006` sigue installed sin flags y
-no hubo activación, secretos, proveedor, migración remota ni deploy.
+tipados, baseline y build. El corte autorizado del 2026-08-24 aplicó
+`0041`–`0043` a la D1 remota y desplegó el Worker
+`f66acbba-d0eb-4a90-a66c-b0534a2e26a4`; el bookmark previo es
+`00000172-00000000-000050d1-3e17f7d8d012048edcb3777a09ee6901`. Producción
+conserva 294 productos, 296 variantes, 8 pedidos/pagos, 8 referencias `ord_`,
+cero perfiles/activaciones y cero fallos FK; el E2E remoto completo pasa. La D1
+local persistente permanece en `0042`. `CUS-003`, `CUS-004` y `CUS-006` siguen
+installed, sin flags activas, secretos ni proveedor real.
 
 ## R6 — B2B
 
@@ -1446,7 +1450,8 @@ R5.5f queda cerrado en código y fixture local: API/SSR de direcciones, CSRF,
 idempotencia durable, CAS y anti-enumeración pasan tests y auditoría responsive.
 `0043` y backup 36 pasan rehearsal/restore, pero la D1 persistente local se
 mantiene en `0042` porque la aplicación concreta requiere autorización
-explícita. Producción continúa en `0040`; `CUS-006` sigue installed e inactiva.
+explícita. Producción sirve D1 `0043` y Worker `f66acbba…`; `CUS-003`,
+`CUS-004` y `CUS-006` siguen installed e inactivas y el E2E remoto pasa.
 
 Siguiente corte:
 
