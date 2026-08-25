@@ -26,6 +26,26 @@ ecommerce adaptado y un despliegue aislado; Logic2B asume la complejidad,
 mantenimiento y evolución. Especificación completa en `CLAUDE.md` y definición
 canónica en [`docs/POSICIONAMIENTO.md`](POSICIONAMIENTO.md).
 
+## ✅ HARDENING DE CONSUMO D1 (2026-08-25)
+
+Ante la aplicación de los límites diarios del plan gratuito anunciada por
+Cloudflare, la demo deja de ejecutar el seed completo cada seis horas. El
+mantenimiento pasa a un único refresco semanal de pedidos ficticios, los
+escaparates continúan sirviéndose desde fixtures versionados y el catálogo D1
+público queda reducido a 20 productos estables sin actualización automática.
+
+El contrato automático impide que el cron escriba productos, variantes, medios,
+balances de inventario o tarifas, y limita cada ciclo a 150 sentencias / 450
+cambios directos como máximo. El seed completo se conserva exclusivamente para
+desarrollo y clones.
+
+**Rollout remoto completado:** Worker `1171a494-571d-4e8d-9a86-3c3e87d282d6`,
+cron semanal `17 3 * * 1` confirmado por Cloudflare y seed reducido aplicado
+una sola vez (246 consultas, 18.348 filas leídas y 3.685 escritas). Verificación
+remota: 20 productos, 22 variantes, 8 pedidos y la fila existente de
+`contact_requests` conservada. Portada y catálogo responden 200; el panel
+redirige correctamente a login.
+
 ## ✅ POSICIONAMIENTO CANÓNICO (2026-08-20)
 
 Mandato de Andreu incorporado a la venta y al contrato interno: la reutilización
@@ -83,10 +103,11 @@ reconciliación se conserva abajo por contexto.
 
 - GitHub: `https://github.com/amariner/logic2b-ecom` (rama `main`).
 - Cloudflare: **en producción** — Worker `ecom-logic2b` versión
-  `f66acbba-d0eb-4a90-a66c-b0534a2e26a4` en https://ecom.logic2b.com, D1
+  `1171a494-571d-4e8d-9a86-3c3e87d282d6` en https://ecom.logic2b.com, D1
   remota `ecom-demo` (`7ae9b06d-3664-4790-a87c-04bb4c67e97a`) y tres crons
-  activos. D1 sirve `0001`–`0043`, sin migraciones pendientes ni violaciones
-  FK; los fixtures y el aislamiento de cuenta pasan el E2E remoto completo. SARGA y MONTE,
+  activos; el mantenimiento demo es semanal (`17 3 * * 1`) y solo repone
+  pedidos. D1 sirve `0001`–`0043`, con 20 productos y 8 pedidos ficticios; los
+  fixtures y el aislamiento de cuenta pasan el E2E remoto completo. SARGA y MONTE,
   incluidas sus capturas, responden 200. Lighthouse 12 queda en
   100/100/100/100 salvo el rendimiento móvil de portada, estable en 99 con
   LCP 2,0 s, CLS 0 y TBT 0 ms.

@@ -5,7 +5,7 @@
 
 import { shopConfig } from '../shop.config.ts';
 import { collectionSeedProducts } from './collections/index.ts';
-import { demoOrderStatements } from './demo-orders.ts';
+import { demoOrderFixtures, demoOrderStatements } from './demo-orders.ts';
 import { imageVariants } from './image-variants.ts';
 import {
   seedProducts,
@@ -34,6 +34,40 @@ const DEMO_PACKING_SLIP_HTML = '<!doctype html><html lang="es"><meta charset="ut
 const DEMO_PACKING_SLIP_SHA256 = '67d90502fadb0bd5f8eb5707dfc94a23081d51be5428ccd417afad6c53d67d13';
 const DEMO_INVOICE_SNAPSHOT = '{"schema":1,"issuedAt":"demo-seed","document":{"number":"FAC-DEMO-1004","type":"external_invoice","version":1,"source":"external"},"order":{"number":"BM-DEMO-1004"},"external":{"provider":"gestoria-demo","reference":"FACT-DEMO-1004"}}';
 const DEMO_INVOICE_SHA256 = 'f361e71ed902d3ac92d669abd9406c83a9c5ac3093762bb14115bfc09764f58b';
+
+export type SeedProfile = 'full' | 'public-demo';
+
+/**
+ * La demo pública no necesita persistir los catálogos completos de todos los
+ * temas: los escaparates los sirven desde fixtures versionados. D1 conserva
+ * solo los productos referenciados por pedidos y una muestra pequeña de los
+ * estados/capacidades que enseña el panel.
+ */
+export function publicDemoSeedProducts(): readonly SeedProduct[] {
+  const allProducts = [...seedProducts, ...collectionSeedProducts];
+  const selected = new Map<string, SeedProduct>();
+  const add = (product: SeedProduct | undefined): void => {
+    if (product) selected.set(product.slug, product);
+  };
+  const bySlug = new Map(allProducts.map((product) => [product.slug, product]));
+
+  for (const order of demoOrderFixtures) {
+    for (const line of order.lines) add(bySlug.get(line.slug));
+  }
+
+  add(allProducts.find((product) => product.stock === 0));
+  add(allProducts.find((product) => product.active === 0));
+  add(allProducts.find((product) => product.compare_at_price_cents !== undefined));
+  add(allProducts.find((product) => product.subtitle !== undefined));
+  add(allProducts.find((product) => (product.specs?.length ?? 0) > 0));
+  add(allProducts.find((product) => product.variants !== undefined));
+
+  for (const product of allProducts) {
+    if (selected.size >= 20) break;
+    add(product);
+  }
+  return Object.freeze([...selected.values()]);
+}
 
 /**
  * El precio anterior tachado tiene que ser MAYOR que el que se cobra: si no, no
@@ -236,7 +270,7 @@ function attributeValueSql(attribute: SeedProductAttribute): string {
 }
 
 /** Sentencias que dejan la base en el estado demo inicial. Orden: hijos antes que padres. */
-export function seedStatements(): string[] {
+export function seedStatements(profile: SeedProfile = 'full'): string[] {
   const statements: string[] = [
     'DELETE FROM audit_log',
     'DELETE FROM order_bulk_batch_rows',
@@ -302,7 +336,9 @@ export function seedStatements(): string[] {
     'DELETE FROM products',
   ];
 
-  const products = [...seedProducts, ...collectionSeedProducts];
+  const products = profile === 'public-demo'
+    ? [...publicDemoSeedProducts()]
+    : [...seedProducts, ...collectionSeedProducts];
   validateSeedProducts(products);
 
   const definitionPositions = new Map<string, number>();
@@ -730,4 +766,48 @@ export function seedStatements(): string[] {
   );
 
   return statements;
+}
+
+const DEMO_ORDER_RESET_DELETE_STATEMENTS = Object.freeze([
+  'DELETE FROM order_hold_events',
+  'DELETE FROM order_holds',
+  'DELETE FROM order_tag_events',
+  'DELETE FROM order_tag_assignments',
+  'DELETE FROM order_note_revisions',
+  'DELETE FROM order_notes',
+  'DELETE FROM order_tags',
+  'DELETE FROM order_document_events',
+  'DELETE FROM order_document_artifacts',
+  'DELETE FROM order_documents',
+  'DELETE FROM order_document_templates',
+  'DELETE FROM order_events',
+  'DELETE FROM return_inventory_movements',
+  'DELETE FROM return_exchange_lines',
+  'DELETE FROM return_events',
+  'DELETE FROM return_request_lines',
+  'DELETE FROM return_requests',
+  'DELETE FROM refund_items',
+  'DELETE FROM refunds',
+  'DELETE FROM payment_transactions',
+  'DELETE FROM payments',
+  'DELETE FROM inventory_allocation_movements',
+  'DELETE FROM inventory_allocation_lines',
+  'DELETE FROM inventory_allocation_decisions',
+  'DELETE FROM fulfillment_items',
+  'DELETE FROM fulfillments',
+  'DELETE FROM order_items',
+  'DELETE FROM emails_outbox',
+  'DELETE FROM orders',
+] as const);
+
+/**
+ * Refresco barato de la demo pública: sustituye solo el expediente de pedidos
+ * y sus proyecciones. Catálogo, variantes, media, inventario y tarifas quedan
+ * intactos y se actualizan únicamente mediante un seed explícito de despliegue.
+ */
+export function demoOrderResetStatements(): string[] {
+  const fullSeed = seedStatements('public-demo');
+  const firstOrder = fullSeed.findIndex((statement) => statement.startsWith('INSERT INTO orders '));
+  if (firstOrder === -1) throw new Error('El seed público no contiene pedidos de demostración.');
+  return [...DEMO_ORDER_RESET_DELETE_STATEMENTS, ...fullSeed.slice(firstOrder)];
 }

@@ -1,4 +1,4 @@
-import { seedStatements } from '../../seed/seed';
+import { demoOrderResetStatements } from '../../seed/seed';
 import { executeJob, type JobExecutionResult, type JobHandler } from '../platform/jobs';
 import type { Platform } from './create-platform';
 import { flushEventOutbox } from './outbox-dispatcher';
@@ -12,10 +12,10 @@ export type ScheduledJobEnv = Env & Readonly<{
 
 function handlerFor(jobId: string, env: ScheduledJobEnv): JobHandler {
   switch (jobId) {
-    case 'platform-configuration.demo-fixture-reset':
+    case 'platform-configuration.demo-order-refresh':
       return async (_run, signal) => {
         if (env.DEMO_MODE !== 'true' || signal.aborted) return;
-        await env.DB.batch(seedStatements().map((sql) => env.DB.prepare(sql)));
+        await env.DB.batch(demoOrderResetStatements().map((sql) => env.DB.prepare(sql)));
       };
     case 'notifications.event-outbox-sweep':
       return async (_run, signal) => {

@@ -7,7 +7,7 @@
 ## Contexto
 
 El Worker tenía dos Cron Triggers conectados directamente: reset de fixtures
-cada seis horas en demo y barrido del outbox cada cinco minutos en una tienda
+de demo y barrido del outbox cada cinco minutos en una tienda
 real. `DEMO_MODE` evitaba ejecutar el cron ajeno, pero no existían identidad de
 ejecución, lock entre isolates, timeout, reintento ni replay. Dos entregas del
 mismo tick podían solaparse y un Worker interrumpido no dejaba evidencia
@@ -40,7 +40,7 @@ Adoptar un registro tipado de jobs y una fila durable por ejecución en
    `running` y `dead` no se purgan automáticamente.
 
 La garantía es **at-least-once**, no exactly-once. Cada handler debe ser
-idempotente: el reset ya lo es porque reemplaza fixtures completos y el
+idempotente: el refresco demo ya lo es porque reemplaza su conjunto acotado de pedidos y el
 dispatcher del outbox ya deduplica cada entrega.
 
 ## Activación por manifest
@@ -48,7 +48,7 @@ dispatcher del outbox ya deduplica cada entrega.
 Hay dos alcances distintos:
 
 - `deployment-maintenance`: infraestructura interna necesaria para mantener el
-  despliegue. El reset de fixtures pertenece a este alcance y solo existe en
+  despliegue. El refresco de pedidos ficticios pertenece a este alcance y solo existe en
   modo `demo`; no habilita cobros, emails ni mutaciones públicas.
 - `capability`: solo se compone cuando el módulo está operativo y la capacidad
   requerida lleva `jobs=true`. `notifications.event-outbox-sweep` exige
@@ -85,11 +85,24 @@ excepcional usa D1 mediante el control plane autorizado.
   ticks concretos o reejecutar una incidencia identificada.
 - **Reintento infinito:** oculta fallos permanentes y consume D1 sin intervención.
 
+## Revisión de coste D1 (2026-08-25)
+
+La aplicación activa de los límites gratuitos de D1 obliga a reducir el trabajo
+de mantenimiento de la demo. El job pasa de un seed completo cada seis horas a
+un refresco semanal (`17 3 * * 1`) limitado a pedidos y tablas dependientes. El
+catálogo persistente público queda en 20 productos y no se actualiza por cron;
+los escaparates siguen usando fixtures versionados. Tests de presupuesto fijan
+un máximo de 150 sentencias y 450 cambios directos por refresco, y prohíben
+escrituras sobre productos, variantes, medios, balances y tarifas.
+
+El seed completo sigue disponible para desarrollo y clones. Esta revisión no
+cambia la primitiva durable ni la garantía at-least-once de la decisión original.
+
 ## Consecuencias
 
 - Los jobs únicos y recurrentes comparten una primitiva testeable.
-- El reset conserva el mismo horario y resultado, con evidencia y exclusión
-  mutua añadidas.
+- El mantenimiento demo conserva evidencia, idempotencia y exclusión mutua,
+  pero reduce su frecuencia y superficie de escritura.
 - El barrido mínimo del outbox deja de ser una excepción previa a R1.11.
 - Una nueva tarea debe declararse en su módulo, registrarse, elegir alcance y
   demostrar idempotencia antes de conectarse.

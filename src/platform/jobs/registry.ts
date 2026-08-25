@@ -10,10 +10,10 @@ const RETRIES = Object.freeze([30, 120, 600, 1_800] as const);
 
 export const JOB_DESCRIPTORS = [
   {
-    id: 'platform-configuration.demo-fixture-reset',
+    id: 'platform-configuration.demo-order-refresh',
     moduleId: 'platform-configuration',
     scope: 'deployment-maintenance',
-    trigger: { kind: 'recurring', crons: ['0 */6 * * *'] },
+    trigger: { kind: 'recurring', crons: ['17 3 * * 1'] },
     modes: ['demo'],
     timeoutSeconds: 60,
     maxAttempts: 5,

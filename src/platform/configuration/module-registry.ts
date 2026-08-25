@@ -85,7 +85,7 @@ const CUSTOMER_PASSWORDLESS_RUNBOOK = 'docs/plataforma/OPERACION_PASSWORDLESS.md
 export const MODULE_DESCRIPTORS = [
   {
     id: 'platform-configuration', version: '1.0.0', capabilities: ['PLT-001', 'PLT-004'], dependencies: [],
-    permissions: [], events: [], subscriptions: [], jobs: ['platform-configuration.demo-fixture-reset'], healthchecks: [], wikiLinks: [ARCHITECTURE_WIKI], navigation: [], routes: [],
+    permissions: [], events: [], subscriptions: [], jobs: ['platform-configuration.demo-order-refresh'], healthchecks: [], wikiLinks: [ARCHITECTURE_WIKI], navigation: [], routes: [],
   },
   {
     id: 'platform-security', version: '1.0.0', capabilities: ['SEC-001', 'SEC-003', 'SEC-004', 'SEC-012'],

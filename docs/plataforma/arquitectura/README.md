@@ -244,7 +244,7 @@ R1.5 añade `event-context.ts` (reloj y fuente de ids reales) y
 `orders` con el consumidor de `notifications` y confirma ambos efectos en una
 única batch. Es el único punto que conoce los dos módulos a la vez. R1.10 enlaza
 los healthchecks de Stripe, Resend y CSV. R1.11 incorpora el registro de jobs:
-el reset de fixtures es mantenimiento interno de demo y el barrido del outbox
+el refresco semanal de pedidos ficticios es mantenimiento interno de demo y el barrido del outbox
 exige `AUT-002.jobs` en un despliegue cliente.
 R1.12 añade `demo-catalog.ts` como composición explícita de los fixtures y
 deja la allowlist arquitectónica vacía; la guía

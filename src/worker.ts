@@ -2,8 +2,8 @@
  * Entry point personalizado del Worker (ver `workerEntryPoint` en astro.config.mjs).
  *
  * Envuelve el handler `fetch` estándar de Astro y añade un handler `scheduled`
- * para los Cron Triggers registrados por R1.11: reset de fixtures cada 6 h en
- * demo y recuperación del outbox cada 5 min en una tienda real.
+ * para los Cron Triggers registrados por R1.11: refresco semanal y acotado de
+ * pedidos ficticios en demo, y recuperación del outbox cada 5 min en una tienda real.
  */
 import type {
   ExecutionContext,

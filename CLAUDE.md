@@ -176,7 +176,9 @@ Flag `DEMO_MODE=true` en env. Cuando está activo:
 - Stripe en claves **test**.
 - Emails escritos en `emails_outbox` y visibles en `/demo/admin/emails`, nunca enviados.
 - Admin accesible sin credenciales reales (cookie simple), con aviso de que en producción va tras Cloudflare Access.
-- Cron Trigger de Cloudflare que ejecuta el reset cada 6 h.
+- Cron Trigger de Cloudflare semanal que refresca solo los pedidos ficticios.
+  El catálogo persistente de la demo es pequeño y estable; el escaparate público
+  usa fixtures versionados y no debe reescribirse por cron.
 - Todo `/demo/*` con `<meta name="robots" content="noindex,follow">`.
 
 ---

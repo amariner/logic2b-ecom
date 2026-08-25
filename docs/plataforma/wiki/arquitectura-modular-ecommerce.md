@@ -68,9 +68,9 @@ promesa global: cada capacidad conserva el estado y la evidencia de la matriz.
 - registro de Stripe, Resend y CSV con healthchecks locales y snapshots sin
   credenciales;
 - jobs únicos/recurrentes con D1 lock, timeout, retry/dead-letter y replay;
-  reset interno de demo y barrido cliente del outbox ya usan el mismo runner;
+  refresco semanal de pedidos demo y barrido cliente del outbox ya usan el mismo runner;
 - demo completa mediante composición propia sin jobs comerciales, efectos
-  comerciales ni mutaciones; solo conserva su mantenimiento de fixtures.
+  comerciales ni mutaciones; solo conserva el mantenimiento acotado de pedidos.
 - allowlist arquitectónica vacía: cero ciclos, SQL en presentación o imports
   de SDK/seed fuera de sus adaptadores y puntos de composición;
 - guía reproducible para crear módulos/jobs y matriz de clonabilidad por preset.

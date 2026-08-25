@@ -24,7 +24,7 @@ se montan N tiendas, y que ninguna decisión local lo erosione.
 
 - [ ] ¿Este cambio toca `src/lib/`, `migrations/` o APIs? → ¿era necesario, o
       se resolvía en la capa de presentación/seed?
-- [ ] ¿Sobrevive al reset por cron cada 6 h y al re-seed?
+- [ ] ¿Sobrevive al refresco semanal de pedidos y al re-seed manual?
 - [ ] ¿Funciona igual clonando el repo para un cliente nuevo (nada hardcodeado
       fuera de `shop.config.ts` / colección / seed)?
 - [ ] ¿`pnpm check` verde (tests + tipos + build) antes de commit?

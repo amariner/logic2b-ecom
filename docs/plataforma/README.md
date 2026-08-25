@@ -404,8 +404,8 @@ venta o servicios logísticos propios.
 - [`../../src/platform/jobs/`](../../src/platform/jobs/): registro, contrato,
   repositorio D1 y runner R1.11 para ejecuciones únicas o recurrentes.
 - [`../../src/composition/job-runner.ts`](../../src/composition/job-runner.ts):
-  conecta los Cron Triggers existentes con el reset demo y el outbox cliente
-  según manifest, sin rutas ni configuración visible.
+  conecta los Cron Triggers con el refresco semanal y acotado de pedidos demo
+  y el outbox cliente según manifest, sin rutas ni configuración visible.
 - [`../../src/composition/demo-catalog.ts`](../../src/composition/demo-catalog.ts):
   conecta los fixtures versionados con el catálogo público simulado sin que el
   runtime importe seeds.

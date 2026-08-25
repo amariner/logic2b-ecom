@@ -80,7 +80,7 @@ El envío ya está implementado (`src/lib/send-email.ts`): la outbox es la fuent
 
 El formulario «Iniciar proyecto» (cabecera, arriba y cierre de la landing)
 escribe en la tabla **`contact_requests`**, no en `emails_outbox`. Motivo: la
-bandeja de la demo es pública, se vacía en cada reset de 6 h y no se entrega con
+bandeja de la demo es pública, se repone semanalmente junto a los pedidos ficticios y no se entrega con
 `DEMO_MODE=true` — que es exactamente como corre `ecom.logic2b.com`. Por lo
 mismo, `contact_requests` queda FUERA de la copia de seguridad descargable
 (`src/lib/backup.ts`) y fuera del reset: son datos personales de gente real.

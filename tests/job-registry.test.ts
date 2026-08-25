@@ -17,7 +17,7 @@ describe('registro de jobs R1.11', () => {
     const registry = createJobRegistry(JOB_DESCRIPTORS, MODULE_REGISTRY);
     expect(validateJobRegistry(JOB_DESCRIPTORS, MODULE_REGISTRY)).toEqual([]);
     expect(MODULE_REGISTRY.jobOwners).toEqual({
-      'platform-configuration.demo-fixture-reset': 'platform-configuration',
+      'platform-configuration.demo-order-refresh': 'platform-configuration',
       'notifications.event-outbox-sweep': 'notifications',
       'inventory.expire-reservations': 'inventory',
       'orders.execute-bulk-action': 'orders',
@@ -32,8 +32,8 @@ describe('registro de jobs R1.11', () => {
       id: 'jobs-demo-test',
       environment: 'development',
     }));
-    expect(platform.scheduledJobs('0 */6 * * *').map((job) => job.id)).toEqual([
-      'platform-configuration.demo-fixture-reset',
+    expect(platform.scheduledJobs('17 3 * * 1').map((job) => job.id)).toEqual([
+      'platform-configuration.demo-order-refresh',
     ]);
     expect(platform.scheduledJobs('*/5 * * * *')).toEqual([]);
     expect(platform.hasCapabilityFlag('AUT-002', 'jobs')).toBe(false);
@@ -47,7 +47,7 @@ describe('registro de jobs R1.11', () => {
     expect(standard.scheduledJobs('*/5 * * * *').map((job) => job.id)).toEqual([
       'notifications.event-outbox-sweep',
     ]);
-    expect(standard.scheduledJobs('0 */6 * * *')).toEqual([]);
+    expect(standard.scheduledJobs('17 3 * * 1')).toEqual([]);
     expect(minimal.scheduledJobs('*/5 * * * *')).toEqual([]);
     expect(standard.capabilityState('INV-004')).toBe('installed');
     expect(standard.scheduledJobs('*/1 * * * *')).toEqual([]);

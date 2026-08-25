@@ -139,13 +139,18 @@ Cada despliegue:
 pnpm deploy      # astro build && wrangler deploy
 ```
 
-Fotos de producto (una vez, en local — la sesión cloud no puede descargar del CDN de Higgsfield): `pnpm add -D sharp && node scripts/fetch-product-images.mjs && pnpm remove sharp`, después re-sembrar (`pnpm db:reset` en local; en remoto re-ejecutar el seed o esperar al cron de reset).
+Fotos de producto (una vez, en local — la sesión cloud no puede descargar del CDN de Higgsfield): `pnpm add -D sharp && node scripts/fetch-product-images.mjs && pnpm remove sharp`, después re-sembrar (`pnpm db:reset` en local). El cron público no actualiza el catálogo.
 
 Después del primer deploy:
 
 1. **Dominio**: en el dashboard de Cloudflare → Workers → `ecom-logic2b` → Settings → Domains & Routes → añadir `ecom.logic2b.com` como custom domain.
 2. **Webhook de Stripe**: en el dashboard de Stripe (modo test) crear un endpoint `https://ecom.logic2b.com/api/webhooks/stripe` suscrito a `checkout.session.completed` y `checkout.session.expired`; el signing secret va en `wrangler secret put STRIPE_WEBHOOK_SECRET`.
-3. **Cron de reset**: ya queda programado por `triggers.crons` en `wrangler.jsonc` (cada 6 h, handler en `src/worker.ts`). Verificable en el dashboard → Workers → Triggers.
+3. **Cron de demo**: queda programado por `triggers.crons` en `wrangler.jsonc` (lunes a las 03:17 UTC, handler en `src/worker.ts`). Solo repone pedidos ficticios: no reescribe catálogo, variantes, medios ni inventario. Verificable en el dashboard → Workers → Triggers.
+
+El perfil público reducido de 20 productos se genera y prueba en local mediante
+`pnpm db:seed:demo`; el SQL resultante puede aplicarse a la D1 remota de la demo
+con Wrangler. El seed completo (`pnpm db:reset`) se conserva para desarrollo
+local y clones de clientes, pero no debe conectarse al cron público.
 
 ## Estructura
 

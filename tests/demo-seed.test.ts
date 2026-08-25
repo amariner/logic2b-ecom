@@ -2,8 +2,9 @@
  * Cobertura del seed de demo (Fase 9B.2).
  * ============================================================================
  *
- * El seed corre en vivo en `/api/demo/reset` y en el cron cada 6 h. Si genera SQL
- * incoherente (un slug que no existe → product_id NULL → viola NOT NULL) la demo
+ * El seed completo mantiene clones y desarrollo local; la demo publica refresca
+ * semanalmente solo sus pedidos. Si genera SQL incoherente (un slug que no existe
+ * → product_id NULL → viola NOT NULL) la demo
  * se rompe en silencio. Estos tests fijan que:
  *
  *   · las fixtures siguen cubriendo TODAS las variantes que el panel enseña;

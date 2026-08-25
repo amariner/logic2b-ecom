@@ -21,6 +21,7 @@
     "new:theme": "node scripts/new-theme.mjs",
     "db:migrate": "wrangler d1 migrations apply ecom-demo --local",
     "db:seed": "node seed/generate.ts > .wrangler/seed.sql && wrangler d1 execute ecom-demo --local --file .wrangler/seed.sql",
+    "db:seed:demo": "node seed/generate-demo.ts > .wrangler/demo-seed.sql && wrangler d1 execute ecom-demo --local --file .wrangler/demo-seed.sql",
     "db:reset": "rm -rf .wrangler/state && pnpm db:migrate && pnpm db:seed",
     "db:rehearse:inventory": "node scripts/rehearse-r2-inventory-ledger.mjs",
     "db:rehearse:reservations": "node scripts/rehearse-r2-inventory-reservations.mjs",

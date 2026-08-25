@@ -25,8 +25,8 @@
  * fixtures cambian con él.
  *
  * FRESCURA. Todos los timestamps son relativos (`datetime('now', …)`), no fechas
- * absolutas: el reset corre en vivo cada 6 h por cron y el panel debe verse
- * siempre reciente, nunca anclado a julio de 2026.
+ * absolutas: el refresco semanal de pedidos mantiene el panel reciente sin
+ * reescribir el catálogo ni el inventario persistentes.
  */
 
 import { shopConfig } from '../shop.config.ts';

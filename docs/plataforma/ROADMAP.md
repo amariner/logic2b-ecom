@@ -742,8 +742,9 @@ portada, arquitectura, tienda demo y sitemap.
    y modo `client`. Manifest y `DEMO_MODE` deben coincidir o el cron falla
    cerrado sin crear una fila.
 6. `src/worker.ts` deja de contener condicionales de cada cron y delega en el
-   composition root. El reset conserva horario, seed completo e idempotencia;
-   el historial operativo no se borra al reemplazar fixtures.
+   composition root. En esta entrega el reset conservaba horario, seed completo
+   e idempotencia; el hardening D1 de 2026-08-25 lo sustituyó después por un
+   refresco semanal limitado a pedidos. El historial operativo no se borra.
 7. ADR-0011 fija at-least-once, límites y alternativas. No hay endpoint, panel,
    navegación, dependencia, servicio o coste mensual nuevo.
 8. Verificación: migración Wrangler sobre D1 local y Cron Trigger real mediante

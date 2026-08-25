@@ -69,8 +69,8 @@ describe('consolidación de plataforma R1.12', () => {
       'notifications.event-outbox-sweep',
     ]);
     expect(demo.scheduledJobs('*/5 * * * *')).toEqual([]);
-    expect(demo.scheduledJobs('0 */6 * * *').map((job) => job.id)).toEqual([
-      'platform-configuration.demo-fixture-reset',
+    expect(demo.scheduledJobs('17 3 * * 1').map((job) => job.id)).toEqual([
+      'platform-configuration.demo-order-refresh',
     ]);
   });
 
