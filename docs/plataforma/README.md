@@ -156,6 +156,10 @@ venta o servicios logísticos propios.
   expedientes RMA, recepción, inspección, movimientos y cambios pendientes.
 - [`OPERACION_DEVOLUCIONES_RMA.md`](OPERACION_DEVOLUCIONES_RMA.md):
   ensayo, rollout, conciliación, incidencias y rollback de devoluciones.
+- [`../../migrations/0044_customer_return_requests.sql`](../../migrations/0044_customer_return_requests.sql):
+  selector público y evidencia owner-only expand-only para solicitudes de cliente.
+- [`OPERACION_AUTOSERVICIO_DEVOLUCIONES.md`](OPERACION_AUTOSERVICIO_DEVOLUCIONES.md):
+  frontera CUS-005/FUL-010, invariantes, rehearsal, reconciliación y rollback R5.5g.
 - [`adr/0027-documentos-operativos-no-fiscales.md`](adr/0027-documentos-operativos-no-fiscales.md):
   snapshots logísticos propios y frontera explícita con la emisión fiscal externa.
 - [`../../migrations/0024_order_documents.sql`](../../migrations/0024_order_documents.sql):

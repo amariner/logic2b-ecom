@@ -174,7 +174,7 @@ suites/715 tests; producción permanece en `0032`.
 | 52 | **R5.2 Consentimientos** | Canal, finalidad, versión legal, fuente, región, timestamp y retirada. | ✅ 2026-08-17 — D1 `0037`, repositorio atómico, backup 31 y rehearsal local; captura/rollout pendientes |
 | 53 | **R5.3 Derechos de datos** | Exportar, corregir, anonimizar/borrar con excepciones fiscales y audit log. | 🟨 2026-08-18 — contrato y persistencia R5.3a–b instalados; política, superficies y ejecución pendientes de gates propios |
 | 54 | **R5.4 Cuentas passwordless** | Login seguro, sesiones, revocación y anti-enumeración; módulo opcional. | ✅ 2026-08-19 — R5.4a–d implementan dominio, D1, Resend directo, transporte mismo navegador, throttle/auditoría, gate durable y HTTP/UI; 185 suites/958 tests; D1 remota en `0040`, Worker `a5cc8d85…` inerte, `CUS-003` instalada y rollout real aislado |
-| 55 | **R5.5 Autoservicio** | Pedidos, direcciones y devolución sobre permisos mínimos. | 🟨 R5.5a–f 2026-08-24 — pedidos y direcciones desplegados con D1 `0043`, pero installed/inactivos; autoservicio de devolución pendiente |
+| 55 | **R5.5 Autoservicio** | Pedidos, direcciones y devolución sobre permisos mínimos. | 🟨 R5.5a–g cerrados; R5.5h en progreso 2026-08-24 — HTTP/SSR owner-only verde en tests y fixture, falta navegador/a11y por Chrome ausente |
 | 56 | **R5.6 Segmentación** | Lenguaje de filtros limitado, templates y recálculo observable. | ⬜ |
 | 57 | **R5.7 Modelo de mercados** | Contexto de país/idioma/moneda/dominio, resolución y fallback. | ⬜ |
 | 58 | **R5.8 Traducciones y URLs** | Campos traducibles, flujo editorial, canonical, hreflang y sitemap. | ⬜ |
@@ -1444,25 +1444,30 @@ principal pasa a R4.1, motor de reglas de precio.
 
 ## 14. Siguiente bloque
 
-### R5.5g — Contrato y persistencia owner-only de devoluciones
+### R5.5h — Cierre visual de HTTP/SSR owner-only de devoluciones
 
-R5.5f queda cerrado en código y fixture local: API/SSR de direcciones, CSRF,
-idempotencia durable, CAS y anti-enumeración pasan tests y auditoría responsive.
-`0043` y backup 36 pasan rehearsal/restore, pero la D1 persistente local se
-mantiene en `0042` porque la aplicación concreta requiere autorización
-explícita. Producción sirve D1 `0043` y Worker `f66acbba…`; `CUS-003`,
-`CUS-004` y `CUS-006` siguen installed e inactivas y el E2E remoto pasa.
+R5.5h implementa rutas exactas API/SSR de índice, detalle, elegibilidad y alta,
+sesión/scopes CUS-005, CSRF, rate limit por IP sin selectores, respuesta 404
+uniforme y DTO sin PII. La fixture inerte sirve lista, detalle y API sin D1 ni
+efectos; demo y preflight permanecen cerrados. El hardening correctivo de R5.5g
+alinea `ret_` con ADR-0044, añade `customer_contract_version`, revalida owner,
+CAS, ventana, variante, precio y cantidad en triggers, genera números RMA
+realmente únicos y ya no disfraza fallos D1 como conflictos.
+
+`pnpm check` pasa 198 suites/1.032 tests y 783 archivos tipados; E2E demo,
+rehearsal 0043→0044→dump→restore y auditorías HTTP demo/preflight/surface están
+verdes. D1 local fue reconstruida en `0044`. La auditoría de navegador y las
+capturas 1440/375 no pudieron ejecutarse porque el contenedor no contiene
+Chrome/Chromium; producción sigue en `0043` porque Wrangler no está autenticado.
+Las mutaciones ya rechazan un `Origin` ausente o distinto del canónico y la
+huella idempotente ordena las líneas para representar el payload semántico.
 
 Siguiente corte:
 
-1. delimitar `CUS-005` frente a `FUL-010`: el cliente solicita y consulta; el
-   backoffice conserva autorización, recepción, inspección y resolución;
-2. definir elegibilidad owner-only desde `ord_`, cantidades pendientes y
-   estado entregado, sin aceptar email, order number ni PII como prueba;
-3. materializar referencia pública, versión, idempotencia y snapshot mínimo de
-   solicitud de devolución con una migración expand-only y backup/rehearsal;
-4. hacer que creación y carrera revaliden owner del pedido, elegibilidad y CAS
-   dentro de la misma transacción, con replay seguro y merge/revocación cerrados;
-5. dejar HTTP, UI, activación, D1 remota y deploy para el bloque posterior;
-6. antes de aplicar cualquier migración persistente, obtener autorización
-   explícita de Andreu para el target exacto.
+1. disponer de Chrome/Chromium y ejecutar `pnpm audit:customer-account -- --only=surface`;
+2. revisar y guardar capturas de lista/detalle a 1440 y 375 px, foco, contraste,
+   overflow y targets; corregir cualquier hallazgo antes de cerrar;
+3. repetir `pnpm check` y E2E tras cualquier ajuste visual;
+4. cuando Wrangler vuelva a estar autenticado, crear bookmark/backup exacto de
+   producción `0043`, aplicar `0044`, reconciliar y desplegar el Worker inerte;
+5. mantener CUS-005 installed/inactiva; después cerrar R5.5 y pasar a R5.6.

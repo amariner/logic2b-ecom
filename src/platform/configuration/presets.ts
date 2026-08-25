@@ -110,6 +110,8 @@ const ADVANCED_CAPABILITIES = {
   'CUS-003': { state: 'installed' },
   // R5.5b instala referencias y reader; no concede rutas ni lectura de pedidos.
   'CUS-004': { state: 'installed' },
+  // R5.5g instala persistencia owner-only; HTTP, UI y activacion quedan fuera.
+  'CUS-005': { state: 'installed' },
   // R5.5e instala selectores y CAS de direcciones; no concede rutas ni acceso.
   'CUS-006': { state: 'installed' },
   // R5.2 fija evidencia y decisiones puras. Persistencia, captura y envíos

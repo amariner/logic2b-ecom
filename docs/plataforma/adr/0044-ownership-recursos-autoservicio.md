@@ -220,11 +220,16 @@ validación y conflicto; la fixture inerte verifica IDOR, responsive y a11y. La
 capacidad sigue instalada e inactiva y producción no recibió migración ni
 deploy.
 
-R5.5g debe aplicar el mismo contrato a `CUS-005` sin confundir solicitud del
-cliente con la operación de RMA del backoffice. Owner y elegibilidad nacen del
-pedido seleccionado por `ord_`; la creación revalida ambos dentro de su
-transacción. HTTP y portal quedan fuera hasta cerrar persistencia, replay,
-carrera, backup y restore.
+R5.5g aplica el contrato a `CUS-005` sin confundir solicitud del cliente con la
+operación de RMA del backoffice. Owner y elegibilidad nacen del pedido `ord_` y
+se revalidan dentro de la transacción; `ret_`, huella, CAS, evento y auditoría
+persisten sin PII. Replay, carrera, merge, backup 37 y restore quedan cerrados.
+
+R5.5h abre HTTP/SSR local solo para consultar y solicitar, reutilizando sesión,
+scopes, CSRF, rate limit y denegación uniforme. Autorización, recepción,
+inspección y resolución permanecen en el panel operativo; la capacidad sigue
+inactiva. Falta el gate de navegador/capturas y el rollout inerte coordinado
+antes de declarar R5.5 cerrado.
 
 ## Rollback
 

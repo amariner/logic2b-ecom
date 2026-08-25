@@ -68,4 +68,17 @@ describe('gate middleware de cuenta en demo', () => {
     expect(middlewareSource.indexOf('const routeAccess = decideRouteAccess'))
       .toBeLessThan(middlewareSource.indexOf('if (customerAddressSurface)'));
   });
+
+  it.each([
+    '/api/customer/returns',
+    `/api/customer/returns/ret_${'a'.repeat(32)}`,
+    '/cuenta/devoluciones',
+    `/cuenta/devoluciones/ret_${'a'.repeat(32)}`,
+  ])('cierra %s por CUS-005 antes de runtime', (pathname) => {
+    expect(decideRouteAccess(createPlatform(platformManifest), pathname)).toMatchObject({
+      allowed: false, status: 404, capabilityId: 'CUS-005',
+    });
+    expect(middlewareSource.indexOf('const routeAccess = decideRouteAccess'))
+      .toBeLessThan(middlewareSource.indexOf('if (customerReturnSurface)'));
+  });
 });

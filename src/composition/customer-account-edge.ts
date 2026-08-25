@@ -6,6 +6,8 @@ import { canonicalRoutePathname } from '../platform/configuration';
 import type { CustomerOrderAccessMetric } from './customer-order-access-http';
 import { isCustomerAddressPath } from '../modules/customers/presentation/customer-address-http';
 import type { CustomerAddressMetric } from './customer-address-http';
+import { isCustomerReturnPath } from '../modules/customers/presentation/customer-return-http';
+import type { CustomerReturnMetric } from './customer-return-http';
 
 const RATE_LIMITED_ROUTES = new Set<string>([
   CUSTOMER_ACCOUNT_ROUTES.access,
@@ -112,5 +114,36 @@ export async function enforceCustomerAddressEdgeRate(input: Readonly<{
     headers: customerAccountHeaders({
       'content-type': 'text/plain; charset=utf-8', 'retry-after': '60',
     }),
+  });
+}
+
+/** Bolsa única por IP para consulta y alta; nunca incluye ord_, ret_ ni PII. */
+export async function enforceCustomerReturnEdgeRate(input: Readonly<{
+  request: Request;
+  pathname: string;
+  binding: RateLimit | undefined;
+  observability: Readonly<{ count(metric: CustomerReturnMetric): void }>;
+}>): Promise<Response | null> {
+  const pathname = canonicalRoutePathname(input.pathname);
+  if (!['GET', 'HEAD', 'POST'].includes(input.request.method) || !isCustomerReturnPath(pathname)) return null;
+  const operation: CustomerReturnMetric['operation'] = input.request.method === 'POST'
+    ? 'create' : pathname === '/api/customer/returns' || pathname === '/cuenta/devoluciones'
+      ? 'list' : 'read';
+  if (input.binding === undefined) {
+    input.observability.count({ operation, outcome: 'denied', reason: 'edge_rate_unavailable' });
+    return unavailable();
+  }
+  const ip = input.request.headers.get('cf-connecting-ip') ?? 'local';
+  try {
+    const outcome = await input.binding.limit({ key: `/customer-return-access:${ip}` });
+    if (outcome.success) return null;
+  } catch {
+    input.observability.count({ operation, outcome: 'denied', reason: 'edge_rate_unavailable' });
+    return unavailable();
+  }
+  input.observability.count({ operation, outcome: 'denied', reason: 'edge_rate_limited' });
+  return new Response('Demasiadas solicitudes. Inténtalo de nuevo dentro de un minuto.', {
+    status: 429,
+    headers: customerAccountHeaders({ 'content-type': 'text/plain; charset=utf-8', 'retry-after': '60' }),
   });
 }

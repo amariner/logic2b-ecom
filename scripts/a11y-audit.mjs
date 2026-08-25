@@ -328,6 +328,16 @@ if (INCLUDE_CUSTOMER_ACCOUNT) {
       vp,
     });
     SURFACES.push({
+      name: `customer-account:returns${suffix}`,
+      url: '/cuenta/devoluciones',
+      vp,
+    });
+    SURFACES.push({
+      name: `customer-account:return-detail${suffix}`,
+      url: `/cuenta/devoluciones/ret_${'f'.repeat(32)}`,
+      vp,
+    });
+    SURFACES.push({
       name: `customer-account:orders-empty${suffix}`,
       url: '/cuenta/pedidos?cursor=empty',
       vp,

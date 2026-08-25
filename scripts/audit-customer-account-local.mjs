@@ -1,5 +1,5 @@
 /**
- * Evidencia local R5.4d–R5.5f sin activar la demo ni usar credenciales reales.
+ * Evidencia local R5.4d–R5.5h sin activar la demo ni usar credenciales reales.
  *
  * Compila y ejecuta tres Workers efímeros y secuenciales:
  *   1. composición real de la demo: las rutas de cuenta deben ser 404;
@@ -31,6 +31,9 @@ const ACCOUNT_PATHS = [
   '/api/customer/orders',
   '/cuenta/direcciones',
   '/api/customer/addresses',
+  '/cuenta/devoluciones',
+  `/cuenta/devoluciones/ret_${'f'.repeat(32)}`,
+  '/api/customer/returns',
 ];
 const SECRET_ENV_NAMES = [
   'ADMIN_COOKIE_SECRET',
@@ -186,7 +189,8 @@ async function demoAbsence() {
 async function activePreflightFailsClosed() {
   await withServer('preflight', async (base) => {
     for (const path of ['/cuenta/acceso', '/cuenta/sesiones', '/cuenta/pedidos',
-      '/api/customer/orders', '/cuenta/direcciones', '/api/customer/addresses']) {
+      '/api/customer/orders', '/cuenta/direcciones', '/api/customer/addresses',
+      '/cuenta/devoluciones', '/api/customer/returns']) {
       const response = await fetch(`${base}${path}`, { redirect: 'manual' });
       const body = await response.text();
       check(`preflight ${path} falla cerrado sin secretos`, response.status === 503, `HTTP ${response.status}`);
@@ -285,6 +289,23 @@ async function activeSurfaceAudit() {
       addressApi.status === 200 && addressApiBody.addresses?.[0]?.publicRef?.startsWith('addr_'));
     check('API de direcciones conserva cabeceras privadas', secureAccountHeaders(addressApi));
 
+    const returns = await fetch(`${base}/cuenta/devoluciones`);
+    const returnsHtml = await returns.text();
+    check('superficie activa sirve devoluciones owner-only',
+      returns.status === 200 && returnsHtml.includes('Aplique Arista 20'));
+    check('devoluciones conserva cabeceras privadas', secureAccountHeaders(returns));
+    check('devoluciones incluye CSRF e idempotencia sin JavaScript',
+      returnsHtml.includes('name="csrfToken"') && returnsHtml.includes('name="idempotencyKey"') &&
+      !returnsHtml.includes('<script'));
+    const returnDetail = await fetch(`${base}/cuenta/devoluciones/ret_${'f'.repeat(32)}`);
+    check('detalle de devolución conserva producto y frontera operativa',
+      returnDetail.status === 200 && (await returnDetail.text()).includes('Lámpara Arista 40'));
+    const returnApi = await fetch(`${base}/api/customer/returns`);
+    const returnApiBody = await returnApi.json();
+    check('API de devoluciones devuelve DTO owner-only',
+      returnApi.status === 200 && returnApiBody.requests?.[0]?.publicRef?.startsWith('ret_'));
+    check('API de devoluciones conserva cabeceras privadas', secureAccountHeaders(returnApi));
+
     const acknowledgement = await fetch(`${base}/cuenta/acceso`, {
       method: 'POST',
       redirect: 'manual',
@@ -310,21 +331,21 @@ async function activeSurfaceAudit() {
 
 async function main() {
   if (only === undefined || only === 'demo') {
-    console.log('R5.4d–R5.5f · ausencia de la demo');
+    console.log('R5.4d–R5.5h · ausencia de la demo');
     await build('demo');
     await demoAbsence();
   }
   if (only === undefined || only === 'preflight') {
-    console.log(`${only === undefined ? '\n' : ''}R5.4d–R5.5f · preflight activo fail-closed`);
+    console.log(`${only === undefined ? '\n' : ''}R5.4d–R5.5h · preflight activo fail-closed`);
     await build('preflight');
     await activePreflightFailsClosed();
   }
   if (only === undefined || only === 'surface') {
-    console.log(`${only === undefined ? '\n' : ''}R5.4d–R5.5f · superficie activa aislada`);
+    console.log(`${only === undefined ? '\n' : ''}R5.4d–R5.5h · superficie activa aislada`);
     await build('surface');
     await activeSurfaceAudit();
   }
-  console.log('\n✓ Evidencia local R5.4d–R5.5f completada para las fases seleccionadas.');
+  console.log('\n✓ Evidencia local R5.4d–R5.5h completada para las fases seleccionadas.');
 }
 
 main().catch((error) => {

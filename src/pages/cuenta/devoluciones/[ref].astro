@@ -1,0 +1,37 @@
+---
+import CustomerAccount from '../../../layouts/CustomerAccount.astro';
+import { CUSTOMER_RETURN_PAGE_PATH, customerReturnHttpFromLocals } from '../../../modules/customers/presentation/customer-return-http';
+
+export const prerender = false;
+if (!['GET', 'HEAD'].includes(Astro.request.method.toUpperCase())) {
+  return new Response('Método no permitido.', { status: 405, headers: { allow: 'GET, HEAD' } });
+}
+const http = customerReturnHttpFromLocals(Astro.locals);
+if (http === null) return new Response('Acceso no disponible.', { status: 503 });
+const result = await http.readView(Astro.request, Astro.params.ref);
+if (result instanceof Response) return result;
+const request = result;
+const statusLabels: Readonly<Record<string, string>> = Object.freeze({ requested: 'Solicitada', authorized: 'Autorizada', in_transit: 'En camino', received: 'Recibida', inspected: 'Revisada', resolved: 'Resuelta', rejected: 'Rechazada', cancelled: 'Cancelada' });
+const reasonLabels: Readonly<Record<string, string>> = Object.freeze({ damaged: 'Llegó dañado', defective: 'Tiene un defecto', wrong_item: 'Producto equivocado', not_as_expected: 'No era lo esperado', other: 'Otro motivo' });
+const saved = Astro.url.searchParams.get('saved') === '1';
+---
+<CustomerAccount title="Detalle de devolución" description="Estado de tu solicitud de devolución." width="wide">
+  <div class="w-full">
+    <a href={CUSTOMER_RETURN_PAGE_PATH} class="inline-flex min-h-11 items-center font-semibold underline underline-offset-4">← Volver a devoluciones</a>
+    <section class="mt-4 rounded-2xl border border-border bg-background p-6 shadow-sm sm:p-8" aria-labelledby="return-title">
+      {saved && <p role="status" class="mb-6 rounded-xl border border-border bg-muted/45 p-4 font-medium">La solicitud se ha guardado.</p>}
+      <p class="text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">Solicitud de devolución</p>
+      <div class="mt-2 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <h1 id="return-title" class="font-display text-3xl">Detalle de la solicitud</h1>
+        <p class="rounded-full border border-border px-3 py-1 text-sm font-semibold">{statusLabels[request.status] ?? 'En proceso'}</p>
+      </div>
+      <dl class="mt-7 grid gap-4 rounded-xl bg-muted/35 p-5 sm:grid-cols-2">
+        <div><dt class="text-sm text-muted-foreground">Motivo</dt><dd class="mt-1 font-semibold">{reasonLabels[request.reason] ?? 'Otro motivo'}</dd></div>
+        <div><dt class="text-sm text-muted-foreground">Fecha</dt><dd class="mt-1 font-semibold">{new Intl.DateTimeFormat('es-ES', { dateStyle: 'long' }).format(new Date(request.requestedAt))}</dd></div>
+      </dl>
+      <h2 class="mt-8 font-display text-2xl">Unidades solicitadas</h2>
+      <ul class="mt-4 divide-y divide-border rounded-xl border border-border">{request.lines.map((line) => <li class="flex items-center justify-between gap-4 p-4"><span>{line.name}</span><strong>{line.requestedQuantity} ud.</strong></li>)}</ul>
+      <div class="mt-8 rounded-xl border border-border bg-muted/35 p-5"><h2 class="font-display text-xl">¿Qué ocurre ahora?</h2><p class="mt-2 text-sm leading-6 text-muted-foreground">La tienda revisará la solicitud. No envíes el producto hasta recibir instrucciones. La autorización, recepción e inspección se gestionan por separado.</p></div>
+    </section>
+  </div>
+</CustomerAccount>

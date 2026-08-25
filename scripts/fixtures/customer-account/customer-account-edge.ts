@@ -14,3 +14,7 @@ export async function enforceCustomerOrderAccessEdgeRate(): Promise<null> {
 export async function enforceCustomerAddressEdgeRate(): Promise<null> {
   return null;
 }
+
+export async function enforceCustomerReturnEdgeRate(): Promise<null> {
+  return null;
+}

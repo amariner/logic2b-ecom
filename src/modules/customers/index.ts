@@ -35,6 +35,16 @@ export {
   type CustomerAddressService,
 } from './application/customer-address-service';
 export { createD1CustomerAddressRepository } from './infrastructure/d1-customer-address-repository';
+export type {
+  CustomerReturnLineView,
+  CustomerReturnEligibilityLine,
+  CustomerReturnEligibilityView,
+  CustomerReturnReason,
+  CustomerReturnRequestOutcome,
+  CustomerReturnRequestRepository,
+  CustomerReturnRequestView,
+} from './application/customer-return-request-repository';
+export { createD1CustomerReturnRequestRepository } from './infrastructure/d1-customer-return-request-repository';
 export {
   CONSENT_ACTIONS,
   CONSENT_CHANNELS,

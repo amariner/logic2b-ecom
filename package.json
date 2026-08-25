@@ -54,7 +54,8 @@
     "db:rehearse:passwordless-security": "node scripts/rehearse-r5-passwordless-security.mjs",
     "db:rehearse:customer-order-access": "node scripts/rehearse-r5-customer-order-access.mjs",
     "db:rehearse:customer-address-access": "node scripts/rehearse-r5-customer-address-access.mjs",
-    "db:rehearse:customer-address-commands": "node scripts/rehearse-r5-customer-address-commands.mjs"
+    "db:rehearse:customer-address-commands": "node scripts/rehearse-r5-customer-address-commands.mjs",
+    "db:rehearse:customer-return-requests": "node scripts/rehearse-r5-customer-return-requests.mjs"
   },
   "dependencies": {
     "@astrojs/cloudflare": "^12.6.0",

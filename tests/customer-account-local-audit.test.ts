@@ -33,6 +33,9 @@ describe('arnés local R5.4d', () => {
       capabilityId: 'CUS-006',
       state: 'active',
     });
+    expect(decideRouteAccess(audit, '/cuenta/devoluciones')).toMatchObject({
+      allowed: true, capabilityId: 'CUS-005', state: 'active',
+    });
     expect(audit.manifest.deployment).toMatchObject({
       id: 'customer-account-local-audit',
       mode: 'client',
@@ -49,6 +52,7 @@ describe('arnés local R5.4d', () => {
     expect(auditConfig).toContain("find: './composition/runtime-customer-account'");
     expect(auditConfig).toContain("find: './composition/runtime-customer-order-access'");
     expect(auditConfig).toContain("find: './composition/runtime-customer-address'");
+    expect(auditConfig).toContain("find: './composition/runtime-customer-returns'");
     expect(auditConfig).toContain("find: './composition/customer-account-edge'");
   });
 
@@ -68,6 +72,7 @@ describe('arnés local R5.4d', () => {
     expect(auditScript).toContain("AUDIT_CUSTOMER_ACCOUNT: 'true'");
     expect(auditScript).toContain('superficie activa sirve historial owner-only');
     expect(auditScript).toContain('índice API activo devuelve DTO mínimo');
+    expect(auditScript).toContain('superficie activa sirve devoluciones owner-only');
     expect(auditScript).toContain("['demo', 'preflight', 'surface']");
     expect(auditScript).not.toMatch(/\b(?:writeFile|copyFile|rename|unlink)\b/u);
   });

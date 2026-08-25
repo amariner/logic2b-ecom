@@ -43,7 +43,7 @@ describe('registro de módulos (R1.4)', () => {
 
   it('versiona y enlaza el contrato de superficie passwordless desde customers', () => {
     const customers = MODULE_REGISTRY.descriptors.find((descriptor) => descriptor.id === 'customers');
-    expect(customers).toMatchObject({ version: '1.11.0' });
+    expect(customers).toMatchObject({ version: '1.13.0' });
     expect(customers?.wikiLinks).toContain(
       'docs/plataforma/adr/0043-superficie-passwordless-email-segura.md',
     );
@@ -56,6 +56,10 @@ describe('registro de módulos (R1.4)', () => {
       { match: 'exact', path: '/cuenta/sesiones', capabilityId: 'CUS-003' },
       { match: 'prefix', path: '/cuenta/pedidos', capabilityId: 'CUS-004' },
       { match: 'prefix', path: '/api/customer/orders/', capabilityId: 'CUS-004' },
+      { match: 'exact', path: '/cuenta/devoluciones', capabilityId: 'CUS-005' },
+      { match: 'prefix', path: '/cuenta/devoluciones/', capabilityId: 'CUS-005' },
+      { match: 'exact', path: '/api/customer/returns', capabilityId: 'CUS-005' },
+      { match: 'prefix', path: '/api/customer/returns/', capabilityId: 'CUS-005' },
       { match: 'prefix', path: '/cuenta/direcciones', capabilityId: 'CUS-006' },
       { match: 'prefix', path: '/api/customer/addresses', capabilityId: 'CUS-006' },
     ]);
@@ -116,6 +120,7 @@ describe('registro de módulos (R1.4)', () => {
     expect(MODULE_REGISTRY.capabilityOwners['CUS-002']).toBe('customers');
     expect(MODULE_REGISTRY.capabilityOwners['CUS-003']).toBe('customers');
     expect(MODULE_REGISTRY.capabilityOwners['CUS-004']).toBe('customers');
+    expect(MODULE_REGISTRY.capabilityOwners['CUS-005']).toBe('customers');
     expect(MODULE_REGISTRY.capabilityOwners['CUS-006']).toBe('customers');
     expect(MODULE_REGISTRY.capabilityOwners['CUS-007']).toBe('customers');
     expect(MODULE_REGISTRY.capabilityOwners['CUS-008']).toBe('customers');

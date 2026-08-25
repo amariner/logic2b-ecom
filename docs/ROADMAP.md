@@ -77,7 +77,7 @@ reconciliación se conserva abajo por contexto.
 | 11 | Landing V2 «nivel Awwwards» + negocio + funnel + docs | 🟡 En curso | 2026-08-13 | **F11.1, F11.3 (2 sesiones), F11.4, F11.5, F11.6, F11.7 y F11.8 (primera pasada + pase a11y/contenido desde cloud 2026-07-24) hechos**, más F11.8b (auditor de a11y, cloud), F11.2a-1 (tienda ASFALTO / tema Street), F11.2a-2 (tienda METRIA / tema Industrial) F11.2a-3 (tienda ROMER / tema Natural) y **F11.2a-4 (tienda KALIBRE / tema Specs, local 2026-07-25) — con la que F11.2a queda CERRADA (10/10 tiendas)**; y **F11.8c (Lighthouse citable + OG de WhatsApp + URLs sin redirección, local 2026-07-26)**; y **F11.8d–e (tabla de Lighthouse cerrada y desplegada: 7 de 8 superficies a 100×4, la landing entre ellas en móvil y escritorio, local 2026-07-27)**; y **F11.9 (contacto global de WhatsApp, cerrado y servido 2026-08-13)**. Solo queda la submission a Awwwards, decisión de pago reservada a Andreu. Detalle por bloque abajo. **Plan maestro completo en [`docs/PLAN_FASE11_LANDING_V2.md`](PLAN_FASE11_LANDING_V2.md)**: bloques F11.0–F11.8 ejecutables por sesiones independientes. **Decisiones D1–D6 APROBADAS por Andreu (2026-07-23)**: JS propio ≤15 KB sin deps, capturas con browser tools en local, dirección C «Ocho tiendas, un motor», escalera de precios (Lite 590 / Kit 1.900+39 / A medida 3.400+59), WhatsApp+email, Lite publicado sin construir. Prompt de arranque: [`docs/PROMPT_FASE11.md`](PROMPT_FASE11.md). Integra 9B.5/9B.6 (imaginería y temas restantes) como prerequisito del hero |
 | 8 | Pulido de la demo (backlog abajo) | 🟡 En curso | 2026-07-19 | Backlog técnico agotado; solo quedan decisiones y pasos locales de Andreu (ver «Decisiones pendientes» y `docs/PROMPT_CLOUD.md`). Últimas tandas: novena (race de idempotencia en el pago, PII enumerable en `/demo/gracias`, cancelación de pedido pagado sin devolver stock), décima (la misma race en el PATCH de admin, campos vacíos guardados como 0, login sin rate limit), undécima (diagrama móvil de `/arquitectura`, hedge del plazo de entrega, tokens de tema en `/demo/reset`, terminología «envío»), duodécima (aviso de corte en pedidos del admin, cabeceras sin wrap a 375px, leftover «portes», token de radio del carrito, contraste del botón eliminar, H1 en valenciano, checklist de producción) y decimotercera (misma race de idempotencia en `checkout.session.expired`, divisa hardcodeada a EUR fuera de Stripe, cobertura de test de `quoteCart`/PATCH admin/emails) y decimocuarta (config parcial de Stripe → cobro sin cumplimiento, emails duplicados bajo concurrencia, `payment_status` del webhook, color de marca centralizado en `shop.config.ts`, contraste/tema en carrito y checkout) — ver sección «Fase 8» |
 | 12 | Logic2B Ecommerce: renombrado, reposicionamiento y docs de dos visiones | ✅ Hecho | 2026-08-10 | **F12.0–F12.6 cerrados:** marca, argumento, dossier, canal agencias, ayuda, índice por audiencias, OG y auditorías citables consolidados. **Plan maestro en [`docs/PLAN_FASE12_LOGIC2B_ECOMMERCE.md`](PLAN_FASE12_LOGIC2B_ECOMMERCE.md)**. |
-| 13 | Plataforma modular: del gestor mínimo a paridad extrema de capacidad | 🟡 En curso | 2026-08-24 | **R0–R3.12, R4, R5.1–R5.4d y R5.5a–f completos; R4.9–R5.5f conservan activación/rollout por proyecto:** D1 producción sirve `0043` y el Worker actual contiene pedidos/direcciones, pero `CUS-003`/`CUS-004`/`CUS-006` permanecen installed e inactivos; la D1 local persistente sigue en `0042`. Siguiente R5.5g, contrato y persistencia owner-only de devoluciones. Fuente de verdad en [`docs/plataforma/`](plataforma/README.md). |
+| 13 | Plataforma modular: del gestor mínimo a paridad extrema de capacidad | 🟡 En curso | 2026-08-24 | **R0–R3.12, R4, R5.1–R5.4d y R5.5a–g completos; R5.5h en progreso:** HTTP/SSR owner-only de devoluciones está verde en código, tests y fixture; falta navegador/capturas por Chrome ausente y rollout por Wrangler no autenticado. CUS-003/004/005/006 siguen installed e inactivos. Fuente de verdad en [`docs/plataforma/`](plataforma/README.md). |
 
 ## Repo y entornos
 
@@ -185,6 +185,8 @@ inerte o una intención del roadmap en alcance disponible.
 | R5.5d | Índice autenticado y superficie de cuenta | ✅ 2026-08-21 — `GET /api/customer/orders`, cursor opaco owner-only y páginas `/cuenta/pedidos`; navegación, vacío/error, detalle y tracking sin JS, rate limit compartido y fixture aislada; `pnpm check` 190 suites/993 tests y 756 archivos tipados, a11y 0/0 en 18 superficies, revisión 1440/375 y E2E local verdes; `CUS-004` sigue inactivo, sin DDL, activación ni deploy |
 | R5.5e | Referencias y ownership de direcciones guardadas | ✅ 2026-08-22; rollout inerte 2026-08-24 — D1 `0042`, selector `addr_` estable por `address_id`, owner desde revisión vigente y CAS ligado a `revision`; lectura owner-only y append condicionado revalidan perfil/owner/versión en SQL; `CUS-006` instalado sin flags, producción sin perfiles ni direcciones |
 | R5.5f | API y superficie local de direcciones guardadas | ✅ 2026-08-23; deploy inerte 2026-08-24 — índice/alta/revisión por `addr_`, sesión+scope+owner, CSRF, idempotencia durable y CAS transaccional; `/cuenta/direcciones` SSR sin JS; D1 remota `0043`, Worker `f66acbba…`, E2E remoto verde y capacidad inactiva. D1 local persistente continúa en `0042` |
+| R5.5g | Persistencia owner-only de devoluciones | ✅ 2026-08-24 — `0044`, selector `ret_`, contrato versionado, owner/CAS y elegibilidad revalidados en triggers, replay/carrera/merge/fallos D1 cerrados, auditoría, backup 37 y rehearsal/restore sobre 294 productos |
+| R5.5h | HTTP y superficie owner-only de devoluciones | 🟨 En progreso 2026-08-24 — API/SSR, sesión/scopes, CSRF, rate limit, IDOR, fixture inerte, tests y D1 local `0044` verdes; falta navegador/a11y/capturas y rollout por ausencia de Chrome y auth Wrangler |
 
 ## Fase 12 — Logic2B Ecommerce: renombrado, reposicionamiento y las dos visiones
 
@@ -1723,7 +1725,7 @@ solo vuelve a `main` o a producción por instrucción expresa.
 
 ## Próxima sesión
 
-### R5.5g — Contrato y persistencia owner-only de devoluciones
+### R5.5h — Cierre visual y rollout inerte de devoluciones
 
 R5.5f completa en código la vertical local de `CUS-006`: índice, alta y
 revisión por `addr_`, sesión/perfil coherentes, scopes exactos, CSRF,
@@ -1744,15 +1746,20 @@ remoto completo queda verde. La D1 local persistente continúa en `0042`.
 `CUS-003`, `CUS-004` y `CUS-006` siguen installed: no hubo activación, secretos
 ni proveedor real.
 
-Continuación exacta: R5.5g delimita `CUS-005` (solicitar/consultar) frente a
-`FUL-010` y el RMA operativo ya existente (autorizar, recibir, inspeccionar y
-resolver). Debe diseñar y persistir solicitud owner-only desde `ord_`, con
-referencia pública, cantidades elegibles, idempotencia, versión y CAS dentro de
-la misma transacción; email, número comercial y PII nunca prueban ownership.
-Cubrir replay, carrera, owner ajeno, pedido no entregado, cantidades agotadas,
-merge/revocación, backup y rehearsal. HTTP/UI, activación, D1 remota y deploy
-quedan para el bloque posterior. Cualquier aplicación de migración persistente
-exige antes autorización explícita de Andreu para el target exacto.
+R5.5h ya abre localmente índice, detalle, elegibilidad y alta owner-only con
+sesión/scopes CUS-005, CSRF, rate limit común, 404 uniforme, DTO sin PII y SSR
+sin JavaScript. Demo, preflight y fixture inerte pasan; `pnpm check` suma 198
+suites/1.032 tests y 783 archivos tipados, E2E está verde y D1 local sirve
+`0044`. El pase además corrige R5.5g: `ret_` canónico, contrato versionado,
+elegibilidad transaccional y errores de infraestructura no silenciados. El
+hardening posterior exige `Origin` canónico exacto en cada alta y canoniza las
+líneas antes de calcular la huella idempotente.
+
+Continuación exacta: ejecutar la auditoría browser y capturas 1440/375 cuando
+exista Chrome/Chromium, corregir cualquier hallazgo y cerrar el gate visual.
+Wrangler tampoco está autenticado: tras recuperar OAuth, crear bookmark/backup
+de producción `0043`, aplicar/reconciliar `0044` y desplegar el Worker con
+CUS-005 todavía installed/inactiva. Solo entonces cerrar R5.5 y pasar a R5.6.
 
 Carril visual: ARISTA cierra el 2026-08-18 las posiciones 17–19 y deja la cola
 sin referencias ejecutables. La referencia 19 se convirtió en un catálogo
