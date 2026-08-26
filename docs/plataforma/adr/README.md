@@ -50,3 +50,4 @@ para ocultar una decisión no es válido.
 | [0042](0042-autenticacion-passwordless-revocable.md) | Challenge de un uso y sesión opaca, rotatoria, revocable y anti-enumeración | accepted; local persistence and gated surface implemented |
 | [0043](0043-superficie-passwordless-email-segura.md) | Magic link por Resend directo, origen/cookie/CSRF/CSP, rate limit y recuperación segura | accepted; R5.4d implemented locally, isolated rollout pending |
 | [0044](0044-ownership-recursos-autoservicio.md) | Autenticación, permisos mínimos y ownership exacto por recurso | accepted; R5.5a domain contract installed, persistence and surfaces pending |
+| [0045](0045-segmentos-calculados-observables.md) | Templates versionados, hechos honestos y recálculo observable | accepted; R5.6a contract installed, persistence pending |

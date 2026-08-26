@@ -119,6 +119,7 @@ describe('capability manifest (R1.2)', () => {
     expect(CAPABILITY_PRESETS.advanced['CUS-006']?.state).toBe('installed');
     expect(CAPABILITY_PRESETS.advanced['CUS-007']?.state).toBe('installed');
     expect(CAPABILITY_PRESETS.advanced['CUS-008']?.state).toBe('installed');
+    expect(CAPABILITY_PRESETS.advanced['CUS-009']?.state).toBe('installed');
     expect('CAT-007' in CAPABILITY_PRESETS.standard).toBe(false);
     expect('CAT-008' in CAPABILITY_PRESETS.standard).toBe(false);
     expect('PRC-003' in CAPABILITY_PRESETS.standard).toBe(false);
@@ -137,6 +138,7 @@ describe('capability manifest (R1.2)', () => {
     expect('CUS-006' in CAPABILITY_PRESETS.standard).toBe(false);
     expect('CUS-007' in CAPABILITY_PRESETS.standard).toBe(false);
     expect('CUS-008' in CAPABILITY_PRESETS.standard).toBe(false);
+    expect('CUS-009' in CAPABILITY_PRESETS.standard).toBe(false);
     expect(CAPABILITY_PRESETS.standard['CHK-003']?.state).toBe('active');
     expect(CAPABILITY_PRESETS.advanced['INT-004']?.state).toBe('active');
     expect(CAPABILITY_PRESETS.advanced['ORD-007']?.state).toBe('active');
@@ -234,6 +236,14 @@ describe('capability manifest (R1.2)', () => {
     expect('CUS-003' in CAPABILITY_PRESETS.minimal).toBe(false);
     expect('CUS-003' in CAPABILITY_PRESETS.standard).toBe(false);
     expect(CAPABILITY_PRESETS.advanced['CUS-003']).toEqual({ state: 'installed' });
+  });
+
+  it('installs calculated segments without routes, jobs or side effects', () => {
+    expect(CAPABILITY_IDS).toContain('CUS-009');
+    expect(CAPABILITY_DEFINITIONS['CUS-009'].dependencies).toEqual(['CUS-002', 'ORD-001']);
+    expect('CUS-009' in CAPABILITY_PRESETS.minimal).toBe(false);
+    expect('CUS-009' in CAPABILITY_PRESETS.standard).toBe(false);
+    expect(CAPABILITY_PRESETS.advanced['CUS-009']).toEqual({ state: 'installed' });
   });
 
   it('accepts only the explicit passwordless email contract and freezes it deeply', () => {

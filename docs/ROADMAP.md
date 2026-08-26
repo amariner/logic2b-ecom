@@ -193,6 +193,7 @@ inerte o una intención del roadmap en alcance disponible.
 | R4.11 | Presupuestos y depósitos | ✅ 2026-08-17 — `ORD-008`/`CHK-011`, D1 local `0035`, backup 29, rehearsal, API y E2E; rollout pendiente |
 | R4.12 | Consolidación de dinero y modelos de venta | ✅ 2026-08-17 — 11 modelos, 66 parejas, 13.500 propiedades y wiki índice; sin DDL/deploy |
 | R5.1 | Perfil de cliente deduplicable | ✅ 2026-08-17 — D1 `0036`, repositorio transaccional, checkout opcional, backup 30 y rehearsal local; rollout pendiente |
+| R5.6a | Contrato de segmentos calculados | ✅ 2026-08-26 — ADR-0045, facts ausentes `null`, templates versionados/parametrizados y recálculo observable; 200 suites/1.043 tests, 787 archivos tipados y E2E verde; sin DDL, UI, job ni efectos |
 | R5.2 | Consentimiento versionado | ✅ 2026-08-17 — ADR-0040, D1 `0037`, repositorio concurrente, backup 31, rehearsal y E2E local; `CUS-007` instalada e inerte |
 | R5.3a | Derechos de datos verificables | ✅ 2026-08-17 — ADR-0041, lifecycle, dry-run, doble control y puertos; `CUS-008` instalada e inerte, sin DDL ni efectos |
 | R5.3b | Persistencia de solicitudes de derechos | ✅ 2026-08-18 — D1 `0038`, repositorio concurrente, backup 32 y rehearsal/restore local; sin PII, rutas ni ejecución |

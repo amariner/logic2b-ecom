@@ -120,6 +120,9 @@ const ADVANCED_CAPABILITIES = {
   // R5.3 instala lifecycle y persistencia; cualquier superficie, exportación o
   // mutación mantiene gates independientes.
   'CUS-008': { state: 'installed' },
+  // R5.6a instala únicamente el lenguaje calculado y su lifecycle observable.
+  // Persistencia, job, rutas y umbrales comerciales pertenecen a gates propios.
+  'CUS-009': { state: 'installed' },
   'FUL-002': { state: 'active', flags: ROUTE },
   'FUL-003': { state: 'active', flags: ROUTE },
   'FUL-004': { state: 'active', flags: ROUTE_EFFECT },
