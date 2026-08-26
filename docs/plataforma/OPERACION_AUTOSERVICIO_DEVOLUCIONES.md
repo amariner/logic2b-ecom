@@ -80,8 +80,11 @@ GROUP BY public_ref HAVING count(*) > 1;
 
 Los tres recuentos deben ser cero. La aplicación concreta requiere bookmark o
 backup del target, autorización explícita y ejecución coordinada. R5.5g no la
-aplicó a ningún target persistente; R5.5h reconstruyó la D1 local en `0044`,
-pero la D1 remota continúa en `0043` a la espera de recuperar OAuth de Wrangler.
+aplicó a ningún target persistente; R5.5h reconstruyó la D1 local en `0044`.
+El rollout remoto autorizado del 2026-08-26 usó el bookmark Time Travel
+`0000017e-00000000-000050d3-84a6d76d4e3be0ae16fb0cb1488ab580`, aplicó `0044`
+y obtuvo cero referencias ausentes, huérfanas o duplicadas y cero evidencia
+parcial. D1 no conserva migraciones pendientes y `CUS-005` sigue inactiva.
 
 ## Rollback y recuperación
 

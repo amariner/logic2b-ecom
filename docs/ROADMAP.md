@@ -1777,11 +1777,19 @@ elegibilidad transaccional y errores de infraestructura no silenciados. El
 hardening posterior exige `Origin` canónico exacto en cada alta y canoniza las
 líneas antes de calcular la huella idempotente.
 
-Continuación exacta: ejecutar la auditoría browser y capturas 1440/375 cuando
-exista Chrome/Chromium, corregir cualquier hallazgo y cerrar el gate visual.
-Wrangler tampoco está autenticado: tras recuperar OAuth, crear bookmark/backup
-de producción `0043`, aplicar/reconciliar `0044` y desplegar el Worker con
-CUS-005 todavía installed/inactiva. Solo entonces cerrar R5.5 y pasar a R5.6.
+El rollout inerte quedó ejecutado el 2026-08-26 desde el bookmark Time Travel
+`0000017e-00000000-000050d3-84a6d76d4e3be0ae16fb0cb1488ab580`: D1 aplicó
+`0044`, conservó 20 productos, 22 variantes, 8 pedidos, 8 pagos y 1 RMA, y
+backfilleó su única referencia `ret_`. La reconciliación devolvió cero
+referencias ausentes, huérfanas o duplicadas y cero evidencia parcial; no
+quedan migraciones pendientes. El Worker
+`14a91e4d-8834-474c-8bbf-49d2bcb2419e` sirve el contrato y el E2E remoto
+completo queda verde, incluidos CSV y backup esquema 37. `CUS-005` y `CUS-009`
+permanecen installed/inactivas, sin secretos, proveedor ni efectos reales.
+
+Continuación exacta de R5.5h: ejecutar la auditoría browser y capturas 1440/375
+cuando exista Chrome/Chromium, corregir cualquier hallazgo y cerrar el gate
+visual. El rollout de esquema y Worker ya no bloquea ese cierre.
 
 Carril visual: ARISTA cierra el 2026-08-18 las posiciones 17–19 y deja la cola
 sin referencias ejecutables. La referencia 19 se convirtió en un catálogo

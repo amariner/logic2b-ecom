@@ -1457,11 +1457,19 @@ realmente únicos y ya no disfraza fallos D1 como conflictos.
 
 `pnpm check` pasa 198 suites/1.032 tests y 783 archivos tipados; E2E demo,
 rehearsal 0043→0044→dump→restore y auditorías HTTP demo/preflight/surface están
-verdes. D1 local fue reconstruida en `0044`. La auditoría de navegador y las
-capturas 1440/375 no pudieron ejecutarse porque el contenedor no contiene
-Chrome/Chromium; producción sigue en `0043` porque Wrangler no está autenticado.
-Las mutaciones ya rechazan un `Origin` ausente o distinto del canónico y la
-huella idempotente ordena las líneas para representar el payload semántico.
+verdes. D1 local fue reconstruida en `0044`. El rollout remoto autorizado del
+2026-08-26 partió del bookmark Time Travel
+`0000017e-00000000-000050d3-84a6d76d4e3be0ae16fb0cb1488ab580`, aplicó `0044`
+y desplegó el Worker `14a91e4d-8834-474c-8bbf-49d2bcb2419e`. Producción
+conserva 20 productos, 22 variantes, 8 pedidos, 8 pagos y 1 RMA; tiene 1
+referencia `ret_`, cero referencias ausentes, huérfanas o duplicadas, cero
+evidencia parcial y ninguna migración pendiente. El E2E remoto completo pasa,
+incluido backup esquema 37. Las mutaciones ya rechazan un `Origin` ausente o
+distinto del canónico y la huella idempotente ordena las líneas para representar
+el payload semántico.
+
+La auditoría de navegador y las capturas 1440/375 siguen pendientes porque el
+contenedor no contiene Chrome/Chromium; `CUS-005` permanece installed/inactiva.
 
 Siguiente corte:
 
@@ -1469,6 +1477,4 @@ Siguiente corte:
 2. revisar y guardar capturas de lista/detalle a 1440 y 375 px, foco, contraste,
    overflow y targets; corregir cualquier hallazgo antes de cerrar;
 3. repetir `pnpm check` y E2E tras cualquier ajuste visual;
-4. cuando Wrangler vuelva a estar autenticado, crear bookmark/backup exacto de
-   producción `0043`, aplicar `0044`, reconciliar y desplegar el Worker inerte;
-5. mantener CUS-005 installed/inactiva; después cerrar R5.5 y pasar a R5.6.
+4. mantener CUS-005 installed/inactiva; después cerrar R5.5 y continuar R5.6.
