@@ -1,0 +1,76 @@
+---
+import Base from '../../layouts/Base.astro';
+import ProjectForm from '../../components/ProjectForm.astro';
+import CloudflarePageview from '../../components/CloudflarePageview.astro';
+import BrandMark from './BrandMark.astro';
+import type { ProposalConfig } from '../types';
+
+interface Props { proposal: ProposalConfig }
+const { proposal } = Astro.props;
+---
+<Base title="Una nueva tienda para Inlogem — propuesta privada" description="Concepto de ecommerce B2B preparado por Logic2B para Inlogem." robots="noindex,nofollow,noarchive" showWhatsApp={false}>
+  <div class="min-h-screen bg-[#F7F8FA] text-[#0B1633]">
+    <aside class="border-b border-white/10 bg-[#0B1633] px-5 py-2.5 text-center text-[11px] leading-5 text-white/75">
+      Propuesta conceptual privada preparada por Logic2B. No es el sitio oficial de Inlogem; productos, precios y pedidos son datos de demostración.
+    </aside>
+    <header class="mx-auto flex max-w-[1440px] items-center justify-between px-5 py-5 sm:px-8 lg:px-12">
+      <BrandMark />
+      <a href={proposal.paths.catalog} class="rounded-lg bg-[#155EEF] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#0B3FB3]">Explorar la tienda</a>
+    </header>
+
+    <main>
+      <section class="mx-auto grid max-w-[1440px] gap-8 px-5 pb-14 pt-8 sm:px-8 lg:grid-cols-[.9fr_1.1fr] lg:items-center lg:px-12 lg:pb-20 lg:pt-14">
+        <div>
+          <p class="text-xs font-semibold uppercase tracking-[.2em] text-[#155EEF]">Una evolución reconocible</p>
+          <h1 class="mt-5 max-w-3xl font-display text-5xl font-semibold leading-[.94] tracking-[-.06em] sm:text-7xl">El proveedor de siempre. Una experiencia preparada para hoy.</h1>
+          <p class="mt-6 max-w-2xl text-lg leading-8 text-[#40506B]">Una tienda más clara, rápida y autónoma para que empresas y profesionales encuentren, comparen y repitan sus pedidos sin depender de una experiencia externa.</p>
+          <div class="mt-8 flex flex-wrap gap-3">
+            <a href={proposal.paths.catalog} class="rounded-lg bg-[#155EEF] px-6 py-3.5 font-semibold text-white hover:bg-[#0B3FB3]">Explorar tienda <span aria-hidden="true">→</span></a>
+            <a href={proposal.paths.manager} class="rounded-lg border border-[#B9C5D6] bg-white px-6 py-3.5 font-semibold hover:border-[#0B1633]">Ver gestor demo</a>
+          </div>
+          <dl class="mt-10 grid grid-cols-3 gap-4 border-t border-[#CAD4E1] pt-6">
+            <div><dt class="text-3xl font-semibold">72</dt><dd class="mt-1 text-xs text-[#5C6B81]">productos reales</dd></div>
+            <div><dt class="text-3xl font-semibold">8</dt><dd class="mt-1 text-xs text-[#5C6B81]">familias claras</dd></div>
+            <div><dt class="text-3xl font-semibold">0</dt><dd class="mt-1 text-xs text-[#5C6B81]">operaciones reales</dd></div>
+          </dl>
+        </div>
+        <div class="overflow-hidden rounded-[1.75rem] bg-[#DCE7F5] shadow-[0_30px_80px_rgba(11,22,51,.13)]">
+          <img src="/images/proposals/inlogem/editorial/hero.webp" alt="Espacio de trabajo contemporáneo con material de oficina organizado" width="1536" height="1024" fetchpriority="high" class="aspect-[1.34] h-full w-full object-cover" />
+        </div>
+      </section>
+
+      <section class="bg-[#0B1633] px-5 py-16 text-white sm:px-8 lg:px-12 lg:py-24">
+        <div class="mx-auto max-w-[1344px]">
+          <p class="text-xs font-semibold uppercase tracking-[.2em] text-[#42BDEB]">La oportunidad</p>
+          <div class="mt-6 grid gap-9 lg:grid-cols-3">
+            <article><span class="text-sm text-white/50">01</span><h2 class="mt-4 text-2xl font-semibold">Una marca, una tienda</h2><p class="mt-3 leading-7 text-white/65">La experiencia de compra vuelve a hablar el idioma de Inlogem y deja de sentirse como un catálogo prestado.</p></article>
+            <article><span class="text-sm text-white/50">02</span><h2 class="mt-4 text-2xl font-semibold">Menos árbol, más claridad</h2><p class="mt-3 leading-7 text-white/65">Ocho familias comprensibles, búsqueda por referencia y marca, filtros útiles y compra rápida para quien sabe lo que necesita.</p></article>
+            <article><span class="text-sm text-white/50">03</span><h2 class="mt-4 text-2xl font-semibold">Operación visible</h2><p class="mt-3 leading-7 text-white/65">Un gestor sencillo convierte catálogo, pedidos y comunicaciones en un recorrido que se aprende en minutos.</p></article>
+          </div>
+        </div>
+      </section>
+
+      <section class="mx-auto max-w-[1440px] px-5 py-16 sm:px-8 lg:px-12 lg:py-24">
+        <div class="grid gap-6 lg:grid-cols-2">
+          <article class="overflow-hidden rounded-3xl border border-[#D7DFE9] bg-white">
+            <img src="/images/proposals/inlogem/editorial/workspace.webp" alt="Mesa de oficina luminosa preparada para trabajar" width="1536" height="1024" loading="lazy" class="aspect-[1.55] w-full object-cover" />
+            <div class="p-7 sm:p-9"><p class="text-xs font-semibold uppercase tracking-[.16em] text-[#155EEF]">Comprar mejor</p><h2 class="mt-3 text-3xl font-semibold tracking-[-.04em]">Densa cuando toca. Serena siempre.</h2><p class="mt-4 leading-7 text-[#5A687D]">La nueva interfaz admite un catálogo profesional sin convertirse en una hoja de cálculo. Información, referencia, disponibilidad y acción permanecen cerca.</p></div>
+          </article>
+          <article class="overflow-hidden rounded-3xl border border-[#D7DFE9] bg-white">
+            <img src="/images/proposals/inlogem/editorial/team.webp" alt="Equipo revisando suministros y pedidos en una oficina" width="1536" height="1024" loading="lazy" class="aspect-[1.55] w-full object-cover" />
+            <div class="p-7 sm:p-9"><p class="text-xs font-semibold uppercase tracking-[.16em] text-[#155EEF]">Gestionar fácil</p><h2 class="mt-3 text-3xl font-semibold tracking-[-.04em]">Solo lo necesario para el día a día.</h2><p class="mt-4 leading-7 text-[#5A687D]">Productos, pedidos y emails de muestra demuestran cómo se opera la tienda sin exponer la complejidad técnica que resuelve Logic2B.</p></div>
+          </article>
+        </div>
+      </section>
+
+      <section class="border-y border-[#CAD4E1] bg-white px-5 py-16 sm:px-8 lg:px-12 lg:py-24">
+        <div class="mx-auto grid max-w-6xl gap-12 lg:grid-cols-[.75fr_1.25fr] lg:items-start">
+          <div><p class="text-xs font-semibold uppercase tracking-[.2em] text-[#155EEF]">Siguiente paso</p><h2 class="mt-4 text-4xl font-semibold tracking-[-.05em] sm:text-5xl">Validemos catálogo, operación y alcance.</h2><p class="mt-5 leading-7 text-[#5A687D]">La propuesta no fija todavía un presupuesto. Una conversación breve permite confirmar fuentes de datos, tarifas, entregas e integraciones antes de convertirla en proyecto real.</p></div>
+          <div class="rounded-3xl bg-[#F2F5F9] p-6 sm:p-8"><ProjectForm idPrefix="proposal-inlogem" source={proposal.contactSource} /></div>
+        </div>
+      </section>
+    </main>
+    <footer class="bg-[#0B1633] px-5 py-8 text-sm text-white/60 sm:px-8 lg:px-12"><div class="mx-auto flex max-w-[1344px] flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"><span>Concepto privado · Logic2B Ecommerce</span><a href="mailto:hola@logic2b.com" class="text-white underline underline-offset-4">hola@logic2b.com</a></div></footer>
+  </div>
+  <CloudflarePageview />
+</Base>

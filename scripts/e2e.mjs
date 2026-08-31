@@ -7,6 +7,7 @@
 const BASE = process.env.BASE_URL ?? 'http://localhost:8787';
 const ORIGIN = { origin: new URL(BASE).origin };
 const CACHE_BUST = `e2e-${Date.now()}`;
+const ONLY_PROPOSAL = process.argv.includes('--only-proposal');
 const adminUrl = (path) => `${BASE}${path}${path.includes('?') ? '&' : '?'}e2e=${CACHE_BUST}`;
 
 let failures = 0;
@@ -31,6 +32,44 @@ async function json(res) {
   } catch {
     return null;
   }
+}
+
+// ── 0. Propuesta comercial privada Inlogem ──────────────────────────
+const INLOGEM_PROPOSAL = '/propuestas/inlogem-3a7399641519f1d36a1ea232f309223c';
+const proposalLanding = await fetch(`${BASE}${INLOGEM_PROPOSAL}`);
+const proposalLandingHtml = await proposalLanding.text();
+check('propuesta Inlogem disponible', proposalLanding.ok && proposalLandingHtml.includes('El proveedor de siempre'));
+check('propuesta lleva noindex completo', proposalLandingHtml.includes('noindex,nofollow,noarchive'));
+check('propuesta lleva X-Robots-Tag', proposalLanding.headers.get('x-robots-tag') === 'noindex, nofollow, noarchive');
+check('propuesta no envía referrer', proposalLanding.headers.get('referrer-policy') === 'no-referrer');
+check('propuesta usa caché HTML privada', proposalLanding.headers.get('cache-control')?.includes('private') && proposalLanding.headers.get('cache-control')?.includes('no-store'));
+check('formulario conserva origen comercial', proposalLandingHtml.includes('value="proposal:inlogem"'));
+check('propuesta no anuncia precio de implantación', !proposalLandingHtml.match(/implantaci[oó]n.{0,40}\d+[.,]?\d*\s*€/i));
+
+for (const [label, path, needle] of [
+  ['catálogo', `${INLOGEM_PROPOSAL}/tienda`, '72 referencias reales'],
+  ['ficha', `${INLOGEM_PROPOSAL}/tienda/inl-92385-boligrafo-bic-cristal-original-tinta-azul-unidad`, 'Ref. 8373602'],
+  ['carrito', `${INLOGEM_PROPOSAL}/tienda/carrito`, 'data-commerce-surface="cart"'],
+  ['checkout', `${INLOGEM_PROPOSAL}/tienda/checkout`, 'data-commerce-surface="checkout"'],
+  ['confirmación', `${INLOGEM_PROPOSAL}/tienda/gracias`, 'data-commerce-surface="thanks"'],
+  ['gestor', `${INLOGEM_PROPOSAL}/gestor`, '72'],
+  ['productos gestor', `${INLOGEM_PROPOSAL}/gestor/productos`, '72 productos'],
+  ['pedidos gestor', `${INLOGEM_PROPOSAL}/gestor/pedidos`, 'INL-DEMO-1211'],
+  ['detalle gestor', `${INLOGEM_PROPOSAL}/gestor/pedidos/INL-DEMO-1200`, 'Acciones desactivadas'],
+  ['emails gestor', `${INLOGEM_PROPOSAL}/gestor/emails`, '.example'],
+]) {
+  const response = await fetch(`${BASE}${path}`);
+  const html = await response.text();
+  check(`Inlogem ${label} disponible`, response.ok && html.includes(needle), `HTTP ${response.status}`);
+  check(`Inlogem ${label} conserva privacidad`, response.headers.get('x-robots-tag')?.includes('noindex'));
+}
+const proposalsIndex = await fetch(`${BASE}/propuestas`);
+check('/propuestas no lista empresas', proposalsIndex.status === 404, `HTTP ${proposalsIndex.status}`);
+const proposalUnknown = await fetch(`${BASE}/propuestas/no-existe`);
+check('identificador de propuesta desconocido → 404', proposalUnknown.status === 404, `HTTP ${proposalUnknown.status}`);
+if (ONLY_PROPOSAL) {
+  console.log(`\nE2E propuesta: ${failures ? `${failures} comprobaciones fallidas` : 'todo correcto'}`);
+  process.exit(failures ? 1 : 0);
 }
 
 // ── 1. Escaparate principal: HTML y simulación local ─────────────────

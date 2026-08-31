@@ -1,0 +1,18 @@
+---
+import { notFoundResponse } from '../../../../../lib/not-found';
+import { proposalHtmlHeaders } from '../../../../../proposals';
+import { inlogemDemoOrder } from '../../../../../proposals/inlogem/fixtures';
+import ManagerOrderDetail from '../../../../../proposals/inlogem/ManagerOrderDetail.astro';
+import { proposalForPage } from '../../../../../proposals/http';
+export const prerender = false;
+const proposal = await proposalForPage({ publicId: Astro.params.publicId, headers: Astro.response.headers, env: Astro.locals.runtime.env, url: Astro.url });
+if (proposal instanceof Response) return proposal;
+const order = inlogemDemoOrder(Astro.params.reference ?? '');
+if (!order) {
+  const missing = await notFoundResponse(Astro.locals.runtime.env, Astro.url);
+  const headers = new Headers(missing.headers);
+  proposalHtmlHeaders(headers);
+  return new Response(missing.body, { status: 404, headers });
+}
+---
+<ManagerOrderDetail proposal={proposal} order={order} />

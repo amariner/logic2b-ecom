@@ -232,6 +232,34 @@ for (const s of STORES) {
   SURFACES.push({ name: `${s.id}:catalogo@motion`, url: s.prefix, vp: DESKTOP, reducedMotion: true });
 }
 
+// Propuesta privada: carril separado del registro de temas. Se audita con el
+// mismo motor sin convertirla en una colección editorial ni alterar su conteo.
+const INLOGEM_PROPOSAL = '/propuestas/inlogem-3a7399641519f1d36a1ea232f309223c';
+const inlogemCart = {
+  key: 'ecom-cart:proposal-inlogem',
+  value: JSON.stringify([{ slug: 'inl-92385-boligrafo-bic-cristal-original-tinta-azul-unidad', qty: 2 }]),
+};
+for (const [name, url, vp, storage] of [
+  ['proposal:inlogem:landing', INLOGEM_PROPOSAL, DESKTOP],
+  ['proposal:inlogem:landing@375', INLOGEM_PROPOSAL, MOBILE],
+  ['proposal:inlogem:catalogo', `${INLOGEM_PROPOSAL}/tienda`, DESKTOP],
+  ['proposal:inlogem:catalogo@375', `${INLOGEM_PROPOSAL}/tienda`, MOBILE],
+  ['proposal:inlogem:ficha', `${INLOGEM_PROPOSAL}/tienda/inl-92385-boligrafo-bic-cristal-original-tinta-azul-unidad`, DESKTOP],
+  ['proposal:inlogem:ficha@375', `${INLOGEM_PROPOSAL}/tienda/inl-92385-boligrafo-bic-cristal-original-tinta-azul-unidad`, MOBILE],
+  ['proposal:inlogem:carrito', `${INLOGEM_PROPOSAL}/tienda/carrito`, DESKTOP, inlogemCart],
+  ['proposal:inlogem:carrito@375', `${INLOGEM_PROPOSAL}/tienda/carrito`, MOBILE, inlogemCart],
+  ['proposal:inlogem:checkout', `${INLOGEM_PROPOSAL}/tienda/checkout`, DESKTOP, inlogemCart],
+  ['proposal:inlogem:checkout@375', `${INLOGEM_PROPOSAL}/tienda/checkout`, MOBILE, inlogemCart],
+  ['proposal:inlogem:gestor', `${INLOGEM_PROPOSAL}/gestor`, DESKTOP],
+  ['proposal:inlogem:gestor@375', `${INLOGEM_PROPOSAL}/gestor`, MOBILE],
+  ['proposal:inlogem:productos', `${INLOGEM_PROPOSAL}/gestor/productos`, DESKTOP],
+  ['proposal:inlogem:pedidos@375', `${INLOGEM_PROPOSAL}/gestor/pedidos`, MOBILE],
+  ['proposal:inlogem:pedido', `${INLOGEM_PROPOSAL}/gestor/pedidos/INL-DEMO-1200`, DESKTOP],
+  ['proposal:inlogem:emails@375', `${INLOGEM_PROPOSAL}/gestor/emails`, MOBILE],
+]) {
+  SURFACES.push({ name, url, vp, ...(storage ? { storage } : {}) });
+}
+
 for (const p of ADMIN_PAGES) {
   const base = { url: p.url, resolve: p.resolve, auth: !p.anon };
   SURFACES.push({ ...base, name: `admin:${p.id}`, vp: DESKTOP });

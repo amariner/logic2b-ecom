@@ -10,6 +10,7 @@ import { shopConfig } from '../../../shop.config';
 import { parseSpecs, type ProductRow } from '../../lib/db';
 import { categoryLabel as labelForCategory, storePaths, type CollectionConfig } from '../../collections';
 import { formatEurCents, jsonLdScript } from '../../lib/format';
+import type { StoreExperienceConfig } from '../../proposals';
 
 interface Props {
   collection: CollectionConfig;
@@ -17,10 +18,11 @@ interface Props {
   related: { slug: string; name: string; price_cents: number; image: string; stock: number }[];
   site: URL | undefined;
   customPresentation?: boolean;
+  experience?: StoreExperienceConfig;
 }
 
-const { collection, product, related, site, customPresentation = false } = Astro.props;
-const paths = storePaths(collection.id);
+const { collection, product, related, site, customPresentation = false, experience } = Astro.props;
+const paths = experience?.paths ?? storePaths(collection.id);
 const hasCustomPresentation = customPresentation;
 
 const categoryLabel = labelForCategory(collection, product.category);
@@ -48,7 +50,7 @@ const jsonLd = {
 };
 ---
 
-<Shop title={product.name} description={product.description} collection={collection}>
+<Shop title={product.name} description={product.description} collection={collection} {...(experience ? { experience } : {})}>
   <main
     class:list={[!hasCustomPresentation && 'mx-auto max-w-6xl px-4 py-10']}
     data-commerce-surface="product"
@@ -130,8 +132,8 @@ const jsonLd = {
         )}
 
         <dl class="mt-10 space-y-2 border-t border-border pt-5 text-sm text-muted-foreground">
-          <div class="flex gap-2"><dt class="font-medium text-foreground">Envío:</dt> <dd>{shopConfig.legal.shippingNote}</dd></div>
-          <div class="flex gap-2"><dt class="font-medium text-foreground">Devoluciones:</dt> <dd>{shopConfig.legal.returnsNote}</dd></div>
+          <div class="flex gap-2"><dt class="font-medium text-foreground">Envío:</dt> <dd>{experience?.legal.shippingNote ?? shopConfig.legal.shippingNote}</dd></div>
+          <div class="flex gap-2"><dt class="font-medium text-foreground">Devoluciones:</dt> <dd>{experience?.legal.returnsNote ?? shopConfig.legal.returnsNote}</dd></div>
           {product.stock > 0 && product.stock <= 10 && (
             <div class="flex gap-2"><dt class="font-medium text-foreground">Stock:</dt> <dd>quedan {product.stock} unidades</dd></div>
           )}

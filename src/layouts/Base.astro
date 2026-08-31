@@ -24,8 +24,12 @@ interface Props {
   title: string;
   description?: string | undefined;
   noindex?: boolean | undefined;
+  /** Política robots explícita para superficies privadas como propuestas. */
+  robots?: string | undefined;
   /** Ruta canónica ("/", "/arquitectura"). Solo para páginas indexables. */
   canonicalPath?: string | undefined;
+  /** Permite conservar el contrato de ruta sin emitir canonical en HTML privado. */
+  emitCanonical?: boolean | undefined;
   /** JSON-LD ya serializable; se emite tal cual. */
   jsonLd?: object[] | undefined;
   /** Imagen social específica de la página; por defecto usa la tarjeta general. */
@@ -37,19 +41,24 @@ interface Props {
    * tema y descargarla ahí serían 8 kB tirados en la pieza de venta.
    */
   preloadDisplayFont?: boolean | undefined;
+  /** Oculta el contacto flotante global en experiencias privadas o embebidas. */
+  showWhatsApp?: boolean | undefined;
 }
 
 const {
   title,
   description = '',
   noindex = false,
+  robots,
   canonicalPath,
+  emitCanonical = true,
   jsonLd = [],
   ogImagePath = '/images/og.jpg?v=3',
   ogImageAlt = 'Logic2B Ecommerce — tu tienda online sin cuotas de plataforma',
   preloadDisplayFont = false,
+  showWhatsApp = true,
 } = Astro.props;
-const canonical = canonicalPath ? new URL(canonicalPath, Astro.site).href : null;
+const canonical = emitCanonical && canonicalPath ? new URL(canonicalPath, Astro.site).href : null;
 /* La tarjeta la genera `scripts/make-og.mjs`. El sufijo `?v=N` es obligatorio
    al regenerarla: WhatsApp y las redes cachean la preview por URL de imagen y
    sin cambiarla seguirían enseñando la anterior durante semanas. Subir el
@@ -65,7 +74,7 @@ const ogImage = new URL(ogImagePath, Astro.site).href;
     <style set:html={brandTokens} is:inline></style>
     <title>{title}</title>
     {description && <meta name="description" content={description} />}
-    {noindex && <meta name="robots" content="noindex,follow" />}
+    {(robots || noindex) && <meta name="robots" content={robots ?? 'noindex,follow'} />}
     {canonical && <link rel="canonical" href={canonical} />}
     {/* Inter usa font-display:optional y un fallback con métricas ajustadas.
         No se precarga y en móvil se usa directamente el fallback: sus 47 kB
@@ -94,6 +103,6 @@ const ogImage = new URL(ogImagePath, Astro.site).href;
   </head>
   <body class="min-h-screen bg-white text-gray-900 antialiased">
     <slot />
-    <WhatsAppContact />
+    {showWhatsApp && <WhatsAppContact />}
   </body>
 </html>

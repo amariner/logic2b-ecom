@@ -1,0 +1,17 @@
+---
+import { formatEurCents } from '../../lib/format';
+import type { ProposalConfig } from '../types';
+import type { DemoOrder } from './fixtures';
+import ManagerShell from './ManagerShell.astro';
+interface Props { proposal: ProposalConfig; order: DemoOrder }
+const { proposal, order } = Astro.props;
+const subtotal = order.lines.reduce((sum, line) => sum + line.quantity * line.unitPriceCents, 0);
+---
+<ManagerShell proposal={proposal} title={order.reference} section="orders">
+  <a href={proposal.paths.managerOrders} class="text-sm font-semibold text-[#155EEF]">← Todos los pedidos</a>
+  <div class="mt-5 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between"><div><p class="text-xs font-semibold uppercase tracking-[.16em] text-[#155EEF]">Detalle ficticio</p><h1 class="mt-2 text-3xl font-semibold tracking-[-.04em] sm:text-4xl">{order.reference}</h1><p class="mt-2 text-sm text-[#65738A]">{order.company} · {order.date}</p></div><span class="w-fit rounded-full bg-[#E7EEFF] px-3 py-1.5 text-sm font-semibold text-[#155EEF]">{order.status}</span></div>
+  <div class="mt-7 grid gap-5 xl:grid-cols-[minmax(0,1fr)_20rem]">
+    <section class="overflow-hidden rounded-2xl border border-[#D8E0EA] bg-white"><h2 class="border-b border-[#E6EBF1] px-5 py-4 font-semibold">Artículos</h2><div class="divide-y divide-[#E6EBF1]">{order.lines.map((line) => <div class="grid grid-cols-[1fr_auto] gap-4 px-5 py-4"><div><a href={proposal.paths.product(line.slug)} class="font-semibold hover:text-[#155EEF]">{line.name}</a><p class="mt-1 text-xs text-[#65738A]">Ref. {line.reference} · {line.quantity} × {formatEurCents(line.unitPriceCents)}</p></div><strong>{formatEurCents(line.quantity * line.unitPriceCents)}</strong></div>)}</div><dl class="space-y-2 border-t border-[#E6EBF1] bg-[#F7F8FA] px-5 py-5 text-sm"><div class="flex justify-between"><dt>Subtotal</dt><dd>{formatEurCents(subtotal)}</dd></div><div class="flex justify-between"><dt>Portes demo</dt><dd>{order.shippingCents ? formatEurCents(order.shippingCents) : 'Gratis'}</dd></div><div class="flex justify-between border-t border-[#D8E0EA] pt-3 text-base font-semibold"><dt>Total IVA incluido</dt><dd>{formatEurCents(order.totalCents)}</dd></div></dl></section>
+    <aside class="space-y-5"><section class="rounded-2xl border border-[#D8E0EA] bg-white p-5"><h2 class="font-semibold">Cliente ficticio</h2><dl class="mt-4 space-y-3 text-sm"><div><dt class="text-xs text-[#65738A]">Empresa</dt><dd class="mt-0.5 font-semibold">{order.company}</dd></div><div><dt class="text-xs text-[#65738A]">Contacto</dt><dd class="mt-0.5">{order.contact}</dd></div><div><dt class="text-xs text-[#65738A]">Email</dt><dd class="mt-0.5 break-all">{order.email}</dd></div></dl></section><section class="rounded-2xl border border-[#BFD0FF] bg-[#EEF3FF] p-5 text-sm text-[#27436F]"><strong>Acciones desactivadas</strong><p class="mt-2 leading-6">Esta vista no factura, cobra, exporta, cambia estados ni envía notificaciones.</p></section></aside>
+  </div>
+</ManagerShell>

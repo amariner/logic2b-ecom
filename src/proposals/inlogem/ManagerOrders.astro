@@ -1,0 +1,12 @@
+---
+import { formatEurCents } from '../../lib/format';
+import type { ProposalConfig } from '../types';
+import { inlogemDemoOrders } from './fixtures';
+import ManagerShell from './ManagerShell.astro';
+interface Props { proposal: ProposalConfig }
+const { proposal } = Astro.props;
+---
+<ManagerShell proposal={proposal} title="Pedidos" section="orders">
+  <div><p class="text-xs font-semibold uppercase tracking-[.16em] text-[#155EEF]">Operación simulada</p><h1 class="mt-2 text-3xl font-semibold tracking-[-.04em] sm:text-4xl">Pedidos</h1><p class="mt-2 text-sm text-[#65738A]">12 empresas ficticias con dominios .example. No se procesa ni comunica ningún pedido.</p></div>
+  <div class="mt-7 overflow-hidden rounded-2xl border border-[#D8E0EA] bg-white"><div class="overflow-x-auto"><table class="w-full min-w-[52rem] text-left text-sm"><thead class="bg-[#F7F8FA] text-xs text-[#65738A]"><tr><th class="px-5 py-3 font-semibold">Pedido</th><th class="px-5 py-3 font-semibold">Fecha</th><th class="px-5 py-3 font-semibold">Empresa</th><th class="px-5 py-3 font-semibold">Estado</th><th class="px-5 py-3 text-right font-semibold">Total</th></tr></thead><tbody class="divide-y divide-[#E6EBF1]">{inlogemDemoOrders.map((order) => <tr><td class="px-5 py-4"><a href={proposal.paths.managerOrder(order.reference)} class="font-semibold text-[#155EEF]">{order.reference}</a></td><td class="px-5 py-4">{new Intl.DateTimeFormat('es-ES', { day: 'numeric', month: 'short' }).format(new Date(`${order.date}T12:00:00Z`))}</td><td class="px-5 py-4"><strong>{order.company}</strong><span class="block text-xs text-[#65738A]">{order.email}</span></td><td class="px-5 py-4"><span class="rounded-full bg-[#EEF2F7] px-2.5 py-1 text-xs font-semibold">{order.status}</span></td><td class="px-5 py-4 text-right font-semibold">{formatEurCents(order.totalCents)}</td></tr>)}</tbody></table></div></div>
+</ManagerShell>

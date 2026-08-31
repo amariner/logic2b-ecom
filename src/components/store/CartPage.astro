@@ -8,24 +8,26 @@ import Shop from '../../layouts/Shop.astro';
 import { storePaths, type CollectionConfig } from '../../collections';
 import { demoJson, getDemoProductSummaries } from '../../composition/demo-catalog';
 import { shopConfig } from '../../../shop.config';
+import type { StoreExperienceConfig } from '../../proposals';
 
 interface Props {
   collection: CollectionConfig;
   heading?: string;
+  experience?: StoreExperienceConfig;
 }
 
-const { collection, heading } = Astro.props;
-const paths = storePaths(collection.id);
+const { collection, heading, experience } = Astro.props;
+const paths = experience?.paths ?? storePaths(collection.id);
 const demoCommerceJson = demoJson({
   products: getDemoProductSummaries(collection.id),
   shipping: {
-    zones: shopConfig.shipping.zones,
-    rates: shopConfig.shipping.seedRates,
+    zones: experience?.shipping.zones ?? shopConfig.shipping.zones,
+    rates: experience?.shipping.rates ?? shopConfig.shipping.seedRates,
   },
 });
 ---
 
-<Shop title="Carrito" description="Tu carrito de la compra" collection={collection}>
+<Shop title="Carrito" description="Tu carrito de la compra" collection={collection} {...(experience ? { experience } : {})}>
   <main class="mx-auto max-w-3xl px-4 py-10" data-commerce-surface="cart">
     <div data-commerce-part="heading">
       <slot name="heading"><h1 class:list={['font-display text-foreground', heading ? 'text-5xl leading-none tracking-[-.06em] sm:text-6xl' : 'text-3xl sm:text-4xl']}>{heading ?? 'Tu carrito'}</h1></slot>

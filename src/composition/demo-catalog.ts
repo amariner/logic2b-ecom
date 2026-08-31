@@ -8,9 +8,32 @@ import { collectionSeedProducts } from '../../seed/collections/index.ts';
 import { imageVariants } from '../../seed/image-variants.ts';
 import { seedProducts } from '../../seed/products.ts';
 import { createDemoCatalog } from '../lib/demo-catalog';
+import { inlogemCatalog } from '../proposals/inlogem/catalog';
+
+const inlogemSeedProducts = inlogemCatalog.map((item) => ({
+  slug: item.slug,
+  name: item.name,
+  description: item.description,
+  price_cents: item.demoPriceCents,
+  stock: item.stockSnapshot,
+  category: item.category,
+  collection: 'proposal-inlogem',
+  image: item.image,
+  subtitle: `${item.brand} · Ref. ${item.sourceReference}`,
+  specs: [
+    { label: 'Código', value: item.sourceCode },
+    { label: 'Referencia', value: item.sourceReference },
+    { label: 'Marca', value: item.brand },
+    { label: 'Unidad de venta', value: item.saleUnit },
+    ...(item.ean ? [{ label: 'EAN', value: item.ean }] : []),
+    ...(item.dimensionsMm ? [{ label: 'Dimensiones', value: `${item.dimensionsMm} mm` }] : []),
+    ...(item.weightGrams ? [{ label: 'Peso', value: `${item.weightGrams} g` }] : []),
+    ...item.specs,
+  ],
+}));
 
 const catalog = createDemoCatalog({
-  products: [...seedProducts, ...collectionSeedProducts],
+  products: [...seedProducts, ...collectionSeedProducts, ...inlogemSeedProducts],
   imageVariants,
 });
 

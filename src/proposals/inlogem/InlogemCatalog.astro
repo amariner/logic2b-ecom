@@ -1,0 +1,73 @@
+---
+import Shop from '../../layouts/Shop.astro';
+import { formatEurCents } from '../../lib/format';
+import type { ProposalConfig, StoreExperienceConfig } from '../types';
+import { inlogemBrands, inlogemCatalog } from './catalog';
+
+interface Props { proposal: ProposalConfig; experience: StoreExperienceConfig; url: URL }
+const { proposal, experience, url } = Astro.props;
+const q = (url.searchParams.get('q') ?? '').trim().slice(0, 80);
+const category = url.searchParams.get('categoria') ?? '';
+const brand = url.searchParams.get('marca') ?? '';
+const availability = url.searchParams.get('disponibilidad') ?? '';
+const order = url.searchParams.get('orden') ?? 'featured';
+const normalizedQ = q.toLocaleLowerCase('es');
+let products = inlogemCatalog.filter((item) => {
+  if (category && item.category !== category) return false;
+  if (brand && item.brand !== brand) return false;
+  if (availability === 'available' && item.stockSnapshot <= 0) return false;
+  if (!normalizedQ) return true;
+  return `${item.name} ${item.brand} ${item.sourceCode} ${item.sourceReference}`.toLocaleLowerCase('es').includes(normalizedQ);
+});
+products = products.toSorted((a, b) => {
+  if (order === 'price-asc') return a.demoPriceCents - b.demoPriceCents;
+  if (order === 'price-desc') return b.demoPriceCents - a.demoPriceCents;
+  if (order === 'name') return a.name.localeCompare(b.name, 'es');
+  return a.category.localeCompare(b.category, 'es') || a.name.localeCompare(b.name, 'es');
+});
+const linkForCategory = (id: string) => {
+  const params = new URLSearchParams(url.searchParams);
+  id ? params.set('categoria', id) : params.delete('categoria');
+  return `${proposal.paths.catalog}${params.size ? `?${params}` : ''}`;
+};
+---
+<Shop title="Tienda" description={proposal.collection.description} collection={proposal.collection} experience={experience}>
+  <main class="bg-[#F7F8FA] text-[#0B1633]">
+    <section class="border-b border-[#D6DFEB] bg-white px-4 py-10 sm:px-7 lg:px-10 lg:py-14">
+      <div class="mx-auto max-w-[1360px]"><p class="text-xs font-semibold uppercase tracking-[.18em] text-[#155EEF]">Suministros para empresa</p><div class="mt-3 flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between"><div><h1 class="font-display text-4xl font-semibold tracking-[-.055em] sm:text-6xl">Encuentra. Añade. Sigue.</h1><p class="mt-3 max-w-2xl text-[#596980]">72 referencias reales organizadas para comprar con menos pasos. Todos los importes son precios ficticios de demostración con IVA incluido.</p></div><a href={proposal.paths.cart} class="inline-flex rounded-lg border border-[#B8C5D5] px-5 py-3 text-sm font-semibold hover:border-[#0B1633]">Revisar carrito</a></div></div>
+    </section>
+    <section class="sticky top-0 z-30 border-b border-[#D6DFEB] bg-[#F7F8FA]/95 px-4 py-4 backdrop-blur sm:px-7 lg:px-10">
+      <div class="mx-auto max-w-[1360px]">
+        <nav aria-label="Familias" class="-mx-4 flex gap-2 overflow-x-auto px-4 pb-2 lg:mx-0 lg:px-0"><a href={linkForCategory('')} aria-current={!category ? 'page' : undefined} class:list={['shrink-0 rounded-lg px-3 py-2 text-xs font-semibold', !category ? 'bg-[#0B1633] text-white' : 'border border-[#C7D1DF] bg-white']}>Todo</a>{proposal.collection.categories.map((item) => <a href={linkForCategory(item.id)} aria-current={category === item.id ? 'page' : undefined} class:list={['shrink-0 rounded-lg px-3 py-2 text-xs font-semibold', category === item.id ? 'bg-[#0B1633] text-white' : 'border border-[#C7D1DF] bg-white']}>{item.label}</a>)}</nav>
+        <form method="get" action={proposal.paths.catalog} class="mt-3 grid gap-2 sm:grid-cols-[minmax(14rem,1fr)_minmax(10rem,.35fr)_auto_auto]">
+          {category && <input type="hidden" name="categoria" value={category} />}
+          <label class="sr-only" for="proposal-search">Buscar</label><input id="proposal-search" name="q" value={q} type="search" placeholder="Buscar nombre, código o referencia" class="min-h-11 rounded-lg border border-[#B8C5D5] bg-white px-4 text-sm" />
+          <label class="sr-only" for="proposal-brand">Marca</label><select id="proposal-brand" name="marca" class="min-h-11 rounded-lg border border-[#B8C5D5] bg-white px-3 text-sm"><option value="">Todas las marcas</option>{inlogemBrands.map((item) => <option value={item} selected={item === brand}>{item}</option>)}</select>
+          <label class="sr-only" for="proposal-order">Orden</label><select id="proposal-order" name="orden" class="min-h-11 rounded-lg border border-[#B8C5D5] bg-white px-3 text-sm"><option value="featured">Destacados</option><option value="price-asc" selected={order === 'price-asc'}>Precio ↑</option><option value="price-desc" selected={order === 'price-desc'}>Precio ↓</option><option value="name" selected={order === 'name'}>Nombre</option></select>
+          <button class="min-h-11 rounded-lg bg-[#155EEF] px-5 text-sm font-semibold text-white hover:bg-[#0B3FB3]">Aplicar</button>
+        </form>
+      </div>
+    </section>
+    <section class="mx-auto max-w-[1360px] px-4 py-8 sm:px-7 lg:px-10">
+      <div class="flex items-center justify-between gap-4"><p class="text-sm text-[#5C6B81]"><strong class="text-[#0B1633]">{products.length}</strong> productos</p>{(q || brand || category) && <a href={proposal.paths.catalog} class="text-sm font-semibold text-[#155EEF] underline underline-offset-4">Limpiar filtros</a>}</div>
+      <ul class="mt-6 grid grid-cols-2 gap-x-3 gap-y-7 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+        {products.map((item, index) => <li class="group flex min-w-0 flex-col rounded-2xl border border-[#D8E0EA] bg-white p-3 transition hover:-translate-y-0.5 hover:shadow-[0_14px_40px_rgba(11,22,51,.09)]">
+          <a href={proposal.paths.product(item.slug)} class="block"><div class="overflow-hidden rounded-xl bg-[#F2F5F9]"><img src={item.image} alt={item.name} width="1000" height="762" loading={index < 5 ? 'eager' : 'lazy'} class="aspect-square w-full object-contain p-3 transition duration-300 group-hover:scale-[1.025]" /></div><p class="mt-3 truncate text-[10px] font-semibold uppercase tracking-[.1em] text-[#65738A]">{item.brand} · {item.sourceReference}</p><h2 class="mt-1 line-clamp-3 min-h-[3.75rem] text-sm font-semibold leading-5">{item.name}</h2></a>
+          <div class="mt-auto pt-3"><p class="text-lg font-semibold">{formatEurCents(item.demoPriceCents)}</p><p class="text-[10px] text-[#65738A]">IVA incl. · precio demo</p><div class="mt-3 grid grid-cols-[4rem_1fr] gap-2"><label class="sr-only" for={`qty-${item.sourceCode}`}>Cantidad de {item.name}</label><input id={`qty-${item.sourceCode}`} data-proposal-qty={item.slug} type="number" min="1" max="99" value="1" class="min-h-10 rounded-lg border border-[#C3CEDC] px-2 text-center text-sm" /><button type="button" data-proposal-add={item.slug} class="min-h-10 rounded-lg bg-[#155EEF] px-2 text-xs font-semibold text-white hover:bg-[#0B3FB3]">Añadir</button></div></div>
+        </li>)}
+      </ul>
+      {products.length === 0 && <div class="my-12 rounded-2xl border border-[#D8E0EA] bg-white px-6 py-16 text-center"><h2 class="text-2xl font-semibold">No encontramos esa referencia</h2><p class="mt-2 text-[#65738A]">Prueba con otra palabra, marca o familia.</p><a href={proposal.paths.catalog} class="mt-5 inline-block font-semibold text-[#155EEF] underline underline-offset-4">Ver todo el catálogo</a></div>}
+    </section>
+  </main>
+  <script>
+    import { addToCart } from '../../lib/cart-client';
+    document.querySelectorAll<HTMLButtonElement>('[data-proposal-add]').forEach((button) => button.addEventListener('click', () => {
+      const slug = button.dataset.proposalAdd ?? '';
+      const quantity = document.querySelector<HTMLInputElement>(`[data-proposal-qty="${CSS.escape(slug)}"]`);
+      const qty = Math.max(1, Math.min(99, Math.floor(Number(quantity?.value ?? 1)) || 1));
+      addToCart(slug, qty);
+      const previous = button.textContent; button.textContent = 'Añadido ✓';
+      setTimeout(() => { button.textContent = previous; }, 900);
+    }));
+  </script>
+</Shop>

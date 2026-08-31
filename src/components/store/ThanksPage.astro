@@ -5,17 +5,19 @@
  */
 import Shop from '../../layouts/Shop.astro';
 import { storePaths, type CollectionConfig } from '../../collections';
+import type { StoreExperienceConfig } from '../../proposals';
 
 interface Props {
   collection: CollectionConfig;
   backLabel?: string;
+  experience?: StoreExperienceConfig;
 }
 
-const { collection, backLabel } = Astro.props;
-const paths = storePaths(collection.id);
+const { collection, backLabel, experience } = Astro.props;
+const paths = experience?.paths ?? storePaths(collection.id);
 ---
 
-<Shop title="Gracias" description="Confirmación de pedido" collection={collection}>
+<Shop title="Gracias" description="Confirmación de pedido" collection={collection} {...(experience ? { experience } : {})}>
   <main class="mx-auto max-w-xl px-4 py-16 text-center" data-commerce-surface="thanks" data-collection-id={collection.id}>
       <div data-commerce-part="success" data-demo-success class="hidden">
         <slot name="success">

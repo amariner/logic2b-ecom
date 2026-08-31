@@ -1,0 +1,18 @@
+---
+import { proposalForPage } from '../../../proposals/http';
+import { proposalLandingView } from '../../../proposals/views';
+
+export const prerender = false;
+
+const proposal = await proposalForPage({
+  publicId: Astro.params.publicId,
+  headers: Astro.response.headers,
+  env: Astro.locals.runtime.env,
+  url: Astro.url,
+});
+if (proposal instanceof Response) return proposal;
+const ProposalLanding = proposalLandingView(proposal.id);
+if (!ProposalLanding) return new Response('Página no encontrada', { status: 404, headers: Astro.response.headers });
+---
+
+<ProposalLanding proposal={proposal} />

@@ -1,0 +1,46 @@
+---
+import Base from '../../layouts/Base.astro';
+import CloudflarePageview from '../../components/CloudflarePageview.astro';
+import type { ProposalConfig } from '../types';
+import BrandMark from './BrandMark.astro';
+
+interface Props { proposal: ProposalConfig; title: string; section: 'dashboard' | 'products' | 'orders' | 'emails' }
+const { proposal, title, section } = Astro.props;
+const nav = [
+  { id: 'dashboard', label: 'Resumen', href: proposal.paths.manager },
+  { id: 'products', label: 'Productos', href: proposal.paths.managerProducts },
+  { id: 'orders', label: 'Pedidos', href: proposal.paths.managerOrders },
+  { id: 'emails', label: 'Emails', href: proposal.paths.managerEmails },
+] as const;
+---
+
+<Base title={`${title} — Gestor demo Inlogem`} description="Gestor contextual de solo lectura para la propuesta de Inlogem." robots="noindex,nofollow,noarchive" showWhatsApp={false}>
+  <div data-proposal-manager class="min-h-screen overflow-x-hidden bg-[#F7F8FA] text-[#0B1633]">
+    <aside class="bg-[#0B1633] px-4 py-2 text-center text-[11px] font-medium text-white/75">Demo privada de solo lectura · no se guardan cambios ni se realizan operaciones reales</aside>
+    <header class="border-b border-[#D8E0EA] bg-white">
+      <div class="mx-auto flex max-w-[1480px] items-center justify-between gap-5 px-4 py-4 sm:px-7 lg:px-10"><BrandMark compact /><div class="flex items-center gap-3"><a href={proposal.paths.catalog} class="hidden text-sm font-semibold text-[#155EEF] sm:inline">Ver tienda</a><span class="rounded-full bg-[#E7EEFF] px-3 py-1.5 text-xs font-semibold text-[#155EEF]">Solo lectura</span></div></div>
+    </header>
+    <div class="mx-auto grid max-w-[1480px] lg:grid-cols-[15rem_minmax(0,1fr)]">
+      <nav aria-label="Gestor demo" class="border-b border-[#D8E0EA] bg-white px-4 py-3 lg:min-h-[calc(100vh-105px)] lg:border-b-0 lg:border-r lg:px-5 lg:py-8">
+        <ul class="flex gap-2 overflow-x-auto lg:flex-col">{nav.map((item) => <li><a href={item.href} aria-current={section === item.id ? 'page' : undefined} class:list={['block whitespace-nowrap rounded-lg px-3.5 py-2.5 text-sm font-semibold', section === item.id ? 'bg-[#0B1633] text-white' : 'text-[#59677C] hover:bg-[#F0F3F7] hover:text-[#0B1633]']}>{item.label}</a></li>)}</ul>
+        <a href={proposal.paths.home} class="mt-8 hidden border-t border-[#D8E0EA] px-3.5 pt-6 text-xs font-semibold text-[#59677C] lg:block">← Volver a la propuesta</a>
+      </nav>
+      <main class="min-w-0 px-4 py-7 sm:px-7 lg:px-10 lg:py-10"><slot /></main>
+    </div>
+  </div>
+  <style is:global>
+    @media (max-width: 639px) {
+      [data-proposal-manager] table {
+        min-width: 0 !important;
+        table-layout: fixed;
+      }
+      [data-proposal-manager] th,
+      [data-proposal-manager] td {
+        overflow-wrap: anywhere;
+        padding-left: .5rem !important;
+        padding-right: .5rem !important;
+      }
+    }
+  </style>
+  <CloudflarePageview />
+</Base>

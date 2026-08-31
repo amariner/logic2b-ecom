@@ -1,0 +1,34 @@
+---
+import ProductPage from '../../../../components/store/ProductPage.astro';
+import { getDemoProduct, getDemoRelated } from '../../../../composition/demo-catalog';
+import { notFoundResponse } from '../../../../lib/not-found';
+import { proposalHtmlHeaders } from '../../../../proposals';
+import { inlogemStoreExperience } from '../../../../proposals/inlogem/config';
+import { proposalForPage } from '../../../../proposals/http';
+
+export const prerender = false;
+
+const proposal = await proposalForPage({
+  publicId: Astro.params.publicId,
+  headers: Astro.response.headers,
+  env: Astro.locals.runtime.env,
+  url: Astro.url,
+});
+if (proposal instanceof Response) return proposal;
+
+const product = getDemoProduct(proposal.collection.id, Astro.params.slug ?? '');
+if (!product) {
+  const missing = await notFoundResponse(Astro.locals.runtime.env, Astro.url);
+  proposalHtmlHeaders(missing.headers);
+  return missing;
+}
+const related = getDemoRelated(product);
+---
+
+<ProductPage
+  collection={proposal.collection}
+  product={product}
+  related={related}
+  site={Astro.site}
+  experience={inlogemStoreExperience}
+/>

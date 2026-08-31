@@ -1,0 +1,12 @@
+---
+/** Pageview agregado de Cloudflare: sin cookies ni eventos de comportamiento. */
+import { shopConfig } from '../../shop.config';
+---
+{shopConfig.analytics.cfBeaconToken && (
+  <script
+    defer
+    src="https://static.cloudflareinsights.com/beacon.min.js"
+    data-cf-beacon={JSON.stringify({ token: shopConfig.analytics.cfBeaconToken })}
+    is:inline
+  ></script>
+)}

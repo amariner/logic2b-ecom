@@ -1,0 +1,8 @@
+---
+import ManagerOrders from '../../../../../proposals/inlogem/ManagerOrders.astro';
+import { proposalForPage } from '../../../../../proposals/http';
+export const prerender = false;
+const proposal = await proposalForPage({ publicId: Astro.params.publicId, headers: Astro.response.headers, env: Astro.locals.runtime.env, url: Astro.url });
+if (proposal instanceof Response) return proposal;
+---
+<ManagerOrders proposal={proposal} />
