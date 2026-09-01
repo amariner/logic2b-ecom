@@ -2,75 +2,223 @@
 import Base from '../../layouts/Base.astro';
 import ProjectForm from '../../components/ProjectForm.astro';
 import CloudflarePageview from '../../components/CloudflarePageview.astro';
+import ProposalStoreHeader from '../../components/store/ProposalStoreHeader.astro';
+import { formatEurCents } from '../../lib/format';
 import BrandMark from './BrandMark.astro';
+import { inlogemCatalog } from './catalog';
+import { inlogemStoreExperience } from './config';
+import { inlogemDemoEmails, inlogemDemoOrders } from './fixtures';
 import type { ProposalConfig } from '../types';
 
 interface Props { proposal: ProposalConfig }
 const { proposal } = Astro.props;
----
-<Base title="Una nueva tienda para Inlogem — propuesta privada" description="Concepto de ecommerce B2B preparado por Logic2B para Inlogem." robots="noindex,nofollow,noarchive" showWhatsApp={false}>
-  <div class="min-h-screen bg-[#F7F8FA] text-[#0B1633]">
-    <aside class="border-b border-white/10 bg-[#0B1633] px-5 py-2.5 text-center text-[11px] leading-5 text-white/75">
-      Propuesta conceptual privada preparada por Logic2B. No es el sitio oficial de Inlogem; productos, precios y pedidos son datos de demostración.
-    </aside>
-    <header class="mx-auto flex max-w-[1440px] items-center justify-between px-5 py-5 sm:px-8 lg:px-12">
-      <BrandMark />
-      <a href={proposal.paths.catalog} class="rounded-lg bg-[#155EEF] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#0B3FB3]">Explorar la tienda</a>
-    </header>
 
-    <main>
-      <section class="mx-auto grid max-w-[1440px] gap-8 px-5 pb-14 pt-8 sm:px-8 lg:grid-cols-[.9fr_1.1fr] lg:items-center lg:px-12 lg:pb-20 lg:pt-14">
-        <div>
-          <p class="text-xs font-semibold uppercase tracking-[.2em] text-[#155EEF]">Una evolución reconocible</p>
-          <h1 class="mt-5 max-w-3xl font-display text-5xl font-semibold leading-[.94] tracking-[-.06em] sm:text-7xl">El proveedor de siempre. Una experiencia preparada para hoy.</h1>
-          <p class="mt-6 max-w-2xl text-lg leading-8 text-[#40506B]">Una tienda más clara, rápida y autónoma para que empresas y profesionales encuentren, comparen y repitan sus pedidos sin depender de una experiencia externa.</p>
-          <div class="mt-8 flex flex-wrap gap-3">
-            <a href={proposal.paths.catalog} class="rounded-lg bg-[#155EEF] px-6 py-3.5 font-semibold text-white hover:bg-[#0B3FB3]">Explorar tienda <span aria-hidden="true">→</span></a>
-            <a href={proposal.paths.manager} class="rounded-lg border border-[#B9C5D6] bg-white px-6 py-3.5 font-semibold hover:border-[#0B1633]">Ver gestor demo</a>
+const featuredCodes = ['92385', '28233', '160142', '29616'];
+const featured = featuredCodes
+  .map((code) => inlogemCatalog.find((item) => item.sourceCode === code))
+  .filter((item) => item !== undefined);
+const categoryCodes: Readonly<Record<string, string>> = {
+  'inl-escritura': '92385', 'inl-papel': '28233', 'inl-archivo': '37741',
+  'inl-tecnologia': '160142', 'inl-mobiliario': '29616', 'inl-embalaje': '25934',
+  'inl-escolar': '73083', 'inl-servicios': '70002',
+};
+const categories = proposal.collection.categories.map((category) => ({
+  ...category,
+  product: inlogemCatalog.find((item) => item.sourceCode === categoryCodes[category.id])
+    ?? inlogemCatalog.find((item) => item.category === category.id)!,
+}));
+const primaryCategories = categories.slice(0, 6);
+const recentOrder = inlogemDemoOrders.at(-1)!;
+---
+
+<Base
+  title="Una nueva tienda para Inlogem — propuesta privada"
+  description="Concepto de ecommerce abierto preparado por Logic2B para Inlogem."
+  robots="noindex,nofollow,noarchive"
+  showWhatsApp={false}
+  preloadDisplayFont
+>
+  <div class="inlogem-home" data-store-collection={proposal.collection.id}>
+    <ProposalStoreHeader
+      collection={proposal.collection}
+      experience={inlogemStoreExperience}
+      currentPath={proposal.paths.home}
+    />
+
+    <p class="inlogem-cart-feedback" data-home-cart-feedback role="status" aria-live="polite" hidden>
+      Producto añadido al carrito. <a href={proposal.paths.cart}>Ver carrito</a>
+    </p>
+
+    <main data-proposal-landing>
+      <section class="inlogem-hero">
+        <div class="inlogem-hero__copy">
+          <p class="inlogem-kicker">El proveedor de siempre, ahora en una tienda abierta</p>
+          <h1>Todo lo que necesitas. <span>Más fácil de comprar.</span></h1>
+          <p class="inlogem-hero__lead">Papelería, tecnología, mobiliario y esenciales para casa, estudio, trabajo o negocio. Una experiencia clara para encontrar, elegir y comprar sin rodeos.</p>
+          <nav class="inlogem-hero-categories" aria-label="Categorías principales" data-home-category-shortcuts>
+            {primaryCategories.map((category) => (
+              <a href={`${proposal.paths.catalog}?categoria=${category.id}#productos`} data-home-category={category.id}>
+                <span><img src={category.product.image} alt="" width="1000" height="762" loading="lazy" /></span>
+                <strong>{category.label}</strong>
+              </a>
+            ))}
+          </nav>
+          <form action={`${proposal.paths.catalog}#productos`} method="get" class="inlogem-search">
+            <label class="sr-only" for="inlogem-home-search">Buscar en el catálogo</label>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="11" cy="11" r="6.5" /><path stroke-linecap="round" d="m16 16 4 4" /></svg>
+            <input id="inlogem-home-search" type="search" name="q" placeholder="Busca un producto, una marca o una referencia" />
+            <button>Buscar</button>
+          </form>
+          <div class="inlogem-hero__actions">
+            <a href={`${proposal.paths.catalog}#productos`} class="inlogem-button inlogem-button--primary">Ver productos <span aria-hidden="true">→</span></a>
+            <a href="#experiencia" class="inlogem-button inlogem-button--secondary">Conocer la propuesta</a>
           </div>
-          <dl class="mt-10 grid grid-cols-3 gap-4 border-t border-[#CAD4E1] pt-6">
-            <div><dt class="text-3xl font-semibold">72</dt><dd class="mt-1 text-xs text-[#5C6B81]">productos reales</dd></div>
-            <div><dt class="text-3xl font-semibold">8</dt><dd class="mt-1 text-xs text-[#5C6B81]">familias claras</dd></div>
-            <div><dt class="text-3xl font-semibold">0</dt><dd class="mt-1 text-xs text-[#5C6B81]">operaciones reales</dd></div>
+          <dl class="inlogem-hero__facts">
+            <div><dt>72</dt><dd>productos reales</dd></div><div><dt>8</dt><dd>categorías claras</dd></div><div><dt>Abierta</dt><dd>sin crear una cuenta</dd></div>
           </dl>
         </div>
-        <div class="overflow-hidden rounded-[1.75rem] bg-[#DCE7F5] shadow-[0_30px_80px_rgba(11,22,51,.13)]">
-          <img src="/images/proposals/inlogem/editorial/hero.webp" alt="Espacio de trabajo contemporáneo con material de oficina organizado" width="1536" height="1024" fetchpriority="high" class="aspect-[1.34] h-full w-full object-cover" />
-        </div>
-      </section>
 
-      <section class="bg-[#0B1633] px-5 py-16 text-white sm:px-8 lg:px-12 lg:py-24">
-        <div class="mx-auto max-w-[1344px]">
-          <p class="text-xs font-semibold uppercase tracking-[.2em] text-[#42BDEB]">La oportunidad</p>
-          <div class="mt-6 grid gap-9 lg:grid-cols-3">
-            <article><span class="text-sm text-white/50">01</span><h2 class="mt-4 text-2xl font-semibold">Una marca, una tienda</h2><p class="mt-3 leading-7 text-white/65">La experiencia de compra vuelve a hablar el idioma de Inlogem y deja de sentirse como un catálogo prestado.</p></article>
-            <article><span class="text-sm text-white/50">02</span><h2 class="mt-4 text-2xl font-semibold">Menos árbol, más claridad</h2><p class="mt-3 leading-7 text-white/65">Ocho familias comprensibles, búsqueda por referencia y marca, filtros útiles y compra rápida para quien sabe lo que necesita.</p></article>
-            <article><span class="text-sm text-white/50">03</span><h2 class="mt-4 text-2xl font-semibold">Operación visible</h2><p class="mt-3 leading-7 text-white/65">Un gestor sencillo convierte catálogo, pedidos y comunicaciones en un recorrido que se aprende en minutos.</p></article>
+        <div class="inlogem-product-stage" aria-label="Selección de productos de la tienda">
+          <div class="inlogem-product-stage__heading"><span>Selección Inlogem</span><strong>Para empezar bien</strong></div>
+          <a href={proposal.paths.product(featured[0]!.slug)} class="inlogem-stage-card inlogem-stage-card--hero">
+            <span class="inlogem-stage-card__category">{featured[0]!.categoryLabel}</span>
+            <img src={featured[0]!.image} alt={featured[0]!.name} width="1000" height="762" fetchpriority="high" />
+            <span class="inlogem-stage-card__info"><strong>{featured[0]!.name}</strong><b>{formatEurCents(featured[0]!.demoPriceCents)}</b></span>
+          </a>
+          <div class="inlogem-product-stage__side">
+            {featured.slice(1, 3).map((item) => (
+              <a href={proposal.paths.product(item.slug)} class="inlogem-stage-card inlogem-stage-card--small">
+                <img src={item.image} alt={item.name} width="1000" height="762" loading="eager" />
+                <span><strong>{item.brand}</strong><b>{formatEurCents(item.demoPriceCents)}</b></span>
+              </a>
+            ))}
           </div>
+          <span class="inlogem-stage-note">Precios demo · IVA incluido</span>
         </div>
       </section>
 
-      <section class="mx-auto max-w-[1440px] px-5 py-16 sm:px-8 lg:px-12 lg:py-24">
-        <div class="grid gap-6 lg:grid-cols-2">
-          <article class="overflow-hidden rounded-3xl border border-[#D7DFE9] bg-white">
-            <img src="/images/proposals/inlogem/editorial/workspace.webp" alt="Mesa de oficina luminosa preparada para trabajar" width="1536" height="1024" loading="lazy" class="aspect-[1.55] w-full object-cover" />
-            <div class="p-7 sm:p-9"><p class="text-xs font-semibold uppercase tracking-[.16em] text-[#155EEF]">Comprar mejor</p><h2 class="mt-3 text-3xl font-semibold tracking-[-.04em]">Densa cuando toca. Serena siempre.</h2><p class="mt-4 leading-7 text-[#5A687D]">La nueva interfaz admite un catálogo profesional sin convertirse en una hoja de cálculo. Información, referencia, disponibilidad y acción permanecen cerca.</p></div>
-          </article>
-          <article class="overflow-hidden rounded-3xl border border-[#D7DFE9] bg-white">
-            <img src="/images/proposals/inlogem/editorial/team.webp" alt="Equipo revisando suministros y pedidos en una oficina" width="1536" height="1024" loading="lazy" class="aspect-[1.55] w-full object-cover" />
-            <div class="p-7 sm:p-9"><p class="text-xs font-semibold uppercase tracking-[.16em] text-[#155EEF]">Gestionar fácil</p><h2 class="mt-3 text-3xl font-semibold tracking-[-.04em]">Solo lo necesario para el día a día.</h2><p class="mt-4 leading-7 text-[#5A687D]">Productos, pedidos y emails de muestra demuestran cómo se opera la tienda sin exponer la complejidad técnica que resuelve Logic2B.</p></div>
-          </article>
+      <section class="inlogem-assurance" aria-label="Ventajas de la tienda">
+        <div><span aria-hidden="true">01</span><strong>Compra abierta</strong><p>Explora precios y completa el pedido sin registro.</p></div>
+        <div><span aria-hidden="true">02</span><strong>Todo bien ordenado</strong><p>Busca por nombre, marca, categoría o referencia.</p></div>
+        <div><span aria-hidden="true">03</span><strong>De principio a fin</strong><p>Catálogo, carrito, entrega y confirmación conectados.</p></div>
+      </section>
+
+      <section id="categorias" class="inlogem-section inlogem-categories" aria-labelledby="inlogem-categories-title">
+        <div class="inlogem-section-heading">
+          <div><p class="inlogem-kicker">Compra a tu manera</p><h2 id="inlogem-categories-title">Empieza por lo que necesitas.</h2></div>
+          <a href={proposal.paths.catalog}>Ver los 72 productos <span aria-hidden="true">→</span></a>
+        </div>
+        <ul>
+          {categories.map((category, index) => (
+            <li><a href={`${proposal.paths.catalog}?categoria=${category.id}#productos`}>
+              <span class="inlogem-category-card__number">{String(index + 1).padStart(2, '0')}</span>
+              <span class="inlogem-category-card__image"><img src={category.product.image} alt="" width="1000" height="762" loading="lazy" /></span>
+              <span class="inlogem-category-card__label"><strong>{category.label}</strong><small>9 productos</small></span>
+              <span class="inlogem-category-card__arrow" aria-hidden="true">↗</span>
+            </a></li>
+          ))}
+        </ul>
+      </section>
+
+      <section id="seleccion" class="inlogem-section inlogem-featured" aria-labelledby="inlogem-featured-title">
+        <div class="inlogem-section-heading">
+          <div><p class="inlogem-kicker">Una tienda de verdad</p><h2 id="inlogem-featured-title">Producto, precio y compra. Sin esconder lo importante.</h2></div>
+          <p>Una selección del catálogo importado para recorrer la experiencia completa.</p>
+        </div>
+        <ul>
+          {featured.map((item) => (
+            <li class="inlogem-product-card">
+              <a href={proposal.paths.product(item.slug)} class="inlogem-product-card__link">
+                <span class="inlogem-product-card__media"><img src={item.image} alt="" width="1000" height="762" loading="lazy" /></span>
+                <span class="inlogem-product-card__body">
+                  <span>{item.brand} · Ref. {item.sourceReference}</span>
+                  <h3>{item.name}</h3>
+                </span>
+              </a>
+              <div class="inlogem-product-card__footer">
+                <div class="inlogem-product-card__price"><strong>{formatEurCents(item.demoPriceCents)}</strong><small>IVA incl. · demo</small></div>
+                <button type="button" data-home-add={item.slug} aria-label={`Añadir ${item.name} al carrito`}>Añadir</button>
+              </div>
+            </li>
+          ))}
+        </ul>
+        <noscript><style is:inline>[data-home-add] { display: none !important; }</style></noscript>
+      </section>
+
+      <section id="experiencia" class="inlogem-experience" aria-labelledby="inlogem-experience-title">
+        <div class="inlogem-experience__copy">
+          <p class="inlogem-kicker">La propuesta</p><h2 id="inlogem-experience-title">Una identidad reconocible en cada paso.</h2>
+          <p>El azul, el logo y el tono de la portada ya no desaparecen al empezar a comprar. La misma marca acompaña catálogo, ficha, carrito, entrega y confirmación.</p>
+          <ul><li><span>✓</span> Catálogo abierto y precios visibles</li><li><span>✓</span> Fichas pensadas para decidir y comprar</li><li><span>✓</span> Recorrido completo sin operaciones reales</li></ul>
+          <a href={`${proposal.paths.catalog}#productos`} class="inlogem-button inlogem-button--light">Todos los productos <span aria-hidden="true">→</span></a>
+        </div>
+        <div class="inlogem-experience__future">
+          <span class="inlogem-experience__label">Evolución posterior · No activa en esta demo</span>
+          <h3>Abierta para todos ahora. Tarifas profesionales cuando hagan falta.</h3>
+          <p>La tienda nace como ecommerce general. En una siguiente fase podría incorporar condiciones y listas de precios para clientes profesionales sin convertir toda la experiencia en un portal cerrado.</p>
+          <div class="inlogem-future-card"><span>Precio general</span><strong>Visible para cualquier comprador</strong><span>Tarifa profesional</span><strong>Por definir y validar</strong></div>
         </div>
       </section>
 
-      <section class="border-y border-[#CAD4E1] bg-white px-5 py-16 sm:px-8 lg:px-12 lg:py-24">
-        <div class="mx-auto grid max-w-6xl gap-12 lg:grid-cols-[.75fr_1.25fr] lg:items-start">
-          <div><p class="text-xs font-semibold uppercase tracking-[.2em] text-[#155EEF]">Siguiente paso</p><h2 class="mt-4 text-4xl font-semibold tracking-[-.05em] sm:text-5xl">Validemos catálogo, operación y alcance.</h2><p class="mt-5 leading-7 text-[#5A687D]">La propuesta no fija todavía un presupuesto. Una conversación breve permite confirmar fuentes de datos, tarifas, entregas e integraciones antes de convertirla en proyecto real.</p></div>
-          <div class="rounded-3xl bg-[#F2F5F9] p-6 sm:p-8"><ProjectForm idPrefix="proposal-inlogem" source={proposal.contactSource} /></div>
+      <section class="inlogem-manager-preview" aria-labelledby="inlogem-manager-title">
+        <div class="inlogem-manager-preview__copy">
+          <p class="inlogem-kicker">Detrás de la tienda</p><h2 id="inlogem-manager-title">Una gestión sencilla también forma parte de la experiencia.</h2>
+          <p>La compra es la protagonista. El gestor queda como prueba secundaria de cómo se organizan productos, pedidos y comunicaciones sin añadir complejidad.</p>
+          <a href={proposal.paths.manager}>Abrir el gestor de solo lectura <span aria-hidden="true">→</span></a>
         </div>
+        <div class="inlogem-manager-card" aria-label="Vista previa del gestor">
+          <div class="inlogem-manager-card__top"><BrandMark compact /><span>Solo lectura</span></div>
+          <div class="inlogem-manager-card__stats"><span><small>Productos</small><strong>{inlogemCatalog.length}</strong></span><span><small>Pedidos demo</small><strong>{inlogemDemoOrders.length}</strong></span><span><small>Emails simulados</small><strong>{inlogemDemoEmails.length}</strong></span></div>
+          <div class="inlogem-manager-card__order"><span><small>Pedido reciente</small><strong>{recentOrder.reference}</strong></span><span>{recentOrder.status}</span><b>{formatEurCents(recentOrder.totalCents)}</b></div>
+        </div>
+      </section>
+
+      <section class="inlogem-contact" aria-labelledby="inlogem-contact-title">
+        <div><p class="inlogem-kicker">Siguiente paso</p><h2 id="inlogem-contact-title">Validemos catálogo, operación y alcance.</h2><p>La propuesta no fija todavía un presupuesto. Una conversación breve permite confirmar datos, entregas, integraciones y la posible evolución de tarifas profesionales antes de convertirla en proyecto real.</p></div>
+        <div class="inlogem-contact__form"><ProjectForm idPrefix="proposal-inlogem" source={proposal.contactSource} /></div>
       </section>
     </main>
-    <footer class="bg-[#0B1633] px-5 py-8 text-sm text-white/60 sm:px-8 lg:px-12"><div class="mx-auto flex max-w-[1344px] flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"><span>Concepto privado · Logic2B Ecommerce</span><a href="mailto:hola@logic2b.com" class="text-white underline underline-offset-4">hola@logic2b.com</a></div></footer>
+
+    <footer class="inlogem-home-footer"><BrandMark inverse /><p>Concepto privado · Logic2B Ecommerce</p><a href="mailto:hola@logic2b.com">hola@logic2b.com</a></footer>
   </div>
+
+  <script>
+    import { addToCart, bindCartBadge } from '../../lib/cart-client';
+    const badge = document.querySelector<HTMLElement>('[data-cart-badge]');
+    const feedback = document.querySelector<HTMLElement>('[data-home-cart-feedback]');
+    if (badge) bindCartBadge(badge);
+    document.querySelectorAll<HTMLButtonElement>('[data-home-add]').forEach((button) => button.addEventListener('click', () => {
+      addToCart(button.dataset.homeAdd ?? '', 1);
+      const previous = button.textContent; button.textContent = 'Añadido ✓';
+      feedback?.removeAttribute('hidden');
+      setTimeout(() => { button.textContent = previous; }, 1000);
+      setTimeout(() => { feedback?.setAttribute('hidden', ''); }, 2800);
+    }));
+  </script>
+
+  <style is:global>
+    .inlogem-home{--inl-ink:#0b1633;--inl-blue:#155eef;--inl-blue-dark:#0b3fb3;--inl-sky:#42bdeb;--inl-pale:#dce7f5;--inl-canvas:#f7f8fa;--inl-line:#d7dfe9;--inl-muted:#586981;--background:#fff;--foreground:var(--inl-ink);--muted:#f2f5f9;--muted-foreground:#52627a;--border:var(--inl-line);--color-brand:var(--inl-blue);--color-brand-dark:var(--inl-blue-dark);min-height:100vh;overflow-x:clip;background:var(--inl-canvas);color:var(--inl-ink)}
+    .inlogem-home :is(h1,h2,h3){font-family:'Poppins','Poppins Fallback',sans-serif;letter-spacing:-.045em}.inlogem-home :is(a,button,input):focus-visible{outline:3px solid var(--inl-blue);outline-offset:3px}
+    .inlogem-cart-feedback{position:fixed;right:1rem;bottom:1rem;z-index:80;border:1px solid var(--inl-line);border-radius:.8rem;background:#fff;padding:.85rem 1rem;box-shadow:0 18px 55px rgb(11 22 51/18%);font-size:.76rem}.inlogem-cart-feedback a{color:var(--inl-blue);font-weight:750;text-decoration:underline;text-underline-offset:3px}
+    .inlogem-kicker{color:var(--inl-blue);font-size:.7rem;font-weight:800;letter-spacing:.18em;text-transform:uppercase}.inlogem-hero{display:grid;max-width:1440px;gap:clamp(2.5rem,5vw,5rem);align-items:center;margin-inline:auto;padding:clamp(3.5rem,7vw,7rem) clamp(1.25rem,4vw,3.5rem)}.inlogem-hero__copy{min-width:0}.inlogem-hero h1{max-width:47rem;margin-top:1.1rem;font-size:clamp(3.2rem,6.3vw,6.6rem);line-height:.9}.inlogem-hero h1 span{color:var(--inl-blue)}.inlogem-hero__lead{max-width:42rem;margin-top:1.75rem;color:#40506b;font-size:clamp(1rem,1.4vw,1.18rem);line-height:1.7}
+    .inlogem-hero-categories{display:grid;width:100%;max-width:43rem;grid-auto-columns:minmax(5.5rem,28%);grid-auto-flow:column;gap:.45rem;overflow-x:auto;margin-top:1.5rem;padding-bottom:.15rem;scroll-snap-type:x proximity;scrollbar-width:none}.inlogem-hero-categories::-webkit-scrollbar{display:none}.inlogem-hero-categories a{display:grid;min-width:0;min-height:4.7rem;grid-template-rows:2.65rem auto;justify-items:center;align-items:center;gap:.2rem;overflow:hidden;border:1px solid var(--inl-line);border-radius:.75rem;background:#fff;padding:.35rem;color:var(--inl-ink);scroll-snap-align:start;transition:border-color 160ms ease,box-shadow 160ms ease,transform 160ms ease}.inlogem-hero-categories a:hover{transform:translateY(-1px);border-color:#aebed2;box-shadow:0 9px 22px rgb(11 22 51/7%)}.inlogem-hero-categories a>span{display:grid;width:2.65rem;height:2.65rem;place-items:center;overflow:hidden;background:transparent}.inlogem-hero-categories img{width:100%;height:100%;object-fit:contain}.inlogem-hero-categories strong{display:-webkit-box;max-width:100%;overflow:hidden;font-size:.65rem;font-weight:750;line-height:1.15;text-align:center;-webkit-box-orient:vertical;-webkit-line-clamp:2}
+    .inlogem-search{display:grid;max-width:43rem;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:.7rem;margin-top:.65rem;border:1px solid #7d8ca3;border-radius:.9rem;background:#fff;padding:.45rem;box-shadow:0 18px 45px rgb(11 22 51/7%)}.inlogem-search svg{width:1.25rem;height:1.25rem;margin-left:.55rem;color:#6b7990}.inlogem-search input{min-width:0;border:0;background:transparent;padding:.7rem .1rem;font-size:.86rem;outline:0}.inlogem-search button{min-height:2.8rem;border-radius:.7rem;background:var(--inl-blue);padding-inline:1.25rem;color:#fff;font-size:.78rem;font-weight:750}.inlogem-search button:hover{background:var(--inl-blue-dark)}
+    .inlogem-hero__actions{display:flex;flex-wrap:wrap;gap:.75rem;margin-top:1.1rem}.inlogem-button{display:inline-flex;min-height:3rem;align-items:center;justify-content:center;gap:.5rem;border-radius:.72rem;padding:.8rem 1.2rem;font-size:.82rem;font-weight:750;transition:transform 160ms ease,background 160ms ease}.inlogem-button:hover{transform:translateY(-1px)}.inlogem-button--primary{background:var(--inl-ink);color:#fff}.inlogem-button--primary:hover{background:var(--inl-blue)}.inlogem-button--secondary{border:1px solid #7d8ca3;background:#fff;color:var(--inl-ink)}.inlogem-button--light{background:#fff;color:var(--inl-ink)}
+    .inlogem-hero__facts{display:flex;gap:clamp(1.5rem,4vw,3.5rem);margin-top:2.5rem;border-top:1px solid #cad4e1;padding-top:1.3rem}.inlogem-hero__facts div{display:grid;gap:.15rem}.inlogem-hero__facts dt{font-size:1.45rem;font-weight:750;letter-spacing:-.04em}.inlogem-hero__facts dd{color:var(--inl-muted);font-size:.66rem}
+    .inlogem-product-stage{position:relative;display:grid;min-height:39rem;grid-template-columns:minmax(0,1.35fr) minmax(8.5rem,.65fr);grid-template-rows:auto 1fr auto;gap:1rem;overflow:hidden;border-radius:2rem;background:var(--inl-pale);padding:clamp(1.25rem,3vw,2rem);box-shadow:0 35px 90px rgb(11 22 51/14%)}.inlogem-product-stage:before{position:absolute;inset:0;background-image:linear-gradient(rgb(21 94 239/8%) 1px,transparent 1px),linear-gradient(90deg,rgb(21 94 239/8%) 1px,transparent 1px);background-size:40px 40px;content:'';mask-image:linear-gradient(to bottom right,#000,transparent 80%)}
+    .inlogem-product-stage__heading{position:relative;z-index:1;grid-column:1/-1;display:flex;align-items:end;justify-content:space-between;gap:1rem}.inlogem-product-stage__heading span{color:#536883;font-size:.64rem;font-weight:750;letter-spacing:.14em;text-transform:uppercase}.inlogem-product-stage__heading strong{font-family:'Poppins',sans-serif;font-size:1.25rem;letter-spacing:-.04em}.inlogem-stage-card{position:relative;z-index:1;overflow:hidden;border:1px solid rgb(255 255 255/80%);background:#fff;box-shadow:0 14px 30px rgb(11 22 51/9%);transition:transform 180ms ease,box-shadow 180ms ease}.inlogem-stage-card:hover{transform:translateY(-3px);box-shadow:0 20px 45px rgb(11 22 51/14%)}.inlogem-stage-card img{width:100%;height:100%;object-fit:contain}
+    .inlogem-stage-card--hero{display:grid;min-height:29rem;border-radius:1.35rem;padding:2rem 1.5rem 5.7rem}.inlogem-stage-card__category{position:absolute;top:1rem;left:1rem;border-radius:999px;background:#e7eeff;padding:.4rem .65rem;color:var(--inl-blue-dark);font-size:.58rem;font-weight:800;text-transform:uppercase}.inlogem-stage-card__info{position:absolute;right:1.2rem;bottom:1.2rem;left:1.2rem;display:flex;align-items:end;justify-content:space-between;gap:1rem}.inlogem-stage-card__info strong{max-width:72%;font-size:.78rem;line-height:1.35}.inlogem-stage-card__info b{flex:0 0 auto;font-size:1rem}.inlogem-product-stage__side{position:relative;z-index:1;display:grid;gap:1rem}.inlogem-stage-card--small{display:grid;min-height:13rem;border-radius:1rem;padding:1rem 1rem 3.2rem}.inlogem-stage-card--small span{position:absolute;right:.8rem;bottom:.8rem;left:.8rem;display:flex;align-items:end;justify-content:space-between;gap:.5rem}.inlogem-stage-card--small strong{max-width:62%;overflow:hidden;font-size:.58rem;text-overflow:ellipsis;white-space:nowrap}.inlogem-stage-card--small b{font-size:.76rem}.inlogem-stage-note{position:relative;z-index:1;grid-column:1/-1;color:#45566f;font-size:.6rem;text-align:right}
+    .inlogem-assurance{display:grid;background:var(--inl-ink);color:#fff}.inlogem-assurance>div{position:relative;display:grid;min-height:10rem;align-content:center;gap:.35rem;padding:2rem clamp(1.25rem,5vw,4rem)}.inlogem-assurance>div+div{border-top:1px solid rgb(255 255 255/12%)}.inlogem-assurance span{position:absolute;top:1.3rem;right:1.5rem;color:rgb(255 255 255/24%);font-size:.72rem}.inlogem-assurance strong{font-family:'Poppins',sans-serif;font-size:1.25rem;letter-spacing:-.03em}.inlogem-assurance p{max-width:24rem;color:rgb(255 255 255/64%);font-size:.76rem;line-height:1.55}
+    .inlogem-section{max-width:1440px;margin-inline:auto;padding:clamp(4.5rem,8vw,8rem) clamp(1.25rem,4vw,3.5rem)}.inlogem-section-heading{display:flex;align-items:end;justify-content:space-between;gap:2rem;margin-bottom:2.5rem}.inlogem-section-heading h2{max-width:50rem;margin-top:.8rem;font-size:clamp(2.4rem,4.5vw,4.8rem);line-height:.98}.inlogem-section-heading>a{flex:0 0 auto;color:var(--inl-blue);font-size:.78rem;font-weight:750;text-decoration:underline;text-underline-offset:4px}.inlogem-section-heading>p{max-width:26rem;color:var(--inl-muted);font-size:.82rem;line-height:1.65}
+    .inlogem-categories ul{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem}.inlogem-categories li a{position:relative;display:grid;min-height:15rem;grid-template-columns:minmax(0,1fr) minmax(8rem,.75fr);align-items:center;overflow:hidden;border:1px solid var(--inl-line);border-radius:1.35rem;background:#fff;padding:1.2rem;transition:border 160ms ease,transform 160ms ease,box-shadow 160ms ease}.inlogem-categories li a:hover{transform:translateY(-2px);border-color:#aebed2;box-shadow:0 20px 50px rgb(11 22 51/8%)}.inlogem-category-card__number{position:absolute;top:1rem;left:1rem;color:#52627a;font-size:.62rem;font-weight:750}.inlogem-category-card__image{grid-column:2;height:11rem;border-radius:1rem;background:transparent;padding:1rem}.inlogem-category-card__image img{width:100%;height:100%;object-fit:contain}.inlogem-category-card__label{display:grid;align-self:end;gap:.25rem}.inlogem-category-card__label strong{font-family:'Poppins',sans-serif;font-size:1.35rem;letter-spacing:-.04em}.inlogem-category-card__label small{color:var(--inl-muted);font-size:.64rem}.inlogem-category-card__arrow{position:absolute;right:1rem;bottom:1rem;color:var(--inl-blue)}
+    .inlogem-featured{border-top:1px solid var(--inl-line)}.inlogem-featured>ul{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.8rem}.inlogem-product-card{display:flex;min-width:0;flex-direction:column;overflow:hidden;border:1px solid var(--inl-line);border-radius:.9rem;background:#fff;transition:border-color 160ms ease,box-shadow 160ms ease}.inlogem-product-card:hover{border-color:#aebed2;box-shadow:0 12px 30px rgb(11 22 51/7%)}.inlogem-product-card__link{display:flex;flex:1;min-width:0;flex-direction:column}.inlogem-product-card__media{display:grid;height:10rem;min-height:0;place-items:center;overflow:hidden;background:transparent;padding:.85rem .85rem .25rem}.inlogem-product-card__media img{width:100%;height:100%;min-height:0;max-height:100%;object-fit:contain;transition:transform 180ms ease}.inlogem-product-card:hover .inlogem-product-card__media img{transform:scale(1.018)}.inlogem-product-card__body{display:block;min-width:0;padding:.65rem .75rem .15rem}.inlogem-product-card__body>span{display:block;overflow:hidden;color:#52627a;font-size:.625rem;font-weight:750;letter-spacing:.045em;text-overflow:ellipsis;text-transform:uppercase;white-space:nowrap}.inlogem-product-card h3{display:-webkit-box;min-height:2.45rem;overflow:hidden;margin-top:.35rem;font-family:inherit;font-size:.75rem;line-height:1.4;letter-spacing:0;-webkit-box-orient:vertical;-webkit-line-clamp:2}.inlogem-product-card__footer{display:flex;align-items:end;justify-content:space-between;gap:.55rem;margin-top:auto;padding:.55rem .75rem .75rem}.inlogem-product-card__price{display:grid;min-width:0;gap:0}.inlogem-product-card__price strong{font-size:1rem;letter-spacing:-.025em}.inlogem-product-card__price small{overflow:hidden;color:var(--inl-muted);font-size:.625rem;text-overflow:ellipsis;white-space:nowrap}.inlogem-product-card button{min-height:2.5rem;flex:0 0 auto;border-radius:.55rem;background:var(--inl-blue);padding:.5rem .7rem;color:#fff;font-size:.68rem;font-weight:800}.inlogem-product-card button:hover{background:var(--inl-blue-dark)}
+    .inlogem-experience{display:grid;background:var(--inl-ink);color:#fff}.inlogem-experience>div{padding:clamp(4rem,8vw,7rem) clamp(1.25rem,6vw,6rem)}.inlogem-experience__copy .inlogem-kicker{color:#9fc0ff}.inlogem-experience__copy h2{max-width:42rem;margin-top:.9rem;font-size:clamp(2.6rem,5vw,5rem);line-height:.96}.inlogem-experience__copy>p:not(.inlogem-kicker){max-width:38rem;margin-top:1.6rem;color:rgb(255 255 255/78%);line-height:1.7}.inlogem-experience__copy ul{display:grid;gap:.75rem;margin-block:2rem;color:rgb(255 255 255/85%);font-size:.82rem}.inlogem-experience__copy li{display:flex;gap:.65rem}.inlogem-experience__copy li span{color:var(--inl-sky);font-weight:900}.inlogem-experience__future{background:var(--inl-blue)}.inlogem-experience__label{display:inline-flex;border-radius:999px;background:rgb(11 22 51/32%);padding:.45rem .7rem;font-size:.58rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase}.inlogem-experience__future h3{max-width:38rem;margin-top:1.5rem;font-size:clamp(2.2rem,4vw,4.1rem);line-height:1}.inlogem-experience__future>p{max-width:36rem;margin-top:1.4rem;color:#fff;line-height:1.7}.inlogem-future-card{display:grid;gap:.45rem 1.5rem;margin-top:2.4rem;border:1px solid rgb(255 255 255/32%);border-radius:1.25rem;background:rgb(11 22 51/18%);padding:1.4rem}.inlogem-future-card span{color:#fff;font-size:.7rem}.inlogem-future-card strong{font-size:.78rem}
+    .inlogem-manager-preview{display:grid;max-width:1320px;gap:clamp(2.5rem,7vw,6rem);align-items:center;margin-inline:auto;padding:clamp(4.5rem,8vw,8rem) clamp(1.25rem,4vw,3.5rem)}.inlogem-manager-preview h2{margin-top:.9rem;font-size:clamp(2.4rem,4.3vw,4.5rem);line-height:.98}.inlogem-manager-preview__copy>p:not(.inlogem-kicker){max-width:38rem;margin-top:1.4rem;color:var(--inl-muted);line-height:1.7}.inlogem-manager-preview__copy>a{display:inline-block;margin-top:1.5rem;color:var(--inl-blue);font-size:.8rem;font-weight:750;text-decoration:underline;text-underline-offset:4px}.inlogem-manager-card{overflow:hidden;border:1px solid var(--inl-line);border-radius:1.5rem;background:#fff;box-shadow:0 28px 70px rgb(11 22 51/10%)}.inlogem-manager-card__top{display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--inl-line);padding:1rem 1.25rem}.inlogem-manager-card__top>span{border-radius:999px;background:#e7eeff;padding:.4rem .65rem;color:var(--inl-blue-dark);font-size:.58rem;font-weight:800}.inlogem-manager-card__stats{display:grid;grid-template-columns:repeat(3,1fr);background:#f7f9fc}.inlogem-manager-card__stats span{display:grid;gap:.3rem;border-bottom:1px solid var(--inl-line);padding:1.25rem}.inlogem-manager-card__stats span+span{border-left:1px solid var(--inl-line)}.inlogem-manager-card__stats small{color:var(--inl-muted);font-size:.6rem}.inlogem-manager-card__stats strong{font-size:1.5rem}.inlogem-manager-card__order{display:grid;grid-template-columns:1fr auto auto;align-items:center;gap:1rem;padding:1.25rem;font-size:.72rem}.inlogem-manager-card__order>span:first-child{display:grid;gap:.2rem}.inlogem-manager-card__order small{color:var(--inl-muted)}.inlogem-manager-card__order>span:nth-child(2){border-radius:999px;background:#edf3fb;padding:.35rem .55rem}
+    .inlogem-contact{display:grid;gap:clamp(2.5rem,6vw,5rem);border-top:1px solid var(--inl-line);background:#fff;padding:clamp(4.5rem,8vw,8rem) max(clamp(1.25rem,6vw,6rem),calc((100vw - 1320px)/2))}.inlogem-contact h2{max-width:38rem;margin-top:.9rem;font-size:clamp(2.6rem,4.5vw,4.8rem);line-height:.98}.inlogem-contact>div:first-child>p:last-child{max-width:38rem;margin-top:1.4rem;color:var(--inl-muted);line-height:1.7}.inlogem-contact__form{border-radius:1.5rem;background:#f2f5f9;padding:clamp(1.25rem,3vw,2rem)}.inlogem-home-footer{display:flex;align-items:center;gap:1.5rem;background:var(--inl-ink);padding:2rem clamp(1.25rem,4vw,3.5rem);color:rgb(255 255 255/62%);font-size:.72rem}.inlogem-home-footer p{margin-left:auto}.inlogem-home-footer a{color:#fff;text-decoration:underline;text-underline-offset:4px}
+    @media(min-width:720px){.inlogem-hero-categories{grid-auto-flow:row;grid-template-columns:repeat(6,minmax(0,1fr));overflow:visible;padding-bottom:0}.inlogem-assurance{grid-template-columns:repeat(3,1fr)}.inlogem-assurance>div+div{border-top:0;border-left:1px solid rgb(255 255 255/12%)}.inlogem-featured>ul{grid-template-columns:repeat(4,minmax(0,1fr))}.inlogem-experience{grid-template-columns:1fr 1fr}.inlogem-future-card{grid-template-columns:.7fr 1.3fr}.inlogem-contact{grid-template-columns:.85fr 1.15fr;align-items:start}}
+    @media(min-width:960px){.inlogem-hero{grid-template-columns:minmax(0,.95fr) minmax(32rem,1.05fr)}.inlogem-categories ul{grid-template-columns:repeat(4,minmax(0,1fr))}.inlogem-categories li a{min-height:20rem;grid-template-columns:1fr;grid-template-rows:1fr auto}.inlogem-category-card__image{grid-column:1;grid-row:1;height:13rem}.inlogem-manager-preview{grid-template-columns:1fr 1fr}}
+    @media(max-width:719px){.inlogem-search{grid-template-columns:auto minmax(0,1fr)}.inlogem-search button{grid-column:1/-1}.inlogem-hero__facts{justify-content:space-between;gap:1rem}.inlogem-product-stage{min-height:31rem;grid-template-columns:minmax(0,1.2fr) minmax(6.8rem,.8fr)}.inlogem-stage-card--hero{min-height:22rem;padding-inline:.6rem}.inlogem-stage-card--small{min-height:9.5rem;padding:.5rem .5rem 2.8rem}.inlogem-stage-card__info{right:.7rem;bottom:.8rem;left:.7rem;display:grid}.inlogem-stage-card__info strong{max-width:none;font-size:.66rem}.inlogem-section-heading{align-items:flex-start;flex-direction:column}.inlogem-categories li a{min-height:13rem;grid-template-columns:1fr;grid-template-rows:1fr auto}.inlogem-category-card__image{grid-column:1;grid-row:1;height:8rem;padding:.6rem}.inlogem-category-card__label strong{font-size:1rem}.inlogem-product-card__media{height:8.2rem;padding:.6rem .55rem .1rem}.inlogem-product-card__body{padding:.55rem .6rem .1rem}.inlogem-product-card h3{min-height:2.25rem;font-size:.75rem}.inlogem-product-card__footer{gap:.35rem;padding:.5rem .6rem .65rem}.inlogem-product-card__price strong{font-size:.95rem}.inlogem-product-card__price small{font-size:.625rem}.inlogem-product-card button{min-height:2.5rem;padding:.45rem .55rem;font-size:.66rem}.inlogem-manager-card__order{grid-template-columns:1fr auto}.inlogem-manager-card__order b{grid-column:1/-1}.inlogem-home-footer{align-items:flex-start;flex-direction:column}.inlogem-home-footer p{margin-left:0}}
+    @media(prefers-reduced-motion:reduce){.inlogem-home *,.inlogem-home :before,.inlogem-home :after{scroll-behavior:auto!important;transition-duration:.01ms!important}}
+  </style>
   <CloudflarePageview />
 </Base>

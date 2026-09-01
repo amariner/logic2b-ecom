@@ -1,12 +1,11 @@
 ---
-interface Props { class?: string; compact?: boolean }
-const { class: className = '', compact = false } = Astro.props;
+interface Props { class?: string; compact?: boolean; inverse?: boolean }
+const { class: className = '', compact = false, inverse = false } = Astro.props;
 ---
-<span class:list={['inline-flex items-center gap-3', className]} aria-label="Inlogem">
-  <svg viewBox="0 0 48 48" class="size-10 shrink-0" aria-hidden="true">
-    <circle cx="24" cy="24" r="22" fill="#155EEF" />
-    <path d="M16 12h7v7h-7zm0 11h7v17h-7zm11-11h7v28h-7z" fill="white" />
-    <circle cx="34" cy="12" r="4" fill="#42BDEB" />
-  </svg>
-  {!compact && <span class="text-xl font-semibold tracking-[.28em] text-[#0B1633]">INLOGEM</span>}
+<span class:list={['inline-flex items-center gap-3', className]} aria-label="Inlogem, papelería y tecnología">
+  <img src="/images/proposals/inlogem/brand-mark.svg" alt="" width="48" height="48" class="size-10 shrink-0" aria-hidden="true" />
+  {!compact && <span class="grid gap-0.5">
+    <span class:list={['text-xl font-semibold leading-none tracking-[.28em]', inverse ? 'text-white' : 'text-[#0B1633]']}>INLOGEM</span>
+    <small class:list={['text-[9px] font-medium tracking-[.03em]', inverse ? 'text-white/70' : 'text-[#52627A]']}>Papelería y tecnología</small>
+  </span>}
 </span>

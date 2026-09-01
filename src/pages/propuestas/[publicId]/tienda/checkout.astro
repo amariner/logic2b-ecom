@@ -8,4 +8,14 @@ const proposal = await proposalForPage({ publicId: Astro.params.publicId, header
 if (proposal instanceof Response) return proposal;
 ---
 
-<CheckoutPage collection={proposal.collection} experience={inlogemStoreExperience} heading="Finalizar pedido de demostración" />
+<CheckoutPage collection={proposal.collection} experience={inlogemStoreExperience}>
+  <Fragment slot="heading">
+    <p class="text-xs font-bold uppercase tracking-[.17em] text-brand">Paso 2 de 3</p>
+    <h1 class="mt-2 font-display text-4xl leading-none tracking-[-.055em] text-foreground sm:text-6xl">Datos de entrega</h1>
+  </Fragment>
+  <Fragment slot="intro">
+    <p class="mt-3 max-w-2xl text-sm leading-6 text-muted-foreground">Usa datos de ejemplo para recorrer la confirmación. Todo se queda en este navegador: no se crea el pedido, no se envía información y no se solicita una tarjeta.</p>
+  </Fragment>
+  <Fragment slot="submit-label">Simular pedido</Fragment>
+  <Fragment slot="footnote"><p class="text-center text-xs leading-5 text-muted-foreground">En una implantación real, el pago continuaría en la pasarela acordada sin que la tarjeta pase por la tienda.</p></Fragment>
+</CheckoutPage>

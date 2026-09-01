@@ -9,7 +9,7 @@ const categoryLabels: Readonly<Record<string, string>> = {
   'inl-mobiliario': 'Mobiliario',
   'inl-embalaje': 'Embalaje',
   'inl-escolar': 'Escolar',
-  'inl-servicios': 'Servicios generales',
+  'inl-servicios': 'Higiene y consumo',
 };
 
 export const inlogemCatalog = Object.freeze(
@@ -19,7 +19,7 @@ export const inlogemCatalog = Object.freeze(
   })),
 );
 
-export function inlogemCatalogItem(slug: string): ProposalCatalogItem | null {
+export function inlogemCatalogItem(slug: string): (typeof inlogemCatalog)[number] | null {
   return inlogemCatalog.find((item) => item.slug === slug) ?? null;
 }
 

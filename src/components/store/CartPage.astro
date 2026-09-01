@@ -63,7 +63,7 @@ const demoCommerceJson = demoJson({
           />
           <button type="button" data-apply-cp class="rounded-btn border border-border bg-card px-5 py-2 text-sm font-medium transition hover:border-foreground">Calcular envío</button>
         </div>
-        <p data-cp-feedback class="mt-2 hidden text-sm"></p>
+        <p data-cp-feedback role="status" aria-live="polite" class="mt-2 hidden text-sm"></p>
 
         <dl class="mt-5 space-y-2 border-t border-border pt-4 text-sm">
           <div class="flex justify-between"><dt class="text-muted-foreground">Subtotal</dt><dd data-subtotal class="font-medium"></dd></div>
@@ -140,7 +140,7 @@ const demoCommerceJson = demoJson({
       list.innerHTML = '';
       for (const line of quote.lines) {
         const li = document.createElement('li');
-        li.className = 'flex items-center gap-4 py-4';
+        li.className = 'grid grid-cols-[4rem_minmax(0,1fr)_4rem_auto] items-center gap-x-3 gap-y-2 py-4 sm:grid-cols-[4rem_minmax(0,1fr)_4rem_5rem_auto]';
         const bad = line.status !== 'ok';
 
         const img = document.createElement('img');
@@ -148,10 +148,10 @@ const demoCommerceJson = demoJson({
         img.alt = '';
         img.width = 64;
         img.height = 64;
-        img.className = 'h-16 w-16 rounded-xl bg-muted object-cover';
+        img.className = 'row-span-2 h-16 w-16 rounded-xl bg-muted object-contain p-1 sm:row-span-1';
 
         const info = document.createElement('div');
-        info.className = 'flex-1';
+        info.className = 'col-span-3 min-w-0 sm:col-span-1';
         const nameEl = document.createElement('p');
         nameEl.className = `text-sm font-medium ${bad ? 'text-destructive line-through' : ''}`;
         nameEl.textContent = line.name;
@@ -168,11 +168,11 @@ const demoCommerceJson = demoJson({
         qtyInput.step = '1';
         qtyInput.value = String(line.qty);
         qtyInput.dataset.qty = line.slug;
-        qtyInput.className = 'w-16 rounded-btn border border-border px-2 py-1 text-sm';
+        qtyInput.className = 'col-start-2 min-h-11 w-16 rounded-btn border border-border px-2 py-1 text-sm sm:col-start-auto';
         qtyInput.setAttribute('aria-label', `Cantidad de ${line.name}`);
 
         const totalEl = document.createElement('p');
-        totalEl.className = 'w-20 text-right text-sm font-medium';
+        totalEl.className = 'text-right text-sm font-medium sm:w-20';
         totalEl.textContent = bad ? '—' : eur(line.line_total_cents);
 
         const removeBtn = document.createElement('button');
@@ -180,7 +180,7 @@ const demoCommerceJson = demoJson({
         removeBtn.dataset.remove = line.slug;
         removeBtn.setAttribute('aria-label', `Eliminar ${line.name}`);
         // -m-2 p-2: agranda el área táctil a ≥24px (WCAG 2.5.8) sin mover el layout.
-        removeBtn.className = '-m-2 p-2 text-muted-foreground hover:text-destructive';
+        removeBtn.className = 'grid min-h-11 min-w-11 place-items-center text-muted-foreground hover:text-destructive';
         removeBtn.textContent = '✕';
 
         li.appendChild(img);

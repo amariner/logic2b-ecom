@@ -244,6 +244,7 @@ for (const [name, url, vp, storage] of [
   ['proposal:inlogem:landing@375', INLOGEM_PROPOSAL, MOBILE],
   ['proposal:inlogem:catalogo', `${INLOGEM_PROPOSAL}/tienda`, DESKTOP],
   ['proposal:inlogem:catalogo@375', `${INLOGEM_PROPOSAL}/tienda`, MOBILE],
+  ['proposal:inlogem:catalogo-filtros@375', `${INLOGEM_PROPOSAL}/tienda?q=ink-jet&categoria=inl-tecnologia&marca=HP&orden=price-desc`, MOBILE],
   ['proposal:inlogem:ficha', `${INLOGEM_PROPOSAL}/tienda/inl-92385-boligrafo-bic-cristal-original-tinta-azul-unidad`, DESKTOP],
   ['proposal:inlogem:ficha@375', `${INLOGEM_PROPOSAL}/tienda/inl-92385-boligrafo-bic-cristal-original-tinta-azul-unidad`, MOBILE],
   ['proposal:inlogem:carrito', `${INLOGEM_PROPOSAL}/tienda/carrito`, DESKTOP, inlogemCart],
@@ -257,7 +258,15 @@ for (const [name, url, vp, storage] of [
   ['proposal:inlogem:pedido', `${INLOGEM_PROPOSAL}/gestor/pedidos/INL-DEMO-1200`, DESKTOP],
   ['proposal:inlogem:emails@375', `${INLOGEM_PROPOSAL}/gestor/emails`, MOBILE],
 ]) {
-  SURFACES.push({ name, url, vp, ...(storage ? { storage } : {}) });
+  SURFACES.push({
+    name,
+    url,
+    vp,
+    ...(storage ? { storage } : {}),
+    ...(name === 'proposal:inlogem:catalogo-filtros@375'
+      ? { eval: "document.querySelector('.inlogem-mobile-filters').open = true; 'open'", expect: 'open' }
+      : {}),
+  });
 }
 
 for (const p of ADMIN_PAGES) {

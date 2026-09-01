@@ -193,7 +193,7 @@ const jsonLd = {
     </p>
   </noscript>
 
-  <script type="application/ld+json" set:html={jsonLdScript(jsonLd)} is:inline />
+  {!experience && <script type="application/ld+json" set:html={jsonLdScript(jsonLd)} is:inline />}
 
   <script>
     import { addToCart } from '../../lib/cart-client';

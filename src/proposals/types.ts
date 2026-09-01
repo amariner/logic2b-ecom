@@ -66,6 +66,11 @@ export type StoreExperienceConfig = Readonly<{
   paths: ProposalPaths;
   proposalHomeHref: string;
   managerHref: string;
+  brand?: Readonly<{
+    markSrc: string;
+    wordmark: string;
+    descriptor: string;
+  }>;
   themeVars: DemoThemeVars;
   shipping: DemoShippingConfig;
   legal: Readonly<{ shippingNote: string; returnsNote: string }>;

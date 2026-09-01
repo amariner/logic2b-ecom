@@ -8,4 +8,17 @@ const proposal = await proposalForPage({ publicId: Astro.params.publicId, header
 if (proposal instanceof Response) return proposal;
 ---
 
-<CartPage collection={proposal.collection} experience={inlogemStoreExperience} heading="Tu pedido para la oficina" />
+<CartPage collection={proposal.collection} experience={inlogemStoreExperience}>
+  <Fragment slot="heading">
+    <p class="text-xs font-bold uppercase tracking-[.17em] text-brand">Tu compra</p>
+    <h1 class="mt-2 font-display text-4xl leading-none tracking-[-.055em] text-foreground sm:text-6xl">Tu carrito</h1>
+    <p class="mt-3 max-w-2xl text-sm leading-6 text-muted-foreground">Revisa los productos, ajusta cantidades y calcula un envío de demostración con tu código postal.</p>
+  </Fragment>
+  <Fragment slot="empty">
+    <div class="mx-auto grid size-14 place-items-center rounded-full bg-[#E7EEFF] text-[#155EEF]" aria-hidden="true">
+      <svg viewBox="0 0 24 24" class="size-6" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 3h1.4a1 1 0 0 1 1 .8l.3 1.5m0 0 1.5 7.2a2 2 0 0 0 2 1.6h7.9a2 2 0 0 0 2-1.5l1.2-5.1H5.7Z"/></svg>
+    </div>
+    <h2 class="mt-4 font-display text-2xl text-foreground">Tu carrito está esperando.</h2>
+    <p class="mt-2">Explora el catálogo y añade lo que necesites.</p>
+  </Fragment>
+</CartPage>

@@ -9,8 +9,8 @@ export const inlogemCollection: CollectionConfig = Object.freeze({
   id: 'proposal-inlogem',
   themeId: 'base',
   name: 'INLOGEM',
-  tagline: 'Todo lo que tu empresa necesita, más fácil',
-  description: 'Papelería, tecnología, mobiliario y suministros de oficina en una experiencia B2B clara y rápida.',
+  tagline: 'Todo para trabajar, estudiar y crear, más fácil',
+  description: 'Papelería, tecnología, mobiliario y esenciales para el día a día en una tienda abierta, clara y rápida.',
   categories: [
     { id: 'inl-escritura', label: 'Escritura' },
     { id: 'inl-papel', label: 'Papel' },
@@ -19,14 +19,14 @@ export const inlogemCollection: CollectionConfig = Object.freeze({
     { id: 'inl-mobiliario', label: 'Mobiliario' },
     { id: 'inl-embalaje', label: 'Embalaje' },
     { id: 'inl-escolar', label: 'Escolar' },
-    { id: 'inl-servicios', label: 'Servicios generales' },
+    { id: 'inl-servicios', label: 'Higiene y consumo' },
   ],
 });
 
 export const inlogemProposal: ProposalConfig = Object.freeze({
   id: 'inlogem',
   publicId: INLOGEM_PUBLIC_ID,
-  status: 'draft',
+  status: 'active',
   expiresAt: null,
   company: {
     name: 'Inlogem',
@@ -41,7 +41,7 @@ export const inlogemProposal: ProposalConfig = Object.freeze({
       '--color-brand': '#155EEF',
       '--color-brand-dark': '#0B3FB3',
       '--color-brand-fg': '#ffffff',
-      '--font-display': "'Space Grotesk', Inter, ui-sans-serif, system-ui, sans-serif",
+      '--font-display': "'Poppins', 'Poppins Fallback', Inter, ui-sans-serif, system-ui, sans-serif",
       '--font-accent': "Inter, ui-sans-serif, system-ui, sans-serif",
       '--tracking-display': '-0.045em',
       '--weight-display': '600',
@@ -69,6 +69,11 @@ export const inlogemStoreExperience: StoreExperienceConfig = Object.freeze({
   paths,
   proposalHomeHref: paths.home,
   managerHref: paths.manager,
+  brand: {
+    markSrc: '/images/proposals/inlogem/brand-mark.svg',
+    wordmark: 'INLOGEM',
+    descriptor: 'Papelería y tecnología',
+  },
   themeVars: inlogemProposal.visual.themeVars,
   shipping: inlogemProposal.demoShipping,
   legal: {

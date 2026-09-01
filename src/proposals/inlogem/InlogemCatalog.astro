@@ -3,14 +3,19 @@ import Shop from '../../layouts/Shop.astro';
 import { formatEurCents } from '../../lib/format';
 import type { ProposalConfig, StoreExperienceConfig } from '../types';
 import { inlogemBrands, inlogemCatalog } from './catalog';
+import InlogemCatalogFilters from './InlogemCatalogFilters.astro';
 
 interface Props { proposal: ProposalConfig; experience: StoreExperienceConfig; url: URL }
 const { proposal, experience, url } = Astro.props;
 const q = (url.searchParams.get('q') ?? '').trim().slice(0, 80);
-const category = url.searchParams.get('categoria') ?? '';
-const brand = url.searchParams.get('marca') ?? '';
-const availability = url.searchParams.get('disponibilidad') ?? '';
-const order = url.searchParams.get('orden') ?? 'featured';
+const requestedCategory = url.searchParams.get('categoria') ?? '';
+const requestedBrand = url.searchParams.get('marca') ?? '';
+const hasUnavailable = inlogemCatalog.some((item) => item.stockSnapshot <= 0);
+const category = proposal.collection.categories.some((item) => item.id === requestedCategory) ? requestedCategory : '';
+const brand = inlogemBrands.includes(requestedBrand) ? requestedBrand : '';
+const availability = hasUnavailable && url.searchParams.get('disponibilidad') === 'available' ? 'available' : '';
+const requestedOrder = url.searchParams.get('orden') ?? 'featured';
+const order = ['featured', 'price-asc', 'price-desc', 'name'].includes(requestedOrder) ? requestedOrder : 'featured';
 const normalizedQ = q.toLocaleLowerCase('es');
 let products = inlogemCatalog.filter((item) => {
   if (category && item.category !== category) return false;
@@ -25,49 +30,144 @@ products = products.toSorted((a, b) => {
   if (order === 'name') return a.name.localeCompare(b.name, 'es');
   return a.category.localeCompare(b.category, 'es') || a.name.localeCompare(b.name, 'es');
 });
-const linkForCategory = (id: string) => {
-  const params = new URLSearchParams(url.searchParams);
-  id ? params.set('categoria', id) : params.delete('categoria');
-  return `${proposal.paths.catalog}${params.size ? `?${params}` : ''}`;
-};
+const activeCategory = proposal.collection.categories.find((item) => item.id === category);
+const heroItems = ['28233', '92385', '160142']
+  .map((code) => inlogemCatalog.find((item) => item.sourceCode === code))
+  .filter((item) => item !== undefined);
+const categoryCounts = Object.fromEntries(proposal.collection.categories.map((item) => [
+  item.id,
+  inlogemCatalog.filter((product) => product.category === item.id).length,
+]));
+const activeFilterCount = [category, brand, availability, order !== 'featured' ? order : ''].filter(Boolean).length;
+const catalogResultsAction = `${proposal.paths.catalog}#productos`;
 ---
-<Shop title="Tienda" description={proposal.collection.description} collection={proposal.collection} experience={experience}>
-  <main class="bg-[#F7F8FA] text-[#0B1633]">
-    <section class="border-b border-[#D6DFEB] bg-white px-4 py-10 sm:px-7 lg:px-10 lg:py-14">
-      <div class="mx-auto max-w-[1360px]"><p class="text-xs font-semibold uppercase tracking-[.18em] text-[#155EEF]">Suministros para empresa</p><div class="mt-3 flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between"><div><h1 class="font-display text-4xl font-semibold tracking-[-.055em] sm:text-6xl">Encuentra. Añade. Sigue.</h1><p class="mt-3 max-w-2xl text-[#596980]">72 referencias reales organizadas para comprar con menos pasos. Todos los importes son precios ficticios de demostración con IVA incluido.</p></div><a href={proposal.paths.cart} class="inline-flex rounded-lg border border-[#B8C5D5] px-5 py-3 text-sm font-semibold hover:border-[#0B1633]">Revisar carrito</a></div></div>
-    </section>
-    <section class="sticky top-0 z-30 border-b border-[#D6DFEB] bg-[#F7F8FA]/95 px-4 py-4 backdrop-blur sm:px-7 lg:px-10">
-      <div class="mx-auto max-w-[1360px]">
-        <nav aria-label="Familias" class="-mx-4 flex gap-2 overflow-x-auto px-4 pb-2 lg:mx-0 lg:px-0"><a href={linkForCategory('')} aria-current={!category ? 'page' : undefined} class:list={['shrink-0 rounded-lg px-3 py-2 text-xs font-semibold', !category ? 'bg-[#0B1633] text-white' : 'border border-[#C7D1DF] bg-white']}>Todo</a>{proposal.collection.categories.map((item) => <a href={linkForCategory(item.id)} aria-current={category === item.id ? 'page' : undefined} class:list={['shrink-0 rounded-lg px-3 py-2 text-xs font-semibold', category === item.id ? 'bg-[#0B1633] text-white' : 'border border-[#C7D1DF] bg-white']}>{item.label}</a>)}</nav>
-        <form method="get" action={proposal.paths.catalog} class="mt-3 grid gap-2 sm:grid-cols-[minmax(14rem,1fr)_minmax(10rem,.35fr)_auto_auto]">
-          {category && <input type="hidden" name="categoria" value={category} />}
-          <label class="sr-only" for="proposal-search">Buscar</label><input id="proposal-search" name="q" value={q} type="search" placeholder="Buscar nombre, código o referencia" class="min-h-11 rounded-lg border border-[#B8C5D5] bg-white px-4 text-sm" />
-          <label class="sr-only" for="proposal-brand">Marca</label><select id="proposal-brand" name="marca" class="min-h-11 rounded-lg border border-[#B8C5D5] bg-white px-3 text-sm"><option value="">Todas las marcas</option>{inlogemBrands.map((item) => <option value={item} selected={item === brand}>{item}</option>)}</select>
-          <label class="sr-only" for="proposal-order">Orden</label><select id="proposal-order" name="orden" class="min-h-11 rounded-lg border border-[#B8C5D5] bg-white px-3 text-sm"><option value="featured">Destacados</option><option value="price-asc" selected={order === 'price-asc'}>Precio ↑</option><option value="price-desc" selected={order === 'price-desc'}>Precio ↓</option><option value="name" selected={order === 'name'}>Nombre</option></select>
-          <button class="min-h-11 rounded-lg bg-[#155EEF] px-5 text-sm font-semibold text-white hover:bg-[#0B3FB3]">Aplicar</button>
-        </form>
+
+<Shop title="Productos" description={proposal.collection.description} collection={proposal.collection} experience={experience}>
+  <main class="inlogem-catalog" data-proposal-catalog>
+    <section class="inlogem-catalog-hero">
+      <div>
+        <p class="inlogem-catalog-kicker">Tienda online</p>
+        <h1>Todo lo que necesitas, <span>más fácil.</span></h1>
+        <p>Explora 72 referencias reales de papelería, tecnología, mobiliario y más. Precios de demostración con IVA incluido.</p>
+        <a href="#productos">Ver productos <span aria-hidden="true">↓</span></a>
+      </div>
+      <div class="inlogem-catalog-hero__products" aria-hidden="true">
+        {heroItems.map((item, index) => (
+          <span style={`--product-index:${index}`}><img src={item.image} alt="" width="1000" height="762" loading={index === 0 ? 'eager' : 'lazy'} /></span>
+        ))}
+        <strong>72</strong><small>productos</small>
       </div>
     </section>
-    <section class="mx-auto max-w-[1360px] px-4 py-8 sm:px-7 lg:px-10">
-      <div class="flex items-center justify-between gap-4"><p class="text-sm text-[#5C6B81]"><strong class="text-[#0B1633]">{products.length}</strong> productos</p>{(q || brand || category) && <a href={proposal.paths.catalog} class="text-sm font-semibold text-[#155EEF] underline underline-offset-4">Limpiar filtros</a>}</div>
-      <ul class="mt-6 grid grid-cols-2 gap-x-3 gap-y-7 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
-        {products.map((item, index) => <li class="group flex min-w-0 flex-col rounded-2xl border border-[#D8E0EA] bg-white p-3 transition hover:-translate-y-0.5 hover:shadow-[0_14px_40px_rgba(11,22,51,.09)]">
-          <a href={proposal.paths.product(item.slug)} class="block"><div class="overflow-hidden rounded-xl bg-[#F2F5F9]"><img src={item.image} alt={item.name} width="1000" height="762" loading={index < 5 ? 'eager' : 'lazy'} class="aspect-square w-full object-contain p-3 transition duration-300 group-hover:scale-[1.025]" /></div><p class="mt-3 truncate text-[10px] font-semibold uppercase tracking-[.1em] text-[#65738A]">{item.brand} · {item.sourceReference}</p><h2 class="mt-1 line-clamp-3 min-h-[3.75rem] text-sm font-semibold leading-5">{item.name}</h2></a>
-          <div class="mt-auto pt-3"><p class="text-lg font-semibold">{formatEurCents(item.demoPriceCents)}</p><p class="text-[10px] text-[#65738A]">IVA incl. · precio demo</p><div class="mt-3 grid grid-cols-[4rem_1fr] gap-2"><label class="sr-only" for={`qty-${item.sourceCode}`}>Cantidad de {item.name}</label><input id={`qty-${item.sourceCode}`} data-proposal-qty={item.slug} type="number" min="1" max="99" value="1" class="min-h-10 rounded-lg border border-[#C3CEDC] px-2 text-center text-sm" /><button type="button" data-proposal-add={item.slug} class="min-h-10 rounded-lg bg-[#155EEF] px-2 text-xs font-semibold text-white hover:bg-[#0B3FB3]">Añadir</button></div></div>
-        </li>)}
-      </ul>
-      {products.length === 0 && <div class="my-12 rounded-2xl border border-[#D8E0EA] bg-white px-6 py-16 text-center"><h2 class="text-2xl font-semibold">No encontramos esa referencia</h2><p class="mt-2 text-[#65738A]">Prueba con otra palabra, marca o familia.</p><a href={proposal.paths.catalog} class="mt-5 inline-block font-semibold text-[#155EEF] underline underline-offset-4">Ver todo el catálogo</a></div>}
+
+    <section id="productos" class="inlogem-catalog-products" aria-labelledby="inlogem-products-title">
+      <div class="inlogem-catalog-shell">
+        <aside class="inlogem-catalog-sidebar" aria-label="Filtros del catálogo">
+          <div class="inlogem-catalog-sidebar__heading"><p class="inlogem-catalog-kicker">Explorar</p><h2>Filtrar productos</h2></div>
+          <InlogemCatalogFilters
+            action={catalogResultsAction}
+            idPrefix="proposal-desktop"
+            categories={proposal.collection.categories}
+            categoryCounts={categoryCounts}
+            brands={inlogemBrands}
+            q={q}
+            category={category}
+            brand={brand}
+            availability={availability}
+            order={order}
+            showAvailability={hasUnavailable}
+          />
+        </aside>
+
+        <div class="inlogem-catalog-results">
+          <form id="buscar" action={catalogResultsAction} method="get" class="inlogem-catalog-search">
+            {category && <input type="hidden" name="categoria" value={category} />}
+            {brand && <input type="hidden" name="marca" value={brand} />}
+            {availability && <input type="hidden" name="disponibilidad" value={availability} />}
+            {order !== 'featured' && <input type="hidden" name="orden" value={order} />}
+            <label class="sr-only" for="proposal-search">Buscar productos</label>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="11" cy="11" r="6.5" /><path stroke-linecap="round" d="m16 16 4 4" /></svg>
+            <input id="proposal-search" name="q" value={q} type="search" placeholder="Buscar por nombre, marca, código o referencia" />
+            <button>Buscar</button>
+          </form>
+
+          <details class="inlogem-mobile-filters">
+            <summary><span>Filtrar y ordenar</span><b>{activeFilterCount > 0 ? `${activeFilterCount} ${activeFilterCount === 1 ? 'activo' : 'activos'}` : '+'}</b></summary>
+            <div>
+              <InlogemCatalogFilters
+                action={catalogResultsAction}
+                idPrefix="proposal-mobile"
+                categories={proposal.collection.categories}
+                categoryCounts={categoryCounts}
+                brands={inlogemBrands}
+                q={q}
+                category={category}
+                brand={brand}
+                availability={availability}
+                order={order}
+                showAvailability={hasUnavailable}
+              />
+            </div>
+          </details>
+
+          <div class="inlogem-results-heading">
+            <div><p class="inlogem-catalog-kicker">{activeCategory?.label ?? (q ? `Resultados para “${q}”` : 'Catálogo completo')}</p><h2 id="inlogem-products-title">{products.length} {products.length === 1 ? 'producto' : 'productos'}</h2></div>
+            {(q || brand || category || availability || order !== 'featured') && <a href={catalogResultsAction}>Limpiar todo ×</a>}
+          </div>
+
+          <ul class="inlogem-catalog-grid">
+            {products.map((item, index) => (
+              <li class="inlogem-catalog-card">
+                <a href={proposal.paths.product(item.slug)} class="inlogem-catalog-card__link">
+                  <span class="inlogem-catalog-card__media"><img src={item.image} alt="" width="1000" height="762" loading={index < 6 ? 'eager' : 'lazy'} /></span>
+                  <span class="inlogem-catalog-card__body">
+                    <span>{item.brand} · Ref. {item.sourceReference}</span>
+                    <h3>{item.name}</h3>
+                  </span>
+                </a>
+                <div class="inlogem-catalog-card__footer">
+                  <div class="inlogem-catalog-card__price"><strong>{formatEurCents(item.demoPriceCents)}</strong><small>IVA incl. · demo</small></div>
+                  <button type="button" data-proposal-add={item.slug} aria-label={`Añadir ${item.name} al carrito`}>Añadir</button>
+                </div>
+              </li>
+            ))}
+          </ul>
+
+          {products.length === 0 && <div class="inlogem-catalog-empty"><span aria-hidden="true">?</span><h2>No encontramos ese producto</h2><p>Prueba con otra palabra, marca o categoría.</p><a href={catalogResultsAction}>Ver todo el catálogo</a></div>}
+        </div>
+      </div>
     </section>
   </main>
+
+  <p class="inlogem-catalog-feedback" data-catalog-cart-feedback role="status" aria-live="polite" hidden>
+    Producto añadido al carrito. <a href={proposal.paths.cart}>Ver carrito</a>
+  </p>
+
+  <noscript><style is:inline>[data-proposal-add] { display: none !important; }</style></noscript>
   <script>
     import { addToCart } from '../../lib/cart-client';
+    const feedback = document.querySelector<HTMLElement>('[data-catalog-cart-feedback]');
     document.querySelectorAll<HTMLButtonElement>('[data-proposal-add]').forEach((button) => button.addEventListener('click', () => {
-      const slug = button.dataset.proposalAdd ?? '';
-      const quantity = document.querySelector<HTMLInputElement>(`[data-proposal-qty="${CSS.escape(slug)}"]`);
-      const qty = Math.max(1, Math.min(99, Math.floor(Number(quantity?.value ?? 1)) || 1));
-      addToCart(slug, qty);
+      addToCart(button.dataset.proposalAdd ?? '', 1);
       const previous = button.textContent; button.textContent = 'Añadido ✓';
+      feedback?.removeAttribute('hidden');
       setTimeout(() => { button.textContent = previous; }, 900);
+      setTimeout(() => { feedback?.setAttribute('hidden', ''); }, 2800);
     }));
   </script>
+
+  <style>
+    .inlogem-catalog{background:#f7f9fc;color:#0b1633}.inlogem-catalog-kicker{color:#155eef;font-size:.68rem;font-weight:800;letter-spacing:.17em;text-transform:uppercase}
+    .inlogem-catalog-hero{display:grid;max-width:1440px;gap:clamp(2rem,5vw,4.5rem);align-items:center;margin-inline:auto;padding:clamp(2.25rem,4vw,3.5rem) clamp(1rem,4vw,3rem)}.inlogem-catalog-hero h1{max-width:46rem;margin-top:.7rem;font-family:var(--font-display);font-size:clamp(2.8rem,4.5vw,4.7rem);line-height:.94;letter-spacing:-.055em}.inlogem-catalog-hero h1 span{color:#155eef}.inlogem-catalog-hero>div:first-child>p:not(.inlogem-catalog-kicker){max-width:40rem;margin-top:1rem;color:#52627a;font-size:clamp(.9rem,1.25vw,1.02rem);line-height:1.6}.inlogem-catalog-hero>div:first-child>a{display:inline-flex;margin-top:1rem;color:#155eef;font-size:.75rem;font-weight:750;text-decoration:underline;text-underline-offset:4px}
+    .inlogem-catalog-hero__products{position:relative;display:flex;min-height:14.5rem;align-items:end;justify-content:center;gap:.6rem;overflow:hidden;border-radius:1.35rem;background:#dce7f5;padding:2.2rem 1.2rem 1.1rem}.inlogem-catalog-hero__products:before{position:absolute;inset:0;background-image:linear-gradient(rgb(21 94 239/8%) 1px,transparent 1px),linear-gradient(90deg,rgb(21 94 239/8%) 1px,transparent 1px);background-size:32px 32px;content:''}.inlogem-catalog-hero__products>span{position:relative;z-index:1;width:30%;height:9.5rem;transform:translateY(calc(var(--product-index) * -.6rem));border:1px solid rgb(255 255 255/85%);border-radius:.8rem;background:#fff;padding:.6rem;box-shadow:0 12px 28px rgb(11 22 51/9%)}.inlogem-catalog-hero__products img{width:100%;height:100%;object-fit:contain}.inlogem-catalog-hero__products>strong{position:absolute;top:.85rem;left:1.1rem;color:#0b1633;font-size:1.6rem}.inlogem-catalog-hero__products>small{position:absolute;top:1.45rem;left:3.55rem;color:#52627a;font-size:.62rem}
+    .inlogem-catalog-products{scroll-margin-top:9rem;border-top:1px solid #d7e0ec;background:#fff;padding:clamp(1.5rem,4vw,3rem) clamp(1rem,4vw,3rem) clamp(4rem,8vw,7rem)}.inlogem-catalog-shell{display:grid;max-width:1380px;gap:2rem;margin-inline:auto}.inlogem-catalog-sidebar{display:none}.inlogem-catalog-sidebar__heading{margin-bottom:1.5rem}.inlogem-catalog-sidebar__heading h2{margin-top:.35rem;font-family:var(--font-display);font-size:1.25rem;letter-spacing:-.04em}.inlogem-catalog-results{min-width:0}.inlogem-catalog-search{scroll-margin-top:9rem;display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:.6rem;border:1px solid #7d8ca3;border-radius:.75rem;background:#fff;padding:.35rem}.inlogem-catalog-search svg{width:1.15rem;height:1.15rem;margin-left:.5rem;color:#52627a}.inlogem-catalog-search input{min-width:0;border:0;padding:.72rem .15rem;font-size:.82rem;outline:0}.inlogem-catalog-search button{min-height:2.65rem;border-radius:.58rem;background:#155eef;padding:.6rem 1rem;color:#fff;font-size:.7rem;font-weight:800}.inlogem-catalog-search button:hover{background:#0b3fb3}
+    .inlogem-mobile-filters{margin-top:.7rem;border:1px solid #d7e0ec;border-radius:.75rem;background:#f7f9fc}.inlogem-mobile-filters summary{display:flex;min-height:2.8rem;align-items:center;justify-content:space-between;gap:1rem;padding:.65rem .85rem;cursor:pointer;font-size:.7rem;font-weight:800}.inlogem-mobile-filters summary b{color:#155eef;font-size:.62rem}.inlogem-mobile-filters>div{border-top:1px solid #d7e0ec;padding:1rem}
+    .inlogem-results-heading{display:flex;align-items:end;justify-content:space-between;gap:1rem;margin:2rem 0 1.2rem}.inlogem-results-heading h2{margin-top:.3rem;font-family:var(--font-display);font-size:clamp(1.8rem,3vw,2.8rem);letter-spacing:-.045em}.inlogem-results-heading>a{flex:0 0 auto;color:#155eef;font-size:.68rem;font-weight:700;text-decoration:underline;text-underline-offset:3px}
+    .inlogem-catalog-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.75rem}.inlogem-catalog-card{display:flex;min-width:0;flex-direction:column;overflow:hidden;border:1px solid #d7e0ec;border-radius:.9rem;background:#fff;transition:border-color 160ms ease,box-shadow 160ms ease}.inlogem-catalog-card:hover{border-color:#aebed2;box-shadow:0 12px 30px rgb(11 22 51/7%)}.inlogem-catalog-card__link{display:flex;flex:1;min-width:0;flex-direction:column}.inlogem-catalog-card__media{display:grid;height:10rem;min-height:0;place-items:center;overflow:hidden;background:transparent;padding:.85rem .85rem .25rem}.inlogem-catalog-card__media img{width:100%;height:100%;min-height:0;max-height:100%;object-fit:contain;transition:transform 180ms ease}.inlogem-catalog-card:hover img{transform:scale(1.018)}.inlogem-catalog-card__body{display:block;min-width:0;padding:.65rem .75rem .15rem}.inlogem-catalog-card__body>span{display:block;overflow:hidden;color:#52627a;font-size:.625rem;font-weight:750;letter-spacing:.045em;text-overflow:ellipsis;text-transform:uppercase;white-space:nowrap}.inlogem-catalog-card h3{display:-webkit-box;min-height:2.45rem;overflow:hidden;margin-top:.35rem;font-family:inherit;font-size:.75rem;line-height:1.4;letter-spacing:0;-webkit-box-orient:vertical;-webkit-line-clamp:2}.inlogem-catalog-card__footer{display:flex;align-items:end;justify-content:space-between;gap:.55rem;margin-top:auto;padding:.55rem .75rem .75rem}.inlogem-catalog-card__price{display:grid;min-width:0;gap:0}.inlogem-catalog-card__price strong{font-size:1rem;letter-spacing:-.025em}.inlogem-catalog-card__price small{overflow:hidden;color:#52627a;font-size:.625rem;text-overflow:ellipsis;white-space:nowrap}.inlogem-catalog-card button{min-height:2.5rem;flex:0 0 auto;border-radius:.55rem;background:#155eef;padding:.5rem .7rem;color:#fff;font-size:.68rem;font-weight:800}.inlogem-catalog-card button:hover{background:#0b3fb3}
+    .inlogem-catalog-empty{margin:2rem auto;border:1px solid #d7e0ec;border-radius:1rem;background:#f7f9fc;padding:4rem 1.5rem;text-align:center}.inlogem-catalog-empty>span{display:grid;width:3rem;height:3rem;place-items:center;margin:0 auto 1rem;border-radius:999px;background:#dce7f5;color:#155eef;font-size:1.4rem;font-weight:800}.inlogem-catalog-empty h2{font-family:var(--font-display);font-size:1.8rem}.inlogem-catalog-empty p{margin-top:.4rem;color:#52627a}.inlogem-catalog-empty a{display:inline-block;margin-top:1.2rem;color:#155eef;font-size:.78rem;font-weight:750;text-decoration:underline;text-underline-offset:4px}
+    .inlogem-catalog-feedback{position:fixed;right:1rem;bottom:1rem;z-index:80;border:1px solid #d7e0ec;border-radius:.8rem;background:#fff;padding:.85rem 1rem;box-shadow:0 18px 55px rgb(11 22 51/18%);font-size:.76rem}.inlogem-catalog-feedback a{color:#155eef;font-weight:750;text-decoration:underline;text-underline-offset:3px}
+    @media(min-width:760px){.inlogem-catalog-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:.9rem}.inlogem-catalog-card__media{height:11.25rem}.inlogem-catalog-card__body{padding:.7rem .85rem .15rem}.inlogem-catalog-card__footer{padding:.6rem .85rem .85rem}.inlogem-catalog-card h3{font-size:.78rem}.inlogem-catalog-card button{padding-inline:.8rem}}
+    @media(min-width:1020px){.inlogem-catalog-hero{grid-template-columns:minmax(0,1.1fr) minmax(25rem,.9fr)}.inlogem-catalog-shell{grid-template-columns:14.5rem minmax(0,1fr);gap:2.2rem}.inlogem-catalog-sidebar{position:sticky;top:10.5rem;display:block;max-height:calc(100vh - 12rem);align-self:start;overflow-y:auto;overscroll-behavior:contain;border-right:1px solid #e1e7ef;padding-right:1.4rem}.inlogem-mobile-filters{display:none}.inlogem-results-heading{margin-top:2.4rem}.inlogem-catalog-card__media{height:11.5rem}}
+    @media(max-width:759px){.inlogem-catalog-hero{padding-block:1.5rem}.inlogem-catalog-hero h1{font-size:2.35rem}.inlogem-catalog-hero>div:first-child>p:not(.inlogem-catalog-kicker){margin-top:1rem;line-height:1.55}.inlogem-catalog-hero>div:first-child>a{display:none}.inlogem-catalog-hero__products{display:none}.inlogem-catalog-products{padding-top:1.25rem}.inlogem-results-heading{align-items:flex-start;margin-top:1.7rem}.inlogem-results-heading h2{font-size:1.75rem}.inlogem-results-heading>a{padding-top:.25rem}.inlogem-catalog-card__media{height:8.2rem;padding:.6rem .55rem .1rem}.inlogem-catalog-card__body{padding:.55rem .6rem .1rem}.inlogem-catalog-card h3{min-height:2.25rem;font-size:.75rem}.inlogem-catalog-card__footer{gap:.35rem;padding:.5rem .6rem .65rem}.inlogem-catalog-card__price strong{font-size:.95rem}.inlogem-catalog-card__price small{font-size:.625rem}.inlogem-catalog-card button{min-height:2.5rem;padding:.45rem .55rem;font-size:.66rem}}
+    @media(prefers-reduced-motion:reduce){.inlogem-catalog-card,.inlogem-catalog-card img{transition:none}.inlogem-catalog-card:hover{transform:none}}
+  </style>
 </Shop>

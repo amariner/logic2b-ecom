@@ -1,0 +1,308 @@
+---
+import type { CollectionConfig } from '../../collections';
+import type { StoreExperienceConfig } from '../../proposals';
+
+interface Props {
+  collection: CollectionConfig;
+  experience: StoreExperienceConfig;
+  currentPath: string;
+}
+
+const { collection, experience, currentPath } = Astro.props;
+const brand = experience.brand;
+const currentCategory = Astro.url.searchParams.get('categoria') ?? '';
+const catalogPath = experience.paths.catalog.replace(/\/+$/, '') || '/';
+const inCatalog = currentPath === catalogPath;
+const categoryHref = (categoryId: string) => {
+  const params = new URLSearchParams(Astro.url.searchParams);
+  if (categoryId) params.set('categoria', categoryId);
+  else params.delete('categoria');
+  const query = params.toString();
+  return `${experience.paths.catalog}${query ? `?${query}` : ''}#productos`;
+};
+const nav = [
+  { label: 'Productos', href: `${experience.paths.catalog}#productos`, active: inCatalog },
+  { label: 'Buscar', href: `${experience.paths.catalog}#buscar`, active: false },
+] as const;
+---
+
+<aside data-demo-journey class="relative z-[90] border-b border-white/10 bg-[#0B1633] text-white">
+  <div class="mx-auto flex min-h-10 max-w-[1440px] flex-col justify-center gap-2 px-4 py-2 text-[11px] leading-snug sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
+    <p class="max-w-3xl text-white/75">Propuesta conceptual privada preparada por Logic2B. Productos, precios y pedidos son datos de demostración.</p>
+    <a href={experience.managerHref} class="shrink-0 font-semibold underline decoration-white/40 underline-offset-2 hover:decoration-white">Ver gestor demo <span aria-hidden="true">→</span></a>
+  </div>
+</aside>
+
+<header class="proposal-store-header" data-proposal-store-header>
+  <div class="proposal-store-header__main">
+    <a href={experience.proposalHomeHref} class="proposal-store-brand" aria-label={`Inicio de ${collection.name}`}>
+      {brand?.markSrc && <img src={brand.markSrc} alt="" width="48" height="48" aria-hidden="true" />}
+      <span>
+        <strong>{brand?.wordmark ?? collection.name}</strong>
+        <small>{brand?.descriptor ?? collection.tagline}</small>
+      </span>
+    </a>
+
+    <nav class="proposal-store-header__primary" aria-label="Navegación principal de la tienda">
+      {nav.map((item) => (
+        <a
+          href={item.href}
+          class:list={[item.active && 'is-active']}
+          aria-current={item.active ? 'page' : undefined}
+        >
+          {item.label}
+        </a>
+      ))}
+    </nav>
+
+    <a href={experience.paths.cart} class="proposal-store-cart" aria-label="Carrito" aria-current={currentPath === experience.paths.cart ? 'page' : undefined}>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M3 3h1.4a1 1 0 0 1 1 .8l.3 1.5m0 0 1.5 7.2a2 2 0 0 0 2 1.6h7.9a2 2 0 0 0 2-1.5l1.2-5.1H5.7ZM9 19.2h.01M18 19.2h.01" />
+      </svg>
+      <span>Carrito</span>
+      <span data-cart-badge class="proposal-store-cart__badge hidden">0</span>
+    </a>
+  </div>
+
+  <nav class="proposal-store-header__categories" aria-label="Categorías de producto">
+    <a href={categoryHref('')} aria-current={!currentCategory && inCatalog ? 'page' : undefined}>Todo</a>
+    {collection.categories.map((category) => (
+      <a
+        href={categoryHref(category.id)}
+        aria-current={currentCategory === category.id ? 'page' : undefined}
+      >{category.label}</a>
+    ))}
+  </nav>
+</header>
+
+<style is:global>
+  [data-store-experience='proposal'] {
+    --background: #ffffff;
+    --foreground: #0b1633;
+    --card: #ffffff;
+    --card-foreground: #0b1633;
+    --popover: #ffffff;
+    --popover-foreground: #0b1633;
+    --primary: #0b1633;
+    --primary-foreground: #ffffff;
+    --secondary: #edf3fb;
+    --secondary-foreground: #0b1633;
+    --muted: #f2f5f9;
+    --muted-foreground: #52627a;
+    --accent: #e7eeff;
+    --accent-foreground: #0b3fb3;
+    --border: #d7e0ec;
+    --input: #c7d2e1;
+    --ring: #155eef;
+    min-height: 100vh;
+    overflow-x: clip;
+    background: #f7f9fc;
+    color: var(--foreground);
+  }
+
+  [data-store-experience='proposal'] :is(a, button, input, select, summary):focus-visible {
+    outline: 3px solid var(--color-brand);
+    outline-offset: 3px;
+  }
+
+  .proposal-store-header {
+    position: sticky;
+    top: 0;
+    z-index: 60;
+    border-bottom: 1px solid #d7e0ec;
+    background: rgb(255 255 255 / 94%);
+    box-shadow: 0 10px 32px rgb(11 22 51 / 6%);
+    backdrop-filter: blur(18px);
+  }
+
+  .proposal-store-header__main {
+    display: flex;
+    min-height: 4.75rem;
+    max-width: 1440px;
+    align-items: center;
+    gap: clamp(1rem, 3vw, 2.5rem);
+    margin-inline: auto;
+    padding-inline: clamp(1rem, 4vw, 3rem);
+  }
+
+  .proposal-store-brand {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    gap: .75rem;
+    color: #0b1633;
+  }
+
+  .proposal-store-brand img { width: 2.5rem; height: 2.5rem; }
+  .proposal-store-brand > span { display: grid; gap: .1rem; }
+  .proposal-store-brand strong {
+    font-size: 1rem;
+    line-height: 1;
+    letter-spacing: .24em;
+  }
+  .proposal-store-brand small {
+    color: #607089;
+    font-size: .625rem;
+    line-height: 1.2;
+    letter-spacing: .025em;
+  }
+
+  .proposal-store-header__primary {
+    display: flex;
+    flex: 1 1 auto;
+    align-items: center;
+    gap: 1.5rem;
+    font-size: .8125rem;
+    font-weight: 650;
+  }
+  .proposal-store-header__primary a {
+    position: relative;
+    padding-block: .75rem;
+    color: #64738a;
+  }
+  .proposal-store-header__primary a:hover,
+  .proposal-store-header__primary a.is-active { color: #0b1633; }
+  .proposal-store-header__primary a.is-active::after {
+    position: absolute;
+    right: 0;
+    bottom: .35rem;
+    left: 0;
+    height: 2px;
+    border-radius: 999px;
+    background: #155eef;
+    content: '';
+  }
+
+  .proposal-store-cart {
+    display: inline-flex;
+    min-height: 2.75rem;
+    align-items: center;
+    gap: .5rem;
+    border-radius: .75rem;
+    background: #0b1633;
+    padding: .7rem 1rem;
+    color: white;
+    font-size: .8125rem;
+    font-weight: 700;
+    transition: transform 160ms ease, background 160ms ease;
+  }
+  .proposal-store-cart:hover { background: #155eef; transform: translateY(-1px); }
+  .proposal-store-cart svg { width: 1.125rem; height: 1.125rem; }
+  .proposal-store-cart__badge {
+    min-width: 1.25rem;
+    border-radius: 999px;
+    background: #42bdeb;
+    padding: .12rem .34rem;
+    color: #0b1633;
+    text-align: center;
+    font-size: .625rem;
+    font-weight: 800;
+  }
+
+  .proposal-store-header__categories {
+    display: flex;
+    max-width: 1440px;
+    gap: 1.4rem;
+    overflow-x: auto;
+    margin-inline: auto;
+    padding: .75rem clamp(1rem, 4vw, 3rem);
+    scrollbar-width: none;
+  }
+  .proposal-store-header__categories::-webkit-scrollbar { display: none; }
+  .proposal-store-header__categories a {
+    flex: 0 0 auto;
+    color: #596b84;
+    font-size: .75rem;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .proposal-store-header__categories a:hover,
+  .proposal-store-header__categories a[aria-current='page'] { color: #155eef; }
+
+  [data-store-experience='proposal'] [data-commerce-surface='cart'],
+  [data-store-experience='proposal'] [data-commerce-surface='checkout'],
+  [data-store-experience='proposal'] [data-commerce-surface='thanks'] {
+    width: min(calc(100% - 2rem), 68rem);
+    max-width: none;
+    margin-block: clamp(2rem, 5vw, 4.5rem);
+    border: 1px solid #dbe3ee;
+    border-radius: 1.75rem;
+    background: white;
+    padding: clamp(1.35rem, 4vw, 3.5rem);
+    box-shadow: 0 30px 80px rgb(11 22 51 / 8%);
+  }
+
+  [data-store-experience='proposal'] [data-commerce-surface='checkout'] {
+    max-width: 68rem;
+  }
+  [data-store-experience='proposal'] [data-commerce-surface='checkout'] [data-commerce-part='heading'],
+  [data-store-experience='proposal'] [data-commerce-surface='checkout'] [data-commerce-part='intro'],
+  [data-store-experience='proposal'] [data-commerce-surface='checkout'] > noscript {
+    grid-column: 1 / -1;
+  }
+
+  [data-store-experience='proposal'] [data-commerce-part='shipping'],
+  [data-store-experience='proposal'] [data-commerce-part='summary'] {
+    border: 1px solid #dce5f0;
+    background: #f5f8fc;
+  }
+
+  [data-store-experience='proposal'] [data-commerce-part='media'] img,
+  [data-store-experience='proposal'] [data-commerce-part='related'] img {
+    object-fit: contain;
+  }
+
+  [data-proposal-store-footer] {
+    margin-top: 0;
+    border-top: 0;
+    background: #0b1633;
+    color: rgb(255 255 255 / 68%);
+  }
+
+  @media (min-width: 800px) {
+    [data-store-experience='proposal'] [data-commerce-surface='checkout'] {
+      display: grid;
+      grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr);
+      column-gap: clamp(2rem, 5vw, 4.5rem);
+      align-items: start;
+    }
+    [data-store-experience='proposal'] [data-commerce-surface='checkout'] [data-commerce-part='summary'] {
+      position: sticky;
+      top: 10.5rem;
+      grid-column: 1;
+      grid-row: 3;
+    }
+    [data-store-experience='proposal'] [data-commerce-surface='checkout'] [data-commerce-part='form'] {
+      grid-column: 2;
+      grid-row: 3;
+      margin-top: 1.5rem;
+    }
+  }
+
+  @media (max-width: 720px) {
+    .proposal-store-header__main {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: .45rem .75rem;
+      padding-block: .7rem .45rem;
+    }
+    .proposal-store-brand { grid-column: 1; margin-right: auto; }
+    .proposal-store-cart { grid-column: 2; grid-row: 1; }
+    .proposal-store-header__primary {
+      grid-column: 1 / -1;
+      grid-row: 2;
+      gap: 1.25rem;
+      font-size: .75rem;
+    }
+    .proposal-store-header__primary a { padding-block: .4rem; }
+    .proposal-store-header__primary a.is-active::after { bottom: .15rem; }
+    .proposal-store-header__categories { border-top: 1px solid #edf1f6; }
+    .proposal-store-cart span:not(.proposal-store-cart__badge) { display: none; }
+    .proposal-store-cart { padding-inline: .85rem; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .proposal-store-cart { transition: none; }
+    .proposal-store-cart:hover { transform: none; }
+  }
+</style>

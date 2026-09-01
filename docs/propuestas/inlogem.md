@@ -1,13 +1,14 @@
 # Propuesta Inlogem
 
-Estado actual: `draft` hasta completar QA y revisión local.
+Estado actual: `active`, accesible únicamente mediante su URL privada y excluida de indexación.
 
 URL privada local: `/propuestas/inlogem-3a7399641519f1d36a1ea232f309223c`
 
 ## Alcance
 
-- Micrositio comercial “Precisión cercana”.
-- Storefront B2B con 72 fichas públicas trazables, 8 familias y compra rápida.
+- Ecommerce abierto con la identidad visual INLOGEM y una cabecera comercial compartida entre portada, catálogo, producto y compra.
+- Portada con seis accesos visuales a las categorías principales antes del buscador.
+- Catálogo con 72 fichas públicas trazables, 8 categorías, búsqueda, filtro lateral en escritorio, panel compacto en móvil y compra rápida.
 - Carrito, checkout y confirmación guardados únicamente en el navegador.
 - Gestor de solo lectura con 12 pedidos y 6 emails ficticios.
 - Formulario de reunión con `source=proposal:inlogem` y sin precio de implantación.
@@ -26,4 +27,4 @@ Los importes son ficticios y finales: “IVA incluido · precio de demostración
 
 ## Límites
 
-No hay login profesional, tarifas por cliente, edición, exportación, fiscalidad, pagos, D1, sincronización de stock, scraping periódico ni mensajes a Inlogem. Marcas, referencias y procedencia se presentan como datos observados; las escenas editoriales no imitan productos identificables ni sustituyen el logotipo oficial.
+No hay login profesional, tarifas B2B por cliente, edición, exportación, fiscalidad, pagos, D1, sincronización de stock, scraping periódico ni mensajes a Inlogem. La propuesta presenta las tarifas profesionales únicamente como una evolución futura y no activa. Marcas, referencias y procedencia se muestran como datos observados; el sistema gráfico propio de la propuesta acompaña imágenes locales del catálogo real.

@@ -11,6 +11,7 @@
 import Base from './Base.astro';
 import SiteHeader from '../components/SiteHeader.astro';
 import DemoJourneyBanner from '../components/store/DemoJourneyBanner.astro';
+import ProposalStoreHeader from '../components/store/ProposalStoreHeader.astro';
 import MinimalHeader from '../components/themes/minimal/Header.astro';
 import MinimalFooter from '../components/themes/minimal/Footer.astro';
 import { shopConfig } from '../../shop.config';
@@ -57,13 +58,7 @@ const themeStyle = Object.entries(experience?.themeVars ?? theme.vars)
   .map(([k, v]) => `${k}: ${v}`)
   .join('; ');
 
-const nav = experience
-  ? ([
-      { href: paths.catalog, label: 'Productos' },
-      { href: experience.proposalHomeHref, label: 'La propuesta' },
-      { href: experience.managerHref, label: 'Gestor demo' },
-    ] as const)
-  : isDefaultStore
+const nav = isDefaultStore
   ? ([
       { href: paths.catalog, label: 'Tienda' },
       { href: '/demo/admin', label: 'Panel del comercio' },
@@ -77,6 +72,12 @@ const currentPath = Astro.url.pathname.replace(/\/+$/, '') || '/';
 const activeHref = nav.find((link) => (link.href.replace(/\/+$/, '') || '/') === currentPath)?.href;
 const catalogPath = paths.catalog.replace(/\/+$/, '') || '/';
 const isImmersiveCatalog = immersive && currentPath === catalogPath;
+const checkoutSteps = experience ? [
+  { label: 'Carrito', href: experience.paths.cart },
+  { label: 'Entrega', href: experience.paths.checkout },
+  { label: 'Confirmación', href: experience.paths.thanks },
+] : [];
+const checkoutStep = checkoutSteps.findIndex((step) => step.href === currentPath);
 ---
 
 <Base
@@ -91,18 +92,12 @@ const isImmersiveCatalog = immersive && currentPath === catalogPath;
   <div
     data-store-theme={theme.id}
     data-store-collection={collection.id}
+    data-store-experience={experience?.kind}
     style={themeStyle}
     class:list={[useSidebar && 'bg-surface-sunken']}
   >
     {/* relative z-30: los temas inmersivos ponen un vídeo fijo por debajo. */}
-    {experience ? (
-      <aside data-demo-journey class="relative z-[90] border-b border-white/10 bg-[#0B1633] text-white">
-        <div class="mx-auto flex min-h-10 max-w-[1440px] flex-col justify-center gap-2 px-4 py-2 text-[11px] leading-snug sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8">
-          <p class="max-w-3xl text-white/75"><strong class="font-semibold text-white">Propuesta privada para {collection.name}</strong> — precios, stock, pedidos y checkout son una simulación local.</p>
-          <a href={experience.proposalHomeHref} class="font-semibold underline decoration-white/40 underline-offset-2 hover:decoration-white">Volver a la propuesta</a>
-        </div>
-      </aside>
-    ) : <DemoJourneyBanner themeName={collection.name} />}
+    {!experience && <DemoJourneyBanner themeName={collection.name} />}
 
     {/* El catálogo inmersivo conserva su chrome editorial. En ficha, cesta,
         checkout y gracias vuelve el chrome común: marca, salida a tienda,
@@ -122,33 +117,75 @@ const isImmersiveCatalog = immersive && currentPath === catalogPath;
       </Fragment>
     ) : (
       <Fragment>
-        <SiteHeader homeHref={paths.catalog} wordmark={collection.name} showMark={false} nav={nav} activeHref={activeHref}>
-          <a
-            slot="actions"
-            href={paths.cart}
-            aria-label="Carrito"
-            class="relative inline-flex items-center gap-1.5 rounded-btn bg-muted px-4 py-2 text-sm font-medium text-foreground transition hover:bg-secondary"
-          >
-            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" aria-hidden="true">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 0 0-16.536-1.84M7.5 14.25 5.106 5.272M6 20.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm12.75 0a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z" />
-            </svg>
-            <span class="hidden sm:inline">Carrito</span>
-            <span data-cart-badge class="hidden rounded-full bg-brand px-1.5 py-0.5 text-xs font-bold text-brand-fg">0</span>
-          </a>
-        </SiteHeader>
+        {experience ? (
+          <ProposalStoreHeader collection={collection} experience={experience} currentPath={currentPath} />
+        ) : (
+          <SiteHeader homeHref={paths.catalog} wordmark={collection.name} showMark={false} nav={nav} activeHref={activeHref}>
+            <a
+              slot="actions"
+              href={paths.cart}
+              aria-label="Carrito"
+              class="relative inline-flex items-center gap-1.5 rounded-btn bg-muted px-4 py-2 text-sm font-medium text-foreground transition hover:bg-secondary"
+            >
+              <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 0 0-16.536-1.84M7.5 14.25 5.106 5.272M6 20.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm12.75 0a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z" />
+              </svg>
+              <span class="hidden sm:inline">Carrito</span>
+              <span data-cart-badge class="hidden rounded-full bg-brand px-1.5 py-0.5 text-xs font-bold text-brand-fg">0</span>
+            </a>
+          </SiteHeader>
+        )}
+
+        {experience && (checkoutStep >= 0 ? (
+          <nav class="proposal-checkout-progress" aria-label="Progreso de compra">
+            <ol>
+              {checkoutSteps.map((step, index) => (
+                <li class:list={[index === checkoutStep && 'is-current', index < checkoutStep && 'is-complete']}>
+                  <span>{index + 1}</span>
+                  {index <= checkoutStep ? <a href={step.href} aria-current={index === checkoutStep ? 'step' : undefined}>{step.label}</a> : <strong>{step.label}</strong>}
+                </li>
+              ))}
+            </ol>
+          </nav>
+        ) : (
+          <div class="proposal-store-assurance" aria-label="Ventajas de compra">
+            <span><strong>Catálogo abierto</strong> para comprar sin cuenta</span>
+            <span><strong>Precios claros</strong> con IVA incluido</span>
+            <span><strong>72 productos</strong> organizados por categoría</span>
+          </div>
+        ))}
 
         <slot />
 
         {/* Color y superficie del pie van en el <style> de abajo, no en
             utilidades: así la variante oscura no tiene que pisar clases de
             Tailwind (la trampa de especificidad de docs/CHECKLIST_TEMA.md § 3). */}
-        <footer class:list={['shop-footer', darkFooter && 'shop-footer--dark']}>
-          <div class="shop-footer__body mx-auto max-w-6xl px-4 py-10 text-sm">
-            <p class="shop-footer__name font-display text-base">{collection.name}</p>
-            <p class="mt-3 max-w-2xl leading-relaxed">{experience ? `${experience.legal.shippingNote} ${experience.legal.returnsNote}` : `${shopConfig.legalName}. ${shopConfig.legal.shippingNote} ${shopConfig.legal.returnsNote}`}</p>
-            <p class="mt-4">Demo de <a href="/" class="shop-footer__link underline underline-offset-2">Logic2B Ecommerce</a>{experience ? <> · <a href={experience.proposalHomeHref} class="shop-footer__link underline underline-offset-2">Propuesta privada</a></> : <> · <a href="/demo/reset" class="shop-footer__link underline underline-offset-2">Reiniciar recorrido local</a></>}</p>
-          </div>
-        </footer>
+        {experience ? (
+          <footer data-proposal-store-footer>
+            <div class="proposal-store-footer__body">
+              <div class="proposal-store-footer__brand">
+                {experience.brand?.markSrc && <img src={experience.brand.markSrc} alt="" width="48" height="48" aria-hidden="true" />}
+                <div><strong>{experience.brand?.wordmark ?? collection.name}</strong><span>{collection.tagline}</span></div>
+              </div>
+              <nav aria-label="Enlaces de la tienda">
+                <a href={experience.paths.catalog} aria-current={currentPath === catalogPath ? 'page' : undefined}>Todos los productos</a>
+                <a href={experience.paths.cart} aria-current={currentPath === (experience.paths.cart.replace(/\/+$/, '') || '/') ? 'page' : undefined}>Carrito</a>
+                <a href={experience.proposalHomeHref}>La propuesta</a>
+                <a href={experience.managerHref}>Gestor demo</a>
+              </nav>
+              <p>{experience.legal.shippingNote} {experience.legal.returnsNote}</p>
+            </div>
+            <div class="proposal-store-footer__legal">Concepto privado de Logic2B Ecommerce · Los precios, el stock y los pedidos son una simulación.</div>
+          </footer>
+        ) : (
+          <footer class:list={['shop-footer', darkFooter && 'shop-footer--dark']}>
+            <div class="shop-footer__body mx-auto max-w-6xl px-4 py-10 text-sm">
+              <p class="shop-footer__name font-display text-base">{collection.name}</p>
+              <p class="mt-3 max-w-2xl leading-relaxed">{shopConfig.legalName}. {shopConfig.legal.shippingNote} {shopConfig.legal.returnsNote}</p>
+              <p class="mt-4">Demo de <a href="/" class="shop-footer__link underline underline-offset-2">Logic2B Ecommerce</a> · <a href="/demo/reset" class="shop-footer__link underline underline-offset-2">Reiniciar recorrido local</a></p>
+            </div>
+          </footer>
+        )}
       </Fragment>
     )}
 
@@ -162,6 +199,84 @@ const isImmersiveCatalog = immersive && currentPath === catalogPath;
   </div>
 
   <style>
+    .proposal-store-assurance {
+      display: flex;
+      justify-content: center;
+      gap: clamp(1rem, 5vw, 4rem);
+      overflow-x: auto;
+      border-bottom: 1px solid #d7e0ec;
+      background: #eef4fb;
+      padding: .72rem 1rem;
+      color: #5b6d86;
+      font-size: .7rem;
+      white-space: nowrap;
+      scrollbar-width: none;
+    }
+    .proposal-store-assurance strong { color: #0b1633; }
+
+    .proposal-checkout-progress {
+      border-bottom: 1px solid #d7e0ec;
+      background: #eef4fb;
+      padding: .85rem 1rem;
+    }
+    .proposal-checkout-progress ol {
+      display: flex;
+      max-width: 40rem;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-inline: auto;
+    }
+    .proposal-checkout-progress li { display: flex; align-items: center; gap: .5rem; color: #52627a; font-size: .75rem; }
+    .proposal-checkout-progress li > span {
+      display: grid;
+      width: 1.55rem;
+      height: 1.55rem;
+      place-items: center;
+      border: 1px solid #bdc9d8;
+      border-radius: 999px;
+      background: white;
+      font-size: .65rem;
+      font-weight: 800;
+    }
+    .proposal-checkout-progress li.is-current { color: #0b1633; font-weight: 700; }
+    .proposal-checkout-progress li.is-current > span,
+    .proposal-checkout-progress li.is-complete > span { border-color: #155eef; background: #155eef; color: white; }
+    .proposal-checkout-progress strong { font-weight: 600; }
+
+    .proposal-store-footer__body {
+      display: grid;
+      max-width: 80rem;
+      gap: 2.5rem;
+      margin-inline: auto;
+      padding: 3.5rem clamp(1.25rem, 5vw, 3rem);
+    }
+    .proposal-store-footer__brand { display: flex; align-items: center; gap: .8rem; }
+    .proposal-store-footer__brand img { width: 2.5rem; height: 2.5rem; }
+    .proposal-store-footer__brand div { display: grid; gap: .2rem; }
+    .proposal-store-footer__brand strong { color: white; letter-spacing: .22em; }
+    .proposal-store-footer__brand span { font-size: .7rem; }
+    .proposal-store-footer__body nav { display: grid; align-content: start; gap: .65rem; font-size: .8rem; }
+    .proposal-store-footer__body nav a:hover { color: white; }
+    .proposal-store-footer__body > p { max-width: 34rem; align-self: start; font-size: .75rem; line-height: 1.7; }
+    .proposal-store-footer__legal {
+      border-top: 1px solid rgb(255 255 255 / 10%);
+      padding: 1rem clamp(1.25rem, 5vw, 3rem);
+      text-align: center;
+      font-size: .65rem;
+    }
+
+    @media (min-width: 760px) {
+      .proposal-store-footer__body { grid-template-columns: 1.1fr .6fr 1.3fr; }
+    }
+    @media (max-width: 620px) {
+      .proposal-store-assurance { display: none; }
+      .proposal-checkout-progress { padding-inline: .65rem; }
+      .proposal-checkout-progress ol { gap: .4rem; }
+      .proposal-checkout-progress li { gap: .25rem; font-size: .65rem; }
+      .proposal-checkout-progress li > span { width: 1.4rem; height: 1.4rem; }
+    }
+
     /* Pie estándar (claro con filete). Lo que antes eran utilidades. */
     .shop-footer {
       margin-top: 5rem;

@@ -11,7 +11,7 @@ import {
 } from '../src/proposals';
 import { proposalForPage, proposalGoneResponse } from '../src/proposals/http';
 import { inlogemCatalog } from '../src/proposals/inlogem/catalog';
-import { inlogemProposal } from '../src/proposals/inlogem/config';
+import { inlogemProposal, inlogemStoreExperience } from '../src/proposals/inlogem/config';
 
 describe('registro privado de propuestas', () => {
   it('usa identificadores no predecibles, únicos y rutas encapsuladas', () => {
@@ -26,10 +26,12 @@ describe('registro privado de propuestas', () => {
   });
 
   it('bloquea borradores, retira archivadas y caducadas y permite activas', () => {
+    const draft = { ...inlogemProposal, status: 'draft' };
     const active = { ...inlogemProposal, status: 'active' };
     const archived = { ...inlogemProposal, status: 'archived' };
     const expired = { ...inlogemProposal, status: 'active', expiresAt: '2026-08-01T00:00:00.000Z' };
-    expect(resolveProposal(inlogemProposal.publicId, new Date('2026-08-31'), false).kind).toBe('draft');
+    expect(resolveProposalState(draft, new Date('2026-08-31'), false).kind).toBe('draft');
+    expect(resolveProposal(inlogemProposal.publicId, new Date('2026-08-31'), false).kind).toBe('active');
     expect(resolveProposal(inlogemProposal.publicId, new Date('2026-08-31'), true).kind).toBe('active');
     expect(resolveProposal('desconocida', new Date(), false).kind).toBe('missing');
     expect(resolveProposalState(active, new Date('2026-08-31'), false).kind).toBe('active');
@@ -96,5 +98,15 @@ describe('snapshot Inlogem', () => {
       expect(existsSync(path), path).toBe(true);
       expect(readFileSync(path).subarray(0, 4).toString('ascii')).toBe('RIFF');
     }
+  });
+
+  it('conserva el activo de marca de la propuesta y no referencia escenas editoriales ausentes', () => {
+    expect(inlogemStoreExperience.brand?.descriptor).toBe('Papelería y tecnología');
+    const brandPath = resolve(import.meta.dirname, '..', 'public', inlogemStoreExperience.brand!.markSrc.slice(1));
+    expect(existsSync(brandPath)).toBe(true);
+    expect(readFileSync(brandPath, 'utf8')).toContain('<svg');
+
+    const landingPath = resolve(import.meta.dirname, '..', 'src', 'proposals', 'inlogem', 'ProposalLanding.astro');
+    expect(readFileSync(landingPath, 'utf8')).not.toContain('/editorial/');
   });
 });

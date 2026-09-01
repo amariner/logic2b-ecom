@@ -1,0 +1,108 @@
+---
+import { formatEurCents } from '../../lib/format';
+import type { ProductRow } from '../../lib/db';
+import type { ProposalCatalogItem, ProposalPaths } from '../types';
+
+interface Props {
+  product: ProductRow;
+  item: ProposalCatalogItem & { categoryLabel: string };
+  related: { slug: string; name: string; price_cents: number; image: string; stock: number }[];
+  paths: ProposalPaths;
+}
+
+const { product, item, related, paths } = Astro.props;
+const specs = [
+  { label: 'Código', value: item.sourceCode },
+  { label: 'Referencia', value: item.sourceReference },
+  { label: 'Marca', value: item.brand },
+  { label: 'Unidad de venta', value: item.saleUnit },
+  ...(item.ean ? [{ label: 'EAN', value: item.ean }] : []),
+  ...(item.dimensionsMm ? [{ label: 'Dimensiones', value: `${item.dimensionsMm} mm` }] : []),
+  ...(item.weightGrams ? [{ label: 'Peso', value: `${item.weightGrams} g` }] : []),
+  ...item.specs,
+];
+---
+
+<div class="inlogem-product" data-inlogem-product>
+  <nav class="inlogem-product__breadcrumb" aria-label="Migas de pan">
+    <a href={`${paths.catalog}#productos`}>Productos</a><span aria-hidden="true">/</span><a href={`${paths.catalog}?categoria=${item.category}#productos`}>{item.categoryLabel}</a><span aria-hidden="true">/</span><span>{item.brand}</span><span aria-hidden="true">/</span><span aria-current="page">{product.name}</span>
+  </nav>
+
+  <section class="inlogem-product__hero">
+    <div class="inlogem-product__media" data-commerce-part="media">
+      <span>{item.categoryLabel}</span>
+      <img src={product.image} alt={product.name} width="1000" height="762" loading="eager" fetchpriority="high" />
+      <small>Imagen de producto de la referencia seleccionada</small>
+    </div>
+
+    <div class="inlogem-product__details" data-commerce-part="details">
+      <p class="inlogem-product__meta">{item.brand} <span aria-hidden="true">·</span> Ref. {item.sourceReference}</p>
+      <h1>{product.name}</h1>
+      <div class="inlogem-product__price"><strong>{formatEurCents(product.price_cents)}</strong><span>IVA incluido · precio de demostración</span></div>
+      <p class="inlogem-product__description">{product.description}</p>
+
+      <div class="inlogem-product__availability">
+        <span class:list={[product.stock > 0 ? 'is-available' : 'is-unavailable']}><i aria-hidden="true"></i>{product.stock > 0 ? 'Disponible en esta demo' : 'Consultar disponibilidad'}</span>
+        <small>El stock mostrado es una captura de muestra, no una promesa de disponibilidad real.</small>
+      </div>
+
+      {product.stock > 0 ? (
+        <div class="inlogem-product__purchase" data-commerce-part="purchase">
+          <div><label for="qty">Cantidad</label><input id="qty" data-commerce-input="quantity" type="number" min="1" max={Math.min(product.stock, 99)} step="1" value="1" /></div>
+          <button type="button" data-commerce-action="add-to-cart" data-product-slug={product.slug}>Añadir al carrito</button>
+          <a href={paths.cart}>Ver carrito</a>
+        </div>
+      ) : <p class="inlogem-product__unavailable">Esta referencia no se puede añadir ahora en la demostración.</p>}
+
+      <ul class="inlogem-product__benefits" aria-label="Información de compra">
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M3.5 7.5h11v9h-11zM14.5 10h3l3 3v3.5h-6z"/><circle cx="7" cy="18" r="1.5"/><circle cx="17.5" cy="18" r="1.5"/></svg><span><strong>Entrega de muestra</strong><small>Se calcula con tu código postal</small></span></li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M12 3.5 19 6v5c0 4.3-2.8 7.4-7 9.5C7.8 18.4 5 15.3 5 11V6l7-2.5Z"/><path d="m9 12 2 2 4-4"/></svg><span><strong>Compra segura</strong><small>Sin tarjeta ni cobro en esta demo</small></span></li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M4 7h16v11H4zM7 4h10v3M8 11h8M8 14h5"/></svg><span><strong>Factura opcional</strong><small>Los datos se quedan en el navegador</small></span></li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="inlogem-product__specifications" aria-labelledby="inlogem-specs-title">
+    <div><p>Información del producto</p><h2 id="inlogem-specs-title">Todo lo necesario para decidir.</h2><span>Los datos proceden de la ficha capturada para esta propuesta y se muestran como referencia.</span></div>
+    <dl>{specs.map((spec) => <div><dt>{spec.label}</dt><dd>{spec.value}</dd></div>)}</dl>
+  </section>
+
+  {related.length > 0 && <section class="inlogem-product__related" data-commerce-part="related" aria-labelledby="inlogem-related-title">
+    <div><h2 id="inlogem-related-title">Más de {item.categoryLabel.toLowerCase()}</h2><a href={`${paths.catalog}?categoria=${item.category}`}>Ver la categoría <span aria-hidden="true">→</span></a></div>
+    <ul>{related.map((rel) => <li><a href={paths.product(rel.slug)}><span><img src={rel.image} alt="" width="800" height="800" loading="lazy" /></span><strong>{rel.name}</strong><b>{formatEurCents(rel.price_cents)}</b></a></li>)}</ul>
+  </section>}
+
+  {product.stock > 0 && <div class="inlogem-mobile-buy" data-inlogem-mobile-buy>
+    <span><small>Precio demo</small><strong>{formatEurCents(product.price_cents)}</strong></span>
+    <button type="button" data-inlogem-mobile-add={product.slug}>Añadir al carrito</button>
+  </div>}
+</div>
+
+<script>
+  import { addToCart } from '../../lib/cart-client';
+  const mobileAdd = document.querySelector<HTMLButtonElement>('[data-inlogem-mobile-add]');
+  const quantity = document.querySelector<HTMLInputElement>('[data-commerce-input="quantity"]');
+  const feedback = document.querySelector<HTMLElement>('[data-cart-feedback]');
+  mobileAdd?.addEventListener('click', () => {
+    const max = Math.max(1, Number(quantity?.max ?? 99) || 99);
+    const qty = Math.min(max, Math.max(1, Math.floor(Number(quantity?.value ?? 1)) || 1));
+    addToCart(mobileAdd.dataset.inlogemMobileAdd ?? '', qty);
+    const previous = mobileAdd.textContent; mobileAdd.textContent = 'Añadido ✓';
+    feedback?.removeAttribute('hidden');
+    setTimeout(() => { mobileAdd.textContent = previous; }, 900);
+  });
+</script>
+
+<style>
+  .inlogem-product{background:#fff;color:#0b1633}.inlogem-product__breadcrumb{display:flex;max-width:1320px;gap:.55rem;overflow:hidden;margin-inline:auto;padding:1.4rem clamp(1rem,4vw,3rem) 0;color:#66778e;font-size:.7rem;white-space:nowrap}.inlogem-product__breadcrumb a:hover{color:#155eef;text-decoration:underline}.inlogem-product__breadcrumb span:last-child{overflow:hidden;text-overflow:ellipsis}
+  .inlogem-product__hero{display:grid;max-width:1320px;gap:clamp(2rem,5vw,5rem);align-items:start;margin-inline:auto;padding:clamp(1.5rem,4vw,3rem) clamp(1rem,4vw,3rem) clamp(4rem,7vw,7rem)}.inlogem-product__media{position:relative;display:grid;min-height:32rem;place-items:center;overflow:hidden;border-radius:1.6rem;background:#f2f5f9;padding:clamp(2rem,5vw,4rem)}.inlogem-product__media:before{position:absolute;inset:0;background-image:linear-gradient(rgb(21 94 239/5%) 1px,transparent 1px),linear-gradient(90deg,rgb(21 94 239/5%) 1px,transparent 1px);background-size:42px 42px;content:'';mask-image:linear-gradient(to bottom right,#000,transparent 78%)}.inlogem-product__media>span{position:absolute;top:1rem;left:1rem;z-index:1;border-radius:999px;background:#e7eeff;padding:.4rem .65rem;color:#0b3fb3;font-size:.58rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase}.inlogem-product__media img{position:relative;z-index:1;width:100%;height:100%;max-height:31rem;object-fit:contain;filter:drop-shadow(0 18px 22px rgb(11 22 51/10%))}.inlogem-product__media>small{position:absolute;right:1rem;bottom:1rem;left:1rem;color:#52627a;font-size:.58rem;text-align:center}
+  .inlogem-product__details{padding-top:.4rem}.inlogem-product__meta{color:#155eef;font-size:.68rem;font-weight:800;letter-spacing:.11em;text-transform:uppercase}.inlogem-product__details h1{max-width:42rem;margin-top:.75rem;font-family:var(--font-display);font-size:clamp(2.25rem,4.4vw,4.5rem);line-height:.99;letter-spacing:-.05em}.inlogem-product__price{display:flex;align-items:baseline;gap:.75rem;margin-top:1.5rem}.inlogem-product__price strong{font-size:clamp(1.8rem,3vw,2.5rem);letter-spacing:-.04em}.inlogem-product__price span{color:#52627a;font-size:.68rem}.inlogem-product__description{max-width:42rem;margin-top:1.25rem;color:#52627a;line-height:1.7}.inlogem-product__availability{display:grid;gap:.4rem;margin-top:1.4rem}.inlogem-product__availability>span{display:inline-flex;width:max-content;align-items:center;gap:.45rem;border-radius:999px;padding:.45rem .7rem;font-size:.65rem;font-weight:750}.inlogem-product__availability>span.is-available{background:#e4f6eb;color:#11643b}.inlogem-product__availability>span.is-unavailable{background:#edf0f4;color:#52627a}.inlogem-product__availability i{width:.4rem;height:.4rem;border-radius:999px;background:currentColor}.inlogem-product__availability small{max-width:34rem;color:#52627a;font-size:.62rem;line-height:1.45}
+  .inlogem-product__purchase{display:grid;grid-template-columns:auto minmax(10rem,1fr) auto;align-items:end;gap:.65rem;margin-top:1.6rem;border:1px solid #d7e0ec;border-radius:1.1rem;background:#f7f9fc;padding:1rem}.inlogem-product__purchase>div{display:grid;gap:.35rem}.inlogem-product__purchase label{color:#52627a;font-size:.62rem;font-weight:700}.inlogem-product__purchase input{width:5rem;min-height:2.8rem;border:1px solid #7d8ca3;border-radius:.65rem;background:#fff;padding:.6rem;text-align:center}.inlogem-product__purchase button{min-height:2.8rem;border-radius:.65rem;background:#155eef;padding:.7rem 1.1rem;color:#fff;font-size:.75rem;font-weight:800}.inlogem-product__purchase button:hover{background:#0b3fb3}.inlogem-product__purchase>a{display:grid;min-height:2.8rem;place-items:center;border:1px solid #7d8ca3;border-radius:.65rem;background:#fff;padding:.65rem .9rem;font-size:.7rem;font-weight:750}.inlogem-product__unavailable{margin-top:1.5rem;border-radius:.8rem;background:#edf0f4;padding:1rem;color:#52627a;font-size:.75rem}
+  .inlogem-product__benefits{display:grid;gap:.7rem;margin-top:1rem}.inlogem-product__benefits li{display:flex;align-items:center;gap:.75rem;border-bottom:1px solid #e1e7ef;padding:.7rem .2rem}.inlogem-product__benefits svg{width:1.35rem;height:1.35rem;color:#155eef}.inlogem-product__benefits span{display:grid;gap:.12rem}.inlogem-product__benefits strong{font-size:.7rem}.inlogem-product__benefits small{color:#65758c;font-size:.62rem}
+  .inlogem-product__specifications{display:grid;gap:clamp(2rem,6vw,6rem);border-block:1px solid #d7e0ec;background:#f7f9fc;padding:clamp(4rem,7vw,7rem) max(clamp(1rem,5vw,4rem),calc((100vw - 1240px)/2))}.inlogem-product__specifications>div>p{color:#155eef;font-size:.65rem;font-weight:800;letter-spacing:.16em;text-transform:uppercase}.inlogem-product__specifications h2{max-width:32rem;margin-top:.7rem;font-family:var(--font-display);font-size:clamp(2.2rem,4vw,4rem);line-height:1;letter-spacing:-.045em}.inlogem-product__specifications>div>span{display:block;max-width:30rem;margin-top:1.2rem;color:#52627a;font-size:.75rem;line-height:1.65}.inlogem-product__specifications dl{overflow:hidden;border:1px solid #d7e0ec;border-radius:1.1rem;background:#fff}.inlogem-product__specifications dl>div{display:grid;grid-template-columns:minmax(7rem,.75fr) minmax(0,1.25fr);gap:1rem;padding:.75rem 1rem;font-size:.72rem}.inlogem-product__specifications dl>div+div{border-top:1px solid #e1e7ef}.inlogem-product__specifications dt{color:#52627a}.inlogem-product__specifications dd{text-align:right;font-weight:700;overflow-wrap:anywhere}
+  .inlogem-product__related{max-width:1320px;margin-inline:auto;padding:clamp(4rem,7vw,7rem) clamp(1rem,4vw,3rem)}.inlogem-product__related>div{display:flex;align-items:end;justify-content:space-between;gap:1rem}.inlogem-product__related h2{font-family:var(--font-display);font-size:clamp(2rem,3.5vw,3.4rem);letter-spacing:-.045em}.inlogem-product__related>div>a{color:#155eef;font-size:.7rem;font-weight:750;text-decoration:underline;text-underline-offset:3px}.inlogem-product__related ul{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.8rem;margin-top:1.5rem}.inlogem-product__related li a{display:flex;min-width:0;height:100%;flex-direction:column;border:1px solid #d7e0ec;border-radius:.9rem;background:#fff;padding:.65rem}.inlogem-product__related li a>span{display:grid;height:8.5rem;place-items:center;overflow:hidden;background:transparent;padding:.35rem}.inlogem-product__related img{width:100%;height:100%;min-height:0;max-height:100%;object-fit:contain}.inlogem-product__related li strong{display:-webkit-box;min-height:2.1rem;overflow:hidden;margin-top:.55rem;font-size:.7rem;line-height:1.4;-webkit-box-orient:vertical;-webkit-line-clamp:2}.inlogem-product__related li b{margin-top:auto;padding-top:.55rem;font-size:.9rem}
+  .inlogem-mobile-buy{display:none}
+  @media(min-width:860px){.inlogem-product__hero{grid-template-columns:minmax(0,1fr) minmax(0,.9fr)}.inlogem-product__details{position:sticky;top:11rem}.inlogem-product__benefits{grid-template-columns:repeat(3,1fr)}.inlogem-product__benefits li{align-items:flex-start;border:0}.inlogem-product__specifications{grid-template-columns:.8fr 1.2fr;align-items:start}.inlogem-product__related ul{grid-template-columns:repeat(4,minmax(0,1fr))}}
+  @media(max-width:620px){.inlogem-product{padding-bottom:5rem}.inlogem-product__media{min-height:18rem;padding:1.5rem 1rem}.inlogem-product__media img{max-height:16rem}.inlogem-product__purchase{grid-template-columns:5rem minmax(0,1fr)}.inlogem-product__purchase>a{grid-column:1/-1}.inlogem-product__price{align-items:flex-start;flex-direction:column;gap:.25rem}.inlogem-product__specifications dl>div{grid-template-columns:1fr}.inlogem-product__specifications dd{text-align:left}.inlogem-product__related>div{align-items:flex-start;flex-direction:column}.inlogem-mobile-buy{position:fixed;right:.7rem;bottom:.7rem;left:.7rem;z-index:65;display:flex;align-items:center;justify-content:space-between;gap:1rem;border:1px solid #d7e0ec;border-radius:1rem;background:rgb(255 255 255/96%);padding:.65rem;box-shadow:0 18px 55px rgb(11 22 51/22%);backdrop-filter:blur(14px)}.inlogem-mobile-buy>span{display:grid;padding-left:.35rem}.inlogem-mobile-buy small{color:#65758c;font-size:.55rem}.inlogem-mobile-buy strong{font-size:1rem}.inlogem-mobile-buy button{min-height:2.75rem;border-radius:.7rem;background:#155eef;padding:.65rem 1rem;color:#fff;font-size:.7rem;font-weight:800}}
+  @media(prefers-reduced-motion:reduce){.inlogem-product *{transition:none!important}}
+</style>

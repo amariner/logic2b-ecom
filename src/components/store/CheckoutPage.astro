@@ -111,10 +111,10 @@ const demoCommerceJson = demoJson({
               class="mt-1 w-full rounded-btn border border-border bg-card px-4 py-2.5 focus:border-brand" />
           </div>
         </div>
-        <p class="mt-2 text-xs text-muted-foreground">El comercio los tendrá junto al pedido para emitir tu factura.</p>
+        <p class="mt-2 text-xs text-muted-foreground">{experience ? 'En esta demo también se conservan solo en la confirmación local y no se envían.' : 'El comercio los tendrá junto al pedido para emitir tu factura.'}</p>
       </details>
 
-      <p data-checkout-error class="hidden rounded border border-red-200 bg-red-50 p-3 text-sm text-destructive"></p>
+      <p data-checkout-error role="alert" class="hidden rounded border border-red-200 bg-red-50 p-3 text-sm text-destructive"></p>
 
       <div data-commerce-part="actions">
         <button type="submit" data-checkout-submit

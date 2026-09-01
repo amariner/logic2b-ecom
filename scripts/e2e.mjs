@@ -45,9 +45,21 @@ check('propuesta no envía referrer', proposalLanding.headers.get('referrer-poli
 check('propuesta usa caché HTML privada', proposalLanding.headers.get('cache-control')?.includes('private') && proposalLanding.headers.get('cache-control')?.includes('no-store'));
 check('formulario conserva origen comercial', proposalLandingHtml.includes('value="proposal:inlogem"'));
 check('propuesta no anuncia precio de implantación', !proposalLandingHtml.match(/implantaci[oó]n.{0,40}\d+[.,]?\d*\s*€/i));
+check(
+  'home Inlogem ofrece seis accesos visuales de categoría',
+  proposalLandingHtml.includes('data-home-category-shortcuts')
+    && (proposalLandingHtml.match(/data-home-category="inl-/g) ?? []).length === 6,
+);
+check(
+  'home Inlogem usa la cabecera común de productos',
+  proposalLandingHtml.includes('data-proposal-store-header')
+    && proposalLandingHtml.includes(`${INLOGEM_PROPOSAL}/tienda#productos`)
+    && !proposalLandingHtml.includes('Entrar en la tienda'),
+);
 
+let proposalCatalogHtml = '';
 for (const [label, path, needle] of [
-  ['catálogo', `${INLOGEM_PROPOSAL}/tienda`, '72 referencias reales'],
+  ['catálogo', `${INLOGEM_PROPOSAL}/tienda`, 'data-proposal-catalog'],
   ['ficha', `${INLOGEM_PROPOSAL}/tienda/inl-92385-boligrafo-bic-cristal-original-tinta-azul-unidad`, 'Ref. 8373602'],
   ['carrito', `${INLOGEM_PROPOSAL}/tienda/carrito`, 'data-commerce-surface="cart"'],
   ['checkout', `${INLOGEM_PROPOSAL}/tienda/checkout`, 'data-commerce-surface="checkout"'],
@@ -60,9 +72,31 @@ for (const [label, path, needle] of [
 ]) {
   const response = await fetch(`${BASE}${path}`);
   const html = await response.text();
+  if (label === 'catálogo') proposalCatalogHtml = html;
   check(`Inlogem ${label} disponible`, response.ok && html.includes(needle), `HTTP ${response.status}`);
   check(`Inlogem ${label} conserva privacidad`, response.headers.get('x-robots-tag')?.includes('noindex'));
 }
+check(
+  'portada y catálogo Inlogem comparten navegación',
+  proposalCatalogHtml.includes('data-proposal-store-header')
+    && proposalCatalogHtml.includes(`${INLOGEM_PROPOSAL}/tienda#productos`)
+    && !proposalCatalogHtml.includes('Volver a la propuesta'),
+);
+
+const countInlogemCatalogCards = (html) => (html.match(/<li class="inlogem-catalog-card"/g) ?? []).length;
+const filteredProposalCatalog = await fetch(`${BASE}${INLOGEM_PROPOSAL}/tienda?q=ink-jet&categoria=inl-tecnologia&marca=HP&orden=price-desc`);
+const filteredProposalCatalogHtml = await filteredProposalCatalog.text();
+check(
+  'Inlogem combina búsqueda, categoría, marca y orden',
+  filteredProposalCatalog.ok
+    && countInlogemCatalogCards(filteredProposalCatalogHtml) === 3
+    && filteredProposalCatalogHtml.indexOf('/inl-160143-') < filteredProposalCatalogHtml.indexOf('/inl-160142-')
+    && filteredProposalCatalogHtml.indexOf('/inl-160142-') < filteredProposalCatalogHtml.indexOf('/inl-160140-'),
+);
+check(
+  'Inlogem normaliza filtros desconocidos',
+  countInlogemCatalogCards(await (await fetch(`${BASE}${INLOGEM_PROPOSAL}/tienda?categoria=no-existe&marca=no-existe&orden=no-existe`)).text()) === 72,
+);
 const proposalsIndex = await fetch(`${BASE}/propuestas`);
 check('/propuestas no lista empresas', proposalsIndex.status === 404, `HTTP ${proposalsIndex.status}`);
 const proposalUnknown = await fetch(`${BASE}/propuestas/no-existe`);

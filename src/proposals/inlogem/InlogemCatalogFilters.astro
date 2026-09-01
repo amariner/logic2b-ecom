@@ -1,0 +1,81 @@
+---
+import type { CollectionConfig } from '../../collections';
+
+interface Props {
+  action: string;
+  idPrefix: string;
+  categories: CollectionConfig['categories'];
+  categoryCounts: Readonly<Record<string, number>>;
+  brands: readonly string[];
+  q: string;
+  category: string;
+  brand: string;
+  availability: string;
+  order: string;
+  showAvailability: boolean;
+}
+
+const {
+  action,
+  idPrefix,
+  categories,
+  categoryCounts,
+  brands,
+  q,
+  category,
+  brand,
+  availability,
+  order,
+  showAvailability,
+} = Astro.props;
+---
+
+<form method="get" action={action} class="inlogem-filter-form">
+  {q && <input type="hidden" name="q" value={q} />}
+
+  <fieldset>
+    <legend>Categoría</legend>
+    <div class="inlogem-filter-options">
+      <label>
+        <input type="radio" name="categoria" value="" checked={!category} />
+        <span>Todos los productos</span><small>72</small>
+      </label>
+      {categories.map((item) => (
+        <label>
+          <input type="radio" name="categoria" value={item.id} checked={category === item.id} />
+          <span>{item.label}</span><small>{categoryCounts[item.id] ?? 0}</small>
+        </label>
+      ))}
+    </div>
+  </fieldset>
+
+  <div class="inlogem-filter-field">
+    <label for={`${idPrefix}-brand`}>Marca</label>
+    <select id={`${idPrefix}-brand`} name="marca">
+      <option value="">Todas las marcas</option>
+      {brands.map((item) => <option value={item} selected={item === brand}>{item}</option>)}
+    </select>
+  </div>
+
+  {showAvailability && <label class="inlogem-filter-check">
+    <input type="checkbox" name="disponibilidad" value="available" checked={availability === 'available'} />
+    <span><strong>Solo disponibles</strong><small>Disponibilidad de la demo</small></span>
+  </label>}
+
+  <div class="inlogem-filter-field">
+    <label for={`${idPrefix}-order`}>Ordenar por</label>
+    <select id={`${idPrefix}-order`} name="orden">
+      <option value="featured" selected={order === 'featured'}>Orden habitual</option>
+      <option value="price-asc" selected={order === 'price-asc'}>Precio: menor a mayor</option>
+      <option value="price-desc" selected={order === 'price-desc'}>Precio: mayor a menor</option>
+      <option value="name" selected={order === 'name'}>Nombre</option>
+    </select>
+  </div>
+
+  <button type="submit">Aplicar filtros</button>
+  <a href={action}>Limpiar todo</a>
+</form>
+
+<style>
+  .inlogem-filter-form{display:grid;gap:1.4rem}.inlogem-filter-form fieldset{min-width:0}.inlogem-filter-form legend,.inlogem-filter-field>label{margin-bottom:.65rem;color:#0b1633;font-size:.72rem;font-weight:800}.inlogem-filter-options{display:grid;gap:.15rem}.inlogem-filter-options label{display:grid;min-height:2.15rem;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:.55rem;border-radius:.55rem;padding:.3rem .4rem;color:#52627a;cursor:pointer;font-size:.7rem}.inlogem-filter-options label:hover{background:#f2f5f9;color:#0b1633}.inlogem-filter-options input{width:.9rem;height:.9rem;accent-color:#155eef}.inlogem-filter-options small{color:#52627a;font-size:.625rem}.inlogem-filter-field{display:grid}.inlogem-filter-field select{min-height:2.75rem;border:1px solid #7d8ca3;border-radius:.65rem;background:#fff;padding:.55rem .7rem;color:#0b1633;font-size:.72rem}.inlogem-filter-check{display:flex;min-height:2.75rem;align-items:flex-start;gap:.65rem;border-block:1px solid #e1e7ef;padding:.85rem .2rem;cursor:pointer}.inlogem-filter-check input{width:1rem;height:1rem;margin-top:.1rem;accent-color:#155eef}.inlogem-filter-check span{display:grid;gap:.12rem}.inlogem-filter-check strong{font-size:.7rem}.inlogem-filter-check small{color:#52627a;font-size:.625rem}.inlogem-filter-form>button{min-height:2.75rem;border-radius:.65rem;background:#155eef;padding:.65rem 1rem;color:#fff;font-size:.72rem;font-weight:800}.inlogem-filter-form>button:hover{background:#0b3fb3}.inlogem-filter-form>a{color:#52627a;font-size:.68rem;font-weight:700;text-align:center;text-decoration:underline;text-underline-offset:3px}.inlogem-filter-form>a:hover{color:#155eef}
+</style>

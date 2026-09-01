@@ -3,7 +3,9 @@ import ProductPage from '../../../../components/store/ProductPage.astro';
 import { getDemoProduct, getDemoRelated } from '../../../../composition/demo-catalog';
 import { notFoundResponse } from '../../../../lib/not-found';
 import { proposalHtmlHeaders } from '../../../../proposals';
+import { inlogemCatalogItem } from '../../../../proposals/inlogem/catalog';
 import { inlogemStoreExperience } from '../../../../proposals/inlogem/config';
+import InlogemProductPresentation from '../../../../proposals/inlogem/InlogemProductPresentation.astro';
 import { proposalForPage } from '../../../../proposals/http';
 
 export const prerender = false;
@@ -17,7 +19,8 @@ const proposal = await proposalForPage({
 if (proposal instanceof Response) return proposal;
 
 const product = getDemoProduct(proposal.collection.id, Astro.params.slug ?? '');
-if (!product) {
+const proposalItem = inlogemCatalogItem(Astro.params.slug ?? '');
+if (!product || !proposalItem) {
   const missing = await notFoundResponse(Astro.locals.runtime.env, Astro.url);
   proposalHtmlHeaders(missing.headers);
   return missing;
@@ -31,4 +34,7 @@ const related = getDemoRelated(product);
   related={related}
   site={Astro.site}
   experience={inlogemStoreExperience}
-/>
+  customPresentation
+>
+  <InlogemProductPresentation slot="presentation" product={product} item={proposalItem} related={related} paths={proposal.paths} />
+</ProductPage>
