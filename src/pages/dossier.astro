@@ -3,6 +3,8 @@
 // imprimirlo en PDF (Ctrl/Cmd+P). Indexable, cero JS, mismo lenguaje visual
 // que la landing (shell comercial). Los precios son los publicados en la landing.
 import Landing from '../layouts/Landing.astro';
+import CommercialPlans from '../components/CommercialPlans.astro';
+import { planOffers } from '../commercial/plans';
 import { MAIN_DEMO_HREF } from '../lib/nav';
 
 // ── El camino MVP → tienda que crece (P2) ───────────────────────────────────
@@ -152,7 +154,7 @@ const faqs = [
   },
   {
     q: '¿Por qué no Shopify o WooCommerce?',
-    a: 'Con ellos tu tienda se parece a las demás y el marketing lo buscas aparte: la plataforma te da software, no un equipo. Aquí el diseño es a medida y tuyo, el código también, la tienda carga en menos de medio segundo, y quien la construye es quien la posiciona. La diferencia de fondo: allí pagas por usar una plataforma; aquí pagas a las personas que llevan tu tienda y que trabajan para que reciba más visitas.',
+    a: 'Shopify y WooCommerce también permiten crear tiendas personalizadas. Aquí contratas a Logic2B para diseñar, desarrollar y mantener tu proyecto sobre su infraestructura propia. Comparamos el alcance completo, incluidos diseño, mantenimiento e integraciones, antes de recomendar una opción.',
   },
   {
     q: '¿Tienda en varios idiomas?',
@@ -171,11 +173,7 @@ const jsonLd = [
     areaServed: 'ES',
     serviceType: 'Desarrollo de comercio electrónico',
     // Sincronizado con la sección «Cuánto cuesta» y con la landing (D4).
-    offers: [
-      { '@type': 'Offer', name: 'Kit Lite', price: '590', priceCurrency: 'EUR' },
-      { '@type': 'Offer', name: 'Kit', price: '1900', priceCurrency: 'EUR' },
-      { '@type': 'Offer', name: 'Kit a medida', price: '3400', priceCurrency: 'EUR' },
-    ],
+    offers: planOffers,
   },
 ];
 ---
@@ -191,12 +189,10 @@ const jsonLd = [
     <!-- Portada -->
     <section class="page-hero page-shell">
       <p class="page-kicker">Dossier del servicio</p>
-      <h1>Tu tienda a medida: qué se entrega, cómo crece y <span>qué compras cada mes</span>.</h1>
+      <h1>Tu ecommerce.<br /><span>Todo lo que incluye.</span></h1>
       <p class="page-lead">
-        Este documento explica exactamente qué incluye <strong class="text-foreground">Logic2B Ecommerce</strong>,
-        cómo evoluciona tu tienda sin cambiar de plataforma, qué compra tu mensualidad, qué
-        necesitamos de ti y cuánto cuesta. Sin letra pequeña: es lo mismo que firmarías en el
-        presupuesto.
+        Diseño, tecnología, mantenimiento y responsabilidades. Una guía para
+        entender el servicio antes de acordar la propuesta de tu tienda.
       </p>
     </section>
 
@@ -412,50 +408,7 @@ const jsonLd = [
           Un pago único de puesta en marcha y una sola cuota mensual, sin
           permanencia. Tres formas de empezar según lo que necesites.
         </p>
-        <div class="mt-6 grid gap-5 sm:grid-cols-2">
-          <div class="rounded-2xl border border-foreground bg-[#f3f7ff] p-7 shadow-sm">
-            <p class="page-kicker">Kit · el más elegido</p>
-            <p class="mt-2 font-display text-4xl">1.900 €<span class="text-base font-normal text-muted-foreground"> + desde 39 €/mes</span></p>
-            <p class="mt-4 text-sm leading-relaxed text-muted-foreground">
-              Todo lo del apartado «Qué incluye el primer mes», partiendo de uno de los
-              estilos del catálogo adaptado a tu marca: color, tipografía y fotos. La
-              cuota cubre lo del apartado anterior —mantenimiento, asistencia y
-              seguimiento— con
-              <strong class="text-foreground">hasta 2 horas de cambios de contenido al mes</strong>.
-            </p>
-          </div>
-          <div class="rounded-2xl border border-border bg-card p-7 shadow-sm">
-            <p class="page-kicker">Kit a medida</p>
-            <p class="mt-2 font-display text-4xl">desde 3.400 €<span class="text-base font-normal text-muted-foreground"> + desde 59 €/mes</span></p>
-            <p class="mt-4 text-sm leading-relaxed text-muted-foreground">
-              Dirección visual propia, creada para tu marca: sesión de arte, imaginería
-              generada para tu catálogo y un tema exclusivo que no se comparte con
-              nadie. Todo lo del Kit, con soporte prioritario.
-            </p>
-          </div>
-        </div>
-        <div class="mt-5 flex flex-col justify-between gap-3 rounded-2xl bg-muted px-6 py-5 text-sm sm:flex-row sm:items-center">
-          <div>
-            <p class="font-semibold">Kit Lite · desde 590 €, sin mensualidad</p>
-            <p class="mt-1 text-muted-foreground">
-              Hasta 10 productos con enlaces de pago, sin panel. Para empezar
-              a vender online con lo justo y crecer al Kit cuando toque.
-            </p>
-          </div>
-          <a
-            href="mailto:hola@logic2b.com?subject=Kit%20Lite%20para%20mi%20negocio"
-            class="text-link shrink-0"
-          >Pregunta por el Lite</a>
-        </div>
-        <p class="mt-4 text-sm leading-relaxed text-muted-foreground">
-          La mensualidad indicada es el tramo de entrada. Sube por tramos a medida que crece el
-          tráfico de tu tienda, que es el trabajo que hacemos por ti: se te comunica antes de
-          aplicarse y queda por escrito en la propuesta.
-        </p>
-        <p class="mt-3 text-sm leading-relaxed text-muted-foreground">
-          Costes que no dependen de nosotros: el dominio (~12 €/año) y la comisión que cobre la
-          pasarela de pago por venta, que pagarías igual en cualquier plataforma.
-        </p>
+        <div class="mt-6"><CommercialPlans /></div>
       </section>
 
       <!-- Qué pasa si nos vamos (anti-secuestro: F11.7 / Fase 10.3) -->

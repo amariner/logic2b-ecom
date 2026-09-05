@@ -1,0 +1,20 @@
+---
+import { plans, euro } from '../commercial/plans';
+const previews = { lite: 'bruma', kit: 'arce', custom: 'nera' } as const;
+---
+<div class="commercial-plans">
+  {plans.map((plan) => <article class:list={['commercial-plan', plan.featured && 'is-featured']}>
+    <p class="plan-audience">{plan.audience}</p><h3>{plan.name}</h3>
+    <p class="plan-price"><small>Desde</small> {euro(plan.setup)} €</p>
+    <p class="plan-monthly">{plan.monthly ? `+ desde ${plan.monthly} €/mes de mantenimiento` : 'Puesta en marcha · sin panel de gestión'}</p>
+    <a href="/#contacto" data-open-project data-project-pack={plan.name} class="plan-cta">Consultar este pack <span aria-hidden="true">↗</span></a>
+    <a class="plan-preview" href="/temas"><img src={`/images/screens/store-${previews[plan.id]}-catalog-560.webp`} alt={`Referencia de diseño para ${plan.name}`} width="560" height="360" loading="lazy" /><span>Explorar diseños <b aria-hidden="true">↗</b></span></a>
+    <p class="plan-description">{plan.description}</p>
+    <ul>{plan.points.map((point) => <li><span aria-hidden="true">✓</span>{point}</li>)}</ul>
+  </article>)}
+</div>
+<p class="plans-note">Precios orientativos sin IVA. El presupuesto concreta catálogo, contenidos, integraciones y mantenimiento. Pasarela de pago, publicidad y servicios de terceros se presupuestan aparte. Kit Lite se prepara bajo propuesta; la demo muestra la tienda completa.</p>
+<style>
+.commercial-plans{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1.1rem}.commercial-plan{border:1px solid var(--border);border-radius:1.5rem;background:var(--card);padding:2rem;display:flex;flex-direction:column}.commercial-plan.is-featured{background:var(--c-tint);border-color:var(--c-green)}.plan-audience{font-size:.8rem;color:var(--c-muted)}.commercial-plan h3{font-size:1.6rem;margin:.7rem 0 1.4rem}.plan-price{font-size:2.75rem;letter-spacing:-.06em;font-weight:600;line-height:1.1}.plan-price small{font-size:.8rem;letter-spacing:0;font-weight:400}.plan-monthly{font-size:.78rem;color:var(--c-muted);margin:.75rem 0 1.4rem;min-height:2.4em}.plan-cta{display:flex;align-items:center;justify-content:space-between;min-height:3rem;padding:.8rem 1.1rem;border:1px solid var(--c-green);border-radius:999px;font-size:.85rem;color:var(--c-green)}.is-featured .plan-cta{background:var(--c-green);color:white}.plan-description{font-size:1rem;line-height:1.5;margin:1.5rem 0 1rem}.commercial-plan ul{display:grid;gap:.8rem;font-size:.85rem;color:var(--c-muted)}.commercial-plan li{display:flex;gap:.65rem}.commercial-plan li span{color:var(--c-green)}.plans-note{max-width:65rem;margin:1.5rem auto 0;font-size:.8rem;line-height:1.7;color:var(--c-muted)}@media(max-width:800px){.commercial-plans{grid-template-columns:1fr}.commercial-plan{padding:1.5rem}.plan-monthly{min-height:0}}
+.plan-preview{display:block;border:1px solid var(--border);border-radius:.85rem;overflow:hidden;margin-top:1.5rem;background:white}.plan-preview img{width:100%;height:150px;object-fit:cover;object-position:top}.plan-preview>span{display:flex;justify-content:space-between;padding:.65rem .8rem;font-size:.7rem;color:var(--c-muted)}
+</style>

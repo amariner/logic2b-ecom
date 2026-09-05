@@ -1,0 +1,17 @@
+---
+import type { CollectionConfig } from '../../collections';
+import type { StoreExperienceConfig } from '../../proposals';
+interface Props { collection: CollectionConfig; experience: StoreExperienceConfig }
+const { collection, experience } = Astro.props;
+---
+<footer class="inlogem-shared-footer" data-proposal-store-footer>
+  <div class="inlogem-shared-footer__main">
+    <a href={experience.proposalHomeHref} class="inlogem-shared-footer__brand">{experience.brand?.markSrc && <img src={experience.brand.markSrc} alt="" width="48" height="48" />}<span><strong>{experience.brand?.wordmark ?? collection.name}</strong><small>Todo para trabajar, estudiar y crear.</small></span></a>
+    <nav aria-label="Enlaces de la tienda"><a href={experience.paths.catalog}>Todos los productos</a><a href={experience.paths.cart}>Carrito</a><a href={`${experience.proposalHomeHref}#experiencia`}>Conoce Inlogem</a><a href={experience.managerHref}>Gestor demo</a></nav>
+    <div><p>Una compra clara, de principio a fin.</p><small>{experience.legal.shippingNote} {experience.legal.returnsNote}</small></div>
+  </div>
+  <p class="inlogem-shared-footer__legal">Concepto privado de Logic2B Ecommerce · Precios con IVA incluido · Productos, stock y pedidos de demostración.</p>
+</footer>
+<style>
+.inlogem-shared-footer{background:#0b1633;color:#c5cede}.inlogem-shared-footer__main{display:grid;grid-template-columns:1.1fr .7fr 1fr;gap:2.5rem;max-width:1440px;margin:auto;padding:3rem clamp(1.25rem,4vw,3.5rem)}.inlogem-shared-footer__brand{display:flex;gap:.8rem;align-items:flex-start}.inlogem-shared-footer__brand img{width:42px;height:42px}.inlogem-shared-footer__brand strong{display:block;color:white;font-size:1.3rem;font-weight:700;letter-spacing:.12em}.inlogem-shared-footer small{display:block;font-size:.75rem;line-height:1.8;margin-top:.5rem}.inlogem-shared-footer nav{display:grid;gap:.5rem;font-size:.83rem}.inlogem-shared-footer nav a{padding:.35rem 0}.inlogem-shared-footer nav a:hover{color:white}.inlogem-shared-footer__main>div>p{font-size:.9rem;color:white}.inlogem-shared-footer__legal{border-top:1px solid #ffffff26;max-width:1330px;margin:auto;padding:1.4rem;font-size:.7rem;line-height:1.7}.inlogem-shared-footer a:focus-visible{outline:2px solid white;outline-offset:4px}@media(max-width:700px){.inlogem-shared-footer__main{grid-template-columns:1fr;gap:1.8rem;padding-block:2rem}.inlogem-shared-footer nav{grid-template-columns:1fr 1fr}}
+</style>

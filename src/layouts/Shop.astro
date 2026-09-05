@@ -12,6 +12,7 @@ import Base from './Base.astro';
 import SiteHeader from '../components/SiteHeader.astro';
 import DemoJourneyBanner from '../components/store/DemoJourneyBanner.astro';
 import ProposalStoreHeader from '../components/store/ProposalStoreHeader.astro';
+import ProposalStoreFooter from '../components/store/ProposalStoreFooter.astro';
 import MinimalHeader from '../components/themes/minimal/Header.astro';
 import MinimalFooter from '../components/themes/minimal/Footer.astro';
 import { shopConfig } from '../../shop.config';
@@ -161,22 +162,7 @@ const checkoutStep = checkoutSteps.findIndex((step) => step.href === currentPath
             utilidades: así la variante oscura no tiene que pisar clases de
             Tailwind (la trampa de especificidad de docs/CHECKLIST_TEMA.md § 3). */}
         {experience ? (
-          <footer data-proposal-store-footer>
-            <div class="proposal-store-footer__body">
-              <div class="proposal-store-footer__brand">
-                {experience.brand?.markSrc && <img src={experience.brand.markSrc} alt="" width="48" height="48" aria-hidden="true" />}
-                <div><strong>{experience.brand?.wordmark ?? collection.name}</strong><span>{collection.tagline}</span></div>
-              </div>
-              <nav aria-label="Enlaces de la tienda">
-                <a href={experience.paths.catalog} aria-current={currentPath === catalogPath ? 'page' : undefined}>Todos los productos</a>
-                <a href={experience.paths.cart} aria-current={currentPath === (experience.paths.cart.replace(/\/+$/, '') || '/') ? 'page' : undefined}>Carrito</a>
-                <a href={experience.proposalHomeHref}>La propuesta</a>
-                <a href={experience.managerHref}>Gestor demo</a>
-              </nav>
-              <p>{experience.legal.shippingNote} {experience.legal.returnsNote}</p>
-            </div>
-            <div class="proposal-store-footer__legal">Concepto privado de Logic2B Ecommerce · Los precios, el stock y los pedidos son una simulación.</div>
-          </footer>
+          <ProposalStoreFooter collection={collection} experience={experience} />
         ) : (
           <footer class:list={['shop-footer', darkFooter && 'shop-footer--dark']}>
             <div class="shop-footer__body mx-auto max-w-6xl px-4 py-10 text-sm">

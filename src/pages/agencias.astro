@@ -322,7 +322,7 @@ const jsonLd = [
   .commercial-page .agency-brief {
     border: 1px solid var(--c-border);
     border-radius: 1.5rem;
-    background: #f5f6f8;
+    background: var(--muted);
     padding: clamp(1.4rem, 3vw, 2rem);
   }
   .commercial-page .agency-brief > p {
@@ -357,7 +357,7 @@ const jsonLd = [
     font-weight: 700;
   }
   .commercial-page .agency-proof p:first-child { border-left: 1px solid var(--c-border); }
-  .commercial-page .agency-proof span { color: #254fad; font-size: .7rem; }
+  .commercial-page .agency-proof span { color: var(--c-green); font-size: .7rem; }
   .commercial-page .agency-section { padding-block: clamp(4.5rem, 8vw, 7rem); }
   .commercial-page .agency-heading { max-width: 47rem; }
   .commercial-page .agency-heading h2,
@@ -386,15 +386,15 @@ const jsonLd = [
     border-radius: 1.5rem;
     padding: clamp(1.5rem, 3vw, 2.25rem);
   }
-  .commercial-page .responsibility-grid article:last-child { background: #c7e5f2; border-color: transparent; color: #17386f; }
-  .commercial-page .card-owner { color: #254fad; font-size: .7rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; }
+  .commercial-page .responsibility-grid article:last-child { background: var(--c-tint); border-color: transparent; color: var(--c-green); }
+  .commercial-page .card-owner { color: var(--c-green); font-size: .7rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; }
   .commercial-page .responsibility-grid h3 { margin-top: .75rem; font-size: clamp(1.5rem, 2.7vw, 2.2rem); }
   .commercial-page .card-intro { max-width: 30rem; margin-top: .75rem; color: var(--c-muted); line-height: 1.55; }
-  .commercial-page .responsibility-grid article:last-child .card-intro { color: #31517f; }
+  .commercial-page .responsibility-grid article:last-child .card-intro { color: var(--c-muted); }
   .commercial-page .responsibility-grid ul { display: grid; gap: .85rem; margin-top: 2rem; }
   .commercial-page .responsibility-grid li { display: grid; grid-template-columns: 1.1rem 1fr; gap: .55rem; line-height: 1.45; }
   .commercial-page .responsibility-grid li span { color: #47752d; font-weight: 900; }
-  .commercial-page .agency-process { background: #f5f6f8; padding-block: clamp(4.5rem, 8vw, 7rem); }
+  .commercial-page .agency-process { background: var(--muted); padding-block: clamp(4.5rem, 8vw, 7rem); }
   .commercial-page .process-grid {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -404,7 +404,7 @@ const jsonLd = [
   .commercial-page .process-grid li { padding: 1.6rem 1.4rem 0 0; border-right: 1px solid var(--c-border); }
   .commercial-page .process-grid li + li { padding-left: 1.4rem; }
   .commercial-page .process-grid li:last-child { border-right: 0; }
-  .commercial-page .process-grid span { color: #254fad; font-size: .72rem; font-weight: 800; }
+  .commercial-page .process-grid span { color: var(--c-green); font-size: .72rem; font-weight: 800; }
   .commercial-page .process-grid h3 { margin-top: 2.75rem; font-size: 1.45rem; }
   .commercial-page .process-grid p { margin-top: .75rem; color: var(--c-muted); font-size: .92rem; line-height: 1.6; }
   .commercial-page .deliverable-grid {
@@ -416,12 +416,12 @@ const jsonLd = [
     border-left: 1px solid var(--c-border);
   }
   .commercial-page .deliverable-grid article { min-height: 15rem; padding: 1.75rem; border-right: 1px solid var(--c-border); border-bottom: 1px solid var(--c-border); }
-  .commercial-page .deliverable-grid span { color: #254fad; font-size: .72rem; font-weight: 800; }
+  .commercial-page .deliverable-grid span { color: var(--c-green); font-size: .72rem; font-weight: 800; }
   .commercial-page .deliverable-grid h3 { max-width: 25rem; margin-top: 3.5rem; font-size: clamp(1.35rem, 2.6vw, 2rem); }
   .commercial-page .deliverable-grid p { max-width: 31rem; margin-top: .8rem; color: var(--c-muted); line-height: 1.6; }
-  .commercial-page .white-label-band { background: #181d26; color: white; padding-block: clamp(4.5rem, 8vw, 7rem); }
+  .commercial-page .white-label-band { background: var(--c-green); color: white; padding-block: clamp(4.5rem, 8vw, 7rem); }
   .commercial-page .white-label-inner { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(280px, .9fr); gap: clamp(2.5rem, 7vw, 7rem); align-items: start; }
-  .commercial-page .white-label-inner .page-kicker { color: #a9c6f4; }
+  .commercial-page .white-label-inner .page-kicker { color: #d3dfd0; }
   .commercial-page .white-label-inner h2 { color: white; }
   .commercial-page .white-label-inner > div:last-child { display: grid; gap: 1.25rem; padding-top: .4rem; color: rgba(255,255,255,.72); font-size: 1.05rem; line-height: 1.7; }
   .commercial-page .fit-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; margin-top: 3rem; }
@@ -438,12 +438,12 @@ const jsonLd = [
   .commercial-page .agency-faq details { border-bottom: 1px solid var(--c-border); }
   .commercial-page .agency-faq summary { display: flex; min-height: 4.5rem; cursor: pointer; list-style: none; align-items: center; justify-content: space-between; gap: 1rem; padding-block: 1.1rem; font-size: 1.05rem; font-weight: 700; }
   .commercial-page .agency-faq summary::-webkit-details-marker { display: none; }
-  .commercial-page .agency-faq summary span { color: #254fad; font-size: 1.4rem; transition: transform 150ms ease; }
+  .commercial-page .agency-faq summary span { color: var(--c-green); font-size: 1.4rem; transition: transform 150ms ease; }
   .commercial-page .agency-faq details[open] summary span { transform: rotate(45deg); }
   .commercial-page .agency-faq details > p { max-width: 47rem; padding: 0 2.5rem 1.5rem 0; color: var(--c-muted); line-height: 1.65; }
-  .commercial-page .agency-contact { background: #001013; color: white; padding-block: clamp(4.5rem, 8vw, 7rem); }
+  .commercial-page .agency-contact { background: var(--c-green); color: white; padding-block: clamp(4.5rem, 8vw, 7rem); }
   .commercial-page .agency-contact-inner { display: grid; grid-template-columns: minmax(0, .85fr) minmax(320px, 1.15fr); gap: clamp(2.5rem, 7vw, 7rem); align-items: start; }
-  .commercial-page .agency-contact .page-kicker { color: #9ac6bc; }
+  .commercial-page .agency-contact .page-kicker { color: #d3dfd0; }
   .commercial-page .agency-contact h2 { color: white; }
   .commercial-page .agency-contact-inner > div > p:not(.page-kicker) { max-width: 34rem; margin-top: 1.25rem; color: rgba(255,255,255,.7); line-height: 1.65; }
   .commercial-page .agency-contact .contact-note { padding-top: 1.25rem; border-top: 1px solid rgba(255,255,255,.16); font-size: .85rem; }

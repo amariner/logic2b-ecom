@@ -31,9 +31,6 @@ products = products.toSorted((a, b) => {
   return a.category.localeCompare(b.category, 'es') || a.name.localeCompare(b.name, 'es');
 });
 const activeCategory = proposal.collection.categories.find((item) => item.id === category);
-const heroItems = ['28233', '92385', '160142']
-  .map((code) => inlogemCatalog.find((item) => item.sourceCode === code))
-  .filter((item) => item !== undefined);
 const categoryCounts = Object.fromEntries(proposal.collection.categories.map((item) => [
   item.id,
   inlogemCatalog.filter((product) => product.category === item.id).length,
@@ -47,16 +44,11 @@ const catalogResultsAction = `${proposal.paths.catalog}#productos`;
     <section class="inlogem-catalog-hero">
       <div>
         <p class="inlogem-catalog-kicker">Tienda online</p>
-        <h1>Todo lo que necesitas, <span>más fácil.</span></h1>
-        <p>Explora 72 referencias reales de papelería, tecnología, mobiliario y más. Precios de demostración con IVA incluido.</p>
+        <h1>Encuentra lo que<br /><span>pone tu día en marcha.</span></h1>
+        <p>Papelería, tecnología y esenciales de oficina. Busca tu referencia o explora por categoría.</p>
         <a href="#productos">Ver productos <span aria-hidden="true">↓</span></a>
       </div>
-      <div class="inlogem-catalog-hero__products" aria-hidden="true">
-        {heroItems.map((item, index) => (
-          <span style={`--product-index:${index}`}><img src={item.image} alt="" width="1000" height="762" loading={index === 0 ? 'eager' : 'lazy'} /></span>
-        ))}
-        <strong>72</strong><small>productos</small>
-      </div>
+      <img class="inlogem-catalog-editorial" src="/images/proposals/inlogem/workspace-editorial.webp" alt="Papelería y tecnología en un escritorio luminoso" width="1536" height="1024" fetchpriority="high" />
     </section>
 
     <section id="productos" class="inlogem-catalog-products" aria-labelledby="inlogem-products-title">
@@ -171,3 +163,7 @@ const catalogResultsAction = `${proposal.paths.catalog}#productos`;
     @media(prefers-reduced-motion:reduce){.inlogem-catalog-card,.inlogem-catalog-card img{transition:none}.inlogem-catalog-card:hover{transform:none}}
   </style>
 </Shop>
+<style>
+.inlogem-catalog-hero{grid-template-columns:1.2fr .8fr;gap:3rem;padding-block:2.5rem}.inlogem-catalog-hero h1{font-size:clamp(2rem,3.2vw,3.3rem);line-height:1.05}.inlogem-catalog-editorial{width:100%;height:220px;object-fit:cover;border-radius:1rem}.inlogem-catalog-card h3{font-size:.85rem;line-height:1.45;min-height:2.5rem}.inlogem-catalog-card__body>span{font-size:.68rem}.inlogem-catalog-card__price strong{font-size:1.15rem}.inlogem-catalog-card button{min-height:44px;font-size:.75rem}.inlogem-catalog-card__media{height:12rem}.inlogem-catalog-search input{font-size:.9rem}.inlogem-catalog-search:focus-within{outline:2px solid var(--color-brand);outline-offset:3px}
+@media(max-width:759px){.inlogem-catalog-hero{grid-template-columns:1fr;padding-block:1.5rem}.inlogem-catalog-hero h1{font-size:2.1rem}.inlogem-catalog-editorial{display:none}.inlogem-catalog-card h3{font-size:.8rem}.inlogem-catalog-card__media{height:9rem}.inlogem-catalog-card__price strong{font-size:1rem}.inlogem-catalog-card button{font-size:.7rem}}
+</style>

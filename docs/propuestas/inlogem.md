@@ -7,7 +7,7 @@ URL privada local: `/propuestas/inlogem-3a7399641519f1d36a1ea232f309223c`
 ## Alcance
 
 - Ecommerce abierto con la identidad visual INLOGEM y una cabecera comercial compartida entre portada, catálogo, producto y compra.
-- Portada con seis accesos visuales a las categorías principales antes del buscador.
+- Portada editorial con fotografía de oficina, búsqueda principal y seis accesos visuales a categorías bajo el hero.
 - Catálogo con 72 fichas públicas trazables, 8 categorías, búsqueda, filtro lateral en escritorio, panel compacto en móvil y compra rápida.
 - Carrito, checkout y confirmación guardados únicamente en el navegador.
 - Gestor de solo lectura con 12 pedidos y 6 emails ficticios.
@@ -27,4 +27,13 @@ Los importes son ficticios y finales: “IVA incluido · precio de demostración
 
 ## Límites
 
-No hay login profesional, tarifas B2B por cliente, edición, exportación, fiscalidad, pagos, D1, sincronización de stock, scraping periódico ni mensajes a Inlogem. La propuesta presenta las tarifas profesionales únicamente como una evolución futura y no activa. Marcas, referencias y procedencia se muestran como datos observados; el sistema gráfico propio de la propuesta acompaña imágenes locales del catálogo real.
+No hay login profesional, tarifas B2B por cliente, edición, exportación, fiscalidad, pagos, D1, sincronización de stock, scraping periódico ni mensajes a Inlogem. Las tarifas profesionales siguen fuera de alcance; cualquier evolución requiere una propuesta específica. Marcas, referencias y procedencia se muestran como datos observados; el sistema gráfico propio de la propuesta acompaña imágenes locales del catálogo real.
+
+## Revisión UX/UI — 5 de septiembre de 2026
+
+Portada con foco de compra, titulares y tarjetas más contenidos. El contenido de
+la propuesta y su formulario se agrupa en un desplegable. Cabecera y pie
+compartidos entre portada, catálogo, ficha, carrito, entrega y confirmación.
+La fotografía editorial es generada; las fichas conservan sus imágenes de catálogo.
+Véase `docs/audits/ECOMMERCE_UX_2026-09-05.md` para referencia, precios del
+servicio, recursos y verificación. La propuesta privada no se enlaza desde la home indexable.

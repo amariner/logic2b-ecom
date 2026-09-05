@@ -22,8 +22,8 @@ import ProjectForm from './ProjectForm.astro';
       <div>
         <h2 id="project-dialog-h" class="font-display text-2xl">Cuéntanos tu proyecto</h2>
         <p class="mt-2 text-sm text-muted-foreground">
-          Empezamos por un MVP sencillo que funcione desde el primer día y crezca
-          contigo. Dinos qué vendes y te decimos si encajamos.
+          Cuéntanos qué vendes y qué necesitas mejorar. Revisamos contigo el diseño,
+          el catálogo y la gestión para preparar una propuesta clara.
         </p>
       </div>
       <button
@@ -51,6 +51,9 @@ import ProjectForm from './ProjectForm.astro';
         const prefillEmail = trigger.getAttribute('data-prefill-email');
         const emailInput = dialog.querySelector<HTMLInputElement>('input[name=email]');
         if (prefillEmail && emailInput) emailInput.value = prefillEmail;
+        const pack = trigger.getAttribute('data-project-pack');
+        const needsInput = dialog.querySelector<HTMLTextAreaElement>('textarea[name=needs]');
+        if (pack && needsInput && !needsInput.value.trim()) needsInput.value = `Me interesa el pack ${pack}.`;
         dialog.showModal();
         dialog.querySelector<HTMLInputElement>('input[name=name]')?.focus();
       });

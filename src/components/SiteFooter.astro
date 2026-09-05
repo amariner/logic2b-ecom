@@ -13,50 +13,9 @@ const currentPath = Astro.url.pathname.replace(/\.html$/, '') || '/';
 ---
 
 <footer class="site-footer">
-  <div class="site-footer-inner">
-    <p>© 2026 Logic2B · Castellón</p>
-    <nav aria-label="Mapa del sitio">
-      {footerNav.map((link) => (
-        <a href={link.href} aria-current={link.href === currentPath ? 'page' : undefined}>{link.label}</a>
-      ))}
-    </nav>
-  </div>
+  <div class="site-footer-top"><div><a href="/" class="footer-brand">Logic2B <span>Ecommerce</span></a><p>Tu tienda, la compra y la gestión.<br />Un mismo proyecto, un equipo detrás.</p></div><nav aria-label="Mapa del sitio">{footerNav.map((link) => <a href={link.href} aria-current={link.href === currentPath ? 'page' : undefined}>{link.label}</a>)}</nav><div class="footer-contact"><p>Hablemos de tu negocio.</p><a href="/#contacto" data-open-project>Preparar una propuesta ↗</a><a href="mailto:hola@logic2b.com">hola@logic2b.com</a></div></div>
+  <div class="site-footer-bottom"><p>© 2026 Logic2B · Castellón</p><a href="https://logic2b.com">Diseño y tecnología por Logic2B ↗</a></div>
 </footer>
-
 <style>
-  /* Mismo lienzo que el cierre de la portada: tinta #181d26 (--air-ink). */
-  .site-footer {
-    border-top: 1px solid rgba(255, 255, 255, 0.16);
-    background: #181d26;
-    color: rgba(255, 255, 255, 0.6);
-    font-size: 0.875rem;
-  }
-  /* El mismo carril que la cabecera: 1440px + gutter clamp(24px,4vw,32px). */
-  .site-footer-inner {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: space-between;
-    gap: 0.75rem 1.5rem;
-    width: min(100%, 1440px);
-    margin-inline: auto;
-    padding: 1.5rem clamp(24px, 4vw, 32px);
-  }
-  .site-footer nav {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.35rem 1.1rem;
-  }
-  .site-footer a {
-    transition: color 150ms ease;
-  }
-  .site-footer a:hover {
-    color: #ffffff;
-  }
-  /* El dossier se imprime: el pie es navegación, no papel. */
-  @media print {
-    .site-footer {
-      display: none;
-    }
-  }
+.site-footer{background:var(--c-green,#203f22);color:#d1dfcd;border-top:1px solid #ffffff26}.site-footer-top{display:grid;grid-template-columns:1fr 1fr .8fr;gap:3rem;max-width:1280px;margin:auto;padding:3rem clamp(20px,5vw,64px)}.footer-brand{color:white;font-size:1.15rem;font-weight:700;letter-spacing:-.04em}.footer-brand span{font-weight:400}.site-footer-top p{font-size:.85rem;line-height:1.8;margin-top:1rem}.site-footer nav{display:grid;grid-template-columns:1fr 1fr;gap:.35rem 1rem;align-content:start}.site-footer nav a{font-size:.78rem;min-height:32px;display:flex;align-items:center}.site-footer a:hover{color:white;text-decoration:underline;text-underline-offset:4px}.footer-contact{display:grid;align-content:start;gap:.8rem;font-size:.83rem}.footer-contact p{margin:0}.site-footer-bottom{border-top:1px solid #ffffff26;max-width:1152px;margin:auto;display:flex;justify-content:space-between;gap:1rem;padding:1.5rem 0;font-size:.7rem}@media(max-width:700px){.site-footer-top{grid-template-columns:1fr;gap:2rem;padding-block:2.5rem}.site-footer-bottom{flex-wrap:wrap;margin-inline:20px}.site-footer nav a{min-height:40px}}@media print{.site-footer{display:none}}
 </style>

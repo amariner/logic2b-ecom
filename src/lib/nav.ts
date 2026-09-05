@@ -19,11 +19,9 @@ import { adminHomeHrefFor } from '../platform/configuration';
  * contexto. En el menú competía con las entradas que sí venden.
  */
 export const landingNav = [
-  { href: '/arquitectura', label: 'Cómo funciona' },
-  { href: '/temas', label: 'Temas' },
+  { href: '/temas', label: 'Tiendas' },
+  { href: '/#paneles', label: 'Gestor' },
   { href: '/precios', label: 'Precios' },
-  { href: '/agencias', label: 'Agencias' },
-  { href: '/dossier', label: 'Dossier' },
 ] as const;
 
 /** Escaparate principal de la demo comercial. */
@@ -43,6 +41,10 @@ export const DEMO_ADMIN_HREF = adminHomeHrefFor(runtimePlatform);
 export const footerNav = [
   { href: '/', label: 'Inicio' },
   ...landingNav,
+  { href: '/arquitectura', label: 'Cómo funciona' },
+  { href: '/agencias', label: 'Agencias' },
+  { href: '/dossier', label: 'Dossier' },
+  { href: '/ayuda', label: 'Guía del comercio' },
   { href: MAIN_DEMO_HREF, label: 'Demo de tienda' },
   ...(DEMO_ADMIN_HREF ? [{ href: DEMO_ADMIN_HREF, label: 'Panel demo' }] : []),
 ] as const;

@@ -26,6 +26,19 @@ ecommerce adaptado y un despliegue aislado; Logic2B asume la complejidad,
 mantenimiento y evolución. Especificación completa en `CLAUDE.md` y definición
 canónica en [`docs/POSICIONAMIENTO.md`](POSICIONAMIENTO.md).
 
+## Revisión UX/UI comercial e Inlogem (2026-09-05)
+
+Entrega en `codex/proposals-inlogem`, por encargo directo de Andreu. Home con
+los apartados de Camp adaptados a ecommerce, shell comercial compartido,
+precios centralizados, dos fotografías editoriales y portada Inlogem centrada
+en compra. Cabecera y pie de tienda coherentes durante todo el recorrido.
+
+Detalle, fuentes de precios, matriz de paridad y validación:
+[`ECOMMERCE_UX_2026-09-05.md`](audits/ECOMMERCE_UX_2026-09-05.md).
+Pendiente de esta entrega: repetir Lighthouse en producción cuando se autorice
+el despliegue; no se publica una puntuación nueva con la revisión local.
+No desplegado. Este encargo no cambia el orden del roadmap de plataforma.
+
 ## ✅ HARDENING DE CONSUMO D1 (2026-08-25)
 
 Ante la aplicación de los límites diarios del plan gratuito anunciada por
