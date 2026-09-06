@@ -301,6 +301,7 @@ for (const p of SITE_PAGES) {
   SURFACES.push({ name: `site:${p.id}@375`, url: p.url, vp: MOBILE });
 }
 SURFACES.push({ name: 'site:landing@motion', url: '/', vp: DESKTOP, reducedMotion: true });
+SURFACES.push({ name: 'site:estilos@motion', url: '/temas', vp: DESKTOP, reducedMotion: true });
 
 // R5.4d: estas rutas no existen en la demo y por eso no forman parte de la
 // batería ordinaria. El arnés local explícito activa un manifest cliente y una

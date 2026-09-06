@@ -19,6 +19,7 @@
     "audit:lh": "node scripts/lighthouse.mjs",
     "audit:themes": "node scripts/theme-baseline.mjs --write",
     "audit:themes:check": "node scripts/theme-baseline.mjs --check",
+    "capture:theme-videos": "node scripts/capture-theme-videos.mjs",
     "new:theme": "node scripts/new-theme.mjs",
     "new:proposal": "node scripts/new-proposal.mjs",
     "import:inlogem": "node scripts/import-inlogem-catalog.mjs",

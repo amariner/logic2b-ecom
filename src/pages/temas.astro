@@ -54,6 +54,16 @@ const sampleFiles = new Set(
 );
 const hasSample = (sample: string | null): boolean => Boolean(sample) && sampleFiles.has(sample!);
 
+const previewFiles = new Set(
+  Object.keys(import.meta.glob('../../public/images/screens/theme-*-preview.mp4')).map(
+    (path) => `/images/screens/${path.split('/').pop()!}`,
+  ),
+);
+const previewFor = (themeId: string): string | null => {
+  const preview = `/images/screens/theme-${themeId}-preview.mp4`;
+  return previewFiles.has(preview) ? preview : null;
+};
+
 const styles = newestThemesFirst(demoThemes.filter((t) => t.id !== defaultTheme.id));
 
 const layoutLabels: Record<string, string> = {
@@ -195,6 +205,8 @@ const jsonLd = [
                       width="900"
                       height="563"
                       class={`h-full w-full object-cover transition duration-300 group-hover:scale-[1.02] ${storeFor(theme.id)!.crop}`}
+                      data-theme-video-src={previewFor(theme.id) ?? undefined}
+                      data-theme-video-label={`Recorrido en movimiento por ${storeFor(theme.id)!.name}, tema ${theme.label}`}
                     />
                   </a>
                 ) : hasSample(theme.sample) ? (
@@ -224,6 +236,19 @@ const jsonLd = [
                   <span class="absolute right-4 top-4 rounded-full border border-border bg-background/90 px-2.5 py-1 text-[11px] font-medium text-muted-foreground">
                     En desarrollo
                   </span>
+                )}
+                {previewFor(theme.id) && (
+                  <button
+                    type="button"
+                    hidden
+                    data-theme-video-toggle
+                    aria-pressed="false"
+                    aria-label={`Pausar el recorrido del tema ${theme.label}`}
+                    class="theme-video-toggle"
+                  >
+                    <svg data-theme-video-pause aria-hidden="true" viewBox="0 0 24 24"><path d="M8 6v12M16 6v12"></path></svg>
+                    <svg data-theme-video-play aria-hidden="true" viewBox="0 0 24 24" class="hidden"><path d="m9 6 9 6-9 6Z"></path></svg>
+                  </button>
                 )}
               </div>
 
@@ -369,6 +394,37 @@ const jsonLd = [
     border: 1px solid currentColor;
   }
 
+  .theme-video-toggle {
+    position: absolute;
+    right: 1rem;
+    bottom: 1rem;
+    z-index: 2;
+    display: grid;
+    width: 2.75rem;
+    height: 2.75rem;
+    place-items: center;
+    border: 1px solid color-mix(in oklab, var(--background) 45%, transparent);
+    border-radius: 9999px;
+    background: color-mix(in oklab, var(--foreground) 86%, transparent);
+    color: var(--background);
+    box-shadow: 0 0.25rem 1rem color-mix(in oklab, var(--foreground) 18%, transparent);
+    transition: transform 150ms ease, background-color 150ms ease;
+  }
+
+  .theme-video-toggle:hover { transform: scale(1.05); }
+  .theme-video-toggle:focus-visible { outline: 2px solid var(--background); outline-offset: 2px; }
+  .theme-video-toggle svg { width: 1rem; height: 1rem; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .theme-video-toggle[hidden] { display: none; }
+
+  :global(.theme-card-video) {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top;
+  }
+
   @media (min-width: 64rem) {
     [data-theme-grid][data-columns='3'] { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   }
@@ -425,6 +481,76 @@ const jsonLd = [
       filterButtons.forEach((button) => button.setAttribute('aria-pressed', String(button.dataset.themeFilter === 'all')));
       applyFilters();
       search.focus();
+    });
+  }
+
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const saveData = (navigator as Navigator & { connection?: { saveData?: boolean } }).connection?.saveData === true;
+  const previewImages = [...document.querySelectorAll<HTMLImageElement>('[data-theme-video-src]')];
+
+  if (!reduceMotion && !saveData && previewImages.length > 0) {
+    const manuallyPaused = new WeakSet<HTMLVideoElement>();
+    const observer = new IntersectionObserver((entries) => {
+      for (const entry of entries) {
+        const current = entry.target;
+        let video: HTMLVideoElement;
+
+        if (current instanceof HTMLImageElement) {
+          if (!entry.isIntersecting) continue;
+          const src = current.dataset.themeVideoSrc;
+          if (!src) continue;
+          video = document.createElement('video');
+          video.src = src;
+          video.poster = current.currentSrc || current.src;
+          video.preload = 'none';
+          video.muted = true;
+          video.loop = true;
+          video.playsInline = true;
+          video.className = 'theme-card-video';
+          video.setAttribute('aria-label', current.dataset.themeVideoLabel ?? current.alt);
+          current.replaceWith(video);
+          observer.unobserve(current);
+          observer.observe(video);
+          video.closest('[data-theme-card]')
+            ?.querySelector<HTMLButtonElement>('[data-theme-video-toggle]')
+            ?.removeAttribute('hidden');
+        } else if (current instanceof HTMLVideoElement) {
+          video = current;
+        } else {
+          continue;
+        }
+
+        if (entry.isIntersecting && entry.intersectionRatio >= 0.35 && !manuallyPaused.has(video)) {
+          void video.play().catch(() => {});
+        } else {
+          video.pause();
+        }
+      }
+    }, { rootMargin: '160px 0px', threshold: [0, 0.35] });
+
+    previewImages.forEach((image) => observer.observe(image));
+    document.querySelectorAll<HTMLButtonElement>('[data-theme-video-toggle]').forEach((button) => {
+      button.addEventListener('click', () => {
+        const video = button.closest('[data-theme-card]')?.querySelector<HTMLVideoElement>('video.theme-card-video');
+        if (!video) return;
+        const pauseIcon = button.querySelector<SVGElement>('[data-theme-video-pause]');
+        const playIcon = button.querySelector<SVGElement>('[data-theme-video-play]');
+        if (video.paused) {
+          manuallyPaused.delete(video);
+          void video.play().catch(() => {});
+          button.setAttribute('aria-pressed', 'false');
+          button.setAttribute('aria-label', button.getAttribute('aria-label')?.replace('Reproducir', 'Pausar') ?? 'Pausar recorrido');
+          pauseIcon?.classList.remove('hidden');
+          playIcon?.classList.add('hidden');
+        } else {
+          manuallyPaused.add(video);
+          video.pause();
+          button.setAttribute('aria-pressed', 'true');
+          button.setAttribute('aria-label', button.getAttribute('aria-label')?.replace('Pausar', 'Reproducir') ?? 'Reproducir recorrido');
+          pauseIcon?.classList.add('hidden');
+          playIcon?.classList.remove('hidden');
+        }
+      });
     });
   }
 </script>

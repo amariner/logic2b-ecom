@@ -1,4 +1,4 @@
-# Capturas de la landing (F11.1)
+# Capturas y vídeos de las páginas comerciales
 
 Capturas reales de las **6 tiendas**, del **panel** y del **flujo de compra**,
 para la landing V2 (dirección C «Ocho tiendas, un motor»). **Caducan con cada
@@ -8,6 +8,11 @@ superficie afectada.
 Todo lo genera un solo comando reproducible, sin dependencias npm nuevas:
 Chrome del sistema conducido por CDP (`WebSocket` global de Node ≥21) + `cwebp`.
 El motor es [`scripts/capture-screens.mjs`](../../../scripts/capture-screens.mjs).
+
+Las tarjetas de `/temas` usan además un recorrido vertical en vídeo por cada
+tienda. Lo genera [`scripts/capture-theme-videos.mjs`](../../../scripts/capture-theme-videos.mjs):
+cada id recibe una cadencia determinista propia (duración, aceleraciones y
+pausas), para que los vídeos visibles no avancen sincronizados.
 
 ## Receta de re-captura
 
@@ -29,6 +34,33 @@ node scripts/capture-screens.mjs --keep-png         # conserva el PNG intermedio
 
 Variables opcionales: `BASE_URL` (por defecto `http://127.0.0.1:8799`),
 `CHROME_BIN` (ruta a Chrome si no es la de macOS).
+
+## Vídeos de `/temas`
+
+```bash
+# 1. Servidor local (Astro basta para los escaparates)
+pnpm dev
+
+# 2. Todos los temas, o uno durante un rediseño
+pnpm capture:theme-videos
+pnpm capture:theme-videos -- --only=arista
+```
+
+El script descubre los temas a partir de
+`store-<id>-catalog-900.webp`, excluye la tienda Base `demo` y produce
+`theme-<id>-preview.mp4` a 720×450, H.264, sin audio y con `faststart`. No crea
+PNG intermedios: Chrome entrega cada fotograma por CDP directamente a ffmpeg.
+
+Stretch es la excepción deliberada: su propia página contiene seis vídeos
+remotos autoplay. Para no mezclar sus fotogramas con los del screencast, el
+generador recorre su captura completa con una panorámica de dos tiempos y pausa
+intermedia. La tarjeta sigue enseñando el mismo escaparate y el comando global
+permanece determinista.
+
+En `/temas` el póster WebP sigue siendo la salida por defecto. El vídeo solo se
+crea al acercarse la tarjeta al viewport y se pausa al salir; con
+`prefers-reduced-motion`, ahorro de datos o JavaScript desactivado permanece la
+captura estática. Cada tarjeta animada expone además un control de pausa.
 
 ### Vídeo de Iris (una vez; no lo hace el script)
 

@@ -2,6 +2,12 @@ import { describe, expect, it } from 'vitest';
 import temasSource from '../src/pages/temas.astro?raw';
 import { demoThemes } from '../src/lib/demo-themes';
 
+const previewIds = new Set(
+  Object.keys(import.meta.glob('../public/images/screens/theme-*-preview.mp4')).map((path) =>
+    path.match(/theme-(.+)-preview\.mp4$/)?.[1],
+  ),
+);
+
 /**
  * `/temas` traduce los valores de `layout` a etiquetas legibles con un mapa
  * literal. Cuando se añadió `gridCols: 5` (tema Street) el mapa se quedó corto y
@@ -35,5 +41,14 @@ describe('etiquetas de /temas', () => {
       }
     }
     expect(missing, `valores sin etiqueta en temas.astro: ${missing.join(', ')}`).toEqual([]);
+  });
+});
+
+describe('vídeos destacados de /temas', () => {
+  it('cada tema visible tiene su recorrido en vídeo', () => {
+    const missing = demoThemes
+      .filter((theme) => theme.id !== 'base' && !previewIds.has(theme.id))
+      .map((theme) => theme.id);
+    expect(missing, `temas sin theme-<id>-preview.mp4: ${missing.join(', ')}`).toEqual([]);
   });
 });
