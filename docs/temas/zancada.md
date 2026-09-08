@@ -1,6 +1,6 @@
 # Zancada — importación del tema original de Logic2B
 
-**Fecha:** 2026-09-08. **Estado:** integración local terminada; publicación pendiente.
+**Fecha:** 2026-09-08. **Estado:** integrado en `main` y publicado en producción.
 
 ## Origen y fidelidad
 
@@ -61,11 +61,46 @@ foco, controles táctiles, tamaños de imagen y filas sin desbordamiento.
   seed público. La D1 habitual permanece en `0039`: sus tres fallos de backup
   (`customer_address_access_refs` ausente) son previos y no se altera esa base.
 
+## Publicación
+
+Publicación autorizada expresamente por Andreu el 2026-09-08. Código
+`a5e2762`, subido a GitHub en `codex/import-zancada` y `main`; build y
+`pnpm deploy` correctos. Worker `ecom-logic2b`, versión
+`d435077f-9181-44ad-8397-dfa367b7c59f`, con `DEMO_MODE=true`.
+
+Demo: <https://ecom.logic2b.com/demo/tiendas/zancada>.
+Smoke de producción: 18 páginas HTTP 200 (portada, galería, tienda, cesta,
+checkout y 13 fichas), noindex en la demo y contrato Product/compra en
+las fichas. Los 35 recursos publicados coinciden por SHA-256 con el repositorio.
+Portada y recorrido verificados también en navegador: talla EU 44 → cesta →
+CP 12001, envío gratis → checkout → confirmación efímera a 140 €.
+No se han aplicado migraciones ni
+escrito datos en D1. El primer intento se detuvo localmente por falta de
+espacio antes de publicar; se retiró el perfil temporal de capturas y el
+reintento terminó correctamente.
+
+Lighthouse 12 en producción, mediana de tres pasadas por dispositivo:
+
+| Superficie | Rendimiento | Accesibilidad | Buenas prácticas | SEO | LCP | CLS | TBT |
+|---|---|---|---|---|---|---|---|
+| Portada móvil | 100 | 100 | 100 | 100 | 1,7 s | 0 | 0 ms |
+| Portada escritorio | 100 | 100 | 100 | 100 | 0,5 s | 0 | 0 ms |
+| Galería móvil | 99 | 100 | 100 | 100 | 2,1 s | 0 | 0 ms |
+| Galería escritorio | 100 | 100 | 100 | 100 | 0,6 s | 0 | 0 ms |
+
+Comandos: `node scripts/lighthouse.mjs --only=home` y `--only=estilos`.
+El segundo devuelve código 1 porque el objetivo estricto es 100 en todas
+las categorías. La diferencia móvil corresponde a LCP (2,1–2,2 s en las
+tres pasadas); se registra como mejora pendiente de la galería. No se cita
+100 de rendimiento para esa superficie ni se sobrescribe el informe global
+`docs/LIGHTHOUSE.md` con una tanda parcial.
+
 ## Coste y límites
 
 **Motor modificado: NO.** Solo kit, colección/seed, registros de tema y slots,
 CSS limitado a Zancada, capturas, pruebas y documentación. Sin dependencias,
-migraciones nuevas, generación de assets, credenciales ni despliegue.
+migraciones nuevas, generación de assets ni credenciales nuevas. Despliegue
+posterior autorizado, con la sesión de Cloudflare existente.
 
 Se conserva el peso original de las imágenes y los tres vídeos por el encargo
 de fidelidad. El auditor de línea base señala el directorio superior a 2,5 MB
@@ -83,4 +118,5 @@ originales y medirse por ruta, no por el peso total del directorio.
 - Producto ✓: diseño original conservado y 13 fichas navegables.
 - Frontend ✓: Astro y TypeScript, sin dependencias nuevas.
 - UX/UI ✓: móvil, teclado, estados y contraste revisados.
-- SEO ✓: noindex/canonical y Product/Offer compartidos.
+- SEO ⚠: noindex/canonical y Product/Offer correctos; rendimiento móvil de
+  galería 99, mejora registrada en ROADMAP.

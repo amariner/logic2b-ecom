@@ -16,7 +16,7 @@
 > 2. Actualizar el estado de la fase al terminar, con fecha y resumen de lo hecho.
 > 3. Anotar decisiones tomadas y pendientes en las secciones de abajo.
 
-## Zancada — importación local del tema de Logic2B (2026-09-08)
+## Zancada — tema de Logic2B importado y publicado (2026-09-08)
 
 Encargo independiente de la cola de plataforma, terminado en
 `codex/import-zancada`. Se importa el Astro/CSS de `logic2b-note`, sus 25 WebP
@@ -27,7 +27,16 @@ Ver [ficha, alcance y evidencia](temas/zancada.md).
 
 Motor, proveedores y D1 habitual intactos. E2E global verificado en una D1
 temporal con el esquema actual: la base local habitual está en `0039` y su
-backup falla por tablas posteriores ausentes. Publicación de Zancada pendiente.
+backup falla por tablas posteriores ausentes. Publicado por instrucción expresa
+de Andreu: `a5e2762` integrado en `main` y GitHub, build y deploy correctos,
+versión `d435077f-9181-44ad-8397-dfa367b7c59f`. Smoke de 18 páginas y 35
+recursos correcto en producción; `DEMO_MODE=true`, sin migraciones ni escrituras D1.
+
+Lighthouse de producción (mediana de 3 pasadas): portada móvil/escritorio
+100/100/100/100 y galería escritorio 100/100/100/100. **Mejora pendiente:**
+galería móvil 99/100/100/100, LCP 2,1 s (2,1–2,2 s), CLS 0 y TBT 0.
+La tanda de galería devuelve 1 por el umbral estricto de 100. No se atribuye
+esa diferencia a una regresión sin comparación; evidencia en la ficha del tema.
 
 ## Objetivo
 
@@ -1773,8 +1782,8 @@ solo vuelve a `main` o a producción por instrucción expresa.
 
 ## Próxima sesión
 
-Zancada queda completado localmente por encargo del 2026-09-08; su publicación
-queda pendiente. La cola de plataforma que sigue no cambia por esta importación.
+Zancada queda completado, integrado en GitHub y publicado por encargo expreso
+del 2026-09-08. La cola de plataforma que sigue no cambia por esta importación.
 
 ### R5.5h — Cierre visual y rollout inerte de devoluciones
 

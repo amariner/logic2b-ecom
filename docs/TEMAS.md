@@ -879,3 +879,5 @@ en los que tocan datos.
 ## Zancada — importación del diseño propio de Logic2B (2026-09-08)
 
 Running editorial, hero doble en vídeo, campaña de montaña, seis colores PACE CREW, equipamiento y comunidad. 13 artículos con tallas explícitas y ficha propia; conserva los 28 recursos de `logic2b-note`. Carrito, entrega y confirmación usan el recorrido común. Detalle y evidencias en [la ficha de Zancada](temas/zancada.md).
+
+Integrado en `main` y [publicado en producción](https://ecom.logic2b.com/demo/tiendas/zancada) el 2026-09-08 por instrucción expresa de Andreu; smoke correcto de 18 páginas y 35 recursos.
