@@ -12,7 +12,7 @@
 
 Logic2B Ecommerce vende una tienda **a medida**. El problema comercial es que «a medida»
 suena caro y abstracto: el cliente no puede imaginarse su tienda. El catálogo de
-estilos resuelve eso — son 33 direcciones visuales completas, cada una derivada de
+estilos resuelve eso — son 34 direcciones visuales completas, cada una derivada de
 una referencia real de ecommerce, entre las que el cliente elige un punto de
 partida.
 
@@ -875,3 +875,7 @@ en los que tocan datos.
 
 5. **`compact` en móvil.** Editorial, Industrial, Specs y Street hay que
    verificarlos a 375px. La densidad es de escritorio.
+
+## Zancada — importación del diseño propio de Logic2B (2026-09-08)
+
+Running editorial, hero doble en vídeo, campaña de montaña, seis colores PACE CREW, equipamiento y comunidad. 13 artículos con tallas explícitas y ficha propia; conserva los 28 recursos de `logic2b-note`. Carrito, entrega y confirmación usan el recorrido común. Detalle y evidencias en [la ficha de Zancada](temas/zancada.md).

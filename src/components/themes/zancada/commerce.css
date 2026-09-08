@@ -1,0 +1,52 @@
+/* Ajustes de acoplamiento: el CSS original vive en original.css y la composición en Theme.astro. */
+.zancada :where(a,button,input,select,summary):focus-visible { outline:2px solid var(--ds-ink); outline-offset:4px; }
+.zancada [hidden] { display:none!important; }
+.zancada .ds-product-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); overflow:visible; }
+.zancada .ds-catalog-title { font-size:clamp(32px,5vw,80px); font-weight:800; letter-spacing:-.06em; margin:40px 0; }
+.zancada .ds-catalog-controls { margin-bottom:20px; }
+.zancada .ds-catalog-controls .ds-filters { display:flex; flex-wrap:wrap; gap:8px; }
+.zancada .ds-filters a { padding:10px 12px; border:1px solid var(--ds-line); }
+.zancada .ds-filters a[aria-current='page'] { background:var(--ds-ink); color:var(--ds-bg); }
+.zancada .ds-catalog-form { display:flex; flex-wrap:wrap; gap:12px; align-items:center; margin:14px 0; }
+.zancada .ds-catalog-form input,.zancada .ds-catalog-form select { border-bottom:1px solid var(--ds-ink); padding:10px 6px; max-width:100%; }
+.zancada .ds-catalog-form button { padding:10px 14px; background:var(--ds-ink); color:var(--ds-bg); }
+.zancada .ds-empty { padding:60px 20px; text-align:center; }
+.zancada .ds-empty h2 { font-size:24px; margin-bottom:15px; }
+.zancada .ds-empty a,.zancada .ds-bag-link { display:inline-block; margin:18px 0; text-decoration:underline; text-underline-offset:4px; }
+.zancada .ds-buy:disabled { opacity:.55; cursor:not-allowed; }
+.zancada .ds-brand-track>a { flex:1 0 23%; min-width:0; aspect-ratio:1/1.05; background:#cecec8; font-size:clamp(13px,2vw,30px); font-weight:900; letter-spacing:-.05em; display:grid; place-items:center; scroll-snap-align:start; }
+.zancada .ds-brand-track>a:hover { background:var(--ds-acid); }
+.zancada .ds-color-options>img { width:64px; height:64px; object-fit:contain; }
+.zancada .ds-card-action { visibility:hidden; opacity:1; }
+.zancada .ds-card:hover .ds-card-action,.zancada .ds-card:focus-visible .ds-card-action { visibility:visible; }
+@media(max-width:640px) { .zancada .ds-product-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } .zancada .ds-catalog-form { gap:8px; } .zancada .ds-catalog-form input { width:170px; } }
+@media(hover:none),(pointer:coarse) { .zancada .ds-card-action { visibility:visible; } }
+.zancada[data-page='product']>div:first-child { padding:24px var(--ds-margin) 0; }
+.zancada .ds-card { min-width:0; }
+.zancada .ds-card-info>div { min-width:0; overflow-wrap:anywhere; }
+.zancada .ds-card-info { min-width:0; }
+.zancada .ds-hero-under,.zancada .ds-demo-note,.zancada .ds-newsletter form>p,.zancada .ds-footer-links>div>span:first-child,.zancada .ds-breadcrumb,.zancada .ds-product-heading>span,.zancada .ds-size-status { color:#5b5b55; }
+.zancada .ds-video-toggle { background:#151515; color:#fff; min-width:32px; min-height:32px; }
+.zancada .ds-gallery-label,.zancada .ds-hero-caption p,.zancada .ds-model-sub,.zancada .ds-hero-arrow { background:#151515; color:#fff; padding:5px 7px; }
+.zancada .ds-hero-trail h1 { background:rgb(0 0 0 / 58%); color:#fff; padding:5px 7px 9px; }
+.zancada .ds-hero-model h2 { background:rgb(0 0 0 / 58%); color:#fff; left:10px; right:10px; padding:8px 4px; }
+.zancada .ds-runner-campaign .ds-campaign-copy { background:rgb(0 0 0 / 68%); padding:10px; }
+.zancada .ds-event-title,.zancada .ds-event-cta { background:rgb(0 0 0 / 68%); padding:8px; }
+.zancada .ds-footer-links :is(a,button) { min-height:28px; display:flex; align-items:center; }
+.zancada .ds-strip-footer button,.zancada .ds-catalog-arrows button { min-width:28px; min-height:28px; }
+.zancada .ds-hero-under>span,.zancada .ds-footer-links>div>span:first-child,.zancada .ds-breadcrumb>span:last-child,.zancada .ds-product-heading>span:last-child { color:#5b5b55; }
+
+.zancada .ds-footer-top .ds-footer-links>div>span:first-child { color:#5b5b55; }
+
+.zancada .ds-gallery-label { mix-blend-mode:normal; }
+.zancada .ds-spin-caption { background:var(--ds-bg); color:var(--ds-ink); padding:6px; }
+.zancada .ds-zoom { background:var(--ds-bg); color:var(--ds-ink); min-width:32px; min-height:32px; }
+/* Velo continuo: conserva los titulares sin cajas. El tramo bajo las letras
+   mantiene al menos 62% de negro incluso sobre un fotograma blanco (AA). */
+.zancada .ds-hero-link { background:#151515; }
+.zancada .ds-hero-link::after { content:''; position:absolute; inset:0; pointer-events:none; z-index:0; }
+.zancada .ds-hero-trail .ds-hero-link::after { background:linear-gradient(to bottom,rgb(0 0 0 / 62%) 0%,rgb(0 0 0 / 62%) 36%,transparent 55%); }
+.zancada .ds-hero-model .ds-hero-link::after { background:linear-gradient(to bottom,transparent 35%,rgb(0 0 0 / 62%) 45%,rgb(0 0 0 / 62%) 68%,transparent 82%); }
+.zancada .ds-hero-trail h1,.zancada .ds-hero-model h2 { background:transparent; padding:0; z-index:1; }
+.zancada .ds-hero-model h2 { left:0; right:0; }
+.zancada .ds-hero-caption,.zancada .ds-model-sub,.zancada .ds-hero-arrow { z-index:1; }

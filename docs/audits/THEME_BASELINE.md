@@ -1,10 +1,10 @@
-# Línea base automática de los 33 temas
+# Línea base automática de los 34 temas
 
 > Generado por `node scripts/theme-baseline.mjs --write`. No editar las tablas a mano.
 
 ## Alcance y método
 
-El informe cubre **33 escaparates** (Base y la colección transaccional `demo` quedan fuera). El análisis es estático y reproducible: compara registros versionados, rutas, fichas, capturas y assets sin arrancar Astro ni consultar D1.
+El informe cubre **34 escaparates** (Base y la colección transaccional `demo` quedan fuera). El análisis es estático y reproducible: compara registros versionados, rutas, fichas, capturas y assets sin arrancar Astro ni consultar D1.
 
 - Assets: Suma de archivos bajo public/images/collections/<id>; techo de inventario, no transferencia de red.
 - JavaScript: Contenido fuente de bloques <script> en componentes y rutas propias; no bundle ni gzip.
@@ -12,10 +12,10 @@ El informe cubre **33 escaparates** (Base y la colección transaccional `demo` q
 
 ## Resumen
 
-- Registros canónicos: themes 33/33 · collections 33/33 · seeds 33/33 · catalogViews 33/33 · a11y 33/33 · captureCatalog 33/33 · captureProduct 33/33 · homeGallery 33/33 · docs 33/33 · components 33/33
-- Contrato compartido completo: **33/33** · recorrido/storage privado: **0**.
-- Evidencia completa (catálogo, móvil, ficha, 560 y 900): **33/33**.
-- Inventario de assets: **33.62 MB** · JS propio crudo: **21.5 KB**.
+- Registros canónicos: themes 34/34 · collections 34/34 · seeds 34/34 · catalogViews 34/34 · a11y 34/34 · captureCatalog 34/34 · captureProduct 34/34 · homeGallery 34/34 · docs 34/34 · components 34/34
+- Contrato compartido completo: **34/34** · recorrido/storage privado: **0**.
+- Evidencia completa (catálogo, móvil, ficha, 560 y 900): **34/34**.
+- Inventario de assets: **45.40 MB** · JS propio crudo: **27.4 KB**.
 - Hallazgos: **P0 0 · P1 0 · P2 2 · P3 1**.
 
 ## Hallazgos P0–P3
@@ -30,9 +30,9 @@ El informe cubre **33 escaparates** (Base y la colección transaccional `demo` q
 
 ### P2
 
-- **TH0.2-P2-02 · Directorio de assets por encima de 2,5 MB.** Temas: argent, forma, noddo, sitega. noddo: 2.61 MB · sitega: 3.84 MB · forma: 4.58 MB · argent: 3.75 MB Destino: TH0.3 · medir payload servido y priorizar optimización.
+- **TH0.2-P2-02 · Directorio de assets por encima de 2,5 MB.** Temas: argent, forma, noddo, sitega, zancada. noddo: 2.61 MB · sitega: 3.84 MB · forma: 4.58 MB · argent: 3.75 MB · zancada: 11.78 MB Destino: TH0.3 · medir payload servido y priorizar optimización.
 
-- **TH0.2-P2-03 · Assets raster/vídeo fuera del formato base.** Temas: forma, iris, noddo, sitega, stretch. iris: jpg×1, mp4×1, webp×6 · noddo: jpg×16, webp×12 · sitega: jpg×9 · forma: jpg×14 · stretch: jpg×5 Destino: TH0.3 · validar necesidad, compresión y carga real por viewport.
+- **TH0.2-P2-03 · Assets raster/vídeo fuera del formato base.** Temas: forma, iris, noddo, sitega, stretch, zancada. iris: jpg×1, mp4×1, webp×6 · noddo: jpg×16, webp×12 · sitega: jpg×9 · forma: jpg×14 · stretch: jpg×5 · zancada: webp×25, mp4×3 Destino: TH0.3 · validar necesidad, compresión y carga real por viewport.
 
 ### P3
 
@@ -75,6 +75,7 @@ El informe cubre **33 escaparates** (Base y la colección transaccional `demo` q
 | ensamble | 10/10 | dynamic / común | N✓ C✓ J✓ | ✓✓✓✓✓ | 3 | 392.2 KB · webp×3 | 15.2 KB / 0 B |
 | eje | 10/10 | dynamic / común | N✓ C✓ J✓ | ✓✓✓✓✓ | 3 | 304.8 KB · webp×4 | 15.7 KB / 0 B |
 | arista | 10/10 | dynamic / común | N✓ C✓ J✓ | ✓✓✓✓✓ | 4 | 269.1 KB · webp×4 | 13.9 KB / 0 B |
+| zancada | 10/10 | dynamic / común | N✓ C✓ J✓ | ✓✓✓✓✓ | 0 | 11.78 MB · webp×25 mp4×3 | 71.9 KB / 5.9 KB |
 
 Leyenda de SEO: N `noindex`, C canonical, J Product + Offer. Capturas: catálogo, móvil, ficha, tarjeta 560 y tarjeta 900, en ese orden.
 
@@ -82,15 +83,15 @@ Leyenda de SEO: N `noindex`, C canonical, J Product + Offer. Capturas: catálogo
 
 | Registro | Presentes | Faltan | Sobran |
 |---|---:|---|---|
-| themes | 33 | — | — |
-| collections | 33 | — | — |
-| seeds | 33 | — | — |
-| catalogViews | 33 | — | — |
-| a11y | 33 | — | — |
-| captureCatalog | 33 | — | — |
-| captureProduct | 33 | — | — |
-| homeGallery | 33 | — | — |
-| docs | 33 | — | — |
-| components | 33 | — | — |
+| themes | 34 | — | — |
+| collections | 34 | — | — |
+| seeds | 34 | — | — |
+| catalogViews | 34 | — | — |
+| a11y | 34 | — | — |
+| captureCatalog | 34 | — | — |
+| captureProduct | 34 | — | — |
+| homeGallery | 34 | — | — |
+| docs | 34 | — | — |
+| components | 34 | — | — |
 
 El detalle máquina-legible vive en `docs/audits/theme-baseline.json`.

@@ -3,6 +3,7 @@
  * Ficha de producto de una tienda del escaparate (9B.4). Colección y producto
  * validados; un slug de OTRA colección no resuelve aquí (404).
  */
+import ZancadaProductDetail from '../../../../components/themes/zancada/ProductDetail.astro';
 import ProductPage from '../../../../components/store/ProductPage.astro';
 import NoddoProductDetail from '../../../../components/themes/noddo/ProductDetail.astro';
 import SitegaProductDetail from '../../../../components/themes/sitega/ProductDetail.astro';
@@ -23,6 +24,7 @@ if (!collection || !product || notFound) {
 
 const related = getDemoRelated(product);
 const productPresentations = {
+  zancada: ZancadaProductDetail,
   noddo: NoddoProductDetail,
   sitega: SitegaProductDetail,
   stretch: StretchProductDetail,

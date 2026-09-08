@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "scope": {
-    "themes": 33,
+    "themes": 34,
     "ids": [
       "editorial",
       "industrial",
@@ -35,7 +35,8 @@
       "sarga",
       "ensamble",
       "eje",
-      "arista"
+      "arista",
+      "zancada"
     ]
   },
   "methodology": {
@@ -51,52 +52,52 @@
   },
   "registries": {
     "themes": {
-      "count": 33,
+      "count": 34,
       "missing": [],
       "extra": []
     },
     "collections": {
-      "count": 33,
+      "count": 34,
       "missing": [],
       "extra": []
     },
     "seeds": {
-      "count": 33,
+      "count": 34,
       "missing": [],
       "extra": []
     },
     "catalogViews": {
-      "count": 33,
+      "count": 34,
       "missing": [],
       "extra": []
     },
     "a11y": {
-      "count": 33,
+      "count": 34,
       "missing": [],
       "extra": []
     },
     "captureCatalog": {
-      "count": 33,
+      "count": 34,
       "missing": [],
       "extra": []
     },
     "captureProduct": {
-      "count": 33,
+      "count": 34,
       "missing": [],
       "extra": []
     },
     "homeGallery": {
-      "count": 33,
+      "count": 34,
       "missing": [],
       "extra": []
     },
     "docs": {
-      "count": 33,
+      "count": 34,
       "missing": [],
       "extra": []
     },
     "components": {
-      "count": 33,
+      "count": 34,
       "missing": [],
       "extra": []
     }
@@ -108,11 +109,11 @@
       "P2": 2,
       "P3": 1
     },
-    "sharedContract": 33,
+    "sharedContract": 34,
     "privateCommerce": 0,
-    "completeCaptureSets": 33,
-    "assetBytes": 35258052,
-    "scriptBytes": 21975
+    "completeCaptureSets": 34,
+    "assetBytes": 47608548,
+    "scriptBytes": 28023
   },
   "findings": [
     {
@@ -123,9 +124,10 @@
         "argent",
         "forma",
         "noddo",
-        "sitega"
+        "sitega",
+        "zancada"
       ],
-      "evidence": "noddo: 2.61 MB · sitega: 3.84 MB · forma: 4.58 MB · argent: 3.75 MB",
+      "evidence": "noddo: 2.61 MB · sitega: 3.84 MB · forma: 4.58 MB · argent: 3.75 MB · zancada: 11.78 MB",
       "destination": "TH0.3 · medir payload servido y priorizar optimización."
     },
     {
@@ -137,9 +139,10 @@
         "iris",
         "noddo",
         "sitega",
-        "stretch"
+        "stretch",
+        "zancada"
       ],
-      "evidence": "iris: jpg×1, mp4×1, webp×6 · noddo: jpg×16, webp×12 · sitega: jpg×9 · forma: jpg×14 · stretch: jpg×5",
+      "evidence": "iris: jpg×1, mp4×1, webp×6 · noddo: jpg×16, webp×12 · sitega: jpg×9 · forma: jpg×14 · stretch: jpg×5 · zancada: webp×25, mp4×3",
       "destination": "TH0.3 · validar necesidad, compresión y carga real por viewport."
     },
     {
@@ -2462,6 +2465,76 @@
         "bytes": 14263,
         "scriptBlocks": 0,
         "scriptBytes": 0
+      }
+    },
+    {
+      "id": "zancada",
+      "status": "ready",
+      "registries": {
+        "themes": true,
+        "collections": true,
+        "seeds": true,
+        "catalogViews": true,
+        "a11y": true,
+        "captureCatalog": true,
+        "captureProduct": true,
+        "homeGallery": true,
+        "docs": true,
+        "components": true
+      },
+      "routes": {
+        "mode": "dynamic",
+        "sharedSurfaces": {
+          "product": true,
+          "cart": true,
+          "checkout": true,
+          "thanks": true
+        },
+        "sharedContract": true,
+        "customFiles": []
+      },
+      "storage": {
+        "expectedCartKey": "ecom-cart:zancada",
+        "configuredCartKey": "ecom-cart:zancada",
+        "privateKeys": []
+      },
+      "metadata": {
+        "noindex": true,
+        "description": true,
+        "canonical": true,
+        "productJsonLd": true
+      },
+      "evidence": {
+        "doc": true,
+        "reference": true,
+        "referenceFile": "33-zancada.webp",
+        "sample": true,
+        "samplePath": "/images/screens/store-zancada-catalog.webp",
+        "captures": {
+          "catalog": true,
+          "mobile": true,
+          "product": true,
+          "card560": true,
+          "card900": true
+        }
+      },
+      "catalog": {
+        "products": 0,
+        "missingAssets": []
+      },
+      "assets": {
+        "files": 28,
+        "bytes": 12350496,
+        "formats": {
+          "webp": 25,
+          "mp4": 3
+        }
+      },
+      "source": {
+        "files": 10,
+        "bytes": 73649,
+        "scriptBlocks": 1,
+        "scriptBytes": 6048
       }
     }
   ]

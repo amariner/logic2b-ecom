@@ -1,0 +1,7 @@
+---
+import Theme from './Theme.astro';
+import type { ProductRow } from '../../../lib/db';
+interface Props { product: ProductRow }
+const { product } = Astro.props;
+---
+<Theme current={product}/>

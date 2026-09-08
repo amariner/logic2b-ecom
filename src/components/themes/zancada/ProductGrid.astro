@@ -1,0 +1,19 @@
+---
+import type { ProductRow } from '../../../lib/db';
+import { storePaths } from '../../../collections';
+import { formatEurCents } from '../../../lib/format';
+import { zancadaModels } from '../../../collections/zancada';
+interface Props { products: ProductRow[]; grid?: boolean }
+const { products, grid = false } = Astro.props;
+const paths = storePaths('zancada');
+---
+<div class:list={['ds-product-track', grid && 'ds-product-grid']}>
+  {products.map((p,index) => {
+    const model = zancadaModels.find(m => m.slug === p.slug)!;
+    return <a class="ds-card" href={paths.product(p.slug)}>
+      <div class="ds-card-image"><img src={p.image} alt={`${model.brand} ${model.name}, ${model.color}`} width="1000" height="1200" loading="lazy"/><span class="ds-card-action">VER PRODUCTO ↗</span>{index===0&&!grid&&<span class="ds-card-badge">NUEVO</span>}</div>
+      <div class="ds-card-info"><i style={`--dot:${model.dot}`}></i><div><span>{model.brand}</span><h3>{model.name}</h3><p>{model.color}</p><p>{formatEurCents(p.price_cents)}</p></div><span class="ds-card-plus" aria-hidden="true">+</span></div>
+    </a>;
+  })}
+</div>
+{products.length === 0 && <div class="ds-empty"><h2>No encontramos esos productos.</h2><p>Prueba otra búsqueda o vuelve a nuestra selección.</p><a href={paths.catalog}>Ver todo el catálogo ↗</a></div>}

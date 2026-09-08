@@ -1,0 +1,27 @@
+---
+import { storePaths, type CollectionConfig } from '../../../collections';
+interface Props { collection: CollectionConfig; count: number; activeCategory?: string | undefined; sort: string; search?: string | undefined }
+const { collection, count, activeCategory, sort, search = '' } = Astro.props;
+const base = storePaths(collection.id).catalog;
+const categoryHref = (category?: string) => {
+  const query = new URLSearchParams();
+  if (category) query.set('categoria', category);
+  if (search) query.set('q', search);
+  if (sort !== 'featured') query.set('orden', sort);
+  return `${base}?${query}#novedades`;
+};
+---
+<div class="ds-catalog-controls">
+  <nav class="ds-filters" aria-label="Categorías">
+    <a href={categoryHref()} aria-current={!activeCategory ? 'page' : undefined}>Todo</a>
+    {collection.categories.map(cat => <a href={categoryHref(cat.id)} aria-current={activeCategory === cat.id ? 'page' : undefined}>{cat.label}</a>)}
+  </nav>
+  <form action={`${base}#novedades`} method="get" class="ds-catalog-form" role="search">
+    {activeCategory && <input type="hidden" name="categoria" value={activeCategory}/>}
+    <label><span class="sr-only">Buscar en el catálogo</span><input name="q" type="search" placeholder="Marca, modelo o color" value={search} maxlength="60"/></label>
+    <label><span class="sr-only">Ordenar productos</span><select name="orden"><option value="featured" selected={sort === 'featured'}>Destacados</option><option value="price-asc" selected={sort === 'price-asc'}>Precio: menor a mayor</option><option value="price-desc" selected={sort === 'price-desc'}>Precio: mayor a menor</option><option value="name" selected={sort === 'name'}>Nombre A–Z</option></select></label>
+    <button type="submit">Buscar ↗</button>
+    <span>{count} artículos</span>
+    {(search || activeCategory || sort !== 'featured') && <a href={`${base}#novedades`}>Limpiar filtros</a>}
+  </form>
+</div>

@@ -353,3 +353,8 @@
 [data-store-theme='mixta'] :is(.text-brand, .hover\:text-brand-dark:hover) {
   color: var(--color-foreground);
 }
+
+/* Zancada: paleta común al catálogo, ficha y recorrido local. */
+[data-store-theme='zancada'] { --color-background:#efefed; --color-foreground:#151515; --color-muted:#e4e4df; --color-muted-foreground:#575750; --color-border:#bdbdb8; --color-card:#efefed; --color-popover:#efefed; --color-secondary:#deded7; background:var(--color-background); color:var(--color-foreground); }
+[data-store-theme='zancada'] :is(.text-brand, .hover\:text-brand-dark:hover) { color:#48560f; }
+[data-store-theme='zancada'] [data-commerce-surface]:not([data-commerce-surface='product']) { min-height:55vh; }

@@ -1,0 +1,7 @@
+---
+import Theme from './Theme.astro';
+import type { ProductRow } from '../../../lib/db';
+interface Props { products: ProductRow[]; category?: string | undefined; sort: string; search?: string | undefined }
+const { products, category, sort, search } = Astro.props;
+---
+<Theme rows={products} category={category} sort={sort} search={search}/>

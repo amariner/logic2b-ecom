@@ -105,6 +105,7 @@ const STORES = [
   { id: 'sitega', label: 'Sitēga', prefix: '/demo/tiendas/sitega', slug: 'sit-basin-soft', cartKey: 'ecom-cart:sitega' },
   { id: 'stretch', label: 'STRETCH', prefix: '/demo/tiendas/stretch', slug: 'str-illuminating-cleansing-gel', cartKey: 'ecom-cart:stretch' },
   { id: 'arce', label: 'ARCE', prefix: '/demo/tiendas/arce', slug: 'arc-silla-alba', cartKey: 'ecom-cart:arce' },
+  { id: 'zancada', label: 'Zancada', prefix: '/demo/tiendas/zancada', slug: 'zan-xt-wings-2', cartKey: 'ecom-cart:zancada' },
   // new-theme:a11y — no borrar: `pnpm new:theme <id>` añade aquí la tienda.
   { id: 'demo', label: 'La Botiga', prefix: '/demo/tienda', slug: 'aove-coupage-750', cartKey: 'ecom-demo-cart', legacy: true },
 ];

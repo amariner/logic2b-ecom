@@ -55,6 +55,7 @@ const THEME_CATEGORIES = {
   ensamble: ['hogar'],
   eje: ['hogar', 'tecnico'],
   arista: ['hogar', 'tecnico'],
+  zancada: ['moda', 'lanzamiento'],
 } as const satisfies Readonly<Record<string, readonly ThemeCategoryId[]>>;
 
 export function normalizeThemeSearch(value: string): string {

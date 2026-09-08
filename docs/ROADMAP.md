@@ -16,6 +16,19 @@
 > 2. Actualizar el estado de la fase al terminar, con fecha y resumen de lo hecho.
 > 3. Anotar decisiones tomadas y pendientes en las secciones de abajo.
 
+## Zancada — importación local del tema de Logic2B (2026-09-08)
+
+Encargo independiente de la cola de plataforma, terminado en
+`codex/import-zancada`. Se importa el Astro/CSS de `logic2b-note`, sus 25 WebP
+y 3 vídeos sin modificar los archivos. Trece artículos, 78 referencias de
+talla, fichas específicas, filtros GET y recorrido local compartido completo.
+Los registros, galería, capturas y vídeo incorporan el tema número 34.
+Ver [ficha, alcance y evidencia](temas/zancada.md).
+
+Motor, proveedores y D1 habitual intactos. E2E global verificado en una D1
+temporal con el esquema actual: la base local habitual está en `0039` y su
+backup falla por tablas posteriores ausentes. Publicación de Zancada pendiente.
+
 ## Objetivo
 
 Demo pública + infraestructura tecnológica interna para crear y gestionar
@@ -1759,6 +1772,9 @@ nuevos: continúa el primer bloque incompleto de
 solo vuelve a `main` o a producción por instrucción expresa.
 
 ## Próxima sesión
+
+Zancada queda completado localmente por encargo del 2026-09-08; su publicación
+queda pendiente. La cola de plataforma que sigue no cambia por esta importación.
 
 ### R5.5h — Cierre visual y rollout inerte de devoluciones
 

@@ -1216,6 +1216,36 @@ export const demoThemes: DemoTheme[] = [
       annotations: true, darkFooter: false,
     },
   },
+  {
+    id: 'zancada',
+    label: 'Zancada',
+    hint: 'Running editorial con hero doble en vídeo, galería y producto en 360°.',
+    reference: { name: 'Zancada — diseño propio de Logic2B', file: '33-zancada.webp' },
+    sample: '/images/screens/store-zancada-catalog.webp',
+    bestFor: ['Running', 'Moda deportiva', 'Concept stores'],
+    status: 'ready',
+    vars: {
+      '--color-brand': '#d9ff43',
+      '--color-brand-dark': '#c4e637',
+      '--color-brand-fg': '#151515',
+      '--font-display': 'Arial, Helvetica, sans-serif',
+      '--font-accent': MONO,
+      '--tracking-display': '-0.02em',
+      '--weight-display': '600',
+      '--radius-btn': '0rem',
+      '--radius-card': '0rem',
+      '--border-width': '1px',
+      '--surface-product': '#f6f6f4',
+      '--surface-sunken': '#fafafa',
+      '--space-density': '1',
+      '--grid-gap': '8px',
+    },
+    layout: {
+      gridCols: 4, gridStyle: 'uniform', nav: 'immersive', hero: 'fullbleed',
+      card: 'plain', filters: 'chips', density: 'regular',
+      annotations: false, darkFooter: false,
+    },
+  },
   // new-theme:themes — no borrar: `pnpm new:theme <id>` añade aquí el tema si falta.
 ];
 

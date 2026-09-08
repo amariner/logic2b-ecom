@@ -46,6 +46,7 @@ import { sargaCollection } from '../collections/sarga';
 import { ensambleCollection } from '../collections/ensamble';
 import { ejeCollection } from '../collections/eje';
 import { aristaCollection } from '../collections/arista';
+import { zancadaCollection } from '../collections/zancada';
 // new-theme:imports — no borrar: `pnpm new:theme <id>` añade aquí su import.
 import type { CollectionCategory, CollectionConfig } from './types';
 
@@ -93,6 +94,7 @@ export const collections: readonly CollectionConfig[] = [
   ensambleCollection,
   ejeCollection,
   aristaCollection,
+  zancadaCollection,
   // new-theme:entries — no borrar: `pnpm new:theme <id>` añade aquí su entrada.
 ];
 
