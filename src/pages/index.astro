@@ -3,6 +3,7 @@ import Landing from '../layouts/Landing.astro';
 import ThemeRail from '../components/ThemeRail.astro';
 import CommercialPlans from '../components/CommercialPlans.astro';
 import ProjectForm from '../components/ProjectForm.astro';
+import Icon, { type IconName } from '../components/Icon.astro';
 import { collections, storePaths } from '../collections';
 import { getTheme } from '../lib/demo-themes';
 import { MAIN_DEMO_HREF, DEMO_ADMIN_HREF } from '../lib/nav';
@@ -20,14 +21,14 @@ const gallery = galleryOrder.map((id) => {
   const theme = getTheme(col.themeId)!;
   return { id, name: col.name, tagline: col.tagline, style: theme.label, accent: theme.vars['--color-brand'], href: storePaths(id).catalog, img: `/images/screens/store-${id}-catalog-560.webp`, img900: `/images/screens/store-${id}-catalog-900.webp`, video: null, poster: null, poster900: null };
 });
-const workflow = [
-  ['Una web con tu marca', 'Tu catálogo, tus imágenes y una forma de comprar que encaja con tu negocio.'],
-  ['Productos fáciles de encontrar', 'Categorías, búsqueda y fichas que ayudan a elegir con confianza.'],
-  ['Compra sin rodeos', 'Un carrito claro y los datos de entrega en el momento adecuado.'],
-  ['Pagos controlados', 'Importes y confirmaciones conectados al pedido.'],
-  ['Pedidos en orden', 'Tu equipo sabe qué preparar, qué enviar y qué revisar.'],
-  ['Cliente informado', 'Confirmación y seguimiento con la información de su compra.'],
-  ['Espacio para crecer', 'Añadimos capacidad cuando la operación lo necesita.'],
+const workflow: { icon: IconName; title: string; body: string }[] = [
+  { icon: 'store', title: 'Una web con tu marca', body: 'Tu catálogo, tus imágenes y una forma de comprar que encaja con tu negocio.' },
+  { icon: 'search', title: 'Productos fáciles de encontrar', body: 'Categorías, búsqueda y fichas que ayudan a elegir con confianza.' },
+  { icon: 'cart', title: 'Compra sin rodeos', body: 'Un carrito claro y los datos de entrega en el momento adecuado.' },
+  { icon: 'card', title: 'Pagos controlados', body: 'Importes y confirmaciones conectados al pedido.' },
+  { icon: 'clipboard', title: 'Pedidos en orden', body: 'Tu equipo sabe qué preparar, qué enviar y qué revisar.' },
+  { icon: 'mail', title: 'Cliente informado', body: 'Confirmación y seguimiento con la información de su compra.' },
+  { icon: 'growth', title: 'Espacio para crecer', body: 'Añadimos capacidad cuando la operación lo necesita.' },
 ];
 const moments = [
   { label: 'Tienda', title: 'Una tienda que invita a quedarse.', body: 'El diseño presenta tus productos y acompaña la decisión de compra, desde el móvil hasta el escritorio.', points: ['Categorías con sentido para tu catálogo', 'Fotografía y contenido con una misma identidad', 'Fichas que responden antes de añadir al carrito'], img: '/images/screens/store-arce-catalog-900.webp', href: MAIN_DEMO_HREF, link: 'Explorar la tienda', crop: true },
@@ -62,7 +63,7 @@ const jsonLd = [{ '@context': 'https://schema.org', '@type': 'Service', name: 'L
   <section class="integration-strip page-shell" aria-label="Herramientas del ecosistema"><p>Un proyecto conectado a tu operativa</p><ul><li>Stripe</li><li>Cloudflare</li><li>Resend</li><li>Packlink</li><li>Sendcloud</li><li>WhatsApp</li></ul><small>Pasarela, correo, exportaciones y contacto según el alcance acordado.</small></section>
   <section id="flujo" class="home-section page-shell">
     <div class="home-heading"><p class="page-kicker">Tu operativa, conectada</p><h2>De la primera visita<br />al último paquete.</h2><p>Diseñamos el recorrido alrededor de lo que vendes y de cómo trabaja tu equipo.</p></div>
-    <ol class="workflow" tabindex="0" aria-label="Los siete pasos de tu ecommerce">{workflow.map(([title, body], i) => <li><span>{String(i + 1).padStart(2, '0')}</span><h3>{title}</h3><p>{body}</p></li>)}</ol>
+    <ol class="workflow" tabindex="0" aria-label="Los siete pasos de tu ecommerce">{workflow.map((step) => <li><span class="workflow-icon" aria-hidden="true"><Icon name={step.icon} size={22} /></span><h3>{step.title}</h3><p>{step.body}</p></li>)}</ol>
   </section>
   <section id="plataforma" class="home-section platform-section">
     <div class="page-shell"><div class="home-heading centered"><p class="page-kicker">Una tienda. Cinco momentos clave</p><h2>Bonita por fuera.<br />Bien resuelta por dentro.</h2></div>
