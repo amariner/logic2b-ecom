@@ -16,6 +16,41 @@
 > 2. Actualizar el estado de la fase al terminar, con fecha y resumen de lo hecho.
 > 3. Anotar decisiones tomadas y pendientes en las secciones de abajo.
 
+## Home — márgenes e iconos publicados (2026-09-09)
+
+Por encargo de Andreu, los últimos ajustes de la home se integran en `main`
+y GitHub con `8c02a23`: shell comercial de hasta 1360 px en escritorio y
+siete iconos SVG acordes al contenido del recorrido. La declaración de tipos
+del componente queda compatible con el compilador de Astro. Sin dependencias
+nuevas, cambios de copy, precios ni lógica de comercio.
+
+Entrega validada en una copia aislada: `pnpm check` correcto, 835 archivos
+sin diagnósticos, 205 suites / 1060 tests, baseline de temas y build completos.
+Los borradores del tour y los demás archivos no versionados de trabajos
+anteriores permanecen en la copia local y no forman parte de esta publicación.
+
+Worker `ecom-logic2b` publicado con versión
+`872ec1b5-efae-4bad-bc4c-201f5a48c732`, etiqueta `8c02a23` y
+`DEMO_MODE=true`. Se conservan variables y crons; no se ejecutan migraciones
+ni escrituras D1. Smoke HTTP correcto en nueve páginas: home, precios,
+arquitectura, temas, agencias, dossier, ARCE, Zancada y login del panel.
+HTML de portada y CSS servidos idénticos al build verificado; siete SVG,
+un H1 y ancho de escritorio confirmados. Revisión visual en producción sin
+errores de consola; responsive comprobado previamente a 1440 y 375 px.
+
+Lighthouse 12 de portada en producción (mediana de tres pasadas): escritorio
+**100/100/100/100**, LCP 0,7 s; móvil **95/100/100/100**, LCP 2,3 s.
+CLS 0 y TBT 0 ms en ambos. Rendimiento por pasada: móvil 95/87/99,
+escritorio 100/97/100. El auditor devuelve 1 por el umbral estricto de 100.
+**Mejora pendiente:** investigar la variabilidad y el rendimiento móvil.
+El LCP medido es el H1 del hero, con demora de renderizado; el cambio no
+añade JS, fuentes ni imágenes. No se atribuye la diferencia a una regresión
+sin comparación controlada con la versión anterior.
+
+Consejo: arquitectura ✓ sin dependencias ni cambios de motor; producto ✓
+alcance y mensajes conservados; frontend ✓ tipos, tests y build;
+UX/UI ✓ iconos y responsive; SEO ⚠ rendimiento móvil 95, pendiente arriba.
+
 ## Zancada — tema de Logic2B importado y publicado (2026-09-08)
 
 Encargo independiente de la cola de plataforma, terminado en
