@@ -39,6 +39,34 @@ total, procesados, coincidencias y error canónico. La cronología no puede esta
 en el futuro, `matched <= processed <= total`, un cierre completo consume el
 total y cada estado acepta solo su combinación temporal y de error válida.
 
+### R5.6a.1 — Validación en ejecución (2026-09-18)
+
+Las entradas del contrato son objetos de datos propios y enumerables; se
+admiten diccionarios con prototipo nulo. Se rechazan arrays usados como objetos,
+instancias, campos desconocidos u ocultos, símbolos y accessors. La validación
+no ejecuta getters y produce `CustomerSegmentationContractError`, también ante
+estructuras incompletas o tipos incorrectos. Identificadores y nombres no se
+convierten implícitamente a texto. Los arrays de parámetros y condiciones son
+no vacíos, densos y sin propiedades adicionales.
+
+El evaluador valida todos los campos y todas las condiciones antes de decidir
+una coincidencia. Un hecho ausente o una primera condición falsa no puede
+ocultar un operador, hecho, umbral o rango corrupto posterior. Una instancia
+conserva un parámetro por condición; no se reconstruye una correspondencia
+entre nombres y condiciones que el tipo calculado ya no contiene. Los únicos
+comparadores son `eq`, `gte` y `lte`, con límites inclusivos.
+
+Los facts omitidos o `undefined` se normalizan a `null` también al evaluar;
+los nombres desconocidos y los valores numéricos inválidos se rechazan. El
+cero sigue siendo un dato válido y distinto de la ausencia. El resultado
+mantiene hechos ausentes sin duplicados y copias inmutables.
+
+El reloj debe ser numérico, finito y representable por `Date`; no puede usarse
+`NaN` para eludir el rechazo de fechas futuras. Un estado `failed` sin inicio
+solo admite los tres contadores a cero. Siguen siendo válidos el fallo con
+progreso tras iniciar y el cierre completo sin candidatos. Este endurecimiento
+no añade persistencia, transiciones entre ejecuciones, jobs ni efectos.
+
 ## Consecuencias
 
 - El resultado es explicable y reproducible por versión y parámetros.

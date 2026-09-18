@@ -16,6 +16,30 @@
 > 2. Actualizar el estado de la fase al terminar, con fecha y resumen de lo hecho.
 > 3. Anotar decisiones tomadas y pendientes en las secciones de abajo.
 
+## Backend — contrato de segmentación R5.6a.1 (2026-09-18)
+
+Implementado después de integrar R5.5h en `main` mediante `ce5c140`.
+El contrato de segmentos rechaza ahora objetos, campos, hechos y operadores
+ajenos al lenguaje declarado; conserva los hechos ausentes como `null`, exige
+identificadores tipados y evita que un operador desconocido se evalúe como
+`lte`. También valida el reloj y el fallo anterior al inicio sin progreso.
+El pase focal cubre 54 casos, incluidos límites inclusivos, cero frente a
+ausencia, arrays dispersos y evaluación completa antes de cualquier atajo.
+
+Cierre verificado: `pnpm check` completo, 835 archivos sin diagnósticos, 205
+suites/1.116 tests, baseline y build correctos. El E2E del corte R5.5h sigue
+siendo la evidencia de superficies: este segundo bloque solo cambia dominio
+puro sin consumidores productivos y documentación.
+
+La [propuesta R5.6b](plataforma/PROPUESTA_SEGMENTACION_PERSISTENTE.md) concreta
+cinco tablas aditivas, repositorios, snapshots de hechos, publicación versionada
+y backup/restore. La autorización para implementarla solo en local se ha
+solicitado y sigue pendiente. No se ha creado ninguna migración, job, ruta,
+consumidor ni activación; CUS-009 permanece `especificado` en la matriz.
+
+Consejo: arquitecto ✓ · backend ✓ · fullstack ✓ · producto ✓
+(alcance y estado comercial conservados).
+
 ## Backend — cierre R5.5h de devoluciones (2026-09-18)
 
 El autoservicio de devoluciones completa la evidencia de navegador pendiente:
@@ -199,7 +223,7 @@ reconciliación se conserva abajo por contexto.
 | 11 | Landing V2 «nivel Awwwards» + negocio + funnel + docs | 🟡 En curso | 2026-08-13 | **F11.1, F11.3 (2 sesiones), F11.4, F11.5, F11.6, F11.7 y F11.8 (primera pasada + pase a11y/contenido desde cloud 2026-07-24) hechos**, más F11.8b (auditor de a11y, cloud), F11.2a-1 (tienda ASFALTO / tema Street), F11.2a-2 (tienda METRIA / tema Industrial) F11.2a-3 (tienda ROMER / tema Natural) y **F11.2a-4 (tienda KALIBRE / tema Specs, local 2026-07-25) — con la que F11.2a queda CERRADA (10/10 tiendas)**; y **F11.8c (Lighthouse citable + OG de WhatsApp + URLs sin redirección, local 2026-07-26)**; y **F11.8d–e (tabla de Lighthouse cerrada y desplegada: 7 de 8 superficies a 100×4, la landing entre ellas en móvil y escritorio, local 2026-07-27)**; y **F11.9 (contacto global de WhatsApp, cerrado y servido 2026-08-13)**. Solo queda la submission a Awwwards, decisión de pago reservada a Andreu. Detalle por bloque abajo. **Plan maestro completo en [`docs/PLAN_FASE11_LANDING_V2.md`](PLAN_FASE11_LANDING_V2.md)**: bloques F11.0–F11.8 ejecutables por sesiones independientes. **Decisiones D1–D6 APROBADAS por Andreu (2026-07-23)**: JS propio ≤15 KB sin deps, capturas con browser tools en local, dirección C «Ocho tiendas, un motor», escalera de precios (Lite 590 / Kit 1.900+39 / A medida 3.400+59), WhatsApp+email, Lite publicado sin construir. Prompt de arranque: [`docs/PROMPT_FASE11.md`](PROMPT_FASE11.md). Integra 9B.5/9B.6 (imaginería y temas restantes) como prerequisito del hero |
 | 8 | Pulido de la demo (backlog abajo) | 🟡 En curso | 2026-07-19 | Backlog técnico agotado; solo quedan decisiones y pasos locales de Andreu (ver «Decisiones pendientes» y `docs/PROMPT_CLOUD.md`). Últimas tandas: novena (race de idempotencia en el pago, PII enumerable en `/demo/gracias`, cancelación de pedido pagado sin devolver stock), décima (la misma race en el PATCH de admin, campos vacíos guardados como 0, login sin rate limit), undécima (diagrama móvil de `/arquitectura`, hedge del plazo de entrega, tokens de tema en `/demo/reset`, terminología «envío»), duodécima (aviso de corte en pedidos del admin, cabeceras sin wrap a 375px, leftover «portes», token de radio del carrito, contraste del botón eliminar, H1 en valenciano, checklist de producción) y decimotercera (misma race de idempotencia en `checkout.session.expired`, divisa hardcodeada a EUR fuera de Stripe, cobertura de test de `quoteCart`/PATCH admin/emails) y decimocuarta (config parcial de Stripe → cobro sin cumplimiento, emails duplicados bajo concurrencia, `payment_status` del webhook, color de marca centralizado en `shop.config.ts`, contraste/tema en carrito y checkout) — ver sección «Fase 8» |
 | 12 | Logic2B Ecommerce: renombrado, reposicionamiento y docs de dos visiones | ✅ Hecho | 2026-08-10 | **F12.0–F12.6 cerrados:** marca, argumento, dossier, canal agencias, ayuda, índice por audiencias, OG y auditorías citables consolidados. **Plan maestro en [`docs/PLAN_FASE12_LOGIC2B_ECOMMERCE.md`](PLAN_FASE12_LOGIC2B_ECOMMERCE.md)**. |
-| 13 | Plataforma modular: del gestor mínimo a paridad extrema de capacidad | 🟡 En curso | 2026-09-18 | **R0–R4 y R5.1–R5.5 completos en sus cortes implementados; R5.6a instalado.** R5.5h cierra navegador, capturas y hardening de replay. CUS-003/004/005/006 siguen installed/inactivos y los gates de privacidad/rollout por proyecto continúan. Siguiente: R5.6a.1 y propuesta de persistencia. Fuente de verdad en [`docs/plataforma/`](plataforma/README.md). |
+| 13 | Plataforma modular: del gestor mínimo a paridad extrema de capacidad | 🟡 En curso | 2026-09-18 | **R0–R4 y los cortes autorizados R5.1–R5.5 cerrados; R5.6a.1 implementado.** R5.5h cierra navegador, capturas y hardening de replay. CUS-003/004/005/006 siguen installed/inactivos y los gates de privacidad/rollout por proyecto continúan. Siguiente: R5.6b, pendiente de autorización de migración local. Fuente de verdad en [`docs/plataforma/`](plataforma/README.md). |
 
 ## Repo y entornos
 
@@ -296,6 +320,7 @@ inerte o una intención del roadmap en alcance disponible.
 | R4.12 | Consolidación de dinero y modelos de venta | ✅ 2026-08-17 — 11 modelos, 66 parejas, 13.500 propiedades y wiki índice; sin DDL/deploy |
 | R5.1 | Perfil de cliente deduplicable | ✅ 2026-08-17 — D1 `0036`, repositorio transaccional, checkout opcional, backup 30 y rehearsal local; rollout pendiente |
 | R5.6a | Contrato de segmentos calculados | ✅ 2026-08-26 — ADR-0045, facts ausentes `null`, templates versionados/parametrizados y recálculo observable; 200 suites/1.043 tests, 787 archivos tipados y E2E verde; sin DDL, UI, job ni efectos |
+| R5.6a.1 | Validación estricta del contrato de segmentos | ✅ 2026-09-18 — formas/tipos/campos exactos, comparadores explícitos, ausencia `null`, reloj y lifecycle; 54 pruebas focales; persistencia propuesta, no implementada |
 | R5.2 | Consentimiento versionado | ✅ 2026-08-17 — ADR-0040, D1 `0037`, repositorio concurrente, backup 31, rehearsal y E2E local; `CUS-007` instalada e inerte |
 | R5.3a | Derechos de datos verificables | ✅ 2026-08-17 — ADR-0041, lifecycle, dry-run, doble control y puertos; `CUS-008` instalada e inerte, sin DDL ni efectos |
 | R5.3b | Persistencia de solicitudes de derechos | ✅ 2026-08-18 — D1 `0038`, repositorio concurrente, backup 32 y rehearsal/restore local; sin PII, rutas ni ejecución |
@@ -1852,18 +1877,26 @@ solo vuelve a `main` o a producción por instrucción expresa.
 Zancada queda completado, integrado en GitHub y publicado por encargo expreso
 del 2026-09-08. La cola de plataforma que sigue no cambia por esta importación.
 
-### R5.6a.1 — Validación estricta del contrato de segmentos
+### R5.6b — Persistencia de segmentación, pendiente de autorización local
 
-R5.5h está cerrado en código, pruebas y evidencia visual inerte. El esquema
-`0044` ya se publicó en el rollout histórico del 2026-08-26; esta sesión no
-lo cambia. Las correcciones de replay del 2026-09-18 tienen despliegue pendiente.
-La base local de la otra sesión se preserva: QA usa una D1 temporal propia.
+R5.5h se integró en `main` con `ce5c140`: replay corregido y evidencia de
+navegador completa. R5.6a.1 endurece el contrato puro sin activar CUS-009.
+Las correcciones de runtime de septiembre tienen despliegue pendiente; el
+esquema `0044` servido no se modifica. La D1 habitual y la sesión de landing
+se preservan: QA se ejecutó en un worktree y una base temporal propios.
 
-Antes de persistir CUS-009, endurecer su contrato puro: formas/tipos de entrada,
-claves exactas, hechos y operadores permitidos, reloj válido y estados de fallo
-coherentes. Añadir regresiones, pasar `pnpm check` y mantener CUS-009 installed
-sin flags. Después, revisar la propuesta R5.6b y pedir autorización concreta
-para la nueva migración D1; no activarla ni desplegar por inferencia del Goal.
+La [propuesta R5.6b](plataforma/PROPUESTA_SEGMENTACION_PERSISTENTE.md) fija cinco
+tablas aditivas, snapshots reproducibles, repositorios transaccionales,
+publicaciones versionadas y backup/restore. La autorización solicitada permite
+solo desarrollo y ensayos locales, manteniendo CUS-009 inactiva; no incluye
+producción, job, proveedor ni reglas comerciales. **Respuesta pendiente: no
+crear `0045` ni interpretar silencio como aprobación.**
+
+Al recibir autorización, sincronizar y confirmar número de migración y formato
+de backup; revisar el SQL, implementar repositorios/restore, ensayar sobre una
+base aislada y cerrar con pruebas y `pnpm check`. El restore de varias
+definiciones y ejecuciones antiguas es un subgate técnico obligatorio. No
+saltar a R5.7 ni abrir otro bloque mientras ese gate siga pendiente.
 
 Carril visual: ARISTA cierra el 2026-08-18 las posiciones 17–19 y deja la cola
 sin referencias ejecutables. La referencia 19 se convirtió en un catálogo

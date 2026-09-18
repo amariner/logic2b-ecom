@@ -91,10 +91,10 @@ function invalid(message: string): never {
 }
 
 function safeNonNegativeInteger(value: unknown, field: string): number {
-  if (!Number.isSafeInteger(value) || (value as number) < 0) {
+  if (typeof value !== 'number' || !Number.isSafeInteger(value) || value < 0) {
     invalid(`${field} debe ser un entero seguro no negativo.`);
   }
-  return value as number;
+  return value;
 }
 
 function positiveInteger(value: unknown, field: string): number {
@@ -103,11 +103,61 @@ function positiveInteger(value: unknown, field: string): number {
   return parsed;
 }
 
-function exactKeys(value: object, expected: readonly string[], field: string): void {
-  const actual = Object.keys(value).sort();
-  const canonical = [...expected].sort();
-  if (actual.length !== canonical.length || actual.some((key, index) => key !== canonical[index])) {
+function assertRecord(value: unknown, field: string): asserts value is Record<string, unknown> {
+  if (value === null || typeof value !== 'object' || Array.isArray(value)) {
+    invalid(`${field} debe ser un objeto de datos.`);
+  }
+  const prototype = Object.getPrototypeOf(value);
+  if (prototype !== Object.prototype && prototype !== null) {
+    invalid(`${field} debe ser un objeto de datos.`);
+  }
+  for (const key of Reflect.ownKeys(value)) {
+    const descriptor = Object.getOwnPropertyDescriptor(value, key)!;
+    if (typeof key !== 'string' || !descriptor.enumerable || !('value' in descriptor)) {
+      invalid(`${field} contiene campos que no son datos propios enumerables.`);
+    }
+  }
+}
+
+function exactKeys(value: unknown, expected: readonly string[], field: string): void {
+  assertRecord(value, field);
+  const actual = Object.keys(value);
+  if (actual.length !== expected.length || actual.some((key) => !expected.includes(key))) {
     invalid(`${field} contiene campos ausentes o desconocidos.`);
+  }
+}
+
+function nonEmptyArray(value: unknown, field: string): asserts value is readonly unknown[] {
+  if (!Array.isArray(value) || Object.getPrototypeOf(value) !== Array.prototype || value.length === 0) {
+    invalid(`${field} debe ser un array no vacío.`);
+  }
+  if (Reflect.ownKeys(value).length !== value.length + 1) {
+    invalid(`${field} contiene huecos o campos desconocidos.`);
+  }
+  for (let index = 0; index < value.length; index++) {
+    const descriptor = Object.getOwnPropertyDescriptor(value, String(index));
+    if (!descriptor || !descriptor.enumerable || !('value' in descriptor)) {
+      invalid(`${field} debe contener elementos propios sin huecos.`);
+    }
+  }
+}
+
+function canonicalName(value: unknown, pattern: RegExp, field: string): void {
+  if (typeof value !== 'string' || !pattern.test(value)) invalid(`${field} no es canónico.`);
+}
+
+function assertCoherentConditions(conditions: readonly CustomerSegmentCondition[]): void {
+  const bounds = new Map<CustomerSegmentFact, { min: number; max: number }>();
+  for (const condition of conditions) {
+    const current = bounds.get(condition.fact) ?? { min: 0, max: Number.MAX_SAFE_INTEGER };
+    if (condition.operator === 'gte') current.min = Math.max(current.min, condition.value);
+    if (condition.operator === 'lte') current.max = Math.min(current.max, condition.value);
+    if (condition.operator === 'eq') {
+      current.min = Math.max(current.min, condition.value);
+      current.max = Math.min(current.max, condition.value);
+    }
+    if (current.min > current.max) invalid(`Las condiciones de ${condition.fact} forman un rango incoherente.`);
+    bounds.set(condition.fact, current);
   }
 }
 
@@ -132,6 +182,10 @@ function optionalTimestamp(value: unknown, field: string, nowMs: number): number
 export function createCustomerSegmentFacts(
   input: Partial<Record<CustomerSegmentFact, number | null>>,
 ): CustomerSegmentFacts {
+  assertRecord(input, 'facts');
+  if (Object.keys(input).some((key) => !FACTS.has(key))) {
+    invalid('facts contiene hechos desconocidos.');
+  }
   const result = {} as Record<CustomerSegmentFact, number | null>;
   for (const fact of CUSTOMER_SEGMENT_FACTS) {
     const value = input[fact];
@@ -150,19 +204,17 @@ export function createCustomerSegmentFacts(
 export function defineCustomerSegmentTemplate(
   input: CustomerSegmentTemplate,
 ): CustomerSegmentTemplate {
-  if (!OPAQUE_ID.test(input.id)) invalid('template.id no es canónico.');
+  exactKeys(input, ['id', 'version', 'parameters', 'conditions'], 'template');
+  canonicalName(input.id, OPAQUE_ID, 'template.id');
   const version = positiveInteger(input.version, 'template.version');
-  if (!Array.isArray(input.parameters) || input.parameters.length === 0) {
-    invalid('template.parameters debe declarar al menos un parámetro.');
-  }
-  if (!Array.isArray(input.conditions) || input.conditions.length === 0) {
-    invalid('template.conditions debe declarar al menos una condición.');
-  }
+  nonEmptyArray(input.parameters, 'template.parameters');
+  nonEmptyArray(input.conditions, 'template.conditions');
 
   const names = new Set<string>();
   const parameters = input.parameters.map((parameter, index) => {
     exactKeys(parameter, ['name', 'min', 'max'], `template.parameters.${index}`);
-    if (!PARAMETER_NAME.test(parameter.name) || names.has(parameter.name)) {
+    canonicalName(parameter.name, PARAMETER_NAME, `template.parameters.${index}.name`);
+    if (names.has(parameter.name)) {
       invalid(`template.parameters.${index}.name no es único o canónico.`);
     }
     names.add(parameter.name);
@@ -221,18 +273,7 @@ export function instantiateCustomerSegment(
     value: parameters[condition.parameter]!,
   }));
 
-  const bounds = new Map<CustomerSegmentFact, { min: number; max: number }>();
-  for (const condition of conditions) {
-    const current = bounds.get(condition.fact) ?? { min: 0, max: Number.MAX_SAFE_INTEGER };
-    if (condition.operator === 'gte') current.min = Math.max(current.min, condition.value);
-    if (condition.operator === 'lte') current.max = Math.min(current.max, condition.value);
-    if (condition.operator === 'eq') {
-      current.min = Math.max(current.min, condition.value);
-      current.max = Math.min(current.max, condition.value);
-    }
-    if (current.min > current.max) invalid(`Las condiciones de ${condition.fact} forman un rango incoherente.`);
-    bounds.set(condition.fact, current);
-  }
+  assertCoherentConditions(conditions);
 
   return Object.freeze({
     templateId: template.id,
@@ -246,15 +287,39 @@ export function evaluateCustomerSegment(
   segment: CalculatedCustomerSegment,
   facts: CustomerSegmentFacts,
 ): CustomerSegmentEvaluation {
+  exactKeys(segment, ['templateId', 'templateVersion', 'parameters', 'conditions'], 'segment');
+  canonicalName(segment.templateId, OPAQUE_ID, 'segment.templateId');
+  positiveInteger(segment.templateVersion, 'segment.templateVersion');
+  assertRecord(segment.parameters, 'segment.parameters');
+  nonEmptyArray(segment.conditions, 'segment.conditions');
+  const parameters = Object.entries(segment.parameters);
+  if (parameters.length !== segment.conditions.length) {
+    invalid('segment debe tener un parámetro por condición.');
+  }
+  for (const [name, value] of parameters) {
+    canonicalName(name, PARAMETER_NAME, 'segment.parameters.name');
+    safeNonNegativeInteger(value, `segment.parameters.${name}`);
+  }
+  for (const [index, condition] of segment.conditions.entries()) {
+    exactKeys(condition, ['fact', 'operator', 'value'], `segment.conditions.${index}`);
+    if (!FACTS.has(condition.fact)) invalid(`segment.conditions.${index}.fact no está permitido.`);
+    if (!OPERATORS.has(condition.operator)) invalid(`segment.conditions.${index}.operator no está permitido.`);
+    safeNonNegativeInteger(condition.value, `segment.conditions.${index}.value`);
+  }
+  assertCoherentConditions(segment.conditions);
+  const normalizedFacts = createCustomerSegmentFacts(facts);
   const missingFacts = [...new Set(segment.conditions
-    .filter(({ fact }) => facts[fact] === null)
+    .filter(({ fact }) => normalizedFacts[fact] === null)
     .map(({ fact }) => fact))];
   const matches = missingFacts.length === 0 && segment.conditions.every((condition) => {
-    const value = facts[condition.fact];
+    const value = normalizedFacts[condition.fact];
     if (value === null) return false;
-    if (condition.operator === 'eq') return value === condition.value;
-    if (condition.operator === 'gte') return value >= condition.value;
-    return value <= condition.value;
+    switch (condition.operator) {
+      case 'eq': return value === condition.value;
+      case 'gte': return value >= condition.value;
+      case 'lte': return value <= condition.value;
+      default: return invalid('segment.conditions.operator no está permitido.');
+    }
   });
   return Object.freeze({ matches, missingFacts: Object.freeze(missingFacts) });
 }
@@ -264,12 +329,15 @@ export function assertCustomerSegmentRecalculation(
   input: CustomerSegmentRecalculation,
   nowMs = Date.now(),
 ): CustomerSegmentRecalculation {
+  if (typeof nowMs !== 'number' || !Number.isFinite(new Date(nowMs).getTime())) {
+    invalid('nowMs debe ser un reloj finito dentro del rango de fechas.');
+  }
   exactKeys(input, [
     'segmentId', 'definitionVersion', 'state', 'requestedAt', 'startedAt',
     'finishedAt', 'cursor', 'totalCandidates', 'processedCandidates',
     'matchedCustomers', 'errorCode',
   ], 'recalculation');
-  if (!OPAQUE_ID.test(input.segmentId)) invalid('recalculation.segmentId no es canónico.');
+  canonicalName(input.segmentId, OPAQUE_ID, 'recalculation.segmentId');
   const definitionVersion = positiveInteger(input.definitionVersion, 'recalculation.definitionVersion');
   if (!STATES.has(input.state)) invalid('recalculation.state no está declarado.');
   if (input.cursor !== null && (typeof input.cursor !== 'string' || input.cursor.length < 8 || input.cursor.length > 256)) {
@@ -304,7 +372,8 @@ export function assertCustomerSegmentRecalculation(
     processedCandidates !== totalCandidates || input.errorCode !== null
   )) invalid('El estado completed no acredita un cierre completo.');
   if (input.state === 'failed' && (
-    finishedMs === null || input.cursor !== null || input.errorCode === null
+    finishedMs === null || input.cursor !== null || input.errorCode === null ||
+    (startedMs === null && (totalCandidates !== 0 || processedCandidates !== 0 || matchedCustomers !== 0))
   )) invalid('El estado failed no acredita un fallo cerrado y observable.');
 
   return Object.freeze({

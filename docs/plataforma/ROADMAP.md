@@ -175,7 +175,7 @@ suites/715 tests; producción permanece en `0032`.
 | 53 | **R5.3 Derechos de datos** | Exportar, corregir, anonimizar/borrar con excepciones fiscales y audit log. | 🟨 2026-08-18 — contrato y persistencia R5.3a–b instalados; política, superficies y ejecución pendientes de gates propios |
 | 54 | **R5.4 Cuentas passwordless** | Login seguro, sesiones, revocación y anti-enumeración; módulo opcional. | ✅ 2026-08-19 — R5.4a–d implementan dominio, D1, Resend directo, transporte mismo navegador, throttle/auditoría, gate durable y HTTP/UI; 185 suites/958 tests; D1 remota en `0040`, Worker `a5cc8d85…` inerte, `CUS-003` instalada y rollout real aislado |
 | 55 | **R5.5 Autoservicio** | Pedidos, direcciones y devolución sobre permisos mínimos. | ✅ 2026-09-18 — R5.5a–h cerrados en sus cortes; HTTP/SSR, navegador 26/0/0 y replay owner-only verificados; módulos installed/inactivos con rollout por proyecto pendiente |
-| 56 | **R5.6 Segmentación** | Lenguaje de filtros limitado, templates y recálculo observable. | 🟨 2026-08-26 — R5.6a instala ADR-0045 y contrato puro; 200 suites/1.043 tests, 787 archivos tipados y E2E verde; persistencia/job pendientes |
+| 56 | **R5.6 Segmentación** | Lenguaje de filtros limitado, templates y recálculo observable. | 🟨 2026-09-18 — R5.6a.1 endurece ADR-0045 y contrato puro, con 54 pruebas focales; persistencia R5.6b propuesta y pendiente de autorización local; sin jobs ni activación |
 | 57 | **R5.7 Modelo de mercados** | Contexto de país/idioma/moneda/dominio, resolución y fallback. | ⬜ |
 | 58 | **R5.8 Traducciones y URLs** | Campos traducibles, flujo editorial, canonical, hreflang y sitemap. | ⬜ |
 | 59 | **R5.9 Publicación por mercado** | Producto/variante/canal, preview y explicación. | ⬜ |
@@ -1445,27 +1445,32 @@ principal pasa a R4.1, motor de reglas de precio.
 
 ## 14. Siguiente bloque
 
-### R5.6a.1 — Endurecimiento del contrato puro antes de persistencia
+### R5.6b — Persistencia, pendiente de autorización local
 
-R5.5h cierra el 2026-09-18: tres fases del arnés de cuenta verificadas, 26
-superficies a 1440/375 sin errores ni avisos y ocho
-[capturas revisadas de lista, detalle y foco](../audits/r5-5h/README.md).
-La corrección de replay permite recuperar la solicitud aun con cantidades
-agotadas o ventana vencida, revalida owner/perfil/CAS y resuelve colisiones
-concurrentes sin duplicar evidencia ni ocultar fallos D1. El HTTP rechaza
-coerciones numéricas. Sin DDL, activación ni despliegue nuevo; CUS-005 conserva
-su estado installed/inactivo y el gate de rollout por proyecto.
+R5.5h está integrado en `main` con `ce5c140`: replay owner-only corregido,
+HTTP estricto, arnés demo/preflight/surface verde, 26 superficies sin errores
+ni avisos y ocho [capturas revisadas](../audits/r5-5h/README.md). Su cierre pasó
+`pnpm check` con 835 archivos, 205 suites/1.069 tests y E2E local completo,
+incluido backup 37, sin modificar la D1 habitual.
 
-Gate de cierre: `pnpm check` completo (835 archivos, 205 suites/1.069 tests,
-baseline y build) y E2E local íntegro contra una D1 temporal con el esquema
-actual y seed reducido; CSV y backup 37 incluidos.
+R5.6a.1 completa el endurecimiento del contrato puro: validación de objetos,
+campos, identificadores, arrays densos, hechos, operadores y reloj; falla de
+forma tipada antes de evaluar un segmento corrupto. Conserva `null`, límites
+inclusivos y lifecycle coherente. Las 54 pruebas focales están verdes.
+El cierre completo pasa `pnpm check`: 835 archivos sin diagnósticos, 205
+suites/1.116 tests, baseline y build.
 
-R5.6a ya define ADR-0045 y el contrato puro. Antes de hidratarlo desde D1,
-corregir la validación runtime de objetos, claves, identificadores, hechos,
-operadores, reloj y fallos anteriores al inicio. El bloque R5.6a.1 requiere
-regresiones dirigidas y `pnpm check`, sin persistencia, job, UI ni efectos.
+La [propuesta R5.6b](PROPUESTA_SEGMENTACION_PERSISTENTE.md) concreta cinco tablas
+aditivas, repositorios internos, conjunto de candidatos y hechos congelados,
+publicación versionada, backup/restore y rehearsal. El SQL definitivo aún no
+existe. Se ha pedido autorización expresa para desarrollarlo y ensayarlo solo
+en local; **la respuesta sigue pendiente**. No crear la migración sin ella.
 
-Después sigue R5.6b: propuesta revisable de definiciones, ejecuciones y
-proyecciones, migración expand-only, backup/restore y rehearsal aislado. El
-veto de migración exige autorización expresa antes de crear el esquema vivo;
-la demo y CUS-009 permanecen inactivas.
+Tras aprobar G1: sincronizar numeración/esquema, implementar SQL y repositorios,
+ensayar replay/concurrencia/restore de historia versionada con triggers activos,
+pasar `pnpm check` y actualizar matriz/documentación. La propuesta define los
+gates restantes; el rollout remoto y la activación no están autorizados por G1.
+CUS-005 y CUS-009 siguen installed/inactivas. Las correcciones de septiembre
+mantienen despliegue pendiente; la capacidad de segmentación aún no tiene
+persistencia, productor de facts, job, rutas, UI ni consumidores. **Demo visual
+pendiente** para segmentación.
