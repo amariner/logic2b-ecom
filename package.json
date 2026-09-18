@@ -60,7 +60,9 @@
     "db:rehearse:customer-order-access": "node scripts/rehearse-r5-customer-order-access.mjs",
     "db:rehearse:customer-address-access": "node scripts/rehearse-r5-customer-address-access.mjs",
     "db:rehearse:customer-address-commands": "node scripts/rehearse-r5-customer-address-commands.mjs",
-    "db:rehearse:customer-return-requests": "node scripts/rehearse-r5-customer-return-requests.mjs"
+    "db:rehearse:customer-return-requests": "node scripts/rehearse-r5-customer-return-requests.mjs",
+    "db:rehearse:customer-segmentation": "node scripts/rehearse-r5-customer-segmentation.mjs",
+    "db:rehearse:customer-segmentation:d1": "node scripts/rehearse-r5-customer-segmentation-d1.mjs"
   },
   "dependencies": {
     "@astrojs/cloudflare": "^12.6.0",

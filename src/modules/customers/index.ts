@@ -249,3 +249,25 @@ export {
   type CustomerSegmentTemplate,
   type CustomerSegmentTemplateCondition,
 } from './domain/customer-segmentation';
+export type {
+  CustomerSegmentFactsCandidate, CustomerSegmentFactsSnapshot, CustomerSegmentFactsSource,
+} from './application/customer-segmentation-contract';
+export {
+  normalizeCustomerSegmentFactsSnapshot,
+  MAX_CUSTOMER_SEGMENT_CANDIDATES,
+  MAX_CUSTOMER_SEGMENT_SNAPSHOT_BYTES,
+} from './application/customer-segmentation-contract';
+export type {
+  CustomerSegmentationRepository, SegmentDefinition, SegmentRun, SegmentRunSnapshot,
+  SegmentPublication, SegmentMembership, SegmentCommandContext, SegmentWrite,
+} from './application/customer-segmentation-repository';
+export {
+  createD1CustomerSegmentationRepository, CustomerSegmentationConflictError,
+} from './infrastructure/d1-customer-segmentation-repository';
+
+export {
+  CUSTOMER_SEGMENT_BACKUP_COLUMNS,
+  CUSTOMER_SEGMENT_BACKUP_TABLES,
+  buildCustomerSegmentRestoreSql,
+  assertCustomerSegmentBackupFingerprints,
+} from './application/customer-segmentation-backup';

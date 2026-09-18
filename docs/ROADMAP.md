@@ -16,6 +16,37 @@
 > 2. Actualizar el estado de la fase al terminar, con fecha y resumen de lo hecho.
 > 3. Anotar decisiones tomadas y pendientes en las secciones de abajo.
 
+## Backend — persistencia de segmentación R5.6b (2026-09-18)
+
+Implementado tras la autorización local de Andreu. `0045` añade cinco tablas
+vacías; el repositorio conserva definiciones y hechos, fotografías con CAS,
+evaluaciones reproducibles y publicaciones versionadas. Los reintentos
+históricos conservan su resultado y los fallos D1 se propagan. CUS-009 pasa a
+`parcial` en la matriz, sigue instalada e inactiva y con demo visual pendiente.
+
+Backup 38 extrae un corte consistente y restaura el historial con guardas
+activas, incluida una ejecución antigua que termina tarde. La composición
+conecta el replay propiedad de clientes mediante un puerto de operaciones;
+no se añaden excepciones de arquitectura. El preflight rechaza esquemas
+incompatibles e historia existente antes de borrar datos.
+
+Cierre: `pnpm check` pasa **845 archivos sin diagnósticos, 210 suites/1.261
+tests**, baseline y build. E2E local completo, incluido backup 38, verde.
+SQLite conserva el hash legacy al aplicar `0045`; D1/workerd verifica 100
+candidatos en un batch de 101 sentencias, exceso rechazado y rollback completo.
+El restore D1 confirma **126 tablas idénticas**, 1.469 sentencias, cero errores
+FK y reintentos históricos. [Informe versionado](audits/r5-6b/d1-report.json)
+y [runbook](plataforma/OPERACION_SEGMENTACION.md).
+
+Solo se usaron datos sintéticos y bases locales aisladas. Sin despliegue,
+backfill, proveedor, job, UI ni activación. El checkout de landing y su D1
+habitual se conservan. El siguiente bloque es R5.6c.1, política explícita y
+captura consistente de hechos, con configuración obligatoria y sin defaults
+comerciales.
+
+Consejo: arquitecto ✓ · backend ✓ · fullstack ✓ · producto ✓
+(alcance y estado comercial conservados).
+
 ## Backend — contrato de segmentación R5.6a.1 (2026-09-18)
 
 Implementado después de integrar R5.5h en `main` mediante `ce5c140`.
@@ -33,9 +64,9 @@ puro sin consumidores productivos y documentación.
 
 La [propuesta R5.6b](plataforma/PROPUESTA_SEGMENTACION_PERSISTENTE.md) concreta
 cinco tablas aditivas, repositorios, snapshots de hechos, publicación versionada
-y backup/restore. La autorización para implementarla solo en local se ha
-solicitado y sigue pendiente. No se ha creado ninguna migración, job, ruta,
-consumidor ni activación; CUS-009 permanece `especificado` en la matriz.
+y backup/restore. Al cierre de R5.6a.1 se solicitó autorización local;
+la continuación R5.6b de esta fecha la recibió y se documenta arriba. Este
+bloque puro no creó migraciones, jobs, rutas, consumidores ni activación.
 
 Consejo: arquitecto ✓ · backend ✓ · fullstack ✓ · producto ✓
 (alcance y estado comercial conservados).
@@ -1877,26 +1908,26 @@ solo vuelve a `main` o a producción por instrucción expresa.
 Zancada queda completado, integrado en GitHub y publicado por encargo expreso
 del 2026-09-08. La cola de plataforma que sigue no cambia por esta importación.
 
-### R5.6b — Persistencia de segmentación, pendiente de autorización local
+### R5.6c.1 — Política explícita de hechos y captura consistente
 
-R5.5h se integró en `main` con `ce5c140`: replay corregido y evidencia de
-navegador completa. R5.6a.1 endurece el contrato puro sin activar CUS-009.
-Las correcciones de runtime de septiembre tienen despliegue pendiente; el
-esquema `0044` servido no se modifica. La D1 habitual y la sesión de landing
-se preservan: QA se ejecutó en un worktree y una base temporal propios.
+R5.6b queda cerrado localmente: `0045`, repositorios y backup 38, revisión de
+arquitectura, `pnpm check` (210 suites/1.261 tests), E2E completo y restore D1
+con 126 tablas idénticas. La [propuesta autorizada](plataforma/PROPUESTA_SEGMENTACION_PERSISTENTE.md),
+el [runbook](plataforma/OPERACION_SEGMENTACION.md) y el
+[informe](audits/r5-6b/d1-report.json) conservan alcance y evidencia.
 
-La [propuesta R5.6b](plataforma/PROPUESTA_SEGMENTACION_PERSISTENTE.md) fija cinco
-tablas aditivas, snapshots reproducibles, repositorios transaccionales,
-publicaciones versionadas y backup/restore. La autorización solicitada permite
-solo desarrollo y ensayos locales, manteniendo CUS-009 inactiva; no incluye
-producción, job, proveedor ni reglas comerciales. **Respuesta pendiente: no
-crear `0045` ni interpretar silencio como aprobación.**
+Continuar con un contrato versionado de política de hechos y captura interna
+consistente: estados/eventos contados, fecha de actividad, ajustes,
+cancelaciones, cobros/reembolsos/saldo, moneda y cómputo temporal. Cada opción
+debe ser explícita; no incorporar reglas comerciales universales. Verificar
+con políticas sintéticas el recorrido `capture → start → progress → complete
+→ publish`, sin truncar población ni introducir lecturas inconsistentes.
 
-Al recibir autorización, sincronizar y confirmar número de migración y formato
-de backup; revisar el SQL, implementar repositorios/restore, ensayar sobre una
-base aislada y cerrar con pruebas y `pnpm check`. El restore de varias
-definiciones y ejecuciones antiguas es un subgate técnico obligatorio. No
-saltar a R5.7 ni abrir otro bloque mientras ese gate siga pendiente.
+Este desarrollo local no añade cron, rutas, UI, consumidores o flags. Elegir
+una política real y activarla mantiene el gate por proyecto; G3 remoto no está
+autorizado. CUS-009 permanece `parcial`, instalada e inactiva y con demo visual
+pendiente. No saltar a R5.7 mientras R5.6 conserve trabajo ejecutable. Preservar
+el worktree y la D1 de la sesión de landing; usar bases de QA propias.
 
 Carril visual: ARISTA cierra el 2026-08-18 las posiciones 17–19 y deja la cola
 sin referencias ejecutables. La referencia 19 se convirtió en un catálogo

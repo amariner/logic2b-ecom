@@ -1,0 +1,46 @@
+{
+  "runtime": "Wrangler getPlatformProxy / local workerd D1",
+  "remoteBindings": false,
+  "nodeVersion": "v26.8.1",
+  "wranglerVersion": "4.111.0",
+  "schema": 38,
+  "checks": [
+    {
+      "message": "0044 → 0045 conserva todas las filas legacy y crea cinco tablas vacías",
+      "legacyHash": "f7878eafeb3f86cd293756f6a9053a8c08d1310aeb94c96e0b012e4b00bf3350",
+      "legacyTables": 135
+    },
+    {
+      "message": "101 candidatos se rechazan antes de escribir población o inicio"
+    },
+    {
+      "message": "100 candidatos y su fotografía se importan en un único db.batch de 101 sentencias"
+    },
+    {
+      "message": "Un fallo D1 inyectado tras el lote revierte candidatos e inicio completos"
+    },
+    {
+      "message": "Reutilizar una referencia con otros hechos aborta también todo el lote"
+    },
+    {
+      "message": "Lifecycle completo, publicación histórica y estados parciales conservan el hash legacy"
+    },
+    {
+      "message": "Backup38 restaurado en D1 vacío con triggers activos, igualdad total, replay y cero errores FK",
+      "restoreStatements": 1469,
+      "tableCount": 126,
+      "tablesHash": "245d28245b5ceafbd1993a1c6c0d953ddfbb7e9d37cc2abeab9a3bf12045b7a2",
+      "segmentationCounts": {
+        "customer_segment_definitions": 3,
+        "customer_segment_runs": 8,
+        "customer_segment_run_snapshots": 31,
+        "customer_segment_results": 500,
+        "customer_segment_publications": 2
+      }
+    }
+  ],
+  "result": "passed",
+  "backupSha256": "abc5f0004d2bd761d6b767fce0a20b84707d0f5222f806eb99131a9af0a84d45",
+  "date": "2026-09-18",
+  "command": "pnpm db:rehearse:customer-segmentation:d1"
+}

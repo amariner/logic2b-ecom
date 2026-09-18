@@ -1,6 +1,6 @@
 # Propuesta R5.6b — Persistencia de segmentos calculados
 
-- Estado: **propuesta para revisión; no implementada ni aprobada**.
+- Estado: **G1 autorizado y G2 verificado localmente el 2026-09-18**.
 - Fecha: 2026-09-18.
 - Capacidad: `CUS-009`; módulo propietario: `customers`.
 - Precedencia: terminar R5.5h y el endurecimiento de R5.6a antes de ejecutar
@@ -9,10 +9,11 @@
   [roadmap de plataforma](ROADMAP.md) y
   [ruta de desarrollo continuo](../RUTA_DESARROLLO_CONTINUO.md).
 
-Este documento concreta qué se pide aprobar para el siguiente cambio de D1.
-No crea una migración, no modifica el roadmap y no cambia el estado comercial
-de la capacidad. `CUS-009` permanece instalada e inactiva en el preset
-avanzado; la matriz conserva su estado mientras no exista nueva evidencia.
+Este documento conserva el diseño autorizado. Andreu respondió «continua» a
+la solicitud explícita de implementar cinco tablas, repositorios y
+backup/restore solo en local. La ejecución vive en `0045_customer_segmentation.sql`
+y el [runbook operativo](OPERACION_SEGMENTACION.md). `CUS-009` permanece
+instalada e inactiva en el preset avanzado.
 
 ## 1. Decisión solicitada y límites
 
@@ -406,11 +407,11 @@ El veto aplicable está en
 La instrucción de desarrollo continuo permite preparar esta propuesta, pero no
 sustituye la autorización explícita de G1 ni las decisiones posteriores.
 
-**Pregunta de aprobación al llegar a G1:** ¿Se autoriza implementar esta
-migración aditiva y sus repositorios/backup/restore solo en local, con CUS-009
-inactiva y sin job, rutas, despliegue remoto ni reglas comerciales
-predeterminadas?
+**G1 autorizado el 2026-09-18:** implementar la migración aditiva y sus
+repositorios/backup/restore solo en local, con CUS-009 inactiva y sin job,
+rutas, despliegue remoto ni reglas comerciales predeterminadas. G3 y la
+activación real de G4 conservan su autorización independiente.
 
 Consejo de la propuesta: arquitecto ✓ diseño aditivo y rollback definido ·
 backend ✓ invariantes y pruebas exigidas · fullstack ✓ fronteras y estados
-explícitos · producto ✓ sin promesas nuevas. Implementación pendiente de G1.
+explícitos · producto ✓ sin promesas nuevas. G1 y G2 superados; rollout remoto y activación pendientes.

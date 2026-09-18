@@ -6,8 +6,21 @@
 
 export type Row = Record<string, string | number | null>;
 
+/** La composición aporta el replay de cada módulo sin invertir dependencias. */
+export type BackupExtension = Readonly<{
+  columns: Readonly<Record<string, readonly string[]>>;
+  renderRestore: (tables: Record<string, Row[]>) => readonly string[];
+  validate: (tables: Record<string, Row[]>) => Promise<void>;
+}>;
+
+/** Tablas append-only que requieren replay propio del módulo en esquema 38. */
+const BACKUP_REPLAY_TABLES = [
+  'customer_segment_definitions', 'customer_segment_runs',
+  'customer_segment_run_snapshots', 'customer_segment_results', 'customer_segment_publications',
+] as const;
+
 /** Orden de volcado y de borrado inverso (hijos después de padres al insertar no importa: borramos primero). */
-export const BACKUP_SCHEMA_VERSION = 37;
+export const BACKUP_SCHEMA_VERSION = 38;
 
 export const BACKUP_TABLES = [
   'products',
@@ -73,6 +86,7 @@ export const BACKUP_TABLES = [
   'customer_session_families',
   'customer_sessions',
   'customer_passwordless_challenges',
+  ...BACKUP_REPLAY_TABLES,
   'orders',
   'customer_order_access_refs',
   'preliminary_orders',
@@ -278,13 +292,34 @@ function customerSessionFamilyTransitionSql(rows: Row[]): string[] {
 }
 
 /** Dump completo: limpieza (hijos primero) + INSERTs en orden de FK. */
-export function buildBackupSql(tablesRows: Record<string, Row[]>, generatedAt: string): string {
+export function buildBackupSql(
+  tablesRows: Record<string, Row[]>, generatedAt: string, extensions: readonly BackupExtension[] = [],
+): string {
+  const columns = Object.assign({}, ...extensions.map((extension) => extension.columns)) as Record<string, readonly string[]>;
+  for (const table of BACKUP_REPLAY_TABLES) {
+    if (tablesRows[table]?.length && !columns[table]) {
+      throw new RangeError(`La tabla ${table} necesita su extensión de replay para exportar evidencia.`);
+    }
+  }
+  const restoreSql = new Map(extensions.map((extension) => [
+    Object.keys(extension.columns)[0], extension.renderRestore(tablesRows),
+  ]));
+  const extensionTables = new Set(Object.keys(columns));
   const lines = [
     `-- Copia de seguridad Logic2B Ecommerce — ${generatedAt}`,
     `-- logic2b-backup-schema: ${BACKUP_SCHEMA_VERSION}`,
-    '-- Requiere una base con la migración 0044_customer_return_requests aplicada; las tablas/columnas explícitas abortan un restore incompatible.',
+    '-- Requiere una base vacía con la migración 0045_customer_segmentation aplicada; las guardas de evidencia permanecen activas.',
     `-- Restaurar con: wrangler d1 execute <database> --remote --file <este fichero>`,
     'PRAGMA defer_foreign_keys = true;',
+    ...BACKUP_REPLAY_TABLES.map((table) =>
+      `SELECT ${columns[table]?.join(', ') ?? '1'} FROM ${table} LIMIT 0;`),
+    // Sin una transacción exterior, un DELETE legacy anterior al primer guard
+    // append-only ya habría cambiado el destino. Rechazarlo antes de escribir.
+    // SQLite limita RAISE a triggers: JSON inválido provoca un error sin mutar.
+    '-- Preflight: restore_target_has_segment_history impide restaurar sobre evidencia existente.',
+    `SELECT CASE WHEN ${BACKUP_REPLAY_TABLES.map((table) =>
+      `EXISTS (SELECT 1 FROM ${table})`).join(' OR ')} ` +
+      `THEN json('restore_target_has_segment_history') ELSE 1 END AS restore_target_empty;`,
   ];
   for (const table of [...BACKUP_TABLES].reverse()) {
     lines.push(`DELETE FROM ${table};`);
@@ -292,6 +327,9 @@ export function buildBackupSql(tablesRows: Record<string, Row[]>, generatedAt: s
   const sessionFamilies = tablesRows.customer_session_families ?? [];
   const sessions = tablesRows.customer_sessions ?? [];
   for (const table of BACKUP_TABLES) {
+    const replay = restoreSql.get(table);
+    if (replay) lines.push(...replay);
+    if (extensionTables.has(table)) continue;
     // El trigger de 0041 crea referencias nuevas al restaurar `orders`.
     // Sustituirlas aquí recupera exactamente los selectores y versiones del
     // origen en lugar de duplicarlos o rotarlos silenciosamente.

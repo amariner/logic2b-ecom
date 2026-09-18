@@ -8,8 +8,8 @@ import { createPreliminaryOrderOperations } from '../src/composition/preliminary
 
 describe('volcado de copia de seguridad', () => {
   it('declara el contrato que incluye la colaboración de pedidos', () => {
-    expect(BACKUP_SCHEMA_VERSION).toBe(37);
-    expect(buildBackupSql({}, '2026-08-22')).toContain('0044_customer_return_requests');
+    expect(BACKUP_SCHEMA_VERSION).toBe(38);
+    expect(buildBackupSql({}, '2026-08-22')).toContain('0045_customer_segmentation');
   });
 
   it('genera INSERTs con columnas explícitas y escape de comillas', () => {
