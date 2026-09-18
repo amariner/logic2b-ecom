@@ -113,12 +113,24 @@ describe('persistencia owner-only de devoluciones R5.5g', () => {
 
   it('serializa carreras por cantidad y cierra perfiles fusionados', async () => {
     const { db, service, orderItemId, access } = await fixture(1);
+    const repository = createD1CustomerReturnRequestRepository(db.asD1());
+    let reads = 0;
+    let release!: () => void;
+    const barrier = new Promise<void>((resolve) => { release = resolve; });
+    const racedService = createCustomerReturnRequestService({ ...repository,
+      async eligibilityOwned(input) {
+        const result = await repository.eligibilityOwned(input);
+        if (++reads === 2) release();
+        await barrier;
+        return result;
+      },
+    });
     const base = { orderPublicRef: access.public_ref, ownerProfileId: 'customer_profile:owner',
       expectedOwnershipVersion: access.ownership_version, reason: 'other' as const,
       lines: [{ orderItemId, quantity: 1 }], occurredAt: '2026-08-24T10:05:00.000Z' };
     const outcomes = await Promise.all([
-      service.createOwned({ ...base, idempotencyKey: 'customer-return:race:left' }),
-      service.createOwned({ ...base, idempotencyKey: 'customer-return:race:right' }),
+      racedService.createOwned({ ...base, idempotencyKey: 'customer-return:race:left' }),
+      racedService.createOwned({ ...base, idempotencyKey: 'customer-return:race:right' }),
     ]);
     expect(outcomes.map((outcome) => outcome.outcome).toSorted()).toEqual(['applied', 'conflict']);
     expect(db.value('SELECT count(*) AS value FROM return_requests')).toBe(1);
@@ -130,10 +142,119 @@ describe('persistencia owner-only de devoluciones R5.5g', () => {
       .rejects.toThrow(/elegibles/u);
   });
 
+  it('reproduce solicitudes que ya consumieron todas las unidades, incluso fuera de ventana', async () => {
+    const { db, service, orderItemId, access } = await fixture(1);
+    const command = { orderPublicRef: access.public_ref, ownerProfileId: 'customer_profile:owner',
+      expectedOwnershipVersion: access.ownership_version, reason: 'other' as const,
+      lines: [{ orderItemId, quantity: 1 }], idempotencyKey: 'customer-return:exhausted',
+      occurredAt: '2026-08-24T10:05:00.000Z' };
+    const created = await service.createOwned(command);
+    await expect(service.createOwned(command)).resolves.toEqual({
+      outcome: 'replayed', request: created.request,
+    });
+    await expect(service.createOwned({ ...command, occurredAt: '2026-10-24T10:05:00.000Z' }))
+      .resolves.toEqual({ outcome: 'replayed', request: created.request });
+    await expect(service.createOwned({ ...command, reason: 'damaged' }))
+      .resolves.toEqual({ outcome: 'conflict', request: null });
+    expect(db.value('SELECT count(*) AS value FROM return_requests')).toBe(1);
+    expect(db.value("SELECT count(*) AS value FROM return_events WHERE transition='created'")).toBe(1);
+    expect(db.value("SELECT count(*) AS value FROM audit_log WHERE action='customer.return_requested'")).toBe(1);
+  });
+
+  it('reproduce fuera de ventana aunque todavía queden unidades elegibles por cantidad', async () => {
+    const { service, orderItemId, access } = await fixture(2);
+    const command = { orderPublicRef: access.public_ref, ownerProfileId: 'customer_profile:owner',
+      expectedOwnershipVersion: access.ownership_version, reason: 'other' as const,
+      lines: [{ orderItemId, quantity: 1 }], idempotencyKey: 'customer-return:expired-window',
+      occurredAt: '2026-08-24T10:05:00.000Z' };
+    const created = await service.createOwned(command);
+    await expect(service.createOwned({ ...command, occurredAt: '2026-10-24T10:05:00.000Z' }))
+      .resolves.toEqual({ outcome: 'replayed', request: created.request });
+    await expect(service.createOwned({ ...command, idempotencyKey: 'customer-return:expired-new',
+      occurredAt: '2026-10-24T10:05:00.000Z' })).rejects.toThrow(/ventana/u);
+  });
+
+  it('exige owner canónico, perfil activo y CAS vigente también al reproducir', async () => {
+    const { db, service, orderItemId, access } = await fixture(1);
+    const command = { orderPublicRef: access.public_ref, ownerProfileId: 'customer_profile:owner',
+      expectedOwnershipVersion: access.ownership_version, reason: 'other' as const,
+      lines: [{ orderItemId, quantity: 1 }], idempotencyKey: 'customer-return:replay-owner',
+      occurredAt: '2026-08-24T10:05:00.000Z' };
+    const created = await service.createOwned(command);
+    await expect(service.createOwned({ ...command, ownerProfileId: 'customer_profile:other' }))
+      .resolves.toEqual({ outcome: 'conflict', request: null });
+    db.sqlite.exec("UPDATE orders SET customer_profile_id='customer_profile:other'");
+    await expect(service.createOwned(command)).resolves.toEqual({ outcome: 'conflict', request: null });
+    await expect(service.readOwned('customer_profile:owner', created.request!.publicRef)).resolves.toBeNull();
+    db.sqlite.exec("UPDATE orders SET customer_profile_id='customer_profile:owner'");
+    await expect(service.createOwned(command)).resolves.toEqual({ outcome: 'conflict', request: null });
+    expect(db.value('SELECT ownership_version AS value FROM customer_order_access_refs'))
+      .toBeGreaterThan(access.ownership_version);
+
+    const merged = await fixture(1);
+    const mergedCommand = { ...command, orderPublicRef: merged.access.public_ref,
+      expectedOwnershipVersion: merged.access.ownership_version, lines: [{ orderItemId: merged.orderItemId, quantity: 1 }] };
+    await merged.service.createOwned(mergedCommand);
+    merged.db.sqlite.exec(`UPDATE customer_profiles SET status='merged',
+      merged_into_profile_id='customer_profile:other', version=2 WHERE id='customer_profile:owner'`);
+    await expect(merged.service.createOwned(mergedCommand))
+      .resolves.toEqual({ outcome: 'conflict', request: null });
+  });
+
+  it('resuelve carreras con la misma clave sin duplicar eventos ni ocultar colisiones', async () => {
+    for (const samePayload of [true, false]) {
+      const { db, orderItemId, access } = await fixture(1);
+      const healthy = db.asD1();
+      let batches = 0;
+      let release!: () => void;
+      const barrier = new Promise<void>((resolve) => { release = resolve; });
+      const concurrentDb = { prepare: healthy.prepare.bind(healthy),
+        async batch(statements: D1PreparedStatement[]) {
+          if (++batches === 2) release();
+          await barrier;
+          return healthy.batch(statements);
+        },
+      } as unknown as D1Database;
+      const service = createCustomerReturnRequestService(createD1CustomerReturnRequestRepository(concurrentDb));
+      const command = { orderPublicRef: access.public_ref, ownerProfileId: 'customer_profile:owner',
+        expectedOwnershipVersion: access.ownership_version, reason: 'other' as const,
+        lines: [{ orderItemId, quantity: 1 }], idempotencyKey: 'customer-return:race-key',
+        occurredAt: '2026-08-24T10:05:00.000Z' };
+      const outcomes = await Promise.all([
+        service.createOwned(command),
+        service.createOwned({ ...command, reason: samePayload ? 'other' : 'damaged' }),
+      ]);
+      expect(outcomes.map((outcome) => outcome.outcome).toSorted())
+        .toEqual(['applied', samePayload ? 'replayed' : 'conflict']);
+      expect(batches).toBe(2);
+      expect(db.value('SELECT count(*) AS value FROM return_requests')).toBe(1);
+      expect(db.value("SELECT count(*) AS value FROM return_events WHERE transition='created'")).toBe(1);
+      expect(db.value("SELECT count(*) AS value FROM audit_log WHERE action='customer.return_requested'")).toBe(1);
+    }
+  });
+
+  it('relee idempotencia si otra solicitud consume unidades antes de planificar', async () => {
+    const { db, service: firstService, orderItemId, access } = await fixture(1);
+    const base = createD1CustomerReturnRequestRepository(db.asD1());
+    const command = { orderPublicRef: access.public_ref, ownerProfileId: 'customer_profile:owner',
+      expectedOwnershipVersion: access.ownership_version, reason: 'other' as const,
+      lines: [{ orderItemId, quantity: 1 }], idempotencyKey: 'customer-return:race-before-plan',
+      occurredAt: '2026-08-24T10:05:00.000Z' };
+    const service = createCustomerReturnRequestService({ ...base,
+      async eligibilityOwned(input) {
+        await firstService.createOwned(command);
+        return base.eligibilityOwned(input);
+      },
+    });
+    await expect(service.createOwned(command)).resolves.toMatchObject({ outcome: 'replayed' });
+    expect(db.value('SELECT count(*) AS value FROM return_requests')).toBe(1);
+  });
+
   it('revalida la ventana dentro del batch aunque la lectura previa quede obsoleta', async () => {
     const { db, orderItemId, access } = await fixture();
     const base = createD1CustomerReturnRequestRepository(db.asD1());
     const repository: CustomerReturnRequestRepository = Object.freeze({
+      replayOwned: base.replayOwned,
       eligibilityOwned: base.eligibilityOwned,
       listOwned: base.listOwned,
       readOwned: base.readOwned,
@@ -182,6 +303,7 @@ describe('persistencia owner-only de devoluciones R5.5g', () => {
       return { outcome: 'conflict', request: null };
     };
     const repository: CustomerReturnRequestRepository = Object.freeze({
+      replayOwned: async () => null,
       eligibilityOwned: async () => Object.freeze([
         Object.freeze({ orderItemId: 9, variantId: 9, unitAmountCents: 900,
           deliveredQuantity: 1, claimedQuantity: 0, lastDeliveredAt: AT }),

@@ -99,6 +99,8 @@ type CreatePayload = Readonly<{
 }>;
 
 function positive(value: unknown): number | null {
+  if (typeof value !== 'number' &&
+      (typeof value !== 'string' || !/^[1-9]\d*$/u.test(value))) return null;
   const parsed = typeof value === 'number' ? value : Number(value);
   return Number.isSafeInteger(parsed) && parsed > 0 ? parsed : null;
 }

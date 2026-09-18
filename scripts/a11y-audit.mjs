@@ -4,7 +4,7 @@
  * ============================================================================
  *
  * Mismo motor que `scripts/capture-screens.mjs` (WebSocket global de Node +
- * DevTools Protocol). En vez de capturar, inyecta una batería de comprobaciones
+ * DevTools Protocol). Inyecta una batería de comprobaciones
  * WCAG 2.2 AA computables en el DOM real y devuelve los hallazgos agrupados.
  *
  * Por qué propio y no axe-core: una librería de cliente es dependencia nueva
@@ -27,6 +27,12 @@
  *   2. npx wrangler dev --port 8787          (en otra terminal)
  *   3. node scripts/a11y-audit.mjs           [--only=<substr>] [--json]
  *
+ * Evidencia visual local de devoluciones (R5.5h): AUDIT_SCREENSHOT_DIR guarda
+ * lista y detalle a 1440/375 en PNG de página completa, también con foco
+ * alcanzado mediante Tab en su enlace principal. Es opt-in y solo
+ * captura las cuatro superficies inertes del arnés de cuenta:
+ *   AUDIT_SCREENSHOT_DIR=docs/audits/r5-5h node scripts/audit-customer-account-local.mjs --only=surface
+ *
  * NO levantes dos servidores (astro dev + wrangler) contra la misma D1 local:
  * se pelean por el sqlite y el segundo acaba colgado sirviendo 000. Usa uno y
  * apúntale con BASE_URL.
@@ -41,9 +47,9 @@
  * `error` (los `warn` se listan pero no rompen).
  */
 import { spawn } from 'node:child_process';
-import { rm } from 'node:fs/promises';
+import { mkdir, rm, writeFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
-import { join, dirname } from 'node:path';
+import { join, dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -62,6 +68,7 @@ const args = process.argv.slice(2);
 const ONLY = args.find((a) => a.startsWith('--only='))?.slice('--only='.length);
 const AS_JSON = args.includes('--json');
 const INCLUDE_CUSTOMER_ACCOUNT = process.env.AUDIT_CUSTOMER_ACCOUNT === 'true';
+const SCREENSHOT_DIR = process.env.AUDIT_SCREENSHOT_DIR?.trim();
 
 const DESKTOP = { w: 1440, h: 900, dsf: 1, mobile: false };
 const MOBILE = { w: 375, h: 812, dsf: 1, mobile: true };
@@ -995,6 +1002,41 @@ async function main() {
       }
     }
 
+    let screenshot;
+    let focusScreenshot;
+    if (SCREENSHOT_DIR && /^customer-account:(returns|return-detail)(@375)?$/.test(surface.name)) {
+      const directory = resolve(ROOT, SCREENSHOT_DIR);
+      await mkdir(directory, { recursive: true });
+      const name = surface.name.replace(':', '-').replace('@375', '');
+      const capture = async (suffix = '') => {
+        const { cssContentSize } = await S('Page.getLayoutMetrics');
+        const { data } = await S('Page.captureScreenshot', {
+          format: 'png',
+          captureBeyondViewport: true,
+          clip: { x: 0, y: 0, width: cssContentSize.width, height: cssContentSize.height, scale: 1 },
+        });
+        const path = join(directory, `${name}-${surface.vp.w}${suffix}.png`);
+        await writeFile(path, Buffer.from(data, 'base64'));
+        return path;
+      };
+      screenshot = await capture();
+      const focusSelector = surface.name.includes(':returns')
+        ? 'a[href^="/cuenta/devoluciones/ret_"]' : 'a[href="/cuenta/devoluciones"]';
+      for (let tabs = 0; tabs < 12; tabs++) {
+        await S('Input.dispatchKeyEvent', { type: 'keyDown', key: 'Tab', code: 'Tab', windowsVirtualKeyCode: 9 });
+        await S('Input.dispatchKeyEvent', { type: 'keyUp', key: 'Tab', code: 'Tab', windowsVirtualKeyCode: 9 });
+        const focused = await S('Runtime.evaluate', {
+          expression: `document.activeElement?.matches(${JSON.stringify(`${focusSelector}:focus-visible`)})`,
+          returnByValue: true,
+        });
+        if (focused.result.value === true) {
+          focusScreenshot = await capture('-focus');
+          break;
+        }
+      }
+      if (!focusScreenshot) throw new Error(`${surface.name}: el enlace principal no recibió foco visible con Tab.`);
+    }
+
     const res = await S('Runtime.evaluate', { expression: AUDIT_JS, returnByValue: true });
     if (res.exceptionDetails) {
       console.error(`✗ ${surface.name} — la batería falló: ${res.exceptionDetails.text} ${res.exceptionDetails.exception?.description ?? ''}`);
@@ -1006,11 +1048,13 @@ async function main() {
     const w = findings.length - e;
     errors += e;
     warns += w;
-    report.push({ surface: surface.name, url, findings });
+    report.push({ surface: surface.name, url, findings, ...(screenshot ? { screenshot, focusScreenshot } : {}) });
 
     if (!AS_JSON) {
       const mark = e ? '✗' : w ? '·' : '✓';
       console.log(`${mark} ${surface.name}${findings.length ? ` — ${e} error${e === 1 ? '' : 'es'}, ${w} aviso${w === 1 ? '' : 's'}` : ''}`);
+      if (screenshot) console.log(`    PNG: ${screenshot}`);
+      if (focusScreenshot) console.log(`    PNG (Tab): ${focusScreenshot}`);
       for (const f of findings) {
         console.log(`    ${f.severity === 'error' ? '✗' : '·'} [${f.rule}] ${f.message}${f.where ? `  @ ${f.where}` : ''}`);
       }

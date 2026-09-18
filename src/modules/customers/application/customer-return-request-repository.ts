@@ -40,6 +40,13 @@ export type CustomerReturnRequestOutcome =
   | Readonly<{ outcome: 'conflict'; request: null }>;
 
 export interface CustomerReturnRequestRepository {
+  replayOwned(input: Readonly<{
+    orderPublicRef: string;
+    ownerProfileId: string;
+    expectedOwnershipVersion: number;
+    idempotencyKey: string;
+    payloadFingerprint: string;
+  }>): Promise<CustomerReturnRequestOutcome | null>;
   eligibilityOwned(input: Readonly<{
     orderPublicRef: string;
     ownerProfileId: string;

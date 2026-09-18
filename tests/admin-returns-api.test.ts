@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { GET as LIST, POST as CREATE } from '../src/pages/api/admin/returns/index';
 import { GET as DETAIL, PATCH } from '../src/pages/api/admin/returns/[id]';
 import { SqliteD1 } from './sqlite-d1';
@@ -42,7 +42,12 @@ function context(db: SqliteD1, method: string, path: string, body?: unknown,
 }
 
 describe('API admin RMA R3.10', () => {
-  beforeEach(() => { capability.enabled = true; });
+  beforeEach(() => {
+    capability.enabled = true;
+    vi.useFakeTimers({ toFake: ['Date'] });
+    vi.setSystemTime(new Date('2026-08-14T10:00:00.000Z'));
+  });
+  afterEach(() => { vi.useRealTimers(); });
 
   it('crea, lista, lee y autoriza con control de versión', async () => {
     const db = new SqliteD1(); seedDelivered(db);
@@ -72,5 +77,18 @@ describe('API admin RMA R3.10', () => {
     capability.enabled = false;
     expect((await LIST(context(db, 'GET', '/api/admin/returns'))).status).toBe(403);
     expect((await DETAIL(context(db, 'GET', '/api/admin/returns/x', undefined, 'false', { id: 'x' }))).status).toBe(403);
+  });
+
+  it('rechaza un alta fuera del plazo sin crear una solicitud', async () => {
+    const db = new SqliteD1(); seedDelivered(db);
+    vi.setSystemTime(new Date('2026-09-13T09:00:00.001Z'));
+    const locationId = Number(db.value("SELECT id AS value FROM inventory_locations WHERE code='principal'"));
+    const response = await CREATE(context(db, 'POST', '/api/admin/returns', {
+      order_id: 31, receive_location_id: locationId, reason: 'defective',
+      requested_by_kind: 'admin', requested_by_id: 'admin-panel',
+      idempotency_key: 'r310:api:return:expired', lines: [{ order_item_id: 311, quantity: 1 }],
+    }));
+    expect(response.status).toBe(409);
+    expect(db.value('SELECT count(*) AS value FROM return_requests')).toBe(0);
   });
 });

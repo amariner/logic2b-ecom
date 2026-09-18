@@ -135,4 +135,19 @@ describe('HTTP owner-only de devoluciones R5.5h', () => {
     expect(view).toBeInstanceOf(Response);
     expect((view as Response).status).toBe(303);
   });
+
+  it.each(['ownershipVersion', 'orderItemId', 'quantity'] as const)(
+    'rechaza coerciones y enteros inválidos en %s antes de llamar al dominio', async (field) => {
+      const access = setup();
+      for (const invalid of [true, false, null, [], [1], {}, ' 1 ', '1e0', '0x1',
+        '01', '', 0, -1, 1.5, Number.MAX_SAFE_INTEGER + 1]) {
+        const body = field === 'ownershipVersion'
+          ? payload({ ownershipVersion: invalid })
+          : payload({ lines: [{ orderItemId: 7, quantity: 1, [field]: invalid }] });
+        const response = await access.value.create(request('POST', body));
+        expect(response.status, `${field}: ${JSON.stringify(invalid)}`).toBe(400);
+      }
+      expect(access.returns.createOwned).not.toHaveBeenCalled();
+    },
+  );
 });

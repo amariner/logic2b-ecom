@@ -1,4 +1,4 @@
-import { planReturnRequest, RETURN_REASONS, type ReturnReason, type ReturnRequestLineDraft } from '../modules/fulfillment';
+import { planReturnRequest, RETURN_POLICY, RETURN_REASONS, type ReturnReason, type ReturnRequestLineDraft } from '../modules/fulfillment';
 import type {
   CustomerReturnRequestOutcome,
   CustomerReturnRequestRepository,
@@ -43,17 +43,36 @@ export function createCustomerReturnRequestService(
       if (!RETURN_REASONS.includes(input.reason) || !Number.isSafeInteger(input.expectedOwnershipVersion) || input.expectedOwnershipVersion < 1) {
         throw new RangeError('Solicitud de devolucion invalida.');
       }
-      const eligibility = await repository.eligibilityOwned(input);
-      const plannedLines = planReturnRequest({ now: input.occurredAt, lines: input.lines, eligibility })
-        .toSorted((left, right) => left.orderItemId - right.orderItemId);
+      if (input.lines.length < 1 || input.lines.length > RETURN_POLICY.maxLines ||
+          !Number.isFinite(Date.parse(input.occurredAt)) ||
+          input.lines.some((line) => !Number.isSafeInteger(line.orderItemId) || line.orderItemId < 1 ||
+            !Number.isSafeInteger(line.quantity) || line.quantity < 1) ||
+          new Set(input.lines.map((line) => line.orderItemId)).size !== input.lines.length) {
+        throw new RangeError('Lineas de solicitud invalidas.');
+      }
+      const canonicalLines = input.lines.toSorted((left, right) => left.orderItemId - right.orderItemId);
       const payloadFingerprint = await fingerprint(Object.freeze({
         v: 1,
         orderPublicRef: input.orderPublicRef,
         ownerProfileId: input.ownerProfileId,
         expectedOwnershipVersion: input.expectedOwnershipVersion,
         reason: input.reason,
-        lines: plannedLines.map((line) => ({ orderItemId: line.orderItemId, quantity: line.requestedQuantity })),
+        lines: canonicalLines.map((line) => ({ orderItemId: line.orderItemId, quantity: line.quantity })),
       }));
+      const replayInput = { ...input, payloadFingerprint };
+      const existing = await repository.replayOwned(replayInput);
+      if (existing !== null) return existing;
+      const eligibility = await repository.eligibilityOwned(input);
+      let plannedLines: ReturnType<typeof planReturnRequest>;
+      try {
+        plannedLines = planReturnRequest({ now: input.occurredAt, lines: canonicalLines, eligibility });
+      } catch (error) {
+        if (!(error instanceof RangeError)) throw error;
+        // Otra petición puede consumir las unidades entre el replay y la lectura.
+        const raced = await repository.replayOwned(replayInput);
+        if (raced !== null) return raced;
+        throw error;
+      }
       const token = idFactory().replaceAll('-', '');
       return repository.createOwned({
         ...input,

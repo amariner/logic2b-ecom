@@ -2,7 +2,6 @@ import type {
   CustomerReturnEligibilityLine,
   CustomerReturnEligibilityView,
   CustomerReturnReason,
-  CustomerReturnRequestOutcome,
   CustomerReturnRequestRepository,
   CustomerReturnRequestView,
 } from '../application/customer-return-request-repository';
@@ -20,6 +19,12 @@ type HeaderRow = Readonly<{
 }>;
 
 type LineRow = Readonly<{ order_item_id: number; name: string; requested_quantity: number }>;
+type ReplayRow = HeaderRow & Readonly<{
+  current_owner_profile_id: string | null;
+  current_ownership_version: number;
+  current_profile_status: string | null;
+  current_merged_into_profile_id: string | null;
+}>;
 type EligibilityViewRow = Readonly<{
   order_public_ref: string;
   order_number: string;
@@ -43,6 +48,7 @@ function isExpectedWriteConflict(error: unknown): boolean {
     'customer_return_line_eligibility_conflict',
     'return_line_quantity_conflict',
     'NOT NULL constraint failed: return_request_lines.order_id',
+    'UNIQUE constraint failed: return_requests.create_idempotency_key',
   ].some((token) => message.includes(token));
 }
 
@@ -72,21 +78,37 @@ export function createD1CustomerReturnRequestRepository(
   });
   const byKey = (key: string) => db.prepare(`SELECT r.id, access.public_ref,
       order_access.public_ref AS order_public_ref, r.requested_by_id, r.status,
-      r.reason_code, r.version, r.requested_at, r.customer_payload_fingerprint
+      r.reason_code, r.version, r.requested_at, r.customer_payload_fingerprint,
+      o.customer_profile_id AS current_owner_profile_id,
+      order_access.ownership_version AS current_ownership_version,
+      profile.status AS current_profile_status,
+      profile.merged_into_profile_id AS current_merged_into_profile_id
     FROM return_requests r
     JOIN customer_return_access_refs access ON access.return_id=r.id
     JOIN customer_order_access_refs order_access ON order_access.order_id=r.order_id
+    JOIN orders o ON o.id=r.order_id
+    LEFT JOIN customer_profiles profile ON profile.id=o.customer_profile_id
     WHERE r.create_idempotency_key=? AND r.requested_by_kind='customer'`)
-    .bind(key).first<HeaderRow>();
-  const replay = async (key: string, owner: string, fingerprint: string): Promise<CustomerReturnRequestOutcome> => {
-    const row = await byKey(key);
-    if (row === null || row.requested_by_id !== owner || row.customer_payload_fingerprint !== fingerprint) {
+    .bind(key).first<ReplayRow>();
+  const replayOwned: CustomerReturnRequestRepository['replayOwned'] = async (input) => {
+    if (!validEvidence(input.idempotencyKey, input.payloadFingerprint)) {
+      throw new RangeError('Evidencia de solicitud invalida.');
+    }
+    const row = await byKey(input.idempotencyKey);
+    if (row === null) return null;
+    if (row.requested_by_id !== input.ownerProfileId ||
+        row.current_owner_profile_id !== input.ownerProfileId ||
+        row.current_ownership_version !== input.expectedOwnershipVersion ||
+        row.current_profile_status !== 'active' || row.current_merged_into_profile_id !== null ||
+        row.order_public_ref !== input.orderPublicRef ||
+        row.customer_payload_fingerprint !== input.payloadFingerprint) {
       return Object.freeze({ outcome: 'conflict', request: null });
     }
     return Object.freeze({ outcome: 'replayed', request: await view(row) });
   };
 
   return Object.freeze({
+    replayOwned,
     async eligibilityOwned(input: Parameters<CustomerReturnRequestRepository['eligibilityOwned']>[0]) {
       const result = await db.prepare(`SELECT oi.id AS orderItemId,
           COALESCE(oi.variant_id, pv.id) AS variantId,
@@ -194,9 +216,8 @@ export function createD1CustomerReturnRequestRepository(
           input.lineIds.length !== input.plannedLines.length) {
         throw new RangeError('Evidencia de solicitud invalida.');
       }
-      if (await byKey(input.idempotencyKey) !== null) {
-        return replay(input.idempotencyKey, input.ownerProfileId, input.payloadFingerprint);
-      }
+      const existing = await replayOwned(input);
+      if (existing !== null) return existing;
       const statements: D1PreparedStatement[] = [
         db.prepare(`INSERT INTO audit_log (
           audit_id, occurred_at, actor_kind, actor_id, actor_label, action,
@@ -243,14 +264,15 @@ export function createD1CustomerReturnRequestRepository(
       try {
         await db.batch(statements);
       } catch (error) {
-        const raced = await replay(input.idempotencyKey, input.ownerProfileId, input.payloadFingerprint);
-        if (raced.outcome === 'replayed' || isExpectedWriteConflict(error)) return raced;
+        const raced = await replayOwned(input);
+        if (raced?.outcome === 'replayed') return raced;
+        if (isExpectedWriteConflict(error)) return Object.freeze({ outcome: 'conflict', request: null });
         throw error;
       }
-      const row = await byKey(input.idempotencyKey);
-      return row === null
+      const result = await replayOwned(input);
+      return result?.outcome !== 'replayed'
         ? Object.freeze({ outcome: 'conflict', request: null })
-        : Object.freeze({ outcome: 'applied', request: await view(row) });
+        : Object.freeze({ outcome: 'applied', request: result.request });
     },
   });
 }

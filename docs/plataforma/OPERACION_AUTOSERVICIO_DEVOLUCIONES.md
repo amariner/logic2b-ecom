@@ -1,12 +1,14 @@
-# Operación del autoservicio de devoluciones — R5.5g
+# Operación del autoservicio de devoluciones — R5.5g–h
 
 ## Alcance y frontera
 
 `CUS-005` permite que un perfil autenticado **solicite y consulte** sus propias
 devoluciones. No autoriza, recibe, inspecciona, repone ni resuelve mercancía:
 esas operaciones continúan en el RMA de backoffice (`FUL-011`). `FUL-010`
-conserva para un bloque posterior la superficie HTTP/portal, reglas visibles y
-experiencia completa. Este corte no abre rutas, navegación ni activación.
+conserva para un bloque posterior reglas visibles y experiencia completa de
+posventa. R5.5h incorpora API y SSR owner-only detrás de sesión, scopes, CSRF
+y rate limit. Las rutas y la navegación siguen ausentes en la demo pública;
+la capacidad no está activada.
 
 El selector de entrada es siempre `ord_…`. Email, número comercial, nombre,
 dirección o cualquier otra PII no prueban ownership. La respuesta usa `ret_…`
@@ -25,13 +27,38 @@ y solo contiene estado, motivo, versión, fecha y cantidades por línea.
 6. `Idempotency-Key` más la huella SHA-256 del payload permite replay exacto;
    las líneas se ordenan por `orderItemId` antes de calcularla, de modo que dos
    representaciones equivalentes comparten huella. Reutilizar la clave con
-   owner o payload distintos produce conflicto.
+   owner o payload distintos produce conflicto. El replay se consulta antes
+   de comprobar la cantidad disponible y el plazo: una solicitud ya creada
+   sigue siendo reproducible después de consumir las unidades o vencer la
+   ventana, siempre que el owner canónico, su perfil activo y el CAS sigan
+   vigentes. Repetir la clave nunca crea otra solicitud, evento o auditoría.
 7. El trigger RMA existente serializa la última unidad disponible. Dos altas
    concurrentes no pueden reclamar la misma cantidad.
 8. `requested_by_id`, versión de ownership y huella forman el snapshot mínimo
    e inmutable. No se copia email, número de pedido ni PII.
-9. Cambiar el owner, fusionar/revocar el perfil o agotar cantidades cierra la
-   operación. No existe claim, merge ni reasignación automática.
+9. Cambiar el owner, fusionar/revocar el perfil o invalidar el CAS cierra también
+   el replay. Agotar cantidades o vencer el plazo impide nuevas altas, pero no
+   consultar la evidencia de la misma solicitud. No existe claim, merge ni
+   reasignación automática.
+10. Cantidades, identificadores de línea y versiones HTTP aceptan únicamente
+    enteros seguros positivos o su representación decimal canónica de
+    formulario; booleanos, arrays y notación numérica alternativa se rechazan
+    antes de llamar al dominio.
+
+## Evidencia local R5.5h
+
+El pase del 2026-09-18 cierra la validación de navegador pendiente: 26
+superficies a 1440/375, cero errores y cero avisos. Las ocho
+[capturas de lista, detalle y foco](../audits/r5-5h/README.md) usan fixtures sin
+D1 ni proveedores. Los tests cubren replay después de agotar cantidades o
+vencer la ventana, propietario/CAS/perfil cambiado y dos batches simultáneos
+con clave idéntica y payload igual o diferente. El retry tras una carrera
+antes de planificar recupera la evidencia; un fallo D1 no reconocido sigue
+propagándose como error de infraestructura.
+
+La corrección de replay del 2026-09-18 no requiere migración y tiene pendiente
+su despliegue. El esquema `0044` y el rollout inerte histórico de abajo no se
+modifican en esta entrega.
 
 ## Migración y preflight
 
@@ -84,7 +111,11 @@ aplicó a ningún target persistente; R5.5h reconstruyó la D1 local en `0044`.
 El rollout remoto autorizado del 2026-08-26 usó el bookmark Time Travel
 `0000017e-00000000-000050d3-84a6d76d4e3be0ae16fb0cb1488ab580`, aplicó `0044`
 y obtuvo cero referencias ausentes, huérfanas o duplicadas y cero evidencia
-parcial. D1 no conserva migraciones pendientes y `CUS-005` sigue inactiva.
+parcial. En ese corte conservó 20 productos, 22 variantes, 8 pedidos, 8 pagos
+y 1 RMA con referencia `ret_`; no quedaron migraciones pendientes. El Worker
+publicado fue `14a91e4d-8834-474c-8bbf-49d2bcb2419e` y el E2E remoto pasó,
+incluido backup 37. Es evidencia histórica del 2026-08-26, no una nueva
+verificación remota de esta sesión. `CUS-005` sigue inactiva.
 
 ## Rollback y recuperación
 

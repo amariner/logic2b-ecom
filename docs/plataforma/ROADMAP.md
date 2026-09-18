@@ -174,7 +174,7 @@ suites/715 tests; producción permanece en `0032`.
 | 52 | **R5.2 Consentimientos** | Canal, finalidad, versión legal, fuente, región, timestamp y retirada. | ✅ 2026-08-17 — D1 `0037`, repositorio atómico, backup 31 y rehearsal local; captura/rollout pendientes |
 | 53 | **R5.3 Derechos de datos** | Exportar, corregir, anonimizar/borrar con excepciones fiscales y audit log. | 🟨 2026-08-18 — contrato y persistencia R5.3a–b instalados; política, superficies y ejecución pendientes de gates propios |
 | 54 | **R5.4 Cuentas passwordless** | Login seguro, sesiones, revocación y anti-enumeración; módulo opcional. | ✅ 2026-08-19 — R5.4a–d implementan dominio, D1, Resend directo, transporte mismo navegador, throttle/auditoría, gate durable y HTTP/UI; 185 suites/958 tests; D1 remota en `0040`, Worker `a5cc8d85…` inerte, `CUS-003` instalada y rollout real aislado |
-| 55 | **R5.5 Autoservicio** | Pedidos, direcciones y devolución sobre permisos mínimos. | 🟨 R5.5a–g cerrados; R5.5h en progreso 2026-08-24 — HTTP/SSR owner-only verde en tests y fixture, falta navegador/a11y por Chrome ausente |
+| 55 | **R5.5 Autoservicio** | Pedidos, direcciones y devolución sobre permisos mínimos. | ✅ 2026-09-18 — R5.5a–h cerrados en sus cortes; HTTP/SSR, navegador 26/0/0 y replay owner-only verificados; módulos installed/inactivos con rollout por proyecto pendiente |
 | 56 | **R5.6 Segmentación** | Lenguaje de filtros limitado, templates y recálculo observable. | 🟨 2026-08-26 — R5.6a instala ADR-0045 y contrato puro; 200 suites/1.043 tests, 787 archivos tipados y E2E verde; persistencia/job pendientes |
 | 57 | **R5.7 Modelo de mercados** | Contexto de país/idioma/moneda/dominio, resolución y fallback. | ⬜ |
 | 58 | **R5.8 Traducciones y URLs** | Campos traducibles, flujo editorial, canonical, hreflang y sitemap. | ⬜ |
@@ -1445,36 +1445,27 @@ principal pasa a R4.1, motor de reglas de precio.
 
 ## 14. Siguiente bloque
 
-### R5.5h — Cierre visual de HTTP/SSR owner-only de devoluciones
+### R5.6a.1 — Endurecimiento del contrato puro antes de persistencia
 
-R5.5h implementa rutas exactas API/SSR de índice, detalle, elegibilidad y alta,
-sesión/scopes CUS-005, CSRF, rate limit por IP sin selectores, respuesta 404
-uniforme y DTO sin PII. La fixture inerte sirve lista, detalle y API sin D1 ni
-efectos; demo y preflight permanecen cerrados. El hardening correctivo de R5.5g
-alinea `ret_` con ADR-0044, añade `customer_contract_version`, revalida owner,
-CAS, ventana, variante, precio y cantidad en triggers, genera números RMA
-realmente únicos y ya no disfraza fallos D1 como conflictos.
+R5.5h cierra el 2026-09-18: tres fases del arnés de cuenta verificadas, 26
+superficies a 1440/375 sin errores ni avisos y ocho
+[capturas revisadas de lista, detalle y foco](../audits/r5-5h/README.md).
+La corrección de replay permite recuperar la solicitud aun con cantidades
+agotadas o ventana vencida, revalida owner/perfil/CAS y resuelve colisiones
+concurrentes sin duplicar evidencia ni ocultar fallos D1. El HTTP rechaza
+coerciones numéricas. Sin DDL, activación ni despliegue nuevo; CUS-005 conserva
+su estado installed/inactivo y el gate de rollout por proyecto.
 
-`pnpm check` pasa 198 suites/1.032 tests y 783 archivos tipados; E2E demo,
-rehearsal 0043→0044→dump→restore y auditorías HTTP demo/preflight/surface están
-verdes. D1 local fue reconstruida en `0044`. El rollout remoto autorizado del
-2026-08-26 partió del bookmark Time Travel
-`0000017e-00000000-000050d3-84a6d76d4e3be0ae16fb0cb1488ab580`, aplicó `0044`
-y desplegó el Worker `14a91e4d-8834-474c-8bbf-49d2bcb2419e`. Producción
-conserva 20 productos, 22 variantes, 8 pedidos, 8 pagos y 1 RMA; tiene 1
-referencia `ret_`, cero referencias ausentes, huérfanas o duplicadas, cero
-evidencia parcial y ninguna migración pendiente. El E2E remoto completo pasa,
-incluido backup esquema 37. Las mutaciones ya rechazan un `Origin` ausente o
-distinto del canónico y la huella idempotente ordena las líneas para representar
-el payload semántico.
+Gate de cierre: `pnpm check` completo (835 archivos, 205 suites/1.069 tests,
+baseline y build) y E2E local íntegro contra una D1 temporal con el esquema
+actual y seed reducido; CSV y backup 37 incluidos.
 
-La auditoría de navegador y las capturas 1440/375 siguen pendientes porque el
-contenedor no contiene Chrome/Chromium; `CUS-005` permanece installed/inactiva.
+R5.6a ya define ADR-0045 y el contrato puro. Antes de hidratarlo desde D1,
+corregir la validación runtime de objetos, claves, identificadores, hechos,
+operadores, reloj y fallos anteriores al inicio. El bloque R5.6a.1 requiere
+regresiones dirigidas y `pnpm check`, sin persistencia, job, UI ni efectos.
 
-Siguiente corte:
-
-1. disponer de Chrome/Chromium y ejecutar `pnpm audit:customer-account -- --only=surface`;
-2. revisar y guardar capturas de lista/detalle a 1440 y 375 px, foco, contraste,
-   overflow y targets; corregir cualquier hallazgo antes de cerrar;
-3. repetir `pnpm check` y E2E tras cualquier ajuste visual;
-4. mantener CUS-005 installed/inactiva; después cerrar R5.5 y continuar R5.6.
+Después sigue R5.6b: propuesta revisable de definiciones, ejecuciones y
+proyecciones, migración expand-only, backup/restore y rehearsal aislado. El
+veto de migración exige autorización expresa antes de crear el esquema vivo;
+la demo y CUS-009 permanecen inactivas.
