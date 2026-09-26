@@ -6,19 +6,28 @@ import { MAIN_DEMO_HREF, DEMO_ADMIN_HREF } from '../lib/nav';
 ---
 
 <Landing title="Página no encontrada — Logic2B Ecommerce" noindex>
-  <main class="mx-auto flex w-full max-w-2xl flex-col items-center justify-center px-5 py-20 text-center">
-    <p class="font-display text-7xl sm:text-8xl">404</p>
-    <h1 class="mt-4 text-2xl sm:text-3xl">Esta página no existe</h1>
-    <p class="mt-3 max-w-md leading-relaxed text-muted-foreground">
+  <main class="page-hero page-shell status-page">
+    <p class="status-code" aria-hidden="true">4<span>0</span>4</p>
+    <p class="page-kicker">Página no encontrada</p>
+    <h1>Esta página no existe</h1>
+    <p class="page-lead">
       Puede que el enlace esté mal escrito o que la página haya cambiado de sitio.
       Estas rutas sí llevan a alguna parte:
     </p>
-    <div class="mt-8 flex flex-col gap-3 sm:flex-row sm:gap-4">
-      <a href="/" class="rounded-btn bg-foreground px-7 py-3 font-semibold text-background transition hover:bg-foreground/90">Ir a la página principal</a>
-      <a href={MAIN_DEMO_HREF} class="rounded-btn border border-foreground px-7 py-3 font-semibold text-foreground transition hover:bg-foreground hover:text-background">Entrar en la tienda demo</a>
+    <div class="page-actions">
+      <a href="/" class="btn btn-primary">Ir a la página principal <span class="btn-arrow" aria-hidden="true">→</span></a>
+      <a href={MAIN_DEMO_HREF} class="btn btn-ghost">Entrar en la tienda demo <span aria-hidden="true">↗</span></a>
     </div>
-    <p class="mt-6 text-sm text-muted-foreground">
-      ¿Buscabas el panel? <a href={DEMO_ADMIN_HREF} class="text-link">Entra en el panel de la demo</a>.
-    </p>
+    <p class="status-note">¿Buscabas el panel? <a href={DEMO_ADMIN_HREF} class="text-link">Entra en el panel de la demo</a>.</p>
   </main>
 </Landing>
+
+<style is:global>
+  .commercial-page .status-code { position: relative; margin-bottom: 1.5rem; color: var(--c-green); font: 400 clamp(6rem, 18vw, 12rem)/.85 'Fraunces', Georgia, serif; letter-spacing: -.08em; }
+  .commercial-page .status-code span { display: inline-block; margin-inline: .04em; width: .72em; height: .72em; border: .09em solid var(--leaf); border-radius: 50%; color: transparent; vertical-align: -.02em; }
+  .commercial-page .status-note { margin-top: 1.8rem; color: var(--c-muted); font-size: .9rem; }
+  @media (prefers-reduced-motion: no-preference) {
+    .commercial-page .status-code span { animation: status-spin 9s linear infinite; border-top-color: var(--c-green); }
+  }
+  @keyframes status-spin { to { transform: rotate(360deg); } }
+</style>

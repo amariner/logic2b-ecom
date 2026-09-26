@@ -3,130 +3,9 @@
    tinta verde, píldoras), llevado a un acabado editorial: composiciones con
    profundidad, gráficos propios y componentes de interfaz reales en lugar de
    glifos. Todo es CSS; el único JS es el de las pestañas y el vídeo al hover.
-   Acotada a `.commerce-home`: ninguna otra página la carga. */
-
-.commerce-home {
-  --leaf: #b7d4b0;
-  --leaf-soft: #dcead5;
-  --deep: #17301b;
-  --line: #e3e9df;
-  --shadow-sm: 0 1px 2px rgb(23 48 27 / 5%), 0 4px 14px rgb(23 48 27 / 5%);
-  --shadow-md: 0 2px 6px rgb(23 48 27 / 5%), 0 18px 44px rgb(23 48 27 / 9%);
-  --shadow-lg: 0 4px 12px rgb(23 48 27 / 6%), 0 40px 90px rgb(23 48 27 / 14%);
-  --ease: cubic-bezier(.2, .7, .2, 1);
-}
-
-/* ── Botones ─────────────────────────────────────────────────────────────── */
-.commerce-home .btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: .7rem;
-  min-height: 3.25rem;
-  padding: .9rem 1.5rem;
-  border: 1px solid transparent;
-  border-radius: 999px;
-  font-size: .92rem;
-  font-weight: 500;
-  letter-spacing: -.01em;
-  white-space: nowrap;
-  transition: background-color .25s var(--ease), color .25s var(--ease), border-color .25s var(--ease), box-shadow .25s var(--ease), transform .25s var(--ease);
-}
-.commerce-home .btn-arrow { display: inline-block; transition: transform .3s var(--ease); }
-.commerce-home .btn:hover .btn-arrow { transform: translateX(3px); }
-.commerce-home .btn-primary { background: var(--c-green); color: #fff; box-shadow: 0 10px 24px rgb(32 63 34 / 22%), inset 0 1px 0 rgb(255 255 255 / 12%); }
-.commerce-home .btn-primary:hover { background: var(--deep); box-shadow: 0 14px 30px rgb(32 63 34 / 28%), inset 0 1px 0 rgb(255 255 255 / 12%); }
-.commerce-home .btn-ghost { border-color: var(--c-border); background: rgb(255 255 255 / 70%); color: var(--c-ink); }
-.commerce-home .btn-ghost:hover { border-color: var(--c-ink); background: #fff; }
-.commerce-home .btn-soft { min-height: 2.9rem; padding: .7rem 1.25rem; border-color: var(--c-border); background: #fff; color: var(--c-green); font-size: .87rem; }
-.commerce-home .btn-soft:hover { border-color: var(--c-green); }
-
-/* ── Cabeceras de sección ────────────────────────────────────────────────── */
-.commerce-home .sx { padding-block: clamp(4.5rem, 9vw, 8rem); scroll-margin-top: 110px; }
-.commerce-home .sx-tint { background: var(--c-tint); }
-.commerce-home .sx-head { margin-bottom: clamp(2.5rem, 5vw, 4rem); }
-.commerce-home .sx-head h2 { margin-top: 1.1rem; font-size: clamp(2.4rem, 4.6vw, 4.3rem); line-height: 1.02; letter-spacing: -.058em; }
-.commerce-home .sx-head p:not(.eyebrow) { max-width: 36rem; margin-top: 1.3rem; color: var(--c-muted); font-size: 1.05rem; line-height: 1.7; }
-.commerce-home .sx-head.is-center { max-width: 52rem; margin-inline: auto; text-align: center; }
-.commerce-home .sx-head.is-center p { margin-inline: auto; }
-.commerce-home .sx-head.is-split { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr); align-items: end; gap: 2rem 4rem; }
-.commerce-home .sx-head.is-split > p,
-.commerce-home .sx-head.is-split > div + div { padding-bottom: .4rem; }
-.commerce-home .sx-head.is-split > div + div p { margin-top: 0; }
-.commerce-home .sx-head.is-split .text-link { display: inline-block; margin-top: 1rem; }
-.commerce-home .eyebrow {
-  display: inline-flex;
-  align-items: center;
-  gap: .7rem;
-  color: var(--c-green);
-  font: 600 .7rem/1.4 'Inter Variable', sans-serif;
-  letter-spacing: .13em;
-  text-transform: uppercase;
-}
-.commerce-home .eyebrow span {
-  display: grid;
-  place-items: center;
-  min-width: 2.1rem;
-  height: 1.45rem;
-  padding-inline: .45rem;
-  border: 1px solid var(--leaf);
-  border-radius: 999px;
-  font-size: .64rem;
-  font-variant-numeric: tabular-nums;
-  letter-spacing: .04em;
-}
-
-/* ── Marco de pantalla (navegador) ───────────────────────────────────────── */
-.commerce-home .frame {
-  position: relative;
-  overflow: hidden;
-  border: 1px solid rgb(23 48 27 / 10%);
-  border-radius: 1.1rem;
-  background: #fff;
-  box-shadow: var(--shadow-md);
-}
-.commerce-home .frame-bar {
-  display: flex;
-  align-items: center;
-  gap: .38rem;
-  height: 2.3rem;
-  padding-inline: .9rem;
-  border-bottom: 1px solid var(--line);
-  background: #f7f9f4;
-}
-.commerce-home .frame-bar i { width: .55rem; height: .55rem; border-radius: 50%; background: #d5ddd1; }
-.commerce-home .frame-bar span {
-  margin-inline: auto;
-  padding: .2rem .9rem;
-  border-radius: 999px;
-  background: #fff;
-  box-shadow: inset 0 0 0 1px var(--line);
-  color: var(--c-muted);
-  font-size: .66rem;
-  letter-spacing: .01em;
-  transform: translateX(-1.1rem);
-}
-.commerce-home .frame img { display: block; width: 100%; }
-
-/* Tarjetas de interfaz (pedido, envío, preparado) */
-.commerce-home .ui-ico {
-  display: grid;
-  flex: 0 0 auto;
-  place-items: center;
-  width: 2rem;
-  height: 2rem;
-  border-radius: .7rem;
-  background: var(--c-tint);
-  color: var(--c-green);
-}
-.commerce-home .ui-head { display: flex; align-items: center; gap: .7rem; }
-.commerce-home .ui-head b,
-.commerce-home .craft-chip b { display: block; font-size: .8rem; font-weight: 600; letter-spacing: -.01em; }
-.commerce-home .ui-head small,
-.commerce-home .craft-chip small { display: block; margin-top: .1rem; color: var(--c-muted); font-size: .68rem; }
-.commerce-home .ui-pill { display: inline-flex; align-items: center; gap: .35rem; padding: .22rem .6rem; border-radius: 999px; font-size: .66rem; font-weight: 600; }
-.commerce-home .ui-pill::before { width: .38rem; height: .38rem; border-radius: 50%; background: currentColor; content: ''; }
-.commerce-home .ui-pill.is-paid { background: #e6f4e2; color: #25632f; }
+   Acotada a `.commerce-home`: ninguna otra página la carga. Las piezas
+   compartidas (botones, cabeceras, marcos, FAQ, entradas) viven en
+   commercial.css para que todo el shell comercial hable el mismo idioma. */
 
 /* ── Hero ────────────────────────────────────────────────────────────────── */
 .commerce-home .hx {
@@ -562,44 +441,6 @@
 .commerce-home .diagram .zone-label { fill: var(--c-muted); font-size: 9.5px; font-weight: 600; letter-spacing: .06em; text-anchor: middle; text-transform: uppercase; }
 @keyframes flow-dash { to { stroke-dashoffset: -14; } }
 
-/* ── Precios (acabado local sobre CommercialPlans) ───────────────────────── */
-.commerce-home .pricing .commercial-plans { gap: 1.25rem; align-items: stretch; }
-.commerce-home .pricing .commercial-plan { position: relative; border-radius: 1.75rem; padding: 2.1rem; box-shadow: var(--shadow-sm); transition: box-shadow .35s var(--ease), transform .35s var(--ease); }
-.commerce-home .pricing .commercial-plan:hover { box-shadow: var(--shadow-md); transform: translateY(-3px); }
-.commerce-home .pricing .commercial-plan h3 { font: 400 1.9rem/1.1 'Fraunces', Georgia, serif; letter-spacing: -.045em; margin: .6rem 0 1.4rem; }
-.commerce-home .pricing .commercial-plan .plan-price { font: 400 3.4rem/1 'Fraunces', Georgia, serif; letter-spacing: -.055em; font-variant-numeric: lining-nums; }
-.commerce-home .pricing .commercial-plan .plan-price small { font-family: 'Inter Variable', sans-serif; letter-spacing: 0; vertical-align: .9em; margin-right: .2rem; color: var(--c-muted); }
-.commerce-home .pricing .commercial-plan .plan-cta { min-height: 3.2rem; padding-inline: 1.3rem; font-weight: 500; transition: background-color .25s var(--ease), color .25s var(--ease); }
-.commerce-home .pricing .commercial-plan:not(.is-featured) .plan-cta:hover { background: var(--c-green); color: #fff; }
-.commerce-home .pricing .commercial-plan .plan-preview { border-radius: 1rem; transition: border-color .25s var(--ease); }
-.commerce-home .pricing .commercial-plan .plan-preview img { transition: transform .6s var(--ease); }
-.commerce-home .pricing .commercial-plan .plan-preview:hover img { transform: scale(1.03); }
-.commerce-home .pricing .commercial-plan.is-featured { border-color: var(--c-green); background: var(--c-green); color: #fff; box-shadow: 0 30px 70px rgb(32 63 34 / 28%); }
-.commerce-home .pricing .commercial-plan.is-featured::before {
-  position: absolute;
-  top: 1.6rem;
-  right: 1.6rem;
-  padding: .3rem .7rem;
-  border-radius: 999px;
-  background: var(--leaf);
-  color: var(--deep);
-  font-size: .66rem;
-  font-weight: 600;
-  letter-spacing: .04em;
-  content: 'Recomendado';
-}
-.commerce-home .pricing .commercial-plan.is-featured :is(.plan-audience, .plan-monthly, ul, .plan-price small) { color: #cfe0ca; }
-.commerce-home .pricing .commercial-plan.is-featured li span { color: var(--leaf); }
-.commerce-home .pricing .commercial-plan.is-featured .plan-audience { padding-right: 6.5rem; }
-.commerce-home .pricing .commercial-plan.is-featured .plan-cta { border-color: #fff; background: #fff; color: var(--c-green); }
-.commerce-home .pricing .commercial-plan.is-featured .plan-cta:hover { background: var(--leaf-soft); }
-.commerce-home .pricing .commercial-plan.is-featured .plan-preview { border-color: rgb(255 255 255 / 18%); }
-.commerce-home .pricing .commercial-plan.is-featured .plan-preview > span { background: #fff; }
-.commerce-home .pricing .commercial-plan.is-featured :focus-visible { outline-color: #fff; }
-.commerce-home .pricing .plans-note { text-align: center; }
-.commerce-home .section-more { display: flex; align-items: center; gap: .4rem; width: fit-content; margin: 2.2rem auto 0; padding: .6rem 0; border-bottom: 1px solid currentColor; color: var(--c-green); font-size: .88rem; font-weight: 500; }
-
-/* ── Bento de tiendas ────────────────────────────────────────────────────── */
 .commerce-home .bento {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -747,37 +588,6 @@
 .commerce-home .guide b { position: absolute; top: 1.5rem; right: 1.5rem; font-weight: 400; transition: transform .3s var(--ease); }
 .commerce-home .guide:hover b { transform: translate(2px, -2px); }
 
-/* ── FAQ ─────────────────────────────────────────────────────────────────── */
-.commerce-home .faq { display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr); align-items: start; gap: clamp(2rem, 6vw, 6rem); }
-.commerce-home .faq-aside { position: sticky; top: 120px; }
-.commerce-home .faq-help { padding: 1.6rem; border-radius: 1.4rem; background: var(--c-tint); }
-.commerce-home .faq-help strong { display: block; font-size: 1.05rem; letter-spacing: -.02em; }
-.commerce-home .faq-help p { margin: .5rem 0 1.3rem; color: var(--c-muted); font-size: .9rem; line-height: 1.6; }
-.commerce-home .faq-list { border-top: 1px solid var(--c-border); }
-.commerce-home .faq-list details { border-bottom: 1px solid var(--c-border); }
-.commerce-home .faq-list summary {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 1.5rem;
-  padding: 1.6rem 0;
-  font-size: 1.08rem;
-  font-weight: 500;
-  letter-spacing: -.02em;
-  list-style: none;
-  cursor: pointer;
-  transition: color .25s var(--ease);
-}
-.commerce-home .faq-list summary::-webkit-details-marker { display: none; }
-.commerce-home .faq-list summary:hover { color: var(--c-green); }
-.commerce-home .faq-icon { position: relative; flex: 0 0 auto; width: 2.2rem; height: 2.2rem; border: 1px solid var(--c-border); border-radius: 50%; transition: background-color .3s var(--ease), border-color .3s var(--ease), transform .3s var(--ease); }
-.commerce-home .faq-icon::before,
-.commerce-home .faq-icon::after { position: absolute; top: 50%; left: 50%; width: .75rem; height: 1.5px; background: currentColor; content: ''; transform: translate(-50%, -50%); transition: transform .3s var(--ease); }
-.commerce-home .faq-icon::after { transform: translate(-50%, -50%) rotate(90deg); }
-.commerce-home .faq-list details[open] .faq-icon { border-color: var(--c-green); background: var(--c-green); color: #fff; }
-.commerce-home .faq-list details[open] .faq-icon::after { transform: translate(-50%, -50%) rotate(0deg); }
-.commerce-home .faq-list details p { max-width: 42rem; padding: 0 3.5rem 1.7rem 0; color: var(--c-muted); font-size: .98rem; line-height: 1.75; }
-
 /* ── Contacto ────────────────────────────────────────────────────────────── */
 .commerce-home .contact {
   position: relative;
@@ -821,18 +631,6 @@
 }
 .commerce-home .contact-card p { color: var(--c-muted) !important; }
 
-/* ── Entrada al hacer scroll (solo CSS, mejora progresiva) ───────────────── */
-@supports (animation-timeline: view()) {
-  @media (prefers-reduced-motion: no-preference) {
-    .commerce-home .reveal {
-      animation: reveal-in linear both;
-      animation-timeline: view();
-      animation-range: entry 0% entry 55%;
-    }
-  }
-}
-@keyframes reveal-in { from { opacity: 0; transform: translateY(28px); } to { opacity: 1; transform: none; } }
-
 @media (prefers-reduced-motion: reduce) {
   .commerce-home .diagram .pulse { display: none; }
 }
@@ -856,20 +654,17 @@
   .commerce-home .hx { grid-template-columns: 1fr; }
   .commerce-home .hx-copy { max-width: 40rem; padding-top: 0; }
   .commerce-home .hx-stage { max-width: 40rem; width: 100%; margin-inline: auto; }
-  .commerce-home .sx-head.is-split { grid-template-columns: 1fr; gap: 0; }
   .commerce-home .moment,
   .commerce-home .panels,
   .commerce-home .craft,
   .commerce-home .faq,
   .commerce-home .contact-grid { grid-template-columns: 1fr; }
   .commerce-home .links-grid { grid-template-columns: 1fr; max-width: 34rem; }
-  .commerce-home .faq-aside { position: static; }
   .commerce-home .panels-stage { max-width: 40rem; }
   .commerce-home .craft-chip { right: 1rem; }
 }
 
 @media (max-width: 700px) {
-  .commerce-home .sx { padding-block: 4rem; }
   .commerce-home .hx { padding-top: 2.2rem; gap: 2.5rem; }
   .commerce-home .hx h1 { font-size: clamp(2.7rem, 12.4vw, 3.4rem); }
   .commerce-home .hx-actions .btn { flex: 1 1 100%; }
@@ -908,8 +703,6 @@
   .commerce-home .frame-note { bottom: 2.8rem; left: .7rem; font-size: .68rem; }
   .commerce-home .link-card { padding: .8rem .8rem 1.5rem; }
   .commerce-home .link-card > :not(.diagram) { padding-inline: .6rem; }
-  .commerce-home .pricing .commercial-plan { padding: 1.5rem; }
-  .commerce-home .pricing .commercial-plan .plan-price { font-size: 2.9rem; }
   .commerce-home .bento { gap: .8rem; }
   .commerce-home .store-card.is-hero { grid-column: 1 / -1; }
   .commerce-home .store-media { aspect-ratio: 1; }
@@ -928,8 +721,6 @@
   .commerce-home .guides { grid-template-columns: 1fr; gap: .8rem; }
   .commerce-home .guide { min-height: 0; }
   .commerce-home .guide small { margin-top: 1.2rem; }
-  .commerce-home .faq-list summary { font-size: 1rem; padding: 1.3rem 0; }
-  .commerce-home .faq-list details p { padding-right: 0; }
   .commerce-home .contact-copy ul { display: grid; }
   .commerce-home .contact-copy li { width: fit-content; }
 }

@@ -2,16 +2,48 @@
 import Landing from '../layouts/Landing.astro';
 import CommercialPlans from '../components/CommercialPlans.astro';
 import { planOffers } from '../commercial/plans';
+import { MAIN_DEMO_HREF } from '../lib/nav';
 const jsonLd = [{ '@context': 'https://schema.org', '@type': 'Service', name: 'Packs de Logic2B Ecommerce', description: 'Inversión inicial y mantenimiento para proyectos de comercio electrónico a medida.', provider: { '@type': 'Organization', name: 'Logic2B', url: 'https://logic2b.com' }, offers: planOffers }];
+const answers = [
+  { q: 'La puesta en marcha', a: 'Diseño, configuración y entrega según el pack. Antes de empezar fijamos qué catálogo, contenidos y recorridos forman parte del proyecto. Las fotografías y textos de partida se revisan contigo.' },
+  { q: 'El mantenimiento mensual', a: 'Cuidado técnico de la tienda, revisión de incidencias y continuidad de la operación según el alcance. La cuota inicial no implica cambios ilimitados ni campañas de marketing incluidas.' },
+  { q: 'Lo que se calcula aparte', a: 'Tarifas de la pasarela de pago, publicidad, servicios de terceros y desarrollos adicionales. Migraciones, integraciones y nuevas funciones se valoran según su complejidad.' },
+  { q: 'Qué ocurre si el negocio crece', a: 'Revisamos las nuevas necesidades contigo. Cualquier ampliación de alcance o cambio de cuota se acuerda antes de aplicarse: más tráfico no cambia por sí solo lo que pagas.' },
+  { q: '¿Qué pack encaja con un catálogo amplio?', a: 'Una tienda con búsqueda, categorías, carrito y gestión parte del Kit. Las tarifas profesionales o conexiones con otros sistemas requieren concretar una propuesta a medida. Kit Lite está pensado para validar una oferta pequeña.' },
+];
 ---
 <Landing title="Precios de una tienda online a medida | Logic2B Ecommerce" description="Compara los packs de Logic2B Ecommerce: Kit Lite desde 790 €, Kit desde 2.490 € + 79 €/mes y A medida desde 4.900 € + 149 €/mes, antes de IVA." canonicalPath="/precios" activeHref="/precios" jsonLd={jsonLd}>
 <main>
-  <section class="page-hero page-shell"><p class="page-kicker">Una tienda propia. Un alcance claro</p><h1>Elige cómo empezar.<br /><span>La tienda crece contigo.</span></h1><p class="page-lead">Separa lo que cuesta construir tu ecommerce de lo que cuesta mantenerlo. Tres puntos de partida, una propuesta adaptada a tu negocio.</p></section>
-  <section class="page-shell price-packs" aria-labelledby="packs-heading"><h2 id="packs-heading" class="sr-only">Packs de ecommerce</h2><CommercialPlans /></section>
-  <section class="page-shell price-details"><div><p class="page-kicker">Qué estás contratando</p><h2>Todo claro,<br />antes de empezar.</h2></div><div class="price-answers"><details open><summary>La puesta en marcha</summary><p>Diseño, configuración y entrega según el pack. Antes de empezar fijamos qué catálogo, contenidos y recorridos forman parte del proyecto. Las fotografías y textos de partida se revisan contigo.</p></details><details><summary>El mantenimiento mensual</summary><p>Cuidado técnico de la tienda, revisión de incidencias y continuidad de la operación según el alcance. La cuota inicial no implica cambios ilimitados ni campañas de marketing incluidas.</p></details><details><summary>Lo que se calcula aparte</summary><p>Tarifas de la pasarela de pago, publicidad, servicios de terceros y desarrollos adicionales. Migraciones, integraciones y nuevas funciones se valoran según su complejidad.</p></details><details><summary>Qué ocurre si el negocio crece</summary><p>Revisamos las nuevas necesidades contigo. Cualquier ampliación de alcance o cambio de cuota se acuerda antes de aplicarse: más tráfico no cambia por sí solo lo que pagas.</p></details><details><summary>¿Qué pack encaja con un catálogo amplio?</summary><p>Una tienda con búsqueda, categorías, carrito y gestión parte del Kit. Las tarifas profesionales o conexiones con otros sistemas requieren concretar una propuesta a medida. Kit Lite está pensado para validar una oferta pequeña.</p></details></div></section>
-  <section class="price-close page-shell"><p class="page-kicker">Hablemos de tu operación</p><h2>Un presupuesto que se entienda.</h2><p>Cuéntanos qué vendes y qué necesitas resolver. Te ayudamos a elegir el punto de partida.</p><a href="/#contacto" data-open-project>Preparar mi propuesta <span aria-hidden="true">↗</span></a></section>
+  <section class="page-hero page-shell">
+    <p class="page-kicker">Una tienda propia. Un alcance claro</p>
+    <h1>Elige cómo empezar.<br /><span>La tienda crece contigo.</span></h1>
+    <p class="page-lead">Separa lo que cuesta construir tu ecommerce de lo que cuesta mantenerlo. Tres puntos de partida, una propuesta adaptada a tu negocio.</p>
+    <div class="page-actions">
+      <a class="btn btn-primary" href="/#contacto" data-open-project>Preparar mi propuesta <span class="btn-arrow" aria-hidden="true">→</span></a>
+      <a class="btn btn-ghost" href={MAIN_DEMO_HREF}>Ver una tienda demo <span aria-hidden="true">↗</span></a>
+    </div>
+  </section>
+
+  <section class="page-shell price-packs reveal" aria-labelledby="packs-heading"><h2 id="packs-heading" class="sr-only">Packs de ecommerce</h2><CommercialPlans /></section>
+
+  <section class="sx page-shell faq">
+    <div class="faq-aside">
+      <header class="sx-head reveal"><p class="eyebrow"><span>01</span>Qué estás contratando</p><h2>Todo claro,<br />antes de empezar.</h2></header>
+      <div class="faq-help"><strong>¿Dudas entre dos packs?</strong><p>Te orientamos sobre cuál encaja con tu catálogo y tu forma de trabajar.</p><a class="btn btn-primary" href="/#contacto" data-open-project>Consultarlo <span class="btn-arrow" aria-hidden="true">→</span></a></div>
+    </div>
+    <div class="faq-list">{answers.map((item, i) => <details open={i === 0}><summary>{item.q}<span class="faq-icon" aria-hidden="true"></span></summary><p>{item.a}</p></details>)}</div>
+  </section>
+
+  <section class="page-shell cta-wrap">
+    <div class="cta-band reveal">
+      <p class="eyebrow"><span>02</span>Hablemos de tu operación</p>
+      <h2>Un presupuesto que se entienda.</h2>
+      <p>Cuéntanos qué vendes y qué necesitas resolver. Te ayudamos a elegir el punto de partida.</p>
+      <div class="page-actions"><a class="btn btn-light" href="/#contacto" data-open-project>Preparar mi propuesta <span class="btn-arrow" aria-hidden="true">→</span></a></div>
+    </div>
+  </section>
 </main>
 </Landing>
 <style>
-.price-packs{padding-bottom:4rem}.price-details{display:grid;grid-template-columns:.8fr 1.2fr;gap:4rem;padding-block:4rem}.price-details h2{margin-top:1rem}.price-answers details{border-bottom:1px solid var(--border)}.price-answers summary{padding:1.25rem 0;font-size:1rem;font-weight:500;cursor:pointer}.price-answers p{padding-bottom:1.5rem;color:var(--c-muted);line-height:1.7}.price-close{padding-block:4rem 6rem;text-align:center}.price-close h2{margin:1rem 0}.price-close p:not(.page-kicker){max-width:37rem;margin:auto;color:var(--c-muted);line-height:1.7}.price-close a{display:inline-flex;gap:2rem;background:var(--c-green);color:white;border-radius:999px;padding:1rem 1.5rem;margin-top:2rem;font-size:.9rem}@media(max-width:700px){.price-details{grid-template-columns:1fr;gap:2rem;padding-block:2rem}.price-packs{padding-bottom:2rem}}
+.price-packs{padding-bottom:1rem}
 </style>

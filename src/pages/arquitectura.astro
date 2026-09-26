@@ -2,6 +2,7 @@
 // Página técnica de confianza: cómo funciona el sistema por dentro.
 // Cabecera, pie, diálogo y lenguaje visual: el shell comercial (Landing.astro).
 import Landing from '../layouts/Landing.astro';
+import Icon, { type IconName } from '../components/Icon.astro';
 import { MAIN_DEMO_HREF, DEMO_ADMIN_HREF } from '../lib/nav';
 
 const jsonLd = [
@@ -25,10 +26,10 @@ const tables = [
   ['emails_outbox', 'Cola de emails transaccionales'],
 ];
 
-const benefits = [
-  ['El coste sigue al tráfico', 'La tienda no paga servidores encendidos sin usar: el gasto acompaña a las visitas que recibe, y las visitas son justo lo que trabajamos por ti.'],
-  ['Sin cuellos de botella', 'La distribución de contenido en el edge reduce la carga del servidor. La capacidad necesaria se dimensiona y verifica según el tráfico de cada proyecto.'],
-  ['Sin rehenes', 'El código está en un repositorio a tu nombre. Si mañana quieres irte, te lo llevas todo.'],
+const benefits: [IconName, string, string][] = [
+  ['growth', 'El coste sigue al tráfico', 'La tienda no paga servidores encendidos sin usar: el gasto acompaña a las visitas que recibe, y las visitas son justo lo que trabajamos por ti.'],
+  ['route', 'Sin cuellos de botella', 'La distribución de contenido en el edge reduce la carga del servidor. La capacidad necesaria se dimensiona y verifica según el tráfico de cada proyecto.'],
+  ['shield', 'Sin rehenes', 'El código está en un repositorio a tu nombre. Si mañana quieres irte, te lo llevas todo.'],
 ];
 ---
 
@@ -39,7 +40,7 @@ const benefits = [
   activeHref="/arquitectura"
   jsonLd={jsonLd}
 >
-  <main>
+  <main class="arch">
     <section class="page-hero page-shell">
       <p class="page-kicker">La tecnología de tu tienda</p>
       <h1>Así funciona <span>por dentro</span></h1>
@@ -48,191 +49,290 @@ const benefits = [
         Cada proyecto conserva su propio despliegue y sus datos; Logic2B mantiene
         la tecnología que conecta catálogo, compra y gestión.
       </p>
+      <div class="page-actions">
+        <a href={MAIN_DEMO_HREF} class="btn btn-primary">Recorrer la tienda demo <span class="btn-arrow" aria-hidden="true">→</span></a>
+        <a href={DEMO_ADMIN_HREF} class="btn btn-ghost">Abrir el panel del comercio <span aria-hidden="true">↗</span></a>
+      </div>
     </section>
 
-    <div class="mx-auto w-full max-w-3xl px-[clamp(24px,4vw,32px)] pb-20">
-      {/* Lo primero, antes de cualquier diagrama: qué se entrega el día uno. */}
-      <div class="chapter-sky p-6 sm:p-7">
-        <p class="font-display text-xl">Una base común, un proyecto propio</p>
-        <p class="mt-3 leading-relaxed opacity-80">
-          El catálogo, los pedidos y los pagos parten de un motor probado.
-          Sobre esa base adaptamos diseño, contenido y funciones al comercio.
-          Recibes una tienda propia y un panel sencillo, con un alcance acordado
-          y capacidad para evolucionar.
-        </p>
-      </div>
-
-      <h2 class="mt-14 text-2xl sm:text-3xl">El principio: casi todo es estático</h2>
-      <p class="mt-3 leading-relaxed text-muted-foreground">
-        La tienda se genera como HTML puro y se sirve desde la red global de Cloudflare
-        para acercar el contenido al comprador. El rendimiento se mide en cada
-        proyecto, con sus imágenes, catálogo y condiciones de uso.
-        Las únicas piezas dinámicas son el carrito, el pago y el panel — funciones
-        pequeñas que despiertan solo cuando se usan y se cobran por uso: una
-        tienda que empieza gasta muy poco, y el gasto sube al ritmo del tráfico
-        en vez de por adelantado.
-      </p>
-
-      <h2 class="mt-14 text-2xl sm:text-3xl">El flujo de una compra</h2>
-      <!-- min-w evita que el texto del SVG se encoja por debajo de lo legible en
-           móvil (el viewBox escala todo, etiquetas incluidas); overflow-x-auto
-           deja desplazarlo en vez de recortarlo. -->
-      <div class="mt-6 overflow-x-auto rounded-2xl border border-border bg-muted p-4 sm:p-6">
-        <svg viewBox="0 0 640 300" class="w-full min-w-[520px]" role="img" aria-label="Diagrama del flujo de compra: navegador, API en el edge, base de datos D1, Stripe y webhook">
-          <defs>
-            <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-              <path d="M 0 0 L 10 5 L 0 10 z" fill="#254fad"></path>
-            </marker>
-          </defs>
-          <g font-family="ui-sans-serif, system-ui, sans-serif" font-size="13">
-            <rect x="10" y="20" width="150" height="52" rx="12" fill="#fff" stroke="#e0e2e6"></rect>
-            <text x="85" y="42" text-anchor="middle" fill="#181d26" font-weight="600">Comprador</text>
-            <text x="85" y="60" text-anchor="middle" fill="#525965" font-size="11">carrito en su navegador</text>
-
-            <rect x="245" y="20" width="150" height="52" rx="12" fill="#fff" stroke="#e0e2e6"></rect>
-            <text x="320" y="42" text-anchor="middle" fill="#181d26" font-weight="600">API en el edge</text>
-            <text x="320" y="60" text-anchor="middle" fill="#525965" font-size="11">revalida precios y stock</text>
-
-            <rect x="480" y="20" width="150" height="52" rx="12" fill="#fff" stroke="#e0e2e6"></rect>
-            <text x="555" y="42" text-anchor="middle" fill="#181d26" font-weight="600">Base de datos D1</text>
-            <text x="555" y="60" text-anchor="middle" fill="#525965" font-size="11">la única fuente de precios</text>
-
-            <rect x="245" y="130" width="150" height="52" rx="12" fill="#181d26"></rect>
-            <text x="320" y="152" text-anchor="middle" fill="#ffffff" font-weight="600">Stripe Checkout</text>
-            <text x="320" y="170" text-anchor="middle" fill="#9aa0a8" font-size="11">la tarjeta nunca nos toca</text>
-
-            <rect x="245" y="230" width="150" height="52" rx="12" fill="#fff" stroke="#254fad"></rect>
-            <text x="320" y="252" text-anchor="middle" fill="#181d26" font-weight="600">Webhook firmado</text>
-            <text x="320" y="270" text-anchor="middle" fill="#525965" font-size="11">pagado → stock → email</text>
-
-            {/* pathLength=1 normaliza el trazo: la animación CSS «dibuja» las
-                flechas al entrar en viewport (fallback: dibujadas de serie). */}
-            <line class="draw" pathLength="1" x1="160" y1="46" x2="240" y2="46" stroke="#254fad" stroke-width="1.5" marker-end="url(#arrow)"></line>
-            <line class="draw" pathLength="1" x1="395" y1="46" x2="475" y2="46" stroke="#254fad" stroke-width="1.5" marker-end="url(#arrow)"></line>
-            <line class="draw" pathLength="1" x1="320" y1="72" x2="320" y2="125" stroke="#254fad" stroke-width="1.5" marker-end="url(#arrow)"></line>
-            <line class="draw" pathLength="1" x1="320" y1="182" x2="320" y2="225" stroke="#254fad" stroke-width="1.5" marker-end="url(#arrow)"></line>
-            <path class="draw-fade" d="M 395 256 C 560 256 555 130 555 77" fill="none" stroke="#254fad" stroke-width="1.5" stroke-dasharray="4 3" marker-end="url(#arrow)"></path>
-          </g>
-        </svg>
-      </div>
-      <ol class="mt-6 list-decimal space-y-3 pl-5 leading-relaxed text-muted-foreground">
-        <li>El carrito vive en el navegador del comprador, pero <strong class="text-foreground">solo guarda referencias</strong>. Los precios se recalculan siempre en el servidor contra la base de datos: manipular el carrito no sirve de nada.</li>
-        <li>Al pagar, la API revalida stock y precios y crea la sesión en la pasarela — en la demo, <strong class="text-foreground">Stripe Checkout</strong>. El comprador paga en la página de la pasarela: el número de tarjeta jamás pasa por nuestra infraestructura. PayPal u otra pasarela encajan en el mismo hueco; lo que se describe aquí no cambia.</li>
-        <li>Stripe nos confirma el pago con un <strong class="text-foreground">webhook firmado criptográficamente</strong>. Solo entonces el pedido pasa a «pagado», se descuenta el stock y se envía el email de confirmación — todo en una única transacción.</li>
-        <li>Si Stripe reenvía la confirmación (pasa a menudo), el sistema la reconoce y no duplica nada: el webhook es <strong class="text-foreground">idempotente</strong>.</li>
-      </ol>
-      <figure class="mt-6 overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
-        <img
-          src="/images/screens/panel-emails.webp"
-          alt="La bandeja de emails del panel: cada confirmación de pedido y aviso de envío que el sistema ha generado"
-          width="1440"
-          height="900"
-          loading="lazy"
-          decoding="async"
-          class="w-full"
-        />
-        <figcaption class="border-t border-border bg-muted px-5 py-3 text-sm text-muted-foreground">
-          El resultado visible del webhook: la bandeja de emails de la demo, con cada
-          confirmación y aviso generados por pedidos reales de prueba.
-        </figcaption>
-      </figure>
-
-      <h2 class="mt-14 text-2xl sm:text-3xl">El modelo de datos completo</h2>
-      <p class="mt-3 leading-relaxed text-muted-foreground">
-        Seis tablas. Sin ORM mágico, sin cincuenta relaciones. Dos decisiones importan:
-        el dinero se guarda <strong class="text-foreground">en céntimos enteros</strong> (nunca decimales flotantes)
-        y cada línea de pedido <strong class="text-foreground">congela el nombre y el precio</strong> del momento
-        de la compra — cambiar una tarifa hoy jamás altera un pedido de ayer.
-      </p>
-      <div class="mt-5 overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
-        <table class="w-full text-sm">
-          <tbody class="divide-y divide-border">
-            {tables.map(([name, desc]) => (
-              <tr>
-                <td class="accent-blue px-5 py-3 font-mono font-medium">{name}</td>
-                <td class="px-5 py-3 text-muted-foreground">{desc}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-
-      <h2 class="mt-14 text-2xl sm:text-3xl">¿Hasta dónde escala? De 10 referencias a un millón</h2>
-      <p class="mt-3 leading-relaxed text-muted-foreground">
-        Las cuentas son públicas y se pueden comprobar: una referencia con su
-        descripción pesa <strong class="text-foreground">~1–2 KB</strong> en la base de
-        datos, y cada base D1 admite <strong class="text-foreground">10 GB</strong> — un
-        millón de productos ocupa una fracción. Las páginas se sirven
-        estáticas o cacheadas desde el CDN, así que el catálogo puede crecer
-        tres órdenes de magnitud sin cambiar de arquitectura ni de plataforma.
-      </p>
-      <p class="mt-3 leading-relaxed text-muted-foreground">
-        La parte honesta: a esa escala el trabajo no está en el motor, está en el
-        catálogo — la búsqueda pasa a necesitar índice propio, aparecen los
-        filtros por facetas y la sincronización de inventario.
-        Eso se construye en el tramo <strong class="text-foreground">a medida</strong>,
-        sobre esta misma base y sin migrar nada: la tienda que arranca con 10
-        productos y la que sirve un catálogo industrial comparten motor.
-      </p>
-
-      <h2 class="mt-14 text-2xl sm:text-3xl">Envíos: simple a propósito</h2>
-      <p class="mt-3 leading-relaxed text-muted-foreground">
-        Nada de integraciones frágiles con APIs de transportistas. El comercio exporta
-        los pedidos pagados en un CSV compatible con <strong class="text-foreground">Packlink PRO o SendCloud</strong>,
-        imprime las etiquetas allí (donde además el precio del envío es mejor), y pega el
-        número de seguimiento en el panel. El cliente recibe su aviso automáticamente.
-        Menos piezas, menos averías, y el mejor precio de etiqueta en cada momento.
-      </p>
-      <figure class="mt-6 overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
-        <img
-          src="/images/screens/panel-orders.webp"
-          alt="El listado de pedidos del panel con sus estados y el botón de exportar CSV para Packlink o SendCloud"
-          width="1440"
-          height="900"
-          loading="lazy"
-          decoding="async"
-          class="w-full"
-        />
-        <figcaption class="border-t border-border bg-muted px-5 py-3 text-sm text-muted-foreground">
-          El panel de ejemplo: fixtures de pedidos, estados y exportación CSV para
-          enseñar cómo funcionaría una tienda real.
-        </figcaption>
-      </figure>
-
-      <h2 class="mt-14 text-2xl sm:text-3xl">Lo que esto significa para ti</h2>
-      <div class="mt-6 grid gap-5 sm:grid-cols-3">
-        {benefits.map(([title, body]) => (
-          <div class="rounded-2xl border border-border bg-card p-6 shadow-sm">
-            <div class="icon-chip flex h-10 w-10 items-center justify-center rounded-full">
-              <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">
-                <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
-              </svg>
-            </div>
-            <h3 class="mt-4 font-semibold">{title}</h3>
-            <p class="mt-2 text-sm leading-relaxed text-muted-foreground">{body}</p>
-          </div>
-        ))}
-      </div>
-
-      <div class="mt-16 rounded-2xl bg-foreground p-8 text-center text-background sm:p-10">
-        <p class="font-display text-2xl sm:text-3xl">¿Quieres verlo funcionando?</p>
-        <p class="mx-auto mt-3 max-w-md text-sm leading-relaxed text-background/70">
-          Recorre una compra simulada en ARCE y explora por separado el panel ficticio.
-        </p>
-        <div class="mt-7 flex flex-col justify-center gap-3 sm:flex-row sm:gap-4">
-          <a href={MAIN_DEMO_HREF} class="rounded-btn bg-background px-7 py-3 font-semibold text-foreground transition hover:bg-background/90">Tienda demo</a>
-          <a href={DEMO_ADMIN_HREF} class="rounded-btn border border-background/40 px-7 py-3 font-semibold text-background transition hover:border-background">Panel del comercio</a>
+    {/* Lo primero, antes de cualquier diagrama: qué se entrega el día uno. */}
+    <section class="page-shell">
+      <div class="arch-intro reveal">
+        <span class="card-ico" aria-hidden="true"><Icon name="box" size={22} /></span>
+        <div>
+          <p class="arch-intro-title">Una base común, un proyecto propio</p>
+          <p>
+            El catálogo, los pedidos y los pagos parten de un motor probado.
+            Sobre esa base adaptamos diseño, contenido y funciones al comercio.
+            Recibes una tienda propia y un panel sencillo, con un alcance acordado
+            y capacidad para evolucionar.
+          </p>
         </div>
       </div>
-    </div>
+    </section>
+
+    <section class="sx page-shell arch-row">
+      <header class="sx-head reveal"><p class="eyebrow"><span>01</span>El principio</p><h2>Casi todo es estático</h2></header>
+      <div class="arch-body">
+        <p>
+          La tienda se genera como HTML puro y se sirve desde la red global de Cloudflare
+          para acercar el contenido al comprador. El rendimiento se mide en cada
+          proyecto, con sus imágenes, catálogo y condiciones de uso.
+          Las únicas piezas dinámicas son el carrito, el pago y el panel — funciones
+          pequeñas que despiertan solo cuando se usan y se cobran por uso: una
+          tienda que empieza gasta muy poco, y el gasto sube al ritmo del tráfico
+          en vez de por adelantado.
+        </p>
+        <div class="split-bar reveal" aria-hidden="true">
+          <div class="split-static"><small>Estático · en el edge</small><strong>Catálogo, fichas y contenido</strong></div>
+          <div class="split-dynamic"><small>Bajo demanda</small><strong>Carrito · pago · panel</strong></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="sx sx-tint">
+      <div class="page-shell arch-row">
+        <header class="sx-head reveal"><p class="eyebrow"><span>02</span>Paso a paso</p><h2>El flujo de una compra</h2></header>
+        <div class="arch-body">
+          <!-- min-w evita que el texto del SVG se encoja por debajo de lo legible en
+               móvil (el viewBox escala todo, etiquetas incluidas); overflow-x-auto
+               deja desplazarlo en vez de recortarlo. -->
+          <div class="frame arch-diagram">
+            <div class="frame-bar" aria-hidden="true"><i></i><i></i><i></i><span>flujo · compra</span></div>
+            <div class="arch-diagram-scroll">
+              <svg viewBox="0 0 640 300" role="img" aria-label="Diagrama del flujo de compra: navegador, API en el edge, base de datos D1, Stripe y webhook">
+                <defs>
+                  <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                    <path d="M 0 0 L 10 5 L 0 10 z" fill="#203f22"></path>
+                  </marker>
+                </defs>
+                <g font-family="'Inter Variable', ui-sans-serif, system-ui, sans-serif" font-size="13">
+                  <rect x="10" y="20" width="150" height="52" rx="14" fill="#fff" stroke="#cbd8c7"></rect>
+                  <text x="85" y="42" text-anchor="middle" fill="#203a25" font-weight="600">Comprador</text>
+                  <text x="85" y="60" text-anchor="middle" fill="#536456" font-size="11">carrito en su navegador</text>
+
+                  <rect x="245" y="20" width="150" height="52" rx="14" fill="#fff" stroke="#cbd8c7"></rect>
+                  <text x="320" y="42" text-anchor="middle" fill="#203a25" font-weight="600">API en el edge</text>
+                  <text x="320" y="60" text-anchor="middle" fill="#536456" font-size="11">revalida precios y stock</text>
+
+                  <rect x="480" y="20" width="150" height="52" rx="14" fill="#fff" stroke="#cbd8c7"></rect>
+                  <text x="555" y="42" text-anchor="middle" fill="#203a25" font-weight="600">Base de datos D1</text>
+                  <text x="555" y="60" text-anchor="middle" fill="#536456" font-size="11">la única fuente de precios</text>
+
+                  <rect x="245" y="130" width="150" height="52" rx="14" fill="#203f22"></rect>
+                  <text x="320" y="152" text-anchor="middle" fill="#ffffff" font-weight="600">Stripe Checkout</text>
+                  <text x="320" y="170" text-anchor="middle" fill="#cfe0ca" font-size="11">la tarjeta nunca nos toca</text>
+
+                  <rect x="245" y="230" width="150" height="52" rx="14" fill="#e6f4e2" stroke="#9cc79a"></rect>
+                  <text x="320" y="252" text-anchor="middle" fill="#203a25" font-weight="600">Webhook firmado</text>
+                  <text x="320" y="270" text-anchor="middle" fill="#25632f" font-size="11">pagado → stock → email</text>
+
+                  {/* pathLength=1 normaliza el trazo: la animación CSS «dibuja» las
+                      flechas al entrar en viewport (fallback: dibujadas de serie). */}
+                  <line class="draw" pathLength="1" x1="160" y1="46" x2="240" y2="46" stroke="#203f22" stroke-width="1.5" marker-end="url(#arrow)"></line>
+                  <line class="draw" pathLength="1" x1="395" y1="46" x2="475" y2="46" stroke="#203f22" stroke-width="1.5" marker-end="url(#arrow)"></line>
+                  <line class="draw" pathLength="1" x1="320" y1="72" x2="320" y2="125" stroke="#203f22" stroke-width="1.5" marker-end="url(#arrow)"></line>
+                  <line class="draw" pathLength="1" x1="320" y1="182" x2="320" y2="225" stroke="#203f22" stroke-width="1.5" marker-end="url(#arrow)"></line>
+                  <path class="draw-fade" d="M 395 256 C 560 256 555 130 555 77" fill="none" stroke="#203f22" stroke-width="1.5" stroke-dasharray="4 3" marker-end="url(#arrow)"></path>
+                </g>
+              </svg>
+            </div>
+          </div>
+          <ol class="arch-steps">
+            <li><span aria-hidden="true">01</span><p>El carrito vive en el navegador del comprador, pero <strong>solo guarda referencias</strong>. Los precios se recalculan siempre en el servidor contra la base de datos: manipular el carrito no sirve de nada.</p></li>
+            <li><span aria-hidden="true">02</span><p>Al pagar, la API revalida stock y precios y crea la sesión en la pasarela — en la demo, <strong>Stripe Checkout</strong>. El comprador paga en la página de la pasarela: el número de tarjeta jamás pasa por nuestra infraestructura. PayPal u otra pasarela encajan en el mismo hueco; lo que se describe aquí no cambia.</p></li>
+            <li><span aria-hidden="true">03</span><p>Stripe nos confirma el pago con un <strong>webhook firmado criptográficamente</strong>. Solo entonces el pedido pasa a «pagado», se descuenta el stock y se envía el email de confirmación — todo en una única transacción.</p></li>
+            <li><span aria-hidden="true">04</span><p>Si Stripe reenvía la confirmación (pasa a menudo), el sistema la reconoce y no duplica nada: el webhook es <strong>idempotente</strong>.</p></li>
+          </ol>
+          <figure class="frame arch-shot reveal">
+            <div class="frame-bar" aria-hidden="true"><i></i><i></i><i></i><span>panel · emails</span></div>
+            <img
+              src="/images/screens/panel-emails-900.webp"
+              srcset="/images/screens/panel-emails-560.webp 560w, /images/screens/panel-emails-900.webp 900w, /images/screens/panel-emails.webp 1440w"
+              sizes="(min-width: 1000px) 60vw, 100vw"
+              alt="La bandeja de emails del panel: cada confirmación de pedido y aviso de envío que el sistema ha generado"
+              width="1440"
+              height="900"
+              loading="lazy"
+              decoding="async"
+            />
+            <figcaption>
+              El resultado visible del webhook: la bandeja de emails de la demo, con cada
+              confirmación y aviso generados por pedidos reales de prueba.
+            </figcaption>
+          </figure>
+        </div>
+      </div>
+    </section>
+
+    <section class="sx page-shell arch-row">
+      <header class="sx-head reveal"><p class="eyebrow"><span>03</span>Datos</p><h2>El modelo de datos completo</h2></header>
+      <div class="arch-body">
+        <p>
+          Seis tablas. Sin ORM mágico, sin cincuenta relaciones. Dos decisiones importan:
+          el dinero se guarda <strong>en céntimos enteros</strong> (nunca decimales flotantes)
+          y cada línea de pedido <strong>congela el nombre y el precio</strong> del momento
+          de la compra — cambiar una tarifa hoy jamás altera un pedido de ayer.
+        </p>
+        <ul class="arch-tables reveal">
+          {tables.map(([name, desc]) => (
+            <li><code>{name}</code><span>{desc}</span></li>
+          ))}
+        </ul>
+      </div>
+    </section>
+
+    <section class="sx page-shell arch-row">
+      <header class="sx-head reveal"><p class="eyebrow"><span>04</span>Escala</p><h2>¿Hasta dónde escala? De 10 referencias a un millón</h2></header>
+      <div class="arch-body">
+        <div class="arch-stats reveal" aria-hidden="true">
+          <div><strong>~1–2 KB</strong><span>por referencia con su descripción</span></div>
+          <div><strong>10 GB</strong><span>de capacidad por base D1</span></div>
+        </div>
+        <p>
+          Las cuentas son públicas y se pueden comprobar: una referencia con su
+          descripción pesa <strong>~1–2 KB</strong> en la base de
+          datos, y cada base D1 admite <strong>10 GB</strong> — un
+          millón de productos ocupa una fracción. Las páginas se sirven
+          estáticas o cacheadas desde el CDN, así que el catálogo puede crecer
+          tres órdenes de magnitud sin cambiar de arquitectura ni de plataforma.
+        </p>
+        <p>
+          La parte honesta: a esa escala el trabajo no está en el motor, está en el
+          catálogo — la búsqueda pasa a necesitar índice propio, aparecen los
+          filtros por facetas y la sincronización de inventario.
+          Eso se construye en el tramo <strong>a medida</strong>,
+          sobre esta misma base y sin migrar nada: la tienda que arranca con 10
+          productos y la que sirve un catálogo industrial comparten motor.
+        </p>
+      </div>
+    </section>
+
+    <section class="sx sx-tint">
+      <div class="page-shell arch-row">
+        <header class="sx-head reveal"><p class="eyebrow"><span>05</span>Logística</p><h2>Envíos: simple a propósito</h2></header>
+        <div class="arch-body">
+          <p>
+            Nada de integraciones frágiles con APIs de transportistas. El comercio exporta
+            los pedidos pagados en un CSV compatible con <strong>Packlink PRO o SendCloud</strong>,
+            imprime las etiquetas allí (donde además el precio del envío es mejor), y pega el
+            número de seguimiento en el panel. El cliente recibe su aviso automáticamente.
+            Menos piezas, menos averías, y el mejor precio de etiqueta en cada momento.
+          </p>
+          <figure class="frame arch-shot reveal">
+            <div class="frame-bar" aria-hidden="true"><i></i><i></i><i></i><span>panel · pedidos</span></div>
+            <img
+              src="/images/screens/panel-orders-900.webp"
+              srcset="/images/screens/panel-orders-560.webp 560w, /images/screens/panel-orders-900.webp 900w, /images/screens/panel-orders.webp 1440w"
+              sizes="(min-width: 1000px) 60vw, 100vw"
+              alt="El listado de pedidos del panel con sus estados y el botón de exportar CSV para Packlink o SendCloud"
+              width="1440"
+              height="929"
+              loading="lazy"
+              decoding="async"
+            />
+            <figcaption>
+              El panel de ejemplo: fixtures de pedidos, estados y exportación CSV para
+              enseñar cómo funcionaría una tienda real.
+            </figcaption>
+          </figure>
+        </div>
+      </div>
+    </section>
+
+    <section class="sx page-shell">
+      <header class="sx-head is-center reveal"><p class="eyebrow"><span>06</span>Para tu negocio</p><h2>Lo que esto significa para ti</h2></header>
+      <div class="arch-benefits">
+        {benefits.map(([icon, title, body]) => (
+          <article class="card is-lift reveal">
+            <span class="card-ico" aria-hidden="true"><Icon name={icon} size={20} /></span>
+            <h3>{title}</h3>
+            <p>{body}</p>
+          </article>
+        ))}
+      </div>
+    </section>
+
+    <section class="page-shell cta-wrap">
+      <div class="cta-band reveal">
+        <p class="eyebrow"><span>07</span>Pruébalo</p>
+        <h2>¿Quieres verlo funcionando?</h2>
+        <p>Recorre una compra simulada en ARCE y explora por separado el panel ficticio.</p>
+        <div class="page-actions">
+          <a href={MAIN_DEMO_HREF} class="btn btn-light">Tienda demo <span class="btn-arrow" aria-hidden="true">→</span></a>
+          <a href={DEMO_ADMIN_HREF} class="btn btn-outline-light">Panel del comercio</a>
+        </div>
+      </div>
+    </section>
   </main>
 </Landing>
 
 <style is:global>
-  /* Chip del icono de beneficio: el azul del lenguaje comercial. */
-  .commercial-page .icon-chip {
-    background: #eef4fc;
-    color: #1b61c9;
+  .commercial-page .arch-intro {
+    display: flex;
+    gap: 1.25rem;
+    padding: clamp(1.5rem, 3vw, 2.4rem);
+    border-radius: 1.75rem;
+    background: var(--c-tint);
+  }
+  .commercial-page .arch-intro .card-ico { background: #fff; }
+  .commercial-page .arch-intro-title { font: 400 clamp(1.5rem, 2.4vw, 2rem)/1.15 'Fraunces', Georgia, serif; letter-spacing: -.04em; }
+  .commercial-page .arch-intro p:not(.arch-intro-title) { max-width: 52rem; margin-top: .7rem; color: var(--c-muted); line-height: 1.7; }
+
+  /* Fila editorial: título fijo a la izquierda, contenido a la derecha. */
+  .commercial-page .arch-row { display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1.4fr); align-items: start; gap: clamp(2rem, 6vw, 6rem); }
+  .commercial-page .arch-row > .sx-head { position: sticky; top: 120px; margin-bottom: 0; }
+  .commercial-page .arch-row > .sx-head h2 { font-size: clamp(2.1rem, 3.6vw, 3.4rem); }
+  .commercial-page .arch-body { display: grid; gap: 1.5rem; }
+  .commercial-page .arch-body > p { color: var(--c-muted); font-size: 1.04rem; line-height: 1.75; }
+  .commercial-page .arch-body strong { color: var(--c-ink); font-weight: 600; }
+
+  .commercial-page .split-bar { display: grid; grid-template-columns: 3fr 1.3fr; overflow: hidden; border: 1px solid var(--c-border); border-radius: 1.2rem; }
+  .commercial-page .split-bar > div { padding: 1.2rem 1.3rem; }
+  .commercial-page .split-bar small { display: block; font-size: .64rem; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; }
+  .commercial-page .split-bar strong { display: block; margin-top: .45rem; font-size: 1rem; letter-spacing: -.02em; }
+  .commercial-page .split-static { background: #fff; color: var(--c-muted); }
+  .commercial-page .split-dynamic { background: var(--c-green); color: #cfe0ca; }
+  .commercial-page .split-dynamic strong { color: #fff; }
+
+  .commercial-page .arch-diagram { box-shadow: var(--shadow-lg); }
+  .commercial-page .arch-diagram-scroll { overflow-x: auto; padding: clamp(1rem, 3vw, 2rem); background: radial-gradient(circle, #cfdccb 1px, transparent 1.2px) 0 0 / 16px 16px, #f7faf4; }
+  .commercial-page .arch-diagram svg { display: block; width: 100%; min-width: 520px; }
+  .commercial-page .arch-steps { display: grid; gap: 0; }
+  .commercial-page .arch-steps li { position: relative; display: flex; gap: 1.1rem; padding-bottom: 1.4rem; }
+  .commercial-page .arch-steps li:not(:last-child)::before { position: absolute; top: 2.4rem; bottom: .3rem; left: 1.1rem; width: 1px; background: var(--leaf); content: ''; }
+  .commercial-page .arch-steps li > span { display: grid; flex: 0 0 auto; place-items: center; width: 2.25rem; height: 2.25rem; border: 1px solid var(--leaf); border-radius: 50%; background: #fff; color: var(--c-green); font-size: .72rem; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .commercial-page .arch-steps p { padding-top: .3rem; color: var(--c-muted); line-height: 1.7; }
+  .commercial-page .arch-shot { box-shadow: var(--shadow-lg); }
+  .commercial-page .arch-shot img { aspect-ratio: 16 / 10; object-fit: cover; object-position: top left; }
+  .commercial-page .arch-shot figcaption { padding: .85rem 1.1rem; border-top: 1px solid var(--line); background: #f7f9f4; color: var(--c-muted); font-size: .82rem; line-height: 1.55; }
+
+  .commercial-page .arch-tables { overflow: hidden; border: 1px solid var(--c-border); border-radius: 1.3rem; background: #fff; box-shadow: var(--shadow-sm); }
+  .commercial-page .arch-tables li { display: grid; grid-template-columns: 11rem 1fr; gap: 1rem; align-items: baseline; padding: 1rem 1.25rem; font-size: .92rem; transition: background-color .25s var(--ease); }
+  .commercial-page .arch-tables li + li { border-top: 1px solid var(--line); }
+  .commercial-page .arch-tables li:hover { background: #f7faf4; }
+  .commercial-page .arch-tables code { color: var(--c-green); font: 500 .86rem/1.4 var(--font-mono); }
+  .commercial-page .arch-tables span { color: var(--c-muted); }
+
+  .commercial-page .arch-stats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
+  .commercial-page .arch-stats > div { padding: 1.4rem; border: 1px solid var(--c-border); border-radius: 1.3rem; background: #fff; }
+  .commercial-page .arch-stats strong { display: block; color: var(--c-green); font: 400 clamp(2.2rem, 4vw, 3rem)/1 'Fraunces', Georgia, serif; letter-spacing: -.05em; }
+  .commercial-page .arch-stats span { display: block; margin-top: .5rem; color: var(--c-muted); font-size: .85rem; }
+
+  .commercial-page .arch-benefits { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.25rem; }
+  .commercial-page .arch-benefits h3 { margin: 1.4rem 0 .6rem; font-size: 1.2rem; }
+  .commercial-page .arch-benefits p { color: var(--c-muted); font-size: .95rem; line-height: 1.65; }
+
+  @media (max-width: 900px) {
+    .commercial-page .arch-row { grid-template-columns: 1fr; gap: 1.5rem; }
+    .commercial-page .arch-row > .sx-head { position: static; }
+    .commercial-page .arch-benefits { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 700px) {
+    .commercial-page .arch-intro { flex-direction: column; }
+    .commercial-page .split-bar { grid-template-columns: 1fr; }
+    .commercial-page .arch-tables li { grid-template-columns: 1fr; gap: .25rem; }
+    .commercial-page .arch-stats { grid-template-columns: 1fr; }
   }
 
   /* El diagrama se dibuja al entrar en viewport (CSS scroll-driven, cero JS).

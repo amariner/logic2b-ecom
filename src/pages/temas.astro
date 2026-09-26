@@ -116,11 +116,20 @@ const jsonLd = [
         <p class="page-lead">
           Elige un punto de partida. Nosotros lo adaptamos a tu marca.
         </p>
+        <div class="page-actions">
+          <a href="/#contacto" data-open-project class="btn btn-primary">Cuéntanos tu proyecto <span class="btn-arrow" aria-hidden="true">→</span></a>
+          <a href={MAIN_DEMO_HREF} class="btn btn-ghost">Entra en la tienda demo <span aria-hidden="true">↗</span></a>
+        </div>
+        <ul class="themes-proof" aria-label="El catálogo en cifras">
+          <li><strong>{styles.length}</strong><span>direcciones visuales navegables</span></li>
+          <li><strong>{THEME_FILTERS.length - 1}</strong><span>sectores para filtrar</span></li>
+          <li><strong>1</strong><span>motor común detrás de todas</span></li>
+        </ul>
       </section>
 
       <!-- Rejilla de temas -->
       <section class="page-shell pb-14 pt-4 sm:pb-20 sm:pt-8">
-        <div data-theme-controls hidden class="mb-8 border-y border-border py-4 sm:mb-10">
+        <div data-theme-controls hidden class="themes-controls">
           <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <label class="block min-w-0 flex-1 lg:max-w-md" for="theme-search">
               <span class="mb-2 block text-xs font-semibold uppercase tracking-wide text-muted-foreground">Buscar un estilo</span>
@@ -185,12 +194,12 @@ const jsonLd = [
               data-theme-card
               data-theme-categories={themeCategoryIds(theme).join(' ')}
               data-theme-search-text={themeSearchText(theme)}
-              class="flex scroll-mt-24 flex-col overflow-hidden rounded-2xl border border-border bg-card"
+              class="theme-card reveal flex scroll-mt-24 flex-col overflow-hidden"
             >
               {/* Tema con tienda viva → captura REAL enlazable; si no, la
                   imaginería propia del tema; y si tampoco, marcador de hueco. */}
               <div
-                class="relative flex aspect-[16/10] items-end border-b border-border"
+                class="theme-card-media relative flex aspect-[16/10] items-end"
                 style={`background: ${theme.vars['--surface-sunken']};`}
               >
                 {storeFor(theme.id) ? (
@@ -204,7 +213,7 @@ const jsonLd = [
                       decoding="async"
                       width="900"
                       height="563"
-                      class={`h-full w-full object-cover transition duration-300 group-hover:scale-[1.02] ${storeFor(theme.id)!.crop}`}
+                      class={`theme-card-img h-full w-full object-cover ${storeFor(theme.id)!.crop}`}
                       data-theme-video-src={previewFor(theme.id) ?? undefined}
                       data-theme-video-label={`Recorrido en movimiento por ${storeFor(theme.id)!.name}, tema ${theme.label}`}
                     />
@@ -226,10 +235,8 @@ const jsonLd = [
                     </span>
                   </div>
                 )}
-                <span
-                  class="pointer-events-none absolute left-4 top-4 rounded-full px-2.5 py-1 text-[11px] font-semibold"
-                  style={`background: ${theme.vars['--color-brand']}; color: ${theme.vars['--color-brand-fg']};`}
-                >
+                <span class="theme-card-badge pointer-events-none absolute left-4 top-4">
+                  <i aria-hidden="true" style={`background: ${theme.vars['--color-brand']};`}></i>
                   {String(i + 1).padStart(2, '0')} · {theme.label}
                 </span>
                 {theme.status === 'planned' && (
@@ -252,7 +259,7 @@ const jsonLd = [
                 )}
               </div>
 
-              <div class="flex flex-1 flex-col p-6">
+              <div class="theme-card-body flex flex-1 flex-col">
                 <h2
                   class="font-display text-2xl"
                   style={`letter-spacing: ${theme.vars['--tracking-display']}; font-weight: ${theme.vars['--weight-display']};`}
@@ -266,7 +273,7 @@ const jsonLd = [
                 </p>
                 <ul class="mt-2 flex flex-wrap gap-1.5">
                   {theme.bestFor.map((use) => (
-                    <li class="rounded-full bg-muted px-2.5 py-1 text-xs text-foreground">{use}</li>
+                    <li class="theme-chip">{use}</li>
                   ))}
                 </ul>
 
@@ -299,45 +306,39 @@ const jsonLd = [
                 {storeFor(theme.id) && (
                   <a
                     href={storeFor(theme.id)!.href}
-                    class="mt-4 inline-flex items-center gap-1.5 self-start px-4 py-2 text-sm font-semibold transition hover:opacity-85"
-                    style={`background: ${theme.vars['--color-brand']}; color: ${theme.vars['--color-brand-fg']}; border-radius: ${theme.vars['--radius-btn']};`}
+                    class="theme-card-cta mt-5 inline-flex items-center gap-2 self-start text-sm font-semibold"
+                    style={`--brand: ${theme.vars['--color-brand']}; --brand-fg: ${theme.vars['--color-brand-fg']}; border-radius: ${theme.vars['--radius-btn']};`}
                   >
-                    Entra en {storeFor(theme.id)!.name} <span aria-hidden="true">→</span>
+                    Entra en {storeFor(theme.id)!.name} <span class="btn-arrow" aria-hidden="true">→</span>
                   </a>
                 )}
               </div>
             </li>
           ))}
         </ul>
-        <div data-theme-empty hidden class="rounded-2xl border border-dashed border-border px-6 py-14 text-center">
+        <div data-theme-empty hidden class="themes-empty">
           <p class="font-display text-xl">No encontramos un tema con esos criterios.</p>
           <p class="mt-2 text-sm text-muted-foreground">Prueba otra palabra o vuelve a ver el catálogo completo.</p>
-          <button type="button" data-theme-reset class="mt-5 rounded-btn border border-foreground px-4 py-2 text-sm font-semibold transition hover:bg-foreground hover:text-background">
+          <button type="button" data-theme-reset class="btn btn-soft mt-5">
             Ver todos los temas
           </button>
         </div>
       </section>
 
       <!-- Nota honesta sobre el estado -->
-      <section class="border-t border-border bg-muted/40">
-        <div class="mx-auto max-w-3xl px-[clamp(24px,4vw,32px)] py-14 text-center">
-          <h2 class="font-display text-2xl sm:text-3xl">¿Y si ninguno es exactamente lo tuyo?</h2>
-          <p class="mt-4 text-base leading-relaxed text-muted-foreground">
+      <section class="page-shell cta-wrap">
+        <div class="cta-band reveal">
+          <p class="eyebrow"><span>+</span>A tu medida</p>
+          <h2>¿Y si ninguno es exactamente lo tuyo?</h2>
+          <p>
             Mejor. Estos son puntos de partida, no un menú cerrado: lo normal es
             coger la rejilla de uno, la tipografía de otro y el color de tu marca. El
             catálogo existe para tener una conversación concreta, no para encajarte en
             una plantilla.
           </p>
-          <div class="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
-            <a
-              href={MAIN_DEMO_HREF}
-              class="rounded-btn bg-foreground px-6 py-3 text-sm font-semibold text-background transition hover:bg-foreground/90"
-            >Entra en la tienda demo</a>
-            <a
-              href="/#contacto"
-              data-open-project
-              class="rounded-btn border border-foreground px-6 py-3 text-sm font-semibold text-foreground transition hover:bg-foreground hover:text-background"
-            >Cuéntanos tu proyecto</a>
+          <div class="page-actions">
+            <a href="/#contacto" data-open-project class="btn btn-light">Cuéntanos tu proyecto <span class="btn-arrow" aria-hidden="true">→</span></a>
+            <a href={MAIN_DEMO_HREF} class="btn btn-outline-light">Entra en la tienda demo</a>
           </div>
         </div>
       </section>
@@ -345,6 +346,73 @@ const jsonLd = [
 </Landing>
 
 <style>
+  .themes-proof { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); max-width: 36rem; margin-top: 2.6rem; border-top: 1px solid var(--c-border); }
+  .themes-proof li { padding: 1.1rem 1rem 0 0; }
+  .themes-proof li + li { padding-left: 1rem; border-left: 1px solid var(--c-border); }
+  .themes-proof strong { display: block; color: var(--c-green); font: 400 2.1rem/1 'Fraunces', Georgia, serif; letter-spacing: -.05em; }
+  .themes-proof span { display: block; margin-top: .45rem; color: var(--c-muted); font-size: .76rem; line-height: 1.45; }
+
+  /* Barra de filtros fija bajo la cabecera: con 35 temas, filtrar no debe
+     obligar a volver arriba. */
+  .themes-controls {
+    position: sticky;
+    top: 96px;
+    z-index: 20;
+    margin-bottom: 2.25rem;
+    padding: 1rem 1.2rem;
+    border: 1px solid var(--c-border);
+    border-radius: 1.5rem;
+    background: rgb(251 252 248 / 88%);
+    backdrop-filter: blur(14px) saturate(1.2);
+    box-shadow: var(--shadow-sm);
+  }
+  .themes-controls[hidden] { display: none; }
+
+  .theme-card {
+    border: 1px solid rgb(23 48 27 / 9%);
+    border-radius: 1.5rem;
+    background: #fff;
+    transition: box-shadow .4s var(--ease), transform .4s var(--ease);
+  }
+  .theme-card:hover { box-shadow: var(--shadow-lg); transform: translateY(-4px); }
+  .theme-card-media { overflow: hidden; border-bottom: 1px solid var(--line); }
+  .theme-card-img { transition: transform .9s var(--ease); }
+  .theme-card:hover .theme-card-img { transform: scale(1.035); }
+  .theme-card-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: .45rem;
+    padding: .35rem .75rem .35rem .55rem;
+    border: 1px solid rgb(255 255 255 / 60%);
+    border-radius: 999px;
+    background: rgb(255 255 255 / 86%);
+    backdrop-filter: blur(8px);
+    color: var(--c-ink);
+    font-size: 11px;
+    font-weight: 600;
+    box-shadow: var(--shadow-sm);
+  }
+  .theme-card-badge i { width: .55rem; height: .55rem; border-radius: 50%; box-shadow: 0 0 0 1px rgb(0 0 0 / 10%); }
+  .theme-card-body { padding: 1.6rem 1.6rem 1.7rem; }
+  .theme-chip { padding: .3rem .7rem; border: 1px solid var(--c-border); border-radius: 999px; background: #f7f9f4; color: var(--c-ink); font-size: .74rem; }
+  .theme-card-cta {
+    min-height: 2.9rem;
+    padding: .65rem 1.2rem;
+    background: var(--brand);
+    color: var(--brand-fg);
+    box-shadow: 0 8px 20px color-mix(in oklab, var(--brand) 25%, transparent);
+    transition: transform .25s var(--ease), box-shadow .25s var(--ease);
+  }
+  .theme-card-cta:hover { transform: translateY(-1px); box-shadow: 0 12px 26px color-mix(in oklab, var(--brand) 32%, transparent); }
+  .theme-card-cta:hover .btn-arrow { transform: translateX(3px); }
+  .themes-empty { padding: 3.5rem 1.5rem; border: 1px dashed var(--c-border); border-radius: 1.5rem; background: #fff; text-align: center; }
+
+  @media (max-width: 700px) {
+    .themes-controls { top: 78px; padding: .8rem .9rem; border-radius: 1.2rem; }
+    .themes-proof strong { font-size: 1.7rem; }
+    .themes-proof span { font-size: .7rem; }
+  }
+
   .theme-filter-button {
     border: 1px solid var(--border);
     border-radius: 9999px;
@@ -356,11 +424,12 @@ const jsonLd = [
     transition: border-color 150ms ease, background-color 150ms ease, color 150ms ease;
   }
 
-  .theme-filter-button:hover,
+  .theme-filter-button { min-height: 2.4rem; background: #fff; }
+  .theme-filter-button:hover { border-color: var(--c-green); color: var(--c-green); }
   .theme-filter-button[aria-pressed='true'] {
-    border-color: var(--foreground);
-    background: var(--foreground);
-    color: var(--background);
+    border-color: var(--c-green);
+    background: var(--c-green);
+    color: #fff;
   }
 
   .theme-view-button {
@@ -373,10 +442,11 @@ const jsonLd = [
     transition: border-color 150ms ease, background-color 150ms ease, color 150ms ease;
   }
 
+  .theme-view-button { border-radius: .7rem; background: #fff; }
   .theme-view-button[aria-pressed='true'] {
-    border-color: var(--foreground);
-    background: var(--foreground);
-    color: var(--background);
+    border-color: var(--c-green);
+    background: var(--c-green);
+    color: #fff;
   }
 
   .theme-grid-icon {

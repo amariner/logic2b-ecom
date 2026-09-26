@@ -194,10 +194,19 @@ const jsonLd = [
         Diseño, tecnología, mantenimiento y responsabilidades. Una guía para
         entender el servicio antes de acordar la propuesta de tu tienda.
       </p>
+      <div class="page-actions print:hidden">
+        <a href="/#contacto" data-open-project class="btn btn-primary">Preparar mi propuesta <span class="btn-arrow" aria-hidden="true">→</span></a>
+        <a href="/precios" class="btn btn-ghost">Ver los packs</a>
+      </div>
     </section>
 
-    <div class="mx-auto w-full max-w-4xl px-[clamp(24px,4vw,32px)] pb-16">
-      <section class="mb-8 rounded-2xl border border-border bg-card p-6 shadow-sm sm:p-8" aria-labelledby="positioning-title">
+    <div class="page-shell doc">
+      <nav class="doc-toc print:hidden" aria-label="Índice del dossier">
+        <p>Índice</p>
+        <ol><li><a href="#para-quien"><span>01</span>Para quién es (y para quién no)</a></li><li><a href="#camino"><span>02</span>El camino: de MVP a tienda que crece</a></li><li><a href="#incluye"><span>03</span>Qué incluye el primer mes, exactamente</a></li><li><a href="#proceso"><span>04</span>Cómo trabajamos</a></li><li><a href="#necesitamos"><span>05</span>Qué necesitamos de ti</a></li><li><a href="#mensualidad"><span>06</span>Qué compra tu mensualidad</a></li><li><a href="#precio"><span>07</span>Cuánto cuesta</a></li><li><a href="#salida"><span>08</span>Qué pasa si un día nos vamos</a></li><li><a href="#faq"><span>09</span>Preguntas frecuentes</a></li></ol>
+      </nav>
+      <div class="doc-body">
+      <section class="mb-8 doc-card sm:p-8" aria-labelledby="positioning-title">
         <p class="page-kicker">Qué es Logic2B Ecommerce</p>
         <h2 id="positioning-title" class="mt-3 font-display text-2xl sm:text-3xl">Infraestructura propia. Proyecto a medida.</h2>
         <div class="mt-4 space-y-3 text-sm leading-relaxed text-muted-foreground sm:text-base">
@@ -241,11 +250,12 @@ const jsonLd = [
       </p>
 
       <!-- Para quién es -->
-      <section class="mt-14">
-        <h2 class="text-2xl sm:text-3xl">Para quién es (y para quién no)</h2>
+      <section id="para-quien" class="doc-chapter">
+        <p class="eyebrow"><span>01</span>Capítulo</p>
+        <h2 class="doc-h2">Para quién es (y para quién no)</h2>
         <div class="mt-6 grid gap-5 sm:grid-cols-2">
-          <div class="rounded-2xl border border-[#c9dcf7] bg-[#eef4fc] p-6">
-            <p class="font-semibold text-[#17386f]">Es para ti si…</p>
+          <div class="doc-card is-positive">
+            <p class="font-semibold">Es para ti si…</p>
             <ul class="mt-3 space-y-2 text-sm leading-relaxed text-muted-foreground">
               <li class="flex gap-2"><span aria-hidden="true" class="tick">✓</span> Quieres una tienda seria, tuya y rápida — con 20 referencias o con miles.</li>
               <li class="flex gap-2"><span aria-hidden="true" class="tick">✓</span> Estás pagando cuotas y comisiones de plataforma que no entiendes.</li>
@@ -253,7 +263,7 @@ const jsonLd = [
               <li class="flex gap-2"><span aria-hidden="true" class="tick">✓</span> Prefieres empezar por lo esencial y añadir cuando el negocio lo pida.</li>
             </ul>
           </div>
-          <div class="rounded-2xl border border-border bg-muted p-6">
+          <div class="doc-card">
             <p class="font-semibold">No es para ti si…</p>
             <ul class="mt-3 space-y-2 text-sm leading-relaxed text-muted-foreground">
               <li class="flex gap-2"><span aria-hidden="true">—</span> <span>Quieres un marketplace con varios vendedores, o vender por suscripción recurrente: eso es otro proyecto (y podemos hablarlo).</span></li>
@@ -266,17 +276,18 @@ const jsonLd = [
       </section>
 
       <!-- El camino: de MVP a tienda que crece (P2) -->
-      <section class="mt-14">
-        <h2 class="text-2xl sm:text-3xl">El camino: de MVP a tienda que crece</h2>
+      <section id="camino" class="doc-chapter">
+        <p class="eyebrow"><span>02</span>Capítulo</p>
+        <h2 class="doc-h2">El camino: de MVP a tienda que crece</h2>
         <p class="mt-2 max-w-2xl leading-relaxed text-muted-foreground">
           Tu tienda arranca básica y funcional, y crece cuando el negocio lo pide —
           sin cambiar de plataforma ni empezar de cero. Este es el recorrido de un
           proyecto tipo. <strong class="text-foreground">No hay fechas prometidas</strong>:
           cada paso se decide contigo, cuando toca.
         </p>
-        <ol class="mt-6 space-y-3">
+        <ol class="doc-path mt-6">
           {path.map((stage) => (
-            <li class="flex flex-col gap-1 rounded-2xl border border-border bg-card p-6 shadow-sm sm:flex-row sm:gap-6">
+            <li class="flex flex-col gap-1 sm:flex-row sm:gap-6">
               <p class="page-kicker shrink-0 sm:w-48 sm:pt-0.5">{stage.k}</p>
               <div>
                 <h3 class="font-semibold">{stage.title}</h3>
@@ -294,15 +305,16 @@ const jsonLd = [
       </section>
 
       <!-- Qué incluye -->
-      <section class="mt-14">
-        <h2 class="text-2xl sm:text-3xl">Qué incluye el primer mes, exactamente</h2>
+      <section id="incluye" class="doc-chapter">
+        <p class="eyebrow"><span>03</span>Capítulo</p>
+        <h2 class="doc-h2">Qué incluye el primer mes, exactamente</h2>
         <p class="mt-2 max-w-2xl leading-relaxed text-muted-foreground">
           El MVP no es una versión recortada: es una tienda completa y operativa
           desde el día que se publica.
         </p>
         <div class="mt-6 space-y-6">
           {included.map((block) => (
-            <div class="rounded-2xl border border-border bg-card p-6 shadow-sm">
+            <div class="doc-card">
               <h3 class="font-semibold">{block.area}</h3>
               <ul class="mt-3 grid gap-x-8 gap-y-2 text-sm leading-relaxed text-muted-foreground sm:grid-cols-2">
                 {block.items.map((item) => (
@@ -321,22 +333,23 @@ const jsonLd = [
       </section>
 
       <!-- Proceso -->
-      <section class="mt-14">
-        <h2 class="text-2xl sm:text-3xl">Cómo trabajamos</h2>
+      <section id="proceso" class="doc-chapter">
+        <p class="eyebrow"><span>04</span>Capítulo</p>
+        <h2 class="doc-h2">Cómo trabajamos</h2>
         <p class="mt-2 max-w-2xl text-muted-foreground">
           De brief a tienda vendiendo en <strong class="text-foreground">3–4 semanas</strong> (orientativo: depende
           sobre todo de lo rápido que tengamos fotos y catálogo).
         </p>
         <ol class="mt-6 grid gap-5 sm:grid-cols-2">
           {process.map((p) => (
-            <li class="rounded-2xl border border-border bg-card p-6 shadow-sm">
-              <span class="flex h-8 w-8 items-center justify-center rounded-full bg-foreground font-display text-background" aria-hidden="true">{p.step}</span>
+            <li class="doc-card">
+              <span class="doc-step" aria-hidden="true">{p.step}</span>
               <h3 class="mt-3 font-semibold">{p.title}</h3>
               <p class="mt-2 text-sm leading-relaxed text-muted-foreground">{p.body}</p>
             </li>
           ))}
         </ol>
-        <div class="mt-6 rounded-2xl border border-border bg-muted p-6">
+        <div class="doc-card is-tint mt-6">
           <h3 class="font-semibold">Tu panel es simple a propósito</h3>
           <p class="mt-2 text-sm leading-relaxed text-muted-foreground">
             Pedidos, envíos y productos. Nada más — se aprende en cinco minutos
@@ -351,11 +364,12 @@ const jsonLd = [
       </section>
 
       <!-- Qué necesitamos -->
-      <section class="mt-14">
-        <h2 class="text-2xl sm:text-3xl">Qué necesitamos de ti</h2>
+      <section id="necesitamos" class="doc-chapter">
+        <p class="eyebrow"><span>05</span>Capítulo</p>
+        <h2 class="doc-h2">Qué necesitamos de ti</h2>
         <dl class="mt-6 space-y-3">
           {needs.map(([what, detail]) => (
-            <div class="flex flex-col gap-1 rounded-2xl bg-muted px-6 py-4 sm:flex-row sm:gap-4">
+            <div class="doc-need flex flex-col gap-1 sm:flex-row sm:gap-4">
               <dt class="shrink-0 font-semibold sm:w-44">{what}</dt>
               <dd class="text-sm leading-relaxed text-muted-foreground sm:text-base">{detail}</dd>
             </div>
@@ -364,8 +378,9 @@ const jsonLd = [
       </section>
 
       <!-- Qué compra tu mensualidad (P3 · concepto D7) -->
-      <section class="mt-14">
-        <h2 class="text-2xl sm:text-3xl">Qué compra tu mensualidad</h2>
+      <section id="mensualidad" class="doc-chapter">
+        <p class="eyebrow"><span>06</span>Capítulo</p>
+        <h2 class="doc-h2">Qué compra tu mensualidad</h2>
         <p class="mt-2 max-w-2xl leading-relaxed text-muted-foreground">
           Tu cuota no paga licencias de plataforma ni servidores encendidos sin usar:
           <strong class="text-foreground">paga a las personas que llevan tu tienda</strong> y
@@ -375,14 +390,14 @@ const jsonLd = [
         </p>
         <div class="mt-6 grid gap-5 sm:grid-cols-3">
           {monthly.map((item) => (
-            <div class="rounded-2xl border border-border bg-card p-6 shadow-sm">
+            <div class="doc-card">
               <h3 class="font-semibold">{item.title}</h3>
               <p class="mt-2 text-sm leading-relaxed text-muted-foreground">{item.body}</p>
             </div>
           ))}
         </div>
-        <div class="mt-5 rounded-2xl border border-[#c9dcf7] bg-[#eef4fc] p-6">
-          <p class="font-semibold text-[#17386f]">Una cuota, no una pila de suscripciones</p>
+        <div class="doc-card is-positive mt-5">
+          <p class="font-semibold">Una cuota, no una pila de suscripciones</p>
           <p class="mt-2 text-sm leading-relaxed text-muted-foreground">
             Lo habitual en el mercado es acabar pagando la suscripción de la
             plataforma por un lado, el mantenimiento por otro, el SEO por otro y los
@@ -402,8 +417,9 @@ const jsonLd = [
       </section>
 
       <!-- Precios (escalera D4: Lite · Kit · Kit a medida) -->
-      <section class="mt-14">
-        <h2 class="text-2xl sm:text-3xl">Cuánto cuesta</h2>
+      <section id="precio" class="doc-chapter">
+        <p class="eyebrow"><span>07</span>Capítulo</p>
+        <h2 class="doc-h2">Cuánto cuesta</h2>
         <p class="mt-2 max-w-2xl text-muted-foreground">
           Un pago único de puesta en marcha y una sola cuota mensual, sin
           permanencia. Tres formas de empezar según lo que necesites.
@@ -412,13 +428,14 @@ const jsonLd = [
       </section>
 
       <!-- Qué pasa si nos vamos (anti-secuestro: F11.7 / Fase 10.3) -->
-      <section class="mt-14">
-        <h2 class="text-2xl sm:text-3xl">Qué pasa si un día nos vamos</h2>
+      <section id="salida" class="doc-chapter">
+        <p class="eyebrow"><span>08</span>Capítulo</p>
+        <h2 class="doc-h2">Qué pasa si un día nos vamos</h2>
         <p class="mt-3 max-w-2xl leading-relaxed text-muted-foreground">
           Es la pregunta que nadie hace en la primera reunión y todos piensan. La
           respuesta, por escrito:
         </p>
-        <ul class="mt-5 space-y-3 rounded-2xl border border-border bg-card p-6 text-sm leading-relaxed text-muted-foreground shadow-sm">
+        <ul class="doc-card mt-5 space-y-3 text-sm leading-relaxed text-muted-foreground">
           <li class="flex gap-2"><span aria-hidden="true" class="tick">✓</span> <span><strong class="text-foreground">Todo está a tu nombre desde el primer día</strong>: el dominio, la cuenta de la pasarela de pago (donde entra tu dinero), el alojamiento y el repositorio con el código. Nosotros solo tenemos los accesos de mantenimiento.</span></li>
           <li class="flex gap-2"><span aria-hidden="true" class="tick">✓</span> <span>En la entrega firmamos un <strong class="text-foreground">acta con un inventario de accesos</strong>: qué cuentas existen, de quién son y quién entra en cada una. Con esa hoja, cualquier profesional puede continuar tu tienda mañana.</span></li>
           <li class="flex gap-2"><span aria-hidden="true" class="tick">✓</span> <span><strong class="text-foreground">Sin permanencia.</strong> Si dejas el mantenimiento, te entregamos una última copia de seguridad, retiramos nuestros accesos y la tienda sigue funcionando. Sin rehenes.</span></li>
@@ -426,9 +443,10 @@ const jsonLd = [
       </section>
 
       <!-- FAQ -->
-      <section class="mt-14">
-        <h2 class="text-2xl sm:text-3xl">Preguntas frecuentes</h2>
-        <div class="mt-6 space-y-6">
+      <section id="faq" class="doc-chapter">
+        <p class="eyebrow"><span>09</span>Capítulo</p>
+        <h2 class="doc-h2">Preguntas frecuentes</h2>
+        <div class="doc-faq mt-6">
           {faqs.map((faq) => (
             <div>
               <h3 class="font-semibold">{faq.q}</h3>
@@ -439,29 +457,74 @@ const jsonLd = [
       </section>
 
       <!-- Contacto (también visible en papel) -->
-      <section class="mt-14 rounded-2xl bg-foreground p-8 text-background print:rounded-none print:bg-white print:p-0 print:text-foreground">
-        <h2 class="text-2xl sm:text-3xl">¿Hablamos de tu tienda?</h2>
-        <p class="mt-3 max-w-xl leading-relaxed text-background/70 print:text-muted-foreground">
+      <section class="doc-contact cta-band print:rounded-none print:bg-white print:p-0 print:text-foreground">
+        <h2>¿Hablamos de tu tienda?</h2>
+        <p class="print:text-muted-foreground">
           Cuéntanos qué vendes y te decimos, sin compromiso, si el servicio encaja contigo y qué
           necesitaríamos para arrancar.
         </p>
-        <p class="mt-5 font-semibold">
+        <p class="doc-contact-links font-semibold">
           <a href="mailto:hola@logic2b.com?subject=Mi%20tienda%20online%20con%20Logic2B%20Ecommerce" class="underline underline-offset-4 hover:opacity-80">hola@logic2b.com</a>
           <span aria-hidden="true" class="mx-2 opacity-60">·</span>
           <a href="https://wa.me/34626434316?text=Hola%2C%20me%20interesa%20una%20tienda%20online%20con%20Logic2B%20Ecommerce." class="underline underline-offset-4 hover:opacity-80">WhatsApp 626 434 316</a>
           <span aria-hidden="true" class="mx-2 opacity-60">·</span>
-          <span class="font-normal text-background/70 print:text-muted-foreground">Logic2B, Castellón · logic2b.com</span>
+          <span class="font-normal opacity-75 print:text-muted-foreground">Logic2B, Castellón · logic2b.com</span>
         </p>
       </section>
+      </div>
     </div>
   </main>
 
-  <style>
+  <style is:global>
+    .commercial-page .doc { display: grid; grid-template-columns: 15rem minmax(0, 1fr); gap: clamp(2rem, 5vw, 5rem); align-items: start; padding-bottom: clamp(3rem, 6vw, 5rem); }
+    .commercial-page .doc-toc { position: sticky; top: 110px; padding: 1.2rem; border: 1px solid var(--c-border); border-radius: 1.3rem; background: rgb(255 255 255 / 70%); }
+    .commercial-page .doc-toc > p { color: var(--c-green); font-size: .66rem; font-weight: 600; letter-spacing: .13em; text-transform: uppercase; }
+    .commercial-page .doc-toc ol { display: grid; gap: .1rem; margin-top: .8rem; }
+    .commercial-page .doc-toc a { display: flex; gap: .6rem; padding: .45rem .5rem; border-radius: .6rem; color: var(--c-muted); font-size: .8rem; line-height: 1.35; transition: background-color .2s var(--ease), color .2s var(--ease); }
+    .commercial-page .doc-toc a:hover { background: var(--c-tint); color: var(--c-green); }
+    .commercial-page .doc-toc a span { color: var(--c-green); font-size: .7rem; font-variant-numeric: tabular-nums; }
+    .commercial-page .doc-body { max-width: 52rem; min-width: 0; }
+    .commercial-page .doc-chapter { margin-top: clamp(3.5rem, 7vw, 5.5rem); scroll-margin-top: 110px; }
+    .commercial-page .doc-h2 { margin-top: 1rem; font-size: clamp(2rem, 3.6vw, 3.1rem); line-height: 1.05; letter-spacing: -.055em; }
+    .commercial-page .doc-card { padding: 1.5rem; border: 1px solid var(--c-border); border-radius: 1.4rem; background: #fff; box-shadow: var(--shadow-sm); }
+    .commercial-page .doc-card.is-positive { border-color: var(--leaf); background: var(--c-tint); }
+    .commercial-page .doc-card.is-positive > p:first-child { color: var(--c-green); }
+    .commercial-page .doc-card.is-tint { background: #f7f9f4; box-shadow: none; }
+    .commercial-page .doc-lead { padding: clamp(1.5rem, 3vw, 2.4rem); box-shadow: var(--shadow-md); }
+    .commercial-page .doc-path { position: relative; display: grid; gap: 0; }
+    .commercial-page .doc-path li { position: relative; padding: 0 0 1.6rem 2.2rem; }
+    .commercial-page .doc-path li::before { position: absolute; top: .3rem; left: 0; width: .9rem; height: .9rem; border: 2px solid var(--c-green); border-radius: 50%; background: #fff; content: ''; }
+    .commercial-page .doc-path li:not(:last-child)::after { position: absolute; top: 1.4rem; bottom: .2rem; left: .42rem; width: 1px; background: var(--leaf); content: ''; }
+    .commercial-page .doc-step { display: grid; place-items: center; width: 2.25rem; height: 2.25rem; border-radius: 50%; background: var(--c-green); color: #fff; font: 400 1rem/1 'Fraunces', Georgia, serif; }
+    .commercial-page .doc-need { padding: 1rem 1.4rem; border-radius: 1rem; background: #f7f9f4; border: 1px solid var(--line); }
+    .commercial-page .doc-faq { display: grid; border-top: 1px solid var(--c-border); }
+    .commercial-page .doc-faq > div { padding: 1.3rem 0; border-bottom: 1px solid var(--c-border); }
+    .commercial-page .doc-faq h3 { font-size: 1.05rem; letter-spacing: -.02em; }
+    /* Los packs dentro de la columna de lectura: escala contenida para que
+       «2.490 €» no se parta en tres columnas de ~260 px. */
+    .commercial-page .doc-body .commercial-plan { padding: 1.5rem; }
+    .commercial-page .doc-body .plan-price { font-size: clamp(2.1rem, 3vw, 2.6rem); }
+    .commercial-page .doc-body .commercial-plan.is-featured::before { top: 1.1rem; right: 1.1rem; }
+    .commercial-page .doc-body .commercial-plan.is-featured .plan-audience { padding-right: 0; margin-top: 1.6rem; }
+    .commercial-page .doc-contact { margin-top: clamp(3.5rem, 7vw, 5.5rem); }
+    .commercial-page .doc-contact-links { margin-top: 1.6rem; color: #fff; }
+    .commercial-page .doc-contact-links a { text-decoration: underline; text-underline-offset: 4px; }
+    @media (max-width: 1000px) {
+      .commercial-page .doc { grid-template-columns: 1fr; }
+      .commercial-page .doc-toc { position: static; }
+      .commercial-page .doc-toc ol { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    @media (max-width: 600px) { .commercial-page .doc-toc ol { grid-template-columns: 1fr; } }
+
     /* Impresión: papel limpio, sin sombras ni fondos, tinta negra */
     @media print {
-      :global(body) {
+      body {
         background: white !important;
       }
+      .commercial-page .doc { display: block; }
+      .commercial-page .doc-card { box-shadow: none; }
+      .commercial-page .doc-contact::before { display: none; }
+      .commercial-page .doc-contact h2, .commercial-page .doc-contact-links { color: #000; }
       .shadow-sm,
       .shadow-lg {
         box-shadow: none !important;

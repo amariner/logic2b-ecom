@@ -142,8 +142,8 @@ const jsonLd = [
           infraestructura, experiencia y continuidad detrás de vuestra marca.
         </p>
         <div class="agency-hero-actions">
-          <a href="#contacto" data-open-project class="agency-primary">Hablar de un proyecto <span aria-hidden="true">→</span></a>
-          <a href="#proceso" class="agency-secondary">Ver cómo trabajamos</a>
+          <a href="#contacto" data-open-project class="btn btn-primary">Hablar de un proyecto <span class="btn-arrow" aria-hidden="true">→</span></a>
+          <a href="#proceso" class="btn btn-ghost">Ver cómo trabajamos</a>
         </div>
       </div>
       <aside class="agency-brief" aria-label="Resumen del modelo de colaboración">
@@ -167,18 +167,18 @@ const jsonLd = [
     </section>
 
     <section class="agency-section page-shell responsibilities" aria-labelledby="responsibilities-title">
-      <div class="agency-heading">
-        <p class="page-kicker">Un equipo, dos especialidades</p>
+      <div class="agency-heading reveal">
+        <p class="eyebrow"><span>01</span>Un equipo, dos especialidades</p>
         <h2 id="responsibilities-title">Cada parte hace lo que mejor sabe.</h2>
         <p>Nos integramos en vuestro proceso sin competir por la cuenta ni duplicar conversaciones.</p>
       </div>
       <div class="responsibility-grid">
         {responsibilities.map((column) => (
-          <article>
+          <article class="reveal">
             <p class="card-owner">{column.owner}</p>
             <h3>{column.title}</h3>
             <p class="card-intro">{column.intro}</p>
-            <ul>{column.items.map((item) => <li><span aria-hidden="true">✓</span>{item}</li>)}</ul>
+            <ul class="check-list">{column.items.map((item) => <li>{item}</li>)}</ul>
           </article>
         ))}
       </div>
@@ -186,8 +186,8 @@ const jsonLd = [
 
     <section id="proceso" class="agency-process">
       <div class="page-shell">
-        <div class="agency-heading process-heading">
-          <p class="page-kicker">El proceso</p>
+        <div class="agency-heading process-heading reveal">
+          <p class="eyebrow"><span>02</span>El proceso</p>
           <h2>Visible para la agencia.<br />Invisible para el cliente.</h2>
           <p>Sin cajas negras: sabes qué se está resolviendo y qué necesitas validar en cada momento.</p>
         </div>
@@ -204,14 +204,14 @@ const jsonLd = [
     </section>
 
     <section class="agency-section page-shell deliverables" aria-labelledby="deliverables-title">
-      <div class="agency-heading">
-        <p class="page-kicker">Lo que recibe el proyecto</p>
+      <div class="agency-heading reveal">
+        <p class="eyebrow"><span>03</span>Lo que recibe el proyecto</p>
         <h2 id="deliverables-title">A medida por fuera.<br />Sólido por dentro.</h2>
         <p>La base común resuelve la complejidad repetible; el trabajo del proyecto se concentra en el negocio, la experiencia y lo específico.</p>
       </div>
       <div class="deliverable-grid">
         {deliverables.map(([title, body], index) => (
-          <article>
+          <article class="reveal">
             <span aria-hidden="true">0{index + 1}</span>
             <h3>{title}</h3>
             <p>{body}</p>
@@ -223,7 +223,7 @@ const jsonLd = [
     <section class="white-label-band">
       <div class="page-shell white-label-inner">
         <div>
-          <p class="page-kicker">Marca blanca de verdad</p>
+          <p class="eyebrow"><span>04</span>Marca blanca de verdad</p>
           <h2>Tu cliente ve tu agencia<br />y su propia marca.</h2>
         </div>
         <div>
@@ -240,32 +240,32 @@ const jsonLd = [
     </section>
 
     <section class="agency-section page-shell fit-section" aria-labelledby="fit-title">
-      <div class="agency-heading">
-        <p class="page-kicker">Encaje honesto</p>
+      <div class="agency-heading reveal">
+        <p class="eyebrow"><span>05</span>Encaje honesto</p>
         <h2 id="fit-title">Sabemos cuándo decir sí.<br />Y cuándo no.</h2>
       </div>
       <div class="fit-grid">
         <article>
           <p class="fit-label is-positive">Encajamos si…</p>
-          <ul>{fit.map((item) => <li><span aria-hidden="true">✓</span>{item}</li>)}</ul>
+          <ul class="check-list">{fit.map((item) => <li>{item}</li>)}</ul>
         </article>
         <article>
           <p class="fit-label">No somos la opción si…</p>
-          <ul>{noFit.map((item) => <li><span aria-hidden="true">×</span>{item}</li>)}</ul>
+          <ul class="check-list is-cross">{noFit.map((item) => <li>{item}</li>)}</ul>
         </article>
       </div>
       <p class="fit-note">Un proyecto grande no queda fuera por tamaño. Entra por análisis y propuesta a medida, no forzando el alcance del motor base.</p>
     </section>
 
     <section class="agency-section page-shell faq-section" aria-labelledby="faq-title">
-      <div class="agency-heading">
-        <p class="page-kicker">Preguntas de partner</p>
+      <div class="agency-heading reveal">
+        <p class="eyebrow"><span>06</span>Preguntas de partner</p>
         <h2 id="faq-title">Lo importante, antes de presentar.</h2>
       </div>
-      <div class="agency-faq">
+      <div class="faq-list">
         {faqs.map((faq) => (
           <details>
-            <summary>{faq.q}<span aria-hidden="true">+</span></summary>
+            <summary>{faq.q}<span class="faq-icon" aria-hidden="true"></span></summary>
             <p>{faq.a}</p>
           </details>
         ))}
@@ -275,7 +275,7 @@ const jsonLd = [
     <section id="contacto" class="agency-contact">
       <div class="page-shell agency-contact-inner">
         <div>
-          <p class="page-kicker">Primer proyecto</p>
+          <p class="eyebrow"><span>07</span>Primer proyecto</p>
           <h2>Cuéntanos qué necesita tu cliente.</h2>
           <p>
             Con el sector, el catálogo aproximado, el estado del diseño y la fecha
@@ -303,26 +303,11 @@ const jsonLd = [
     gap: .75rem;
     margin-top: 2rem;
   }
-  .commercial-page .agency-primary,
-  .commercial-page .agency-secondary {
-    display: inline-flex;
-    min-height: 3rem;
-    align-items: center;
-    justify-content: center;
-    gap: .65rem;
-    border-radius: var(--r-btn);
-    padding: .8rem 1.15rem;
-    font-size: .9rem;
-    font-weight: 700;
-  }
-  .commercial-page .agency-primary { background: var(--c-ink); color: white; }
-  .commercial-page .agency-primary:hover { background: #303640; }
-  .commercial-page .agency-secondary { border: 1px solid var(--c-border); color: var(--c-ink); }
-  .commercial-page .agency-secondary:hover { background: var(--muted); }
   .commercial-page .agency-brief {
     border: 1px solid var(--c-border);
     border-radius: 1.5rem;
-    background: var(--muted);
+    background: #fff;
+    box-shadow: var(--shadow-lg);
     padding: clamp(1.4rem, 3vw, 2rem);
   }
   .commercial-page .agency-brief > p {
@@ -357,7 +342,7 @@ const jsonLd = [
     font-weight: 700;
   }
   .commercial-page .agency-proof p:first-child { border-left: 1px solid var(--c-border); }
-  .commercial-page .agency-proof span { color: var(--c-green); font-size: .7rem; }
+  .commercial-page .agency-proof span { display: grid; place-items: center; min-width: 2.1rem; height: 1.45rem; border: 1px solid var(--leaf); border-radius: 999px; color: var(--c-green); font-size: .64rem; }
   .commercial-page .agency-section { padding-block: clamp(4.5rem, 8vw, 7rem); }
   .commercial-page .agency-heading { max-width: 47rem; }
   .commercial-page .agency-heading h2,
@@ -383,69 +368,62 @@ const jsonLd = [
   }
   .commercial-page .responsibility-grid article {
     border: 1px solid var(--c-border);
-    border-radius: 1.5rem;
-    padding: clamp(1.5rem, 3vw, 2.25rem);
+    border-radius: 1.75rem;
+    background: #fff;
+    padding: clamp(1.5rem, 3vw, 2.5rem);
+    box-shadow: var(--shadow-sm);
   }
-  .commercial-page .responsibility-grid article:last-child { background: var(--c-tint); border-color: transparent; color: var(--c-green); }
+  .commercial-page .responsibility-grid article:last-child { background: var(--c-green); border-color: var(--c-green); color: #fff; box-shadow: 0 30px 70px rgb(32 63 34 / 26%); }
+  .commercial-page .responsibility-grid article:last-child :is(.card-owner, .card-intro) { color: #cfe0ca; }
+  .commercial-page .responsibility-grid article:last-child .check-list li::before { background: var(--leaf); color: var(--deep); }
   .commercial-page .card-owner { color: var(--c-green); font-size: .7rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; }
   .commercial-page .responsibility-grid h3 { margin-top: .75rem; font-size: clamp(1.5rem, 2.7vw, 2.2rem); }
   .commercial-page .card-intro { max-width: 30rem; margin-top: .75rem; color: var(--c-muted); line-height: 1.55; }
-  .commercial-page .responsibility-grid article:last-child .card-intro { color: var(--c-muted); }
   .commercial-page .responsibility-grid ul { display: grid; gap: .85rem; margin-top: 2rem; }
-  .commercial-page .responsibility-grid li { display: grid; grid-template-columns: 1.1rem 1fr; gap: .55rem; line-height: 1.45; }
-  .commercial-page .responsibility-grid li span { color: #47752d; font-weight: 900; }
-  .commercial-page .agency-process { background: var(--muted); padding-block: clamp(4.5rem, 8vw, 7rem); }
+  .commercial-page .agency-process { background: var(--c-tint); padding-block: clamp(4.5rem, 8vw, 7rem); }
   .commercial-page .process-grid {
+    position: relative;
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 1.25rem;
     margin-top: 3.5rem;
-    border-top: 1px solid var(--c-border);
   }
-  .commercial-page .process-grid li { padding: 1.6rem 1.4rem 0 0; border-right: 1px solid var(--c-border); }
-  .commercial-page .process-grid li + li { padding-left: 1.4rem; }
-  .commercial-page .process-grid li:last-child { border-right: 0; }
-  .commercial-page .process-grid span { color: var(--c-green); font-size: .72rem; font-weight: 800; }
-  .commercial-page .process-grid h3 { margin-top: 2.75rem; font-size: 1.45rem; }
+  .commercial-page .process-grid::before { position: absolute; top: 1.6rem; right: 2rem; left: 2rem; height: 1px; background: linear-gradient(90deg, var(--c-green), var(--leaf)); content: ''; }
+  .commercial-page .process-grid li { position: relative; }
+  .commercial-page .process-grid span { position: relative; display: grid; place-items: center; width: 3.2rem; height: 3.2rem; border: 1px solid var(--c-border); border-radius: 50%; background: #fff; box-shadow: 0 0 0 6px var(--c-tint), var(--shadow-sm); color: var(--c-green); font-size: .78rem; font-weight: 600; font-variant-numeric: tabular-nums; transition: background-color .3s var(--ease), color .3s var(--ease); }
+  .commercial-page .process-grid li:hover span { background: var(--c-green); color: #fff; }
+  .commercial-page .process-grid h3 { margin-top: 1.6rem; font-size: 1.45rem; }
   .commercial-page .process-grid p { margin-top: .75rem; color: var(--c-muted); font-size: .92rem; line-height: 1.6; }
   .commercial-page .deliverable-grid {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 0;
+    gap: 1.25rem;
     margin-top: 3rem;
-    border-top: 1px solid var(--c-border);
-    border-left: 1px solid var(--c-border);
   }
-  .commercial-page .deliverable-grid article { min-height: 15rem; padding: 1.75rem; border-right: 1px solid var(--c-border); border-bottom: 1px solid var(--c-border); }
-  .commercial-page .deliverable-grid span { color: var(--c-green); font-size: .72rem; font-weight: 800; }
+  .commercial-page .deliverable-grid article { min-height: 15rem; padding: 2rem; border: 1px solid var(--c-border); border-radius: 1.6rem; background: #fff; transition: box-shadow .35s var(--ease), transform .35s var(--ease), border-color .35s var(--ease); }
+  .commercial-page .deliverable-grid article:hover { border-color: var(--c-green); box-shadow: var(--shadow-md); transform: translateY(-3px); }
+  .commercial-page .deliverable-grid span { display: grid; place-items: center; width: 2.4rem; height: 2.4rem; border-radius: .8rem; background: var(--c-tint); color: var(--c-green); font-size: .72rem; font-weight: 600; }
   .commercial-page .deliverable-grid h3 { max-width: 25rem; margin-top: 3.5rem; font-size: clamp(1.35rem, 2.6vw, 2rem); }
   .commercial-page .deliverable-grid p { max-width: 31rem; margin-top: .8rem; color: var(--c-muted); line-height: 1.6; }
-  .commercial-page .white-label-band { background: var(--c-green); color: white; padding-block: clamp(4.5rem, 8vw, 7rem); }
+  .commercial-page .white-label-band,
+  .commercial-page .agency-contact { position: relative; isolation: isolate; overflow: hidden; background: radial-gradient(36rem 28rem at 8% 0%, rgb(183 212 176 / 16%), transparent 70%), var(--c-green); color: white; padding-block: clamp(4.5rem, 8vw, 7rem); }
+  .commercial-page .white-label-band::before,
+  .commercial-page .agency-contact::before { position: absolute; z-index: -1; inset: 0; background: linear-gradient(rgb(255 255 255 / 4%) 1px, transparent 1px) 0 0 / 56px 56px, linear-gradient(90deg, rgb(255 255 255 / 4%) 1px, transparent 1px) 0 0 / 56px 56px; -webkit-mask-image: radial-gradient(ellipse at 30% 40%, #000, transparent 75%); mask-image: radial-gradient(ellipse at 30% 40%, #000, transparent 75%); content: ''; }
+  .commercial-page :is(.white-label-band, .agency-contact) .eyebrow { color: #c9dec4; }
+  .commercial-page :is(.white-label-band, .agency-contact) .eyebrow span { border-color: rgb(255 255 255 / 25%); }
   .commercial-page .white-label-inner { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(280px, .9fr); gap: clamp(2.5rem, 7vw, 7rem); align-items: start; }
-  .commercial-page .white-label-inner .page-kicker { color: #d3dfd0; }
   .commercial-page .white-label-inner h2 { color: white; }
   .commercial-page .white-label-inner > div:last-child { display: grid; gap: 1.25rem; padding-top: .4rem; color: rgba(255,255,255,.72); font-size: 1.05rem; line-height: 1.7; }
   .commercial-page .fit-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; margin-top: 3rem; }
-  .commercial-page .fit-grid article { border: 1px solid var(--c-border); border-radius: 1.5rem; padding: clamp(1.5rem, 3vw, 2.25rem); }
+  .commercial-page .fit-grid article { border: 1px solid var(--c-border); border-radius: 1.6rem; background: #fff; padding: clamp(1.5rem, 3vw, 2.25rem); box-shadow: var(--shadow-sm); }
   .commercial-page .fit-label { font-size: .75rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
   .commercial-page .fit-label.is-positive { color: #47752d; }
-  .commercial-page .fit-grid ul { display: grid; gap: 1rem; margin-top: 1.5rem; }
-  .commercial-page .fit-grid li { display: grid; grid-template-columns: 1rem 1fr; gap: .7rem; line-height: 1.55; }
-  .commercial-page .fit-grid li span { font-weight: 900; }
-  .commercial-page .fit-grid article:first-child li span { color: #47752d; }
+  .commercial-page .fit-grid ul { margin-top: 1.5rem; }
   .commercial-page .fit-note { max-width: 51rem; margin: 1.5rem auto 0; color: var(--c-muted); font-size: .88rem; line-height: 1.55; text-align: center; }
   .commercial-page .faq-section { display: grid; grid-template-columns: minmax(260px, .72fr) minmax(0, 1.28fr); gap: clamp(2.5rem, 7vw, 7rem); }
-  .commercial-page .agency-faq { border-top: 1px solid var(--c-border); }
-  .commercial-page .agency-faq details { border-bottom: 1px solid var(--c-border); }
-  .commercial-page .agency-faq summary { display: flex; min-height: 4.5rem; cursor: pointer; list-style: none; align-items: center; justify-content: space-between; gap: 1rem; padding-block: 1.1rem; font-size: 1.05rem; font-weight: 700; }
-  .commercial-page .agency-faq summary::-webkit-details-marker { display: none; }
-  .commercial-page .agency-faq summary span { color: var(--c-green); font-size: 1.4rem; transition: transform 150ms ease; }
-  .commercial-page .agency-faq details[open] summary span { transform: rotate(45deg); }
-  .commercial-page .agency-faq details > p { max-width: 47rem; padding: 0 2.5rem 1.5rem 0; color: var(--c-muted); line-height: 1.65; }
-  .commercial-page .agency-contact { background: var(--c-green); color: white; padding-block: clamp(4.5rem, 8vw, 7rem); }
-  .commercial-page .agency-contact-inner { display: grid; grid-template-columns: minmax(0, .85fr) minmax(320px, 1.15fr); gap: clamp(2.5rem, 7vw, 7rem); align-items: start; }
-  .commercial-page .agency-contact .page-kicker { color: #d3dfd0; }
+  .commercial-page .agency-contact-inner { position: relative; display: grid; grid-template-columns: minmax(0, .85fr) minmax(320px, 1.15fr); gap: clamp(2.5rem, 7vw, 7rem); align-items: start; }
   .commercial-page .agency-contact h2 { color: white; }
-  .commercial-page .agency-contact-inner > div > p:not(.page-kicker) { max-width: 34rem; margin-top: 1.25rem; color: rgba(255,255,255,.7); line-height: 1.65; }
+  .commercial-page .agency-contact-inner > div > p:not(.eyebrow) { max-width: 34rem; margin-top: 1.25rem; color: rgba(255,255,255,.7); line-height: 1.65; }
   .commercial-page .agency-contact .contact-note { padding-top: 1.25rem; border-top: 1px solid rgba(255,255,255,.16); font-size: .85rem; }
 
   @media (max-width: 900px) {
@@ -457,9 +435,8 @@ const jsonLd = [
     .commercial-page .process-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .commercial-page .agency-proof p:nth-child(3) { border-left: 1px solid var(--c-border); }
     .commercial-page .agency-proof p:nth-child(-n+2) { border-bottom: 1px solid var(--c-border); }
-    .commercial-page .process-grid li:nth-child(2) { border-right: 0; }
-    .commercial-page .process-grid li:nth-child(n+3) { margin-top: 2rem; border-top: 1px solid var(--c-border); }
-    .commercial-page .process-grid li:nth-child(3) { padding-left: 0; }
+    .commercial-page .process-grid { gap: 2rem 1.25rem; }
+    .commercial-page .process-grid::before { display: none; }
   }
   @media (max-width: 640px) {
     .commercial-page .agency-hero-actions { display: grid; }
@@ -470,14 +447,8 @@ const jsonLd = [
     .commercial-page .fit-grid { grid-template-columns: 1fr; }
     .commercial-page .agency-proof p { border-right: 1px solid var(--c-border); border-bottom: 1px solid var(--c-border); border-left: 1px solid var(--c-border); }
     .commercial-page .agency-proof p:last-child { border-bottom: 0; }
-    .commercial-page .process-grid li,
-    .commercial-page .process-grid li + li { margin-top: 0; padding: 1.5rem 0; border-top: 0; border-right: 0; border-bottom: 1px solid var(--c-border); }
-    .commercial-page .process-grid h3 { margin-top: 1.5rem; }
-    .commercial-page .deliverable-grid { border-left: 0; }
-    .commercial-page .deliverable-grid article { min-height: 0; padding-inline: 0; border-right: 0; }
+    .commercial-page .process-grid h3 { margin-top: 1.2rem; }
+    .commercial-page .deliverable-grid article { min-height: 0; padding: 1.5rem; }
     .commercial-page .deliverable-grid h3 { margin-top: 2rem; }
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .commercial-page .agency-faq summary span { transition: none; }
   }
 </style>
