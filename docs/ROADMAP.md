@@ -16,12 +16,35 @@
 > 2. Actualizar el estado de la fase al terminar, con fecha y resumen de lo hecho.
 > 3. Anotar decisiones tomadas y pendientes en las secciones de abajo.
 
-## Home — rediseño editorial en rama `redesign/home-awwwards` (2026-09-26)
+## Home — rediseño editorial publicado (2026-09-26)
+
+**Publicado por encargo de Andreu.** `f9c125a` integrado en `main` por
+fast-forward y subido a GitHub junto con la rama `redesign/home-awwwards`.
+Build, 210 suites / 1261 tests y despliegue hechos desde una copia limpia de
+`main` (los borradores no versionados de la copia local no viajan). Worker
+`ecom-logic2b` versión `90d03ead-49cf-443c-915b-416dc4cc9ac6`, etiqueta
+`f9c125a`, `DEMO_MODE=true`; sin migraciones ni escrituras D1. Smoke HTTP 200
+en home, precios, arquitectura, temas, agencias, dossier, ARCE, Zancada y
+login del panel; portada servida con el CSS del build verificado y un H1.
+
+Lighthouse 12 en producción (mediana de tres pasadas): escritorio
+**100/100/100/100**, LCP 0,8 s, CLS 0. Móvil **88/100/100/100** (88 en las
+tres), LCP 3,4 s, CLS 0 y TBT 0 ms. **Por debajo del 95 del 2026-09-09**,
+aunque la comparación controlada en local no mostró regresión frente a
+`main` (92 frente a 90). El LCP sigue siendo el H1, con 2,9 s de demora de
+renderizado; la red no es el cuello (recursos antes de 450 ms). Sospechosos:
+los ~10 kB gzip de CSS bloqueante de la portada (antes el CSS del home iba en
+`commercial.css`, ahora en su propia hoja) y la precarga de Poppins en lugar
+de Fraunces (hallazgo de abajo). **Siguiente paso:** precargar Fraunces o
+darle fallback con métricas ajustadas y reducir el CSS crítico, midiendo
+contra producción.
+
+### Detalle del rediseño
 
 Por encargo de Andreu: pasada de UX/UI, producto y conversión sobre la portada
 conservando la esencia (Fraunces + Inter, lienzo natural, tinta verde,
-píldoras) y la estructura de secciones. **Sin publicar**: vive en la rama
-hasta su OK. Sin dependencias, sin cambios de precios, promesas ni motor.
+píldoras) y la estructura de secciones. Sin dependencias, sin cambios de
+precios, promesas ni motor.
 
 - **Hero:** el CTA con aspecto de campo de texto (patrón engañoso) pasa a botón
   principal que abre el diálogo de proyecto + secundario «Ver una tienda demo».
@@ -64,7 +87,7 @@ con métricas ajustadas, midiendo contra producción.
 Consejo: arquitecto ✓ sin dependencias ni motor; producto ✓ precios y
 promesas intactos, prueba social verificable; frontend ✓ sin JS nuevo salvo
 ~0,6 kB de vídeo al hover, funciona sin JS; UX/UI ✓ AA, reduced-motion y
-responsive; SEO ⚠ móvil 92 (línea base 90), pendiente la precarga de arriba.
+responsive; SEO ⚠ móvil 88 en producción (95 el 09-09), pendiente la precarga y el CSS crítico.
 
 ## Backend — persistencia de segmentación R5.6b (2026-09-18)
 
