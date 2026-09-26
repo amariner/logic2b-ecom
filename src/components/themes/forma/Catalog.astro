@@ -1,52 +1,307 @@
 ---
+/**
+ * FORMA · Galería editorial de gafas.
+ *
+ * Retratos, monturas y oficio en una retícula serena con grandes titulares
+ * ligeros. Sin filtro ni búsqueda es una portada de campaña; con ellos pasa a
+ * una rejilla uniforme con recuento y estado vacío. Los colores salen de
+ * tokens: los del tema (registro) y tres acentos propios definidos aquí.
+ */
 import type { CollectionConfig, StorePaths } from '../../../collections';
 import type { ProductRow } from '../../../lib/db';
 import { formatEurCents } from '../../../lib/format';
+
 interface Props { paths: StorePaths; collection: CollectionConfig; products: ProductRow[]; category?: string | undefined; sort: string; search?: string | undefined; }
-const { paths, products } = Astro.props;
-const root='/images/collections/forma';
+const { paths, collection, products, category, sort, search } = Astro.props;
+const root = '/images/collections/forma';
 const productBySlug = new Map(products.map((product) => [product.slug, product]));
-const cardLayout=[
-  {slug:'for-clear-01',alt:'Gafa óptica translúcida'},
-  {slug:'for-black-02',alt:'Gafa óptica negra'},
-  {slug:'for-wire-03',alt:'Gafa metálica plateada'},
-  {slug:'for-tortoise-04',alt:'Gafa de acetato carey'},
-  {slug:'for-olive-05',alt:'Gafa solar oliva'},
-  {slug:'for-charcoal-06',alt:'Gafa solar carbón'},
+const editorial = !category && !search && sort === 'featured';
+
+// Retrato REAL de campaña para las monturas que aparecen puestas en una foto.
+const portraits: Record<string, { src: string; width: number; height: number; position: string }> = {
+  'for-black-02': { src: `${root}/campaign-woman.webp`, width: 1200, height: 1608, position: 'center 22%' },
+  'for-clear-01': { src: `${root}/portrait-man.webp`, width: 1200, height: 1608, position: 'center 12%' },
+};
+const cardLayout = [
+  { slug: 'for-clear-01', alt: 'Gafa óptica translúcida' },
+  { slug: 'for-black-02', alt: 'Gafa óptica negra' },
+  { slug: 'for-wire-03', alt: 'Gafa metálica plateada' },
+  { slug: 'for-tortoise-04', alt: 'Gafa de acetato carey' },
+  { slug: 'for-olive-05', alt: 'Gafa solar oliva' },
+  { slug: 'for-charcoal-06', alt: 'Gafa solar carbón' },
 ] as const;
 const cards = cardLayout.flatMap((card) => {
   const product = productBySlug.get(card.slug);
-  return product ? [{ ...card, image: product.image }] : [];
+  return product ? [{ ...card, product, portrait: portraits[card.slug] }] : [];
 });
-const name=(slug:string)=>productBySlug.get(slug)?.name ?? slug;
-const price=(slug:string)=>productBySlug.has(slug) ? formatEurCents(productBySlug.get(slug)!.price_cents) : '';
-const solarCards=[...cards.slice(4),...cards.slice(4)];
+const optical = cards.slice(0, 4);
+const solar = cards.slice(4);
+const activeLabel = collection.categories.find((item) => item.id === category)?.label;
+const hrefFor = (next?: string): string => {
+  const params = new URLSearchParams();
+  if (next) params.set('categoria', next);
+  if (search) params.set('q', search);
+  if (sort !== 'featured') params.set('orden', sort);
+  const query = params.toString();
+  return `${paths.catalog}${query ? `?${query}` : ''}#catalogo`;
+};
+const vt = (slug: string): string => `view-transition-name: forma-${slug};`;
 ---
-<main class="forma-shell w-full bg-[#f7f7f4] text-[#171717]"><div class="forma-page w-full bg-[#f7f7f4]">
-  <header class="flex items-center justify-between px-4 py-3 text-[9px] uppercase tracking-[.1em] sm:px-8 lg:px-10"><a href="#inicio" class="font-semibold tracking-[-.08em]">FORMA</a><nav class="hidden gap-5 sm:flex"><a href="#catalogo">Catálogo</a><a href="#historia">Historias</a><a href="#taller">Taller</a><a href="#contacto">Contacto</a></nav><a href={paths.cart}>Carrito · <span data-cart-count>0</span></a></header>
 
-  <section id="inicio" class="grid grid-cols-2 gap-[2px] px-1 sm:px-2"><figure><img src={`${root}/portrait-woman.jpg`} alt="Retrato editorial con montura Forma" class="aspect-[4/3] w-full object-cover object-top" loading="eager"/><figcaption class="flex justify-between px-1 py-1 text-[8px] sm:text-[9px]"><span>Clear 01</span><span>Diseñada pensando en tu rostro</span></figcaption></figure><figure><img src={`${root}/portrait-man.jpg`} alt="Retrato editorial con gafas Forma" class="aspect-[4/3] w-full object-cover object-top" loading="eager"/><figcaption class="flex justify-between px-1 py-1 text-[8px] sm:text-[9px]"><span>Wire 03</span><span>Barcelona · 2026</span></figcaption></figure></section>
+<main class="forma">
+  <header class="forma-header">
+    <details class="forma-menu sm:hidden">
+      <summary aria-label="Abrir menú">Menú</summary>
+      <nav aria-label="Navegación FORMA móvil"><a href={`${paths.catalog}#catalogo`}>Catálogo</a><a href={`${paths.catalog}#historia`}>Historias</a><a href={`${paths.catalog}#taller`}>Taller</a><a href="#contacto">Contacto</a></nav>
+    </details>
+    <a href={paths.catalog} class="forma-word">FORMA</a>
+    <nav class="forma-nav hidden sm:flex" aria-label="Navegación FORMA"><a href={`${paths.catalog}#catalogo`}>Catálogo</a><a href={`${paths.catalog}#historia`}>Historias</a><a href={`${paths.catalog}#taller`}>Taller</a><a href="#contacto">Contacto</a></nav>
+    <a href={paths.cart} class="forma-cart">Carrito · <span data-cart-count>0</span></a>
+  </header>
 
-  <section id="catalogo" class="grid gap-6 px-2 py-14 sm:grid-cols-[.68fr_1.32fr] sm:gap-1 sm:py-20"><div class="flex flex-col justify-between pb-3"><h1 class="max-w-[360px] font-display text-[clamp(2.35rem,3.4vw,4.25rem)] font-light leading-[.9] tracking-[-.06em]">La belleza está en el ojo de quien mira.</h1><p class="mt-6 max-w-[320px] text-[11px] sm:text-xs leading-relaxed text-black/55">Nuestra manera de ver cambia el mundo alrededor. Una montura no tapa el rostro: lo enmarca.</p></div><div class="grid grid-cols-2 gap-[2px]">{cards.slice(0,4).map((card)=><article class="group relative bg-[#ededeb]"><img src={card.image} alt={card.alt} class="aspect-[1.2] w-full object-cover transition duration-700 group-hover:scale-[1.02]" loading="lazy"/><a href={paths.product(card.slug)} class="absolute inset-0" aria-label={`Ver ${name(card.slug)}`}></a><p class="flex justify-between px-1 py-1 text-[8px] sm:text-[9px]"><span>{name(card.slug)}</span><span>↗</span></p></article>)}</div></section>
+  {editorial ? (<>
+    <section id="inicio" class="forma-duo">
+      <figure><img src={`${root}/portrait-woman.webp`} alt="Retrato editorial con montura Forma" width="1200" height="1358" class="aspect-[4/3] w-full object-cover object-top" loading="eager" fetchpriority="high" /><figcaption><span>Colección 2026</span><span>Diseñada pensando en tu rostro</span></figcaption></figure>
+      <figure><img src={`${root}/portrait-man.webp`} alt="Retrato editorial con la montura Clear 01" width="1200" height="1608" class="aspect-[4/3] w-full object-cover object-[center_18%]" loading="eager" /><figcaption><span>Clear 01</span><span>Barcelona · 2026</span></figcaption></figure>
+    </section>
 
-  <section id="historia" class="border-y border-black/5 px-2 py-20 sm:py-28"><h2 class="max-w-[1100px] font-display text-[clamp(3rem,5.2vw,6rem)] font-light leading-[.9] tracking-[-.07em]">Aquí tienes un dato hermoso. Tus ojos tienen diez capas. Ves a través de muchísimo.</h2></section>
+    <section id="catalogo" class="forma-pair forma-pair--lead">
+      <div class="forma-sticky">
+        <h1 class="forma-statement">La belleza está en el ojo de quien mira.</h1>
+        <p class="forma-lede">Nuestra manera de ver cambia el mundo alrededor. Una montura no tapa el rostro: lo enmarca.</p>
+        <nav class="forma-chips" aria-label="Familias">
+          <a href={hrefFor()} aria-current="page">Todo</a>
+          {collection.categories.map((item) => <a href={hrefFor(item.id)}>{item.label}</a>)}
+        </nav>
+      </div>
+      <div class="forma-grid">{optical.map((card) => (
+        <article class:list={['forma-card', card.portrait && 'has-portrait']}>
+          <a href={paths.product(card.slug)} aria-label={`Ver ${card.product.name}`}>
+            <span class="forma-card-media">
+              <img class="forma-card-main" src={card.product.image} alt={card.alt} width="1200" height="1200" loading="lazy" style={vt(card.slug)} />
+              {card.portrait && <img class="forma-card-portrait" src={card.portrait.src} alt="" width={card.portrait.width} height={card.portrait.height} loading="lazy" decoding="async" style={`object-position: ${card.portrait.position};`} />}
+            </span>
+            <span class="forma-caption"><span>{card.product.name}</span><span>{formatEurCents(card.product.price_cents)}</span></span>
+          </a>
+        </article>
+      ))}</div>
+    </section>
 
-  <section class="grid gap-6 px-2 py-16 sm:grid-cols-[1.3fr_.7fr] sm:gap-1 sm:py-20"><div class="grid grid-cols-2 gap-[2px]">{cards.slice(0,4).map((card)=><article class="group relative bg-[#ededeb]"><img src={card.image} alt={card.alt} class="aspect-[1.3] w-full object-cover" loading="lazy"/><a href={paths.product(card.slug)} class="absolute inset-0" aria-label={`Ver ${name(card.slug)}`}></a><p class="flex justify-between px-1 py-1 text-[8px] sm:text-[9px]"><span>{name(card.slug)}</span><span>{price(card.slug)}</span></p></article>)}</div><div class="sm:pl-3"><h2 class="font-display text-[clamp(2.5rem,4vw,5rem)] font-light leading-[.9] tracking-[-.055em]">Gafas duraderas, hechas para resistir el paso del tiempo.</h2><p class="mt-4 text-[9px] text-black/60">Forma eyewear · Barcelona</p></div></section>
+    <section id="historia" class="forma-band"><h2 class="forma-statement forma-statement--xl">Aquí tienes un dato hermoso. Tus ojos tienen diez capas. Ves a través de muchísimo.</h2></section>
 
-  <section class="grid grid-cols-2 gap-[2px] px-2"><figure><img src={`${root}/hero-generated.jpg`} alt="Detalle escultórico de una montura Forma" class="aspect-square w-full object-cover" loading="lazy"/><figcaption class="px-1 py-1 text-[8px] sm:text-[9px]">Acetato italiano · detalle</figcaption></figure><div class="flex aspect-square flex-col justify-between bg-[#e9e3d7] p-4 sm:p-8"><span class="h-7 w-7 rounded-full bg-[#d82f16]"></span><p class="max-w-[360px] self-end text-right text-[11px] sm:text-sm leading-relaxed">Crear algo verdaderamente único: una referencia silenciosa que permanece durante años.</p></div></section>
+    <section class="forma-pair forma-pair--reverse">
+      <div class="forma-grid">{optical.map((card) => (
+        <article class="forma-card"><a href={paths.product(card.slug)} aria-label={`Ver ${card.product.name}`}><span class="forma-card-media is-wide"><img class="forma-card-main" src={card.product.image} alt="" width="1200" height="1200" loading="lazy" /></span><span class="forma-caption"><span>{card.product.name}</span><span>↗</span></span></a></article>
+      ))}</div>
+      <div class="forma-sticky"><h2 class="forma-statement">Gafas duraderas, pensadas para acompañarte muchos años.</h2><p class="forma-meta">Forma eyewear · Barcelona</p></div>
+    </section>
 
-  <section class="grid px-2 py-16 sm:grid-cols-2 sm:py-24"><div class="flex items-end"><p class="max-w-[520px] font-display text-[clamp(2rem,3.6vw,4.5rem)] font-light leading-[.95] tracking-[-.04em]">Algunas marcas describen el diseño como “un toque”. Nosotros diseñamos todo lo demás.</p></div><figure class="mt-8 sm:mt-0"><img src={`${root}/workshop-generated.jpg`} alt="Trabajo artesanal sobre una montura" class="aspect-square w-full object-cover" loading="lazy"/><figcaption class="px-1 py-1 text-[8px] sm:text-[9px]">Manos, materia y precisión</figcaption></figure></section>
+    <section class="forma-duo">
+      <figure><img src={`${root}/hero-generated.webp`} alt="Detalle escultórico de una montura Forma" width="1800" height="1018" class="aspect-square w-full object-cover" loading="lazy" /><figcaption><span>Acetato · detalle</span></figcaption></figure>
+      <div class="forma-note forma-note--sand"><span class="forma-dot" aria-hidden="true"></span><p>Crear algo verdaderamente único: una referencia silenciosa que permanece durante años.</p></div>
+    </section>
 
-  <section class="grid gap-4 px-2 py-10 sm:grid-cols-[1.35fr_.65fr] sm:gap-1"><div class="grid grid-cols-2 gap-[2px]">{solarCards.map((card)=><article class="group relative bg-[#ededeb]"><img src={card.image} alt={card.alt} class="aspect-[1.3] w-full object-cover" loading="lazy"/><a href={paths.product(card.slug)} class="absolute inset-0" aria-label={`Ver ${name(card.slug)}`}></a><p class="flex justify-between px-1 py-1 text-[8px] sm:text-[9px]"><span>{name(card.slug)}</span><span>↗</span></p></article>)}</div><h2 class="font-display text-[clamp(2.5rem,4vw,5rem)] font-light leading-[.9] tracking-[-.055em] sm:pl-3">Preparadas para que brille el sol.</h2></section>
+    <section class="forma-quote"><p class="forma-statement">Algunas marcas describen el diseño como “un toque”. Nosotros diseñamos todo lo demás.</p><figure><img src={`${root}/workshop-generated.webp`} alt="Trabajo artesanal sobre una montura" width="1400" height="930" class="aspect-square w-full object-cover" loading="lazy" /><figcaption><span>Manos, materia y precisión</span></figcaption></figure></section>
 
-  <section class="grid grid-cols-2 gap-[2px] px-2 py-12"><figure><img src={`${root}/campaign-woman.jpg`} alt="Retrato de campaña Forma con montura negra" class="aspect-[4/3] w-full object-cover object-top" loading="lazy"/><figcaption class="px-1 py-1 text-[8px] sm:text-[9px]">Forma presenta · Black 02</figcaption></figure><figure><img src={`${root}/hero-generated.jpg`} alt="Campaña colectiva de Forma" class="aspect-[4/3] w-full object-cover grayscale" loading="lazy"/><figcaption class="px-1 py-1 text-[8px] sm:text-[9px]">Una mirada para cada historia</figcaption></figure></section>
+    <section class="forma-pair forma-pair--reverse">
+      <div class="forma-grid">
+        {solar.map((card) => (
+          <article class="forma-card"><a href={paths.product(card.slug)} aria-label={`Ver ${card.product.name}`}><span class="forma-card-media is-wide"><img class="forma-card-main" src={card.product.image} alt={card.alt} width="1200" height="1200" loading="lazy" style={vt(card.slug)} /></span><span class="forma-caption"><span>{card.product.name}</span><span>{formatEurCents(card.product.price_cents)}</span></span></a></article>
+        ))}
+        <figure class="forma-span"><img src={`${root}/hero-generated.webp`} alt="Campaña colectiva de Forma" width="1800" height="1018" class="aspect-[2.6] w-full object-cover grayscale" loading="lazy" /><figcaption><span>Una mirada para cada historia</span></figcaption></figure>
+      </div>
+      <div class="forma-sticky"><h2 class="forma-statement">Preparadas para que brille el sol.</h2><a class="forma-link" href={hrefFor('for-solares')}>Ver solares ↗</a></div>
+    </section>
 
-  <section class="grid gap-6 px-2 py-14 sm:grid-cols-[1.35fr_.65fr] sm:gap-1"><div class="grid grid-cols-2 gap-[2px]">{cards.slice(0,4).map((card)=><article class="relative bg-[#ededeb]"><img src={card.image} alt={card.alt} class="aspect-[1.4] w-full object-cover" loading="lazy"/><a href={paths.product(card.slug)} class="absolute inset-0" aria-label={`Ver ${name(card.slug)}`}></a><p class="px-1 py-1 text-[8px] sm:text-[9px]">{name(card.slug)} · ajuste incluido</p></article>)}</div><h2 class="font-display text-[clamp(2.5rem,4vw,5rem)] font-light leading-[.9] tracking-[-.055em] sm:pl-3">Nuestras promesas para ti</h2></section>
+    <section class="forma-duo">
+      <figure><img src={`${root}/campaign-woman.webp`} alt="Retrato de campaña Forma con la montura Black 02" width="1200" height="1608" class="aspect-[4/3] w-full object-cover object-[center_20%]" loading="lazy" /><figcaption><span>Forma presenta · Black 02</span></figcaption></figure>
+      <figure><img src={`${root}/portrait-woman.webp`} alt="Retrato de campaña Forma" width="1200" height="1358" class="aspect-[4/3] w-full object-cover object-top grayscale" loading="lazy" /><figcaption><span>Una mirada para cada historia</span></figcaption></figure>
+    </section>
 
-  <section id="taller" class="px-2 py-12"><figure><img src={`${root}/craft-detail.jpg`} alt="Artesano ajustando una montura Forma" class="aspect-[2.05] w-full object-cover" loading="lazy"/><figcaption class="flex justify-between px-1 py-1 text-[8px] sm:text-[9px]"><span>Monturas para toda la vida</span><span>Hechas a mano</span></figcaption></figure></section>
+    <section class="forma-pair forma-pair--reverse">
+      <div class="forma-grid">{optical.map((card) => (
+        <article class="forma-card"><a href={paths.product(card.slug)} aria-label={`Ver ${card.product.name}`}><span class="forma-card-media is-xwide"><img class="forma-card-main" src={card.product.image} alt="" width="1200" height="1200" loading="lazy" /></span><span class="forma-caption"><span>{card.product.name}</span><span>{formatEurCents(card.product.price_cents)}</span></span></a></article>
+      ))}</div>
+      <div class="forma-sticky"><h2 class="forma-statement">Elige la montura que te enmarca.</h2><a class="forma-link" href={hrefFor('for-opticas')}>Ver ópticas ↗</a></div>
+    </section>
 
-  <section class="grid grid-cols-2 gap-[2px] px-2 pb-16"><figure><img src={`${root}/workshop-generated.jpg`} alt="Interior del taller Forma" class="aspect-square w-full object-cover" loading="lazy"/><figcaption class="px-1 py-1 text-[8px] sm:text-[9px]">Nuestro taller · Barcelona</figcaption></figure><div class="flex aspect-square flex-col justify-between bg-[#c9878c] p-5 sm:p-8"><span class="text-[8px] uppercase tracking-[.1em]">Desde 2018</span><p class="max-w-[460px] self-end text-right font-display text-[clamp(2rem,3.4vw,4.25rem)] font-light leading-[.95] tracking-[-.04em]">Una marca construida alrededor de una mirada.</p></div></section>
+    <section id="taller" class="forma-full"><figure><img src={`${root}/craft-detail.webp`} alt="Artesano ajustando una montura Forma" width="1800" height="1196" class="forma-parallax aspect-[2.05] w-full object-cover" loading="lazy" /><figcaption><span>Detalle de taller</span><span>Oficio y paciencia</span></figcaption></figure></section>
 
-  <footer id="contacto" class="border-t border-black px-4 py-10 sm:px-6"><div class="grid gap-8 text-[8px] uppercase tracking-[.08em] sm:grid-cols-4"><div><p class="font-semibold">FORMA</p><p class="mt-8 normal-case text-black/60">Gafas diseñadas y ajustadas en Barcelona.</p></div><nav class="space-y-1"><a href="#catalogo" class="block min-h-6 py-1">Catálogo</a><a href="#historia" class="block min-h-6 py-1">Historias</a><a href="#taller" class="block min-h-6 py-1">Taller</a></nav><div><p>Visítanos</p><p class="mt-3 normal-case text-black/60">Carrer de la Mirada, 18<br/>Barcelona</p></div><div class="sm:text-right"><a href={paths.cart}>Carrito</a><p class="mt-8 normal-case text-black/60">© 2026 Forma · Privacidad</p></div></div></footer>
-</div></main>
-<style>.forma-shell{min-height:100vh}.forma-page{box-shadow:0 0 0 1px rgba(0,0,0,.06)}@media(max-width:639px){.forma-page{width:100%}}</style>
+    <section class="forma-duo forma-duo--end">
+      <figure><img src={`${root}/workshop-generated.webp`} alt="Interior del taller Forma" width="1400" height="930" class="aspect-square w-full object-cover" loading="lazy" /><figcaption><span>Nuestro taller · Barcelona</span></figcaption></figure>
+      <div class="forma-note forma-note--rose"><span class="forma-note-kicker">Forma · Barcelona</span><p class="forma-statement">Una marca construida alrededor de una mirada.</p></div>
+    </section>
+  </>) : (
+    <section id="catalogo" class="forma-results">
+      <div class="forma-results-head">
+        <p class="forma-meta">{products.length} {products.length === 1 ? 'montura' : 'monturas'}</p>
+        <h1 class="forma-statement">{search ? `Resultados para «${search}»` : activeLabel ?? 'Catálogo'}</h1>
+      </div>
+      <div class="forma-toolbar">
+        <nav class="forma-chips" aria-label="Familias">
+          <a href={hrefFor()} aria-current={!category ? 'page' : undefined}>Todo</a>
+          {collection.categories.map((item) => <a href={hrefFor(item.id)} aria-current={category === item.id ? 'page' : undefined}>{item.label}</a>)}
+        </nav>
+        <form method="get" action={`${paths.catalog}#catalogo`} role="search" class="forma-search">
+          {category && <input type="hidden" name="categoria" value={category} />}
+          <label class="sr-only" for="forma-q">Buscar monturas</label>
+          <input id="forma-q" type="search" name="q" value={search ?? ''} maxlength="60" placeholder="Buscar" />
+          <label class="sr-only" for="forma-sort">Ordenar</label>
+          <select id="forma-sort" name="orden">
+            <option value="featured" selected={sort === 'featured'}>Destacadas</option>
+            <option value="price-asc" selected={sort === 'price-asc'}>Precio ↑</option>
+            <option value="price-desc" selected={sort === 'price-desc'}>Precio ↓</option>
+            <option value="name" selected={sort === 'name'}>Nombre A–Z</option>
+          </select>
+          <button type="submit">Aplicar</button>
+        </form>
+      </div>
+      {products.length > 0 ? (
+        <div class="forma-grid forma-grid--full">{products.map((product) => (
+          <article class:list={['forma-card', portraits[product.slug] && 'has-portrait']}>
+            <a href={paths.product(product.slug)} aria-label={`Ver ${product.name}`}>
+              <span class="forma-card-media">
+                <img class="forma-card-main" src={product.image} alt={product.name} width="1200" height="1200" loading="lazy" style={vt(product.slug)} />
+                {portraits[product.slug] && <img class="forma-card-portrait" src={portraits[product.slug]!.src} alt="" width={portraits[product.slug]!.width} height={portraits[product.slug]!.height} loading="lazy" decoding="async" style={`object-position: ${portraits[product.slug]!.position};`} />}
+              </span>
+              <span class="forma-caption"><span>{product.name}</span><span>{formatEurCents(product.price_cents)}</span></span>
+            </a>
+          </article>
+        ))}</div>
+      ) : (
+        <div class="forma-empty"><p class="forma-statement">Ninguna montura coincide.</p><a class="forma-link" href={`${paths.catalog}#catalogo`}>Ver toda la colección ↗</a></div>
+      )}
+    </section>
+  )}
+
+  <footer id="contacto" class="forma-footer"><div><p class="forma-word">FORMA</p><p class="forma-muted">Estudio de gafas · Barcelona</p></div><nav aria-label="Pie FORMA"><a href={`${paths.catalog}#catalogo`}>Catálogo</a><a href={`${paths.catalog}#historia`}>Historias</a><a href={`${paths.catalog}#taller`}>Taller</a></nav><div><p>Visítanos</p><p class="forma-muted">Carrer de la Mirada, 18<br />Barcelona</p></div><div class="forma-footer-end"><a href={paths.cart}>Carrito</a><p class="forma-muted">© 2026 Forma</p></div></footer>
+</main>
+
+<script>
+  // Mejora progresiva: sin JS el botón «Aplicar» envía el formulario.
+  const sortSelect = document.getElementById('forma-sort');
+  if (sortSelect instanceof HTMLSelectElement) {
+    sortSelect.addEventListener('change', () => sortSelect.form?.requestSubmit());
+  }
+</script>
+
+<style>
+  /* Acentos propios del tema; el resto sale de los tokens del registro. */
+  .forma {
+    --forma-bg: var(--surface-sunken);
+    --forma-ink: var(--color-brand);
+    --forma-sand: #e9e3d7;
+    --forma-red: #d82f16;
+    --forma-rose: #c9878c;
+    --forma-ease: cubic-bezier(.2, .7, .2, 1);
+    display: block;
+    min-height: 100vh;
+    background: var(--forma-bg);
+    color: var(--forma-ink);
+  }
+  .forma a { color: inherit; }
+  .forma-header { position: relative; z-index: 10; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; min-height: 3.5rem; padding: .3rem clamp(1rem, 3vw, 2.5rem); font-family: var(--font-accent); font-size: .72rem; letter-spacing: .08em; text-transform: uppercase; }
+  .forma-word { justify-self: start; font-family: var(--font-display); font-weight: 600; letter-spacing: -.08em; text-transform: none; font-size: 1.05rem; }
+  .forma-header .forma-word { grid-column: 1; }
+  .forma-nav { grid-column: 2; gap: 1.6rem; }
+  .forma-nav a, .forma-cart, .forma-menu summary { display: inline-flex; min-height: 2.75rem; align-items: center; }
+  .forma-cart { grid-column: 3; justify-self: end; }
+  .forma-nav a, .forma-link, .forma-chips a { background: linear-gradient(currentColor, currentColor) 0 calc(100% - .65rem) / 0 1px no-repeat; transition: background-size .4s var(--forma-ease); }
+  .forma-nav a:hover, .forma-link:hover, .forma-chips a:hover, .forma-chips a[aria-current='page'] { background-size: 100% 1px; }
+  .forma-menu { grid-column: 1; }
+  .forma-menu + .forma-word { grid-column: 2; justify-self: center; }
+  .forma-menu summary { cursor: pointer; list-style: none; }
+  .forma-menu summary::-webkit-details-marker { display: none; }
+  .forma-menu nav { position: absolute; top: 100%; right: 0; left: 0; display: grid; padding: .5rem 1rem 1rem; background: var(--forma-bg); box-shadow: 0 20px 40px rgb(0 0 0 / 6%); }
+  .forma-menu nav a { display: flex; min-height: 3rem; align-items: center; border-top: 1px solid rgb(0 0 0 / 8%); font-family: var(--font-display); font-size: 1.8rem; font-weight: 300; letter-spacing: -.05em; text-transform: none; }
+
+  .forma figcaption, .forma-caption { display: flex; justify-content: space-between; gap: 1rem; padding: .45rem .25rem .6rem; font-family: var(--font-accent); font-size: .72rem; letter-spacing: .02em; }
+  .forma-duo { display: grid; grid-template-columns: 1fr 1fr; gap: var(--grid-gap); padding-inline: .5rem; }
+  .forma-duo--end { padding-bottom: 4rem; }
+  .forma-statement { font-family: var(--font-display); font-size: clamp(2.35rem, 3.6vw, 4.6rem); font-weight: 300; line-height: .92; letter-spacing: -.06em; }
+  .forma-statement--xl { max-width: 70rem; font-size: clamp(3rem, 5.4vw, 6.2rem); letter-spacing: -.07em; }
+  .forma-lede { max-width: 22rem; margin-top: 1.6rem; color: color-mix(in srgb, var(--forma-ink) 62%, transparent); font-size: .88rem; line-height: 1.6; }
+  .forma-meta { margin-top: 1.2rem; color: color-mix(in srgb, var(--forma-ink) 62%, transparent); font-family: var(--font-accent); font-size: .72rem; }
+  .forma-muted { margin-top: .8rem; color: color-mix(in srgb, var(--forma-ink) 62%, transparent); text-transform: none; }
+  .forma-link { display: inline-flex; min-height: 2.75rem; align-items: center; margin-top: 1.4rem; font-family: var(--font-accent); font-size: .75rem; letter-spacing: .06em; text-transform: uppercase; }
+
+  .forma-pair { display: grid; grid-template-columns: .68fr 1.32fr; align-items: start; gap: 1.5rem .25rem; padding: clamp(3.5rem, 7vw, 5.5rem) .5rem; }
+  .forma-pair--reverse { grid-template-columns: 1.32fr .68fr; }
+  /* El titular acompaña mientras la retícula pasa, como en la referencia. */
+  .forma-sticky { position: sticky; top: 2rem; padding-inline: .5rem 1rem; }
+  .forma-pair--reverse .forma-sticky { padding-left: 1rem; }
+  .forma-chips { display: flex; flex-wrap: wrap; gap: .2rem 1.1rem; margin-top: 2rem; font-family: var(--font-accent); font-size: .74rem; letter-spacing: .06em; text-transform: uppercase; }
+  .forma-chips a { display: inline-flex; min-height: 2.75rem; align-items: center; color: color-mix(in srgb, var(--forma-ink) 62%, transparent); }
+  .forma-chips a[aria-current='page'], .forma-chips a:hover { color: var(--forma-ink); }
+
+  .forma-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--grid-gap); }
+  .forma-grid--full { grid-template-columns: repeat(3, minmax(0, 1fr)); margin-top: 1.5rem; }
+  .forma-span { grid-column: 1 / -1; }
+  .forma-card a { display: block; }
+  .forma-card-media { position: relative; display: grid; overflow: hidden; background: var(--surface-product); }
+  .forma-card-media img { grid-area: 1 / 1; width: 100%; aspect-ratio: 1.2; object-fit: cover; }
+  .forma-card-media.is-wide img { aspect-ratio: 1.3; }
+  .forma-card-media.is-xwide img { aspect-ratio: 1.4; }
+  .forma-card-main { transition: transform 1s var(--forma-ease), opacity .6s ease; }
+  .forma-card-portrait { opacity: 0; transform: scale(1.08); transition: opacity .6s ease, transform 1.1s var(--forma-ease); }
+  .forma-card a:hover .forma-card-main, .forma-card a:focus-visible .forma-card-main { transform: scale(1.04); }
+  .forma-card.has-portrait a:hover .forma-card-main, .forma-card.has-portrait a:focus-visible .forma-card-main { opacity: 0; }
+  .forma-card.has-portrait a:hover .forma-card-portrait, .forma-card.has-portrait a:focus-visible .forma-card-portrait { opacity: 1; transform: scale(1); }
+  .forma-caption span:last-child { transition: transform .4s var(--forma-ease); }
+  .forma-card a:hover .forma-caption span:last-child { transform: translateX(-4px); }
+
+  .forma-band { padding: clamp(5rem, 10vw, 8rem) .75rem; border-block: 1px solid color-mix(in srgb, var(--forma-ink) 6%, transparent); }
+  .forma-note { display: flex; aspect-ratio: 1; flex-direction: column; justify-content: space-between; padding: clamp(1rem, 3vw, 2.2rem); }
+  .forma-note--sand { background: var(--forma-sand); }
+  .forma-note--rose { background: var(--forma-rose); }
+  .forma-note p:not(.forma-statement) { max-width: 22rem; align-self: flex-end; font-size: clamp(.85rem, 1.2vw, 1rem); line-height: 1.6; text-align: right; }
+  .forma-note .forma-statement { max-width: 28rem; align-self: flex-end; text-align: right; font-size: clamp(2rem, 3.4vw, 4.2rem); }
+  .forma-note-kicker { font-family: var(--font-accent); font-size: .72rem; letter-spacing: .08em; text-transform: uppercase; }
+  .forma-dot { width: 1.75rem; height: 1.75rem; border-radius: 50%; background: var(--forma-red); }
+  .forma-quote { display: grid; grid-template-columns: 1fr 1fr; align-items: end; gap: 2rem .25rem; padding: clamp(4rem, 8vw, 6rem) .5rem; }
+  .forma-quote .forma-statement { max-width: 32rem; padding-inline: .5rem; font-size: clamp(2rem, 3.6vw, 4.5rem); }
+  .forma-full { padding: 3rem .5rem; }
+  .forma-full figure { overflow: hidden; }
+
+  .forma-results { padding: clamp(2.5rem, 6vw, 4.5rem) .75rem 5rem; }
+  .forma-results-head { display: flex; flex-direction: column-reverse; gap: .5rem; padding-bottom: 1.5rem; border-bottom: 1px solid color-mix(in srgb, var(--forma-ink) 10%, transparent); }
+  .forma-toolbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1rem; border-bottom: 1px solid color-mix(in srgb, var(--forma-ink) 10%, transparent); }
+  .forma-toolbar .forma-chips { margin-top: 0; }
+  .forma-search { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; font-family: var(--font-accent); font-size: .74rem; }
+  .forma-search input, .forma-search select { min-height: 2.75rem; padding: 0 .9rem; border: 1px solid color-mix(in srgb, var(--forma-ink) 18%, transparent); border-radius: var(--radius-btn); background: transparent; color: inherit; font: inherit; }
+  .forma-search button { min-height: 2.75rem; padding: 0 1.1rem; border-radius: var(--radius-btn); background: var(--color-brand); color: var(--color-brand-fg); font: inherit; letter-spacing: .06em; text-transform: uppercase; }
+  .forma-empty { padding: 6rem 1rem; text-align: center; }
+  .forma-empty .forma-statement { font-size: clamp(2rem, 4vw, 3.4rem); }
+
+  .forma-footer { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 2rem; padding: 2.5rem clamp(1rem, 3vw, 2rem); border-top: 1px solid var(--forma-ink); font-family: var(--font-accent); font-size: .72rem; letter-spacing: .06em; text-transform: uppercase; }
+  .forma-footer nav { display: grid; }
+  .forma-footer nav a, .forma-footer-end a { display: inline-flex; min-height: 2.75rem; align-items: center; }
+  .forma-footer-end { text-align: right; }
+
+  @media (prefers-reduced-motion: no-preference) {
+    /* Solo transform: los titulares se asientan al entrar y el punto rojo y la
+       foto del taller se desplazan con el scroll. Nada se oculta. */
+    @supports (animation-timeline: view()) {
+      .forma-statement { animation: forma-rise linear both; animation-timeline: view(); animation-range: entry 0% cover 35%; }
+      .forma-dot { animation: forma-drift linear both; animation-timeline: view(); animation-range: cover 0% cover 100%; }
+      .forma-parallax { animation: forma-pan linear both; animation-timeline: view(); animation-range: cover 0% cover 100%; }
+    }
+  }
+  @keyframes forma-rise { from { transform: translateY(40px); } to { transform: none; } }
+  @keyframes forma-drift { from { transform: translate(0, 0); } to { transform: translate(4rem, 6rem); } }
+  @keyframes forma-pan { from { transform: scale(1.12) translateY(-4%); } to { transform: scale(1.12) translateY(4%); } }
+
+  @media (min-width: 640px) { .forma-menu + .forma-word { grid-column: 1; justify-self: start; } }
+  @media (max-width: 639px) {
+    .forma-pair, .forma-pair--reverse, .forma-quote { grid-template-columns: 1fr; }
+    .forma-pair--reverse .forma-sticky { order: -1; padding-left: .5rem; }
+    .forma-sticky { position: static; }
+    .forma-grid--full { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .forma-footer { grid-template-columns: 1fr 1fr; }
+    .forma-footer-end { text-align: left; }
+    .forma figcaption span + span { display: none; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .forma-card-main, .forma-card-portrait, .forma-caption span:last-child, .forma-nav a, .forma-link, .forma-chips a { transition: none; }
+  }
+</style>

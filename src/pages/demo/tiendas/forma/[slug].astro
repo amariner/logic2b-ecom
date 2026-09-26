@@ -15,7 +15,7 @@ const paths = storePaths(formaCollection.id);
 const related = getDemoRelated(product);
 ---
 
-<ProductPage collection={formaCollection} product={product} related={related} site={Astro.site}>
+<ProductPage collection={formaCollection} product={product} related={related} site={Astro.site} customPresentation>
   <FormaProductDetail
     slot="presentation"
     product={product}

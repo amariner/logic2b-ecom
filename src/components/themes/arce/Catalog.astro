@@ -8,6 +8,7 @@
  */
 import type { CollectionConfig, StorePaths } from '../../../collections';
 import { formatEurCents } from '../../../lib/format';
+import { shopConfig } from '../../../../shop.config';
 
 type Product = {
   slug: string;
@@ -42,6 +43,9 @@ const orderedProducts = displayOrder.flatMap((slug) => {
   const product = productBySlug.get(slug);
   return product ? [product] : [];
 });
+// Piezas fuera del orden editorial (una colección que crece) se añaden al
+// final en lugar de desaparecer de la tienda.
+const listed = [...orderedProducts, ...products.filter((product) => !displayOrder.includes(product.slug as (typeof displayOrder)[number]))];
 const recent = orderedProducts.slice(0, 3);
 const wide = orderedProducts.slice(3, 5);
 const featured = orderedProducts.slice(5, 8);
@@ -58,19 +62,41 @@ const images = {
   lamp: '/images/collections/arce/lamp-floor.webp',
 } as const;
 const activeCategory = category ?? '';
+// Con filtro o búsqueda la portada de campaña deja paso a una rejilla
+// uniforme: una sola tarjeta en una fila de tres parecía una página rota.
+const filtered = Boolean(activeCategory || search);
+const activeLabel = collection.categories.find((item) => item.id === activeCategory)?.label;
 
 const categoryHref = (id?: string): string =>
-  id ? `${paths.catalog}?categoria=${id}` : paths.catalog;
+  `${id ? `${paths.catalog}?categoria=${id}` : paths.catalog}#productos`;
+const vt = (slug: string): string => `view-transition-name: arce-${slug};`;
+const trust: [string, string][] = [
+  ['M4 20V9l8-5 8 5v11M9 20v-6h6v6', 'Roble y nogal macizos'],
+  ['M5 12h14M5 12l4-4M5 12l4 4', 'Envío 24/48 h a península'],
+  ['M4 12a8 8 0 1 0 2.4-5.7L4 8.5M4 4v4.5h4.5', 'Devolución en 14 días'],
+  ['M12 3 5 6v5.5c0 4 3 7.2 7 8.5 4-1.3 7-4.5 7-8.5V6l-7-3Z', 'Pago en pasarela segura'],
+  ['M4 7h16M4 12h16M4 17h10', 'Stock visible en cada pieza'],
+  ['M8 10a4 4 0 1 1 8 0c0 3-4 4-4 7M12 20h.01', 'Atención directa del estudio'],
+];
 ---
 
 <main class="arce bg-background text-foreground">
   <div class="arce-topbar flex min-h-8 items-center justify-between px-4 text-[9px] uppercase tracking-[0.11em] sm:px-7 lg:px-10">
-    <span>Envío gratuito a península desde 120 €</span>
+    <span>{shopConfig.legal.shippingNote}</span>
     <span class="hidden sm:inline">Diseñado para durar</span>
   </div>
 
   <header class="arce-header flex items-center justify-between gap-4 px-4 py-4 sm:px-7 lg:px-10">
-    <nav class="hidden flex-1 items-center gap-6 text-[10px] uppercase tracking-[0.12em] lg:flex" aria-label="Navegación principal">
+    <details class="arce-menu flex-1 lg:hidden">
+      <summary aria-label="Abrir menú"><span aria-hidden="true"></span>Menú</summary>
+      <nav aria-label="Navegación principal móvil">
+        <a href="#productos">Tienda</a>
+        <a href="#espacios">Espacios</a>
+        <a href="#journal">Journal</a>
+        <a href="#contacto">Contacto</a>
+      </nav>
+    </details>
+    <nav class="arce-nav hidden flex-1 items-center gap-6 text-[10px] uppercase tracking-[0.12em] lg:flex" aria-label="Navegación principal">
       <a href="#productos">Tienda</a>
       <a href="#espacios">Espacios</a>
       <a href="#journal">Journal</a>
@@ -78,7 +104,11 @@ const categoryHref = (id?: string): string =>
     </nav>
     <a href="#inicio" class="arce-mark shrink-0 font-display text-xl leading-none sm:text-2xl" aria-label={collection.name}>{collection.name}</a>
     <div class="flex flex-1 items-center justify-end gap-3 text-[10px] uppercase tracking-[0.1em]">
-      <a href="#productos" class="hidden sm:inline">Buscar</a>
+      <form method="get" action={`${paths.catalog}#productos`} role="search" class="arce-search hidden sm:flex">
+        <label class="sr-only" for="arce-q">Buscar en la colección</label>
+        <input id="arce-q" name="q" type="search" value={search ?? ''} placeholder="Buscar" autocomplete="off" />
+        <button type="submit" aria-label="Buscar"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="11" cy="11" r="6.5" /><path d="m16 16 4 4" /></svg></button>
+      </form>
       <a href={paths.cart} class="arce-cart inline-flex items-center gap-1.5" aria-label="Abrir carrito">
         <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M5 8.5h14l-1 12H6l-1-12Z"/><path d="M8.5 9V6.5a3.5 3.5 0 0 1 7 0V9"/></svg>
         <span>Bolsa <span data-arce-count>0</span></span>
@@ -93,9 +123,15 @@ const categoryHref = (id?: string): string =>
       <a href="#productos" class="arce-hero-link mt-8 inline-flex w-fit items-center gap-3 text-[10px] uppercase tracking-[0.12em]">Ver colección <span aria-hidden="true">↗</span></a>
     </div>
     <div class="relative min-h-[390px] overflow-hidden bg-[var(--surface-product)] sm:min-h-[500px] lg:min-h-[600px]">
-      <img src={images.hero} alt="Butaca de cuero coñac y roble macizo" width="1800" height="1013" class="h-full w-full object-cover object-center" loading="eager" />
-      <a href={heroProduct ? paths.product(heroProduct.slug) : '#productos'} class="absolute inset-0" aria-label={heroProduct ? `Ver ${heroProduct.name}` : 'Ver colección'}></a>
-      <span class="absolute bottom-4 right-5 bg-background px-3 py-2 text-[9px] uppercase tracking-[0.12em] text-foreground">01 / 04</span>
+      <img src={images.hero} alt="Butaca de cuero coñac y roble macizo" width="1800" height="1013" class="arce-hero-img h-full w-full object-cover" loading="eager" fetchpriority="high" />
+      <a href={heroProduct ? paths.product(heroProduct.slug) : '#productos'} class="arce-hero-hit absolute inset-0" aria-label={heroProduct ? `Ver ${heroProduct.name}` : 'Ver colección'}></a>
+      {heroProduct && (
+        <span class="arce-hero-tag" aria-hidden="true">
+          <span class="arce-hero-dot"></span>
+          <span><strong>{heroProduct.name}</strong><small>{formatEurCents(heroProduct.price_cents)}</small></span>
+          <span class="arce-hero-arrow">↗</span>
+        </span>
+      )}
     </div>
   </section>
 
@@ -111,17 +147,44 @@ const categoryHref = (id?: string): string =>
       </nav>
     </div>
 
-    {search && <p class="mt-5 text-sm text-muted-foreground">Resultados para «{search}»</p>}
-
+    {filtered ? (
+      <div class="arce-results">
+        <p class="arce-results-meta" aria-live="polite">
+          {search ? <>Resultados para «{search}»</> : activeLabel}
+          <span>{listed.length} {listed.length === 1 ? 'pieza' : 'piezas'}</span>
+        </p>
+        {listed.length > 0 ? (
+          <div class="mt-7 grid gap-[var(--grid-gap)] sm:grid-cols-2 lg:grid-cols-3">
+            {listed.map((product) => (
+              <article class="arce-product group relative bg-[var(--surface-product)]">
+                <a href={paths.product(product.slug)} class="block" aria-label={`Ver ${product.name}`}>
+                  <img src={product.image} alt="" width="800" height="800" loading="lazy" class="aspect-[1.04] w-full object-cover" style={vt(product.slug)} />
+                </a>
+                <div class="flex items-start justify-between gap-4 bg-background px-3 py-3">
+                  <div><h3 class="text-sm font-medium">{product.name}</h3><p class="mt-1 text-xs text-muted-foreground">{formatEurCents(product.price_cents)}</p></div>
+                  <button type="button" data-arce-add={product.slug} disabled={product.stock === 0} class="arce-add shrink-0 text-[10px] uppercase tracking-[0.1em]">{product.stock === 0 ? 'Agotado' : 'Añadir +'}</button>
+                </div>
+              </article>
+            ))}
+          </div>
+        ) : (
+          <div class="arce-empty">
+            <p class="font-display text-3xl tracking-[var(--tracking-display)]">Ninguna pieza coincide.</p>
+            <p class="mt-3 text-sm text-muted-foreground">Prueba con otra palabra o recorre la colección completa.</p>
+            <a href={categoryHref()} class="arce-underlined mt-6 inline-flex text-[10px] uppercase tracking-[0.12em]">Ver toda la colección</a>
+          </div>
+        )}
+      </div>
+    ) : (<>
     <div class="mt-7 grid gap-[var(--grid-gap)] md:grid-cols-3">
       {recent.map((product) => (
         <article class="arce-product group relative bg-[var(--surface-product)]">
           <a href={paths.product(product.slug)} class="block" aria-label={`Ver ${product.name}`}>
-            <img src={product.image} alt="" width="800" height="800" loading="lazy" class="aspect-[1.04] w-full object-cover transition duration-500 group-hover:scale-[1.025]" />
+            <img src={product.image} alt="" width="800" height="800" loading="lazy" class="aspect-[1.04] w-full object-cover" style={vt(product.slug)} />
           </a>
           <div class="flex items-start justify-between gap-4 bg-background px-3 py-3">
             <div><h3 class="text-sm font-medium">{product.name}</h3><p class="mt-1 text-xs text-muted-foreground">{formatEurCents(product.price_cents)}</p></div>
-            <button type="button" data-arce-add={product.slug} disabled={product.stock === 0} class="arce-add shrink-0 text-[9px] uppercase tracking-[0.1em] disabled:opacity-40">{product.stock === 0 ? 'Agotado' : 'Añadir +'}</button>
+            <button type="button" data-arce-add={product.slug} disabled={product.stock === 0} class="arce-add shrink-0 text-[10px] uppercase tracking-[0.1em]">{product.stock === 0 ? 'Agotado' : 'Añadir +'}</button>
           </div>
         </article>
       ))}
@@ -131,7 +194,7 @@ const categoryHref = (id?: string): string =>
       {wide.map((product, index) => (
         <article class="group relative overflow-hidden bg-[var(--surface-product)]">
           <a href={paths.product(product.slug)} class="block" aria-label={`Ver ${product.name}`}>
-            <img src={product.image} alt="" width="1200" height="850" loading="lazy" class="aspect-[1.32] w-full object-cover transition duration-500 group-hover:scale-[1.02]" />
+            <img src={product.image} alt="" width="1200" height="850" loading="lazy" class="arce-zoom aspect-[1.32] w-full object-cover" style={vt(product.slug)} />
           </a>
           <div class="absolute inset-x-0 bottom-0 flex items-end justify-between gap-4 bg-gradient-to-t from-black/55 to-transparent px-5 pb-5 pt-16 text-white">
             <div><p class="text-[9px] uppercase tracking-[0.13em] text-white/70">{index === 0 ? 'Nueva pieza' : 'Edición permanente'}</p><h3 class="mt-1 font-display text-3xl">{product.name}</h3></div>
@@ -140,11 +203,12 @@ const categoryHref = (id?: string): string =>
         </article>
       ))}
     </div>
+    </>)}
   </section>
 
   <section id="espacios" class="bg-[var(--surface-sunken)] px-4 py-14 sm:px-7 sm:py-20 lg:px-10">
     <div class="grid gap-8 lg:grid-cols-2 lg:gap-[var(--grid-gap)]">
-      <figure class="self-start overflow-hidden bg-background">
+      <figure class="arce-reveal self-start overflow-hidden bg-background">
         <img src={images.room} alt="Salón sereno con mobiliario de roble" width="1500" height="1125" loading="lazy" class="aspect-[1.08] w-full object-cover" />
       </figure>
       <div class="flex flex-col">
@@ -153,7 +217,7 @@ const categoryHref = (id?: string): string =>
           <h2 class="mt-3 max-w-xl font-display text-[clamp(2.8rem,4.5vw,5.2rem)] leading-[.87] tracking-[var(--tracking-display)]">Muebles esenciales para cada espacio.</h2>
           <p class="mt-6 max-w-md text-sm leading-relaxed text-muted-foreground">Piezas de madera, cuero y metal que dejan respirar una habitación. Diseñadas para durar y ganar carácter con el uso.</p>
         </div>
-        <figure class="relative overflow-hidden bg-background">
+        <figure class="arce-reveal relative overflow-hidden bg-background">
           <img src={images.media} alt="Mesa auxiliar de roble con equipo de sonido" width="1500" height="1125" loading="lazy" class="aspect-[1.38] w-full object-cover" />
           <a href={paths.product('arc-mesa-pilar')} class="absolute inset-0" aria-label="Ver Mesa Sonora"></a>
           <span class="absolute bottom-4 left-4 grid h-10 w-10 place-items-center rounded-full bg-background text-foreground" aria-hidden="true">↗</span>
@@ -164,86 +228,157 @@ const categoryHref = (id?: string): string =>
 
   <section class="border-y border-border px-4 sm:px-7 lg:px-10">
     <ul class="grid grid-cols-2 text-center sm:grid-cols-3 lg:grid-cols-6">
-      {[
-        ['⌁', 'Madera certificada'],
-        ['◌', 'Entrega cuidada'],
-        ['△', 'Montaje incluido'],
-        ['◇', 'Pago protegido'],
-        ['⌂', 'Garantía de oficio'],
-        ['↺', 'Devolución simple'],
-      ].map(([icon, label]) => (
-        <li class="border-b border-border px-3 py-8 even:border-l sm:border-b-0 sm:border-l sm:first:border-l-0">
-          <span class="text-xl" aria-hidden="true">{icon}</span>
-          <p class="mt-3 text-[9px] uppercase tracking-[0.11em]">{label}</p>
+      {trust.map(([icon, label]) => (
+        <li class="arce-trust border-b border-border px-3 py-8 even:border-l sm:border-b-0 sm:border-l sm:first:border-l-0">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d={icon} /></svg>
+          <p class="mt-3 text-[10px] uppercase tracking-[0.11em]">{label}</p>
         </li>
       ))}
     </ul>
   </section>
 
-  <section class="px-4 py-14 sm:px-7 sm:py-20 lg:px-10">
+  {!filtered && <section class="px-4 py-14 sm:px-7 sm:py-20 lg:px-10">
     <div class="flex items-end justify-between border-b border-border pb-5"><div><p class="text-[10px] uppercase tracking-[0.14em] text-muted-foreground">Selección de estudio</p><h2 class="mt-2 font-display text-4xl tracking-[var(--tracking-display)] sm:text-5xl">Productos destacados</h2></div><a href={paths.catalog} class="arce-underlined hidden text-[10px] uppercase tracking-[0.12em] sm:block">Ver todo</a></div>
     <div class="mt-7 grid gap-[var(--grid-gap)] sm:grid-cols-3">
       {featured.map((product) => (
         <article class="group relative">
-          <a href={paths.product(product.slug)} class="block overflow-hidden bg-[var(--surface-product)]" aria-label={`Ver ${product.name}`}><img src={product.image} alt="" width="800" height="800" loading="lazy" class="aspect-square w-full object-cover transition duration-500 group-hover:scale-[1.025]" /></a>
-          <div class="flex justify-between gap-4 py-3"><div><h3 class="text-sm">{product.name}</h3><p class="mt-1 text-xs text-muted-foreground">{formatEurCents(product.price_cents)}</p></div><button type="button" data-arce-add={product.slug} class="arce-add text-[9px] uppercase tracking-[0.1em]">Añadir +</button></div>
+          <a href={paths.product(product.slug)} class="arce-product block overflow-hidden bg-[var(--surface-product)]" aria-label={`Ver ${product.name}`}><img src={product.image} alt="" width="800" height="800" loading="lazy" class="aspect-square w-full object-cover" style={vt(product.slug)} /></a>
+          <div class="flex justify-between gap-4 py-3"><div><h3 class="text-sm">{product.name}</h3><p class="mt-1 text-xs text-muted-foreground">{formatEurCents(product.price_cents)}</p></div><button type="button" data-arce-add={product.slug} disabled={product.stock === 0} class="arce-add text-[10px] uppercase tracking-[0.1em]">{product.stock === 0 ? 'Agotado' : 'Añadir +'}</button></div>
         </article>
       ))}
     </div>
-  </section>
+  </section>}
 
   <section class="relative isolate overflow-hidden bg-foreground px-5 py-20 text-background sm:px-10 sm:py-28">
     <img src={images.newsletter} alt="" width="1800" height="1013" loading="lazy" class="absolute inset-0 -z-20 h-full w-full object-cover" />
     <div class="absolute inset-0 -z-10 bg-foreground/55"></div>
-    <div class="mx-auto max-w-2xl text-center"><p class="text-[10px] uppercase tracking-[0.16em] text-background/70">Correspondencia de Arce</p><h2 class="mt-4 font-display text-[clamp(2.7rem,5vw,5rem)] leading-[.9] tracking-[var(--tracking-display)]">Novedades, piezas y hogares que nos inspiran.</h2><form class="mx-auto mt-9 flex max-w-xl flex-col gap-2 sm:flex-row"><label class="sr-only" for="arce-email">Tu email</label><input id="arce-email" type="email" required placeholder="Tu dirección de email" class="min-h-12 flex-1 border border-background/40 bg-background px-4 text-sm text-foreground outline-none placeholder:text-muted-foreground focus:border-background"/><button class="min-h-12 bg-background px-6 text-[10px] font-medium uppercase tracking-[0.12em] text-foreground">Suscribirme</button></form></div>
+    <div class="mx-auto max-w-2xl text-center"><p class="text-[10px] uppercase tracking-[0.16em] text-background/70">Correspondencia de Arce</p><h2 class="mt-4 font-display text-[clamp(2.7rem,5vw,5rem)] leading-[.9] tracking-[var(--tracking-display)]">Novedades, piezas y hogares que nos inspiran.</h2><form method="post" data-arce-newsletter class="mx-auto mt-9 flex max-w-xl flex-col gap-2 sm:flex-row"><label class="sr-only" for="arce-email">Tu email</label><input id="arce-email" type="email" required placeholder="Tu dirección de email" class="min-h-12 flex-1 border border-background/40 bg-background px-4 text-sm text-foreground outline-none placeholder:text-muted-foreground focus:border-background"/><button class="arce-subscribe min-h-12 bg-background px-6 text-[10px] font-medium uppercase tracking-[0.12em] text-foreground">Suscribirme</button></form><p data-arce-newsletter-status role="status" class="mt-4 min-h-5 text-xs text-background/80"></p></div>
   </section>
 
   <section id="journal" class="px-4 py-14 sm:px-7 sm:py-20 lg:px-10">
     <div class="border-b border-border pb-5"><p class="text-[10px] uppercase tracking-[0.14em] text-muted-foreground">Journal</p><h2 class="mt-2 font-display text-4xl tracking-[var(--tracking-display)] sm:text-5xl">Ideas para habitar</h2></div>
     <div class="mt-7 grid gap-7 lg:grid-cols-[1fr_1fr_.9fr]">
       {[
-        { image: images.table, title: 'Cómo elegir una mesa que permanezca', meta: 'Materiales · 6 min' },
-        { image: images.tableSculptural, title: 'Una casa con menos, pero mejor', meta: 'Espacios · 4 min' },
+        { image: images.table, title: 'Cómo elegir una mesa que permanezca', meta: 'Materiales · Mesa Horizonte', href: paths.product('arc-mesa-horizonte') },
+        { image: images.tableSculptural, title: 'Una casa con menos, pero mejor', meta: 'Espacios · Mesa Nexo', href: paths.product('arc-manta-ur') },
       ].map((entry) => (
-        <article class="group"><a href="#contacto" aria-label={`Leer ${entry.title}`} class="block overflow-hidden bg-[var(--surface-product)]"><img src={entry.image} alt="" width="800" height="550" loading="lazy" class="aspect-[1.35] w-full object-cover transition duration-500 group-hover:scale-[1.025]" /></a><p class="mt-4 text-[9px] uppercase tracking-[0.13em] text-muted-foreground">{entry.meta}</p><h3 class="mt-2 font-display text-2xl leading-[.95] tracking-[var(--tracking-display)]"><a href="#contacto">{entry.title}</a></h3><a href="#contacto" class="arce-underlined mt-4 inline-block text-[10px] uppercase tracking-[0.11em]">Leer artículo</a></article>
+        <article class="group"><a href={entry.href} aria-label={`Ver la pieza de «${entry.title}»`} class="arce-product block overflow-hidden bg-[var(--surface-product)]"><img src={entry.image} alt="" width="800" height="550" loading="lazy" class="aspect-[1.35] w-full object-cover" /></a><p class="mt-4 text-[10px] uppercase tracking-[0.13em] text-muted-foreground">{entry.meta}</p><h3 class="mt-2 font-display text-2xl leading-[.95] tracking-[var(--tracking-display)]"><a href={entry.href}>{entry.title}</a></h3><a href={entry.href} class="arce-underlined mt-4 inline-block text-[10px] uppercase tracking-[0.11em]">Ver la pieza</a></article>
       ))}
       <div class="divide-y divide-border border-y border-border">
         {[
-          { image: images.room, title: 'La proporción de una butaca', meta: 'Diseño · 3 min' },
-          { image: images.media, title: 'Objetos que ordenan el salón', meta: 'Consejos · 5 min' },
-          { image: images.lamp, title: 'La luz también es un mueble', meta: 'Cuaderno · 5 min' },
+          { image: images.room, title: 'La proporción de una butaca', meta: 'Diseño · Butaca Nube', href: paths.product('arc-sofa-nido') },
+          { image: images.media, title: 'Objetos que ordenan el salón', meta: 'Consejos · Mesa Sonora', href: paths.product('arc-mesa-pilar') },
+          { image: images.lamp, title: 'La luz también es un mueble', meta: 'Cuaderno · Lámpara Vela', href: paths.product('arc-lampara-vela') },
         ].map((entry) => (
           <article class="grid grid-cols-[7rem_1fr] gap-4 py-4 first:pt-0 last:pb-0">
-            <a href="#contacto" aria-label={`Leer ${entry.title}`} class="overflow-hidden bg-[var(--surface-product)]"><img src={entry.image} alt="" width="240" height="180" loading="lazy" class="aspect-[1.25] h-full w-full object-cover" /></a>
-            <div><p class="text-[8px] uppercase tracking-[0.12em] text-muted-foreground">{entry.meta}</p><h3 class="mt-2 font-display text-xl leading-[.95] tracking-[var(--tracking-display)]"><a href="#contacto">{entry.title}</a></h3></div>
+            <a href={entry.href} aria-label={`Ver la pieza de «${entry.title}»`} class="arce-product overflow-hidden bg-[var(--surface-product)]"><img src={entry.image} alt="" width="240" height="180" loading="lazy" class="aspect-[1.25] h-full w-full object-cover" /></a>
+            <div><p class="text-[10px] uppercase tracking-[0.12em] text-muted-foreground">{entry.meta}</p><h3 class="mt-2 font-display text-xl leading-[.95] tracking-[var(--tracking-display)]"><a href={entry.href}>{entry.title}</a></h3></div>
           </article>
         ))}
       </div>
     </div>
   </section>
 
-  <section class="border-y border-border bg-[var(--surface-sunken)] px-4 py-10 sm:px-7 lg:px-10"><div class="flex items-center justify-between gap-5"><h2 class="font-display text-3xl tracking-[var(--tracking-display)]">@arce.objetos</h2><a href="#contacto" class="arce-underlined text-[10px] uppercase tracking-[0.12em]">Seguir el estudio</a></div><div class="mt-7 grid grid-cols-3 gap-[var(--grid-gap)] sm:grid-cols-6">{[images.hero, images.chairOak, images.chairWalnut, images.tableSculptural, images.media, images.room].map((image) => <img src={image} alt="" width="500" height="500" loading="lazy" class="aspect-square w-full object-cover" />)}</div></section>
+  <section class="border-y border-border bg-[var(--surface-sunken)] px-4 py-10 sm:px-7 lg:px-10"><div class="flex items-center justify-between gap-5"><h2 class="font-display text-3xl tracking-[var(--tracking-display)]">@arce.objetos</h2><a href="#contacto" class="arce-underlined text-[10px] uppercase tracking-[0.12em]">Seguir el estudio</a></div><div class="arce-marquee mt-7"><div class="arce-marquee-track">{[0, 1].map((copy) => <ul class="arce-marquee-set" aria-hidden={copy === 1 ? 'true' : undefined}>{[images.hero, images.chairOak, images.chairWalnut, images.tableSculptural, images.lamp, images.newsletter].map((image) => <li><img src={image} alt="" width="500" height="500" loading="lazy" class="aspect-square w-full object-cover" /></li>)}</ul>)}</div></div></section>
 
-  <footer id="contacto" class="bg-background px-4 py-12 sm:px-7 lg:px-10"><div class="grid gap-9 border-b border-border pb-10 sm:grid-cols-2 lg:grid-cols-4"><div><a href="#inicio" class="font-display text-4xl tracking-[var(--tracking-display)]">ARCE</a><p class="mt-4 max-w-xs text-sm leading-relaxed text-muted-foreground">Mobiliario contemporáneo para casas que se viven con tiempo.</p></div><div class="text-[10px] uppercase tracking-[0.11em]"><p class="text-muted-foreground">Contacto</p><a href="mailto:hola@arce.studio" class="mt-4 block normal-case">hola@arce.studio</a><p class="mt-3 normal-case text-muted-foreground">Valencia · España</p></div><nav class="text-[10px] uppercase tracking-[0.11em]"><p class="text-muted-foreground">Otras páginas</p><a href="#productos" class="mt-4 block">Tienda</a><a href="#journal" class="mt-3 block">Journal</a><a href="/temas" class="mt-3 block">Otros temas</a></nav><nav class="text-[10px] uppercase tracking-[0.11em]"><p class="text-muted-foreground">Esencial</p><a href={paths.cart} class="mt-4 block">Bolsa <span data-arce-count>0</span></a><a href="/demo/admin" class="mt-3 block">Gestor tienda</a><a href="#contacto" class="mt-3 block">Privacidad</a></nav></div><div class="flex flex-col justify-between gap-3 pt-5 text-[9px] uppercase tracking-[0.1em] text-muted-foreground sm:flex-row"><span>© 2026 Arce Studio</span><span>Hecho para durar</span></div></footer>
+  <footer id="contacto" class="bg-background px-4 py-12 sm:px-7 lg:px-10"><div class="grid gap-9 border-b border-border pb-10 sm:grid-cols-2 lg:grid-cols-4"><div><a href="#inicio" class="font-display text-4xl tracking-[var(--tracking-display)]">ARCE</a><p class="mt-4 max-w-xs text-sm leading-relaxed text-muted-foreground">Mobiliario contemporáneo para casas que se viven con tiempo.</p></div><div class="text-[10px] uppercase tracking-[0.11em]"><p class="text-muted-foreground">Contacto</p><a href="mailto:hola@arce.studio" class="mt-4 block normal-case">hola@arce.studio</a><p class="mt-3 normal-case text-muted-foreground">Valencia · España</p></div><nav class="text-[10px] uppercase tracking-[0.11em]"><p class="text-muted-foreground">Otras páginas</p><a href="#productos" class="mt-4 block">Tienda</a><a href="#journal" class="mt-3 block">Journal</a><a href="/temas" class="mt-3 block">Otros temas</a></nav><nav class="text-[10px] uppercase tracking-[0.11em]"><p class="text-muted-foreground">Esencial</p><a href={paths.cart} class="mt-4 block">Bolsa <span data-arce-count>0</span></a><a href="/demo/admin" class="mt-3 block">Gestor tienda</a></nav></div><div class="flex flex-col justify-between gap-3 pt-5 text-[9px] uppercase tracking-[0.1em] text-muted-foreground sm:flex-row"><span>© 2026 Arce Studio</span><span>Hecho para durar</span></div></footer>
 </main>
 
 <style>
-  .arce { overflow: clip; }
+  .arce { overflow: clip; --arce-ease: cubic-bezier(.2, .7, .2, 1); }
   .arce-topbar { background: var(--surface-sunken); color: var(--color-muted-foreground); }
-  .arce-header { border-bottom: var(--border-width) solid var(--color-border); }
-  .arce-header a, .arce-categories a { transition: opacity .2s ease; }
-  .arce-header a:hover, .arce-categories a:hover { opacity: .55; }
-  .arce-categories a { display: inline-flex; min-height: 2.75rem; align-items: center; }
+  .arce-header { position: relative; z-index: 10; border-bottom: var(--border-width) solid var(--color-border); }
   .arce-mark { letter-spacing: -.08em; }
-  .arce-cart { border-bottom: 1px solid currentColor; padding-bottom: .2rem; }
-  .arce-hero-link, .arce-underlined { border-bottom: 1px solid currentColor; padding-bottom: .35rem; transition: opacity .2s ease; }
-  .arce-hero-link:hover, .arce-underlined:hover { opacity: .55; }
+
+  /* Subrayado que crece de izquierda a derecha: el gesto editorial de ARCE. */
+  .arce-nav a, .arce-categories a, .arce-hero-link, .arce-underlined, .arce-add, .arce-cart { position: relative; }
+  .arce-nav a::after, .arce-categories a::after, .arce-hero-link::after, .arce-underlined::after, .arce-add::after, .arce-cart::after {
+    position: absolute; right: 0; bottom: -.15rem; left: 0; height: 1px; background: currentColor; content: '';
+    transform: scaleX(0); transform-origin: right; transition: transform .45s var(--arce-ease);
+  }
+  .arce-hero-link, .arce-underlined, .arce-add, .arce-cart { padding-bottom: .3rem; }
+  .arce-hero-link::after, .arce-underlined::after, .arce-add::after, .arce-cart::after { transform: scaleX(1); }
+  .arce-nav a:hover::after, .arce-categories a:hover::after, .arce-categories a[aria-current='page']::after { transform: scaleX(1); transform-origin: left; }
+  .arce-hero-link:hover::after, .arce-underlined:hover::after, .arce-add:hover::after, .arce-cart:hover::after { animation: arce-reline .6s var(--arce-ease); }
+  @keyframes arce-reline { 0% { transform: scaleX(1); transform-origin: right; } 49% { transform: scaleX(0); transform-origin: right; } 50% { transform-origin: left; } 100% { transform: scaleX(1); transform-origin: left; } }
+
+  .arce-categories a { display: inline-flex; min-height: 2.75rem; align-items: center; }
   .arce-categories a[aria-current='page'] { color: var(--color-foreground); font-weight: 700; }
   .arce-categories a:not([aria-current='page']) { color: var(--color-muted-foreground); }
-  .arce-add { border-bottom: 1px solid currentColor; padding-bottom: .2rem; }
-  .arce-add:hover { opacity: .55; }
-  .arce-product img, .arce-product { overflow: hidden; }
-  @media (max-width: 639px) { .arce-hero-link { margin-top: 2rem; } }
+  .arce-categories a:not([aria-current='page']):hover { color: var(--color-foreground); }
+
+  /* Objetivo táctil de 44 px sin engordar el gesto visual. */
+  .arce-add { display: inline-flex; min-height: 2.75rem; min-width: 2.75rem; align-items: center; justify-content: flex-end; }
+  .arce-add::after { bottom: .55rem; }
+  .arce-add:disabled { color: var(--color-muted-foreground); cursor: not-allowed; }
+  .arce-add:disabled::after { display: none; }
+
+  .arce-product, .arce-zoom { overflow: hidden; }
+  .arce-product img, .arce-zoom { transition: transform 1s var(--arce-ease); }
+  .arce-product:hover img, .group:hover .arce-zoom { transform: scale(1.035); }
+
+  .arce-menu summary { display: inline-flex; min-height: 2.75rem; align-items: center; gap: .55rem; cursor: pointer; list-style: none; font-size: 10px; letter-spacing: .12em; text-transform: uppercase; }
+  .arce-menu summary::-webkit-details-marker { display: none; }
+  .arce-menu summary > span { position: relative; width: 1rem; height: 1px; background: currentColor; box-shadow: 0 -4px 0 currentColor, 0 4px 0 currentColor; }
+  .arce-menu nav { position: absolute; top: 100%; right: 0; left: 0; display: grid; padding: .5rem 1rem 1rem; border-bottom: var(--border-width) solid var(--color-border); background: var(--color-background); }
+  .arce-menu nav a { display: flex; min-height: 3rem; align-items: center; border-top: var(--border-width) solid var(--color-border); font-family: var(--font-display); font-size: 1.6rem; letter-spacing: var(--tracking-display); }
+  /* Buscador siempre visible: un campo compacto con filete, no un desplegable. */
+  .arce-search { align-items: center; gap: .3rem; min-height: 2.75rem; border-bottom: 1px solid var(--color-border); transition: border-color .3s ease; }
+  .arce-search:focus-within { border-color: var(--color-foreground); }
+  .arce-search input { width: 7.5rem; min-height: 2.4rem; padding: 0 .2rem; background: transparent; color: var(--color-foreground); font-size: 10px; letter-spacing: .1em; text-transform: uppercase; outline: none; }
+  .arce-search input:focus { outline: 2px solid var(--color-foreground); outline-offset: 2px; }
+  .arce-search input::placeholder { color: var(--color-muted-foreground); }
+  .arce-search button { display: grid; width: 2.75rem; height: 2.75rem; place-items: center; }
+
+  .arce-hero-img { object-position: 30% center; }
+  .arce-hero-tag {
+    position: absolute; right: 1.25rem; bottom: 1.25rem; display: flex; align-items: center; gap: .8rem;
+    padding: .7rem .9rem; background: var(--color-background); color: var(--color-foreground); pointer-events: none;
+    transition: transform .5s var(--arce-ease);
+  }
+  .arce-hero-tag strong { display: block; font-family: var(--font-display); font-size: 1.05rem; font-weight: 400; letter-spacing: var(--tracking-display); }
+  .arce-hero-tag small { display: block; margin-top: .1rem; color: var(--color-muted-foreground); font-size: .72rem; }
+  .arce-hero-dot { position: relative; width: .55rem; height: .55rem; border-radius: 50%; background: var(--color-foreground); }
+  .arce-hero-arrow { transition: transform .5s var(--arce-ease); }
+  .arce-hero-hit:hover ~ .arce-hero-tag { transform: translateY(-4px); }
+  .arce-hero-hit:hover ~ .arce-hero-tag .arce-hero-arrow { transform: translate(3px, -3px); }
+
+  .arce-results-meta { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; margin-top: 1.6rem; font-family: var(--font-display); font-size: 1.6rem; letter-spacing: var(--tracking-display); }
+  .arce-results-meta span { color: var(--color-muted-foreground); font-family: var(--font-accent); font-size: .72rem; letter-spacing: .12em; text-transform: uppercase; }
+  .arce-empty { margin-top: 2rem; padding: 4rem 1.5rem; border: var(--border-width) dashed var(--color-border); text-align: center; }
+
+  .arce-trust svg { margin-inline: auto; transition: transform .5s var(--arce-ease); }
+  .arce-trust:hover svg { transform: translateY(-3px); }
+
+  .arce-marquee { overflow: hidden; -webkit-mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent); mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent); }
+  .arce-marquee-track { display: flex; width: max-content; }
+  .arce-marquee-set { display: flex; gap: var(--grid-gap); padding-right: var(--grid-gap); }
+  .arce-marquee-set li { width: clamp(8rem, 16vw, 14rem); }
+  .arce-subscribe { transition: background-color .25s ease, color .25s ease; }
+  .arce-subscribe:hover { background: var(--color-foreground); color: var(--color-background); box-shadow: inset 0 0 0 1px var(--color-background); }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .arce-marquee-track { animation: arce-marquee 48s linear infinite; }
+    .arce-marquee:hover .arce-marquee-track, .arce-marquee:focus-within .arce-marquee-track { animation-play-state: paused; }
+    .arce-hero-dot::after { position: absolute; inset: -.3rem; border-radius: 50%; background: currentColor; content: ''; opacity: .25; animation: arce-ping 2.4s var(--arce-ease) infinite; }
+    /* Movimiento ligado al scroll, solo transform: el contenido nunca se oculta. */
+    @supports (animation-timeline: view()) {
+      .arce-hero-img { animation: arce-drift linear both; animation-timeline: view(); animation-range: exit 0% exit 100%; }
+      .arce-reveal img { animation: arce-settle linear both; animation-timeline: view(); animation-range: entry 0% cover 45%; }
+    }
+  }
+  @keyframes arce-marquee { to { transform: translateX(-50%); } }
+  @keyframes arce-ping { 0% { transform: scale(.6); opacity: .4; } 80%, 100% { transform: scale(2.4); opacity: 0; } }
+  @keyframes arce-drift { to { transform: scale(1.08) translateY(4%); } }
+  @keyframes arce-settle { from { transform: scale(1.12); } to { transform: scale(1); } }
+  @media (max-width: 639px) {
+    .arce-hero-link { margin-top: 2rem; }
+    .arce-hero-tag { right: .8rem; bottom: .8rem; padding: .55rem .7rem; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .arce-nav a::after, .arce-categories a::after, .arce-product img, .arce-zoom, .arce-hero-tag, .arce-trust svg { transition: none; }
+    .arce-hero-link:hover::after, .arce-underlined:hover::after, .arce-add:hover::after, .arce-cart:hover::after { animation: none; }
+  }
 </style>
 
 <script>
@@ -256,6 +391,15 @@ const categoryHref = (id?: string): string =>
   };
   renderCount();
   document.addEventListener('cart:changed', renderCount);
+
+  // Newsletter de demostración: confirma en pantalla sin enviar ningún dato.
+  const newsletter = document.querySelector<HTMLFormElement>('[data-arce-newsletter]');
+  const newsletterStatus = document.querySelector<HTMLElement>('[data-arce-newsletter-status]');
+  newsletter?.addEventListener('submit', (event) => {
+    event.preventDefault();
+    if (newsletterStatus) newsletterStatus.textContent = 'Gracias. En esta demo no se envía ni se guarda ningún email.';
+    newsletter.reset();
+  });
 
   document.querySelectorAll<HTMLButtonElement>('[data-arce-add]').forEach((button) => {
     button.addEventListener('click', () => {

@@ -1,6 +1,14 @@
 ---
+/**
+ * FORMA · Ficha de producto.
+ *
+ * Montura grande sobre hueso, retrato de campaña cuando la montura aparece
+ * puesta en una foto real y una columna de datos que acompaña al scroll.
+ * La cabecera es la común de la tienda; la compra usa los hooks del contrato.
+ */
 import { parseSpecs, type ProductRow } from '../../../lib/db';
 import { formatEurCents } from '../../../lib/format';
+import { shopConfig } from '../../../../shop.config';
 
 interface Props {
   product: ProductRow;
@@ -11,57 +19,92 @@ interface Props {
 
 const { product, categoryLabel, catalogPath, cartPath } = Astro.props;
 const specs = parseSpecs(product.specs_json);
+const portraits: Record<string, { src: string; alt: string; width: number; height: number; position: string }> = {
+  'for-black-02': { src: '/images/collections/forma/campaign-woman.webp', alt: 'Retrato de campaña con la montura Black 02', width: 1200, height: 1608, position: 'center 22%' },
+  'for-clear-01': { src: '/images/collections/forma/portrait-man.webp', alt: 'Retrato de campaña con la montura Clear 01', width: 1200, height: 1608, position: 'center 10%' },
+};
+const portrait = portraits[product.slug];
 ---
 
-<header class="flex items-center justify-between border-b border-black/10 bg-[#f7f7f5] px-5 py-5 text-[#111] md:px-10">
-  <a href={catalogPath} class="text-xl font-medium tracking-[-.06em]">Forma</a>
-  <nav class="flex items-center gap-5 text-[10px] uppercase tracking-[.12em]" aria-label="Compra">
-    <a href={catalogPath}>Catálogo</a>
-    <a href={cartPath} class="rounded-full border border-black px-4 py-2">Carrito <span data-cart-count>0</span></a>
-  </nav>
-</header>
-
-<article class="grid min-h-[calc(100vh-80px)] bg-white text-[#111] md:grid-cols-[1.15fr_.85fr]">
-  <div class="flex min-h-[58vh] items-center justify-center bg-[#e9e9e5] p-5 sm:p-10 md:min-h-0 md:p-16" data-commerce-part="media">
-    <img src={product.image} alt={product.name} width="1200" height="1200" loading="eager" decoding="async" class="aspect-square max-h-[78vh] w-full object-contain" />
+<article class="forma-pdp">
+  <div class="forma-pdp-media" data-commerce-part="media">
+    <figure class="forma-pdp-frame">
+      <img src={product.image} alt={product.name} width="1200" height="1200" loading="eager" fetchpriority="high" decoding="async" style={`view-transition-name: forma-${product.slug};`} />
+    </figure>
+    {portrait && (
+      <figure class="forma-pdp-portrait">
+        <img src={portrait.src} alt={portrait.alt} width={portrait.width} height={portrait.height} loading="lazy" decoding="async" style={`object-position: ${portrait.position};`} />
+        <figcaption>Así se ve puesta · {product.name}</figcaption>
+      </figure>
+    )}
   </div>
-  <div class="flex flex-col justify-between p-7 md:p-14" data-commerce-part="details">
-    <div>
-      <p class="text-[9px] uppercase tracking-[.18em] text-black/60">{categoryLabel} / FORMA</p>
-      <h1 class="mt-6 font-display text-6xl font-light leading-[.82] tracking-[-.075em] md:text-8xl">{product.name}</h1>
-      <p class="mt-6 text-xl">{formatEurCents(product.price_cents)}</p>
-      <p class="mt-10 max-w-md text-sm leading-relaxed text-black/60">{product.description}</p>
+  <div class="forma-pdp-details" data-commerce-part="details">
+    <div class="forma-pdp-sticky">
+      <nav class="forma-pdp-crumbs" aria-label="Migas de pan"><a href={catalogPath}>Forma</a><span aria-hidden="true">/</span><a href={`${catalogPath}?categoria=${product.category}#catalogo`}>{categoryLabel}</a></nav>
+      <h1>{product.name}</h1>
+      <p class="forma-pdp-price">{formatEurCents(product.price_cents)}</p>
+      <p class="forma-pdp-desc">{product.description}</p>
       {specs.length > 0 && (
-        <dl class="mt-10 divide-y divide-black/10 border-y border-black/10 text-sm">
-          {specs.map(({ label, value }) => <div class="flex justify-between gap-5 py-3"><dt class="text-black/60">{label}</dt><dd class="text-right">{value}</dd></div>)}
+        <dl class="forma-pdp-specs">
+          {specs.map(({ label, value }) => <div><dt>{label}</dt><dd>{value}</dd></div>)}
         </dl>
       )}
-    </div>
-    <div class="mt-10" data-commerce-part="purchase">
-      {product.stock > 0 ? (
-        <div class="flex items-stretch gap-2">
-          <label class="sr-only" for="forma-qty">Cantidad</label>
-          <input
-            id="forma-qty"
-            data-commerce-input="quantity"
-            type="number"
-            min="1"
-            max={Math.min(product.stock, 99)}
-            step="1"
-            value="1"
-            class="w-20 rounded-full border border-black/20 bg-white px-3 text-center text-sm"
-          />
-          <button
-            type="button"
-            data-commerce-action="add-to-cart"
-            data-product-slug={product.slug}
-            class="flex-1 rounded-full bg-black px-6 py-4 text-[10px] uppercase tracking-[.15em] text-white transition hover:bg-black/80"
-          >Añadir al carrito</button>
-        </div>
-      ) : (
-        <p class="rounded-full border border-black/20 px-6 py-4 text-center text-[10px] uppercase tracking-[.15em]">Agotado temporalmente</p>
-      )}
-      <p class="mt-4 text-center text-xs text-black/60">Recorrido visual local · sin pedido ni cobro</p>
+      <div class="forma-pdp-buy" data-commerce-part="purchase">
+        {product.stock > 0 ? (
+          <div class="forma-pdp-row">
+            <label class="sr-only" for="forma-qty">Cantidad</label>
+            <input id="forma-qty" data-commerce-input="quantity" type="number" min="1" max={Math.min(product.stock, 99)} step="1" value="1" />
+            <button type="button" data-commerce-action="add-to-cart" data-product-slug={product.slug}><span>Añadir al carrito</span><span aria-hidden="true">→</span></button>
+          </div>
+        ) : (
+          <p class="forma-pdp-soldout">Agotado temporalmente</p>
+        )}
+      </div>
+      <ul class="forma-pdp-notes">
+        <li>{shopConfig.legal.shippingNote}</li>
+        <li>{shopConfig.legal.returnsNote}</li>
+      </ul>
+      <p class="forma-pdp-demo">Recorrido visual local · sin pedido ni cobro · <a href={cartPath}>Ver carrito</a></p>
     </div>
   </div>
 </article>
+
+<style>
+  .forma-pdp { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, .85fr); background: var(--surface-sunken); color: var(--color-brand); }
+  .forma-pdp a { color: inherit; }
+  .forma-pdp-media { display: grid; gap: var(--grid-gap); padding: var(--grid-gap); }
+  .forma-pdp-frame { display: grid; min-height: 70vh; place-items: center; padding: clamp(1.5rem, 5vw, 4rem); background: var(--surface-product); }
+  .forma-pdp-frame img { width: 100%; max-height: 72vh; aspect-ratio: 1; object-fit: contain; }
+  .forma-pdp-portrait { overflow: hidden; background: var(--surface-product); }
+  .forma-pdp-portrait img { display: block; width: 100%; aspect-ratio: 4 / 3; object-fit: cover; transition: transform 1.2s cubic-bezier(.2, .7, .2, 1); }
+  .forma-pdp-portrait:hover img { transform: scale(1.04); }
+  .forma-pdp-portrait figcaption { padding: .5rem .3rem; font-family: var(--font-accent); font-size: .72rem; }
+  .forma-pdp-details { position: relative; }
+  .forma-pdp-sticky { position: sticky; top: 1rem; display: flex; min-height: calc(100vh - 2rem); flex-direction: column; padding: clamp(1.5rem, 4vw, 3.5rem); }
+  .forma-pdp-crumbs { display: flex; gap: .5rem; color: color-mix(in srgb, currentColor 62%, transparent); font-family: var(--font-accent); font-size: .72rem; letter-spacing: .1em; text-transform: uppercase; }
+  .forma-pdp-crumbs a { display: inline-flex; min-height: 2.75rem; align-items: center; }
+  .forma-pdp h1 { margin-top: 1.4rem; font-family: var(--font-display); font-size: clamp(3.6rem, 7vw, 6.5rem); font-weight: 300; line-height: .82; letter-spacing: -.075em; }
+  .forma-pdp-price { margin-top: 1.4rem; font-size: 1.25rem; font-variant-numeric: tabular-nums; }
+  .forma-pdp-desc { max-width: 26rem; margin-top: 2rem; color: color-mix(in srgb, currentColor 65%, transparent); font-size: .92rem; line-height: 1.7; }
+  .forma-pdp-specs { margin-top: 2rem; border-top: 1px solid color-mix(in srgb, currentColor 12%, transparent); font-size: .88rem; }
+  .forma-pdp-specs > div { display: flex; justify-content: space-between; gap: 1.2rem; padding-block: .8rem; border-bottom: 1px solid color-mix(in srgb, currentColor 12%, transparent); }
+  .forma-pdp-specs dt { color: color-mix(in srgb, currentColor 62%, transparent); }
+  .forma-pdp-specs dd { text-align: right; }
+  .forma-pdp-buy { margin-top: auto; padding-top: 2.5rem; }
+  .forma-pdp-row { display: flex; gap: .5rem; }
+  .forma-pdp-row input { width: 5rem; min-height: 3.3rem; border: 1px solid color-mix(in srgb, currentColor 20%, transparent); border-radius: var(--radius-btn); background: transparent; color: inherit; text-align: center; }
+  .forma-pdp-row button { display: flex; flex: 1; min-height: 3.3rem; align-items: center; justify-content: space-between; padding: 0 1.5rem; border-radius: var(--radius-btn); background: var(--color-brand); color: var(--color-brand-fg); font-family: var(--font-accent); font-size: .74rem; letter-spacing: .14em; text-transform: uppercase; transition: background-color .25s ease; }
+  .forma-pdp-row button:hover { background: var(--color-brand-dark); }
+  .forma-pdp-row button span:last-child { transition: transform .3s cubic-bezier(.2, .7, .2, 1); }
+  .forma-pdp-row button:hover span:last-child { transform: translateX(4px); }
+  .forma-pdp-soldout { padding: 1rem 1.5rem; border: 1px solid color-mix(in srgb, currentColor 20%, transparent); border-radius: var(--radius-btn); font-family: var(--font-accent); font-size: .74rem; letter-spacing: .14em; text-align: center; text-transform: uppercase; }
+  .forma-pdp-notes { display: grid; gap: .3rem; margin-top: 1.2rem; color: color-mix(in srgb, currentColor 62%, transparent); font-size: .8rem; line-height: 1.5; }
+  .forma-pdp-demo { margin-top: 1rem; color: color-mix(in srgb, currentColor 62%, transparent); font-size: .74rem; }
+  .forma-pdp-demo a { text-decoration: underline; text-underline-offset: 3px; }
+  @media (max-width: 820px) {
+    .forma-pdp { grid-template-columns: 1fr; }
+    .forma-pdp-frame { min-height: 0; }
+    .forma-pdp-sticky { position: static; min-height: 0; }
+  }
+  @media (prefers-reduced-motion: reduce) { .forma-pdp-portrait img, .forma-pdp-row button span:last-child { transition: none; } }
+</style>

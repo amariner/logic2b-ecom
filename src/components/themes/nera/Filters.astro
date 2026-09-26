@@ -21,20 +21,30 @@ const hrefFor = (category?: string) => {
   <form method="get" action={paths.catalog} role="search">
     {activeCategory && <input type="hidden" name="categoria" value={activeCategory} />}
     <input type="search" name="q" value={search} maxlength="60" placeholder="Buscar" aria-label="Buscar productos" />
-    <select name="orden" aria-label="Ordenar catálogo" onchange="this.form.submit()">
+    <select name="orden" aria-label="Ordenar catálogo" data-nera-sort>
       <option value="featured" selected={sort === 'featured'}>Destacados</option><option value="price-asc" selected={sort === 'price-asc'}>Precio ↑</option><option value="price-desc" selected={sort === 'price-desc'}>Precio ↓</option><option value="name" selected={sort === 'name'}>Nombre A–Z</option>
     </select>
+    <button type="submit" class="nera-filters__apply">Aplicar</button>
   </form>
 </div>
 
+<script>
+  // Mejora progresiva: sin JS el botón «Aplicar» envía el formulario GET.
+  document.querySelectorAll('[data-nera-sort]').forEach((select) => {
+    if (select instanceof HTMLSelectElement) select.addEventListener('change', () => select.form?.requestSubmit());
+  });
+</script>
+
 <style>
-  .nera-filters { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: .7rem 1rem; border-bottom: var(--border-width) solid var(--color-border); color: var(--color-foreground); background: var(--color-background); font-size: .56rem; text-transform: uppercase; }
+  .nera-filters { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: .7rem 1rem; border-bottom: var(--border-width) solid var(--color-border); color: var(--color-foreground); background: var(--color-background); font-size: .72rem; letter-spacing: .03em; text-transform: uppercase; }
   .nera-filters nav, .nera-filters form { display: flex; align-items: center; gap: 1rem; }
   .nera-filters nav > span { color: var(--color-muted-foreground); }
-  .nera-filters a { display: inline-flex; min-height: 2rem; align-items: center; }
-  .nera-filters a[aria-current='page'] { text-decoration: underline; text-underline-offset: .25rem; }
-  .nera-filters input, .nera-filters select { min-height: 2.2rem; border: 0; border-bottom: var(--border-width) solid var(--color-border); border-radius: var(--radius-btn); color: var(--color-foreground); background: transparent; font: inherit; text-transform: uppercase; }
-  .nera-filters input { width: 7rem; }
+  .nera-filters a { display: inline-flex; min-height: 2.75rem; align-items: center; background: linear-gradient(currentColor, currentColor) 0 calc(100% - .7rem) / 0 1px no-repeat; transition: background-size .35s ease; }
+  .nera-filters a:hover, .nera-filters a[aria-current='page'] { background-size: 100% 1px; }
+  .nera-filters__apply { min-height: 2.75rem; padding: 0 .9rem; border: var(--border-width) solid var(--color-foreground); border-radius: var(--radius-btn); font: inherit; text-transform: uppercase; }
+  .nera-filters__apply:hover { border-color: var(--color-brand); background: var(--color-brand); color: var(--color-brand-fg); }
+  .nera-filters input, .nera-filters select { min-height: 2.75rem; border: 0; border-bottom: var(--border-width) solid var(--color-border); border-radius: var(--radius-btn); color: var(--color-foreground); background: transparent; font: inherit; text-transform: uppercase; }
+  .nera-filters input { width: 8rem; }
   @media (max-width: 720px) {
     .nera-filters { align-items: stretch; flex-direction: column; overflow: hidden; }
     .nera-filters nav { overflow-x: auto; }

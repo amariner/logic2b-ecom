@@ -4,6 +4,8 @@
  * validados; un slug de OTRA colección no resuelve aquí (404).
  */
 import ZancadaProductDetail from '../../../../components/themes/zancada/ProductDetail.astro';
+import ArceProductDetail from '../../../../components/themes/arce/ProductDetail.astro';
+import NeraProductDetail from '../../../../components/themes/nera/ProductDetail.astro';
 import ProductPage from '../../../../components/store/ProductPage.astro';
 import NoddoProductDetail from '../../../../components/themes/noddo/ProductDetail.astro';
 import SitegaProductDetail from '../../../../components/themes/sitega/ProductDetail.astro';
@@ -25,6 +27,8 @@ if (!collection || !product || notFound) {
 const related = getDemoRelated(product);
 const productPresentations = {
   zancada: ZancadaProductDetail,
+  arce: ArceProductDetail,
+  nera: NeraProductDetail,
   noddo: NoddoProductDetail,
   sitega: SitegaProductDetail,
   stretch: StretchProductDetail,

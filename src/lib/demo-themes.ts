@@ -594,7 +594,8 @@ export const demoThemes: DemoTheme[] = [
     bestFor: ['Ópticas independientes', 'Marcas de accesorios', 'Diseño y moda'],
     status: 'ready',
     vars: {
-      // TODO(tema forma): tokens copiados de Base — sustituir por los del tema.
+      // Tinta casi negra sobre hueso; los acentos arcilla, arena y rosa viven
+      // como tokens propios en themes/forma/Catalog.astro.
       '--color-brand': '#171717',
       '--color-brand-dark': '#000000',
       '--color-brand-fg': '#ffffff',
@@ -605,8 +606,8 @@ export const demoThemes: DemoTheme[] = [
       '--radius-btn': '9999px',
       '--radius-card': '0rem',
       '--border-width': '0px',
-      '--surface-product': '#e9e9e5',
-      '--surface-sunken': '#f3f3ef',
+      '--surface-product': '#ededeb',
+      '--surface-sunken': '#f7f7f4',
       '--space-density': '1.1',
       '--grid-gap': '0.25rem',
     },
@@ -785,7 +786,7 @@ export const demoThemes: DemoTheme[] = [
       '--radius-btn': '0rem',
       '--radius-card': '0rem',
       '--border-width': '1px',
-      '--surface-product': '#f7f7f5',
+      '--surface-product': '#ffffff',
       '--surface-sunken': '#efefec',
       '--space-density': '0.75',
       '--grid-gap': '1px',

@@ -15,7 +15,7 @@ El informe cubre **34 escaparates** (Base y la colección transaccional `demo` q
 - Registros canónicos: themes 34/34 · collections 34/34 · seeds 34/34 · catalogViews 34/34 · a11y 34/34 · captureCatalog 34/34 · captureProduct 34/34 · homeGallery 34/34 · docs 34/34 · components 34/34
 - Contrato compartido completo: **34/34** · recorrido/storage privado: **0**.
 - Evidencia completa (catálogo, móvil, ficha, 560 y 900): **34/34**.
-- Inventario de assets: **45.40 MB** · JS propio crudo: **27.4 KB**.
+- Inventario de assets: **41.68 MB** · JS propio crudo: **28.4 KB**.
 - Hallazgos: **P0 0 · P1 0 · P2 2 · P3 1**.
 
 ## Hallazgos P0–P3
@@ -30,9 +30,9 @@ El informe cubre **34 escaparates** (Base y la colección transaccional `demo` q
 
 ### P2
 
-- **TH0.2-P2-02 · Directorio de assets por encima de 2,5 MB.** Temas: argent, forma, noddo, sitega, zancada. noddo: 2.61 MB · sitega: 3.84 MB · forma: 4.58 MB · argent: 3.75 MB · zancada: 11.78 MB Destino: TH0.3 · medir payload servido y priorizar optimización.
+- **TH0.2-P2-02 · Directorio de assets por encima de 2,5 MB.** Temas: argent, noddo, sitega, zancada. noddo: 2.61 MB · sitega: 3.84 MB · argent: 3.75 MB · zancada: 11.78 MB Destino: TH0.3 · medir payload servido y priorizar optimización.
 
-- **TH0.2-P2-03 · Assets raster/vídeo fuera del formato base.** Temas: forma, iris, noddo, sitega, stretch, zancada. iris: jpg×1, mp4×1, webp×6 · noddo: jpg×16, webp×12 · sitega: jpg×9 · forma: jpg×14 · stretch: jpg×5 · zancada: webp×25, mp4×3 Destino: TH0.3 · validar necesidad, compresión y carga real por viewport.
+- **TH0.2-P2-03 · Assets raster/vídeo fuera del formato base.** Temas: iris, noddo, sitega, stretch, zancada. iris: jpg×1, mp4×1, webp×6 · noddo: jpg×16, webp×12 · sitega: jpg×9 · stretch: jpg×5 · zancada: webp×25, mp4×3 Destino: TH0.3 · validar necesidad, compresión y carga real por viewport.
 
 ### P3
 
@@ -48,19 +48,19 @@ El informe cubre **34 escaparates** (Base y la colección transaccional `demo` q
 | guide | 10/10 | dynamic / común | N✓ C✓ J✓ | ✓✓✓✓✓ | 8 | 110.9 KB · webp×8 | 17.6 KB / 379 B |
 | specs | 10/10 | dynamic / común | N✓ C✓ J✓ | ✓✓✓✓✓ | 9 | 147.6 KB · webp×9 | 32.0 KB / 518 B |
 | minimal | 10/10 | dynamic / común | N✓ C✓ J✓ | ✓✓✓✓✓ | 8 | 113.4 KB · webp×8 | 15.9 KB / 0 B |
-| arce | 10/10 | dynamic / común | N✓ C✓ J✓ | ✓✓✓✓✓ | 8 | 1017.2 KB · webp×9 | 21.4 KB / 759 B |
+| arce | 10/10 | dynamic / común | N✓ C✓ J✓ | ✓✓✓✓✓ | 8 | 1017.2 KB · webp×9 | 43.0 KB / 1.2 KB |
 | launch | 10/10 | dynamic / común | N✓ C✓ J✓ | ✓✓✓✓✓ | 5 | 55.0 KB · webp×5 | 25.1 KB / 372 B |
 | street | 10/10 | dynamic / común | N✓ C✓ J✓ | ✓✓✓✓✓ | 12 | 392.8 KB · webp×16 | 49.8 KB / 381 B |
 | iris | 10/10 | dynamic / común | N✓ C✓ J✓ | ✓✓✓✓✓ | 6 | 1.79 MB · jpg×1 mp4×1 webp×6 | 26.4 KB / 5.1 KB |
 | noddo | 10/10 | dynamic / común | N✓ C✓ J✓ | ✓✓✓✓✓ | 12 | 2.61 MB · jpg×16 webp×12 | 27.0 KB / 3.2 KB |
 | sitega | 10/10 | dynamic / común | N✓ C✓ J✓ | ✓✓✓✓✓ | 8 | 3.84 MB · jpg×9 | 17.2 KB / 242 B |
-| forma | 10/10 | custom / común | N✓ C✓ J✓ | ✓✓✓✓✓ | 6 | 4.58 MB · jpg×14 | 25.2 KB / 0 B |
+| forma | 10/10 | custom / común | N✓ C✓ J✓ | ✓✓✓✓✓ | 6 | 927.4 KB · webp×12 | 44.3 KB / 268 B |
 | stretch | 10/10 | dynamic / común | N✓ C✓ J✓ | ✓✓✓✓✓ | 7 | 757.9 KB · jpg×5 | 22.6 KB / 3.4 KB |
 | argent | 10/10 | dynamic / común | N✓ C✓ J✓ | ✓✓✓✓✓ | 5 | 3.75 MB · webp×8 | 20.2 KB / 390 B |
 | sillage | 10/10 | dynamic / común | N✓ C✓ J✓ | ✓✓✓✓✓ | 8 | 495.5 KB · webp×14 | 20.5 KB / 393 B |
 | summit | 10/10 | dynamic / común | N✓ C✓ J✓ | ✓✓✓✓✓ | 7 | 555.9 KB · webp×9 | 21.3 KB / 391 B |
 | litica | 10/10 | dynamic / común | N✓ C✓ J✓ | ✓✓✓✓✓ | 6 | 525.6 KB · webp×10 | 24.0 KB / 391 B |
-| nera | 10/10 | dynamic / común | N✓ C✓ J✓ | ✓✓✓✓✓ | 8 | 1.47 MB · webp×11 | 20.5 KB / 386 B |
+| nera | 10/10 | dynamic / común | N✓ C✓ J✓ | ✓✓✓✓✓ | 8 | 1.43 MB · webp×11 | 36.0 KB / 654 B |
 | viso | 10/10 | dynamic / común | N✓ C✓ J✓ | ✓✓✓✓✓ | 6 | 1.19 MB · webp×9 | 16.0 KB / 365 B |
 | orbe | 10/10 | dynamic / común | N✓ C✓ J✓ | ✓✓✓✓✓ | 6 | 1.22 MB · webp×9 | 18.7 KB / 391 B |
 | alva | 10/10 | dynamic / común | N✓ C✓ J✓ | ✓✓✓✓✓ | 8 | 1002.6 KB · webp×12 | 20.1 KB / 391 B |
@@ -75,7 +75,7 @@ El informe cubre **34 escaparates** (Base y la colección transaccional `demo` q
 | ensamble | 10/10 | dynamic / común | N✓ C✓ J✓ | ✓✓✓✓✓ | 3 | 392.2 KB · webp×3 | 15.2 KB / 0 B |
 | eje | 10/10 | dynamic / común | N✓ C✓ J✓ | ✓✓✓✓✓ | 3 | 304.8 KB · webp×4 | 15.7 KB / 0 B |
 | arista | 10/10 | dynamic / común | N✓ C✓ J✓ | ✓✓✓✓✓ | 4 | 269.1 KB · webp×4 | 13.9 KB / 0 B |
-| zancada | 10/10 | dynamic / común | N✓ C✓ J✓ | ✓✓✓✓✓ | 0 | 11.78 MB · webp×25 mp4×3 | 71.9 KB / 5.9 KB |
+| zancada | 10/10 | dynamic / común | N✓ C✓ J✓ | ✓✓✓✓✓ | 0 | 11.78 MB · webp×25 mp4×3 | 76.6 KB / 5.9 KB |
 
 Leyenda de SEO: N `noindex`, C canonical, J Product + Offer. Capturas: catálogo, móvil, ficha, tarjeta 560 y tarjeta 900, en ese orden.
 

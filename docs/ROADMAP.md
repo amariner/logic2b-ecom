@@ -16,6 +16,36 @@
 > 2. Actualizar el estado de la fase al terminar, con fecha y resumen de lo hecho.
 > 3. Anotar decisiones tomadas y pendientes en las secciones de abajo.
 
+## Sitio comercial y temas destacados — rediseño en rama (2026-09-26)
+
+Rama `redesign/site-and-themes`, **sin publicar** hasta el OK de Andreu.
+
+- **Sistema compartido:** las piezas del home (botones, cabeceras numeradas,
+  marcos de navegador, FAQ, entradas al hacer scroll, tokens de sombra y
+  easing) pasan a `commercial.css`, con héroe de página, banda de cierre
+  oscura, tarjetas, listas y pantallas de estado. `CommercialPlans` hereda el
+  acabado del home en `/precios` y el dossier. Las entradas animan solo
+  `transform`.
+- **Páginas:** `/precios`, `/arquitectura` (sin el azul heredado), `/temas`
+  (barra de filtros fija), `/agencias`, `/dossier` (índice fijo y capítulos),
+  404 y confirmación sin JS. `/ayuda` se queda sobria a propósito.
+- **Temas destacados:** ARCE, NERA, Forma y Zancada; detalle en
+  `ROADMAP_MEJORA_TEMAS.md` y en cada ficha de `docs/temas/`.
+- **Pestañas del home:** el indicador pasa a verde claro con texto oscuro; el
+  auditor marcaba 1:1 porque no ve el indicador hermano detrás del texto.
+- **Verificación:** a11y 0 errores en las 24 superficies comerciales (queda un
+  aviso previo h1 → h3 en `/precios`, del encabezado oculto de los packs) y en
+  los cuatro temas; E2E en verde; Lighthouse local de 1 pasada: escritorio
+  100/100/100/100 en home, `/temas` y `/precios`; móvil 92 / 91 / 97 con
+  a11y, BP y SEO a 100 y CLS 0. El techo móvil sigue siendo la fuente del H1
+  sin precargar (pendiente abajo).
+
+Consejo: arquitecto ✓ sin dependencias ni cambios de motor (solo el registro
+de presentaciones) · fullstack ✓ contrato de compra intacto, E2E en verde ·
+producto ✓ copy sin promesas nuevas y afirmaciones sin respaldo retiradas en
+los temas · frontend ✓ JS mínimo y mejora progresiva · UX/UI ✓ AA, 44 px y
+reduced-motion · SEO ⚠ móvil 91–97, pendiente la precarga de Fraunces.
+
 ## Home — rediseño editorial publicado (2026-09-26)
 
 **Publicado por encargo de Andreu.** `f9c125a` integrado en `main` por

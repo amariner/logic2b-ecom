@@ -120,3 +120,15 @@ originales y medirse por ruta, no por el peso total del directorio.
 - UX/UI ✓: móvil, teclado, estados y contraste revisados.
 - SEO ⚠: noindex/canonical y Product/Offer correctos; rendimiento móvil de
   galería 99, mejora registrada en ROADMAP.
+
+## Profesionalización
+
+- Bloque: pulido de tema destacado · 2026-09-26 (fuera de la cola TH: tema importado posterior)
+- Audiencia / tarea principal: corredores urbanos y de trail; descubrir la selección, elegir talla y comprar.
+- Problemas iniciales: P1 póster «FUERA DE RUTA» pisando el titular a 375 px · P1 textos de 6–7 px en móvil · P2 «Sigue explorando» recomendaba el producto actual · P2 flechas de carrusel sin función en vista rejilla · P3 filtros como botones grises frente a una navegación refinada.
+- Nota inicial: Producto 4/4 · UX 3/4 · UI 4/4 · Marketing 3/4 · Frontend 3/4 · SEO 3/4 · Rendimiento/a11y 2/4 · total 79/100
+- Cambios realizados: capa `polish.css` sobre `original.css` (sin reescribirlo): tarjeta que despega con filete ácido, filtros tipográficos con subrayado ácido de 44 px, vídeo del hero, fotos de campaña, póster y marca del pie ligados al scroll (solo transform), póster y titular apilados en móvil y mínimo de 10 px · ficha sin autorrecomendación, flechas ocultas en rejilla y transición de imagen catálogo → ficha. JS propio sin cambios (5,9 KB).
+- Contrato compartido tocado: no.
+- Nota final: Producto 4/4 · UX 4/4 · UI 4/4 · Marketing 3/4 · Frontend 3/4 · SEO 3/4 · Rendimiento/a11y 3/4 · total 86/100
+- Evidencia: `astro check` sin errores propios · Vitest 1260/1261 (el fallo es `architecture.test.ts` por borradores no versionados de `src/lib/tour`, ajenos) · build · E2E de aislamiento en verde · a11y 0/0 en 9 superficies · capturas regeneradas dentro de presupuesto · `audit:themes` regenerado y estable
+- Deuda aceptada: 11,8 MB de assets (P2-02, TH5.4). **Pregunta a Andreu:** el tema publica marcas reales (SALOMON, VEJA, SATISFY); §2 del carril pide no publicar marcas ajenas. No se ha tocado porque es diseño propio importado; decidir si se sustituyen.

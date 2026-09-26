@@ -1,0 +1,159 @@
+---
+/**
+ * NERA · Ficha de producto.
+ *
+ * Imágenes apiladas que se recorren con el scroll y una columna de datos fija,
+ * condensada y en mayúsculas, como una etiqueta de sastrería. La compra usa
+ * los hooks del contrato (`data-commerce-*`); `ProductPage` conserva
+ * Product + Offer, noindex y el aviso de añadido.
+ */
+import { shopConfig } from '../../../../shop.config';
+import { categoryLabel, storePaths } from '../../../collections';
+import { neraCollection } from '../../../collections/nera';
+import { getDemoProducts } from '../../../composition/demo-catalog';
+import { formatEurCents } from '../../../lib/format';
+import type { ProductRow } from '../../../lib/db';
+import { neraAlternates } from './alternates';
+
+interface Props { product: ProductRow }
+const { product } = Astro.props;
+const paths = storePaths('nera');
+const label = categoryLabel(neraCollection, product.category);
+const alt = neraAlternates[product.slug];
+const others = getDemoProducts('nera').filter((item) => item.slug !== product.slug);
+const look = [
+  ...others.filter((item) => item.category !== product.category),
+  ...others.filter((item) => item.category === product.category),
+].slice(0, 4);
+const stockLabel = product.stock === 0 ? 'Sin stock' : product.stock <= 5 ? `Últimas ${product.stock} unidades` : 'Disponible';
+---
+
+<div class="nera-pdp">
+  <header class="nera-pdp-bar">
+    <a href={paths.catalog} class="nera-pdp-back"><span aria-hidden="true">←</span> Colección</a>
+    <a href={paths.catalog} class="nera-pdp-word">NERA</a>
+    <a href={paths.cart}>Bolsa <span data-cart-count>0</span></a>
+  </header>
+
+  <article class="nera-pdp-grid">
+    <div class="nera-pdp-media" data-commerce-part="media">
+      <figure class="nera-pdp-shot is-product">
+        <img src={product.image} alt={product.name} width="1024" height="1024" loading="eager" fetchpriority="high" decoding="async" style={`view-transition-name: nera-${product.slug};`} />
+      </figure>
+      {alt && (
+        <figure class="nera-pdp-shot is-editorial">
+          <img src={alt.src} alt={`${product.name} en la campaña de NERA`} width={alt.width} height={alt.height} loading="lazy" decoding="async" style={`object-position: ${alt.position};`} />
+        </figure>
+      )}
+    </div>
+
+    <div class="nera-pdp-info" data-commerce-part="details">
+      <div class="nera-pdp-sticky">
+        <nav class="nera-pdp-crumbs" aria-label="Migas de pan">
+          <a href={paths.catalog}>Colección</a><span aria-hidden="true">/</span><a href={`${paths.catalog}?categoria=${product.category}`}>{label}</a>
+        </nav>
+        <h1>{product.name}</h1>
+        <p class="nera-pdp-price">{formatEurCents(product.price_cents)}</p>
+        <p class="nera-pdp-desc">{product.description}</p>
+
+        <div class="nera-pdp-buy" data-commerce-part="purchase">
+          {product.stock > 0 ? (
+            <>
+              <label for="nera-qty">Cantidad</label>
+              <div class="nera-pdp-row">
+                <input id="nera-qty" data-commerce-input="quantity" type="number" min="1" max={Math.min(product.stock, 99)} step="1" value="1" />
+                <button type="button" data-commerce-action="add-to-cart" data-product-slug={product.slug}>Añadir a la bolsa</button>
+              </div>
+            </>
+          ) : (
+            <p class="nera-pdp-soldout">Agotado temporalmente</p>
+          )}
+        </div>
+
+        <dl class="nera-pdp-facts">
+          <div><dt>Línea</dt><dd>{label}</dd></div>
+          <div><dt>Envío</dt><dd>{shopConfig.legal.shippingNote}</dd></div>
+          <div><dt>Devolución</dt><dd>{shopConfig.legal.returnsNote}</dd></div>
+          <div><dt>Stock</dt><dd>{stockLabel}</dd></div>
+        </dl>
+        <p class="nera-pdp-note">Demostración · no se realiza ningún pedido ni cobro</p>
+      </div>
+    </div>
+  </article>
+
+  {look.length > 0 && (
+    <section class="nera-pdp-look" aria-labelledby="nera-look-title">
+      <div class="nera-pdp-look-head"><h2 id="nera-look-title">Completa el look</h2><a href={paths.catalog}>Ver colección</a></div>
+      <ul>
+        {look.map((item) => (
+          <li>
+            <a href={paths.product(item.slug)}>
+              <span class="nera-pdp-look-media"><img src={item.image} alt="" width="1024" height="1024" loading="lazy" decoding="async" style={`view-transition-name: nera-${item.slug};`} /></span>
+              <span class="nera-pdp-look-copy"><strong>{item.name}</strong><span>{formatEurCents(item.price_cents)}</span></span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </section>
+  )}
+</div>
+
+<style>
+  :global([data-store-theme='nera'] > header) { display: none; }
+  .nera-pdp { background: var(--color-background); color: var(--color-foreground); font-family: var(--font-accent); }
+  .nera-pdp a { color: inherit; text-decoration: none; }
+  .nera-pdp-bar { position: sticky; top: 0; z-index: 30; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; min-height: 3.3rem; padding: .4rem 1rem; border-bottom: var(--border-width) solid var(--color-border); background: color-mix(in srgb, var(--color-background) 94%, transparent); backdrop-filter: blur(12px); font-size: .72rem; letter-spacing: .04em; text-transform: uppercase; }
+  .nera-pdp-bar a { display: inline-flex; min-height: 2.75rem; align-items: center; gap: .4rem; }
+  .nera-pdp-bar a:last-child { justify-self: end; }
+  .nera-pdp-word { font: var(--weight-display) 1.2rem/1 var(--font-display); letter-spacing: var(--tracking-display); }
+  .nera-pdp-back span { transition: transform .3s ease; }
+  .nera-pdp-back:hover span { transform: translateX(-3px); }
+
+  .nera-pdp-grid { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, .75fr); border-bottom: var(--border-width) solid var(--color-border); }
+  .nera-pdp-media { display: grid; gap: 1px; background: var(--color-border); border-right: var(--border-width) solid var(--color-border); }
+  .nera-pdp-shot { overflow: hidden; background: var(--surface-product); }
+  .nera-pdp-shot img { display: block; width: 100%; }
+  .nera-pdp-shot.is-product img { aspect-ratio: 1 / 1.05; object-fit: contain; padding: 8%; }
+  .nera-pdp-shot.is-editorial img { aspect-ratio: 4 / 5; object-fit: cover; }
+
+  .nera-pdp-info { position: relative; }
+  .nera-pdp-sticky { position: sticky; top: 3.3rem; padding: clamp(1.4rem, 3vw, 3rem) clamp(1rem, 3vw, 2.6rem) 2.4rem; }
+  .nera-pdp-crumbs { display: flex; gap: .5rem; color: var(--color-muted-foreground); font-size: .72rem; text-transform: uppercase; }
+  .nera-pdp-crumbs a:hover { color: var(--color-foreground); }
+  .nera-pdp-info h1 { margin-top: 2.2rem; font: var(--weight-display) clamp(2.6rem, 4.6vw, 4.6rem)/.9 var(--font-display); letter-spacing: var(--tracking-display); text-transform: uppercase; }
+  .nera-pdp-price { margin-top: 1.2rem; font-size: .95rem; font-variant-numeric: tabular-nums; }
+  .nera-pdp-desc { max-width: 26rem; margin-top: 1.6rem; color: var(--color-muted-foreground); font-size: .9rem; line-height: 1.65; }
+
+  .nera-pdp-buy { margin-top: 2.2rem; }
+  .nera-pdp-buy label { display: block; margin-bottom: .5rem; color: var(--color-muted-foreground); font-size: .68rem; text-transform: uppercase; }
+  .nera-pdp-row { display: flex; gap: 1px; background: var(--color-foreground); border: var(--border-width) solid var(--color-foreground); }
+  .nera-pdp-row input { width: 4.5rem; min-height: 3.2rem; border: 0; border-radius: var(--radius-btn); background: var(--color-background); color: var(--color-foreground); text-align: center; }
+  .nera-pdp-row button { flex: 1; min-height: 3.2rem; border-radius: var(--radius-btn); background: var(--color-brand); color: var(--color-brand-fg); font-size: .74rem; letter-spacing: .1em; text-transform: uppercase; transition: background-color .25s ease; }
+  .nera-pdp-row button:hover { background: var(--color-brand-dark); }
+  .nera-pdp-soldout { padding: 1rem; border: var(--border-width) solid var(--color-border); color: var(--color-muted-foreground); font-size: .74rem; text-transform: uppercase; }
+
+  .nera-pdp-facts { margin-top: 2.2rem; border-top: var(--border-width) solid var(--color-border); }
+  .nera-pdp-facts > div { display: grid; grid-template-columns: 6.5rem 1fr; gap: .8rem; padding-block: .85rem; border-bottom: var(--border-width) solid var(--color-border); font-size: .8rem; line-height: 1.5; }
+  .nera-pdp-facts dt { color: var(--color-muted-foreground); font-size: .68rem; text-transform: uppercase; }
+  .nera-pdp-note { margin-top: 1.2rem; color: var(--color-muted-foreground); font-size: .7rem; }
+
+  .nera-pdp-look-head { display: flex; align-items: center; justify-content: space-between; min-height: 3rem; padding: .4rem 1rem; border-bottom: var(--border-width) solid var(--color-border); font-size: .72rem; text-transform: uppercase; }
+  .nera-pdp-look-head h2 { font: inherit; }
+  .nera-pdp-look-head a { display: inline-flex; min-height: 2.75rem; align-items: center; text-decoration: underline; text-underline-offset: .25rem; }
+  .nera-pdp-look ul { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .nera-pdp-look li { box-shadow: inset -1px 0 0 var(--color-border), inset 0 -1px 0 var(--color-border); }
+  .nera-pdp-look-media { display: block; overflow: hidden; background: var(--surface-product); }
+  .nera-pdp-look-media img { display: block; width: 100%; aspect-ratio: 1; object-fit: contain; padding: 8%; transition: transform .6s cubic-bezier(.2, .7, .2, 1); }
+  .nera-pdp-look a:hover img { transform: scale(1.04); }
+  .nera-pdp-look-copy { display: grid; gap: .2rem; padding: .8rem .5rem 1rem; text-align: center; font-size: .72rem; text-transform: uppercase; }
+  .nera-pdp-look-copy strong { font-weight: 400; }
+  .nera-pdp-look-copy span { color: var(--color-muted-foreground); }
+
+  @media (max-width: 820px) {
+    .nera-pdp-grid { grid-template-columns: 1fr; }
+    .nera-pdp-media { border-right: 0; }
+    .nera-pdp-sticky { position: static; }
+    .nera-pdp-look ul { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+  @media (prefers-reduced-motion: reduce) { .nera-pdp-look-media img, .nera-pdp-back span { transition: none; } }
+</style>

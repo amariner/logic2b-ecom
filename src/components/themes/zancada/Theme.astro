@@ -2,6 +2,7 @@
 import './tokens.css';
 import './original.css';
 import './commerce.css';
+import './polish.css';
 import Filters from './Filters.astro';
 import ProductGrid from './ProductGrid.astro';
 import { parseSpecs, type ProductRow } from '../../../lib/db';
@@ -20,6 +21,8 @@ const paths = storePaths('zancada');
 const assets = '/images/collections/zancada';
 const model = zancadaModels.find(m => current?.slug === m.slug || current?.slug.startsWith(m.slug + '-t')) ?? zancadaModels[0];
 const products = zancadaModels.slice(0,4);
+// En la ficha, «Sigue explorando» nunca repite el producto que se está viendo.
+const explore = zancadaModels.filter(m => m.slug !== model.slug).slice(0,4);
 const socks = zancadaModels.slice(4,10);
 const equipment = zancadaModels.slice(10);
 const filtered = Boolean(category || search || sort !== 'featured');
@@ -50,7 +53,7 @@ const events = [
       <section class="ds-product-layout" aria-label={`${model.brand} ${model.name}`}>
         <div class="ds-gallery" data-commerce-part="media">
           <div class="ds-gallery-stage" tabindex="0" aria-label="Galería de producto. Usa las flechas para cambiar de imagen.">
-            {gallery.map((img,i) => <img width="1000" height="1200" class:list={['ds-gallery-image', { active: i === 0 }]} aria-hidden={i !== 0} src={`${assets}/${img}`} alt={`${model.brand} ${model.name} — fotografía ${i+1}`} loading={i === 0 ? 'eager' : 'lazy'} />)}
+            {gallery.map((img,i) => <img width="1000" height="1200" class:list={['ds-gallery-image', { active: i === 0 }]} aria-hidden={i !== 0} src={`${assets}/${img}`} alt={`${model.brand} ${model.name} — fotografía ${i+1}`} loading={i === 0 ? 'eager' : 'lazy'} style={i === 0 ? `view-transition-name: z-${model.slug};` : undefined} />)}
             <span class="ds-gallery-label">{model.brand} — EN MOVIMIENTO</span>
             <button class="ds-zoom" aria-label="Ampliar fotografía">↗</button>
             <div class="ds-gallery-controls"><button data-prev aria-label="Fotografía anterior">←</button><span><span data-slide-number>01</span> / {String(gallery.length).padStart(2,'0')}</span><button data-next aria-label="Fotografía siguiente">→</button></div>
@@ -87,9 +90,9 @@ const events = [
     </>}
     <section class="ds-arrivals" id="novedades">
       {filtered && <h1 class="ds-catalog-title">LA SELECCIÓN ZANCADA</h1>}
-      <div class="ds-section-heading"><h2>{product ? 'SIGUE EXPLORANDO' : filtered ? 'TU SELECCIÓN' : 'RECIÉN LLEGADOS'}</h2><div class="ds-catalog-arrows"><button data-catalog-prev aria-label="Productos anteriores">←</button><button data-catalog-next aria-label="Más productos">→</button></div></div>
+      <div class="ds-section-heading"><h2>{product ? 'SIGUE EXPLORANDO' : filtered ? 'TU SELECCIÓN' : 'RECIÉN LLEGADOS'}</h2>{!filtered && <div class="ds-catalog-arrows"><button data-catalog-prev aria-label="Productos anteriores">←</button><button data-catalog-next aria-label="Más productos">→</button></div>}</div>
       {!product && <Filters collection={zancadaCollection} count={filtered ? visibleRows.length : zancadaModels.length} activeCategory={category} sort={sort} search={search} />}
-      <ProductGrid products={filtered ? visibleRows : products.map(m => getDemoProduct('zancada', m.slug)!)} grid={filtered}/>
+      <ProductGrid products={filtered ? visibleRows : (product ? explore : products).map(m => getDemoProduct('zancada', m.slug)!)} grid={filtered}/>
     </section>
     {!product && !filtered && <>
       <section class="ds-campaigns" id="club" aria-label="Historias fuera del asfalto">
@@ -132,7 +135,7 @@ const events = [
     const observer=new IntersectionObserver(entries=>entries.forEach(e=>{const v=e.target as HTMLVideoElement;if(e.isIntersecting&&!reduced.matches&&v.dataset.paused!=='true')v.play().catch(()=>{});else v.pause()}),{threshold:.05});
     videos.forEach(v=>{observer.observe(v);const b=v.parentElement?.querySelector<HTMLButtonElement>('.ds-video-toggle')||v.parentElement?.parentElement?.querySelector<HTMLButtonElement>('.ds-video-toggle');if(b){const label=b.getAttribute('aria-label')||'Pausar vídeo';const sync=()=>{b.textContent=v.paused?'▷':'Ⅱ';b.setAttribute('aria-label',v.paused?label.replace('Pausar','Reproducir'):label)};v.addEventListener('play',sync);v.addEventListener('pause',sync);sync();b.addEventListener('click',()=>{if(v.paused){v.dataset.paused='false';v.play().catch(()=>{})}else{v.dataset.paused='true';v.pause()}})}});
     reduced.addEventListener('change',()=>{videos.forEach(v=>{if(reduced.matches)v.pause();else {observer.unobserve(v);observer.observe(v)}})});
-    const track=q('.ds-product-track');q('[data-catalog-next]').addEventListener('click',()=>track.scrollBy({left:track.clientWidth*.7,behavior:reduced.matches?'instant':'smooth'}));q('[data-catalog-prev]').addEventListener('click',()=>track.scrollBy({left:-track.clientWidth*.7,behavior:reduced.matches?'instant':'smooth'}));
+    const track=q('.ds-product-track');root.querySelector('[data-catalog-next]')?.addEventListener('click',()=>track.scrollBy({left:track.clientWidth*.7,behavior:reduced.matches?'instant':'smooth'}));root.querySelector('[data-catalog-prev]')?.addEventListener('click',()=>track.scrollBy({left:-track.clientWidth*.7,behavior:reduced.matches?'instant':'smooth'}));
     qa<HTMLButtonElement>('[data-filter]').forEach(b=>b.addEventListener('click',()=>{qa('[data-filter]').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));qa<HTMLElement>('.ds-card').forEach(c=>c.hidden=b.dataset.filter!=='all'&&c.dataset.type!==b.dataset.filter);track.scrollLeft=0}));
     qa<HTMLElement>('[data-strip-prev],[data-strip-next]').forEach(b=>b.addEventListener('click',()=>{const name=b.dataset.stripNext||b.dataset.stripPrev;const strip=q<HTMLElement>('[data-strip="'+name+'"]');strip.scrollBy({left:strip.clientWidth*.8*(b.dataset.stripNext?1:-1),behavior:reduced.matches?'instant':'smooth'})}));
     q('[data-search-open]')?.addEventListener('click',()=>q<HTMLDialogElement>('.ds-search').showModal());q<HTMLInputElement>('.ds-search input').addEventListener('input',e=>{const value=(e.target as HTMLInputElement).value.trim().toLowerCase();let count=0;qa<HTMLElement>('[data-search-term]').forEach(item=>{item.hidden=!item.dataset.searchTerm!.toLowerCase().includes(value);if(!item.hidden)count++});q('[data-search-empty]').hidden=count>0});

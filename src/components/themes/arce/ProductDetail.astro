@@ -1,0 +1,176 @@
+---
+/**
+ * ARCE · Ficha de producto.
+ *
+ * Presentación propia registrada en la ruta dinámica común: imagen grande que
+ * acompaña al scroll, título en Fraunces, filetes finos y CTA cuadrado negro.
+ * La compra usa los hooks del contrato (`data-commerce-*`); `ProductPage`
+ * conserva Product + Offer, noindex y el aviso de añadido.
+ */
+import { shopConfig } from '../../../../shop.config';
+import { categoryLabel, storePaths } from '../../../collections';
+import { arceCollection } from '../../../collections/arce';
+import { getDemoProducts } from '../../../composition/demo-catalog';
+import { formatEurCents } from '../../../lib/format';
+import type { ProductRow } from '../../../lib/db';
+
+interface Props { product: ProductRow }
+const { product } = Astro.props;
+const paths = storePaths('arce');
+const label = categoryLabel(arceCollection, product.category);
+// Completa el espacio: piezas de OTRAS familias primero, para sugerir un
+// ambiente y no tres variantes de lo mismo.
+const others = getDemoProducts('arce').filter((item) => item.slug !== product.slug);
+const pairing = [
+  ...others.filter((item) => item.category !== product.category),
+  ...others.filter((item) => item.category === product.category),
+].slice(0, 3);
+const lowStock = product.stock > 0 && product.stock <= 5;
+---
+
+<div class="arce-pdp bg-background text-foreground">
+  <nav class="arce-pdp-crumbs" aria-label="Migas de pan">
+    <a href={paths.catalog}>Tienda</a>
+    <span aria-hidden="true">/</span>
+    <a href={`${paths.catalog}?categoria=${product.category}#productos`}>{label}</a>
+    <span aria-hidden="true">/</span>
+    <span aria-current="page">{product.name}</span>
+  </nav>
+
+  <article class="arce-pdp-grid">
+    <div class="arce-pdp-media" data-commerce-part="media">
+      <figure>
+        <img
+          src={product.image}
+          alt={product.name}
+          width="1200"
+          height="1200"
+          loading="eager"
+          fetchpriority="high"
+          decoding="async"
+          style={`view-transition-name: arce-${product.slug};`}
+        />
+      </figure>
+    </div>
+
+    <div class="arce-pdp-info" data-commerce-part="details">
+      <p class="arce-pdp-eyebrow">{label} · Colección 01</p>
+      <h1>{product.name}</h1>
+      <p class="arce-pdp-price">{formatEurCents(product.price_cents)}</p>
+      <p class="arce-pdp-desc">{product.description}</p>
+
+      <div class="arce-pdp-buy" data-commerce-part="purchase">
+        {product.stock > 0 ? (
+          <>
+            <label class="sr-only" for="arce-qty">Cantidad</label>
+            <input
+              id="arce-qty"
+              data-commerce-input="quantity"
+              type="number"
+              min="1"
+              max={Math.min(product.stock, 99)}
+              step="1"
+              value="1"
+            />
+            <button type="button" data-commerce-action="add-to-cart" data-product-slug={product.slug}>
+              <span>Añadir a la bolsa</span><span aria-hidden="true">→</span>
+            </button>
+          </>
+        ) : (
+          <p class="arce-pdp-soldout">Agotado temporalmente</p>
+        )}
+      </div>
+      {lowStock && <p class="arce-pdp-stock">Quedan {product.stock} unidades</p>}
+
+      <dl class="arce-pdp-facts">
+        <div><dt>Familia</dt><dd>{label}</dd></div>
+        <div><dt>Envío</dt><dd>{shopConfig.legal.shippingNote}</dd></div>
+        <div><dt>Devoluciones</dt><dd>{shopConfig.legal.returnsNote}</dd></div>
+        <div><dt>Disponibilidad</dt><dd>{product.stock > 0 ? 'En stock' : 'Sin stock ahora mismo'}</dd></div>
+      </dl>
+      <p class="arce-pdp-note">Recorrido de demostración · no se realiza ningún pedido ni cobro</p>
+    </div>
+  </article>
+
+  {pairing.length > 0 && (
+    <section class="arce-pdp-pairing" aria-labelledby="arce-pairing-title">
+      <div class="arce-pdp-pairing-head">
+        <h2 id="arce-pairing-title">Completa el espacio</h2>
+        <a href={`${paths.catalog}#productos`}>Ver toda la colección</a>
+      </div>
+      <ul>
+        {pairing.map((item) => (
+          <li>
+            <a href={paths.product(item.slug)}>
+              <span class="arce-pdp-thumb"><img src={item.image} alt="" width="800" height="800" loading="lazy" decoding="async" style={`view-transition-name: arce-${item.slug};`} /></span>
+              <span class="arce-pdp-card-name">{item.name}</span>
+              <span class="arce-pdp-card-price">{formatEurCents(item.price_cents)}</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </section>
+  )}
+</div>
+
+<style>
+  .arce-pdp { padding: 0 clamp(1rem, 2.6vw, 2.5rem) clamp(3rem, 7vw, 6rem); }
+  .arce-pdp-crumbs { display: flex; flex-wrap: wrap; gap: .6rem; padding-block: 1.4rem; color: var(--color-muted-foreground); font-size: .68rem; letter-spacing: .12em; text-transform: uppercase; }
+  .arce-pdp-crumbs a { position: relative; }
+  .arce-pdp-crumbs a::after { position: absolute; right: 0; bottom: -.2rem; left: 0; height: 1px; background: currentColor; content: ''; transform: scaleX(0); transform-origin: right; transition: transform .35s cubic-bezier(.2, .7, .2, 1); }
+  .arce-pdp-crumbs a:hover { color: var(--color-foreground); }
+  .arce-pdp-crumbs a:hover::after { transform: scaleX(1); transform-origin: left; }
+  .arce-pdp-crumbs [aria-current] { color: var(--color-foreground); }
+
+  .arce-pdp-grid { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, .85fr); gap: clamp(2rem, 5vw, 5.5rem); align-items: start; border-top: var(--border-width) solid var(--color-border); padding-top: var(--grid-gap); }
+  /* La imagen acompaña mientras se lee la columna de datos. */
+  .arce-pdp-media { position: sticky; top: 1rem; }
+  .arce-pdp-media figure { overflow: hidden; background: var(--surface-product); }
+  .arce-pdp-media img { display: block; width: 100%; aspect-ratio: 1; object-fit: cover; transition: transform 1.2s cubic-bezier(.2, .7, .2, 1); }
+  .arce-pdp-media figure:hover img { transform: scale(1.04); }
+
+  .arce-pdp-info { padding-block: clamp(1rem, 3vw, 3rem); }
+  .arce-pdp-eyebrow { color: var(--color-muted-foreground); font-size: .68rem; letter-spacing: .15em; text-transform: uppercase; }
+  .arce-pdp-info h1 { margin-top: 1.2rem; font-family: var(--font-display); font-size: clamp(3rem, 6vw, 5.8rem); font-weight: var(--weight-display); line-height: .86; letter-spacing: var(--tracking-display); }
+  .arce-pdp-price { margin-top: 1.6rem; font-size: 1.25rem; font-variant-numeric: tabular-nums; }
+  .arce-pdp-desc { max-width: 30rem; margin-top: 1.8rem; color: var(--color-muted-foreground); font-size: 1rem; line-height: 1.75; }
+
+  .arce-pdp-buy { display: flex; gap: .5rem; margin-top: 2.4rem; }
+  .arce-pdp-buy input { width: 5rem; min-height: 3.4rem; border: var(--border-width) solid var(--color-border); border-radius: var(--radius-btn); background: var(--color-background); color: var(--color-foreground); text-align: center; }
+  .arce-pdp-buy button { display: flex; flex: 1; min-height: 3.4rem; align-items: center; justify-content: space-between; gap: 1rem; padding: 0 1.4rem; border-radius: var(--radius-btn); background: var(--color-brand); color: var(--color-brand-fg); font-size: .72rem; font-weight: 500; letter-spacing: .14em; text-transform: uppercase; transition: background-color .25s ease; }
+  .arce-pdp-buy button:hover { background: var(--color-brand-dark); }
+  .arce-pdp-buy button span:last-child { transition: transform .3s cubic-bezier(.2, .7, .2, 1); }
+  .arce-pdp-buy button:hover span:last-child { transform: translateX(4px); }
+  .arce-pdp-soldout { flex: 1; padding: 1rem 1.4rem; border: var(--border-width) solid var(--color-border); color: var(--color-muted-foreground); font-size: .72rem; letter-spacing: .14em; text-transform: uppercase; }
+  .arce-pdp-stock { margin-top: .8rem; color: var(--color-muted-foreground); font-size: .8rem; }
+
+  .arce-pdp-facts { margin-top: 2.6rem; border-top: var(--border-width) solid var(--color-border); }
+  .arce-pdp-facts > div { display: grid; grid-template-columns: 8.5rem 1fr; gap: 1rem; padding-block: 1rem; border-bottom: var(--border-width) solid var(--color-border); font-size: .88rem; line-height: 1.55; }
+  .arce-pdp-facts dt { color: var(--color-muted-foreground); font-size: .68rem; letter-spacing: .13em; text-transform: uppercase; }
+  .arce-pdp-note { margin-top: 1.4rem; color: var(--color-muted-foreground); font-size: .75rem; }
+
+  .arce-pdp-pairing { margin-top: clamp(4rem, 8vw, 7rem); }
+  .arce-pdp-pairing-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 1rem; padding-bottom: 1.2rem; border-bottom: var(--border-width) solid var(--color-border); }
+  .arce-pdp-pairing h2 { font-family: var(--font-display); font-size: clamp(2.2rem, 4vw, 3.4rem); font-weight: var(--weight-display); letter-spacing: var(--tracking-display); }
+  .arce-pdp-pairing-head a { display: inline-flex; min-height: 2.75rem; align-items: center; border-bottom: 1px solid currentColor; font-size: .68rem; letter-spacing: .12em; text-transform: uppercase; }
+  .arce-pdp-pairing ul { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--grid-gap); margin-top: var(--grid-gap); }
+  .arce-pdp-pairing li a { display: grid; gap: .3rem; }
+  .arce-pdp-thumb { display: block; overflow: hidden; margin-bottom: .6rem; background: var(--surface-product); }
+  .arce-pdp-thumb img { display: block; width: 100%; aspect-ratio: 1; object-fit: cover; transition: transform .9s cubic-bezier(.2, .7, .2, 1); }
+  .arce-pdp-pairing li a:hover img { transform: scale(1.04); }
+  .arce-pdp-card-name { font-size: .92rem; }
+  .arce-pdp-card-price { color: var(--color-muted-foreground); font-size: .82rem; }
+
+  @media (max-width: 900px) {
+    .arce-pdp-grid { grid-template-columns: 1fr; }
+    .arce-pdp-media { position: static; }
+  }
+  @media (max-width: 640px) {
+    .arce-pdp-pairing ul { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .arce-pdp-pairing li:last-child { display: none; }
+    .arce-pdp-facts > div { grid-template-columns: 1fr; gap: .3rem; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .arce-pdp-media img, .arce-pdp-thumb img, .arce-pdp-crumbs a::after, .arce-pdp-buy button span:last-child { transition: none; }
+  }
+</style>

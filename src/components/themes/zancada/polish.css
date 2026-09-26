@@ -1,0 +1,74 @@
+/* Zancada · pulido 2026-09.
+   Capa de acabado sobre original.css (no lo reescribe): microinteracciones,
+   movimiento ligado al scroll y mínimos de legibilidad en móvil. Solo CSS;
+   el movimiento anima transform y respeta prefers-reduced-motion. */
+
+.zancada { --ds-ease: cubic-bezier(.2, .7, .2, 1); }
+
+/* Tarjeta: la zapatilla despega y un filete ácido crece bajo la tarjeta. */
+.zancada .ds-card { transition: border-color .3s var(--ds-ease); }
+.zancada .ds-card::after {
+  position: absolute; right: -1px; bottom: -1px; left: -1px; height: 3px;
+  background: var(--ds-acid); content: '';
+  transform: scaleX(0); transform-origin: left; transition: transform .5s var(--ds-ease);
+}
+.zancada .ds-card:hover::after, .zancada .ds-card:focus-visible::after { transform: scaleX(1); }
+.zancada .ds-card:hover .ds-card-image img, .zancada .ds-card:focus-visible .ds-card-image img { transform: translateY(-3%) rotate(-4deg) scale(1.06); }
+.zancada .ds-card-plus { transition: transform .45s var(--ds-ease); }
+.zancada .ds-card:hover .ds-card-plus, .zancada .ds-card:focus-visible .ds-card-plus { transform: rotate(90deg); }
+
+/* Filtros como enlaces tipográficos con subrayado ácido (antes: botones grises). */
+.zancada .ds-catalog-controls .ds-filters { gap: 4px 18px; }
+.zancada .ds-catalog-controls .ds-filters a {
+  display: inline-flex; min-height: 44px; align-items: center; padding: 0 2px; border: 0;
+  background: linear-gradient(var(--ds-acid), var(--ds-acid)) 0 calc(100% - 10px) / 0 7px no-repeat;
+  color: #5c5c57; transition: background-size .35s var(--ds-ease), color .2s;
+}
+.zancada .ds-catalog-controls .ds-filters a:hover,
+.zancada .ds-catalog-controls .ds-filters a[aria-current='page'] { background-size: 100% 7px; background-color: transparent; color: var(--ds-ink); }
+.zancada .ds-catalog-form button { min-height: 44px; transition: background-color .25s; }
+.zancada .ds-catalog-form button:hover { background: #404b23; }
+
+/* Pie: la marca gigante subraya su flecha al pasar. */
+.zancada .ds-brand-track > a { transition: background-color .3s var(--ds-ease), letter-spacing .5s var(--ds-ease); }
+.zancada .ds-brand-track > a:hover { letter-spacing: -.02em; }
+
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    .zancada .ds-hero video { animation: zan-hero linear both; animation-timeline: view(); animation-range: exit 0% exit 100%; }
+    .zancada .ds-campaigns article > img { animation: zan-settle linear both; animation-timeline: view(); animation-range: entry 0% cover 50%; }
+    .zancada .ds-mountain-poster { animation: zan-poster linear both; animation-timeline: view(); animation-range: entry 10% cover 55%; }
+    .zancada .ds-footer-wordmark { animation: zan-word linear both; animation-timeline: view(); animation-range: entry 0% cover 40%; }
+  }
+}
+@keyframes zan-hero { to { transform: scale(1.08); } }
+@keyframes zan-settle { from { transform: scale(1.14); } to { transform: none; } }
+@keyframes zan-poster { from { transform: rotate(-6deg) translateY(24px); } to { transform: rotate(-2deg); } }
+@keyframes zan-word { from { transform: translateX(-7%); } to { transform: none; } }
+
+@media (max-width: 640px) {
+  /* El póster rotado ya no pisa el titular de la campaña: se apilan. */
+  .zancada .ds-mountain-campaign { flex-direction: column; align-items: stretch; gap: 26px; aspect-ratio: auto; padding: 24px 16px 20px; }
+  .zancada .ds-mountain-poster { align-self: center; width: 80%; }
+  .zancada .ds-mountain-campaign .ds-campaign-copy { position: static; }
+
+  /* Mínimos de legibilidad: nada por debajo de 10 px. */
+  .zancada .ds-model-sub,
+  .zancada .ds-hero-under,
+  .zancada .ds-hero-under > span,
+  .zancada .ds-small-label,
+  .zancada .ds-poster-top,
+  .zancada .ds-poster-bottom,
+  .zancada .ds-campaign-copy > p,
+  .zancada .ds-campaign-copy > button,
+  .zancada .ds-campaign-copy > a,
+  .zancada .ds-footer-top > div,
+  .zancada .ds-filters { font-size: 10px; }
+  .zancada .ds-card-info { font-size: 11px; }
+  .zancada .ds-campaign-copy > button, .zancada .ds-campaign-copy > a { min-height: 44px; padding-inline: 10px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .zancada .ds-card::after, .zancada .ds-card-plus, .zancada .ds-catalog-controls .ds-filters a, .zancada .ds-brand-track > a { transition: none; }
+  .zancada .ds-card:hover .ds-card-image img { transform: none; }
+}

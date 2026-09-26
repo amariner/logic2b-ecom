@@ -2,6 +2,7 @@
 /** NERA · cuadrícula de prendas aisladas con filetes mínimos. */
 import type { StorePaths } from '../../../collections';
 import { formatEurCents } from '../../../lib/format';
+import { neraAlternates } from './alternates';
 
 type GridProduct = { slug: string; name: string; price_cents: number; image: string; stock: number; };
 interface Props { paths: StorePaths; products: GridProduct[]; }
@@ -9,15 +10,22 @@ const { paths, products } = Astro.props;
 ---
 
 <ul class="nera-grid">
-  {products.map((product, index) => (
-    <li class="nera-card">
-      <a class="nera-card__link" href={paths.product(product.slug)}>
-        <div class="nera-card__media"><img src={product.image} alt={product.name} width="1024" height="1024" loading={index < 4 ? 'eager' : 'lazy'} /></div>
-        <div class="nera-card__copy"><h3>{product.name}</h3><p>{formatEurCents(product.price_cents)}</p></div>
-      </a>
-      <button class="nera-card__add" type="button" data-nera-add={product.slug} disabled={product.stock === 0} aria-label={product.stock === 0 ? `${product.name} agotado` : `Añadir ${product.name} al carrito`}>{product.stock === 0 ? '×' : '+'}</button>
-    </li>
-  ))}
+  {products.map((product, index) => {
+    const alt = neraAlternates[product.slug];
+    return (
+      <li class:list={['nera-card', alt && 'has-alt']}>
+        <a class="nera-card__link" href={paths.product(product.slug)}>
+          <div class="nera-card__media">
+            <img class="nera-card__main" src={product.image} alt={product.name} width="1024" height="1024" loading={index < 4 ? 'eager' : 'lazy'} style={`view-transition-name: nera-${product.slug};`} />
+            {alt && <img class="nera-card__alt" src={alt.src} alt="" width={alt.width} height={alt.height} loading="lazy" decoding="async" style={`object-position: ${alt.position};`} />}
+            <span class="nera-card__peek" aria-hidden="true">Ver pieza</span>
+          </div>
+          <div class="nera-card__copy"><h3>{product.name}</h3><p>{formatEurCents(product.price_cents)}</p></div>
+        </a>
+        <button class="nera-card__add" type="button" data-nera-add={product.slug} disabled={product.stock === 0} aria-label={product.stock === 0 ? `${product.name} agotado` : `Añadir ${product.name} al carrito`}>{product.stock === 0 ? '×' : '+'}</button>
+      </li>
+    );
+  })}
 </ul>
 
 <script>
@@ -33,23 +41,33 @@ const { paths, products } = Astro.props;
 </script>
 
 <style>
-  .nera-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); margin: 0; padding: 0; list-style: none; background: var(--color-border); gap: var(--grid-gap); }
-  .nera-card { position: relative; min-width: 0; color: var(--color-foreground); background: var(--color-background); }
+  /* Filetes por tarjeta (no fondo de rejilla): una fila incompleta ya no deja
+     una losa gris en los huecos. */
+  .nera-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); margin: 0; padding: 0; list-style: none; }
+  .nera-card { position: relative; min-width: 0; color: var(--color-foreground); background: var(--color-background); box-shadow: inset -1px 0 0 var(--color-border), inset 0 -1px 0 var(--color-border); }
   .nera-card__link { display: block; }
-  .nera-card__media { display: grid; aspect-ratio: 1 / 1.08; place-items: center; overflow: hidden; background: var(--surface-product); }
-  .nera-card__media img { width: 100%; height: 100%; object-fit: contain; padding: 7%; transition: transform .35s ease; }
-  .nera-card:hover .nera-card__media img { transform: scale(1.022); }
-  .nera-card__copy { min-height: 4.3rem; padding: .75rem .45rem 1rem; text-align: center; text-transform: uppercase; font-size: .56rem; line-height: 1.35; }
+  .nera-card__media { position: relative; display: grid; aspect-ratio: 1 / 1.08; place-items: center; overflow: hidden; background: var(--surface-product); }
+  .nera-card__media img { grid-area: 1 / 1; width: 100%; height: 100%; }
+  .nera-card__main { object-fit: contain; padding: 7%; transition: transform .6s cubic-bezier(.2, .7, .2, 1), opacity .5s ease; }
+  .nera-card__alt { object-fit: cover; opacity: 0; transform: scale(1.06); transition: opacity .5s ease, transform .9s cubic-bezier(.2, .7, .2, 1); }
+  .nera-card:hover .nera-card__main, .nera-card__link:focus-visible .nera-card__main { transform: scale(1.03); }
+  .nera-card.has-alt:hover .nera-card__main, .nera-card.has-alt .nera-card__link:focus-visible .nera-card__main { opacity: 0; }
+  .nera-card.has-alt:hover .nera-card__alt, .nera-card.has-alt .nera-card__link:focus-visible .nera-card__alt { opacity: 1; transform: scale(1); }
+  .nera-card__peek { position: absolute; bottom: .8rem; left: 50%; padding: .4rem .7rem; background: var(--color-background); font-size: .68rem; letter-spacing: .08em; text-transform: uppercase; opacity: 0; transform: translate(-50%, .4rem); transition: opacity .35s ease, transform .35s ease; }
+  .nera-card:hover .nera-card__peek, .nera-card__link:focus-visible .nera-card__peek { opacity: 1; transform: translate(-50%, 0); }
+  .nera-card__copy { min-height: 4.6rem; padding: .85rem .5rem 1rem; text-align: center; text-transform: uppercase; font-size: .72rem; letter-spacing: .02em; line-height: 1.35; }
   .nera-card__copy h3 { font: inherit; }
   .nera-card__copy p { margin-top: .25rem; color: var(--color-muted-foreground); }
-  .nera-card__add { position: absolute; z-index: 2; top: .55rem; right: .55rem; display: grid; width: 2rem; height: 2rem; place-items: center; border: var(--border-width) solid var(--color-border); border-radius: var(--radius-btn); color: var(--color-foreground); background: color-mix(in srgb, var(--color-background) 90%, transparent); font: 500 .9rem/1 var(--font-accent); cursor: pointer; }
-  .nera-card__add:hover { color: var(--color-brand-fg); background: var(--color-brand); }
-  .nera-card__add:disabled { cursor: not-allowed; opacity: .4; }
+  .nera-card__add { position: absolute; z-index: 2; top: .35rem; right: .45rem; display: grid; width: 2.75rem; height: 2.75rem; place-items: center; border: var(--border-width) solid var(--color-border); border-radius: var(--radius-btn); color: var(--color-foreground); background: color-mix(in srgb, var(--color-background) 90%, transparent); font: 500 1rem/1 var(--font-accent); cursor: pointer; transition: background-color .25s ease, color .25s ease, border-color .25s ease; }
+  .nera-card__add:hover { border-color: var(--color-brand); color: var(--color-brand-fg); background: var(--color-brand); }
+  .nera-card__add:disabled { cursor: not-allowed; color: var(--color-muted-foreground); }
+  .nera-card__add:disabled:hover { border-color: var(--color-border); color: var(--color-muted-foreground); background: color-mix(in srgb, var(--color-background) 90%, transparent); }
   .nera-card__add:focus-visible, .nera-card__link:focus-visible { outline: .16rem solid var(--color-brand); outline-offset: -.16rem; }
   @media (max-width: 720px) {
     .nera-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .nera-card__media { aspect-ratio: 1; }
-    .nera-card__copy { min-height: 4rem; padding-inline: .3rem; }
+    .nera-card__copy { min-height: 4.2rem; padding-inline: .3rem; }
+    .nera-card__peek { display: none; }
   }
-  @media (prefers-reduced-motion: reduce) { .nera-card__media img { transition: none; } }
+  @media (prefers-reduced-motion: reduce) { .nera-card__main, .nera-card__alt, .nera-card__peek { transition: none; } }
 </style>

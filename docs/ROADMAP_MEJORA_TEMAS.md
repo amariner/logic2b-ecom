@@ -237,8 +237,8 @@ repetir el proceso.
 
 | Bloque | Entrega | Estado |
 |---|---|---|
-| TH1.1 | Auditoría y brief de producto/conversión de ARCE | pendiente |
-| TH1.2 | Implementación integral de ARCE en las siete dimensiones | pendiente |
+| TH1.1 | Auditoría y brief de producto/conversión de ARCE | ✅ 2026-09-26 (auditoría de temas destacados) |
+| TH1.2 | Implementación integral de ARCE en las siete dimensiones | ✅ 2026-09-26 (ver cierre abajo) |
 | TH1.3 | QA, comparación antes/después y ajuste de rúbrica/checklist | pendiente |
 
 ### TH2 — Temas fundacionales y mayor deuda probable
@@ -265,13 +265,13 @@ del contrato compartido.
 |---:|---|---|---|
 | 1 | TH3.1 | NODDO | pendiente |
 | 2 | TH3.2 | Sitēga | pendiente |
-| 3 | TH3.3 | Forma | pendiente |
+| 3 | TH3.3 | Forma | ✅ 2026-09-26 (adelantado: tema destacado en la home) |
 | 4 | TH3.4 | STRETCH | pendiente |
 | 5 | TH3.5 | ARGENT. | pendiente |
 | 6 | TH3.6 | SILLAGE | pendiente |
 | 7 | TH3.7 | SUMMIT | pendiente |
 | 8 | TH3.8 | LÍTICA | pendiente |
-| 9 | TH3.9 | NERA | pendiente |
+| 9 | TH3.9 | NERA | ✅ 2026-09-26 (adelantado: tema destacado en la home) |
 | 10 | TH3.10 | SARGA | pendiente |
 | 11 | TH3.11 | Consolidación de ola y regresión global | pendiente |
 
@@ -329,10 +329,12 @@ La ficha `docs/temas/<id>.md` añade al final:
 
 ## 9. Siguiente bloque
 
-**TH1.1 — auditoría y brief de producto/conversión de ARCE.** Fijar audiencia,
-tarea principal, propuesta, alcance y puntuación inicial; recorrer catálogo,
-ficha, cesta, checkout y confirmación en los tres anchos; y convertir los gaps
-observados en un brief verificable para TH1.2, sin implementar aún el rediseño.
+**TH1.3 — QA de ARCE y ajuste de rúbrica.** Comparación antes/después con las
+capturas regeneradas el 2026-09-26, revisión de la rúbrica con lo aprendido en
+los cuatro temas destacados y, después, reanudar la cola en TH2.1 (Minimal).
+Cambio de orden documentado: el 2026-09-26 Andreu pidió llevar a nivel de
+premio los temas destacados de la home, así que ARCE (TH1.1–TH1.2), Forma
+(TH3.3) y NERA (TH3.9) se adelantaron y Zancada recibió un pulido fuera de cola.
 
 ## 10. Cierres del carril
 
@@ -434,3 +436,22 @@ observados en un brief verificable para TH1.2, sin implementar aún el rediseño
 - El baseline queda con P0/P1 en 0; permanecen dos P2 de assets/formato y un P3
   de samples estáticos, asignados a TH1–TH5. No hubo dependencia, migración,
   escritura en D1, pedido real, coste ni cambio de promesa comercial.
+
+### Temas destacados de la home — ARCE, NERA, Forma y Zancada (2026-09-26)
+
+- Encargo de Andreu: «coger los temas que se destacan en la home» y llevarlos a
+  nivel de premio en UX/UI, efectos y frontend en tendencia, sin bifurcar el
+  motor. Auditoría previa de solo lectura con hallazgos por archivo y línea.
+- Patrones comunes aplicados: transición de imagen catálogo → ficha con
+  `view-transition-name` (el cross-document ya estaba activo en `Base`),
+  movimiento ligado al scroll solo con `transform` (las capturas y el auditor
+  nunca ven contenido oculto), objetivos de 44 px, textos legibles, copy sin
+  promesas inventadas y fichas propias registradas en `productPresentations`.
+- Notas: ARCE 60 → 90 · NERA 60 → 86 · Forma 45 → 86 · Zancada 79 → 86. El
+  detalle, la evidencia y la deuda están en cada `docs/temas/<id>.md`.
+- Verificación: `astro check` limpio de errores propios; 1260/1261 tests (el
+  único fallo lo causan borradores no versionados ajenos); build; E2E en verde
+  tras aplicar en local la migración 0045 pendiente; a11y 0/0 en las 35
+  superficies de los cuatro temas; capturas regeneradas; baseline estable con
+  Forma fuera de P2-02 y P2-03.
+- Pendiente de decisión de Andreu: marcas reales en Zancada.
