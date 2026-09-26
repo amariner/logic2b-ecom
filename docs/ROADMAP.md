@@ -16,6 +16,56 @@
 > 2. Actualizar el estado de la fase al terminar, con fecha y resumen de lo hecho.
 > 3. Anotar decisiones tomadas y pendientes en las secciones de abajo.
 
+## Home — rediseño editorial en rama `redesign/home-awwwards` (2026-09-26)
+
+Por encargo de Andreu: pasada de UX/UI, producto y conversión sobre la portada
+conservando la esencia (Fraunces + Inter, lienzo natural, tinta verde,
+píldoras) y la estructura de secciones. **Sin publicar**: vive en la rama
+hasta su OK. Sin dependencias, sin cambios de precios, promesas ni motor.
+
+- **Hero:** el CTA con aspecto de campo de texto (patrón engañoso) pasa a botón
+  principal que abre el diálogo de proyecto + secundario «Ver una tienda demo».
+  Tres pruebas verificables calculadas (tiendas demo = `gallery.length`, un
+  panel, 0 datos de tarjeta). El carrusel de temas se enmarca en un escenario
+  con tarjetas de pedido y envío (datos de los fixtures del panel) y un
+  indicador Tienda → Pago → Pedido → Envío.
+- **Componentes nuevos:** recorrido de 7 pasos con fases y línea conectada
+  (scroll horizontal en tableta, línea de tiempo en móvil); explorador con
+  control segmentado deslizante y capturas en marco de navegador; tres
+  mini-diagramas SVG propios en integraciones; precios con plan destacado en
+  verde; bento de tiendas con vídeo al hover (el `<video>` no existe hasta la
+  primera interacción); pila de pantallas del panel que reacciona a hover/foco
+  solo con CSS (`:has`); pasos del acompañamiento en línea de tiempo; guías
+  con icono; FAQ con ayuda lateral fija; contacto con textura.
+- **Estructura:** el CSS de la portada sale de `commercial.css` a
+  `src/styles/home.css` (solo lo carga `/`, 9 kB gzip). Entradas al hacer
+  scroll con `animation-timeline: view()` como mejora progresiva; con
+  reduced-motion no hay animación. JSON-LD y FAQ intactos.
+
+Verificación: `astro check` sin errores propios; 1260 tests en verde (el único
+fallo, `architecture.test.ts`, lo causan los borradores no versionados de
+`src/lib/tour`, `brands.ts` y `panel-views.ts`, que no forman parte de la
+rama); scaffold y baseline de temas correctos; build completo. Contraste AA
+comprobado en todos los pares nuevos (mínimo 5,67:1). Revisado a 1440, 1280,
+1024, 800 y 375 px; pestañas, diálogo y vídeo probados en navegador.
+
+Lighthouse 12 local contra `wrangler dev`, mediana de tres pasadas y
+**comparación controlada con `main` en la misma máquina**: escritorio
+**100/100/100/100** (main 100), CLS 0; móvil **92**/100/100/100 (main **90**),
+LCP 3,0 s (main 3,1 s). Se corrigió un CLS de 0,036 introducido por el hero
+(la fila centrada se recolocaba con el swap de Fraunces).
+
+**Hallazgo previo, pendiente:** `Base.astro` precarga `poppins-600-latin`
+en las comerciales, pero sus titulares usan Fraunces desde el cambio de
+lenguaje visual; el H1 (LCP) espera a una fuente que nadie precarga (67 kB) y
+se descargan 8 kB que no se usan. Probar precarga de Fraunces o un fallback
+con métricas ajustadas, midiendo contra producción.
+
+Consejo: arquitecto ✓ sin dependencias ni motor; producto ✓ precios y
+promesas intactos, prueba social verificable; frontend ✓ sin JS nuevo salvo
+~0,6 kB de vídeo al hover, funciona sin JS; UX/UI ✓ AA, reduced-motion y
+responsive; SEO ⚠ móvil 92 (línea base 90), pendiente la precarga de arriba.
+
 ## Backend — persistencia de segmentación R5.6b (2026-09-18)
 
 Implementado tras la autorización local de Andreu. `0045` añade cinco tablas
