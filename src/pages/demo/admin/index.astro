@@ -107,15 +107,15 @@ const date = (value: string) => new Intl.DateTimeFormat('es-ES', { day: '2-digit
 
 <Admin title="Pedidos" active="pedidos">
   <AdminPageHeader eyebrow="Operación diaria" title="Pedidos" description="Controla cobros, preparación y entrega desde una vista clara. Los datos de esta demo son ficticios y no pertenecen a ningún escaparate.">
-    {canBackup && <a slot="actions" href="/api/admin/backup.sql" download class="inline-flex min-h-11 items-center gap-2 rounded-xl border border-border bg-card px-4 text-sm font-semibold shadow-sm hover:bg-muted"><AdminIcon name="download" class="size-4" />Copia SQL</a>}
+    {canBackup && <a slot="actions" href="/api/admin/backup.sql" download title="Descarga una copia completa de la base de datos (.sql)" class="inline-flex min-h-11 items-center gap-2 rounded-xl border border-border bg-card px-4 text-sm font-semibold shadow-sm hover:bg-muted"><AdminIcon name="download" class="size-4" />Copia de seguridad</a>}
     {canExport && <a slot="actions" href="/api/admin/orders/export.csv" download class="inline-flex min-h-11 items-center gap-2 rounded-xl bg-foreground px-4 text-sm font-semibold text-background shadow-sm hover:bg-foreground/85"><AdminIcon name="download" class="size-4" />Exportar envíos</a>}
   </AdminPageHeader>
 
-  <section class="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-4" aria-label="Resumen de pedidos">
-    <div class="rounded-2xl border border-border bg-card p-5 shadow-sm"><p class="text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">Total</p><p class="mt-3 text-3xl font-semibold tracking-tight">{allCount}</p><p class="mt-1 text-sm text-muted-foreground">pedidos registrados</p></div>
-    <div class="rounded-2xl border border-border bg-card p-5 shadow-sm"><p class="text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">Por preparar</p><p class="mt-3 text-3xl font-semibold tracking-tight text-amber-700">{countFor('paid')}</p><p class="mt-1 text-sm text-muted-foreground">pagados y pendientes de envío</p></div>
-    <div class="rounded-2xl border border-border bg-card p-5 shadow-sm"><p class="text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">En tránsito</p><p class="mt-3 text-3xl font-semibold tracking-tight text-sky-700">{countFor('shipped')}</p><p class="mt-1 text-sm text-muted-foreground">enviados al cliente</p></div>
-    <div class="rounded-2xl border border-border bg-card p-5 shadow-sm"><p class="text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">Completados</p><p class="mt-3 text-3xl font-semibold tracking-tight text-emerald-700">{countFor('delivered')}</p><p class="mt-1 text-sm text-muted-foreground">entregas confirmadas</p></div>
+  <section class="mt-6 grid grid-cols-2 gap-3 xl:grid-cols-4" aria-label="Resumen de pedidos">
+    <div class="rounded-2xl border border-border bg-card p-4 shadow-sm sm:p-5"><p class="text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">Total</p><p class="mt-2 text-2xl font-semibold tracking-tight sm:mt-3 sm:text-3xl">{allCount}</p><p class="mt-1 text-sm text-muted-foreground">pedidos registrados</p></div>
+    <div class="rounded-2xl border border-border bg-card p-4 shadow-sm sm:p-5"><p class="text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">Por preparar</p><p class="mt-2 text-2xl font-semibold tracking-tight sm:mt-3 sm:text-3xl text-amber-700">{countFor('paid')}</p><p class="mt-1 text-sm text-muted-foreground">pagados y pendientes de envío</p></div>
+    <div class="rounded-2xl border border-border bg-card p-4 shadow-sm sm:p-5"><p class="text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">En tránsito</p><p class="mt-2 text-2xl font-semibold tracking-tight sm:mt-3 sm:text-3xl text-sky-700">{countFor('shipped')}</p><p class="mt-1 text-sm text-muted-foreground">enviados al cliente</p></div>
+    <div class="rounded-2xl border border-border bg-card p-4 shadow-sm sm:p-5"><p class="text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">Completados</p><p class="mt-2 text-2xl font-semibold tracking-tight sm:mt-3 sm:text-3xl text-emerald-700">{countFor('delivered')}</p><p class="mt-1 text-sm text-muted-foreground">entregas confirmadas</p></div>
   </section>
 
   <section class="mt-6 rounded-2xl border border-border bg-card shadow-sm" aria-labelledby="order-list-title">
@@ -126,8 +126,8 @@ const date = (value: string) => new Intl.DateTimeFormat('es-ES', { day: '2-digit
           {status && <input type="hidden" name="estado" value={status} />}
           <label class="relative xl:col-span-4"><span class="sr-only">Buscar pedidos</span><AdminIcon name="search" class="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"/><input type="search" name="q" value={search} maxlength="120" placeholder="Número, cliente o email" class="min-h-11 w-full rounded-xl border border-input bg-background pl-10 pr-3 text-sm shadow-sm" /></label>
           <label class="xl:col-span-2"><span class="sr-only">Ordenar pedidos</span><select name="orden" class="min-h-11 w-full rounded-xl border border-input bg-background px-3 text-sm shadow-sm"><option value="created-desc" selected={sort === 'created-desc'}>Más recientes</option><option value="created-asc" selected={sort === 'created-asc'}>Más antiguos</option><option value="total-desc" selected={sort === 'total-desc'}>Mayor importe</option><option value="total-asc" selected={sort === 'total-asc'}>Menor importe</option></select></label>
-          <label class="xl:col-span-2"><span class="sr-only">Filtrar por etiqueta</span><select name="etiqueta" class="min-h-11 w-full rounded-xl border border-input bg-background px-3 text-sm shadow-sm"><option value="">Todas las etiquetas</option>{tagDefinitions.filter((item) => item.active === 1).map((item) => <option value={item.slug} selected={tag === item.slug}>{item.label} ({item.usage_count})</option>)}</select></label>
-          <label class="xl:col-span-2"><span class="sr-only">Filtrar por incidencia</span><select name="incidencia" class="min-h-11 w-full rounded-xl border border-input bg-background px-3 text-sm shadow-sm"><option value="">Todas las incidencias</option><option value="active" selected={hold === 'active'}>Con incidencia activa</option><option value="breached" selected={hold === 'breached'}>SLA vencido</option></select></label>
+          <label class="xl:col-span-2"><span class="sr-only">Filtrar por etiqueta</span><select name="etiqueta" class="min-h-11 w-full rounded-xl border border-input bg-background px-3 text-sm shadow-sm"><option value="">Etiquetas</option>{tagDefinitions.filter((item) => item.active === 1).map((item) => <option value={item.slug} selected={tag === item.slug}>{item.label} ({item.usage_count})</option>)}</select></label>
+          <label class="xl:col-span-2"><span class="sr-only">Filtrar por incidencia</span><select name="incidencia" class="min-h-11 w-full rounded-xl border border-input bg-background px-3 text-sm shadow-sm"><option value="">Incidencias</option><option value="active" selected={hold === 'active'}>Con incidencia activa</option><option value="breached" selected={hold === 'breached'}>Plazo vencido</option></select></label>
           <button class="min-h-11 rounded-xl bg-foreground px-4 text-sm font-semibold text-background xl:col-span-2">Aplicar</button>
           {filtersActive && <a href="/demo/admin" class="inline-flex min-h-11 items-center justify-center rounded-xl px-3 text-sm font-medium text-muted-foreground hover:bg-muted xl:col-span-2">Limpiar</a>}
           <details class="rounded-xl border border-border bg-background px-3 xl:col-span-12" open={Boolean(dateFrom || dateTo || minTotalRaw || maxTotalRaw)}>
@@ -147,18 +147,24 @@ const date = (value: string) => new Intl.DateTimeFormat('es-ES', { day: '2-digit
       </nav>
     </div>
 
-    {(invalidCursor || filterIssue) && <div class="p-5 pb-0"><AdminNotice tone="warning">{invalidCursor ? 'El cursor no pertenece a esta consulta; mostramos la primera página.' : 'Revisa el rango de fecha o importe: el valor inicial no puede superar al final.'}</AdminNotice></div>}
+    {(invalidCursor || filterIssue) && <div class="p-5 pb-0"><AdminNotice tone="warning">{invalidCursor ? 'Esa página de resultados ya no es válida; mostramos la primera.' : 'Revisa el rango de fecha o importe: el valor inicial no puede superar al final.'}</AdminNotice></div>}
 
     {canBulkPreview && <section
       id="bulk-actions"
       data-can-execute={canBulkExecute ? 'true' : 'false'}
-      class="border-b border-border bg-muted/30 p-4 sm:p-5"
+      class="border-b border-border bg-muted/30"
       aria-labelledby="bulk-actions-title"
     >
-      <div class="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
+      {/* Plegado por defecto: el día a día es abrir pedidos, no operar en lote.
+          Se despliega solo al marcar el primer pedido de la lista. */}
+      <details data-bulk-details class="group">
+      <summary class="flex min-h-12 cursor-pointer list-none items-center justify-between gap-3 px-4 text-sm sm:px-5 [&::-webkit-details-marker]:hidden">
+        <span><strong id="bulk-actions-title">Acciones en bloque</strong> <span class="text-muted-foreground">· <span data-bulk-count-summary>0</span> seleccionados</span></span>
+        <span class="inline-flex items-center gap-1 text-muted-foreground"><span class="group-open:hidden">Mostrar</span><span class="hidden group-open:inline">Ocultar</span><AdminIcon name="chevron" class="size-4 rotate-90 transition group-open:-rotate-90" /></span>
+      </summary>
+      <div class="flex flex-col gap-4 px-4 pb-4 sm:px-5 sm:pb-5 xl:flex-row xl:items-start xl:justify-between">
         <div class="max-w-xl">
-          <h3 id="bulk-actions-title" class="font-display text-lg">Acciones masivas seguras</h3>
-          <p class="mt-1 text-sm leading-6 text-muted-foreground">Congela hasta 500 pedidos, revisa el impacto y confirma después. Cada pedido se valida otra vez al ejecutar.</p>
+          <p class="text-sm leading-6 text-muted-foreground">Marca pedidos en la lista, elige qué hacer y revisa la vista previa antes de confirmar. Hasta 500 pedidos a la vez; cada uno se comprueba de nuevo al aplicar.</p>
           <div class="mt-3 flex flex-wrap items-center gap-2 text-sm">
             <strong><span data-bulk-count>0</span> seleccionados</strong>
             <button type="button" data-bulk-select-page class="min-h-10 rounded-xl border border-border bg-card px-3 font-medium hover:bg-muted">Seleccionar esta página</button>
@@ -190,10 +196,10 @@ const date = (value: string) => new Intl.DateTimeFormat('es-ES', { day: '2-digit
                 <option value="other">Otro</option>
               </select>
             </label>
-            <label class="text-xs font-semibold text-muted-foreground">Responsable técnico
+            <label class="text-xs font-semibold text-muted-foreground">Responsable
               <input name="owner_id" value="operations" maxlength="80" pattern="[A-Za-z0-9:_-]+" class="mt-1 min-h-11 w-full rounded-xl border border-input bg-background px-3 text-sm text-foreground" />
             </label>
-            <label class="text-xs font-semibold text-muted-foreground">SLA
+            <label class="text-xs font-semibold text-muted-foreground">Resolver antes de
               <input type="datetime-local" name="due_at" class="mt-1 min-h-11 w-full rounded-xl border border-input bg-background px-3 text-sm text-foreground" />
             </label>
           </div>
@@ -201,10 +207,10 @@ const date = (value: string) => new Intl.DateTimeFormat('es-ES', { day: '2-digit
         </form>
       </div>
 
-      <div id="bulk-preview-result" class="mt-4 rounded-2xl border border-border bg-card p-4" hidden aria-live="polite">
+      <div id="bulk-preview-result" class="mx-4 mb-4 rounded-2xl border border-border bg-card p-4 sm:mx-5 sm:mb-5" hidden aria-live="polite">
         <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div>
-            <p class="text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">Dry-run sin efectos</p>
+            <p class="text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">Vista previa · aún no cambia nada</p>
             <p class="mt-2 font-semibold"><span data-bulk-ready>0</span> listos · <span data-bulk-skipped>0</span> omitidos</p>
             <p data-bulk-status class="mt-1 text-sm text-muted-foreground"></p>
           </div>
@@ -213,19 +219,20 @@ const date = (value: string) => new Intl.DateTimeFormat('es-ES', { day: '2-digit
             <button type="button" data-bulk-replay class="min-h-11 rounded-xl border border-border px-4 text-sm font-semibold hover:bg-muted" hidden>Reintentar fallos</button>
           </div>
         </div>
-        {!canBulkExecute && <div class="mt-3"><AdminNotice tone="info">La demo permite revisar el dry-run, pero nunca crea lotes ni modifica pedidos.</AdminNotice></div>}
+        {!canBulkExecute && <div class="mt-3"><AdminNotice tone="info">La demo enseña la vista previa, pero nunca modifica pedidos.</AdminNotice></div>}
         <ul data-bulk-rows class="mt-3 grid gap-2 text-sm sm:grid-cols-2 xl:grid-cols-3"></ul>
       </div>
+      </details>
     </section>}
 
     {orders.length > 0 && <>
       <div class="hidden overflow-x-auto md:block">
         <table class="w-full text-sm">
           <thead class="border-b border-border bg-muted/60 text-left text-xs uppercase tracking-[0.11em] text-muted-foreground"><tr>{canBulkPreview && <th class="w-14 px-3"><span class="sr-only">Seleccionar</span></th>}<th class="px-5 py-3 font-semibold">Pedido</th><th class="px-5 py-3 font-semibold">Cliente</th><th class="px-5 py-3 font-semibold">Fecha</th><th class="px-5 py-3 text-right font-semibold">Total</th><th class="px-5 py-3 font-semibold">Estado</th><th class="w-12 px-3"><span class="sr-only">Abrir</span></th></tr></thead>
-          <tbody class="divide-y divide-border">{orders.map((order) => <tr class="group hover:bg-muted/50">{canBulkPreview && <td class="px-3 py-4"><label class="flex size-11 items-center justify-center rounded-xl hover:bg-card"><span class="sr-only">Seleccionar pedido {order.order_number}</span><input type="checkbox" value={order.id} data-bulk-order class="size-5 rounded border-input accent-foreground" /></label></td>}<td class="px-5 py-4"><a href={`/demo/admin/pedidos/${order.id}`} class="font-mono font-semibold underline-offset-4 after:absolute hover:underline">{order.order_number}</a></td><td class="px-5 py-4"><p class="font-medium">{order.customer_name}</p><p class="mt-0.5 text-xs text-muted-foreground">{order.email}</p></td><td class="whitespace-nowrap px-5 py-4 text-muted-foreground">{date(order.created_at)}</td><td class="px-5 py-4 text-right font-semibold">{formatEurCents(order.total_cents)}</td><td class="px-5 py-4"><AdminStatusBadge status={order.status} label={statusLabel[order.status] ?? order.status}/>{order.active_hold_count > 0 && <span class:list={['mt-2 block w-fit rounded-full px-2.5 py-1 text-xs font-semibold', order.breached_hold_count > 0 ? 'bg-red-100 text-red-900' : 'bg-amber-100 text-amber-950']}>{order.breached_hold_count > 0 ? 'SLA vencido' : `${order.active_hold_count} incidencia${order.active_hold_count === 1 ? '' : 's'}`}</span>}</td><td class="px-3 py-4"><a href={`/demo/admin/pedidos/${order.id}`} class="flex size-11 items-center justify-center rounded-xl text-muted-foreground group-hover:bg-card group-hover:text-foreground" aria-label={`Abrir pedido ${order.order_number}`}><AdminIcon name="chevron" class="size-4"/></a></td></tr>)}</tbody>
+          <tbody class="divide-y divide-border">{orders.map((order) => <tr class="group hover:bg-muted/50">{canBulkPreview && <td class="px-3 py-4"><label class="flex size-11 items-center justify-center rounded-xl hover:bg-card"><span class="sr-only">Seleccionar pedido {order.order_number}</span><input type="checkbox" value={order.id} data-bulk-order class="size-5 rounded border-input accent-foreground" /></label></td>}<td class="px-5 py-4"><a href={`/demo/admin/pedidos/${order.id}`} class="font-mono font-semibold underline-offset-4 after:absolute hover:underline">{order.order_number}</a></td><td class="px-5 py-4"><p class="font-medium">{order.customer_name}</p><p class="mt-0.5 text-xs text-muted-foreground">{order.email}</p></td><td class="whitespace-nowrap px-5 py-4 text-muted-foreground">{date(order.created_at)}</td><td class="px-5 py-4 text-right font-semibold">{formatEurCents(order.total_cents)}</td><td class="px-5 py-4"><AdminStatusBadge status={order.status} label={statusLabel[order.status] ?? order.status}/>{order.active_hold_count > 0 && <span class:list={['mt-2 block w-fit rounded-full px-2.5 py-1 text-xs font-semibold', order.breached_hold_count > 0 ? 'bg-red-100 text-red-900' : 'bg-amber-100 text-amber-950']}>{order.breached_hold_count > 0 ? 'Plazo vencido' : `${order.active_hold_count} incidencia${order.active_hold_count === 1 ? '' : 's'}`}</span>}</td><td class="px-3 py-4"><a href={`/demo/admin/pedidos/${order.id}`} class="flex size-11 items-center justify-center rounded-xl text-muted-foreground group-hover:bg-card group-hover:text-foreground" aria-label={`Abrir pedido ${order.order_number}`}><AdminIcon name="chevron" class="size-4"/></a></td></tr>)}</tbody>
         </table>
       </div>
-      <ul class="divide-y divide-border md:hidden">{orders.map((order) => <li class="flex items-start gap-1 p-2">{canBulkPreview && <label class="flex size-11 shrink-0 items-center justify-center rounded-xl hover:bg-muted"><span class="sr-only">Seleccionar pedido {order.order_number}</span><input type="checkbox" value={order.id} data-bulk-order class="size-5 rounded border-input accent-foreground" /></label>}<a href={`/demo/admin/pedidos/${order.id}`} class="min-w-0 flex-1 rounded-xl p-2 hover:bg-muted/60"><div class="flex items-start justify-between gap-3"><div><p class="font-mono text-sm font-semibold">{order.order_number}</p><p class="mt-1 text-sm font-medium">{order.customer_name}</p></div><p class="font-semibold">{formatEurCents(order.total_cents)}</p></div><div class="mt-3 flex flex-wrap items-center justify-between gap-3"><AdminStatusBadge status={order.status} label={statusLabel[order.status] ?? order.status}/>{order.active_hold_count > 0 && <span class:list={['rounded-full px-2.5 py-1 text-xs font-semibold', order.breached_hold_count > 0 ? 'bg-red-100 text-red-900' : 'bg-amber-100 text-amber-950']}>{order.breached_hold_count > 0 ? 'SLA vencido' : `${order.active_hold_count} incidencia${order.active_hold_count === 1 ? '' : 's'}`}</span>}<time class="text-xs text-muted-foreground">{date(order.created_at)}</time></div></a></li>)}</ul>
+      <ul class="divide-y divide-border md:hidden">{orders.map((order) => <li class="flex items-start gap-1 p-2">{canBulkPreview && <label class="flex size-11 shrink-0 items-center justify-center rounded-xl hover:bg-muted"><span class="sr-only">Seleccionar pedido {order.order_number}</span><input type="checkbox" value={order.id} data-bulk-order class="size-5 rounded border-input accent-foreground" /></label>}<a href={`/demo/admin/pedidos/${order.id}`} class="min-w-0 flex-1 rounded-xl p-2 hover:bg-muted/60"><div class="flex items-start justify-between gap-3"><div><p class="font-mono text-sm font-semibold">{order.order_number}</p><p class="mt-1 text-sm font-medium">{order.customer_name}</p></div><p class="font-semibold">{formatEurCents(order.total_cents)}</p></div><div class="mt-3 flex flex-wrap items-center justify-between gap-3"><AdminStatusBadge status={order.status} label={statusLabel[order.status] ?? order.status}/>{order.active_hold_count > 0 && <span class:list={['rounded-full px-2.5 py-1 text-xs font-semibold', order.breached_hold_count > 0 ? 'bg-red-100 text-red-900' : 'bg-amber-100 text-amber-950']}>{order.breached_hold_count > 0 ? 'Plazo vencido' : `${order.active_hold_count} incidencia${order.active_hold_count === 1 ? '' : 's'}`}</span>}<time class="text-xs text-muted-foreground">{date(order.created_at)}</time></div></a></li>)}</ul>
     </>}
 
     {orders.length === 0 && <div class="px-5 py-14 text-center"><span class="mx-auto flex size-12 items-center justify-center rounded-2xl bg-muted text-muted-foreground"><AdminIcon name="orders"/></span><h3 class="mt-4 font-display text-lg">No hay pedidos que coincidan</h3><p class="mx-auto mt-2 max-w-md text-sm leading-6 text-muted-foreground">Prueba a quitar algún filtro o visita la tienda demo para conocer el recorrido de compra.</p><a href={filtersActive ? '/demo/admin' : MAIN_DEMO_HREF} class="mt-5 inline-flex min-h-11 items-center rounded-xl border border-border px-4 text-sm font-semibold hover:bg-muted">{filtersActive ? 'Quitar filtros' : 'Ver tienda ARCE'}</a></div>}
@@ -269,6 +276,9 @@ const date = (value: string) => new Intl.DateTimeFormat('es-ES', { day: '2-digit
     const result = panel.querySelector<HTMLElement>('#bulk-preview-result')!;
     const status = panel.querySelector<HTMLElement>('[data-bulk-status]')!;
     const count = panel.querySelector<HTMLElement>('[data-bulk-count]')!;
+    const summaryCount = panel.querySelector<HTMLElement>('[data-bulk-count-summary]');
+    const details = panel.querySelector<HTMLDetailsElement>('[data-bulk-details]');
+    let autoOpened = false;
     const ready = panel.querySelector<HTMLElement>('[data-bulk-ready]')!;
     const skipped = panel.querySelector<HTMLElement>('[data-bulk-skipped]')!;
     const rowsList = panel.querySelector<HTMLUListElement>('[data-bulk-rows]')!;
@@ -298,6 +308,8 @@ const date = (value: string) => new Intl.DateTimeFormat('es-ES', { day: '2-digit
     const syncSelection = () => {
       for (const checkbox of checkboxes()) checkbox.checked = selected.has(Number(checkbox.value));
       count.textContent = String(selected.size);
+      if (summaryCount) summaryCount.textContent = String(selected.size);
+      if (details && selected.size > 0 && !details.open && !autoOpened) { details.open = true; autoOpened = true; }
       sessionStorage.setItem(storageKey, JSON.stringify([...selected].toSorted((a, b) => a - b)));
     };
     for (const checkbox of checkboxes()) checkbox.addEventListener('change', () => {
@@ -338,7 +350,7 @@ const date = (value: string) => new Intl.DateTimeFormat('es-ES', { day: '2-digit
       already_absent: 'Ya ausente', active_hold_same_reason: 'Incidencia ya activa',
       status_not_supported: 'Estado incompatible', applied: 'Aplicado',
       replayed_same_batch: 'Reconocido en replay', tag_not_found: 'Etiqueta no disponible',
-      hold_due_elapsed: 'SLA vencido antes de ejecutar', precondition_changed: 'Cambió durante la ejecución',
+      hold_due_elapsed: 'Plazo vencido antes de ejecutar', precondition_changed: 'Cambió durante la ejecución',
       retryable_failure: 'Fallo reintentable', permanent_failure: 'Fallo permanente',
     };
     const renderRows = (items: Array<{ orderId: number; label: string; tone: string }>) => {
@@ -435,7 +447,7 @@ const date = (value: string) => new Intl.DateTimeFormat('es-ES', { day: '2-digit
               type: actionSelect.value as 'add_tag' | 'remove_tag',
               tagId: Number(data.get('tag_id')),
             };
-        status.textContent = 'Calculando el dry-run…';
+        status.textContent = 'Calculando la vista previa…';
         result.hidden = false;
         const payload = await requestJson<{ preview: BulkPreview }>('/api/admin/order-bulk-actions/preview', {
           method: 'POST', headers: { 'content-type': 'application/json' },
@@ -445,15 +457,15 @@ const date = (value: string) => new Intl.DateTimeFormat('es-ES', { day: '2-digit
         renderPreview(payload.preview);
       })().catch((error: unknown) => {
         result.hidden = false;
-        status.textContent = error instanceof Error ? error.message : 'No se pudo crear el dry-run.';
+        status.textContent = error instanceof Error ? error.message : 'No se pudo crear la vista previa.';
       });
     });
 
     confirmButton.addEventListener('click', () => {
       void (async () => {
-        if (!currentPreview) throw new Error('Genera un dry-run nuevo antes de confirmar.');
+        if (!currentPreview) throw new Error('Genera una vista previa nueva antes de confirmar.');
         confirmButton.disabled = true;
-        status.textContent = 'Congelando la selección y ejecutando…';
+        status.textContent = 'Aplicando los cambios…';
         const payload = await requestJson<{ batch: BulkView }>('/api/admin/order-bulk-actions', {
           method: 'POST', headers: { 'content-type': 'application/json' },
           body: JSON.stringify({ preview: currentPreview }),

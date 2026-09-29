@@ -224,14 +224,14 @@ check(
   adminHtml.includes('id="bulk-action-form"')
     && adminHtml.includes('data-bulk-order')
     && adminHtml.includes('data-can-execute="false"')
-    && adminHtml.includes('nunca crea lotes ni modifica pedidos'),
+    && adminHtml.includes('nunca modifica pedidos'),
 );
 const heldOrdersHtml = await (await fetch(adminUrl('/demo/admin?incidencia=active'), { headers: { cookie } })).text();
 const heldOrderId = heldOrdersHtml.match(/\/demo\/admin\/pedidos\/(\d+)"/)?.[1];
 check(
   'filtro de incidencias localiza el fixture activo y muestra su SLA R3.4',
   heldOrderId !== undefined && heldOrdersHtml.includes('value="active" selected')
-    && (heldOrdersHtml.includes('1 incidencia') || heldOrdersHtml.includes('SLA vencido')),
+    && (heldOrdersHtml.includes('1 incidencia') || heldOrdersHtml.includes('Plazo vencido')),
 );
 if (heldOrderId) {
   const holdDetailHtml = await (await fetch(adminUrl(`/demo/admin/pedidos/${heldOrderId}`), { headers: { cookie } })).text();
@@ -263,7 +263,7 @@ if (taggedOrderId) {
   check(
     'detalle demuestra ORD-005 sin controles mutables en la demo',
     collaborationHtml.includes('Editar pedido')
-      && collaborationHtml.includes('Ejemplo inerte')
+      && collaborationHtml.includes('en tu panel verías aquí el nuevo total')
       && !collaborationHtml.includes('data-amendment-form'),
   );
 }
@@ -354,10 +354,14 @@ if (paidOrderId) {
   );
   check(
     'detalle muestra la cancelación parcial sin habilitar efectos',
-    detailHtml.includes('Cancelación parcial') && detailHtml.includes('la API responde 403')
+    detailHtml.includes('Cancelación parcial') && detailHtml.includes('esta operación está desactivada')
       && detailHtml.includes('Reembolsar selección') && detailHtml.includes('disabled'),
   );
   check('detalle no ofrece acciones mutables', !detailHtml.includes('<form data-ship-form'));
+  check(
+    'detalle de pedido pagado enseña el paso de envío como réplica inerte',
+    !detailHtml.includes('data-ship-preview') || (detailHtml.includes('Marcar enviado y avisar') && detailHtml.includes('En la demo está desactivado')),
+  );
 }
 
 // ── 4. El backoffice público rechaza mutaciones aunque haya sesión ───

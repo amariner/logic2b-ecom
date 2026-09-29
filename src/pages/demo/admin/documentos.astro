@@ -27,13 +27,13 @@ const externalCount = documents.filter((document) => document.source === 'extern
   <header class="border-b border-border pb-6">
     <p class="text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">Pedidos · operación documental</p>
     <div class="mt-2 flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
-      <div><h1 class="font-display text-3xl sm:text-4xl">Documentos</h1><p class="mt-2 max-w-3xl text-sm leading-6 text-muted-foreground">Albaranes y etiquetas son snapshots imprimibles e inmutables. Facturas y rectificativas se emiten fuera y aquí solo queda su referencia trazable.</p></div>
-      <span class="w-fit rounded-full border border-border bg-card px-3 py-1.5 text-xs font-semibold text-muted-foreground">ORD-012 · versión y checksum</span>
+      <div><h1 class="font-display text-3xl sm:text-4xl">Documentos</h1><p class="mt-2 max-w-3xl text-sm leading-6 text-muted-foreground">Albaranes y etiquetas se generan aquí y se guardan tal como se imprimieron. Las facturas se emiten en tu programa de facturación y aquí queda su referencia.</p></div>
+      <span class="w-fit rounded-full border border-border bg-card px-3 py-1.5 text-xs font-semibold text-muted-foreground">Cada documento conserva su versión</span>
     </div>
   </header>
 
   <div class="mt-5"><AdminNotice tone="info">Logic2B no actúa como software fiscal ni sustituye VeriFactu. Los importes de referencias externas se recalculan desde pedido o reembolso y nunca llegan desde el navegador.</AdminNotice></div>
-  {readOnly && <div class="mt-4"><AdminNotice tone="warning">La demo enseña documentos ficticios de solo lectura. Alta, sustitución y anulación responden 403.</AdminNotice></div>}
+  {readOnly && <div class="mt-4"><AdminNotice tone="warning">La demo enseña documentos ficticios de solo lectura: no se pueden crear, sustituir ni anular.</AdminNotice></div>}
 
   <dl class="mt-6 grid gap-3 sm:grid-cols-3">
     <div class="rounded-2xl border border-border bg-card p-4"><dt class="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Activos</dt><dd class="mt-2 text-2xl font-semibold">{activeCount}</dd></div>
@@ -47,7 +47,7 @@ const externalCount = documents.filter((document) => document.source === 'extern
       {documents.length === 0 ? <p class="mt-4 rounded-2xl border border-dashed border-border bg-card p-8 text-center text-sm text-muted-foreground">Todavía no hay documentos para los pedidos.</p> : <ol class="mt-4 space-y-3">
         {documents.map((document) => <li class="rounded-2xl border border-border bg-card p-4 shadow-sm sm:p-5">
           <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-            <div class="min-w-0"><div class="flex flex-wrap items-center gap-2"><p class="break-all font-semibold">{document.document_number}</p><AdminStatusBadge status={document.status} label={statusLabel[document.status] ?? document.status}/></div><p class="mt-1 text-sm text-muted-foreground">{typeLabel[document.document_type]} · <a href={`/demo/admin/pedidos/${document.order_id}`} class="underline underline-offset-4">{document.order_number}</a> · versión {document.document_version}</p><p class="mt-1 text-xs text-muted-foreground">{date(document.issued_at)} · SHA-256 {document.content_sha256.slice(0, 12)}…</p></div>
+            <div class="min-w-0"><div class="flex flex-wrap items-center gap-2"><p class="break-all font-semibold">{document.document_number}</p><AdminStatusBadge status={document.status} label={statusLabel[document.status] ?? document.status}/></div><p class="mt-1 text-sm text-muted-foreground">{typeLabel[document.document_type]} · <a href={`/demo/admin/pedidos/${document.order_id}`} class="underline underline-offset-4">{document.order_number}</a> · versión {document.document_version}</p><p class="mt-1 text-xs text-muted-foreground">{date(document.issued_at)} · huella {document.content_sha256.slice(0, 8)}</p></div>
             <div class="flex shrink-0 flex-wrap gap-2">
               {document.source === 'generated' && document.status === 'active' && <a href={`/api/admin/order-documents/${document.id}/artifact`} target="_blank" rel="noreferrer" class="inline-flex min-h-11 items-center rounded-xl border border-border px-3 text-sm font-semibold hover:bg-muted">Abrir para imprimir</a>}
               {document.source === 'external' && document.external_url && <a href={document.external_url} target="_blank" rel="noreferrer" class="inline-flex min-h-11 items-center rounded-xl border border-border px-3 text-sm font-semibold hover:bg-muted">Abrir proveedor</a>}
@@ -67,7 +67,7 @@ const externalCount = documents.filter((document) => document.source === 'extern
 
     <aside class="space-y-5">
       <section class="rounded-2xl border border-border bg-card p-5 shadow-sm" aria-labelledby="generated-title">
-        <h2 id="generated-title" class="font-display text-xl">Generar operativo</h2><p class="mt-1 text-sm leading-6 text-muted-foreground">Crea un snapshot sin precios para un envío concreto.</p>
+        <h2 id="generated-title" class="font-display text-xl">Generar operativo</h2><p class="mt-1 text-sm leading-6 text-muted-foreground">Crea el albarán o la etiqueta de un envío concreto, sin precios.</p>
         <form data-generated-document class="mt-4 space-y-3">
           <label class="block text-sm font-semibold">Tipo<select name="document_type" disabled={readOnly || !effectsEnabled} class="mt-1 min-h-11 w-full rounded-xl border border-input bg-background px-3 font-normal"><option value="packing_slip">Albarán</option><option value="internal_label">Etiqueta interna</option></select></label>
           <label class="block text-sm font-semibold">Envío<select name="fulfillment_id" required disabled={readOnly || !effectsEnabled} class="mt-1 min-h-11 w-full rounded-xl border border-input bg-background px-3 font-normal"><option value="">Selecciona…</option>{options.fulfillments.map((fulfillment) => <option value={fulfillment.id} data-order-id={fulfillment.order_id}>{fulfillment.order_number} · envío #{fulfillment.id} · {fulfillment.status}</option>)}</select></label>

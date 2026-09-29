@@ -25,7 +25,7 @@ const statusClass = {
 ---
 
 <Admin title="Transferencias" active="transferencias">
-  <AdminPageHeader eyebrow="Inventario" title="Transferencias" description="Mueve unidades entre ubicaciones con envío, recepción parcial y discrepancias trazables." />
+  <AdminPageHeader eyebrow="Inventario" title="Transferencias" description="Mueve unidades entre ubicaciones: envía, recibe (también por partes) y deja constancia de cualquier diferencia." />
 
   <section class="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4" aria-label="Resumen de transferencias">
     {(['draft', 'in_transit', 'partially_received', 'received'] as const).map((status) => <div class="rounded-2xl border border-border bg-card p-4 shadow-sm"><p class="text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">{statusLabel[status]}</p><p class="mt-2 font-display text-2xl">{records.filter((record) => record.status === status).length}</p></div>)}
@@ -55,7 +55,7 @@ const statusClass = {
 
   <section class="mt-6 grid gap-6 xl:grid-cols-[minmax(0,1fr)_22rem]">
     <form data-transfer-create class="rounded-2xl border border-border bg-card p-5 shadow-sm">
-      <h2 class="font-display text-lg">Nuevo borrador</h2><p class="mt-1 text-sm text-muted-foreground">Define origen, destino y hasta tres variantes. El stock se revalida al enviar.</p>
+      <h2 class="font-display text-lg">Nuevo borrador</h2><p class="mt-1 text-sm text-muted-foreground">Elige origen, destino y hasta tres productos. El stock se comprueba de nuevo al enviar.</p>
       <div class="mt-5 grid gap-4 sm:grid-cols-2"><label class="text-sm font-semibold">Origen<select name="source_location_id" required disabled={readOnly} class="mt-2 min-h-11 w-full rounded-xl border border-input bg-background px-3 font-normal disabled:opacity-100">{activeLocations.map((location) => <option value={location.id}>{location.name}</option>)}</select></label><label class="text-sm font-semibold">Destino<select name="destination_location_id" required disabled={readOnly} class="mt-2 min-h-11 w-full rounded-xl border border-input bg-background px-3 font-normal disabled:opacity-100">{activeLocations.map((location) => <option value={location.id}>{location.name}</option>)}</select></label></div>
       <div class="mt-4 grid gap-3">{[0, 1, 2].map((index) => <div data-create-line class="grid gap-3 rounded-xl bg-muted/60 p-3 sm:grid-cols-[minmax(0,1fr)_7rem]"><label class="text-sm font-semibold">Variante {index + 1}{index > 0 && <span class="font-normal text-muted-foreground"> · opcional</span>}<select name="variant_id" required={index === 0} disabled={readOnly} class="mt-2 min-h-11 w-full rounded-xl border border-input bg-background px-3 font-normal disabled:opacity-100"><option value="">Selecciona…</option>{stockOptions.map((option) => <option value={option.variant_id} data-location-id={option.location_id}>{option.product_name} · {option.sku} · {option.available} disp.</option>)}</select></label><label class="text-sm font-semibold">Cantidad<input name="quantity" type="number" min="1" max="100000" value={index === 0 ? 1 : undefined} disabled={readOnly} class="mt-2 min-h-11 w-full rounded-xl border border-input bg-background px-3 font-normal disabled:opacity-100" /></label></div>)}</div>
       <label class="mt-4 block text-sm font-semibold">Nota opcional<input name="note" maxlength="500" disabled={readOnly} class="mt-2 min-h-11 w-full rounded-xl border border-input bg-background px-3 font-normal disabled:opacity-100" /></label>

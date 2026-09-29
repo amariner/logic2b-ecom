@@ -22,12 +22,12 @@ const reasonLabel = { eligible: 'Elegible', market: 'Fuera de mercado', channel:
 ---
 
 <Admin title="Asignación de inventario" active="asignacion">
-  <AdminPageHeader eyebrow="Inventario" title="Asignación de pedidos" description="Decide una única ubicación por expedición con reglas reproducibles y conserva el porqué de cada decisión." />
+  <AdminPageHeader eyebrow="Inventario" title="Asignación de pedidos" description="Decide desde qué ubicación sale cada pedido y deja anotado el motivo de cada decisión." />
 
   <section class="mt-6 grid gap-4 md:grid-cols-3" aria-label="Resumen de asignación">
     <article class="rounded-2xl border border-border bg-card p-5 shadow-sm"><p class="text-sm text-muted-foreground">Ubicaciones configuradas</p><p class="mt-2 font-display text-3xl">{policies.length}</p><p class="mt-2 text-xs text-muted-foreground">{policies.filter((policy) => policy.enabled === 1).length} participan en el enrutado</p></article>
     <article class="rounded-2xl border border-border bg-card p-5 shadow-sm"><p class="text-sm text-muted-foreground">Decisiones explicadas</p><p class="mt-2 font-display text-3xl">{decisions.length}</p><p class="mt-2 text-xs text-muted-foreground">Últimas 100 expediciones vinculadas</p></article>
-    <article class="rounded-2xl border border-border bg-card p-5 shadow-sm"><p class="text-sm text-muted-foreground">Contrato de selección</p><p class="mt-2 font-display text-xl">Prioridad → coste → ID</p><p class="mt-2 text-xs text-muted-foreground">Mercado, canal y stock actúan primero como filtros</p></article>
+    <article class="rounded-2xl border border-border bg-card p-5 shadow-sm"><p class="text-sm text-muted-foreground">Cómo se elige</p><p class="mt-2 font-display text-xl">Prioridad, luego coste</p><p class="mt-2 text-xs text-muted-foreground">Antes se descartan las ubicaciones sin stock o que no sirven a ese mercado o canal</p></article>
   </section>
 
   <section class="mt-6 rounded-2xl border border-border bg-card shadow-sm" aria-labelledby="routing-rules-title">
@@ -45,7 +45,7 @@ const reasonLabel = { eligible: 'Elegible', market: 'Fuera de mercado', channel:
   </section>
 
   <section class="mt-6 rounded-2xl border border-border bg-card shadow-sm" aria-labelledby="routing-history-title">
-    <div class="border-b border-border p-5"><h2 id="routing-history-title" class="font-display text-xl">Decisiones recientes</h2><p class="mt-1 text-sm text-muted-foreground">La explicación queda fijada con la versión de política utilizada.</p></div>
+    <div class="border-b border-border p-5"><h2 id="routing-history-title" class="font-display text-xl">Decisiones recientes</h2><p class="mt-1 text-sm text-muted-foreground">Cada decisión guarda el motivo y las reglas con las que se tomó.</p></div>
     {decisions.length === 0 ? <p class="p-8 text-center text-sm text-muted-foreground">Todavía no hay expediciones asignadas.</p> : <div class="divide-y divide-border">
       {decisions.map((decision) => {
         const detail = explanation(decision.explanation_json);
