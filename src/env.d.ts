@@ -24,6 +24,10 @@ type Env = {
   ADMIN_COOKIE_SECRET: string;
   /** Solo producción: si falta (o DEMO_MODE=true), los emails se quedan en la outbox. */
   RESEND_API_KEY?: string;
+  /** Clave de Resend solo para avisar de leads de la landing (no activa la outbox). */
+  LEADS_RESEND_API_KEY?: string;
+  /** Remitente verificado de esos avisos; por defecto, el email de la agencia. */
+  LEADS_EMAIL_FROM?: string;
 };
 
 type Runtime = import('@astrojs/cloudflare').Runtime<Env>;

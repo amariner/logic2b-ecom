@@ -14,9 +14,8 @@
  * queda a 0.
  */
 import type { APIRoute } from 'astro';
-import { buildContactEmail, contactSchema } from '../../lib/contact';
+import { buildLeadNotificationRequest, contactSchema, leadNotificationConfig } from '../../lib/contact';
 import { RateLimiter } from '../../lib/rate-limit';
-import { buildResendRequest } from '../../lib/send-email';
 import { createContactService } from '../../modules/marketing';
 
 export const prerender = false;
@@ -72,19 +71,23 @@ export const POST: APIRoute = async ({ request, locals, clientAddress }) => {
 
   // Aviso por email. A diferencia de los transaccionales de la tienda, este sale
   // AUNQUE DEMO_MODE esté activo: ecom.logic2b.com corre en demo y aun así los
-  // leads son reales. Sin clave configurada no se envía nada y el lead queda
-  // pendiente en la tabla (visible en el panel).
-  if (env.RESEND_API_KEY && contactId !== null) {
-    const message = buildContactEmail(data);
+  // leads son reales. Usa `LEADS_RESEND_API_KEY` (o, en un clon de cliente,
+  // `RESEND_API_KEY`). Sin clave no se envía nada y el lead queda pendiente en
+  // la tabla; si Resend lo rechaza, el motivo queda en los logs del Worker.
+  const notification = leadNotificationConfig(env);
+  if (notification && contactId !== null) {
     const notify = async (): Promise<void> => {
       try {
-        const { url, init } = buildResendRequest(message, env.RESEND_API_KEY!);
+        const { url, init } = buildLeadNotificationRequest(data, notification);
         const response = await fetch(url, init);
         if (response.ok) {
           await contacts.markNotified(contactId);
+        } else {
+          console.error(`Aviso del lead ${contactId} rechazado por Resend: HTTP ${response.status}`);
         }
       } catch {
-        // El lead ya está guardado; el aviso se puede recuperar desde el panel.
+        // El lead ya está guardado; el aviso se puede recuperar desde la tabla.
+        console.error(`Aviso del lead ${contactId} no enviado: error de red`);
       }
     };
     locals.runtime.ctx.waitUntil(notify());

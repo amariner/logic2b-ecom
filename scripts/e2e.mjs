@@ -549,6 +549,20 @@ check(
     && backupSql.includes('INSERT INTO order_document_events')
 );
 
+// ── Conversión: formulario «Solicitar propuesta» ─────────────────────────
+// Un lead válido SE GUARDA, así que el camino de éxito solo se ejerce contra un
+// servidor local (su D1 es desechable); contra producción solo se comprueba el
+// rechazo, que no escribe nada. El limitador admite 5 envíos por IP y 10 min.
+const lead = { name: 'E2E Robot', email: 'e2e@example.com', needs: 'Comprobación automática del formulario.', source: 'e2e' };
+const badLead = await fetch(`${BASE}/api/contact`, { method: 'POST', headers: { 'content-type': 'application/json', ...ORIGIN }, body: JSON.stringify({ ...lead, email: 'no-es-un-email' }) });
+check('contacto rechaza un lead inválido con 400', badLead.status === 400);
+if (/^(localhost|127\.0\.0\.1|\[::1\])$/.test(new URL(BASE).hostname)) {
+  const jsonLead = await fetch(`${BASE}/api/contact`, { method: 'POST', headers: { 'content-type': 'application/json', ...ORIGIN }, body: JSON.stringify(lead) });
+  check('contacto con JS guarda el lead y responde ok', jsonLead.status === 200 && (await json(jsonLead))?.ok === true);
+  const nativeLead = await fetch(`${BASE}/api/contact`, { method: 'POST', headers: { 'content-type': 'application/x-www-form-urlencoded', ...ORIGIN }, body: new URLSearchParams(lead), redirect: 'manual' });
+  check('contacto sin JS redirige a la confirmación (303)', nativeLead.status === 303 && (nativeLead.headers.get('location') ?? '').includes('/proyecto-recibido'));
+}
+
 if (failures > 0) {
   console.error(`\nE2E: ${failures} comprobaciones fallidas`);
   process.exit(1);

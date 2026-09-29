@@ -109,3 +109,52 @@ ${rows
 </body></html>`,
   };
 }
+
+/**
+ * Remitente de los avisos de leads: la agencia, no la tienda demo. El dominio
+ * de `shopConfig.email` es ficticio y Resend rechaza remitentes sin verificar.
+ * Se puede cambiar sin tocar código con `LEADS_EMAIL_FROM`.
+ */
+export const LEADS_EMAIL_FROM = `Logic2B Ecommerce <${AGENCY_EMAIL}>`;
+
+export type LeadNotificationEnv = Readonly<{
+  LEADS_RESEND_API_KEY?: string | undefined;
+  RESEND_API_KEY?: string | undefined;
+  LEADS_EMAIL_FROM?: string | undefined;
+}>;
+
+export type LeadNotificationConfig = Readonly<{ apiKey: string; from: string }>;
+
+/**
+ * Configuración del aviso de un lead nuevo. Manda la clave propia de leads:
+ * avisa a la agencia sin encender el envío de emails de la tienda, que también
+ * cuelga de `RESEND_API_KEY` (outbox, acceso de clientes). Sin clave, null: el
+ * lead queda guardado y pendiente de aviso.
+ */
+export function leadNotificationConfig(env: LeadNotificationEnv): LeadNotificationConfig | null {
+  const apiKey = env.LEADS_RESEND_API_KEY?.trim() || env.RESEND_API_KEY?.trim();
+  if (!apiKey) return null;
+  return { apiKey, from: env.LEADS_EMAIL_FROM?.trim() || LEADS_EMAIL_FROM };
+}
+
+/** Petición a Resend para avisar de un lead. Responder al email va directo al cliente. Pura. */
+export function buildLeadNotificationRequest(
+  data: ContactRequest,
+  config: LeadNotificationConfig,
+): { url: string; init: { method: 'POST'; headers: Record<string, string>; body: string } } {
+  const message = buildContactEmail(data);
+  return {
+    url: 'https://api.resend.com/emails',
+    init: {
+      method: 'POST',
+      headers: { authorization: `Bearer ${config.apiKey}`, 'content-type': 'application/json' },
+      body: JSON.stringify({
+        from: config.from,
+        to: [message.to_addr],
+        reply_to: data.email,
+        subject: message.subject,
+        html: message.body_html,
+      }),
+    },
+  };
+}

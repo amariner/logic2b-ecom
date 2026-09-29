@@ -4,7 +4,10 @@ import {
   AGENCY_WHATSAPP,
   agencyWhatsappHref,
   buildContactEmail,
+  buildLeadNotificationRequest,
   contactSchema,
+  LEADS_EMAIL_FROM,
+  leadNotificationConfig,
 } from '../src/lib/contact';
 
 const valid = {
@@ -86,5 +89,33 @@ describe('agencyWhatsappHref', () => {
     expect(href).not.toContain('session_id');
     expect(href).not.toContain('privado');
     expect(href).not.toContain('#pedido');
+  });
+});
+
+describe('aviso de leads', () => {
+  it('sin clave no hay aviso: el lead queda guardado y pendiente', () => {
+    expect(leadNotificationConfig({})).toBeNull();
+    expect(leadNotificationConfig({ LEADS_RESEND_API_KEY: '  ' })).toBeNull();
+  });
+
+  it('la clave propia de leads manda sobre la de la tienda', () => {
+    expect(leadNotificationConfig({ LEADS_RESEND_API_KEY: 're_leads', RESEND_API_KEY: 're_shop' })?.apiKey).toBe('re_leads');
+    expect(leadNotificationConfig({ RESEND_API_KEY: 're_shop' })?.apiKey).toBe('re_shop');
+  });
+
+  it('el remitente es la agencia, nunca el dominio ficticio de la tienda demo', () => {
+    expect(leadNotificationConfig({ LEADS_RESEND_API_KEY: 'k' })?.from).toBe(LEADS_EMAIL_FROM);
+    expect(LEADS_EMAIL_FROM).toContain(AGENCY_EMAIL);
+    expect(leadNotificationConfig({ LEADS_RESEND_API_KEY: 'k', LEADS_EMAIL_FROM: 'Avisos <avisos@logic2b.com>' })?.from).toBe('Avisos <avisos@logic2b.com>');
+  });
+
+  it('la petición va a la agencia y responder contesta al cliente', () => {
+    const { url, init } = buildLeadNotificationRequest(valid, { apiKey: 're_x', from: LEADS_EMAIL_FROM });
+    const body = JSON.parse(init.body) as { from: string; to: string[]; reply_to: string; subject: string };
+    expect(url).toBe('https://api.resend.com/emails');
+    expect(init.headers.authorization).toBe('Bearer re_x');
+    expect(body.to).toEqual([AGENCY_EMAIL]);
+    expect(body.reply_to).toBe(valid.email);
+    expect(body.subject).toContain(valid.name);
   });
 });
