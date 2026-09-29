@@ -16,6 +16,70 @@
 > 2. Actualizar el estado de la fase al terminar, con fecha y resumen de lo hecho.
 > 3. Anotar decisiones tomadas y pendientes en las secciones de abajo.
 
+## Lenguaje «plataforma», mantenimiento de temas y panel (2026-09-29)
+
+**Encargo de Andreu:** rehacer el home con un tono más serio y tecnológico
+(familia Stripe/Shopify, sin pasarse) y extenderlo a todo el sitio; revisar que
+la estructura convierte; pasada de mantenimiento a los temas; revisar la UX/UI
+del panel; merge, push y despliegue. Rama `redesign/platform-grade`.
+
+**Sistema visual (`commercial.css`, acotado a `.commercial-page`):** Inter en
+titulares (se retira Fraunces de todas las comerciales y de `/ayuda`; en móvil,
+la tipografía del sistema), tinta azul noche `#0c1424`, un único acento verde
+`#047857`, cantos de 8–14 px, filetes finos, retícula técnica en cabeceras y
+superficies oscuras para hablar de tecnología. Cabecera a ancho completo con
+«Cómo funciona» y «Agencias»; CTA único «Solicitar propuesta»; pie nuevo;
+packs con el mismo acabado (importes intactos). Los temas y el panel no heredan
+nada del shell comercial. Sin precarga de Poppins en comerciales ni panel.
+
+**Home, revisada por conversión:** el héroe dice qué es («Tiendas online a
+medida, sobre tecnología probada»), ancla el precio real de entrada y el plazo
+de respuesta, e ilustra el flujo con una tarjeta de pedidos y un registro de
+eventos en HTML (sin carrusel). Nueva **comparativa honesta** por modelo de
+responsabilidad (plataforma de suscripción / web con plugins / Logic2B) con la
+nota «si no somos tu opción, te lo diremos». Demos y panel antes de precios, CTA
+intermedio tras las demos, bloque técnico oscuro con las garantías del motor
+(cada una es una regla con tests) y contacto con los tres pasos siguientes. Las
+guías pasan junto a la FAQ. La tarjeta OG decía «0 €/mes», falso desde que hay
+mantenimiento publicado: regenerada (`og.jpg?v=4`, `og-agencias.jpg?v=2`).
+
+**Conversión — fallo real corregido:** producción tiene el secreto
+`LEADS_RESEND_API_KEY`, pero `/api/contact` solo leía `RESEND_API_KEY` y el
+remitente era el dominio ficticio de la demo: **ningún lead nuevo avisaba a
+nadie**. Ahora manda la clave de leads, remite `hola@logic2b.com` (requiere
+`logic2b.com` verificado en Resend; si no, queda en logs) y *responder a* va al
+cliente. En producción hay 1 lead histórico, ya avisado. Ver `PRODUCCION.md` §9.
+
+**Mantenimiento de temas:** auditor a11y completo (372 superficies, 0 errores;
+se corrigieron los 6 avisos: `aria-current` en el pie de Inlogem y la jerarquía
+de `/precios`), rastreo de catálogo + 2 fichas + carrito de las 35 tiendas (937
+URL, 0 rotas), 0 errores de consola, todas las imágenes sembradas existen,
+registro de temas coherente. Además `astro dev` caía con EMFILE en plena
+auditoría: los scripts crean y borran perfiles de Chrome en `.wrangler/` y Vite
+los vigilaba. Excluidos `.wrangler/` y `dist/` del vigilante.
+
+**Panel (solo presentación):** navegación agrupada por tarea («Día a día»,
+«Catálogo e inventario», «Administración»); acciones en bloque plegadas hasta la
+primera selección; filtros sin textos cortados; KPIs 2×2 en móvil; productos en
+una fila compacta (20 productos: ~4.800 → ~1.900 px); el pedido pagado enseña en
+la demo el paso clave «Marcar como enviado» como réplica inerte enlazada al
+email del cliente; jerga fuera (R3.7, 403, Worker, SHA-256, snapshot, dry-run,
+RMA, SLA). 30 superficies del panel en verde.
+
+Consejo: arquitecto ✓ sin dependencias, migraciones ni cambios de motor (solo
+el aviso de leads y el vigilante de Vite) · backend ✓ `/api/contact` con tests
+de configuración y E2E del camino de conversión · product ✓ precios y promesas
+intactos, comparativa sin cifras de terceros · frontend ✓ JS de la home igual
+(explorador y vídeo), sin islas nuevas · UX/UI ✓ AA en 372 + 30 superficies,
+375/1440 revisados · SEO ⚠ móvil 98–99, no 100: la hoja global compartida
+(Tailwind + temas, 17 kB gzip) bloquea el render; partirla toca las 35 tiendas
+y queda para su propio bloque · fullstack ✓ E2E 138/138.
+
+**Verificación:** `astro check` 0 errores; 210 suites / 1265 tests; baseline de
+temas correcta; build con sitemap de 6 URL; E2E 138/138 contra `wrangler dev`.
+Lighthouse 12 local (1 pasada): escritorio **100/100/100/100** en las seis
+indexables; móvil **98–99**/100/100/100 (home 98, antes 90–92 en local), CLS 0.
+
 ## Sitio comercial y temas destacados — rediseño en rama (2026-09-26)
 
 Rama `redesign/site-and-themes`, **sin publicar** hasta el OK de Andreu.

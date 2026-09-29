@@ -91,15 +91,25 @@ mismo, `contact_requests` queda FUERA de la copia de seguridad descargable
 npx wrangler d1 execute ecom-demo --remote --command "SELECT created_at, name, email, phone, sells, catalog, source, needs FROM contact_requests ORDER BY id DESC"
 ```
 
-**Aviso por email (pendiente de activar):** con `RESEND_API_KEY` puesto como
-secreto, cada lead dispara además un aviso a `hola@logic2b.com` y la fila queda
-con `notified = 1`. Sin la clave, `notified` se queda en 0 y el único sitio donde
-vive el lead es la tabla — hay que mirarla a mano. Activarlo es:
+**Aviso por email (conectado el 2026-09-29):** cada lead dispara un aviso a
+`hola@logic2b.com` con *responder a* el email del cliente, y la fila queda con
+`notified = 1`. La clave es el secreto **`LEADS_RESEND_API_KEY`** —ya puesto en
+producción—, que avisa a la agencia sin encender la outbox de la tienda (esa
+depende de `RESEND_API_KEY`). Hasta esta fecha el código solo leía
+`RESEND_API_KEY` y ningún lead se avisaba aunque la clave existiera.
+
+El remitente es `Logic2B Ecommerce <hola@logic2b.com>`, así que **el dominio
+`logic2b.com` tiene que estar verificado en Resend**; si no, Resend rechaza el
+envío, el lead sigue guardado con `notified = 0` y el Worker registra
+`Aviso del lead N rechazado por Resend: HTTP 4xx` (se ve con
+`npx wrangler tail`). Para usar otro remitente verificado, sin tocar código:
 
 ```bash
-npx wrangler secret put RESEND_API_KEY
+npx wrangler secret put LEADS_EMAIL_FROM   # p. ej. «Logic2B <avisos@logic2b.com>»
 ```
 
-Ojo: el remitente sale de `shopConfig.email`, que hoy es el de la tienda
-ficticia. Para que Resend acepte el envío hay que apuntarlo a un dominio
-verificado de Logic2B antes de dar el aviso por bueno.
+**Comprobar que llegan:** tras el primer lead real, `notified` debe ser 1:
+
+```bash
+npx wrangler d1 execute ecom-demo --remote --command "SELECT id, created_at, notified FROM contact_requests ORDER BY id DESC LIMIT 5"
+```
