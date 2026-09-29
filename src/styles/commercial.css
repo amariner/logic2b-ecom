@@ -319,3 +319,30 @@
   .commercial-page .cta-band h2, .commercial-page .cta-band p:not(.eyebrow) { margin-inline: 0; }
   .commercial-page .cta-band .page-actions { justify-content: flex-start; }
 }
+
+/* ── Logotipos oficiales (BrandWall) ─────────────────────────────────────── */
+.commercial-page .brand-wall {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .6rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.commercial-page .brand-wall.is-center { justify-content: center; }
+.commercial-page .brand-tile {
+  display: grid;
+  place-items: center;
+  width: calc(var(--brand-size, 26px) * 2);
+  height: calc(var(--brand-size, 26px) * 2);
+  border: 1px solid var(--c-border);
+  border-radius: calc(var(--brand-size, 26px) * .62);
+  background: #fff;
+  box-shadow: var(--shadow-sm);
+  transition: transform .3s var(--ease), box-shadow .3s var(--ease), border-color .3s var(--ease);
+}
+.commercial-page .brand-tile:hover { border-color: var(--leaf); box-shadow: var(--shadow-md); transform: translateY(-2px); }
+.commercial-page .brand-tile .brand-icon.is-raster { border-radius: 22%; }
+@media (prefers-reduced-motion: reduce) { .commercial-page .brand-tile:hover { transform: none; } }
+.commercial-page .brand-tile .brand-icon { width: var(--brand-size, 26px); height: var(--brand-size, 26px); }
+@media (max-width: 480px) { .commercial-page .brand-wall.is-center { --brand-size: 24px; gap: .5rem; } }

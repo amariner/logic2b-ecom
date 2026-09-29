@@ -4,6 +4,8 @@ import ThemeRail from '../components/ThemeRail.astro';
 import CommercialPlans from '../components/CommercialPlans.astro';
 import ProjectForm from '../components/ProjectForm.astro';
 import Icon, { type IconName } from '../components/Icon.astro';
+import BrandWall from '../components/BrandWall.astro';
+import type { AnyBrandSlug } from '../lib/brands';
 import { collections, storePaths } from '../collections';
 import { getTheme } from '../lib/demo-themes';
 import { MAIN_DEMO_HREF, DEMO_ADMIN_HREF } from '../lib/nav';
@@ -35,12 +37,13 @@ const proof = [
   { value: '1', label: 'panel para pedidos, productos y envíos' },
   { value: '0', label: 'datos de tarjeta en nuestros servidores' },
 ];
-const stack = [
-  { role: 'Pagos', name: 'Stripe' },
-  { role: 'Infraestructura', name: 'Cloudflare' },
-  { role: 'Correo', name: 'Resend' },
-  { role: 'Envíos', name: 'Packlink · Sendcloud' },
-  { role: 'Contacto', name: 'WhatsApp' },
+/** Lo que mueve la tienda hoy: pagos, infraestructura, correo, envíos y contacto. */
+const stack: AnyBrandSlug[] = ['stripe', 'cloudflare', 'resend', 'packlink', 'sendcloud', 'whatsapp'];
+/** Conexiones habituales bajo alcance: se acuerdan por proyecto, no vienen activadas. */
+const connectable: AnyBrandSlug[] = [
+  'paypal', 'redsys', 'klarna', 'googleanalytics', 'googleads', 'googletagmanager', 'meta', 'instagram', 'tiktok', 'pinterest',
+  'brevo', 'klaviyo', 'hubspot', 'zapier', 'make', 'n8n', 'correos', 'ups', 'holded', 'quickbooks', 'xero',
+  'amazon', 'ebay', 'etsy', 'shopify', 'woocommerce',
 ];
 const phases = [
   { label: 'Atrae y vende', span: 3 },
@@ -60,7 +63,7 @@ const moments: { label: string; icon: IconName; title: string; body: string; poi
   { label: 'Tienda', icon: 'store', title: 'Una tienda que invita a quedarse.', body: 'El diseño presenta tus productos y acompaña la decisión de compra, desde el móvil hasta el escritorio.', points: ['Categorías con sentido para tu catálogo', 'Fotografía y contenido con una misma identidad', 'Fichas que responden antes de añadir al carrito'], img: '/images/screens/store-arce-catalog-900.webp', href: MAIN_DEMO_HREF, link: 'Explorar la tienda', crop: true, url: 'arce · catálogo', note: 'Tu identidad en cada página' },
   { label: 'Compra', icon: 'cart', title: 'De encontrarlo a tenerlo en el carrito.', body: 'Cantidad, precio y entrega visibles. Cada paso pide solo lo que hace falta para continuar.', points: ['Carrito fácil de revisar', 'Compra como invitado', 'Costes de envío antes de confirmar'], img: '/images/screens/store-demo-cart.webp', href: '/demo/carrito', link: 'Ver el carrito', crop: false, url: 'tienda · carrito', note: 'Envío calculado antes de pagar' },
   { label: 'Pedidos', icon: 'clipboard', title: 'Lo que necesita atención, a la vista.', body: 'Una lista de trabajo comprensible para el comercio. Sin menús que no necesitas ni hojas sueltas.', points: ['Pedidos ordenados por estado', 'Productos, dirección y total reunidos', 'Historial de cada pedido'], img: '/images/screens/panel-orders.webp', href: DEMO_ADMIN_HREF ?? '/arquitectura', link: 'Probar el gestor', crop: false, url: 'panel · pedidos', note: 'Filtra por estado en un clic' },
-  { label: 'Envíos', icon: 'truck', title: 'Prepara, envía y sigue el pedido.', body: 'La gestión del envío forma parte del mismo recorrido, con tarifas y seguimiento en contexto.', points: ['Tarifas por zona y tramo', 'Exportación para preparar etiquetas', 'Transportista y seguimiento junto al pedido'], img: '/images/screens/panel-shipping.webp', href: '/demo/admin/envios', link: 'Ver los envíos', crop: false, url: 'panel · envíos', note: 'CSV para Packlink / Sendcloud' },
+  { label: 'Envíos', icon: 'truck', title: 'Prepara, envía y sigue el pedido.', body: 'La gestión del envío forma parte del mismo recorrido, con tarifas y seguimiento en contexto.', points: ['Tarifas por zona y tramo', 'Exportación para preparar etiquetas', 'Transportista y seguimiento junto al pedido'], img: '/images/screens/panel-shipping.webp', href: '/demo/admin/envios', link: 'Ver los envíos', crop: false, url: 'panel · envíos', note: 'Etiquetas en tu plataforma de envíos' },
   { label: 'Comunicación', icon: 'mail', title: 'Cada mensaje, cuando toca.', body: 'El cliente recibe información útil y el equipo puede revisar lo que se ha comunicado.', points: ['Confirmación de compra', 'Aviso de envío con seguimiento', 'Bandeja de ejemplo sin enviar emails reales'], img: '/images/screens/panel-emails.webp', href: '/demo/admin/emails', link: 'Ver los emails', crop: false, url: 'panel · emails', note: 'Confirmación y aviso de envío' },
 ];
 const panelViews: { key: string; icon: IconName; name: string; body: string; img: string; href: string }[] = [
@@ -127,8 +130,7 @@ const jsonLd = [{ '@context': 'https://schema.org', '@type': 'Service', name: 'L
   <!-- ── Herramientas ─────────────────────────────────────────────────── -->
   <section class="stack-strip page-shell" aria-label="Herramientas del ecosistema">
     <p>Un proyecto conectado a tu operativa</p>
-    <ul>{stack.map((tool) => <li><small>{tool.role}</small><strong>{tool.name}</strong></li>)}</ul>
-    <small>Pasarela, correo, exportaciones y contacto según el alcance acordado.</small>
+    <BrandWall brands={stack} size={30} align="center" label="Pagos, infraestructura, correo, envíos y contacto" />
   </section>
 
   <!-- ── Flujo ────────────────────────────────────────────────────────── -->
@@ -194,7 +196,7 @@ const jsonLd = [{ '@context': 'https://schema.org', '@type': 'Service', name: 'L
         </svg>
         <h3>Operación conectada</h3>
         <p>Catálogo, correo y preparación de envíos comparten información útil.</p>
-        <small>Resend · exportación Packlink / Sendcloud</small>
+        <BrandWall class="link-brands" brands={['resend', 'packlink', 'sendcloud']} size={18} label="Correo y envíos" />
       </article>
       <article class="link-card reveal">
         <svg class="diagram" viewBox="0 0 320 150" aria-hidden="true">
@@ -208,7 +210,7 @@ const jsonLd = [{ '@context': 'https://schema.org', '@type': 'Service', name: 'L
         </svg>
         <h3>Pagos en su sitio</h3>
         <p>La pasarela procesa la tarjeta y el pedido conserva su importe y estado.</p>
-        <small>Stripe · otras pasarelas según proyecto</small>
+        <BrandWall class="link-brands" brands={['stripe', 'paypal', 'redsys']} size={18} label="Pasarelas de pago" />
       </article>
       <article class="link-card reveal">
         <svg class="diagram" viewBox="0 0 320 150" aria-hidden="true">
@@ -222,8 +224,13 @@ const jsonLd = [{ '@context': 'https://schema.org', '@type': 'Service', name: 'L
         </svg>
         <h3>Preparada para evolucionar</h3>
         <p>Datos estructurados y una base ampliable para nuevas conexiones y automatizaciones.</p>
-        <small>Integraciones y asistencia IA bajo alcance</small>
+        <BrandWall class="link-brands" brands={['zapier', 'make', 'n8n']} size={18} label="Automatizaciones" />
       </article>
+    </div>
+    <div class="connect-wall reveal">
+      <p class="connect-kicker">Plataformas que puedes conectar</p>
+      <p>Pagos, marketing, analítica, envíos, facturación y marketplaces: se acuerdan por proyecto, con un alcance concreto para tu negocio.</p>
+      <BrandWall brands={connectable} size={22} align="center" label="Plataformas con las que se puede conectar la tienda" />
     </div>
   </section>
 

@@ -234,19 +234,7 @@
 .commerce-home .stack-strip { padding-block: 1rem 3.5rem; text-align: center; }
 .commerce-home .stack-strip > p,
 .commerce-home .stack-strip > small { color: var(--c-muted); font-size: .72rem; }
-.commerce-home .stack-strip ul {
-  display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 1px;
-  overflow: hidden;
-  margin: 1.4rem 0 1.2rem;
-  border: 1px solid var(--c-border);
-  border-radius: 1.25rem;
-  background: var(--c-border);
-}
-.commerce-home .stack-strip li { padding: 1.3rem 1rem; background: #fdfefb; }
-.commerce-home .stack-strip li small { display: block; color: var(--c-muted); font-size: .64rem; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; }
-.commerce-home .stack-strip li strong { display: block; margin-top: .4rem; color: var(--c-ink); font-size: 1.12rem; font-weight: 600; letter-spacing: -.035em; }
+.commerce-home .stack-strip .brand-wall { margin-top: 1.4rem; gap: clamp(.6rem, 1.6vw, 1rem); }
 
 /* ── Recorrido (7 pasos) ─────────────────────────────────────────────────── */
 .commerce-home .journey { --cols: 7; }
@@ -413,7 +401,13 @@
 .commerce-home .link-card > :not(.diagram) { padding-inline: 1rem; }
 .commerce-home .link-card h3 { margin: 1.6rem 0 .7rem; font-size: 1.25rem; }
 .commerce-home .link-card p { color: var(--c-muted); font-size: .95rem; line-height: 1.65; }
-.commerce-home .link-card small { margin-top: auto; padding-top: 1.6rem; color: var(--c-muted); font-size: .72rem; }
+.commerce-home .link-card .link-brands { margin-top: auto; padding-top: 1.6rem; }
+.commerce-home .link-card .brand-tile { box-shadow: none; }
+.commerce-home .connect-wall { margin-top: clamp(2.5rem, 5vw, 4rem); text-align: center; }
+.commerce-home .connect-wall .connect-kicker { margin-bottom: .5rem; color: var(--c-green); font: 600 .72rem/1.4 'Inter Variable', sans-serif; letter-spacing: .13em; text-transform: uppercase; }
+.commerce-home .connect-wall > p { margin-bottom: 1.4rem; color: var(--c-muted); font-size: .95rem; }
+.commerce-home .connect-wall > p:last-of-type { max-width: 44rem; margin-inline: auto; }
+.commerce-home .connect-wall .brand-wall { max-width: 60rem; margin-inline: auto; }
 .commerce-home .diagram {
   display: block;
   width: 100%;
@@ -684,10 +678,6 @@
   .commerce-home .ui-ship { display: none; }
   .commerce-home .ui-line { margin-top: .6rem; padding-top: .55rem; }
   .commerce-home .hx-track li { padding: .4rem .55rem .4rem .4rem; font-size: .66rem; }
-  .commerce-home .stack-strip ul { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .commerce-home .stack-strip li { padding: 1rem .75rem; }
-  .commerce-home .stack-strip li:first-child { grid-column: 1 / -1; }
-  .commerce-home .stack-strip li strong { font-size: 1rem; }
   .commerce-home .journey { overflow: visible; margin-inline: 0; padding: 0; }
   .commerce-home .journey-phases { display: none; }
   .commerce-home .journey-steps { grid-template-columns: 1fr; gap: 0; min-width: 0; }

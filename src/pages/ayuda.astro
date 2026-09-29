@@ -137,7 +137,7 @@ const callUsWhen = [
   noindex
   preloadDisplayFont
 >
-  <div class="min-h-screen bg-[#f7f7f8] text-foreground">
+  <div class="ayuda-doc min-h-screen bg-[#fbfcf8] text-foreground">
     <header class="sticky top-0 z-20 border-b border-border bg-card/95 backdrop-blur">
       <div class="mx-auto flex min-h-16 max-w-4xl items-center justify-between gap-4 px-5">
         <p class="font-display text-base">Logic2B <span class="text-muted-foreground">Gestión · Ayuda</span></p>
@@ -332,3 +332,20 @@ const callUsWhen = [
     </main>
   </div>
 </Base>
+
+<style is:global>
+  /* Mismo lenguaje que la portada (tinta verde, Fraunces, esquinas amplias) con
+     el registro sobrio del panel: sin degradados ni motivos, solo el color. */
+  .ayuda-doc { --ink: #203a25; --muted: #536456; --line: #dce3d9; color: var(--ink); }
+  .ayuda-doc :is(h1, h2) { font-family: 'Fraunces', Georgia, serif; font-weight: 400; letter-spacing: -.045em; }
+  .ayuda-doc h2 { font-size: clamp(1.8rem, 3.4vw, 2.4rem); line-height: 1.1; }
+  .ayuda-doc .bg-foreground { background: #17301b; }
+  .ayuda-doc .bg-stone-900 { background: #203f22; }
+  .ayuda-doc :is(.text-stone-900, .text-foreground) { color: var(--ink); }
+  .ayuda-doc :is(.text-stone-600, .text-stone-500, .text-muted-foreground) { color: var(--muted); }
+  .ayuda-doc :is(.border-stone-300, .border-stone-200, .border-border) { border-color: var(--line); }
+  .ayuda-doc .bg-card\/95 { background: rgb(255 255 255 / 92%); }
+  .ayuda-doc :is(.rounded-lg, .rounded-2xl) { border-radius: 1.15rem; }
+  .ayuda-doc header a { border-radius: 999px; }
+  .ayuda-doc a:focus-visible, .ayuda-doc summary:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+</style>

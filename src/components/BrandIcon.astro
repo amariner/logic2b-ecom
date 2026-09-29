@@ -1,0 +1,42 @@
+---
+/**
+ * Logotipo oficial de una plataforma: el icono de la marca en su color (trazado
+ * simple-icons) o, cuando la marca no lo publica ahí, su icono oficial en PNG.
+ * Nunca texto: un rótulo tipográfico no es el logotipo de nadie. El nombre
+ * viaja en `aria-label` y en `title` (tooltip), no en pantalla.
+ */
+import { brands, rasterBrands, type AnyBrandSlug, type BrandSlug, type RasterBrandSlug } from '../lib/brands';
+
+interface Props {
+  brand: AnyBrandSlug;
+  size?: number;
+  class?: string;
+}
+
+const { brand, size = 24, class: className = '' } = Astro.props;
+const icon = brand in brands ? brands[brand as BrandSlug] : null;
+const raster = !icon ? rasterBrands[brand as RasterBrandSlug] : null;
+---
+
+{icon ? (
+  <svg
+    class:list={['brand-icon', className]}
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    role="img"
+    aria-label={icon.title}
+    style={`color:${icon.hex}`}
+    fill="currentColor"
+  >
+    <title>{icon.title}</title>
+    <path d={icon.path} />
+  </svg>
+) : raster ? (
+  <img class:list={['brand-icon', 'is-raster', className]} src={raster.file} alt={raster.title} title={raster.title} width={size} height={size} loading="lazy" decoding="async" />
+) : null}
+
+<style>
+  .brand-icon { display: inline-block; flex: none; }
+  .brand-icon.is-raster { object-fit: contain; }
+</style>
