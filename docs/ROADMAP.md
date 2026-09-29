@@ -77,6 +77,13 @@ y queda para su propio bloque · fullstack ✓ E2E 138/138.
 
 **Verificación:** `astro check` 0 errores; 210 suites / 1265 tests; baseline de
 temas correcta; build con sitemap de 6 URL; E2E 138/138 contra `wrangler dev`.
+**Publicado** por fast-forward de `main` (`a0e175c`), rama subida a GitHub y
+Worker `ecom-logic2b` versión `bcafee45-2f8e-44dc-b653-f4aa54417933`, sin
+migraciones. Humo en producción: 200 en las comerciales, tiendas y login del
+panel, 404 correcto, H1 y OG v4 servidos, contacto inválido → 400.
+**Lighthouse 12 en producción (mediana de 3):** escritorio 100/100/100/100 en
+las seis; móvil 100 en arquitectura, precios, agencias y dossier, 99 en temas y
+**96 en la home** (88 el 26-09), CLS 0 en todas. Tabla en `docs/LIGHTHOUSE.md`.
 Lighthouse 12 local (1 pasada): escritorio **100/100/100/100** en las seis
 indexables; móvil **98–99**/100/100/100 (home 98, antes 90–92 en local), CLS 0.
 
