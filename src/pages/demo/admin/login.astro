@@ -54,11 +54,11 @@ if (Astro.request.method === 'POST') {
 }
 ---
 
-<Base title={`Acceso al panel · ${shopConfig.backofficeName}`} noindex preloadDisplayFont>
-  <div class="grid min-h-screen bg-[#f7f7f8] lg:grid-cols-[minmax(0,1fr)_minmax(28rem,38rem)]">
+<Base title={`Acceso al panel · ${shopConfig.backofficeName}`} noindex>
+  <div class="admin-shell grid min-h-screen bg-[#f7f7f8] lg:grid-cols-[minmax(0,1fr)_minmax(28rem,38rem)]">
     <section class="hidden bg-foreground p-12 text-background lg:flex lg:flex-col lg:justify-between xl:p-16">
       <a href="/" class="font-display text-xl">Logic2B <span class="text-background/60">Gestión</span></a>
-      <div class="max-w-2xl"><p class="text-xs font-semibold uppercase tracking-[0.18em] text-background/50">Backend mínimo</p><h2 class="mt-4 font-display text-5xl leading-[1.08] xl:text-6xl">Tu tienda.<br/>Sin misterios.</h2><p class="mt-6 max-w-lg text-lg leading-8 text-background/65">Pedidos, productos, envíos y comunicaciones. Solo lo necesario para operar bien cada día.</p></div>
+      <div class="max-w-2xl"><p class="text-xs font-semibold uppercase tracking-[0.18em] text-background/50">Panel del comercio</p><h2 class="mt-4 font-display text-5xl leading-[1.08] xl:text-6xl">Tu tienda.<br/>Sin misterios.</h2><p class="mt-6 max-w-lg text-lg leading-8 text-background/65">Pedidos, productos, envíos y comunicaciones. Solo lo necesario para operar bien cada día.</p></div>
       <p class="text-sm text-background/50">Logic2B Ecommerce · Demo operativa</p>
     </section>
 
@@ -110,4 +110,8 @@ if (Astro.request.method === 'POST') {
       </main>
     </div>
   </div>
+  <style is:global>
+    /* Mismo criterio que Admin.astro: titulares en Inter, sin fuente de marca. */
+    .admin-shell { --font-display: var(--font-sans); --tracking-display: -0.025em; }
+  </style>
 </Base>
