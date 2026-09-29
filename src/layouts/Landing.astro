@@ -1,5 +1,10 @@
 ---
-/** Shell y lenguaje visual único para portada y páginas comerciales. */
+/**
+ * Shell y lenguaje visual único para portada y páginas comerciales.
+ * Sin precarga de Poppins: desde el lenguaje «plataforma» (2026-09-29) los
+ * titulares van en Inter y Poppins solo pinta el wordmark de la cabecera,
+ * que no es el LCP y tiene fallback con métricas ajustadas.
+ */
 import Base from './Base.astro';
 import '../styles/commercial.css';
 import SiteHeader from '../components/SiteHeader.astro';
@@ -31,7 +36,6 @@ const { title, description, noindex, canonicalPath, jsonLd, ogImagePath, ogImage
   jsonLd={jsonLd}
   ogImagePath={ogImagePath}
   ogImageAlt={ogImageAlt}
-  preloadDisplayFont
 >
   <div class="commercial-page">
     <SiteHeader homeHref="/" wordmark="Logic2B Ecommerce" splitBrand nav={landingNav} activeHref={activeHref}>

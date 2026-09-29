@@ -117,7 +117,7 @@ const jsonLd = [
           Elige un punto de partida. Nosotros lo adaptamos a tu marca.
         </p>
         <div class="page-actions">
-          <a href="/#contacto" data-open-project class="btn btn-primary">Cuéntanos tu proyecto <span class="btn-arrow" aria-hidden="true">→</span></a>
+          <a href="/#contacto" data-open-project class="btn btn-primary">Solicitar propuesta <span class="btn-arrow" aria-hidden="true">→</span></a>
           <a href={MAIN_DEMO_HREF} class="btn btn-ghost">Entra en la tienda demo <span aria-hidden="true">↗</span></a>
         </div>
         <ul class="themes-proof" aria-label="El catálogo en cifras">
@@ -337,7 +337,7 @@ const jsonLd = [
             una plantilla.
           </p>
           <div class="page-actions">
-            <a href="/#contacto" data-open-project class="btn btn-light">Cuéntanos tu proyecto <span class="btn-arrow" aria-hidden="true">→</span></a>
+            <a href="/#contacto" data-open-project class="btn btn-light">Solicitar propuesta <span class="btn-arrow" aria-hidden="true">→</span></a>
             <a href={MAIN_DEMO_HREF} class="btn btn-outline-light">Entra en la tienda demo</a>
           </div>
         </div>
@@ -349,7 +349,7 @@ const jsonLd = [
   .themes-proof { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); max-width: 36rem; margin-top: 2.6rem; border-top: 1px solid var(--c-border); }
   .themes-proof li { padding: 1.1rem 1rem 0 0; }
   .themes-proof li + li { padding-left: 1rem; border-left: 1px solid var(--c-border); }
-  .themes-proof strong { display: block; color: var(--c-green); font: 400 2.1rem/1 'Fraunces', Georgia, serif; letter-spacing: -.05em; }
+  .themes-proof strong { display: block; color: var(--c-green); font: 600 2.1rem/1 var(--font-heading); letter-spacing: -.05em; }
   .themes-proof span { display: block; margin-top: .45rem; color: var(--c-muted); font-size: .76rem; line-height: 1.45; }
 
   /* Barra de filtros fija bajo la cabecera: con 35 temas, filtrar no debe
@@ -361,16 +361,16 @@ const jsonLd = [
     margin-bottom: 2.25rem;
     padding: 1rem 1.2rem;
     border: 1px solid var(--c-border);
-    border-radius: 1.5rem;
-    background: rgb(251 252 248 / 88%);
+    border-radius: var(--r-lg);
+    background: rgb(255 255 255 / 88%);
     backdrop-filter: blur(14px) saturate(1.2);
     box-shadow: var(--shadow-sm);
   }
   .themes-controls[hidden] { display: none; }
 
   .theme-card {
-    border: 1px solid rgb(23 48 27 / 9%);
-    border-radius: 1.5rem;
+    border: 1px solid rgb(12 20 36 / 9%);
+    border-radius: var(--r-lg);
     background: #fff;
     transition: box-shadow .4s var(--ease), transform .4s var(--ease);
   }
@@ -384,8 +384,8 @@ const jsonLd = [
     gap: .45rem;
     padding: .35rem .75rem .35rem .55rem;
     border: 1px solid rgb(255 255 255 / 60%);
-    border-radius: 999px;
-    background: rgb(255 255 255 / 86%);
+    border-radius: var(--r-sm);
+    background: rgb(255 255 255 / 90%);
     backdrop-filter: blur(8px);
     color: var(--c-ink);
     font-size: 11px;
@@ -394,7 +394,7 @@ const jsonLd = [
   }
   .theme-card-badge i { width: .55rem; height: .55rem; border-radius: 50%; box-shadow: 0 0 0 1px rgb(0 0 0 / 10%); }
   .theme-card-body { padding: 1.6rem 1.6rem 1.7rem; }
-  .theme-chip { padding: .3rem .7rem; border: 1px solid var(--c-border); border-radius: 999px; background: #f7f9f4; color: var(--c-ink); font-size: .74rem; }
+  .theme-chip { padding: .25rem .6rem; border: 1px solid var(--c-border); border-radius: var(--r-sm); background: var(--c-surface); color: var(--c-ink); font-size: .74rem; }
   .theme-card-cta {
     min-height: 2.9rem;
     padding: .65rem 1.2rem;
@@ -405,17 +405,17 @@ const jsonLd = [
   }
   .theme-card-cta:hover { transform: translateY(-1px); box-shadow: 0 12px 26px color-mix(in oklab, var(--brand) 32%, transparent); }
   .theme-card-cta:hover .btn-arrow { transform: translateX(3px); }
-  .themes-empty { padding: 3.5rem 1.5rem; border: 1px dashed var(--c-border); border-radius: 1.5rem; background: #fff; text-align: center; }
+  .themes-empty { padding: 3.5rem 1.5rem; border: 1px dashed var(--c-border); border-radius: var(--r-lg); background: #fff; text-align: center; }
 
   @media (max-width: 700px) {
-    .themes-controls { top: 78px; padding: .8rem .9rem; border-radius: 1.2rem; }
+    .themes-controls { top: 78px; padding: .8rem .9rem; border-radius: var(--r-lg); }
     .themes-proof strong { font-size: 1.7rem; }
     .themes-proof span { font-size: .7rem; }
   }
 
   .theme-filter-button {
     border: 1px solid var(--border);
-    border-radius: 9999px;
+    border-radius: var(--r-sm);
     padding: 0.5rem 0.85rem;
     color: var(--muted-foreground);
     font-size: 0.8125rem;
@@ -442,7 +442,7 @@ const jsonLd = [
     transition: border-color 150ms ease, background-color 150ms ease, color 150ms ease;
   }
 
-  .theme-view-button { border-radius: .7rem; background: #fff; }
+  .theme-view-button { border-radius: var(--r-sm); background: #fff; }
   .theme-view-button[aria-pressed='true'] {
     border-color: var(--c-green);
     background: var(--c-green);

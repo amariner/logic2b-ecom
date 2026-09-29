@@ -127,7 +127,7 @@ const jsonLd = [
   canonicalPath="/agencias"
   activeHref="/agencias"
   jsonLd={jsonLd}
-  ogImagePath="/images/og-agencias.jpg?v=1"
+  ogImagePath="/images/og-agencias.jpg?v=2"
   ogImageAlt="Desarrollo ecommerce en marca blanca para agencias — Logic2B"
 >
   <main>
@@ -305,7 +305,7 @@ const jsonLd = [
   }
   .commercial-page .agency-brief {
     border: 1px solid var(--c-border);
-    border-radius: 1.5rem;
+    border-radius: var(--r-lg);
     background: #fff;
     box-shadow: var(--shadow-lg);
     padding: clamp(1.4rem, 3vw, 2rem);
@@ -342,7 +342,7 @@ const jsonLd = [
     font-weight: 700;
   }
   .commercial-page .agency-proof p:first-child { border-left: 1px solid var(--c-border); }
-  .commercial-page .agency-proof span { display: grid; place-items: center; min-width: 2.1rem; height: 1.45rem; border: 1px solid var(--leaf); border-radius: 999px; color: var(--c-green); font-size: .64rem; }
+  .commercial-page .agency-proof span { display: grid; place-items: center; min-width: 2.1rem; height: 1.45rem; border: 1px solid var(--c-border); border-radius: var(--r-sm); color: var(--c-accent); font: 500 .66rem/1 var(--font-code); }
   .commercial-page .agency-section { padding-block: clamp(4.5rem, 8vw, 7rem); }
   .commercial-page .agency-heading { max-width: 47rem; }
   .commercial-page .agency-heading h2,
@@ -368,13 +368,14 @@ const jsonLd = [
   }
   .commercial-page .responsibility-grid article {
     border: 1px solid var(--c-border);
-    border-radius: 1.75rem;
+    border-radius: var(--r-lg);
     background: #fff;
     padding: clamp(1.5rem, 3vw, 2.5rem);
     box-shadow: var(--shadow-sm);
   }
-  .commercial-page .responsibility-grid article:last-child { background: var(--c-green); border-color: var(--c-green); color: #fff; box-shadow: 0 30px 70px rgb(32 63 34 / 26%); }
-  .commercial-page .responsibility-grid article:last-child :is(.card-owner, .card-intro) { color: #cfe0ca; }
+  .commercial-page .responsibility-grid article:last-child { background: var(--c-night); border-color: var(--c-night); color: #fff; box-shadow: 0 30px 70px rgb(12 20 36 / 22%); }
+  .commercial-page .responsibility-grid article:last-child :is(h3, strong) { color: #fff; }
+  .commercial-page .responsibility-grid article:last-child :is(.card-owner, .card-intro) { color: var(--c-night-text); }
   .commercial-page .responsibility-grid article:last-child .check-list li::before { background: var(--leaf); color: var(--deep); }
   .commercial-page .card-owner { color: var(--c-green); font-size: .7rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; }
   .commercial-page .responsibility-grid h3 { margin-top: .75rem; font-size: clamp(1.5rem, 2.7vw, 2.2rem); }
@@ -390,7 +391,7 @@ const jsonLd = [
   }
   .commercial-page .process-grid::before { position: absolute; top: 1.6rem; right: 2rem; left: 2rem; height: 1px; background: linear-gradient(90deg, var(--c-green), var(--leaf)); content: ''; }
   .commercial-page .process-grid li { position: relative; }
-  .commercial-page .process-grid span { position: relative; display: grid; place-items: center; width: 3.2rem; height: 3.2rem; border: 1px solid var(--c-border); border-radius: 50%; background: #fff; box-shadow: 0 0 0 6px var(--c-tint), var(--shadow-sm); color: var(--c-green); font-size: .78rem; font-weight: 600; font-variant-numeric: tabular-nums; transition: background-color .3s var(--ease), color .3s var(--ease); }
+  .commercial-page .process-grid span { position: relative; display: grid; place-items: center; width: 2.6rem; height: 2.6rem; border: 1px solid var(--c-border); border-radius: var(--r-md); background: #fff; box-shadow: 0 0 0 6px var(--c-tint), var(--shadow-sm); color: var(--c-ink); font: 500 .74rem/1 var(--font-code); transition: background-color .3s var(--ease), color .3s var(--ease); }
   .commercial-page .process-grid li:hover span { background: var(--c-green); color: #fff; }
   .commercial-page .process-grid h3 { margin-top: 1.6rem; font-size: 1.45rem; }
   .commercial-page .process-grid p { margin-top: .75rem; color: var(--c-muted); font-size: .92rem; line-height: 1.6; }
@@ -400,24 +401,24 @@ const jsonLd = [
     gap: 1.25rem;
     margin-top: 3rem;
   }
-  .commercial-page .deliverable-grid article { min-height: 15rem; padding: 2rem; border: 1px solid var(--c-border); border-radius: 1.6rem; background: #fff; transition: box-shadow .35s var(--ease), transform .35s var(--ease), border-color .35s var(--ease); }
+  .commercial-page .deliverable-grid article { min-height: 15rem; padding: 2rem; border: 1px solid var(--c-border); border-radius: var(--r-lg); background: #fff; transition: box-shadow .35s var(--ease), transform .35s var(--ease), border-color .35s var(--ease); }
   .commercial-page .deliverable-grid article:hover { border-color: var(--c-green); box-shadow: var(--shadow-md); transform: translateY(-3px); }
-  .commercial-page .deliverable-grid span { display: grid; place-items: center; width: 2.4rem; height: 2.4rem; border-radius: .8rem; background: var(--c-tint); color: var(--c-green); font-size: .72rem; font-weight: 600; }
+  .commercial-page .deliverable-grid span { display: grid; place-items: center; width: 2.4rem; height: 2.4rem; border-radius: var(--r-md); background: var(--c-tint); color: var(--c-green); font-size: .72rem; font-weight: 600; }
   .commercial-page .deliverable-grid h3 { max-width: 25rem; margin-top: 3.5rem; font-size: clamp(1.35rem, 2.6vw, 2rem); }
   .commercial-page .deliverable-grid p { max-width: 31rem; margin-top: .8rem; color: var(--c-muted); line-height: 1.6; }
   .commercial-page .white-label-band,
-  .commercial-page .agency-contact { position: relative; isolation: isolate; overflow: hidden; background: radial-gradient(36rem 28rem at 8% 0%, rgb(183 212 176 / 16%), transparent 70%), var(--c-green); color: white; padding-block: clamp(4.5rem, 8vw, 7rem); }
+  .commercial-page .agency-contact { position: relative; isolation: isolate; overflow: hidden; background: radial-gradient(36rem 28rem at 8% 0%, rgb(16 185 129 / 14%), transparent 70%), var(--c-green); color: white; padding-block: clamp(4.5rem, 8vw, 7rem); }
   .commercial-page .white-label-band::before,
   .commercial-page .agency-contact::before { position: absolute; z-index: -1; inset: 0; background: linear-gradient(rgb(255 255 255 / 4%) 1px, transparent 1px) 0 0 / 56px 56px, linear-gradient(90deg, rgb(255 255 255 / 4%) 1px, transparent 1px) 0 0 / 56px 56px; -webkit-mask-image: radial-gradient(ellipse at 30% 40%, #000, transparent 75%); mask-image: radial-gradient(ellipse at 30% 40%, #000, transparent 75%); content: ''; }
-  .commercial-page :is(.white-label-band, .agency-contact) .eyebrow { color: #c9dec4; }
+  .commercial-page :is(.white-label-band, .agency-contact) .eyebrow { color: var(--c-night-accent); }
   .commercial-page :is(.white-label-band, .agency-contact) .eyebrow span { border-color: rgb(255 255 255 / 25%); }
   .commercial-page .white-label-inner { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(280px, .9fr); gap: clamp(2.5rem, 7vw, 7rem); align-items: start; }
   .commercial-page .white-label-inner h2 { color: white; }
   .commercial-page .white-label-inner > div:last-child { display: grid; gap: 1.25rem; padding-top: .4rem; color: rgba(255,255,255,.72); font-size: 1.05rem; line-height: 1.7; }
   .commercial-page .fit-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; margin-top: 3rem; }
-  .commercial-page .fit-grid article { border: 1px solid var(--c-border); border-radius: 1.6rem; background: #fff; padding: clamp(1.5rem, 3vw, 2.25rem); box-shadow: var(--shadow-sm); }
+  .commercial-page .fit-grid article { border: 1px solid var(--c-border); border-radius: var(--r-lg); background: #fff; padding: clamp(1.5rem, 3vw, 2.25rem); box-shadow: var(--shadow-sm); }
   .commercial-page .fit-label { font-size: .75rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
-  .commercial-page .fit-label.is-positive { color: #47752d; }
+  .commercial-page .fit-label.is-positive { color: var(--c-accent); }
   .commercial-page .fit-grid ul { margin-top: 1.5rem; }
   .commercial-page .fit-note { max-width: 51rem; margin: 1.5rem auto 0; color: var(--c-muted); font-size: .88rem; line-height: 1.55; text-align: center; }
   .commercial-page .faq-section { display: grid; grid-template-columns: minmax(260px, .72fr) minmax(0, 1.28fr); gap: clamp(2.5rem, 7vw, 7rem); }

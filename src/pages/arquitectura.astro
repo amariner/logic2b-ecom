@@ -103,37 +103,37 @@ const benefits: [IconName, string, string][] = [
               <svg viewBox="0 0 640 300" role="img" aria-label="Diagrama del flujo de compra: navegador, API en el edge, base de datos D1, Stripe y webhook">
                 <defs>
                   <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-                    <path d="M 0 0 L 10 5 L 0 10 z" fill="#203f22"></path>
+                    <path d="M 0 0 L 10 5 L 0 10 z" fill="#0c1424"></path>
                   </marker>
                 </defs>
                 <g font-family="'Inter Variable', ui-sans-serif, system-ui, sans-serif" font-size="13">
-                  <rect x="10" y="20" width="150" height="52" rx="14" fill="#fff" stroke="#cbd8c7"></rect>
-                  <text x="85" y="42" text-anchor="middle" fill="#203a25" font-weight="600">Comprador</text>
-                  <text x="85" y="60" text-anchor="middle" fill="#536456" font-size="11">carrito en su navegador</text>
+                  <rect x="10" y="20" width="150" height="52" rx="14" fill="#fff" stroke="#d6dbe3"></rect>
+                  <text x="85" y="42" text-anchor="middle" fill="#0c1424" font-weight="600">Comprador</text>
+                  <text x="85" y="60" text-anchor="middle" fill="#5e6879" font-size="11">carrito en su navegador</text>
 
-                  <rect x="245" y="20" width="150" height="52" rx="14" fill="#fff" stroke="#cbd8c7"></rect>
-                  <text x="320" y="42" text-anchor="middle" fill="#203a25" font-weight="600">API en el edge</text>
-                  <text x="320" y="60" text-anchor="middle" fill="#536456" font-size="11">revalida precios y stock</text>
+                  <rect x="245" y="20" width="150" height="52" rx="14" fill="#fff" stroke="#d6dbe3"></rect>
+                  <text x="320" y="42" text-anchor="middle" fill="#0c1424" font-weight="600">API en el edge</text>
+                  <text x="320" y="60" text-anchor="middle" fill="#5e6879" font-size="11">revalida precios y stock</text>
 
-                  <rect x="480" y="20" width="150" height="52" rx="14" fill="#fff" stroke="#cbd8c7"></rect>
-                  <text x="555" y="42" text-anchor="middle" fill="#203a25" font-weight="600">Base de datos D1</text>
-                  <text x="555" y="60" text-anchor="middle" fill="#536456" font-size="11">la única fuente de precios</text>
+                  <rect x="480" y="20" width="150" height="52" rx="14" fill="#fff" stroke="#d6dbe3"></rect>
+                  <text x="555" y="42" text-anchor="middle" fill="#0c1424" font-weight="600">Base de datos D1</text>
+                  <text x="555" y="60" text-anchor="middle" fill="#5e6879" font-size="11">la única fuente de precios</text>
 
-                  <rect x="245" y="130" width="150" height="52" rx="14" fill="#203f22"></rect>
+                  <rect x="245" y="130" width="150" height="52" rx="14" fill="#0c1424"></rect>
                   <text x="320" y="152" text-anchor="middle" fill="#ffffff" font-weight="600">Stripe Checkout</text>
-                  <text x="320" y="170" text-anchor="middle" fill="#cfe0ca" font-size="11">la tarjeta nunca nos toca</text>
+                  <text x="320" y="170" text-anchor="middle" fill="#c3cad6" font-size="11">la tarjeta nunca nos toca</text>
 
-                  <rect x="245" y="230" width="150" height="52" rx="14" fill="#e6f4e2" stroke="#9cc79a"></rect>
-                  <text x="320" y="252" text-anchor="middle" fill="#203a25" font-weight="600">Webhook firmado</text>
-                  <text x="320" y="270" text-anchor="middle" fill="#25632f" font-size="11">pagado → stock → email</text>
+                  <rect x="245" y="230" width="150" height="52" rx="14" fill="#e8f5ef" stroke="#34d399"></rect>
+                  <text x="320" y="252" text-anchor="middle" fill="#0c1424" font-weight="600">Webhook firmado</text>
+                  <text x="320" y="270" text-anchor="middle" fill="#065f46" font-size="11">pagado → stock → email</text>
 
                   {/* pathLength=1 normaliza el trazo: la animación CSS «dibuja» las
                       flechas al entrar en viewport (fallback: dibujadas de serie). */}
-                  <line class="draw" pathLength="1" x1="160" y1="46" x2="240" y2="46" stroke="#203f22" stroke-width="1.5" marker-end="url(#arrow)"></line>
-                  <line class="draw" pathLength="1" x1="395" y1="46" x2="475" y2="46" stroke="#203f22" stroke-width="1.5" marker-end="url(#arrow)"></line>
-                  <line class="draw" pathLength="1" x1="320" y1="72" x2="320" y2="125" stroke="#203f22" stroke-width="1.5" marker-end="url(#arrow)"></line>
-                  <line class="draw" pathLength="1" x1="320" y1="182" x2="320" y2="225" stroke="#203f22" stroke-width="1.5" marker-end="url(#arrow)"></line>
-                  <path class="draw-fade" d="M 395 256 C 560 256 555 130 555 77" fill="none" stroke="#203f22" stroke-width="1.5" stroke-dasharray="4 3" marker-end="url(#arrow)"></path>
+                  <line class="draw" pathLength="1" x1="160" y1="46" x2="240" y2="46" stroke="#0c1424" stroke-width="1.5" marker-end="url(#arrow)"></line>
+                  <line class="draw" pathLength="1" x1="395" y1="46" x2="475" y2="46" stroke="#0c1424" stroke-width="1.5" marker-end="url(#arrow)"></line>
+                  <line class="draw" pathLength="1" x1="320" y1="72" x2="320" y2="125" stroke="#0c1424" stroke-width="1.5" marker-end="url(#arrow)"></line>
+                  <line class="draw" pathLength="1" x1="320" y1="182" x2="320" y2="225" stroke="#0c1424" stroke-width="1.5" marker-end="url(#arrow)"></line>
+                  <path class="draw-fade" d="M 395 256 C 560 256 555 130 555 77" fill="none" stroke="#0c1424" stroke-width="1.5" stroke-dasharray="4 3" marker-end="url(#arrow)"></path>
                 </g>
               </svg>
             </div>
@@ -272,11 +272,12 @@ const benefits: [IconName, string, string][] = [
     display: flex;
     gap: 1.25rem;
     padding: clamp(1.5rem, 3vw, 2.4rem);
-    border-radius: 1.75rem;
-    background: var(--c-tint);
+    border: 1px solid var(--c-border);
+    border-radius: var(--r-lg);
+    background: var(--c-surface);
   }
   .commercial-page .arch-intro .card-ico { background: #fff; }
-  .commercial-page .arch-intro-title { font: 400 clamp(1.5rem, 2.4vw, 2rem)/1.15 'Fraunces', Georgia, serif; letter-spacing: -.04em; }
+  .commercial-page .arch-intro-title { font: 600 clamp(1.5rem, 2.4vw, 2rem)/1.15 var(--font-heading); letter-spacing: -.04em; }
   .commercial-page .arch-intro p:not(.arch-intro-title) { max-width: 52rem; margin-top: .7rem; color: var(--c-muted); line-height: 1.7; }
 
   /* Fila editorial: título fijo a la izquierda, contenido a la derecha. */
@@ -287,36 +288,36 @@ const benefits: [IconName, string, string][] = [
   .commercial-page .arch-body > p { color: var(--c-muted); font-size: 1.04rem; line-height: 1.75; }
   .commercial-page .arch-body strong { color: var(--c-ink); font-weight: 600; }
 
-  .commercial-page .split-bar { display: grid; grid-template-columns: 3fr 1.3fr; overflow: hidden; border: 1px solid var(--c-border); border-radius: 1.2rem; }
+  .commercial-page .split-bar { display: grid; grid-template-columns: 3fr 1.3fr; overflow: hidden; border: 1px solid var(--c-border); border-radius: var(--r-lg); }
   .commercial-page .split-bar > div { padding: 1.2rem 1.3rem; }
   .commercial-page .split-bar small { display: block; font-size: .64rem; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; }
   .commercial-page .split-bar strong { display: block; margin-top: .45rem; font-size: 1rem; letter-spacing: -.02em; }
   .commercial-page .split-static { background: #fff; color: var(--c-muted); }
-  .commercial-page .split-dynamic { background: var(--c-green); color: #cfe0ca; }
+  .commercial-page .split-dynamic { background: var(--c-green); color: var(--c-night-text); }
   .commercial-page .split-dynamic strong { color: #fff; }
 
   .commercial-page .arch-diagram { box-shadow: var(--shadow-lg); }
-  .commercial-page .arch-diagram-scroll { overflow-x: auto; padding: clamp(1rem, 3vw, 2rem); background: radial-gradient(circle, #cfdccb 1px, transparent 1.2px) 0 0 / 16px 16px, #f7faf4; }
+  .commercial-page .arch-diagram-scroll { overflow-x: auto; padding: clamp(1rem, 3vw, 2rem); background: radial-gradient(circle, #d6dbe3 1px, transparent 1.2px) 0 0 / 16px 16px, var(--c-surface); }
   .commercial-page .arch-diagram svg { display: block; width: 100%; min-width: 520px; }
   .commercial-page .arch-steps { display: grid; gap: 0; }
   .commercial-page .arch-steps li { position: relative; display: flex; gap: 1.1rem; padding-bottom: 1.4rem; }
-  .commercial-page .arch-steps li:not(:last-child)::before { position: absolute; top: 2.4rem; bottom: .3rem; left: 1.1rem; width: 1px; background: var(--leaf); content: ''; }
-  .commercial-page .arch-steps li > span { display: grid; flex: 0 0 auto; place-items: center; width: 2.25rem; height: 2.25rem; border: 1px solid var(--leaf); border-radius: 50%; background: #fff; color: var(--c-green); font-size: .72rem; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .commercial-page .arch-steps li:not(:last-child)::before { position: absolute; top: 2.4rem; bottom: .3rem; left: 1.1rem; width: 1px; background: var(--c-border); content: ''; }
+  .commercial-page .arch-steps li > span { display: grid; flex: 0 0 auto; place-items: center; width: 2.25rem; height: 2.25rem; border: 1px solid var(--c-border); border-radius: var(--r-sm); background: #fff; color: var(--c-ink); font: 500 .72rem/1 var(--font-code); }
   .commercial-page .arch-steps p { padding-top: .3rem; color: var(--c-muted); line-height: 1.7; }
   .commercial-page .arch-shot { box-shadow: var(--shadow-lg); }
   .commercial-page .arch-shot img { aspect-ratio: 16 / 10; object-fit: cover; object-position: top left; }
-  .commercial-page .arch-shot figcaption { padding: .85rem 1.1rem; border-top: 1px solid var(--line); background: #f7f9f4; color: var(--c-muted); font-size: .82rem; line-height: 1.55; }
+  .commercial-page .arch-shot figcaption { padding: .85rem 1.1rem; border-top: 1px solid var(--line); background: var(--c-surface); color: var(--c-muted); font-size: .82rem; line-height: 1.55; }
 
-  .commercial-page .arch-tables { overflow: hidden; border: 1px solid var(--c-border); border-radius: 1.3rem; background: #fff; box-shadow: var(--shadow-sm); }
+  .commercial-page .arch-tables { overflow: hidden; border: 1px solid var(--c-border); border-radius: var(--r-lg); background: #fff; box-shadow: var(--shadow-sm); }
   .commercial-page .arch-tables li { display: grid; grid-template-columns: 11rem 1fr; gap: 1rem; align-items: baseline; padding: 1rem 1.25rem; font-size: .92rem; transition: background-color .25s var(--ease); }
   .commercial-page .arch-tables li + li { border-top: 1px solid var(--line); }
-  .commercial-page .arch-tables li:hover { background: #f7faf4; }
-  .commercial-page .arch-tables code { color: var(--c-green); font: 500 .86rem/1.4 var(--font-mono); }
+  .commercial-page .arch-tables li:hover { background: var(--c-surface); }
+  .commercial-page .arch-tables code { color: var(--c-accent); font: 500 .84rem/1.4 var(--font-code); }
   .commercial-page .arch-tables span { color: var(--c-muted); }
 
   .commercial-page .arch-stats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
-  .commercial-page .arch-stats > div { padding: 1.4rem; border: 1px solid var(--c-border); border-radius: 1.3rem; background: #fff; }
-  .commercial-page .arch-stats strong { display: block; color: var(--c-green); font: 400 clamp(2.2rem, 4vw, 3rem)/1 'Fraunces', Georgia, serif; letter-spacing: -.05em; }
+  .commercial-page .arch-stats > div { padding: 1.4rem; border: 1px solid var(--c-border); border-radius: var(--r-lg); background: #fff; }
+  .commercial-page .arch-stats strong { display: block; color: var(--c-green); font: 600 clamp(2.2rem, 4vw, 3rem)/1 var(--font-heading); letter-spacing: -.05em; }
   .commercial-page .arch-stats span { display: block; margin-top: .5rem; color: var(--c-muted); font-size: .85rem; }
 
   .commercial-page .arch-benefits { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.25rem; }

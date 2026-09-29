@@ -50,8 +50,12 @@ const f = (rel) => `file://${join(PUBLIC, rel)}`;
  * Tres catálogos reales en abanico = «un motor, muchas tiendas» sin decirlo.
  * Se eligen los tres más distintos entre sí a tamaño de miniatura de chat.
  */
-const SHOWCASE = ['store-street-catalog.webp', 'store-natural-catalog.webp', 'store-specs-catalog.webp'];
+const SHOWCASE = ['store-arce-catalog.webp', 'store-zancada-catalog.webp', 'store-nera-catalog.webp'];
 
+/* Lenguaje «plataforma» (2026-09-29): tinta azul noche, un acento verde y la
+   retícula fina de la web. El mensaje es el H1 de la portada: qué es, sin
+   cifras que caduquen (la tarjeta anterior decía «0 €/mes», que dejó de ser
+   cierto al publicar el mantenimiento mensual de los packs). */
 const HTML = `<!doctype html>
 <meta charset="utf-8">
 <style>
@@ -64,23 +68,34 @@ const HTML = `<!doctype html>
   html, body { width: ${W}px; height: ${H}px; }
   body {
     font-family: "Inter Variable", system-ui, sans-serif;
-    background: #ffffff; color: #0a0a0a;
+    background: #ffffff; color: #0c1424;
     display: grid; grid-template-columns: 640px 1fr; overflow: hidden;
   }
-  .left { padding: 56px 40px 48px 56px; display: flex; flex-direction: column; }
-  .brand { font-size: 26px; font-weight: 700; letter-spacing: -.02em; }
-  .brand i { color: #008060; font-style: normal; }
-  h1 { margin-top: auto; font-size: 50px; line-height: 1.04; font-weight: 700; letter-spacing: -.035em; max-width: 500px; }
-  h1 b { display: block; color: #008060; font-weight: 700; text-wrap: balance; }
-  .sub { margin-top: 20px; font-size: 20px; line-height: 1.35; color: #52525b; font-weight: 450; }
-  .pill {
-    margin-top: auto; align-self: flex-start; margin-bottom: 0;
-    border: 1px solid #e4e4e7; border-radius: 999px;
-    padding: 11px 20px; font-size: 17px; color: #3f3f46; font-weight: 500;
+  .left { position: relative; padding: 56px 40px 48px 56px; display: flex; flex-direction: column; }
+  .left::before {
+    position: absolute; inset: 0; z-index: -1; content: '';
+    background: linear-gradient(#edf0f4 1px, transparent 1px) 0 0 / 48px 48px,
+                linear-gradient(90deg, #edf0f4 1px, transparent 1px) 0 0 / 48px 48px;
+    -webkit-mask-image: radial-gradient(ellipse 80% 70% at 20% 10%, #000, transparent 75%);
   }
-  /* Tres catálogos apilados en escalera: a tamaño de miniatura de chat se
-     distinguen tres tiendas distintas, que es todo el mensaje de la imagen. */
-  .right { position: relative; background: #0a0a0a; overflow: hidden; }
+  .brand { font-size: 26px; font-weight: 700; letter-spacing: -.02em; }
+  .brand i { color: #5e6879; font-style: normal; font-weight: 500; }
+  .tag { margin-top: 40px; align-self: flex-start; padding: 6px 12px; border-radius: 6px; background: #e8f5ef; color: #065f46; font: 500 16px/1.3 ui-monospace, Menlo, monospace; }
+  h1 { margin-top: 22px; font-size: 54px; line-height: 1.04; font-weight: 650; letter-spacing: -.04em; max-width: 540px; text-wrap: balance; }
+  h1 b { color: #047857; font-weight: 650; }
+  .sub { margin-top: 22px; font-size: 21px; line-height: 1.4; color: #414b5c; font-weight: 450; max-width: 520px; }
+  .pill {
+    margin-top: auto; align-self: flex-start;
+    border: 1px solid #e2e6ec; border-radius: 8px; background: #fff;
+    padding: 11px 18px; font-size: 17px; color: #0c1424; font-weight: 500;
+  }
+  .right { position: relative; background: #0c1424; overflow: hidden; }
+  .right::before {
+    position: absolute; inset: 0; content: '';
+    background: radial-gradient(520px 320px at 80% 0%, rgba(16,185,129,.22), transparent 70%),
+                linear-gradient(rgba(255,255,255,.07) 1px, transparent 1px) 0 0 / 48px 48px,
+                linear-gradient(90deg, rgba(255,255,255,.07) 1px, transparent 1px) 0 0 / 48px 48px;
+  }
   .right img {
     position: absolute; left: 56px; width: 470px; height: 232px;
     object-fit: cover; object-position: top left;
@@ -93,8 +108,9 @@ const HTML = `<!doctype html>
 </style>
 <div class="left">
   <p class="brand">Logic2B <i>Ecommerce</i></p>
-  <h1>Tiendas radicalmente distintas.<b>Un motor probado. 0 €/mes.</b></h1>
-  <p class="sub">Tu tienda online a medida, sin cuotas de plataforma.<br>Pagos con Stripe · Hecho en Castellón.</p>
+  <p class="tag">Infraestructura propia</p>
+  <h1>Tiendas online a medida, <b>sobre tecnología probada.</b></h1>
+  <p class="sub">Diseño con tu marca, panel sencillo y mantenimiento incluido. Hecho en Castellón.</p>
   <p class="pill">ecom.logic2b.com — demo real navegable</p>
 </div>
 <div class="right">
@@ -105,14 +121,14 @@ ${SHOWCASE.map((s, i) => `  <img class="s${i}" src="${f('images/screens/' + s)}"
 /** Variante propia de /agencias: misma marca, mensaje y URL específicos. */
 const PAGE_HTML = AGENCIES
   ? HTML
-      .replaceAll('#008060', '#254fad')
+      .replace('<p class="tag">Infraestructura propia</p>', '<p class="tag">Marca blanca para agencias</p>')
       .replace(
-        'Tiendas radicalmente distintas.<b>Un motor probado. 0 €/mes.</b>',
-        'Tu agencia gana el proyecto.<b>Nosotros construimos el ecommerce.</b>',
+        'Tiendas online a medida, <b>sobre tecnología probada.</b>',
+        'Tu agencia gana el proyecto. <b>Nosotros construimos el ecommerce.</b>',
       )
       .replace(
-        'Tu tienda online a medida, sin cuotas de plataforma.<br>Pagos con Stripe · Hecho en Castellón.',
-        'Desarrollo y mantenimiento en marca blanca.<br>Un equipo técnico detrás de tu agencia.',
+        'Diseño con tu marca, panel sencillo y mantenimiento incluido. Hecho en Castellón.',
+        'Desarrollo y mantenimiento en marca blanca. Un equipo técnico detrás de tu agencia.',
       )
       .replace(
         'ecom.logic2b.com — demo real navegable',

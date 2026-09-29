@@ -195,7 +195,7 @@ const jsonLd = [
         entender el servicio antes de acordar la propuesta de tu tienda.
       </p>
       <div class="page-actions print:hidden">
-        <a href="/#contacto" data-open-project class="btn btn-primary">Preparar mi propuesta <span class="btn-arrow" aria-hidden="true">→</span></a>
+        <a href="/#contacto" data-open-project class="btn btn-primary">Solicitar propuesta <span class="btn-arrow" aria-hidden="true">→</span></a>
         <a href="/precios" class="btn btn-ghost">Ver los packs</a>
       </div>
     </section>
@@ -477,26 +477,26 @@ const jsonLd = [
 
   <style is:global>
     .commercial-page .doc { display: grid; grid-template-columns: 15rem minmax(0, 1fr); gap: clamp(2rem, 5vw, 5rem); align-items: start; padding-bottom: clamp(3rem, 6vw, 5rem); }
-    .commercial-page .doc-toc { position: sticky; top: 110px; padding: 1.2rem; border: 1px solid var(--c-border); border-radius: 1.3rem; background: rgb(255 255 255 / 70%); }
+    .commercial-page .doc-toc { position: sticky; top: 110px; padding: 1.2rem; border: 1px solid var(--c-border); border-radius: var(--r-lg); background: rgb(255 255 255 / 70%); }
     .commercial-page .doc-toc > p { color: var(--c-green); font-size: .66rem; font-weight: 600; letter-spacing: .13em; text-transform: uppercase; }
     .commercial-page .doc-toc ol { display: grid; gap: .1rem; margin-top: .8rem; }
-    .commercial-page .doc-toc a { display: flex; gap: .6rem; padding: .45rem .5rem; border-radius: .6rem; color: var(--c-muted); font-size: .8rem; line-height: 1.35; transition: background-color .2s var(--ease), color .2s var(--ease); }
+    .commercial-page .doc-toc a { display: flex; gap: .6rem; padding: .45rem .5rem; border-radius: var(--r-sm); color: var(--c-muted); font-size: .8rem; line-height: 1.35; transition: background-color .2s var(--ease), color .2s var(--ease); }
     .commercial-page .doc-toc a:hover { background: var(--c-tint); color: var(--c-green); }
     .commercial-page .doc-toc a span { color: var(--c-green); font-size: .7rem; font-variant-numeric: tabular-nums; }
     .commercial-page .doc-body { max-width: 52rem; min-width: 0; }
     .commercial-page .doc-chapter { margin-top: clamp(3.5rem, 7vw, 5.5rem); scroll-margin-top: 110px; }
     .commercial-page .doc-h2 { margin-top: 1rem; font-size: clamp(2rem, 3.6vw, 3.1rem); line-height: 1.05; letter-spacing: -.055em; }
-    .commercial-page .doc-card { padding: 1.5rem; border: 1px solid var(--c-border); border-radius: 1.4rem; background: #fff; box-shadow: var(--shadow-sm); }
+    .commercial-page .doc-card { padding: 1.5rem; border: 1px solid var(--c-border); border-radius: var(--r-lg); background: #fff; box-shadow: var(--shadow-sm); }
     .commercial-page .doc-card.is-positive { border-color: var(--leaf); background: var(--c-tint); }
     .commercial-page .doc-card.is-positive > p:first-child { color: var(--c-green); }
-    .commercial-page .doc-card.is-tint { background: #f7f9f4; box-shadow: none; }
+    .commercial-page .doc-card.is-tint { background: var(--c-surface); box-shadow: none; }
     .commercial-page .doc-lead { padding: clamp(1.5rem, 3vw, 2.4rem); box-shadow: var(--shadow-md); }
     .commercial-page .doc-path { position: relative; display: grid; gap: 0; }
     .commercial-page .doc-path li { position: relative; padding: 0 0 1.6rem 2.2rem; }
-    .commercial-page .doc-path li::before { position: absolute; top: .3rem; left: 0; width: .9rem; height: .9rem; border: 2px solid var(--c-green); border-radius: 50%; background: #fff; content: ''; }
+    .commercial-page .doc-path li::before { position: absolute; top: .3rem; left: 0; width: .9rem; height: .9rem; border: 2px solid var(--c-accent); border-radius: 50%; background: #fff; content: ''; }
     .commercial-page .doc-path li:not(:last-child)::after { position: absolute; top: 1.4rem; bottom: .2rem; left: .42rem; width: 1px; background: var(--leaf); content: ''; }
-    .commercial-page .doc-step { display: grid; place-items: center; width: 2.25rem; height: 2.25rem; border-radius: 50%; background: var(--c-green); color: #fff; font: 400 1rem/1 'Fraunces', Georgia, serif; }
-    .commercial-page .doc-need { padding: 1rem 1.4rem; border-radius: 1rem; background: #f7f9f4; border: 1px solid var(--line); }
+    .commercial-page .doc-step { display: grid; place-items: center; width: 2.25rem; height: 2.25rem; border-radius: var(--r-sm); background: var(--c-ink); color: #fff; font: 500 .8rem/1 var(--font-code); }
+    .commercial-page .doc-need { padding: 1rem 1.4rem; border-radius: var(--r-md); background: var(--c-surface); border: 1px solid var(--line); }
     .commercial-page .doc-faq { display: grid; border-top: 1px solid var(--c-border); }
     .commercial-page .doc-faq > div { padding: 1.3rem 0; border-bottom: 1px solid var(--c-border); }
     .commercial-page .doc-faq h3 { font-size: 1.05rem; letter-spacing: -.02em; }

@@ -1,7 +1,7 @@
 ---
 /**
  * Pie compartido de las páginas comerciales — el MISMO en todas, incluida la
- * portada (donde continúa el bloque oscuro de contacto: mismo fondo tinta).
+ * portada (donde continúa el bloque oscuro de contacto: mismo fondo noche).
  * La lista de enlaces vive en lib/nav.ts (footerNav): un solo menú, un solo
  * sitio donde tocarlo.
  */
@@ -13,9 +13,40 @@ const currentPath = Astro.url.pathname.replace(/\.html$/, '') || '/';
 ---
 
 <footer class="site-footer">
-  <div class="site-footer-top"><div><a href="/" class="footer-brand">Logic2B <span>Ecommerce</span></a><p>Tu tienda, la compra y la gestión.<br />Un mismo proyecto, un equipo detrás.</p></div><nav aria-label="Mapa del sitio">{footerNav.map((link) => <a href={link.href} aria-current={link.href === currentPath ? 'page' : undefined}>{link.label}</a>)}</nav><div class="footer-contact"><p>Hablemos de tu negocio.</p><a href="/#contacto" data-open-project>Preparar una propuesta ↗</a><a href="mailto:hola@logic2b.com">hola@logic2b.com</a></div></div>
-  <div class="site-footer-bottom"><p>© 2026 Logic2B · Castellón</p><a href="https://logic2b.com">Diseño y tecnología por Logic2B ↗</a></div>
+  <div class="site-footer-top">
+    <div class="footer-about">
+      <a href="/" class="footer-brand">Logic2B <span>Ecommerce</span></a>
+      <p>Tiendas online a medida sobre la infraestructura propia de Logic2B. Diseño, tecnología y mantenimiento, con un equipo detrás.</p>
+    </div>
+    <nav aria-label="Mapa del sitio">{footerNav.map((link) => <a href={link.href} aria-current={link.href === currentPath ? 'page' : undefined}>{link.label}</a>)}</nav>
+    <div class="footer-contact">
+      <p>Hablemos de tu negocio</p>
+      <a class="footer-cta" href="/#contacto" data-open-project>Solicitar propuesta <span aria-hidden="true">→</span></a>
+      <a href="mailto:hola@logic2b.com">hola@logic2b.com</a>
+    </div>
+  </div>
+  <div class="site-footer-bottom"><p>© 2026 Logic2B · Castellón, España</p><a href="https://logic2b.com">Diseño y tecnología por Logic2B ↗</a></div>
 </footer>
 <style>
-.site-footer{background:var(--c-green,#203f22);color:#d1dfcd;border-top:1px solid #ffffff26}.site-footer-top{display:grid;grid-template-columns:1fr 1fr .8fr;gap:3rem;max-width:1280px;margin:auto;padding:3rem clamp(20px,5vw,64px)}.footer-brand{color:white;font-size:1.15rem;font-weight:700;letter-spacing:-.04em}.footer-brand span{font-weight:400}.site-footer-top p{font-size:.85rem;line-height:1.8;margin-top:1rem}.site-footer nav{display:grid;grid-template-columns:1fr 1fr;gap:.35rem 1rem;align-content:start}.site-footer nav a{font-size:.78rem;min-height:32px;display:flex;align-items:center}.site-footer a:hover{color:white;text-decoration:underline;text-underline-offset:4px}.footer-contact{display:grid;align-content:start;gap:.8rem;font-size:.83rem}.footer-contact p{margin:0}.site-footer-bottom{border-top:1px solid #ffffff26;max-width:1152px;margin:auto;display:flex;justify-content:space-between;gap:1rem;padding:1.5rem 0;font-size:.7rem}@media(max-width:700px){.site-footer-top{grid-template-columns:1fr;gap:2rem;padding-block:2.5rem}.site-footer-bottom{flex-wrap:wrap;margin-inline:20px}.site-footer nav a{min-height:40px}}@media print{.site-footer{display:none}}
+.site-footer { border-top: 1px solid rgb(255 255 255 / 10%); background: var(--c-night, #0c1424); color: var(--c-night-text, #c3cad6); }
+.site-footer-top { display: grid; grid-template-columns: 1.1fr 1fr .8fr; gap: 3rem; max-width: 1320px; margin: auto; padding: 3.5rem clamp(20px, 4vw, 48px) 3rem; }
+.footer-brand { color: #fff; font-size: 1.1rem; font-weight: 700; letter-spacing: -.02em; }
+.footer-brand span { color: var(--c-night-muted, #8b95a7); font-weight: 500; }
+.footer-about p { max-width: 24rem; margin-top: 1rem; color: var(--c-night-muted, #8b95a7); font-size: .86rem; line-height: 1.7; }
+.site-footer nav { display: grid; grid-template-columns: 1fr 1fr; gap: .15rem 1.5rem; align-content: start; }
+.site-footer nav a { display: flex; align-items: center; min-height: 34px; font-size: .86rem; }
+.site-footer a:hover { color: #fff; }
+.site-footer nav a[aria-current] { color: #fff; }
+.footer-contact { display: grid; align-content: start; justify-items: start; gap: .8rem; font-size: .86rem; }
+.footer-contact p { margin: 0; color: #fff; font-weight: 600; }
+.footer-cta { display: inline-flex; align-items: center; gap: .45rem; min-height: 40px; padding: .5rem .9rem; border-radius: 8px; background: #fff; color: var(--c-ink, #0c1424); font-weight: 500; }
+.site-footer .footer-cta:hover { background: #e8ecf2; color: var(--c-ink, #0c1424); }
+.site-footer :focus-visible { outline: 2px solid var(--c-night-accent, #6ee7b7); outline-offset: 3px; }
+.site-footer-bottom { display: flex; justify-content: space-between; gap: 1rem; max-width: 1320px; margin: auto; padding: 1.4rem clamp(20px, 4vw, 48px); border-top: 1px solid rgb(255 255 255 / 10%); color: var(--c-night-muted, #8b95a7); font-size: .78rem; }
+@media (max-width: 800px) {
+  .site-footer-top { grid-template-columns: 1fr; gap: 2rem; padding-block: 2.5rem; }
+  .site-footer-bottom { flex-wrap: wrap; }
+  .site-footer nav a { min-height: 44px; }
+}
+@media print { .site-footer { display: none; } }
 </style>

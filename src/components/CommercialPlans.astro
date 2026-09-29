@@ -4,47 +4,48 @@ const previews = { lite: 'bruma', kit: 'arce', custom: 'nera' } as const;
 ---
 <div class="commercial-plans">
   {plans.map((plan) => <article class:list={['commercial-plan', plan.featured && 'is-featured']}>
-    <p class="plan-audience">{plan.audience}</p><h3>{plan.name}</h3>
+    <div class="plan-top">
+      <p class="plan-audience">{plan.audience}</p>
+      {plan.featured && <p class="plan-badge">Recomendado</p>}
+    </div>
+    <h3>{plan.name}</h3>
+    <p class="plan-description">{plan.description}</p>
     <p class="plan-price"><small>Desde</small> {euro(plan.setup)} €</p>
     <p class="plan-monthly">{plan.monthly ? `+ desde ${plan.monthly} €/mes de mantenimiento` : 'Puesta en marcha · sin panel de gestión'}</p>
-    <a href="/#contacto" data-open-project data-project-pack={plan.name} class="plan-cta">Consultar este pack <span aria-hidden="true">↗</span></a>
-    <a class="plan-preview" href="/temas"><img src={`/images/screens/store-${previews[plan.id]}-catalog-560.webp`} alt={`Referencia de diseño para ${plan.name}`} width="560" height="360" loading="lazy" /><span>Explorar diseños <b aria-hidden="true">↗</b></span></a>
-    <p class="plan-description">{plan.description}</p>
-    <ul>{plan.points.map((point) => <li><span aria-hidden="true">✓</span>{point}</li>)}</ul>
+    <a href="/#contacto" data-open-project data-project-pack={plan.name} class="plan-cta">Consultar este pack <span aria-hidden="true">→</span></a>
+    <ul>{plan.points.map((point) => <li><span aria-hidden="true"><svg viewBox="0 0 16 16" width="14" height="14"><path d="m3.5 8.5 3 3 6-6.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" /></svg></span>{point}</li>)}</ul>
+    <a class="plan-preview" href="/temas"><img src={`/images/screens/store-${previews[plan.id]}-catalog-560.webp`} alt={`Referencia de diseño para ${plan.name}`} width="560" height="360" loading="lazy" /><span>Explorar diseños <b aria-hidden="true">→</b></span></a>
   </article>)}
 </div>
 <p class="plans-note">Precios orientativos sin IVA. El presupuesto concreta catálogo, contenidos, integraciones y mantenimiento. Pasarela de pago, publicidad y servicios de terceros se presupuestan aparte. Kit Lite se prepara bajo propuesta; la demo muestra la tienda completa.</p>
 <style>
 /* Acabado único de los packs (portada, /precios y dossier). Los tokens
-   (--leaf, --shadow-*, --ease) los define el shell comercial. */
-.commercial-plans{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1.25rem;align-items:stretch}
-.commercial-plan{position:relative;display:flex;flex-direction:column;padding:2.1rem;border:1px solid var(--border);border-radius:1.75rem;background:var(--card);box-shadow:var(--shadow-sm);transition:box-shadow .35s var(--ease),transform .35s var(--ease)}
-.commercial-plan:hover{box-shadow:var(--shadow-md);transform:translateY(-3px)}
-.plan-audience{font-size:.8rem;color:var(--c-muted)}
-.commercial-plan h3{margin:.6rem 0 1.4rem;font:400 1.9rem/1.1 'Fraunces',Georgia,serif;letter-spacing:-.045em}
-.plan-price{font:400 3.4rem/1 'Fraunces',Georgia,serif;letter-spacing:-.055em;font-variant-numeric:lining-nums}
-.plan-price small{margin-right:.2rem;color:var(--c-muted);font:400 .8rem 'Inter Variable',sans-serif;letter-spacing:0;vertical-align:.9em}
-.plan-monthly{min-height:2.4em;margin:.75rem 0 1.4rem;color:var(--c-muted);font-size:.78rem}
-.plan-cta{display:flex;align-items:center;justify-content:space-between;min-height:3.2rem;padding:.8rem 1.3rem;border:1px solid var(--c-green);border-radius:999px;color:var(--c-green);font-size:.85rem;font-weight:500;transition:background-color .25s var(--ease),color .25s var(--ease)}
-.commercial-plan:not(.is-featured) .plan-cta:hover{background:var(--c-green);color:#fff}
-.plan-preview{display:block;overflow:hidden;margin-top:1.5rem;border:1px solid var(--border);border-radius:1rem;background:#fff}
-.plan-preview img{width:100%;height:150px;object-fit:cover;object-position:top;transition:transform .6s var(--ease)}
+   (--c-*, --r-*, --shadow-*, --ease) los define el shell comercial. */
+.commercial-plans{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1rem;align-items:stretch}
+.commercial-plan{position:relative;display:flex;flex-direction:column;padding:1.75rem;border:1px solid var(--border);border-radius:var(--r-lg,14px);background:var(--card);box-shadow:var(--shadow-sm);transition:box-shadow .3s var(--ease),border-color .3s var(--ease)}
+.commercial-plan:hover{border-color:#cdd3dc;box-shadow:var(--shadow-md)}
+.plan-top{display:flex;align-items:center;justify-content:space-between;gap:1rem;min-height:1.6rem}
+.plan-audience{color:var(--c-muted);font:500 .74rem/1.4 var(--font-code,monospace)}
+.plan-badge{padding:.2rem .55rem;border-radius:var(--r-sm,6px);background:var(--c-accent-soft,#e8f5ef);color:var(--c-accent-strong,#065f46);font-size:.7rem;font-weight:600}
+.commercial-plan h3{margin:.8rem 0 .5rem;font-size:1.35rem;letter-spacing:-.025em}
+.plan-description{min-height:3em;color:var(--c-body,#414b5c);font-size:.93rem;line-height:1.5}
+.plan-price{margin-top:1.4rem;color:var(--c-ink,#0c1424);font-size:2.6rem;font-weight:600;line-height:1;letter-spacing:-.045em;font-variant-numeric:tabular-nums}
+.plan-price small{margin-right:.25rem;color:var(--c-muted);font-size:.8rem;font-weight:400;letter-spacing:0;vertical-align:.95em}
+.plan-monthly{min-height:1.5em;margin:.6rem 0 1.4rem;color:var(--c-muted);font-size:.82rem}
+.plan-cta{display:flex;align-items:center;justify-content:center;gap:.5rem;min-height:2.85rem;padding:.65rem 1rem;border:1px solid var(--c-border,#e2e6ec);border-radius:var(--r-btn,8px);background:#fff;color:var(--c-ink,#0c1424);font-size:.9rem;font-weight:500;box-shadow:var(--shadow-sm);transition:background-color .2s var(--ease),border-color .2s var(--ease)}
+.plan-cta:hover{border-color:var(--c-ink,#0c1424)}
+.commercial-plan ul{display:grid;gap:.7rem;margin-top:1.5rem;padding-top:1.4rem;border-top:1px solid var(--c-line,#edf0f4);color:var(--c-body,#414b5c);font-size:.88rem}
+.commercial-plan li{display:flex;gap:.6rem;line-height:1.45}
+.commercial-plan li span{display:grid;flex:0 0 auto;place-items:center;width:1.25rem;height:1.25rem;margin-top:.05rem;border-radius:var(--r-sm,6px);background:var(--c-accent-soft,#e8f5ef);color:var(--c-accent-strong,#065f46)}
+.plan-preview{display:block;overflow:hidden;margin-top:auto;border:1px solid var(--c-line,#edf0f4);border-radius:var(--r-md,10px);background:#fff}
+.commercial-plan ul + .plan-preview{margin-top:1.5rem}
+.plan-preview img{width:100%;height:132px;object-fit:cover;object-position:top;transition:transform .6s var(--ease)}
 .plan-preview:hover img{transform:scale(1.03)}
-.plan-preview>span{display:flex;justify-content:space-between;padding:.65rem .8rem;color:var(--c-muted);font-size:.7rem}
-.plan-description{margin:1.5rem 0 1rem;font-size:1rem;line-height:1.5}
-.commercial-plan ul{display:grid;gap:.8rem;color:var(--c-muted);font-size:.85rem}
-.commercial-plan li{display:flex;gap:.65rem}
-.commercial-plan li span{color:var(--c-green)}
-.commercial-plan.is-featured{border-color:var(--c-green);background:var(--c-green);color:#fff;box-shadow:0 30px 70px rgb(32 63 34 / 28%)}
-.commercial-plan.is-featured::before{position:absolute;top:1.6rem;right:1.6rem;padding:.3rem .7rem;border-radius:999px;background:var(--leaf);color:var(--deep);font-size:.66rem;font-weight:600;letter-spacing:.04em;content:'Recomendado'}
-.commercial-plan.is-featured :is(.plan-audience,.plan-monthly,ul,.plan-price small){color:#cfe0ca}
-.commercial-plan.is-featured .plan-audience{padding-right:6.5rem}
-.commercial-plan.is-featured li span{color:var(--leaf)}
-.commercial-plan.is-featured .plan-cta{border-color:#fff;background:#fff;color:var(--c-green)}
-.commercial-plan.is-featured .plan-cta:hover{background:var(--leaf-soft)}
-.commercial-plan.is-featured .plan-preview{border-color:rgb(255 255 255 / 18%)}
-.commercial-plan.is-featured :focus-visible{outline-color:#fff}
-.plans-note{max-width:65rem;margin:1.5rem auto 0;color:var(--c-muted);font-size:.8rem;line-height:1.7;text-align:center}
-@media(max-width:800px){.commercial-plans{grid-template-columns:1fr}.commercial-plan{padding:1.5rem}.plan-monthly{min-height:0}.plan-price{font-size:2.9rem}}
-@media print{.commercial-plan,.commercial-plan.is-featured{box-shadow:none;transform:none;background:#fff;color:#000;border-color:#999}.commercial-plan.is-featured::before{display:none}.commercial-plan.is-featured :is(.plan-audience,.plan-monthly,ul,.plan-price small){color:#444}}
+.plan-preview>span{display:flex;justify-content:space-between;padding:.6rem .8rem;border-top:1px solid var(--c-line,#edf0f4);color:var(--c-muted);font-size:.74rem}
+.commercial-plan.is-featured{border-color:var(--c-ink,#0c1424);box-shadow:0 0 0 1px var(--c-ink,#0c1424),var(--shadow-lg)}
+.commercial-plan.is-featured .plan-cta{border-color:var(--c-ink,#0c1424);background:var(--c-ink,#0c1424);color:#fff}
+.commercial-plan.is-featured .plan-cta:hover{background:#1d2940}
+.plans-note{max-width:62rem;margin:1.5rem auto 0;color:var(--c-muted);font-size:.8rem;line-height:1.7;text-align:center}
+@media(max-width:860px){.commercial-plans{grid-template-columns:1fr}.commercial-plan{padding:1.5rem}.plan-description,.plan-monthly{min-height:0}.plan-price{font-size:2.4rem}}
+@media print{.commercial-plan,.commercial-plan.is-featured{box-shadow:none;background:#fff;color:#000;border-color:#999}.plan-badge{display:none}}
 </style>

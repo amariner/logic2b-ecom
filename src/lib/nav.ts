@@ -21,6 +21,8 @@ import { adminHomeHrefFor } from '../platform/configuration';
 export const landingNav = [
   { href: '/temas', label: 'Tiendas' },
   { href: '/#paneles', label: 'Gestor' },
+  { href: '/arquitectura', label: 'Cómo funciona' },
+  { href: '/agencias', label: 'Agencias' },
   { href: '/precios', label: 'Precios' },
 ] as const;
 
@@ -41,8 +43,6 @@ export const DEMO_ADMIN_HREF = adminHomeHrefFor(runtimePlatform);
 export const footerNav = [
   { href: '/', label: 'Inicio' },
   ...landingNav,
-  { href: '/arquitectura', label: 'Cómo funciona' },
-  { href: '/agencias', label: 'Agencias' },
   { href: '/dossier', label: 'Dossier' },
   { href: '/ayuda', label: 'Guía del comercio' },
   { href: MAIN_DEMO_HREF, label: 'Demo de tienda' },

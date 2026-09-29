@@ -34,6 +34,7 @@ type ModuleName =
 const LEGACY_MODULES: Readonly<Record<string, ModuleName>> = {
   'src/lib/admin-auth.ts': 'platform/security',
   'src/lib/backup.ts': 'platform/operations',
+  'src/lib/brands.ts': 'marketing',
   'src/lib/cart-client.ts': 'cart',
   'src/lib/contact.ts': 'marketing',
   'src/lib/csv.ts': 'shared-kernel',
