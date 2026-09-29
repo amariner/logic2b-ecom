@@ -16,6 +16,81 @@
 > 2. Actualizar el estado de la fase al terminar, con fecha y resumen de lo hecho.
 > 3. Anotar decisiones tomadas y pendientes en las secciones de abajo.
 
+## Home con gráficos del motor, fichas de tema y capturas del panel (2026-09-30)
+
+**Encargo de Andreu:** otra pasada de diseño al home, con gráficos muy
+detallados del backend y «zooms» de sus detalles; el slider de plataformas más
+sutil, claro y con más marcas; «Qué incluye» más compacto y con gráficos; el
+resto del home claro, directo y con poco texto; repasar las demás secciones y,
+sobre todo, dar a cada tema una ficha propia como en camp.logic2b (tema
+embebido + explicación). Merge, push y despliegue. Rama `design/home-backend-temas`.
+
+**Home (`src/components/home/`, sin dependencias ni islas nuevas):**
+- `PlatformMarquee` sustituye a la franja de logotipos: dos carriles en bucle
+  solo CSS, 50 marcas monocromas con su nombre, agrupadas por uso (núcleo,
+  pagos, envíos, facturación, marketing, clientes, automatización, canales,
+  migración). El núcleo (Cloudflare, Stripe, Resend) se distingue del resto,
+  que se integra por proyecto. Pausa al pasar el ratón; con movimiento
+  reducido queda una fila desplazable. `BrandWall`/`BrandIcon` quedan sin uso
+  y se retiran.
+- `JourneyBento`: «Qué incluye» pasa de siete columnas de texto a tres fases
+  con ilustración propia en HTML/CSS (escaparate con buscador, pago → pedido,
+  aviso de envío con módulos activables). Datos de ARCE; miniaturas de 1–3 KB.
+- `PanelInspector` (sección Gestor): captura real del panel con cuatro lupas
+  ×2 unidas a su zona por líneas de cota (menú, «Por preparar», exportar
+  envíos, estados). En estrecho, rejilla numerada. La lupa usa
+  `object-fit: none` para que la carga perezosa funcione.
+- `EngineBlueprint` (sección «El motor por dentro», también en `/arquitectura`
+  en lugar del esquema simple): diagrama de secuencia de un pedido real
+  —comprador, Worker, D1, Stripe, Resend— en seis pasos con horas coherentes
+  con el héroe, zona PCI señalada y un pulso CSS que recorre los pasos (se
+  pausa fuera de pantalla). Cuatro ampliaciones A–D: precio decidido en
+  servidor (contrato real de `/api/cart/quote`), webhook firmado e idempotente
+  (UPDATE guardado), lote atómico en D1 y estados del pedido. Rutas, tablas y
+  cifras salen del repo (Butaca Alba, 68000 céntimos, stock 8 → 7).
+- Comparativa, explorador y método con menos texto; las tarjetas de tiendas
+  llevan a su ficha; haz de luz sutil en el borde de la tienda del héroe.
+- Capturas del panel regeneradas (eran anteriores al rediseño del panel). El
+  script fallaba con el panel porque no tiene imágenes: ahora solo exige
+  imágenes a los escaparates.
+
+**Fichas de tema (`/temas/<id>`, 34 páginas indexables):** cabecera con migas,
+sector y encaje; escenario con marco de navegador, conmutador escritorio/móvil,
+pestaña nueva y pantalla completa (el mismo `<dialog>` reabierto como modal, la
+tienda no se recarga); panel lateral con puntos clave y CTA; «Qué resuelve esta
+dirección», ficha técnica (acento, tipografía, botones, rejilla, navegación,
+portada, tarjeta, filtros, densidad), «Qué se adapta a tu marca», tres temas
+relacionados, anterior/siguiente y cierre. Copy propio por tema en
+`src/lib/theme-profiles.ts` (test que obliga a escribirlo para cada tema nuevo);
+etiquetas compartidas con `/temas` en `src/lib/theme-labels.ts`. JSON-LD
+`WebPage` + `BreadcrumbList`; sitemap de 40 URL. **Carga de la tienda
+embebida:** cargarla sola tras `load` hundía Lighthouse (84 y 67 en escritorio,
+CLS 0,31: los desplazamientos de la tienda dentro del iframe cuentan para la
+página), así que se muestra la captura y el iframe entra con la primera
+interacción en escritorio (ratón, rueda, teclado) y con un toque en móvil o con
+ahorro de datos. «Quiero esta dirección» abre el diálogo común con el tema ya
+escrito. `/temas` enlaza cada tarjeta a su ficha.
+
+**Pendiente:** tarjeta OG por tema (usan la común); ARCE y Zancada se desplazan
+al cargar (CLS 0,31 y 0,28 dentro del marco) y conviene corregirlo en la
+tienda; en «Escritorio» el marco mide ~830 px y algunas tiendas enseñan su
+maqueta de tableta; las notas de entrega de editorial, guide, iris, launch y
+minimal están vacías y sus puntos clave salen de leer sus componentes.
+
+Consejo: arquitecto ✓ sin dependencias, migraciones ni cambios de motor ·
+backend n/a · product ✓ precios y promesas intactos, el marquee distingue núcleo
+de conexiones por proyecto · frontend ✓ JS nuevo mínimo (observador del
+diagrama y 1 KB gz en la ficha) · UX/UI ✓ 26 superficies comerciales sin
+errores ni avisos a 1440/375 y con movimiento reducido · SEO ⚠ 34 páginas
+indexables nuevas con título y canonical propios; falta reauditar móvil en
+producción · fullstack ✓ E2E en verde.
+
+**Verificación:** `astro check` 0 errores; 211 suites / 1275 tests; baseline
+de temas correcta; build con sitemap de 40 URL; E2E completo contra
+`wrangler dev`; auditor a11y 26/26. Lighthouse local (1 pasada, sin
+compresión): escritorio 100/100/100/100 en home, arquitectura y ficha; móvil
+97 / 99 / 99, CLS 0.
+
 ## Lenguaje «plataforma», mantenimiento de temas y panel (2026-09-29)
 
 **Encargo de Andreu:** rehacer el home con un tono más serio y tecnológico

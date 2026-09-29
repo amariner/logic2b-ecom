@@ -1,0 +1,105 @@
+---
+/**
+ * /temas/<id> — ficha comercial de cada tema del catálogo.
+ *
+ * Indexable: una página por dirección visual, con la tienda de muestra
+ * embebida y navegable. El tema Base no es un tema de catálogo y no tiene
+ * ficha (mismo criterio que /temas). Copy en `src/lib/theme-profiles.ts`;
+ * tokens y estructura en `src/lib/demo-themes.ts`.
+ */
+import Landing from '../../layouts/Landing.astro';
+import ThemeDetail from '../../components/theme-detail/ThemeDetail.astro';
+import { collections } from '../../collections';
+import type { DemoTheme } from '../../lib/demo-themes';
+import {
+  CATALOG_THEMES,
+  adjacentThemes,
+  relatedThemes,
+  themeDisplayName,
+  themePagePath,
+  themePageTitle,
+  themeProfile,
+} from '../../lib/theme-profiles';
+
+export function getStaticPaths() {
+  return CATALOG_THEMES.map((theme) => ({ params: { id: theme.id }, props: { theme } }));
+}
+
+interface Props {
+  theme: DemoTheme;
+}
+
+const { theme } = Astro.props;
+const profile = themeProfile(theme.id);
+if (!profile) throw new Error(`El tema «${theme.id}» no tiene ficha en src/lib/theme-profiles.ts`);
+const collectionFor = (themeId: string) => collections.find((item) => item.themeId === themeId) ?? null;
+const collection = collectionFor(theme.id);
+if (!collection) throw new Error(`El tema «${theme.id}» no tiene tienda de muestra en src/collections/`);
+const adjacent = adjacentThemes(theme.id);
+if (!adjacent) throw new Error(`El tema «${theme.id}» no está en el catálogo público`);
+
+const related = relatedThemes(theme.id).map((item) => ({ theme: item, collection: collectionFor(item.id) }));
+const name = themeDisplayName(theme);
+const title = themePageTitle(theme);
+const path = themePagePath(theme.id);
+const site = Astro.site ?? new URL('https://ecom.logic2b.com');
+const pageUrl = new URL(path, site).href;
+const catalogUrl = new URL('/temas', site).href;
+const imageUrl = new URL(`/images/screens/store-${collection.id}-catalog-900.webp`, site).href;
+
+const jsonLd = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'WebPage',
+    '@id': pageUrl,
+    url: pageUrl,
+    name: title,
+    description: profile.summary,
+    inLanguage: 'es-ES',
+    isPartOf: {
+      '@type': 'CollectionPage',
+      '@id': catalogUrl,
+      url: catalogUrl,
+      name: 'Catálogo de temas — Logic2B Ecommerce',
+    },
+    primaryImageOfPage: { '@type': 'ImageObject', url: imageUrl },
+    mainEntity: {
+      '@type': 'CreativeWork',
+      name: `Tema ${name} para tiendas online`,
+      description: theme.hint,
+      image: imageUrl,
+      keywords: theme.bestFor.join(', '),
+      inLanguage: 'es-ES',
+      creator: { '@type': 'Organization', name: 'Logic2B', url: 'https://logic2b.com' },
+    },
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Inicio', item: new URL('/', site).href },
+      { '@type': 'ListItem', position: 2, name: 'Temas', item: catalogUrl },
+      { '@type': 'ListItem', position: 3, name, item: pageUrl },
+    ],
+  },
+];
+---
+
+<Landing
+  title={title}
+  description={profile.summary}
+  canonicalPath={path}
+  activeHref="/temas"
+  jsonLd={jsonLd}
+>
+  <main>
+    <ThemeDetail
+      theme={theme}
+      profile={profile}
+      collection={collection}
+      related={related}
+      previous={adjacent.previous}
+      next={adjacent.next}
+    />
+  </main>
+</Landing>

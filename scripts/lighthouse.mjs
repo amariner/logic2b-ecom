@@ -47,6 +47,7 @@ const PAGES = [
   { id: 'home', path: '/', label: 'Landing' },
   { id: 'arquitectura', path: '/arquitectura', label: 'Arquitectura' },
   { id: 'estilos', path: '/temas', label: 'Estilos' },
+  { id: 'ficha-tema', path: '/temas/arce', label: 'Ficha de tema' },
   { id: 'precios', path: '/precios', label: 'Precios' },
   { id: 'agencias', path: '/agencias', label: 'Agencias' },
   { id: 'dossier', path: '/dossier', label: 'Dossier' },

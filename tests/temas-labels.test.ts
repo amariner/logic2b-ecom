@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import temasSource from '../src/pages/temas.astro?raw';
 import { demoThemes } from '../src/lib/demo-themes';
+import { THEME_LAYOUT_LABELS } from '../src/lib/theme-labels';
 
 const previewIds = new Set(
   Object.keys(import.meta.glob('../public/images/screens/theme-*-preview.mp4')).map((path) =>
@@ -9,38 +10,32 @@ const previewIds = new Set(
 );
 
 /**
- * `/temas` traduce los valores de `layout` a etiquetas legibles con un mapa
- * literal. Cuando se añadió `gridCols: 5` (tema Street) el mapa se quedó corto y
- * la fila «Rejilla» se renderizó VACÍA — sin error, sin aviso.
+ * `/temas` y las fichas `/temas/<id>` traducen los valores de `layout` a
+ * etiquetas legibles. Cuando se añadió `gridCols: 5` (tema Street) el mapa
+ * literal de `temas.astro` se quedó corto y la fila «Rejilla» se renderizó
+ * VACÍA — sin error, sin aviso.
  *
- * El componente ahora cae al valor crudo, así que nunca queda en blanco; este
- * test va un paso más allá y exige que exista traducción de verdad para todo
- * valor que algún tema use.
+ * El mapa vive ahora en `src/lib/theme-labels.ts`, tipado por dimensión; este
+ * test comprueba además en tiempo de ejecución que todo valor que algún tema
+ * usa tiene traducción real, y que la página no vuelve a llevar su propio mapa.
  */
 describe('etiquetas de /temas', () => {
-  // Solo el bloque `layoutLabels` — el fichero tiene más objetos literales.
-  const block = temasSource.match(/const layoutLabels[^=]*=\s*\{([\s\S]*?)\n\};/);
-  const keys = new Set(
-    [...(block?.[1] ?? '').matchAll(/'?([a-z0-9]+)'?:\s*'/gi)].map((m) => m[1]!),
-  );
-
-  it('el bloque layoutLabels se localiza en el fuente', () => {
-    expect(block, 'no se encontró `const layoutLabels = {...}` en temas.astro').not.toBeNull();
-    expect(keys.size).toBeGreaterThan(5);
+  it('temas.astro usa el mapa compartido en vez de uno propio', () => {
+    expect(temasSource).toContain("from '../lib/theme-labels'");
+    expect(temasSource).not.toMatch(/const layoutLabels/);
   });
 
   it('cada valor de layout usado por un tema tiene etiqueta traducida', () => {
     const missing: string[] = [];
+    const dimensions = ['gridCols', 'gridStyle', 'nav', 'hero', 'card', 'filters', 'density'] as const;
     for (const theme of demoThemes) {
-      for (const value of [
-        String(theme.layout.gridCols),
-        theme.layout.nav,
-        theme.layout.density,
-      ]) {
-        if (!keys.has(value)) missing.push(`${theme.id} → "${value}"`);
+      for (const dimension of dimensions) {
+        const labels = THEME_LAYOUT_LABELS[dimension] as Readonly<Record<string, string>>;
+        const value = String(theme.layout[dimension]);
+        if (!labels[value]?.trim()) missing.push(`${theme.id} → ${dimension}: "${value}"`);
       }
     }
-    expect(missing, `valores sin etiqueta en temas.astro: ${missing.join(', ')}`).toEqual([]);
+    expect(missing, `valores sin etiqueta: ${missing.join(', ')}`).toEqual([]);
   });
 });
 

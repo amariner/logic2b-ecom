@@ -1,0 +1,453 @@
+---
+/**
+ * «El motor por dentro»: diagrama de secuencia de una compra real en un
+ * despliegue de cliente —comprador, Worker en el edge, D1, Stripe y Resend— y
+ * cuatro ampliaciones (A–D) de los puntos donde se juega la confianza: precio
+ * en servidor, webhook firmado e idempotente, lote atómico en D1 y estados del
+ * pedido.
+ *
+ * Fidelidad: rutas, tablas, campos y reglas son los del repositorio
+ * (src/pages/api/cart/quote.ts, checkout/session.ts, webhooks/stripe.ts,
+ * modules/orders/domain/payment-transition.ts). Los datos —Butaca Alba,
+ * 680 €, stock 8— son los de la tienda demo ARCE. La demo pública no ejecuta
+ * este recorrido: sus APIs responden 410 y todo se simula en el navegador.
+ *
+ * Todo es SVG y HTML propios: cero peticiones y cero dependencias. El
+ * movimiento (un pulso que recorre los pasos en bucle) es solo CSS; el script
+ * de la portada lo pausa fuera de pantalla. Sin movimiento, el diagrama queda
+ * completo y estático.
+ */
+type Lane = { y: number; name: string; sub: string; icon: string };
+type Box = { step: number; lane: number; t: string; s?: string; lines?: string[]; w?: number; h?: number; marker?: string; markerLeft?: boolean };
+type Arrow = { step: number; x: number; from: number; to: number; dashed?: boolean; amber?: boolean; d: number; label?: string; side?: 'l' | 'r'; ly?: number };
+
+const lanes: Lane[] = [
+  { y: 104, name: 'Comprador', sub: 'navegador', icon: 'M12 12a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7ZM5 20a7 7 0 0 1 14 0' },
+  { y: 212, name: 'Worker', sub: 'Cloudflare edge', icon: 'M13 3 5 13.5h6L10 21l8-10.5h-6L13 3Z' },
+  { y: 320, name: 'D1', sub: 'base de datos', icon: 'M5 6c0-1.7 3.1-3 7-3s7 1.3 7 3-3.1 3-7 3-7-1.3-7-3Zm0 0v12c0 1.7 3.1 3 7 3s7-1.3 7-3V6M5 12c0 1.7 3.1 3 7 3s7-1.3 7-3' },
+  { y: 428, name: 'Stripe', sub: 'pago alojado', icon: 'M3 7.5A1.5 1.5 0 0 1 4.5 6h15A1.5 1.5 0 0 1 21 7.5v9a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 3 16.5v-9ZM3 10.5h18M6.5 14.5h4' },
+  { y: 536, name: 'Resend', sub: 'email', icon: 'M3.5 6.5h17v11h-17v-11ZM3.5 7l8.5 6 8.5-6' },
+];
+/* Horas coherentes con el rastro del pedido AR-1042 que enseña el héroe. */
+const steps = [
+  { cx: 246, label: 'Presupuesto', t: '10:41:36' },
+  { cx: 418, label: 'Checkout', t: '10:41:52' },
+  { cx: 591, label: 'Pago', t: '10:41:53' },
+  { cx: 763, label: 'Confirmación', t: '10:42:07' },
+  { cx: 936, label: 'Registro', t: '10:42:07' },
+  { cx: 1108, label: 'Aviso', t: '10:42:08' },
+];
+const cx = (step: number) => steps[step - 1]!.cx;
+const ly = (lane: number) => lanes[lane]!.y;
+
+const boxes: Box[] = [
+  { step: 1, lane: 0, t: 'carrito', s: 'solo slug y cantidad' },
+  { step: 1, lane: 1, t: 'POST /cart/quote', s: 'recalcula el total', marker: 'A' },
+  { step: 1, lane: 2, t: 'SELECT products', s: 'precio · stock · portes' },
+  { step: 2, lane: 0, t: 'checkout', s: 'CP 12001 · Península' },
+  { step: 2, lane: 1, t: 'POST /checkout', s: 'revalida y crea sesión' },
+  { step: 2, lane: 2, t: 'INSERT orders', s: 'status = pending', marker: 'D', markerLeft: true },
+  { step: 2, lane: 3, t: 'sesión de pago', s: 'line_items del servidor' },
+  { step: 3, lane: 0, t: 'redirección', s: 'a la pasarela' },
+  { step: 3, lane: 3, t: '•••• 4242', s: 'la tarjeta se escribe aquí' },
+  { step: 4, lane: 3, t: 'session.completed', s: 'evento firmado' },
+  { step: 4, lane: 1, t: 'POST /webhooks/stripe', s: 'firma ✓ · idempotente', marker: 'B' },
+  { step: 5, lane: 1, t: 'db.batch([…])', s: 'todo o nada' },
+  { step: 5, lane: 2, t: '', w: 156, h: 82, lines: ['orders    pending → paid', 'products  stock 8 → 7', '+ order_events', '+ outbox  email'], marker: 'C' },
+  { step: 6, lane: 1, t: 'outbox → email', s: 'tras responder 200' },
+  { step: 6, lane: 4, t: 'enviar', s: 'Pedido AR-1042' },
+  { step: 6, lane: 0, t: '✉ bandeja', s: 'confirmación recibida' },
+];
+const top = (lane: number) => ly(lane) - 23;
+const bottom = (lane: number) => ly(lane) + 23;
+const arrows: Arrow[] = [
+  { step: 1, x: 222, from: bottom(0), to: top(1), d: 0, label: '{slug, qty}', side: 'l' },
+  { step: 1, x: 222, from: bottom(1), to: top(2), d: 0.35 },
+  { step: 1, x: 270, from: top(2), to: bottom(1), dashed: true, d: 0.8 },
+  { step: 1, x: 270, from: top(1), to: bottom(0), dashed: true, d: 1.15, label: '680,00 €', side: 'r' },
+  { step: 2, x: 394, from: bottom(0), to: top(1), d: 2 },
+  { step: 2, x: 394, from: bottom(1), to: ly(2) - 23, d: 2.35 },
+  { step: 2, x: 498, from: bottom(1), to: top(3), d: 2.5, label: 'line_items', side: 'l', ly: 362 },
+  { step: 3, x: 591, from: bottom(0), to: top(3), dashed: true, amber: true, d: 4 },
+  { step: 4, x: 763, from: top(3), to: bottom(1), d: 6, label: 'Stripe-Signature', side: 'l', ly: 362 },
+  { step: 5, x: 906, from: bottom(1), to: ly(2) - 41, d: 8 },
+  { step: 5, x: 966, from: ly(2) - 41, to: bottom(1), dashed: true, d: 8.6, label: 'ok', side: 'r', ly: 262 },
+  { step: 6, x: 1030, from: bottom(1), to: top(4), d: 10 },
+  { step: 6, x: 1186, from: top(4), to: bottom(0), d: 10.6 },
+];
+const boundaries = steps.slice(1).map((step, i) => (steps[i]!.cx + step.cx) / 2);
+
+type Zoom = { id: string; title: string; body: string };
+const zooms: Zoom[] = [
+  { id: 'A', title: 'El precio lo decide el servidor', body: 'El navegador solo dice qué y cuánto. Precio, portes y total salen de la base de datos; cualquier otro campo se descarta.' },
+  { id: 'B', title: 'Un pago, un pedido', body: 'Solo cuenta un aviso con firma válida. Si la pasarela lo repite, el pedido ya no está pendiente y nada se duplica.' },
+  { id: 'C', title: 'Todo o nada en la base de datos', body: 'Estado, stock, historial y email se escriben en un único lote. O se guardan todos, o ninguno.' },
+  { id: 'D', title: 'Cada pedido, un estado claro', body: 'Cinco estados y quién los cambia. Al marcar «enviado» con el seguimiento, el cliente recibe su aviso.' },
+];
+---
+
+<div class="eb" data-engine>
+  <figure class="eb-figure" aria-labelledby="eb-caption">
+    <div class="eb-toolbar" aria-hidden="true">
+      <span class="eb-dots"><i></i><i></i><i></i></span>
+      <span class="eb-file">secuencia · pedido AR-1042</span>
+      <span class="eb-live"><i></i>despliegue de cliente</span>
+    </div>
+    <div class="eb-scroll" tabindex="0" role="region" aria-label="Diagrama del recorrido de un pedido (desplazable)">
+      <svg class="eb-svg" viewBox="0 0 1200 600" role="img" aria-labelledby="eb-svg-title eb-svg-desc">
+        <title id="eb-svg-title">Secuencia de una compra en Logic2B Ecommerce</title>
+        <desc id="eb-svg-desc">Seis pasos entre comprador, Worker en el edge, base de datos D1, Stripe y Resend: presupuesto recalculado en servidor, checkout con pedido pendiente, pago en la pasarela, webhook firmado, registro atómico en D1 y email de confirmación.</desc>
+        <defs>
+          <marker id="eb-tip" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 1.2 9 5 0 8.8Z" class="eb-tip" /></marker>
+          <marker id="eb-tip-amber" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 1.2 9 5 0 8.8Z" class="eb-tip-amber" /></marker>
+        </defs>
+
+        {/* Columnas de paso: guías finas entre pasos. */}
+        {boundaries.map((x) => <line class="eb-guide" x1={x} y1="14" x2={x} y2="592" />)}
+
+        {/* Cabeceras de paso */}
+        {steps.map((step, i) => (
+          <g class={`eb-head s${i + 1}`}>
+            <rect x={step.cx - 74} y="14" width="148" height="28" rx="7" />
+            <text x={step.cx} y="32.5" text-anchor="middle"><tspan class="eb-head-n">{String(i + 1).padStart(2, '0')}</tspan> · {step.label}</text>
+            <text class="eb-head-t" x={step.cx} y="58" text-anchor="middle">{step.t}</text>
+          </g>
+        ))}
+
+        {/* Carriles: actor + línea de vida */}
+        {lanes.map((lane) => (
+          <g class="eb-lane">
+            <line class="eb-life" x1="160" y1={lane.y} x2="1196" y2={lane.y} />
+            <rect class="eb-actor" x="0" y={lane.y - 30} width="146" height="60" rx="10" />
+            <rect class="eb-actor-ico" x="12" y={lane.y - 16} width="32" height="32" rx="8" />
+            <path class="eb-icon" d={lane.icon} transform={`translate(19 ${lane.y - 9}) scale(.75)`} />
+            <text class="eb-actor-name" x="56" y={lane.y - 2}>{lane.name}</text>
+            <text class="eb-actor-sub" x="56" y={lane.y + 13}>{lane.sub}</text>
+          </g>
+        ))}
+
+        {/* Zona de la pasarela: la tarjeta vive aquí y en ningún otro carril. */}
+        <rect class="eb-pci" x="334" y={ly(3) - 36} width="516" height="72" rx="12" />
+        <text class="eb-pci-label" x="344" y={ly(3) - 44}>zona de la pasarela · PCI</text>
+        <g class="eb-nocard">
+          <rect x="600" y={ly(1) - 11} width="70" height="22" rx="6" />
+          <text x="635" y={ly(1) + 4} text-anchor="middle">sin tarjeta</text>
+        </g>
+
+        {/* Mensajes */}
+        {arrows.map((arrow) => (
+          <g class={`eb-msg s${arrow.step}`}>
+            <path class:list={['eb-arrow', arrow.dashed && 'is-dashed', arrow.amber && 'is-amber']} d={`M${arrow.x} ${arrow.from}V${arrow.to}`} marker-end={arrow.amber ? 'url(#eb-tip-amber)' : 'url(#eb-tip)'} />
+            <path class:list={['eb-beam', arrow.amber && 'is-amber']} d={`M${arrow.x} ${arrow.from}V${arrow.to}`} pathLength="100" style={`--d:${arrow.d}s`} />
+            {arrow.label && (
+              <text class="eb-label" x={arrow.side === 'l' ? arrow.x - 7 : arrow.x + 7} y={arrow.ly ?? (arrow.from + arrow.to) / 2 + 3} text-anchor={arrow.side === 'l' ? 'end' : 'start'}>{arrow.label}</text>
+            )}
+          </g>
+        ))}
+
+        {/* Activaciones: lo que ocurre en cada carril en cada paso */}
+        {boxes.map((box) => {
+          const w = box.w ?? 144;
+          const h = box.h ?? 46;
+          const x = cx(box.step) - w / 2;
+          const y = ly(box.lane) - h / 2;
+          return (
+            <g class={`eb-box s${box.step}`}>
+              <rect class="eb-box-rect" x={x} y={y} width={w} height={h} rx="8" />
+              {box.lines ? (
+                <>
+                  <text class="eb-box-kicker" x={x + 12} y={y + 16}>db.batch · atómico</text>
+                  {box.lines.map((line, i) => <text class:list={['eb-box-line', line.startsWith('+') && 'is-add']} x={x + 12} y={y + 34 + i * 14}>{line}</text>)}
+                </>
+              ) : (
+                <>
+                  <text class="eb-box-t" x={x + w / 2} y={y + 20} text-anchor="middle">{box.t}</text>
+                  <text class="eb-box-s" x={x + w / 2} y={y + 35} text-anchor="middle">{box.s}</text>
+                </>
+              )}
+              {box.marker && (
+                <g class={`eb-marker is-${box.marker.toLowerCase()}`}>
+                  <circle class="eb-marker-ring" cx={box.markerLeft ? x : x + w} cy={y} r="15" />
+                  <circle class="eb-marker-dot" cx={box.markerLeft ? x : x + w} cy={y} r="10" />
+                  <text x={box.markerLeft ? x : x + w} y={y + 3.8} text-anchor="middle">{box.marker}</text>
+                </g>
+              )}
+            </g>
+          );
+        })}
+      </svg>
+    </div>
+    <figcaption id="eb-caption" class="eb-caption">
+      <span>Una compra en la tienda de un cliente, paso a paso. La demo pública lo simula en el navegador: no cobra ni escribe en la base de datos.</span>
+      <span class="eb-swipe" aria-hidden="true">Desliza para recorrerlo →</span>
+    </figcaption>
+  </figure>
+
+  <ol class="eb-zooms">
+    {zooms.map((zoom) => (
+      <li class={`ez ez-${zoom.id.toLowerCase()}`}>
+        <header>
+          <span class="ez-mark" aria-hidden="true">{zoom.id}</span>
+          <div>
+            <small>Detalle {zoom.id} <b aria-hidden="true">· ×4</b></small>
+            <h3>{zoom.title}</h3>
+          </div>
+        </header>
+        <div class="ez-lens" aria-hidden="true">
+          <span class="ez-corner is-tl"></span><span class="ez-corner is-tr"></span><span class="ez-corner is-bl"></span><span class="ez-corner is-br"></span>
+          {zoom.id === 'A' && (
+            <div class="ez-code">
+              <p class="ez-dir">→ el navegador envía</p>
+              <div class="ez-json">
+                <span>&#123;</span>
+                <span class="is-in"><b>"lines"</b>: [&#123; <b>"slug"</b>: <i class="tk-s">"arc-silla-alba"</i>, <b>"qty"</b>: <i class="tk-n">1</i> &#125;],</span>
+                <span class="is-in"><b>"postal_code"</b>: <i class="tk-s">"12001"</i>,</span>
+                <span class="is-in is-drop"><del>"price": 1</del> <em>✕ descartado</em></span>
+                <span>&#125;</span>
+              </div>
+              <p class="ez-dir">← el servidor responde</p>
+              <dl class="ez-kv">
+                <div><dt>subtotal_cents</dt><dd>68000</dd></div>
+                <div><dt>shipping_cents</dt><dd>0 <small>gratis &gt; 50 €</small></dd></div>
+                <div class="is-total"><dt>total_cents</dt><dd>68000 <small>= 680,00 €</small></dd></div>
+              </dl>
+            </div>
+          )}
+          {zoom.id === 'B' && (
+            <div class="ez-hooks">
+              <p class="ez-dir">POST /api/webhooks/stripe</p>
+              <ol>
+                <li class="is-ok"><time>10:42:07</time><span>firma ✓</span><span>pending → paid</span><b>200 · aplicado</b></li>
+                <li class="is-dup"><time>10:42:09</time><span>firma ✓</span><span>ya pagado</span><b>200 · sin cambios</b></li>
+                <li class="is-bad"><time>10:42:15</time><span>firma ✕</span><span>—</span><b>400 · rechazado</b></li>
+              </ol>
+              <p class="ez-sql"><span><b>UPDATE</b> orders <b>SET</b> status = 'paid'</span><span><b>WHERE</b> stripe_session_id = ?</span><span><b>AND</b> status = 'pending'</span></p>
+            </div>
+          )}
+          {zoom.id === 'C' && (
+            <div class="ez-batch">
+              <p class="ez-dir">db.batch([ … ]) · un solo lote</p>
+              <table>
+                <tbody>
+                  <tr><th>orders</th><td>AR-1042</td><td><span class="ez-old">pending</span> → <span class="ez-new">paid</span></td></tr>
+                  <tr><th>products</th><td>Butaca Alba</td><td><span class="ez-old">8</span> → <span class="ez-new">7</span></td></tr>
+                  <tr class="is-add"><th>order_events</th><td>+1</td><td>paid · stripe</td></tr>
+                  <tr class="is-add"><th>outbox</th><td>+1</td><td>email</td></tr>
+                </tbody>
+              </table>
+              <p class="ez-foot"><span class="ez-okdot"></span>commit · 4 escrituras, 1 transacción</p>
+            </div>
+          )}
+          {zoom.id === 'D' && (
+            <div class="ez-states">
+              <ol>
+                <li><span class="ez-st is-pending">pending</span><small>checkout</small></li>
+                <li><span class="ez-st is-paid">paid</span><small>pasarela</small></li>
+                <li><span class="ez-st is-shipped">shipped</span><small>tú · tracking</small></li>
+                <li><span class="ez-st is-delivered">delivered</span><small>tú</small></li>
+              </ol>
+              <p class="ez-branch"><span class="ez-st is-cancelled">cancelled</span><small>si el pago no llega</small></p>
+              <p class="ez-foot"><span class="ez-okdot"></span>cada cambio queda en order_events</p>
+            </div>
+          )}
+        </div>
+        <p>{zoom.body}</p>
+      </li>
+    ))}
+  </ol>
+</div>
+
+<script>
+  // El pulso del diagrama solo corre mientras está en pantalla.
+  for (const engine of document.querySelectorAll<HTMLElement>('[data-engine]')) {
+    new IntersectionObserver(([entry]) => engine.classList.toggle('is-idle', !entry?.isIntersecting)).observe(engine);
+  }
+</script>
+
+<style>
+  .eb { --eb-line: rgb(255 255 255 / 13%); --eb-text: #e2e8f0; --eb-muted: #8b95a7; --eb-accent: var(--c-night-accent, #6ee7b7); --eb-amber: #fcd34d; }
+
+  /* ── Lienzo del diagrama ───────────────────────────────────────────────── */
+  .eb-figure { overflow: hidden; margin: 0; border: 1px solid var(--eb-line); border-radius: var(--r-lg); background: #070d19; box-shadow: 0 40px 100px rgb(0 0 0 / 35%); }
+  .eb-toolbar { display: flex; align-items: center; gap: 1rem; padding: .7rem 1rem; border-bottom: 1px solid var(--eb-line); color: var(--eb-muted); font: 400 .72rem/1 var(--font-code); }
+  .eb-dots { display: inline-flex; gap: .35rem; }
+  .eb-dots i { width: .5rem; height: .5rem; border-radius: 50%; background: rgb(255 255 255 / 14%); }
+  .eb-file { margin-right: auto; }
+  .eb-live { display: inline-flex; align-items: center; gap: .45rem; padding: .25rem .5rem; border: 1px solid var(--eb-line); border-radius: var(--r-sm); color: var(--eb-accent); }
+  .eb-live i { width: .4rem; height: .4rem; border-radius: 50%; background: var(--eb-accent); box-shadow: 0 0 0 .2rem rgb(110 231 183 / 15%); }
+  .eb-scroll {
+    overflow-x: auto;
+    padding: 1.4rem 1.25rem 1rem;
+    background: radial-gradient(circle at 1px 1px, rgb(255 255 255 / 7%) 1px, transparent 0) 0 0 / 18px 18px;
+    scrollbar-color: rgb(255 255 255 / 20%) transparent;
+  }
+  .eb-scroll:focus-visible { outline: 2px solid var(--eb-accent); outline-offset: -4px; }
+  .eb-svg { display: block; width: 100%; min-width: 980px; height: auto; overflow: visible; }
+  .eb-caption { display: flex; flex-wrap: wrap; justify-content: space-between; gap: .5rem 1.5rem; padding: .85rem 1.1rem; border-top: 1px solid var(--eb-line); color: var(--eb-muted); font-size: .8rem; line-height: 1.5; }
+  .eb-swipe { display: none; color: var(--eb-accent); font-family: var(--font-code); font-size: .72rem; }
+
+  /* Piezas del SVG */
+  .eb-guide { stroke: rgb(255 255 255 / 5%); stroke-dasharray: 2 5; }
+  .eb-head rect { fill: rgb(255 255 255 / 3%); stroke: var(--eb-line); }
+  .eb-head text { fill: var(--eb-text); font: 500 10.5px var(--font-code); }
+  .eb-head-n { fill: var(--eb-accent); }
+  .eb-head .eb-head-t { fill: var(--eb-muted); font-size: 9px; }
+  .eb-life { stroke: rgb(255 255 255 / 14%); stroke-dasharray: 2 6; }
+  .eb-actor { fill: #0f1a2e; stroke: var(--eb-line); }
+  .eb-actor-ico { fill: rgb(110 231 183 / 8%); stroke: rgb(110 231 183 / 25%); }
+  .eb-icon { fill: none; stroke: var(--eb-accent); stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+  .eb-actor-name { fill: #fff; font: 600 13px var(--font-sans); letter-spacing: -.01em; }
+  .eb-actor-sub { fill: var(--eb-muted); font: 400 9.5px var(--font-code); }
+  .eb-pci { fill: rgb(252 211 77 / 3.5%); stroke: rgb(252 211 77 / 50%); stroke-dasharray: 5 5; }
+  .eb-pci-label { fill: var(--eb-amber); font: 500 9.5px var(--font-code); letter-spacing: .04em; }
+  .eb-nocard rect { fill: #070d19; stroke: rgb(252 211 77 / 35%); }
+  .eb-nocard text { fill: var(--eb-amber); font: 500 9.5px var(--font-code); }
+  .eb-arrow { fill: none; stroke: rgb(255 255 255 / 42%); stroke-width: 1.3; }
+  .eb-arrow.is-dashed { stroke-dasharray: 4 4; }
+  .eb-arrow.is-amber { stroke: rgb(252 211 77 / 70%); }
+  .eb-tip { fill: rgb(255 255 255 / 55%); }
+  .eb-tip-amber { fill: var(--eb-amber); }
+  .eb-beam { fill: none; stroke: var(--eb-accent); stroke-width: 2.4; stroke-linecap: round; stroke-dasharray: 16 300; stroke-dashoffset: 16; filter: drop-shadow(0 0 4px rgb(110 231 183 / 70%)); }
+  .eb-beam.is-amber { stroke: var(--eb-amber); filter: drop-shadow(0 0 4px rgb(252 211 77 / 60%)); }
+  .eb-label { fill: var(--eb-muted); font: 500 9.5px var(--font-code); paint-order: stroke; stroke: #070d19; stroke-width: 4px; stroke-linejoin: round; }
+  .eb-box-rect { fill: #0f192c; stroke: rgb(255 255 255 / 16%); }
+  .eb-box-t { fill: var(--eb-text); font: 500 10.5px var(--font-code); }
+  .eb-box-s { fill: var(--eb-muted); font: 400 10px var(--font-sans); }
+  .eb-box-kicker { fill: var(--eb-accent); font: 500 9px var(--font-code); letter-spacing: .03em; }
+  .eb-box-line { fill: var(--eb-text); font: 400 9.5px var(--font-code); white-space: pre; }
+  .eb-box-line.is-add { fill: var(--eb-accent); }
+  .eb-marker-dot { fill: var(--eb-accent); }
+  .eb-marker-ring { fill: none; stroke: var(--eb-accent); stroke-opacity: .35; }
+  .eb-marker text { fill: #06281c; font: 700 11px var(--font-sans); }
+
+  /* ── Movimiento: un pulso recorre los seis pasos cada 12 s ─────────────── */
+  @media (prefers-reduced-motion: no-preference) {
+    .eb-beam { animation: eb-beam 12s linear infinite; animation-delay: var(--d, 0s); }
+    .eb-head rect { animation: eb-head 12s infinite; }
+    .eb-box-rect { animation: eb-box 12s infinite; }
+    .eb-marker-ring { animation: eb-ring 2.4s ease-out infinite; transform-box: fill-box; transform-origin: center; }
+    .s2 :is(rect) { animation-delay: 2s; }
+    .s3 :is(rect) { animation-delay: 4s; }
+    .s4 :is(rect) { animation-delay: 6s; }
+    .s5 :is(rect) { animation-delay: 8s; }
+    .s6 :is(rect) { animation-delay: 10s; }
+    .eb.is-idle :is(.eb-beam, .eb-head rect, .eb-box-rect, .eb-marker-ring) { animation-play-state: paused; }
+  }
+  @keyframes eb-beam { 0% { stroke-dashoffset: 16; } 11% { stroke-dashoffset: -100; } 100% { stroke-dashoffset: -100; } }
+  @keyframes eb-head { 0%, 17%, 100% { fill: rgb(255 255 255 / 3%); stroke: rgb(255 255 255 / 13%); } 2%, 15% { fill: rgb(110 231 183 / 10%); stroke: rgb(110 231 183 / 60%); } }
+  @keyframes eb-box { 0%, 17%, 100% { stroke: rgb(255 255 255 / 16%); } 2%, 15% { stroke: rgb(110 231 183 / 75%); } }
+  @keyframes eb-ring { from { transform: scale(.7); opacity: 1; } to { transform: scale(1.5); opacity: 0; } }
+
+  /* ── Ampliaciones A–D ──────────────────────────────────────────────────── */
+  .eb-zooms { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; margin-top: 1rem; }
+  .ez { display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr); grid-template-rows: auto 1fr; gap: 0 1.4rem; padding: 1.3rem; border: 1px solid var(--eb-line); border-radius: var(--r-lg); background: #0b1426; transition: border-color .3s var(--ease), transform .3s var(--ease); }
+  .ez:hover { border-color: rgb(110 231 183 / 45%); transform: translateY(-2px); }
+  .ez header { display: flex; align-items: flex-start; gap: .75rem; }
+  .ez-mark { display: grid; flex: 0 0 auto; width: 1.7rem; height: 1.7rem; place-items: center; border-radius: 50%; background: var(--eb-accent); box-shadow: 0 0 0 .3rem rgb(110 231 183 / 14%); color: #06281c; font-size: .8rem; font-weight: 700; }
+  .ez small { color: var(--eb-muted); font: 500 .68rem/1.2 var(--font-code); }
+  .ez small b { color: var(--eb-accent); font-weight: 500; }
+  .ez h3 { margin-top: .3rem; color: #fff; font-size: 1.08rem; line-height: 1.28; }
+  .ez > header { grid-column: 1; grid-row: 1; }
+  .ez > p { grid-column: 1; grid-row: 2; margin-top: .8rem; color: var(--eb-muted); font-size: .88rem; line-height: 1.6; }
+
+  /* La «lupa»: marco con esquinas de plano técnico y un leve reflejo. */
+  .ez-lens {
+    position: relative;
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    align-self: start;
+    padding: 1rem 1rem;
+    border: 1px solid rgb(255 255 255 / 8%);
+    border-radius: var(--r-md);
+    background:
+      radial-gradient(120% 80% at 0% 0%, rgb(110 231 183 / 7%), transparent 60%),
+      #070d19;
+    color: var(--eb-text);
+    font: 400 .76rem/1.6 var(--font-code);
+  }
+  .ez-corner { position: absolute; width: .6rem; height: .6rem; border-color: var(--eb-accent); border-style: solid; opacity: .7; }
+  .ez-corner.is-tl { top: -1px; left: -1px; border-width: 1.5px 0 0 1.5px; border-top-left-radius: 6px; }
+  .ez-corner.is-tr { top: -1px; right: -1px; border-width: 1.5px 1.5px 0 0; border-top-right-radius: 6px; }
+  .ez-corner.is-bl { bottom: -1px; left: -1px; border-width: 0 0 1.5px 1.5px; border-bottom-left-radius: 6px; }
+  .ez-corner.is-br { right: -1px; bottom: -1px; border-width: 0 1.5px 1.5px 0; border-bottom-right-radius: 6px; }
+  .ez-json { display: grid; }
+  .ez-json .is-in { padding-left: 1.1em; }
+  .ez-json .is-drop { margin-top: .15rem; }
+  .ez-lens b { color: #93c5fd; font-weight: 500; }
+  .ez-lens i { font-style: normal; }
+  .ez-lens .tk-s { color: #fcd34d; }
+  .ez-lens .tk-n { color: var(--eb-accent); }
+  .ez-lens del { color: #fca5a5; text-decoration-thickness: 1.5px; }
+  .ez-lens em { color: #fca5a5; font-style: normal; }
+  .ez-dir { margin: 0 0 .35rem; color: var(--eb-muted); }
+  .ez-dir:not(:first-of-type) { margin-top: .75rem; }
+  .ez-kv { display: grid; gap: .15rem; margin: 0; }
+  .ez-kv div { display: flex; justify-content: space-between; gap: .75rem; padding: .18rem .4rem; border-radius: 4px; }
+  .ez-kv dt { color: #93c5fd; }
+  .ez-kv dd { color: #fff; text-align: right; }
+  .ez-kv small { color: var(--eb-muted); }
+  .ez-kv .is-total { background: rgb(110 231 183 / 10%); }
+  .ez-kv .is-total dd { color: var(--eb-accent); }
+
+  .ez-hooks ol { display: grid; gap: .3rem; margin: 0 0 .7rem; }
+  .ez-hooks li { display: grid; grid-template-columns: auto auto 1fr; gap: .1rem .6rem; padding: .35rem .45rem; border-left: 2px solid; border-radius: 0 4px 4px 0; background: rgb(255 255 255 / 3%); }
+  .ez-hooks li b { grid-column: 1 / -1; font-weight: 500; }
+  .ez-hooks time { color: var(--eb-muted); }
+  .ez-hooks .is-ok { border-color: var(--eb-accent); }
+  .ez-hooks .is-ok b { color: var(--eb-accent); }
+  .ez-hooks .is-dup { border-color: #93c5fd; }
+  .ez-hooks .is-dup b { color: #93c5fd; }
+  .ez-hooks .is-bad { border-color: #fca5a5; }
+  .ez-hooks .is-bad b { color: #fca5a5; }
+  .ez-sql { display: grid; margin: 0; padding: .45rem .55rem; border: 1px dashed rgb(255 255 255 / 12%); border-radius: 4px; color: var(--eb-muted); font-size: .92em; }
+  .ez-sql span + span { padding-left: 1.1em; }
+
+  .ez-batch table { width: 100%; border-collapse: collapse; }
+  .ez-batch :is(th, td) { padding: .32rem .3rem; border-bottom: 1px solid rgb(255 255 255 / 7%); font-weight: 400; text-align: left; vertical-align: top; }
+  .ez-batch th { color: #93c5fd; white-space: nowrap; }
+  .ez-batch td { white-space: nowrap; }
+  .ez-batch td:nth-child(2) { color: var(--eb-muted); }
+  .ez-batch tr.is-add td:last-child { color: var(--eb-accent); }
+  .ez-batch tr.is-add th::before { color: var(--eb-accent); content: '+ '; }
+  .ez-old { color: #fca5a5; text-decoration: line-through; }
+  .ez-new { color: var(--eb-accent); }
+  .ez-foot { display: flex; align-items: center; gap: .45rem; margin: .7rem 0 0; color: var(--eb-muted); }
+  .ez-okdot { width: .45rem; height: .45rem; border-radius: 50%; background: var(--eb-accent); box-shadow: 0 0 0 .2rem rgb(110 231 183 / 15%); }
+
+  .ez-states ol { position: relative; display: grid; gap: .5rem; margin: 0; }
+  .ez-states ol::before { position: absolute; top: .8rem; bottom: .8rem; left: .95rem; width: 1px; background: rgb(255 255 255 / 15%); content: ''; }
+  .ez-states li { position: relative; display: flex; align-items: center; justify-content: space-between; gap: .6rem; }
+  .ez-states small { color: var(--eb-muted); }
+  .ez-st { display: inline-flex; align-items: center; gap: .35rem; padding: .2rem .5rem; border: 1px solid; border-radius: 5px; background: #070d19; }
+  .ez-st::before { width: .38rem; height: .38rem; border-radius: 50%; background: currentColor; content: ''; }
+  .ez-st.is-pending { color: #fcd34d; }
+  .ez-st.is-paid { color: var(--eb-accent); }
+  .ez-st.is-shipped { color: #93c5fd; }
+  .ez-st.is-delivered { color: #c4b5fd; }
+  .ez-st.is-cancelled { color: #fca5a5; }
+  .ez-branch { display: flex; align-items: center; justify-content: space-between; gap: .6rem; margin: .6rem 0 0; padding-top: .6rem; border-top: 1px dashed rgb(255 255 255 / 12%); }
+  .ez-branch small { color: var(--eb-muted); }
+
+  /* Al pasar por una ampliación, su marca en el diagrama se ilumina. */
+  .eb:has(.ez-a:hover) .eb-marker.is-a .eb-marker-dot,
+  .eb:has(.ez-b:hover) .eb-marker.is-b .eb-marker-dot,
+  .eb:has(.ez-c:hover) .eb-marker.is-c .eb-marker-dot,
+  .eb:has(.ez-d:hover) .eb-marker.is-d .eb-marker-dot { fill: #fff; }
+
+  @media (max-width: 1180px) {
+    .ez { grid-template-columns: 1fr; grid-template-rows: none; }
+    .ez > header, .ez > p, .ez-lens { grid-column: 1; grid-row: auto; }
+    .ez-lens { margin-top: 1rem; }
+  }
+  @media (max-width: 1040px) {
+    .eb-swipe { display: inline; }
+  }
+  @media (max-width: 760px) {
+    .eb-zooms { grid-template-columns: 1fr; }
+    .ez-lens { font-size: .7rem; }
+  }
+  @media (max-width: 640px) {
+    .eb-scroll { padding: 1rem .75rem .75rem; }
+    .eb-toolbar .eb-live { display: none; }
+  }
+</style>

@@ -432,21 +432,3 @@
   .commercial-page .cta-band h2, .commercial-page .cta-band p:not(.eyebrow) { margin-inline: 0; }
   .commercial-page .cta-band .page-actions { justify-content: flex-start; }
 }
-
-/* ── Logotipos oficiales (BrandWall) ─────────────────────────────────────── */
-.commercial-page .brand-wall { display: flex; flex-wrap: wrap; gap: .55rem; margin: 0; padding: 0; list-style: none; }
-.commercial-page .brand-wall.is-center { justify-content: center; }
-.commercial-page .brand-tile {
-  display: grid;
-  place-items: center;
-  width: calc(var(--brand-size, 26px) * 2);
-  height: calc(var(--brand-size, 26px) * 2);
-  border: 1px solid var(--c-border);
-  border-radius: calc(var(--brand-size, 26px) * .4);
-  background: #fff;
-  transition: box-shadow .25s var(--ease), border-color .25s var(--ease);
-}
-.commercial-page .brand-tile:hover { border-color: #cdd3dc; box-shadow: var(--shadow-sm); }
-.commercial-page .brand-tile .brand-icon.is-raster { border-radius: 22%; }
-.commercial-page .brand-tile .brand-icon { width: var(--brand-size, 26px); height: var(--brand-size, 26px); }
-@media (max-width: 480px) { .commercial-page .brand-wall.is-center { --brand-size: 24px; gap: .45rem; } }

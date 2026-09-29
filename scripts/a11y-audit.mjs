@@ -295,6 +295,7 @@ const SITE_PAGES = [
   { id: 'landing', url: '/' },
   { id: 'arquitectura', url: '/arquitectura' },
   { id: 'estilos', url: '/temas' },
+  { id: 'ficha-tema', url: '/temas/arce' },
   { id: 'precios', url: '/precios' },
   { id: 'agencias', url: '/agencias' },
   { id: 'dossier', url: '/dossier' },

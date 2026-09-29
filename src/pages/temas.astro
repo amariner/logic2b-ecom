@@ -14,6 +14,8 @@ import { MAIN_DEMO_HREF } from '../lib/nav';
 import { demoThemes, defaultTheme } from '../lib/demo-themes';
 import { collections, storePaths } from '../collections';
 import { THEME_FILTERS, newestThemesFirst, themeCategoryIds, themeSearchText } from '../lib/theme-catalog';
+import { THEME_LAYOUT_LABELS } from '../lib/theme-labels';
+import { themePagePath } from '../lib/theme-profiles';
 
 /**
  * Tienda viva de cada tema (9B: un tema desarrollado = una tienda con URL).
@@ -65,27 +67,6 @@ const previewFor = (themeId: string): string | null => {
 };
 
 const styles = newestThemesFirst(demoThemes.filter((t) => t.id !== defaultTheme.id));
-
-const layoutLabels: Record<string, string> = {
-  // rejilla
-  '2': '2 columnas', '3': '3 columnas', '4': '4 columnas', '5': '5 columnas',
-  // nav
-  top: 'Nav superior', sidebar: 'Nav lateral', immersive: 'Inmersivo (header propio)',
-  // tarjeta
-  hairline: 'Tarjeta con filete', plain: 'Tarjeta sin borde',
-  elevated: 'Tarjeta elevada', divided: 'Tarjeta dividida',
-  // filtros
-  chips: 'Filtros en chips', sidebar_f: 'Filtros laterales', dropdown: 'Filtros en desplegable',
-  // densidad
-  compact: 'Densidad compacta', regular: 'Densidad normal', airy: 'Densidad aireada',
-};
-
-/**
- * Nunca devuelve vacío: si falta una etiqueta (p. ej. al añadir un valor nuevo a
- * ThemeLayout), cae al valor crudo en vez de renderizar una fila en blanco.
- * `tests/temas-labels.test.ts` avisa antes de que eso llegue a producción.
- */
-const label = (key: string | number): string => layoutLabels[String(key)] ?? String(key);
 
 const jsonLd = [
   {
@@ -203,7 +184,7 @@ const jsonLd = [
                 style={`background: ${theme.vars['--surface-sunken']};`}
               >
                 {storeFor(theme.id) ? (
-                  <a href={storeFor(theme.id)!.href} class="group absolute inset-0 block" aria-label={`Entra en ${storeFor(theme.id)!.name}, la tienda de muestra del tema ${theme.label}`}>
+                  <a href={themePagePath(theme.id)} class="group absolute inset-0 block" aria-label={`Ficha del tema ${theme.label}: vista previa navegable y detalles`}>
                     <img
                       src={storeFor(theme.id)!.img}
                       srcset={storeFor(theme.id)!.srcset}
@@ -290,28 +271,35 @@ const jsonLd = [
                   </dd>
 
                   <dt class="text-muted-foreground">Rejilla</dt>
-                  <dd class="justify-self-end text-foreground">{label(theme.layout.gridCols)}</dd>
+                  <dd class="justify-self-end text-foreground">{THEME_LAYOUT_LABELS.gridCols[theme.layout.gridCols]}</dd>
 
                   <dt class="text-muted-foreground">Navegación</dt>
-                  <dd class="justify-self-end text-foreground">{label(theme.layout.nav)}</dd>
+                  <dd class="justify-self-end text-foreground">{THEME_LAYOUT_LABELS.nav[theme.layout.nav]}</dd>
 
                   <dt class="text-muted-foreground">Densidad</dt>
-                  <dd class="justify-self-end text-foreground">{label(theme.layout.density)}</dd>
+                  <dd class="justify-self-end text-foreground">{THEME_LAYOUT_LABELS.density[theme.layout.density]}</dd>
                 </dl>
 
                 <p class="mt-4 border-t border-border pt-4 text-xs text-muted-foreground">
                   Inspirado en la dirección visual de <strong class="font-medium text-foreground">{theme.reference?.name}</strong>,
                   reconstruida sobre el sistema Logic2B UI.
                 </p>
-                {storeFor(theme.id) && (
+                {/* La ficha es la acción principal: explica el tema y lo
+                    embebe navegable. La tienda viva queda como atajo. */}
+                <div class="theme-card-actions mt-5">
                   <a
-                    href={storeFor(theme.id)!.href}
-                    class="theme-card-cta mt-5 inline-flex items-center gap-2 self-start text-sm font-semibold"
+                    href={themePagePath(theme.id)}
+                    class="theme-card-cta inline-flex items-center gap-2 text-sm font-semibold"
                     style={`--brand: ${theme.vars['--color-brand']}; --brand-fg: ${theme.vars['--color-brand-fg']}; border-radius: ${theme.vars['--radius-btn']};`}
                   >
-                    Entra en {storeFor(theme.id)!.name} <span class="btn-arrow" aria-hidden="true">→</span>
+                    Ver ficha completa<span class="sr-only"> del tema {theme.label}</span> <span class="btn-arrow" aria-hidden="true">→</span>
                   </a>
-                )}
+                  {storeFor(theme.id) && (
+                    <a href={storeFor(theme.id)!.href} class="theme-card-store">
+                      Entra en {storeFor(theme.id)!.name} <span aria-hidden="true">↗</span>
+                    </a>
+                  )}
+                </div>
               </div>
             </li>
           ))}
@@ -405,6 +393,21 @@ const jsonLd = [
   }
   .theme-card-cta:hover { transform: translateY(-1px); box-shadow: 0 12px 26px color-mix(in oklab, var(--brand) 32%, transparent); }
   .theme-card-cta:hover .btn-arrow { transform: translateX(3px); }
+  .theme-card-actions { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem 1.25rem; }
+  .theme-card-store {
+    display: inline-flex;
+    min-height: 2.75rem;
+    align-items: center;
+    gap: .35rem;
+    color: var(--c-ink);
+    font-size: .875rem;
+    font-weight: 500;
+    text-decoration: underline;
+    text-decoration-color: color-mix(in srgb, currentColor 30%, transparent);
+    text-underline-offset: 4px;
+    transition: text-decoration-color .2s var(--ease);
+  }
+  .theme-card-store:hover { text-decoration-color: currentColor; }
   .themes-empty { padding: 3.5rem 1.5rem; border: 1px dashed var(--c-border); border-radius: var(--r-lg); background: #fff; text-align: center; }
 
   @media (max-width: 700px) {

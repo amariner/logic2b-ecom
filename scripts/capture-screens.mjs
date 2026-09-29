@@ -412,7 +412,8 @@ async function adminCookie() {
 // decodificadas. `img.complete` puede ser true mientras Chrome todavía no ha
 // pintado un WebP recién solicitado; `decode()` evita capturas con los huecos
 // grises de las tarjetas aunque la red termine un instante después.
-const SETTLE_JS = `(async () => {
+// El panel del comercio no tiene imágenes: solo los escaparates las exigen.
+const settleJs = (requireImages) => `(async () => {
   const bounded = (promise, timeout = 5000) => Promise.race([
     promise,
     new Promise((resolve) => setTimeout(resolve, timeout)),
@@ -421,7 +422,7 @@ const SETTLE_JS = `(async () => {
   while (document.images.length === 0 && performance.now() < deadline) {
     await new Promise((resolve) => setTimeout(resolve, 50));
   }
-  if (document.images.length === 0) throw new Error('La página no montó imágenes antes de capturar');
+  if (${requireImages} && document.images.length === 0) throw new Error('La página no montó imágenes antes de capturar');
   const h = document.body.scrollHeight;
   for (let y = 0; y <= h; y += 500) { window.scrollTo(0, y); await new Promise(r => setTimeout(r, 40)); }
   window.scrollTo(0, 0);
@@ -477,8 +478,8 @@ async function main() {
   await S('Runtime.enable');
   await S('Network.enable');
   await S('DOM.enable');
-  const settlePage = async () => {
-    const evaluation = await S('Runtime.evaluate', { expression: SETTLE_JS, awaitPromise: true, returnByValue: true });
+  const settlePage = async (requireImages = true) => {
+    const evaluation = await S('Runtime.evaluate', { expression: settleJs(requireImages), awaitPromise: true, returnByValue: true });
     if (evaluation.exceptionDetails) {
       throw new Error(evaluation.exceptionDetails.text ?? 'La página no se estabilizó antes de la captura');
     }
@@ -514,7 +515,7 @@ async function main() {
 
     await S('Page.navigate', { url: shot.url.startsWith('http') ? shot.url : BASE + shot.url });
     await sleep(400);
-    const settled = await settlePage();
+    const settled = await settlePage(!shot.auth);
     if (process.env.CAPTURE_DEBUG) console.log(`  settle ${shot.name}: ${settled}`);
     if (shot.followOrderNumber) {
       const { result } = await S('Runtime.evaluate', {
@@ -524,7 +525,7 @@ async function main() {
       if (!result.value) throw new Error(`No se encontró el pedido ${shot.followOrderNumber} para ${shot.name}`);
       await S('Page.navigate', { url: result.value });
       await sleep(400);
-      const settledDetail = await settlePage();
+      const settledDetail = await settlePage(!shot.auth);
       if (process.env.CAPTURE_DEBUG) console.log(`  settle ${shot.name}: ${settledDetail}`);
     }
     if (shot.eval) await S('Runtime.evaluate', { expression: shot.eval, awaitPromise: true }).catch(() => {});

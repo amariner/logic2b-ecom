@@ -1,0 +1,158 @@
+---
+/**
+ * Franja de plataformas de la portada: dos carriles horizontales en bucle,
+ * agrupados por uso (núcleo, pagos, envíos, marketing…). Solo CSS: sin JS, se
+ * detiene al pasar el ratón y, con movimiento reducido, se convierte en una
+ * fila desplazable a mano. Logotipos monocromos que recuperan su color al
+ * pasar por encima: presencia sutil, lectura clara gracias al nombre.
+ *
+ * Honestidad (product): el núcleo (Cloudflare, Stripe, Resend) viene de serie;
+ * el resto son conexiones que se acuerdan por proyecto. Un logo aquí no implica
+ * acuerdo ni patrocinio de la marca.
+ */
+import { brands, rasterBrands, type AnyBrandSlug, type BrandSlug, type RasterBrandSlug } from '../../lib/brands';
+
+type Group = { label: string; core?: boolean; items: AnyBrandSlug[] };
+type Row = { label: string; reverse?: boolean; groups: Group[] };
+
+const rows: Row[] = [
+  {
+    label: 'Núcleo, pagos, envíos y facturación',
+    groups: [
+      { label: 'Núcleo', core: true, items: ['cloudflare', 'stripe', 'resend'] },
+      { label: 'Pagos', items: ['paypal', 'redsys', 'klarna', 'applepay', 'googlepay', 'visa', 'mastercard', 'americanexpress'] },
+      { label: 'Envíos', items: ['packlink', 'sendcloud', 'correos', 'dhl', 'ups', 'fedex'] },
+      { label: 'Facturación', items: ['holded', 'sage', 'quickbooks', 'xero'] },
+    ],
+  },
+  {
+    label: 'Marketing, comunicación, automatización y canales de venta',
+    reverse: true,
+    groups: [
+      { label: 'Marketing', items: ['googleanalytics', 'googletagmanager', 'googleads', 'googlesearchconsole', 'meta', 'instagram', 'tiktok', 'pinterest', 'youtube'] },
+      { label: 'Clientes', items: ['whatsapp', 'mailchimp', 'brevo', 'klaviyo', 'hubspot', 'trustpilot'] },
+      { label: 'Automatización', items: ['zapier', 'make', 'n8n', 'airtable', 'googlesheets', 'notion'] },
+      { label: 'Canales', items: ['amazon', 'ebay', 'etsy', 'aliexpress', 'zalando'] },
+      { label: 'Migración', items: ['shopify', 'woocommerce', 'prestashop'] },
+    ],
+  },
+];
+
+const resolve = (slug: AnyBrandSlug) => {
+  if (slug in brands) {
+    const icon = brands[slug as BrandSlug];
+    return { kind: 'svg' as const, title: icon.title === 'MasterCard' ? 'Mastercard' : icon.title, hex: icon.hex, path: icon.path };
+  }
+  const raster = rasterBrands[slug as RasterBrandSlug];
+  return { kind: 'raster' as const, title: raster.title, file: raster.file };
+};
+
+const total = rows.reduce((sum, row) => sum + row.groups.reduce((n, group) => n + group.items.length, 0), 0);
+/* Velocidad constante: la duración crece con el número de elementos. */
+const duration = (row: Row) => row.groups.reduce((n, group) => n + group.items.length + 1, 0) * 3.2;
+---
+
+<section class="pm" aria-labelledby="pm-title">
+  <div class="page-shell pm-head">
+    <h2 id="pm-title">Conecta con las herramientas que ya usas</h2>
+    <p><span class="pm-core-dot" aria-hidden="true"></span>Núcleo incluido · {total - 3} conexiones más, según el proyecto</p>
+  </div>
+  {rows.map((row) => (
+    <div class:list={['pm-row', row.reverse && 'is-reverse']} style={`--dur:${duration(row)}s`}>
+      <div class="pm-track">
+        {[0, 1].map((copy) => (
+          <ul class="pm-list" aria-label={copy === 0 ? row.label : undefined} aria-hidden={copy === 1 ? 'true' : undefined}>
+            {row.groups.map((group) => (
+              <>
+                <li class:list={['pm-group', group.core && 'is-core']}><span>{group.label}</span></li>
+                {group.items.map((slug) => {
+                  const brand = resolve(slug);
+                  return (
+                    <li class:list={['pm-item', group.core && 'is-core']} style={brand.kind === 'svg' ? `--hex:${brand.hex}` : undefined}>
+                      {brand.kind === 'svg' ? (
+                        <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true"><path d={brand.path} /></svg>
+                      ) : (
+                        <img src={brand.file} alt="" width="20" height="20" loading="lazy" decoding="async" />
+                      )}
+                      <span>{brand.title}</span>
+                    </li>
+                  );
+                })}
+              </>
+            ))}
+          </ul>
+        ))}
+      </div>
+    </div>
+  ))}
+</section>
+
+<style>
+  .pm {
+    padding-block: clamp(1.75rem, 3vw, 2.4rem) clamp(1.5rem, 2.6vw, 2rem);
+    border-bottom: 1px solid var(--c-line);
+    background: linear-gradient(180deg, #fff, var(--c-surface));
+  }
+  .pm-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: .4rem 2rem; margin-bottom: 1.25rem; }
+  .pm-head h2 { margin: 0; color: var(--c-ink); font-size: .95rem; font-weight: 600; letter-spacing: -.01em; }
+  .pm-head p { display: inline-flex; align-items: center; gap: .5rem; color: var(--c-muted); font: 400 .74rem/1.4 var(--font-code); }
+  .pm-core-dot { width: .45rem; height: .45rem; border-radius: 50%; background: var(--c-accent); box-shadow: 0 0 0 .2rem rgb(4 120 87 / 14%); }
+
+  /* Carril: máscara en los bordes para que los logos aparezcan y se vayan
+     con suavidad, sin cortes duros contra el margen. */
+  .pm-row {
+    --gap: 2.1rem;
+    overflow: hidden;
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent);
+    mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent);
+  }
+  .pm-row + .pm-row { margin-top: .35rem; }
+  .pm-track { display: flex; width: max-content; }
+  .pm-list { display: flex; align-items: center; gap: var(--gap); margin: 0; padding: .55rem var(--gap) .55rem 0; list-style: none; }
+  @media (prefers-reduced-motion: no-preference) {
+    .pm-track { animation: pm-slide var(--dur, 90s) linear infinite; }
+    .pm-row.is-reverse .pm-track { animation-direction: reverse; }
+    .pm-row:hover .pm-track { animation-play-state: paused; }
+  }
+  @keyframes pm-slide { to { transform: translateX(-50%); } }
+
+  .pm-item { display: inline-flex; flex: 0 0 auto; align-items: center; gap: .55rem; color: var(--c-muted); font-size: .88rem; font-weight: 500; letter-spacing: -.01em; white-space: nowrap; }
+  .pm-item svg { flex: 0 0 auto; color: var(--c-ink); opacity: .5; transition: color .3s var(--ease), opacity .3s var(--ease); }
+  .pm-item img { flex: 0 0 auto; border-radius: 22%; filter: grayscale(1); opacity: .55; transition: filter .3s var(--ease), opacity .3s var(--ease); }
+  .pm-item span { transition: color .3s var(--ease); }
+  .pm-item:hover svg { color: var(--hex, var(--c-ink)); opacity: 1; }
+  .pm-item:hover img { filter: none; opacity: 1; }
+  .pm-item:hover span { color: var(--c-ink); }
+  /* Núcleo: con su color de serie y el nombre en tinta — es lo que ya viene. */
+  .pm-item.is-core { color: var(--c-ink); }
+  .pm-item.is-core svg { color: var(--hex); opacity: 1; }
+
+  .pm-group { flex: 0 0 auto; }
+  .pm-group span {
+    display: inline-flex;
+    align-items: center;
+    gap: .45rem;
+    padding: .28rem .55rem;
+    border: 1px solid var(--c-border);
+    border-radius: var(--r-sm);
+    background: #fff;
+    color: var(--c-muted);
+    font: 500 .66rem/1.2 var(--font-code);
+    letter-spacing: .06em;
+    text-transform: uppercase;
+  }
+  .pm-group.is-core span { border-color: color-mix(in srgb, var(--c-accent) 35%, transparent); background: var(--c-accent-soft); color: var(--c-accent-strong); }
+  .pm-group.is-core span::before { width: .38rem; height: .38rem; border-radius: 50%; background: var(--c-accent); content: ''; }
+
+  /* Sin movimiento: una sola copia y desplazamiento manual. */
+  @media (prefers-reduced-motion: reduce) {
+    .pm-row { overflow-x: auto; scrollbar-width: none; }
+    .pm-row::-webkit-scrollbar { display: none; }
+    .pm-list[aria-hidden='true'] { display: none; }
+    .pm-list { padding-left: clamp(20px, 5vw, 48px); }
+  }
+  @media (max-width: 700px) {
+    .pm-row { --gap: 1.5rem; }
+    .pm-item { font-size: .82rem; }
+  }
+</style>

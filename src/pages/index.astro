@@ -3,8 +3,10 @@ import Landing from '../layouts/Landing.astro';
 import CommercialPlans from '../components/CommercialPlans.astro';
 import ProjectForm from '../components/ProjectForm.astro';
 import Icon, { type IconName } from '../components/Icon.astro';
-import BrandWall from '../components/BrandWall.astro';
-import type { AnyBrandSlug } from '../lib/brands';
+import PlatformMarquee from '../components/home/PlatformMarquee.astro';
+import JourneyBento from '../components/home/JourneyBento.astro';
+import EngineBlueprint from '../components/home/EngineBlueprint.astro';
+import PanelInspector from '../components/home/PanelInspector.astro';
 import { collections, storePaths } from '../collections';
 import { getTheme } from '../lib/demo-themes';
 import { MAIN_DEMO_HREF, DEMO_ADMIN_HREF } from '../lib/nav';
@@ -21,7 +23,7 @@ const galleryOrder = [
 const gallery = galleryOrder.map((id) => {
   const col = collections.find((c) => c.id === id)!;
   const theme = getTheme(col.themeId)!;
-  return { id, name: col.name, tagline: col.tagline, style: theme.label, accent: theme.vars['--color-brand'], href: storePaths(id).catalog, img: `/images/screens/store-${id}-catalog-560.webp`, img900: `/images/screens/store-${id}-catalog-900.webp` };
+  return { id, name: col.name, tagline: col.tagline, style: theme.label, accent: theme.vars['--color-brand'], href: `/temas/${id}`, demo: storePaths(id).catalog, img: `/images/screens/store-${id}-catalog-560.webp`, img900: `/images/screens/store-${id}-catalog-900.webp` };
 });
 // Vídeos de previsualización que ya existen en /public (los mismos de /temas):
 // la tarjeta los carga solo cuando alguien pasa el ratón o el foco por encima.
@@ -38,15 +40,6 @@ const proof = [
   { value: '1', label: 'panel para pedidos, productos y envíos' },
   { value: '0', label: 'datos de tarjeta en nuestros servidores' },
 ];
-/** Lo que mueve la tienda hoy: pagos, infraestructura, correo, envíos y contacto. */
-const stack: AnyBrandSlug[] = ['stripe', 'cloudflare', 'resend', 'packlink', 'sendcloud', 'whatsapp'];
-/** Conexiones habituales bajo alcance: se acuerdan por proyecto, no vienen activadas. */
-const connectable: AnyBrandSlug[] = [
-  'paypal', 'redsys', 'klarna', 'googleanalytics', 'googleads', 'googletagmanager', 'meta', 'instagram', 'tiktok', 'pinterest',
-  'brevo', 'klaviyo', 'hubspot', 'zapier', 'make', 'n8n', 'correos', 'ups', 'holded', 'quickbooks', 'xero',
-  'amazon', 'ebay', 'etsy', 'shopify', 'woocommerce',
-];
-
 /* Ilustración del héroe: pedidos ficticios de la tienda demo ARCE (sus
    productos y precios reales de catálogo) y el rastro que deja uno de ellos. */
 const heroOrders = [
@@ -61,59 +54,41 @@ const heroEvents = [
   { t: '11:05:31', label: 'Listo para enviar', meta: 'Exportado a Packlink' },
 ];
 
-const phases = [
-  { label: 'Atrae y vende', span: 3 },
-  { label: 'Cobra y prepara', span: 2 },
-  { label: 'Fideliza y crece', span: 2 },
-];
-const workflow: { icon: IconName; title: string; body: string }[] = [
-  { icon: 'store', title: 'Una web con tu marca', body: 'Tu catálogo, tus imágenes y una forma de comprar que encaja con tu negocio.' },
-  { icon: 'search', title: 'Productos fáciles de encontrar', body: 'Categorías, búsqueda y fichas que ayudan a elegir con confianza.' },
-  { icon: 'cart', title: 'Compra sin rodeos', body: 'Un carrito claro y los datos de entrega en el momento adecuado.' },
-  { icon: 'card', title: 'Pagos controlados', body: 'Importes y confirmaciones conectados al pedido.' },
-  { icon: 'clipboard', title: 'Pedidos en orden', body: 'Tu equipo sabe qué preparar, qué enviar y qué revisar.' },
-  { icon: 'mail', title: 'Cliente informado', body: 'Confirmación y seguimiento con la información de su compra.' },
-  { icon: 'growth', title: 'Espacio para crecer', body: 'Añadimos capacidad cuando la operación lo necesita.' },
-];
-
 /* Comparativa por modelo de responsabilidad, no por marca: quién diseña,
    quién mantiene y quién responde. Sin cifras de terceros que caduquen. */
 const compareCols = ['Plataforma de suscripción', 'Web con plugins', 'Logic2B Ecommerce'];
 const compareRows: { label: string; cells: [string, string, string] }[] = [
-  { label: 'Diseño', cells: ['Tema de la plataforma, adaptado', 'Tema y constructor visual', 'Diseño a medida de tu marca'] },
-  { label: 'Puesta en marcha', cells: ['La haces tú o contratas a alguien', 'La haces tú o contratas a alguien', 'La hacemos contigo, de principio a fin'] },
-  { label: 'Mantenimiento técnico', cells: ['La plataforma, más cada app que añadas', 'Actualizaciones y compatibilidades a tu cargo', 'Incluido: lo asume Logic2B'] },
-  { label: 'Nuevas funciones', cells: ['Apps de terceros, a menudo con cuota', 'Plugins de distintos proveedores', 'Módulos del mismo motor o desarrollo propio'] },
-  { label: 'Gestión diaria', cells: ['Panel completo y genérico', 'Escritorio de WordPress', 'Panel sencillo con lo que usas'] },
-  { label: 'Quién te responde', cells: ['Soporte general de la plataforma', 'Cada proveedor por separado', 'El equipo que construyó tu tienda'] },
+  { label: 'Diseño', cells: ['Tema adaptado', 'Tema y constructor visual', 'A medida de tu marca'] },
+  { label: 'Puesta en marcha', cells: ['Por tu cuenta', 'Por tu cuenta', 'Contigo, de principio a fin'] },
+  { label: 'Mantenimiento', cells: ['La plataforma y cada app', 'Plugins y actualizaciones, a tu cargo', 'Incluido'] },
+  { label: 'Nuevas funciones', cells: ['Apps, a menudo con cuota', 'Plugins de varios proveedores', 'Módulos del mismo motor'] },
+  { label: 'Gestión diaria', cells: ['Panel completo y genérico', 'Escritorio de WordPress', 'Panel con lo que usas'] },
+  { label: 'Quién responde', cells: ['Soporte general', 'Cada proveedor por separado', 'Quien construyó tu tienda'] },
 ];
 
-const moments: { label: string; icon: IconName; title: string; body: string; points: string[]; img: string; href: string; link: string; crop: boolean; url: string }[] = [
-  { label: 'Tienda', icon: 'store', title: 'Una tienda que invita a quedarse.', body: 'El diseño presenta tus productos y acompaña la decisión de compra, desde el móvil hasta el escritorio.', points: ['Categorías con sentido para tu catálogo', 'Fotografía y contenido con una misma identidad', 'Fichas que responden antes de añadir al carrito'], img: '/images/screens/store-arce-catalog-900.webp', href: MAIN_DEMO_HREF, link: 'Explorar la tienda', crop: true, url: 'arce / catálogo' },
-  { label: 'Compra', icon: 'cart', title: 'De encontrarlo a tenerlo en el carrito.', body: 'Cantidad, precio y entrega visibles. Cada paso pide solo lo que hace falta para continuar.', points: ['Carrito fácil de revisar', 'Compra como invitado', 'Costes de envío antes de confirmar'], img: '/images/screens/store-demo-cart.webp', href: '/demo/carrito', link: 'Ver el carrito', crop: false, url: 'tienda / carrito' },
-  { label: 'Pedidos', icon: 'clipboard', title: 'Lo que necesita atención, a la vista.', body: 'Una lista de trabajo comprensible para el comercio. Sin menús que no necesitas ni hojas sueltas.', points: ['Pedidos ordenados por estado', 'Productos, dirección y total reunidos', 'Historial de cada pedido'], img: '/images/screens/panel-orders.webp', href: DEMO_ADMIN_HREF ?? '/arquitectura', link: 'Probar el gestor', crop: false, url: 'panel / pedidos' },
-  { label: 'Envíos', icon: 'truck', title: 'Prepara, envía y sigue el pedido.', body: 'La gestión del envío forma parte del mismo recorrido, con tarifas y seguimiento en contexto.', points: ['Tarifas por zona y tramo', 'Exportación para preparar etiquetas', 'Transportista y seguimiento junto al pedido'], img: '/images/screens/panel-shipping.webp', href: '/demo/admin/envios', link: 'Ver los envíos', crop: false, url: 'panel / envíos' },
-  { label: 'Comunicación', icon: 'mail', title: 'Cada mensaje, cuando toca.', body: 'El cliente recibe información útil y el equipo puede revisar lo que se ha comunicado.', points: ['Confirmación de compra', 'Aviso de envío con seguimiento', 'Bandeja de ejemplo sin enviar emails reales'], img: '/images/screens/panel-emails.webp', href: '/demo/admin/emails', link: 'Ver los emails', crop: false, url: 'panel / emails' },
+const moments: { label: string; icon: IconName; title: string; points: string[]; img: string; href: string; link: string; crop: boolean; url: string }[] = [
+  { label: 'Tienda', icon: 'store', title: 'Una tienda que invita a quedarse.', points: ['Categorías con sentido para tu catálogo', 'Fotografía y contenido con una misma identidad', 'Fichas que responden antes de añadir al carrito'], img: '/images/screens/store-arce-catalog-900.webp', href: MAIN_DEMO_HREF, link: 'Explorar la tienda', crop: true, url: 'arce / catálogo' },
+  { label: 'Compra', icon: 'cart', title: 'De encontrarlo a tenerlo en el carrito.', points: ['Carrito fácil de revisar', 'Compra como invitado', 'Costes de envío antes de confirmar'], img: '/images/screens/store-demo-cart.webp', href: '/demo/carrito', link: 'Ver el carrito', crop: false, url: 'tienda / carrito' },
+  { label: 'Pedidos', icon: 'clipboard', title: 'Cada pedido, completo en una pantalla.', points: ['Productos, pago y entrega reunidos', 'Incidencias y notas del equipo', 'Historial de cada cambio'], img: '/images/screens/panel-order-detail.webp', href: DEMO_ADMIN_HREF ?? '/arquitectura', link: 'Probar el gestor', crop: false, url: 'panel / pedido' },
+  { label: 'Envíos', icon: 'truck', title: 'Prepara, envía y sigue el pedido.', points: ['Tarifas por zona y tramo', 'Exportación para preparar etiquetas', 'Transportista y seguimiento junto al pedido'], img: '/images/screens/panel-shipping.webp', href: '/demo/admin/envios', link: 'Ver los envíos', crop: false, url: 'panel / envíos' },
+  { label: 'Comunicación', icon: 'mail', title: 'Cada mensaje, cuando toca.', points: ['Confirmación de compra', 'Aviso de envío con seguimiento', 'Bandeja de ejemplo sin enviar emails reales'], img: '/images/screens/panel-emails.webp', href: '/demo/admin/emails', link: 'Ver los emails', crop: false, url: 'panel / emails' },
 ];
-const panelViews: { key: string; icon: IconName; name: string; body: string; img: string; href: string }[] = [
-  { key: 'orders', icon: 'clipboard', name: 'Pedidos', body: 'Estado, importe y siguiente paso.', img: '/images/screens/panel-orders-900.webp', href: DEMO_ADMIN_HREF ?? '/arquitectura' },
-  { key: 'products', icon: 'tag', name: 'Productos', body: 'Tu catálogo, precios y existencias.', img: '/images/screens/panel-products.webp', href: '/demo/admin/productos' },
-  { key: 'emails', icon: 'mail', name: 'Comunicaciones', body: 'Cada mensaje junto a su pedido.', img: '/images/screens/panel-emails-900.webp', href: '/demo/admin/emails' },
+const panelViews: { key: string; icon: IconName; name: string; body: string; href: string }[] = [
+  { key: 'orders', icon: 'clipboard', name: 'Pedidos', body: 'Estado, importe y siguiente paso.', href: DEMO_ADMIN_HREF ?? '/arquitectura' },
+  { key: 'products', icon: 'tag', name: 'Productos', body: 'Tu catálogo, precios y existencias.', href: '/demo/admin/productos' },
+  { key: 'emails', icon: 'mail', name: 'Comunicaciones', body: 'Cada mensaje junto a su pedido.', href: '/demo/admin/emails' },
 ];
-/* Garantías técnicas del motor: cada una es una regla del repositorio con
-   tests detrás (CLAUDE.md §2 y §7), no un eslogan. */
-const guarantees: { icon: IconName; title: string; body: string }[] = [
-  { icon: 'card', title: 'La tarjeta, fuera de tu web', body: 'El pago se completa en la pasarela. Los datos de tarjeta nunca pasan por nuestros servidores.' },
-  { icon: 'shield', title: 'Precios decididos en servidor', body: 'Importes, portes y stock se recalculan antes de cobrar. El navegador no fija ningún precio.' },
-  { icon: 'clipboard', title: 'Un pago, un pedido', body: 'Si la pasarela repite el aviso, el pedido no se duplica ni el stock se descuenta dos veces.' },
-  { icon: 'route', title: 'Servida desde el edge', body: 'Las páginas se sirven desde la red de Cloudflare, cerca de quien compra.' },
-  { icon: 'box', title: 'Un despliegue por cliente', body: 'Tu tienda, tus datos y tus claves no se comparten con otras tiendas.' },
-  { icon: 'plug', title: 'Crece sin migrar', body: 'Nuevas capacidades se activan o se desarrollan sobre el mismo motor.' },
+/* Lo que el diagrama no dibuja: dónde vive y cómo crece. Reglas del
+   repositorio (CLAUDE.md §2), no eslóganes. */
+const engineNotes: { icon: IconName; title: string; body: string }[] = [
+  { icon: 'route', title: 'Servida desde el edge', body: 'Páginas estáticas en la red de Cloudflare; el servidor despierta solo para carrito, pago y panel.' },
+  { icon: 'box', title: 'Un despliegue por cliente', body: 'Tu tienda, tu base de datos y tus claves. Nada se comparte con otras tiendas.' },
+  { icon: 'plug', title: 'Crece sin migrar', body: 'Cupones, packs o listas de precios se activan como módulos del mismo motor.' },
 ];
 const steps = [
-  { title: 'Entendemos tu operación', body: 'Qué vendes, cómo preparas los pedidos y qué tienes ya.' },
-  { title: 'Acordamos diseño y alcance', body: 'Dirección visual, catálogo, contenidos y conexiones.' },
-  { title: 'Probamos y preparamos la entrega', body: 'Revisamos contigo la compra completa antes de publicar.' },
+  { title: 'Entendemos tu operación', body: 'Qué vendes y cómo preparas los pedidos.' },
+  { title: 'Acordamos diseño y alcance', body: 'Dirección visual, catálogo y conexiones.' },
+  { title: 'Probamos y publicamos', body: 'Revisamos contigo la compra completa.' },
 ];
 const nextSteps = [
   { title: 'Te respondemos en 24 h laborables', body: 'Una persona del equipo lee tu mensaje y te escribe.' },
@@ -172,31 +147,16 @@ const jsonLd = [{ '@context': 'https://schema.org', '@type': 'Service', name: 'L
     </div>
   </section>
 
-  <!-- ── Herramientas ─────────────────────────────────────────────────── -->
-  <section class="stack-strip" aria-label="Herramientas del ecosistema">
-    <div class="page-shell stack-inner">
-      <p>Pagos, infraestructura, correo y envíos con proveedores líderes</p>
-      <BrandWall brands={stack} size={22} label="Pagos, infraestructura, correo, envíos y contacto" />
-    </div>
-  </section>
+  <!-- ── Plataformas ─────────────────────────────────────────────────── -->
+  <PlatformMarquee />
 
   <!-- ── Qué incluye ──────────────────────────────────────────────────── -->
   <section id="flujo" class="sx page-shell">
     <header class="sx-head is-split reveal">
       <div><p class="eyebrow"><span>01</span>Qué incluye</p><h2>Todo el ciclo de venta, en un solo sistema.</h2></div>
-      <p>De la primera visita al último paquete: diseñamos el recorrido alrededor de lo que vendes y de cómo trabaja tu equipo.</p>
+      <p>De la primera visita al último paquete, en tres fases.</p>
     </header>
-    <div class="journey reveal" role="region" aria-label="Recorrido de tu ecommerce" tabindex="0">
-      <div class="journey-phases" aria-hidden="true">{phases.map((phase) => <span style={`--span:${phase.span}`}>{phase.label}</span>)}</div>
-      <ol class="journey-steps" aria-label="Los siete pasos de tu ecommerce">
-        {workflow.map((step, i) => <li>
-          <span class="journey-node" aria-hidden="true"><Icon name={step.icon} size={18} /></span>
-          <span class="journey-n" aria-hidden="true">0{i + 1}</span>
-          <h3>{step.title}</h3>
-          <p>{step.body}</p>
-        </li>)}
-      </ol>
-    </div>
+    <JourneyBento />
   </section>
 
   <!-- ── Por qué ──────────────────────────────────────────────────────── -->
@@ -204,7 +164,7 @@ const jsonLd = [{ '@context': 'https://schema.org', '@type': 'Service', name: 'L
     <div class="page-shell">
       <header class="sx-head is-split reveal">
         <div><p class="eyebrow"><span>02</span>Por qué Logic2B Ecommerce</p><h2>La libertad de un proyecto a medida. La solidez de una plataforma.</h2></div>
-        <p>Una plataforma te da rapidez a cambio de plantillas y apps. Una web con plugins te da libertad, pero te deja solo con el mantenimiento. Nosotros juntamos las dos cosas.</p>
+        <p>La rapidez de una plataforma, sin plantillas ni apps de pago. La libertad de una web a medida, sin quedarte solo con el mantenimiento.</p>
       </header>
       <div class="compare reveal" role="region" aria-label="Comparativa de opciones" tabindex="0">
         <table>
@@ -226,7 +186,6 @@ const jsonLd = [{ '@context': 'https://schema.org', '@type': 'Service', name: 'L
         <div class="moment-copy">
           <p class="moment-count">0{i + 1} / 0{moments.length}</p>
           <h3>{moment.title}</h3>
-          <p>{moment.body}</p>
           <ul>{moment.points.map(point => <li><span aria-hidden="true"><svg viewBox="0 0 16 16" width="14" height="14"><path d="m3.5 8.5 3 3 6-6.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" /></svg></span>{point}</li>)}</ul>
           <a class="btn btn-soft" href={moment.href}>{moment.link} <span class="btn-arrow" aria-hidden="true">→</span></a>
         </div>
@@ -244,14 +203,14 @@ const jsonLd = [{ '@context': 'https://schema.org', '@type': 'Service', name: 'L
     <div class="page-shell">
       <header class="sx-head is-split reveal">
         <div><p class="eyebrow"><span>04</span>Direcciones visuales</p><h2>Tu marca merece su propia tienda.</h2></div>
-        <div><p>{gallery.length} identidades distintas sobre el mismo motor. Cada una es una tienda navegable: entra, añade al carrito y llega hasta el pago simulado.</p><a class="text-link" href="/temas">Ver todos los diseños →</a></div>
+        <div><p>{gallery.length} identidades distintas sobre el mismo motor. Cada una tiene su ficha con la tienda en vivo: entra, añade al carrito y llega hasta el pago simulado.</p><a class="text-link" href="/temas">Ver todos los diseños →</a></div>
       </header>
       <div class="bento">
         {featured.map((store, i) => <a class:list={['store-card', 'reveal', i === 0 && 'is-hero']} href={store.href} style={`--accent:${store.accent}`} data-hover-video={store.preview ?? undefined}>
           <span class="store-media">
-            <img src={i === 0 ? store.img900 : store.img} srcset={`${store.img} 560w, ${store.img900} 900w`} sizes={i === 0 ? '(min-width: 900px) 50vw, 100vw' : '(min-width: 900px) 25vw, 50vw'} alt={`Escaparate de ${store.name}`} width="900" height="700" loading="lazy" decoding="async" />
+            <img src={i === 0 ? store.img900 : store.img} srcset={`${store.img} 560w, ${store.img900} 900w`} sizes={i === 0 ? '(min-width: 900px) 50vw, 100vw' : '(min-width: 900px) 25vw, 50vw'} alt={`Escaparate de ${store.name}, tema ${store.style}`} width="900" height="700" loading="lazy" decoding="async" />
           </span>
-          <span class="store-info"><span><strong>{store.name}</strong><small><i aria-hidden="true"></i>{store.style} · Demo navegable</small></span><b aria-hidden="true">↗</b></span>
+          <span class="store-info"><span><strong>{store.name}</strong><small><i aria-hidden="true"></i>{store.tagline}</small></span><b aria-hidden="true">→</b></span>
         </a>)}
         <a class="store-more reveal" href="/temas"><span class="store-more-n">+{moreStores}</span><span>direcciones visuales más, cada una sobre el mismo motor</span><b>Ver todos los diseños <span aria-hidden="true">→</span></b></a>
       </div>
@@ -264,48 +223,23 @@ const jsonLd = [{ '@context': 'https://schema.org', '@type': 'Service', name: 'L
 
   <!-- ── Panel ────────────────────────────────────────────────────────── -->
   <section id="paneles" class="sx page-shell panels">
-    <div class="panels-copy">
-      <header class="sx-head reveal"><p class="eyebrow"><span>05</span>El gestor</p><h2>Un panel que se aprende en cinco minutos.</h2><p>Las vistas que necesita el comercio y nada más. Lo complejo queda de nuestro lado.</p></header>
-      <ul class="panel-links">{panelViews.map((view) => <li><a href={view.href} data-shot={view.key}><span class="panel-ico" aria-hidden="true"><Icon name={view.icon} size={18} /></span><span><strong>{view.name}</strong><small>{view.body}</small></span><b aria-hidden="true">→</b></a></li>)}</ul>
-      <a class="text-link panels-more" href={DEMO_ADMIN_HREF ?? '/arquitectura'}>Entrar al panel de demostración →</a>
-    </div>
-    <div class="panels-stage">
-      {panelViews.map((view) => <figure class:list={['frame', 'shot', `shot-${view.key}`]}>
-        <div class="frame-bar" aria-hidden="true"><i></i><i></i><i></i><span>panel / {view.name.toLowerCase()}</span></div>
-        <img src={view.img} alt={`Panel de ${view.name.toLowerCase()} de la demo`} width="1200" height="780" loading="lazy" decoding="async" />
-      </figure>)}
-    </div>
+    <header class="sx-head is-split reveal">
+      <div><p class="eyebrow"><span>05</span>El gestor</p><h2>Un panel que se aprende en cinco minutos.</h2></div>
+      <div><p>Las vistas que necesita el comercio y nada más. Lo complejo queda de nuestro lado.</p><a class="text-link" href={DEMO_ADMIN_HREF ?? '/arquitectura'}>Entrar al panel de demostración →</a></div>
+    </header>
+    <PanelInspector />
+    <ul class="panel-links">{panelViews.map((view) => <li><a href={view.href}><span class="panel-ico" aria-hidden="true"><Icon name={view.icon} size={18} /></span><span><strong>{view.name}</strong><small>{view.body}</small></span><b aria-hidden="true">→</b></a></li>)}</ul>
   </section>
 
-  <!-- ── Tecnología ───────────────────────────────────────────────────── -->
+  <!-- ── El motor por dentro ─────────────────────────────────────────── -->
   <section id="tecnologia" class="sx tech">
     <div class="page-shell">
       <header class="sx-head is-split reveal">
-        <div><p class="eyebrow"><span>06</span>La tecnología</p><h2>Un motor probado bajo cada proyecto.</h2></div>
-        <div><p>Catálogo, pagos, inventario, pedidos y seguridad ya están resueltos y cubiertos por pruebas. Por eso tu inversión va a diseño, contenido y a lo que hace único a tu negocio.</p><a class="text-link" href="/arquitectura">Ver la arquitectura →</a></div>
+        <div><p class="eyebrow"><span>06</span>El motor por dentro</p><h2>Así viaja un pedido por el motor.</h2></div>
+        <div><p>Seis pasos, cinco piezas y ninguna tarjeta en tu web. Lo que ocurre cada vez que alguien compra, de la cesta al email de confirmación.</p><a class="text-link" href="/arquitectura">Ver la arquitectura completa →</a></div>
       </header>
-      <div class="tech-grid">
-        <ul class="guarantees">{guarantees.map((item) => <li class="reveal"><span class="g-ico" aria-hidden="true"><Icon name={item.icon} size={18} /></span><h3>{item.title}</h3><p>{item.body}</p></li>)}</ul>
-        <figure class="code-card reveal" aria-labelledby="code-caption">
-          <div class="code-head" aria-hidden="true"><span>checkout.log</span><span>demo</span></div>
-          <pre aria-hidden="true"><code><span class="c-k">POST</span> /api/checkout/session
-  <span class="c-ok">✓</span> precios recalculados   <span class="c-m">3 líneas · 1.240,00 €</span>
-  <span class="c-ok">✓</span> stock disponible       <span class="c-m">comprobado antes de cobrar</span>
-  <span class="c-a">→</span> pasarela de pago       <span class="c-m">tarjeta fuera de la web</span>
-
-<span class="c-k">WEBHOOK</span> pago completado
-  <span class="c-ok">✓</span> firma verificada
-  <span class="c-ok">✓</span> pedido AR-1041         <span class="c-m">pagado</span>
-  <span class="c-ok">✓</span> stock actualizado      <span class="c-m">−1 Mesa Horizonte</span>
-  <span class="c-ok">✓</span> email en cola          <span class="c-m">confirmación</span>
-  <span class="c-m"># aviso repetido → sin duplicar</span></code></pre>
-          <figcaption id="code-caption">Lo que ocurre en el servidor cuando alguien compra: precio recalculado, pago en la pasarela y un único pedido aunque el aviso llegue dos veces.</figcaption>
-        </figure>
-      </div>
-      <div class="connect reveal">
-        <div><h3>Conecta con tus herramientas</h3><p>Pagos, marketing, analítica, envíos, facturación y marketplaces. Se acuerdan por proyecto, con un alcance concreto.</p></div>
-        <BrandWall brands={connectable} size={20} label="Plataformas con las que se puede conectar la tienda" />
-      </div>
+      <EngineBlueprint />
+      <ul class="engine-notes">{engineNotes.map((note) => <li class="reveal"><span class="g-ico" aria-hidden="true"><Icon name={note.icon} size={18} /></span><div><h3>{note.title}</h3><p>{note.body}</p></div></li>)}</ul>
     </div>
   </section>
 
@@ -316,7 +250,7 @@ const jsonLd = [{ '@context': 'https://schema.org', '@type': 'Service', name: 'L
       <span class="craft-chip" aria-hidden="true"><span class="ui-ico"><Icon name="box" size={16} /></span><span><b>Pedido preparado</b><small>Listo para etiquetar y enviar</small></span></span>
     </figure>
     <div class="craft-copy">
-      <header class="sx-head reveal"><p class="eyebrow"><span>07</span>Cómo trabajamos</p><h2>Te acompañamos hasta ponerlo en marcha.</h2><p>Reunimos catálogo, contenidos e identidad. Diseñamos, configuramos y revisamos contigo la compra completa antes de publicar.</p></header>
+      <header class="sx-head reveal"><p class="eyebrow"><span>07</span>Cómo trabajamos</p><h2>Te acompañamos hasta ponerlo en marcha.</h2></header>
       <ol class="craft-steps">{steps.map((step, i) => <li><span aria-hidden="true">0{i + 1}</span><div><strong>{step.title}</strong><p>{step.body}</p></div></li>)}</ol>
       <small class="craft-note">El calendario depende del alcance y del estado de los contenidos.</small>
     </div>

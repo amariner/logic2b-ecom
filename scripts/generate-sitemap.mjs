@@ -120,6 +120,8 @@ function localDependencies(file) {
           'src/lib/demo-themes.ts',
           'src/lib/nav.ts',
           'src/lib/theme-catalog.ts',
+          'src/lib/theme-labels.ts',
+          'src/lib/theme-profiles.ts',
         ].includes(localPath);
       if (isEditorialData) dependencies.add(imported);
     }

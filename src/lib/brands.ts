@@ -3,7 +3,7 @@
  *
  * Datos (título, color oficial y trazado SVG 24×24) tomados de simple-icons
  * v16.28.0 (CC0). Se copian aquí para no añadir la dependencia al proyecto:
- * la landing solo necesita una treintena de marcas, no las 3.000 del paquete.
+ * la landing solo necesita unas cincuenta marcas, no las 3.000 del paquete.
  * Ninguna de estas marcas patrocina ni certifica a Logic2B: son las
  * herramientas con las que el motor ya conecta o puede conectar bajo alcance.
  */

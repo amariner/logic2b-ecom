@@ -68,6 +68,26 @@
 .commerce-home .hx-meta span::before { width: .9rem; height: .9rem; background: var(--c-accent); -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='m3.5 8.5 3 3 6-6.5' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / contain no-repeat; mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='m3.5 8.5 3 3 6-6.5' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / contain no-repeat; content: ''; }
 
 /* Ilustración: tienda + pedidos + rastro del pedido, en HTML y CSS. */
+/* Haz de luz que recorre el borde de la tienda: un único acento en
+   movimiento, lento, solo CSS. Sin soporte de @property queda el borde fijo. */
+@property --hx-angle { syntax: '<angle>'; inherits: false; initial-value: 0deg; }
+@media (prefers-reduced-motion: no-preference) {
+  .commerce-home .hx-store::after {
+    position: absolute;
+    z-index: 2;
+    inset: 0;
+    padding: 1.5px;
+    border-radius: inherit;
+    background: conic-gradient(from var(--hx-angle), transparent 0 78%, rgb(16 185 129 / 0%) 80%, rgb(16 185 129 / 85%) 92%, transparent 100%);
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    content: '';
+    pointer-events: none;
+    animation: hx-beam 7s linear infinite;
+  }
+}
+@keyframes hx-beam { to { --hx-angle: 360deg; } }
 .commerce-home .hx-visual { position: relative; margin: 0; padding: 0 0 4.5rem 3.5rem; }
 .commerce-home .hx-store img { height: clamp(320px, 33vw, 470px); object-fit: cover; object-position: top center; }
 .commerce-home .hx-orders,
@@ -136,48 +156,6 @@
 .commerce-home .hx-proof strong { color: var(--c-ink); font-size: clamp(1.6rem, 2.4vw, 2.1rem); font-weight: 600; font-variant-numeric: tabular-nums; letter-spacing: -.04em; }
 .commerce-home .hx-proof span { color: var(--c-muted); font-size: .88rem; line-height: 1.4; }
 
-/* ── Franja de herramientas ──────────────────────────────────────────────── */
-.commerce-home .stack-strip { border-bottom: 1px solid var(--c-line); }
-.commerce-home .stack-inner { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1rem 2rem; padding-block: 1.5rem; }
-.commerce-home .stack-inner p { color: var(--c-muted); font-size: .85rem; }
-.commerce-home .stack-inner .brand-tile { box-shadow: none; }
-
-/* ── Recorrido (qué incluye) ─────────────────────────────────────────────── */
-.commerce-home .journey { --cols: 7; }
-.commerce-home .journey:focus-visible { outline: 2px solid var(--c-accent); outline-offset: 6px; border-radius: var(--r-md); }
-.commerce-home .journey-phases {
-  display: grid;
-  grid-template-columns: repeat(var(--cols), minmax(0, 1fr));
-  gap: 1px;
-  margin-bottom: 1px;
-}
-.commerce-home .journey-phases span {
-  grid-column: span var(--span);
-  padding: .7rem 1.1rem;
-  border: 1px solid var(--c-border);
-  border-bottom: 0;
-  border-radius: var(--r-md) var(--r-md) 0 0;
-  background: var(--c-surface);
-  color: var(--c-ink);
-  font: 500 .72rem/1.4 var(--font-code);
-}
-.commerce-home .journey-steps {
-  display: grid;
-  grid-template-columns: repeat(var(--cols), minmax(0, 1fr));
-  gap: 1px;
-  overflow: hidden;
-  border: 1px solid var(--c-border);
-  border-radius: 0 0 var(--r-lg) var(--r-lg);
-  background: var(--c-border);
-}
-.commerce-home .journey-steps li { padding: 1.4rem 1.1rem 1.6rem; background: #fff; transition: background-color .25s var(--ease); }
-.commerce-home .journey-steps li:hover { background: #fcfcfd; }
-.commerce-home .journey-node { display: grid; place-items: center; width: 2.4rem; height: 2.4rem; border: 1px solid var(--c-border); border-radius: var(--r-md); background: #fff; color: var(--c-ink); transition: background-color .25s var(--ease), color .25s var(--ease), border-color .25s var(--ease); }
-.commerce-home .journey-steps li:hover .journey-node { border-color: var(--c-accent); background: var(--c-accent); color: #fff; }
-.commerce-home .journey-n { display: block; margin-top: 1.3rem; color: var(--c-muted); font: 400 .7rem/1 var(--font-code); }
-.commerce-home .journey-steps h3 { margin: .55rem 0 .5rem; font-size: 1rem; line-height: 1.3; }
-.commerce-home .journey-steps p { color: var(--c-muted); font-size: .86rem; line-height: 1.55; }
-
 /* ── Comparativa ─────────────────────────────────────────────────────────── */
 .commerce-home .compare { overflow-x: auto; border: 1px solid var(--c-border); border-radius: var(--r-lg); background: #fff; box-shadow: var(--shadow-sm); }
 .commerce-home .compare:focus-visible { outline: 2px solid var(--c-accent); outline-offset: 4px; }
@@ -186,8 +164,9 @@
 .commerce-home .compare tbody tr:last-child :is(th, td) { border-bottom: 0; }
 .commerce-home .compare thead th { color: var(--c-muted); font-size: .8rem; font-weight: 500; vertical-align: bottom; }
 .commerce-home .compare thead th.is-us span { display: inline-flex; padding: .3rem .6rem; border-radius: var(--r-sm); background: var(--c-ink); color: #fff; font-weight: 600; }
-.commerce-home .compare tbody th { width: 17%; color: var(--c-ink); font-weight: 600; }
-.commerce-home .compare td { width: 27.6%; color: var(--c-muted); line-height: 1.5; }
+.commerce-home .compare tbody th { width: 18%; color: var(--c-ink); font-weight: 600; }
+.commerce-home .compare td { width: 26%; color: var(--c-muted); line-height: 1.5; }
+.commerce-home .compare td.is-us { width: 30%; }
 .commerce-home .compare td.is-us { background: #f3faf7; color: var(--c-ink); font-weight: 500; }
 .commerce-home .compare thead th.is-us { background: #f3faf7; }
 .commerce-home .compare td.is-us svg { display: inline-block; margin: -.15rem .45rem 0 0; color: var(--c-accent); vertical-align: middle; }
@@ -319,13 +298,12 @@
 .commerce-home .inline-cta p { max-width: 40rem; color: var(--c-body); font-size: .98rem; line-height: 1.55; }
 
 /* ── Panel (gestor) ──────────────────────────────────────────────────────── */
-.commerce-home .panels { display: grid; grid-template-columns: minmax(0, .85fr) minmax(0, 1.15fr); align-items: center; gap: clamp(2.5rem, 6vw, 6rem); }
-.commerce-home .panels-copy .sx-head { margin-bottom: 2rem; }
-.commerce-home .panel-links { display: grid; gap: .6rem; }
+.commerce-home .panel-links { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .75rem; margin-top: clamp(3rem, 6vw, 4.5rem); }
 .commerce-home .panel-links a {
   display: flex;
   align-items: center;
   gap: .9rem;
+  height: 100%;
   padding: .85rem 1rem;
   border: 1px solid var(--c-border);
   border-radius: var(--r-md);
@@ -340,34 +318,6 @@
 .commerce-home .panel-links a:hover b { color: var(--c-ink); transform: translateX(3px); }
 .commerce-home .panel-ico { display: grid; place-items: center; width: 2.4rem; height: 2.4rem; border: 1px solid var(--c-line); border-radius: var(--r-sm); background: var(--c-surface); color: var(--c-ink); transition: background-color .25s var(--ease), color .25s var(--ease); }
 .commerce-home .panel-links a:is(:hover, :focus-visible) .panel-ico { border-color: var(--c-ink); background: var(--c-ink); color: #fff; }
-.commerce-home .panels-more { display: inline-block; margin-top: 1.4rem; }
-.commerce-home .panels-stage { position: relative; isolation: isolate; aspect-ratio: 1.45; }
-.commerce-home .panels-stage::before {
-  position: absolute;
-  inset: 4% -4% -6% 10%;
-  z-index: -1;
-  border: 1px solid var(--c-line);
-  border-radius: var(--r-lg);
-  background:
-    linear-gradient(var(--c-line) 1px, transparent 1px) 0 0 / 28px 28px,
-    linear-gradient(90deg, var(--c-line) 1px, transparent 1px) 0 0 / 28px 28px,
-    var(--c-surface);
-  content: '';
-}
-.commerce-home .shot {
-  position: absolute;
-  right: 12%;
-  bottom: 0;
-  left: 0;
-  transform-origin: 100% 0;
-  transition: transform .5s var(--ease), filter .5s var(--ease);
-}
-.commerce-home .shot img { aspect-ratio: 1.85; object-fit: cover; object-position: top left; }
-.commerce-home .shot-orders { z-index: 3; }
-.commerce-home .shot-products { z-index: 2; transform: translate(7%, -9%) scale(.94); filter: brightness(.97); }
-.commerce-home .shot-emails { z-index: 1; transform: translate(14%, -18%) scale(.88); filter: brightness(.94); }
-.commerce-home .panels:has([data-shot='products']:is(:hover, :focus-visible)) .shot-products,
-.commerce-home .panels:has([data-shot='emails']:is(:hover, :focus-visible)) .shot-emails { z-index: 4; transform: none; filter: none; }
 
 /* ── Tecnología (superficie oscura) ──────────────────────────────────────── */
 .commerce-home .tech {
@@ -395,25 +345,12 @@
 .commerce-home .tech .sx-head p:not(.eyebrow) { color: var(--c-night-text); }
 .commerce-home .tech .text-link { color: var(--c-night-accent); }
 .commerce-home .tech :focus-visible { outline-color: var(--c-night-accent); }
-.commerce-home .tech-grid { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, .9fr); align-items: start; gap: clamp(2rem, 4vw, 4rem); }
-.commerce-home .guarantees { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1px; overflow: hidden; border: 1px solid var(--c-night-line); border-radius: var(--r-lg); background: var(--c-night-line); }
-.commerce-home .guarantees li { padding: 1.4rem; background: var(--c-night); }
-.commerce-home .g-ico { display: grid; place-items: center; width: 2.2rem; height: 2.2rem; border: 1px solid var(--c-night-line); border-radius: var(--r-sm); background: var(--c-night-2); color: var(--c-night-accent); }
-.commerce-home .guarantees h3 { margin: 1rem 0 .4rem; font-size: 1rem; }
-.commerce-home .guarantees p { color: var(--c-night-muted); font-size: .88rem; line-height: 1.55; }
-.commerce-home .code-card { overflow: hidden; margin: 0; border: 1px solid var(--c-night-line); border-radius: var(--r-lg); background: #070d19; box-shadow: 0 30px 80px rgb(0 0 0 / 35%); }
-.commerce-home .code-head { display: flex; justify-content: space-between; padding: .7rem 1rem; border-bottom: 1px solid var(--c-night-line); color: var(--c-night-muted); font: 400 .7rem/1 var(--font-code); }
-.commerce-home .code-head span:last-child { padding: .2rem .45rem; border: 1px solid var(--c-night-line); border-radius: var(--r-sm); }
-.commerce-home .code-card pre { overflow-x: auto; margin: 0; padding: 1.2rem 1.1rem; color: #e2e8f0; font: 400 .78rem/1.85 var(--font-code); }
-.commerce-home .c-k { color: #93c5fd; font-weight: 600; }
-.commerce-home .c-ok { color: var(--c-night-accent); }
-.commerce-home .c-a { color: #fcd34d; }
-.commerce-home .c-m { color: var(--c-night-muted); }
-.commerce-home .code-card figcaption { padding: .9rem 1.1rem; border-top: 1px solid var(--c-night-line); color: var(--c-night-muted); font-size: .8rem; line-height: 1.55; }
-.commerce-home .connect { display: grid; grid-template-columns: minmax(0, .7fr) minmax(0, 1.3fr); align-items: center; gap: 1.5rem 3rem; margin-top: clamp(2.5rem, 5vw, 4rem); padding-top: clamp(2rem, 4vw, 3rem); border-top: 1px solid var(--c-night-line); }
-.commerce-home .connect h3 { font-size: 1.15rem; }
-.commerce-home .connect p { margin-top: .5rem; color: var(--c-night-muted); font-size: .9rem; line-height: 1.55; }
-.commerce-home .tech .brand-tile { border-color: rgb(255 255 255 / 12%); background: #fff; }
+/* Notas del motor: dónde vive y cómo crece, bajo el diagrama. */
+.commerce-home .engine-notes { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1px; overflow: hidden; margin-top: clamp(2.5rem, 5vw, 3.5rem); border: 1px solid var(--c-night-line); border-radius: var(--r-lg); background: var(--c-night-line); }
+.commerce-home .engine-notes li { display: flex; gap: .9rem; padding: 1.3rem 1.35rem; background: var(--c-night); }
+.commerce-home .g-ico { display: grid; flex: 0 0 auto; place-items: center; width: 2.2rem; height: 2.2rem; border: 1px solid var(--c-night-line); border-radius: var(--r-sm); background: var(--c-night-2); color: var(--c-night-accent); }
+.commerce-home .engine-notes h3 { margin-top: .1rem; font-size: .98rem; }
+.commerce-home .engine-notes p { margin-top: .3rem; color: var(--c-night-muted); font-size: .86rem; line-height: 1.55; }
 
 /* ── Método ──────────────────────────────────────────────────────────────── */
 .commerce-home .craft { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: center; gap: clamp(2.5rem, 6vw, 6rem); }
@@ -494,21 +431,16 @@
   .commerce-home .hx h1 { max-width: 18ch; }
   .commerce-home .hx-visual { max-width: 44rem; }
   .commerce-home .hx-log { right: 0; }
-  .commerce-home .journey { overflow-x: auto; margin-inline: calc(-1 * clamp(20px, 5vw, 48px)); padding: 0 clamp(20px, 5vw, 48px) 1rem; }
-  .commerce-home .journey-phases,
-  .commerce-home .journey-steps { min-width: 64rem; }
-  .commerce-home .tech-grid { grid-template-columns: 1fr; }
 }
 @media (max-width: 900px) {
+  .commerce-home .engine-notes,
+  .commerce-home .panel-links { grid-template-columns: 1fr; }
   .commerce-home .moment,
-  .commerce-home .panels,
   .commerce-home .craft,
-  .commerce-home .contact-grid,
-  .commerce-home .connect { grid-template-columns: 1fr; }
+  .commerce-home .contact-grid { grid-template-columns: 1fr; }
   .commerce-home .bento { grid-template-columns: 1fr 1fr; }
   .commerce-home .store-card.is-hero { grid-column: 1 / -1; grid-row: auto; }
   .commerce-home .store-card.is-hero .store-media { min-height: 18rem; }
-  .commerce-home .panels-stage { max-width: 40rem; }
   .commerce-home .craft-chip { right: 1rem; }
 }
 @media (max-width: 700px) {
@@ -529,13 +461,6 @@
   .commerce-home .hx-proof li + li { padding-left: .9rem; }
   .commerce-home .hx-proof strong { font-size: 1.5rem; }
   .commerce-home .hx-proof span { font-size: .76rem; }
-  .commerce-home .stack-inner { justify-content: flex-start; }
-  .commerce-home .journey { overflow: visible; margin-inline: 0; padding: 0; }
-  .commerce-home .journey-phases { display: none; }
-  .commerce-home .journey-steps { grid-template-columns: 1fr; min-width: 0; border-radius: var(--r-lg); }
-  .commerce-home .journey-steps li { display: grid; grid-template-columns: 2.4rem 1fr; column-gap: 1rem; padding: 1.1rem; }
-  .commerce-home .journey-node { grid-row: span 3; }
-  .commerce-home .journey-n { margin-top: .1rem; }
   .commerce-home .compare { overflow: visible; border: 0; background: transparent; box-shadow: none; }
   .commerce-home .compare table { min-width: 0; }
   .commerce-home .compare thead { display: none; }
@@ -555,12 +480,6 @@
   .commerce-home .bento { grid-template-columns: 1fr; }
   .commerce-home .store-media { min-height: 13rem; }
   .commerce-home .inline-cta .btn { flex: 1 1 100%; }
-  .commerce-home .panels-stage { aspect-ratio: 1.25; }
-  .commerce-home .shot { right: 8%; }
-  .commerce-home .shot-products { transform: translate(4%, -9%) scale(.95); }
-  .commerce-home .shot-emails { transform: translate(8%, -18%) scale(.9); }
-  .commerce-home .guarantees { grid-template-columns: 1fr; }
-  .commerce-home .code-card pre { padding: 1rem .9rem; font-size: .64rem; }
   .commerce-home .craft-media img { height: 280px; }
   .commerce-home .craft-chip { right: .75rem; bottom: .75rem; }
 }

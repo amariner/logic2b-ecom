@@ -43,6 +43,8 @@ const LEGACY_MODULES: Readonly<Record<string, ModuleName>> = {
   'src/lib/demo-commerce.ts': 'demo-support',
   'src/lib/demo-themes.ts': 'storefront',
   'src/lib/theme-catalog.ts': 'storefront',
+  'src/lib/theme-labels.ts': 'storefront',
+  'src/lib/theme-profiles.ts': 'storefront',
   'src/lib/emails.ts': 'notifications',
   'src/lib/format.ts': 'shared-kernel',
   'src/lib/nav.ts': 'storefront',
