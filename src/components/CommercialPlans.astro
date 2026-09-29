@@ -1,5 +1,11 @@
 ---
 import { plans, euro } from '../commercial/plans';
+interface Props {
+  /** Nivel del nombre de cada pack: 3 bajo un H2 de sección (portada, dossier), 2 cuando los packs cuelgan directamente del H1 (/precios). */
+  level?: 2 | 3;
+}
+const { level = 3 } = Astro.props;
+const Heading = level === 2 ? 'h2' : 'h3';
 const previews = { lite: 'bruma', kit: 'arce', custom: 'nera' } as const;
 ---
 <div class="commercial-plans">
@@ -8,7 +14,7 @@ const previews = { lite: 'bruma', kit: 'arce', custom: 'nera' } as const;
       <p class="plan-audience">{plan.audience}</p>
       {plan.featured && <p class="plan-badge">Recomendado</p>}
     </div>
-    <h3>{plan.name}</h3>
+    <Heading class="plan-name">{plan.name}</Heading>
     <p class="plan-description">{plan.description}</p>
     <p class="plan-price"><small>Desde</small> {euro(plan.setup)} €</p>
     <p class="plan-monthly">{plan.monthly ? `+ desde ${plan.monthly} €/mes de mantenimiento` : 'Puesta en marcha · sin panel de gestión'}</p>
@@ -27,7 +33,7 @@ const previews = { lite: 'bruma', kit: 'arce', custom: 'nera' } as const;
 .plan-top{display:flex;align-items:center;justify-content:space-between;gap:1rem;min-height:1.6rem}
 .plan-audience{color:var(--c-muted);font:500 .74rem/1.4 var(--font-code,monospace)}
 .plan-badge{padding:.2rem .55rem;border-radius:var(--r-sm,6px);background:var(--c-accent-soft,#e8f5ef);color:var(--c-accent-strong,#065f46);font-size:.7rem;font-weight:600}
-.commercial-plan h3{margin:.8rem 0 .5rem;font-size:1.35rem;letter-spacing:-.025em}
+.commercial-plan .plan-name{margin:.8rem 0 .5rem;font-size:1.35rem;line-height:1.2;letter-spacing:-.025em}
 .plan-description{min-height:3em;color:var(--c-body,#414b5c);font-size:.93rem;line-height:1.5}
 .plan-price{margin-top:1.4rem;color:var(--c-ink,#0c1424);font-size:2.6rem;font-weight:600;line-height:1;letter-spacing:-.045em;font-variant-numeric:tabular-nums}
 .plan-price small{margin-right:.25rem;color:var(--c-muted);font-size:.8rem;font-weight:400;letter-spacing:0;vertical-align:.95em}

@@ -28,6 +28,11 @@ export default defineConfig({
   }),
   vite: {
     plugins: [tailwindcss()],
+    // `.wrangler/` guarda la D1 local y los perfiles de Chrome de los scripts
+    // de auditoría y captura, que crean y borran miles de ficheros por pasada.
+    // Vigilados, cada evento reconstruía el manifiesto de rutas y `astro dev`
+    // caía con EMFILE en plena auditoría. `dist/` es salida de build.
+    server: { watch: { ignored: ['**/.wrangler/**', '**/dist/**'] } },
     build: {
       // La confirmación passwordless debe cumplir `script-src 'self'` sin
       // `unsafe-inline`. Astro embebe automáticamente los entrypoints < 4 KiB;
