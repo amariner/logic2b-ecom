@@ -16,6 +16,51 @@
 > 2. Actualizar el estado de la fase al terminar, con fecha y resumen de lo hecho.
 > 3. Anotar decisiones tomadas y pendientes en las secciones de abajo.
 
+## Asistente para recorrer las demos (2026-09-30)
+
+**Encargo de Andreu:** al pulsar «Ver demo», un asistente como el de
+`camp.logic2b.com` acompaña al visitante y explica cómo funciona cada pantalla.
+Rama `codex/demo-guided-assistant`. Implementado y verificado en local;
+pendiente de integración en `main` y publicación.
+
+- Tarjeta común de guía, con nueve pasos: tienda, ficha, cesta, compra
+  simulada, pedidos, detalle, envíos, emails y productos. La confirmación,
+  el login y los demás módulos del gestor tienen explicación contextual.
+  Se adapta a la ruta realmente visitada y a la colección activa.
+- Entrada explícita `?tour=1` desde cabecera y héroe; primera visita directa
+  acompañada. Se consume el parámetro para respetar el cierre al recargar.
+  Progreso de pantalla, elección de paso, zona señalada, minimización,
+  cierre y reinicio. La preferencia y la tienda viven solo en la pestaña.
+- Solo con `DEMO_MODE=true`, sin guía en portada ni propuestas privadas;
+  oculta dentro del iframe de las fichas. JavaScript propio, sin dependencias
+  nuevas, APIs ni servicios. Textos y estado en presentación de `demo-support`.
+- La guía explica la separación entre compra local y fixtures del panel.
+  Nunca rellena ni envía el login, compra, cobra, escribe stock o manda emails.
+  En móvil se recoge al señalar una zona y reserva espacio al final; teclado,
+  foco visible, tokens claros/oscuros y movimiento reducido.
+- Cesta y checkout de Forma pasan a SSR como las demás demos para evaluar
+  `DEMO_MODE` y renderizar la guía. Baseline de temas regenerada: +66 bytes
+  de fuente en Forma, sin cambios visuales al tema.
+
+**Verificación:** 212 suites / 1280 tests; tipos sin errores; baseline de temas
+actualizada y build. Navegador a 1440/375, `.dark`, movimiento reducido:
+entrada desde home, ficha real, compra simulada completa de Forma, confirmación,
+login manual, recorrido completo del gestor, cierre/recarga/cambio de tema,
+minimización, Escape, reinicio y exclusión de iframe. Presencia comprobada en
+35 colecciones × catálogo/cesta/checkout/confirmación. E2E general de aislamiento
+en verde después de aplicar **las migraciones existentes solo a D1 local**
+(estaba atrasada desde 0040; no se ha modificado esquema ni datos remotos).
+Auditoría de accesibilidad: ARCE 9/9, Forma 9/9 y gestor 30/30, sin errores
+ni avisos. Guía en `docs/DEMO_GUIADA.md`.
+
+Consejo:
+- Arquitecto ✓ capa de presentación aislada; sin dependencias ni motor nuevo.
+- Product ✓ explicaciones comerciales honestas, con fixtures independientes.
+- Frontend ✓ navegación y estados probados; la portada no carga el asistente.
+- UX/UI ✓ móvil, teclado, foco, oscuro y movimiento reducido verificados.
+- SEO ✓ títulos, robots y canonical conservados; sin guía en vistas embebidas.
+- Fullstack ✓ compra local, login y gestor recorridos; aislamiento en verde.
+
 ## Home con gráficos del motor, fichas de tema y capturas del panel (2026-09-30)
 
 **Encargo de Andreu:** otra pasada de diseño al home, con gráficos muy

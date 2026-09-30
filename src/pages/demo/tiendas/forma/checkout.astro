@@ -2,6 +2,8 @@
 import CheckoutPage from '../../../../components/store/CheckoutPage.astro';
 import { formaCollection } from '../../../../collections/forma';
 import '../../../../components/themes/forma/commerce.css';
+
+export const prerender = false;
 ---
 
 <CheckoutPage collection={formaCollection}>

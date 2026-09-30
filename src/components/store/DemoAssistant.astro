@@ -1,0 +1,109 @@
+---
+import { defaultCollection, resolveCollection, storePaths, type CollectionConfig } from '../../collections';
+import { getDemoProducts } from '../../composition/demo-catalog';
+import { demoJson } from '../../lib/demo-catalog';
+
+interface Props { collection?: CollectionConfig }
+const collection = Astro.props.collection ?? resolveCollection('arce') ?? defaultCollection();
+const paths = storePaths(collection.id);
+const product = getDemoProducts(collection.id)[0];
+const store = {
+  id: collection.id, name: collection.name, catalog: paths.catalog,
+  product: product ? paths.product(product.slug) : paths.catalog,
+  cart: paths.cart, checkout: paths.checkout, thanks: paths.thanks,
+};
+const enabled = Astro.locals.runtime?.env.DEMO_MODE === 'true';
+---
+
+{enabled && (
+  <div data-demo-assistant data-guide-store={demoJson(store)} data-guide-in-store={Boolean(Astro.props.collection)}>
+    <button type="button" class="demo-assistant__launcher" data-guide-launch hidden aria-controls="demo-assistant-card" aria-expanded="false">
+      <span aria-hidden="true">✦</span> <span data-guide-launch-label>Guía de la demo</span>
+    </button>
+    <aside id="demo-assistant-card" class="demo-assistant__card" data-guide-card hidden aria-labelledby="demo-assistant-title">
+      <header class="demo-assistant__header">
+        <span class="demo-assistant__avatar" aria-hidden="true">✦</span>
+        <div><strong>Tu asistente de demo</strong><span>Logic2B Ecommerce</span></div>
+        <button type="button" data-guide-minimize aria-label="Minimizar asistente" title="Minimizar">−</button>
+        <button type="button" data-guide-close aria-label="Cerrar asistente" title="Cerrar">×</button>
+      </header>
+      <div class="demo-assistant__body">
+        <p class="demo-assistant__step" data-guide-progress></p>
+        <div class="demo-assistant__copy" aria-live="polite" aria-atomic="true">
+          <h2 id="demo-assistant-title" data-guide-title></h2>
+          <p data-guide-description></p>
+        </div>
+        <p class="demo-assistant__task" data-guide-task></p>
+        <div class="demo-assistant__actions">
+          <button type="button" data-guide-show>Ver en pantalla</button>
+          <a data-guide-next href={paths.product(product?.slug ?? '')}>Siguiente →</a>
+          <button type="button" data-guide-finish hidden>Terminar recorrido</button>
+        </div>
+        <details class="demo-assistant__steps">
+          <summary>Elegir un paso</summary>
+          <nav aria-label="Pasos de la guía" data-guide-steps></nav>
+        </details>
+        <footer><span>Datos ficticios · sin cobros ni envíos</span><button type="button" data-guide-restart>Reiniciar</button></footer>
+      </div>
+    </aside>
+  </div>
+)}
+
+<script>
+  import { initDemoAssistant } from '../../modules/demo-support/presentation/guide/client';
+  initDemoAssistant();
+</script>
+
+<style is:global>
+  [data-demo-assistant] {
+    font-family: var(--font-sans);
+    color: var(--color-foreground);
+    --guide-bottom: max(1rem, env(safe-area-inset-bottom));
+  }
+  [data-demo-assistant] [hidden] { display: none !important; }
+  .demo-assistant__launcher, .demo-assistant__card {
+    position: fixed; z-index: 100; right: max(1rem, env(safe-area-inset-right)); bottom: var(--guide-bottom);
+    border: 1px solid var(--color-border); border-radius: var(--radius-xl);
+    background: var(--color-card); color: var(--color-foreground);
+    box-shadow: 0 .75rem 3rem color-mix(in srgb, var(--color-foreground) 16%, transparent);
+  }
+  .demo-assistant__launcher { display: flex; align-items: center; gap: .65rem; min-height: 48px; padding: .65rem 1rem; font-size: .8rem; font-weight: 650; }
+  .demo-assistant__launcher > span:first-child { font-size: 1.3rem; }
+  .demo-assistant__card { width: min(380px, calc(100vw - 2rem)); max-height: min(620px, calc(100dvh - 2rem)); overflow: auto; overscroll-behavior: contain; }
+  .demo-assistant__header { display: flex; align-items: center; gap: .6rem; padding: .8rem 1rem; border-bottom: 1px solid var(--color-border); }
+  .demo-assistant__avatar { display: grid; place-items: center; width: 36px; height: 36px; flex-shrink: 0; border-radius: var(--radius-lg); background: var(--color-foreground); color: var(--color-background); font-size: 1.4rem; }
+  .demo-assistant__header > div { flex: 1; }
+  .demo-assistant__header strong { display: block; font-size: .8rem; }
+  .demo-assistant__header div span { display: block; margin-top: .15rem; font-size: .65rem; color: var(--color-muted-foreground); }
+  .demo-assistant__header button { min-width: 44px; min-height: 44px; border-radius: var(--radius-lg); font-size: 1.35rem; }
+  .demo-assistant__header button:hover { background: var(--color-muted); }
+  .demo-assistant__body { padding: 1rem; }
+  .demo-assistant__step { color: var(--color-muted-foreground); font-size: .65rem; text-transform: uppercase; letter-spacing: .08em; }
+  .demo-assistant__copy h2 { margin: .5rem 0 .65rem; font-family: var(--font-sans); font-size: 1.15rem; font-weight: 650; line-height: 1.35; letter-spacing: -.025em; }
+  .demo-assistant__copy p, .demo-assistant__task { font-size: .8rem; line-height: 1.65; }
+  .demo-assistant__copy p { color: var(--color-muted-foreground); }
+  .demo-assistant__task { margin-top: .85rem; border-radius: var(--radius-lg); background: var(--color-muted); padding: .75rem; }
+  .demo-assistant__actions { display: flex; gap: .5rem; margin-top: 1rem; }
+  .demo-assistant__actions > * { display: inline-flex; min-height: 44px; align-items: center; justify-content: center; flex: 1; border: 1px solid var(--color-border); border-radius: var(--radius-lg); padding: .5rem; font-size: .75rem; font-weight: 600; text-align: center; }
+  .demo-assistant__actions > a, .demo-assistant__actions > [data-guide-finish] { background: var(--color-foreground); color: var(--color-background); border-color: var(--color-foreground); }
+  .demo-assistant__steps { margin-top: .65rem; font-size: .75rem; }
+  .demo-assistant__steps summary { display: list-item; min-height: 44px; align-content: center; cursor: pointer; }
+  .demo-assistant__steps nav { display: grid; grid-template-columns: 1fr 1fr; gap: .25rem; padding-bottom: .5rem; }
+  .demo-assistant__steps:not([open]) nav { display: none; }
+  .demo-assistant__steps a { display: flex; align-items: center; min-height: 44px; padding: .5rem; border-radius: var(--radius-lg); }
+  .demo-assistant__steps [aria-current="step"] { background: var(--color-muted); font-weight: 700; }
+  .demo-assistant__body footer { display: flex; align-items: center; justify-content: space-between; gap: .5rem; border-top: 1px solid var(--color-border); color: var(--color-muted-foreground); font-size: .6rem; }
+  .demo-assistant__body footer button { min-height: 44px; padding: .5rem; font-size: .7rem; text-decoration: underline; }
+  [data-demo-assistant] :is(button, a, summary):focus-visible { outline: 2px solid var(--color-foreground); outline-offset: 3px; }
+  .demo-guide-highlight { outline: 3px solid var(--color-foreground) !important; outline-offset: 5px; scroll-margin-block: 2rem; }
+  html.demo-guide-visible .whatsapp-contact { visibility: hidden; }
+  html.demo-guide-available { --whatsapp-contact-lift: 64px; }
+  /* La guía ocupa su propio espacio en móvil y no tapa la compra ni el login. */
+  @media (max-width: 639px) {
+    html.demo-guide-available body { padding-bottom: var(--demo-guide-height, 80px); }
+    .demo-assistant__card { width: calc(100vw - 1rem); right: .5rem; bottom: max(.5rem, env(safe-area-inset-bottom)); max-height: min(56dvh, 500px); }
+    .demo-assistant__header { padding: .4rem .75rem; }
+    .demo-assistant__body { padding: .75rem; }
+    .demo-assistant__copy h2 { font-size: 1rem; }
+  }
+</style>

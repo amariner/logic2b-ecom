@@ -2,6 +2,8 @@
 import CartPage from '../../../../components/store/CartPage.astro';
 import { formaCollection } from '../../../../collections/forma';
 import '../../../../components/themes/forma/commerce.css';
+
+export const prerender = false;
 ---
 
 <CartPage collection={formaCollection}>

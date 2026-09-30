@@ -5,6 +5,7 @@
  * En producción el panel va además tras Cloudflare Access (ver docs/PRODUCCION.md).
  */
 import Base from '../../../layouts/Base.astro';
+import DemoAssistant from '../../../components/store/DemoAssistant.astro';
 import { shopConfig } from '../../../../shop.config';
 import { MAIN_DEMO_HREF } from '../../../lib/nav';
 import AdminIcon from '../../../components/admin/AdminIcon.astro';
@@ -55,6 +56,7 @@ if (Astro.request.method === 'POST') {
 ---
 
 <Base title={`Acceso al panel · ${shopConfig.backofficeName}`} noindex>
+  <DemoAssistant />
   <div class="admin-shell grid min-h-screen bg-[#f7f7f8] lg:grid-cols-[minmax(0,1fr)_minmax(28rem,38rem)]">
     <section class="hidden bg-foreground p-12 text-background lg:flex lg:flex-col lg:justify-between xl:p-16">
       <a href="/" class="font-display text-xl">Logic2B <span class="text-background/60">Gestión</span></a>

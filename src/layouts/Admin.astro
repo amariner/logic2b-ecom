@@ -4,6 +4,7 @@
  * es "esto se aprende en 5 minutos". En producción va tras Cloudflare Access.
  */
 import Base from './Base.astro';
+import DemoAssistant from '../components/store/DemoAssistant.astro';
 import { shopConfig } from '../../shop.config';
 import { MAIN_DEMO_HREF } from '../lib/nav';
 import { runtimePlatform } from '../composition/runtime-platform';
@@ -98,11 +99,13 @@ const iconFor: Record<string, AdminIconName> = {
 
     <div class="lg:pl-72">
       <div class="hidden border-b border-sky-200 bg-sky-50 px-6 py-2 text-center text-xs font-medium text-sky-950 lg:block">Panel ficticio de solo lectura (contraseña «demo»). Sus datos de ejemplo son independientes de los escaparates.</div>
-      <main class="mx-auto w-full max-w-[100rem] px-4 py-7 sm:px-7 sm:py-9 xl:px-10">
+      <main data-guide-surface class="mx-auto w-full max-w-[100rem] px-4 py-7 sm:px-7 sm:py-9 xl:px-10">
         <slot />
       </main>
     </div>
   </div>
+
+  <DemoAssistant />
 
   {shopConfig.analytics.cfBeaconToken && (
     <script
