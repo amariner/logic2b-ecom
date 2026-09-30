@@ -20,8 +20,9 @@
 
 **Encargo de Andreu:** al pulsar «Ver demo», un asistente como el de
 `camp.logic2b.com` acompaña al visitante y explica cómo funciona cada pantalla.
-Rama `codex/demo-guided-assistant`. Implementado y verificado en local;
-pendiente de integración en `main` y publicación.
+Rama `codex/demo-guided-assistant`. Integrado por fast-forward en `main` y
+subidas ambas ramas a GitHub (`3c31f91`). **Publicado** en `ecom.logic2b.com`:
+Worker `ecom-logic2b`, versión `491d2780-cd8e-4576-ad32-7a475f63c8fc`.
 
 - Tarjeta común de guía, con nueve pasos: tienda, ficha, cesta, compra
   simulada, pedidos, detalle, envíos, emails y productos. La confirmación,
@@ -53,12 +54,25 @@ en verde después de aplicar **las migraciones existentes solo a D1 local**
 Auditoría de accesibilidad: ARCE 9/9, Forma 9/9 y gestor 30/30, sin errores
 ni avisos. Guía en `docs/DEMO_GUIADA.md`.
 
+**Humo en producción:** recorrido completo en navegador desde «Ver demo»,
+ficha y compra local de Forma con datos ficticios, confirmación, login manual,
+pedidos/detalle/envíos/emails/productos, cierre y recarga, cambio de tema,
+Escape, reinicio y fin del recorrido. Verificados también 375 px, oscuro,
+movimiento reducido, ausencia del asistente en portada y exclusión del iframe
+de `/temas/arce`. Cesta de Forma y login sirven el componente y conservan
+`noindex`. Despliegue de código y assets; sin migraciones remotas.
+Lighthouse 12 de la portada en producción (mediana de tres pasadas):
+escritorio 100/100/100/100, LCP 0,4 s; móvil 98/100/100/100, LCP 2,0 s;
+CLS 0 y TBT 0 ms en ambos. El script exige 100 en todo y sale con código 1
+por el 98 móvil; el objetivo 100 ya pendiente de la portada sigue en el
+ROADMAP, sin bloquear esta entrega (la auditoría anterior era 95 móvil).
+
 Consejo:
 - Arquitecto ✓ capa de presentación aislada; sin dependencias ni motor nuevo.
 - Product ✓ explicaciones comerciales honestas, con fixtures independientes.
 - Frontend ✓ navegación y estados probados; la portada no carga el asistente.
 - UX/UI ✓ móvil, teclado, foco, oscuro y movimiento reducido verificados.
-- SEO ✓ títulos, robots y canonical conservados; sin guía en vistas embebidas.
+- SEO ⚠ home móvil 98/100; objetivo 100 pendiente en ROADMAP. Robots y canonical conservados.
 - Fullstack ✓ compra local, login y gestor recorridos; aislamiento en verde.
 
 ## Home con gráficos del motor, fichas de tema y capturas del panel (2026-09-30)
