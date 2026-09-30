@@ -41,11 +41,17 @@ const rows: Row[] = [
 const resolve = (slug: AnyBrandSlug) => {
   if (slug in brands) {
     const icon = brands[slug as BrandSlug];
-    return { kind: 'svg' as const, title: icon.title === 'MasterCard' ? 'Mastercard' : icon.title, hex: icon.hex, path: icon.path };
+    return { kind: 'svg' as const, title: icon.title === 'MasterCard' ? 'Mastercard' : icon.title, hex: icon.hex };
   }
   const raster = rasterBrands[slug as RasterBrandSlug];
   return { kind: 'raster' as const, title: raster.title, file: raster.file };
 };
+
+/* Cada trazado viaja una sola vez: los dos carriles y su copia de bucle lo
+   reutilizan con <use> (antes eran ~140 KB de HTML repetido). */
+const symbols = [...new Set(rows.flatMap((row) => row.groups.flatMap((group) => group.items)))]
+  .filter((slug) => slug in brands)
+  .map((slug) => ({ slug, path: brands[slug as BrandSlug].path }));
 
 const total = rows.reduce((sum, row) => sum + row.groups.reduce((n, group) => n + group.items.length, 0), 0);
 /* Velocidad constante: la duración crece con el número de elementos. */
@@ -53,6 +59,9 @@ const duration = (row: Row) => row.groups.reduce((n, group) => n + group.items.l
 ---
 
 <section class="pm" aria-labelledby="pm-title">
+  <svg class="pm-sprite" width="0" height="0" aria-hidden="true" focusable="false">
+    <defs>{symbols.map((symbol) => <symbol id={`pm-${symbol.slug}`} viewBox="0 0 24 24"><path d={symbol.path} /></symbol>)}</defs>
+  </svg>
   <div class="page-shell pm-head">
     <h2 id="pm-title">Conecta con las herramientas que ya usas</h2>
     <p><span class="pm-core-dot" aria-hidden="true"></span>Núcleo incluido · {total - 3} conexiones más, según el proyecto</p>
@@ -70,7 +79,7 @@ const duration = (row: Row) => row.groups.reduce((n, group) => n + group.items.l
                   return (
                     <li class:list={['pm-item', group.core && 'is-core']} style={brand.kind === 'svg' ? `--hex:${brand.hex}` : undefined}>
                       {brand.kind === 'svg' ? (
-                        <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true"><path d={brand.path} /></svg>
+                        <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true"><use href={`#pm-${slug}`} /></svg>
                       ) : (
                         <img src={brand.file} alt="" width="20" height="20" loading="lazy" decoding="async" />
                       )}
@@ -88,6 +97,7 @@ const duration = (row: Row) => row.groups.reduce((n, group) => n + group.items.l
 </section>
 
 <style>
+  .pm-sprite { position: absolute; width: 0; height: 0; overflow: hidden; }
   .pm {
     padding-block: clamp(1.75rem, 3vw, 2.4rem) clamp(1.5rem, 2.6vw, 2rem);
     border-bottom: 1px solid var(--c-line);
