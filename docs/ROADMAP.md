@@ -82,14 +82,23 @@ backend n/a · product ✓ precios y promesas intactos, el marquee distingue nú
 de conexiones por proyecto · frontend ✓ JS nuevo mínimo (observador del
 diagrama y 1 KB gz en la ficha) · UX/UI ✓ 26 superficies comerciales sin
 errores ni avisos a 1440/375 y con movimiento reducido · SEO ⚠ 34 páginas
-indexables nuevas con título y canonical propios; falta reauditar móvil en
-producción · fullstack ✓ E2E en verde.
+indexables nuevas con título y canonical propios; home móvil 95 (−1) por la
+hoja global compartida, bloque propio pendiente · fullstack ✓ E2E en verde.
 
 **Verificación:** `astro check` 0 errores; 211 suites / 1275 tests; baseline
 de temas correcta; build con sitemap de 40 URL; E2E completo contra
-`wrangler dev`; auditor a11y 26/26. Lighthouse local (1 pasada, sin
-compresión): escritorio 100/100/100/100 en home, arquitectura y ficha; móvil
-97 / 99 / 99, CLS 0.
+`wrangler dev`; auditor a11y 26/26. **Publicado** por fast-forward de `main`
+(`dadca7c` + `f459bed`), rama subida a GitHub y Worker `ecom-logic2b` versión
+`710af572-113f-47de-a384-266794a05bf8`, sin migraciones. Humo en producción:
+200 en comerciales, fichas y tiendas, 404 correcto, sitemap de 40 URL, iframe
+de la ficha activo con la primera interacción. El marquee repetía los trazados
+SVG en cada copia (251 KB de HTML): con un sprite `<symbol>`/`<use>` la home
+queda en 203 KB (51 KB gzip). **Lighthouse 12 en producción (mediana de 3):**
+escritorio 100/100/100/100 en las siete indexables; móvil 100 en precios y
+agencias, 99 en arquitectura, ficha y dossier, 98 en temas y **95 en la home**
+(96 el 29-09; LCP 2,9 s), CLS 0 en todas. La causa de fondo sigue siendo la hoja
+global compartida (95 KB, 17 KB gzip) ya anotada el 29-09. Tabla en
+`docs/LIGHTHOUSE.md`.
 
 ## Lenguaje «plataforma», mantenimiento de temas y panel (2026-09-29)
 
