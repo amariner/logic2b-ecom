@@ -20,7 +20,9 @@
 
 **Corrección solicitada por Andreu:** usar TRAZA como demo principal, añadir
 un producto durante el recorrido y continuar al backend sin introducir datos.
-Rama `codex/traza-guided-flow`.
+Rama `codex/traza-guided-flow`, integrada por fast-forward en `main` y subidas
+ambas a GitHub (`03a1f7c`). **Publicado** en `ecom.logic2b.com`: Worker
+`ecom-logic2b`, versión `7e288705-0e18-4d2a-9ac3-d1b5598904cb`.
 
 **Causa:** el avance de la guía anterior solo navegaba a la cesta; si estaba
 vacía, checkout volvía a enviarla allí. Al saltar al gestor, el enlace apuntaba
@@ -55,13 +57,21 @@ Accesibilidad: Traza 8/8 y gestor 30/30 sin errores ni avisos, auditados
 después del build con los assets estables. Revisión visual adicional de cesta
 y avance sin datos a 375 px. Manual en `docs/DEMO_GUIADA.md`.
 
+**Portada en producción:** Lighthouse 12, mediana de tres pasadas por tamaño:
+escritorio 100/100/100/100; móvil 99/100/100/100, LCP 2,1 s, CLS 0 y TBT 0.
+El objetivo móvil 100 continúa pendiente en el carril SEO/rendimiento; no se
+declara alcanzado. Compra y acceso directo verificados además en navegador
+contra producción, sin efectos operativos. `BASE_URL=https://ecom.logic2b.com
+pnpm test:e2e:guide` pasa el recorrido completo a 1440/375, incluyendo la
+confirmación sin datos, cookie de sesión y todas las pantallas del gestor.
+
 Consejo:
 - Arquitecto ✓ sin dependencias, migraciones ni bifurcación del motor.
 - Backend ✓ acceso demo explícito; escrituras bloqueadas; modo real sin cookie.
 - Product ✓ recorrido ficticio completo; panel con ejemplos independientes.
 - Frontend ✓ regresión reproducible sin rellenar campos ni saltos manuales.
 - UX/UI ✓ controles visibles pulsados a 1440/375; foco y espacio móvil.
-- SEO ✓ robots y canonical conservados; sin JS nuevo en la portada.
+- SEO ⚠ robots/canonical conservados; móvil 99, objetivo 100 pendiente aquí.
 - Fullstack ✓ cesta, simulación, confirmación y panel conectados por la guía.
 
 ## Asistente para recorrer las demos (2026-09-30)
