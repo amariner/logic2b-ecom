@@ -6,6 +6,8 @@
  * catálogo distinto al de D1. Este banner hace explícita esa frontera y lleva
  * al observador hacia la demo transaccional y su backoffice compartido.
  */
+import { demoAdminEntryHref } from '../../shared-kernel/demo-guide-routes';
+
 interface Props {
   themeName: string;
 }
@@ -21,7 +23,7 @@ const { themeName } = Astro.props;
     </p>
 
     <nav aria-label="Recorrido de la demo" class="flex shrink-0 flex-wrap items-center gap-x-4 gap-y-1 font-medium">
-      <a href="/demo/admin" class="inline-flex min-h-6 items-center underline decoration-white/35 underline-offset-2 hover:decoration-white">Gestor tienda</a>
+      <a href={demoAdminEntryHref()} class="inline-flex min-h-6 items-center underline decoration-white/35 underline-offset-2 hover:decoration-white">Gestor tienda</a>
     </nav>
   </div>
 </aside>

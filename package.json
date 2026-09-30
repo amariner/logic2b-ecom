@@ -14,6 +14,7 @@
     "check": "pnpm typecheck && pnpm test && pnpm audit:themes:check && pnpm build",
     "test": "vitest run",
     "test:e2e": "node scripts/e2e.mjs",
+    "test:e2e:guide": "node scripts/test-demo-guide.mjs",
     "test:e2e:proposal": "node scripts/e2e.mjs --only-proposal",
     "audit:customer-account": "node scripts/audit-customer-account-local.mjs",
     "audit:lh": "node scripts/lighthouse.mjs",

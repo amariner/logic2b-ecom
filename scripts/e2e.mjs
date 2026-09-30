@@ -109,7 +109,7 @@ if (ONLY_PROPOSAL) {
 // ── 1. Escaparate principal: HTML y simulación local ─────────────────
 const catalog = await fetch(`${BASE}/demo/tiendas/arce`);
 const catalogHtml = await catalog.text();
-check('ARCE es la demo principal disponible', catalog.ok && catalogHtml.includes('Butaca Alba'));
+check('tema ARCE disponible', catalog.ok && catalogHtml.includes('Butaca Alba'));
 check('ARCE enlaza su ficha local', catalogHtml.includes('/demo/tiendas/arce/arc-silla-alba'));
 checkWhatsappContact('catálogo ARCE', catalogHtml, '/demo/tiendas/arce');
 
@@ -203,13 +203,20 @@ const login = await fetch(`${BASE}/demo/admin/login`, {
 const cookie = String(login.headers.get('set-cookie') ?? '').split(';')[0];
 check('login demo devuelve cookie de sesión', login.status === 303 && cookie.startsWith('admin_session='));
 
+const guidedLogin = await fetch(`${BASE}/demo/admin/login?tour=1&next=%2Fdemo%2Fadmin%2Fenvios`, { redirect: 'manual' });
+const guidedCookie = String(guidedLogin.headers.get('set-cookie') ?? '').split(';')[0];
+check('guía abre el gestor sin introducir contraseña', guidedLogin.status === 303 && guidedCookie.startsWith('admin_session=') && guidedLogin.headers.get('location') === '/demo/admin/envios');
+check('acceso guiado no permite caché compartida', guidedLogin.headers.get('cache-control')?.includes('no-store'));
+const guidedWrite = await fetch(`${BASE}/api/admin/products/4`, { method: 'PATCH', headers: { cookie: guidedCookie, 'content-type': 'application/json', ...ORIGIN }, body: JSON.stringify({ price_cents: 1 }) });
+check('sesión guiada sigue bloqueando escrituras', guidedWrite.status === 403);
+
 const adminResponse = await fetch(adminUrl('/demo/admin'), { headers: { cookie } });
 const adminHtml = await adminResponse.text();
 checkWhatsappContact('panel', adminHtml, '/demo/admin');
 check('panel privado no permite caché compartida', adminResponse.headers.get('cache-control')?.includes('no-store'));
 check('panel usa la identidad Logic2B Gestión', adminHtml.includes('Logic2B Gestión'));
 check('panel declara fixtures independientes', adminHtml.includes('independientes de los escaparates'));
-check('panel vuelve a ARCE', adminHtml.includes('href="/demo/tiendas/arce"'));
+check('panel vuelve a TRAZA', adminHtml.includes('href="/demo/tiendas/traza"'));
 check(
   'índice de pedidos expone filtros URL y orden estable R3.1',
   adminHtml.includes('name="orden"')

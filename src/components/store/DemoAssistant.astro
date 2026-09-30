@@ -2,11 +2,14 @@
 import { defaultCollection, resolveCollection, storePaths, type CollectionConfig } from '../../collections';
 import { getDemoProducts } from '../../composition/demo-catalog';
 import { demoJson } from '../../lib/demo-catalog';
+import { MAIN_DEMO_ID } from '../../lib/nav';
 
 interface Props { collection?: CollectionConfig }
-const collection = Astro.props.collection ?? resolveCollection('arce') ?? defaultCollection();
+const collection = Astro.props.collection ?? resolveCollection(MAIN_DEMO_ID) ?? defaultCollection();
 const paths = storePaths(collection.id);
-const product = getDemoProducts(collection.id)[0];
+const products = getDemoProducts(collection.id);
+const product = products.find((item) => paths.product(item.slug) === Astro.url.pathname && item.stock > 0)
+  ?? products.find((item) => item.stock > 0);
 const store = {
   id: collection.id, name: collection.name, catalog: paths.catalog,
   product: product ? paths.product(product.slug) : paths.catalog,
@@ -16,7 +19,7 @@ const enabled = Astro.locals.runtime?.env.DEMO_MODE === 'true';
 ---
 
 {enabled && (
-  <div data-demo-assistant data-guide-store={demoJson(store)} data-guide-in-store={Boolean(Astro.props.collection)}>
+  <div data-demo-assistant data-guide-store={demoJson(store)} data-guide-product={product?.slug} data-guide-in-store={Boolean(Astro.props.collection)}>
     <button type="button" class="demo-assistant__launcher" data-guide-launch hidden aria-controls="demo-assistant-card" aria-expanded="false">
       <span aria-hidden="true">✦</span> <span data-guide-launch-label>Guía de la demo</span>
     </button>
@@ -34,11 +37,13 @@ const enabled = Astro.locals.runtime?.env.DEMO_MODE === 'true';
           <p data-guide-description></p>
         </div>
         <p class="demo-assistant__task" data-guide-task></p>
+        <p class="demo-assistant__task" data-guide-feedback role="status" hidden></p>
         <div class="demo-assistant__actions">
           <button type="button" data-guide-show>Ver en pantalla</button>
           <a data-guide-next href={paths.product(product?.slug ?? '')}>Siguiente →</a>
           <button type="button" data-guide-finish hidden>Terminar recorrido</button>
         </div>
+        <a class="demo-assistant__skip" data-guide-admin href="/demo/admin/login?tour=1">Ir directamente al gestor →</a>
         <details class="demo-assistant__steps">
           <summary>Elegir un paso</summary>
           <nav aria-label="Pasos de la guía" data-guide-steps></nav>
@@ -86,6 +91,7 @@ const enabled = Astro.locals.runtime?.env.DEMO_MODE === 'true';
   .demo-assistant__actions { display: flex; gap: .5rem; margin-top: 1rem; }
   .demo-assistant__actions > * { display: inline-flex; min-height: 44px; align-items: center; justify-content: center; flex: 1; border: 1px solid var(--color-border); border-radius: var(--radius-lg); padding: .5rem; font-size: .75rem; font-weight: 600; text-align: center; }
   .demo-assistant__actions > a, .demo-assistant__actions > [data-guide-finish] { background: var(--color-foreground); color: var(--color-background); border-color: var(--color-foreground); }
+  .demo-assistant__skip { display: inline-flex; align-items: center; min-height: 44px; font-size: .75rem; text-decoration: underline; text-underline-offset: 3px; }
   .demo-assistant__steps { margin-top: .65rem; font-size: .75rem; }
   .demo-assistant__steps summary { display: list-item; min-height: 44px; align-content: center; cursor: pointer; }
   .demo-assistant__steps nav { display: grid; grid-template-columns: 1fr 1fr; gap: .25rem; padding-bottom: .5rem; }

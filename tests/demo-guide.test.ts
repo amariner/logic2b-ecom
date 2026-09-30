@@ -3,6 +3,7 @@ import { collections, storePaths } from '../src/collections';
 import { getDemoProducts } from '../src/composition/demo-catalog';
 import { readGuideState, type GuideStore } from '../src/modules/demo-support/presentation/guide/state';
 import { guideStepIndex, guideSteps } from '../src/modules/demo-support/presentation/guide/steps';
+import { guideCartWithSample } from '../src/modules/demo-support/presentation/guide/cart';
 
 const arce: GuideStore = {
   id: 'arce', name: 'ARCE', catalog: '/demo/tiendas/arce', product: '/demo/tiendas/arce/arc-butaca-alba',
@@ -10,6 +11,16 @@ const arce: GuideStore = {
 };
 
 describe('public demo assistant', () => {
+  it('prepares one sample without increasing its quantity on back/forward or replacing existing items', () => {
+    const sample = 'tra-mesa-rasante';
+    const other = [{ slug: 'tra-jarron-caliza', qty: 2 }];
+    const prepared = guideCartWithSample(other, sample);
+    expect(prepared).toEqual([...other, { slug: sample, qty: 1 }]);
+    expect(other).toEqual([{ slug: 'tra-jarron-caliza', qty: 2 }]);
+    expect(guideCartWithSample(prepared, sample)).toEqual(prepared);
+    expect(guideCartWithSample([{ slug: sample, qty: 3 }], sample)).toEqual([{ slug: sample, qty: 3 }]);
+    expect(guideCartWithSample([], sample)).toEqual([{ slug: sample, qty: 1 }]);
+  });
   it('recovers from missing or damaged session storage', () => {
     for (const raw of [null, '{', 'null', '4', '{}']) {
       expect(readGuideState(raw, arce)).toEqual({ status: 'active', store: arce });
@@ -43,17 +54,17 @@ describe('public demo assistant', () => {
       expect(guideStepIndex(paths.product(product!.slug), store)).toBe(1);
       expect(guideStepIndex(paths.cart, store)).toBe(2);
       expect(guideStepIndex(paths.checkout, store)).toBe(3);
-      expect(guideStepIndex(paths.thanks, store)).toBe(3);
+      expect(guideStepIndex(paths.thanks, store)).toBe(4);
     }
   });
   it('follows free navigation through the manager without pretending to create orders', () => {
-    expect(guideStepIndex('/demo/admin/login', arce)).toBe(4);
-    expect(guideStepIndex('/demo/admin', arce)).toBe(4);
-    expect(guideStepIndex('/demo/admin/pedidos/DEMO-1001', arce)).toBe(5);
-    expect(guideStepIndex('/demo/admin/envios', arce)).toBe(6);
-    expect(guideStepIndex('/demo/admin/emails', arce)).toBe(7);
-    expect(guideStepIndex('/demo/admin/productos', arce)).toBe(8);
-    expect(guideStepIndex('/demo/admin/devoluciones', arce)).toBe(4);
-    expect(guideSteps(arce)[4]!.description).toContain('independientes');
+    expect(guideStepIndex('/demo/admin/login', arce)).toBe(5);
+    expect(guideStepIndex('/demo/admin', arce)).toBe(5);
+    expect(guideStepIndex('/demo/admin/pedidos/DEMO-1001', arce)).toBe(6);
+    expect(guideStepIndex('/demo/admin/envios', arce)).toBe(7);
+    expect(guideStepIndex('/demo/admin/emails', arce)).toBe(8);
+    expect(guideStepIndex('/demo/admin/productos', arce)).toBe(9);
+    expect(guideStepIndex('/demo/admin/devoluciones', arce)).toBe(5);
+    expect(guideSteps(arce)[5]!.description).toContain('independientes');
   });
 });

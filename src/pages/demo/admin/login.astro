@@ -7,7 +7,8 @@
 import Base from '../../../layouts/Base.astro';
 import DemoAssistant from '../../../components/store/DemoAssistant.astro';
 import { shopConfig } from '../../../../shop.config';
-import { MAIN_DEMO_HREF } from '../../../lib/nav';
+import { MAIN_DEMO_HREF, MAIN_DEMO_NAME } from '../../../lib/nav';
+import { demoAdminNextPath } from '../../../shared-kernel/demo-guide-routes';
 import AdminIcon from '../../../components/admin/AdminIcon.astro';
 import {
   ADMIN_COOKIE_NAME,
@@ -15,6 +16,7 @@ import {
   SESSION_TTL_MS,
   createSessionToken,
   resolveCookieSecret,
+  isGuidedDemoEntry,
 } from '../../../lib/admin-auth';
 
 export const prerender = false;
@@ -24,8 +26,7 @@ const demoMode = env.DEMO_MODE === 'true';
 const secret = resolveCookieSecret(env);
 
 const rawNext = Astro.url.searchParams.get('next') ?? '';
-const nextPath =
-  rawNext.startsWith('/demo/admin') && !rawNext.startsWith('/demo/admin/login') ? rawNext : '/demo/admin';
+const nextPath = demoAdminNextPath(rawNext);
 
 const loggedOut = Astro.url.searchParams.has('salir');
 if (loggedOut) {
@@ -34,6 +35,16 @@ if (loggedOut) {
 
 // El middleware redirige aquí con `limited=1` cuando el rate limit del login corta el paso.
 const rateLimited = Astro.url.searchParams.has('limited');
+
+// La guía entra al panel ficticio sin pedir contraseña. La cookie sigue
+// firmada y todas las escrituras siguen bloqueadas por DEMO_MODE en servidor.
+if (secret && isGuidedDemoEntry(env.DEMO_MODE, Astro.request.method, Astro.url.searchParams.get('tour'), loggedOut, rateLimited)) {
+  Astro.cookies.set(ADMIN_COOKIE_NAME, await createSessionToken(secret), {
+    path: '/', httpOnly: true, sameSite: 'lax', secure: Astro.url.protocol === 'https:',
+    maxAge: SESSION_TTL_MS / 1000,
+  });
+  return Astro.redirect(nextPath, 303);
+}
 
 let error: string | null = null;
 if (Astro.request.method === 'POST') {
@@ -108,7 +119,7 @@ if (Astro.request.method === 'POST') {
           >Entrar</button>
         </form>
         </div>
-        <p class="mt-5 text-center text-sm text-muted-foreground"><a href={MAIN_DEMO_HREF} class="inline-flex min-h-11 items-center gap-2 font-medium hover:text-foreground"><AdminIcon name="arrow-left" class="size-4"/>Volver a ARCE</a></p>
+        <p class="mt-5 text-center text-sm text-muted-foreground"><a href={MAIN_DEMO_HREF} class="inline-flex min-h-11 items-center gap-2 font-medium hover:text-foreground"><AdminIcon name="arrow-left" class="size-4"/>Volver a {MAIN_DEMO_NAME}</a></p>
       </main>
     </div>
   </div>

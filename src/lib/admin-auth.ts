@@ -14,6 +14,11 @@ export const SESSION_TTL_MS = 24 * 60 * 60 * 1000; // 24 h
 /** Contraseña del panel en modo demo. Se muestra en el login: la demo enseña el flujo, no lo esconde. */
 export const DEMO_ADMIN_PASSWORD = 'demo';
 
+/** Acceso solicitado por la guía, reservado al panel público de fixtures. */
+export function isGuidedDemoEntry(mode: string, method: string, tour: string | null, loggedOut: boolean, limited: boolean): boolean {
+  return mode === 'true' && method === 'GET' && tour === '1' && !loggedOut && !limited;
+}
+
 const encoder = new TextEncoder();
 
 async function hmacKey(secret: string): Promise<CryptoKey> {

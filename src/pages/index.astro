@@ -67,7 +67,7 @@ const compareRows: { label: string; cells: [string, string, string] }[] = [
 ];
 
 const moments: { label: string; icon: IconName; title: string; points: string[]; img: string; href: string; link: string; crop: boolean; url: string }[] = [
-  { label: 'Tienda', icon: 'store', title: 'Una tienda que invita a quedarse.', points: ['Categorías con sentido para tu catálogo', 'Fotografía y contenido con una misma identidad', 'Fichas que responden antes de añadir al carrito'], img: '/images/screens/store-arce-catalog-900.webp', href: MAIN_DEMO_HREF, link: 'Explorar la tienda', crop: true, url: 'arce / catálogo' },
+  { label: 'Tienda', icon: 'store', title: 'Una tienda que invita a quedarse.', points: ['Categorías con sentido para tu catálogo', 'Fotografía y contenido con una misma identidad', 'Fichas que responden antes de añadir al carrito'], img: '/images/screens/store-traza-catalog-900.webp', href: MAIN_DEMO_HREF, link: 'Explorar la tienda', crop: true, url: 'traza / catálogo' },
   { label: 'Compra', icon: 'cart', title: 'De encontrarlo a tenerlo en el carrito.', points: ['Carrito fácil de revisar', 'Compra como invitado', 'Costes de envío antes de confirmar'], img: '/images/screens/store-demo-cart.webp', href: '/demo/carrito', link: 'Ver el carrito', crop: false, url: 'tienda / carrito' },
   { label: 'Pedidos', icon: 'clipboard', title: 'Cada pedido, completo en una pantalla.', points: ['Productos, pago y entrega reunidos', 'Incidencias y notas del equipo', 'Historial de cada cambio'], img: '/images/screens/panel-order-detail.webp', href: DEMO_ADMIN_HREF ?? '/arquitectura', link: 'Probar el gestor', crop: false, url: 'panel / pedido' },
   { label: 'Envíos', icon: 'truck', title: 'Prepara, envía y sigue el pedido.', points: ['Tarifas por zona y tramo', 'Exportación para preparar etiquetas', 'Transportista y seguimiento junto al pedido'], img: '/images/screens/panel-shipping.webp', href: '/demo/admin/envios', link: 'Ver los envíos', crop: false, url: 'panel / envíos' },
@@ -128,8 +128,8 @@ const jsonLd = [{ '@context': 'https://schema.org', '@type': 'Service', name: 'L
       </div>
       <figure class="hx-visual" aria-labelledby="hero-visual-caption">
         <div class="frame hx-store">
-          <div class="frame-bar" aria-hidden="true"><i></i><i></i><i></i><span>arce.tienda / catálogo</span></div>
-          <img src="/images/screens/store-arce-catalog-900.webp" srcset="/images/screens/store-arce-catalog-560.webp 560w, /images/screens/store-arce-catalog-900.webp 900w" sizes="(min-width: 1100px) 640px, 100vw" alt="" width="900" height="1875" fetchpriority="high" decoding="async" />
+          <div class="frame-bar" aria-hidden="true"><i></i><i></i><i></i><span>traza.tienda / catálogo</span></div>
+          <img src="/images/screens/store-traza-catalog-900.webp" srcset="/images/screens/store-traza-catalog-560.webp 560w, /images/screens/store-traza-catalog-900.webp 900w" sizes="(min-width: 1100px) 640px, 100vw" alt="" width="900" height="2250" fetchpriority="high" decoding="async" />
         </div>
         <div class="hx-orders" aria-hidden="true">
           <div class="hx-card-head"><span><Icon name="clipboard" size={15} />Pedidos</span><small>Hoy · 3 nuevos</small></div>
@@ -139,7 +139,7 @@ const jsonLd = [{ '@context': 'https://schema.org', '@type': 'Service', name: 'L
           <div class="hx-log-head"><span class="hx-live"></span>Pedido AR-1042</div>
           <ol>{heroEvents.map((event) => <li><time>{event.t}</time><span><b>{event.label}</b><small>{event.meta}</small></span></li>)}</ol>
         </div>
-        <figcaption id="hero-visual-caption" class="sr-only">Tienda demo ARCE con su panel de pedidos: un pago confirmado actualiza el stock, avisa al cliente y deja el pedido listo para enviar. Datos ficticios.</figcaption>
+        <figcaption id="hero-visual-caption" class="sr-only">Tienda demo TRAZA junto al panel de pedidos de ejemplo: un pago confirmado actualiza el stock, avisa al cliente y deja el pedido listo para enviar. Datos ficticios.</figcaption>
       </figure>
     </div>
     <div class="page-shell">

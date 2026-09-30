@@ -47,9 +47,9 @@ describe('registro de colecciones', () => {
     expect(defaultCollection().id).toBe(DEFAULT_COLLECTION_ID);
   });
 
-  it('ARCE es el escaparate principal de la demo comercial', () => {
-    expect(MAIN_DEMO_HREF).toBe(storePaths('arce').catalog);
-    expect(resolveCollection('arce')?.name).toBe('ARCE');
+  it('TRAZA es el escaparate principal de la demo comercial', () => {
+    expect(MAIN_DEMO_HREF).toBe(storePaths('traza').catalog);
+    expect(resolveCollection('traza')?.name).toBe('TRAZA');
   });
 });
 

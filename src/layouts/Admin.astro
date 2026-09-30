@@ -6,7 +6,7 @@
 import Base from './Base.astro';
 import DemoAssistant from '../components/store/DemoAssistant.astro';
 import { shopConfig } from '../../shop.config';
-import { MAIN_DEMO_HREF } from '../lib/nav';
+import { MAIN_DEMO_HREF, MAIN_DEMO_NAME } from '../lib/nav';
 import { runtimePlatform } from '../composition/runtime-platform';
 import { adminNavigationFor, type AdminNavigationId } from '../platform/configuration';
 import AdminIcon, { type AdminIconName } from '../components/admin/AdminIcon.astro';
@@ -75,7 +75,7 @@ const iconFor: Record<string, AdminIconName> = {
         ))}
       </nav>
       <div class="space-y-1 border-t border-border p-4 text-sm">
-        <a href={MAIN_DEMO_HREF} class="flex min-h-11 items-center gap-3 rounded-xl px-3 text-muted-foreground hover:bg-muted hover:text-foreground"><AdminIcon name="store" />Ver tienda ARCE<AdminIcon name="external" class="ml-auto size-4" /></a>
+        <a href={MAIN_DEMO_HREF} class="flex min-h-11 items-center gap-3 rounded-xl px-3 text-muted-foreground hover:bg-muted hover:text-foreground"><AdminIcon name="store" />Ver tienda {MAIN_DEMO_NAME}<AdminIcon name="external" class="ml-auto size-4" /></a>
         <a href="/ayuda" class="flex min-h-11 items-center gap-3 rounded-xl px-3 text-muted-foreground hover:bg-muted hover:text-foreground"><AdminIcon name="help" />Ayuda</a>
         <a href="/demo/admin/login?salir=1" class="flex min-h-11 items-center gap-3 rounded-xl px-3 text-muted-foreground hover:bg-muted hover:text-foreground"><AdminIcon name="logout" />Cerrar sesión</a>
         <div class="mt-3 flex items-center gap-2 px-3 pt-3 text-xs text-muted-foreground"><span class="size-2 rounded-full bg-emerald-500"></span>Sistema operativo</div>
@@ -86,7 +86,7 @@ const iconFor: Record<string, AdminIconName> = {
       <div class="flex min-h-16 items-center justify-between gap-3 px-4">
         <a href="/demo/admin" class="font-display text-base">Logic2B <span class="text-muted-foreground">Gestión</span></a>
         <div class="flex items-center gap-1">
-          <a href={MAIN_DEMO_HREF} class="flex size-11 items-center justify-center rounded-xl text-muted-foreground hover:bg-muted hover:text-foreground" aria-label="Ver tienda ARCE"><AdminIcon name="store" /></a>
+          <a href={MAIN_DEMO_HREF} class="flex size-11 items-center justify-center rounded-xl text-muted-foreground hover:bg-muted hover:text-foreground" aria-label={`Ver tienda ${MAIN_DEMO_NAME}`}><AdminIcon name="store" /></a>
           <a href="/ayuda" class="flex size-11 items-center justify-center rounded-xl text-muted-foreground hover:bg-muted hover:text-foreground" aria-label="Ayuda"><AdminIcon name="help" /></a>
           <a href="/demo/admin/login?salir=1" class="flex size-11 items-center justify-center rounded-xl text-muted-foreground hover:bg-muted hover:text-foreground" aria-label="Cerrar sesión"><AdminIcon name="logout" /></a>
         </div>
@@ -98,7 +98,7 @@ const iconFor: Record<string, AdminIconName> = {
     </header>
 
     <div class="lg:pl-72">
-      <div class="hidden border-b border-sky-200 bg-sky-50 px-6 py-2 text-center text-xs font-medium text-sky-950 lg:block">Panel ficticio de solo lectura (contraseña «demo»). Sus datos de ejemplo son independientes de los escaparates.</div>
+      <div class="hidden border-b border-sky-200 bg-sky-50 px-6 py-2 text-center text-xs font-medium text-sky-950 lg:block">Panel ficticio de solo lectura (acceso demo). Sus datos de ejemplo son independientes de los escaparates.</div>
       <main data-guide-surface class="mx-auto w-full max-w-[100rem] px-4 py-7 sm:px-7 sm:py-9 xl:px-10">
         <slot />
       </main>

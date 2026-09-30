@@ -16,6 +16,54 @@
 > 2. Actualizar el estado de la fase al terminar, con fecha y resumen de lo hecho.
 > 3. Anotar decisiones tomadas y pendientes en las secciones de abajo.
 
+## Recorrido de Traza sin bloqueos ni contraseña (2026-09-30)
+
+**Corrección solicitada por Andreu:** usar TRAZA como demo principal, añadir
+un producto durante el recorrido y continuar al backend sin introducir datos.
+Rama `codex/traza-guided-flow`.
+
+**Causa:** el avance de la guía anterior solo navegaba a la cesta; si estaba
+vacía, checkout volvía a enviarla allí. Al saltar al gestor, el enlace apuntaba
+al acceso manual y la guía ofrecía «Volver a intentar» sin abrir una sesión.
+La revisión anterior probó una compra rellenada a mano, no el recorrido usando
+exclusivamente los botones de la guía.
+
+- `MAIN_DEMO_ID/HREF/NAME` centralizan TRAZA. Cabecera, héroe y enlaces del
+  gestor apuntan a ella; la captura y el rótulo de la portada son de Traza.
+- Al avanzar de ficha a cesta se prepara una unidad del producto en stock
+  mostrado, sin duplicarla al regresar. Se conservan las demás líneas; al
+  saltar de paso solo se añade una muestra si la cesta está vacía. CP 12001
+  cuando no había uno. Todo queda en el almacenamiento local de su colección.
+- El paso de compra simula con datos ficticios en los campos vacíos usando
+  el formulario existente. La confirmación pasa a ser el quinto de diez pasos;
+  después se entra al gestor. También se puede saltar directamente al panel.
+- La entrada explícita `GET /demo/admin/login?tour=1` emite la cookie HMAC
+  existente **solo con `DEMO_MODE=true`**. Destinos limitados a vistas del
+  gestor, sin redirects externos. Login manual, Access de cliente, permisos y
+  guardas de escritura permanecen. Se excluyen logout y avisos de rate limit.
+- Nuevo `pnpm test:e2e:guide`: Chrome y CDP nativo, sin dependencias. Parte de
+  una pestaña vacía y pulsa controles reales visibles: no escribe campos,
+  contraseña ni datos de storage desde el arnés. Comprueba ambos tamaños,
+  ida/vuelta sin duplicados, confirmación, sesión del gestor, fin del recorrido
+  y ausencia de excepciones o llamadas a APIs operativas.
+
+**Verificación local:** tipos, 212 suites / 1283 tests, baseline y build;
+E2E general con acceso guiado y rechazo de PATCH con esa sesión; recorrido
+completo a 1440/375 solo con la guía. Un Worker local con `DEMO_MODE=false`
+responde al mismo enlace con el login normal (200), sin cookie ni asistente.
+Accesibilidad: Traza 8/8 y gestor 30/30 sin errores ni avisos, auditados
+después del build con los assets estables. Revisión visual adicional de cesta
+y avance sin datos a 375 px. Manual en `docs/DEMO_GUIADA.md`.
+
+Consejo:
+- Arquitecto ✓ sin dependencias, migraciones ni bifurcación del motor.
+- Backend ✓ acceso demo explícito; escrituras bloqueadas; modo real sin cookie.
+- Product ✓ recorrido ficticio completo; panel con ejemplos independientes.
+- Frontend ✓ regresión reproducible sin rellenar campos ni saltos manuales.
+- UX/UI ✓ controles visibles pulsados a 1440/375; foco y espacio móvil.
+- SEO ✓ robots y canonical conservados; sin JS nuevo en la portada.
+- Fullstack ✓ cesta, simulación, confirmación y panel conectados por la guía.
+
 ## Asistente para recorrer las demos (2026-09-30)
 
 **Encargo de Andreu:** al pulsar «Ver demo», un asistente como el de

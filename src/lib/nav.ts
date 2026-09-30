@@ -1,5 +1,6 @@
 import { runtimePlatform } from '../composition/runtime-platform';
 import { adminHomeHrefFor } from '../platform/configuration';
+import { demoAdminEntryHref } from '../shared-kernel/demo-guide-routes';
 
 /**
  * Navegación de las páginas comerciales (landing, temas, arquitectura,
@@ -27,11 +28,13 @@ export const landingNav = [
 ] as const;
 
 /** Escaparate principal de la demo comercial. */
-export const MAIN_DEMO_HREF = '/demo/tiendas/arce';
-export const MAIN_DEMO_NAME = 'ARCE';
+export const MAIN_DEMO_ID = 'traza';
+export const MAIN_DEMO_HREF = `/demo/tiendas/${MAIN_DEMO_ID}`;
+export const MAIN_DEMO_NAME = 'TRAZA';
 
 /** El panel del comercio dentro de la demo. */
-export const DEMO_ADMIN_HREF = adminHomeHrefFor(runtimePlatform);
+const adminHome = adminHomeHrefFor(runtimePlatform);
+export const DEMO_ADMIN_HREF = adminHome ? demoAdminEntryHref(adminHome) : null;
 
 /**
  * Menú del pie, compartido por TODAS las páginas comerciales (SiteFooter).
