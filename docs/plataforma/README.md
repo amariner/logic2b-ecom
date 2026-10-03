@@ -31,6 +31,36 @@ Una quinta clasificación, **fuera de alcance deliberado**, evita confundir
 paridad comercial con fabricar bancos, redes publicitarias, hardware de punto de
 venta o servicios logísticos propios.
 
+## Último contrato verificado
+
+**R5.9a implementado y verificado localmente**, rama
+`codex/market-publication-contract`. Incluye el contrato puro
+`markets/market-publication` y la composición
+`projectMarketPublicationSnapshot` a partir de `CatalogEntry` completo.
+El [ADR-0048](adr/0048-publicacion-por-mercado.md) fija tuplas exactas
+mercado/canal/producto y selección explícita de
+variantes; la ausencia de configuración devuelve `unconfigured`. Publicación,
+precio, stock y compra posible conservan decisiones separadas.
+
+La referencia y fecha del snapshot identifican la entrada proporcionada;
+no acreditan por sí solas una lectura D1. No se inventan versiones por producto
+o regla. El alcance no añade DDL, lectores de runtime, UI, persistencia ni
+activación. MKT-004 pasa a parcial, instalada/inactiva en avanzado y demo,
+propietario `markets`, dependencias MKT-003 y CAT-003; MKT-005 sigue pendiente.
+
+Check final: 901 archivos sin diagnósticos, 229 suites/2.175 pruebas,
+44 HTML/44 formularios/cero crons. Focales: 102 de dominio, 48 de proyección,
+seis de arquitectura; revisión independiente de 485 aserciones sin P1/P2.
+[Informe](../audits/r5-9a/verification-report.json). Sin despliegue. E2E 160/160,
+navegador 120/120, ocho superficies a11y y hash de 143 tablas/353 filas son
+evidencia heredada de R5.8b, no ejecuciones nuevas de R5.9a. Sigue después
+**R5.9b: `/demo/admin/publicacion`, «Publicación del catálogo»**, bajo Internacional.
+ES/FR y `storefront`/`professional`, tres productos sintéticos, edición por
+tupla en memoria y aplicación explícita; detalle de variante/motivos,
+comparación antes/después y reset/recarga. Mostrará default oculta/otra activa
+visible, variantes draft/archived bloqueadas, producto inactivo y configuración
+ausente. Demo visual pendiente, noindex y sin I/O; no autoriza compra ni requiere DDL.
+
 ## Demo verificada
 
 **R5.8b implementada y verificada, disponible en repo sin desplegar**, rama
@@ -53,11 +83,8 @@ sin hallazgos. Revisión visual/código sin P1/P2. Base QA intacta: 143 tablas,
 353 filas, SHA-256 antes/después
 `9cbfc811cfc4296515a403d395875a43bfa26aff0c9c9b08be0804b15bbf6eca`.
 Worker detenido; [informe agregado](../audits/r5-8b/verification-report.json).
-
-Sigue **R5.9a: contrato puro de publicación por mercado**
-para producto, variante y canal, con preview y explicación. Ese contrato puede
-probarse con fixtures sin añadir DDL: tuplas y variantes explícitas, ausencia
-`unconfigured`, separado de precio, stock y compra posible.
+Integrada en [PR #18](https://github.com/amariner/logic2b-ecom/pull/18), commit
+`ec353f6`, sin despliegue.
 
 ## Último bloque verificado
 
@@ -108,9 +135,9 @@ sin despliegue.
 acredita disponibilidad de envío ni jurisdicción. Detalle en
 [ADR-0046](adr/0046-contexto-de-mercados.md).
 
-R5.8a ya aporta el contrato de contenido localizado y plan de URLs puros;
-R5.8b está preparando su demo integrada, descrita arriba. Los gates G3/G4 de
-uso real siguen pendientes y no bloquean este trabajo con fixtures.
+R5.8a aporta el contrato de contenido localizado y plan de URLs puros, y R5.8b
+su demo integrada. R5.9a continúa con publicación por mercado, descrita arriba.
+Los gates G3/G4 de uso real siguen pendientes y no bloquean el contrato puro.
 
 ## Último corte local
 

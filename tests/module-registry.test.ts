@@ -86,6 +86,7 @@ describe('registro de módulos (R1.4)', () => {
 
   it('describes markets without adding any operational surface', () => {
     expect(MODULE_REGISTRY.capabilityOwners['MKT-003']).toBe('markets');
+    expect(MODULE_REGISTRY.capabilityOwners['MKT-004']).toBe('markets');
     expect(MODULE_REGISTRY.byId.markets).toMatchObject({
       permissions: [], events: [], subscriptions: [], jobs: [], healthchecks: [], navigation: [], routes: [],
     });
@@ -93,6 +94,7 @@ describe('registro de módulos (R1.4)', () => {
       const platform = createPlatform(createPresetManifest(profile, deployment));
       expect(platform.hasModule('markets')).toBe(false);
       expect(platform.isCapabilityActive('MKT-003')).toBe(false);
+      expect(platform.isCapabilityActive('MKT-004')).toBe(false);
     }
   });
 

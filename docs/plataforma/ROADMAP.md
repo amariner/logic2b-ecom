@@ -178,7 +178,7 @@ suites/715 tests; producción permanece en `0032`.
 | 56 | **R5.6 Segmentación** | Lenguaje de filtros limitado, templates y recálculo observable. | ✅ Local 2026-10-03 — R5.6a–d implementados y verificados; c.3 integrada en PR #14 (`9b3a8ab`) con 0046/backup39. Demo visual `/demo/admin/segmentos` disponible en repo: 12 perfiles, cuatro hechos, tres templates y lotes de tres; navegador 119/119 y ocho superficies a11y 0/0. Sin deploy ni handler; CUS-009 parcial e inactiva |
 | 57 | **R5.7 Modelo de mercados** | Contexto de país/idioma/moneda/dominio, resolución y fallback. | ✅ R5.7a–b local: ADR-0046, `defineMarketCatalog`/`resolveMarket` y composición pura `market-pricing-context`; moneda base y Git/inyección, sin DDL ni endpoints. 224 suites/1.876 pruebas, E2E 156/156 y base QA intacta; MKT-003 parcial/inactiva, demo visual verificada en R5.8b |
 | 58 | **R5.8 Traducciones y URLs** | Campos traducibles, flujo editorial, canonical, hreflang y sitemap. | ✅ Local — R5.8a integrada en PR #17 (`6eadc3b`); R5.8b verificada con 227 suites/2.023 pruebas, E2E 160/160, navegador 120/120 y ocho superficies a11y sin hallazgos. Demo `/demo/admin/mercados` disponible en repo; MKT-003/006/007 parciales e inactivas, sin deploy |
-| 59 | **R5.9 Publicación por mercado** | Producto/variante/canal, preview y explicación. | ⬜ Siguiente R5.9a: contrato puro sobre fixtures/inyección, tuplas y variantes explícitas, ausencia unconfigured y preview con motivos; sin DDL, endpoints ni activación |
+| 59 | **R5.9 Publicación por mercado** | Producto/variante/canal, preview y explicación. | 🟨 R5.9a cerrada local: ADR-0048, contrato markets/market-publication y proyección desde CatalogEntry completo; 901 archivos sin diagnósticos, 229 suites/2.175 pruebas, revisión sin P1/P2. MKT-004 parcial/inactiva, MKT-005 pendiente; sin DDL, lectores runtime modificados ni activación. Siguiente R5.9b, demo `/demo/admin/publicacion` noindex |
 | 60 | **R5.10 Impuestos** | Adaptador, snapshots, redondeo, exenciones y validación VAT ID. | ⬜ |
 | 61 | **R5.11 Multidivisa y métodos locales** | Presentación, cobro, reembolso y conciliación. | ⬜ |
 | 62 | **R5.12 Consolidación R5** | E2E dos mercados, privacidad y cuenta opcional; revisión SEO/legal/seguridad. | ⬜ |
@@ -1546,10 +1546,40 @@ Superficie demo noindex; canonical/hreflang/sitemap son datos ilustrativos,
 sin inyectarlos como SEO real. Sin D1, CMS, persistencia, API
 operativa, cron ni activación. Se verifican escritorio/móvil, teclado, sin
 JavaScript, movimiento reducido y ausencia de efectos propios del módulo.
-Después sigue R5.9a: contrato puro de publicación por mercado/producto/variante/
-canal, tuplas y selección de variantes explícitas, ausencia `unconfigured`,
-preview y motivos. Separado de precio, stock y compra; fixtures e inyección
-bastan, sin DDL, endpoints ni activación.
+R5.8b está integrada en PR #18 (`ec353f6`), sin despliegue.
+
+### Cerrado local: R5.9a — Publicación por mercado y preview
+
+En `codex/market-publication-contract`, [ADR-0048](adr/0048-publicacion-por-mercado.md),
+dominio `markets/market-publication` y composición
+`projectMarketPublicationSnapshot` desde CatalogEntry completo. Tuplas exactas
+mercado/canal/producto, estado explícito y variantes seleccionadas; ausencia
+`unconfigured`, preview y motivos. Separado de precio, stock y compra;
+referencia/fecha del snapshot no acreditan D1 y no se inventan versiones de
+producto o regla. Fixtures e inyección bastan, sin DDL, persistencia, endpoints,
+cambios de lectores runtime ni activación.
+
+MKT-004 queda parcial, instalada/inactiva en avanzado y demo, bajo `markets`
+y dependiente de MKT-003 y CAT-003. MKT-005 permanece pendiente. Implementación
+y QA cerradas: 901 archivos sin diagnósticos, 229 suites/2.175 pruebas,
+44 HTML/44 formularios/cero crons. Focales: 102 de dominio, 48 de proyección,
+seis de arquitectura; revisión independiente de 485 aserciones sin P1/P2.
+[Informe](../audits/r5-9a/verification-report.json). Sin despliegue. E2E 160/160,
+navegador 120/120, a11y de ocho superficies y hash de 143 tablas/353 filas
+son evidencia heredada de R5.8b/PR #18, no nuevas ejecuciones de R5.9a.
+
+### Siguiente: R5.9b — Demo local de publicación
+
+Orientación aprobada: `/demo/admin/publicacion`, «Publicación del catálogo»,
+bajo Internacional. Contextos ES/FR y canales `storefront`/`professional`, tres
+productos sintéticos, edición por tupla en memoria con aplicación explícita,
+preview con motivos, comparación antes/después y reset/recarga.
+
+Mostrar default oculta/otra activa visible, variantes `draft`/`archived`
+seleccionadas pero bloqueadas, producto inactivo y tuplas sin configurar.
+Detalle de producto/variante/referencia; nunca afirmar compra posible ni usar
+precio como autorización. Demo visual pendiente, noindex, sin I/O, DDL ni
+persistencia, con capacidades inactivas.
 
 Push/merge siguen autorizados después de checks. La demo pública y landing
 quedan solo con fixtures; crons vacíos y guardas ante triggers antiguos. G3/G4,

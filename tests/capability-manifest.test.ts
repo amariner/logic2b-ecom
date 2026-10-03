@@ -272,6 +272,39 @@ describe('capability manifest (R1.2)', () => {
     });
   });
 
+  it('installs publication preview without exposing operational routes or effects', () => {
+    expect(CAPABILITY_DEFINITIONS['MKT-004'].dependencies).toEqual(['MKT-003', 'CAT-003']);
+    expect('MKT-004' in CAPABILITY_PRESETS.minimal).toBe(false);
+    expect('MKT-004' in CAPABILITY_PRESETS.standard).toBe(false);
+    expect(CAPABILITY_PRESETS.advanced['MKT-004']).toEqual({ state: 'installed' });
+    const demo = createPlatform(platformManifest);
+    expect(demo.capabilityState('MKT-004')).toBe('installed');
+    expect(demo.hasModule('markets')).toBe(false);
+    expect(demo.capability('MKT-004').flags).toEqual({
+      routes: false, navigation: false, jobs: false, sideEffects: false,
+    });
+  });
+
+  it('requires markets and variants for publication without coupling market resolution alone to catalog', () => {
+    const input: MutableManifest = {
+      manifestVersion: 1,
+      deployment: { ...deployment, profile: 'custom' },
+      capabilities: {
+        'PLT-001': { state: 'active', flags: INERT_FLAGS },
+        'PLT-004': { state: 'active', flags: INERT_FLAGS, config: { failFast: true } },
+        'MKT-003': { state: 'active', flags: INERT_FLAGS },
+      },
+    };
+    expect(createPlatform(input as Parameters<typeof createPlatform>[0]).hasModule('markets')).toBe(true);
+    input.capabilities['MKT-004'] = { state: 'active', flags: INERT_FLAGS };
+    expect(validateCapabilityManifest(input).ok).toBe(false);
+    input.capabilities['CAT-001'] = { state: 'active', flags: INERT_FLAGS };
+    input.capabilities['CAT-003'] = { state: 'active', flags: INERT_FLAGS };
+    expect(validateCapabilityManifest(input).ok).toBe(true);
+    input.capabilities['MKT-003'] = { state: 'installed' };
+    expect(validateCapabilityManifest(input).ok).toBe(false);
+  });
+
   it('accepts only the explicit passwordless email contract and freezes it deeply', () => {
     expect(CUSTOMER_PASSWORDLESS_CONFIG.challengeTtlSeconds * 1_000).toBeLessThanOrEqual(
       PASSWORDLESS_CHALLENGE_MAX_TTL_MS,

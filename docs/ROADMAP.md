@@ -16,6 +16,38 @@
 > 2. Actualizar el estado de la fase al terminar, con fecha y resumen de lo hecho.
 > 3. Anotar decisiones tomadas y pendientes en las secciones de abajo.
 
+## R5.9a — Publicación por mercado, cerrado local (2026-10-03)
+
+R5.8b está integrada en PR #18 (`ec353f6`), sin despliegue. La rama
+`codex/market-publication-contract` implementa el
+[ADR-0048](plataforma/adr/0048-publicacion-por-mercado.md), dominio puro
+`markets/market-publication` y composición `projectMarketPublicationSnapshot`
+sobre entradas completas de catálogo. Política versionada por tupla exacta
+mercado/canal/producto, estado explícito y variantes seleccionadas; ausencia
+`unconfigured`. El preview explica visibilidad sin inferir precio, stock,
+envío ni compra posible.
+
+**Implementación y QA cerradas:** `pnpm check` pasa 901 archivos sin diagnósticos,
+229 suites/2.175 pruebas, build de 44 HTML y guardas de 44 formularios/cero crons.
+Focales: 102 de dominio, 48 de proyección y seis de arquitectura; revisión
+independiente de 485 aserciones sin P1/P2.
+[Informe](audits/r5-9a/verification-report.json). MKT-004
+pasa a parcial, instalada e inactiva en avanzado y demo; propietario `markets`,
+dependencias MKT-003 y CAT-003. MKT-005 sigue pendiente. La referencia/fecha
+del snapshot son metadatos del llamador, no una acreditación de captura D1;
+no se inventan versiones por producto o regla. No hay DDL, persistencia,
+rutas, endpoints, cambios de lectores runtime, activación ni despliegue.
+
+La validación nueva incluye check global, focales y revisión. E2E 160/160,
+navegador 120/120, ocho superficies a11y y hash de 143 tablas/353 filas son
+evidencia heredada de R5.8b/PR #18, sin nuevas ejecuciones atribuidas a R5.9a.
+Sigue R5.9b: `/demo/admin/publicacion`, «Publicación del catálogo», noindex,
+con ES/FR y `storefront`/`professional`, tres productos sintéticos, edición
+por tupla en memoria y aplicación explícita. Preview de variantes y motivos,
+comparación antes/después y reset/recarga. Muestra default oculta/otra activa
+visible, variantes borrador/archivadas bloqueadas, producto inactivo y
+configuración ausente; nunca afirma compra posible. Demo visual pendiente.
+
 ## R5.8b — Mercados e idiomas con fixtures, cerrado local (2026-10-03)
 
 R5.8a está integrada mediante PR #17 (`6eadc3b`), sin despliegue. La rama
@@ -40,7 +72,7 @@ existente usa almacenamiento aparte. [A11y](audits/r5-8b/a11y-report.json): ocho
 superficies sin hallazgos. Revisión visual de las ocho capturas y de código
 sin P1/P2. Base QA intacta: 143 tablas, 353 filas, SHA-256 antes/después
 `9cbfc811cfc4296515a403d395875a43bfa26aff0c9c9b08be0804b15bbf6eca`.
-Worker de QA detenido.
+Worker de QA detenido. Integrada en PR #18 (`ec353f6`), sin despliegue.
 
 Sigue **R5.9a: contrato puro de publicación por mercado,
 producto/variante/canal, con preview y explicación**. Fixtures e inyección
@@ -875,7 +907,7 @@ reconciliación se conserva abajo por contexto.
 | 11 | Landing V2 «nivel Awwwards» + negocio + funnel + docs | 🟡 En curso | 2026-08-13 | **F11.1, F11.3 (2 sesiones), F11.4, F11.5, F11.6, F11.7 y F11.8 (primera pasada + pase a11y/contenido desde cloud 2026-07-24) hechos**, más F11.8b (auditor de a11y, cloud), F11.2a-1 (tienda ASFALTO / tema Street), F11.2a-2 (tienda METRIA / tema Industrial) F11.2a-3 (tienda ROMER / tema Natural) y **F11.2a-4 (tienda KALIBRE / tema Specs, local 2026-07-25) — con la que F11.2a queda CERRADA (10/10 tiendas)**; y **F11.8c (Lighthouse citable + OG de WhatsApp + URLs sin redirección, local 2026-07-26)**; y **F11.8d–e (tabla de Lighthouse cerrada y desplegada: 7 de 8 superficies a 100×4, la landing entre ellas en móvil y escritorio, local 2026-07-27)**; y **F11.9 (contacto global de WhatsApp, cerrado y servido 2026-08-13)**. Solo queda la submission a Awwwards, decisión de pago reservada a Andreu. Detalle por bloque abajo. **Plan maestro completo en [`docs/PLAN_FASE11_LANDING_V2.md`](PLAN_FASE11_LANDING_V2.md)**: bloques F11.0–F11.8 ejecutables por sesiones independientes. **Decisiones D1–D6 APROBADAS por Andreu (2026-07-23)**: JS propio ≤15 KB sin deps, capturas con browser tools en local, dirección C «Ocho tiendas, un motor», escalera de precios (Lite 590 / Kit 1.900+39 / A medida 3.400+59), WhatsApp+email, Lite publicado sin construir. Prompt de arranque: [`docs/PROMPT_FASE11.md`](PROMPT_FASE11.md). Integra 9B.5/9B.6 (imaginería y temas restantes) como prerequisito del hero |
 | 8 | Pulido de la demo (backlog abajo) | 🟡 En curso | 2026-07-19 | Backlog técnico agotado; solo quedan decisiones y pasos locales de Andreu (ver «Decisiones pendientes» y `docs/PROMPT_CLOUD.md`). Últimas tandas: novena (race de idempotencia en el pago, PII enumerable en `/demo/gracias`, cancelación de pedido pagado sin devolver stock), décima (la misma race en el PATCH de admin, campos vacíos guardados como 0, login sin rate limit), undécima (diagrama móvil de `/arquitectura`, hedge del plazo de entrega, tokens de tema en `/demo/reset`, terminología «envío»), duodécima (aviso de corte en pedidos del admin, cabeceras sin wrap a 375px, leftover «portes», token de radio del carrito, contraste del botón eliminar, H1 en valenciano, checklist de producción) y decimotercera (misma race de idempotencia en `checkout.session.expired`, divisa hardcodeada a EUR fuera de Stripe, cobertura de test de `quoteCart`/PATCH admin/emails) y decimocuarta (config parcial de Stripe → cobro sin cumplimiento, emails duplicados bajo concurrencia, `payment_status` del webhook, color de marca centralizado en `shop.config.ts`, contraste/tema en carrito y checkout) — ver sección «Fase 8» |
 | 12 | Logic2B Ecommerce: renombrado, reposicionamiento y docs de dos visiones | ✅ Hecho | 2026-08-10 | **F12.0–F12.6 cerrados:** marca, argumento, dossier, canal agencias, ayuda, índice por audiencias, OG y auditorías citables consolidados. **Plan maestro en [`docs/PLAN_FASE12_LOGIC2B_ECOMMERCE.md`](PLAN_FASE12_LOGIC2B_ECOMMERCE.md)**. |
-| 13 | Plataforma modular: del gestor mínimo a paridad extrema de capacidad | 🟡 En curso | 2026-10-03 | **R0–R4 y los cortes autorizados R5.1–R5.8b cerrados localmente.** R5.8a integrada en PR #17 (`6eadc3b`), sin deploy. R5.8b verificada: demo de mercados e idiomas disponible en repo, 2.023 tests, E2E 160/160, navegador 120/120 y base QA intacta. CUS-003/004/005/006/009 y MKT-003/006/007 installed/inactivos. Siguiente: R5.9a, contrato puro de publicación por mercado/producto/variante/canal. Fuente de verdad en [`docs/plataforma/`](plataforma/README.md). |
+| 13 | Plataforma modular: del gestor mínimo a paridad extrema de capacidad | 🟡 En curso | 2026-10-03 | **R0–R4 y los cortes autorizados R5.1–R5.9a cerrados localmente.** R5.8b integrada en PR #18 (`ec353f6`), sin deploy. R5.9a verificada: 901 archivos sin diagnósticos, 229 suites/2.175 pruebas y revisión sin P1/P2; MKT-004 parcial/inactiva y MKT-005 pendiente. Siguiente R5.9b: demo `/demo/admin/publicacion` con fixtures y motivos, solo memoria. Fuente de verdad en [`docs/plataforma/`](plataforma/README.md). |
 
 ## Repo y entornos
 
@@ -980,7 +1012,8 @@ inerte o una intención del roadmap en alcance disponible.
 | R5.7a–b | Modelo de mercados y composición pura | ✅ Local 2026-10-03 — ADR-0046, catálogo explícito, resolución y fallback; Git/inyección y moneda base, sin DDL ni endpoints; 1.876 tests, E2E 156/156 y base QA intacta; MKT-003 parcial/inactiva, demo visual pendiente |
 | R5.8a | Contenido localizado y plan de URLs | ✅ Local 2026-10-03 — ADR-0047, contrato editorial puro y plan URLs/canonical/hreflang/sitemap por publicación explícita; 893 archivos sin diagnósticos, 226 suites/1.999 pruebas, revisión sin P1/P2; MKT-006/007 parciales e inactivas, sin DDL, CMS ni cambios del sitio servido |
 | R5.8b | Composición y demo de mercados/traducciones | ✅ Local 2026-10-03 — `/demo/admin/mercados`, fixtures y plan URLs en memoria; 897 archivos sin diagnósticos, 227 suites/2.023 pruebas, E2E 160/160, navegador 120/120 y a11y ocho superficies sin hallazgos; disponible en repo, sin deploy ni activación |
-| R5.9a | Contrato de publicación por mercado | ⬜ Siguiente — producto/variante/canal, preview y explicación mediante contrato puro e inyección; sin DDL ni activación |
+| R5.9a | Contrato de publicación por mercado | ✅ Local 2026-10-03 — ADR-0048, tuplas exactas, variantes explícitas y ausencia unconfigured; snapshot desde CatalogEntry completo y preview con motivos; 901 archivos sin diagnósticos, 229 suites/2.175 pruebas, revisión sin P1/P2; sin DDL ni lectores runtime modificados |
+| R5.9b | Demo de publicación por mercado | ⬜ Siguiente — `/demo/admin/publicacion`, ES/FR y storefront/professional, tres productos, edición explícita por tupla y motivos; solo memoria/noindex, sin operación ni persistencia |
 | R5.2 | Consentimiento versionado | ✅ 2026-08-17 — ADR-0040, D1 `0037`, repositorio concurrente, backup 31, rehearsal y E2E local; `CUS-007` instalada e inerte |
 | R5.3a | Derechos de datos verificables | ✅ 2026-08-17 — ADR-0041, lifecycle, dry-run, doble control y puertos; `CUS-008` instalada e inerte, sin DDL ni efectos |
 | R5.3b | Persistencia de solicitudes de derechos | ✅ 2026-08-18 — D1 `0038`, repositorio concurrente, backup 32 y rehearsal/restore local; sin PII, rutas ni ejecución |
@@ -2537,7 +2570,7 @@ solo vuelve a `main` o a producción por instrucción expresa.
 Zancada queda completado, integrado en GitHub y publicado por encargo expreso
 del 2026-09-08. La cola de plataforma que sigue no cambia por esta importación.
 
-### R5.9a — Publicación por mercado
+### R5.9b — Demo de publicación
 
 R5.6c.1–c.3 implementan política explícita, captura consistente, recuperación,
 publicación CAS y políticas/planes/intenciones durables. 0046 está autorizada y
@@ -2582,9 +2615,23 @@ No modifica metadatos reales, sitemap ni indexación;
 implementación y QA están cerradas, con demo disponible en el repositorio,
 sin despliegue. Check: 897 archivos sin diagnósticos, 227 suites/2.023 pruebas;
 E2E nuevo 160/160, navegador 120/120, a11y ocho superficies sin hallazgos y
-base QA intacta. Seguir con R5.9a: política pura de publicación por tupla
+base QA intacta. R5.8b integrada en PR #18 (`ec353f6`). R5.9a cierra política pura de publicación por tupla
 mercado/canal/producto y selección explícita de variantes; ausencia
 `unconfigured`, preview y motivos. No inferir precio, stock ni compra posible.
+Snapshot desde CatalogEntry completo, con referencia/fecha explícitas que no
+acreditan captura D1 ni versiones de producto inexistentes. No modificar
+lectores runtime, rutas ni esquema. MKT-004 instalada/inactiva, MKT-005 pendiente.
+Check final: 901 archivos sin diagnósticos, 229 suites/2.175 pruebas,
+44 HTML/44 formularios/cero crons; focales 102+48, arquitectura seis y revisión
+de 485 aserciones sin P1/P2. E2E/navegador/a11y/hash de R5.8b son heredados.
+
+Seguir con R5.9b: `/demo/admin/publicacion`, «Publicación del catálogo», bajo
+Internacional, con contextos ES/FR y `storefront`/`professional`. Tres productos
+sintéticos, edición local por tupla con aplicación explícita, detalle de
+variante/motivos, comparación antes/después y reset/recarga. Mostrar default
+oculta y otra activa visible, variantes borrador/archivadas seleccionadas pero
+bloqueadas, producto inactivo y tuplas sin configurar. Noindex, solo memoria,
+sin I/O, DDL ni activación; nunca afirmar compra posible.
 
 Push/merge siguen autorizados tras checks hacia `main` en
 `amariner/logic2b-ecom`; no volver a pedir ese permiso. La autorización de 0046
