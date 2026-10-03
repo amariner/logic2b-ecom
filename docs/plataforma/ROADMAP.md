@@ -1462,6 +1462,7 @@ Después de autorización, sincronizar y ejecutar sus pruebas/rehearsal/restore.
 No registrar cron ni activar políticas reales, rutas o consumidores. CUS-009
 sigue parcial/installed y demo visual pendiente; G3/G4 permanecen separados.
 
-El push está bloqueado por revisión automática, que exige una autorización
-explícita del usuario para subir al origen `amariner/logic2b-ecom`. Commits
-locales conservados; no hay PR, merge, deploy ni cambios en la D1 remota.
+Andreu autoriza expresamente push y merge tras verificar los checks el
+2026-10-03. El bloqueo anterior de revisión automática queda resuelto; se
+integra mediante PR en `amariner/logic2b-ecom`. La autorización local de c.3
+sigue pendiente y no se autorizan deploy ni cambios en la D1 remota.

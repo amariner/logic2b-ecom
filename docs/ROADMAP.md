@@ -49,10 +49,11 @@ propuesta revisable de tres tablas, repositorios y backup 39 en QA local.
 no tiene referencias ejecutables y no se salta a R5.7. CUS-009 sigue parcial,
 installed/inactiva y con demo visual pendiente; producción no cambia.
 
-Integración: commit local de c.1 conservado. La revisión automática ha
-rechazado el push a `amariner/logic2b-ecom` por falta de autorización explícita
-en un mensaje del usuario, incluso tras verificar que origin y cuenta GitHub
-son del propietario. No se ha sorteado el bloqueo; push/PR/merge pendientes.
+Integración: c.1 en `3b87cf9` y c.2 en `a107a83`. Andreu autoriza expresamente
+«Sí, push y merge tras verificar los checks» el 2026-10-03, resolviendo el
+bloqueo anterior de revisión automática. La integración sigue el flujo de PR
+hacia `main` en `amariner/logic2b-ecom`, con comprobaciones antes del merge.
+Esta autorización no incluye la migración c.3 ni despliegues a producción.
 
 Consejo: arquitecto ✓ sin nuevo esquema/servicio · backend ✓ CAS y dinero ·
 fullstack ✓ recuperación y restore · producto ✓ capacidad inactiva declarada.
@@ -2374,10 +2375,10 @@ antes de implementar la migración candidata 0046; sincronizar Git y comprobar
 numeración y esquema 0045 de la base QA local al reanudar. CUS-009 conserva estado parcial/installed/inactiva y demo
 visual pendiente. No saltar a R5.7 para eludir este gate.
 
-Integración GitHub pendiente por rechazo de revisión automática al push;
-solicitar autorización explícita de subida/merge del desarrollo al repositorio
-`amariner/logic2b-ecom`. El código está guardado en la rama local
-`codex/segmentation-facts-recovery`, sin modificar producción.
+Integración GitHub autorizada expresamente el 2026-10-03: push y merge después
+de verificar los checks, mediante PR desde `codex/segmentation-facts-recovery`
+hacia `main` en `amariner/logic2b-ecom`. No volver a pedir ese permiso. La
+migración c.3 mantiene su autorización separada pendiente; producción no cambia.
 
 Carril visual: ARISTA cierra el 2026-08-18 las posiciones 17–19 y deja la cola
 sin referencias ejecutables. La referencia 19 se convirtió en un catálogo
