@@ -11,13 +11,20 @@ import {
 } from '../domain/customer-segmentation';
 import {
   canonicalSegmentJson,
+  MAX_CUSTOMER_SEGMENT_CANDIDATES,
   segmentFingerprint,
+  segmentOpaqueId,
 } from './customer-segmentation-contract';
+import { defineCustomerSegmentFactsPolicy } from './customer-segmentation-facts';
 
 type Row = Record<string, string | number | null>;
 
 /** Columnas cerradas: el backup no arrastra campos futuros sin revisar su replay. */
 export const CUSTOMER_SEGMENT_BACKUP_COLUMNS = Object.freeze({
+  customer_segment_facts_policies: [
+    'policy_id', 'policy_version', 'policy_json', 'policy_fingerprint',
+    'created_at', 'created_by', 'idempotency_key', 'command_fingerprint',
+  ],
   customer_segment_definitions: [
     'segment_id', 'definition_version', 'template_id', 'template_version',
     'template_json', 'parameters_json', 'definition_fingerprint', 'created_at',
@@ -42,6 +49,14 @@ export const CUSTOMER_SEGMENT_BACKUP_COLUMNS = Object.freeze({
     'segment_id', 'publication_version', 'run_id', 'definition_version', 'generation',
     'published_at', 'published_by', 'idempotency_key', 'command_fingerprint',
   ],
+  customer_segment_execution_plans: [
+    'run_id', 'policy_id', 'policy_version', 'batch_size', 'created_at',
+    'created_by', 'idempotency_key', 'command_fingerprint',
+  ],
+  customer_segment_job_intents: [
+    'job_run_id', 'run_id', 'expected_revision', 'scheduled_for', 'created_at',
+    'created_by', 'idempotency_key', 'command_fingerprint',
+  ],
 } satisfies Record<string, readonly string[]>);
 
 export type CustomerSegmentBackupTable = keyof typeof CUSTOMER_SEGMENT_BACKUP_COLUMNS;
@@ -53,6 +68,7 @@ const INTEGERS = new Set([
   'definition_version', 'template_version', 'generation', 'revision', 'total_candidates',
   'processed_candidates', 'matched_customers', 'facts_policy_version', 'last_position',
   'position', 'customer_profile_version', 'matches', 'evaluated_revision', 'publication_version',
+  'policy_version', 'batch_size', 'expected_revision',
 ]);
 const NULLABLE = new Set([
   'started_at', 'finished_at', 'cursor', 'error_code', 'source_snapshot_ref',
@@ -113,7 +129,7 @@ function validateRows(table: CustomerSegmentBackupTable, rows: Row[]): void {
       if (field.endsWith('_fingerprint') && !/^[0-9a-f]{64}$/.test(String(value))) {
         invalid(`${table}.${field} no es una huella SHA-256.`);
       }
-      if (field.endsWith('_at') && (typeof value !== 'string' ||
+      if ((field.endsWith('_at') || field === 'scheduled_for') && (typeof value !== 'string' || value.length !== 24 ||
         !Number.isFinite(Date.parse(value)) || new Date(value).toISOString() !== value)) {
         invalid(`${table}.${field} no es una fecha UTC canónica.`);
       }
@@ -141,8 +157,79 @@ function insert(table: CustomerSegmentBackupTable, row: Row): string {
   return `INSERT INTO ${table} (${columns.join(', ')}) VALUES (${columns.map((column) => literal(row[column])).join(', ')});`;
 }
 
+/** La cola destino no se borra: una colisión debe fallar antes de tocar legacy. */
+export function buildCustomerSegmentRestorePreflightSql(tables: Record<string, Row[]>): string[] {
+  const intents = tables.customer_segment_job_intents ?? [];
+  validateRows('customer_segment_job_intents', intents);
+  return intents.map((intent) => `SELECT CASE WHEN EXISTS (SELECT 1 FROM platform_job_runs WHERE run_id = ${literal(intent.job_run_id)} OR idempotency_key = ${literal(intent.idempotency_key)}) THEN json('restore_target_has_segment_job_collision') ELSE 1 END AS restore_target_job_available;`);
+}
+
+/** Las ocho tablas conservan evidencia durable; la cola efímera queda fuera. */
+function validateExecutionEvidence(tables: Record<string, Row[]>): Map<string, Row> {
+  const policies = tables.customer_segment_facts_policies!;
+  const plans = tables.customer_segment_execution_plans!;
+  const intents = tables.customer_segment_job_intents!;
+  unique(policies, (row) => `${row.policy_id}/${row.policy_version}`, 'política');
+  unique(policies, (row) => `${row.policy_id}/${row.idempotency_key}`, 'idempotencia de política');
+  unique(plans, (row) => text(row, 'run_id'), 'plan');
+  unique(plans, (row) => text(row, 'idempotency_key'), 'idempotencia de plan');
+  unique(intents, (row) => text(row, 'job_run_id'), 'intención de job');
+  unique(intents, (row) => text(row, 'idempotency_key'), 'idempotencia de intención');
+  unique(intents, (row) => `${row.run_id}/${row.expected_revision}`, 'intención por revisión');
+  const byPolicy = new Map(policies.map((row) => [`${row.policy_id}/${row.policy_version}`, row]));
+  const byRun = new Map(tables.customer_segment_runs!.map((row) => [row.run_id, row]));
+  const bySnapshot = new Map(tables.customer_segment_run_snapshots!.map((row) => [`${row.run_id}/${row.revision}`, row]));
+  const byPlan = new Map(plans.map((row) => [text(row, 'run_id'), row]));
+  for (const row of [...policies, ...plans, ...intents]) {
+    segmentOpaqueId(row.created_by, 'created_by');
+    segmentOpaqueId(row.idempotency_key, 'idempotency_key');
+    if (text(row, 'idempotency_key').length < 8) invalid('idempotencia de ejecución demasiado corta.');
+  }
+  for (const row of policies) {
+    const policy = defineCustomerSegmentFactsPolicy(parseJson(row, 'policy_json'));
+    if (policy.id !== row.policy_id || policy.version !== row.policy_version ||
+      canonicalSegmentJson(policy) !== row.policy_json) invalid('identidad o reglas de política incoherentes.');
+  }
+  for (const plan of plans) {
+    segmentOpaqueId(plan.run_id, 'plan.run_id');
+    const policy = byPolicy.get(`${plan.policy_id}/${plan.policy_version}`);
+    const run = byRun.get(plan.run_id);
+    const requested = bySnapshot.get(`${plan.run_id}/1`);
+    if (!policy || !run || requested?.state !== 'requested') invalid('plan sin solicitud inicial o política.');
+    if (number(plan, 'batch_size') > MAX_CUSTOMER_SEGMENT_CANDIDATES) invalid('lote de plan superior al límite técnico.');
+    if (text(plan, 'created_at') < text(run, 'requested_at') || text(plan, 'created_at') < text(requested, 'recorded_at') ||
+      text(plan, 'created_at') < text(policy, 'created_at')) {
+      invalid('plan anterior a su solicitud o política.');
+    }
+    for (const snapshot of tables.customer_segment_run_snapshots!.filter((row) => row.run_id === plan.run_id && row.revision !== 1)) {
+      if (text(snapshot, 'recorded_at') < text(plan, 'created_at')) invalid('plan posterior al avance de su ejecución.');
+      if (snapshot.started_at === null) continue;
+      if (text(snapshot, 'started_at') < text(plan, 'created_at')) invalid('inicio anterior a su plan.');
+      const rules = defineCustomerSegmentFactsPolicy(parseJson(policy, 'policy_json'));
+      if (snapshot.facts_policy_id !== plan.policy_id || snapshot.facts_policy_version !== plan.policy_version ||
+        snapshot.currency !== rules.currency ||
+        !new RegExp(`^source:${text(policy, 'policy_fingerprint')}:[a-f0-9]{64}$`).test(text(snapshot, 'source_snapshot_ref'))) {
+        invalid('fotografía incompatible con la política del plan.');
+      }
+    }
+  }
+  for (const intent of intents) {
+    const jobId = segmentOpaqueId(intent.job_run_id, 'intent.job_run_id');
+    if (jobId.length > 128) invalid('identidad de job demasiado larga.');
+    const plan = byPlan.get(text(intent, 'run_id'));
+    const snapshot = bySnapshot.get(`${intent.run_id}/${intent.expected_revision}`);
+    if (!plan || !snapshot || !['requested', 'running'].includes(text(snapshot, 'state'))) {
+      invalid('intención sin plan o revisión histórica abierta.');
+    }
+    if (text(intent, 'created_at') < text(plan, 'created_at') || text(intent, 'created_at') < text(snapshot, 'recorded_at')) {
+      invalid('intención anterior al plan o revisión.');
+    }
+  }
+  return byPlan;
+}
+
 /**
- * Reproduce el historial bajo los triggers de 0045, sin desactivarlos. Las
+ * Reproduce el historial bajo los triggers de 0046, sin desactivarlos. Las
  * sentencias forman parte de la misma restauración transaccional que el resto
  * del backup: los UPDATE de un lote preceden a su fotografía confirmadora.
  */
@@ -159,6 +246,9 @@ export function buildCustomerSegmentRestoreSql(tables: Record<string, Row[]>): s
   const snapshots = tables.customer_segment_run_snapshots!;
   const results = tables.customer_segment_results!;
   const publications = tables.customer_segment_publications!;
+  const policies = tables.customer_segment_facts_policies!;
+  const intents = tables.customer_segment_job_intents!;
+  const byPlan = validateExecutionEvidence(tables);
   unique(definitions, (row) => `${row.segment_id}/${row.definition_version}`, 'definición');
   unique(definitions, (row) => `${row.segment_id}/${row.idempotency_key}`, 'idempotencia de definición');
   unique(runs, (row) => text(row, 'run_id'), 'ejecución');
@@ -181,7 +271,8 @@ export function buildCustomerSegmentRestoreSql(tables: Record<string, Row[]>): s
   if (profiles && results.some((row) => !profiles.has(row.customer_profile_id))) invalid('candidato sin perfil histórico.');
   const templates = new Map<string, string>();
   const sourceFingerprints = new Map<string, string>();
-  const sql: string[] = [];
+  const sql: string[] = [...policies].sort((a, b) => text(a, 'policy_id').localeCompare(text(b, 'policy_id')) ||
+    number(a, 'policy_version') - number(b, 'policy_version')).map((policy) => insert('customer_segment_facts_policies', policy));
   for (const segmentId of [...new Set(definitions.map((row) => text(row, 'segment_id')))].sort()) {
     const segmentDefinitions = sorted(definitions.filter((row) => row.segment_id === segmentId), 'definition_version');
     const segmentRuns = sorted(runs.filter((row) => row.segment_id === segmentId), 'generation');
@@ -289,6 +380,8 @@ export function buildCustomerSegmentRestoreSql(tables: Record<string, Row[]>): s
         if (!source && runResults.length > 0) invalid('candidatos sin inicio.');
         sql.push(insert('customer_segment_runs', run));
         sql.push(insert('customer_segment_run_snapshots', runSnapshots[0]!));
+        const plan = byPlan.get(text(run, 'run_id'));
+        if (plan) sql.push(insert('customer_segment_execution_plans', plan));
         for (const result of runResults) {
           sql.push(insert('customer_segment_results', { ...result, matches: null, missing_facts_json: null, evaluated_revision: null }));
         }
@@ -307,11 +400,42 @@ export function buildCustomerSegmentRestoreSql(tables: Record<string, Row[]>): s
     }
   }
   if (publications.some((row) => !byDefinition.has(`${row.segment_id}/${row.definition_version}`))) invalid('publicación sin definición.');
+  for (const intent of [...intents].sort((a, b) => text(a, 'job_run_id').localeCompare(text(b, 'job_run_id')))) {
+    sql.push(insert('customer_segment_job_intents', intent));
+  }
   return sql;
 }
 
 /** Verifica el contenido criptográfico del corte ya validado antes de exportar. */
 export async function assertCustomerSegmentBackupFingerprints(tables: Record<string, Row[]>): Promise<void> {
+  const policies = tables.customer_segment_facts_policies ?? [];
+  const plans = tables.customer_segment_execution_plans ?? [];
+  const byPolicy = new Map(policies.map((row) => [`${row.policy_id}/${row.policy_version}`, row]));
+  const context = (row: Row) => ({ actorId: row.created_by,
+    idempotencyKey: row.idempotency_key, occurredAt: row.created_at });
+  for (const row of policies) {
+    const policy = defineCustomerSegmentFactsPolicy(parseJson(row, 'policy_json'));
+    if (await segmentFingerprint(policy) !== row.policy_fingerprint ||
+      await segmentFingerprint({ operation: 'register_policy', policy, ...context(row) }) !== row.command_fingerprint) {
+      invalid('la huella de política o registro no acredita su contenido.');
+    }
+  }
+  for (const plan of plans) {
+    const policy = byPolicy.get(`${plan.policy_id}/${plan.policy_version}`);
+    if (!policy) invalid('plan sin política registrada.');
+    if (await segmentFingerprint({ operation: 'attach_plan', runId: plan.run_id,
+      policyId: plan.policy_id, policyVersion: plan.policy_version, policyFingerprint: policy.policy_fingerprint,
+      batchSize: plan.batch_size, ...context(plan) }) !== plan.command_fingerprint) {
+      invalid('la huella del plan no acredita su comando.');
+    }
+  }
+  for (const intent of tables.customer_segment_job_intents ?? []) {
+    if (await segmentFingerprint({ operation: 'enqueue_step', runId: intent.run_id,
+      expectedRevision: intent.expected_revision, scheduledFor: intent.scheduled_for,
+      ...context(intent) }) !== intent.command_fingerprint) {
+      invalid('la huella de intención no acredita su comando.');
+    }
+  }
   for (const definition of tables.customer_segment_definitions ?? []) {
     const template = defineCustomerSegmentTemplate(parseJson(definition, 'template_json') as CustomerSegmentTemplate);
     const segment = instantiateCustomerSegment(template, parseJson(definition, 'parameters_json') as Record<string, number>);
@@ -333,11 +457,19 @@ export async function assertCustomerSegmentBackupFingerprints(tables: Record<str
         customerProfileVersion: number(row, 'customer_profile_version'),
         facts: createCustomerSegmentFacts(parseJson(row, 'facts_json') as CustomerSegmentFacts),
       }));
-    const fingerprint = await segmentFingerprint({
-      ref: source.source_snapshot_ref, policyId: source.facts_policy_id,
+    const content = {
+      policyId: source.facts_policy_id,
       policyVersion: source.facts_policy_version, capturedAt: source.facts_captured_at,
       currency: source.currency, candidates,
-    });
+    };
+    const fingerprint = await segmentFingerprint({ ref: source.source_snapshot_ref, ...content });
     if (fingerprint !== source.source_snapshot_fingerprint) invalid('la huella del conjunto no acredita su población y metadatos.');
+    const plan = plans.find((row) => row.run_id === run.run_id);
+    if (plan) {
+      const policy = byPolicy.get(`${plan.policy_id}/${plan.policy_version}`);
+      if (!policy || source.source_snapshot_ref !== `source:${policy.policy_fingerprint}:${await segmentFingerprint(content)}`) {
+        invalid('la referencia no acredita la política y contenido congelados.');
+      }
+    }
   }
 }

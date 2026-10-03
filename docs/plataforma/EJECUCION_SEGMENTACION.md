@@ -164,12 +164,12 @@ con las 45 migraciones existentes y seed public-demo. El ensayo workerd/D1 de
 segmentación supera sus 12 bloques y restaura 126 tablas idénticas, sin fallos
 de claves foráneas. No se aplica ninguna migración remota.
 
-El siguiente paso es [R5.6c.3](PROPUESTA_EJECUCION_SEGMENTACION.md): propuesta
-concreta de registro durable de políticas, planes y correlación de pasos con
-jobs. Su migración aditiva candidata 0046 necesita autorización local conforme
-al veto de arquitectura; no se ha creado DDL. G3 remoto y G4 de uso real siguen
-separados. La propuesta no registra cron ni decide políticas comerciales,
-retención destructiva o consumidores. La capacidad continúa instalada/inactiva.
+La continuación [R5.6c.3](PROPUESTA_EJECUCION_SEGMENTACION.md) añade el store
+durable de políticas, planes y correlación de pasos, con migración local 0046
+autorizada por Andreu el 2026-10-03. Backup 39 conserva esa evidencia sin recrear
+la cola. G3 remoto y G4 de uso real siguen separados. El proyecto público queda
+solo con fixtures: sin cron, envíos de formularios ni escrituras en D1. La
+capacidad continúa instalada/inactiva, sin consumidor registrado.
 
 Consejo: arquitecto ✓ puertos y esquema existentes · backend ✓ CAS y fallos
 ambiguos explícitos · fullstack ✓ reanudación y pruebas definidas · producto ✓

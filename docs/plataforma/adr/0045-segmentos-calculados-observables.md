@@ -136,6 +136,26 @@ el CAS exige definición/generación vigentes para nuevas escrituras y conserva
 el replay exacto histórico. Contrato completo en
 [EJECUCION_SEGMENTACION](../EJECUCION_SEGMENTACION.md).
 
+### R5.6c.3 — Política y correlación durables (2026-10-03)
+
+Tras autorización expresa, `0046_customer_segment_execution.sql` añade tres
+tablas append-only vacías. La política conserva documento y huella; un plan por
+run fija política/lote antes del inicio; una intención por run/revisión conserva
+la identidad del paso. Las guardas protegen identidad, contexto, cronología,
+captura coherente, CAS e intentos de sustituir filas mediante REPLACE.
+
+El store confirma intención y fila pendiente de plataforma en un batch. La
+intención sobrevive a la purga de jobs. Los comandos normalizados conservan sus
+huellas y replay históricos; un error de transporte sigue siendo resultado
+desconocido. Recuperar una cola ausente es explícito y exige revisión vigente
+abierta, sin recrear intentos ni locks perdidos.
+
+Backup 39 conserva las ocho tablas, valida reglas y huellas y restaura políticas,
+solicitudes/planes, revisiones y publicaciones, luego intenciones. Nunca restaura
+la cola; su preflight comprueba colisiones de identidad antes de tocar legacy.
+No se registra descriptor, handler, cron ni política comercial. La muestra es
+solo fixtures; las escrituras de este bloque pertenecen exclusivamente a QA.
+
 ## Consecuencias
 
 - El resultado es explicable y reproducible por versión y parámetros.

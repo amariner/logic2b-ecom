@@ -7,9 +7,9 @@
  *    de confirmación. La landing es estática, así que la confirmación no puede
  *    ser un query param de `/`: es una página propia.
  *
- * El lead se GUARDA SIEMPRE en `contact_requests` (ver migración 0003: no va a
- * `emails_outbox` porque esa bandeja es pública, se vacía en cada reset y no se
- * entrega en modo demo). El aviso por email es best-effort encima del guardado:
+ * En un despliegue cliente el lead se guarda en `contact_requests` (no va a
+ * `emails_outbox`, cuya vista pública enseña mensajes de ejemplo). En demo no
+ * se procesa ningún formulario. El aviso por email en cliente es best-effort:
  * si falla o no hay clave de Resend, el lead sigue en la base y `notified`
  * queda a 0.
  */
@@ -17,6 +17,7 @@ import type { APIRoute } from 'astro';
 import { buildLeadNotificationRequest, contactSchema, leadNotificationConfig } from '../../lib/contact';
 import { RateLimiter } from '../../lib/rate-limit';
 import { createContactService } from '../../modules/marketing';
+import { runtimePlatform } from '../../composition/runtime-platform';
 
 export const prerender = false;
 
@@ -27,6 +28,11 @@ const RULE = { limit: 5, windowMs: 10 * 60 * 1000 };
 const CONFIRM_PATH = '/proyecto-recibido';
 
 export const POST: APIRoute = async ({ request, locals, clientAddress }) => {
+  if (locals.runtime.env.DEMO_MODE === 'true' || runtimePlatform.manifest.deployment.mode === 'demo') {
+    return Response.json({ error: 'El formulario de esta muestra se simula localmente y no envía solicitudes.' }, {
+      status: 403, headers: { 'cache-control': 'no-store' },
+    });
+  }
   const contentType = request.headers.get('content-type') ?? '';
   const wantsJson = contentType.includes('application/json');
 
@@ -69,10 +75,8 @@ export const POST: APIRoute = async ({ request, locals, clientAddress }) => {
     source: data.source || null,
   });
 
-  // Aviso por email. A diferencia de los transaccionales de la tienda, este sale
-  // AUNQUE DEMO_MODE esté activo: ecom.logic2b.com corre en demo y aun así los
-  // leads son reales. Usa `LEADS_RESEND_API_KEY` (o, en un clon de cliente,
-  // `RESEND_API_KEY`). Sin clave no se envía nada y el lead queda pendiente en
+  // Aviso por email únicamente en un despliegue cliente. Usa
+  // LEADS_RESEND_API_KEY o RESEND_API_KEY. Sin clave queda pendiente en
   // la tabla; si Resend lo rechaza, el motivo queda en los logs del Worker.
   const notification = leadNotificationConfig(env);
   if (notification && contactId !== null) {

@@ -1,4 +1,3 @@
-import { demoOrderResetStatements } from '../../seed/seed';
 import { executeJob, type JobExecutionResult, type JobHandler } from '../platform/jobs';
 import type { Platform } from './create-platform';
 import { flushEventOutbox } from './outbox-dispatcher';
@@ -12,11 +11,6 @@ export type ScheduledJobEnv = Env & Readonly<{
 
 function handlerFor(jobId: string, env: ScheduledJobEnv): JobHandler {
   switch (jobId) {
-    case 'platform-configuration.demo-order-refresh':
-      return async (_run, signal) => {
-        if (env.DEMO_MODE !== 'true' || signal.aborted) return;
-        await env.DB.batch(demoOrderResetStatements().map((sql) => env.DB.prepare(sql)));
-      };
     case 'notifications.event-outbox-sweep':
       return async (_run, signal) => {
         if (env.DEMO_MODE === 'true' || signal.aborted) return;
@@ -45,10 +39,10 @@ export async function runScheduledPlatformJobs(
   env: ScheduledJobEnv,
   platform: Platform = runtimePlatform,
 ): Promise<readonly JobExecutionResult[]> {
-  const envMode = env.DEMO_MODE === 'true' ? 'demo' : 'client';
+  if (env.DEMO_MODE === 'true' || platform.manifest.deployment.mode === 'demo') return Object.freeze([]);
   // Config y variable deben contar la misma verdad. Ante deriva, ningún cron
   // ejecuta efectos: el despliegue falla cerrado y la fila ni siquiera nace.
-  if (platform.manifest.deployment.mode !== envMode) return Object.freeze([]);
+  if (env.DEMO_MODE !== 'false') return Object.freeze([]);
   const scheduledFor = new Date(scheduledTime).toISOString();
   const jobs = platform.scheduledJobs(cron);
   const results = await Promise.all(jobs.map((job) => executeJob(

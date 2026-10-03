@@ -41,6 +41,8 @@ await build({
     "export { createCustomerSegmentExecution } from './src/modules/customers/application/customer-segmentation-execution';",
     "export { segmentFingerprint } from './src/modules/customers/application/customer-segmentation-contract';",
     "export { createD1CustomerSegmentationRepository } from './src/modules/customers/infrastructure/d1-customer-segmentation-repository';",
+    "export { createD1CustomerSegmentExecutionStore } from './src/modules/customers/infrastructure/d1-customer-segment-execution-store';",
+    "export { createD1JobRunRepository } from './src/platform/jobs/d1-job-run-repository';",
     "export { defineCustomerSegmentTemplate } from './src/modules/customers/domain/customer-segmentation';",
     "export { exportD1Backup } from './src/composition/backup';",
     "export { BACKUP_TABLES, BACKUP_SCHEMA_VERSION } from './src/lib/backup';",
@@ -51,6 +53,7 @@ const {
   createD1CustomerSegmentFactsSource, CUSTOMER_SEGMENT_SOURCE_LIMITS,
   defineCustomerSegmentFactsPolicy, createCustomerSegmentExecution, segmentFingerprint,
   createD1CustomerSegmentationRepository, defineCustomerSegmentTemplate,
+  createD1CustomerSegmentExecutionStore, createD1JobRunRepository,
   exportD1Backup, BACKUP_TABLES, BACKUP_SCHEMA_VERSION,
 } = await import(pathToFileURL(bundlePath).href);
 const hash = (value) => createHash('sha256').update(JSON.stringify(value)).digest('hex');
@@ -102,12 +105,12 @@ try {
     persist: { path: join(output, 'state') } });
   const { SOURCE: source, RESTORE: restored } = platform.env;
   const migrations = (await readdir(join(root, 'migrations'))).filter((name) => /^\d{4}_.*\.sql$/.test(name)).sort();
-  assert.equal(migrations.at(-1), '0045_customer_segmentation.sql', 'Revisar el ensayo si cambia el esquema canónico.');
-  for (const migration of migrations) {
+  assert.equal(migrations.at(-1), '0046_customer_segment_execution.sql', 'Revisar el ensayo si cambia el esquema canónico.');
+  for (const migration of migrations.slice(0, -1)) {
     const sql = await readFile(join(root, 'migrations', migration), 'utf8');
     await Promise.all([executeSql(source, sql), executeSql(restored, sql)]);
   }
-  check('Dos D1 vacías reciben exclusivamente las migraciones existentes hasta 0045', { migrationCount: migrations.length });
+  check('Dos D1 vacías reciben primero las 45 migraciones anteriores para ensayar la ampliación con datos', { migrationCount: migrations.length - 1 });
 
   const base = Date.now();
   const daysAgo = (days) => new Date(base - days * 86_400_000).toISOString();
@@ -146,6 +149,19 @@ try {
     idempotency_key: `facts:transaction:${id}`, occurred_at: at, created_at: at,
   });
   await source.batch([transaction(1, 'capture', 10000, captureAt), transaction(2, 'refund', 2500, daysAgo(2))]);
+
+  const legacyNames = (await query(source, "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' AND name NOT LIKE '_cf_%' ORDER BY name"))
+    .map((row) => row.name);
+  const beforeMigration = hash(await readTables(source, legacyNames));
+  const migration46 = await readFile(join(root, 'migrations', migrations.at(-1)), 'utf8');
+  await Promise.all([executeSql(source, migration46), executeSql(restored, migration46)]);
+  assert.equal(hash(await readTables(source, legacyNames)), beforeMigration);
+  const executionTables = ['customer_segment_facts_policies', 'customer_segment_execution_plans', 'customer_segment_job_intents'];
+  for (const table of executionTables) assert.equal((await query(source, `SELECT count(*) AS value FROM ${table}`))[0].value, 0);
+  const migratedNames = (await query(source, "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' AND name NOT LIKE '_cf_%' ORDER BY name"))
+    .map((row) => row.name);
+  assert.deepEqual(migratedNames.filter((name) => !legacyNames.includes(name)).sort(), [...executionTables].sort());
+  check('0046 añade exactamente tres tablas vacías y conserva el hash de todas las filas anteriores', { previousTablesHash: beforeMigration });
 
   const names = (await query(source, "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%' AND name NOT LIKE '_cf_%' ORDER BY name"))
     .map((row) => row.name);
@@ -359,6 +375,94 @@ try {
   assert.equal(restartedCaptureCalls, 0);
   check('Publicación explícita: CAS obsoleto rechazado, versión 2 confirmada y comando idéntico reproducido sin nuevas filas');
 
+  // Composición exclusivamente de QA: ningún descriptor se registra en runtime.
+  const store = createD1CustomerSegmentExecutionStore(source, { newId: () => `durable-local-${++sequence}` });
+  const policyCommand = { ...ctx('durable:policy'), policy };
+  const registeredPolicy = await store.registerPolicy(policyCommand);
+  assert.equal(registeredPolicy.outcome, 'applied');
+  assert.equal((await store.registerPolicy(policyCommand)).outcome, 'replayed');
+  await assert.rejects(store.registerPolicy({ ...ctx('durable:policy-conflict'), policy: { ...policy, refunds: 'ignore' } }));
+  await store.registerPolicy({ ...ctx('durable:unused-policy'), policy: { ...policy, id: 'facts.rehearsal-unused' } });
+  const durableSegment = 'segment.durable-rehearsal';
+  await repo.appendDefinition({ ...ctx('durable:definition'), segmentId: durableSegment, expectedVersion: 0,
+    template, parameters: { minimum: 7200 } });
+  async function planned(label, batchSize = 1) {
+    const value = (await repo.requestRun({ ...ctx(`durable:request:${label}`), segmentId: durableSegment, definitionVersion: 1 })).value;
+    const command = { ...ctx(`durable:plan:${label}`), runId: value.runId,
+      policyId: policy.id, policyVersion: policy.version, batchSize };
+    const attached = await store.attachPlan(command);
+    assert.equal(attached.outcome, 'applied');
+    assert.equal((await store.attachPlan(command)).outcome, 'replayed');
+    return { runId: value.runId, command };
+  }
+  const durable = await planned('partial');
+  const enqueueCommand = { ...ctx('durable:enqueue:first'), runId: durable.runId, expectedRevision: 1,
+    scheduledFor: new Date().toISOString() };
+  const scheduled = await Promise.all([store.enqueueStep(enqueueCommand), store.enqueueStep(enqueueCommand)]);
+  assert.equal(scheduled.filter((item) => item.outcome === 'applied').length, 1);
+  assert.equal(scheduled.filter((item) => item.outcome === 'replayed').length, 1);
+  assert.deepEqual(scheduled[0].value, scheduled[1].value);
+  const firstIntent = scheduled[0].value;
+  await assert.rejects(store.enqueueStep({ ...ctx('durable:enqueue:incompatible'), runId: durable.runId,
+    expectedRevision: 1, scheduledFor: enqueueCommand.scheduledFor }));
+  const requested = await planned('requested');
+  const secondIntent = (await store.enqueueStep({ ...ctx('durable:enqueue:second'), runId: requested.runId,
+    expectedRevision: 1, scheduledFor: new Date().toISOString() })).value;
+  const queue = createD1JobRunRepository(source);
+  const qaDescriptor = { id: 'customers.advance-segment', moduleId: 'customers', scope: 'capability',
+    requiredCapabilityId: 'CUS-009', trigger: { kind: 'one-off' }, modes: ['client'],
+    timeoutSeconds: 30, maxAttempts: 3, retryDelaysSeconds: [1, 5] };
+  const claimedJob = await queue.claim(qaDescriptor, 'qa-worker', new Date().toISOString());
+  assert.equal(claimedJob.runId, firstIntent.jobRunId);
+  assert.notEqual(claimedJob.runId, secondIntent.jobRunId);
+  const actualIntent = await store.readJobIntent(claimedJob.runId);
+  const actualPlan = await store.readPlan(actualIntent.runId);
+  const actualPolicy = await store.readPolicy(actualPlan.policyId, actualPlan.policyVersion);
+  assert.equal(actualIntent.runId, durable.runId);
+  assert.equal(actualPlan.policyFingerprint, actualPolicy.fingerprint);
+  const plannedExecution = createCustomerSegmentExecution({ repository: repo, policy: actualPolicy.policy,
+    source: createD1CustomerSegmentFactsSource(readOnly, actualPolicy.policy), now: () => Date.now() });
+  const plannedAdvance = { runId: actualIntent.runId, actorId: 'actor:facts-rehearsal', limit: actualPlan.batchSize };
+  assert.equal((await plannedExecution.advance(plannedAdvance)).run.snapshot.state, 'running');
+  assert.equal((await repo.readRun(requested.runId)).snapshot.state, 'requested');
+  assert.equal(await queue.succeed(claimedJob, 'qa-worker', new Date().toISOString()), true);
+  const purgeAt = new Date(Date.now() + 31 * 86_400_000).toISOString();
+  assert.equal(await queue.purgeSucceeded(purgeAt, 30, 100), 1);
+  assert.deepEqual(await store.readJobIntent(firstIntent.jobRunId), firstIntent);
+  await assert.rejects(store.recoverStep({ jobRunId: firstIntent.jobRunId }));
+  check('Política y plan inmutables, encolado concurrente único y claim resuelto por el job real; purgar la cola conserva la intención', {
+    firstJobRunId: firstIntent.jobRunId, claimedRunId: actualIntent.runId,
+    outcomes: scheduled.map((item) => item.outcome),
+  });
+
+  // Caída entre confirmar inicio y preparar el paso siguiente: se relee revisión.
+  assert.equal((await query(source, 'SELECT count(*) AS value FROM customer_segment_job_intents WHERE run_id=?', durable.runId))[0].value, 1);
+  const afterStart = await repo.readRun(durable.runId);
+  const progressIntent = (await store.enqueueStep({ ...ctx('durable:enqueue:progress'), runId: durable.runId,
+    expectedRevision: afterStart.snapshot.revision, scheduledFor: new Date().toISOString() })).value;
+  const plannedResumed = createCustomerSegmentExecution({ repository: repo, policy: actualPolicy.policy,
+    source: unavailableSource, now: () => Date.now() });
+  const partial = await plannedResumed.advance(plannedAdvance);
+  assert.equal(partial.run.snapshot.processedCandidates, 1);
+  const currentIntent = (await store.enqueueStep({ ...ctx('durable:enqueue:current'), runId: durable.runId,
+    expectedRevision: partial.run.snapshot.revision, scheduledFor: new Date().toISOString() })).value;
+  const idlePlan = await planned('without-job');
+  const failedPlan = await planned('failed');
+  await repo.failRun({ ...ctx('durable:fail'), runId: failedPlan.runId, expectedRevision: 1, errorCode: 'qa.synthetic_failure' });
+  const completedPlan = await planned('completed', 100);
+  const completedIntent = (await store.enqueueStep({ ...ctx('durable:enqueue:completed'), runId: completedPlan.runId,
+    expectedRevision: 1, scheduledFor: new Date().toISOString() })).value;
+  const completionInput = { runId: completedPlan.runId, actorId: 'actor:facts-rehearsal', limit: 100 };
+  await plannedExecution.advance(completionInput);
+  await plannedResumed.advance(completionInput);
+  assert.equal((await plannedResumed.advance(completionInput)).run.snapshot.state, 'completed');
+  await plannedResumed.publish({ ...ctx('durable:publish'), segmentId: durableSegment,
+    runId: completedPlan.runId, expectedPublicationVersion: 0 });
+  await assert.rejects(store.attachPlan({ ...ctx('durable:late-plan'), runId: run.runId,
+    policyId: policy.id, policyVersion: policy.version, batchSize: 1 }));
+  assert.equal(restartedCaptureCalls, 0);
+  check('El plan fija lote y política antes de capturar; recuperación del paso siguiente, runs sin plan y con estados mixtos conservados');
+
   const backup = await exportD1Backup(source);
   const backupPath = join(output, `backup-schema-${BACKUP_SCHEMA_VERSION}.sql`);
   await writeFile(backupPath, backup.sql);
@@ -384,7 +488,26 @@ try {
   assert.equal(restartedCaptureCalls, 0);
   assert.deepEqual(await query(source, 'PRAGMA foreign_key_check'), []);
   assert.deepEqual(await query(restored, 'PRAGMA foreign_key_check'), []);
-  check('Backup38 restaura todas las filas, referencia y pertenencia publicadas con replay idempotente y cero errores FK', {
+  const restoredStore = createD1CustomerSegmentExecutionStore(restored);
+  assert.deepEqual(await restoredStore.readPolicy(policy.id, policy.version), registeredPolicy.value);
+  assert.deepEqual(await restoredStore.readPlan(durable.runId), await store.readPlan(durable.runId));
+  assert.deepEqual(await restoredStore.readJobIntent(firstIntent.jobRunId), firstIntent);
+  assert.equal((await query(restored, 'SELECT count(*) AS value FROM platform_job_runs'))[0].value, 0);
+  assert.equal((await restoredStore.registerPolicy(policyCommand)).outcome, 'replayed');
+  assert.equal((await restoredStore.attachPlan(durable.command)).outcome, 'replayed');
+  assert.equal((await restoredStore.enqueueStep(enqueueCommand)).outcome, 'replayed');
+  assert.equal((await query(restored, 'SELECT count(*) AS value FROM platform_job_runs'))[0].value, 0);
+  await assert.rejects(restoredStore.recoverStep({ jobRunId: firstIntent.jobRunId }));
+  await assert.rejects(restoredStore.recoverStep({ jobRunId: progressIntent.jobRunId }));
+  await assert.rejects(restoredStore.recoverStep({ jobRunId: completedIntent.jobRunId }));
+  assert.equal((await restoredStore.recoverStep({ jobRunId: currentIntent.jobRunId })).outcome, 'applied');
+  assert.equal((await restoredStore.recoverStep({ jobRunId: currentIntent.jobRunId })).outcome, 'replayed');
+  assert.equal((await restoredStore.recoverStep({ jobRunId: secondIntent.jobRunId })).outcome, 'applied');
+  assert.equal((await query(restored, 'SELECT count(*) AS value FROM platform_job_runs'))[0].value, 2);
+  assert.equal((await restoredRepo.readRun(idlePlan.runId)).snapshot.state, 'requested');
+  assert.deepEqual(await readTables(restored, BACKUP_TABLES), sourceTables);
+  assert.deepEqual(await query(restored, 'PRAGMA foreign_key_check'), []);
+  check('Backup39 restaura políticas, planes e intenciones sin cola; solo una recuperación explícita de revisión abierta vigente recrea el paso', {
     tableCount: BACKUP_TABLES.length, tablesHash: hash(sourceTables), restoreStatements,
     backupPath, backupSha256: createHash('sha256').update(backup.sql).digest('hex'),
   });

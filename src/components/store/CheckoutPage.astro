@@ -62,7 +62,7 @@ const demoCommerceJson = demoJson({
       </dl>
     </div>
 
-    <form data-checkout-form data-commerce-part="form" class="mt-6 space-y-4" novalidate>
+    <form method="dialog" data-checkout-form data-commerce-part="form" class="mt-6 space-y-4" novalidate>
       <div>
         <label class="block text-sm font-medium" for="name">Nombre y apellidos</label>
         <input id="name" name="name" required minlength="2" autocomplete="name"
@@ -111,7 +111,7 @@ const demoCommerceJson = demoJson({
               class="mt-1 w-full rounded-btn border border-border bg-card px-4 py-2.5 focus:border-brand" />
           </div>
         </div>
-        <p class="mt-2 text-xs text-muted-foreground">{experience ? 'En esta demo también se conservan solo en la confirmación local y no se envían.' : 'El comercio los tendrá junto al pedido para emitir tu factura.'}</p>
+        <p class="mt-2 text-xs text-muted-foreground">Datos de ejemplo: en esta demo no se envían ni se guardan los datos de facturación.</p>
       </details>
 
       <p data-checkout-error role="alert" class="hidden rounded border border-red-200 bg-red-50 p-3 text-sm text-destructive"></p>

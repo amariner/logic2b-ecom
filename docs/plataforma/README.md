@@ -76,7 +76,8 @@ venta o servicios logísticos propios.
 - [`EJECUCION_SEGMENTACION.md`](EJECUCION_SEGMENTACION.md): coordinador interno
   implementado, reanudación por revisión y publicación explícita de R5.6c.2.
 - [`PROPUESTA_EJECUCION_SEGMENTACION.md`](PROPUESTA_EJECUCION_SEGMENTACION.md):
-  alcance de R5.6c.3, con migración local pendiente de autorización.
+  alcance de R5.6c.3 implementado con autorización local: 0046, políticas,
+  planes, intenciones y backup 39 verificados en QA sintética; sin activación.
 - [`wiki/observabilidad-operativa-ecommerce.md`](wiki/observabilidad-operativa-ecommerce.md):
   borrador interno R1.9; no promete alertas hasta que R11.5 las implemente.
 - [`wiki/integraciones-observables.md`](wiki/integraciones-observables.md):

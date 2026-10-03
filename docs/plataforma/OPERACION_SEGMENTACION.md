@@ -1,5 +1,53 @@
 # Operación de segmentación calculada
 
+## Corte vigente R5.6c.3 y límite de la demo
+
+La migración `0046_customer_segment_execution.sql` y backup **39** amplían el
+corte local con políticas completas, planes e intenciones de pasos. Andreu
+autoriza su implementación y ensayo en QA aislada el 2026-10-03. No se aplica
+DDL a la D1 desplegada, no se registra un handler ni se activa CUS-009.
+
+El corte local de la demo usa exclusivamente fixtures: sin cron, pedidos
+reales, envío de formularios ni escrituras operativas en D1. Un scheduled
+antiguo no llama al runner; las peticiones mutantes demo se rechazan antes de
+leer el cuerpo o la base. Contacto y previews son ejemplos locales, sin beacon.
+Los SELECT de fixtures existentes y la cookie stateless del acceso guiado no
+crean datos comerciales.
+
+Este corte está verificado en local y no se ha desplegado. La demo requiere
+reconstruir con manifest `deployment.mode = 'demo'` y `DEMO_MODE=true` en build
+y runtime. Cambiar solo una variable remota no convierte en demo el HTML de
+un build de cliente. Antes de un despliegue autorizado hay que reconstruir y
+validar ese artefacto; la versión servida permanece intacta.
+
+El store interno conserva la política antes de capturar y el lote en el plan.
+`enqueueStep` confirma intención y cola en un batch; la correlación se resuelve
+por el job realmente reclamado. La cola de plataforma puede purgarse y no forma
+parte del backup. `recoverStep` solo reconstruye explícitamente una fila
+pendiente de revisión todavía vigente y abierta, con identidad y fechas
+originales. Un replay histórico no reconstruye cola por sí solo.
+
+Backup 39 exige 0046 y las ocho tablas de segmentación vacías. Su preflight
+rechaza esquema ausente, historia existente y colisiones de ID/clave con jobs
+del destino antes de modificar datos legacy. Restaura políticas, la solicitud
+de cada run, su plan, resultados/revisiones/publicaciones y al final intenciones;
+no crea `platform_job_runs`. No se desactivan las guardas. El formato 38 queda
+como evidencia histórica de 0045, no como alternativa para datos de c.3.
+
+El [contrato y alcance autorizado](PROPUESTA_EJECUCION_SEGMENTACION.md) detalla
+los repositorios, el rollback aditivo y la recuperación. La demo visual de
+segmentación sigue pendiente hasta un bloque ilustrativo propio.
+
+Validación final del 2026-10-03: `pnpm check` pasa 877 archivos sin diagnósticos,
+220 suites/1.705 pruebas y build de 44 HTML con 44 formularios de simulación.
+El [ensayo workerd/D1](../audits/r5-6c/facts-d1-report.json) pasa 15 bloques y
+restaura 129 tablas con backup 39. [E2E](../audits/demo-fixtures/e2e-report.json):
+153/153; [navegador](../audits/demo-fixtures/report.json): 31 comprobaciones,
+cero escrituras y beacons; [accesibilidad](../audits/demo-fixtures/a11y-report.json):
+ocho superficies, cero errores y avisos. La base QA de la demo conserva sus
+143 tablas y 353 filas, con SHA-256 antes y después
+`9cbfc811cfc4296515a403d395875a43bfa26aff0c9c9b08be0804b15bbf6eca`.
+
 ## Corte R5.6b
 
 El 2026-09-18 Andreu autorizó continuar la propuesta de persistencia con alcance
@@ -55,18 +103,23 @@ fallos; no se traducen en listas vacías ni resultados negativos.
 
 ## Backup y restauración
 
-El formato **38** exige `0045`. La extracción usa un único batch consistente,
-columnas explícitas y validación de contratos, evaluación y huellas de
-definiciones, hechos y conjuntos. Las claves y huellas de comandos históricos
-se conservan para mantener su idempotencia.
+El formato vigente **39** exige `0046`. La extracción usa un único batch
+consistente, columnas explícitas y validación de contratos, evaluación y
+huellas de definiciones, hechos, conjuntos y políticas completas. Comprueba
+planes, intenciones y fechas canónicas de 24 caracteres. Las claves y huellas
+de comandos históricos se conservan para mantener su idempotencia. El formato
+38 es histórico de 0045; no representa los datos nuevos de c.3.
 
 Restaurar en una base aislada preparada con las migraciones correctas. El
-preflight comprueba el esquema y rechaza historia de segmentación existente
-antes de cualquier borrado. Las guardas permanecen activas. El SQL reconstruye
+preflight comprueba el esquema, exige las ocho tablas de segmentación vacías
+y rechaza colisiones de ID/clave con la cola del destino antes de cualquier
+borrado. Las guardas permanecen activas. Tras las políticas, el SQL reconstruye
 cada segmento por versión de definición; dentro de ella reproduce ejecuciones,
-candidatos, revisiones/resultados y publicaciones antes de avanzar a la siguiente
-definición. No necesita reproducir el orden temporal global entre ejecuciones
-independientes, pero conserva todos sus timestamps y relaciones.
+planes después de `requested` y antes de iniciar, candidatos,
+revisiones/resultados y publicaciones antes de avanzar a la siguiente
+definición. Las intenciones se restauran al final; la cola no se restaura.
+No necesita reproducir el orden temporal global entre ejecuciones independientes,
+pero conserva todos sus timestamps y relaciones.
 
 El ensayo incluye dos definiciones publicadas, una tercera sin publicar, una
 ejecución antigua que finaliza tarde, estados parciales/fallidos, conjunto vacío,
@@ -81,7 +134,7 @@ autorización independiente.
 ## Comprobaciones locales
 
 ```sh
-pnpm exec vitest run tests/customer-segmentation*.test.ts tests/backup.test.ts
+pnpm exec vitest run tests/customer-segmentation*.test.ts tests/customer-segment-execution-store.test.ts tests/backup.test.ts
 pnpm db:rehearse:customer-segmentation -- \
   --baseline-sqlite /ruta/a/copia-local-en-0044.sqlite \
   --output-dir tmp/segmentation-rehearsal
@@ -89,10 +142,13 @@ pnpm db:rehearse:customer-segmentation:d1
 pnpm check
 ```
 
-El rehearsal de SQLite copia su origen, conserva el hash de todas las tablas
-anteriores, verifica exactamente cinco tablas nuevas vacías y revierte sus
-probes. Una copia cruda `.dump` no sustituye la prueba de restore con los triggers
-definitivos activos. El ensayo D1 local usa exclusivamente datos sintéticos y
+El rehearsal histórico de SQLite abre su origen en solo lectura y lo copia
+mediante el backup de Node; prueba 0044→0045, conserva el hash de todas las
+tablas anteriores, verifica cinco tablas nuevas vacías y revierte sus probes.
+Una copia cruda `.dump` no sustituye la prueba de restore con los triggers
+definitivos activos. El ensayo D1 prueba ese lifecycle y después aplica 0046
+sin alterar la historia para ensayar el backup 39 vigente; no inventa
+compatibilidad con formato 38. Usa exclusivamente datos sintéticos y
 dos bindings temporales, con `remoteBindings: false` y `envFiles: []`. Genera
 configuración, artefactos y un informe en `tmp/segmentation-d1`, ejecuta el ciclo
 de repositorio y restaura el SQL de la misma composición que usa el panel.
@@ -121,9 +177,11 @@ los convierte en cero candidatos. La fecha procede del reloj D1 en la misma
 transacción. Las fechas legacy `YYYY-MM-DD HH:mm:ss` significan UTC. No se
 acepta un parámetro `asOf` ni se promete reconstrucción histórica.
 
-El SHA-256 de la política queda en la referencia opaca. Antes de una activación
-por proyecto hay que conservar además el documento canónico de esa política:
-el backup de hechos conserva su huella, pero no almacena sus reglas completas.
+El SHA-256 de la política queda en la referencia opaca. La captura por sí sola
+conserva la huella; desde c.3, el plan referencia una política registrada
+completa y el backup 39 incluye sus reglas. Los runs históricos sin plan no
+reciben políticas inventadas ni backfill. Antes de una activación por proyecto
+deben elegirse y registrarse expresamente sus reglas comerciales.
 Cambios posteriores de pagos no modifican los hechos congelados; requieren
 otra captura. Un cambio de perfil sigue invalidando la vigencia de su pertenencia.
 
@@ -136,9 +194,11 @@ pnpm db:rehearse:customer-segmentation-facts:d1
 
 El [informe](../audits/r5-6c/facts-d1-report.json) verifica con workerd/D1 local
 captura, publicación, cambios posteriores, política alternativa, frontera
-100/101 y restore de 126 tablas idénticas con triggers activos. La fuente no
-altera ninguna tabla. El restore conserva hechos, referencia y replay de
-publicación. No hay migración nueva, proveedor ni despliegue remoto.
+100/101 y, tras ampliar el ensayo a c.3, restore de 129 tablas idénticas con
+triggers activos y backup 39. Sus 15 bloques incluyen políticas, planes,
+intenciones y recuperación explícita. La fuente no altera ninguna tabla.
+El restore conserva hechos, referencia y replay de publicación. c.1 no añadió
+DDL; 0046 corresponde al corte c.3 autorizado solo en QA, sin despliegue remoto.
 
 ## Ejecución reanudable R5.6c.2 (2026-10-03)
 
@@ -171,9 +231,10 @@ runtime, jobs registrados, rutas ni flags nuevas.
 
 ## Siguiente bloque y gate
 
-La [propuesta R5.6c.3](PROPUESTA_EJECUCION_SEGMENTACION.md) prepara conservación
-durable de políticas, planes y correlación con los pasos de jobs: tres tablas
-aditivas y backup 39, exclusivamente en QA local. La migración candidata 0046
-necesita autorización expresa; no se ha creado. G3 remoto, política comercial,
-retención y uso real G4 permanecen separados. CUS-009 sigue parcial/inactiva
-y con demo visual pendiente.
+El [cierre R5.6c.3](PROPUESTA_EJECUCION_SEGMENTACION.md) conserva políticas,
+planes y correlación con pasos de jobs mediante 0046 y backup 39, autorizados
+y verificados exclusivamente en QA local. El siguiente bloque R5.6d es una
+demostración visual sobre fixtures, con evaluación pura, sin APIs operativas,
+cron ni persistencia. G3 remoto, política comercial, retención y uso real G4
+permanecen separados. CUS-009 sigue parcial e inactiva; su demo visual está
+pendiente y el cierre local no autoriza activación ni despliegue.

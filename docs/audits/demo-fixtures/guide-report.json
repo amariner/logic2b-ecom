@@ -1,0 +1,10 @@
+{
+  "viewports": [
+    1440,
+    375
+  ],
+  "journey": "Traza → ficha → carrito local → checkout simulado → confirmación local → gestor de fixtures",
+  "result": "passed",
+  "operationalApiRequests": 0,
+  "javascriptExceptions": 0
+}

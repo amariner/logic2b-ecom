@@ -10,16 +10,6 @@ const RETRIES = Object.freeze([30, 120, 600, 1_800] as const);
 
 export const JOB_DESCRIPTORS = [
   {
-    id: 'platform-configuration.demo-order-refresh',
-    moduleId: 'platform-configuration',
-    scope: 'deployment-maintenance',
-    trigger: { kind: 'recurring', crons: ['17 3 * * 1'] },
-    modes: ['demo'],
-    timeoutSeconds: 60,
-    maxAttempts: 5,
-    retryDelaysSeconds: RETRIES,
-  },
-  {
     id: 'notifications.event-outbox-sweep',
     moduleId: 'notifications',
     scope: 'capability',
@@ -213,6 +203,7 @@ export function resolveScheduledJobs(
   manifest: ResolvedCapabilityManifest,
   cron: string,
 ): readonly JobDescriptor[] {
+  if (manifest.deployment.mode === 'demo') return Object.freeze([]);
   return Object.freeze(registry.descriptors.filter((descriptor) => {
     if (!operationalModuleIds.has(descriptor.moduleId)) return false;
     if (!descriptor.modes.includes(manifest.deployment.mode)) return false;

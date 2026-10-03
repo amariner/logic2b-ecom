@@ -1,8 +1,10 @@
 ---
 /** Pageview agregado de Cloudflare: sin cookies ni eventos de comportamiento. */
 import { shopConfig } from '../../shop.config';
+import { runtimePlatform } from '../composition/runtime-platform';
+const demoMode = runtimePlatform.manifest.deployment.mode === 'demo' || Astro.locals.runtime?.env.DEMO_MODE === 'true';
 ---
-{shopConfig.analytics.cfBeaconToken && (
+{!demoMode && shopConfig.analytics.cfBeaconToken && (
   <script
     defer
     src="https://static.cloudflareinsights.com/beacon.min.js"

@@ -16,6 +16,7 @@ import {
 } from '../../../modules/orders';
 
 export const prerender = false;
+const readOnly = runtimePlatform.manifest.deployment.mode === 'demo' || Astro.locals.runtime.env.DEMO_MODE === 'true';
 
 const rawStatus = Astro.url.searchParams.get('estado') ?? '';
 const status = (ORDER_STATUSES as readonly string[]).includes(rawStatus) ? rawStatus : undefined;
@@ -77,7 +78,7 @@ const canBackup = runtimePlatform.hasCapabilityFlag('INT-004', 'routes');
 const canExport = runtimePlatform.hasCapabilityFlag('FUL-003', 'routes');
 const canBulkPreview = runtimePlatform.hasCapabilityFlag('ORD-011', 'navigation') &&
   runtimePlatform.hasCapabilityFlag('AUT-011', 'routes');
-const canBulkExecute = Astro.locals.runtime.env.DEMO_MODE !== 'true' &&
+const canBulkExecute = !readOnly &&
   runtimePlatform.hasCapabilityFlag('ORD-011', 'jobs') &&
   runtimePlatform.hasCapabilityFlag('ORD-011', 'sideEffects');
 const bulkTags = tagDefinitions.filter((item) => item.active === 1);
@@ -152,6 +153,7 @@ const date = (value: string) => new Intl.DateTimeFormat('es-ES', { day: '2-digit
     {canBulkPreview && <section
       id="bulk-actions"
       data-can-execute={canBulkExecute ? 'true' : 'false'}
+      data-local-preview={readOnly ? 'true' : undefined}
       class="border-b border-border bg-muted/30"
       aria-labelledby="bulk-actions-title"
     >
@@ -171,7 +173,7 @@ const date = (value: string) => new Intl.DateTimeFormat('es-ES', { day: '2-digit
             <button type="button" data-bulk-clear class="min-h-10 rounded-xl px-3 font-medium text-muted-foreground hover:bg-muted">Vaciar selección</button>
           </div>
         </div>
-        <form id="bulk-action-form" class="grid w-full gap-3 rounded-2xl border border-border bg-card p-4 xl:max-w-2xl xl:grid-cols-2">
+        <form method={readOnly ? 'dialog' : undefined} data-demo-local={readOnly ? '' : undefined} id="bulk-action-form" class="grid w-full gap-3 rounded-2xl border border-border bg-card p-4 xl:max-w-2xl xl:grid-cols-2">
           <label class="text-xs font-semibold text-muted-foreground">Acción
             <select name="action" class="mt-1 min-h-11 w-full rounded-xl border border-input bg-background px-3 text-sm text-foreground">
               <option value="add_tag">Añadir etiqueta</option>
@@ -211,7 +213,7 @@ const date = (value: string) => new Intl.DateTimeFormat('es-ES', { day: '2-digit
         <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div>
             <p class="text-xs font-semibold uppercase tracking-[0.12em] text-muted-foreground">Vista previa · aún no cambia nada</p>
-            <p class="mt-2 font-semibold"><span data-bulk-ready>0</span> listos · <span data-bulk-skipped>0</span> omitidos</p>
+            <p class="mt-2 font-semibold"><span data-bulk-ready>0</span> {readOnly ? 'seleccionados para el ejemplo' : 'listos'} · <span data-bulk-skipped>0</span> omitidos</p>
             <p data-bulk-status class="mt-1 text-sm text-muted-foreground"></p>
           </div>
           <div class="flex flex-wrap gap-2">
@@ -219,7 +221,7 @@ const date = (value: string) => new Intl.DateTimeFormat('es-ES', { day: '2-digit
             <button type="button" data-bulk-replay class="min-h-11 rounded-xl border border-border px-4 text-sm font-semibold hover:bg-muted" hidden>Reintentar fallos</button>
           </div>
         </div>
-        {!canBulkExecute && <div class="mt-3"><AdminNotice tone="info">La demo enseña la vista previa, pero nunca modifica pedidos.</AdminNotice></div>}
+        {!canBulkExecute && <div class="mt-3"><AdminNotice tone="info">{readOnly ? 'Vista ilustrativa en tu navegador. No envía formularios, comprueba reglas reales ni modifica pedidos.' : 'Solo vista previa: el servidor comprueba las reglas, pero la ejecución de cambios no está habilitada.'}</AdminNotice></div>}
         <ul data-bulk-rows class="mt-3 grid gap-2 text-sm sm:grid-cols-2 xl:grid-cols-3"></ul>
       </div>
       </details>
@@ -289,6 +291,7 @@ const date = (value: string) => new Intl.DateTimeFormat('es-ES', { day: '2-digit
     const holdFields = panel.querySelector<HTMLElement>('[data-bulk-hold-fields]')!;
     const dueInput = form.elements.namedItem('due_at') as HTMLInputElement;
     const canExecute = panel.dataset.canExecute === 'true';
+    const localPreview = panel.dataset.localPreview === 'true';
     let currentPreview: BulkPreview | null = null;
     let currentBatchId: string | null = null;
 
@@ -433,6 +436,19 @@ const date = (value: string) => new Intl.DateTimeFormat('es-ES', { day: '2-digit
 
     form.addEventListener('submit', (event) => {
       event.preventDefault();
+      if (localPreview) {
+        result.hidden = false;
+        ready.textContent = String(selected.size);
+        skipped.textContent = '0';
+        confirmButton.hidden = true;
+        replayButton.hidden = true;
+        status.textContent = selected.size === 0
+          ? 'Selecciona al menos un pedido para ver el ejemplo.'
+          : 'Ejemplo local: la acción elegida no se ha enviado ni aplicado.';
+        const label = actionSelect.selectedOptions[0]?.textContent ?? 'Acción seleccionada';
+        renderRows([...selected].map((orderId) => ({ orderId, label: `Ejemplo: ${label}`, tone: 'text-muted-foreground' })));
+        return;
+      }
       void (async () => {
         if (selected.size === 0) throw new Error('Selecciona al menos un pedido.');
         const data = new FormData(form);
@@ -462,6 +478,7 @@ const date = (value: string) => new Intl.DateTimeFormat('es-ES', { day: '2-digit
     });
 
     confirmButton.addEventListener('click', () => {
+      if (localPreview || !canExecute) return;
       void (async () => {
         if (!currentPreview) throw new Error('Genera una vista previa nueva antes de confirmar.');
         confirmButton.disabled = true;
@@ -480,6 +497,7 @@ const date = (value: string) => new Intl.DateTimeFormat('es-ES', { day: '2-digit
     });
 
     replayButton.addEventListener('click', () => {
+      if (localPreview || !canExecute) return;
       void (async () => {
         if (!currentBatchId) throw new Error('No hay un lote reintentable.');
         replayButton.disabled = true;

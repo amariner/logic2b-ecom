@@ -16,6 +16,45 @@
 > 2. Actualizar el estado de la fase al terminar, con fecha y resumen de lo hecho.
 > 3. Anotar decisiones tomadas y pendientes en las secciones de abajo.
 
+## R5.6c.3 y demo exclusivamente con fixtures (2026-10-03)
+
+Andreu autoriza la migración local y ratifica: «solo muestra funcionalidades
+posibles, nada de crons, pedidos reales o envíos de formularios y cambios en
+base de datos». Se registra el mandato en AGENTS/CLAUDE y en el protocolo de
+continuidad. La autorización de push/merge sigue vigente; no incluye despliegue
+ni DDL remoto.
+
+- `0046_customer_segment_execution.sql`: tres tablas aditivas vacías para
+  políticas completas, planes por run e intenciones por revisión. Identidad,
+  huellas, cronología, inmutabilidad y CAS también se comprueban en SQL.
+- Store interno para registro/lectura, plan, encolado atómico y recuperación
+  explícita. Un replay histórico no recrea la cola; un paso superado no vuelve
+  a encolarse. Ningún consumidor se registra en el runtime.
+- Backup 39 conserva ocho tablas de segmentación y excluye la cola efímera.
+  Comprueba colisiones del destino antes de tocar datos legacy; restaura planes
+  antes del inicio y conserva políticas, publicaciones y claves históricas.
+- Demo: crons vacíos, scheduled inerte, rechazo global de métodos mutantes
+  antes de leer body/D1/proveedores y retirada de la excepción de contacto.
+  Formularios, newsletters y preview masivo son simulaciones locales; sin
+  JavaScript tampoco envían campos. Analítica por beacon desactivada en demo.
+- La demo puede leer fixtures sintéticos preparados; la migración y las pruebas
+  de escritura se ejecutan únicamente en bases QA aisladas.
+
+**Cierre local verificado:** `pnpm check` pasa 877 archivos sin diagnósticos,
+220 suites/1.705 pruebas y build de 44 HTML con 44 formularios de simulación.
+El [ensayo workerd/D1](audits/r5-6c/facts-d1-report.json) pasa 15 bloques y
+restaura 129 tablas con backup 39. E2E: 153/153; navegador: 31 comprobaciones,
+cero escrituras y beacons; accesibilidad: ocho superficies, cero errores y
+avisos. La [auditoría de la demo](audits/demo-fixtures/report.json) conserva
+las 143 tablas y 353 filas de la base QA: SHA-256 antes y después
+`9cbfc811cfc4296515a403d395875a43bfa26aff0c9c9b08be0804b15bbf6eca`.
+
+La demo exige reconstruir con manifest `deployment.mode = 'demo'` y
+`DEMO_MODE=true` en build y runtime: cambiar solo una variable remota no
+convierte un build de cliente en demo ni sustituye la validación de sus HTML.
+CUS-009 continúa instalada/inactiva; su demo visual sigue pendiente en R5.6d.
+El despliegue servido conserva su versión previa; no se ha desplegado este corte.
+
 ## Backend — ejecución reanudable R5.6c.2 (2026-10-03)
 
 Tras el commit local `3b87cf9` de c.1 se continúa con el siguiente bloque:
@@ -43,17 +82,19 @@ E2E general final: 142 comprobaciones, cero fallos, sobre otra base QA propia
 con 45 migraciones y 246 sentencias de seed public-demo. Los servidores del
 ensayo quedan detenidos.
 
-Siguiente bloque: [R5.6c.3](plataforma/PROPUESTA_EJECUCION_SEGMENTACION.md),
-propuesta revisable de tres tablas, repositorios y backup 39 en QA local.
-**Requiere autorización de migración; no se ha creado 0046.** La cola visual
-no tiene referencias ejecutables y no se salta a R5.7. CUS-009 sigue parcial,
-installed/inactiva y con demo visual pendiente; producción no cambia.
+Este corte dejó propuesta [R5.6c.3](plataforma/PROPUESTA_EJECUCION_SEGMENTACION.md),
+después autorizada e implementada con 0046 y backup 39 exclusivamente en QA
+local, como recoge el cierre superior. El siguiente bloque es R5.6d, demo
+visual con fixtures; no se salta a R5.7. CUS-009 sigue parcial e inactiva;
+producción no cambia.
 
 Integración: c.1 en `3b87cf9` y c.2 en `a107a83`. Andreu autoriza expresamente
 «Sí, push y merge tras verificar los checks» el 2026-10-03, resolviendo el
 bloqueo anterior de revisión automática. La integración sigue el flujo de PR
 hacia `main` en `amariner/logic2b-ecom`, con comprobaciones antes del merge.
-Esta autorización no incluye la migración c.3 ni despliegues a producción.
+La autorización de integración no incluía la migración c.3; esta recibió
+después su permiso específico para QA local. Ninguna incluye despliegues ni
+DDL remoto.
 
 Consejo: arquitecto ✓ sin nuevo esquema/servicio · backend ✓ CAS y dinero ·
 fullstack ✓ recuperación y restore · producto ✓ capacidad inactiva declarada.
@@ -706,7 +747,7 @@ reconciliación se conserva abajo por contexto.
 | 11 | Landing V2 «nivel Awwwards» + negocio + funnel + docs | 🟡 En curso | 2026-08-13 | **F11.1, F11.3 (2 sesiones), F11.4, F11.5, F11.6, F11.7 y F11.8 (primera pasada + pase a11y/contenido desde cloud 2026-07-24) hechos**, más F11.8b (auditor de a11y, cloud), F11.2a-1 (tienda ASFALTO / tema Street), F11.2a-2 (tienda METRIA / tema Industrial) F11.2a-3 (tienda ROMER / tema Natural) y **F11.2a-4 (tienda KALIBRE / tema Specs, local 2026-07-25) — con la que F11.2a queda CERRADA (10/10 tiendas)**; y **F11.8c (Lighthouse citable + OG de WhatsApp + URLs sin redirección, local 2026-07-26)**; y **F11.8d–e (tabla de Lighthouse cerrada y desplegada: 7 de 8 superficies a 100×4, la landing entre ellas en móvil y escritorio, local 2026-07-27)**; y **F11.9 (contacto global de WhatsApp, cerrado y servido 2026-08-13)**. Solo queda la submission a Awwwards, decisión de pago reservada a Andreu. Detalle por bloque abajo. **Plan maestro completo en [`docs/PLAN_FASE11_LANDING_V2.md`](PLAN_FASE11_LANDING_V2.md)**: bloques F11.0–F11.8 ejecutables por sesiones independientes. **Decisiones D1–D6 APROBADAS por Andreu (2026-07-23)**: JS propio ≤15 KB sin deps, capturas con browser tools en local, dirección C «Ocho tiendas, un motor», escalera de precios (Lite 590 / Kit 1.900+39 / A medida 3.400+59), WhatsApp+email, Lite publicado sin construir. Prompt de arranque: [`docs/PROMPT_FASE11.md`](PROMPT_FASE11.md). Integra 9B.5/9B.6 (imaginería y temas restantes) como prerequisito del hero |
 | 8 | Pulido de la demo (backlog abajo) | 🟡 En curso | 2026-07-19 | Backlog técnico agotado; solo quedan decisiones y pasos locales de Andreu (ver «Decisiones pendientes» y `docs/PROMPT_CLOUD.md`). Últimas tandas: novena (race de idempotencia en el pago, PII enumerable en `/demo/gracias`, cancelación de pedido pagado sin devolver stock), décima (la misma race en el PATCH de admin, campos vacíos guardados como 0, login sin rate limit), undécima (diagrama móvil de `/arquitectura`, hedge del plazo de entrega, tokens de tema en `/demo/reset`, terminología «envío»), duodécima (aviso de corte en pedidos del admin, cabeceras sin wrap a 375px, leftover «portes», token de radio del carrito, contraste del botón eliminar, H1 en valenciano, checklist de producción) y decimotercera (misma race de idempotencia en `checkout.session.expired`, divisa hardcodeada a EUR fuera de Stripe, cobertura de test de `quoteCart`/PATCH admin/emails) y decimocuarta (config parcial de Stripe → cobro sin cumplimiento, emails duplicados bajo concurrencia, `payment_status` del webhook, color de marca centralizado en `shop.config.ts`, contraste/tema en carrito y checkout) — ver sección «Fase 8» |
 | 12 | Logic2B Ecommerce: renombrado, reposicionamiento y docs de dos visiones | ✅ Hecho | 2026-08-10 | **F12.0–F12.6 cerrados:** marca, argumento, dossier, canal agencias, ayuda, índice por audiencias, OG y auditorías citables consolidados. **Plan maestro en [`docs/PLAN_FASE12_LOGIC2B_ECOMMERCE.md`](PLAN_FASE12_LOGIC2B_ECOMMERCE.md)**. |
-| 13 | Plataforma modular: del gestor mínimo a paridad extrema de capacidad | 🟡 En curso | 2026-10-03 | **R0–R4 y los cortes autorizados R5.1–R5.5 cerrados; R5.6a–b y c.1–c.2 implementados localmente.** Política/captura consistente y coordinador reanudable verificados. CUS-003/004/005/006/009 siguen installed/inactivos y los gates de privacidad/rollout por proyecto continúan. Siguiente: R5.6c.3, con propuesta de migración local pendiente de autorización. Fuente de verdad en [`docs/plataforma/`](plataforma/README.md). |
+| 13 | Plataforma modular: del gestor mínimo a paridad extrema de capacidad | 🟡 En curso | 2026-10-03 | **R0–R4 y los cortes autorizados R5.1–R5.5 cerrados; R5.6a–b y c.1–c.3 implementados localmente.** Política/captura, coordinador y store durable verificados con 0046/backup39. Demo solo fixtures sin cron ni envíos. CUS-003/004/005/006/009 siguen installed/inactivos. Siguiente: R5.6d, representación visual de segmentos con fixtures. Fuente de verdad en [`docs/plataforma/`](plataforma/README.md). |
 
 ## Repo y entornos
 
@@ -806,7 +847,8 @@ inerte o una intención del roadmap en alcance disponible.
 | R5.6a.1 | Validación estricta del contrato de segmentos | ✅ 2026-09-18 — formas/tipos/campos exactos, comparadores explícitos, ausencia `null`, reloj y lifecycle; 54 pruebas focales; persistencia entregada después en R5.6b |
 | R5.6b | Persistencia de segmentos | ✅ Local — D1 `0045`, backup 38, hechos congelados, revisiones, publicación CAS y restore; rollout pendiente |
 | R5.6c.1–c.2 | Captura consistente y ejecución reanudable | ✅ Local 2026-10-03 — política explícita, pagos mixtos, avance por lote y recuperación; 158 pruebas nuevas, ensayo D1 con restore de 126 tablas; sin activación |
-| R5.6c.3 | Política durable y correlación de ejecuciones | ⬜ Propuesta concreta de tres tablas y backup 39; migración local pendiente de autorización |
+| R5.6c.3 | Política durable y correlación de ejecuciones | ✅ Local 2026-10-03 — 0046 autorizada, tres tablas append-only, store y backup 39; 15 bloques D1 y restore de 129 tablas; sin runtime activo |
+| R5.6d | Representación visual de segmentos | ⬜ Demo ilustrativa local con templates, filtros y progreso; sin APIs ni activación |
 | R5.2 | Consentimiento versionado | ✅ 2026-08-17 — ADR-0040, D1 `0037`, repositorio concurrente, backup 31, rehearsal y E2E local; `CUS-007` instalada e inerte |
 | R5.3a | Derechos de datos verificables | ✅ 2026-08-17 — ADR-0041, lifecycle, dry-run, doble control y puertos; `CUS-008` instalada e inerte, sin DDL ni efectos |
 | R5.3b | Persistencia de solicitudes de derechos | ✅ 2026-08-18 — D1 `0038`, repositorio concurrente, backup 32 y rehearsal/restore local; sin PII, rutas ni ejecución |
@@ -2363,22 +2405,23 @@ solo vuelve a `main` o a producción por instrucción expresa.
 Zancada queda completado, integrado en GitHub y publicado por encargo expreso
 del 2026-09-08. La cola de plataforma que sigue no cambia por esta importación.
 
-### R5.6c.3 — Política durable y correlación de ejecuciones (gate local)
+### R5.6d — Demostración visual de segmentos con fixtures
 
-R5.6c.1–c.2 están implementados y probados localmente: política explícita,
-captura consistente, evidencia separada de pagos mixtos, avance acotado,
-recuperación, publicación CAS y restore. La
-[propuesta R5.6c.3](plataforma/PROPUESTA_EJECUCION_SEGMENTACION.md) deja concretos
-las tres tablas aditivas, repositorios y backup 39 para QA, sin reglas
-comerciales, activación, cron, rutas ni uso remoto. Esperar autorización local
-antes de implementar la migración candidata 0046; sincronizar Git y comprobar
-numeración y esquema 0045 de la base QA local al reanudar. CUS-009 conserva estado parcial/installed/inactiva y demo
-visual pendiente. No saltar a R5.7 para eludir este gate.
+R5.6c.1–c.3 implementan política explícita, captura consistente, recuperación,
+publicación CAS y políticas/planes/intenciones durables. 0046 está autorizada y
+ensayada solo en QA; backup 39 restaura 129 tablas sin reencolar jobs. La
+restricción vigente del proyecto es demo solo fixtures: sin cron, pedidos
+reales, envío de formularios ni cambios en la base desplegada.
 
-Integración GitHub autorizada expresamente el 2026-10-03: push y merge después
-de verificar los checks, mediante PR desde `codex/segmentation-facts-recovery`
-hacia `main` en `amariner/logic2b-ecom`. No volver a pedir ese permiso. La
-migración c.3 mantiene su autorización separada pendiente; producción no cambia.
+El corte local está verificado. Tras su integración, desarrollar la evidencia visual
+pendiente de CUS-009: templates/filtros permitidos, resultados y progreso
+ilustrativo sobre fixtures locales, con evaluación pura y cero API, cron o
+persistencia. No activar CUS-009 ni registrar rutas operativas. Verificar
+navegador, accesibilidad y ausencia de tráfico mutante antes de avanzar.
+
+Push/merge siguen autorizados tras checks hacia `main` en
+`amariner/logic2b-ecom`; no volver a pedir ese permiso. La autorización de 0046
+no incluye despliegue ni DDL remoto. G3/G4 de uso real conservan sus gates.
 
 Carril visual: ARISTA cierra el 2026-08-18 las posiciones 17–19 y deja la cola
 sin referencias ejecutables. La referencia 19 se convirtió en un catálogo

@@ -1,12 +1,12 @@
 #!/usr/bin/env node
 
-/** Ensayo aislado 0044 → 0045. El restore de historia con guards activos se
- * verifica además en customer-segmentation-backup.test.ts; .dump no lo sustituye. */
-import { execFileSync } from 'node:child_process';
+/** Ensayo histórico aislado 0044 → 0045, sin serializar un backup antiguo.
+ * El ensayo D1 amplía después a 0046 para exportar/restaurar el formato actual;
+ * customer-segmentation-backup.test.ts verifica también las guardas activas. */
 import { createHash } from 'node:crypto';
 import { mkdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
-import { DatabaseSync } from 'node:sqlite';
+import { backup, DatabaseSync } from 'node:sqlite';
 
 const TABLES = ['customer_segment_definitions', 'customer_segment_runs',
   'customer_segment_run_snapshots', 'customer_segment_results', 'customer_segment_publications'];
@@ -110,7 +110,8 @@ const args = argsOf(process.argv.slice(2));
 const directory = join(resolve(args.output), `r5-customer-segmentation-${Date.now()}`);
 mkdirSync(directory, { recursive: true });
 const forwardPath = join(directory, 'forward.sqlite');
-execFileSync('/usr/bin/sqlite3', [resolve(args.baseline), `.backup ${JSON.stringify(forwardPath)}`]);
+const baseline = new DatabaseSync(resolve(args.baseline), { readOnly: true });
+try { await backup(baseline, forwardPath); } finally { baseline.close(); }
 const db = new DatabaseSync(forwardPath);
 try {
   db.exec('PRAGMA foreign_keys=ON');

@@ -126,7 +126,8 @@ const cards = [
 
   <footer id="contacto" class="w-full border-t border-border px-4 sm:px-6 lg:px-8">
     <div class="grid min-h-72 gap-8 py-12 sm:grid-cols-[.75fr_.5fr_1fr]"><p class="text-3xl font-black tracking-[-.08em]">NODDO</p><div class="font-accent text-[9px]">Available<br/><br/><span class="text-black/60">Representation<br/>closely linked</span></div><div><p aria-hidden="true" class="font-display text-4xl leading-none text-black/10">Furniture Smart<br/>Product Line</p><nav class="mt-6 text-[9px] text-black/60"><a href="#inicio" class="block min-h-6 py-1">Home page</a><a href="#catalogo" class="block min-h-6 py-1">Product line</a><a href="#servicios" class="block min-h-6 py-1">Services</a></nav></div></div>
-    <form data-noddo-contact class="flex border-t border-border py-6"><label for="noddo-email" class="sr-only">Email</label><input id="noddo-email" type="email" required placeholder="Contact us" class="min-w-0 flex-1 rounded-lg border border-border bg-transparent px-4 py-3 text-sm outline-none focus:border-black"/><button type="submit" class="-ml-12 grid h-10 w-10 self-center place-items-center rounded-full bg-black text-white" aria-label="Enviar contacto">→</button></form>
+    <form method="dialog" data-noddo-contact class="flex border-t border-border py-6"><label for="noddo-email" class="sr-only">Email</label><input id="noddo-email" type="email" required placeholder="Contact us" class="min-w-0 flex-1 rounded-lg border border-border bg-transparent px-4 py-3 text-sm outline-none focus:border-black"/><button type="submit" class="-ml-12 grid h-10 w-10 self-center place-items-center rounded-full bg-black text-white" aria-label="Enviar contacto">→</button></form>
+    <p data-noddo-contact-status role="status" class="pb-6 text-xs text-black/60">Demostración: no se guarda ni se envía tu email.</p>
   </footer>
 
 </main>
@@ -281,6 +282,10 @@ const cards = [
   }));
 
   document.querySelector<HTMLFormElement>('[data-noddo-contact]')?.addEventListener('submit', (event) => {
-    event.preventDefault(); const button = (event.currentTarget as HTMLFormElement).querySelector('button'); if (button) button.textContent = '✓';
+    event.preventDefault();
+    const form = event.currentTarget as HTMLFormElement;
+    const status = document.querySelector<HTMLElement>('[data-noddo-contact-status]');
+    if (status) status.textContent = 'Confirmación de ejemplo. No se ha enviado ni guardado tu email.';
+    form.reset();
   });
 </script>

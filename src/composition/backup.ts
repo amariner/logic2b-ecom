@@ -2,6 +2,7 @@ import { buildBackupSql, type Row } from '../lib/backup';
 import {
   CUSTOMER_SEGMENT_BACKUP_COLUMNS,
   buildCustomerSegmentRestoreSql,
+  buildCustomerSegmentRestorePreflightSql,
   assertCustomerSegmentBackupFingerprints,
 } from '../modules/customers';
 import {
@@ -13,6 +14,7 @@ import {
 const extensions: readonly BackupExtension[] = Object.freeze([Object.freeze({
   columns: CUSTOMER_SEGMENT_BACKUP_COLUMNS,
   renderRestore: buildCustomerSegmentRestoreSql,
+  renderPreflight: buildCustomerSegmentRestorePreflightSql,
   validate: assertCustomerSegmentBackupFingerprints,
 })]);
 

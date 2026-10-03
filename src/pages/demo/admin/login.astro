@@ -1,10 +1,11 @@
 ---
 /**
- * Login del panel. En demo la contraseña se muestra en la propia página:
- * el objetivo es enseñar el flujo real de acceso, no esconder la demo.
+ * Acceso al panel. La demo entra mediante un enlace guiado sin formulario;
+ * la cookie firmada identifica el recorrido y no escribe en la base de datos.
  * En producción el panel va además tras Cloudflare Access (ver docs/PRODUCCION.md).
  */
 import Base from '../../../layouts/Base.astro';
+import { runtimePlatform } from '../../../composition/runtime-platform';
 import DemoAssistant from '../../../components/store/DemoAssistant.astro';
 import { shopConfig } from '../../../../shop.config';
 import { MAIN_DEMO_HREF, MAIN_DEMO_NAME } from '../../../lib/nav';
@@ -22,7 +23,7 @@ import {
 export const prerender = false;
 
 const env = Astro.locals.runtime.env;
-const demoMode = env.DEMO_MODE === 'true';
+const demoMode = runtimePlatform.manifest.deployment.mode === 'demo' || env.DEMO_MODE === 'true';
 const secret = resolveCookieSecret(env);
 
 const rawNext = Astro.url.searchParams.get('next') ?? '';
@@ -72,7 +73,7 @@ if (Astro.request.method === 'POST') {
     <section class="hidden bg-foreground p-12 text-background lg:flex lg:flex-col lg:justify-between xl:p-16">
       <a href="/" class="font-display text-xl">Logic2B <span class="text-background/60">Gestión</span></a>
       <div class="max-w-2xl"><p class="text-xs font-semibold uppercase tracking-[0.18em] text-background/50">Panel del comercio</p><h2 class="mt-4 font-display text-5xl leading-[1.08] xl:text-6xl">Tu tienda.<br/>Sin misterios.</h2><p class="mt-6 max-w-lg text-lg leading-8 text-background/65">Pedidos, productos, envíos y comunicaciones. Solo lo necesario para operar bien cada día.</p></div>
-      <p class="text-sm text-background/50">Logic2B Ecommerce · Demo operativa</p>
+      <p class="text-sm text-background/50">Logic2B Ecommerce · Demo con datos ficticios</p>
     </section>
 
     <div class="flex min-h-screen flex-col">
@@ -87,8 +88,8 @@ if (Astro.request.method === 'POST') {
 
         {demoMode && (
           <p class="mt-5 rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-sm leading-6 text-emerald-950">
-            Esto es una demo: la contraseña es <strong class="font-mono">{DEMO_ADMIN_PASSWORD}</strong>.
-            El login existe para enseñar cómo se presenta el acceso de un comercio.
+            El panel muestra datos ficticios de solo lectura. Puedes recorrerlo
+            sin enviar un formulario ni crear una cuenta.
           </p>
         )}
 
@@ -102,7 +103,7 @@ if (Astro.request.method === 'POST') {
 
         {error && <p role="alert" class="mt-5 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-950">{error}</p>}
 
-        <form method="post" action={`/demo/admin/login?next=${encodeURIComponent(nextPath)}`} class="mt-5">
+        {demoMode ? <a href={`/demo/admin/login?tour=1&next=${encodeURIComponent(nextPath)}`} class="mt-5 flex min-h-12 w-full items-center justify-center rounded-xl bg-foreground px-4 font-semibold text-background shadow-sm hover:bg-foreground/85">Explorar el panel de ejemplo</a> : <form method="post" action={`/demo/admin/login?next=${encodeURIComponent(nextPath)}`} class="mt-5">
           <label class="block text-sm font-semibold" for="password">Contraseña</label>
           <input
             id="password"
@@ -117,7 +118,7 @@ if (Astro.request.method === 'POST') {
             type="submit"
             class="mt-4 min-h-12 w-full rounded-xl bg-foreground px-4 font-semibold text-background shadow-sm hover:bg-foreground/85"
           >Entrar</button>
-        </form>
+        </form>}
         </div>
         <p class="mt-5 text-center text-sm text-muted-foreground"><a href={MAIN_DEMO_HREF} class="inline-flex min-h-11 items-center gap-2 font-medium hover:text-foreground"><AdminIcon name="arrow-left" class="size-4"/>Volver a {MAIN_DEMO_NAME}</a></p>
       </main>

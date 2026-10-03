@@ -4,7 +4,7 @@
   "envFiles": [],
   "nodeVersion": "v24.19.0",
   "wranglerVersion": "4.111.0",
-  "schema": 38,
+  "schema": 39,
   "policy": {
     "schemaVersion": 1,
     "id": "facts.rehearsal-captured",
@@ -37,15 +37,19 @@
   },
   "checks": [
     {
-      "message": "Dos D1 vacías reciben exclusivamente las migraciones existentes hasta 0045",
+      "message": "Dos D1 vacías reciben primero las 45 migraciones anteriores para ensayar la ampliación con datos",
       "migrationCount": 45
     },
     {
+      "message": "0046 añade exactamente tres tablas vacías y conserva el hash de todas las filas anteriores",
+      "previousTablesHash": "cade2ac852a3231b062d6054a6e7c91610a100ec347f8684de6ba39a19987237"
+    },
+    {
       "message": "Captura real en siete SELECT: 10000−2500=7500 céntimos, ausencia de pago null, sin pedidos cero y merged excluido",
-      "sourceRef": "source:9e81d230bd225ba1951f85b485607e89b0a49e898cfef61246c1368bf7930bd6:9f20b0bc72738aedce7cba6a558eb3b6dacd9dc2f8cf62cffdf7ffaac6cc7516",
-      "capturedAt": "2026-10-03T21:17:02.368Z",
+      "sourceRef": "source:9e81d230bd225ba1951f85b485607e89b0a49e898cfef61246c1368bf7930bd6:da970b95c8e1039002730a552f1bc4c3d733408562dd449e6523342a9aaf3690",
+      "capturedAt": "2026-10-03T21:40:18.502Z",
       "candidates": 3,
-      "sourceTablesHash": "850fb160a2a667db19ebdc5ec906f45b6060452f4f6c96d7130669899ac125af"
+      "sourceTablesHash": "ff0bd08875db95be0b8c6b668ddc1d2f57ed88363dae2ac77cd4a54bfe4761b8"
     },
     {
       "message": "La política explícita cambia el importe y su huella; reject aborta por evidencia ausente sin escribir"
@@ -66,7 +70,7 @@
         "applied",
         "reconciled"
       ],
-      "sourceRef": "source:9e81d230bd225ba1951f85b485607e89b0a49e898cfef61246c1368bf7930bd6:1fad91d4af1c21ff29e33cc2cadc3d731a0070b5c32c1762752b248c475f215a"
+      "sourceRef": "source:9e81d230bd225ba1951f85b485607e89b0a49e898cfef61246c1368bf7930bd6:28631ecec6192b80e9d3a5f4593055a8170d5cf272b23f04358d52b859d815bf"
     },
     {
       "message": "Tras reiniciar, dos avances sobre el mismo cursor confirman un único candidato y conservan la captura",
@@ -87,11 +91,23 @@
       "message": "Publicación explícita: CAS obsoleto rechazado, versión 2 confirmada y comando idéntico reproducido sin nuevas filas"
     },
     {
-      "message": "Backup38 restaura todas las filas, referencia y pertenencia publicadas con replay idempotente y cero errores FK",
-      "tableCount": 126,
-      "tablesHash": "fa94206a4a39f038152d5fd78baa64575400d339cda2428d3d09f6979f41c497",
-      "restoreStatements": 180,
-      "backupSha256": "a958fc5cf349904da69ab7bbf374f15bde5be2c276d0e290fc9e58e7025d02bc"
+      "message": "Política y plan inmutables, encolado concurrente único y claim resuelto por el job real; purgar la cola conserva la intención",
+      "firstJobRunId": "segment-job:durable-local-11",
+      "claimedRunId": "segment-run:facts-local-10",
+      "outcomes": [
+        "applied",
+        "replayed"
+      ]
+    },
+    {
+      "message": "El plan fija lote y política antes de capturar; recuperación del paso siguiente, runs sin plan y con estados mixtos conservados"
+    },
+    {
+      "message": "Backup39 restaura políticas, planes e intenciones sin cola; solo una recuperación explícita de revisión abierta vigente recrea el paso",
+      "tableCount": 129,
+      "tablesHash": "80a193c0659f00db56a9d761e26a566d4cad3770f9c445eb5ae8644655f5c0af",
+      "restoreStatements": 231,
+      "backupSha256": "04325ca01bf0e2f238d6589e6b1cc40dfba9a29d661e7c757c68748e743b4b87"
     },
     {
       "message": "100 perfiles activos se capturan completos, sin truncamiento ni escrituras",
@@ -99,13 +115,14 @@
     },
     {
       "message": "101 perfiles activos abortan toda la captura y conservan todas las tablas",
-      "captureAttempts": 8,
+      "captureAttempts": 10,
       "readBatchSize": 7,
-      "sourceTablesHash": "faa63e209de60f90efc6c7b0202354b88d3f4f1e30688160cd385b0ef749c088"
+      "sourceTablesHash": "56c228912a0dbe98ab012d74f33775931d829d0d4ba89950d7bc0bca3c41a905"
     }
   ],
   "result": "passed",
   "date": "2026-10-03",
   "command": "node scripts/rehearse-r5-customer-segmentation-facts-d1.mjs",
-  "scope": "Local workerd/D1 aislado; sin bindings remotos, credenciales, red de proveedores ni migraciones nuevas. Fuente y coordinador interno R5.6c."
+  "migration": "0046_customer_segment_execution.sql",
+  "scope": "R5.6c.1–R5.6c.3: fuente y coordinador internos, política durable y correlación de pasos; migración 0046 y backup 39. Dos bases QA workerd/D1 locales aisladas, sin bindings remotos, archivos de entorno, activación runtime, cron ni datos operativos."
 }

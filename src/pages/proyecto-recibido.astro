@@ -9,16 +9,17 @@
  */
 import Landing from '../layouts/Landing.astro';
 import { MAIN_DEMO_HREF } from '../lib/nav';
+import { runtimePlatform } from '../composition/runtime-platform';
+const demoMode = runtimePlatform.manifest.deployment.mode === 'demo' || Astro.locals.runtime?.env.DEMO_MODE === 'true';
 ---
 
-<Landing title="Solicitud recibida — Logic2B Ecommerce" noindex>
+<Landing title={`${demoMode ? 'Confirmación de ejemplo' : 'Solicitud recibida'} — Logic2B Ecommerce`} noindex>
   <main class="page-hero page-shell status-page">
     <span class="status-check" aria-hidden="true"><svg viewBox="0 0 24 24" width="34" height="34"><path d="m5 12.5 4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg></span>
-    <p class="page-kicker">Recibido</p>
-    <h1>Gracias, ya lo tenemos</h1>
+    <p class="page-kicker">{demoMode ? 'Demostración' : 'Recibido'}</p>
+    <h1>{demoMode ? 'Así se vería la confirmación' : 'Gracias, ya lo tenemos'}</h1>
     <p class="page-lead">
-      Te contestamos en 24 h laborables con dos o tres preguntas para entender
-      bien tu proyecto. Sin compromiso y sin llamadas comerciales.
+      {demoMode ? 'Esta página es un ejemplo. No se ha enviado ninguna solicitud, no se han guardado tus datos ni se enviará ninguna respuesta.' : 'Te contestamos en 24 h laborables con dos o tres preguntas para entender bien tu proyecto. Sin compromiso y sin llamadas comerciales.'}
     </p>
     <div class="page-actions">
       <a href={MAIN_DEMO_HREF} class="btn btn-primary">Mientras tanto, mira la demo <span class="btn-arrow" aria-hidden="true">→</span></a>

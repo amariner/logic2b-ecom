@@ -7,9 +7,41 @@ import { createOrderBulkActionOperations } from '../src/composition/order-bulk-a
 import { createPreliminaryOrderOperations } from '../src/composition/preliminary-order-operations';
 
 describe('volcado de copia de seguridad', () => {
-  it('declara el contrato que incluye la colaboración de pedidos', () => {
-    expect(BACKUP_SCHEMA_VERSION).toBe(38);
-    expect(buildBackupSql({}, '2026-08-22')).toContain('0045_customer_segmentation');
+  it('declara el contrato de ejecución durable sin restaurar la cola efímera', () => {
+    expect(BACKUP_SCHEMA_VERSION).toBe(39);
+    const sql = buildBackupSql({}, '2026-10-03');
+    expect(sql).toContain('0046_customer_segment_execution');
+    expect(BACKUP_TABLES).not.toContain('platform_job_runs');
+    expect(sql).not.toContain('platform_job_runs');
+  });
+
+  it('comprueba las ocho tablas de evidencia antes de modificar tablas legacy', () => {
+    const sql = buildBackupSql({}, '2026-10-03');
+    const preflight = sql.slice(0, sql.indexOf('DELETE FROM'));
+    const tables = BACKUP_TABLES.filter((table) => table.startsWith('customer_segment_'));
+    expect(tables).toHaveLength(8);
+    for (const table of tables) {
+      expect(preflight).toContain(`SELECT 1 FROM ${table} LIMIT 0;`);
+      expect(preflight).toContain(`EXISTS (SELECT 1 FROM ${table})`);
+    }
+  });
+
+  it.each([
+    'customer_segment_facts_policies',
+    'customer_segment_execution_plans',
+    'customer_segment_job_intents',
+  ])('rechaza evidencia de %s sin su extensión de replay', (table) => {
+    expect(() => buildBackupSql({ [table]: [{ id: 'evidence' }] }, '2026-10-03'))
+      .toThrow(`La tabla ${table} necesita su extensión de replay`);
+  });
+
+  it('rechaza un destino 0045 antes de borrar datos legacy incluso sin transacción exterior', () => {
+    const target = new SqliteD1(...Array.from({ length: 22 }, () => true), false);
+    target.sqlite.exec(`INSERT INTO emails_outbox (to_addr, subject, body_html)
+      VALUES ('kept@example.test', 'Preservar', '<p>Preservar</p>');`);
+    expect(() => target.sqlite.exec(buildBackupSql({}, '2026-10-03')))
+      .toThrow('no such table: customer_segment_facts_policies');
+    expect(target.value('SELECT count(*) AS value FROM emails_outbox')).toBe(1);
   });
 
   it('genera INSERTs con columnas explícitas y escape de comillas', () => {
@@ -139,6 +171,14 @@ describe('volcado de copia de seguridad', () => {
       'customer_sessions',
       'customer_passwordless_challenges',
       'customer_order_access_refs',
+      'customer_segment_definitions',
+      'customer_segment_runs',
+      'customer_segment_run_snapshots',
+      'customer_segment_results',
+      'customer_segment_publications',
+      'customer_segment_facts_policies',
+      'customer_segment_execution_plans',
+      'customer_segment_job_intents',
     ]));
     for (const table of BACKUP_TABLES) expect(sql).toContain(`DELETE FROM ${table};`);
   });

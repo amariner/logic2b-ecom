@@ -44,6 +44,8 @@ check('propuesta lleva X-Robots-Tag', proposalLanding.headers.get('x-robots-tag'
 check('propuesta no envía referrer', proposalLanding.headers.get('referrer-policy') === 'no-referrer');
 check('propuesta usa caché HTML privada', proposalLanding.headers.get('cache-control')?.includes('private') && proposalLanding.headers.get('cache-control')?.includes('no-store'));
 check('formulario conserva origen comercial', proposalLandingHtml.includes('value="proposal:inlogem"'));
+check('formulario de propuesta es una simulación local sin envío servidor',
+  proposalLandingHtml.includes('data-project-demo="true"') && !proposalLandingHtml.includes('action="/api/contact"'));
 check('propuesta no anuncia precio de implantación', !proposalLandingHtml.match(/implantaci[oó]n.{0,40}\d+[.,]?\d*\s*€/i));
 check(
   'home Inlogem ofrece seis accesos visuales de categoría',
@@ -110,6 +112,7 @@ if (ONLY_PROPOSAL) {
 const catalog = await fetch(`${BASE}/demo/tiendas/arce`);
 const catalogHtml = await catalog.text();
 check('tema ARCE disponible', catalog.ok && catalogHtml.includes('Butaca Alba'));
+check('escaparate demo no carga beacon de analytics', !catalogHtml.includes('static.cloudflareinsights.com/beacon.min.js'));
 check('ARCE enlaza su ficha local', catalogHtml.includes('/demo/tiendas/arce/arc-silla-alba'));
 checkWhatsappContact('catálogo ARCE', catalogHtml, '/demo/tiendas/arce');
 
@@ -144,6 +147,11 @@ for (const [surface, path] of [
   // La 404 es un asset prerenderizado: su origen canónico es /404 aunque el
   // Worker lo sirva para cualquier URL inexistente.
   checkWhatsappContact(surface, html, path);
+  check(`${surface} no carga beacon de analytics`, !html.includes('static.cloudflareinsights.com/beacon.min.js'));
+  if (surface === 'landing') {
+    check('landing muestra formulario local sin endpoint de envío',
+      html.includes('data-project-demo="true"') && !html.includes('action="/api/contact"'));
+  }
 }
 
 // ── 2. Ningún endpoint público escribe o consulta comercio en la demo ──
@@ -200,11 +208,14 @@ const login = await fetch(`${BASE}/demo/admin/login`, {
   headers: { 'content-type': 'application/x-www-form-urlencoded', ...ORIGIN },
   body: 'password=demo',
 });
-const cookie = String(login.headers.get('set-cookie') ?? '').split(';')[0];
-check('login demo devuelve cookie de sesión', login.status === 303 && cookie.startsWith('admin_session='));
+check('login POST demo rechazado sin crear sesión', login.status === 403 && !login.headers.has('set-cookie'));
+const loginHtml = await (await fetch(`${BASE}/demo/admin/login`)).text();
+check('login demo ofrece acceso guiado sin formulario servidor',
+  loginHtml.includes('tour=1') && !loginHtml.includes('method="post"'));
 
 const guidedLogin = await fetch(`${BASE}/demo/admin/login?tour=1&next=%2Fdemo%2Fadmin%2Fenvios`, { redirect: 'manual' });
 const guidedCookie = String(guidedLogin.headers.get('set-cookie') ?? '').split(';')[0];
+const cookie = guidedCookie;
 check('guía abre el gestor sin introducir contraseña', guidedLogin.status === 303 && guidedCookie.startsWith('admin_session=') && guidedLogin.headers.get('location') === '/demo/admin/envios');
 check('acceso guiado no permite caché compartida', guidedLogin.headers.get('cache-control')?.includes('no-store'));
 const guidedWrite = await fetch(`${BASE}/api/admin/products/4`, { method: 'PATCH', headers: { cookie: guidedCookie, 'content-type': 'application/json', ...ORIGIN }, body: JSON.stringify({ price_cents: 1 }) });
@@ -216,6 +227,7 @@ checkWhatsappContact('panel', adminHtml, '/demo/admin');
 check('panel privado no permite caché compartida', adminResponse.headers.get('cache-control')?.includes('no-store'));
 check('panel usa la identidad Logic2B Gestión', adminHtml.includes('Logic2B Gestión'));
 check('panel declara fixtures independientes', adminHtml.includes('independientes de los escaparates'));
+check('panel demo no carga beacon de analytics', !adminHtml.includes('static.cloudflareinsights.com/beacon.min.js'));
 check('panel vuelve a TRAZA', adminHtml.includes('href="/demo/tiendas/traza"'));
 check(
   'índice de pedidos expone filtros URL y orden estable R3.1',
@@ -227,11 +239,13 @@ check(
     && !adminHtml.includes('name="pagina"'),
 );
 check(
-  'panel expone selección y dry-run R3.5 sin habilitar efectos en demo',
+  'panel expone selección y preview local sin enviar comandos',
   adminHtml.includes('id="bulk-action-form"')
     && adminHtml.includes('data-bulk-order')
     && adminHtml.includes('data-can-execute="false"')
-    && adminHtml.includes('nunca modifica pedidos'),
+    && adminHtml.includes('data-local-preview="true"')
+    && adminHtml.includes('No envía formularios')
+    && adminHtml.includes('method="dialog"'),
 );
 const heldOrdersHtml = await (await fetch(adminUrl('/demo/admin?incidencia=active'), { headers: { cookie } })).text();
 const heldOrderId = heldOrdersHtml.match(/\/demo\/admin\/pedidos\/(\d+)"/)?.[1];
@@ -443,16 +457,14 @@ const bulkPreviewResponse = await fetch(adminUrl('/api/admin/order-bulk-actions/
     },
   }),
 });
-const bulkPreviewBody = await json(bulkPreviewResponse);
 check(
-  'dry-run masivo demo es lectura pura y devuelve fingerprint',
-  bulkPreviewResponse.status === 200
-    && String(bulkPreviewBody?.preview?.previewFingerprint ?? '').startsWith('sha256:'),
+  'preview masivo remoto demo rechazado: la muestra se calcula localmente',
+  bulkPreviewResponse.status === 403,
 );
 const bulkConfirmResponse = await fetch(adminUrl('/api/admin/order-bulk-actions'), {
   method: 'POST',
   headers: { 'content-type': 'application/json', cookie },
-  body: JSON.stringify({ preview: bulkPreviewBody?.preview }),
+  body: JSON.stringify({ preview: { previewFingerprint: 'synthetic-untrusted-preview' } }),
 });
 check('confirmación masiva demo rechazada', bulkConfirmResponse.status === 403, `HTTP ${bulkConfirmResponse.status}`);
 
@@ -467,8 +479,8 @@ check(
     && backupSql.includes('INSERT INTO attribute_definitions') && backupSql.includes('INSERT INTO product_attribute_values'),
 );
 check(
-  'backup esquema 38 conserva operación, clientes, segmentación, consentimientos, derechos, autenticación, autoservicio, RMA, pricing, modelos de venta y presupuestos',
-  backupSql.includes('logic2b-backup-schema: 38')
+  'backup esquema 39 conserva operación, clientes, segmentación y sus planes durables',
+  backupSql.includes('logic2b-backup-schema: 39')
     && backupSql.includes('INSERT INTO payments')
     && backupSql.includes('INSERT INTO payment_transactions')
     && backupSql.includes('DELETE FROM refunds')
@@ -484,7 +496,10 @@ check(
     && backupSql.includes('INSERT INTO order_hold_events')
     && backupSql.includes('DELETE FROM order_bulk_batches')
     && backupSql.includes('DELETE FROM order_bulk_batch_rows')
-    && backupSql.includes('0045_customer_segmentation')
+    && backupSql.includes('0046_customer_segment_execution')
+    && backupSql.includes('DELETE FROM customer_segment_facts_policies')
+    && backupSql.includes('DELETE FROM customer_segment_execution_plans')
+    && backupSql.includes('DELETE FROM customer_segment_job_intents')
     && backupSql.includes('DELETE FROM customer_segment_definitions')
     && backupSql.includes('DELETE FROM customer_segment_runs')
     && backupSql.includes('DELETE FROM customer_segment_run_snapshots')
@@ -556,19 +571,14 @@ check(
     && backupSql.includes('INSERT INTO order_document_events')
 );
 
-// ── Conversión: formulario «Solicitar propuesta» ─────────────────────────
-// Un lead válido SE GUARDA, así que el camino de éxito solo se ejerce contra un
-// servidor local (su D1 es desechable); contra producción solo se comprueba el
-// rechazo, que no escribe nada. El limitador admite 5 envíos por IP y 10 min.
+// ── Formularios demo: ningún payload se procesa ni persiste ────────────────
 const lead = { name: 'E2E Robot', email: 'e2e@example.com', needs: 'Comprobación automática del formulario.', source: 'e2e' };
 const badLead = await fetch(`${BASE}/api/contact`, { method: 'POST', headers: { 'content-type': 'application/json', ...ORIGIN }, body: JSON.stringify({ ...lead, email: 'no-es-un-email' }) });
-check('contacto rechaza un lead inválido con 400', badLead.status === 400);
-if (/^(localhost|127\.0\.0\.1|\[::1\])$/.test(new URL(BASE).hostname)) {
-  const jsonLead = await fetch(`${BASE}/api/contact`, { method: 'POST', headers: { 'content-type': 'application/json', ...ORIGIN }, body: JSON.stringify(lead) });
-  check('contacto con JS guarda el lead y responde ok', jsonLead.status === 200 && (await json(jsonLead))?.ok === true);
-  const nativeLead = await fetch(`${BASE}/api/contact`, { method: 'POST', headers: { 'content-type': 'application/x-www-form-urlencoded', ...ORIGIN }, body: new URLSearchParams(lead), redirect: 'manual' });
-  check('contacto sin JS redirige a la confirmación (303)', nativeLead.status === 303 && (nativeLead.headers.get('location') ?? '').includes('/proyecto-recibido'));
-}
+check('contacto inválido demo se rechaza antes de procesar datos', badLead.status === 403);
+const jsonLead = await fetch(`${BASE}/api/contact`, { method: 'POST', headers: { 'content-type': 'application/json', ...ORIGIN }, body: JSON.stringify(lead) });
+check('contacto JSON demo no guarda ni envía el lead', jsonLead.status === 403 && !jsonLead.headers.has('set-cookie'));
+const nativeLead = await fetch(`${BASE}/api/contact`, { method: 'POST', headers: { 'content-type': 'application/x-www-form-urlencoded', ...ORIGIN }, body: new URLSearchParams(lead), redirect: 'manual' });
+check('contacto HTML demo no procesa ni redirige el formulario', nativeLead.status === 403 && !nativeLead.headers.has('location'));
 
 if (failures > 0) {
   console.error(`\nE2E: ${failures} comprobaciones fallidas`);

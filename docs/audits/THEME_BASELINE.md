@@ -15,7 +15,7 @@ El informe cubre **34 escaparates** (Base y la colección transaccional `demo` q
 - Registros canónicos: themes 34/34 · collections 34/34 · seeds 34/34 · catalogViews 34/34 · a11y 34/34 · captureCatalog 34/34 · captureProduct 34/34 · homeGallery 34/34 · docs 34/34 · components 34/34
 - Contrato compartido completo: **34/34** · recorrido/storage privado: **0**.
 - Evidencia completa (catálogo, móvil, ficha, 560 y 900): **34/34**.
-- Inventario de assets: **41.68 MB** · JS propio crudo: **28.4 KB**.
+- Inventario de assets: **41.68 MB** · JS propio crudo: **28.6 KB**.
 - Hallazgos: **P0 0 · P1 0 · P2 2 · P3 1**.
 
 ## Hallazgos P0–P3
@@ -48,11 +48,11 @@ El informe cubre **34 escaparates** (Base y la colección transaccional `demo` q
 | guide | 10/10 | dynamic / común | N✓ C✓ J✓ | ✓✓✓✓✓ | 8 | 110.9 KB · webp×8 | 17.6 KB / 379 B |
 | specs | 10/10 | dynamic / común | N✓ C✓ J✓ | ✓✓✓✓✓ | 9 | 147.6 KB · webp×9 | 32.0 KB / 518 B |
 | minimal | 10/10 | dynamic / común | N✓ C✓ J✓ | ✓✓✓✓✓ | 8 | 113.4 KB · webp×8 | 15.9 KB / 0 B |
-| arce | 10/10 | dynamic / común | N✓ C✓ J✓ | ✓✓✓✓✓ | 8 | 1017.2 KB · webp×9 | 43.0 KB / 1.2 KB |
+| arce | 10/10 | dynamic / común | N✓ C✓ J✓ | ✓✓✓✓✓ | 8 | 1017.2 KB · webp×9 | 43.1 KB / 1.2 KB |
 | launch | 10/10 | dynamic / común | N✓ C✓ J✓ | ✓✓✓✓✓ | 5 | 55.0 KB · webp×5 | 25.1 KB / 372 B |
 | street | 10/10 | dynamic / común | N✓ C✓ J✓ | ✓✓✓✓✓ | 12 | 392.8 KB · webp×16 | 49.8 KB / 381 B |
 | iris | 10/10 | dynamic / común | N✓ C✓ J✓ | ✓✓✓✓✓ | 6 | 1.79 MB · jpg×1 mp4×1 webp×6 | 26.4 KB / 5.1 KB |
-| noddo | 10/10 | dynamic / común | N✓ C✓ J✓ | ✓✓✓✓✓ | 12 | 2.61 MB · jpg×16 webp×12 | 27.0 KB / 3.2 KB |
+| noddo | 10/10 | dynamic / común | N✓ C✓ J✓ | ✓✓✓✓✓ | 12 | 2.61 MB · jpg×16 webp×12 | 27.3 KB / 3.4 KB |
 | sitega | 10/10 | dynamic / común | N✓ C✓ J✓ | ✓✓✓✓✓ | 8 | 3.84 MB · jpg×9 | 17.2 KB / 242 B |
 | forma | 10/10 | custom / común | N✓ C✓ J✓ | ✓✓✓✓✓ | 6 | 927.4 KB · webp×12 | 44.3 KB / 268 B |
 | stretch | 10/10 | dynamic / común | N✓ C✓ J✓ | ✓✓✓✓✓ | 7 | 757.9 KB · jpg×5 | 22.6 KB / 3.4 KB |

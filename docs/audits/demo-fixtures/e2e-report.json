@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 1,
+  "checkedAt": "2026-10-03T21:47:52.620Z",
+  "environment": "isolated-local-qa",
+  "demoMode": true,
+  "buildCompletedAt": "2026-10-03T21:45:03.000Z",
+  "e2e": {
+    "command": "BASE_URL=http://127.0.0.1:8793 node scripts/e2e.mjs",
+    "exitCode": 0,
+    "checks": 153,
+    "passed": 153,
+    "failed": 0,
+    "evidence": [
+      "Public fixture pages and protected admin reads remain available.",
+      "Checkout, payment, reset, contact, login POST and admin commands are rejected.",
+      "Guided GET access uses only the existing stateless session cookie.",
+      "Project forms and bulk preview declare local simulation with no server form action.",
+      "Sample pages do not load the analytics beacon.",
+      "Fixture CSV and backup schema 39 remain read-only."
+    ]
+  },
+  "legacyScheduledEvents": {
+    "endpoint": "/__scheduled",
+    "checkedAt": "2026-10-03T21:46:51.690Z",
+    "results": [
+      {
+        "cron": "17 3 * * 1",
+        "status": 200
+      },
+      {
+        "cron": "*/5 * * * *",
+        "status": 200
+      },
+      {
+        "cron": "*/1 * * * *",
+        "status": 200
+      }
+    ],
+    "passed": 3,
+    "failed": 0,
+    "runtimeGuard": "Demo scheduled handler returns before waitUntil and job runner access."
+  },
+  "databaseComparison": {
+    "status": "unchanged",
+    "tables": 143,
+    "rows": 353,
+    "sha256Before": "9cbfc811cfc4296515a403d395875a43bfa26aff0c9c9b08be0804b15bbf6eca",
+    "sha256After": "9cbfc811cfc4296515a403d395875a43bfa26aff0c9c9b08be0804b15bbf6eca",
+    "coverage": "Full E2E, desktop/mobile fixture browser checks, accessibility audit, both guided tours and three legacy scheduled events.",
+    "method": "Read-only SQLite snapshots of all application table rows, before and after isolated local QA."
+  },
+  "rawLogs": "Retained only in the untracked isolated QA workspace."
+}

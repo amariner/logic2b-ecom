@@ -7,7 +7,6 @@ import { mkdir, mkdtemp, readFile, readdir, writeFile } from 'node:fs/promises';
 import { createRequire } from 'node:module';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { getPlatformProxy, unstable_splitSqlQuery as splitSql } from 'wrangler';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const arguments_ = process.argv.slice(2).filter((argument) => argument !== '--');
@@ -17,6 +16,10 @@ if (arguments_.length > 2 || (arguments_.length && (arguments_[0] !== '--output-
 const outputRoot = resolve(arguments_[1] ?? join(root, 'tmp/segmentation-d1'));
 await mkdir(outputRoot, { recursive: true });
 const output = await mkdtemp(join(outputRoot, 'rehearsal-'));
+process.env.WRANGLER_SEND_METRICS = 'false';
+process.env.WRANGLER_LOG_PATH = join(output, 'wrangler.log');
+process.env.CLOUDFLARE_CF_FETCH_ENABLED = 'false';
+const { getPlatformProxy, unstable_splitSqlQuery: splitSql } = await import('wrangler');
 const configPath = join(output, 'wrangler.json');
 await writeFile(configPath, JSON.stringify({
   name: 'segmentation-rehearsal-local', compatibility_date: '2026-07-01',
@@ -80,7 +83,7 @@ try {
     persist: { path: join(output, 'state') } });
   const { SOURCE: source, RESTORE: restored } = platform.env;
   const migrations = (await readdir(join(root, 'migrations'))).filter((name) => /^\d{4}_.*\.sql$/.test(name)).sort();
-  assert.equal(migrations.at(-1), '0045_customer_segmentation.sql', 'Revisar el ensayo si cambia el esquema canónico.');
+  assert.equal(migrations.at(-1), '0046_customer_segment_execution.sql', 'Revisar el ensayo si cambia el esquema canónico.');
   for (const migration of migrations.filter((name) => name < '0045')) {
     const sql = await readFile(join(root, 'migrations', migration), 'utf8');
     await Promise.all([executeSql(source, sql), executeSql(restored, sql)]);
@@ -102,7 +105,9 @@ try {
   const migration = await readFile(join(root, 'migrations/0045_customer_segmentation.sql'), 'utf8');
   await Promise.all([executeSql(source, migration), executeSql(restored, migration)]);
   assert.equal(hash(await readTables(source, legacyNames)), legacyHash);
-  for (const table of CUSTOMER_SEGMENT_BACKUP_TABLES) assert.equal(await count(source, table), 0);
+  const historicalTables = ['customer_segment_definitions', 'customer_segment_runs',
+    'customer_segment_run_snapshots', 'customer_segment_results', 'customer_segment_publications'];
+  for (const table of historicalTables) assert.equal(await count(source, table), 0);
   check('0044 → 0045 conserva todas las filas legacy y crea cinco tablas vacías', { legacyHash, legacyTables: legacyNames.length });
 
   let sequence = 0;
@@ -205,8 +210,20 @@ try {
   assert.equal(hash(await readTables(source, legacyNames)), legacyHash);
   check('Lifecycle completo, publicación histórica y estados parciales conservan el hash legacy');
 
+  // La historia se prueba primero bajo 0045. El formato actual exige 0046;
+  // no se presenta un exportador 39 como compatibilidad con el antiguo 38.
+  const previousNames = [...legacyNames, ...historicalTables];
+  const previousHash = hash(await readTables(source, previousNames));
+  const executionMigration = await readFile(join(root, 'migrations/0046_customer_segment_execution.sql'), 'utf8');
+  await Promise.all([executeSql(source, executionMigration), executeSql(restored, executionMigration)]);
+  assert.equal(hash(await readTables(source, previousNames)), previousHash);
+  const executionTables = CUSTOMER_SEGMENT_BACKUP_TABLES.filter((table) => !historicalTables.includes(table));
+  assert.equal(executionTables.length, 3);
+  for (const table of executionTables) assert.equal(await count(source, table), 0);
+  check('0045 → 0046 conserva la historia sin plan y añade tres tablas vacías antes del backup actual', { previousHash });
+
   const backup = await exportD1Backup(source);
-  const backupPath = join(output, 'backup-schema-38.sql');
+  const backupPath = join(output, `backup-schema-${BACKUP_SCHEMA_VERSION}.sql`);
   await writeFile(backupPath, backup.sql);
   const restoreStatements = await executeSql(restored, backup.sql);
   const sourceTables = await readTables(source, BACKUP_TABLES);
@@ -221,7 +238,7 @@ try {
   assert.equal(replay.value.version, 1);
   assert.equal(replay.current.version, 2);
   assert.equal((await restoreRepo.readRun(partial.runId)).snapshot.processedCandidates, 40);
-  check('Backup38 restaurado en D1 vacío con triggers activos, igualdad total, replay y cero errores FK', {
+  check(`Backup${BACKUP_SCHEMA_VERSION} restaurado en D1 vacío con triggers activos, igualdad total, replay y cero errores FK`, {
     restoreStatements, backupPath, tableCount: BACKUP_TABLES.length, tablesHash: hash(sourceTables),
     segmentationCounts: Object.fromEntries(CUSTOMER_SEGMENT_BACKUP_TABLES.map((table) => [table, sourceTables[table].length])),
   });

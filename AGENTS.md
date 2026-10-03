@@ -3,6 +3,15 @@
 `CLAUDE.md` es el contrato completo de este repositorio y se aplica a todo el
 árbol. Léelo antes de modificar código, datos, documentación o infraestructura.
 
+**Mandato vigente de Andreu (2026-10-03):** este proyecto público es una muestra
+con fixtures. No registrar crons, crear pedidos reales, enviar formularios,
+notificaciones o peticiones con efectos, ni modificar su base de datos desde
+la demo. Las interacciones solo simulan resultados locales. La migración
+R5.6c.3 está autorizada para implementación y ensayos en QA aislada con datos
+sintéticos; no autoriza DDL remoto, activación ni escrituras en la demo.
+Esta instrucción prevalece sobre referencias históricas al reset periódico,
+captura de leads o emails de demostración persistidos.
+
 Cuando Andreu inicie **`/goal sigue desarrollando este proyecto todo lo que
 puedas`** (o una instrucción equivalente de desarrollo continuo), la fuente de
 verdad es `docs/RUTA_DESARROLLO_CONTINUO.md`. Ejecuta cada bloque mediante

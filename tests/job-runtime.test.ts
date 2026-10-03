@@ -148,7 +148,7 @@ describe('persistencia y runner de jobs R1.11', () => {
     ]);
   });
 
-  it('refresca solo pedidos semanalmente, deduplica el tick y preserva catálogo', async () => {
+  it('ignora todos los triggers en demo sin modificar fixtures ni registrar ejecuciones', async () => {
     const db = new SqliteD1();
     await db.batch(seedStatements().map((sql) => db.prepare(sql)));
     const platform = createPlatform(createPublicDemoManifest({
@@ -160,23 +160,14 @@ describe('persistencia y runner de jobs R1.11', () => {
 
     db.sqlite.prepare("UPDATE products SET name='CATALOGO ESTABLE' WHERE id=(SELECT min(id) FROM products)").run();
     db.sqlite.prepare("UPDATE orders SET customer_name='PEDIDO MUTADO' WHERE order_number='BM-DEMO-1001'").run();
-    expect(await runScheduledPlatformJobs('17 3 * * 1', scheduled, env, platform)).toEqual([
-      expect.objectContaining({ status: 'succeeded' }),
-    ]);
+    const before = db.sqlite.prepare('SELECT total_changes() AS value').get()?.value;
+    for (const cron of ['17 3 * * 1', '*/5 * * * *', '*/1 * * * *', 'unknown']) {
+      expect(await runScheduledPlatformJobs(cron, scheduled, env, platform)).toEqual([]);
+      expect(await runScheduledPlatformJobs(cron, scheduled + 7 * 24 * 60 * 60 * 1000, env, platform)).toEqual([]);
+    }
+    expect(db.sqlite.prepare('SELECT total_changes() AS value').get()?.value).toBe(before);
     expect(db.value("SELECT count(*) AS value FROM products WHERE name='CATALOGO ESTABLE'")).toBe(1);
-    expect(db.value("SELECT count(*) AS value FROM orders WHERE customer_name='PEDIDO MUTADO'")).toBe(0);
-
-    db.sqlite.prepare("UPDATE orders SET customer_name='PEDIDO MUTADO' WHERE order_number='BM-DEMO-1001'").run();
-    expect(await runScheduledPlatformJobs('17 3 * * 1', scheduled, env, platform)).toEqual([
-      expect.objectContaining({ status: 'duplicate' }),
-    ]);
     expect(db.value("SELECT count(*) AS value FROM orders WHERE customer_name='PEDIDO MUTADO'")).toBe(1);
-
-    expect(await runScheduledPlatformJobs('17 3 * * 1', scheduled + 7 * 24 * 60 * 60 * 1000, env, platform)).toEqual([
-      expect.objectContaining({ status: 'succeeded' }),
-    ]);
-    expect(db.value("SELECT count(*) AS value FROM products WHERE name='CATALOGO ESTABLE'")).toBe(1);
-    expect(db.value("SELECT count(*) AS value FROM orders WHERE customer_name='PEDIDO MUTADO'")).toBe(0);
-    expect(db.value("SELECT count(*) AS value FROM platform_job_runs WHERE status='succeeded'")).toBe(2);
+    expect(db.value('SELECT count(*) AS value FROM platform_job_runs')).toBe(0);
   });
 });
