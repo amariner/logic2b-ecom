@@ -435,6 +435,37 @@ for (const vp of [DESKTOP, MOBILE]) {
   }
 }
 
+// R5.10b: cálculo EUR y VAT de fixtures; cuatro estados × dos tamaños.
+// El panel sigue claro; el estado parcial añade movimiento reducido.
+const TAX_DEMO_SCENARIO = (stage) => `(() => {
+  const root = document.querySelector('[data-tax-demo]');
+  if (root?.dataset.ready !== 'true') return 'not-ready';
+  const scenario = root.querySelector('[data-tax-scenario]');
+  if (${JSON.stringify(stage)} === 'included') root.querySelector('[data-tax-basis][value="included"]').click();
+  if (${JSON.stringify(stage)} === 'zero-exempt' || ${JSON.stringify(stage)} === 'partial') {
+    scenario.value = ${JSON.stringify(stage)} === 'partial' ? 'unresolved_shipping' : 'zero_exempt';
+    scenario.dispatchEvent(new Event('change', { bubbles: true }));
+  }
+  const totals = Array.from(root.querySelector('[data-tax-totals]').querySelectorAll('[data-tax-amount]'))
+    .map(amount => [amount.dataset.taxAmount, amount.getAttribute('data-cents')]);
+  const expected = ${JSON.stringify(stage)} === 'included' ? ['2686', '289', '2975']
+    : ${JSON.stringify(stage)} === 'zero-exempt' ? ['2975', '41', '3016']
+      : ${JSON.stringify(stage)} === 'partial' ? [null, null, null] : ['2975', '324', '3299'];
+  const values = ['net', 'tax', 'gross'].map(name => totals.find(amount => amount[0] === name)?.[1]);
+  if (JSON.stringify(values) !== JSON.stringify(expected)) return 'wrong-totals';
+  const outcome = root.querySelector('[data-tax-result]').dataset.outcome;
+  return outcome === (${JSON.stringify(stage)} === 'partial' ? 'unresolved' : 'calculated')
+    ? ${JSON.stringify(stage)} : 'wrong-outcome';
+})()`;
+for (const vp of [DESKTOP, MOBILE]) {
+  const suffix = vp === MOBILE ? '@375' : '';
+  for (const stage of ['initial', 'included', 'zero-exempt', 'partial']) {
+    SURFACES.push({ name: `tax-demo:${stage}${suffix}`, url: '/demo/admin/impuestos', vp, auth: true,
+      eval: TAX_DEMO_SCENARIO(stage), expect: stage,
+      ...(stage === 'partial' ? { reducedMotion: true } : {}) });
+  }
+}
+
 // R5.4d: estas rutas no existen en la demo y por eso no forman parte de la
 // batería ordinaria. El arnés local explícito activa un manifest cliente y una
 // composición visual inerte para auditar las páginas Astro reales sin DB,

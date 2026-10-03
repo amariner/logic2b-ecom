@@ -1,0 +1,219 @@
+---
+import { createTaxDemo, getTaxDemoView } from '../../composition/tax-demo';
+import { formatEurCents } from '../../lib/format';
+
+const initial = getTaxDemoView(createTaxDemo());
+const amountLabels = { net: 'Neto', tax: 'Impuesto', gross: 'Bruto' } as const;
+const amountKeys = ['net', 'tax', 'gross'] as const;
+const missingAmount = initial.tax.reason === 'line_unresolved' ? 'Pendiente' : 'Sin calcular';
+const formatRate = (basisPoints: number) => new Intl.NumberFormat('es-ES', { maximumFractionDigits: 2 }).format(basisPoints / 100) + ' % · ejemplo';
+const formatDate = (value: string) => new Intl.DateTimeFormat('es-ES', { timeZone: 'UTC', day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }).format(new Date(value)) + ' UTC';
+---
+
+<div data-tax-demo data-ready="false" class="tax-demo mt-6 space-y-6 text-foreground">
+  <div class="flex flex-col gap-3 rounded-2xl border border-border bg-card p-4 sm:flex-row sm:items-center sm:justify-between sm:px-5">
+    <div class="max-w-3xl"><p class="text-sm font-semibold leading-6">Importes y reglas fiscales ficticios. Este ejemplo no cobra ni registra pedidos.</p><p class="mt-1 text-xs leading-5 text-muted-foreground">Los cambios solo duran en esta página. Al recargar, vuelves al inicio.</p></div>
+    <button data-tax-action="reset" type="button" disabled class="tax-button shrink-0 border border-border bg-background text-foreground">Restablecer ejemplo</button>
+  </div>
+
+  <noscript data-tax-nojs><div class="rounded-xl border border-border bg-muted p-4 text-sm leading-6">Puedes consultar el desglose inicial sin JavaScript. Los controles permanecen desactivados; este ejemplo no envía ni guarda datos.</div></noscript>
+
+  <div class="grid items-start gap-6 xl:grid-cols-[minmax(0,.95fr)_minmax(0,1.05fr)]">
+    <section class="tax-panel" aria-labelledby="tax-prepare-title">
+      <div class="flex items-start gap-3"><span class="tax-step" aria-hidden="true">1</span><div><h2 id="tax-prepare-title" class="text-xl font-semibold">Prepara el ejemplo</h2><p class="mt-1 text-sm leading-6 text-muted-foreground">Elige un caso y cómo se interpretan sus importes.</p></div></div>
+
+      <label class="tax-label mt-5" for="tax-scenario">Caso de ejemplo
+        <select id="tax-scenario" data-tax-scenario disabled class="tax-input">
+          {initial.scenarioOptions.map((option) => <option value={option.id} selected={option.id === initial.selection.scenario}>{option.label}</option>)}
+        </select>
+      </label>
+
+      <fieldset class="mt-5 space-y-2" aria-describedby="tax-basis-help">
+        <legend class="mb-2 text-sm font-semibold">Cómo están expresados los importes</legend>
+        {initial.priceBasisOptions.map((option) => <label class="tax-mode">
+          <input data-tax-basis type="radio" name="tax-price-basis" value={option.id} checked={option.id === initial.selection.priceBasis} disabled class="tax-choice" />
+          <span class="text-sm font-medium">{option.label}</span>
+        </label>)}
+      </fieldset>
+      <p id="tax-basis-help" data-tax-basis-help class="mt-2 text-xs leading-5 text-muted-foreground">{initial.selection.priceBasis === 'included' ? 'El importe de partida se conserva como bruto en cada línea resuelta.' : 'El impuesto se suma al importe de partida de cada línea resuelta.'}</p>
+
+      <div class="mt-5 rounded-xl border border-border bg-muted/40 p-4">
+        <h3 class="text-sm font-semibold">Importes de partida, tras descuentos</h3>
+        <p class="mt-1 text-xs leading-5 text-muted-foreground">Son importes completos por línea, incluidos los portes.</p>
+        <dl data-tax-starting-lines class="mt-3 space-y-3">
+          {initial.tax.lines.map((line) => <div data-tax-starting-line data-line-id={line.id} class="flex items-baseline justify-between gap-3 text-sm"><dt>{line.label}</dt><dd data-tax-starting-amount data-cents={line.inputCents} class="shrink-0 font-semibold tabular-nums">{formatEurCents(line.inputCents)}</dd></div>)}
+        </dl>
+      </div>
+
+      <div class="mt-6 border-t border-border pt-5">
+        <h3 class="text-base font-semibold">Evidencia VAT, por separado</h3>
+        <p id="tax-vat-help" class="mt-1 text-sm leading-6 text-muted-foreground">Una respuesta favorable no concede una exención. Cambiar esta evidencia no modifica el desglose.</p>
+        <label class="tax-label mt-3" for="tax-vat">Respuesta de ejemplo
+          <select id="tax-vat" data-tax-vat disabled aria-describedby="tax-vat-help" class="tax-input">
+            {initial.vatScenarioOptions.map((option) => <option value={option.id} selected={option.id === initial.selection.vatScenario}>{option.label}</option>)}
+          </select>
+        </label>
+        <div data-tax-vat-result data-status={initial.vat.status} data-outcome={initial.vat.outcome ?? undefined} data-reason={initial.vat.reason ?? undefined} class="mt-3 rounded-xl border border-border bg-muted/40 p-4">
+          <p data-tax-vat-label class="text-sm font-semibold">{initial.vat.label}</p>
+          <p data-tax-vat-message class="mt-1 text-sm leading-6 text-muted-foreground">{initial.vat.message}</p>
+          <details class="mt-2">
+            <summary class="flex min-h-11 cursor-pointer items-center text-xs font-semibold">Ver fechas ficticias de la evidencia</summary>
+            <dl data-tax-vat-dates class="space-y-3 pb-1 text-xs leading-5 text-muted-foreground">
+              <div><dt>Instante fijo del ejemplo</dt><dd data-tax-vat-date="at" class="font-medium text-foreground">{formatDate(initial.vat.at)}</dd></div>
+              <div><dt>Comprobada</dt><dd data-tax-vat-date="checkedAt" class="font-medium text-foreground">{initial.vat.checkedAt ? formatDate(initial.vat.checkedAt) : 'Sin fecha de comprobación'}</dd></div>
+              <div><dt>Fin de vigencia</dt><dd data-tax-vat-date="expiresAt" class="font-medium text-foreground">{initial.vat.expiresAt ? formatDate(initial.vat.expiresAt) : 'Sin fecha de vigencia'}</dd></div>
+            </dl>
+          </details>
+        </div>
+      </div>
+      <p data-tax-feedback role="status" aria-live="polite" aria-atomic="true" class="mt-5 text-sm leading-6">{initial.feedback.message}</p>
+      <p data-tax-error role="alert" hidden class="mt-3 rounded-xl border border-destructive px-4 py-3 text-sm leading-6 text-destructive"></p>
+    </section>
+
+    <section data-tax-result data-outcome={initial.tax.outcome} data-reason={initial.tax.reason ?? undefined} class="tax-panel" aria-labelledby="tax-result-title">
+      <div class="flex items-start gap-3"><span class="tax-step" aria-hidden="true">2</span><div><h2 id="tax-result-title" class="text-xl font-semibold">Comprueba el desglose</h2><p class="mt-1 text-sm leading-6 text-muted-foreground">Productos y portes, línea a línea.</p></div></div>
+      <div class="mt-5 rounded-xl border border-border bg-muted/40 p-4">
+        <p data-tax-result-label class="text-sm font-semibold">{initial.tax.label}</p>
+        <p data-tax-result-message class="mt-1 text-sm leading-6 text-muted-foreground">{initial.tax.message}</p>
+      </div>
+
+      <div data-tax-lines class="mt-4 space-y-3">
+        {initial.tax.lines.map((line) => <article data-tax-line data-line-id={line.id} data-kind={line.kind} data-treatment={line.treatment ?? undefined} data-basis={line.priceBasis} class="tax-line">
+          <div class="flex flex-wrap items-start justify-between gap-2"><h3 class="min-w-0 text-sm font-semibold">{line.label}</h3><span data-tax-treatment class="tax-badge">{line.treatmentLabel}</span></div>
+          <p class="mt-2 text-xs leading-5 text-muted-foreground">Importe tras descuentos: <span data-tax-amount="input" data-cents={line.inputCents} class="font-medium text-foreground">{formatEurCents(line.inputCents)}</span></p>
+          <p data-tax-rate hidden={line.rateBasisPoints === null} class="mt-1 text-xs leading-5 text-muted-foreground">{line.rateBasisPoints !== null ? formatRate(line.rateBasisPoints) : ''}</p>
+          <dl class="tax-amounts mt-3">{amountKeys.map((key) => <div><dt>{amountLabels[key]}</dt><dd data-tax-amount={key} data-cents={line[`${key}Cents`] ?? undefined}>{line[`${key}Cents`] !== null ? formatEurCents(line[`${key}Cents`]!) : missingAmount}</dd></div>)}</dl>
+          <p data-tax-exemption-evidence hidden={line.exemptionEvidenceRef === null} class="mt-3 text-xs leading-5 text-muted-foreground">Exención con evidencia ficticia propia de este caso, independiente de la respuesta VAT.</p>
+          <ul data-tax-line-reasons hidden={line.reasonLabels.length === 0} class="mt-3 space-y-1 text-xs leading-5 text-muted-foreground">{line.reasonLabels.map((reason) => <li>{reason}</li>)}</ul>
+        </article>)}
+      </div>
+
+      <div class="mt-5 border-t border-border pt-5">
+        <h3 class="text-base font-semibold">Total del ejemplo</h3>
+        <dl data-tax-totals class="tax-amounts tax-total mt-3">{amountKeys.map((key) => <div><dt>{amountLabels[key]}</dt><dd data-tax-amount={key} data-cents={initial.tax.totals?.[`${key}Cents`]}>{initial.tax.totals ? formatEurCents(initial.tax.totals[`${key}Cents`]) : missingAmount}</dd></div>)}</dl>
+        <p data-tax-total-help class="mt-3 text-xs leading-5 text-muted-foreground">{initial.tax.totals ? 'El total suma los importes ya redondeados de todas las líneas.' : 'El total completo no se calcula mientras falte información. No se sustituye por cero ni por un subtotal.'}</p>
+      </div>
+      <p class="mt-5 rounded-xl border border-border bg-muted/40 p-4 text-xs leading-5 text-muted-foreground">Redondeo por línea al céntimo; medio céntimo se redondea hacia arriba. Después se suman las líneas. Las tasas de este ejemplo son ilustrativas y no representan reglas fiscales universales.</p>
+    </section>
+  </div>
+</div>
+
+<style is:global>
+  .tax-demo .tax-panel { min-width: 0; border: 1px solid var(--color-border); border-radius: var(--radius-card); background: var(--color-card); padding: 1.25rem; }
+  .tax-demo .tax-step { display: flex; flex-shrink: 0; width: 2rem; height: 2rem; align-items: center; justify-content: center; border-radius: 100%; background: var(--color-foreground); color: var(--color-background); font-size: .875rem; font-weight: 600; }
+  .tax-demo .tax-label { display: block; min-width: 0; font-size: .875rem; line-height: 1.5rem; font-weight: 600; }
+  .tax-demo .tax-input { display: block; width: 100%; min-width: 0; min-height: 3rem; margin-top: .5rem; border: 1px solid var(--color-input); border-radius: var(--radius-btn); background: var(--color-background); padding-inline: .75rem; color: var(--color-foreground); font-size: 1rem; line-height: 1.5rem; font-weight: 400; }
+  .tax-demo .tax-input:disabled { opacity: 1; cursor: default; }
+  .tax-demo .tax-button { min-height: 3rem; border-radius: var(--radius-btn); padding: .75rem 1rem; font-size: .875rem; line-height: 1.5rem; font-weight: 600; cursor: pointer; }
+  .tax-demo .tax-button:hover:not(:disabled) { box-shadow: 0 0 0 1px var(--color-foreground); }
+  .tax-demo .tax-button:disabled { background: var(--color-muted); color: var(--color-foreground); opacity: 1; cursor: not-allowed; }
+  .tax-demo .tax-mode { display: flex; min-height: 3rem; align-items: center; gap: .75rem; border: 1px solid var(--color-border); border-radius: var(--radius-btn); padding: .75rem; }
+  .tax-demo .tax-mode:has(input:checked) { border-color: var(--color-foreground); background: var(--color-muted); }
+  .tax-demo .tax-choice { width: 1.125rem; height: 1.125rem; flex-shrink: 0; accent-color: var(--color-foreground); }
+  .tax-demo .tax-choice:disabled { opacity: 1; }
+  .tax-demo .tax-line { min-width: 0; border: 1px solid var(--color-border); border-radius: var(--radius-btn); padding: 1rem; overflow-wrap: anywhere; }
+  .tax-demo .tax-badge { display: inline-flex; border-radius: 999px; background: var(--color-muted); padding: .25rem .625rem; color: var(--color-foreground); font-size: .75rem; line-height: 1.25rem; font-weight: 600; }
+  .tax-demo .tax-amounts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .5rem; }
+  .tax-demo .tax-amounts dt { color: var(--color-muted-foreground); font-size: .75rem; line-height: 1.25rem; }
+  .tax-demo .tax-amounts dd { margin-top: .25rem; font-size: .875rem; line-height: 1.5rem; font-weight: 600; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+  .tax-demo .tax-total { border-radius: var(--radius-btn); background: var(--color-muted); padding: 1rem; }
+  .tax-demo :is(button, input, select, summary):focus-visible { outline: 2px solid var(--color-foreground); outline-offset: 3px; }
+  @media (min-width: 640px) { .tax-demo .tax-panel { padding: 1.5rem; } .tax-demo .tax-total dd { font-size: 1rem; } }
+</style>
+
+<script>
+  import { configureTaxDemo, createTaxDemo, getTaxDemoView, type TaxDemoSelection } from '../../composition/tax-demo';
+  import { formatEurCents } from '../../lib/format';
+
+  const root = document.querySelector<HTMLElement>('[data-tax-demo]');
+  if (root) {
+    const find = <T extends HTMLElement>(selector: string): T => root.querySelector<T>(selector)!;
+    const findSelect = (selector: string) => {
+      const element = root.querySelector(selector);
+      if (!(element instanceof HTMLSelectElement)) throw new Error('Falta un selector del ejemplo.');
+      return element;
+    };
+    const scenario = findSelect('[data-tax-scenario]');
+    const vat = findSelect('[data-tax-vat]');
+    const radios = [...root.querySelectorAll<HTMLInputElement>('[data-tax-basis]')];
+    const reset = find<HTMLButtonElement>('[data-tax-action="reset"]');
+    const feedback = find<HTMLElement>('[data-tax-feedback]');
+    const amountKeys = ['net', 'tax', 'gross'] as const;
+    const formatRate = (basisPoints: number) => new Intl.NumberFormat('es-ES', { maximumFractionDigits: 2 }).format(basisPoints / 100) + ' % · ejemplo';
+    const formatDate = (value: string) => new Intl.DateTimeFormat('es-ES', { timeZone: 'UTC', day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }).format(new Date(value)) + ' UTC';
+    let state = createTaxDemo();
+
+    const setAmount = (element: HTMLElement, cents: number | null, missing: string) => {
+      element.textContent = cents === null ? missing : formatEurCents(cents);
+      if (cents === null) delete element.dataset.cents;
+      else element.dataset.cents = String(cents);
+    };
+
+    const render = () => {
+      const view = getTaxDemoView(state);
+      scenario.value = view.selection.scenario;
+      vat.value = view.selection.vatScenario;
+      for (const radio of radios) radio.checked = radio.value === view.selection.priceBasis;
+      find('[data-tax-basis-help]').textContent = view.selection.priceBasis === 'included' ? 'El importe de partida se conserva como bruto en cada línea resuelta.' : 'El impuesto se suma al importe de partida de cada línea resuelta.';
+      const result = find<HTMLElement>('[data-tax-result]');
+      result.dataset.outcome = view.tax.outcome;
+      if (view.tax.reason === null) delete result.dataset.reason;
+      else result.dataset.reason = view.tax.reason;
+      find('[data-tax-result-label]').textContent = view.tax.label;
+      find('[data-tax-result-message]').textContent = view.tax.message;
+      const missing = view.tax.reason === 'line_unresolved' ? 'Pendiente' : 'Sin calcular';
+      const lineRows = [...root.querySelectorAll<HTMLElement>('[data-tax-line]')];
+      const startingRows = [...root.querySelectorAll<HTMLElement>('[data-tax-starting-line]')];
+      for (const line of view.tax.lines) {
+        const row = lineRows.find((element) => element.dataset.lineId === line.id)!;
+        const startingRow = startingRows.find((element) => element.dataset.lineId === line.id)!;
+        setAmount(startingRow.querySelector<HTMLElement>('[data-tax-starting-amount]')!, line.inputCents, missing);
+        row.dataset.basis = line.priceBasis;
+        if (line.treatment === null) delete row.dataset.treatment;
+        else row.dataset.treatment = line.treatment;
+        row.querySelector<HTMLElement>('[data-tax-treatment]')!.textContent = line.treatmentLabel;
+        setAmount(row.querySelector<HTMLElement>('[data-tax-amount="input"]')!, line.inputCents, missing);
+        const rate = row.querySelector<HTMLElement>('[data-tax-rate]')!;
+        rate.hidden = line.rateBasisPoints === null;
+        rate.textContent = line.rateBasisPoints === null ? '' : formatRate(line.rateBasisPoints);
+        for (const key of amountKeys) setAmount(row.querySelector<HTMLElement>('[data-tax-amount="' + key + '"]')!, line[`${key}Cents`], missing);
+        row.querySelector<HTMLElement>('[data-tax-exemption-evidence]')!.hidden = line.exemptionEvidenceRef === null;
+        const reasons = row.querySelector<HTMLElement>('[data-tax-line-reasons]')!;
+        reasons.hidden = line.reasonLabels.length === 0;
+        reasons.replaceChildren(...line.reasonLabels.map((label) => {
+          const item = document.createElement('li');
+          item.textContent = label;
+          return item;
+        }));
+      }
+      const totals = find<HTMLElement>('[data-tax-totals]');
+      for (const key of amountKeys) setAmount(totals.querySelector<HTMLElement>('[data-tax-amount="' + key + '"]')!, view.tax.totals?.[`${key}Cents`] ?? null, missing);
+      find('[data-tax-total-help]').textContent = view.tax.totals ? 'El total suma los importes ya redondeados de todas las líneas.' : 'El total completo no se calcula mientras falte información. No se sustituye por cero ni por un subtotal.';
+
+      const evidence = find<HTMLElement>('[data-tax-vat-result]');
+      evidence.dataset.status = view.vat.status;
+      if (view.vat.outcome === null) delete evidence.dataset.outcome;
+      else evidence.dataset.outcome = view.vat.outcome;
+      if (view.vat.reason === null) delete evidence.dataset.reason;
+      else evidence.dataset.reason = view.vat.reason;
+      find('[data-tax-vat-label]').textContent = view.vat.label;
+      find('[data-tax-vat-message]').textContent = view.vat.message;
+      find('[data-tax-vat-date="at"]').textContent = formatDate(view.vat.at);
+      find('[data-tax-vat-date="checkedAt"]').textContent = view.vat.checkedAt ? formatDate(view.vat.checkedAt) : 'Sin fecha de comprobación';
+      find('[data-tax-vat-date="expiresAt"]').textContent = view.vat.expiresAt ? formatDate(view.vat.expiresAt) : 'Sin fecha de vigencia';
+      const message = view.feedback.message + ' ' + view.tax.label + '. ' + view.vat.label + '.';
+      if (feedback.textContent !== message) feedback.textContent = message;
+    };
+
+    scenario.addEventListener('change', () => { state = configureTaxDemo(state, { scenario: scenario.value as TaxDemoSelection['scenario'] }); render(); });
+    vat.addEventListener('change', () => { state = configureTaxDemo(state, { vatScenario: vat.value as TaxDemoSelection['vatScenario'] }); render(); });
+    radios.forEach((radio) => radio.addEventListener('change', () => { state = configureTaxDemo(state, { priceBasis: radio.value as TaxDemoSelection['priceBasis'] }); render(); }));
+    reset.addEventListener('click', () => { state = createTaxDemo(); render(); });
+    render();
+    scenario.disabled = false;
+    vat.disabled = false;
+    radios.forEach((radio) => { radio.disabled = false; });
+    reset.disabled = false;
+    root.dataset.ready = 'true';
+  }
+</script>

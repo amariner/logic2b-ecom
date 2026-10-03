@@ -31,6 +31,39 @@ Una quinta clasificación, **fuera de alcance deliberado**, evita confundir
 paridad comercial con fabricar bancos, redes publicitarias, hardware de punto de
 venta o servicios logísticos propios.
 
+## Última demo verificada
+
+**R5.10b verificada y disponible en el repositorio, sin desplegar**, rama
+`codex/tax-fixture-demo`, con integración pendiente. `/demo/admin/impuestos`,
+«Impuestos y totales», separa «Preparar ejemplo» y «Comprobar desglose». Ofrece cinco casos
+cerrados: dos tipos con portes, céntimos y redondeo, cero y exención, portes
+pendientes y ausencia de respuesta fiscal, con selector incluido/excluido.
+La evidencia VAT positiva, negativa, caducada o indisponible es independiente
+y nunca cambia el tratamiento fiscal del ejemplo.
+
+Los importes postdescuento son de solo lectura: la selección recalcula en
+memoria y reset/recarga recuperan el estado inicial. No hay buffers, guardar,
+campos libres de NIF, país o importes, ni envío. La ruta exige manifest demo
+**y** `DEMO_MODE=true`, conserva noindex y no habilita operación fiscal.
+MKT-009/010 permanecen parciales e instaladas/inactivas; CHK-006 sigue pendiente.
+Verificación técnica completada: `pnpm check` pasa 921 archivos sin diagnósticos,
+235 suites/2.427 pruebas, incluidas 36 del modelo y seis de arquitectura;
+build y guardas de 44 HTML, 44 formularios y cero crons. Revisión independiente:
+496 comprobaciones sin P1/P2; modelo de seis fuentes/30.148 B y cliente de
+ocho fuentes/23.091 B, sin runtime operativo ni efectos.
+
+QA final de R5.10b: navegador 340/340, E2E nuevo 168/168, ocho superficies
+a11y con cero errores y cero avisos, y ocho capturas revisadas sin bloqueantes.
+La base QA conserva 143 tablas y 353 filas, con hash idéntico antes/después:
+`9cbfc811cfc4296515a403d395875a43bfa26aff0c9c9b08be0804b15bbf6eca`.
+El módulo produce cero peticiones HTTP, escrituras o eventos de mutación de
+almacenamiento, temporizadores, beacons, aperturas externas y errores JavaScript.
+La inicialización/recarga de la guía en sessionStorage y el punto exacto de
+requestAnimationFrame de WhatsAppContact en el shell se verifican y registran
+por separado. Worker y Chrome de QA están detenidos.
+[Informe final](../audits/r5-10b/verification-report.json).
+Los apartados siguientes conservan evidencia de sus cortes anteriores.
+
 ## Último contrato verificado
 
 **R5.10a implementado y verificado localmente**, rama
@@ -62,18 +95,25 @@ pruebas y build con 44 HTML/44 formularios/cero crons. Focales: 96 fiscales
 (82+14), 70 VAT (55+15), seis de arquitectura y 75 de registry/manifest.
 La revisión independiente cubre 5.616 aserciones (5.420 fiscales y 196 VAT),
 sin P1/P2 ni efectos; el bundle público de `taxes` contiene cinco fuentes puras.
-[Informe](../audits/r5-10a/verification-report.json).
+[Informe](../audits/r5-10a/verification-report.json). Integrado en
+[PR #21](https://github.com/amariner/logic2b-ecom/pull/21), commit `5f9e3e2`, sin
+despliegue. Estos resultados son evidencia anterior de R5.10a, no de R5.10b.
 
 E2E 164/164,
 navegador 188/188, ocho superficies a11y y hash de 143 tablas/353 filas
 `9cbfc811cfc4296515a403d395875a43bfa26aff0c9c9b08be0804b15bbf6eca`
 son evidencia heredada de R5.9b, integrada en PR #20 (`7a0926e`), no nuevas
-ejecuciones de este corte.
-Después seguirá **R5.10b: demo fiscal inerte**, diseño aprobado para
-`/demo/admin/impuestos`, «Impuestos y totales»: cinco ejemplos cerrados,
-selector incluido/excluido, desglose por línea y evidencia VAT independiente.
-Importes de solo lectura, recálculo en memoria y reset/recarga, sin guardar ni
-campos fiscales libres. Todavía no está implementada ni disponible.
+ejecuciones de R5.10a ni de R5.10b.
+
+## Siguiente contrato
+
+**R5.11a aprobado: importe presentado y evidencia FX fixture**, en un módulo separado.
+Unidades menores y exponente explícitos, tasa racional dirigida y vigente,
+redondeo identificado y snapshot que conserva el importe original. Sin
+modificar money/ledger, formateo de céntimos o impuestos EUR actuales; sin
+proveedor, DDL ni monedas operativas habilitadas. R5.11b modelará métodos
+sintéticos y R5.11c su demo. R5.11 seguirá parcial: esos previews no resuelven
+cobro, reembolso ni conciliación operativos. Todavía sin implementar.
 
 ## Demo verificada
 

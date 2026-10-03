@@ -44,7 +44,7 @@ improvisan durante la implementación.
 | R2 | Núcleo transaccional profesional | ✅ R2.1–R2.14 y Admin V2 cerrados 2026-08-12 |
 | R3 | Operación de pedidos, inventario y fulfillment | ✅ cerrado 2026-08-14 |
 | R4 | Precios, promociones y modelos de venta | ✅ cerrado 2026-08-17 |
-| R5 | Clientes, privacidad y mercados | 🟨 en curso; cortes R5.1–R5.10a cerrados localmente; sigue demo fiscal R5.10b |
+| R5 | Clientes, privacidad y mercados | 🟨 en curso; cortes R5.1–R5.10b cerrados localmente; siguiente R5.11a de FX fixture |
 | R6 | B2B | ⬜ |
 | R7 | Marketing, analítica y automatización | ⬜ |
 | R8 | Storefront componible, búsqueda y contenido | ⬜ |
@@ -179,8 +179,8 @@ suites/715 tests; producción permanece en `0032`.
 | 57 | **R5.7 Modelo de mercados** | Contexto de país/idioma/moneda/dominio, resolución y fallback. | ✅ R5.7a–b local: ADR-0046, `defineMarketCatalog`/`resolveMarket` y composición pura `market-pricing-context`; moneda base y Git/inyección, sin DDL ni endpoints. 224 suites/1.876 pruebas, E2E 156/156 y base QA intacta; MKT-003 parcial/inactiva, demo visual verificada en R5.8b |
 | 58 | **R5.8 Traducciones y URLs** | Campos traducibles, flujo editorial, canonical, hreflang y sitemap. | ✅ Local — R5.8a integrada en PR #17 (`6eadc3b`); R5.8b verificada con 227 suites/2.023 pruebas, E2E 160/160, navegador 120/120 y ocho superficies a11y sin hallazgos. Demo `/demo/admin/mercados` disponible en repo; MKT-003/006/007 parciales e inactivas, sin deploy |
 | 59 | **R5.9 Publicación por mercado** | Producto/variante/canal, preview y explicación. | ✅ Local — R5.9a integrada en PR #19 (`1c801d8`); R5.9b integrada en PR #20 (`7a0926ec`), disponible en repo sin deploy: 230 suites/2.222 pruebas, E2E 164/164, navegador 188/188 y ocho superficies a11y 0/0. MKT-004 parcial/inactiva y MKT-005 pendiente |
-| 60 | **R5.10 Impuestos** | Adaptador, snapshots, redondeo, exenciones y validación VAT ID. | 🟡 R5.10a cerrada localmente: ADR-0049, módulo taxes y adaptadores fixture; 917 archivos sin diagnósticos, 234 suites/2.391 pruebas y revisión sin P1/P2. MKT-009/010 parciales/instaladas/inactivas, CHK-006 pendiente; sin proveedor, DDL ni checkout runtime. Después R5.10b, demo /demo/admin/impuestos con diseño aprobado y aún sin implementar |
-| 61 | **R5.11 Multidivisa y métodos locales** | Presentación, cobro, reembolso y conciliación. | ⬜ |
+| 60 | **R5.10 Impuestos** | Adaptador, snapshots, redondeo, exenciones y validación VAT ID. | 🟡 R5.10a integrada en PR #21 (`5f9e3e2`): ADR-0049, módulo taxes y adaptadores fixture; 917 archivos sin diagnósticos, 234 suites/2.391 pruebas y revisión sin P1/P2. MKT-009/010 parciales/instaladas/inactivas, CHK-006 pendiente; sin proveedor, DDL ni checkout runtime. R5.10b verificada: demo /demo/admin/impuestos, 2.427 pruebas, E2E 168/168, navegador 340/340, ocho superficies a11y 0/0 y hash QA intacto; disponible en repo sin deploy, integración pendiente |
+| 61 | **R5.11 Multidivisa y métodos locales** | Presentación, cobro, reembolso y conciliación. | ⬜ Siguiente R5.11a: contrato puro de importe presentado y evidencia FX fixture; R5.11b métodos sintéticos y R5.11c demo. Estos previews dejan pendiente cobro, reembolso y conciliación operativos; la ola no se declara completa |
 | 62 | **R5.12 Consolidación R5** | E2E dos mercados, privacidad y cuenta opcional; revisión SEO/legal/seguridad. | ⬜ |
 
 R5.1 cerró localmente con ADR-0039, `0036`, repositorio D1, HMAC por despliegue,
@@ -1597,7 +1597,7 @@ R5.9b está integrada en PR #20 (`7a0926ec`), sin despliegue.
 
 ### Cerrado local: R5.10a — Impuestos, evidencias y redondeo puros
 
-En `codex/tax-fixture-contract`, [ADR-0049](adr/0049-contrato-fiscal-fixture.md),
+Integrado en PR #21 (`5f9e3e2`), [ADR-0049](adr/0049-contrato-fiscal-fixture.md),
 módulo `taxes` separado y perfil `eur-line-tax-half-up-v1`. Contrato y adaptador
 fixture inyectado con preview/snapshot inmutable en EUR
 tras descuentos. Líneas de mercancía/envío separadas y decisiones explícitas
@@ -1629,13 +1629,48 @@ compuesto por cinco fuentes puras. Sin despliegue.
 E2E 164/164, navegador 188/188, ocho superficies a11y sin hallazgos y el hash
 intacto de 143 tablas/353 filas pertenecen a R5.9b/PR #20 (`7a0926e`): son
 evidencia heredada, sin nuevas ejecuciones de esas superficies en R5.10a.
-Después sigue **R5.10b: demo fiscal inerte**, con diseño aprobado para
+
+### Cerrado local: R5.10b — Impuestos y totales con fixtures
+
+En `codex/tax-fixture-demo` se desarrolla
 `/demo/admin/impuestos`, «Impuestos y totales»: preparar ejemplo y comprobar
 desglose, cinco casos cerrados y selector incluido/excluido. VAT independiente
 positivo/negativo/caducado/indisponible, sin alterar el tratamiento fiscal.
 Importes postdescuento de solo lectura, selección que recalcula en memoria y
 reset/recarga; sin buffers ni guardar, NIF/país/importes libres o envío. Gate
-manifest demo y `DEMO_MODE=true`; todavía sin implementar ni disponible.
+manifest demo y `DEMO_MODE=true`, superficie noindex, sin I/O, D1 ni cron.
+
+[Verificación final](../audits/r5-10b/verification-report.json): `pnpm check`
+pasa 921 archivos sin diagnósticos, 235 suites/2.427 pruebas, incluidas 36 del
+modelo y seis de arquitectura; build y guardas de 44 HTML, 44 formularios y
+cero crons. Revisión independiente de 496 comprobaciones sin P1/P2; modelo de
+seis fuentes/30.148 B y cliente de ocho fuentes/23.091 B, sin runtime operativo.
+
+[Navegador](../audits/r5-10b/report.json): 340/340. [A11y](../audits/r5-10b/a11y-report.json):
+ocho superficies, cero errores y avisos; ocho capturas revisadas sin
+bloqueantes. E2E nuevo: 168/168. Cero efectos del módulo; el almacenamiento de
+la guía compartida y el rAF visual de WhatsApp se verifican por sus puntos
+exactos de llamada y se contabilizan aparte.
+
+La base QA conserva 143 tablas y 353 filas, con SHA-256 antes/después idéntico
+`9cbfc811cfc4296515a403d395875a43bfa26aff0c9c9b08be0804b15bbf6eca`.
+Worker y Chrome detenidos. Demo verificada y disponible en el repositorio,
+sin despliegue; integración pendiente.
+MKT-009/010 siguen parciales, instaladas/inactivas y CHK-006 pendiente;
+sin activación ni despliegue.
+Siguiente seleccionado: **R5.11a**, contrato puro de importe presentado y
+evidencia FX fixture en un módulo separado. Unidades menores y exponente
+bajo perfil explícito; tasa racional dirigida, evidencia vigente y
+correlacionada, BigInt y redondeo identificado. Importe/moneda originales
+preservados; ausencia/caducidad no produce un importe convertido utilizable.
+Sin inversión ni triangulación automática, DDL, proveedor o cambios de
+quote, ledger, formateador de céntimos e impuestos EUR actuales.
+
+Después R5.11b, métodos sintéticos elegibles con motivos, y R5.11c, demo
+inerte. R5.11 permanece parcial: presentar un importe o un método sintético
+no resuelve cobro, reembolso ni conciliación operativos. Las decisiones
+reales de monedas/proveedor siguen por proyecto; no bloquean los contratos
+con fixtures. Todavía no se implementa R5.11a.
 
 Push/merge siguen autorizados después de checks. La demo pública y landing
 quedan solo con fixtures; crons vacíos y guardas ante triggers antiguos. G3/G4,

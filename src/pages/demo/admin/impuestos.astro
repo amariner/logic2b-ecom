@@ -1,0 +1,21 @@
+---
+import { canShowTaxDemo } from '../../../composition/tax-demo';
+import { runtimePlatform } from '../../../composition/runtime-platform';
+import Admin from '../../../layouts/Admin.astro';
+import AdminPageHeader from '../../../components/admin/AdminPageHeader.astro';
+import TaxDemo from '../../../components/admin/TaxDemo.astro';
+
+export const prerender = false;
+
+if (!canShowTaxDemo(Astro.locals.runtime?.env, runtimePlatform)) {
+  return new Response('Página no encontrada.', {
+    status: 404,
+    headers: { 'content-type': 'text/plain; charset=utf-8', 'cache-control': 'no-store' },
+  });
+}
+---
+
+<Admin title="Impuestos y totales" active="impuestos">
+  <AdminPageHeader eyebrow="Internacional · demostración" title="Impuestos y totales" description="Comprueba cómo se separan neto, impuesto y bruto en productos y portes. Explora ejemplos con impuesto incluido, exenciones o información pendiente." />
+  <TaxDemo />
+</Admin>
