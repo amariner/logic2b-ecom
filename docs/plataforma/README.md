@@ -31,6 +31,35 @@ Una quinta clasificación, **fuera de alcance deliberado**, evita confundir
 paridad comercial con fabricar bancos, redes publicitarias, hardware de punto de
 venta o servicios logísticos propios.
 
+## Último contrato verificado
+
+**R5.7a–b implementado y verificado en QA local**, en
+`codex/market-context-contract`: contrato puro `defineMarketCatalog` /
+`resolveMarket` y composición `market-pricing-context` en QA. El catálogo de
+mercados es explícito, versionado en Git e inyectado, con moneda base. Este
+corte no añade DDL, rutas, jobs, endpoints, FX, traducciones ni activación.
+MKT-003 pasa a parcial e instalada/inactiva en el preset avanzado; la demo
+visual de mercados sigue pendiente.
+
+Check global aprobado: 888 archivos sin diagnósticos, 224 suites/1.876 pruebas,
+build y guardas de 44 HTML/44 formularios cerrados a envíos. Incluye 119 pruebas
+del contrato y 25 de composición; revisión independiente sin P1/P2. Tipos
+finales: 888 archivos sin errores/avisos/hints; E2E local: 156/156. Base QA
+intacta: 143 tablas, 353 filas y SHA-256 antes/después
+`9cbfc811cfc4296515a403d395875a43bfa26aff0c9c9b08be0804b15bbf6eca`.
+Servidor detenido; [informe](../audits/r5-7/verification-report.json). Sin despliegue.
+
+`defaultLocale` no acredita idiomas publicados; el fallback de contexto no
+acredita disponibilidad de envío ni jurisdicción. Detalle en
+[ADR-0046](adr/0046-contexto-de-mercados.md).
+
+Sigue **R5.8a: ADR y contrato puro de contenido localizado
+y plan de URLs**. Estados editoriales y fallback explícitos; canonical,
+hreflang y sitemap derivados solo de páginas y locales publicados. Se prueba
+con fixtures, sin DDL, servicios de traducción ni cambios de rutas o sitemap
+servidos. Los gates G3/G4 de uso real siguen pendientes y no bloquean este
+trabajo puro.
+
 ## Último corte local
 
 **R5.6d implementada y verificada, disponible en el repositorio sin despliegue.**
@@ -38,13 +67,12 @@ La muestra de `/demo/admin/segmentos` incluye 12 perfiles sintéticos, cuatro he
 y lotes de tres, con evaluación pura en el navegador sobre fixtures. No usa
 API, cron ni persistencia.
 CUS-009 conserva el estado parcial e instalada/inactiva operativamente, sin
-habilitar flags, handlers ni jobs.
+habilitar flags, handlers ni jobs. R5.6d quedó integrada en
+[PR #15](https://github.com/amariner/logic2b-ecom/pull/15), commit `71d5263`, sin
+despliegue.
 
 R5.6c.3 quedó integrado en [PR #14](https://github.com/amariner/logic2b-ecom/pull/14),
-commit `9b3a8ab`, sin despliegue. El siguiente bloque es **R5.7a–b: modelo de
-mercados y composición pura en QA**, con ADR, moneda base y configuración
-versionada en Git, sin DDL ni endpoints. Los gates G3/G4 de uso real siguen
-pendientes y no bloquean ese alcance puro.
+commit `9b3a8ab`, sin despliegue.
 
 [Validación final](../audits/r5-6d/verification-report.json): 883 archivos sin
 diagnósticos, 222 suites/1.730 pruebas, 44 HTML y 44 formularios cerrados a envíos;

@@ -1,0 +1,15 @@
+export {
+  MAX_MARKETS,
+  MAX_MARKET_COUNTRIES,
+  MAX_MARKET_DOMAINS,
+  MarketContextContractError,
+  defineMarketCatalog,
+  resolveMarket,
+  type Market,
+  type MarketCatalog,
+  type MarketFallback,
+  type MarketFallbackReason,
+  type MarketResolution,
+  type MarketSelector,
+  type MarketUnresolvedReason,
+} from './domain/market-context';

@@ -28,6 +28,7 @@ type ModuleName =
   | 'integrations'
   | 'storefront'
   | 'marketing'
+  | 'markets'
   | 'demo-support'
   | 'shared-kernel';
 
@@ -80,6 +81,7 @@ const ALLOWED_MODULE_DEPENDENCIES: Readonly<Record<ModuleName, readonly ModuleNa
   integrations: ['shared-kernel', 'platform/configuration', 'catalog', 'inventory', 'payments', 'orders', 'fulfillment', 'customers', 'notifications', 'marketing'],
   storefront: ['shared-kernel', 'platform/configuration', 'catalog', 'cart', 'checkout', 'orders'],
   marketing: ['shared-kernel', 'platform/configuration', 'customers', 'notifications'],
+  markets: ['shared-kernel'],
   'demo-support': ['shared-kernel', 'platform/configuration', 'catalog', 'pricing', 'inventory', 'cart', 'checkout', 'fulfillment', 'storefront'],
   'shared-kernel': [],
 };

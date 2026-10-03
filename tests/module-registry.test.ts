@@ -84,6 +84,18 @@ describe('registro de módulos (R1.4)', () => {
     expect(validateModuleRegistry(descriptors).map((issue) => issue.code)).toContain('duplicate-healthcheck');
   });
 
+  it('describes markets without adding any operational surface', () => {
+    expect(MODULE_REGISTRY.capabilityOwners['MKT-003']).toBe('markets');
+    expect(MODULE_REGISTRY.byId.markets).toMatchObject({
+      permissions: [], events: [], subscriptions: [], jobs: [], healthchecks: [], navigation: [], routes: [],
+    });
+    for (const profile of ['minimal', 'standard', 'advanced'] as const) {
+      const platform = createPlatform(createPresetManifest(profile, deployment));
+      expect(platform.hasModule('markets')).toBe(false);
+      expect(platform.isCapabilityActive('MKT-003')).toBe(false);
+    }
+  });
+
   it('asigna cada job R1.11 a un único módulo propietario', () => {
     expect(MODULE_REGISTRY.jobOwners).toEqual({
       'notifications.event-outbox-sweep': 'notifications',
@@ -161,7 +173,7 @@ describe('registro de módulos (R1.4)', () => {
     ['minimal', ['platform-configuration', 'platform-security', 'catalog', 'pricing', 'storefront']],
     ['standard', ['platform-configuration', 'platform-security', 'catalog', 'pricing', 'inventory', 'cart', 'customers', 'orders', 'fulfillment', 'notifications', 'payments', 'checkout', 'storefront']],
     ['advanced', MODULE_REGISTRY.descriptors
-      .filter((descriptor) => descriptor.id !== 'subscriptions')
+      .filter((descriptor) => descriptor.id !== 'subscriptions' && descriptor.id !== 'markets')
       .map((descriptor) => descriptor.id)],
   ] as const)('compone solo los módulos operativos del preset %s', (preset, expected) => {
     const platform = createPlatform(createPresetManifest(preset, deployment));
