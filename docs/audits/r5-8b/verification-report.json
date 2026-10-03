@@ -1,0 +1,50 @@
+{
+  "schemaVersion": 1,
+  "environment": "isolated-local-qa",
+  "deployment": "not-deployed",
+  "verification": {
+    "typecheckFiles": 897,
+    "diagnostics": 0,
+    "suites": 227,
+    "tests": 2023,
+    "demoModelTests": 24,
+    "e2eChecks": 160,
+    "browserChecks": 120,
+    "accessibilitySurfaces": 8,
+    "accessibilityErrors": 0,
+    "accessibilityWarnings": 0,
+    "screenshotsReviewed": 8,
+    "buildHtmlPages": 44,
+    "buildLocalForms": 44
+  },
+  "databaseComparison": {
+    "status": "unchanged",
+    "tables": 143,
+    "rows": 353,
+    "sha256Before": "9cbfc811cfc4296515a403d395875a43bfa26aff0c9c9b08be0804b15bbf6eca",
+    "sha256After": "9cbfc811cfc4296515a403d395875a43bfa26aff0c9c9b08be0804b15bbf6eca"
+  },
+  "interactionIsolation": {
+    "moduleHttpRequests": 0,
+    "moduleStorageWrites": 0,
+    "moduleStorageMutationEvents": 0,
+    "beaconAttempts": 0,
+    "externalWindowAttempts": 0,
+    "forbiddenRequests": 0,
+    "javascriptErrors": 0,
+    "guideStorageExcluded": true,
+    "guideStorageExplanation": "Existing guide setup and reload use sessionStorage; the module adds no writes and preserves stored values."
+  },
+  "scope": {
+    "capabilities": ["MKT-003", "MKT-006", "MKT-007"],
+    "state": "installed",
+    "activeInPresets": false,
+    "operationalRuntimeConsumers": 0,
+    "fixtureRoute": "/demo/admin/mercados",
+    "fixtureRouteIndexed": false,
+    "migrationsAdded": 0,
+    "jobsAdded": 0,
+    "servedInternationalSeoChanged": false,
+    "fixturePresentation": "available-in-repository"
+  }
+}

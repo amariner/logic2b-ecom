@@ -176,9 +176,9 @@ suites/715 tests; producción permanece en `0032`.
 | 54 | **R5.4 Cuentas passwordless** | Login seguro, sesiones, revocación y anti-enumeración; módulo opcional. | ✅ 2026-08-19 — R5.4a–d implementan dominio, D1, Resend directo, transporte mismo navegador, throttle/auditoría, gate durable y HTTP/UI; 185 suites/958 tests; D1 remota en `0040`, Worker `a5cc8d85…` inerte, `CUS-003` instalada y rollout real aislado |
 | 55 | **R5.5 Autoservicio** | Pedidos, direcciones y devolución sobre permisos mínimos. | ✅ 2026-09-18 — R5.5a–h cerrados en sus cortes; HTTP/SSR, navegador 26/0/0 y replay owner-only verificados; módulos installed/inactivos con rollout por proyecto pendiente |
 | 56 | **R5.6 Segmentación** | Lenguaje de filtros limitado, templates y recálculo observable. | ✅ Local 2026-10-03 — R5.6a–d implementados y verificados; c.3 integrada en PR #14 (`9b3a8ab`) con 0046/backup39. Demo visual `/demo/admin/segmentos` disponible en repo: 12 perfiles, cuatro hechos, tres templates y lotes de tres; navegador 119/119 y ocho superficies a11y 0/0. Sin deploy ni handler; CUS-009 parcial e inactiva |
-| 57 | **R5.7 Modelo de mercados** | Contexto de país/idioma/moneda/dominio, resolución y fallback. | ✅ R5.7a–b local: ADR-0046, `defineMarketCatalog`/`resolveMarket` y composición pura `market-pricing-context`; moneda base y Git/inyección, sin DDL ni endpoints. 224 suites/1.876 pruebas, E2E 156/156 y base QA intacta; MKT-003 parcial/inactiva, demo visual pendiente |
-| 58 | **R5.8 Traducciones y URLs** | Campos traducibles, flujo editorial, canonical, hreflang y sitemap. | 🟨 R5.8a cerrada local: ADR-0047, contrato editorial puro y plan internacional de URLs; 226 suites/1.999 pruebas, revisión sin P1/P2. Git/inyección, sin DDL, CMS, persistencia ni cambios del sitio servido. MKT-006/007 parciales e inactivas; siguiente R5.8b, demo visual integrada |
-| 59 | **R5.9 Publicación por mercado** | Producto/variante/canal, preview y explicación. | ⬜ |
+| 57 | **R5.7 Modelo de mercados** | Contexto de país/idioma/moneda/dominio, resolución y fallback. | ✅ R5.7a–b local: ADR-0046, `defineMarketCatalog`/`resolveMarket` y composición pura `market-pricing-context`; moneda base y Git/inyección, sin DDL ni endpoints. 224 suites/1.876 pruebas, E2E 156/156 y base QA intacta; MKT-003 parcial/inactiva, demo visual verificada en R5.8b |
+| 58 | **R5.8 Traducciones y URLs** | Campos traducibles, flujo editorial, canonical, hreflang y sitemap. | ✅ Local — R5.8a integrada en PR #17 (`6eadc3b`); R5.8b verificada con 227 suites/2.023 pruebas, E2E 160/160, navegador 120/120 y ocho superficies a11y sin hallazgos. Demo `/demo/admin/mercados` disponible en repo; MKT-003/006/007 parciales e inactivas, sin deploy |
+| 59 | **R5.9 Publicación por mercado** | Producto/variante/canal, preview y explicación. | ⬜ Siguiente R5.9a: contrato puro sobre fixtures/inyección, tuplas y variantes explícitas, ausencia unconfigured y preview con motivos; sin DDL, endpoints ni activación |
 | 60 | **R5.10 Impuestos** | Adaptador, snapshots, redondeo, exenciones y validación VAT ID. | ⬜ |
 | 61 | **R5.11 Multidivisa y métodos locales** | Presentación, cobro, reembolso y conciliación. | ⬜ |
 | 62 | **R5.12 Consolidación R5** | E2E dos mercados, privacidad y cuenta opcional; revisión SEO/legal/seguridad. | ⬜ |
@@ -1489,7 +1489,7 @@ build y guardas de 44 HTML/44 formularios cerrados a envíos. Tipos finales:
 Servidor detenido; [informe](../audits/r5-7/verification-report.json). Sin deploy.
 
 MKT-003 queda parcial, instalada e inactiva en el preset avanzado; demo visual
-de mercados pendiente. `defaultLocale` no acredita idiomas publicados y el
+de mercados verificada en R5.8b. `defaultLocale` no acredita idiomas publicados y el
 fallback no acredita disponibilidad de envío, jurisdicción o permiso de venta.
 Los gates G3/G4 de uso real siguen separados y no bloquean el alcance puro.
 
@@ -1519,20 +1519,37 @@ revisión: no cambia compra, pedidos, panel, render ni D1. E2E 156/156 y hash
 de 143 tablas/353 filas pertenecen a PR #16 y se registran como evidencia
 heredada, sin atribuir una nueva ejecución a este corte.
 
-### Siguiente: R5.8b — Composición y demo inerte integrada
+### Cerrado local: R5.8b — Composición y demo inerte integrada
 
-Orientación aprobada: `/demo/admin/mercados`, «Mercados e idiomas», con vista
+R5.8a está integrada en PR #17 (`6eadc3b`), sin despliegue. En
+`codex/markets-localized-content-demo` se implementan `market-content-demo`,
+`MarketContentDemo.astro` y `/demo/admin/mercados`, «Mercados e idiomas», con vista
 visitante ES/FR e idioma/fallback; dos contenidos con ES/CA publicados,
 EN borrador y FR ausente. Edición/revisión/publicación inglesa solo en memoria,
 reset/recarga al estado inicial y plan `.test` como datos sin enlaces. Gate:
 manifest demo **y** `DEMO_MODE=true`.
 
+Implementación y QA cerradas; demo disponible en el repositorio, sin desplegar.
+MKT-003/006/007 permanecen parciales e instaladas/inactivas.
+
+[Validación](../audits/r5-8b/verification-report.json): 897 archivos sin diagnósticos,
+227 suites/2.023 pruebas (24 del modelo), build/guardas de 44 HTML/44 formularios.
+E2E nuevo: 160/160. [Navegador](../audits/r5-8b/report.json): 120/120 y ocho
+capturas; cero HTTP, almacenamiento propio, beacons o errores del módulo,
+separando el almacenamiento de la guía existente. [A11y](../audits/r5-8b/a11y-report.json):
+ocho superficies sin hallazgos. Revisión visual/código sin P1/P2. Base QA
+intacta: 143 tablas, 353 filas y SHA-256 antes/después
+`9cbfc811cfc4296515a403d395875a43bfa26aff0c9c9b08be0804b15bbf6eca`.
+Worker detenido.
+
 Superficie demo noindex; canonical/hreflang/sitemap son datos ilustrativos,
 sin inyectarlos como SEO real. Sin D1, CMS, persistencia, API
-operativa, cron ni activación. Verificar E2E, escritorio/móvil, teclado, sin
-JavaScript, movimiento reducido, accesibilidad, ausencia de tráfico operativo
-y hash de la base QA antes/después. Después sigue R5.9a: contrato puro de
-publicación por producto/variante/canal, preview y explicación, sin exigir DDL.
+operativa, cron ni activación. Se verifican escritorio/móvil, teclado, sin
+JavaScript, movimiento reducido y ausencia de efectos propios del módulo.
+Después sigue R5.9a: contrato puro de publicación por mercado/producto/variante/
+canal, tuplas y selección de variantes explícitas, ausencia `unconfigured`,
+preview y motivos. Separado de precio, stock y compra; fixtures e inyección
+bastan, sin DDL, endpoints ni activación.
 
 Push/merge siguen autorizados después de checks. La demo pública y landing
 quedan solo con fixtures; crons vacíos y guardas ante triggers antiguos. G3/G4,

@@ -1,0 +1,389 @@
+---
+import {
+  createMarketContentDemo,
+  getMarketContentDemoView,
+} from '../../composition/market-content-demo';
+import { LOCALIZED_TEXT_LIMITS } from '../../modules/localization';
+
+const initial = getMarketContentDemoView(createMarketContentDemo());
+const localeLabel = (locale: string) => initial.localeOptions.find((item) => item.id === locale)?.label ?? locale;
+const contentLabel = (id: string) => initial.contentOptions.find((item) => item.id === id)?.label ?? id;
+const dateLabel = (value: string) => value.slice(8, 10) + '/' + value.slice(5, 7) + '/' + value.slice(0, 4);
+const fieldLabels = { title: 'Título', summary: 'Resumen', bodyPlainText: 'Texto de la página' } as const;
+---
+
+<div data-market-content-demo data-ready="false" class="market-content-demo mt-6 space-y-6 text-foreground">
+  <div class="flex flex-col gap-3 rounded-2xl border border-border bg-card p-4 sm:flex-row sm:items-center sm:justify-between sm:px-5">
+    <div class="flex items-start gap-3">
+      <span aria-hidden="true" class="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-full bg-muted text-sm font-semibold">i</span>
+      <p class="max-w-3xl text-sm leading-6"><strong>Ejemplo interactivo, con contenido ficticio.</strong> Los cambios solo duran en esta página; al recargar, vuelves al inicio. No se publica ninguna web.</p>
+    </div>
+    <button type="button" data-content-action="reset" disabled class="demo-button shrink-0 border border-border bg-background text-foreground">Restablecer ejemplo</button>
+  </div>
+
+  <noscript data-market-content-nojs><div class="rounded-xl border border-border bg-muted p-4 text-sm leading-6">Puedes consultar el contenido y las direcciones iniciales sin JavaScript. Para probar los controles necesitas activarlo. Todos los controles están desactivados y no se envía ni guarda ningún dato.</div></noscript>
+
+  <section class="demo-panel" aria-labelledby="market-visitor-title">
+    <div class="demo-section-heading">
+      <span class="demo-step" aria-hidden="true">1</span>
+      <div><h2 id="market-visitor-title" class="text-xl font-semibold">Comprueba qué verá cada visitante</h2><p class="mt-1 text-sm leading-6 text-muted-foreground">Un mercado puede pedir un idioma que todavía no tiene contenido publicado.</p></div>
+    </div>
+    <div class="mt-5 grid gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)]">
+      <div class="min-w-0">
+        <div class="grid gap-4 sm:grid-cols-2">
+          <label class="demo-label" for="market-demo-market">Mercado de ejemplo
+            <select id="market-demo-market" data-market-select disabled class="demo-input">
+              {initial.marketOptions.map((item) => <option value={item.id} selected={item.id === initial.selection.marketId}>{item.label}</option>)}
+            </select>
+          </label>
+          <label class="demo-label" for="market-demo-content">Contenido
+            <select id="market-demo-content" data-content-select disabled class="demo-input">
+              {initial.contentOptions.map((item) => <option value={item.id} selected={item.id === initial.selection.contentId}>{item.label}</option>)}
+            </select>
+          </label>
+          <label class="demo-label" for="market-demo-locale">Idioma del visitante
+            <select id="market-demo-locale" data-content-locale disabled class="demo-input">
+              <option value="market-default" selected={initial.selection.locale === 'market-default'}>Idioma del mercado</option>
+              {initial.localeOptions.filter((item) => item.id !== 'market-default').map((item) => <option value={item.id} selected={item.id === initial.selection.locale}>{item.label}</option>)}
+            </select>
+          </label>
+          <label class="demo-label" for="market-demo-fallback">Si falta ese idioma
+            <select id="market-demo-fallback" data-content-fallback disabled class="demo-input">
+              <option value="none" selected={initial.selection.fallback === 'none'}>No mostrar otra versión</option>
+              <option value="es-ES" selected={initial.selection.fallback === 'es-ES'}>Mostrar español</option>
+            </select>
+          </label>
+        </div>
+        <details class="mt-4 rounded-xl border border-border px-4">
+          <summary class="flex min-h-12 cursor-pointer items-center text-sm font-semibold">Versiones pendientes de actualizar</summary>
+          <div class="pb-4">
+            <label class="demo-label" for="market-demo-stale">Cuando cambia el texto original
+              <select id="market-demo-stale" data-content-stale-policy disabled class="demo-input">
+                <option value="include" selected={initial.selection.staleTranslations === 'include'}>Mantener la versión publicada</option>
+                <option value="exclude" selected={initial.selection.staleTranslations === 'exclude'}>Ocultarla en este ejemplo</option>
+              </select>
+            </label>
+            <p class="mt-2 text-xs leading-5 text-muted-foreground">La versión catalana del segundo contenido necesita revisión. Esta elección afecta tanto a lo que se muestra como a sus direcciones.</p>
+          </div>
+        </details>
+      </div>
+
+      <div data-content-resolution data-result={initial.contentResolution.outcome} class="min-w-0 rounded-xl border border-border bg-muted/40 p-5">
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <p class="demo-eyebrow">Vista del visitante</p>
+          <span data-preview-label class="demo-badge">{initial.preview.label}</span>
+        </div>
+        <dl class="mt-4 grid grid-cols-2 gap-3 text-sm">
+          <div><dt class="text-xs text-muted-foreground">Idioma solicitado</dt><dd data-preview-requested class="mt-1 font-semibold">{localeLabel(initial.requestedLocale)}</dd></div>
+          <div><dt class="text-xs text-muted-foreground">Idioma mostrado</dt><dd data-preview-resolved class="mt-1 font-semibold">{initial.preview.resolvedLocale ? localeLabel(initial.preview.resolvedLocale) : 'Sin versión disponible'}</dd></div>
+        </dl>
+        <p data-preview-detail class="mt-4 text-sm leading-6 text-muted-foreground">{initial.preview.detail}</p>
+        <p data-preview-needs-review hidden={!initial.preview.needsReview} class="mt-3 rounded-lg border border-border bg-card px-3 py-2 text-sm font-semibold">Publicada · necesita revisión</p>
+        <article data-preview-content lang={initial.preview.resolvedLocale ?? undefined} hidden={!initial.preview.fields} class="mt-5 border-t border-border pt-5">
+          <h3 data-preview-title class="text-xl font-semibold leading-snug">{initial.preview.fields?.title}</h3>
+          <p data-preview-summary class="mt-2 text-sm leading-6 text-muted-foreground">{initial.preview.fields?.summary}</p>
+          <p data-preview-body class="mt-3 whitespace-pre-wrap text-sm leading-6">{initial.preview.fields?.bodyPlainText}</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="demo-panel" aria-labelledby="market-editor-title">
+    <div class="demo-section-heading">
+      <span class="demo-step" aria-hidden="true">2</span>
+      <div><h2 id="market-editor-title" class="text-xl font-semibold">Prepara una versión</h2><p class="mt-1 text-sm leading-6 text-muted-foreground">Prueba el recorrido editorial con la versión inglesa del contenido seleccionado.</p></div>
+    </div>
+    <ul data-content-editions class="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-4" aria-label="Versiones del contenido seleccionado">
+      {initial.editions.map((edition) => <li data-content-edition-state data-locale={edition.locale} class="rounded-xl border border-border bg-muted/30 p-4">
+        <p class="text-sm font-semibold">{edition.label}</p>
+        <p data-edition-status class="mt-1 text-sm leading-6 text-muted-foreground">{edition.statusLabel}</p>
+      </li>)}
+    </ul>
+
+    <div class="mt-6 grid items-start gap-6 xl:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]">
+      <fieldset class="min-w-0 space-y-4">
+        <legend class="mb-4 flex w-full flex-wrap items-center justify-between gap-2 text-sm font-semibold">
+          <span>Borrador de ejemplo · inglés</span>
+          <span data-content-draft-state data-state={initial.editor.draftState ?? 'none'} data-dirty={String(initial.editor.dirty)} class="demo-badge">{initial.editor.draftState === 'review' ? 'En revisión' : 'Borrador'}</span>
+        </legend>
+        {(['title', 'summary', 'bodyPlainText'] as const).map((field) => <div>
+          <label for={'market-content-' + field} class="demo-label">{fieldLabels[field]}</label>
+          {field === 'title'
+            ? <input id={'market-content-' + field} data-content-field={field} type="text" value={initial.editor.fields[field]} disabled required maxlength={LOCALIZED_TEXT_LIMITS[field]} lang="en-GB" spellcheck="false" aria-describedby={'market-content-error-' + field} class="demo-input" />
+            : <textarea id={'market-content-' + field} data-content-field={field} disabled required maxlength={LOCALIZED_TEXT_LIMITS[field]} rows={field === 'summary' ? 2 : 4} lang="en-GB" spellcheck="false" aria-describedby={'market-content-error-' + field} class="demo-input py-3">{initial.editor.fields[field]}</textarea>}
+          <p id={'market-content-error-' + field} data-content-field-error={field} hidden={!initial.editor.fieldErrors[field]} class="mt-1.5 text-sm font-medium text-destructive">{initial.editor.fieldErrors[field]}</p>
+        </div>)}
+      </fieldset>
+
+      <div class="min-w-0 space-y-4">
+        <div class="rounded-xl border border-border bg-muted/40 p-5">
+          <p class="demo-eyebrow">Del borrador a la publicación</p>
+          <ol class="mt-4 space-y-3 text-sm leading-6">
+            <li class="flex gap-3"><span aria-hidden="true" class="font-semibold tabular-nums">01</span><span><strong>Prepara el texto.</strong> Guarda los cambios de este ejemplo.</span></li>
+            <li class="flex gap-3"><span aria-hidden="true" class="font-semibold tabular-nums">02</span><span><strong>Revísalo.</strong> La versión sigue fuera de la vista del visitante.</span></li>
+            <li class="flex gap-3"><span aria-hidden="true" class="font-semibold tabular-nums">03</span><span><strong>Simula la publicación.</strong> Comprueba el resultado y la nueva dirección.</span></li>
+          </ol>
+          <div class="mt-5 grid gap-2">
+            <button type="button" data-content-action="save_draft" disabled class="demo-button border border-border bg-background text-foreground">Guardar borrador de ejemplo</button>
+            <button type="button" data-content-action="submit_review" disabled class="demo-button border border-border bg-background text-foreground">Pasar a revisión</button>
+            <button type="button" data-content-action="publish" disabled class="demo-button bg-foreground text-background">Simular publicación</button>
+          </div>
+          <p data-content-blocked class="mt-3 text-xs leading-5 text-muted-foreground">{initial.editor.blockedReason}</p>
+        </div>
+        <div class="rounded-xl border border-border p-5">
+          <p class="text-sm font-semibold">Versión inglesa disponible</p>
+          <p data-content-published-revision data-revision={initial.editor.publishedRevision ?? undefined} class="mt-2 text-sm leading-6 text-muted-foreground">{initial.editor.publishedRevision === null ? 'Todavía no hay una publicación inglesa.' : 'Publicada en el ejemplo · versión ' + initial.editor.publishedRevision}</p>
+          <p class="mt-2 text-xs leading-5 text-muted-foreground">Editar un nuevo borrador conserva la publicación anterior. El visitante solo verá el cambio después de simular otra publicación.</p>
+        </div>
+      </div>
+    </div>
+    <p data-content-feedback role="status" aria-live="polite" aria-atomic="true" class="mt-5 rounded-xl border border-border bg-muted/40 px-4 py-3 text-sm leading-6">{initial.feedback.message}</p>
+    <p data-content-error role="alert" hidden class="mt-3 rounded-xl border border-destructive px-4 py-3 text-sm leading-6 text-destructive"></p>
+  </section>
+
+  <section class="demo-panel" aria-labelledby="market-urls-title">
+    <div class="demo-section-heading">
+      <span class="demo-step" aria-hidden="true">3</span>
+      <div><h2 id="market-urls-title" class="text-xl font-semibold">Compara las direcciones</h2><p class="mt-1 text-sm leading-6 text-muted-foreground">Solo cuentan las versiones publicadas. Mostrar español como alternativa no crea una página en francés.</p></div>
+    </div>
+    <dl class="mt-5 grid grid-cols-2 gap-3 xl:grid-cols-4">
+      <div class="demo-counter"><dt>Al empezar</dt><dd data-content-baseline-count>{initial.baselinePlan.pages.length}</dd></div>
+      <div class="demo-counter"><dt>Ahora</dt><dd data-content-current-count>{initial.currentPlan.pages.length}</dd></div>
+      <div class="demo-counter"><dt>Añadidas</dt><dd data-content-added-count>{initial.diff.added.length}</dd></div>
+      <div class="demo-counter"><dt>Retiradas</dt><dd data-content-removed-count>{initial.diff.removed.length}</dd></div>
+    </dl>
+    <div class="mt-5 flex flex-wrap items-center justify-between gap-2">
+      <h3 class="text-sm font-semibold">Páginas previstas para buscadores</h3>
+      <p class="text-xs leading-5 text-muted-foreground">Direcciones ficticias · no abren ninguna web</p>
+    </div>
+    <ul data-content-url-plan aria-label="Direcciones del ejemplo actual" class="mt-3 divide-y divide-border rounded-xl border border-border">
+      {initial.currentPlan.pages.map((page) => <li data-content-url-row data-content-id={page.contentId} data-locale={page.locale} data-revision={page.publishedRevision} data-lastmod={page.lastmod} class="p-4 sm:p-5">
+        <div class="flex flex-wrap items-start justify-between gap-2">
+          <p class="text-sm font-semibold">{contentLabel(page.contentId)} <span class="font-normal text-muted-foreground">· {localeLabel(page.locale)}</span></p>
+          <span class="demo-badge">Sin cambios</span>
+        </div>
+        <p class="mt-2 text-xs text-muted-foreground">Dirección principal</p>
+        <p data-content-url class="mt-1 break-all font-mono text-xs leading-6">{page.url}</p>
+        <p class="mt-2 text-xs leading-5 text-muted-foreground">Publicación del {dateLabel(page.lastmod)}{page.freshness === 'stale' ? ' · necesita revisión' : ''}</p>
+        <details class="mt-2">
+          <summary class="inline-flex min-h-11 cursor-pointer items-center text-xs font-semibold">Otras versiones y detalle técnico</summary>
+          <div class="space-y-2 rounded-lg bg-muted/50 p-3 text-xs leading-6">
+            <p><strong>Canonical:</strong> <span class="break-all">{page.canonical}</span></p>
+            <p class="font-semibold">Otras versiones del contenido (hreflang)</p>
+            <ul class="space-y-1">{page.alternates.map((alternate) => <li class="break-all">{alternate.hreflang} · {alternate.href}</li>)}</ul>
+          </div>
+        </details>
+      </li>)}
+    </ul>
+    <div data-content-url-diff hidden class="mt-4 rounded-xl border border-border bg-muted/40 p-4"></div>
+    <p class="mt-4 text-xs leading-5 text-muted-foreground">Este plan es ilustrativo. No modifica direcciones, etiquetas de idioma ni el sitemap de la web que estás visitando.</p>
+  </section>
+</div>
+
+<style>
+  .demo-panel { min-width: 0; border: 1px solid var(--color-border); border-radius: var(--radius-card); background: var(--color-card); padding: 1.25rem; }
+  .demo-section-heading { display: flex; align-items: flex-start; gap: .875rem; }
+  .demo-step { display: flex; flex-shrink: 0; width: 2rem; height: 2rem; align-items: center; justify-content: center; border-radius: 100%; background: var(--color-foreground); color: var(--color-background); font-size: .875rem; font-weight: 600; }
+  .demo-label { display: block; min-width: 0; font-size: .875rem; line-height: 1.5rem; font-weight: 600; }
+  .demo-input { display: block; width: 100%; min-width: 0; min-height: 3rem; margin-top: .5rem; border: 1px solid var(--color-input); border-radius: var(--radius-btn); background: var(--color-background); padding-inline: .75rem; color: var(--color-foreground); font-size: 1rem; line-height: 1.5rem; font-weight: 400; }
+  textarea.demo-input { resize: vertical; }
+  .demo-button { min-height: 3rem; border-radius: var(--radius-btn); padding: .75rem 1rem; font-size: .875rem; line-height: 1.5rem; font-weight: 600; cursor: pointer; }
+  .demo-button:hover:not(:disabled) { box-shadow: 0 0 0 1px var(--color-foreground); }
+  .demo-button:disabled { background: var(--color-muted); color: var(--color-foreground); opacity: 1; cursor: not-allowed; }
+  .demo-input:disabled { opacity: 1; cursor: default; }
+  :global(.market-content-demo .demo-badge) { display: inline-flex; border-radius: 999px; background: var(--color-muted); padding: .25rem .625rem; color: var(--color-foreground); font-size: .75rem; line-height: 1.25rem; font-weight: 600; }
+  .demo-eyebrow { font-size: .6875rem; line-height: 1.25rem; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--color-muted-foreground); }
+  .demo-counter { border-radius: var(--radius-btn); background: var(--color-muted); padding: .875rem 1rem; }
+  .demo-counter dt { font-size: .75rem; line-height: 1.25rem; color: var(--color-muted-foreground); }
+  .demo-counter dd { margin-top: .375rem; font-size: 1.5rem; line-height: 2rem; font-weight: 600; font-variant-numeric: tabular-nums; }
+  [data-preview-content] { overflow-wrap: anywhere; }
+  :global(.market-content-demo :is(button, input, select, textarea, summary):focus-visible) { outline: 2px solid var(--color-foreground); outline-offset: 3px; }
+  .market-content-demo [aria-invalid='true'] { border-color: var(--color-destructive); }
+  @media (min-width: 640px) { .demo-panel { padding: 1.5rem; } }
+</style>
+
+<script>
+  import {
+    configureMarketContentDemo,
+    createMarketContentDemo,
+    editMarketContentDemo,
+    getMarketContentDemoView,
+    publishMarketContentDemoDraft,
+    saveMarketContentDemoDraft,
+    submitMarketContentDemoReview,
+    type MarketContentDemoSelection,
+  } from '../../composition/market-content-demo';
+
+  const root = document.querySelector<HTMLElement>('[data-market-content-demo]');
+  if (root) {
+    const find = <T extends HTMLElement>(selector: string): T => root.querySelector<T>(selector)!;
+    const findSelect = (selector: string) => {
+      const element = root.querySelector(selector);
+      if (!(element instanceof HTMLSelectElement)) throw new Error('Falta un selector del ejemplo.');
+      return element;
+    };
+    const fields = ['title', 'summary', 'bodyPlainText'] as const;
+    const editorFields = fields.map((field) => find<HTMLInputElement | HTMLTextAreaElement>('[data-content-field="' + field + '"]'));
+    const market = findSelect('[data-market-select]');
+    const content = findSelect('[data-content-select]');
+    const locale = findSelect('[data-content-locale]');
+    const fallback = findSelect('[data-content-fallback]');
+    const stale = findSelect('[data-content-stale-policy]');
+    const action = (name: string) => find<HTMLButtonElement>('[data-content-action="' + name + '"]');
+    const plan = find<HTMLUListElement>('[data-content-url-plan]');
+    const feedback = find<HTMLElement>('[data-content-feedback]');
+    const error = find<HTMLElement>('[data-content-error]');
+    let state = createMarketContentDemo();
+    let lastPlanKey = '';
+
+    const node = <K extends keyof HTMLElementTagNameMap>(tag: K, className: string, text?: string): HTMLElementTagNameMap[K] => {
+      const element = document.createElement(tag);
+      element.className = className;
+      if (text !== undefined) element.textContent = text;
+      return element;
+    };
+    const dateLabel = (value: string) => value.slice(8, 10) + '/' + value.slice(5, 7) + '/' + value.slice(0, 4);
+
+    const render = () => {
+      const view = getMarketContentDemoView(state);
+      const localeLabel = (value: string) => view.localeOptions.find((item) => item.id === value)?.label ?? value;
+      const contentLabel = (value: string) => view.contentOptions.find((item) => item.id === value)?.label ?? value;
+      market.value = view.selection.marketId;
+      content.value = view.selection.contentId;
+      locale.value = view.selection.locale;
+      fallback.value = view.selection.fallback;
+      stale.value = view.selection.staleTranslations;
+      find('[data-content-resolution]').dataset.result = view.contentResolution.outcome;
+      find('[data-preview-label]').textContent = view.preview.label;
+      find('[data-preview-requested]').textContent = localeLabel(view.requestedLocale);
+      find('[data-preview-resolved]').textContent = view.preview.resolvedLocale ? localeLabel(view.preview.resolvedLocale) : 'Sin versión disponible';
+      find('[data-preview-detail]').textContent = view.preview.detail;
+      find('[data-preview-needs-review]').hidden = !view.preview.needsReview;
+      const preview = find<HTMLElement>('[data-preview-content]');
+      preview.hidden = view.preview.fields === null;
+      if (view.preview.resolvedLocale) preview.lang = view.preview.resolvedLocale;
+      else preview.removeAttribute('lang');
+      find('[data-preview-title]').textContent = view.preview.fields?.title ?? '';
+      find('[data-preview-summary]').textContent = view.preview.fields?.summary ?? '';
+      find('[data-preview-body]').textContent = view.preview.fields?.bodyPlainText ?? '';
+
+      for (const edition of view.editions) {
+        const row = [...root.querySelectorAll<HTMLElement>('[data-content-edition-state]')].find((item) => item.dataset.locale === edition.locale)!;
+        row.querySelector<HTMLElement>('[data-edition-status]')!.textContent = edition.statusLabel;
+      }
+      fields.forEach((field, index) => {
+        const input = editorFields[index]!;
+        // No recrear controles ni reasignar su valor al escribir: conserva foco y selección.
+        if (input.value !== view.editor.fields[field]) input.value = view.editor.fields[field];
+        const message = view.editor.fieldErrors[field];
+        input.setAttribute('aria-invalid', String(Boolean(message)));
+        const fieldError = find<HTMLElement>('[data-content-field-error="' + field + '"]');
+        fieldError.hidden = !message;
+        fieldError.textContent = message ?? '';
+      });
+      const draftState = find<HTMLElement>('[data-content-draft-state]');
+      draftState.dataset.state = view.editor.draftState ?? 'none';
+      draftState.dataset.dirty = String(view.editor.dirty);
+      draftState.textContent = view.editor.dirty ? 'Cambios sin guardar' : view.editor.draftState === 'review' ? 'En revisión' : view.editor.draftState === 'draft' ? 'Borrador' : 'Sin borrador';
+      action('save_draft').disabled = !view.editor.canSave;
+      action('submit_review').disabled = !view.editor.canReview;
+      action('publish').disabled = !view.editor.canPublish;
+      find('[data-content-blocked]').textContent = view.editor.blockedReason ?? '';
+      const published = find<HTMLElement>('[data-content-published-revision]');
+      if (view.editor.publishedRevision === null) {
+        delete published.dataset.revision;
+        published.textContent = 'Todavía no hay una publicación inglesa.';
+      } else {
+        published.dataset.revision = String(view.editor.publishedRevision);
+        published.textContent = 'Publicada en el ejemplo · versión ' + view.editor.publishedRevision + (view.editor.publishedAt ? ' · ' + dateLabel(view.editor.publishedAt) : '');
+      }
+      const message = view.feedback.tone === 'error' ? 'Revisa los campos indicados para continuar con el ejemplo.' : view.feedback.message;
+      if (feedback.textContent !== message) feedback.textContent = message;
+      error.hidden = view.feedback.tone !== 'error';
+      const errorMessage = view.feedback.tone === 'error' ? view.feedback.message : '';
+      if (error.textContent !== errorMessage) error.textContent = errorMessage;
+      find('[data-content-baseline-count]').textContent = String(view.baselinePlan.pages.length);
+      find('[data-content-current-count]').textContent = String(view.currentPlan.pages.length);
+      find('[data-content-added-count]').textContent = String(view.diff.added.length);
+      find('[data-content-removed-count]').textContent = String(view.diff.removed.length);
+
+      const planKey = JSON.stringify([view.currentPlan, view.diff]);
+      if (planKey !== lastPlanKey) {
+        lastPlanKey = planKey;
+        const expanded = new Set([...plan.querySelectorAll<HTMLElement>('[data-content-url-row]')].filter((row) => row.querySelector('details')?.open).map((row) => row.dataset.contentId + ':' + row.dataset.locale));
+        const rows = view.currentPlan.pages.map((page) => {
+          const row = node('li', 'p-4 sm:p-5');
+          row.dataset.contentUrlRow = '';
+          row.dataset.contentId = page.contentId;
+          row.dataset.locale = page.locale;
+          row.dataset.revision = String(page.publishedRevision);
+          row.dataset.lastmod = page.lastmod;
+          const heading = node('div', 'flex flex-wrap items-start justify-between gap-2');
+          const title = node('p', 'text-sm font-semibold', contentLabel(page.contentId) + ' ');
+          title.appendChild(node('span', 'font-normal text-muted-foreground', '· ' + localeLabel(page.locale)));
+          const changed = view.diff.added.some((item) => item.url === page.url) ? 'Añadida' : view.diff.updated.some((item) => item.url === page.url) ? 'Actualizada' : 'Sin cambios';
+          heading.appendChild(title);
+          heading.appendChild(node('span', 'demo-badge', changed));
+          row.appendChild(heading);
+          row.appendChild(node('p', 'mt-2 text-xs text-muted-foreground', 'Dirección principal'));
+          const url = node('p', 'mt-1 break-all font-mono text-xs leading-6', page.url);
+          url.dataset.contentUrl = '';
+          row.appendChild(url);
+          row.appendChild(node('p', 'mt-2 text-xs leading-5 text-muted-foreground', 'Publicación del ' + dateLabel(page.lastmod) + (page.freshness === 'stale' ? ' · necesita revisión' : '')));
+          const details = node('details', 'mt-2');
+          details.open = expanded.has(page.contentId + ':' + page.locale);
+          details.appendChild(node('summary', 'inline-flex min-h-11 cursor-pointer items-center text-xs font-semibold', 'Otras versiones y detalle técnico'));
+          const technical = node('div', 'space-y-2 rounded-lg bg-muted/50 p-3 text-xs leading-6');
+          const canonical = node('p', '');
+          canonical.appendChild(node('strong', '', 'Canonical: '));
+          canonical.appendChild(node('span', 'break-all', page.canonical));
+          technical.appendChild(canonical);
+          technical.appendChild(node('p', 'font-semibold', 'Otras versiones del contenido (hreflang)'));
+          const alternates = node('ul', 'space-y-1');
+          for (const alternate of page.alternates) alternates.appendChild(node('li', 'break-all', alternate.hreflang + ' · ' + alternate.href));
+          technical.appendChild(alternates);
+          details.appendChild(technical);
+          row.appendChild(details);
+          return row;
+        });
+        plan.replaceChildren(...rows);
+        const removed = find<HTMLElement>('[data-content-url-diff]');
+        removed.hidden = view.diff.removed.length === 0;
+        const label = node('p', 'text-sm font-semibold', 'Direcciones retiradas de este ejemplo');
+        const list = node('ul', 'mt-2 space-y-2');
+        for (const page of view.diff.removed) list.appendChild(node('li', 'break-all font-mono text-xs leading-6', page.url));
+        removed.replaceChildren(label, list);
+      }
+    };
+
+    const configure = () => {
+      const selection: MarketContentDemoSelection = {
+        marketId: market.value as MarketContentDemoSelection['marketId'],
+        contentId: content.value as MarketContentDemoSelection['contentId'],
+        locale: locale.value as MarketContentDemoSelection['locale'],
+        fallback: fallback.value as MarketContentDemoSelection['fallback'],
+        staleTranslations: stale.value as MarketContentDemoSelection['staleTranslations'],
+      };
+      state = configureMarketContentDemo(state, selection);
+      render();
+    };
+    [market, content, locale, fallback, stale].forEach((select) => {
+      select.disabled = false;
+      select.addEventListener('change', configure);
+    });
+    editorFields.forEach((input, index) => {
+      input.disabled = false;
+      input.addEventListener('input', () => {
+        state = editMarketContentDemo(state, { field: fields[index]!, value: input.value });
+        render();
+      });
+    });
+    action('save_draft').addEventListener('click', () => { state = saveMarketContentDemoDraft(state); render(); });
+    action('submit_review').addEventListener('click', () => { state = submitMarketContentDemoReview(state); render(); });
+    action('publish').addEventListener('click', () => { state = publishMarketContentDemoDraft(state); render(); });
+    action('reset').disabled = false;
+    action('reset').addEventListener('click', () => { state = createMarketContentDemo(); render(); });
+    render();
+    root.dataset.ready = 'true';
+  }
+</script>
