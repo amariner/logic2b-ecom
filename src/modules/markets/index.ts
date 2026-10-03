@@ -13,3 +13,23 @@ export {
   type MarketSelector,
   type MarketUnresolvedReason,
 } from './domain/market-context';
+
+export {
+  MARKET_PUBLICATION_LIMITS,
+  MarketPublicationContractError,
+  defineMarketPublicationSnapshot,
+  defineMarketPublicationPolicy,
+  previewMarketPublication,
+  type MarketPublicationVariant,
+  type MarketPublicationProduct,
+  type MarketPublicationSnapshot,
+  type MarketPublicationRule,
+  type MarketPublicationPolicy,
+  type MarketPublicationContext,
+  type MarketPublicationState,
+  type MarketPublicationProductExclusion,
+  type MarketPublicationVariantExclusion,
+  type MarketPublicationVariantPreview,
+  type MarketPublicationProductPreview,
+  type MarketPublicationPreview,
+} from './domain/market-publication';

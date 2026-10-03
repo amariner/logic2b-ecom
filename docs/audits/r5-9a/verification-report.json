@@ -1,0 +1,47 @@
+{
+  "schemaVersion": 1,
+  "environment": "local-synthetic-contracts",
+  "deployment": "not-deployed",
+  "verification": {
+    "typecheckFiles": 901,
+    "diagnostics": 0,
+    "suites": 229,
+    "tests": 2175,
+    "publicationContractTests": 102,
+    "catalogProjectionTests": 48,
+    "architectureTests": 6,
+    "buildHtmlPages": 44,
+    "buildLocalForms": 44
+  },
+  "independentReview": {
+    "assertions": 485,
+    "openP1OrP2": 0,
+    "browserCompositionSources": 4,
+    "operationalRuntimeImports": 0,
+    "observedEffects": 0
+  },
+  "inheritedRegression": {
+    "source": "r5-8b/verification-report.json",
+    "commit": "ec353f6113c3532dec187a3be81ab64904c24e01",
+    "e2eChecks": 160,
+    "browserChecks": 120,
+    "a11ySurfaces": 8,
+    "a11yErrors": 0,
+    "a11yWarnings": 0,
+    "databaseTables": 143,
+    "databaseRows": 353,
+    "databaseHash": "9cbfc811cfc4296515a403d395875a43bfa26aff0c9c9b08be0804b15bbf6eca",
+    "rerunForThisCut": false
+  },
+  "scope": {
+    "capabilities": ["MKT-004"],
+    "state": "installed",
+    "activeInPresets": false,
+    "runtimeConsumers": 0,
+    "migrationsAdded": 0,
+    "routesAdded": 0,
+    "jobsAdded": 0,
+    "priceOrStockBehaviorChanged": false,
+    "fixturePresentation": "pending-r5-9b"
+  }
+}

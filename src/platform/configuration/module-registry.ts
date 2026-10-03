@@ -271,9 +271,9 @@ export const MODULE_DESCRIPTORS = [
     permissions: [], events: [], subscriptions: [], jobs: [], healthchecks: [], wikiLinks: [ARCHITECTURE_WIKI], navigation: [], routes: [],
   },
   {
-    id: 'markets', version: '1.0.0', capabilities: ['MKT-003'], dependencies: ['platform-configuration'],
+    id: 'markets', version: '1.1.0', capabilities: ['MKT-003', 'MKT-004'], dependencies: ['platform-configuration'],
     permissions: [], events: [], subscriptions: [], jobs: [], healthchecks: [],
-    wikiLinks: ['docs/plataforma/adr/0046-contexto-de-mercados.md'], navigation: [], routes: [],
+    wikiLinks: ['docs/plataforma/adr/0046-contexto-de-mercados.md', 'docs/plataforma/adr/0048-publicacion-por-mercado.md'], navigation: [], routes: [],
   },
   {
     id: 'localization', version: '1.0.0', capabilities: ['MKT-006', 'MKT-007'], dependencies: ['platform-configuration'],

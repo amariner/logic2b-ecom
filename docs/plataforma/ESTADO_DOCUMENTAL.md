@@ -42,9 +42,10 @@ que se represente en ella debe cumplir simultáneamente:
    proveedores, jobs y mutaciones durables antes de cualquier efecto.
 2. El manifest de demo conserva `sideEffects=false` y `jobs=false`; una ruta o
    componente visual no puede cambiar esos flags.
-3. La UI usa fixtures, respuestas simuladas o estado local reversible. Si una
-   acción necesita D1 para ser comprensible, solo puede leer datos sembrados o
-   escribir en un espacio explícitamente efímero y sin consumidor externo.
+3. La UI usa fixtures, respuestas simuladas o estado local reversible. D1 solo
+   permite leer fixtures preparados: ni siquiera una simulación puede escribir
+   en la base servida. Los ensayos de escritura pertenecen a QA aislada y
+   sintética, conforme al mandato de Andreu del 2026-10-03.
 4. Ningún secreto o cuenta de producción es necesario para navegar la demo.
 5. Cada superficie con apariencia de acción real tiene una prueba de aislamiento
    que confirme el código de rechazo y cero llamadas a D1/proveedor cuando

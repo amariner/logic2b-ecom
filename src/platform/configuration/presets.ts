@@ -126,6 +126,9 @@ const ADVANCED_CAPABILITIES = {
   // R5.7 declara contexto de mercado sin decidir países, idiomas, divisas
   // comerciales ni conectar el resolver a HTTP o al checkout.
   'MKT-003': { state: 'installed' },
+  // R5.9 modela publicación explícita; el preview no filtra el storefront
+  // ni concede compra, stock, precio o disponibilidad de envío.
+  'MKT-004': { state: 'installed' },
   // R5.8 instala contenido editorial y planes de URLs puros. No publica
   // traducciones, modifica rutas ni conecta el sitemap servido.
   'MKT-006': { state: 'installed' },
