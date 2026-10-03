@@ -67,6 +67,75 @@ solo admite los tres contadores a cero. Siguen siendo válidos el fallo con
 progreso tras iniciar y el cierre completo sin candidatos. Este endurecimiento
 no añade persistencia, transiciones entre ejecuciones, jobs ni efectos.
 
+### R5.6c.1 — Política de hechos y captura consistente (2026-10-03)
+
+`defineCustomerSegmentFactsPolicy` exige todas las decisiones, sin defaults:
+identidad/versión y esquema, perfiles activos, estados de pedido (cancelación
+incluida solo si se declara), elegibilidad por estado o captura confirmada,
+fecha de creación/primera/última captura, total original/vigente o cobros,
+reembolsos, saldo, ajustes, pagos no resueltos, evidencia ausente, moneda,
+exclusión/rechazo de otras monedas y días completos de 24 horas o calendario UTC.
+Los estados son los actuales; el evento soportado es la captura financiera
+`succeeded`. No se cuentan eventos de timeline como pedidos adicionales.
+
+Los totales comerciales se leen sin volver a restar reembolsos. El neto usa
+capturas menos devoluciones confirmadas del ledger; las modificaciones no
+añaden su delta otra vez. Los asientos externos y de saldo se agregan separados,
+según la opción explícita de incluir saldo. Los ajustes sin dirección económica
+se rechazan o ignoran explícitamente. Un pedido pagado sin evidencia financiera
+no acredita gasto cero. Una captura de cero sí acredita el evento. Los depósitos
+de un presupuesto convertido conservan su fecha anterior a la creación del
+pedido. No se infiere la moneda de pedidos legacy con código vacío.
+
+La composición interna `createD1CustomerSegmentFactsSource` realiza siete
+SELECT en un único `D1.batch`: reloj de base, perfiles, pedidos, pagos,
+transacciones, saldo y modificaciones aplicadas. No hay paginación de datos
+vivos ni reconstrucción histórica por timestamp. Se validan propietarios,
+monedas, cronología, historia de modificaciones y sumas enteras seguras. La
+población se ordena por ID binario y se congela antes de devolver el snapshot.
+
+Los límites técnicos son 100 perfiles, 1.000 pedidos, 5.000 pagos, 10.000
+transacciones, 10.000 asientos de saldo y 1.000 modificaciones por captura.
+Cada lectura usa un sentinel adicional y rechaza el exceso completo, también
+si después una política excluiría esos pedidos. No promete escala superior.
+La importación mantiene su máximo de 256.000 bytes y su batch atómico.
+
+La referencia `source:<SHA-256 política>:<SHA-256 contenido>` acredita qué
+reglas produjeron los hechos; no sustituye un registro durable de políticas.
+La identidad verificable incluye la huella, además del nombre y versión. Una
+activación real exige conservar el documento canónico versionado y evitar
+reutilizar nombre/versión para otras reglas. El backup 38 conserva la referencia
+y los hechos; no puede reconstruir por sí solo un documento de política perdido.
+
+La revisión R5.6c.2 añade completitud separada de evidencia externa/saldo:
+se comprueban los importes esperados de cada intención. Un saldo confirmado no
+acredita la parte externa, una captura no acredita el saldo y un pago no oculta
+la ausencia de otro. Si falta un componente usado por la política, el importe
+neto y los extremos de actividad conservan ausencia/rechazo; una captura
+acreditada sí permite contar ese pedido. Los totales comerciales y fecha de
+creación permanecen independientes de esa evidencia financiera.
+
+El productor no se compone en runtime, cron ni rutas. Las políticas del ensayo
+son sintéticas; CUS-009 continúa instalada e inactiva, con demo visual pendiente.
+
+### R5.6c.2 — Avance acotado y recuperación (2026-10-03)
+
+`createCustomerSegmentExecution` coordina los puertos existentes y confirma una
+transición por llamada, con comandos inmutables cuya clave incluye la huella
+del payload y su fecha. Las guardas del repositorio resuelven concurrencia;
+una colisión se reconcilia con una lectura, sin bucles ni mutex de proceso.
+Un error de transporte tras escribir se propaga como resultado desconocido;
+reanudar relee la revisión confirmada y no duplica captura ni evaluación.
+
+El inicio verifica ambos hashes de la referencia de fuente. La reanudación
+exige misma política y los hechos guardados. Un fallo de captura se registra
+solo sobre la revisión solicitada; una definición superada no se sustituye
+en el run. Cancelar impide pasos posteriores, sin afirmar que una escritura
+ya enviada se haya cancelado. Publicar es una operación explícita separada:
+el CAS exige definición/generación vigentes para nuevas escrituras y conserva
+el replay exacto histórico. Contrato completo en
+[EJECUCION_SEGMENTACION](../EJECUCION_SEGMENTACION.md).
+
 ## Consecuencias
 
 - El resultado es explicable y reproducible por versión y parámetros.

@@ -70,6 +70,13 @@ venta o servicios logísticos propios.
   desde el Worker público.
 - [`OPERACION_OBSERVABILIDAD.md`](OPERACION_OBSERVABILIDAD.md): runbook R1.9
   para correlacionar checkout, webhook, outbox y email sin PII.
+- [`OPERACION_SEGMENTACION.md`](OPERACION_SEGMENTACION.md): políticas de hechos,
+  captura consistente, cálculos versionados y restore de R5.6; capacidad
+  instalada e inactiva, con activación y demo visual pendientes.
+- [`EJECUCION_SEGMENTACION.md`](EJECUCION_SEGMENTACION.md): coordinador interno
+  implementado, reanudación por revisión y publicación explícita de R5.6c.2.
+- [`PROPUESTA_EJECUCION_SEGMENTACION.md`](PROPUESTA_EJECUCION_SEGMENTACION.md):
+  alcance de R5.6c.3, con migración local pendiente de autorización.
 - [`wiki/observabilidad-operativa-ecommerce.md`](wiki/observabilidad-operativa-ecommerce.md):
   borrador interno R1.9; no promete alertas hasta que R11.5 las implemente.
 - [`wiki/integraciones-observables.md`](wiki/integraciones-observables.md):

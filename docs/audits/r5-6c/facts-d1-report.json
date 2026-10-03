@@ -1,0 +1,111 @@
+{
+  "runtime": "Wrangler getPlatformProxy / local workerd D1",
+  "remoteBindings": false,
+  "envFiles": [],
+  "nodeVersion": "v24.19.0",
+  "wranglerVersion": "4.111.0",
+  "schema": 38,
+  "policy": {
+    "schemaVersion": 1,
+    "id": "facts.rehearsal-captured",
+    "version": 1,
+    "population": "active_profiles",
+    "orderStatuses": [
+      "paid",
+      "shipped",
+      "delivered"
+    ],
+    "orderEligibility": "successful_capture",
+    "activityBasis": "last_successful_capture",
+    "amountBasis": "captured_payments",
+    "refunds": "subtract",
+    "storedValue": "exclude",
+    "paymentAdjustments": "reject",
+    "unsettledPayments": "reject",
+    "missingPaymentEvidence": "null",
+    "currency": "EUR",
+    "foreignCurrency": "reject",
+    "dayBoundary": "utc_calendar_days"
+  },
+  "limits": {
+    "profiles": 100,
+    "orders": 1000,
+    "payments": 5000,
+    "transactions": 10000,
+    "storedValueEntries": 10000,
+    "amendments": 1000
+  },
+  "checks": [
+    {
+      "message": "Dos D1 vacías reciben exclusivamente las migraciones existentes hasta 0045",
+      "migrationCount": 45
+    },
+    {
+      "message": "Captura real en siete SELECT: 10000−2500=7500 céntimos, ausencia de pago null, sin pedidos cero y merged excluido",
+      "sourceRef": "source:9e81d230bd225ba1951f85b485607e89b0a49e898cfef61246c1368bf7930bd6:9f20b0bc72738aedce7cba6a558eb3b6dacd9dc2f8cf62cffdf7ffaac6cc7516",
+      "capturedAt": "2026-10-03T21:17:02.368Z",
+      "candidates": 3,
+      "sourceTablesHash": "850fb160a2a667db19ebdc5ec906f45b6060452f4f6c96d7130669899ac125af"
+    },
+    {
+      "message": "La política explícita cambia el importe y su huella; reject aborta por evidencia ausente sin escribir"
+    },
+    {
+      "message": "La captura alimenta definición→solicitud→inicio→progreso→completado→publicación, conservando ref/política/fecha",
+      "runId": "segment-run:facts-local-1",
+      "processedCandidates": 3,
+      "matchedCustomers": 1
+    },
+    {
+      "message": "Otro reembolso cambia la nueva captura a 7000 sin reescribir los 7500 ni la publicación anterior"
+    },
+    {
+      "message": "Dos coordinadores compiten por requested: un único inicio, tres candidatos y ninguna publicación implícita",
+      "runId": "segment-run:facts-local-4",
+      "outcomes": [
+        "applied",
+        "reconciled"
+      ],
+      "sourceRef": "source:9e81d230bd225ba1951f85b485607e89b0a49e898cfef61246c1368bf7930bd6:1fad91d4af1c21ff29e33cc2cadc3d731a0070b5c32c1762752b248c475f215a"
+    },
+    {
+      "message": "Tras reiniciar, dos avances sobre el mismo cursor confirman un único candidato y conservan la captura",
+      "outcomes": [
+        "applied",
+        "replayed"
+      ],
+      "revision": 3,
+      "processedCandidates": 1
+    },
+    {
+      "message": "Cada invocación avanza una revisión, completa por separado y termina sin recapturar ni publicar; 7000 siguen congelados",
+      "revisions": 6,
+      "recaptureAttempts": 0,
+      "terminalOutcome": "unchanged"
+    },
+    {
+      "message": "Publicación explícita: CAS obsoleto rechazado, versión 2 confirmada y comando idéntico reproducido sin nuevas filas"
+    },
+    {
+      "message": "Backup38 restaura todas las filas, referencia y pertenencia publicadas con replay idempotente y cero errores FK",
+      "tableCount": 126,
+      "tablesHash": "fa94206a4a39f038152d5fd78baa64575400d339cda2428d3d09f6979f41c497",
+      "restoreStatements": 180,
+      "backupSha256": "a958fc5cf349904da69ab7bbf374f15bde5be2c276d0e290fc9e58e7025d02bc"
+    },
+    {
+      "message": "100 perfiles activos se capturan completos, sin truncamiento ni escrituras",
+      "candidates": 100
+    },
+    {
+      "message": "101 perfiles activos abortan toda la captura y conservan todas las tablas",
+      "captureAttempts": 8,
+      "readBatchSize": 7,
+      "sourceTablesHash": "faa63e209de60f90efc6c7b0202354b88d3f4f1e30688160cd385b0ef749c088"
+    }
+  ],
+  "result": "passed",
+  "date": "2026-10-03",
+  "command": "node scripts/rehearse-r5-customer-segmentation-facts-d1.mjs",
+  "scope": "Local workerd/D1 aislado; sin bindings remotos, credenciales, red de proveedores ni migraciones nuevas. Fuente y coordinador interno R5.6c."
+}
