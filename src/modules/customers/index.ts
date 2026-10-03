@@ -268,6 +268,12 @@ export {
   type CustomerSegmentOrderEvidence,
   type CustomerSegmentProfileEvidence,
 } from './application/customer-segmentation-facts';
+export {
+  createCustomerSegmentExecution,
+  type CustomerSegmentAdvance,
+  type CustomerSegmentExecutionResult,
+  type CustomerSegmentPublicationCommand,
+} from './application/customer-segmentation-execution';
 export type {
   CustomerSegmentationRepository, SegmentDefinition, SegmentRun, SegmentRunSnapshot,
   SegmentPublication, SegmentMembership, SegmentCommandContext, SegmentWrite,

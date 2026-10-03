@@ -140,9 +140,40 @@ captura, publicación, cambios posteriores, política alternativa, frontera
 altera ninguna tabla. El restore conserva hechos, referencia y replay de
 publicación. No hay migración nueva, proveedor ni despliegue remoto.
 
-## Siguiente contrato
+## Ejecución reanudable R5.6c.2 (2026-10-03)
 
-Continuar R5.6c.2: ejecución interna reanudable, concurrencia y recuperación
-sobre estas capturas y revisiones durables, sin registrar cron ni activar
-consumidores. Elegir y activar una política real sigue siendo una decisión por
-proyecto. CUS-009 permanece parcial y la demo visual continúa pendiente.
+El [coordinador interno](EJECUCION_SEGMENTACION.md) avanza una transición por
+llamada: captura/inicio, un lote o cierre. Reanudar consulta la revisión durable
+y no captura de nuevo una población ya iniciada. Ante colisión CAS relee una
+vez; los errores de transporte después de enviar una escritura se propagan
+sin inventar éxito o fallo. La publicación queda separada y necesita una
+versión esperada explícita, sin incrementarla automáticamente tras conflicto.
+
+Cada intención de pago acredita ahora por separado su componente externo y su
+saldo. Los importes esperados evitan que una captura o un saldo ya confirmado
+oculten otra parte sin asientos. El modo neto devuelve ausencia/rechazo según
+política, nunca un importe parcial como si fuese completo. Si se excluye saldo,
+su ausencia no invalida un cobro externo acreditado. No se cambia el dinero del
+pedido: estas son reglas de lectura para hechos de segmentación.
+
+Pruebas de recuperación:
+
+```sh
+pnpm exec vitest run tests/customer-segmentation-execution.test.ts
+pnpm db:rehearse:customer-segmentation-facts:d1
+```
+
+El ensayo D1 añade carreras de inicio/progreso, reinicio sin recaptura,
+publicación CAS y replay, y restaura ambas publicaciones históricas. Los 29
+tests del coordinador cubren además abortos, respuestas perdidas, fuente
+inválida, límite 101 y cambio de definición/política. Sigue sin composición de
+runtime, jobs registrados, rutas ni flags nuevas.
+
+## Siguiente bloque y gate
+
+La [propuesta R5.6c.3](PROPUESTA_EJECUCION_SEGMENTACION.md) prepara conservación
+durable de políticas, planes y correlación con los pasos de jobs: tres tablas
+aditivas y backup 39, exclusivamente en QA local. La migración candidata 0046
+necesita autorización expresa; no se ha creado. G3 remoto, política comercial,
+retención y uso real G4 permanecen separados. CUS-009 sigue parcial/inactiva
+y con demo visual pendiente.

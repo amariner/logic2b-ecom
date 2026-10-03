@@ -19,6 +19,7 @@ const output = await mkdtemp(join(outputRoot, 'rehearsal-'));
 // Evita telemetría y escrituras del CLI fuera del directorio aislado.
 process.env.WRANGLER_SEND_METRICS = 'false';
 process.env.WRANGLER_LOG_PATH = join(output, 'wrangler.log');
+process.env.CLOUDFLARE_CF_FETCH_ENABLED = 'false';
 const { getPlatformProxy, unstable_splitSqlQuery: splitSql } = await import('wrangler');
 const configPath = join(output, 'wrangler.json');
 await writeFile(configPath, JSON.stringify({
@@ -37,6 +38,7 @@ await build({
   stdin: { contents: [
     "export { createD1CustomerSegmentFactsSource, CUSTOMER_SEGMENT_SOURCE_LIMITS } from './src/composition/customer-segmentation-facts';",
     "export { defineCustomerSegmentFactsPolicy } from './src/modules/customers/application/customer-segmentation-facts';",
+    "export { createCustomerSegmentExecution } from './src/modules/customers/application/customer-segmentation-execution';",
     "export { segmentFingerprint } from './src/modules/customers/application/customer-segmentation-contract';",
     "export { createD1CustomerSegmentationRepository } from './src/modules/customers/infrastructure/d1-customer-segmentation-repository';",
     "export { defineCustomerSegmentTemplate } from './src/modules/customers/domain/customer-segmentation';",
@@ -47,7 +49,7 @@ await build({
 });
 const {
   createD1CustomerSegmentFactsSource, CUSTOMER_SEGMENT_SOURCE_LIMITS,
-  defineCustomerSegmentFactsPolicy, segmentFingerprint,
+  defineCustomerSegmentFactsPolicy, createCustomerSegmentExecution, segmentFingerprint,
   createD1CustomerSegmentationRepository, defineCustomerSegmentTemplate,
   exportD1Backup, BACKUP_TABLES, BACKUP_SCHEMA_VERSION,
 } = await import(pathToFileURL(bundlePath).href);
@@ -242,6 +244,121 @@ try {
   assert.equal(hash(await readTables(source, names)), afterRefundHash);
   check('Otro reembolso cambia la nueva captura a 7000 sin reescribir los 7500 ni la publicación anterior');
 
+  const coordinatedRun = (await repo.requestRun({ ...ctx('request:coordinator'), segmentId, definitionVersion: 1 })).value;
+  const advanceCommand = { runId: coordinatedRun.runId, actorId: 'actor:facts-rehearsal', limit: 1 };
+  function twoArrivals() {
+    let arrivals = 0;
+    let release;
+    const ready = new Promise((resolveReady) => { release = resolveReady; });
+    return async () => { if (++arrivals === 2) release(); await ready; };
+  }
+  const startBarrier = twoArrivals();
+  const capturedStarts = [];
+  const execution = createCustomerSegmentExecution({ repository: repo, policy, now: () => Date.now(), source: {
+    async capture() {
+      const captured = await factsSource.capture();
+      capturedStarts.push(captured);
+      // Ambos trabajadores han leído requested antes de competir por el inicio.
+      await startBarrier();
+      return captured;
+    },
+  } });
+  const starts = await Promise.all([execution.advance(advanceCommand), execution.advance(advanceCommand)]);
+  assert.equal(capturedStarts.length, 2);
+  assert.equal(starts.filter((result) => result.outcome === 'applied').length, 1);
+  assert.ok(starts.every((result) => ['applied', 'replayed', 'reconciled'].includes(result.outcome)));
+  let coordinated = await repo.readRun(coordinatedRun.runId);
+  assert.equal(coordinated.snapshot.state, 'running');
+  assert.equal(coordinated.snapshot.revision, 2);
+  assert.equal(coordinated.snapshot.processedCandidates, 0);
+  assert.equal((await repo.readSnapshots(coordinatedRun.runId)).length, 2);
+  assert.equal((await query(source, 'SELECT count(*) AS value FROM customer_segment_results WHERE run_id=?', coordinatedRun.runId))[0].value, 3);
+  const coordinatedRef = coordinated.snapshot.sourceSnapshotRef;
+  assert.ok(capturedStarts.some((captured) => captured.ref === coordinatedRef));
+  assert.deepEqual(await repo.readMembership(segmentId, profileId), membership);
+  check('Dos coordinadores compiten por requested: un único inicio, tres candidatos y ninguna publicación implícita', {
+    runId: coordinatedRun.runId, outcomes: starts.map((result) => result.outcome), sourceRef: coordinatedRef,
+  });
+
+  await source.batch([transaction(4, 'refund', 500, daysAgo(0.5))]);
+  let restartedCaptureCalls = 0;
+  const unavailableSource = { async capture() {
+    restartedCaptureCalls++;
+    throw new Error('Una ejecución iniciada nunca debe volver a capturar.');
+  } };
+  const progressBarrier = twoArrivals();
+  const concurrentRepository = { ...repo, async readRun(runId) {
+    const value = await repo.readRun(runId);
+    if (runId === coordinatedRun.runId && value.snapshot.revision === 2) await progressBarrier();
+    return value;
+  } };
+  const restarted = createCustomerSegmentExecution({ repository: concurrentRepository,
+    source: unavailableSource, policy, now: () => Date.now() });
+  const progresses = await Promise.all([restarted.advance(advanceCommand), restarted.advance(advanceCommand)]);
+  assert.equal(progresses.filter((result) => result.outcome === 'applied').length, 1);
+  assert.ok(progresses.every((result) => ['applied', 'replayed', 'reconciled'].includes(result.outcome)));
+  coordinated = await repo.readRun(coordinatedRun.runId);
+  assert.equal(coordinated.snapshot.revision, 3);
+  assert.equal(coordinated.snapshot.processedCandidates, 1);
+  assert.equal(coordinated.snapshot.sourceSnapshotRef, coordinatedRef);
+  check('Tras reiniciar, dos avances sobre el mismo cursor confirman un único candidato y conservan la captura', {
+    outcomes: progresses.map((result) => result.outcome), revision: coordinated.snapshot.revision,
+    processedCandidates: coordinated.snapshot.processedCandidates,
+  });
+
+  const resumed = createCustomerSegmentExecution({ repository: repo, source: unavailableSource,
+    policy, now: () => Date.now() });
+  while (coordinated.snapshot.processedCandidates < coordinated.snapshot.totalCandidates) {
+    const previous = coordinated.snapshot;
+    const result = await resumed.advance(advanceCommand);
+    coordinated = result.run;
+    assert.equal(result.outcome, 'applied');
+    assert.equal(coordinated.snapshot.state, 'running');
+    assert.equal(coordinated.snapshot.revision, previous.revision + 1);
+    assert.equal(coordinated.snapshot.processedCandidates, previous.processedCandidates + 1);
+    assert.equal(coordinated.snapshot.sourceSnapshotRef, coordinatedRef);
+  }
+  assert.equal(coordinated.snapshot.cursor, null);
+  const beforeCompletion = coordinated.snapshot.revision;
+  const completion = await resumed.advance(advanceCommand);
+  assert.equal(completion.outcome, 'applied');
+  assert.equal(completion.run.snapshot.state, 'completed');
+  assert.equal(completion.run.snapshot.revision, beforeCompletion + 1);
+  assert.equal(completion.run.snapshot.matchedCustomers, 0);
+  const frozen = await query(source, 'SELECT facts_json FROM customer_segment_results WHERE run_id=? AND customer_profile_id=?', coordinatedRun.runId, profileId);
+  assert.equal(JSON.parse(frozen[0].facts_json)['orders.total_spent_cents'], 7000);
+  assert.equal(restartedCaptureCalls, 0);
+  assert.deepEqual(await repo.readMembership(segmentId, profileId), membership);
+  const completedHash = hash(await readTables(source, names));
+  const unchanged = await resumed.advance(advanceCommand);
+  assert.equal(unchanged.outcome, 'unchanged');
+  assert.deepEqual(unchanged.run, completion.run);
+  assert.equal(hash(await readTables(source, names)), completedHash);
+  check('Cada invocación avanza una revisión, completa por separado y termina sin recapturar ni publicar; 7000 siguen congelados', {
+    revisions: (await repo.readSnapshots(coordinatedRun.runId)).length,
+    recaptureAttempts: restartedCaptureCalls, terminalOutcome: unchanged.outcome,
+  });
+
+  await assert.rejects(resumed.publish({ ...ctx('publish:coordinator-stale'), segmentId,
+    runId: coordinatedRun.runId, expectedPublicationVersion: 0 }), (error) => error.code === 'customer_segmentation_conflict');
+  assert.deepEqual(await repo.readMembership(segmentId, profileId), membership);
+  const coordinatedPublication = { ...ctx('publish:coordinator'), segmentId,
+    runId: coordinatedRun.runId, expectedPublicationVersion: 1 };
+  const published = await resumed.publish(coordinatedPublication);
+  assert.equal(published.outcome, 'applied');
+  assert.equal(published.value.version, 2);
+  const publishedHash = hash(await readTables(source, names));
+  const publicationReplay = await resumed.publish(coordinatedPublication);
+  assert.equal(publicationReplay.outcome, 'replayed');
+  assert.deepEqual(publicationReplay.value, published.value);
+  assert.equal(hash(await readTables(source, names)), publishedHash);
+  const coordinatedMembership = await repo.readMembership(segmentId, profileId);
+  assert.equal(coordinatedMembership.state, 'evaluated');
+  assert.equal(coordinatedMembership.matches, false);
+  assert.equal(coordinatedMembership.publication.version, 2);
+  assert.equal(restartedCaptureCalls, 0);
+  check('Publicación explícita: CAS obsoleto rechazado, versión 2 confirmada y comando idéntico reproducido sin nuevas filas');
+
   const backup = await exportD1Backup(source);
   const backupPath = join(output, `backup-schema-${BACKUP_SCHEMA_VERSION}.sql`);
   await writeFile(backupPath, backup.sql);
@@ -250,9 +367,21 @@ try {
   assert.deepEqual(await readTables(restored, BACKUP_TABLES), sourceTables);
   const restoredRepo = createD1CustomerSegmentationRepository(restored);
   assert.deepEqual(await restoredRepo.readRun(run.runId), await repo.readRun(run.runId));
-  assert.deepEqual(await restoredRepo.readMembership(segmentId, profileId), membership);
-  assert.equal((await restoredRepo.publish(publication)).outcome, 'replayed');
+  assert.deepEqual(await restoredRepo.readRun(coordinatedRun.runId), completion.run);
+  assert.deepEqual(await restoredRepo.readMembership(segmentId, profileId), coordinatedMembership);
+  const historicalReplay = await restoredRepo.publish(publication);
+  assert.equal(historicalReplay.outcome, 'replayed');
+  assert.equal(historicalReplay.value.version, 1);
+  assert.equal(historicalReplay.current.version, 2);
   assert.equal((await restoredRepo.readRun(run.runId)).snapshot.sourceSnapshotRef, snapshot.ref);
+  const restoredExecution = createCustomerSegmentExecution({ repository: restoredRepo,
+    source: unavailableSource, policy, now: () => Date.now() });
+  assert.equal((await restoredExecution.advance(advanceCommand)).outcome, 'unchanged');
+  const restoredPublication = await restoredExecution.publish(coordinatedPublication);
+  assert.equal(restoredPublication.outcome, 'replayed');
+  assert.deepEqual(restoredPublication.value, published.value);
+  assert.equal((await restoredRepo.readRun(coordinatedRun.runId)).snapshot.sourceSnapshotRef, coordinatedRef);
+  assert.equal(restartedCaptureCalls, 0);
   assert.deepEqual(await query(source, 'PRAGMA foreign_key_check'), []);
   assert.deepEqual(await query(restored, 'PRAGMA foreign_key_check'), []);
   check('Backup38 restaura todas las filas, referencia y pertenencia publicadas con replay idempotente y cero errores FK', {

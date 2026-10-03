@@ -175,7 +175,7 @@ suites/715 tests; producción permanece en `0032`.
 | 53 | **R5.3 Derechos de datos** | Exportar, corregir, anonimizar/borrar con excepciones fiscales y audit log. | 🟨 2026-08-18 — contrato y persistencia R5.3a–b instalados; política, superficies y ejecución pendientes de gates propios |
 | 54 | **R5.4 Cuentas passwordless** | Login seguro, sesiones, revocación y anti-enumeración; módulo opcional. | ✅ 2026-08-19 — R5.4a–d implementan dominio, D1, Resend directo, transporte mismo navegador, throttle/auditoría, gate durable y HTTP/UI; 185 suites/958 tests; D1 remota en `0040`, Worker `a5cc8d85…` inerte, `CUS-003` instalada y rollout real aislado |
 | 55 | **R5.5 Autoservicio** | Pedidos, direcciones y devolución sobre permisos mínimos. | ✅ 2026-09-18 — R5.5a–h cerrados en sus cortes; HTTP/SSR, navegador 26/0/0 y replay owner-only verificados; módulos installed/inactivos con rollout por proyecto pendiente |
-| 56 | **R5.6 Segmentación** | Lenguaje de filtros limitado, templates y recálculo observable. | 🟨 2026-09-18 — R5.6a.1 endurece ADR-0045 y contrato puro, con 54 pruebas focales; R5.6b cerrado local; R5.6c.1 (2026-10-03) añade política explícita, captura D1 consistente, 105 pruebas nuevas y restore de 126 tablas. Ejecución reanudable/jobs pendientes, sin activación |
+| 56 | **R5.6 Segmentación** | Lenguaje de filtros limitado, templates y recálculo observable. | 🟨 2026-09-18 — R5.6a.1 endurece ADR-0045 y contrato puro, con 54 pruebas focales; R5.6b cerrado local; R5.6c.1 (2026-10-03) añade política explícita, captura D1 consistente, 105 pruebas nuevas y restore de 126 tablas. R5.6c.2 implementa avance reanudable y publicación explícita; 158 pruebas nuevas acumuladas, sin activación. Persistencia de políticas/planes/jobs propuesta en c.3 |
 | 57 | **R5.7 Modelo de mercados** | Contexto de país/idioma/moneda/dominio, resolución y fallback. | ⬜ |
 | 58 | **R5.8 Traducciones y URLs** | Campos traducibles, flujo editorial, canonical, hreflang y sitemap. | ⬜ |
 | 59 | **R5.9 Publicación por mercado** | Producto/variante/canal, preview y explicación. | ⬜ |
@@ -1445,22 +1445,23 @@ principal pasa a R4.1, motor de reglas de precio.
 
 ## 14. Siguiente bloque
 
-### R5.6c.2 — Ejecución interna reanudable y recuperación
+### R5.6c.3 — Política durable y correlación de ejecuciones (gate local)
 
-R5.6c.1 (2026-10-03) completa política explícita/versionada y productor interno
-consistente: siete lecturas en un batch, población completa o error, hechos
-monetarios sin duplicados y referencia con huellas de política/contenido.
-105 pruebas nuevas cubren casos puros y recorrido de repositorio, incluyendo
-presupuestos con depósitos anteriores al pedido. El ensayo workerd/D1 restaura
-126 tablas idénticas, publica/reintenta y conserva FKs limpias; ver el
-[informe](../audits/r5-6c/facts-d1-report.json) y
-[runbook](OPERACION_SEGMENTACION.md). `pnpm check`: 868 archivos sin
-diagnósticos, 214 suites/1.388 pruebas, baseline/build; E2E 142/142 en QA
-aislada. No hay DDL, activación ni cambios remotos.
+R5.6c.1–c.2 (2026-10-03) completan política/captura consistente y coordinador
+interno reanudable. 103 pruebas de política, 26 de fuente y 29 de ejecución;
+comprobación de evidencia externa/saldo por separado, CAS, abortos, errores de
+resultado desconocido y replay histórico. Ensayo workerd/D1 con carreras,
+reinicio sin recaptura y restore exacto de 126 tablas. Véanse
+[ejecución](EJECUCION_SEGMENTACION.md), [runbook](OPERACION_SEGMENTACION.md) e
+[informe](../audits/r5-6c/facts-d1-report.json).
 
-Continuar con un avance interno por invocación, recuperación desde revisiones,
-conflicto/idempotencia y publicación separada mediante CAS. La composición
-futura de cron/jobs debe acreditar su propio timeout, claim, retención y gates;
-el runner interno no activa ninguna de esas superficies. Las políticas reales
-requieren conservación versionada y aprobación por proyecto. CUS-009 continúa
-parcial/installed, sin rutas, consumidores ni demo visual.
+La [propuesta concreta](PROPUESTA_EJECUCION_SEGMENTACION.md) describe tres tablas
+aditivas, repositorios y backup 39 en QA local. La migración candidata 0046
+necesita autorización conforme al veto de arquitectura; no se ha creado DDL.
+Después de autorización, sincronizar y ejecutar sus pruebas/rehearsal/restore.
+No registrar cron ni activar políticas reales, rutas o consumidores. CUS-009
+sigue parcial/installed y demo visual pendiente; G3/G4 permanecen separados.
+
+El push está bloqueado por revisión automática, que exige una autorización
+explícita del usuario para subir al origen `amariner/logic2b-ecom`. Commits
+locales conservados; no hay PR, merge, deploy ni cambios en la D1 remota.

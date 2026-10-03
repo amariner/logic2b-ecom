@@ -38,6 +38,8 @@ export type CustomerSegmentFactsPolicy = Readonly<{
  * Importes externos y saldo separados; solo capturas y reembolsos succeeded.
  * paymentCount cuenta transacciones externas, no filas de payments. Un payment
  * pendiente puede incrementar unsettledPaymentCount sin tener transacciones.
+ * Los dos canales acreditan completitud por separado: ver saldo no acredita
+ * que la parte externa esté íntegra, ni una captura externa acredita el saldo.
  */
 export type CustomerSegmentOrderEvidence = Readonly<{
   id: number;
@@ -47,6 +49,8 @@ export type CustomerSegmentOrderEvidence = Readonly<{
   originalTotalCents: number;
   currentTotalCents: number;
   paymentCount: number;
+  externalPaymentEvidence: 'complete' | 'missing';
+  storedValueEvidence: 'complete' | 'missing';
   captureCount: number;
   capturedCents: number;
   refundedCents: number;
@@ -162,6 +166,7 @@ function normalizeEvidence(input: unknown, capturedMs: number): CustomerSegmentP
     const value = segmentRecord(inputOrder, [
       'id', 'status', 'createdAt', 'currency', 'originalTotalCents', 'currentTotalCents',
       'paymentCount', 'captureCount', 'capturedCents', 'refundedCents', 'storedValueCaptureCount',
+      'externalPaymentEvidence', 'storedValueEvidence',
       'storedValueCapturedCents', 'storedValueRefundedCents', 'firstCaptureAt', 'lastCaptureAt',
       'firstStoredValueCaptureAt', 'lastStoredValueCaptureAt', 'adjustmentCount', 'unsettledPaymentCount',
     ], field);
@@ -173,6 +178,8 @@ function normalizeEvidence(input: unknown, capturedMs: number): CustomerSegmentP
       originalTotalCents: segmentInteger(value.originalTotalCents, 0, `${field}.originalTotalCents`),
       currentTotalCents: segmentInteger(value.currentTotalCents, 0, `${field}.currentTotalCents`),
       paymentCount: segmentInteger(value.paymentCount, 0, `${field}.paymentCount`),
+      externalPaymentEvidence: option(value.externalPaymentEvidence, ['complete', 'missing'], `${field}.externalPaymentEvidence`),
+      storedValueEvidence: option(value.storedValueEvidence, ['complete', 'missing'], `${field}.storedValueEvidence`),
       captureCount: segmentInteger(value.captureCount, 0, `${field}.captureCount`),
       capturedCents: segmentInteger(value.capturedCents, 0, `${field}.capturedCents`),
       refundedCents: segmentInteger(value.refundedCents, 0, `${field}.refundedCents`),
@@ -250,10 +257,11 @@ export function projectCustomerSegmentFacts(
     if (order.unsettledPaymentCount > 0 && policy.unsettledPayments === 'reject') {
       return invalid('El pedido contiene pagos no resueltos rechazados por la política.');
     }
-    const hasPaymentEvidence = order.paymentCount > 0 || order.storedValueCaptureCount > 0;
+    const hasCompletePaymentEvidence = order.externalPaymentEvidence === 'complete' &&
+      (!includeStoredValue || order.storedValueEvidence === 'complete');
     const hasCapture = order.captureCount > 0 || (includeStoredValue && order.storedValueCaptureCount > 0);
     if (policy.orderEligibility === 'successful_capture') {
-      if (!hasPaymentEvidence) {
+      if (!hasCapture && !hasCompletePaymentEvidence) {
         count = missing('orders.count');
         total = null;
         missingActivity = true;
@@ -266,7 +274,7 @@ export function projectCustomerSegmentFacts(
     let activity: string | null;
     if (policy.activityBasis === 'order_created') {
       activity = order.createdAt;
-    } else if (!hasPaymentEvidence) {
+    } else if (!hasCompletePaymentEvidence) {
       activity = missing('orders.days_since_last');
       missingActivity = true;
     } else if (!hasCapture) {
@@ -282,7 +290,7 @@ export function projectCustomerSegmentFacts(
     if (activity !== null && (lastActivity === null || activity > lastActivity)) lastActivity = activity;
 
     let amount: number | null;
-    if (!hasPaymentEvidence && (policy.amountBasis === 'captured_payments' || policy.refunds === 'subtract')) {
+    if (!hasCompletePaymentEvidence && policy.amountBasis === 'captured_payments') {
       amount = missing('orders.total_spent_cents');
     } else {
       const captured = policy.amountBasis === 'original_order_total' ? order.originalTotalCents

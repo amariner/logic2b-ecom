@@ -107,8 +107,34 @@ activación real exige conservar el documento canónico versionado y evitar
 reutilizar nombre/versión para otras reglas. El backup 38 conserva la referencia
 y los hechos; no puede reconstruir por sí solo un documento de política perdido.
 
+La revisión R5.6c.2 añade completitud separada de evidencia externa/saldo:
+se comprueban los importes esperados de cada intención. Un saldo confirmado no
+acredita la parte externa, una captura no acredita el saldo y un pago no oculta
+la ausencia de otro. Si falta un componente usado por la política, el importe
+neto y los extremos de actividad conservan ausencia/rechazo; una captura
+acreditada sí permite contar ese pedido. Los totales comerciales y fecha de
+creación permanecen independientes de esa evidencia financiera.
+
 El productor no se compone en runtime, cron ni rutas. Las políticas del ensayo
 son sintéticas; CUS-009 continúa instalada e inactiva, con demo visual pendiente.
+
+### R5.6c.2 — Avance acotado y recuperación (2026-10-03)
+
+`createCustomerSegmentExecution` coordina los puertos existentes y confirma una
+transición por llamada, con comandos inmutables cuya clave incluye la huella
+del payload y su fecha. Las guardas del repositorio resuelven concurrencia;
+una colisión se reconcilia con una lectura, sin bucles ni mutex de proceso.
+Un error de transporte tras escribir se propaga como resultado desconocido;
+reanudar relee la revisión confirmada y no duplica captura ni evaluación.
+
+El inicio verifica ambos hashes de la referencia de fuente. La reanudación
+exige misma política y los hechos guardados. Un fallo de captura se registra
+solo sobre la revisión solicitada; una definición superada no se sustituye
+en el run. Cancelar impide pasos posteriores, sin afirmar que una escritura
+ya enviada se haya cancelado. Publicar es una operación explícita separada:
+el CAS exige definición/generación vigentes para nuevas escrituras y conserva
+el replay exacto histórico. Contrato completo en
+[EJECUCION_SEGMENTACION](../EJECUCION_SEGMENTACION.md).
 
 ## Consecuencias
 

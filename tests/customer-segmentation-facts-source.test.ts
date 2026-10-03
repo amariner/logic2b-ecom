@@ -41,15 +41,36 @@ function addOrder(db: SqliteD1, profileId: string | null, id = 1,
   return id;
 }
 
-function addPayment(db: SqliteD1, orderId: number, amount = 1000, storedValue = 0): number {
+function addPaymentIntent(db: SqliteD1, orderId: number, amount: number, storedValue = 0): number {
+  const suffix = db.value('SELECT count(*) AS value FROM payments');
   const result = db.sqlite.prepare(`INSERT INTO payments
     (order_id,provider,currency,expected_amount_cents,stored_value_expected_cents,status,
      idempotency_key,created_at,updated_at)
     VALUES (?,'simulated','EUR',?,?,'captured',?,?,?)`)
-    .run(orderId, amount, storedValue, `payment:${orderId}`, CAPTURED, CAPTURED);
-  const paymentId = Number(result.lastInsertRowid);
+    .run(orderId, amount, storedValue, `payment:${orderId}:${String(suffix)}`, CAPTURED, CAPTURED);
+  return Number(result.lastInsertRowid);
+}
+
+function addPayment(db: SqliteD1, orderId: number, amount = 1000, storedValue = 0): number {
+  const paymentId = addPaymentIntent(db, orderId, amount, storedValue);
   addTransaction(db, paymentId, 'capture', amount);
   return paymentId;
+}
+
+function addStoredCapture(db: SqliteD1, orderId: number, amount: number): void {
+  const accountId = `account:source:${orderId}`;
+  db.sqlite.prepare(`INSERT INTO stored_value_accounts
+    (id,kind,state,currency,label,code_hash,balance_cents,reserved_cents,
+     policy_json,version,created_at,updated_at)
+    VALUES (?,'gift_card','active','EUR','Synthetic',?,?,?,'{}',1,?,?)`)
+    .run(accountId, orderId.toString(16).padStart(64, '0'), amount, amount, CREATED, CAPTURED);
+  db.sqlite.prepare(`INSERT INTO stored_value_ledger_entries
+    (id,account_id,type,balance_delta_cents,reserved_delta_cents,balance_after_cents,
+     reserved_after_cents,version_after,order_id,refund_id,idempotency_key,metadata_json,occurred_at)
+    VALUES (?,?,'capture',?,?,0,0,2,?,NULL,?,'{}',?)`)
+    .run(`ledger:source:${orderId}`, accountId, -amount, -amount, orderId, `stored:capture:${orderId}`, CAPTURED);
+  db.sqlite.prepare('UPDATE stored_value_accounts SET balance_cents=0,reserved_cents=0,version=2 WHERE id=?')
+    .run(accountId);
 }
 
 function addTransaction(db: SqliteD1, paymentId: number, type: string,
@@ -297,6 +318,59 @@ describe('captura D1 consistente de hechos de segmentación R5.6c.1', () => {
     expect(included.candidates[0]!.facts['orders.total_spent_cents']).toBe(700);
     expect(excluded.candidates[0]!.facts['orders.total_spent_cents']).toBe(400);
     expect(included.candidates[0]!.facts['orders.count']).toBe(1);
+  });
+
+  it('un saldo capturado no convierte la falta de cobro externo de un pago mixto en cero', async () => {
+    const db = new SqliteD1();
+    const orderId = addOrder(db, addProfile(db));
+    addPaymentIntent(db, orderId, 900, 100);
+    addStoredCapture(db, orderId, 100);
+    const included = await source(db).capture();
+    const excluded = await source(db, { ...policy, storedValue: 'exclude' }).capture();
+    expect(included.candidates[0]!.facts).toMatchObject({
+      'orders.count': 1, 'orders.total_spent_cents': null, 'orders.days_since_last': null,
+    });
+    expect(excluded.candidates[0]!.facts['orders.total_spent_cents']).toBeNull();
+    await expect(source(db, { ...policy, missingPaymentEvidence: 'reject' }).capture())
+      .rejects.toBeInstanceOf(CustomerSegmentationContractError);
+  });
+
+  it('un cobro externo no oculta el saldo esperado ausente salvo que la política excluya ese medio', async () => {
+    const db = new SqliteD1();
+    const orderId = addOrder(db, addProfile(db));
+    addPayment(db, orderId, 900, 100);
+    const included = await source(db).capture();
+    const excluded = await source(db, { ...policy, storedValue: 'exclude', missingPaymentEvidence: 'reject' }).capture();
+    expect(included.candidates[0]!.facts).toMatchObject({
+      'orders.count': 1, 'orders.total_spent_cents': null, 'orders.days_since_last': null,
+    });
+    expect(excluded.candidates[0]!.facts).toMatchObject({ 'orders.count': 1, 'orders.total_spent_cents': 900 });
+    expect(excluded.candidates[0]!.facts['orders.days_since_last']).not.toBeNull();
+    await expect(source(db, { ...policy, missingPaymentEvidence: 'reject' }).capture())
+      .rejects.toBeInstanceOf(CustomerSegmentationContractError);
+  });
+
+  it('la captura de un pago no acredita otro pago liquidado cuyo ledger falta', async () => {
+    const db = new SqliteD1();
+    const orderId = addOrder(db, addProfile(db), 1, { amount: 1500 });
+    addPayment(db, orderId, 900);
+    addPaymentIntent(db, orderId, 600);
+    const snapshot = await source(db).capture();
+    expect(snapshot.candidates[0]!.facts).toMatchObject({
+      'orders.count': 1, 'orders.total_spent_cents': null, 'orders.days_since_last': null,
+    });
+    await expect(source(db, { ...policy, missingPaymentEvidence: 'reject' }).capture())
+      .rejects.toBeInstanceOf(CustomerSegmentationContractError);
+  });
+
+  it('un pago de saldo exclusivo acredita cero externo mediante su intención explícita', async () => {
+    const db = new SqliteD1();
+    const orderId = addOrder(db, addProfile(db));
+    addPaymentIntent(db, orderId, 0, 1000);
+    addStoredCapture(db, orderId, 1000);
+    const snapshot = await source(db, { ...policy, missingPaymentEvidence: 'reject' }).capture();
+    expect(snapshot.candidates[0]!.facts).toMatchObject({ 'orders.count': 1, 'orders.total_spent_cents': 1000 });
+    expect(snapshot.candidates[0]!.facts['orders.days_since_last']).not.toBeNull();
   });
 
   it('no suma pedidos de otra moneda y rechaza la moneda legacy ausente', async () => {

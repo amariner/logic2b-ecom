@@ -50,14 +50,15 @@ export function createD1CustomerSegmentFactsSource(
       o.edit_version, o.created_at FROM orders o JOIN profiles p ON p.id=o.customer_profile_id
     ORDER BY o.id LIMIT ${limits.orders + 1}
   ), selected_payments AS (
-    SELECT p.id, p.order_id, p.currency, p.status FROM payments p
+    SELECT p.id, p.order_id, p.currency, p.status,
+      p.expected_amount_cents, p.stored_value_expected_cents FROM payments p
     JOIN selected_orders o ON o.id=p.order_id ORDER BY p.id LIMIT ${limits.payments + 1}
   )`;
   const statements = [
     "SELECT strftime('%Y-%m-%dT%H:%M:%fZ','now') AS captured_at",
     `${scope} SELECT id,version,created_at FROM profiles ORDER BY id COLLATE BINARY`,
     `${scope} SELECT id,customer_profile_id,status,currency,total_cents,edit_version,created_at FROM selected_orders ORDER BY id`,
-    `${scope} SELECT id,order_id,currency,status FROM selected_payments ORDER BY id`,
+    `${scope} SELECT id,order_id,currency,status,expected_amount_cents,stored_value_expected_cents FROM selected_payments ORDER BY id`,
     `${scope} SELECT t.id,t.payment_id,t.type,t.amount_cents,t.currency,t.status,t.occurred_at
       FROM payment_transactions t JOIN selected_payments p ON p.id=t.payment_id
       ORDER BY t.id LIMIT ${limits.transactions + 1}`,
@@ -99,6 +100,7 @@ export function createD1CustomerSegmentFactsSource(
             id, status: row.status as CustomerSegmentOrderEvidence['status'],
             currency: currency(row.currency), createdAt: timestamp(row.created_at, captureMs),
             originalTotalCents: total, currentTotalCents: total, paymentCount: 0,
+            externalPaymentEvidence: 'missing', storedValueEvidence: 'missing',
             captureCount: 0, capturedCents: 0, refundedCents: 0,
             storedValueCaptureCount: 0, storedValueCapturedCents: 0, storedValueRefundedCents: 0,
             firstCaptureAt: null, lastCaptureAt: null,
@@ -114,7 +116,10 @@ export function createD1CustomerSegmentFactsSource(
       function sameCurrency(evidence: MutableOrder, value: unknown) {
         if (currency(value) !== evidence.currency) invalid('Monedas incompatibles en la evidencia del pedido.');
       }
-      const paymentMap = new Map<number, MutableOrder>();
+      const paymentMap = new Map<number, {
+        evidence: MutableOrder; expected: number; storedExpected: number;
+        settled: boolean; transactions: number; captures: number; captured: number;
+      }>();
       for (const row of payments) {
         const id = integer(row.id, 'payment.id', 1);
         if (paymentMap.has(id)) invalid('Pago duplicado en la captura.');
@@ -122,11 +127,17 @@ export function createD1CustomerSegmentFactsSource(
         sameCurrency(evidence, row.currency);
         if (!['pending', 'authorized', 'captured', 'partially_refunded', 'refunded', 'failed', 'cancelled', 'requires_review'].includes(String(row.status))) invalid('Estado de pago inválido.');
         if (['pending', 'authorized', 'requires_review'].includes(String(row.status))) evidence.unsettledPaymentCount++;
-        paymentMap.set(id, evidence);
+        paymentMap.set(id, { evidence,
+          expected: integer(row.expected_amount_cents, 'payment.expected'),
+          storedExpected: integer(row.stored_value_expected_cents, 'payment.storedExpected'),
+          settled: ['captured', 'partially_refunded', 'refunded'].includes(String(row.status)),
+          transactions: 0, captures: 0, captured: 0,
+        });
       }
       for (const row of transactions) {
-        const evidence = paymentMap.get(integer(row.payment_id, 'transaction.payment', 1));
-        if (!evidence) invalid('Asiento sin pago en la captura.');
+        const payment = paymentMap.get(integer(row.payment_id, 'transaction.payment', 1));
+        if (!payment) invalid('Asiento sin pago en la captura.');
+        const evidence = payment.evidence;
         sameCurrency(evidence, row.currency);
         const amount = integer(row.amount_cents, 'transaction.amount');
         const at = timestamp(row.occurred_at, captureMs);
@@ -135,11 +146,14 @@ export function createD1CustomerSegmentFactsSource(
         if (!['authorization', 'capture', 'refund', 'void', 'adjustment'].includes(String(row.type)) ||
           !['pending', 'succeeded', 'failed', 'requires_review'].includes(String(row.status))) invalid('Asiento no reconocido.');
         evidence.paymentCount++;
+        payment.transactions++;
         if (row.status === 'pending' || row.status === 'requires_review') evidence.unsettledPaymentCount++;
         if (row.status !== 'succeeded') continue;
         if (row.type === 'adjustment') evidence.adjustmentCount++;
         if (row.type === 'capture') {
           evidence.captureCount++;
+          payment.captures++;
+          payment.captured = add(payment.captured, amount);
           evidence.capturedCents = add(evidence.capturedCents, amount);
           evidence.firstCaptureAt = earliest(evidence.firstCaptureAt, at);
           evidence.lastCaptureAt = latest(evidence.lastCaptureAt, at);
@@ -160,6 +174,19 @@ export function createD1CustomerSegmentFactsSource(
         } else if (row.type === 'refund') {
           evidence.storedValueRefundedCents = add(evidence.storedValueRefundedCents, integer(row.balance_delta_cents, 'stored.refund', 1));
         } else invalid('Tipo de saldo inválido.');
+      }
+      for (const { evidence } of orderMap.values()) {
+        const ownedPayments = [...paymentMap.values()].filter((payment) => payment.evidence === evidence);
+        // Una parte cobrada no prueba la otra. Comprobar cada intención evita
+        // que la captura de un pago o el saldo oculten otro pago sin asientos.
+        evidence.externalPaymentEvidence = ownedPayments.length > 0 && ownedPayments.every((payment) =>
+          payment.settled
+            ? payment.expected === 0 || (payment.captures > 0 && payment.captured === payment.expected)
+            : payment.transactions > 0) ? 'complete' : 'missing';
+        const expectedStored = ownedPayments.filter((payment) => payment.settled)
+          .reduce((sum, payment) => add(sum, payment.storedExpected), 0);
+        evidence.storedValueEvidence = ownedPayments.length > 0 && evidence.storedValueCapturedCents >= expectedStored
+          ? 'complete' : 'missing';
       }
       const amendmentVersions = new Map<number, number>();
       const amendmentTotals = new Map<number, number>();

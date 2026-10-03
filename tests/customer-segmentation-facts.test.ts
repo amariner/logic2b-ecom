@@ -24,6 +24,7 @@ const policy = (overrides: Partial<CustomerSegmentFactsPolicy> = {}): CustomerSe
 const order = (overrides: Partial<CustomerSegmentOrderEvidence> = {}): CustomerSegmentOrderEvidence => ({
   id: 1, status: 'paid', createdAt: CREATED, currency: 'EUR',
   originalTotalCents: 1_000, currentTotalCents: 1_200, paymentCount: 3,
+  externalPaymentEvidence: 'complete', storedValueEvidence: 'complete',
   captureCount: 2, capturedCents: 800, refundedCents: 150,
   storedValueCaptureCount: 1, storedValueCapturedCents: 200, storedValueRefundedCents: 50,
   firstCaptureAt: FIRST, lastCaptureAt: LAST,
@@ -33,6 +34,7 @@ const order = (overrides: Partial<CustomerSegmentOrderEvidence> = {}): CustomerS
 });
 const emptyPayments = {
   paymentCount: 0, captureCount: 0, capturedCents: 0, refundedCents: 0,
+  externalPaymentEvidence: 'missing', storedValueEvidence: 'missing',
   storedValueCaptureCount: 0, storedValueCapturedCents: 0, storedValueRefundedCents: 0,
   firstCaptureAt: null, lastCaptureAt: null,
   firstStoredValueCaptureAt: null, lastStoredValueCaptureAt: null,
@@ -159,11 +161,13 @@ describe('pure customer facts projection', () => {
   });
 
   it('distinguishes successful zero captures from known payment histories with no successful capture', () => {
-    const freeCapture = order({ ...emptyPayments, paymentCount: 1, captureCount: 1, firstCaptureAt: LAST, lastCaptureAt: LAST });
+    const freeCapture = order({ ...emptyPayments, externalPaymentEvidence: 'complete', storedValueEvidence: 'complete',
+      paymentCount: 1, captureCount: 1, firstCaptureAt: LAST, lastCaptureAt: LAST });
     expect(projectCustomerSegmentFacts(policy(), evidence([freeCapture]), NOW)).toEqual({
       'customer.age_days': 31, 'orders.count': 1, 'orders.days_since_last': 1, 'orders.total_spent_cents': 0,
     });
-    const noSuccess = order({ ...emptyPayments, paymentCount: 1 });
+    const noSuccess = order({ ...emptyPayments, paymentCount: 1,
+      externalPaymentEvidence: 'complete', storedValueEvidence: 'complete' });
     expect(projectCustomerSegmentFacts(policy({ missingPaymentEvidence: 'reject' }), evidence([noSuccess]), NOW)['orders.count']).toBe(0);
     const selected = policy({ orderEligibility: 'selected_status', missingPaymentEvidence: 'reject' });
     expect(projectCustomerSegmentFacts(selected, evidence([noSuccess]), NOW)['orders.total_spent_cents']).toBe(0);
@@ -173,6 +177,7 @@ describe('pure customer facts projection', () => {
 
   it('treats stored value only histories according to eligibility and never fabricates an external capture', () => {
     const storedOnly = order({ ...emptyPayments, storedValueCaptureCount: 1,
+      externalPaymentEvidence: 'complete', storedValueEvidence: 'complete',
       storedValueCapturedCents: 400, storedValueRefundedCents: 100,
       firstStoredValueCaptureAt: LAST, lastStoredValueCaptureAt: LAST });
     expect(projectCustomerSegmentFacts(policy({ missingPaymentEvidence: 'reject' }), evidence([storedOnly]), NOW)).toEqual({
@@ -180,6 +185,83 @@ describe('pure customer facts projection', () => {
     });
     expect(projectCustomerSegmentFacts(policy({ storedValue: 'exclude' }), evidence([storedOnly]), NOW)).toEqual({
       'customer.age_days': 31, 'orders.count': 0, 'orders.days_since_last': null, 'orders.total_spent_cents': 0,
+    });
+  });
+
+  it.each([
+    ['missing', 'complete', 'include', null, null],
+    ['complete', 'missing', 'include', null, null],
+    ['missing', 'missing', 'include', null, null],
+    ['missing', 'complete', 'exclude', null, null],
+    ['complete', 'missing', 'exclude', 650, 1],
+  ] as const)('preserves known eligibility but requires each applicable payment channel: external=%s stored=%s mode=%s',
+    (externalPaymentEvidence, storedValueEvidence, storedValue, amount, days) => {
+      const partial = evidence([order({ externalPaymentEvidence, storedValueEvidence })]);
+      const facts = projectCustomerSegmentFacts(policy({ storedValue }), partial, NOW);
+      expect(facts).toMatchObject({ 'orders.count': 1, 'orders.total_spent_cents': amount, 'orders.days_since_last': days });
+      if (amount === null) {
+        expect(() => projectCustomerSegmentFacts(policy({ storedValue, missingPaymentEvidence: 'reject' }), partial, NOW))
+          .toThrow(/evidencia/);
+      }
+    });
+
+  it('does not convert a missing external amount to zero after observing a stored value capture', () => {
+    const partial = evidence([order({ ...emptyPayments, storedValueEvidence: 'complete', storedValueCaptureCount: 1,
+      storedValueCapturedCents: 100, firstStoredValueCaptureAt: LAST, lastStoredValueCaptureAt: LAST })]);
+    expect(projectCustomerSegmentFacts(policy(), partial, NOW)).toMatchObject({
+      'orders.count': 1, 'orders.total_spent_cents': null, 'orders.days_since_last': null,
+    });
+    expect(projectCustomerSegmentFacts(policy({ storedValue: 'exclude' }), partial, NOW)).toMatchObject({
+      'orders.count': null, 'orders.total_spent_cents': null, 'orders.days_since_last': null,
+    });
+  });
+
+  it('does not convert a missing stored value amount to zero after observing an external capture', () => {
+    const partial = evidence([order({ ...emptyPayments, externalPaymentEvidence: 'complete',
+      paymentCount: 1, captureCount: 1, capturedCents: 800, firstCaptureAt: LAST, lastCaptureAt: LAST })]);
+    expect(projectCustomerSegmentFacts(policy(), partial, NOW)).toMatchObject({
+      'orders.count': 1, 'orders.total_spent_cents': null, 'orders.days_since_last': null,
+    });
+    expect(projectCustomerSegmentFacts(policy({ storedValue: 'exclude' }), partial, NOW)).toMatchObject({
+      'orders.count': 1, 'orders.total_spent_cents': 800, 'orders.days_since_last': 1,
+    });
+  });
+
+  it.each([
+    ['complete', 'complete', 'include', 0],
+    ['complete', 'missing', 'include', null],
+    ['complete', 'missing', 'exclude', 0],
+    ['missing', 'complete', 'include', null],
+    ['missing', 'complete', 'exclude', null],
+  ] as const)('distinguishes complete no-capture histories from unknown eligibility: %s/%s/%s',
+    (externalPaymentEvidence, storedValueEvidence, storedValue, count) => {
+      const noCaptures = evidence([order({ ...emptyPayments, externalPaymentEvidence, storedValueEvidence })]);
+      expect(projectCustomerSegmentFacts(policy({ storedValue }), noCaptures, NOW)).toMatchObject({
+        'orders.count': count, 'orders.total_spent_cents': count === null ? null : 0, 'orders.days_since_last': null,
+      });
+    });
+
+  it.each(['first_successful_capture', 'last_successful_capture'] as const)(
+    'requires complete applicable channels to assert the %s extreme even when a capture exists', (activityBasis) => {
+      const partial = evidence([order({ storedValueEvidence: 'missing' })]);
+      expect(projectCustomerSegmentFacts(policy({ activityBasis }), partial, NOW)['orders.days_since_last']).toBeNull();
+      expect(projectCustomerSegmentFacts(policy({ activityBasis, storedValue: 'exclude' }), partial, NOW)['orders.days_since_last'])
+        .toBe(activityBasis === 'first_successful_capture' ? 30 : 1);
+    });
+
+  it('keeps commercial totals and creation dates calculable when existing captures already prove eligibility', () => {
+    const partial = evidence([order({ externalPaymentEvidence: 'missing', storedValueEvidence: 'missing' })]);
+    const commercial = policy({ amountBasis: 'original_order_total', storedValue: 'included_in_order_total',
+      refunds: 'ignore', activityBasis: 'order_created', missingPaymentEvidence: 'reject' });
+    expect(projectCustomerSegmentFacts(commercial, partial, NOW)).toMatchObject({
+      'orders.count': 1, 'orders.total_spent_cents': 1000, 'orders.days_since_last': 31,
+    });
+  });
+
+  it('preserves known order counts across a partially observed payment history without exposing a partial sum', () => {
+    const partial = evidence([order(), order({ id: 2, externalPaymentEvidence: 'missing' })]);
+    expect(projectCustomerSegmentFacts(policy(), partial, NOW)).toMatchObject({
+      'orders.count': 2, 'orders.total_spent_cents': null, 'orders.days_since_last': null,
     });
   });
 
@@ -246,6 +328,7 @@ describe('pure customer facts projection', () => {
   it('rejects negative outcomes and unsafe sums instead of rounding, clamping or losing precision', () => {
     const max = Number.MAX_SAFE_INTEGER;
     const huge = order({ ...emptyPayments, paymentCount: 2, captureCount: 2,
+      externalPaymentEvidence: 'complete', storedValueEvidence: 'complete',
       capturedCents: max, firstCaptureAt: FIRST, lastCaptureAt: LAST });
     expect(projectCustomerSegmentFacts(policy(), evidence([huge]), NOW)['orders.total_spent_cents']).toBe(max);
     expect(() => projectCustomerSegmentFacts(policy(), evidence([huge, order({ id: 2 })]), NOW)).toThrow(/entero seguro/);
@@ -258,6 +341,8 @@ describe('hostile or corrupt facts evidence', () => {
   it.each([
     ['id', 0], ['id', '1'], ['status', 'refunded'], ['currency', 'eur'],
     ['originalTotalCents', -1], ['currentTotalCents', 1.5], ['paymentCount', NaN],
+    ['externalPaymentEvidence', undefined], ['externalPaymentEvidence', true],
+    ['storedValueEvidence', undefined], ['storedValueEvidence', 'unknown'],
     ['captureCount', Infinity], ['capturedCents', Number.MAX_SAFE_INTEGER + 1],
     ['refundedCents', -1], ['storedValueCaptureCount', null],
     ['storedValueCapturedCents', '200'], ['storedValueRefundedCents', true],
