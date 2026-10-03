@@ -178,8 +178,8 @@ suites/715 tests; producción permanece en `0032`.
 | 56 | **R5.6 Segmentación** | Lenguaje de filtros limitado, templates y recálculo observable. | ✅ Local 2026-10-03 — R5.6a–d implementados y verificados; c.3 integrada en PR #14 (`9b3a8ab`) con 0046/backup39. Demo visual `/demo/admin/segmentos` disponible en repo: 12 perfiles, cuatro hechos, tres templates y lotes de tres; navegador 119/119 y ocho superficies a11y 0/0. Sin deploy ni handler; CUS-009 parcial e inactiva |
 | 57 | **R5.7 Modelo de mercados** | Contexto de país/idioma/moneda/dominio, resolución y fallback. | ✅ R5.7a–b local: ADR-0046, `defineMarketCatalog`/`resolveMarket` y composición pura `market-pricing-context`; moneda base y Git/inyección, sin DDL ni endpoints. 224 suites/1.876 pruebas, E2E 156/156 y base QA intacta; MKT-003 parcial/inactiva, demo visual verificada en R5.8b |
 | 58 | **R5.8 Traducciones y URLs** | Campos traducibles, flujo editorial, canonical, hreflang y sitemap. | ✅ Local — R5.8a integrada en PR #17 (`6eadc3b`); R5.8b verificada con 227 suites/2.023 pruebas, E2E 160/160, navegador 120/120 y ocho superficies a11y sin hallazgos. Demo `/demo/admin/mercados` disponible en repo; MKT-003/006/007 parciales e inactivas, sin deploy |
-| 59 | **R5.9 Publicación por mercado** | Producto/variante/canal, preview y explicación. | 🟨 R5.9a cerrada local: ADR-0048, contrato markets/market-publication y proyección desde CatalogEntry completo; 901 archivos sin diagnósticos, 229 suites/2.175 pruebas, revisión sin P1/P2. MKT-004 parcial/inactiva, MKT-005 pendiente; sin DDL, lectores runtime modificados ni activación. Siguiente R5.9b, demo `/demo/admin/publicacion` noindex |
-| 60 | **R5.10 Impuestos** | Adaptador, snapshots, redondeo, exenciones y validación VAT ID. | ⬜ |
+| 59 | **R5.9 Publicación por mercado** | Producto/variante/canal, preview y explicación. | ✅ Local — R5.9a integrada en PR #19 (`1c801d8`); R5.9b verificada, disponible en repo sin deploy: 230 suites/2.222 pruebas, E2E 164/164, navegador 188/188 y ocho superficies a11y 0/0. MKT-004 parcial/inactiva y MKT-005 pendiente |
+| 60 | **R5.10 Impuestos** | Adaptador, snapshots, redondeo, exenciones y validación VAT ID. | ⬜ Siguiente R5.10a: módulo taxes, perfil eur-line-tax-half-up-v1 y adaptador fixture; evidencia, incluido/excluido y redondeo explícitos. MKT-009/010 parciales/inactivas al implementar, CHK-006 pendiente; sin proveedor, DDL ni checkout runtime |
 | 61 | **R5.11 Multidivisa y métodos locales** | Presentación, cobro, reembolso y conciliación. | ⬜ |
 | 62 | **R5.12 Consolidación R5** | E2E dos mercados, privacidad y cuenta opcional; revisión SEO/legal/seguridad. | ⬜ |
 
@@ -1568,18 +1568,47 @@ seis de arquitectura; revisión independiente de 485 aserciones sin P1/P2.
 navegador 120/120, a11y de ocho superficies y hash de 143 tablas/353 filas
 son evidencia heredada de R5.8b/PR #18, no nuevas ejecuciones de R5.9a.
 
-### Siguiente: R5.9b — Demo local de publicación
+### Cerrado local: R5.9b — Demo local de publicación
 
-Orientación aprobada: `/demo/admin/publicacion`, «Publicación del catálogo»,
+R5.9a está integrada en PR #19 (`1c801d8`), sin despliegue. En la rama
+`codex/market-publication-demo` se implementa `/demo/admin/publicacion`, «Publicación del catálogo»,
 bajo Internacional. Contextos ES/FR y canales `storefront`/`professional`, tres
-productos sintéticos, edición por tupla en memoria con aplicación explícita,
-preview con motivos, comparación antes/después y reset/recarga.
+productos sintéticos, buffers de 12 tuplas en memoria con aplicación explícita,
+preview con motivos, selección preparada frente a resultado aplicado y reset/recarga.
 
 Mostrar default oculta/otra activa visible, variantes `draft`/`archived`
 seleccionadas pero bloqueadas, producto inactivo y tuplas sin configurar.
 Detalle de producto/variante/referencia; nunca afirmar compra posible ni usar
-precio como autorización. Demo visual pendiente, noindex, sin I/O, DDL ni
-persistencia, con capacidades inactivas.
+precio como autorización. Demo visual verificada y disponible en repo, sin
+despliegue: noindex, sin I/O, DDL ni persistencia, con capacidades inactivas.
+
+[Verificación final](../audits/r5-9b/verification-report.json): 905 archivos
+sin diagnósticos, 230 suites/2.222 pruebas, 44 HTML/44 formularios/cero crons;
+47 pruebas del modelo, seis de arquitectura y revisión de 453 aserciones
+sin P1/P2. E2E: 164/164. [Navegador](../audits/r5-9b/report.json): 188/188
+y ocho PNG aprobados; [a11y](../audits/r5-9b/a11y-report.json): ocho superficies,
+cero errores/avisos. Cero HTTP, storage, timers, beacons, ventanas o errores JS
+del módulo; guía y rAF visual de WhatsApp identificados y contados aparte.
+Base QA: 143 tablas, 353 filas y SHA-256 antes/después idéntico
+`9cbfc811cfc4296515a403d395875a43bfa26aff0c9c9b08be0804b15bbf6eca`.
+Worker detenido.
+
+### Siguiente: R5.10a — Impuestos, evidencias y redondeo puros
+
+Módulo `taxes` separado, perfil `eur-line-tax-half-up-v1`, contrato y adaptador
+fixture inyectado con preview/snapshot inmutable en EUR
+tras descuentos. Líneas de mercancía/envío separadas y decisiones explícitas
+de jurisdicción, tratamiento, tasa, precios incluidos/excluidos y redondeo.
+Neto más cuota igual a bruto, sumas coherentes y enteros seguros. Diferenciar
+0 %, exención y resultado sin resolver; la evidencia VAT tiene origen/fecha/
+vigencia y no concede exención por sí sola.
+
+No inferir fiscalidad de marketId, CP, idioma o NIF. `base_subtotal` actual es
+predescuento, no base imponible. Sin red, proveedor, reloj real, D1 ni cambios
+en checkout, ledgers o reembolsos; las facturas externas conservan ADR-0027.
+Tasas y decisiones reales pertenecen a cada proyecto, pero no bloquean el
+contrato con fixtures ni exigen una migración para modelarlo. MKT-009/010 se
+implementarán parciales e inactivas; CHK-006 permanece pendiente.
 
 Push/merge siguen autorizados después de checks. La demo pública y landing
 quedan solo con fixtures; crons vacíos y guardas ante triggers antiguos. G3/G4,

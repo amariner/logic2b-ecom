@@ -1,0 +1,42 @@
+[
+  {
+    "surface": "market-publication:initial",
+    "url": "/demo/admin/publicacion",
+    "findings": []
+  },
+  {
+    "surface": "market-publication:empty",
+    "url": "/demo/admin/publicacion",
+    "findings": []
+  },
+  {
+    "surface": "market-publication:applied",
+    "url": "/demo/admin/publicacion",
+    "findings": []
+  },
+  {
+    "surface": "market-publication:excluded",
+    "url": "/demo/admin/publicacion",
+    "findings": []
+  },
+  {
+    "surface": "market-publication:initial@375",
+    "url": "/demo/admin/publicacion",
+    "findings": []
+  },
+  {
+    "surface": "market-publication:empty@375",
+    "url": "/demo/admin/publicacion",
+    "findings": []
+  },
+  {
+    "surface": "market-publication:applied@375",
+    "url": "/demo/admin/publicacion",
+    "findings": []
+  },
+  {
+    "surface": "market-publication:excluded@375",
+    "url": "/demo/admin/publicacion",
+    "findings": []
+  }
+]

@@ -246,6 +246,16 @@ check('mercados conserva privacidad de caché e indexación',
 check('mercados no publica alternates SEO ni enlaces a destinos del plan',
   !/<link\b[^>]*\bhreflang\s*=/i.test(marketDemoHtml)
   && !/<a\b[^>]*\bhref\s*=\s*["'][^"']*\.test(?:[/:"'])/i.test(marketDemoHtml));
+const publicationDemoResponse = await fetch(`${BASE}/demo/admin/publicacion`, { headers: { cookie } });
+const publicationDemoHtml = await publicationDemoResponse.text();
+check('panel enlaza la demostración de publicación del catálogo', adminHtml.includes('href="/demo/admin/publicacion"'));
+check('publicación muestra variantes ilustrativas y resultado aplicado', publicationDemoResponse.ok
+  && publicationDemoHtml.includes('data-market-publication-demo')
+  && publicationDemoHtml.includes('data-publication-catalog') && publicationDemoHtml.includes('data-publication-detail'));
+check('publicación conserva privacidad de caché e indexación',
+  publicationDemoResponse.headers.get('cache-control')?.includes('no-store') && publicationDemoHtml.includes('noindex'));
+check('publicación no añade formularios ni envíos', !/<form\b/i.test(publicationDemoHtml)
+  && !/<button\b(?![^>]*\btype=["']button["'])/i.test(publicationDemoHtml));
 check(
   'índice de pedidos expone filtros URL y orden estable R3.1',
   adminHtml.includes('name="orden"')

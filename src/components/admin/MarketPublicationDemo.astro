@@ -1,0 +1,387 @@
+---
+import { createMarketPublicationDemo, getMarketPublicationDemoView } from '../../composition/market-publication-demo';
+
+const initial = getMarketPublicationDemoView(createMarketPublicationDemo());
+const publicationLabels = {
+  published: 'Mostrar variantes seleccionadas',
+  unpublished: 'Ocultar este producto',
+  unconfigured: 'Sin configurar',
+} as const;
+const statusLabels = { active: 'Activa', draft: 'Borrador', archived: 'Archivada' } as const;
+const appliedProduct = initial.catalog.products.find((product) => product.id === initial.selectedProduct.id)!;
+const contextLabel = initial.marketOptions.find((option) => option.id === initial.selection.marketId)!.label
+  + ' · ' + initial.channelOptions.find((option) => option.id === initial.selection.channel)!.label;
+const excluded = initial.catalog.products.filter((product) => !product.visible);
+---
+
+<div data-market-publication-demo data-ready="false" class="market-publication-demo mt-6 space-y-6 text-foreground">
+  <div class="flex flex-col gap-3 rounded-2xl border border-border bg-card p-4 sm:flex-row sm:items-center sm:justify-between sm:px-5">
+    <p class="max-w-3xl text-sm leading-6"><strong>Solo cambia este ejemplo.</strong> Al recargar, vuelves al inicio. Esta vista comprueba visibilidad; precio, stock y compra se resuelven aparte.</p>
+    <button data-publication-action="reset" type="button" disabled class="pub-button shrink-0 border border-border bg-background text-foreground">Restablecer ejemplo</button>
+  </div>
+
+  <noscript data-publication-nojs><div class="rounded-xl border border-border bg-muted p-4 text-sm leading-6">Puedes consultar el catálogo ficticio y sus motivos sin JavaScript. Los controles de simulación permanecen desactivados; no se envía ni guarda ningún dato.</div></noscript>
+
+  <fieldset class="grid gap-4 rounded-2xl border border-border bg-card p-5 sm:grid-cols-2 sm:p-6">
+    <legend class="sr-only">Contexto del ejemplo</legend>
+    <label class="pub-label" for="publication-market">Mercado
+      <select id="publication-market" data-publication-market disabled class="pub-input">
+        {initial.marketOptions.map((option) => <option value={option.id} selected={option.id === initial.selection.marketId}>{option.label}</option>)}
+      </select>
+    </label>
+    <label class="pub-label" for="publication-channel">Canal
+      <select id="publication-channel" data-publication-channel disabled class="pub-input">
+        {initial.channelOptions.map((option) => <option value={option.id} selected={option.id === initial.selection.channel}>{option.label}</option>)}
+      </select>
+    </label>
+    <p class="text-xs leading-5 text-muted-foreground sm:col-span-2">Cada combinación conserva su propia selección. Una publicación en otro mercado o canal no se copia aquí.</p>
+  </fieldset>
+
+  <div class="grid items-start gap-6 xl:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)]">
+    <section data-publication-editor data-dirty={String(initial.editor.dirty)} class="pub-panel" aria-labelledby="publication-editor-title">
+      <div class="flex items-start gap-3">
+        <span class="pub-step" aria-hidden="true">1</span>
+        <div><h2 id="publication-editor-title" class="text-xl font-semibold">Prepara la publicación</h2><p class="mt-1 text-sm leading-6 text-muted-foreground">Elige un producto y prepara qué variantes quieres mostrar.</p></div>
+      </div>
+      <label class="pub-label mt-5" for="publication-product">Producto de ejemplo
+        <select id="publication-product" data-publication-product disabled class="pub-input">
+          {initial.productOptions.map((option) => <option value={option.id} selected={option.id === initial.selection.productId}>{option.label}</option>)}
+        </select>
+      </label>
+      <p data-publication-product-status class="mt-2 text-xs leading-5 text-muted-foreground">{initial.selectedProduct.active ? 'Producto activo en el catálogo de ejemplo.' : 'Producto inactivo: sus variantes no pueden aparecer en este ejemplo.'}</p>
+
+      <fieldset class="mt-5 space-y-2">
+        <legend class="mb-2 text-sm font-semibold">Qué quieres mostrar aquí</legend>
+        {(['published', 'unpublished', 'unconfigured'] as const).map((mode) => <label class="pub-mode">
+          <input data-publication-mode type="radio" name="publication-mode" value={mode} checked={mode === initial.editor.publication} disabled class="pub-choice" />
+          <span class="text-sm font-medium">{publicationLabels[mode]}</span>
+        </label>)}
+      </fieldset>
+
+      <fieldset data-publication-variants class="mt-5" aria-describedby="publication-selection-help publication-validation">
+        <legend class="text-sm font-semibold">Selección preparada</legend>
+        <p id="publication-selection-help" class="mt-1 text-xs leading-5 text-muted-foreground">Las casillas preparan el cambio. El resultado de cada fila corresponde a la configuración aplicada.</p>
+        <div data-publication-variant-list class="mt-3 divide-y divide-border overflow-hidden rounded-xl border border-border">
+          {initial.editor.variants.map((variant) => <div data-publication-variant-row data-product-id={initial.selectedProduct.id} data-variant-id={variant.id} data-status={variant.status} data-visible={String(variant.visible)} data-applied-selected={String(variant.appliedSelected)} class="p-4">
+            <label class="pub-variant-label" for={'publication-variant-' + variant.id}>
+              <input id={'publication-variant-' + variant.id} data-publication-variant type="checkbox" value={variant.id} checked={variant.checked} disabled class="pub-choice mt-1" />
+              <span class="min-w-0 flex-1"><span class="block text-sm font-semibold">{variant.name}</span><span class="mt-0.5 block break-words text-xs text-muted-foreground">Ref. {variant.sku}</span>{variant.isDefault && <span class="mt-1 block text-xs text-muted-foreground">Principal en catálogo</span>}</span>
+              <span class="pub-badge shrink-0">{statusLabels[variant.status]}</span>
+            </label>
+            <div class="mt-2 border-t border-border pt-3">
+              <p class="text-xs font-semibold">Resultado aplicado · <span data-variant-visibility>{variant.visible ? 'Visible' : 'No visible'}</span></p>
+              <ul data-variant-reasons class="mt-1 space-y-1 text-xs leading-5 text-muted-foreground">{variant.reasons.map((reason, index) => <li data-publication-reason data-reason={reason}>{variant.reasonLabels[index]}</li>)}</ul>
+            </div>
+          </div>)}
+        </div>
+      </fieldset>
+      <p class="mt-3 text-xs leading-5 text-muted-foreground">La variante principal no tiene prioridad de publicación. Las variantes en borrador o archivadas siguen ocultas aunque las marques.</p>
+
+      <div class="mt-5 rounded-xl border border-border bg-muted/40 p-4">
+        <p class="text-xs text-muted-foreground">Configuración aplicada a este producto</p>
+        <p data-publication-policy-state data-state={appliedProduct.publication} class="mt-1 text-sm font-semibold">{publicationLabels[appliedProduct.publication]}</p>
+        <p data-publication-pending hidden={!initial.editor.dirty} class="mt-3 text-sm leading-6">Hay cambios pendientes. El catálogo y el detalle conservan el resultado aplicado hasta que pulses «Aplicar al ejemplo».</p>
+      </div>
+      <p id="publication-validation" data-publication-validation hidden={!initial.editor.blockedReason} class="mt-3 text-sm leading-6 text-muted-foreground">{initial.editor.blockedReason}</p>
+      <button data-publication-action="apply" type="button" disabled aria-describedby="publication-validation" class="pub-button mt-4 w-full bg-foreground text-background">Aplicar al ejemplo</button>
+      <p data-publication-feedback role="status" aria-live="polite" aria-atomic="true" class="mt-4 text-sm leading-6">{initial.feedback.message}</p>
+      <p data-publication-error role="alert" hidden class="mt-3 rounded-xl border border-destructive px-4 py-3 text-sm leading-6 text-destructive"></p>
+    </section>
+
+    <section class="pub-panel" aria-labelledby="publication-preview-title">
+      <div class="flex items-start gap-3">
+        <span class="pub-step" aria-hidden="true">2</span>
+        <div><h2 id="publication-preview-title" class="text-xl font-semibold">Comprueba el resultado</h2><p data-publication-context class="mt-1 text-sm leading-6 text-muted-foreground">{contextLabel}</p></div>
+      </div>
+      <dl class="mt-5 grid grid-cols-2 gap-3">
+        <div class="pub-counter"><dt>Productos visibles</dt><dd data-publication-product-count>{initial.catalog.visibleProductCount}</dd></div>
+        <div class="pub-counter"><dt>Variantes visibles</dt><dd data-publication-variant-count>{initial.catalog.visibleVariantCount}</dd></div>
+      </dl>
+      <h3 class="mt-5 text-sm font-semibold">Catálogo previsto</h3>
+      <p class="mt-1 text-xs leading-5 text-muted-foreground">Estas son las variantes concretas que aparecerían en el ejemplo.</p>
+      <div data-publication-empty hidden={initial.catalog.visibleProductCount > 0} class="mt-3 rounded-xl border border-border bg-muted/40 p-5">
+        <p class="text-sm font-semibold">No hay productos visibles en este contexto.</p>
+        <p class="mt-2 text-sm leading-6 text-muted-foreground">Consulta los motivos de exclusión o prepara otra selección. El resto de mercados y canales conserva su configuración.</p>
+      </div>
+      <ul data-publication-catalog class="mt-3 space-y-3" aria-label="Productos y variantes visibles">
+        {initial.catalog.products.filter((product) => product.visible).map((product) => <li data-publication-catalog-product data-product-id={product.id} class="rounded-xl border border-border p-4">
+          <p class="text-sm font-semibold">{product.name}</p>
+          <ul class="mt-3 space-y-3">{product.variants.map((variant) => <li data-publication-catalog-variant data-variant-id={variant.id} class="border-l-2 border-border pl-3">
+            <p class="text-sm font-medium">{variant.name}</p><p class="mt-0.5 break-words text-xs text-muted-foreground">Ref. {variant.sku}</p>
+          </li>)}</ul>
+        </li>)}
+      </ul>
+
+      <details data-publication-excluded hidden={excluded.length === 0} class="mt-4 rounded-xl border border-border px-4">
+        <summary class="flex min-h-12 cursor-pointer items-center text-sm font-semibold">Por qué no aparecen otros productos</summary>
+        <ul data-publication-excluded-list class="space-y-4 pb-4">{excluded.map((product) => <li data-publication-excluded-product data-product-id={product.id}>
+          <p class="text-sm font-semibold">{product.name}</p>
+          <p class="mt-1 text-xs text-muted-foreground">{publicationLabels[product.publication]}</p>
+          <ul class="mt-1 space-y-1 text-xs leading-5 text-muted-foreground">{product.reasons.map((reason, index) => <li data-publication-reason data-reason={reason}>{product.reasonLabels[index]}</li>)}</ul>
+        </li>)}</ul>
+      </details>
+
+      <div class="mt-6 border-t border-border pt-5">
+        <h3 class="text-base font-semibold">Revisa una variante</h3>
+        <p data-publication-detail-product class="mt-1 text-sm leading-6 text-muted-foreground">{initial.selectedProduct.name}</p>
+        <label class="pub-label mt-3" for="publication-detail-variant">Variante que quieres comprobar
+          <select id="publication-detail-variant" data-publication-detail-variant disabled class="pub-input">
+            <option value="" disabled selected={initial.detail === null}>Elige una variante</option>
+            {initial.editor.variants.map((variant) => <option value={variant.id} selected={variant.id === initial.detail?.variantId}>{variant.name} · {variant.sku}</option>)}
+          </select>
+        </label>
+        <div data-publication-detail data-product-id={initial.detail?.productId} data-variant-id={initial.detail?.variantId} data-visible={initial.detail ? String(initial.detail.visible) : undefined} class="mt-4 rounded-xl border border-border bg-muted/40 p-5">
+          <p data-publication-detail-empty hidden={initial.detail !== null} class="text-sm leading-6 text-muted-foreground">Elige una variante para ver su identidad y el motivo de su visibilidad. No se selecciona automáticamente la principal.</p>
+          <div data-publication-detail-content hidden={initial.detail === null}>
+            <div class="flex flex-wrap items-start justify-between gap-2">
+              <p data-publication-detail-name class="min-w-0 text-base font-semibold">{initial.detail?.productName} · {initial.detail?.variantName}</p>
+              <span data-publication-detail-visibility class="pub-badge">{initial.detail?.visible ? 'Visible' : 'No visible'}</span>
+            </div>
+            <p data-publication-detail-sku class="mt-2 break-words text-sm text-muted-foreground">Ref. {initial.detail?.sku}</p>
+            <p data-publication-detail-status class="mt-2 text-xs text-muted-foreground">{initial.detail ? statusLabels[initial.detail.status] + (initial.detail.isDefault ? ' · Principal en catálogo' : '') : ''}</p>
+            <ul data-publication-detail-reasons class="mt-3 space-y-1 text-sm leading-6">{initial.detail?.reasons.map((reason, index) => <li data-publication-reason data-reason={reason}>{initial.detail?.reasonLabels[index]}</li>)}</ul>
+            <p data-publication-detail-visible-note hidden={!initial.detail?.visible} class="mt-3 text-sm leading-6">Esta variante aparece en la selección aplicada a este mercado y canal.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<style is:global>
+  .market-publication-demo .pub-panel { min-width: 0; border: 1px solid var(--color-border); border-radius: var(--radius-card); background: var(--color-card); padding: 1.25rem; }
+  .market-publication-demo .pub-step { display: flex; flex-shrink: 0; width: 2rem; height: 2rem; align-items: center; justify-content: center; border-radius: 100%; background: var(--color-foreground); color: var(--color-background); font-size: .875rem; font-weight: 600; }
+  .market-publication-demo .pub-label { display: block; min-width: 0; font-size: .875rem; line-height: 1.5rem; font-weight: 600; }
+  .market-publication-demo .pub-input { display: block; width: 100%; min-width: 0; min-height: 3rem; margin-top: .5rem; border: 1px solid var(--color-input); border-radius: var(--radius-btn); background: var(--color-background); padding-inline: .75rem; color: var(--color-foreground); font-size: 1rem; line-height: 1.5rem; font-weight: 400; }
+  .market-publication-demo .pub-input:disabled { opacity: 1; cursor: default; }
+  .market-publication-demo .pub-button { min-height: 3rem; border-radius: var(--radius-btn); padding: .75rem 1rem; font-size: .875rem; line-height: 1.5rem; font-weight: 600; cursor: pointer; }
+  .market-publication-demo .pub-button:hover:not(:disabled) { box-shadow: 0 0 0 1px var(--color-foreground); }
+  .market-publication-demo .pub-button:disabled { background: var(--color-muted); color: var(--color-foreground); opacity: 1; cursor: not-allowed; }
+  .market-publication-demo .pub-mode { display: flex; min-height: 3rem; align-items: center; gap: .75rem; border: 1px solid var(--color-border); border-radius: var(--radius-btn); padding: .75rem; }
+  .market-publication-demo .pub-mode:has(input:checked) { border-color: var(--color-foreground); background: var(--color-muted); }
+  .market-publication-demo .pub-choice { width: 1.125rem; height: 1.125rem; flex-shrink: 0; accent-color: var(--color-foreground); }
+  .market-publication-demo .pub-choice:disabled { opacity: 1; }
+  .market-publication-demo .pub-variant-label { display: flex; min-height: 2.75rem; align-items: flex-start; gap: .75rem; }
+  .market-publication-demo .pub-badge { display: inline-flex; border-radius: 999px; background: var(--color-muted); padding: .25rem .625rem; color: var(--color-foreground); font-size: .75rem; line-height: 1.25rem; font-weight: 600; }
+  .market-publication-demo .pub-counter { border-radius: var(--radius-btn); background: var(--color-muted); padding: .875rem 1rem; }
+  .market-publication-demo .pub-counter dt { font-size: .75rem; line-height: 1.25rem; color: var(--color-muted-foreground); }
+  .market-publication-demo .pub-counter dd { margin-top: .375rem; font-size: 1.5rem; line-height: 2rem; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .market-publication-demo [data-publication-detail] { overflow-wrap: anywhere; }
+  .market-publication-demo :is(button, input, select, summary):focus-visible { outline: 2px solid var(--color-foreground); outline-offset: 3px; }
+  @media (min-width: 640px) { .market-publication-demo .pub-panel { padding: 1.5rem; } }
+</style>
+
+<script>
+  import {
+    applyMarketPublicationDemo,
+    configureMarketPublicationDemo,
+    createMarketPublicationDemo,
+    editMarketPublicationDemo,
+    getMarketPublicationDemoView,
+    selectMarketPublicationDemoDetail,
+    type MarketPublicationDemoSelection,
+  } from '../../composition/market-publication-demo';
+  import type { MarketPublicationState } from '../../modules/markets';
+
+  const root = document.querySelector<HTMLElement>('[data-market-publication-demo]');
+  if (root) {
+    const find = <T extends HTMLElement>(selector: string): T => root.querySelector<T>(selector)!;
+    const findSelect = (selector: string) => {
+      const element = root.querySelector(selector);
+      if (!(element instanceof HTMLSelectElement)) throw new Error('Falta un selector del ejemplo.');
+      return element;
+    };
+    const market = findSelect('[data-publication-market]');
+    const channel = findSelect('[data-publication-channel]');
+    const product = findSelect('[data-publication-product]');
+    const variant = findSelect('[data-publication-detail-variant]');
+    const rows = find<HTMLElement>('[data-publication-variant-list]');
+    const apply = find<HTMLButtonElement>('[data-publication-action="apply"]');
+    const reset = find<HTMLButtonElement>('[data-publication-action="reset"]');
+    const feedback = find<HTMLElement>('[data-publication-feedback]');
+    const error = find<HTMLElement>('[data-publication-error]');
+    const radios = [...root.querySelectorAll<HTMLInputElement>('[data-publication-mode]')];
+    const publicationLabels = { published: 'Mostrar variantes seleccionadas', unpublished: 'Ocultar este producto', unconfigured: 'Sin configurar' };
+    const statusLabels = { active: 'Activa', draft: 'Borrador', archived: 'Archivada' };
+    let state = createMarketPublicationDemo();
+    let renderedProductId: number | null = null;
+    let catalogKey = '';
+
+    const node = <K extends keyof HTMLElementTagNameMap>(tag: K, className: string, text?: string): HTMLElementTagNameMap[K] => {
+      const element = document.createElement(tag);
+      element.className = className;
+      if (text !== undefined) element.textContent = text;
+      return element;
+    };
+    const reasonNodes = (reasons: readonly string[], labels: readonly string[]) => reasons.map((reason, index) => {
+      const item = node('li', '', labels[index] ?? '');
+      item.dataset.publicationReason = '';
+      item.dataset.reason = reason;
+      return item;
+    });
+
+    const render = () => {
+      const view = getMarketPublicationDemoView(state);
+      market.value = view.selection.marketId;
+      channel.value = view.selection.channel;
+      product.value = String(view.selection.productId);
+      find('[data-publication-product-status]').textContent = view.selectedProduct.active ? 'Producto activo en el catálogo de ejemplo.' : 'Producto inactivo: sus variantes no pueden aparecer en este ejemplo.';
+      find('[data-publication-editor]').dataset.dirty = String(view.editor.dirty);
+      for (const radio of radios) {
+        radio.checked = radio.value === view.editor.publication;
+        radio.disabled = false;
+      }
+      // Rehacer controles solo al cambiar de producto conserva el foco al marcar variantes.
+      if (renderedProductId !== view.selectedProduct.id) {
+        renderedProductId = view.selectedProduct.id;
+        rows.replaceChildren(...view.editor.variants.map((item) => {
+          const row = node('div', 'p-4');
+          row.dataset.publicationVariantRow = '';
+          row.dataset.productId = String(view.selectedProduct.id);
+          row.dataset.variantId = String(item.id);
+          row.dataset.status = item.status;
+          const label = node('label', 'pub-variant-label');
+          label.htmlFor = 'publication-variant-' + item.id;
+          const checkbox = node('input', 'pub-choice mt-1');
+          checkbox.id = label.htmlFor;
+          checkbox.type = 'checkbox';
+          checkbox.value = String(item.id);
+          checkbox.dataset.publicationVariant = '';
+          label.appendChild(checkbox);
+          const identity = node('span', 'min-w-0 flex-1');
+          identity.appendChild(node('span', 'block text-sm font-semibold', item.name));
+          identity.appendChild(node('span', 'mt-0.5 block break-words text-xs text-muted-foreground', 'Ref. ' + item.sku));
+          if (item.isDefault) identity.appendChild(node('span', 'mt-1 block text-xs text-muted-foreground', 'Principal en catálogo'));
+          label.appendChild(identity);
+          label.appendChild(node('span', 'pub-badge shrink-0', statusLabels[item.status]));
+          row.appendChild(label);
+          const result = node('div', 'mt-2 border-t border-border pt-3');
+          const caption = node('p', 'text-xs font-semibold', 'Resultado aplicado · ');
+          const visibility = node('span', '');
+          visibility.dataset.variantVisibility = '';
+          caption.appendChild(visibility);
+          result.appendChild(caption);
+          const reasons = node('ul', 'mt-1 space-y-1 text-xs leading-5 text-muted-foreground');
+          reasons.dataset.variantReasons = '';
+          result.appendChild(reasons);
+          row.appendChild(result);
+          return row;
+        }));
+        const placeholder = node('option', '', 'Elige una variante');
+        placeholder.value = '';
+        placeholder.disabled = true;
+        variant.replaceChildren(placeholder, ...view.editor.variants.map((item) => {
+          const option = node('option', '', item.name + ' · ' + item.sku);
+          option.value = String(item.id);
+          return option;
+        }));
+      }
+      for (const item of view.editor.variants) {
+        const row = [...rows.querySelectorAll<HTMLElement>('[data-publication-variant-row]')].find((element) => element.dataset.variantId === String(item.id))!;
+        row.dataset.visible = String(item.visible);
+        row.dataset.appliedSelected = String(item.appliedSelected);
+        const checkbox = row.querySelector<HTMLInputElement>('[data-publication-variant]')!;
+        checkbox.checked = item.checked;
+        checkbox.disabled = view.editor.publication !== 'published';
+        row.querySelector<HTMLElement>('[data-variant-visibility]')!.textContent = item.visible ? 'Visible' : 'No visible';
+        row.querySelector<HTMLElement>('[data-variant-reasons]')!.replaceChildren(...reasonNodes(item.reasons, item.reasonLabels));
+      }
+      const appliedProduct = view.catalog.products.find((item) => item.id === view.selectedProduct.id)!;
+      const publicationState = find<HTMLElement>('[data-publication-policy-state]');
+      publicationState.dataset.state = appliedProduct.publication;
+      publicationState.textContent = publicationLabels[appliedProduct.publication];
+      find('[data-publication-pending]').hidden = !view.editor.dirty;
+      const validation = find<HTMLElement>('[data-publication-validation]');
+      validation.hidden = !view.editor.blockedReason;
+      validation.textContent = view.editor.blockedReason ?? '';
+      apply.disabled = !view.editor.canApply;
+      const message = view.feedback.tone === 'error' ? 'No se han aplicado los cambios. Revisa el aviso para continuar.' : view.feedback.message;
+      if (feedback.textContent !== message) feedback.textContent = message;
+      error.hidden = view.feedback.tone !== 'error';
+      const errorMessage = view.feedback.tone === 'error' ? view.feedback.message : '';
+      if (error.textContent !== errorMessage) error.textContent = errorMessage;
+      find('[data-publication-context]').textContent = view.marketOptions.find((item) => item.id === view.selection.marketId)!.label + ' · ' + view.channelOptions.find((item) => item.id === view.selection.channel)!.label;
+      find('[data-publication-product-count]').textContent = String(view.catalog.visibleProductCount);
+      find('[data-publication-variant-count]').textContent = String(view.catalog.visibleVariantCount);
+      find('[data-publication-empty]').hidden = view.catalog.visibleProductCount > 0;
+
+      const nextCatalogKey = JSON.stringify(view.catalog.products);
+      if (catalogKey !== nextCatalogKey) {
+        catalogKey = nextCatalogKey;
+        find('[data-publication-catalog]').replaceChildren(...view.catalog.products.filter((item) => item.visible).map((item) => {
+          const card = node('li', 'rounded-xl border border-border p-4');
+          card.dataset.publicationCatalogProduct = '';
+          card.dataset.productId = String(item.id);
+          card.appendChild(node('p', 'text-sm font-semibold', item.name));
+          const variants = node('ul', 'mt-3 space-y-3');
+          for (const variant of item.variants) {
+            const line = node('li', 'border-l-2 border-border pl-3');
+            line.dataset.publicationCatalogVariant = '';
+            line.dataset.variantId = String(variant.id);
+            line.appendChild(node('p', 'text-sm font-medium', variant.name));
+            line.appendChild(node('p', 'mt-0.5 break-words text-xs text-muted-foreground', 'Ref. ' + variant.sku));
+            variants.appendChild(line);
+          }
+          card.appendChild(variants);
+          return card;
+        }));
+        const excluded = view.catalog.products.filter((item) => !item.visible);
+        find('[data-publication-excluded]').hidden = excluded.length === 0;
+        find('[data-publication-excluded-list]').replaceChildren(...excluded.map((item) => {
+          const row = node('li', '');
+          row.dataset.publicationExcludedProduct = '';
+          row.dataset.productId = String(item.id);
+          row.appendChild(node('p', 'text-sm font-semibold', item.name));
+          row.appendChild(node('p', 'mt-1 text-xs text-muted-foreground', publicationLabels[item.publication]));
+          const reasons = node('ul', 'mt-1 space-y-1 text-xs leading-5 text-muted-foreground');
+          reasons.replaceChildren(...reasonNodes(item.reasons, item.reasonLabels));
+          row.appendChild(reasons);
+          return row;
+        }));
+      }
+
+      find('[data-publication-detail-product]').textContent = view.selectedProduct.name;
+      variant.value = view.detail ? String(view.detail.variantId) : '';
+      const detail = find<HTMLElement>('[data-publication-detail]');
+      find('[data-publication-detail-empty]').hidden = view.detail !== null;
+      find('[data-publication-detail-content]').hidden = view.detail === null;
+      if (view.detail) {
+        detail.dataset.productId = String(view.detail.productId);
+        detail.dataset.variantId = String(view.detail.variantId);
+        detail.dataset.visible = String(view.detail.visible);
+        find('[data-publication-detail-name]').textContent = view.detail.productName + ' · ' + view.detail.variantName;
+        find('[data-publication-detail-sku]').textContent = 'Ref. ' + view.detail.sku;
+        find('[data-publication-detail-status]').textContent = statusLabels[view.detail.status] + (view.detail.isDefault ? ' · Principal en catálogo' : '');
+        find('[data-publication-detail-visibility]').textContent = view.detail.visible ? 'Visible' : 'No visible';
+        find('[data-publication-detail-reasons]').replaceChildren(...reasonNodes(view.detail.reasons, view.detail.reasonLabels));
+        find('[data-publication-detail-visible-note]').hidden = !view.detail.visible;
+      } else {
+        delete detail.dataset.productId;
+        delete detail.dataset.variantId;
+        delete detail.dataset.visible;
+        for (const selector of ['[data-publication-detail-name]', '[data-publication-detail-sku]', '[data-publication-detail-status]', '[data-publication-detail-visibility]', '[data-publication-detail-reasons]']) find(selector).replaceChildren();
+      }
+    };
+
+    const edit = () => {
+      const publication = radios.find((radio) => radio.checked)!.value as MarketPublicationState;
+      const variantIds = [...rows.querySelectorAll<HTMLInputElement>('[data-publication-variant]:checked')].map((input) => Number(input.value));
+      state = editMarketPublicationDemo(state, { publication, variantIds });
+      render();
+    };
+    market.addEventListener('change', () => { state = configureMarketPublicationDemo(state, { marketId: market.value as MarketPublicationDemoSelection['marketId'] }); render(); });
+    channel.addEventListener('change', () => { state = configureMarketPublicationDemo(state, { channel: channel.value as MarketPublicationDemoSelection['channel'] }); render(); });
+    product.addEventListener('change', () => { state = configureMarketPublicationDemo(state, { productId: Number(product.value) }); render(); });
+    variant.addEventListener('change', () => { state = selectMarketPublicationDemoDetail(state, { productId: Number(product.value), variantId: Number(variant.value) }); render(); });
+    radios.forEach((radio) => radio.addEventListener('change', edit));
+    rows.addEventListener('change', (event) => {
+      if (event.target instanceof HTMLInputElement && event.target.hasAttribute('data-publication-variant')) edit();
+    });
+    apply.addEventListener('click', () => { state = applyMarketPublicationDemo(state); render(); });
+    reset.addEventListener('click', () => { state = createMarketPublicationDemo(); render(); });
+    [market, channel, product, variant].forEach((select) => { select.disabled = false; });
+    reset.disabled = false;
+    render();
+    root.dataset.ready = 'true';
+  }
+</script>

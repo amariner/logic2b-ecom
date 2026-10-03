@@ -97,11 +97,11 @@ remoto.
 
 ### Evidencia local del 2026-10-03
 
-- `pnpm check`: 901 archivos sin diagnósticos, 229 suites y 2.175 tests.
+- `pnpm check`: 905 archivos sin diagnósticos, 230 suites y 2.222 tests.
 - Build demo: 44 documentos HTML y 44 formularios de proyecto locales.
 - D1/workerd: 15 bloques correctos, backup 39 y restauración de 129 tablas;
   [informe de segmentación](docs/audits/r5-6c/facts-d1-report.json).
-- E2E: 160/160 comprobaciones. Formularios: 31 comprobaciones, cero peticiones
+- E2E: 164/164 comprobaciones. Formularios: 31 comprobaciones, cero peticiones
   mutantes, beacons o errores JavaScript;
   [informe de fixtures](docs/audits/demo-fixtures/report.json).
 - Segmentos locales: 119 comprobaciones de navegador y ocho superficies de
@@ -118,8 +118,11 @@ remoto.
   [Evidencia R5.8b](docs/audits/r5-8b/README.md).
 - Publicación por mercado y canal: 102 pruebas del contrato, 48 de proyección
   del catálogo completo y revisión independiente de 485 comprobaciones.
-  MKT-004 inactiva; demo visual pendiente de R5.9b.
+  MKT-004 inactiva.
   [Informe R5.9a](docs/audits/r5-9a/verification-report.json).
+- Publicación del catálogo: selección por mercado, canal y variante aplicada
+  solo en memoria; 47 pruebas del modelo, 188 comprobaciones de navegador y
+  ocho superficies a11y sin hallazgos. [Evidencia R5.9b](docs/audits/r5-9b/README.md).
 - Base QA: 143 tablas y 353 filas, hash antes/después idéntico:
   `9cbfc811cfc4296515a403d395875a43bfa26aff0c9c9b08be0804b15bbf6eca`.
 

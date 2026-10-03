@@ -31,6 +31,44 @@ Una quinta clasificación, **fuera de alcance deliberado**, evita confundir
 paridad comercial con fabricar bancos, redes publicitarias, hardware de punto de
 venta o servicios logísticos propios.
 
+## Demo verificada
+
+**R5.9b implementada y verificada, disponible en repo sin desplegar**, rama
+`codex/market-publication-demo`. Incluye
+`/demo/admin/publicacion`, «Publicación del catálogo», bajo Internacional:
+mercados ES/FR, canales `storefront`/`professional` y tres productos sintéticos.
+La muestra mantiene borradores en memoria para las 12 tuplas, con aplicación
+explícita, preview de motivos y selección preparada separada del resultado
+aplicado. Incluye variante
+default oculta con otra activa visible, variantes `draft`/`archived` bloqueadas,
+producto inactivo, configuración ausente y reset/recarga al estado inicial.
+
+Las acciones son locales, sin I/O, D1, cron, persistencia ni editor real;
+la ruta es noindex y no autoriza compra. MKT-004 conserva estado parcial e
+instalada/inactiva; MKT-005 sigue pendiente.
+
+[Check final](../audits/r5-9b/verification-report.json): 905 archivos sin
+diagnósticos, 230 suites/2.222 pruebas, 44 HTML/44 formularios/cero crons;
+47 del modelo, seis de arquitectura y revisión de 453 aserciones sin P1/P2.
+E2E nuevo: 164/164. [Navegador](../audits/r5-9b/report.json): 188/188 y ocho
+PNG aprobados; [a11y](../audits/r5-9b/a11y-report.json): ocho superficies, cero
+errores/avisos. El módulo no genera HTTP, storage, timers, beacons, ventanas
+ni errores JS; guía y rAF visual de WhatsApp se contabilizan aparte. Base QA
+intacta: 143 tablas, 353 filas, SHA-256 antes/después
+`9cbfc811cfc4296515a403d395875a43bfa26aff0c9c9b08be0804b15bbf6eca`.
+Worker detenido.
+
+Sigue **R5.10a: contrato puro de impuestos con fixtures**, módulo `taxes`
+separado y perfil `eur-line-tax-half-up-v1`, en EUR
+postdescuento, separando mercancía y envío y declarando jurisdicción,
+tratamiento, tasa, precio con impuestos incluidos/excluidos y redondeo.
+Distinguirá 0 %, exento y no resuelto, con evidencia VAT separada —un VAT válido
+no concede exención— y sin tratar el subtotal previo a descuentos como base
+imponible. No inferirá fiscalidad de mercado, código postal o NIF ni conectará
+API, proveedor, checkout o reembolsos; el alcance puro no requiere DDL ni fija
+una fiscalidad universal. MKT-009/010 se implementarán parciales e inactivas;
+CHK-006 permanecerá pendiente.
+
 ## Último contrato verificado
 
 **R5.9a implementado y verificado localmente**, rama
@@ -51,15 +89,11 @@ propietario `markets`, dependencias MKT-003 y CAT-003; MKT-005 sigue pendiente.
 Check final: 901 archivos sin diagnósticos, 229 suites/2.175 pruebas,
 44 HTML/44 formularios/cero crons. Focales: 102 de dominio, 48 de proyección,
 seis de arquitectura; revisión independiente de 485 aserciones sin P1/P2.
-[Informe](../audits/r5-9a/verification-report.json). Sin despliegue. E2E 160/160,
+[Informe](../audits/r5-9a/verification-report.json). Integrado en
+[PR #19](https://github.com/amariner/logic2b-ecom/pull/19), commit `1c801d8`, sin
+despliegue. E2E 160/160,
 navegador 120/120, ocho superficies a11y y hash de 143 tablas/353 filas son
-evidencia heredada de R5.8b, no ejecuciones nuevas de R5.9a. Sigue después
-**R5.9b: `/demo/admin/publicacion`, «Publicación del catálogo»**, bajo Internacional.
-ES/FR y `storefront`/`professional`, tres productos sintéticos, edición por
-tupla en memoria y aplicación explícita; detalle de variante/motivos,
-comparación antes/después y reset/recarga. Mostrará default oculta/otra activa
-visible, variantes draft/archived bloqueadas, producto inactivo y configuración
-ausente. Demo visual pendiente, noindex y sin I/O; no autoriza compra ni requiere DDL.
+evidencia heredada de R5.8b, no ejecuciones nuevas de R5.9a ni de R5.9b.
 
 ## Demo verificada
 
@@ -136,7 +170,8 @@ acredita disponibilidad de envío ni jurisdicción. Detalle en
 [ADR-0046](adr/0046-contexto-de-mercados.md).
 
 R5.8a aporta el contrato de contenido localizado y plan de URLs puros, y R5.8b
-su demo integrada. R5.9a continúa con publicación por mercado, descrita arriba.
+su demo integrada. R5.9a aporta el contrato de publicación por mercado y R5.9b
+prepara su demo local, descrita arriba.
 Los gates G3/G4 de uso real siguen pendientes y no bloquean el contrato puro.
 
 ## Último corte local

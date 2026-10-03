@@ -18,6 +18,7 @@
     "test:e2e:fixtures": "node scripts/test-demo-fixtures.mjs",
     "test:e2e:segments": "node scripts/test-customer-segments-demo.mjs",
     "test:e2e:markets": "node scripts/test-market-content-demo.mjs",
+    "test:e2e:publication": "node scripts/test-market-publication-demo.mjs",
     "test:e2e:proposal": "node scripts/e2e.mjs --only-proposal",
     "audit:customer-account": "node scripts/audit-customer-account-local.mjs",
     "audit:lh": "node scripts/lighthouse.mjs",

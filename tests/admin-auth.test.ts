@@ -32,6 +32,8 @@ describe('sesión firmada del admin', () => {
     expect(demoAdminNextPath('/demo/admin/segmentos/export')).toBe('/demo/admin');
     expect(demoAdminNextPath('/demo/admin/mercados')).toBe('/demo/admin/mercados');
     expect(demoAdminNextPath('/demo/admin/mercados/publish')).toBe('/demo/admin');
+    expect(demoAdminNextPath('/demo/admin/publicacion')).toBe('/demo/admin/publicacion');
+    expect(demoAdminNextPath('/demo/admin/publicacion/apply')).toBe('/demo/admin');
     expect(demoAdminEntryHref('/demo/admin/envios')).toBe('/demo/admin/login?tour=1&next=%2Fdemo%2Fadmin%2Fenvios');
   });
   it('un token recién creado verifica', async () => {
