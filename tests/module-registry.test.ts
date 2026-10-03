@@ -96,6 +96,20 @@ describe('registro de módulos (R1.4)', () => {
     }
   });
 
+  it('keeps localization contracts disconnected from operational surfaces', () => {
+    expect(MODULE_REGISTRY.capabilityOwners['MKT-006']).toBe('localization');
+    expect(MODULE_REGISTRY.capabilityOwners['MKT-007']).toBe('localization');
+    expect(MODULE_REGISTRY.byId.localization).toMatchObject({
+      permissions: [], events: [], subscriptions: [], jobs: [], healthchecks: [], navigation: [], routes: [],
+    });
+    for (const profile of ['minimal', 'standard', 'advanced'] as const) {
+      const platform = createPlatform(createPresetManifest(profile, deployment));
+      expect(platform.hasModule('localization')).toBe(false);
+      expect(platform.isCapabilityActive('MKT-006')).toBe(false);
+      expect(platform.isCapabilityActive('MKT-007')).toBe(false);
+    }
+  });
+
   it('asigna cada job R1.11 a un único módulo propietario', () => {
     expect(MODULE_REGISTRY.jobOwners).toEqual({
       'notifications.event-outbox-sweep': 'notifications',
@@ -173,7 +187,7 @@ describe('registro de módulos (R1.4)', () => {
     ['minimal', ['platform-configuration', 'platform-security', 'catalog', 'pricing', 'storefront']],
     ['standard', ['platform-configuration', 'platform-security', 'catalog', 'pricing', 'inventory', 'cart', 'customers', 'orders', 'fulfillment', 'notifications', 'payments', 'checkout', 'storefront']],
     ['advanced', MODULE_REGISTRY.descriptors
-      .filter((descriptor) => descriptor.id !== 'subscriptions' && descriptor.id !== 'markets')
+      .filter((descriptor) => !['subscriptions', 'markets', 'localization'].includes(descriptor.id))
       .map((descriptor) => descriptor.id)],
   ] as const)('compone solo los módulos operativos del preset %s', (preset, expected) => {
     const platform = createPlatform(createPresetManifest(preset, deployment));
