@@ -1,6 +1,7 @@
 # ADR-0048 — Publicación por mercado, producto, variante y canal
 
-- Estado: accepted; R5.9a implementado y verificado localmente, sin activación.
+- Estado: accepted; R5.9a verificado e integrado en PR #19 (`1c801d8`);
+  R5.9b verificada localmente, demo disponible en repo. Sin activación ni despliegue.
 - Fecha: 2026-10-03
 - Bloque: R5.9a
 - Propietario: `markets`
@@ -194,19 +195,48 @@ no nuevas ejecuciones de R5.9a. El corte puro no modifica UI, lectores runtime,
 D1, rutas ni efectos externos. MKT-004 sigue instalada/inactiva y MKT-005
 pendiente. Sin DDL, persistencia, activación ni despliegue.
 
-## Siguiente: R5.9b — Demo local de publicación
+## R5.9b — Demo local de publicación verificada
 
-Orientación aprobada: página separada `/demo/admin/publicacion`, «Publicación
+En `codex/market-publication-demo` se implementa la página separada
+`/demo/admin/publicacion`, «Publicación
 del catálogo», bajo Internacional. Contextos ES/FR y canales
-`storefront`/`professional`, con tres productos sintéticos. Edición de cada
-tupla en memoria y aplicación explícita, preview con motivos, comparación
-antes/después y reset/recarga al estado inicial.
+`storefront`/`professional`, con tres productos sintéticos y buffers de las
+12 tuplas. Edición en memoria y aplicación explícita: la selección preparada
+permanece separada del resultado aplicado, con preview de motivos y
+reset/recarga al estado inicial. La UI no incorpora un comparador histórico.
 
-Los fixtures mostrarán la variante predeterminada oculta y otra activa visible,
+Los fixtures muestran la variante predeterminada oculta y otra activa visible,
 variantes `draft`/`archived` seleccionadas pero bloqueadas, producto inactivo
 y tuplas sin configurar. El detalle distingue producto, variante y referencia;
 nunca afirma compra posible ni usa un precio como autorización.
 
-La demo visual sigue pendiente: no se presenta como disponible. Será una
-superficie noindex sin I/O ni persistencia, con capacidades inactivas. No se
-necesita una migración; se verificarán los efectos del navegador al construirla.
+Implementación y QA cerradas: demo disponible en el repositorio, sin desplegar.
+Superficie noindex sin I/O, D1, cron ni persistencia, con MKT-004 parcial/inactiva
+y MKT-005 pendiente.
+
+[Verificación final](../../audits/r5-9b/verification-report.json): `pnpm check`
+pasa 905 archivos sin diagnósticos, 230 suites/2.222 pruebas, build/guardas de
+44 HTML, 44 formularios y cero crons. Focales: 47 del modelo y seis de
+arquitectura; revisión independiente de 453 aserciones sin P1/P2. E2E nuevo:
+164/164. [Navegador](../../audits/r5-9b/report.json): 188/188 y ocho PNG
+revisados visualmente. [A11y](../../audits/r5-9b/a11y-report.json): ocho
+superficies, cero errores y avisos.
+
+El módulo registra cero HTTP, almacenamiento, timers, beacons, ventanas y
+errores JavaScript. La guía compartida registra aparte tres operaciones de
+almacenamiento al preparar y dos al recargar. El `requestAnimationFrame`
+visual de WhatsApp está identificado por su punto de llamada y contado aparte;
+no es un cron ni una tarea del módulo de publicación.
+
+La base QA conserva 143 tablas y 353 filas, con SHA-256 antes/después
+`9cbfc811cfc4296515a403d395875a43bfa26aff0c9c9b08be0804b15bbf6eca`.
+Worker de QA detenido.
+
+Después sigue R5.10a: contrato puro de impuestos, evidencias y redondeo con
+adaptador fixture inyectado, en un módulo `taxes` separado y perfil
+`eur-line-tax-half-up-v1`. Tratamientos/tasas, precio incluido/excluido y
+jurisdicción explícitos; 0 % distinto de exento o sin resolver. Sin proveedor,
+reglas fiscales universales, D1 ni cambios de checkout. La publicación no
+decide el tratamiento fiscal y no se requiere migración para probarlo.
+MKT-009/010 se implementarán como parciales e inactivas; CHK-006 seguirá
+pendiente, sin conectar el checkout.

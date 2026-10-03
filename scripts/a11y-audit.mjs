@@ -397,6 +397,44 @@ for (const vp of [DESKTOP, MOBILE]) {
   }
 }
 
+// R5.9b: publicación local por mercado; mismos estados que las ocho capturas.
+// Admin no implementa tema oscuro. Se audita reduced-motion en el detalle excluido.
+const MARKET_PUBLICATION_SCENARIO = (stage) => `(() => {
+  const root = document.querySelector('[data-market-publication-demo]');
+  if (root?.dataset.ready !== 'true') return 'not-ready';
+  const select = (selector, value) => {
+    const field = root.querySelector(selector);
+    field.value = value;
+    field.dispatchEvent(new Event('change', { bubbles: true }));
+  };
+  const visible = () => Array.from(root.querySelectorAll('[data-publication-catalog-variant]'))
+    .map(variant => variant.dataset.variantId).sort().join(',');
+  if (${JSON.stringify(stage)} === 'initial') return visible() === '12,21' ? 'ready' : 'wrong-catalog';
+  if (${JSON.stringify(stage)} === 'empty') {
+    select('[data-publication-market]', 'FR');
+    return visible() === '' && root.querySelector('[data-publication-policy-state]').dataset.state === 'unpublished'
+      ? 'empty' : 'wrong-empty';
+  }
+  if (${JSON.stringify(stage)} === 'applied') {
+    root.querySelector('[data-publication-variant][value="11"]').click();
+    root.querySelector('[data-publication-action="apply"]').click();
+    return visible() === '11,12,21' && root.querySelector('[data-publication-editor]').dataset.dirty === 'false'
+      ? 'applied' : 'wrong-applied';
+  }
+  select('[data-publication-detail-variant]', '11');
+  const detail = root.querySelector('[data-publication-detail]');
+  return detail.dataset.productId === '1' && detail.dataset.variantId === '11' && detail.dataset.visible === 'false'
+    && visible() === '12,21' ? 'excluded' : 'wrong-excluded';
+})()`;
+for (const vp of [DESKTOP, MOBILE]) {
+  const suffix = vp === MOBILE ? '@375' : '';
+  for (const stage of ['initial', 'empty', 'applied', 'excluded']) {
+    SURFACES.push({ name: `market-publication:${stage}${suffix}`, url: '/demo/admin/publicacion', vp, auth: true,
+      eval: MARKET_PUBLICATION_SCENARIO(stage), expect: stage === 'initial' ? 'ready' : stage,
+      ...(stage === 'excluded' ? { reducedMotion: true } : {}) });
+  }
+}
+
 // R5.4d: estas rutas no existen en la demo y por eso no forman parte de la
 // batería ordinaria. El arnés local explícito activa un manifest cliente y una
 // composición visual inerte para auditar las páginas Astro reales sin DB,
