@@ -30,6 +30,7 @@ type ModuleName =
   | 'marketing'
   | 'markets'
   | 'localization'
+  | 'taxes'
   | 'demo-support'
   | 'shared-kernel';
 
@@ -84,6 +85,7 @@ const ALLOWED_MODULE_DEPENDENCIES: Readonly<Record<ModuleName, readonly ModuleNa
   marketing: ['shared-kernel', 'platform/configuration', 'customers', 'notifications'],
   markets: ['shared-kernel'],
   localization: ['shared-kernel'],
+  taxes: ['shared-kernel'],
   'demo-support': ['shared-kernel', 'platform/configuration', 'catalog', 'pricing', 'inventory', 'cart', 'checkout', 'fulfillment', 'storefront'],
   'shared-kernel': [],
 };

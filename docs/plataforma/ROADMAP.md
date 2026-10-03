@@ -44,7 +44,7 @@ improvisan durante la implementación.
 | R2 | Núcleo transaccional profesional | ✅ R2.1–R2.14 y Admin V2 cerrados 2026-08-12 |
 | R3 | Operación de pedidos, inventario y fulfillment | ✅ cerrado 2026-08-14 |
 | R4 | Precios, promociones y modelos de venta | ✅ cerrado 2026-08-17 |
-| R5 | Clientes, privacidad y mercados | 🟨 en curso; R5.1–R5.4c cerrados |
+| R5 | Clientes, privacidad y mercados | 🟨 en curso; cortes R5.1–R5.10a cerrados localmente; sigue demo fiscal R5.10b |
 | R6 | B2B | ⬜ |
 | R7 | Marketing, analítica y automatización | ⬜ |
 | R8 | Storefront componible, búsqueda y contenido | ⬜ |
@@ -178,8 +178,8 @@ suites/715 tests; producción permanece en `0032`.
 | 56 | **R5.6 Segmentación** | Lenguaje de filtros limitado, templates y recálculo observable. | ✅ Local 2026-10-03 — R5.6a–d implementados y verificados; c.3 integrada en PR #14 (`9b3a8ab`) con 0046/backup39. Demo visual `/demo/admin/segmentos` disponible en repo: 12 perfiles, cuatro hechos, tres templates y lotes de tres; navegador 119/119 y ocho superficies a11y 0/0. Sin deploy ni handler; CUS-009 parcial e inactiva |
 | 57 | **R5.7 Modelo de mercados** | Contexto de país/idioma/moneda/dominio, resolución y fallback. | ✅ R5.7a–b local: ADR-0046, `defineMarketCatalog`/`resolveMarket` y composición pura `market-pricing-context`; moneda base y Git/inyección, sin DDL ni endpoints. 224 suites/1.876 pruebas, E2E 156/156 y base QA intacta; MKT-003 parcial/inactiva, demo visual verificada en R5.8b |
 | 58 | **R5.8 Traducciones y URLs** | Campos traducibles, flujo editorial, canonical, hreflang y sitemap. | ✅ Local — R5.8a integrada en PR #17 (`6eadc3b`); R5.8b verificada con 227 suites/2.023 pruebas, E2E 160/160, navegador 120/120 y ocho superficies a11y sin hallazgos. Demo `/demo/admin/mercados` disponible en repo; MKT-003/006/007 parciales e inactivas, sin deploy |
-| 59 | **R5.9 Publicación por mercado** | Producto/variante/canal, preview y explicación. | ✅ Local — R5.9a integrada en PR #19 (`1c801d8`); R5.9b verificada, disponible en repo sin deploy: 230 suites/2.222 pruebas, E2E 164/164, navegador 188/188 y ocho superficies a11y 0/0. MKT-004 parcial/inactiva y MKT-005 pendiente |
-| 60 | **R5.10 Impuestos** | Adaptador, snapshots, redondeo, exenciones y validación VAT ID. | ⬜ Siguiente R5.10a: módulo taxes, perfil eur-line-tax-half-up-v1 y adaptador fixture; evidencia, incluido/excluido y redondeo explícitos. MKT-009/010 parciales/inactivas al implementar, CHK-006 pendiente; sin proveedor, DDL ni checkout runtime |
+| 59 | **R5.9 Publicación por mercado** | Producto/variante/canal, preview y explicación. | ✅ Local — R5.9a integrada en PR #19 (`1c801d8`); R5.9b integrada en PR #20 (`7a0926ec`), disponible en repo sin deploy: 230 suites/2.222 pruebas, E2E 164/164, navegador 188/188 y ocho superficies a11y 0/0. MKT-004 parcial/inactiva y MKT-005 pendiente |
+| 60 | **R5.10 Impuestos** | Adaptador, snapshots, redondeo, exenciones y validación VAT ID. | 🟡 R5.10a cerrada localmente: ADR-0049, módulo taxes y adaptadores fixture; 917 archivos sin diagnósticos, 234 suites/2.391 pruebas y revisión sin P1/P2. MKT-009/010 parciales/instaladas/inactivas, CHK-006 pendiente; sin proveedor, DDL ni checkout runtime. Después R5.10b, demo /demo/admin/impuestos con diseño aprobado y aún sin implementar |
 | 61 | **R5.11 Multidivisa y métodos locales** | Presentación, cobro, reembolso y conciliación. | ⬜ |
 | 62 | **R5.12 Consolidación R5** | E2E dos mercados, privacidad y cuenta opcional; revisión SEO/legal/seguridad. | ⬜ |
 
@@ -1593,22 +1593,49 @@ Base QA: 143 tablas, 353 filas y SHA-256 antes/después idéntico
 `9cbfc811cfc4296515a403d395875a43bfa26aff0c9c9b08be0804b15bbf6eca`.
 Worker detenido.
 
-### Siguiente: R5.10a — Impuestos, evidencias y redondeo puros
+R5.9b está integrada en PR #20 (`7a0926ec`), sin despliegue.
 
-Módulo `taxes` separado, perfil `eur-line-tax-half-up-v1`, contrato y adaptador
+### Cerrado local: R5.10a — Impuestos, evidencias y redondeo puros
+
+En `codex/tax-fixture-contract`, [ADR-0049](adr/0049-contrato-fiscal-fixture.md),
+módulo `taxes` separado y perfil `eur-line-tax-half-up-v1`. Contrato y adaptador
 fixture inyectado con preview/snapshot inmutable en EUR
 tras descuentos. Líneas de mercancía/envío separadas y decisiones explícitas
 de jurisdicción, tratamiento, tasa, precios incluidos/excluidos y redondeo.
-Neto más cuota igual a bruto, sumas coherentes y enteros seguros. Diferenciar
-0 %, exención y resultado sin resolver; la evidencia VAT tiene origen/fecha/
-vigencia y no concede exención por sí sola.
+Cálculo con `BigInt` y half-up por línea; neto más cuota igual a bruto, sumas
+coherentes y rechazo de desbordamientos. Distingue `taxable`, `zero_rate`,
+`exempt` y `unresolved`; la exención exige referencia de evidencia. La respuesta se correlaciona con petición
+completa y adaptador; datos corruptos o ajenos son error de contrato. Una
+respuesta vigente con líneas sin resolver conserva diagnósticos y `totals: null`;
+`unavailable`, caducada o futura no genera snapshot ni cuota cero. La evidencia
+VAT exige consulta/adaptador/ventana temporal exactos y no concede exención.
 
 No inferir fiscalidad de marketId, CP, idioma o NIF. `base_subtotal` actual es
 predescuento, no base imponible. Sin red, proveedor, reloj real, D1 ni cambios
 en checkout, ledgers o reembolsos; las facturas externas conservan ADR-0027.
 Tasas y decisiones reales pertenecen a cada proyecto, pero no bloquean el
 contrato con fixtures ni exigen una migración para modelarlo. MKT-009/010 se
-implementarán parciales e inactivas; CHK-006 permanece pendiente.
+incorporan parciales, instaladas/inactivas en avanzado y demo, dependientes de
+PLT-004; CHK-006 permanece pendiente.
+
+Implementación y QA cerradas. [Verificación final](../audits/r5-10a/verification-report.json):
+`pnpm check` pasa 917 archivos sin diagnósticos, 234 suites/2.391 pruebas,
+44 HTML/44 formularios/cero crons. Focales fiscales 82 de dominio y 14 del
+adaptador; VAT 55 de dominio y 15 del adaptador; arquitectura seis;
+manifest/registry 75. Revisión independiente de 5.616 comprobaciones
+(5.420 fiscales y 196 VAT), sin P1/P2 ni efectos; bundle público de `taxes`
+compuesto por cinco fuentes puras. Sin despliegue.
+
+E2E 164/164, navegador 188/188, ocho superficies a11y sin hallazgos y el hash
+intacto de 143 tablas/353 filas pertenecen a R5.9b/PR #20 (`7a0926e`): son
+evidencia heredada, sin nuevas ejecuciones de esas superficies en R5.10a.
+Después sigue **R5.10b: demo fiscal inerte**, con diseño aprobado para
+`/demo/admin/impuestos`, «Impuestos y totales»: preparar ejemplo y comprobar
+desglose, cinco casos cerrados y selector incluido/excluido. VAT independiente
+positivo/negativo/caducado/indisponible, sin alterar el tratamiento fiscal.
+Importes postdescuento de solo lectura, selección que recalcula en memoria y
+reset/recarga; sin buffers ni guardar, NIF/país/importes libres o envío. Gate
+manifest demo y `DEMO_MODE=true`; todavía sin implementar ni disponible.
 
 Push/merge siguen autorizados después de checks. La demo pública y landing
 quedan solo con fixtures; crons vacíos y guardas ante triggers antiguos. G3/G4,

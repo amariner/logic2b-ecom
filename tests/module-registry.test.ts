@@ -112,6 +112,22 @@ describe('registro de módulos (R1.4)', () => {
     }
   });
 
+  it('keeps tax and VAT fixtures disconnected from checkout and external services', () => {
+    expect(MODULE_REGISTRY.capabilityOwners['MKT-009']).toBe('taxes');
+    expect(MODULE_REGISTRY.capabilityOwners['MKT-010']).toBe('taxes');
+    expect(MODULE_REGISTRY.byId.taxes).toMatchObject({
+      dependencies: ['platform-configuration'],
+      permissions: [], events: [], subscriptions: [], jobs: [], healthchecks: [], navigation: [], routes: [],
+    });
+    expect('CHK-006' in MODULE_REGISTRY.capabilityOwners).toBe(false);
+    for (const profile of ['minimal', 'standard', 'advanced'] as const) {
+      const platform = createPlatform(createPresetManifest(profile, deployment));
+      expect(platform.hasModule('taxes')).toBe(false);
+      expect(platform.isCapabilityActive('MKT-009')).toBe(false);
+      expect(platform.isCapabilityActive('MKT-010')).toBe(false);
+    }
+  });
+
   it('asigna cada job R1.11 a un único módulo propietario', () => {
     expect(MODULE_REGISTRY.jobOwners).toEqual({
       'notifications.event-outbox-sweep': 'notifications',
@@ -189,7 +205,7 @@ describe('registro de módulos (R1.4)', () => {
     ['minimal', ['platform-configuration', 'platform-security', 'catalog', 'pricing', 'storefront']],
     ['standard', ['platform-configuration', 'platform-security', 'catalog', 'pricing', 'inventory', 'cart', 'customers', 'orders', 'fulfillment', 'notifications', 'payments', 'checkout', 'storefront']],
     ['advanced', MODULE_REGISTRY.descriptors
-      .filter((descriptor) => !['subscriptions', 'markets', 'localization'].includes(descriptor.id))
+      .filter((descriptor) => !['subscriptions', 'markets', 'localization', 'taxes'].includes(descriptor.id))
       .map((descriptor) => descriptor.id)],
   ] as const)('compone solo los módulos operativos del preset %s', (preset, expected) => {
     const platform = createPlatform(createPresetManifest(preset, deployment));

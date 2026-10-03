@@ -133,6 +133,10 @@ const ADVANCED_CAPABILITIES = {
   // traducciones, modifica rutas ni conecta el sitemap servido.
   'MKT-006': { state: 'installed' },
   'MKT-007': { state: 'installed' },
+  // R5.10a: cálculo fiscal y evidencia VAT mediante fixtures explícitos;
+  // sin determinación fiscal de cliente, proveedores ni checkout operativo.
+  'MKT-009': { state: 'installed' },
+  'MKT-010': { state: 'installed' },
   'FUL-002': { state: 'active', flags: ROUTE },
   'FUL-003': { state: 'active', flags: ROUTE },
   'FUL-004': { state: 'active', flags: ROUTE_EFFECT },
