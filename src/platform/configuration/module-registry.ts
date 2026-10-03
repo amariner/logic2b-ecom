@@ -20,6 +20,7 @@ export const MODULE_IDS = [
   'storefront',
   'marketing',
   'markets',
+  'localization',
 ] as const;
 
 export type ModuleId = (typeof MODULE_IDS)[number];
@@ -273,6 +274,11 @@ export const MODULE_DESCRIPTORS = [
     id: 'markets', version: '1.0.0', capabilities: ['MKT-003'], dependencies: ['platform-configuration'],
     permissions: [], events: [], subscriptions: [], jobs: [], healthchecks: [],
     wikiLinks: ['docs/plataforma/adr/0046-contexto-de-mercados.md'], navigation: [], routes: [],
+  },
+  {
+    id: 'localization', version: '1.0.0', capabilities: ['MKT-006', 'MKT-007'], dependencies: ['platform-configuration'],
+    permissions: [], events: [], subscriptions: [], jobs: [], healthchecks: [],
+    wikiLinks: ['docs/plataforma/adr/0047-contenido-localizado-urls.md'], navigation: [], routes: [],
   },
 ] as const satisfies readonly ModuleDescriptor[];
 

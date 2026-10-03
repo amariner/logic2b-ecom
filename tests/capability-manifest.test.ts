@@ -259,6 +259,19 @@ describe('capability manifest (R1.2)', () => {
     });
   });
 
+  it.each(['MKT-006', 'MKT-007'] as const)('keeps %s installed without publishing localized content', (id) => {
+    expect(CAPABILITY_DEFINITIONS[id].dependencies).toEqual(id === 'MKT-006' ? ['PLT-004'] : ['MKT-006']);
+    expect(id in CAPABILITY_PRESETS.minimal).toBe(false);
+    expect(id in CAPABILITY_PRESETS.standard).toBe(false);
+    expect(CAPABILITY_PRESETS.advanced[id]).toEqual({ state: 'installed' });
+    const demo = createPlatform(platformManifest);
+    expect(demo.capabilityState(id)).toBe('installed');
+    expect(demo.hasModule('localization')).toBe(false);
+    expect(demo.capability(id).flags).toEqual({
+      routes: false, navigation: false, jobs: false, sideEffects: false,
+    });
+  });
+
   it('accepts only the explicit passwordless email contract and freezes it deeply', () => {
     expect(CUSTOMER_PASSWORDLESS_CONFIG.challengeTtlSeconds * 1_000).toBeLessThanOrEqual(
       PASSWORDLESS_CHALLENGE_MAX_TTL_MS,

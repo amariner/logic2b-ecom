@@ -31,6 +31,35 @@ Una quinta clasificación, **fuera de alcance deliberado**, evita confundir
 paridad comercial con fabricar bancos, redes publicitarias, hardware de punto de
 venta o servicios logísticos propios.
 
+## Último bloque verificado
+
+**R5.8a implementado y verificado localmente**, rama `codex/localized-content-contract`:
+[ADR-0047](adr/0047-contenido-localizado-urls.md), contrato editorial puro y
+`planInternationalUrls` para canonical, hreflang y sitemap derivados de
+revisiones publicadas explícitas. Fallback y tratamiento de traducciones
+obsoletas se declaran; no convierten un idioma configurado en contenido publicado.
+MKT-006/007 quedan parciales e instaladas/inactivas en avanzado y demo, con demo
+visual pendiente. Check final: 893 archivos sin diagnósticos, 226 suites/1.999
+pruebas, build y guardas de 44 HTML/44 formularios cerrados a envíos. Incluye
+53 pruebas editoriales y 67 del planificador; revisión sin P1/P2 y perfil
+hreflang contrastado (184 idiomas, 249 regiones, cinco scripts).
+[Informe](../audits/r5-8a/verification-report.json).
+
+Catálogo Git/inyección y fixtures bastan: sin DDL, CMS, persistencia, editor
+operativo, traducción externa, rutas ni endpoints. El plan no modifica HTML,
+sitemap ni mapa de indexación servidos; `/demo/*` conserva noindex. Sin
+activación ni despliegue.
+
+Validado con check global, focales editoriales/SEO y revisión. El E2E 156/156
+y hash QA 143 tablas/353 filas de PR #16 son evidencia heredada; no se presentan
+como nuevas ejecuciones de R5.8a. Siguiente: **R5.8b, composición y demo inerte
+integrada de mercados/traducciones/plan de URLs** con fixtures, sin metadatos
+SEO reales. Orientación aprobada: `/demo/admin/mercados`, vista ES/FR,
+ES/CA publicados, EN borrador, FR ausente; edición inglesa en memoria y
+plan `.test` sin enlaces. Manifest demo y `DEMO_MODE=true`, con reset/recarga
+al estado inicial. Ese bloque repetirá E2E/navegador/a11y y hash antes/después.
+Después seguirá R5.9a, contrato puro de publicación por mercado.
+
 ## Último contrato verificado
 
 **R5.7a–b implementado y verificado en QA local**, en
@@ -47,18 +76,16 @@ del contrato y 25 de composición; revisión independiente sin P1/P2. Tipos
 finales: 888 archivos sin errores/avisos/hints; E2E local: 156/156. Base QA
 intacta: 143 tablas, 353 filas y SHA-256 antes/después
 `9cbfc811cfc4296515a403d395875a43bfa26aff0c9c9b08be0804b15bbf6eca`.
-Servidor detenido; [informe](../audits/r5-7/verification-report.json). Sin despliegue.
+Servidor detenido; [informe](../audits/r5-7/verification-report.json). Integrado
+en [PR #16](https://github.com/amariner/logic2b-ecom/pull/16), commit `13cd79d`,
+sin despliegue.
 
 `defaultLocale` no acredita idiomas publicados; el fallback de contexto no
 acredita disponibilidad de envío ni jurisdicción. Detalle en
 [ADR-0046](adr/0046-contexto-de-mercados.md).
 
-Sigue **R5.8a: ADR y contrato puro de contenido localizado
-y plan de URLs**. Estados editoriales y fallback explícitos; canonical,
-hreflang y sitemap derivados solo de páginas y locales publicados. Se prueba
-con fixtures, sin DDL, servicios de traducción ni cambios de rutas o sitemap
-servidos. Los gates G3/G4 de uso real siguen pendientes y no bloquean este
-trabajo puro.
+R5.8a continúa ahora con contenido localizado y plan de URLs puros, descritos
+arriba. Los gates G3/G4 de uso real siguen pendientes y no bloquean ese trabajo.
 
 ## Último corte local
 

@@ -1,0 +1,42 @@
+{
+  "schemaVersion": 1,
+  "environment": "local-synthetic-contracts",
+  "deployment": "not-deployed",
+  "verification": {
+    "typecheckFiles": 893,
+    "diagnostics": 0,
+    "suites": 226,
+    "tests": 1999,
+    "editorialTests": 53,
+    "internationalUrlTests": 67,
+    "buildHtmlPages": 44,
+    "buildLocalForms": 44
+  },
+  "independentReview": {
+    "openP1OrP2": 0,
+    "isoLanguageCodes": 184,
+    "isoRegionCodes": 249,
+    "supportedScriptCodes": 5,
+    "hreflangProfile": "iso-alpha2-script-subset-v1"
+  },
+  "inheritedRegression": {
+    "source": "r5-7/verification-report.json",
+    "commit": "13cd79d75f3188a8a1035d12e7ad25357f27cf56",
+    "e2eChecks": 156,
+    "databaseTables": 143,
+    "databaseRows": 353,
+    "databaseHash": "9cbfc811cfc4296515a403d395875a43bfa26aff0c9c9b08be0804b15bbf6eca",
+    "rerunForThisCut": false
+  },
+  "scope": {
+    "capabilities": ["MKT-006", "MKT-007"],
+    "state": "installed",
+    "activeInPresets": false,
+    "runtimeConsumers": 0,
+    "migrationsAdded": 0,
+    "routesAdded": 0,
+    "jobsAdded": 0,
+    "servedSeoChanged": false,
+    "fixturePresentation": "pending-r5-8b"
+  }
+}
