@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "environment": "isolated-local-qa",
+  "deployment": "not-deployed",
+  "verification": {
+    "typecheckFiles": 883,
+    "diagnostics": 0,
+    "suites": 222,
+    "tests": 1730,
+    "buildHtmlPages": 44,
+    "buildLocalForms": 44,
+    "e2eChecks": 156,
+    "browserChecks": 119,
+    "a11ySurfaces": 8,
+    "a11yErrors": 0,
+    "a11yWarnings": 0
+  },
+  "databaseComparison": {
+    "status": "unchanged",
+    "tables": 143,
+    "rows": 353,
+    "sha256Before": "9cbfc811cfc4296515a403d395875a43bfa26aff0c9c9b08be0804b15bbf6eca",
+    "sha256After": "9cbfc811cfc4296515a403d395875a43bfa26aff0c9c9b08be0804b15bbf6eca"
+  },
+  "capability": {
+    "id": "CUS-009",
+    "state": "installed",
+    "operationalActivation": false,
+    "fixturePresentation": true
+  }
+}

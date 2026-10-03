@@ -1,0 +1,46 @@
+{
+  "surfaces": [
+    {
+      "surface": "segments:initial",
+      "url": "/demo/admin/segmentos",
+      "findings": []
+    },
+    {
+      "surface": "segments:completed",
+      "url": "/demo/admin/segmentos",
+      "findings": []
+    },
+    {
+      "surface": "segments:invalid",
+      "url": "/demo/admin/segmentos",
+      "findings": []
+    },
+    {
+      "surface": "segments:motion",
+      "url": "/demo/admin/segmentos",
+      "findings": []
+    },
+    {
+      "surface": "segments:initial@375",
+      "url": "/demo/admin/segmentos",
+      "findings": []
+    },
+    {
+      "surface": "segments:completed@375",
+      "url": "/demo/admin/segmentos",
+      "findings": []
+    },
+    {
+      "surface": "segments:invalid@375",
+      "url": "/demo/admin/segmentos",
+      "findings": []
+    },
+    {
+      "surface": "segments:motion@375",
+      "url": "/demo/admin/segmentos",
+      "findings": []
+    }
+  ],
+  "errors": 0,
+  "warnings": 0
+}

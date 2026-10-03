@@ -9,23 +9,30 @@ import DemoAssistant from '../components/store/DemoAssistant.astro';
 import { shopConfig } from '../../shop.config';
 import { MAIN_DEMO_HREF, MAIN_DEMO_NAME } from '../lib/nav';
 import { runtimePlatform } from '../composition/runtime-platform';
+import { canShowCustomerSegmentDemo } from '../composition/customer-segment-demo';
 import { adminNavigationFor, type AdminNavigationId } from '../platform/configuration';
 import AdminIcon, { type AdminIconName } from '../components/admin/AdminIcon.astro';
 
 interface Props {
   title: string;
-  active: AdminNavigationId;
+  active: AdminNavigationId | 'segmentos';
 }
 
 const { title, active } = Astro.props;
 const readOnly = runtimePlatform.manifest.deployment.mode === 'demo' || Astro.locals.runtime?.env.DEMO_MODE === 'true';
 
-const nav = adminNavigationFor(runtimePlatform);
+const nav = [
+  ...adminNavigationFor(runtimePlatform),
+  ...(canShowCustomerSegmentDemo(Astro.locals.runtime?.env)
+    ? [{ id: 'segmentos' as const, href: '/demo/admin/segmentos', label: 'Segmentos · demo' }]
+    : []),
+];
 /* Agrupación de presentación: primero lo que el comercio hace cada día y
    después el inventario avanzado. Un módulo desactivado no aparece y un grupo
    sin entradas tampoco; lo que no esté listado cae en «Más». */
 const NAV_GROUPS: { label: string; ids: string[] }[] = [
   { label: 'Día a día', ids: ['pedidos', 'envios', 'devoluciones', 'emails'] },
+  { label: 'Clientes', ids: ['segmentos'] },
   { label: 'Catálogo e inventario', ids: ['productos', 'ubicaciones', 'transferencias', 'conteos', 'asignacion'] },
   { label: 'Administración', ids: ['documentos'] },
 ];
@@ -36,7 +43,7 @@ const navGroups = [
 ].filter((group) => group.items.length > 0);
 const orderedNav = navGroups.flatMap((group) => group.items);
 const iconFor: Record<string, AdminIconName> = {
-  pedidos: 'orders', documentos: 'orders', productos: 'products', ubicaciones: 'store', transferencias: 'shipping', conteos: 'products', envios: 'shipping', devoluciones: 'shipping', emails: 'email',
+  pedidos: 'orders', documentos: 'orders', productos: 'products', ubicaciones: 'store', transferencias: 'shipping', conteos: 'products', envios: 'shipping', devoluciones: 'shipping', emails: 'email', segmentos: 'search',
 };
 ---
 
@@ -65,7 +72,8 @@ const iconFor: Record<string, AdminIconName> = {
             <div class="space-y-0.5">
               {group.items.map((item) => (
                 <a href={item.href} aria-current={active === item.id ? 'page' : undefined} class:list={[
-                  'flex min-h-10 items-center gap-3 rounded-lg px-3 text-sm font-medium transition',
+                  'flex items-center gap-3 rounded-lg px-3 text-sm font-medium transition',
+                  item.id === 'segmentos' ? 'min-h-11' : 'min-h-10',
                   active === item.id ? 'bg-foreground text-background shadow-sm' : 'text-muted-foreground hover:bg-muted hover:text-foreground',
                 ]}>
                   <AdminIcon name={iconFor[item.id] ?? 'orders'} class="size-[1.1rem]" />

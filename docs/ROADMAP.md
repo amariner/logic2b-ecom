@@ -16,6 +16,35 @@
 > 2. Actualizar el estado de la fase al terminar, con fecha y resumen de lo hecho.
 > 3. Anotar decisiones tomadas y pendientes en las secciones de abajo.
 
+## R5.6d — Segmentos ilustrativos con fixtures, cerrado local (2026-10-03)
+
+R5.6c.3 está integrada mediante PR #14 (`9b3a8ab`), sin despliegue. Continúa
+la demostración visual en `/demo/admin/segmentos`: 12 perfiles sintéticos,
+cuatro hechos, tres templates y avance ilustrativo en lotes de tres. La
+evaluación se ejecuta exclusivamente en el navegador; no consume perfiles
+reales, APIs, repositorios ni jobs, ni persiste resultados.
+
+**Implementación y QA cerradas:** demo visual disponible en el repositorio,
+sin desplegar. CUS-009 conserva estado parcial, instalada e inactiva en operación;
+la pantalla de muestra no habilita flags, rutas operativas ni consumidores.
+
+[Validación final](audits/r5-6d/verification-report.json): `pnpm check` pasa
+883 archivos sin diagnósticos, 222 suites/1.730 pruebas y build de 44 HTML con
+44 formularios locales cerrados a envíos. E2E: 156/156. El
+[navegador](audits/r5-6d/report.json) pasa 119/119 comprobaciones y ocho capturas,
+incluido JavaScript desactivado, con cero llamadas a API, peticiones mutantes,
+beacons o errores. [Accesibilidad](audits/r5-6d/a11y-report.json): ocho
+superficies a 1440/375, estados inicial/completado/inválido y movimiento
+reducido, cero errores y avisos. La base QA conserva 143 tablas y 353 filas,
+con SHA-256 antes y después
+`9cbfc811cfc4296515a403d395875a43bfa26aff0c9c9b08be0804b15bbf6eca`.
+
+El siguiente bloque es **R5.7a–b: modelo de mercados y composición pura en QA**,
+con ADR, contexto país/idioma/moneda/dominio, resolución y fallback. Configuración
+versionada en Git, limitada a la moneda base, sin DDL ni endpoints. Los gates
+G3/G4 para despliegue y uso real siguen pendientes; no bloquean este alcance
+puro. No se aplican DDL remoto ni despliegues en este corte.
+
 ## R5.6c.3 y demo exclusivamente con fixtures (2026-10-03)
 
 Andreu autoriza la migración local y ratifica: «solo muestra funcionalidades
@@ -52,7 +81,9 @@ las 143 tablas y 353 filas de la base QA: SHA-256 antes y después
 La demo exige reconstruir con manifest `deployment.mode = 'demo'` y
 `DEMO_MODE=true` en build y runtime: cambiar solo una variable remota no
 convierte un build de cliente en demo ni sustituye la validación de sus HTML.
-CUS-009 continúa instalada/inactiva; su demo visual sigue pendiente en R5.6d.
+CUS-009 continúa instalada/inactiva; su demo visual R5.6d queda verificada en
+el repositorio, como recoge el cierre superior, sin despliegue.
+Integración completada mediante PR #14 (`9b3a8ab`).
 El despliegue servido conserva su versión previa; no se ha desplegado este corte.
 
 ## Backend — ejecución reanudable R5.6c.2 (2026-10-03)
@@ -747,7 +778,7 @@ reconciliación se conserva abajo por contexto.
 | 11 | Landing V2 «nivel Awwwards» + negocio + funnel + docs | 🟡 En curso | 2026-08-13 | **F11.1, F11.3 (2 sesiones), F11.4, F11.5, F11.6, F11.7 y F11.8 (primera pasada + pase a11y/contenido desde cloud 2026-07-24) hechos**, más F11.8b (auditor de a11y, cloud), F11.2a-1 (tienda ASFALTO / tema Street), F11.2a-2 (tienda METRIA / tema Industrial) F11.2a-3 (tienda ROMER / tema Natural) y **F11.2a-4 (tienda KALIBRE / tema Specs, local 2026-07-25) — con la que F11.2a queda CERRADA (10/10 tiendas)**; y **F11.8c (Lighthouse citable + OG de WhatsApp + URLs sin redirección, local 2026-07-26)**; y **F11.8d–e (tabla de Lighthouse cerrada y desplegada: 7 de 8 superficies a 100×4, la landing entre ellas en móvil y escritorio, local 2026-07-27)**; y **F11.9 (contacto global de WhatsApp, cerrado y servido 2026-08-13)**. Solo queda la submission a Awwwards, decisión de pago reservada a Andreu. Detalle por bloque abajo. **Plan maestro completo en [`docs/PLAN_FASE11_LANDING_V2.md`](PLAN_FASE11_LANDING_V2.md)**: bloques F11.0–F11.8 ejecutables por sesiones independientes. **Decisiones D1–D6 APROBADAS por Andreu (2026-07-23)**: JS propio ≤15 KB sin deps, capturas con browser tools en local, dirección C «Ocho tiendas, un motor», escalera de precios (Lite 590 / Kit 1.900+39 / A medida 3.400+59), WhatsApp+email, Lite publicado sin construir. Prompt de arranque: [`docs/PROMPT_FASE11.md`](PROMPT_FASE11.md). Integra 9B.5/9B.6 (imaginería y temas restantes) como prerequisito del hero |
 | 8 | Pulido de la demo (backlog abajo) | 🟡 En curso | 2026-07-19 | Backlog técnico agotado; solo quedan decisiones y pasos locales de Andreu (ver «Decisiones pendientes» y `docs/PROMPT_CLOUD.md`). Últimas tandas: novena (race de idempotencia en el pago, PII enumerable en `/demo/gracias`, cancelación de pedido pagado sin devolver stock), décima (la misma race en el PATCH de admin, campos vacíos guardados como 0, login sin rate limit), undécima (diagrama móvil de `/arquitectura`, hedge del plazo de entrega, tokens de tema en `/demo/reset`, terminología «envío»), duodécima (aviso de corte en pedidos del admin, cabeceras sin wrap a 375px, leftover «portes», token de radio del carrito, contraste del botón eliminar, H1 en valenciano, checklist de producción) y decimotercera (misma race de idempotencia en `checkout.session.expired`, divisa hardcodeada a EUR fuera de Stripe, cobertura de test de `quoteCart`/PATCH admin/emails) y decimocuarta (config parcial de Stripe → cobro sin cumplimiento, emails duplicados bajo concurrencia, `payment_status` del webhook, color de marca centralizado en `shop.config.ts`, contraste/tema en carrito y checkout) — ver sección «Fase 8» |
 | 12 | Logic2B Ecommerce: renombrado, reposicionamiento y docs de dos visiones | ✅ Hecho | 2026-08-10 | **F12.0–F12.6 cerrados:** marca, argumento, dossier, canal agencias, ayuda, índice por audiencias, OG y auditorías citables consolidados. **Plan maestro en [`docs/PLAN_FASE12_LOGIC2B_ECOMMERCE.md`](PLAN_FASE12_LOGIC2B_ECOMMERCE.md)**. |
-| 13 | Plataforma modular: del gestor mínimo a paridad extrema de capacidad | 🟡 En curso | 2026-10-03 | **R0–R4 y los cortes autorizados R5.1–R5.5 cerrados; R5.6a–b y c.1–c.3 implementados localmente.** Política/captura, coordinador y store durable verificados con 0046/backup39. Demo solo fixtures sin cron ni envíos. CUS-003/004/005/006/009 siguen installed/inactivos. Siguiente: R5.6d, representación visual de segmentos con fixtures. Fuente de verdad en [`docs/plataforma/`](plataforma/README.md). |
+| 13 | Plataforma modular: del gestor mínimo a paridad extrema de capacidad | 🟡 En curso | 2026-10-03 | **R0–R4 y los cortes autorizados R5.1–R5.6d cerrados localmente.** c.3 integrada en PR #14 (`9b3a8ab`), sin deploy. R5.6d: demo visual de segmentos con fixtures verificada en el repositorio; 1.730 tests, E2E 156/156 y navegador 119/119. CUS-003/004/005/006/009 siguen installed/inactivos. Siguiente: R5.7a–b, modelo de mercados y composición pura en QA. Fuente de verdad en [`docs/plataforma/`](plataforma/README.md). |
 
 ## Repo y entornos
 
@@ -848,7 +879,8 @@ inerte o una intención del roadmap en alcance disponible.
 | R5.6b | Persistencia de segmentos | ✅ Local — D1 `0045`, backup 38, hechos congelados, revisiones, publicación CAS y restore; rollout pendiente |
 | R5.6c.1–c.2 | Captura consistente y ejecución reanudable | ✅ Local 2026-10-03 — política explícita, pagos mixtos, avance por lote y recuperación; 158 pruebas nuevas, ensayo D1 con restore de 126 tablas; sin activación |
 | R5.6c.3 | Política durable y correlación de ejecuciones | ✅ Local 2026-10-03 — 0046 autorizada, tres tablas append-only, store y backup 39; 15 bloques D1 y restore de 129 tablas; sin runtime activo |
-| R5.6d | Representación visual de segmentos | ⬜ Demo ilustrativa local con templates, filtros y progreso; sin APIs ni activación |
+| R5.6d | Representación visual de segmentos | ✅ Local 2026-10-03 — `/demo/admin/segmentos`, 12 perfiles, cuatro hechos, tres templates y lotes de tres en navegador; 119/119 comprobaciones, ocho superficies a11y 0/0, sin APIs operativas ni activación; disponible en repo, sin deploy |
+| R5.7a–b | Modelo de mercados y composición pura | ⬜ Siguiente — ADR, contexto país/idioma/moneda/dominio, resolución y fallback; configuración versionada en Git, moneda base y QA pura, sin DDL ni endpoints |
 | R5.2 | Consentimiento versionado | ✅ 2026-08-17 — ADR-0040, D1 `0037`, repositorio concurrente, backup 31, rehearsal y E2E local; `CUS-007` instalada e inerte |
 | R5.3a | Derechos de datos verificables | ✅ 2026-08-17 — ADR-0041, lifecycle, dry-run, doble control y puertos; `CUS-008` instalada e inerte, sin DDL ni efectos |
 | R5.3b | Persistencia de solicitudes de derechos | ✅ 2026-08-18 — D1 `0038`, repositorio concurrente, backup 32 y rehearsal/restore local; sin PII, rutas ni ejecución |
@@ -2405,7 +2437,7 @@ solo vuelve a `main` o a producción por instrucción expresa.
 Zancada queda completado, integrado en GitHub y publicado por encargo expreso
 del 2026-09-08. La cola de plataforma que sigue no cambia por esta importación.
 
-### R5.6d — Demostración visual de segmentos con fixtures
+### R5.7a–b — Modelo de mercados y composición pura en QA
 
 R5.6c.1–c.3 implementan política explícita, captura consistente, recuperación,
 publicación CAS y políticas/planes/intenciones durables. 0046 está autorizada y
@@ -2413,11 +2445,18 @@ ensayada solo en QA; backup 39 restaura 129 tablas sin reencolar jobs. La
 restricción vigente del proyecto es demo solo fixtures: sin cron, pedidos
 reales, envío de formularios ni cambios en la base desplegada.
 
-El corte local está verificado. Tras su integración, desarrollar la evidencia visual
-pendiente de CUS-009: templates/filtros permitidos, resultados y progreso
-ilustrativo sobre fixtures locales, con evaluación pura y cero API, cron o
-persistencia. No activar CUS-009 ni registrar rutas operativas. Verificar
-navegador, accesibilidad y ausencia de tráfico mutante antes de avanzar.
+El backend c.3 está integrado en PR #14 (`9b3a8ab`) y no se ha desplegado.
+R5.6d está implementada y verificada: `/demo/admin/segmentos`, 12 perfiles
+sintéticos, cuatro hechos, tres templates y lotes de tres con evaluación pura
+en navegador, sin APIs operativas, cron ni persistencia. La demo visual está
+disponible en el repositorio, sin despliegue. CUS-009 permanece parcial e
+inactiva. QA final: 222 suites/1.730 pruebas, E2E 156/156, navegador 119/119 y
+ocho superficies a11y sin errores ni avisos; base QA intacta.
+
+Desarrollar R5.7a–b: ADR, modelo y composición pura en QA para el contexto
+país/idioma/moneda/dominio, resolución y fallback de mercados. Configuración
+versionada en Git y limitada a moneda base, sin DDL, endpoints, consumidores
+ni comportamiento comercial activado; G3/G4 de uso real no bloquean ese alcance.
 
 Push/merge siguen autorizados tras checks hacia `main` en
 `amariner/logic2b-ecom`; no volver a pedir ese permiso. La autorización de 0046

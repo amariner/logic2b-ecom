@@ -175,8 +175,8 @@ suites/715 tests; producción permanece en `0032`.
 | 53 | **R5.3 Derechos de datos** | Exportar, corregir, anonimizar/borrar con excepciones fiscales y audit log. | 🟨 2026-08-18 — contrato y persistencia R5.3a–b instalados; política, superficies y ejecución pendientes de gates propios |
 | 54 | **R5.4 Cuentas passwordless** | Login seguro, sesiones, revocación y anti-enumeración; módulo opcional. | ✅ 2026-08-19 — R5.4a–d implementan dominio, D1, Resend directo, transporte mismo navegador, throttle/auditoría, gate durable y HTTP/UI; 185 suites/958 tests; D1 remota en `0040`, Worker `a5cc8d85…` inerte, `CUS-003` instalada y rollout real aislado |
 | 55 | **R5.5 Autoservicio** | Pedidos, direcciones y devolución sobre permisos mínimos. | ✅ 2026-09-18 — R5.5a–h cerrados en sus cortes; HTTP/SSR, navegador 26/0/0 y replay owner-only verificados; módulos installed/inactivos con rollout por proyecto pendiente |
-| 56 | **R5.6 Segmentación** | Lenguaje de filtros limitado, templates y recálculo observable. | 🟨 2026-09-18 — R5.6a.1 endurece ADR-0045 y contrato puro, con 54 pruebas focales; R5.6b cerrado local; R5.6c.1 (2026-10-03) añade política explícita, captura D1 consistente, 105 pruebas nuevas y restore de 126 tablas. R5.6c.2 implementa avance reanudable y publicación explícita; 158 pruebas nuevas acumuladas, sin activación. R5.6c.3 implementa 0046/backup39 y store durable bajo autorización local, sin handler; siguiente cierra demo visual con fixtures |
-| 57 | **R5.7 Modelo de mercados** | Contexto de país/idioma/moneda/dominio, resolución y fallback. | ⬜ |
+| 56 | **R5.6 Segmentación** | Lenguaje de filtros limitado, templates y recálculo observable. | ✅ Local 2026-10-03 — R5.6a–d implementados y verificados; c.3 integrada en PR #14 (`9b3a8ab`) con 0046/backup39. Demo visual `/demo/admin/segmentos` disponible en repo: 12 perfiles, cuatro hechos, tres templates y lotes de tres; navegador 119/119 y ocho superficies a11y 0/0. Sin deploy ni handler; CUS-009 parcial e inactiva |
+| 57 | **R5.7 Modelo de mercados** | Contexto de país/idioma/moneda/dominio, resolución y fallback. | ⬜ Siguiente R5.7a–b: ADR, modelo y composición pura QA; moneda base y configuración versionada en Git, sin DDL ni endpoints. G3/G4 de uso real no bloquean este alcance |
 | 58 | **R5.8 Traducciones y URLs** | Campos traducibles, flujo editorial, canonical, hreflang y sitemap. | ⬜ |
 | 59 | **R5.9 Publicación por mercado** | Producto/variante/canal, preview y explicación. | ⬜ |
 | 60 | **R5.10 Impuestos** | Adaptador, snapshots, redondeo, exenciones y validación VAT ID. | ⬜ |
@@ -1445,7 +1445,7 @@ principal pasa a R4.1, motor de reglas de precio.
 
 ## 14. Siguiente bloque
 
-### R5.6d — Demostración visual de segmentos con fixtures
+### R5.6d — Demostración visual de segmentos con fixtures, cerrada local
 
 R5.6c.1–c.3 (2026-10-03) implementan política/captura consistente, coordinador
 reanudable y store durable, tras autorización local de 0046. Backup 39 conserva
@@ -1455,13 +1455,29 @@ diagnósticos, 220 suites y 1.705 pruebas; build verifica además 44 páginas HT
 y 44 formularios locales. Véanse [contrato](PROPUESTA_EJECUCION_SEGMENTACION.md),
 [runbook](OPERACION_SEGMENTACION.md) e [informe](../audits/r5-6c/facts-d1-report.json).
 
-Tras cerrar e integrar las pruebas de demo inerte de este corte, completar su
-evidencia visual pendiente: templates, filtros limitados, coincidencias,
-ausencia de hechos y progreso ilustrativo sobre población sintética. Evaluación
-pura en el navegador, sin leer perfiles reales, APIs, repositorios, store, jobs,
-formularios enviados ni escrituras. La presentación demo debe permanecer
-separada de rutas operativas y no habilitar CUS-009, que sigue installed/parcial.
-Verificar escritorio/móvil, teclado, a11y y cero efectos de red.
+R5.6c.3 está integrada mediante PR #14 (`9b3a8ab`), sin despliegue. R5.6d está
+implementada y verificada en `/demo/admin/segmentos`: 12 perfiles sintéticos,
+cuatro hechos, tres templates y progreso ilustrativo en lotes de tres.
+Evaluación pura en el navegador, sin leer perfiles reales, APIs, repositorios,
+store, jobs, formularios enviados ni escrituras. La presentación no habilita
+flags, rutas operativas ni consumidores de CUS-009, que sigue installed/parcial
+e inactiva en operación. Demo visual disponible en el repositorio, sin desplegar.
+
+[QA final](../audits/r5-6d/verification-report.json): 883 archivos sin diagnósticos,
+222 suites/1.730 pruebas, 44 HTML y 44 formularios cerrados a envíos, E2E 156/156.
+[Navegador](../audits/r5-6d/report.json): 119/119 comprobaciones y ocho capturas,
+incluido sin JavaScript, cero APIs, mutaciones, beacons y errores.
+[A11y](../audits/r5-6d/a11y-report.json): ocho superficies, estados
+inicial/completado/inválido y movimiento reducido a 1440/375, cero errores y
+avisos. Base QA intacta: 143 tablas, 353 filas, SHA-256 antes/después
+`9cbfc811cfc4296515a403d395875a43bfa26aff0c9c9b08be0804b15bbf6eca`.
+
+### Siguiente: R5.7a–b — Modelo de mercados y composición pura en QA
+
+Modelar contexto país/idioma/moneda/dominio, resolución y fallback mediante
+ADR, contrato y composición puros. Configuración versionada en Git, limitada
+a moneda base, sin DDL ni endpoints. No incluye activación ni despliegue.
+Los gates G3/G4 de uso real permanecen pendientes sin bloquear este alcance.
 
 Push/merge siguen autorizados después de checks. La demo pública y landing
 quedan solo con fixtures; crons vacíos y guardas ante triggers antiguos. G3/G4,

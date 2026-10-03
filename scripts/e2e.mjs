@@ -229,6 +229,13 @@ check('panel usa la identidad Logic2B Gestión', adminHtml.includes('Logic2B Ges
 check('panel declara fixtures independientes', adminHtml.includes('independientes de los escaparates'));
 check('panel demo no carga beacon de analytics', !adminHtml.includes('static.cloudflareinsights.com/beacon.min.js'));
 check('panel vuelve a TRAZA', adminHtml.includes('href="/demo/tiendas/traza"'));
+const segmentDemoResponse = await fetch(`${BASE}/demo/admin/segmentos`, { headers: { cookie } });
+const segmentDemoHtml = await segmentDemoResponse.text();
+check('panel enlaza la demostración local de segmentos', adminHtml.includes('href="/demo/admin/segmentos"'));
+check('segmentos muestra perfiles ficticios y simulación local', segmentDemoResponse.ok
+  && segmentDemoHtml.includes('data-customer-segments-demo') && segmentDemoHtml.includes('Sin dato'));
+check('segmentos conserva privacidad de caché e indexación',
+  segmentDemoResponse.headers.get('cache-control')?.includes('no-store') && segmentDemoHtml.includes('noindex'));
 check(
   'índice de pedidos expone filtros URL y orden estable R3.1',
   adminHtml.includes('name="orden"')
