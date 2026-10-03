@@ -16,6 +16,35 @@
 > 2. Actualizar el estado de la fase al terminar, con fecha y resumen de lo hecho.
 > 3. Anotar decisiones tomadas y pendientes en las secciones de abajo.
 
+## R5.7a–b — Contexto de mercados y composición pura, cerrado local (2026-10-03)
+
+R5.6d está integrada mediante PR #15 (`71d5263`), sin despliegue. En
+`codex/market-context-contract` implementa el
+[ADR-0046](plataforma/adr/0046-contexto-de-mercados.md), contrato
+`defineMarketCatalog`/`resolveMarket` y composición pura `market-pricing-context`.
+Catálogo explícito versionado en Git o inyectado, selección de un contexto y
+fallback declarado; la composición de precios se limita a la moneda base.
+No necesita D1 ni añade DDL, rutas, endpoints, jobs, FX o traducciones.
+
+**Implementación y QA cerradas.** `pnpm check` pasa 888
+archivos sin diagnósticos, 224 suites/1.876 pruebas y build/guardas de 44 HTML
+y 44 formularios cerrados a envíos. Contrato: 119 pruebas; composición: 25;
+revisión independiente sin P1/P2. Tipos finales: 888 archivos sin errores,
+avisos ni hints; E2E local: 156/156. La base QA conserva 143 tablas y 353 filas,
+SHA-256 antes/después
+`9cbfc811cfc4296515a403d395875a43bfa26aff0c9c9b08be0804b15bbf6eca`.
+Servidor detenido; [informe](audits/r5-7/verification-report.json). MKT-003 pasa
+a parcial, instalada e inactiva en el preset avanzado. Su demo visual sigue
+pendiente; segmentos sí dispone de muestra verificada en el repositorio.
+`defaultLocale` no acredita idiomas publicados y un fallback no acredita
+disponibilidad de envío ni jurisdicción. No hay activación ni despliegue.
+
+Sigue R5.8a: ADR y contrato puro de contenido
+localizado, estado editorial y plan de URLs/canonical/hreflang/sitemap derivados
+de publicaciones explícitas. Fixtures e inyección bastan; sin DDL, endpoints,
+servicios de traducción ni cambios de rutas o sitemap servido. G3/G4 de uso
+real no bloquean este siguiente contrato puro.
+
 ## R5.6d — Segmentos ilustrativos con fixtures, cerrado local (2026-10-03)
 
 R5.6c.3 está integrada mediante PR #14 (`9b3a8ab`), sin despliegue. Continúa
@@ -25,7 +54,7 @@ evaluación se ejecuta exclusivamente en el navegador; no consume perfiles
 reales, APIs, repositorios ni jobs, ni persiste resultados.
 
 **Implementación y QA cerradas:** demo visual disponible en el repositorio,
-sin desplegar. CUS-009 conserva estado parcial, instalada e inactiva en operación;
+integrada en PR #15 (`71d5263`), sin desplegar. CUS-009 conserva estado parcial, instalada e inactiva en operación;
 la pantalla de muestra no habilita flags, rutas operativas ni consumidores.
 
 [Validación final](audits/r5-6d/verification-report.json): `pnpm check` pasa
@@ -778,7 +807,7 @@ reconciliación se conserva abajo por contexto.
 | 11 | Landing V2 «nivel Awwwards» + negocio + funnel + docs | 🟡 En curso | 2026-08-13 | **F11.1, F11.3 (2 sesiones), F11.4, F11.5, F11.6, F11.7 y F11.8 (primera pasada + pase a11y/contenido desde cloud 2026-07-24) hechos**, más F11.8b (auditor de a11y, cloud), F11.2a-1 (tienda ASFALTO / tema Street), F11.2a-2 (tienda METRIA / tema Industrial) F11.2a-3 (tienda ROMER / tema Natural) y **F11.2a-4 (tienda KALIBRE / tema Specs, local 2026-07-25) — con la que F11.2a queda CERRADA (10/10 tiendas)**; y **F11.8c (Lighthouse citable + OG de WhatsApp + URLs sin redirección, local 2026-07-26)**; y **F11.8d–e (tabla de Lighthouse cerrada y desplegada: 7 de 8 superficies a 100×4, la landing entre ellas en móvil y escritorio, local 2026-07-27)**; y **F11.9 (contacto global de WhatsApp, cerrado y servido 2026-08-13)**. Solo queda la submission a Awwwards, decisión de pago reservada a Andreu. Detalle por bloque abajo. **Plan maestro completo en [`docs/PLAN_FASE11_LANDING_V2.md`](PLAN_FASE11_LANDING_V2.md)**: bloques F11.0–F11.8 ejecutables por sesiones independientes. **Decisiones D1–D6 APROBADAS por Andreu (2026-07-23)**: JS propio ≤15 KB sin deps, capturas con browser tools en local, dirección C «Ocho tiendas, un motor», escalera de precios (Lite 590 / Kit 1.900+39 / A medida 3.400+59), WhatsApp+email, Lite publicado sin construir. Prompt de arranque: [`docs/PROMPT_FASE11.md`](PROMPT_FASE11.md). Integra 9B.5/9B.6 (imaginería y temas restantes) como prerequisito del hero |
 | 8 | Pulido de la demo (backlog abajo) | 🟡 En curso | 2026-07-19 | Backlog técnico agotado; solo quedan decisiones y pasos locales de Andreu (ver «Decisiones pendientes» y `docs/PROMPT_CLOUD.md`). Últimas tandas: novena (race de idempotencia en el pago, PII enumerable en `/demo/gracias`, cancelación de pedido pagado sin devolver stock), décima (la misma race en el PATCH de admin, campos vacíos guardados como 0, login sin rate limit), undécima (diagrama móvil de `/arquitectura`, hedge del plazo de entrega, tokens de tema en `/demo/reset`, terminología «envío»), duodécima (aviso de corte en pedidos del admin, cabeceras sin wrap a 375px, leftover «portes», token de radio del carrito, contraste del botón eliminar, H1 en valenciano, checklist de producción) y decimotercera (misma race de idempotencia en `checkout.session.expired`, divisa hardcodeada a EUR fuera de Stripe, cobertura de test de `quoteCart`/PATCH admin/emails) y decimocuarta (config parcial de Stripe → cobro sin cumplimiento, emails duplicados bajo concurrencia, `payment_status` del webhook, color de marca centralizado en `shop.config.ts`, contraste/tema en carrito y checkout) — ver sección «Fase 8» |
 | 12 | Logic2B Ecommerce: renombrado, reposicionamiento y docs de dos visiones | ✅ Hecho | 2026-08-10 | **F12.0–F12.6 cerrados:** marca, argumento, dossier, canal agencias, ayuda, índice por audiencias, OG y auditorías citables consolidados. **Plan maestro en [`docs/PLAN_FASE12_LOGIC2B_ECOMMERCE.md`](PLAN_FASE12_LOGIC2B_ECOMMERCE.md)**. |
-| 13 | Plataforma modular: del gestor mínimo a paridad extrema de capacidad | 🟡 En curso | 2026-10-03 | **R0–R4 y los cortes autorizados R5.1–R5.6d cerrados localmente.** c.3 integrada en PR #14 (`9b3a8ab`), sin deploy. R5.6d: demo visual de segmentos con fixtures verificada en el repositorio; 1.730 tests, E2E 156/156 y navegador 119/119. CUS-003/004/005/006/009 siguen installed/inactivos. Siguiente: R5.7a–b, modelo de mercados y composición pura en QA. Fuente de verdad en [`docs/plataforma/`](plataforma/README.md). |
+| 13 | Plataforma modular: del gestor mínimo a paridad extrema de capacidad | 🟡 En curso | 2026-10-03 | **R0–R4 y los cortes autorizados R5.1–R5.7a–b cerrados localmente.** R5.6d integrada en PR #15 (`71d5263`), sin deploy. R5.7a–b: modelo de mercados y composición pura verificados, 224 suites/1.876 tests, E2E 156/156 y base QA intacta. CUS-003/004/005/006/009 y MKT-003 installed/inactivos; demo visual de mercados pendiente. Siguiente: R5.8a, contrato puro de contenido localizado y URLs. Fuente de verdad en [`docs/plataforma/`](plataforma/README.md). |
 
 ## Repo y entornos
 
@@ -880,7 +909,8 @@ inerte o una intención del roadmap en alcance disponible.
 | R5.6c.1–c.2 | Captura consistente y ejecución reanudable | ✅ Local 2026-10-03 — política explícita, pagos mixtos, avance por lote y recuperación; 158 pruebas nuevas, ensayo D1 con restore de 126 tablas; sin activación |
 | R5.6c.3 | Política durable y correlación de ejecuciones | ✅ Local 2026-10-03 — 0046 autorizada, tres tablas append-only, store y backup 39; 15 bloques D1 y restore de 129 tablas; sin runtime activo |
 | R5.6d | Representación visual de segmentos | ✅ Local 2026-10-03 — `/demo/admin/segmentos`, 12 perfiles, cuatro hechos, tres templates y lotes de tres en navegador; 119/119 comprobaciones, ocho superficies a11y 0/0, sin APIs operativas ni activación; disponible en repo, sin deploy |
-| R5.7a–b | Modelo de mercados y composición pura | ⬜ Siguiente — ADR, contexto país/idioma/moneda/dominio, resolución y fallback; configuración versionada en Git, moneda base y QA pura, sin DDL ni endpoints |
+| R5.7a–b | Modelo de mercados y composición pura | ✅ Local 2026-10-03 — ADR-0046, catálogo explícito, resolución y fallback; Git/inyección y moneda base, sin DDL ni endpoints; 1.876 tests, E2E 156/156 y base QA intacta; MKT-003 parcial/inactiva, demo visual pendiente |
+| R5.8a | Contenido localizado y plan de URLs | ⬜ Siguiente — ADR y contrato puro de campos/estado editorial, fallback y URLs/canonical/hreflang/sitemap derivados de publicación explícita; sin cambios del sitio servido |
 | R5.2 | Consentimiento versionado | ✅ 2026-08-17 — ADR-0040, D1 `0037`, repositorio concurrente, backup 31, rehearsal y E2E local; `CUS-007` instalada e inerte |
 | R5.3a | Derechos de datos verificables | ✅ 2026-08-17 — ADR-0041, lifecycle, dry-run, doble control y puertos; `CUS-008` instalada e inerte, sin DDL ni efectos |
 | R5.3b | Persistencia de solicitudes de derechos | ✅ 2026-08-18 — D1 `0038`, repositorio concurrente, backup 32 y rehearsal/restore local; sin PII, rutas ni ejecución |
@@ -2437,7 +2467,7 @@ solo vuelve a `main` o a producción por instrucción expresa.
 Zancada queda completado, integrado en GitHub y publicado por encargo expreso
 del 2026-09-08. La cola de plataforma que sigue no cambia por esta importación.
 
-### R5.7a–b — Modelo de mercados y composición pura en QA
+### R5.8a — Contenido localizado y URLs
 
 R5.6c.1–c.3 implementan política explícita, captura consistente, recuperación,
 publicación CAS y políticas/planes/intenciones durables. 0046 está autorizada y
@@ -2453,10 +2483,19 @@ disponible en el repositorio, sin despliegue. CUS-009 permanece parcial e
 inactiva. QA final: 222 suites/1.730 pruebas, E2E 156/156, navegador 119/119 y
 ocho superficies a11y sin errores ni avisos; base QA intacta.
 
-Desarrollar R5.7a–b: ADR, modelo y composición pura en QA para el contexto
+R5.6d está integrada en PR #15 (`71d5263`). R5.7a–b cierra ADR, modelo y composición pura en QA para el contexto
 país/idioma/moneda/dominio, resolución y fallback de mercados. Configuración
 versionada en Git y limitada a moneda base, sin DDL, endpoints, consumidores
 ni comportamiento comercial activado; G3/G4 de uso real no bloquean ese alcance.
+La implementación, el check global (888 archivos, 224 suites/1.876 pruebas),
+los tipos finales, E2E 156/156 y revisión independiente están aprobados;
+la base QA permanece intacta. MKT-003 sigue parcial e inactiva, con demo
+visual pendiente y sin despliegue.
+
+Después, R5.8a: ADR y contrato puro de contenido localizado, estado editorial,
+fallback y plan de URLs. Derivar canonical, hreflang y sitemap solo de páginas
+y locales publicados explícitamente; usar fixtures y configuración versionada,
+sin DDL, servicios externos, endpoints ni cambios de rutas/render/sitemap reales.
 
 Push/merge siguen autorizados tras checks hacia `main` en
 `amariner/logic2b-ecom`; no volver a pedir ese permiso. La autorización de 0046

@@ -19,6 +19,7 @@ export const MODULE_IDS = [
   'integrations',
   'storefront',
   'marketing',
+  'markets',
 ] as const;
 
 export type ModuleId = (typeof MODULE_IDS)[number];
@@ -267,6 +268,11 @@ export const MODULE_DESCRIPTORS = [
   {
     id: 'marketing', version: '1.0.0', capabilities: ['MAR-001'], dependencies: ['customers', 'notifications'],
     permissions: [], events: [], subscriptions: [], jobs: [], healthchecks: [], wikiLinks: [ARCHITECTURE_WIKI], navigation: [], routes: [],
+  },
+  {
+    id: 'markets', version: '1.0.0', capabilities: ['MKT-003'], dependencies: ['platform-configuration'],
+    permissions: [], events: [], subscriptions: [], jobs: [], healthchecks: [],
+    wikiLinks: ['docs/plataforma/adr/0046-contexto-de-mercados.md'], navigation: [], routes: [],
   },
 ] as const satisfies readonly ModuleDescriptor[];
 

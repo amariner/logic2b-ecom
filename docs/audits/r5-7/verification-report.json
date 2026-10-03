@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "environment": "isolated-local-qa",
+  "deployment": "not-deployed",
+  "verification": {
+    "typecheckFiles": 888,
+    "diagnostics": 0,
+    "suites": 224,
+    "tests": 1876,
+    "marketDomainTests": 119,
+    "marketPricingTests": 25,
+    "e2eChecks": 156,
+    "buildHtmlPages": 44,
+    "buildLocalForms": 44
+  },
+  "databaseComparison": {
+    "status": "unchanged",
+    "tables": 143,
+    "rows": 353,
+    "sha256Before": "9cbfc811cfc4296515a403d395875a43bfa26aff0c9c9b08be0804b15bbf6eca",
+    "sha256After": "9cbfc811cfc4296515a403d395875a43bfa26aff0c9c9b08be0804b15bbf6eca"
+  },
+  "scope": {
+    "capability": "MKT-003",
+    "state": "installed",
+    "activeInPresets": false,
+    "runtimeConsumers": 0,
+    "migrationsAdded": 0,
+    "routesAdded": 0,
+    "jobsAdded": 0,
+    "fixturePresentation": "pending"
+  }
+}

@@ -20,12 +20,12 @@
 | Superficie | Entrada actual | Responsabilidad real |
 |---|---|---|
 | Worker HTTP | `src/worker.ts#createExports.default.fetch` | Construye `App` de Astro y delega al handler Cloudflare. |
-| Cron | `src/worker.ts#createExports.default.scheduled` | Cada 6 h y solo con `DEMO_MODE=true`, ejecuta el seed sobre D1. |
+| Cron | `src/worker.ts#createExports.default.scheduled` | La demo no registra cron y retorna antes de crear tareas o acceder a D1. Los jobs del motor solo se componen en un cliente explícito. |
 | Middleware | `src/middleware.ts#onRequest` | Corte por capacidad, rate limit en memoria por isolate y auth del admin demo. |
 | Páginas servidor | Rutas genéricas/dinámicas y panel bajo `src/pages/demo/` con `prerender=false` | Escaparates desde fixtures locales; panel desde D1 de fixtures. Algunas envolturas fijas de NODDO, Sitēga y STRETCH se prerenderizan porque solo componen la simulación local. |
-| API pública | `cart/quote`, `checkout/session`, `contact`, `webhooks/stripe` | Runtime clonable real, aunque los escaparates públicos no lo consumen. |
-| API admin | `backup`, pedido, producto, tarifa y export CSV | Operación D1 detrás del middleware. En demo la UI de edición está deshabilitada. |
-| API retirada | `POST /api/demo/reset` | Responde 410; solo el cron interno restaura fixtures. |
+| API pública | `cart/quote`, `checkout/session`, `contact`, `webhooks/stripe` | Contratos del motor clonable; en demo el middleware rechaza comandos antes de leer cuerpo, D1 o proveedores. |
+| API admin | `backup`, pedido, producto, tarifa y export CSV | Lecturas de fixtures detrás del middleware; cualquier comando de la demo está bloqueado. |
+| API retirada | `POST /api/demo/reset` | Responde 410; la demo no modifica ni restaura sus fixtures por HTTP o cron. |
 | Sitemap | `src/pages/sitemap.xml.ts` | Endpoint estático de presentación pública. |
 
 R1.3 conecta el composition root mediante `runtimePlatform`: middleware,
@@ -48,13 +48,12 @@ de adaptadores e infraestructura siguen reservados a sus bloques.
 
 ### D1 y SQL embebido
 
-El binding entra por casos de uso/adaptadores en todas las superficies HTTP; el
-cron usa `env.DB`. Desde R1.5 **no queda SQL en `src/pages/`**. Sigue habiendo
+El binding entra por casos de uso/adaptadores en las superficies HTTP que lo
+necesitan. El cron demo no accede a D1. Desde R1.5 **no queda SQL en `src/pages/`**. Sigue habiendo
 SQL fuera de una carpeta `infrastructure/` en helpers planos que actúan como
 adaptadores: `db.ts` solo para tarifas/referencias legacy, `quote.ts`,
-`send-email.ts`, `thanks.ts` y `backup.ts`;
-y en la composición de la demo, donde `src/worker.ts` ejecuta sentencias
-producidas por `seed/seed.ts`.
+`send-email.ts`, `thanks.ts` y `backup.ts`. La preparación de fixtures
+sintéticos se limita a QA aislada; el Worker demo no ejecuta seed.
 
 La regla `presentation-sql` es una allowlist ejecutable y ya está vacía: una
 aparición nueva rompe el test arquitectónico.
@@ -164,7 +163,7 @@ src/
     operations/
   modules/
     catalog/ pricing/ inventory/ cart/ checkout/ payments/ orders/
-    fulfillment/ customers/ notifications/ storefront/ marketing/
+    fulfillment/ customers/ notifications/ storefront/ marketing/ markets/
   integrations/
     stripe/ resend/ logistics-csv/ cloudflare-d1/
   shared-kernel/
@@ -202,6 +201,7 @@ implementaciones concretas.
 | `integrations` | Adaptadores Stripe, Resend, CSV y futuros proveedores; health/disconnect después. No decide negocio. | implementaciones de puertos y metadatos de adaptador. | puertos públicos de módulos, SDKs externos. |
 | `storefront` | Presentación compartida, temas y contrato de demo aislada. No posee dinero/stock/pedido real. | view models, registro de presentaciones y contrato de demo. | APIs de lectura públicas + configuración. |
 | `marketing` | Captación y consentimiento futuro. Hoy: solicitud de proyecto. | `submitLead` y puertos de notificación/almacenamiento. | customers/notifications por API pública. |
+| `markets` | Catálogo versionado y resolución pura de país/idioma/moneda/dominio. Sin persistencia ni efectos. | `defineMarketCatalog`, `resolveMarket`; composición pura hacia pricing con moneda base explícita. | `shared-kernel`; cruces con pricing solo en composición. |
 | `shared-kernel` | Desde R1.5: sobre de evento, actor/entidad, reloj y fuente de ids como puertos. Pendientes `MoneyCents`, IDs opacos y resultado/error base. | `EventEnvelope`, `createEventFactory`, `validateEventEnvelope`, `causedBy`; primitivas sin configuración ni I/O. | Ninguna. |
 
 La propiedad es lógica antes que física: hasta las migraciones de R2, otros
@@ -218,7 +218,7 @@ checkout -> cart, catalog, pricing, inventory, fulfillment,
 fulfillment -> orders, inventory
 marketing -> customers, notifications
 storefront -> catalog, cart, checkout, orders, platform/configuration
-catalog/pricing/inventory/cart/payments/orders/customers/notifications
+catalog/pricing/inventory/cart/payments/orders/customers/notifications/markets
   -> shared-kernel (+ configuration cuando sea configuración publicada)
 integrations -> puertos públicos; composition conecta adaptadores
 ```

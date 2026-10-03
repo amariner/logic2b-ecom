@@ -176,8 +176,8 @@ suites/715 tests; producción permanece en `0032`.
 | 54 | **R5.4 Cuentas passwordless** | Login seguro, sesiones, revocación y anti-enumeración; módulo opcional. | ✅ 2026-08-19 — R5.4a–d implementan dominio, D1, Resend directo, transporte mismo navegador, throttle/auditoría, gate durable y HTTP/UI; 185 suites/958 tests; D1 remota en `0040`, Worker `a5cc8d85…` inerte, `CUS-003` instalada y rollout real aislado |
 | 55 | **R5.5 Autoservicio** | Pedidos, direcciones y devolución sobre permisos mínimos. | ✅ 2026-09-18 — R5.5a–h cerrados en sus cortes; HTTP/SSR, navegador 26/0/0 y replay owner-only verificados; módulos installed/inactivos con rollout por proyecto pendiente |
 | 56 | **R5.6 Segmentación** | Lenguaje de filtros limitado, templates y recálculo observable. | ✅ Local 2026-10-03 — R5.6a–d implementados y verificados; c.3 integrada en PR #14 (`9b3a8ab`) con 0046/backup39. Demo visual `/demo/admin/segmentos` disponible en repo: 12 perfiles, cuatro hechos, tres templates y lotes de tres; navegador 119/119 y ocho superficies a11y 0/0. Sin deploy ni handler; CUS-009 parcial e inactiva |
-| 57 | **R5.7 Modelo de mercados** | Contexto de país/idioma/moneda/dominio, resolución y fallback. | ⬜ Siguiente R5.7a–b: ADR, modelo y composición pura QA; moneda base y configuración versionada en Git, sin DDL ni endpoints. G3/G4 de uso real no bloquean este alcance |
-| 58 | **R5.8 Traducciones y URLs** | Campos traducibles, flujo editorial, canonical, hreflang y sitemap. | ⬜ |
+| 57 | **R5.7 Modelo de mercados** | Contexto de país/idioma/moneda/dominio, resolución y fallback. | ✅ R5.7a–b local: ADR-0046, `defineMarketCatalog`/`resolveMarket` y composición pura `market-pricing-context`; moneda base y Git/inyección, sin DDL ni endpoints. 224 suites/1.876 pruebas, E2E 156/156 y base QA intacta; MKT-003 parcial/inactiva, demo visual pendiente |
+| 58 | **R5.8 Traducciones y URLs** | Campos traducibles, flujo editorial, canonical, hreflang y sitemap. | ⬜ Siguiente R5.8a: ADR y contrato puro de contenido localizado, publicación editorial y plan de URLs; fixtures, sin DDL ni cambios del sitio servido |
 | 59 | **R5.9 Publicación por mercado** | Producto/variante/canal, preview y explicación. | ⬜ |
 | 60 | **R5.10 Impuestos** | Adaptador, snapshots, redondeo, exenciones y validación VAT ID. | ⬜ |
 | 61 | **R5.11 Multidivisa y métodos locales** | Presentación, cobro, reembolso y conciliación. | ⬜ |
@@ -1472,12 +1472,36 @@ inicial/completado/inválido y movimiento reducido a 1440/375, cero errores y
 avisos. Base QA intacta: 143 tablas, 353 filas, SHA-256 antes/después
 `9cbfc811cfc4296515a403d395875a43bfa26aff0c9c9b08be0804b15bbf6eca`.
 
-### Siguiente: R5.7a–b — Modelo de mercados y composición pura en QA
+### Cerrado local: R5.7a–b — Modelo de mercados y composición pura en QA
 
-Modelar contexto país/idioma/moneda/dominio, resolución y fallback mediante
-ADR, contrato y composición puros. Configuración versionada en Git, limitada
-a moneda base, sin DDL ni endpoints. No incluye activación ni despliegue.
-Los gates G3/G4 de uso real permanecen pendientes sin bloquear este alcance.
+R5.6d está integrada en PR #15 (`71d5263`), sin despliegue. La rama
+`codex/market-context-contract` implementa el
+[ADR-0046](adr/0046-contexto-de-mercados.md), `defineMarketCatalog`/`resolveMarket`
+y composición pura `market-pricing-context`. Catálogo explícito versionado
+en Git o inyectado: no requiere D1. La composición usa solo moneda base, sin
+DDL, rutas, endpoints, jobs, FX, traducciones ni activación. Implementación
+terminada: 119 pruebas del contrato y 25 de composición; revisión independiente
+sin P1/P2. `pnpm check`: 888 archivos sin diagnósticos, 224 suites/1.876 pruebas,
+build y guardas de 44 HTML/44 formularios cerrados a envíos. Tipos finales:
+888 archivos, cero errores/avisos/hints; E2E local: 156/156. Base QA intacta,
+143 tablas y 353 filas, SHA-256 antes/después
+`9cbfc811cfc4296515a403d395875a43bfa26aff0c9c9b08be0804b15bbf6eca`.
+Servidor detenido; [informe](../audits/r5-7/verification-report.json). Sin deploy.
+
+MKT-003 queda parcial, instalada e inactiva en el preset avanzado; demo visual
+de mercados pendiente. `defaultLocale` no acredita idiomas publicados y el
+fallback no acredita disponibilidad de envío, jurisdicción o permiso de venta.
+Los gates G3/G4 de uso real siguen separados y no bloquean el alcance puro.
+
+### Siguiente: R5.8a — Contenido localizado y plan de URLs
+
+ADR y contrato puro para campos traducibles, estados editoriales, selección
+de contenido y fallback explícito. Derivar un plan de URLs, canonical,
+hreflang y sitemap solo de locales y páginas publicados; un locale de mercado
+no crea traducciones. QA con fixtures/configuración versionada, sin DDL,
+traducción externa, endpoints ni cambios del render o las rutas servidas.
+La publicación por mercado conserva su bloque R5.9; no se inventa un bloqueo
+de persistencia para probar estos contratos puros.
 
 Push/merge siguen autorizados después de checks. La demo pública y landing
 quedan solo con fixtures; crons vacíos y guardas ante triggers antiguos. G3/G4,

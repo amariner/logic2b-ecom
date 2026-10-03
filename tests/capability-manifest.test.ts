@@ -246,6 +246,19 @@ describe('capability manifest (R1.2)', () => {
     expect(CAPABILITY_PRESETS.advanced['CUS-009']).toEqual({ state: 'installed' });
   });
 
+  it('keeps market resolution absent or installed without activating consumers', () => {
+    expect(CAPABILITY_DEFINITIONS['MKT-003'].dependencies).toEqual(['PLT-004']);
+    expect('MKT-003' in CAPABILITY_PRESETS.minimal).toBe(false);
+    expect('MKT-003' in CAPABILITY_PRESETS.standard).toBe(false);
+    expect(CAPABILITY_PRESETS.advanced['MKT-003']).toEqual({ state: 'installed' });
+    const demo = createPlatform(platformManifest);
+    expect(demo.capabilityState('MKT-003')).toBe('installed');
+    expect(demo.hasModule('markets')).toBe(false);
+    expect(demo.capability('MKT-003').flags).toEqual({
+      routes: false, navigation: false, jobs: false, sideEffects: false,
+    });
+  });
+
   it('accepts only the explicit passwordless email contract and freezes it deeply', () => {
     expect(CUSTOMER_PASSWORDLESS_CONFIG.challengeTtlSeconds * 1_000).toBeLessThanOrEqual(
       PASSWORDLESS_CHALLENGE_MAX_TTL_MS,
