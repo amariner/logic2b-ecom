@@ -7,7 +7,7 @@ import { runtimePlatform } from '../../../composition/runtime-platform';
 import { createFulfillmentAdmin } from '../../../modules/fulfillment';
 
 export const prerender = false;
-const readOnly = Astro.locals.runtime.env.DEMO_MODE === 'true';
+const readOnly = runtimePlatform.manifest.deployment.mode === 'demo' || Astro.locals.runtime.env.DEMO_MODE === 'true';
 const rates = await createFulfillmentAdmin(Astro.locals.runtime.env.DB).listRates();
 const zoneLabel = new Map(shopConfig.shipping.zones.map((zone) => [zone.id, zone.label]));
 const canExport = runtimePlatform.hasCapabilityFlag('FUL-003', 'routes');

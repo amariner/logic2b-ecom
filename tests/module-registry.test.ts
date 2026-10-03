@@ -86,13 +86,12 @@ describe('registro de módulos (R1.4)', () => {
 
   it('asigna cada job R1.11 a un único módulo propietario', () => {
     expect(MODULE_REGISTRY.jobOwners).toEqual({
-      'platform-configuration.demo-order-refresh': 'platform-configuration',
       'notifications.event-outbox-sweep': 'notifications',
       'inventory.expire-reservations': 'inventory',
       'orders.execute-bulk-action': 'orders',
     });
     const descriptors = mutableDescriptors();
-    (descriptors[1]!.jobs as string[]).push('platform-configuration.demo-order-refresh');
+    (descriptors[1]!.jobs as string[]).push('notifications.event-outbox-sweep');
     const codes = validateModuleRegistry(descriptors).map((issue) => issue.code);
     expect(codes).toContain('foreign-job');
     expect(codes).toContain('duplicate-job');

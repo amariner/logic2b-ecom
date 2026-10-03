@@ -113,7 +113,7 @@
     "privateCommerce": 0,
     "completeCaptureSets": 34,
     "assetBytes": 43706494,
-    "scriptBytes": 29096
+    "scriptBytes": 29242
   },
   "findings": [
     {
@@ -657,7 +657,7 @@
       },
       "source": {
         "files": 4,
-        "bytes": 44070,
+        "bytes": 44122,
         "scriptBlocks": 1,
         "scriptBytes": 1260
       }
@@ -936,9 +936,9 @@
       },
       "source": {
         "files": 6,
-        "bytes": 27649,
+        "bytes": 27948,
         "scriptBlocks": 2,
-        "scriptBytes": 3298
+        "scriptBytes": 3444
       }
     },
     {
@@ -2530,7 +2530,7 @@
       },
       "source": {
         "files": 11,
-        "bytes": 78408,
+        "bytes": 78424,
         "scriptBlocks": 1,
         "scriptBytes": 6084
       }

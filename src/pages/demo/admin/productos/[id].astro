@@ -12,7 +12,7 @@ if (!Number.isInteger(productId) || productId <= 0 || !runtimePlatform.isCapabil
 const details = await createProductAdmin(Astro.locals.runtime.env.DB).details(productId);
 if (!details) return new Response('Producto no encontrado', { status: 404 });
 
-const readOnly = Astro.locals.runtime.env.DEMO_MODE === 'true';
+const readOnly = runtimePlatform.manifest.deployment.mode === 'demo' || Astro.locals.runtime.env.DEMO_MODE === 'true';
 const showMedia = runtimePlatform.isCapabilityActive('CAT-008');
 const showAttributes = runtimePlatform.isCapabilityActive('CAT-007');
 const attributeValueText = (value: (typeof details.attribute_values)[number]): string => {
@@ -70,7 +70,7 @@ const typeLabel = { text: 'Texto', number: 'Número', boolean: 'Sí/no', referen
       </div>
       <div class="mt-4 grid gap-4 lg:grid-cols-2">
         {details.media.map((media, mediaIndex) => (
-          <form data-media-form data-media-id={media.id} class="rounded-lg border border-stone-200 p-4">
+          <form method={readOnly ? 'dialog' : undefined} data-media-form data-media-id={media.id} class="rounded-lg border border-stone-200 p-4">
             <div class="grid gap-4 sm:grid-cols-[8rem_1fr]">
               <div class="overflow-hidden rounded-lg bg-stone-100">
                 {media.kind === 'image' ? (
@@ -137,7 +137,7 @@ const typeLabel = { text: 'Texto', number: 'Número', boolean: 'Sí/no', referen
       {!readOnly && (
         <details class="mt-4 rounded-lg border border-dashed border-stone-400 p-4">
           <summary class="min-h-11 cursor-pointer py-2 font-medium">Añadir media</summary>
-          <form data-create-media class="mt-3 grid gap-3 sm:grid-cols-2">
+          <form method={readOnly ? 'dialog' : undefined} data-create-media class="mt-3 grid gap-3 sm:grid-cols-2">
             <label class="text-xs font-medium text-stone-600">Tipo
               <select name="kind" class="mt-1 min-h-11 w-full rounded border border-stone-300 bg-white px-3"><option value="image">Imagen</option><option value="video">Vídeo</option></select>
             </label>
@@ -171,7 +171,7 @@ const typeLabel = { text: 'Texto', number: 'Número', boolean: 'Sí/no', referen
           const values = details.attribute_values.filter((value) => value.attribute_definition_id === definition.id);
           return (
             <article class="rounded-lg border border-stone-200 p-4">
-              <form data-definition-form data-definition-id={definition.id} class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+              <form method={readOnly ? 'dialog' : undefined} data-definition-form data-definition-id={definition.id} class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
                 <label class="text-xs font-medium text-stone-600">Etiqueta
                   <input name="label" value={definition.label} maxlength="120" disabled={readOnly} class="mt-1 min-h-11 w-full rounded border border-stone-300 px-3 disabled:bg-stone-50" />
                 </label>
@@ -197,7 +197,7 @@ const typeLabel = { text: 'Texto', number: 'Número', boolean: 'Sí/no', referen
                   const variant = details.variants.find((candidate) => candidate.id === value.variant_id);
                   return (
                     <li>
-                      <form data-attribute-value-form data-value-id={value.id} data-value-type={definition.value_type} class="flex flex-wrap items-end gap-2 rounded bg-stone-50 p-3">
+                      <form method={readOnly ? 'dialog' : undefined} data-attribute-value-form data-value-id={value.id} data-value-type={definition.value_type} class="flex flex-wrap items-end gap-2 rounded bg-stone-50 p-3">
                         <label class="min-w-32 flex-1 text-xs font-medium text-stone-600">{variant ? `Variante ${variant.title || variant.sku}` : 'Valor general'}
                           <input name="value" value={attributeValueText(value)} disabled={readOnly} class="mt-1 min-h-11 w-full rounded border border-stone-300 px-3 text-sm disabled:bg-white" />
                         </label>
@@ -213,7 +213,7 @@ const typeLabel = { text: 'Texto', number: 'Número', boolean: 'Sí/no', referen
       </div>
       {!readOnly && (
         <div class="mt-4 grid gap-4 lg:grid-cols-2">
-          <form data-create-definition class="rounded-lg border border-dashed border-stone-400 p-4">
+          <form method={readOnly ? 'dialog' : undefined} data-create-definition class="rounded-lg border border-dashed border-stone-400 p-4">
             <h3 class="font-medium">Nueva definición</h3>
             <div class="mt-3 grid gap-3 sm:grid-cols-2">
               <input name="label" required maxlength="120" placeholder="Etiqueta" aria-label="Etiqueta del atributo" class="min-h-11 rounded border border-stone-300 px-3" />
@@ -224,7 +224,7 @@ const typeLabel = { text: 'Texto', number: 'Número', boolean: 'Sí/no', referen
               <button class="min-h-11 rounded bg-stone-900 px-4 text-sm font-medium text-white sm:col-span-2">Crear definición</button>
             </div>
           </form>
-          <form data-create-attribute-value class="rounded-lg border border-dashed border-stone-400 p-4">
+          <form method={readOnly ? 'dialog' : undefined} data-create-attribute-value class="rounded-lg border border-dashed border-stone-400 p-4">
             <h3 class="font-medium">Nuevo valor</h3>
             <div class="mt-3 grid gap-3">
               <select name="definition_id" aria-label="Definición" required class="min-h-11 rounded border border-stone-300 bg-white px-3">
@@ -248,7 +248,7 @@ const typeLabel = { text: 'Texto', number: 'Número', boolean: 'Sí/no', referen
         <p class="mt-1 text-sm text-stone-600">Por ejemplo, «Talla» con los valores S, M y L.</p>
       </div>
       {!readOnly && (
-        <form data-create-option class="flex flex-wrap gap-2">
+        <form method={readOnly ? 'dialog' : undefined} data-create-option class="flex flex-wrap gap-2">
           <label class="sr-only" for="new-option-name">Nueva opción</label>
           <input id="new-option-name" name="name" required maxlength="80" placeholder="Nueva opción"
             class="min-h-11 rounded border border-stone-300 px-3 text-sm" />
@@ -293,7 +293,7 @@ const typeLabel = { text: 'Texto', number: 'Número', boolean: 'Sí/no', referen
               ))}
             </ul>
             {!readOnly && (
-              <form data-create-value class="mt-3 flex gap-2">
+              <form method={readOnly ? 'dialog' : undefined} data-create-value class="mt-3 flex gap-2">
                 <label class="sr-only" for={`new-value-${option.id}`}>Nuevo valor de {option.name}</label>
                 <input id={`new-value-${option.id}`} name="value" required maxlength="100" placeholder="Nuevo valor"
                   class="min-h-11 min-w-0 flex-1 rounded border border-stone-300 px-3 text-sm" />
@@ -316,7 +316,7 @@ const typeLabel = { text: 'Texto', number: 'Número', boolean: 'Sí/no', referen
 
     <div class="mt-4 space-y-4">
       {details.variants.map((variant) => (
-        <form data-variant-form data-variant-id={variant.id} class="rounded-xl border border-stone-300 bg-white p-4 sm:p-5">
+        <form method={readOnly ? 'dialog' : undefined} data-variant-form data-variant-id={variant.id} class="rounded-xl border border-stone-300 bg-white p-4 sm:p-5">
           <div class="flex flex-wrap items-center justify-between gap-2">
             <div class="flex flex-wrap items-center gap-2">
               <h3 class="font-semibold">{variant.title || variant.sku}</h3>
@@ -392,7 +392,7 @@ const typeLabel = { text: 'Texto', number: 'Número', boolean: 'Sí/no', referen
     {!readOnly && details.options.length > 0 && details.options.every((option) => option.values.length > 0) && (
       <details class="mt-4 rounded-xl border border-dashed border-stone-400 bg-white p-4">
         <summary class="min-h-11 cursor-pointer py-2 font-medium">Añadir variante</summary>
-        <form data-create-variant class="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <form method={readOnly ? 'dialog' : undefined} data-create-variant class="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           <label class="text-xs font-medium text-stone-600">Título
             <input name="title" maxlength="160" class="mt-1 min-h-11 w-full rounded border border-stone-300 px-3 text-sm" />
           </label>

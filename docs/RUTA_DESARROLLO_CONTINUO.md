@@ -20,7 +20,8 @@ ecommerce modular, profesional, operable y comercialmente honesta, conservando:
 - Stripe alojado y sin ampliar superficie PCI;
 - compatibilidad de migraciones, backup y rollback;
 - TypeScript estricto, accesibilidad, rendimiento y SEO;
-- demo pública aislada y sin escrituras comerciales reales.
+- demo pública solo fixtures, sin crons, pedidos reales, envío de formularios
+  ni escrituras en base de datos (mandato explícito 2026-10-03).
 
 El objetivo no es “hacer actividad” indefinidamente. Es cerrar, uno detrás de
 otro, los bloques canónicos con criterios de terminado y dejar siempre el

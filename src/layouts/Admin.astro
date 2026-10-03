@@ -4,6 +4,7 @@
  * es "esto se aprende en 5 minutos". En producción va tras Cloudflare Access.
  */
 import Base from './Base.astro';
+import CloudflarePageview from '../components/CloudflarePageview.astro';
 import DemoAssistant from '../components/store/DemoAssistant.astro';
 import { shopConfig } from '../../shop.config';
 import { MAIN_DEMO_HREF, MAIN_DEMO_NAME } from '../lib/nav';
@@ -17,6 +18,7 @@ interface Props {
 }
 
 const { title, active } = Astro.props;
+const readOnly = runtimePlatform.manifest.deployment.mode === 'demo' || Astro.locals.runtime?.env.DEMO_MODE === 'true';
 
 const nav = adminNavigationFor(runtimePlatform);
 /* Agrupación de presentación: primero lo que el comercio hace cada día y
@@ -39,7 +41,7 @@ const iconFor: Record<string, AdminIconName> = {
 ---
 
 <Base title={`${title} — ${shopConfig.backofficeName}`} noindex>
-  <div class="admin-shell min-h-screen bg-[#f7f7f8] text-foreground" data-admin-shell>
+  <div class="admin-shell min-h-screen bg-[#f7f7f8] text-foreground" data-admin-shell data-demo-read-only={readOnly ? 'true' : undefined}>
     <aside class="fixed inset-y-0 left-0 z-30 hidden w-72 flex-col border-r border-border bg-card lg:flex">
       <div class="border-b border-border px-6 py-6">
         <a href="/demo/admin" class="inline-flex min-h-11 items-center font-display text-lg" aria-label={`${shopConfig.backofficeName}, inicio`}>
@@ -107,20 +109,23 @@ const iconFor: Record<string, AdminIconName> = {
 
   <DemoAssistant />
 
-  {shopConfig.analytics.cfBeaconToken && (
-    <script
-      defer
-      src="https://static.cloudflareinsights.com/beacon.min.js"
-      data-cf-beacon={JSON.stringify({ token: shopConfig.analytics.cfBeaconToken })}
-      is:inline
-    ></script>
-  )}
+  <CloudflarePageview />
   <style is:global>
     /* Titulares en Inter, como el sitio comercial («plataforma», 2026-09-29):
        el panel es sobrio y no necesita la fuente de marca. */
     .admin-shell { --font-display: var(--font-sans); --tracking-display: -0.025em; }
   </style>
   <script>
+    // Los formularios ilustrativos no activan handlers operativos ni con Enter.
+    // Las vistas previas marcadas como locales gestionan su propia simulación.
+    document.querySelector<HTMLElement>('[data-demo-read-only="true"]')
+      ?.addEventListener('submit', (event) => {
+        const form = event.target;
+        if (form instanceof HTMLFormElement && form.method !== 'get' && !form.hasAttribute('data-demo-local')) {
+          event.preventDefault();
+          event.stopImmediatePropagation();
+        }
+      }, true);
     document.querySelector<HTMLElement>('[data-admin-mobile-nav] [aria-current="page"]')
       ?.scrollIntoView({ block: 'nearest', inline: 'center' });
   </script>

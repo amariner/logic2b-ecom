@@ -1,11 +1,12 @@
 ---
+import { runtimePlatform } from '../../../composition/runtime-platform';
 import Admin from '../../../layouts/Admin.astro';
 import AdminIcon from '../../../components/admin/AdminIcon.astro';
 import AdminPageHeader from '../../../components/admin/AdminPageHeader.astro';
 import { createInventoryLocationOperations } from '../../../composition/inventory-location-operations';
 
 export const prerender = false;
-const readOnly = Astro.locals.runtime.env.DEMO_MODE === 'true';
+const readOnly = runtimePlatform.manifest.deployment.mode === 'demo' || Astro.locals.runtime.env.DEMO_MODE === 'true';
 const locations = await createInventoryLocationOperations(Astro.locals.runtime.env.DB).list();
 ---
 
@@ -28,7 +29,7 @@ const locations = await createInventoryLocationOperations(Astro.locals.runtime.e
   </section>
 
   <section class="mt-6 grid gap-6 xl:grid-cols-[minmax(0,1fr)_22rem]">
-    <form data-location-form class="rounded-2xl border border-border bg-card p-5 shadow-sm">
+    <form method={readOnly ? 'dialog' : undefined} data-location-form class="rounded-2xl border border-border bg-card p-5 shadow-sm">
       <h2 class="font-display text-lg">Añadir ubicación</h2><p class="mt-1 text-sm text-muted-foreground">Las nuevas ubicaciones empiezan sin stock. Para llenarlas, usa Transferencias.</p>
       <div class="mt-5 grid gap-4 sm:grid-cols-2"><label class="text-sm font-semibold">Nombre<input name="name" required minlength="2" maxlength="100" disabled={readOnly} class="mt-2 min-h-11 w-full rounded-xl border border-input bg-background px-3 font-normal disabled:opacity-100" /></label><label class="text-sm font-semibold">Código<input name="code" required minlength="2" maxlength="32" disabled={readOnly} placeholder="almacen-norte" class="mt-2 min-h-11 w-full rounded-xl border border-input bg-background px-3 font-mono font-normal disabled:opacity-100" /></label><label class="text-sm font-semibold">Tipo<select name="kind" disabled={readOnly} class="mt-2 min-h-11 w-full rounded-xl border border-input bg-background px-3 font-normal disabled:opacity-100"><option value="warehouse">Almacén</option><option value="store">Tienda</option></select></label><label class="text-sm font-semibold">Zona horaria<input name="timezone" value="Europe/Madrid" disabled={readOnly} class="mt-2 min-h-11 w-full rounded-xl border border-input bg-background px-3 font-normal disabled:opacity-100" /></label></div>
       <p data-location-status role="status" aria-live="polite" class="mt-3 min-h-6 text-sm text-muted-foreground"></p><button type="submit" disabled={readOnly} class="mt-2 min-h-11 rounded-xl bg-foreground px-5 text-sm font-semibold text-background disabled:cursor-not-allowed disabled:opacity-45">Crear ubicación</button>

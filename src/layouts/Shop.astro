@@ -9,6 +9,7 @@
  * recarga estructural. Las demos no consultan el backend.
  */
 import Base from './Base.astro';
+import CloudflarePageview from '../components/CloudflarePageview.astro';
 import SiteHeader from '../components/SiteHeader.astro';
 import DemoJourneyBanner from '../components/store/DemoJourneyBanner.astro';
 import DemoAssistant from '../components/store/DemoAssistant.astro';
@@ -319,12 +320,5 @@ const checkoutStep = checkoutSteps.findIndex((step) => step.href === currentPath
     }
   </script>
 
-  {shopConfig.analytics.cfBeaconToken && (
-    <script
-      defer
-      src="https://static.cloudflareinsights.com/beacon.min.js"
-      data-cf-beacon={JSON.stringify({ token: shopConfig.analytics.cfBeaconToken })}
-      is:inline
-    ></script>
-  )}
+  <CloudflarePageview />
 </Base>

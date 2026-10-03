@@ -1,0 +1,46 @@
+{
+  "surfaces": [
+    {
+      "surface": "fixture:login",
+      "url": "/demo/admin/login",
+      "findings": []
+    },
+    {
+      "surface": "fixture:confirmacion",
+      "url": "/proyecto-recibido",
+      "findings": []
+    },
+    {
+      "surface": "fixture:contacto",
+      "url": "/",
+      "findings": []
+    },
+    {
+      "surface": "fixture:lote",
+      "url": "/demo/admin",
+      "findings": []
+    },
+    {
+      "surface": "fixture:login@375",
+      "url": "/demo/admin/login",
+      "findings": []
+    },
+    {
+      "surface": "fixture:confirmacion@375",
+      "url": "/proyecto-recibido",
+      "findings": []
+    },
+    {
+      "surface": "fixture:contacto@375",
+      "url": "/",
+      "findings": []
+    },
+    {
+      "surface": "fixture:lote@375",
+      "url": "/demo/admin",
+      "findings": []
+    }
+  ],
+  "errors": 0,
+  "warnings": 0
+}

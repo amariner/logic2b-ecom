@@ -1,9 +1,9 @@
 /**
  * Entry point personalizado del Worker (ver `workerEntryPoint` en astro.config.mjs).
  *
- * Envuelve el handler `fetch` estándar de Astro y añade un handler `scheduled`
- * para los Cron Triggers registrados por R1.11: refresco semanal y acotado de
- * pedidos ficticios en demo, y recuperación del outbox cada 5 min en una tienda real.
+ * Envuelve el handler `fetch` estándar de Astro. El handler `scheduled` solo
+ * admite jobs configurados en un despliegue cliente; la demo es inerte incluso
+ * si recibe un trigger antiguo todavía registrado en el proveedor.
  */
 import type {
   ExecutionContext,
@@ -14,6 +14,7 @@ import type { SSRManifest } from 'astro';
 import { App } from 'astro/app';
 import { handle } from '@astrojs/cloudflare/handler';
 import { runScheduledPlatformJobs } from './composition/job-runner';
+import { runtimePlatform } from './composition/runtime-platform';
 
 type WorkerEnv = Env & {
   ASSETS: { fetch: (req: Request | string) => Promise<Response> };
@@ -31,6 +32,7 @@ export function createExports(manifest: SSRManifest) {
         return handle(manifest, app, request, env, context);
       },
       async scheduled(controller: ScheduledController, env: WorkerEnv, context: ExecutionContext) {
+        if (env.DEMO_MODE === 'true' || runtimePlatform.manifest.deployment.mode === 'demo') return;
         context.waitUntil(runScheduledPlatformJobs(controller.cron, controller.scheduledTime, env).then(() => undefined));
       },
     },

@@ -3,8 +3,8 @@
   "name": "ecom-logic2b",
   "compatibility_date": "2026-07-01",
   "compatibility_flags": ["nodejs_compat"],
-  // Worker con assets estáticos (no Cloudflare Pages): es lo que permite el
-  // Cron Trigger de reset. `_worker.js` y `_routes.json` se excluyen del
+  // Worker con assets estáticos (no Cloudflare Pages). `_worker.js` y
+  // `_routes.json` se excluyen del
   // upload de assets vía `public/.assetsignore`.
   "main": "./dist/_worker.js/index.js",
   "assets": {
@@ -14,12 +14,10 @@
   // Dominio público de la demo. Wrangler aprovisiona el registro DNS + certificado
   // en la zona logic2b.com (debe estar en la misma cuenta de Cloudflare).
   "routes": [{ "pattern": "ecom.logic2b.com", "custom_domain": true }],
-  // Demo pública: refresco semanal y acotado de pedidos. Cliente real:
-  // barrido del outbox cada 5 min y
-  // expiración de reservas cada minuto; cada
-  // handler comprueba DEMO_MODE, así el disparador ajeno queda inerte.
+  // La muestra solo lee fixtures. Los jobs de un cliente se configuran
+  // expresamente en su despliegue aislado; esta demo no registra crons.
   "triggers": {
-    "crons": ["17 3 * * 1", "*/5 * * * *", "*/1 * * * *"]
+    "crons": []
   },
   "d1_databases": [
     {
@@ -40,7 +38,7 @@
   //   STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET, ADMIN_COOKIE_SECRET
   //   CUSTOMER_PROFILE_HMAC_SECRET (HMAC R5.1 propio de cada despliegue)
   //   RESEND_API_KEY (solo tienda real: activa el envío de emails via Resend)
-  //   LEADS_RESEND_API_KEY (avisos de leads de la landing a la agencia; no
-  //     activa la outbox de la tienda). Remitente: LEADS_EMAIL_FROM o, si
+  //   LEADS_RESEND_API_KEY (avisos solo en un despliegue cliente; nunca en
+  //     DEMO_MODE). Remitente: LEADS_EMAIL_FROM o, si
   //     falta, hola@logic2b.com — su dominio debe estar verificado en Resend.
 }

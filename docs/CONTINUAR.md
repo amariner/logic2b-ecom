@@ -19,6 +19,13 @@
 
 ## Contexto fijo
 
+- **Mandato actualizado 2026-10-03:** la demo y la landing son solo fixtures.
+  No hay cron, pedidos reales, envío de formularios ni escrituras operativas en
+  D1, incluida la antigua excepción de contacto/leads. Las migraciones del motor
+  se desarrollan y ensayan con datos sintéticos en QA aislada; la autorización
+  de R5.6c.3 no incluye la base remota ni un despliegue. La autorización previa
+  de push/merge se conserva tras comprobar los checks.
+
 - La web pública sigue siendo una **demo/muestra**: sus escaparates simulan
   carrito, envío y confirmación en el navegador; el panel usa fixtures de solo
   lectura. No conectar servicios reales a la demo. **El motor clonable para
@@ -81,9 +88,9 @@
 8. **Cerrar** — resumen con el sign-off del consejo (formato del SKILL.md) y,
    si el bloque afecta a producción y la sesión es local, `pnpm deploy` +
    smoke test. `/api/demo/reset` está retirado y responde `410`: el visitante
-   solo puede limpiar su recorrido local desde `/demo/reset`. Si cambian los
-   fixtures del panel, se actualiza D1 mediante el cron interno o Wrangler,
-   nunca mediante una petición pública.
+   solo puede limpiar su recorrido local desde `/demo/reset`. No actualizar
+   la base de fixtures desplegada ni registrar cron; cualquier preparación de
+   datos de prueba se limita a un entorno QA aislado y sintético.
 
    **Si `wrangler` contesta «es necesario CLOUDFLARE_API_TOKEN en un entorno no
    interactivo», no falta un secreto: ha caducado la sesión OAuth.** Se arregla

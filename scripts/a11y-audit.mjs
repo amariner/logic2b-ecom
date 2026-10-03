@@ -16,7 +16,7 @@
  * Cubre todas las tiendas registradas (catálogo/ficha/carrito/checkout ×
  * 1440/375/reduced-motion), el panel × 1440/375 y las páginas
  * comerciales/utilitarias × 1440/375 (la landing también con reduced-motion).
- * El panel entra con el POST real del login y la cookie de
+ * El panel entra con el GET guiado de la demo y la cookie de
  * sesión; sus ids de pedido se resuelven en vivo por estado, nunca se fijan a
  * mano. Las variantes @dark se retiraron en F12.0: NADA del código responde a
  * prefers-color-scheme, así que eran cobertura fantasma (ver el comentario en
@@ -141,21 +141,13 @@ const ACTIVATE_CTA = `(async () => {
 // ── Panel de administración ────────────────────────────────────────────────
 // El panel vive tras la cookie de sesión firmada, así que la tanda entra UNA
 // vez (`auth`) y la cookie viaja sola en el resto de navegaciones del mismo
-// perfil de Chrome. Se hace con el POST real del formulario, no sembrando la
-// cookie a mano: así el propio login queda probado de paso.
+// perfil de Chrome. El enlace guiado GET evita enviar formularios de login.
 const ADMIN_LOGIN = String.raw`(async () => {
-  const r = await fetch('/demo/admin/login', {
-    method: 'POST',
-    body: new URLSearchParams({ password: 'demo' }),
+  const r = await fetch('/demo/admin/login?tour=1&next=%2Fdemo%2Fadmin', {
     credentials: 'same-origin',
   });
   const u = new URL(r.url);
   if (u.pathname.startsWith('/demo/admin') && !u.pathname.includes('/login')) return 'ok';
-  // El E2E termina probando el rate limit del login con 11 intentos fallidos:
-  // si la tanda de a11y va detrás, la ventana de 60 s sigue abierta y el POST
-  // acaba en el login con ?limited=1. No es un fallo del panel, es la cola del
-  // test anterior — se distingue para poder reintentar en vez de dar 12 rojos.
-  if (u.searchParams.has('limited')) return 'limitado';
   return 'fallo ' + r.status + ' → ' + u.pathname + u.search;
 })()`;
 
@@ -311,6 +303,33 @@ for (const p of SITE_PAGES) {
 }
 SURFACES.push({ name: 'site:landing@motion', url: '/', vp: DESKTOP, reducedMotion: true });
 SURFACES.push({ name: 'site:estilos@motion', url: '/temas', vp: DESKTOP, reducedMotion: true });
+
+// Estados nuevos de la muestra inerte; --only=fixture: acota esta regresión.
+for (const vp of [DESKTOP, MOBILE]) {
+  const suffix = vp === MOBILE ? '@375' : '';
+  SURFACES.push({ name: `fixture:login${suffix}`, url: '/demo/admin/login', vp });
+  SURFACES.push({ name: `fixture:confirmacion${suffix}`, url: '/proyecto-recibido', vp });
+  SURFACES.push({
+    name: `fixture:contacto${suffix}`, url: '/', vp,
+    eval: `(() => {
+      document.querySelector('[data-open-project]').click();
+      const form = document.querySelector('[data-project-dialog] [data-project-form]');
+      form.elements.namedItem('name').value = 'Ejemplo Fixture';
+      form.elements.namedItem('email').value = 'fixture@example.invalid';
+      form.elements.namedItem('needs').value = 'Solicitud ficticia de demostración';
+      form.requestSubmit();
+      return form.querySelector('[data-form-status]').textContent.includes('no se ha enviado') ? 'local' : 'error';
+    })()`, expect: 'local',
+  });
+  SURFACES.push({
+    name: `fixture:lote${suffix}`, url: '/demo/admin', vp, auth: true,
+    eval: `(() => {
+      document.querySelector('[data-bulk-select-page]').click();
+      document.querySelector('#bulk-action-form').requestSubmit();
+      return document.querySelector('[data-bulk-status]').textContent.includes('Ejemplo local') ? 'local' : 'error';
+    })()`, expect: 'local',
+  });
+}
 
 // R5.4d: estas rutas no existen en la demo y por eso no forman parte de la
 // batería ordinaria. El arnés local explícito activa un manifest cliente y una
@@ -702,8 +721,11 @@ const AUDIT_JS = String.raw`(() => {
   // ── 10. Foco visible ─────────────────────────────────────────────────────
   // Comprueba que el primer control real recibe un indicador de foco propio y
   // no un "outline: none" sin sustituto.
+  // showModal() vuelve inerte el fondo sin añadir atributos [inert]. Sus
+  // controles no pueden recibir foco mientras el diálogo siga abierto.
+  const modal = document.querySelector('dialog:modal');
   const focusables = [...document.querySelectorAll(CONTROLS)]
-    .filter((el) => visible(el) && !(el instanceof HTMLButtonElement && el.disabled) &&
+    .filter((el) => (!modal || modal.contains(el)) && visible(el) && !(el instanceof HTMLButtonElement && el.disabled) &&
       !(el instanceof HTMLInputElement && el.disabled) &&
       !(el instanceof HTMLSelectElement && el.disabled) &&
       !(el instanceof HTMLTextAreaElement && el.disabled))
@@ -916,14 +938,7 @@ async function main() {
       const res = await S('Runtime.evaluate', { expression: ADMIN_LOGIN, awaitPromise: true, returnByValue: true });
       return String(res.result.value ?? res.exceptionDetails?.text);
     };
-    let value = await attempt();
-    if (value === 'limitado') {
-      // Un solo reintento tras la ventana de 60 s: suficiente para encadenar
-      // `pnpm test:e2e` y esta tanda sin repetirla a mano.
-      console.log('· login limitado por el rate limit (cola del E2E): esperando 65 s y reintentando…');
-      await new Promise((r) => globalThis.setTimeout(r, 65_000));
-      value = await attempt();
-    }
+    const value = await attempt();
     if (value !== 'ok') return value;
     loggedIn = true;
     return null;

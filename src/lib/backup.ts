@@ -9,18 +9,21 @@ export type Row = Record<string, string | number | null>;
 /** La composición aporta el replay de cada módulo sin invertir dependencias. */
 export type BackupExtension = Readonly<{
   columns: Readonly<Record<string, readonly string[]>>;
+  renderPreflight?: (tables: Record<string, Row[]>) => readonly string[];
   renderRestore: (tables: Record<string, Row[]>) => readonly string[];
   validate: (tables: Record<string, Row[]>) => Promise<void>;
 }>;
 
-/** Tablas append-only que requieren replay propio del módulo en esquema 38. */
+/** Tablas append-only que requieren replay propio del módulo en esquema 39. */
 const BACKUP_REPLAY_TABLES = [
+  'customer_segment_facts_policies',
   'customer_segment_definitions', 'customer_segment_runs',
   'customer_segment_run_snapshots', 'customer_segment_results', 'customer_segment_publications',
+  'customer_segment_execution_plans', 'customer_segment_job_intents',
 ] as const;
 
 /** Orden de volcado y de borrado inverso (hijos después de padres al insertar no importa: borramos primero). */
-export const BACKUP_SCHEMA_VERSION = 38;
+export const BACKUP_SCHEMA_VERSION = 39;
 
 export const BACKUP_TABLES = [
   'products',
@@ -308,7 +311,7 @@ export function buildBackupSql(
   const lines = [
     `-- Copia de seguridad Logic2B Ecommerce — ${generatedAt}`,
     `-- logic2b-backup-schema: ${BACKUP_SCHEMA_VERSION}`,
-    '-- Requiere una base vacía con la migración 0045_customer_segmentation aplicada; las guardas de evidencia permanecen activas.',
+    '-- Requiere una base vacía con la migración 0046_customer_segment_execution aplicada; las guardas de evidencia permanecen activas.',
     `-- Restaurar con: wrangler d1 execute <database> --remote --file <este fichero>`,
     'PRAGMA defer_foreign_keys = true;',
     ...BACKUP_REPLAY_TABLES.map((table) =>
@@ -320,6 +323,7 @@ export function buildBackupSql(
     `SELECT CASE WHEN ${BACKUP_REPLAY_TABLES.map((table) =>
       `EXISTS (SELECT 1 FROM ${table})`).join(' OR ')} ` +
       `THEN json('restore_target_has_segment_history') ELSE 1 END AS restore_target_empty;`,
+    ...extensions.flatMap((extension) => extension.renderPreflight?.(tablesRows) ?? []),
   ];
   for (const table of [...BACKUP_TABLES].reverse()) {
     lines.push(`DELETE FROM ${table};`);

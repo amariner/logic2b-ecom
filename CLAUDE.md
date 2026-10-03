@@ -55,7 +55,17 @@ Este repositorio cumple **dos funciones a la vez**:
    aceleran la implantación, pero cada cliente recibe un despliegue aislado y un
    ecommerce adaptado; la oferta nunca se presenta como una plantilla.
 
-**No es un proyecto de cliente real.** Todo funciona en modo demo: datos sembrados, Stripe en modo test, emails capturados en lugar de enviados, reset periódico. Pero el código debe ser **de producción, no un mockup**: la lógica es real y verificable, solo cambian las credenciales y los datos.
+**No es un proyecto de cliente real.** La muestra pública utiliza fixtures y
+simulaciones locales: sin cron, pedidos reales, envío de formularios, emails ni
+escrituras operativas en base de datos. El motor reutilizable conserva lógica
+real, probada con datos sintéticos en QA aislada mientras no exista otra
+autorización para un despliegue de cliente.
+
+**Mandato de Andreu, 2026-10-03:** la autorización de migración R5.6c.3 cubre
+su implementación y ensayo local, con tres tablas aditivas y backup 39; no
+autoriza modificar la D1 desplegada ni activar operaciones. La restricción
+de demo solo fixtures sustituye cualquier referencia antigua a reset semanal,
+leads reales o emails persistidos durante una visita.
 
 ---
 
@@ -79,6 +89,11 @@ Estos principios mandan sobre cualquier decisión técnica. Si algo entra en con
   capacidad con valor visible para un decisor debe terminar con una evidencia
   visual inerte o quedar marcada como `demo visual pendiente`; el cierre técnico
   por sí solo no autoriza comunicarla como demostrable.
+- **Cero efectos en la muestra, también en la landing.** Los formularios no
+  envían datos; las previsualizaciones se resuelven con fixtures locales.
+  No hay excepción de contacto/leads, analítica persistente, reseteo ni cron.
+  Se permiten lecturas de fixtures ya preparados; los ensayos de escritura y
+  migración pertenecen únicamente a bases QA aisladas, nunca a la demo servida.
 
 ---
 
@@ -93,7 +108,7 @@ Estos principios mandan sobre cualquier decisión técnica. Si algo entra en con
 | Estilos | Tailwind CSS v4 |
 | Interactividad | Astro islands + Alpine.js o vanilla TS. **Sin React**, salvo que lo justifiques. |
 | Pagos | Stripe Checkout (hosted) + webhook |
-| Emails | Resend (en demo: capturados en D1, no enviados) |
+| Emails | Resend para clientes; en demo, fixtures de solo lectura |
 | Auth admin | Cloudflare Access en real / cookie firmada simple en demo |
 | Lenguaje | TypeScript estricto |
 | Tests | Vitest para la lógica de precios/envíos/webhook |
@@ -110,16 +125,16 @@ Estos principios mandan sobre cualquier decisión técnica. Si algo entra en con
 - `/demo/tienda` — catálogo con filtros por categoría y orden.
 - `/demo/tienda/[slug]` — ficha de producto.
 - `/demo/carrito` — carrito (estado en `localStorage`, precios **siempre revalidados en servidor**).
-- `/demo/checkout` — recogida de datos de envío + cálculo de portes → redirección a Stripe.
-- `/demo/gracias` — confirmación post-pago.
+- `/demo/checkout` — simulación local del envío y resumen con fixtures, sin enviar datos ni cobrar.
+- `/demo/gracias` — confirmación ilustrativa local, sin pedido persistido.
 
 **Demo backoffice (`noindex`):**
 - `/demo/admin` — tabla de pedidos: nº, fecha, cliente, total, estado. Filtros por estado.
 - `/demo/admin/pedidos/[id]` — detalle: líneas, dirección, botón "Marcar enviado" + campo tracking, timeline de estados.
-- `/demo/admin/productos` — CRUD mínimo: nombre, precio, stock, activo.
+- `/demo/admin/productos` — muestra de catálogo y edición local, sin escritura durable.
 - `/demo/admin/envios` — tarifas por zona/tramo y botón **"Exportar CSV para Packlink/SendCloud"**.
 - `/demo/admin/emails` — **bandeja simulada**: muestra los emails transaccionales que el sistema habría enviado (confirmación de pedido, aviso de envío con tracking). Es una de las mejores piezas de la demo: demuestra el flujo completo sin mandar nada.
-- `/demo/reset` — restaura el estado sembrado.
+- `/demo/reset` — limpia únicamente el recorrido local del navegador.
 
 ---
 
@@ -149,6 +164,10 @@ Reglas:
 
 ## 6. API
 
+Los siguientes contratos pertenecen al motor para clientes. En la muestra
+pública las operaciones mutantes están bloqueadas antes de acceder a D1 o a
+proveedores, incluso si se invocan directamente fuera de la interfaz.
+
 - `POST /api/cart/quote` → recibe `[{slug, qty}]` + código postal. Devuelve subtotal, portes y total **recalculados en servidor desde D1**. El cliente nunca envía precios.
 - `POST /api/checkout/session` → revalida stock y precios, crea la Stripe Checkout Session con `line_items` construidos en servidor, guarda el pedido en `pending`, devuelve la URL de redirección.
 - `POST /api/webhooks/stripe` → verifica firma, idempotente, marca `paid`, decrementa stock, escribe en `emails_outbox`.
@@ -172,13 +191,14 @@ Reglas:
 ## 8. MODO DEMO
 
 Flag `DEMO_MODE=true` en env. Cuando está activo:
-- Banner superior fijo: modo demo + tarjeta de prueba `4242 4242 4242 4242` visible y copiable.
-- Stripe en claves **test**.
-- Emails escritos en `emails_outbox` y visibles en `/demo/admin/emails`, nunca enviados.
-- Admin accesible sin credenciales reales (cookie simple), con aviso de que en producción va tras Cloudflare Access.
-- Cron Trigger de Cloudflare semanal que refresca solo los pedidos ficticios.
-  El catálogo persistente de la demo es pequeño y estable; el escaparate público
-  usa fixtures versionados y no debe reescribirse por cron.
+- Catálogo, pedidos, envíos y emails son fixtures sintéticos de solo lectura.
+- Carrito, checkout, formularios y acciones del panel simulan resultados locales.
+- No se envían formularios, beacons, emails ni peticiones con efectos externos.
+- No se crean pedidos ni se modifica D1; la preparación de QA se hace fuera del runtime.
+- No se registran cron triggers y un evento scheduled accidental no realiza trabajo.
+- Admin de demostración mediante acceso guiado con cookie stateless; los permisos
+  de despliegues de cliente se conservan independientes.
+- `/demo/reset` limpia el navegador; `/api/demo/reset` no repuebla datos.
 - Todo `/demo/*` con `<meta name="robots" content="noindex,follow">`.
 
 ---

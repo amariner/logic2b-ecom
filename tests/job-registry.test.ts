@@ -17,7 +17,6 @@ describe('registro de jobs R1.11', () => {
     const registry = createJobRegistry(JOB_DESCRIPTORS, MODULE_REGISTRY);
     expect(validateJobRegistry(JOB_DESCRIPTORS, MODULE_REGISTRY)).toEqual([]);
     expect(MODULE_REGISTRY.jobOwners).toEqual({
-      'platform-configuration.demo-order-refresh': 'platform-configuration',
       'notifications.event-outbox-sweep': 'notifications',
       'inventory.expire-reservations': 'inventory',
       'orders.execute-bulk-action': 'orders',
@@ -27,14 +26,13 @@ describe('registro de jobs R1.11', () => {
     expect(Object.isFrozen(registry.descriptors[0]?.retryDelaysSeconds)).toBe(true);
   });
 
-  it('activa mantenimiento demo sin habilitar jobs comerciales', () => {
+  it('la demo no registra ni programa jobs, incluido el antiguo refresco', () => {
     const platform = createPlatform(createPublicDemoManifest({
       id: 'jobs-demo-test',
       environment: 'development',
     }));
-    expect(platform.scheduledJobs('17 3 * * 1').map((job) => job.id)).toEqual([
-      'platform-configuration.demo-order-refresh',
-    ]);
+    expect(platform.scheduledJobs('17 3 * * 1')).toEqual([]);
+    expect(platform.jobRegistry.descriptors.every((job) => !job.modes.includes('demo'))).toBe(true);
     expect(platform.scheduledJobs('*/5 * * * *')).toEqual([]);
     expect(platform.hasCapabilityFlag('AUT-002', 'jobs')).toBe(false);
   });

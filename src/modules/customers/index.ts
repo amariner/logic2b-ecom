@@ -274,6 +274,14 @@ export {
   type CustomerSegmentExecutionResult,
   type CustomerSegmentPublicationCommand,
 } from './application/customer-segmentation-execution';
+export {
+  CUSTOMER_SEGMENT_STEP_JOB_ID,
+  type CustomerSegmentExecutionStore,
+  type CustomerSegmentExecutionPlan,
+  type CustomerSegmentJobIntent,
+  type RegisteredCustomerSegmentFactsPolicy,
+} from './application/customer-segment-execution-store';
+export { createD1CustomerSegmentExecutionStore } from './infrastructure/d1-customer-segment-execution-store';
 export type {
   CustomerSegmentationRepository, SegmentDefinition, SegmentRun, SegmentRunSnapshot,
   SegmentPublication, SegmentMembership, SegmentCommandContext, SegmentWrite,
@@ -286,5 +294,6 @@ export {
   CUSTOMER_SEGMENT_BACKUP_COLUMNS,
   CUSTOMER_SEGMENT_BACKUP_TABLES,
   buildCustomerSegmentRestoreSql,
+  buildCustomerSegmentRestorePreflightSql,
   assertCustomerSegmentBackupFingerprints,
 } from './application/customer-segmentation-backup';

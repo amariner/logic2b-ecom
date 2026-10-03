@@ -23,7 +23,7 @@ export default defineConfig({
   server: { port: Number(process.env.PORT) || 4321 },
   adapter: cloudflare({
     platformProxy: { enabled: true }, // bindings D1 locales en `astro dev`
-    // Entry point propio: añade el handler `scheduled` del cron de reset.
+    // Entry point propio: cierra scheduled en demo; jobs solo para clientes.
     workerEntryPoint: { path: 'src/worker.ts' },
   }),
   vite: {

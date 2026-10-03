@@ -60,12 +60,8 @@ const limiter = new RateLimiter();
 const PUBLIC_API_RULES: Record<string, RateLimitRule> = {
   '/api/cart/quote': { limit: 60, windowMs: 60_000 },
   '/api/checkout/session': { limit: 10, windowMs: 60_000 },
-  // Reset destructivo (borra pedidos y emails de todos los visitantes): sin
-  // autenticación por diseño (es un botón público de la demo), así que necesita
-  // un límite bajo para que no se pueda machacar la demo en bucle.
-  '/api/demo/reset': { limit: 3, windowMs: 60_000 },
-  // Login del panel: sin esto, la contraseña (pública a propósito en demo, pero
-  // el mismo código correría en una tienda real) admitía intentos ilimitados.
+  // El despliegue cliente conserva su límite; en demo cualquier POST se
+  // rechaza antes de llegar al formulario o a los servicios de aplicación.
   '/demo/admin/login': { limit: 10, windowMs: 60_000 },
 };
 const CUSTOMER_ACCOUNT_ROUTE_PATHS = new Set<string>(Object.values(CUSTOMER_ACCOUNT_ROUTES));
@@ -122,6 +118,19 @@ export const onRequest = defineMiddleware(async (context, next) => {
     return new Response('Esta sección no está habilitada.', {
       status: 403,
       headers: { 'content-type': 'text/plain; charset=utf-8', 'cache-control': 'no-store' },
+    });
+  }
+
+  // La muestra nunca procesa comandos, aunque una ruta futura olvide su
+  // guarda local o la variable del Worker diverja del manifest demo.
+  // GET/HEAD conservan las lecturas de fixtures y el acceso guiado stateless.
+  const demoMode = runtimePlatform.manifest.deployment.mode === 'demo' ||
+    context.locals.runtime?.env.DEMO_MODE === 'true';
+  if (demoMode && !['GET', 'HEAD', 'OPTIONS'].includes(context.request.method.toUpperCase())) {
+    const retired = ['/api/cart/quote', '/api/checkout/session', '/api/webhooks/stripe', '/api/demo/reset'].includes(pathname);
+    return Response.json({ error: 'Esta muestra es de solo lectura; los formularios se simulan en el navegador.' }, {
+      status: retired ? 410 : 403,
+      headers: { 'cache-control': 'no-store', 'x-content-type-options': 'nosniff' },
     });
   }
 
