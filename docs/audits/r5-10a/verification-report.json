@@ -1,0 +1,55 @@
+{
+  "schemaVersion": 1,
+  "environment": "local-synthetic-contracts",
+  "deployment": "not-deployed",
+  "verification": {
+    "typecheckFiles": 917,
+    "diagnostics": 0,
+    "suites": 234,
+    "tests": 2391,
+    "taxCalculationTests": 82,
+    "fixtureTaxAdapterTests": 14,
+    "vatEvidenceTests": 55,
+    "fixtureVatAdapterTests": 15,
+    "architectureTests": 6,
+    "manifestAndRegistryTests": 75,
+    "buildHtmlPages": 44,
+    "buildLocalForms": 44
+  },
+  "independentReview": {
+    "taxAssertions": 5420,
+    "vatAssertions": 196,
+    "totalAssertions": 5616,
+    "openP1OrP2": 0,
+    "publicEntryPointBundleSources": 5,
+    "operationalRuntimeImports": 0,
+    "observedEffects": 0
+  },
+  "inheritedRegression": {
+    "source": "r5-9b/verification-report.json",
+    "commit": "7a0926ec096014c8ea6b2a1f7970f0b5de8f7d96",
+    "e2eChecks": 164,
+    "browserChecks": 188,
+    "a11ySurfaces": 8,
+    "a11yErrors": 0,
+    "a11yWarnings": 0,
+    "databaseTables": 143,
+    "databaseRows": 353,
+    "databaseHash": "9cbfc811cfc4296515a403d395875a43bfa26aff0c9c9b08be0804b15bbf6eca",
+    "rerunForThisCut": false
+  },
+  "scope": {
+    "module": "taxes",
+    "profile": "eur-line-tax-half-up-v1",
+    "capabilities": ["MKT-009", "MKT-010"],
+    "state": "installed",
+    "activeInPresets": false,
+    "runtimeConsumers": 0,
+    "migrationsAdded": 0,
+    "routesAdded": 0,
+    "jobsAdded": 0,
+    "externalProviders": 0,
+    "checkoutOrPaymentBehaviorChanged": false,
+    "fixturePresentation": "pending-r5-10b"
+  }
+}

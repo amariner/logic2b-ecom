@@ -97,7 +97,7 @@ remoto.
 
 ### Evidencia local del 2026-10-03
 
-- `pnpm check`: 905 archivos sin diagnósticos, 230 suites y 2.222 tests.
+- `pnpm check`: 917 archivos sin diagnósticos, 234 suites y 2.391 tests.
 - Build demo: 44 documentos HTML y 44 formularios de proyecto locales.
 - D1/workerd: 15 bloques correctos, backup 39 y restauración de 129 tablas;
   [informe de segmentación](docs/audits/r5-6c/facts-d1-report.json).
@@ -123,6 +123,10 @@ remoto.
 - Publicación del catálogo: selección por mercado, canal y variante aplicada
   solo en memoria; 47 pruebas del modelo, 188 comprobaciones de navegador y
   ocho superficies a11y sin hallazgos. [Evidencia R5.9b](docs/audits/r5-9b/README.md).
+- Cálculo fiscal y evidencia VAT: 96 y 70 pruebas específicas, respectivamente;
+  5.616 comprobaciones independientes. Adaptadores solo fixture, capacidades
+  MKT-009/010 inactivas y demo visual pendiente de R5.10b.
+  [Informe R5.10a](docs/audits/r5-10a/verification-report.json).
 - Base QA: 143 tablas y 353 filas, hash antes/después idéntico:
   `9cbfc811cfc4296515a403d395875a43bfa26aff0c9c9b08be0804b15bbf6eca`.
 

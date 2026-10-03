@@ -31,6 +31,50 @@ Una quinta clasificación, **fuera de alcance deliberado**, evita confundir
 paridad comercial con fabricar bancos, redes publicitarias, hardware de punto de
 venta o servicios logísticos propios.
 
+## Último contrato verificado
+
+**R5.10a implementado y verificado localmente**, rama
+`codex/tax-fixture-contract`. El
+[ADR-0049](adr/0049-contrato-fiscal-fixture.md) delimita un módulo `taxes`
+separado de `markets`, con contrato puro y puerto/adaptador únicamente fixture.
+MKT-009/010 pasan a parciales e instaladas/inactivas en avanzado y demo, con
+dependencia PLT-004; CHK-006 sigue pendiente. Sin despliegue ni activación.
+
+El perfil `eur-line-tax-half-up-v1` trabaja en EUR postdescuento, por línea,
+separando `goods` y `shipping`. Declara jurisdicción, tratamiento, tasa y precio
+con impuestos incluidos/excluidos; calcula con `BigInt` y redondeo half-up,
+conserva `net + tax = gross` y rechaza desbordamientos. Distingue `taxable`,
+`zero_rate`, `exempt`, evidencia y casos `unresolved`; una línea sin resolver
+deja `totals: null`, sin producir un importe utilizable como total fiscal.
+Las entradas corruptas o ajenas a la consulta se rechazan como error de contrato.
+El subtotal previo a descuentos no se trata como base imponible.
+
+La respuesta del adaptador debe corresponder a la solicitud completa y al
+adaptador esperado. Solo una respuesta `assessed` vigente genera snapshot;
+`unavailable`, evidencia caducada o futura no lo generan. La evidencia VAT se
+correlaciona con consulta, adaptador e instante explícitos: un VAT válido no
+concede exención. El contrato no infiere fiscalidad de mercado, código postal
+o NIF, no fija una fiscalidad universal ni añade DDL; tampoco conecta quote,
+checkout, pagos, reembolsos, D1, red, reloj, caché durable o proveedor.
+
+Check final con salida 0: 917 archivos sin diagnósticos, 234 suites/2.391
+pruebas y build con 44 HTML/44 formularios/cero crons. Focales: 96 fiscales
+(82+14), 70 VAT (55+15), seis de arquitectura y 75 de registry/manifest.
+La revisión independiente cubre 5.616 aserciones (5.420 fiscales y 196 VAT),
+sin P1/P2 ni efectos; el bundle público de `taxes` contiene cinco fuentes puras.
+[Informe](../audits/r5-10a/verification-report.json).
+
+E2E 164/164,
+navegador 188/188, ocho superficies a11y y hash de 143 tablas/353 filas
+`9cbfc811cfc4296515a403d395875a43bfa26aff0c9c9b08be0804b15bbf6eca`
+son evidencia heredada de R5.9b, integrada en PR #20 (`7a0926e`), no nuevas
+ejecuciones de este corte.
+Después seguirá **R5.10b: demo fiscal inerte**, diseño aprobado para
+`/demo/admin/impuestos`, «Impuestos y totales»: cinco ejemplos cerrados,
+selector incluido/excluido, desglose por línea y evidencia VAT independiente.
+Importes de solo lectura, recálculo en memoria y reset/recarga, sin guardar ni
+campos fiscales libres. Todavía no está implementada ni disponible.
+
 ## Demo verificada
 
 **R5.9b implementada y verificada, disponible en repo sin desplegar**, rama
@@ -56,18 +100,9 @@ errores/avisos. El módulo no genera HTTP, storage, timers, beacons, ventanas
 ni errores JS; guía y rAF visual de WhatsApp se contabilizan aparte. Base QA
 intacta: 143 tablas, 353 filas, SHA-256 antes/después
 `9cbfc811cfc4296515a403d395875a43bfa26aff0c9c9b08be0804b15bbf6eca`.
-Worker detenido.
-
-Sigue **R5.10a: contrato puro de impuestos con fixtures**, módulo `taxes`
-separado y perfil `eur-line-tax-half-up-v1`, en EUR
-postdescuento, separando mercancía y envío y declarando jurisdicción,
-tratamiento, tasa, precio con impuestos incluidos/excluidos y redondeo.
-Distinguirá 0 %, exento y no resuelto, con evidencia VAT separada —un VAT válido
-no concede exención— y sin tratar el subtotal previo a descuentos como base
-imponible. No inferirá fiscalidad de mercado, código postal o NIF ni conectará
-API, proveedor, checkout o reembolsos; el alcance puro no requiere DDL ni fija
-una fiscalidad universal. MKT-009/010 se implementarán parciales e inactivas;
-CHK-006 permanecerá pendiente.
+Worker detenido. Integrada en
+[PR #20](https://github.com/amariner/logic2b-ecom/pull/20), commit `7a0926e`, sin
+despliegue.
 
 ## Último contrato verificado
 

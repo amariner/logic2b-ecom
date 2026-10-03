@@ -285,6 +285,30 @@ describe('capability manifest (R1.2)', () => {
     });
   });
 
+  it.each(['MKT-009', 'MKT-010'] as const)('keeps %s isolated from operational presets and effects', (id) => {
+    expect(CAPABILITY_DEFINITIONS[id].dependencies).toEqual(['PLT-004']);
+    expect(id in CAPABILITY_PRESETS.minimal).toBe(false);
+    expect(id in CAPABILITY_PRESETS.standard).toBe(false);
+    expect(CAPABILITY_PRESETS.advanced[id]).toEqual({ state: 'installed' });
+    const demo = createPlatform(platformManifest);
+    expect(demo.capabilityState(id)).toBe('installed');
+    expect(demo.hasModule('taxes')).toBe(false);
+    expect(demo.capability(id).flags).toEqual(INERT_FLAGS);
+    const isolated = createPlatform({
+      manifestVersion: 1,
+      deployment: { ...deployment, profile: 'custom' },
+      capabilities: {
+        'PLT-001': { state: 'active', flags: INERT_FLAGS },
+        'PLT-004': { state: 'active', flags: INERT_FLAGS, config: { failFast: true } },
+        [id]: { state: 'active', flags: INERT_FLAGS },
+      },
+    });
+    expect(isolated.hasModule('taxes')).toBe(true);
+    expect(isolated.hasModule('markets')).toBe(false);
+    expect(isolated.hasModule('checkout')).toBe(false);
+    expect(isolated.capability(id).flags).toEqual(INERT_FLAGS);
+  });
+
   it('requires markets and variants for publication without coupling market resolution alone to catalog', () => {
     const input: MutableManifest = {
       manifestVersion: 1,
