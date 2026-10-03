@@ -1,0 +1,20 @@
+---
+import { canShowCustomerSegmentDemo } from '../../../composition/customer-segment-demo';
+import Admin from '../../../layouts/Admin.astro';
+import AdminPageHeader from '../../../components/admin/AdminPageHeader.astro';
+import CustomerSegmentsDemo from '../../../components/admin/CustomerSegmentsDemo.astro';
+
+export const prerender = false;
+
+if (!canShowCustomerSegmentDemo(Astro.locals.runtime?.env)) {
+  return new Response('Página no encontrada.', {
+    status: 404,
+    headers: { 'content-type': 'text/plain; charset=utf-8', 'cache-control': 'no-store' },
+  });
+}
+---
+
+<Admin title="Segmentos de clientes" active="segmentos">
+  <AdminPageHeader eyebrow="Clientes · demostración" title="Segmentos de clientes" description="Explora cómo agrupar clientes según su relación con la tienda. Elige un ejemplo, ajusta las reglas y revisa cada resultado." />
+  <CustomerSegmentsDemo />
+</Admin>

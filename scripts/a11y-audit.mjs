@@ -331,6 +331,31 @@ for (const vp of [DESKTOP, MOBILE]) {
   });
 }
 
+// R5.6d: evaluación local de perfiles ficticios; ningún estado envía comandos.
+for (const vp of [DESKTOP, MOBILE]) {
+  const suffix = vp === MOBILE ? '@375' : '';
+  const base = { url: '/demo/admin/segmentos', vp, auth: true };
+  SURFACES.push({ ...base, name: `segments:initial${suffix}` });
+  SURFACES.push({
+    ...base, name: `segments:completed${suffix}`,
+    eval: `(() => {
+      document.querySelector('[data-segment-simulate]').click();
+      for (let i = 0; i < 6; i++) document.querySelector('[data-segment-advance]').click();
+      return document.querySelector('[data-customer-segments-demo]').dataset.segmentState;
+    })()`, expect: 'completed',
+  });
+  SURFACES.push({
+    ...base, name: `segments:invalid${suffix}`,
+    eval: `(() => {
+      const input = document.querySelector('[data-segment-parameter]');
+      input.value = '';
+      input.dispatchEvent(new Event('input', { bubbles: true }));
+      return document.querySelector('[data-customer-segments-demo]').dataset.segmentState;
+    })()`, expect: 'invalid',
+  });
+  SURFACES.push({ ...base, name: `segments:motion${suffix}`, reducedMotion: true });
+}
+
 // R5.4d: estas rutas no existen en la demo y por eso no forman parte de la
 // batería ordinaria. El arnés local explícito activa un manifest cliente y una
 // composición visual inerte para auditar las páginas Astro reales sin DB,

@@ -31,6 +31,30 @@ Una quinta clasificación, **fuera de alcance deliberado**, evita confundir
 paridad comercial con fabricar bancos, redes publicitarias, hardware de punto de
 venta o servicios logísticos propios.
 
+## Último corte local
+
+**R5.6d implementada y verificada, disponible en el repositorio sin despliegue.**
+La muestra de `/demo/admin/segmentos` incluye 12 perfiles sintéticos, cuatro hechos, tres templates
+y lotes de tres, con evaluación pura en el navegador sobre fixtures. No usa
+API, cron ni persistencia.
+CUS-009 conserva el estado parcial e instalada/inactiva operativamente, sin
+habilitar flags, handlers ni jobs.
+
+R5.6c.3 quedó integrado en [PR #14](https://github.com/amariner/logic2b-ecom/pull/14),
+commit `9b3a8ab`, sin despliegue. El siguiente bloque es **R5.7a–b: modelo de
+mercados y composición pura en QA**, con ADR, moneda base y configuración
+versionada en Git, sin DDL ni endpoints. Los gates G3/G4 de uso real siguen
+pendientes y no bloquean ese alcance puro.
+
+[Validación final](../audits/r5-6d/verification-report.json): 883 archivos sin
+diagnósticos, 222 suites/1.730 pruebas, 44 HTML y 44 formularios cerrados a envíos;
+E2E 156/156. [Navegador](../audits/r5-6d/report.json): 119/119 comprobaciones,
+ocho capturas, incluido sin JavaScript, cero APIs, mutaciones, beacons y errores.
+[Accesibilidad](../audits/r5-6d/a11y-report.json): ocho superficies a 1440/375,
+estados inicial/completado/inválido y movimiento reducido, cero errores y avisos.
+Base QA sin cambios: 143 tablas y 353 filas, SHA-256 antes/después
+`9cbfc811cfc4296515a403d395875a43bfa26aff0c9c9b08be0804b15bbf6eca`.
+
 ## Documentos
 
 - [`INVESTIGACION_EDICIONES_2022_2026.md`](INVESTIGACION_EDICIONES_2022_2026.md):
@@ -72,7 +96,8 @@ venta o servicios logísticos propios.
   para correlacionar checkout, webhook, outbox y email sin PII.
 - [`OPERACION_SEGMENTACION.md`](OPERACION_SEGMENTACION.md): políticas de hechos,
   captura consistente, cálculos versionados y restore de R5.6; capacidad
-  instalada e inactiva, con activación y demo visual pendientes.
+  instalada e inactiva, activación pendiente y demo visual R5.6d verificada
+  en el repositorio, sin despliegue.
 - [`EJECUCION_SEGMENTACION.md`](EJECUCION_SEGMENTACION.md): coordinador interno
   implementado, reanudación por revisión y publicación explícita de R5.6c.2.
 - [`PROPUESTA_EJECUCION_SEGMENTACION.md`](PROPUESTA_EJECUCION_SEGMENTACION.md):

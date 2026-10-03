@@ -1,5 +1,29 @@
 # Operación de segmentación calculada
 
+## R5.6d — Demostración visual verificada en el repositorio
+
+R5.6c.3 está integrada en PR #14 (`9b3a8ab`), sin despliegue. R5.6d implementa
+`/demo/admin/segmentos` con 12 perfiles sintéticos, cuatro
+hechos, tres templates y lotes de tres. La evaluación y el progreso ilustrativo
+ocurren en el navegador: sin captura de perfiles reales, APIs operativas,
+repositorios, store, jobs ni persistencia.
+
+La implementación y su QA están cerradas; la demo visual está disponible en
+el repositorio, sin desplegar. Se verifican navegador en escritorio/móvil,
+teclado, accesibilidad y ausencia de escrituras o tráfico operativo.
+CUS-009 continúa parcial, instalada e inactiva en operación; esta presentación
+no habilita flags, rutas operativas ni consumidores.
+
+[Validación final](../audits/r5-6d/verification-report.json): `pnpm check` pasa
+883 archivos sin diagnósticos, 222 suites/1.730 pruebas y build con 44 HTML y
+44 formularios cerrados a envíos; E2E 156/156.
+[Navegador](../audits/r5-6d/report.json): 119/119 comprobaciones y ocho capturas,
+incluido sin JavaScript, cero llamadas a API, peticiones mutantes, beacons o
+errores. [Accesibilidad](../audits/r5-6d/a11y-report.json): ocho superficies
+a 1440/375, estados inicial/completado/inválido y movimiento reducido, cero
+errores y avisos. La base QA conserva 143 tablas y 353 filas, con SHA-256 antes
+y después `9cbfc811cfc4296515a403d395875a43bfa26aff0c9c9b08be0804b15bbf6eca`.
+
 ## Corte vigente R5.6c.3 y límite de la demo
 
 La migración `0046_customer_segment_execution.sql` y backup **39** amplían el
@@ -36,7 +60,7 @@ como evidencia histórica de 0045, no como alternativa para datos de c.3.
 
 El [contrato y alcance autorizado](PROPUESTA_EJECUCION_SEGMENTACION.md) detalla
 los repositorios, el rollback aditivo y la recuperación. La demo visual de
-segmentación sigue pendiente hasta un bloque ilustrativo propio.
+segmentación queda verificada en R5.6d, disponible en el repositorio sin desplegar.
 
 Validación final del 2026-10-03: `pnpm check` pasa 877 archivos sin diagnósticos,
 220 suites/1.705 pruebas y build de 44 HTML con 44 formularios de simulación.
@@ -233,8 +257,11 @@ runtime, jobs registrados, rutas ni flags nuevas.
 
 El [cierre R5.6c.3](PROPUESTA_EJECUCION_SEGMENTACION.md) conserva políticas,
 planes y correlación con pasos de jobs mediante 0046 y backup 39, autorizados
-y verificados exclusivamente en QA local. El siguiente bloque R5.6d es una
-demostración visual sobre fixtures, con evaluación pura, sin APIs operativas,
-cron ni persistencia. G3 remoto, política comercial, retención y uso real G4
-permanecen separados. CUS-009 sigue parcial e inactiva; su demo visual está
-pendiente y el cierre local no autoriza activación ni despliegue.
+y verificados exclusivamente en QA local. R5.6d queda cerrada como demostración
+visual sobre fixtures, con evaluación pura, sin APIs operativas, cron ni
+persistencia. Sigue R5.7a–b: ADR, modelo de mercados y composición pura en QA
+(país, idioma, moneda, dominio, resolución y fallback), limitada a moneda base
+y configuración versionada en Git, sin DDL ni endpoints. G3 remoto, política
+comercial, retención y uso real G4 permanecen separados y no bloquean ese
+alcance puro. CUS-009 sigue parcial e inactiva; su demo visual está disponible
+en el repositorio sin activar operación ni desplegar.

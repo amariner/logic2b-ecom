@@ -28,6 +28,8 @@ describe('sesión firmada del admin', () => {
     }
     expect(demoAdminNextPath('/demo/admin?estado=paid')).toBe('/demo/admin?estado=paid');
     expect(demoAdminNextPath('/demo/admin/pedidos/5')).toBe('/demo/admin/pedidos/5');
+    expect(demoAdminNextPath('/demo/admin/segmentos')).toBe('/demo/admin/segmentos');
+    expect(demoAdminNextPath('/demo/admin/segmentos/export')).toBe('/demo/admin');
     expect(demoAdminEntryHref('/demo/admin/envios')).toBe('/demo/admin/login?tour=1&next=%2Fdemo%2Fadmin%2Fenvios');
   });
   it('un token recién creado verifica', async () => {

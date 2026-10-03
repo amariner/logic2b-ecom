@@ -1,4 +1,20 @@
 export {
+  CUSTOMER_SEGMENT_DEMO_BATCH_SIZE,
+  CUSTOMER_SEGMENT_DEMO_FACT_LABELS,
+  CUSTOMER_SEGMENT_DEMO_PROFILES,
+  CUSTOMER_SEGMENT_DEMO_TEMPLATES,
+  createCustomerSegmentDemo,
+  configureCustomerSegmentDemo,
+  simulateCustomerSegmentDemo,
+  advanceCustomerSegmentDemo,
+  type CustomerSegmentDemoTemplateId,
+  type CustomerSegmentDemoParameter,
+  type CustomerSegmentDemoTemplate,
+  type CustomerSegmentDemoProfile,
+  type CustomerSegmentDemoRow,
+  type CustomerSegmentDemoState,
+} from './application/customer-segmentation-demo';
+export {
   CUSTOMER_PROFILE_STATUSES,
   assertCustomerProfile,
   createCustomerAddressRevision,
