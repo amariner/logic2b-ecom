@@ -1,0 +1,57 @@
+{
+  "schemaVersion": 1,
+  "environment": "isolated-local-qa",
+  "deployment": "not-deployed",
+  "verification": {
+    "typecheckFiles": 921,
+    "diagnostics": 0,
+    "suites": 235,
+    "tests": 2427,
+    "demoModelTests": 36,
+    "architectureTests": 6,
+    "independentReviewAssertions": 496,
+    "openP1OrP2": 0,
+    "e2eChecks": 168,
+    "browserChecks": 340,
+    "accessibilitySurfaces": 8,
+    "accessibilityErrors": 0,
+    "accessibilityWarnings": 0,
+    "buildHtmlPages": 44,
+    "buildLocalForms": 44,
+    "screenshotsReviewed": 8
+  },
+  "databaseComparison": {
+    "status": "unchanged",
+    "tables": 143,
+    "rows": 353,
+    "sha256Before": "9cbfc811cfc4296515a403d395875a43bfa26aff0c9c9b08be0804b15bbf6eca",
+    "sha256After": "9cbfc811cfc4296515a403d395875a43bfa26aff0c9c9b08be0804b15bbf6eca"
+  },
+  "interactionIsolation": {
+    "moduleHttpRequests": 0,
+    "moduleStorageWrites": 0,
+    "moduleStorageMutationEvents": 0,
+    "moduleTimers": 0,
+    "beaconAttempts": 0,
+    "externalWindowAttempts": 0,
+    "forbiddenRequests": 0,
+    "javascriptErrors": 0,
+    "sharedUiExcluded": true,
+    "sharedUiExplanation": "Existing guide setup/reload sessionStorage and exact WhatsAppContact requestAnimationFrame callsite are verified and recorded separately; no module writes or timers."
+  },
+  "scope": {
+    "capabilities": [
+      "MKT-009",
+      "MKT-010"
+    ],
+    "state": "installed",
+    "activeInPresets": false,
+    "operationalRuntimeConsumers": 0,
+    "fixtureRoute": "/demo/admin/impuestos",
+    "fixtureRouteIndexed": false,
+    "migrationsAdded": 0,
+    "jobsAdded": 0,
+    "checkoutOrPaymentBehaviorChanged": false,
+    "fixturePresentation": "available-in-repository"
+  }
+}

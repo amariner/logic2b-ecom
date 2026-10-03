@@ -1,7 +1,8 @@
 # ADR-0049 — Contrato fiscal y evidencias con adaptadores fixture
 
-- Estado: accepted; R5.10a implementado y verificado localmente. Sin activación
-  ni despliegue; demo visual pendiente en R5.10b.
+- Estado: accepted; R5.10a integrado en PR #21 (`5f9e3e2`). R5.10b verificada
+  localmente y disponible en el repositorio, pendiente de integración.
+  Sin activación ni despliegue.
 - Fecha: 2026-10-03
 - Bloque: R5.10a
 - Propietario: `taxes`, separado de `markets`.
@@ -201,11 +202,11 @@ Son evidencia heredada, no ejecuciones nuevas de R5.10a. Este corte puro no
 modifica UI, rutas ni lectores runtime y no requiere repetir esas superficies
 sin un cambio que lo justifique.
 
-## Siguiente bloque
+## R5.10b — Demo fiscal inerte verificada
 
-R5.10b tiene aprobado el diseño de `/demo/admin/impuestos`, «Impuestos y
-totales», con dos zonas: preparar ejemplo y comprobar desglose. Todavía no
-está implementada ni disponible.
+En `codex/tax-fixture-demo` se desarrolla `/demo/admin/impuestos`, «Impuestos y
+totales», con dos zonas: preparar ejemplo y comprobar desglose. Implementación
+y QA cerradas; demo disponible en el repositorio, sin desplegar.
 
 Los cinco casos son cerrados y sintéticos: dos tipos y portes, céntimos y
 redondeo, cero y exención, portes pendientes y ausencia de respuesta fiscal.
@@ -220,7 +221,36 @@ cero ni como una suma parcial utilizable. La evidencia VAT es independiente,
 con casos positivo, negativo, caducado e indisponible: cambiarla nunca modifica
 el tratamiento fiscal del ejemplo.
 
-La futura superficie exige manifest demo **y** `DEMO_MODE=true`; será noindex,
+La superficie exige manifest demo **y** `DEMO_MODE=true` y es noindex,
 sin envío, red, almacenamiento, D1 ni operación fiscal real. MKT-009/010
-seguirán inactivas y CHK-006 pendiente. La verificación del contrato R5.10a no
-se presenta como validación del navegador de esta demo todavía pendiente.
+siguen inactivas y CHK-006 pendiente. La validación de R5.10b corresponde a
+esta superficie; la evidencia anterior R5.10a conserva su corte de contrato.
+
+[Verificación final](../../audits/r5-10b/verification-report.json): `pnpm check`
+pasa 921 archivos sin diagnósticos, 235 suites/2.427 pruebas, incluidas 36 del
+modelo y seis de arquitectura; build y guardas de 44 HTML, 44 formularios y
+cero crons. Revisión independiente de 496 comprobaciones sin P1/P2; modelo de
+seis fuentes/30.148 B y cliente de ocho fuentes/23.091 B, sin runtime operativo.
+
+[Navegador](../../audits/r5-10b/report.json): 340/340. [A11y](../../audits/r5-10b/a11y-report.json):
+ocho superficies, cero errores y avisos; ocho capturas revisadas sin
+bloqueantes. E2E nuevo: 168/168. Cero efectos del módulo; el almacenamiento de
+la guía compartida y el rAF visual de WhatsApp se verifican por sus puntos
+exactos de llamada y se contabilizan aparte.
+
+La base QA conserva 143 tablas y 353 filas, con SHA-256 antes/después idéntico
+`9cbfc811cfc4296515a403d395875a43bfa26aff0c9c9b08be0804b15bbf6eca`.
+Worker y Chrome detenidos. Demo verificada y disponible en el repositorio,
+sin despliegue; integración pendiente.
+
+Después sigue **R5.11a: contrato puro de importe presentado y evidencia FX
+fixture**, en un módulo separado, con unidades menores/exponente, tasa racional
+dirigida vigente, redondeo identificado y snapshot correlacionado. Conserva
+el importe original y no cambia los contratos monetarios, ledger, formateo
+de céntimos ni el perfil EUR de `taxes`. No habilita monedas operativas ni
+requiere proveedor, DDL o red.
+
+R5.11b cubrirá métodos sintéticos y R5.11c su demo. La ola R5.11 permanecerá
+parcial: estos previews no resuelven cobro, reembolso ni conciliación
+operativos. Este ADR solo registra la continuación elegida; no implementa
+ni verifica esos bloques.

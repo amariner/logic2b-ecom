@@ -97,11 +97,11 @@ remoto.
 
 ### Evidencia local del 2026-10-03
 
-- `pnpm check`: 917 archivos sin diagnósticos, 234 suites y 2.391 tests.
+- `pnpm check`: 921 archivos sin diagnósticos, 235 suites y 2.427 tests.
 - Build demo: 44 documentos HTML y 44 formularios de proyecto locales.
 - D1/workerd: 15 bloques correctos, backup 39 y restauración de 129 tablas;
   [informe de segmentación](docs/audits/r5-6c/facts-d1-report.json).
-- E2E: 164/164 comprobaciones. Formularios: 31 comprobaciones, cero peticiones
+- E2E: 168/168 comprobaciones. Formularios: 31 comprobaciones, cero peticiones
   mutantes, beacons o errores JavaScript;
   [informe de fixtures](docs/audits/demo-fixtures/report.json).
 - Segmentos locales: 119 comprobaciones de navegador y ocho superficies de
@@ -125,8 +125,12 @@ remoto.
   ocho superficies a11y sin hallazgos. [Evidencia R5.9b](docs/audits/r5-9b/README.md).
 - Cálculo fiscal y evidencia VAT: 96 y 70 pruebas específicas, respectivamente;
   5.616 comprobaciones independientes. Adaptadores solo fixture, capacidades
-  MKT-009/010 inactivas y demo visual pendiente de R5.10b.
+  MKT-009/010 inactivas.
   [Informe R5.10a](docs/audits/r5-10a/verification-report.json).
+- Impuestos y totales: cinco ejemplos fiscales, precios incluidos/excluidos y
+  evidencia VAT independiente, solo en memoria; 36 pruebas del modelo,
+  340 comprobaciones de navegador y ocho superficies a11y sin hallazgos.
+  [Evidencia R5.10b](docs/audits/r5-10b/README.md).
 - Base QA: 143 tablas y 353 filas, hash antes/después idéntico:
   `9cbfc811cfc4296515a403d395875a43bfa26aff0c9c9b08be0804b15bbf6eca`.
 

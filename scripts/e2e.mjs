@@ -256,6 +256,15 @@ check('publicación conserva privacidad de caché e indexación',
   publicationDemoResponse.headers.get('cache-control')?.includes('no-store') && publicationDemoHtml.includes('noindex'));
 check('publicación no añade formularios ni envíos', !/<form\b/i.test(publicationDemoHtml)
   && !/<button\b(?![^>]*\btype=["']button["'])/i.test(publicationDemoHtml));
+const taxDemoResponse = await fetch(`${BASE}/demo/admin/impuestos`, { headers: { cookie } });
+const taxDemoHtml = await taxDemoResponse.text();
+check('panel enlaza la demostración fiscal local', adminHtml.includes('href="/demo/admin/impuestos"'));
+check('impuestos muestra importes ficticios y desglose local', taxDemoResponse.ok
+  && taxDemoHtml.includes('data-tax-demo') && taxDemoHtml.includes('Este ejemplo no cobra ni registra pedidos'));
+check('impuestos conserva privacidad de caché e indexación',
+  taxDemoResponse.headers.get('cache-control')?.includes('no-store') && taxDemoHtml.includes('noindex'));
+check('impuestos no añade formularios ni envíos', !/<form\b/i.test(taxDemoHtml)
+  && !/<button\b(?![^>]*\btype=["']button["'])/i.test(taxDemoHtml));
 check(
   'índice de pedidos expone filtros URL y orden estable R3.1',
   adminHtml.includes('name="orden"')
