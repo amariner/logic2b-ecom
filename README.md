@@ -97,11 +97,11 @@ remoto.
 
 ### Evidencia local del 2026-10-03
 
-- `pnpm check`: 893 archivos sin diagnósticos, 226 suites y 1.999 tests.
+- `pnpm check`: 897 archivos sin diagnósticos, 227 suites y 2.023 tests.
 - Build demo: 44 documentos HTML y 44 formularios de proyecto locales.
 - D1/workerd: 15 bloques correctos, backup 39 y restauración de 129 tablas;
   [informe de segmentación](docs/audits/r5-6c/facts-d1-report.json).
-- E2E: 156/156 comprobaciones. Formularios: 31 comprobaciones, cero peticiones
+- E2E: 160/160 comprobaciones. Formularios: 31 comprobaciones, cero peticiones
   mutantes, beacons o errores JavaScript;
   [informe de fixtures](docs/audits/demo-fixtures/report.json).
 - Segmentos locales: 119 comprobaciones de navegador y ocho superficies de
@@ -113,6 +113,9 @@ remoto.
 - Contenido e idiomas: 53 pruebas editoriales y 67 del plan de URLs;
   MKT-006/007 inactivas, sin cambios del render ni del sitemap servido.
   [Informe R5.8a](docs/audits/r5-8a/verification-report.json).
+- Mercados e idiomas: edición y publicación simuladas en memoria, 120
+  comprobaciones de navegador y ocho superficies a11y sin hallazgos.
+  [Evidencia R5.8b](docs/audits/r5-8b/README.md).
 - Base QA: 143 tablas y 353 filas, hash antes/después idéntico:
   `9cbfc811cfc4296515a403d395875a43bfa26aff0c9c9b08be0804b15bbf6eca`.
 

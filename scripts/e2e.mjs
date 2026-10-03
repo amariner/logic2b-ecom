@@ -236,6 +236,16 @@ check('segmentos muestra perfiles ficticios y simulación local', segmentDemoRes
   && segmentDemoHtml.includes('data-customer-segments-demo') && segmentDemoHtml.includes('Sin dato'));
 check('segmentos conserva privacidad de caché e indexación',
   segmentDemoResponse.headers.get('cache-control')?.includes('no-store') && segmentDemoHtml.includes('noindex'));
+const marketDemoResponse = await fetch(`${BASE}/demo/admin/mercados`, { headers: { cookie } });
+const marketDemoHtml = await marketDemoResponse.text();
+check('panel enlaza la demostración de mercados e idiomas', adminHtml.includes('href="/demo/admin/mercados"'));
+check('mercados muestra contenido ilustrativo y plan local', marketDemoResponse.ok
+  && marketDemoHtml.includes('data-market-content-demo') && marketDemoHtml.includes('.test/'));
+check('mercados conserva privacidad de caché e indexación',
+  marketDemoResponse.headers.get('cache-control')?.includes('no-store') && marketDemoHtml.includes('noindex'));
+check('mercados no publica alternates SEO ni enlaces a destinos del plan',
+  !/<link\b[^>]*\bhreflang\s*=/i.test(marketDemoHtml)
+  && !/<a\b[^>]*\bhref\s*=\s*["'][^"']*\.test(?:[/:"'])/i.test(marketDemoHtml));
 check(
   'índice de pedidos expone filtros URL y orden estable R3.1',
   adminHtml.includes('name="orden"')

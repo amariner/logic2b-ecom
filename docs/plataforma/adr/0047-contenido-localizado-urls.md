@@ -1,6 +1,7 @@
 # ADR-0047 — Contenido localizado y planificación de URLs
 
-- Estado: accepted; R5.8a implementado y verificado localmente, sin activación.
+- Estado: accepted; R5.8a verificado e integrado en PR #17 (`6eadc3b`);
+  R5.8b verificado localmente, demo disponible en repo. Sin activación ni despliegue.
 - Fecha: 2026-10-03
 - Bloque: R5.8a
 - Propietario: `localization`
@@ -18,7 +19,7 @@ MKT-006 depende de PLT-004; MKT-007 depende de MKT-006. Su instalación no abre
 superficies, rutas, endpoints ni jobs. El alcance es puro y admite documentos
 explícitos versionados en Git o inyectados en QA. No añade D1, persistencia,
 editor operativo, traducción externa, activación ni despliegue. La evidencia
-visual de mercados y traducciones sigue pendiente.
+visual de mercados y traducciones queda verificada en R5.8b, sin despliegue.
 
 ## Decisión: contenido editorial puro
 
@@ -199,17 +200,47 @@ E2E sin cambios de runtime. E2E 156/156 y la base QA de 143 tablas/353 filas
 con hash intacto pertenecen al corte R5.7 integrado en PR #16; se conservan
 como regresión heredada, sin presentarlos como nuevas ejecuciones de R5.8a.
 
-Después sigue **R5.8b: composición y demo inerte integrada de mercados,
-contenido y plan de URLs**, sobre fixtures y moneda base. Orientación aprobada:
+### R5.8b — Demo integrada verificada
+
+En `codex/markets-localized-content-demo` se implementa la composición pura
+`market-content-demo` y su presentación `MarketContentDemo.astro`:
+**R5.8b, composición y demo inerte integrada de mercados, contenido y plan de
+URLs**, sobre fixtures y moneda base. Alcance:
 `/demo/admin/mercados`, «Mercados e idiomas», con vista visitante ES/FR,
 idioma/fallback y dos contenidos con ES/CA publicados, EN borrador y FR ausente.
 Edición, revisión y publicación inglesa se simulan solo en memoria; reset y
 recarga recuperan el estado inicial. Comparación del plan en dominios `.test`
 como datos sin enlaces. Exige manifest demo **y** `DEMO_MODE=true`.
 
-Cierra la evidencia visual pendiente sin CMS, API operativa, D1, persistencia,
+Implementación y QA cerradas; demo disponible en el repositorio, sin desplegar.
+MKT-003/006/007 siguen parciales, instaladas e inactivas: el flujo editorial
+de la muestra solo modifica memoria del navegador y no habilita operación.
+
+Los buffers editoriales son independientes por contenido. Guardar o enviar a
+revisión conserva la publicación, URL y `lastmod`; publicar EN añade una URL
+y republicar mantiene esa URL con revisión/fecha nuevas. El reloj virtual
+parte de las 12:00 UTC y avanza un minuto por acción aplicada, nunca por
+selección, buffer o bloqueo. El segundo contenido tiene CA obsoleto; la política
+explícita `include`/`exclude` conserva cuatro/tres URLs iniciales. Reset y
+recarga reconstruyen los fixtures.
+
+[QA final](../../audits/r5-8b/verification-report.json): 897 archivos sin diagnósticos,
+227 suites/2.023 pruebas, incluidas 24 del modelo, build/guardas de 44 HTML y
+44 formularios cerrados a envíos. E2E nuevo: 160/160.
+[Navegador](../../audits/r5-8b/report.json): 120/120 y ocho capturas;
+[a11y](../../audits/r5-8b/a11y-report.json): ocho superficies sin hallazgos.
+Revisión visual de ocho capturas y de código sin P1/P2. El módulo registra
+cero HTTP, almacenamiento propio, beacons o errores; la guía existente registra
+por separado tres operaciones de almacenamiento durante setup y dos al recargar.
+Base QA intacta: 143 tablas, 353 filas y SHA-256 antes/después
+`9cbfc811cfc4296515a403d395875a43bfa26aff0c9c9b08be0804b15bbf6eca`.
+Worker de QA detenido.
+
+Se cierra la evidencia visual sin CMS, API operativa, D1, persistencia,
 cron ni activación. La superficie demo permanece noindex; el SEO servido no
 se modifica. QA en escritorio/móvil, teclado, sin JavaScript, movimiento
-reducido y cero peticiones operativas o beacons. Después, R5.9a puede modelar
-producto/variante/canal, preview y explicación de publicación por mercado
-mediante un contrato puro, sin exigir una migración para definirlo.
+reducido y cero peticiones operativas o beacons, con E2E y hash QA antes/después.
+Después sigue R5.9a: publicación por tupla mercado/canal/producto y variantes
+seleccionadas explícitamente, con ausencia `unconfigured`, preview y motivos.
+No se infiere precio, stock ni compra posible. Contrato puro, fixtures e
+inyección, sin exigir migración, endpoints ni activación para definirlo.

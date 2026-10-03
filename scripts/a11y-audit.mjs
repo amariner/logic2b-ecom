@@ -356,6 +356,47 @@ for (const vp of [DESKTOP, MOBILE]) {
   SURFACES.push({ ...base, name: `segments:motion${suffix}`, reducedMotion: true });
 }
 
+// R5.8b: mismos cuatro estados que las capturas CDP, sin publicar páginas reales.
+// El panel sigue claro por diseño; reedit añade reduced-motion, no un dark ficticio.
+const MARKET_CONTENT_SCENARIO = (stage) => `(() => {
+  const root = document.querySelector('[data-market-content-demo]');
+  if (root?.dataset.ready !== 'true') return 'not-ready';
+  const select = (selector, value) => {
+    const field = root.querySelector(selector);
+    field.value = value;
+    field.dispatchEvent(new Event('change', { bubbles: true }));
+  };
+  const click = action => root.querySelector('[data-content-action="' + action + '"]').click();
+  const rows = () => root.querySelectorAll('[data-content-url-row]').length;
+  if (${JSON.stringify(stage)} === 'initial') return rows() === 4 ? 'ready' : 'wrong-plan';
+  if (${JSON.stringify(stage)} === 'fallback') {
+    select('[data-market-select]', 'FR');
+    select('[data-content-fallback]', 'es-ES');
+    return root.querySelector('[data-content-resolution]').dataset.result === 'fallback' && rows() === 4 ? 'fallback' : 'wrong-fallback';
+  }
+  select('[data-content-locale]', 'en-GB');
+  click('submit_review');
+  click('publish');
+  const revision = root.querySelector('[data-content-published-revision]').dataset.revision;
+  if (!revision || rows() !== 5) return 'not-published';
+  if (${JSON.stringify(stage)} === 'published') return 'published';
+  const title = root.querySelector('[data-content-field="title"]');
+  title.value += ' · revisión local';
+  title.dispatchEvent(new Event('input', { bubbles: true }));
+  click('save_draft');
+  const draft = root.querySelector('[data-content-draft-state]');
+  return draft.dataset.state === 'draft' && draft.dataset.dirty === 'false' &&
+    root.querySelector('[data-content-published-revision]').dataset.revision === revision && rows() === 5 ? 'reedit' : 'wrong-reedit';
+})()`;
+for (const vp of [DESKTOP, MOBILE]) {
+  const suffix = vp === MOBILE ? '@375' : '';
+  for (const stage of ['initial', 'fallback', 'published', 'reedit']) {
+    SURFACES.push({ name: `market-content:${stage}${suffix}`, url: '/demo/admin/mercados', vp, auth: true,
+      eval: MARKET_CONTENT_SCENARIO(stage), expect: stage === 'initial' ? 'ready' : stage,
+      ...(stage === 'reedit' ? { reducedMotion: true } : {}) });
+  }
+}
+
 // R5.4d: estas rutas no existen en la demo y por eso no forman parte de la
 // batería ordinaria. El arnés local explícito activa un manifest cliente y una
 // composición visual inerte para auditar las páginas Astro reales sin DB,

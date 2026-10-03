@@ -1,0 +1,42 @@
+[
+  {
+    "surface": "market-content:initial",
+    "url": "/demo/admin/mercados",
+    "findings": []
+  },
+  {
+    "surface": "market-content:fallback",
+    "url": "/demo/admin/mercados",
+    "findings": []
+  },
+  {
+    "surface": "market-content:published",
+    "url": "/demo/admin/mercados",
+    "findings": []
+  },
+  {
+    "surface": "market-content:reedit",
+    "url": "/demo/admin/mercados",
+    "findings": []
+  },
+  {
+    "surface": "market-content:initial@375",
+    "url": "/demo/admin/mercados",
+    "findings": []
+  },
+  {
+    "surface": "market-content:fallback@375",
+    "url": "/demo/admin/mercados",
+    "findings": []
+  },
+  {
+    "surface": "market-content:published@375",
+    "url": "/demo/admin/mercados",
+    "findings": []
+  },
+  {
+    "surface": "market-content:reedit@375",
+    "url": "/demo/admin/mercados",
+    "findings": []
+  }
+]

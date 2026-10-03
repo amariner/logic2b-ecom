@@ -31,6 +31,34 @@ Una quinta clasificación, **fuera de alcance deliberado**, evita confundir
 paridad comercial con fabricar bancos, redes publicitarias, hardware de punto de
 venta o servicios logísticos propios.
 
+## Demo verificada
+
+**R5.8b implementada y verificada, disponible en repo sin desplegar**, rama
+`codex/markets-localized-content-demo`. Incluye la composición
+`market-content-demo`, el componente `MarketContentDemo.astro` y la muestra
+`/demo/admin/mercados`: mercados ES/FR, contenidos ES/CA publicados en los
+fixtures, EN en borrador y FR ausente. La edición inglesa es solo en memoria;
+el plan usa dominios `.test` sin enlaces, con reset y recarga al estado inicial.
+
+La muestra exige simultáneamente manifest demo y `DEMO_MODE=true`; no habilita
+API, DDL, CMS, persistencia ni edición o publicación editorial operativas.
+Canonical, hreflang y sitemap se muestran como datos ilustrativos, sin cambiar
+el SEO real. MKT-003/006/007 conservan estado parcial e instalada/inactiva.
+Check final: 897 archivos sin diagnósticos, 227 suites/2.023 pruebas (24 del
+modelo), build/guardas de 44 HTML/44 formularios; E2E nuevo 160/160.
+[Navegador](../audits/r5-8b/report.json): 120/120 y ocho capturas, cero HTTP,
+almacenamiento propio, beacons o errores del módulo; almacenamiento de la guía
+existente separado. [A11y](../audits/r5-8b/a11y-report.json): ocho superficies
+sin hallazgos. Revisión visual/código sin P1/P2. Base QA intacta: 143 tablas,
+353 filas, SHA-256 antes/después
+`9cbfc811cfc4296515a403d395875a43bfa26aff0c9c9b08be0804b15bbf6eca`.
+Worker detenido; [informe agregado](../audits/r5-8b/verification-report.json).
+
+Sigue **R5.9a: contrato puro de publicación por mercado**
+para producto, variante y canal, con preview y explicación. Ese contrato puede
+probarse con fixtures sin añadir DDL: tuplas y variantes explícitas, ausencia
+`unconfigured`, separado de precio, stock y compra posible.
+
 ## Último bloque verificado
 
 **R5.8a implementado y verificado localmente**, rama `codex/localized-content-contract`:
@@ -39,11 +67,13 @@ venta o servicios logísticos propios.
 revisiones publicadas explícitas. Fallback y tratamiento de traducciones
 obsoletas se declaran; no convierten un idioma configurado en contenido publicado.
 MKT-006/007 quedan parciales e instaladas/inactivas en avanzado y demo, con demo
-visual pendiente. Check final: 893 archivos sin diagnósticos, 226 suites/1.999
+visual verificada después en R5.8b. Check final de R5.8a: 893 archivos sin diagnósticos, 226 suites/1.999
 pruebas, build y guardas de 44 HTML/44 formularios cerrados a envíos. Incluye
 53 pruebas editoriales y 67 del planificador; revisión sin P1/P2 y perfil
 hreflang contrastado (184 idiomas, 249 regiones, cinco scripts).
-[Informe](../audits/r5-8a/verification-report.json).
+[Informe](../audits/r5-8a/verification-report.json). Integrado en
+[PR #17](https://github.com/amariner/logic2b-ecom/pull/17), commit `6eadc3b`, sin
+despliegue.
 
 Catálogo Git/inyección y fixtures bastan: sin DDL, CMS, persistencia, editor
 operativo, traducción externa, rutas ni endpoints. El plan no modifica HTML,
@@ -52,13 +82,7 @@ activación ni despliegue.
 
 Validado con check global, focales editoriales/SEO y revisión. El E2E 156/156
 y hash QA 143 tablas/353 filas de PR #16 son evidencia heredada; no se presentan
-como nuevas ejecuciones de R5.8a. Siguiente: **R5.8b, composición y demo inerte
-integrada de mercados/traducciones/plan de URLs** con fixtures, sin metadatos
-SEO reales. Orientación aprobada: `/demo/admin/mercados`, vista ES/FR,
-ES/CA publicados, EN borrador, FR ausente; edición inglesa en memoria y
-plan `.test` sin enlaces. Manifest demo y `DEMO_MODE=true`, con reset/recarga
-al estado inicial. Ese bloque repetirá E2E/navegador/a11y y hash antes/después.
-Después seguirá R5.9a, contrato puro de publicación por mercado.
+como nuevas ejecuciones de R5.8a ni de R5.8b.
 
 ## Último contrato verificado
 
@@ -68,7 +92,7 @@ Después seguirá R5.9a, contrato puro de publicación por mercado.
 mercados es explícito, versionado en Git e inyectado, con moneda base. Este
 corte no añade DDL, rutas, jobs, endpoints, FX, traducciones ni activación.
 MKT-003 pasa a parcial e instalada/inactiva en el preset avanzado; la demo
-visual de mercados sigue pendiente.
+visual de mercados se verifica después en R5.8b, sin despliegue.
 
 Check global aprobado: 888 archivos sin diagnósticos, 224 suites/1.876 pruebas,
 build y guardas de 44 HTML/44 formularios cerrados a envíos. Incluye 119 pruebas
@@ -84,8 +108,9 @@ sin despliegue.
 acredita disponibilidad de envío ni jurisdicción. Detalle en
 [ADR-0046](adr/0046-contexto-de-mercados.md).
 
-R5.8a continúa ahora con contenido localizado y plan de URLs puros, descritos
-arriba. Los gates G3/G4 de uso real siguen pendientes y no bloquean ese trabajo.
+R5.8a ya aporta el contrato de contenido localizado y plan de URLs puros;
+R5.8b está preparando su demo integrada, descrita arriba. Los gates G3/G4 de
+uso real siguen pendientes y no bloquean este trabajo con fixtures.
 
 ## Último corte local
 
