@@ -67,7 +67,7 @@ export function segmentRecord(
   return record;
 }
 
-function dataArray(value: unknown, field: string, maxLength = Infinity): readonly unknown[] {
+export function segmentDataArray(value: unknown, field: string, maxLength = Infinity): readonly unknown[] {
   if (!Array.isArray(value) || Object.getPrototypeOf(value) !== Array.prototype) {
     return invalid(`${field} debe ser un array de datos.`);
   }
@@ -131,7 +131,7 @@ export function canonicalSegmentJson(value: unknown): string {
     active.add(input);
     try {
       if (Array.isArray(input)) {
-        const values = dataArray(input, 'JSON');
+        const values = segmentDataArray(input, 'JSON');
         return `[${values.map((item) => serialize(item)).join(',')}]`;
       }
       const record = dataRecord(input, 'JSON');
@@ -167,7 +167,7 @@ export function normalizeCustomerSegmentFactsSnapshot(
   if (typeof record.currency !== 'string' || !/^[A-Z]{3}$/.test(record.currency)) {
     return invalid('snapshot.currency debe ser un código de moneda de tres letras mayúsculas.');
   }
-  const candidatesInput = dataArray(record.candidates, 'snapshot.candidates', MAX_CUSTOMER_SEGMENT_CANDIDATES);
+  const candidatesInput = segmentDataArray(record.candidates, 'snapshot.candidates', MAX_CUSTOMER_SEGMENT_CANDIDATES);
   const profiles = new Set<string>();
   const candidates = candidatesInput.map((item, index) => {
     const field = `snapshot.candidates.${index}`;

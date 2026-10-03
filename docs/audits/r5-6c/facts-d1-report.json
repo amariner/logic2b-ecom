@@ -1,0 +1,84 @@
+{
+  "runtime": "Wrangler getPlatformProxy / local workerd D1",
+  "remoteBindings": false,
+  "envFiles": [],
+  "nodeVersion": "v24.19.0",
+  "wranglerVersion": "4.111.0",
+  "schema": 38,
+  "policy": {
+    "schemaVersion": 1,
+    "id": "facts.rehearsal-captured",
+    "version": 1,
+    "population": "active_profiles",
+    "orderStatuses": [
+      "paid",
+      "shipped",
+      "delivered"
+    ],
+    "orderEligibility": "successful_capture",
+    "activityBasis": "last_successful_capture",
+    "amountBasis": "captured_payments",
+    "refunds": "subtract",
+    "storedValue": "exclude",
+    "paymentAdjustments": "reject",
+    "unsettledPayments": "reject",
+    "missingPaymentEvidence": "null",
+    "currency": "EUR",
+    "foreignCurrency": "reject",
+    "dayBoundary": "utc_calendar_days"
+  },
+  "limits": {
+    "profiles": 100,
+    "orders": 1000,
+    "payments": 5000,
+    "transactions": 10000,
+    "storedValueEntries": 10000,
+    "amendments": 1000
+  },
+  "checks": [
+    {
+      "message": "Dos D1 vacías reciben exclusivamente las migraciones existentes hasta 0045",
+      "migrationCount": 45
+    },
+    {
+      "message": "Captura real en siete SELECT: 10000−2500=7500 céntimos, ausencia de pago null, sin pedidos cero y merged excluido",
+      "sourceRef": "source:9e81d230bd225ba1951f85b485607e89b0a49e898cfef61246c1368bf7930bd6:33e3a836b977988a4706b5a8c5f182c1f4115b8a7917da349647cf2edc9f1b0f",
+      "capturedAt": "2026-10-03T21:06:23.207Z",
+      "candidates": 3,
+      "sourceTablesHash": "39f8f5f621b8d86fa83e0eddea20b4ebb2364af1e93343bdfe20a8ef3a5be121"
+    },
+    {
+      "message": "La política explícita cambia el importe y su huella; reject aborta por evidencia ausente sin escribir"
+    },
+    {
+      "message": "La captura alimenta definición→solicitud→inicio→progreso→completado→publicación, conservando ref/política/fecha",
+      "runId": "segment-run:facts-local-1",
+      "processedCandidates": 3,
+      "matchedCustomers": 1
+    },
+    {
+      "message": "Otro reembolso cambia la nueva captura a 7000 sin reescribir los 7500 ni la publicación anterior"
+    },
+    {
+      "message": "Backup38 restaura todas las filas, referencia y pertenencia publicadas con replay idempotente y cero errores FK",
+      "tableCount": 126,
+      "tablesHash": "0746ae2bf7772d74ca49daa43ce8bc8f3844fa3c4302b580934bfe9eb51e5ee2",
+      "restoreStatements": 165,
+      "backupSha256": "eca2ee5787ceb1dd42b5525b5cc81fc65adb523f4b8435d844ac23d4a07fb90b"
+    },
+    {
+      "message": "100 perfiles activos se capturan completos, sin truncamiento ni escrituras",
+      "candidates": 100
+    },
+    {
+      "message": "101 perfiles activos abortan toda la captura y conservan todas las tablas",
+      "captureAttempts": 6,
+      "readBatchSize": 7,
+      "sourceTablesHash": "475e6af00accb782090af0c02f00232c03b3ffaa3cbf698de7a17e75c2aed825"
+    }
+  ],
+  "result": "passed",
+  "date": "2026-10-03",
+  "command": "node scripts/rehearse-r5-customer-segmentation-facts-d1.mjs",
+  "scope": "Local workerd/D1 aislado; sin bindings remotos, credenciales, red de proveedores ni migraciones nuevas."
+}

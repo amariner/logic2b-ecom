@@ -16,6 +16,41 @@
 > 2. Actualizar el estado de la fase al terminar, con fecha y resumen de lo hecho.
 > 3. Anotar decisiones tomadas y pendientes en las secciones de abajo.
 
+## Backend — política y captura consistente R5.6c.1 (2026-10-03)
+
+Se completa el siguiente bloque canónico del motor: política obligatoria y
+versionada de hechos y productor interno sobre pedidos/pagos reales, probado
+exclusivamente con datos sintéticos locales. Sin migraciones, dependencias,
+cron, rutas, UI, flags, consumidores ni efectos externos nuevos.
+
+- Decisiones explícitas sobre estados/capturas, actividad, totales, reembolsos,
+  saldo, ajustes, ausencia, moneda y días UTC/24 horas; sin defaults comerciales.
+- Lectura consistente de siete conjuntos en un único batch D1; no consulta PII.
+  Población completa o error; límites 100 perfiles/1.000 pedidos/5.000 pagos/
+  10.000 asientos externos y de saldo/1.000 modificaciones. No hay truncamiento.
+- Dinero entero y sin duplicados: neto por ledger; totales comerciales sin
+  descontar otra vez devoluciones de modificaciones. Captura cero y ausencia
+  financiera se distinguen. Presupuestos convertidos conservan depósitos previos.
+- Referencia con huella de reglas y contenido; snapshots inmutables, evaluación
+  por lotes y publicación con las garantías existentes. Antes de activar hay que
+  conservar además el documento canónico de política, no solo su huella.
+
+Evidencia: 83 pruebas nuevas de política y 22 de integración, incluido el
+recorrido real presupuesto→depósito→saldo→conversión→segmentación. El ensayo
+workerd/D1 restaura 126 tablas idénticas, conserva replay y tiene FKs limpias;
+ver [informe](audits/r5-6c/facts-d1-report.json) y
+[runbook](plataforma/OPERACION_SEGMENTACION.md). `pnpm check`: 868 archivos sin diagnósticos, 214 suites/1.388 pruebas,
+baseline y build/sitemap verdes. E2E general: 142 comprobaciones, cero fallos,
+sobre Worker local con 45 migraciones y seed public-demo en una base QA propia.
+
+CUS-009 sigue `parcial`, instalada/inactiva y con **demo visual pendiente**.
+La producción permanece en el corte servido anterior; este bloque no despliega
+ni aplica DDL remoto. Siguiente: R5.6c.2, ejecución interna reanudable, antes de
+registrar jobs o elegir una política comercial por proyecto.
+
+Consejo: arquitecto ✓ sin DDL/dependencias · backend ✓ dinero y captura
+consistente · fullstack ✓ lifecycle/restore · producto ✓ límites sin promesas.
+
 ## Recorrido de Traza sin bloqueos ni contraseña (2026-09-30)
 
 **Corrección solicitada por Andreu:** usar TRAZA como demo principal, añadir
@@ -2283,26 +2318,22 @@ solo vuelve a `main` o a producción por instrucción expresa.
 Zancada queda completado, integrado en GitHub y publicado por encargo expreso
 del 2026-09-08. La cola de plataforma que sigue no cambia por esta importación.
 
-### R5.6c.1 — Política explícita de hechos y captura consistente
+### R5.6c.2 — Ejecución interna reanudable y recuperación
 
-R5.6b queda cerrado localmente: `0045`, repositorios y backup 38, revisión de
-arquitectura, `pnpm check` (210 suites/1.261 tests), E2E completo y restore D1
-con 126 tablas idénticas. La [propuesta autorizada](plataforma/PROPUESTA_SEGMENTACION_PERSISTENTE.md),
-el [runbook](plataforma/OPERACION_SEGMENTACION.md) y el
-[informe](audits/r5-6b/d1-report.json) conservan alcance y evidencia.
+R5.6c.1 completa el contrato de política y captura consistente sobre el motor,
+con pruebas sintéticas hasta publicación, límites completos y restore D1.
+[ADR-0045](plataforma/adr/0045-segmentos-calculados-observables.md),
+[runbook](plataforma/OPERACION_SEGMENTACION.md) e
+[informe](audits/r5-6c/facts-d1-report.json) fijan evidencia y límites.
 
-Continuar con un contrato versionado de política de hechos y captura interna
-consistente: estados/eventos contados, fecha de actividad, ajustes,
-cancelaciones, cobros/reembolsos/saldo, moneda y cómputo temporal. Cada opción
-debe ser explícita; no incorporar reglas comerciales universales. Verificar
-con políticas sintéticas el recorrido `capture → start → progress → complete
-→ publish`, sin truncar población ni introducir lecturas inconsistentes.
-
-Este desarrollo local no añade cron, rutas, UI, consumidores o flags. Elegir
-una política real y activarla mantiene el gate por proyecto; G3 remoto no está
-autorizado. CUS-009 permanece `parcial`, instalada e inactiva y con demo visual
-pendiente. No saltar a R5.7 mientras R5.6 conserve trabajo ejecutable. Preservar
-el worktree y la D1 de la sesión de landing; usar bases de QA propias.
+Continuar con ejecución interna acotada y reanudable sobre las revisiones
+existentes: captura/inicio, un lote por invocación, cierre y publicación
+separada con CAS; conflicto, replay, fallo de fuente y recuperación explícitos.
+No registrar cron, rutas, UI ni consumidores ni elegir una política real.
+La activación de jobs, la retención destructiva, G3 remoto y el uso comercial
+mantienen sus gates propios. CUS-009 permanece parcial, installed/inactiva y
+con demo visual pendiente. No saltar a R5.7 mientras haya trabajo R5.6 seguro.
+Usar siempre bases QA aisladas de la D1 persistente de otras sesiones.
 
 Carril visual: ARISTA cierra el 2026-08-18 las posiciones 17–19 y deja la cola
 sin referencias ejecutables. La referencia 19 se convirtió en un catálogo

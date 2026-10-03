@@ -254,9 +254,20 @@ export type {
 } from './application/customer-segmentation-contract';
 export {
   normalizeCustomerSegmentFactsSnapshot,
+  segmentFingerprint,
+  segmentInteger,
+  segmentOpaqueId,
+  segmentTimestamp,
   MAX_CUSTOMER_SEGMENT_CANDIDATES,
   MAX_CUSTOMER_SEGMENT_SNAPSHOT_BYTES,
 } from './application/customer-segmentation-contract';
+export {
+  defineCustomerSegmentFactsPolicy,
+  projectCustomerSegmentFacts,
+  type CustomerSegmentFactsPolicy,
+  type CustomerSegmentOrderEvidence,
+  type CustomerSegmentProfileEvidence,
+} from './application/customer-segmentation-facts';
 export type {
   CustomerSegmentationRepository, SegmentDefinition, SegmentRun, SegmentRunSnapshot,
   SegmentPublication, SegmentMembership, SegmentCommandContext, SegmentWrite,

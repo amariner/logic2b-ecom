@@ -175,7 +175,7 @@ suites/715 tests; producción permanece en `0032`.
 | 53 | **R5.3 Derechos de datos** | Exportar, corregir, anonimizar/borrar con excepciones fiscales y audit log. | 🟨 2026-08-18 — contrato y persistencia R5.3a–b instalados; política, superficies y ejecución pendientes de gates propios |
 | 54 | **R5.4 Cuentas passwordless** | Login seguro, sesiones, revocación y anti-enumeración; módulo opcional. | ✅ 2026-08-19 — R5.4a–d implementan dominio, D1, Resend directo, transporte mismo navegador, throttle/auditoría, gate durable y HTTP/UI; 185 suites/958 tests; D1 remota en `0040`, Worker `a5cc8d85…` inerte, `CUS-003` instalada y rollout real aislado |
 | 55 | **R5.5 Autoservicio** | Pedidos, direcciones y devolución sobre permisos mínimos. | ✅ 2026-09-18 — R5.5a–h cerrados en sus cortes; HTTP/SSR, navegador 26/0/0 y replay owner-only verificados; módulos installed/inactivos con rollout por proyecto pendiente |
-| 56 | **R5.6 Segmentación** | Lenguaje de filtros limitado, templates y recálculo observable. | 🟨 2026-09-18 — R5.6a.1 endurece ADR-0045 y contrato puro, con 54 pruebas focales; R5.6b cerrado local: 0045, repositorios, backup 38, restore D1 y 1.261 tests; política/productor de hechos y jobs pendientes, sin activación |
+| 56 | **R5.6 Segmentación** | Lenguaje de filtros limitado, templates y recálculo observable. | 🟨 2026-09-18 — R5.6a.1 endurece ADR-0045 y contrato puro, con 54 pruebas focales; R5.6b cerrado local; R5.6c.1 (2026-10-03) añade política explícita, captura D1 consistente, 105 pruebas nuevas y restore de 126 tablas. Ejecución reanudable/jobs pendientes, sin activación |
 | 57 | **R5.7 Modelo de mercados** | Contexto de país/idioma/moneda/dominio, resolución y fallback. | ⬜ |
 | 58 | **R5.8 Traducciones y URLs** | Campos traducibles, flujo editorial, canonical, hreflang y sitemap. | ⬜ |
 | 59 | **R5.9 Publicación por mercado** | Producto/variante/canal, preview y explicación. | ⬜ |
@@ -1445,25 +1445,22 @@ principal pasa a R4.1, motor de reglas de precio.
 
 ## 14. Siguiente bloque
 
-### R5.6c.1 — Política explícita de hechos y captura consistente
+### R5.6c.2 — Ejecución interna reanudable y recuperación
 
-R5.5h se integró con `ce5c140` y R5.6a.1 con `eb1f785`. R5.6b recibió
-autorización local el 2026-09-18 y cierra con `0045`, cinco tablas sin backfill,
-repositorios transaccionales y backup 38. SQL, dominio, concurrencia, reintentos
-y restauración histórica pasan sus pruebas; la arquitectura conserva cero
-excepciones. `pnpm check`: 845 archivos sin diagnósticos, 210 suites/1.261 tests,
-baseline y build. E2E administrativo completo y backup 38 verdes.
+R5.6c.1 (2026-10-03) completa política explícita/versionada y productor interno
+consistente: siete lecturas en un batch, población completa o error, hechos
+monetarios sin duplicados y referencia con huellas de política/contenido.
+105 pruebas nuevas cubren casos puros y recorrido de repositorio, incluyendo
+presupuestos con depósitos anteriores al pedido. El ensayo workerd/D1 restaura
+126 tablas idénticas, publica/reintenta y conserva FKs limpias; ver el
+[informe](../audits/r5-6c/facts-d1-report.json) y
+[runbook](OPERACION_SEGMENTACION.md). `pnpm check`: 868 archivos sin
+diagnósticos, 214 suites/1.388 pruebas, baseline/build; E2E 142/142 en QA
+aislada. No hay DDL, activación ni cambios remotos.
 
-El ensayo D1/workerd conserva las tablas anteriores y restaura 126 tablas
-idénticas en 1.469 sentencias, con los triggers activos y cero errores FK.
-Prueba 100 candidatos por importación atómica, rechazo previo del exceso,
-rollback y publicación histórica. Véanse el [informe](../audits/r5-6b/d1-report.json)
-y el [runbook](OPERACION_SEGMENTACION.md). Sin cambios remotos.
-
-Continuar con política versionada y explícita de hechos y captura interna
-consistente; configuración obligatoria, sin defaults comerciales. Cubrir
-ajustes, cobros/reembolsos/saldo, moneda, fechas, ausencia y población acotada,
-con pruebas sintéticas del recorrido hasta publicación. Este bloque no añade
-jobs, rutas, UI ni consumidores. Elegir y activar una política comercial real,
-el rollout remoto y los jobs mantienen sus gates propios. CUS-009 permanece
-`parcial`, installed/inactiva y con **demo visual pendiente**.
+Continuar con un avance interno por invocación, recuperación desde revisiones,
+conflicto/idempotencia y publicación separada mediante CAS. La composición
+futura de cron/jobs debe acreditar su propio timeout, claim, retención y gates;
+el runner interno no activa ninguna de esas superficies. Las políticas reales
+requieren conservación versionada y aprobación por proyecto. CUS-009 continúa
+parcial/installed, sin rutas, consumidores ni demo visual.

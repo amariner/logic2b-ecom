@@ -100,12 +100,49 @@ Prueba 100 candidatos en un batch de 101 sentencias, rechazo previo de 101
 candidatos y rollback ante un fallo al final del batch. La restauración también
 se ejecuta como batch completo: no se simula únicamente con SQLite de Node.
 
+## Captura de hechos R5.6c.1 (2026-10-03)
+
+El productor interno ya lee perfiles, pedidos, pagos y saldo del motor mediante
+un único batch consistente de siete lecturas. La política es obligatoria y
+versionada; sus decisiones y restricciones están en
+[ADR-0045](adr/0045-segmentos-calculados-observables.md). Ninguna política de
+prueba está registrada en el runtime ni existe un valor comercial por defecto.
+
+La captura contiene toda la población de perfiles activos o falla. A los 100
+perfiles/256.000 bytes del snapshot se añaden límites de lectura: 1.000 pedidos,
+5.000 pagos, 10.000 transacciones externas, 10.000 asientos de saldo y 1.000
+modificaciones aplicadas. Exceder cualquiera impide devolver el snapshot, sin
+escribir filas ni iniciar una ejecución parcial. No se elude el límite
+dividiendo una población viva en páginas; ampliar escala requiere otro diseño.
+
+No se consultan emails, nombres, direcciones, notas, tokens ni referencias de
+proveedor. La fuente propaga un fallo de D1 y rechaza datos incompletos; nunca
+los convierte en cero candidatos. La fecha procede del reloj D1 en la misma
+transacción. Las fechas legacy `YYYY-MM-DD HH:mm:ss` significan UTC. No se
+acepta un parámetro `asOf` ni se promete reconstrucción histórica.
+
+El SHA-256 de la política queda en la referencia opaca. Antes de una activación
+por proyecto hay que conservar además el documento canónico de esa política:
+el backup de hechos conserva su huella, pero no almacena sus reglas completas.
+Cambios posteriores de pagos no modifican los hechos congelados; requieren
+otra captura. Un cambio de perfil sigue invalidando la vigencia de su pertenencia.
+
+Ensayo reproducible, sin acceder a la D1 persistente de desarrollo:
+
+```sh
+pnpm exec vitest run tests/customer-segmentation-facts*.test.ts
+pnpm db:rehearse:customer-segmentation-facts:d1
+```
+
+El [informe](../audits/r5-6c/facts-d1-report.json) verifica con workerd/D1 local
+captura, publicación, cambios posteriores, política alternativa, frontera
+100/101 y restore de 126 tablas idénticas con triggers activos. La fuente no
+altera ninguna tabla. El restore conserva hechos, referencia y replay de
+publicación. No hay migración nueva, proveedor ni despliegue remoto.
+
 ## Siguiente contrato
 
-R5.6c.1 debe definir una política explícita y versionada de hechos, sin reglas
-comerciales predeterminadas, y un productor interno de lectura consistente.
-La política debe expresar estados/eventos contados, fecha de actividad,
-tratamiento de ajustes, cancelaciones, cobros, reembolsos y saldo almacenado,
-moneda y cómputo temporal. Su implementación se verifica con políticas
-sintéticas; elegir y activar una política real sigue siendo una decisión por
-proyecto.
+Continuar R5.6c.2: ejecución interna reanudable, concurrencia y recuperación
+sobre estas capturas y revisiones durables, sin registrar cron ni activar
+consumidores. Elegir y activar una política real sigue siendo una decisión por
+proyecto. CUS-009 permanece parcial y la demo visual continúa pendiente.
