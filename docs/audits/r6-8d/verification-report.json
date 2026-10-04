@@ -6,8 +6,19 @@
   "deployment": {
     "status": "not-deployed",
     "authorized": true,
-    "blocker": "Wrangler reports not authenticated; no Cloudflare credentials configured in this environment",
-    "migrationRequiredForThisBlock": false
+    "blocker": "CLOUDFLARE_API_TOKEN is missing; Wrangler is not authenticated in this environment",
+    "migrationRequiredForThisBlock": false,
+    "attempt": {
+      "dateUtc": "2026-10-04",
+      "timeUtc": "06:59",
+      "sourceCommit": "d0816ad2ad27dfd1ae36320bb3b80bf144eca77d",
+      "command": "CI=true WRANGLER_SEND_METRICS=false node_modules/.bin/wrangler deploy --config ./wrangler.jsonc",
+      "exitCode": 1,
+      "log": "/tmp/ecom-production-deploy.log",
+      "productionUpdated": false,
+      "remoteDatabaseWrites": false,
+      "temporaryAccountUsed": false
+    }
   },
   "verification": {
     "typecheckFiles": 1016,
@@ -1254,5 +1265,12 @@
     "uxUi": "passed; accepted P3 native selector label clipping, full option and description retained",
     "product": "passed; descriptive fixtures only",
     "seo": "passed; private noindex demo, no public page introduced"
+  },
+  "integration": {
+    "status": "merged",
+    "pullRequest": "https://github.com/amariner/logic2b-ecom/pull/48",
+    "headSha": "7e7c30c36acb8a536f9f59f4900b00cd5161bc7b",
+    "mergeSha": "d0816ad2ad27dfd1ae36320bb3b80bf144eca77d",
+    "mergedAt": "2026-10-04T06:59:09Z"
   }
 }

@@ -62,11 +62,12 @@ anteriores. Nuevo modelo/página y navegación explican el delta del Worker;
 no se afirma igualdad SSR completa o equivalencia visual de todas las páginas.
 [Informe final R6.8d](audits/r6-8d/verification-report.json).
 
-**Implementada y verificada localmente, disponible en el repositorio; integración
-pendiente.** El despliegue está expresamente autorizado, pero todavía no realizado:
-Cloudflare no está autenticado en este entorno y falta habilitar la credencial
-segura; el usuario está informado. No requiere DDL nueva. **R6.9 queda pospuesto**,
-sin implementación y sin bloquear esta entrega.
+**Implementada, verificada localmente e integrada en [PR #48](https://github.com/amariner/logic2b-ecom/pull/48)
+(`d0816ad2`).** Despliegue autorizado e intentado el 2026-10-04 a las 06:59 UTC:
+Wrangler terminó con código 1 porque falta `CLOUDFLARE_API_TOKEN`. Producción no
+se ha actualizado; falta habilitar la credencial segura y el usuario está
+informado. No requiere DDL nueva. **R6.9 queda pospuesto**, sin implementación
+y sin bloquear esta entrega.
 
 ## R6.8c — Intención histórica fixture, verificada localmente (2026-10-04)
 
@@ -109,7 +110,7 @@ Interacción heredada de PR #44: navegador 5.076/108, ocho a11y/PNG, E2E 200 y
 hash QA 143/353; ninguna ejecución nueva de c.
 
 R6.8d está verificada localmente según la extensión del ADR-0065: diez escenarios,
-un selector y reset; 4.159 pruebas/E2E 204, integración pendiente. A+b+c bastan,
+un selector y reset; 4.159 pruebas/E2E 204, integrada en PR #48 (`d0816ad2`). A+b+c bastan,
 sin composición comercial obligatoria ni operación real. Despliegue autorizado,
 pendiente de autenticación de Cloudflare.
 
@@ -153,7 +154,7 @@ ocho a11y/PNG, E2E 200 y hash QA 143/353 proceden de PR #44, no de una ejecució
 
 R6.8c histórico está integrado en PR #47 (`372dd221`): identidad explícita y
 snapshot íntegro de origen, sin restaurar una compra mediante un SKU reutilizado.
-R6.8d está verificada localmente como demo inerte de a+b+c; integración pendiente,
+R6.8d está verificada localmente como demo inerte de a+b+c e integrada en PR #48 (`d0816ad2`),
 sin composición comercial obligatoria ni operación real.
 
 ## R6.8a — Lista e identidad de SKU, verificada localmente (2026-10-04)
@@ -2491,7 +2492,7 @@ inerte o una intención del roadmap en alcance disponible.
 | R6.8a | Lista estructurada e identidad de SKU | ✅ Verificado localmente, integrado en PR #45 (`4cfef237`) — ADR-0063, contrato exacto aceptado; snapshot único y filas literales conservadas, sin dinero o compra. 63 dominio/seis arquitectura/122 registro y revisión 55.894 verdes; check global 1.007 archivos/269 suites/4.033 pruebas verde; ocho grafos/361 fuentes/19 CSS/62 JS iguales a PR #44 y Worker +294 B explicado. Integrado en PR #45 (`4cfef237`), sin despliegue; QA runtime heredada PR #44. |
 | R6.8b | Entrada CSV fixture hacia intención estructurada | ✅ Verificado localmente, integrado en PR #46 (`09161255`) — ADR-0064, contrato exacto aceptado; parser puro todo o nada, sin lookup SKU/archivo real/pedido. 66 CSV/63 regresión/seis arquitectura y registro 122 verdes; global 1.010 archivos/270 suites/4.099 pruebas y revisión independiente verdes; ocho grafos/361 fuentes/19 CSS/62 JS idénticos a PR #45 y Worker +65 B explicado. Integrado en PR #46 (`09161255`), sin despliegue; runtime heredado PR #44. |
 | R6.8c | Intención histórica e identidad/SKU separados | ✅ Verificado localmente e integrado en PR #47 (`372dd221`) — ADR-0065, contrato exacto aceptado; origen y comparado completos, pareja nullable y relación de IDs declarada. 35 históricas/seis arquitectura/registro 122 verdes; revisión 176.040 + 2.202 + 966 separadas sin P1/P2, global final 1.012 archivos/271 suites/4.134 pruebas verde; inicialización pura corregida, ocho grafos/361 fuentes/19 CSS/62 JS iguales a PR46 y Worker +63 B explicado. Integrado en PR #47 (`372dd221`), sin despliegue; runtime heredado PR #44. Sin lista nueva, histórico real, precio o compra. |
-| R6.8d | Demo de SKU, CSV, listas e intención histórica | ✅ Verificada localmente — diez ejemplos, un selector y reset en `/demo/admin/listas-sku`; 1.016 archivos/272 suites/4.159 pruebas, navegador 1.994/20, veinte a11y sin hallazgos, ocho PNG, E2E 204 y hash 143/353 intacto. Integración pendiente; despliegue autorizado pendiente de autenticación Cloudflare. B2B-008 parcial/inactiva. |
+| R6.8d | Demo de SKU, CSV, listas e intención histórica | ✅ Verificada localmente — diez ejemplos, un selector y reset en `/demo/admin/listas-sku`; 1.016 archivos/272 suites/4.159 pruebas, navegador 1.994/20, veinte a11y sin hallazgos, ocho PNG, E2E 204 y hash 143/353 intacto. Integrada en PR #48 (`d0816ad2`); despliegue intentado y bloqueado por falta de `CLOUDFLARE_API_TOKEN`. B2B-008 parcial/inactiva. |
 | R5.2 | Consentimiento versionado | ✅ 2026-08-17 — ADR-0040, D1 `0037`, repositorio concurrente, backup 31, rehearsal y E2E local; `CUS-007` instalada e inerte |
 | R5.3a | Derechos de datos verificables | ✅ 2026-08-17 — ADR-0041, lifecycle, dry-run, doble control y puertos; `CUS-008` instalada e inerte, sin DDL ni efectos |
 | R5.3b | Persistencia de solicitudes de derechos | ✅ 2026-08-18 — D1 `0038`, repositorio concurrente, backup 32 y rehearsal/restore local; sin PII, rutas ni ejecución |
@@ -4052,10 +4053,11 @@ Diez ejemplos en `/demo/admin/listas-sku`, con APIs reales a+b+c. Global final:
 1.994/20 visitas, veinte a11y sin hallazgos, ocho PNG y E2E 204/204. Hash fresco
 de 143 tablas/353 filas intacto; [informe](audits/r6-8d/verification-report.json).
 
-Prioridad: integrar y entregar el despliegue actual expresamente autorizado.
-Integración pendiente; Cloudflare no está autenticado y falta credencial segura
-(usuario informado), por lo que producción aún no está actualizada. No requiere
-DDL nueva. R6.8c sí está integrado en PR #47 (`372dd221`). Mantener B2B-008 parcial
+Prioridad: habilitar la credencial segura de Cloudflare y completar el despliegue
+expresamente autorizado del build verificado. R6.8d está integrada en PR #48
+(`d0816ad2`); el intento del 2026-10-04 a las 06:59 UTC terminó con código 1 por
+falta de `CLOUDFLARE_API_TOKEN` (usuario informado). Producción no está actualizada.
+No requiere DDL nueva. R6.8c está integrado en PR #47 (`372dd221`). Mantener B2B-008 parcial
 e inactiva, sin pedidos reales, formularios enviados, cron ni escrituras operativas.
 **R6.9 está pospuesto**, sin implementación y sin bloquear esta entrega.
 

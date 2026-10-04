@@ -217,7 +217,7 @@ y sin despliegue, según el [ADR-0065](0065-historico-pedido-rapido-fixture.md):
 explícita y snapshot íntegro de origen, check de 4.134 pruebas y estática final
 cerrados; QA runtime heredada de PR44. No se reconstruye una compra anterior
 resolviendo un SKU reutilizado ni usando el `OrderReader` sin variante. La extensión R6.8d del ADR-0065 está verificada localmente: diez ejemplos de SKU,
-CSV, listas e intención histórica, un selector y reset; integración pendiente. No
+CSV, listas e intención histórica, un selector y reset; integrada en PR #48 (`d0816ad2`). No
 necesita composición comercial previa de visibilidad o cantidades; esa ampliación
 solo se estudiaría para elegibilidad adicional.
 
