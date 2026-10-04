@@ -15,8 +15,64 @@
 La prioridad no autoriza activación automática. Cada cliente recibe solo lo que
 su alcance requiera.
 
+**R6.3b implementada y verificada localmente, disponible en el repositorio**,
+rama `codex/variant-quantity-demo`; integración pendiente, sin despliegue.
+`/demo/admin/cantidades`, «Mínimos, múltiplos y cajas», está en Clientes,
+tras Catálogo de empresa, con dos zonas: «Prueba una cantidad» y «Comprueba la
+regla». Empresa activa y canal `professional` fijos; ES/FR, una sola línea
+seleccionada y selectores cerrados de variante/cantidad. La memoria de cantidad
+por variante comienza en 11→8, 12→2 y 21→1, y se conserva al cambiar variante
+o mercado, sin reinterpretación ni autoajuste.
+
+Variante 11: unidad/factor 1, mínimo 5, máximo 17 y múltiplo 4; variante 12:
+caja/factor 6, mínimo 6, máximo 18 y múltiplo 4; variante 21 sin regla.
+ES publica las tres y FR oculta la 11. El diagnóstico de cantidad se separa
+de la visibilidad: una cantidad conforme oculta sigue bloqueada. Sin regla,
+el count permanece pero unidad, factor y conversión son null, incluso con
+count 0; con regla, count 0 conserva cantidad canónica cero y `below_minimum`.
+El modelo consume el preview existente sin duplicar su aritmética.
+
+Interacción en memoria con reset/recarga, sin precios, totales, stock, permisos,
+I/O, DB, storage ni temporizadores. SSR inicial completo y controles/reset
+deshabilitados sin JavaScript; gate manifest demo AND `DEMO_MODE=true`, ruta
+privada/noindex y guía en cabecera. B2B-005 sigue parcial e instalada/inactiva.
+
+Check final: 969 archivos sin diagnósticos, 255 suites/3.426 pruebas,
+50 del modelo y seis de arquitectura; 44 HTML/44 formularios/cero crons.
+Revisión independiente: 39.967 comprobaciones, 36 estados, 484 transiciones,
+150 combinaciones de memoria y 900 vistas; ocho estados con cantidad conforme,
+cinco conformes tras considerar visibilidad, 31 bloqueados y seis con conversión
+null. Sin P1/P2, efectos, ejecución de getters ni reloj implícito.
+
+Cliente real: cinco archivos, 53.687 B/17.349 B gzip, sin imports externos u
+operativos. La sonda de arranque sin raíz registra una consulta DOM, cinco
+fechas explícitas y cero efectos; la interacción se acredita por separado en
+navegador. La guía se mide aparte: 15.154 B/6.300 B gzip, con 11 B adicionales
+por incluir Cantidades en su lista de rutas admitidas. Sus efectos se separan
+de los del módulo.
+
+QA final nueva: navegador 2.084 comprobaciones/72 visitas, ocho superficies
+a11y sin hallazgos y E2E 184/184. Ocho PNG aprobados por frontend y cuatro por
+revisión principal. Base QA antes/después intacta, 143 tablas/353 filas,
+hash `9cbfc811cfc4296515a403d395875a43bfa26aff0c9c9b08be0804b15bbf6eca`.
+[Informe final](../audits/r6-3b/verification-report.json).
+Las verificaciones R6.3a/PR #31 y la evidencia anterior de PR #30 conservan
+su procedencia histórica en los apartados siguientes.
+
+**Siguiente aceptado: R6.4a**, condición explícita y versionada por empresa,
+`immediate`/`net_days`, con fechas base/de evaluación explícitas y calendario
+civil UTC declarado. Ausencia `unconfigured`, sin inferir impago ni captura.
+Los recordatorios serán solo hitos calculados con offsets explícitos, sin
+destinatario, envío ni job. El estado de cobro requiere un subcorte posterior
+con evidencia completa y correlacionada antes de afirmar R6.4 completo;
+crédito, aprobaciones y fiscalidad quedan separados, sin plazos comerciales
+reales. Esquema, API, límites y semántica exacta de fecha se cerrarán entre los
+autores; no hay implementación y B2B-003 continúa pendiente.
+
 **R6.3a implementado y verificado localmente**, rama
-`codex/variant-quantity-rules`; integración pendiente, sin despliegue.
+`codex/variant-quantity-rules`, integrado en
+[PR #31](https://github.com/amariner/logic2b-ecom/pull/31), commit `7ac42e67`,
+sin despliegue.
 El [ADR-0054](adr/0054-reglas-cantidad-fixture.md) delimita el contrato puro
 fixture de cantidades. Companies 1.2.0 posee B2B-005 parcial e
 instalada/inactiva en avanzado y demo, ausente en mínimo/estándar, con
@@ -58,17 +114,6 @@ grafo, nombres, SHA y tamaños/gzip idénticos a PR #30: Catálogo
 No hay nuevo Worker ni ejecuciones HTTP, navegador, E2E o hash. Navegador
 3.614/64 visitas, E2E 180/180, ocho superficies a11y, ocho PNG y hash de
 143 tablas/353 filas son evidencia heredada de R6.2b/PR #30.
-
-**R6.3b: diseño aprobado, sin UI implementada ni evidencia visual nueva.**
-`/demo/admin/cantidades`, «Mínimos, múltiplos y cajas», irá dentro de Clientes,
-tras Catálogo de empresa. Empresa activa y canal `professional` fijos, ES/FR
-y una variante explícita por línea; cantidades en memoria inicialmente
-11→8, 12→2 y 21→1. Variante 11: unidad/factor 1, mínimo 5, máximo 17 y
-múltiplo 4; variante 12: caja/factor 6, mínimo 6, máximo 18 y múltiplo 4;
-variante 21 sin regla. ES muestra las tres y FR oculta la 11. Se prevén
-36 estados por tamaño y ocho capturas: unidad conforme, una caja no múltiplo,
-sin regla y ocho unidades ocultas, cada caso en dos tamaños. Los nombres de
-producto quedan por confirmar; la demo todavía no está disponible.
 
 **R6.2b implementada y verificada localmente, disponible en el repositorio**,
 rama `codex/company-catalog-demo`, integrada en
@@ -391,7 +436,7 @@ R5 operativo completo y mantiene G3/G4 pendientes.
 | B2B-002 | Catálogo por empresa | módulo | P2 | parcial | **R6.2a implementado y verificado localmente**, rama `codex/company-catalog-contract`, integrado en PR #29 (`4d7a30a9`) sin despliegue: [ADR-0053](adr/0053-catalogos-empresa-fixture.md). Propietario companies v1.1, instalada/inactiva en avanzado y demo; dependencia de capacidad única B2B-001 y dependencia de módulo platform-configuration conservada. Composición pura con markets/pricing sin activación operativa. Snapshot EUR con todas las variantes y precios. Preview completo de visibilidad separado del precio de una única variante explícita por producto, hasta 100 selecciones; base de esa variante, nunca default, con sustitución de precio por producto de las listas existentes preservada y declarada. Política global empresa/producto; mercado/canal pertenecen a market publication. Intersección sin revivir excluidos; empresa inactiva cierra el preview comercial sin cambiar el selector descriptivo. Vinculación versionada explícita companyId→companyKeyHash, compartible explícitamente entre empresas; ausencia produce precio null, sin derivaciones ni conversión en contexto general. Referencias exactas directoryRef id/version/capturedAt y catalogRef ref/capturedAt. Base EUR; listas canónicas de otra moneda se validan completas y quedan excluded_context. Frontera unknown valida y copia todos los datos y referencias, incluidos los ajenos a la selección, antes de la API tipada pricing. Sin totales, autorización real, DDL ni activación; B2B-009 pendiente. Check final 957 archivos/251 suites/3.210 pruebas; 132 focales, seis de arquitectura, 82 registry/manifest y 93 de regresión del directorio. Revisión de 12.478 aserciones/300 combinaciones sin P1/P2; [informe final](../audits/r6-2a/verification-report.json). E2E 176/176, navegador 601, a11y ocho superficies, ocho capturas y hash 143 tablas/353 filas heredados de PR #28, sin nuevas ejecuciones. **R6.2b verificada localmente y disponible en repo**, rama codex/company-catalog-demo, integrada en PR #30 (`6305b823`) sin despliegue: /demo/admin/catalogos-empresa en Clientes, Workshop/Studio activas, Unbound activa sin vinculación y Closed inactiva; ES/FR y professional fijo. Tres productos y variantes activos, selección explícita 11/21/31 preservada al cambiar contexto; precio de lista empresa/lista general/catálogo en el caso inicial. Memoria/reset, sin totales, hashes ni referencias técnicas en UI, I/O, DDL u operación real. Check final 961 archivos/252 suites/3.259 pruebas, 49 modelo y seis arquitectura; revisión 14.638 comprobaciones/32 estados/416 transiciones sin P1/P2. Cliente real cinco archivos/60.244 B/18.532 B gzip separado de diagnóstico modelo y guía. Navegador final 3.614 comprobaciones/64 visitas; ocho superficies a11y sin hallazgos, E2E nuevo 180/180, hash intacto de 143 tablas/353 filas y Worker detenido. Ocho capturas regeneradas aprobadas por frontend, sin nuevos defectos; [informe final](../audits/r6-2b/verification-report.json). Efectos del módulo cero; escrituras de guía contabilizadas aparte. |
 | B2B-003 | Condiciones de pago | módulo | P2 | pendiente | Inmediato, neto N, vencimiento y estado de cobro. |
 | B2B-004 | Límites y aprobación | módulo | P2 | pendiente | Crédito, importe, comprador y flujo de aprobación. |
-| B2B-005 | Reglas de cantidad | módulo | P2 | parcial | **R6.3a implementado y verificado localmente**, rama codex/variant-quantity-rules, integración pendiente y sin despliegue; [ADR-0054](adr/0054-reglas-cantidad-fixture.md). Propietario companies 1.2.0, dependencia de capacidad única B2B-002 y de módulo platform-configuration; instalada/inactiva en avanzado/demo, ausente en mínimo/estándar y sin superficies operativas. Política global por variante; regla fija unit/factor 1 o box/factor al menos 2, min/max inclusivos y múltiplo absoluto desde cero. Request con requestedCount y referencias exactas a política/catálogo; cero conserva diagnóstico below_minimum con regla y -0 se rechaza. BigInt para multiplicación/LCM/factibilidad; overflow rechazado también en ocultos/inactivos, sin ajuste automático. Ausencia unconfigured con unidad/factor/cantidad null; validación completa de referencias y pertenencia. Composición deriva identidad del mismo catálogo de empresa completamente normalizado, sin segundo catálogo; una variante por producto y diagnóstico aditivo a visibilidad, sin búsqueda de binding, pricing, precios/totales, autorización ni stock. Runtime quote 1..99 intacto. Check final 965 archivos/254 suites/3.376 pruebas; 112 propias (57 + 55), seis arquitectura y 117 registry/manifest/access. Oráculo 78.223 comprobaciones/3.234 políticas/1.738 factibles/12.372 cantidades/900 intersecciones sin P1/P2, efectos, getters ni reloj implícito. Diagnósticos API 7.728 B/dos fuentes y composición 35.934 B/siete, sin imports externos u operativos; clientes reales de Catálogo/Directorio/Guía conservan grafo, nombres, SHA y tamaños/gzip de PR #30, sin fuentes nuevas de cantidades en UI. Evidencia navegador/E2E/a11y/PNG/hash heredada de PR #30, sin nuevas ejecuciones; [informe](../audits/r6-3a/verification-report.json). R6.3b diseño aprobado: /demo/admin/cantidades, Clientes, empresa activa/professional fijos, ES/FR y cantidades en memoria; 36 estados por tamaño y ocho capturas previstos. Sin UI ni evidencia visual nueva. |
+| B2B-005 | Reglas de cantidad | módulo | P2 | parcial | **R6.3a implementado y verificado localmente**, rama codex/variant-quantity-rules, integrado en PR #31 (`7ac42e67`) sin despliegue; [ADR-0054](adr/0054-reglas-cantidad-fixture.md). Propietario companies 1.2.0, dependencia de capacidad única B2B-002 y de módulo platform-configuration; instalada/inactiva en avanzado/demo, ausente en mínimo/estándar y sin superficies operativas. Política global por variante; regla fija unit/factor 1 o box/factor al menos 2, min/max inclusivos y múltiplo absoluto desde cero. Request con requestedCount y referencias exactas a política/catálogo; cero conserva diagnóstico below_minimum con regla y -0 se rechaza. BigInt para multiplicación/LCM/factibilidad; overflow rechazado también en ocultos/inactivos, sin ajuste automático. Ausencia unconfigured con unidad/factor/cantidad null; validación completa de referencias y pertenencia. Composición deriva identidad del mismo catálogo de empresa completamente normalizado, sin segundo catálogo; una variante por producto y diagnóstico aditivo a visibilidad, sin búsqueda de binding, pricing, precios/totales, autorización ni stock. Runtime quote 1..99 intacto. Check final 965 archivos/254 suites/3.376 pruebas; 112 propias (57 + 55), seis arquitectura y 117 registry/manifest/access. Oráculo 78.223 comprobaciones/3.234 políticas/1.738 factibles/12.372 cantidades/900 intersecciones sin P1/P2, efectos, getters ni reloj implícito. Diagnósticos API 7.728 B/dos fuentes y composición 35.934 B/siete, sin imports externos u operativos; clientes reales de Catálogo/Directorio/Guía conservan grafo, nombres, SHA y tamaños/gzip de PR #30, sin fuentes nuevas de cantidades en UI. Evidencia navegador/E2E/a11y/PNG/hash heredada de PR #30, sin nuevas ejecuciones; [informe](../audits/r6-3a/verification-report.json). **R6.3b implementada y verificada localmente, disponible en repo**, rama codex/variant-quantity-demo, integración pendiente y sin despliegue: /demo/admin/cantidades, «Mínimos, múltiplos y cajas», Clientes tras Catálogo de empresa; empresa activa/professional fijos, ES/FR, una línea seleccionada y cantidades en memoria por variante (11→8, 12→2, 21→1), sin reinterpretación ni autoajuste. Preview existente, diagnóstico separado de visibilidad; sin regla count conservado con unidad/factor/conversión null, con regla count cero mantiene cantidad cero y below_minimum. Sin precios, totales, stock, permisos, I/O ni persistencia. Check final 969 archivos/255 suites/3.426 pruebas, 50 modelo y seis arquitectura; 44 HTML/44 formularios/cero crons. Revisión 39.967 comprobaciones/36 estados/484 transiciones/150 combinaciones de memoria/900 vistas, sin P1/P2, efectos, getters ni reloj implícito. Cliente real cinco archivos/53.687 B/17.349 B gzip, sin imports externos u operativos; guía separada 15.154 B/6.300 B gzip. Navegador nuevo 2.084 comprobaciones/72 visitas, a11y ocho sin hallazgos, ocho PNG aprobados por frontend y cuatro por revisión principal, E2E nuevo 184/184 y hash antes/después intacto de 143 tablas/353 filas; [informe final](../audits/r6-3b/verification-report.json). |
 | B2B-006 | Presupuesto a pedido | módulo | P2 | pendiente | Conecta ORD-008 con aprobación y enlace de pago. |
 | B2B-007 | Pedido por PO | módulo | P2 | pendiente | Nº de compra, documento y conciliación. |
 | B2B-008 | Repetir pedido/lista rápida | módulo | P2 | pendiente | Entrada por SKU, CSV y cantidades previas. |

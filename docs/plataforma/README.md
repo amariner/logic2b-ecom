@@ -31,10 +31,68 @@ Una quinta clasificación, **fuera de alcance deliberado**, evita confundir
 paridad comercial con fabricar bancos, redes publicitarias, hardware de punto de
 venta o servicios logísticos propios.
 
+## Última demo verificada
+
+**R6.3b implementada y verificada localmente, disponible en el repositorio**,
+rama `codex/variant-quantity-demo`; integración pendiente, sin despliegue.
+`/demo/admin/cantidades`, «Mínimos, múltiplos y cajas», está en Clientes,
+tras Catálogo de empresa, con dos zonas: «Prueba una cantidad» y «Comprueba la
+regla». Empresa activa y canal `professional` fijos; ES/FR, una sola línea
+seleccionada y selectores cerrados de variante/cantidad. La memoria de cantidad
+por variante comienza en 11→8, 12→2 y 21→1, y se conserva al cambiar variante
+o mercado, sin reinterpretación ni autoajuste.
+
+Variante 11: unidad/factor 1, mínimo 5, máximo 17 y múltiplo 4; variante 12:
+caja/factor 6, mínimo 6, máximo 18 y múltiplo 4; variante 21 sin regla.
+ES publica las tres y FR oculta la 11. El diagnóstico de cantidad se separa
+de la visibilidad: una cantidad conforme oculta sigue bloqueada. Sin regla,
+el count permanece pero unidad, factor y conversión son null, incluso con
+count 0; con regla, count 0 conserva cantidad canónica cero y `below_minimum`.
+El modelo consume el preview existente sin duplicar su aritmética.
+
+Interacción en memoria con reset/recarga, sin precios, totales, stock, permisos,
+I/O, DB, storage ni temporizadores. SSR inicial completo y controles/reset
+deshabilitados sin JavaScript; gate manifest demo AND `DEMO_MODE=true`, ruta
+privada/noindex y guía en cabecera. B2B-005 sigue parcial e instalada/inactiva.
+
+Check final: 969 archivos sin diagnósticos, 255 suites/3.426 pruebas,
+50 del modelo y seis de arquitectura; 44 HTML/44 formularios/cero crons.
+Revisión independiente: 39.967 comprobaciones, 36 estados, 484 transiciones,
+150 combinaciones de memoria y 900 vistas; ocho estados con cantidad conforme,
+cinco conformes tras considerar visibilidad, 31 bloqueados y seis con conversión
+null. Sin P1/P2, efectos, ejecución de getters ni reloj implícito.
+
+Cliente real: cinco archivos, 53.687 B/17.349 B gzip, sin imports externos u
+operativos. La sonda de arranque sin raíz registra una consulta DOM, cinco
+fechas explícitas y cero efectos; la interacción se acredita por separado en
+navegador. La guía se mide aparte: 15.154 B/6.300 B gzip, con 11 B adicionales
+por incluir Cantidades en su lista de rutas admitidas. Sus efectos se separan
+de los del módulo.
+
+QA final nueva: navegador 2.084 comprobaciones/72 visitas, ocho superficies
+a11y sin hallazgos y E2E 184/184. Ocho PNG aprobados por frontend y cuatro por
+revisión principal. Base QA antes/después intacta, 143 tablas/353 filas,
+hash `9cbfc811cfc4296515a403d395875a43bfa26aff0c9c9b08be0804b15bbf6eca`.
+[Informe final](../audits/r6-3b/verification-report.json).
+Las verificaciones R6.3a/PR #31 y la evidencia anterior de PR #30 conservan
+su procedencia histórica en los apartados siguientes.
+
+**Siguiente aceptado: R6.4a**, condición explícita y versionada por empresa,
+`immediate`/`net_days`, con fechas base/de evaluación explícitas y calendario
+civil UTC declarado. Ausencia `unconfigured`, sin inferir impago ni captura.
+Los recordatorios serán solo hitos calculados con offsets explícitos, sin
+destinatario, envío ni job. El estado de cobro requiere un subcorte posterior
+con evidencia completa y correlacionada antes de afirmar R6.4 completo;
+crédito, aprobaciones y fiscalidad quedan separados, sin plazos comerciales
+reales. Esquema, API, límites y semántica exacta de fecha se cerrarán entre los
+autores; no hay implementación y B2B-003 continúa pendiente.
+
 ## Último contrato verificado
 
 **R6.3a implementado y verificado localmente**, rama
-`codex/variant-quantity-rules`; integración pendiente, sin despliegue.
+`codex/variant-quantity-rules`, integrado en
+[PR #31](https://github.com/amariner/logic2b-ecom/pull/31), commit `7ac42e67`,
+sin despliegue.
 El [ADR-0054](adr/0054-reglas-cantidad-fixture.md) delimita el contrato puro
 fixture de cantidades. Companies 1.2.0 posee B2B-005 parcial e
 instalada/inactiva en avanzado y demo, ausente en mínimo/estándar, con
@@ -77,18 +135,7 @@ No hay nuevo Worker ni ejecuciones HTTP, navegador, E2E o hash. Navegador
 3.614/64 visitas, E2E 180/180, ocho superficies a11y, ocho PNG y hash de
 143 tablas/353 filas son evidencia heredada de R6.2b/PR #30.
 
-**R6.3b: diseño aprobado, sin UI implementada ni evidencia visual nueva.**
-`/demo/admin/cantidades`, «Mínimos, múltiplos y cajas», irá dentro de Clientes,
-tras Catálogo de empresa. Empresa activa y canal `professional` fijos, ES/FR
-y una variante explícita por línea; cantidades en memoria inicialmente
-11→8, 12→2 y 21→1. Variante 11: unidad/factor 1, mínimo 5, máximo 17 y
-múltiplo 4; variante 12: caja/factor 6, mínimo 6, máximo 18 y múltiplo 4;
-variante 21 sin regla. ES muestra las tres y FR oculta la 11. Se prevén
-36 estados por tamaño y ocho capturas: unidad conforme, una caja no múltiplo,
-sin regla y ocho unidades ocultas, cada caso en dos tamaños. Los nombres de
-producto quedan por confirmar; la demo todavía no está disponible.
-
-## Última demo verificada
+## Demo anterior verificada
 
 **R6.2b implementada y verificada localmente, disponible en el repositorio**,
 rama `codex/company-catalog-demo`, integrada en

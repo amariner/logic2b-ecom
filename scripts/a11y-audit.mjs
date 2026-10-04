@@ -587,6 +587,50 @@ for (const vp of [DESKTOP, MOBILE]) {
   }
 }
 
+// R6.3b: cantidades conocidas y ausentes, sin precios ni cantidades corregidas.
+const VARIANT_QUANTITY_SCENARIO = (stage) => `(() => {
+  const root = document.querySelector('[data-quantity-demo]');
+  if (root?.dataset.ready !== 'true') return 'not-ready';
+  const stage = ${JSON.stringify(stage)};
+  const select = (selector, value) => {
+    const field = root.querySelector(selector);
+    if (field.disabled) throw new Error('Control de fixture desactivado.');
+    field.value = value;
+    field.dispatchEvent(new Event('change', { bubbles: true }));
+  };
+  if (stage === 'box-invalid') {
+    select('[data-quantity-variant]', '12');
+    select('[data-quantity-count]', '1');
+  }
+  if (stage === 'unconfigured') select('[data-quantity-variant]', '21');
+  if (stage === 'hidden') select('[data-quantity-market]', 'FR');
+  const result = root.querySelector('[data-quantity-result]');
+  const quantity = root.querySelector('[data-quantity-check]');
+  const units = root.querySelector('[data-quantity-units]');
+  const rule = root.querySelector('[data-quantity-rule]');
+  const expected = stage === 'unit-valid' ? ['1', '11', 'satisfied', 'satisfied', '8', '8', 'true']
+    : stage === 'box-invalid' ? ['1', '12', 'blocked', 'blocked', '1', '6', 'true']
+      : stage === 'unconfigured' ? ['2', '21', 'blocked', 'blocked', '1', null, 'true']
+        : ['1', '11', 'blocked', 'satisfied', '8', '8', 'false'];
+  const actual = [result.dataset.productId, result.dataset.variantId, result.dataset.outcome,
+    quantity.dataset.outcome, root.querySelector('[data-quantity-requested-count]').getAttribute('data-count'),
+    units.getAttribute('data-units'), root.querySelector('[data-quantity-visibility]').dataset.visible];
+  if (JSON.stringify(actual) !== JSON.stringify(expected)) return 'wrong-quantity';
+  if (stage === 'unconfigured' && ['order-unit', 'units-per-box', 'min', 'max', 'multiple'].some(name => rule.hasAttribute('data-' + name))) return 'stale-rule';
+  const expectedReasons = stage === 'unit-valid' ? [] : stage === 'box-invalid' ? ['not_multiple']
+    : stage === 'unconfigured' ? ['unconfigured'] : ['variant_not_visible'];
+  if (JSON.stringify(Array.from(root.querySelectorAll('[data-quantity-final-reason]')).map(item => item.dataset.reason)) !== JSON.stringify(expectedReasons)) return 'wrong-reasons';
+  return stage;
+})()`;
+for (const vp of [DESKTOP, MOBILE]) {
+  const suffix = vp === MOBILE ? '@375' : '';
+  for (const stage of ['unit-valid', 'box-invalid', 'unconfigured', 'hidden']) {
+    SURFACES.push({ name: `variant-quantity:${stage}${suffix}`, url: '/demo/admin/cantidades', vp, auth: true,
+      eval: VARIANT_QUANTITY_SCENARIO(stage), expect: stage,
+      ...(stage === 'box-invalid' ? { reducedMotion: true } : {}) });
+  }
+}
+
 // R5.4d: estas rutas no existen en la demo y por eso no forman parte de la
 // batería ordinaria. El arnés local explícito activa un manifest cliente y una
 // composición visual inerte para auditar las páginas Astro reales sin DB,

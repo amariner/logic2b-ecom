@@ -330,10 +330,10 @@ de las tres de preparación y dos de recarga del recorrido compartido.
 
 ## Continuidad: R6.3a
 
-R6.3a está implementado y verificado localmente, con integración pendiente; su contrato y
+R6.3a está implementado, verificado localmente e integrado en PR #31 (`7ac42e67`); su contrato y
 estado actual están en el [ADR-0054](0054-reglas-cantidad-fixture.md). Política
 global por variante, unidad/caja fijada por regla, petición ligada a referencias
 exactas y factibilidad/conversión con `BigInt`. La composición añade visibilidad
 sin decidir precio, stock o autorización. B2B-005 permanece parcial e
-instalada/inactiva. R6.3b tiene diseño aprobado e implementación/QA visual
-pendientes; no se declara operación B2B real.
+instalada/inactiva. R6.3b está implementada, verificada localmente y disponible
+en el repositorio; integración pendiente, sin despliegue ni operación B2B real.

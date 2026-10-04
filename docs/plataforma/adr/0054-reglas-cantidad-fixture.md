@@ -1,12 +1,12 @@
 # ADR-0054 — Reglas de cantidad por variante con fixtures
 
-- Estado: accepted; R6.3a implementado y verificado localmente. Integración pendiente; sin activación ni despliegue.
+- Estado: accepted; R6.3a implementado, verificado localmente e integrado en PR #31 (`7ac42e67`). R6.3b implementada y verificada localmente, con integración pendiente; sin activación ni despliegue.
 - Fecha: 2026-10-04
-- Bloque: R6.3a, mínimo, máximo, múltiplo y caja.
+- Bloques: R6.3a, contrato de mínimo, máximo, múltiplo y caja; R6.3b, demo inerte.
 - Propietario: módulo `companies`, versión 1.2.0.
 - Capacidad: B2B-005, parcial e instalada/inactiva en avanzado/demo, dependencia B2B-002.
 - Composición: `previewCompanyQuantities`, mediante contratos públicos puros y el contexto de catálogo existente.
-- Demo visual: R6.3b con diseño aprobado; implementación y QA propias pendientes.
+- Demo visual: R6.3b verificada localmente y disponible en el repositorio; integración pendiente, sin despliegue.
 
 ## Contexto
 
@@ -251,7 +251,7 @@ Los [ADR-0002](0002-limites-y-direccion-de-dependencias.md) y
 [ADR-0003](0003-puertos-adaptadores-y-composition-root.md) mantienen la separación
 entre APIs públicas puras y activación de servicios operativos.
 
-## Verificación y estado
+## Verificación de R6.3a
 
 [Verificación final R6.3a](../../audits/r6-3a/verification-report.json), 2026-10-04:
 `pnpm check` pasa 965 archivos sin diagnósticos, 254 suites/3.376 pruebas,
@@ -268,7 +268,8 @@ HTTP, navegador, a11y o base QA. E2E 180/180, navegador 3.614/64 visitas, ocho
 superficies a11y sin hallazgos, ocho capturas y base QA de 143 tablas/353 filas se
 heredan de R6.2b/PR #30. Su hash es
 `9cbfc811cfc4296515a403d395875a43bfa26aff0c9c9b08be0804b15bbf6eca`;
-no es una nueva medición de este contrato. Integración pendiente, sin despliegue.
+no es una nueva medición de este contrato. R6.3a está integrada en PR #31
+(`7ac42e67`), sin despliegue.
 
 Bundles de diagnóstico minificados: API pública de cantidades desde el barrel,
 7.728 B/dos fuentes puras, incluidos 718 B de constantes históricas del
@@ -289,9 +290,9 @@ La base QA conservó 143 tablas/353 filas y SHA-256
 `9cbfc811cfc4296515a403d395875a43bfa26aff0c9c9b08be0804b15bbf6eca`.
 No son nuevas ejecuciones del contrato de cantidades.
 
-## Siguiente corte
+## R6.3b — Demo verificada localmente
 
-El siguiente corte aprobado es **R6.3b**, demo inerte en
+**R6.3b está implementada y verificada localmente**, demo inerte en
 `/demo/admin/cantidades`, «Mínimos, múltiplos y cajas», dentro de Clientes,
 después de Catálogo por empresa. Una empresa activa y canal `professional`
 fijos, mercados ES/FR y una única línea de variante seleccionada. Cada variante
@@ -300,15 +301,69 @@ conserva su contador en memoria: 11 empieza en 8, 12 en 2 y 21 en 1.
 Variante 11: unidades, factor uno, mínimo 5, máximo 17 y múltiplo 4. Variante
 12: cajas de seis, mínimo 6, máximo 18 y múltiplo 4. Variante 21: sin regla,
 con unidad/factor/cantidad canónica nulos incluso al solicitar cero. ES muestra
-las tres; FR oculta la 11. Cantidad conforme y visibilidad se explicarán por
+las tres; FR oculta la 11. Cantidad conforme y visibilidad se explican por
 separado, sin precios, stock, totales, autorización o ajustes automáticos.
 
-Diseño aprobado, implementación y QA pendientes. Se prevén 36 estados por
-tamaño: contadores 0, 2, 4, 5, 8, 12, 16, 17, 19 y 20 para unidades; 0–4 para
-cajas; 0–2 sin regla, en ES/FR. Ocho capturas previstas: unidad conforme, una
-caja que incumple el múltiplo, ausencia de regla y ocho unidades ocultas, en
-1.440/375 px. Son casos planificados, no evidencia visual producida.
+Implementada y verificada localmente, disponible en el repositorio; integración
+pendiente y sin despliegue. Verificados 36 estados por tamaño, 72 visitas en
+1.440/375 px: contadores 0, 2, 4, 5, 8, 12, 16, 17, 19 y 20 para unidades;
+0–4 para cajas y 0–2 sin regla, en ES/FR. Ocho capturas aprobadas: unidad
+conforme, una caja que incumple el múltiplo, ausencia de regla y ocho unidades
+ocultas, en ambos tamaños. B2B-005 permanece parcial e instalada/inactiva.
 
 El cierre fixture de a/b deja pendiente la integración autorizada con catálogo,
 carrito, checkout y operación real. No exige DDL o proveedor para ensayar la
 demostración local ni convierte una cantidad conforme en autorización.
+
+La demo consume `previewCompanyQuantities` para formar un DTO de presentación,
+sin repetir sus cálculos. El estado inicial se presenta en SSR; los controles
+y reset están deshabilitados sin JavaScript. Manifest demo y `DEMO_MODE=true`
+son necesarios simultáneamente. Es una superficie privada/noindex, solo en
+memoria, con reset y recarga al estado inicial; sin red, DB, almacenamiento,
+timers o envíos. Conserva la guía móvil en la cabecera.
+
+### Verificación de R6.3b
+
+[Verificación final R6.3b](../../audits/r6-3b/verification-report.json), 2026-10-04:
+`pnpm check` pasa 969 archivos sin diagnósticos, 255 suites/3.426 pruebas,
+44 HTML, 44 formularios locales y cero crons; 50 pruebas del modelo y seis
+de arquitectura. Revisión independiente: 39.967 comprobaciones, 36 estados,
+484 transiciones y 150 combinaciones de memoria en 900 vistas, sin P1/P2,
+efectos, getters o reloj implícito. Ocho estados satisfacen la cantidad;
+cinco satisfacen además la visibilidad, 31 quedan bloqueados y seis conservan
+conversión nula.
+
+QA nueva de superficie: navegador 2.084 comprobaciones/72 visitas, ocho
+superficies a11y sin errores ni avisos y ocho capturas aprobadas por frontend;
+root contrastó cuatro. E2E nuevo 184/184. La base QA mantiene 143 tablas/353
+filas con SHA-256 antes/después idéntico:
+`9cbfc811cfc4296515a403d395875a43bfa26aff0c9c9b08be0804b15bbf6eca`.
+Estas ejecuciones corresponden a R6.3b; la evidencia de a/PR #31 y la
+interacción anterior de PR #30 conservan sus cortes propios.
+
+Cliente real: cinco archivos, 53.687 B/17.349 B gzip, sin imports externos
+u operativos. La sonda de arranque sin raíz registra una consulta DOM, cinco
+fechas explícitas y cero efectos; no sustituye la prueba de navegador. La
+guía se mide aparte, 15.154 B/6.300 B gzip; sus 11 B adicionales corresponden
+a incluir Cantidades en la lista de rutas permitidas. El bundle de diagnóstico
+del modelo, 45.400 B/ocho fuentes puras, es una medición distinta de los assets.
+
+
+## Continuidad: R6.4a
+
+**R6.4a — Condiciones y calendario de pago con fixtures** es el siguiente
+diseño aprobado, todavía sin implementación. Condición explícita/versionada
+por empresa, `immediate` o `net_days`, fecha base y fecha de evaluación
+explícitas bajo un calendario civil UTC declarado. Ausencia de condición
+produce `unconfigured`; no se sustituye por pago inmediato ni se infieren
+impago, captura o autorización desde el tiempo transcurrido.
+
+Los recordatorios serán únicamente hitos calculados con offsets explícitos,
+sin destinatario, envío, job o cron. El estado de cobro requiere un subcorte
+posterior con evidencia completa correlacionada; R6.4 no se declarará completo
+solo por calcular vencimientos. Crédito/aprobaciones y fiscalidad conservan
+sus alcances separados; no se fijan plazos comerciales reales.
+
+Esquema, API, límites y semántica exacta de fechas se cerrarán con los autores
+antes de implementar. El ensayo fixture no necesita DDL ni proveedor; este
+outline no añade activación, persistencia ni cambios en el ledger.
