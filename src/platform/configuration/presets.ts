@@ -132,6 +132,9 @@ const ADVANCED_CAPABILITIES = {
   // R6.2a: catálogo y contexto de precios sobre snapshots explícitos;
   // no activa publicación, listas operativas ni compra por empresa.
   'B2B-002': { state: 'installed' },
+  // R6.3a: reglas de cantidad por variante sobre fixtures explícitos;
+  // no modifica carrito, checkout ni concede permisos de compra.
+  'B2B-005': { state: 'installed' },
   // R5.7 declara contexto de mercado sin decidir países, idiomas, divisas
   // comerciales ni conectar el resolver a HTTP o al checkout.
   'MKT-003': { state: 'installed' },

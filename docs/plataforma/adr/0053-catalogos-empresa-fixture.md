@@ -1,6 +1,6 @@
 # ADR-0053 — Catálogos y precios por empresa con fixtures
 
-- Estado: accepted; R6.2a implementado, verificado e integrado en PR #29 (`4d7a30a9`). R6.2b implementada, verificada localmente y disponible en repo; integración pendiente, sin activación ni despliegue.
+- Estado: accepted; R6.2a implementado, verificado e integrado en PR #29 (`4d7a30a9`). R6.2b implementada, verificada localmente y disponible en repo; integrada en PR #30 (`6305b823`), sin activación ni despliegue.
 - Fecha: 2026-10-04
 - Bloques: R6.2a, contrato puro de catálogo y precios por empresa; R6.2b, demo inerte.
 - Propietario: módulo `companies` 1.1.0.
@@ -291,7 +291,7 @@ tamaños. Ocho capturas finales cubren estado inicial, intersección sin variant
 comunes, binding ausente y empresa inactiva. Interacción en memoria, reset y
 recarga; sin permisos reales, DDL, persistencia del módulo, cron, formularios
 o cobros. B2B-002 permanece parcial e instalada/inactiva y B2B-009 pendiente.
-Integración pendiente, sin despliegue.
+Integrada en PR #30 (`6305b823`), sin despliegue.
 
 La demo consume el contrato puro; no activa B2B-002 ni delegación B2B-009.
 Exige manifest demo y `DEMO_MODE=true`. Mantiene SSR inicial completo y
@@ -328,34 +328,12 @@ almacenamiento, timers, beacons, ventanas ni errores JavaScript. Las ocho
 escrituras adicionales de la guía en `sessionStorage` se contabilizan aparte
 de las tres de preparación y dos de recarga del recorrido compartido.
 
-## Siguiente tras R6.2b: R6.3a
+## Continuidad: R6.3a
 
-El siguiente diseño aprobado y cerrado es **R6.3a: reglas de cantidad con
-fixtures**, todavía sin implementar. B2B-005 permanece pendiente; el corte
-prevé `companies` 1.2.0, dependencia de capacidad B2B-002 e instalación inactiva
-en avanzado/demo, sin superficies operativas.
-
-Política global por variante, sin overrides de empresa. La regla fija
-`orderUnit: 'unit' | 'box'`: factor uno para unidad y al menos dos para caja.
-Mínimo/máximo inclusivos y múltiplo absoluto desde cero se expresan en unidades
-canónicas. La petición declara `requestedCount`, una variante explícita por
-producto y referencias exactas `policyRef: { id, version }` y
-`catalogRef: { ref, capturedAt }`; no puede elegir otra unidad ni reinterpretar
-la regla de una versión diferente. Cero conserva cantidad cero y diagnostica
-`below_minimum`, sin eliminar la línea; `-0` se rechaza.
-
-El cálculo usa `BigInt` para conversión y factibilidad: el primer múltiplo del
-mínimo común múltiplo de `multipleUnits` y `unitsPerBox` dentro del rango debe
-existir. Sin redondeo, clamping o ajuste automático; overflow y reglas inviables
-son errores. Se validan todas las referencias y propiedad, incluidas reglas
-ajenas a la selección. Ausencia de regla devuelve `unconfigured`, con unidad,
-factor y cantidad canónica nulos.
-
-La composición deriva el snapshot neutro de identidad desde el mismo catálogo
-normalizado de empresa, sin aceptar un segundo catálogo. Añade visibilidad
-sin recuperar exclusiones; cantidad satisfecha y variante visible siguen
-siendo diagnósticos, no permiso de compra. No consulta bindings de precio ni
-devuelve snapshot monetario, precios, stock, descuentos, totales o
-`purchasable`. Los límites operativos 1–99 de quote/pricing se conservan.
-Sin DDL, rutas, cron o escritura durable; R6.3b visual seguirá al contrato puro.
-La integración real con checkout permanece fuera de este siguiente corte.
+R6.3a está implementado y verificado localmente, con integración pendiente; su contrato y
+estado actual están en el [ADR-0054](0054-reglas-cantidad-fixture.md). Política
+global por variante, unidad/caja fijada por regla, petición ligada a referencias
+exactas y factibilidad/conversión con `BigInt`. La composición añade visibilidad
+sin decidir precio, stock o autorización. B2B-005 permanece parcial e
+instalada/inactiva. R6.3b tiene diseño aprobado e implementación/QA visual
+pendientes; no se declara operación B2B real.

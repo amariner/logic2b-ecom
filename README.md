@@ -165,6 +165,11 @@ remoto.
   49 pruebas del modelo, 3.614 comprobaciones de navegador y ocho superficies
   a11y sin hallazgos. Guía en la cabecera móvil, con foco y controles despejados.
   [Evidencia R6.2b](docs/audits/r6-2b/README.md).
+- Cantidades por variante: mínimos, máximos, múltiplos y cajas explícitas,
+  con conversión exacta y diagnóstico separado de la visibilidad. 112 pruebas
+  específicas y 78.223 comprobaciones independientes; B2B-005 instalada/inactiva.
+  Sin integración operativa con checkout; demo visual R6.3b pendiente.
+  [Informe R6.3a](docs/audits/r6-3a/verification-report.json).
 - Base QA: 143 tablas y 353 filas, hash antes/después idéntico:
   `9cbfc811cfc4296515a403d395875a43bfa26aff0c9c9b08be0804b15bbf6eca`.
 

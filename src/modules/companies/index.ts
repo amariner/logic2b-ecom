@@ -43,3 +43,25 @@ export {
   type CompanyPricingBindingSelection,
   type CompanyCatalogContractReason,
 } from './domain/company-catalog';
+
+export {
+  VARIANT_QUANTITY_LIMITS,
+  VariantQuantityContractError,
+  defineQuantityCatalogSnapshot,
+  defineVariantQuantityPolicy,
+  defineVariantQuantityRequest,
+  previewVariantQuantities,
+  type QuantityCatalogRef,
+  type QuantityCatalogVariant,
+  type QuantityCatalogProduct,
+  type QuantityCatalogSnapshot,
+  type VariantQuantityRule,
+  type VariantQuantityPolicyRef,
+  type VariantQuantityPolicy,
+  type VariantQuantityRequestLine,
+  type VariantQuantityRequest,
+  type VariantQuantityBlockingReason,
+  type VariantQuantityLinePreview,
+  type VariantQuantityPreview,
+  type VariantQuantityContractReason,
+} from './domain/variant-quantity';
