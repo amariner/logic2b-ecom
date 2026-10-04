@@ -16,6 +16,58 @@
 > 2. Actualizar el estado de la fase al terminar, con fecha y resumen de lo hecho.
 > 3. Anotar decisiones tomadas y pendientes en las secciones de abajo.
 
+## R5.11a — Presentación de divisas con fixtures, cerrado local (2026-10-04)
+
+R5.10b está integrada en PR #22 (`93bc3bd`), sin despliegue. La rama
+`codex/currency-fixture-contract` desarrolla el
+[ADR-0050](plataforma/adr/0050-presentacion-divisas-fixture.md) y el módulo
+`currencies`, separado de mercados, precios, pagos e impuestos.
+`minor-unit-presentment-half-up-v1` define un importe presentado sobre un
+catálogo completo versionado, con unidades menores y exponentes 0/2/3.
+La tasa racional va de moneda origen a destino en unidades principales;
+BigInt ajusta las escalas y aplica half-up una sola vez. La identidad entre
+la misma moneda es explícita y no inventa una tasa.
+
+Petición completa y adaptador se correlacionan con evidencia fixture y
+vigencia explícita. Una respuesta ausente, futura o caducada deja el importe
+presentado en `null`; una respuesta corrupta o ajena es error de contrato.
+El importe original se conserva, sin inversión ni triangulación automática.
+El catálogo valida estructura, no certificación ISO ni monedas operativas.
+
+**Implementación y QA cerradas.** MKT-008 queda parcial e
+instalada/inactiva en avanzado y demo, con dependencia PLT-004; CHK-010 no
+cambia. Sin I/O, reloj, DDL, proveedor, activación, despliegue ni cambios de
+`formatCurrencyCents`, quote, checkout, ledger o impuestos EUR. R5.11 sigue
+parcial: este preview no resuelve cobro, reembolso o conciliación operativos.
+
+[Verificación final](audits/r5-11a/verification-report.json), 2026-10-04 UTC:
+`pnpm check` pasa 928 archivos sin diagnósticos, 237 suites/2.561 pruebas,
+44 HTML, 44 formularios y cero crons. Focales: 107 de dominio, 25 del adaptador
+FX, seis de arquitectura y 77 de manifest/registry. Revisión independiente de
+8.823 aserciones sin P1/P2, cero efectos y cero getters ejecutados; bundle
+público de tres fuentes/12.910 B, sin imports de runtime operativo.
+Implementado y verificado localmente, sin despliegue; integración pendiente.
+
+La evidencia E2E 168/168, navegador 340/340, ocho superficies a11y y hash QA
+intacto de 143 tablas/353 filas es [heredada de R5.10b/PR #22](audits/r5-10b/verification-report.json),
+no nueva validación de R5.11a: no se repiten UI, E2E, a11y ni base en este
+corte puro.
+
+Siguiente aprobado: **R5.11b, métodos sintéticos**, en
+`payments/domain/local-payment-methods.ts` y composición
+`local-payment-methods-context`. Política fixture con reglas exactas por
+método/mercado/moneda y rangos de unidades menores inclusivos. Request y
+política conservan referencias completas ID/versión de catálogos; la
+composición valida todas las reglas, también las ajenas al contexto, y exige
+`original.currency === market.currency`. Sin fallback, FX, precios ni pagos.
+CHK-010 se incorporará instalada/inactiva en ese bloque; hoy conserva su
+estado. Las otras capacidades ya activas de `payments` no se desactivan.
+
+Después **R5.11c**, demo `/demo/admin/divisas` con mercados ES/FR/JP/KW
+coherentes. Los métodos se evalúan sobre el importe original y FX permanece
+independiente. La presentación visual aún está pendiente. R5.11 continúa
+parcial: estos previews no resuelven cobro, reembolso ni conciliación operativos.
+
 ## R5.10b — Impuestos y totales con fixtures, cerrado local (2026-10-03)
 
 R5.10a está integrada en PR #21 (`5f9e3e2`), sin despliegue. La rama
@@ -50,7 +102,7 @@ exactos de llamada y se contabilizan aparte.
 La base QA conserva 143 tablas y 353 filas, con SHA-256 antes/después idéntico
 `9cbfc811cfc4296515a403d395875a43bfa26aff0c9c9b08be0804b15bbf6eca`.
 Worker y Chrome detenidos. Demo verificada y disponible en el repositorio,
-sin despliegue; integración pendiente.
+sin despliegue; integrada en PR #22 (`93bc3bd`).
 MKT-009/010 siguen parciales, instaladas e inactivas; CHK-006 pendiente.
 No hay activación, proveedor, cron, pedidos reales ni despliegue.
 Después sigue **R5.11a: contrato puro
@@ -1026,7 +1078,7 @@ reconciliación se conserva abajo por contexto.
 | 11 | Landing V2 «nivel Awwwards» + negocio + funnel + docs | 🟡 En curso | 2026-08-13 | **F11.1, F11.3 (2 sesiones), F11.4, F11.5, F11.6, F11.7 y F11.8 (primera pasada + pase a11y/contenido desde cloud 2026-07-24) hechos**, más F11.8b (auditor de a11y, cloud), F11.2a-1 (tienda ASFALTO / tema Street), F11.2a-2 (tienda METRIA / tema Industrial) F11.2a-3 (tienda ROMER / tema Natural) y **F11.2a-4 (tienda KALIBRE / tema Specs, local 2026-07-25) — con la que F11.2a queda CERRADA (10/10 tiendas)**; y **F11.8c (Lighthouse citable + OG de WhatsApp + URLs sin redirección, local 2026-07-26)**; y **F11.8d–e (tabla de Lighthouse cerrada y desplegada: 7 de 8 superficies a 100×4, la landing entre ellas en móvil y escritorio, local 2026-07-27)**; y **F11.9 (contacto global de WhatsApp, cerrado y servido 2026-08-13)**. Solo queda la submission a Awwwards, decisión de pago reservada a Andreu. Detalle por bloque abajo. **Plan maestro completo en [`docs/PLAN_FASE11_LANDING_V2.md`](PLAN_FASE11_LANDING_V2.md)**: bloques F11.0–F11.8 ejecutables por sesiones independientes. **Decisiones D1–D6 APROBADAS por Andreu (2026-07-23)**: JS propio ≤15 KB sin deps, capturas con browser tools en local, dirección C «Ocho tiendas, un motor», escalera de precios (Lite 590 / Kit 1.900+39 / A medida 3.400+59), WhatsApp+email, Lite publicado sin construir. Prompt de arranque: [`docs/PROMPT_FASE11.md`](PROMPT_FASE11.md). Integra 9B.5/9B.6 (imaginería y temas restantes) como prerequisito del hero |
 | 8 | Pulido de la demo (backlog abajo) | 🟡 En curso | 2026-07-19 | Backlog técnico agotado; solo quedan decisiones y pasos locales de Andreu (ver «Decisiones pendientes» y `docs/PROMPT_CLOUD.md`). Últimas tandas: novena (race de idempotencia en el pago, PII enumerable en `/demo/gracias`, cancelación de pedido pagado sin devolver stock), décima (la misma race en el PATCH de admin, campos vacíos guardados como 0, login sin rate limit), undécima (diagrama móvil de `/arquitectura`, hedge del plazo de entrega, tokens de tema en `/demo/reset`, terminología «envío»), duodécima (aviso de corte en pedidos del admin, cabeceras sin wrap a 375px, leftover «portes», token de radio del carrito, contraste del botón eliminar, H1 en valenciano, checklist de producción) y decimotercera (misma race de idempotencia en `checkout.session.expired`, divisa hardcodeada a EUR fuera de Stripe, cobertura de test de `quoteCart`/PATCH admin/emails) y decimocuarta (config parcial de Stripe → cobro sin cumplimiento, emails duplicados bajo concurrencia, `payment_status` del webhook, color de marca centralizado en `shop.config.ts`, contraste/tema en carrito y checkout) — ver sección «Fase 8» |
 | 12 | Logic2B Ecommerce: renombrado, reposicionamiento y docs de dos visiones | ✅ Hecho | 2026-08-10 | **F12.0–F12.6 cerrados:** marca, argumento, dossier, canal agencias, ayuda, índice por audiencias, OG y auditorías citables consolidados. **Plan maestro en [`docs/PLAN_FASE12_LOGIC2B_ECOMMERCE.md`](PLAN_FASE12_LOGIC2B_ECOMMERCE.md)**. |
-| 13 | Plataforma modular: del gestor mínimo a paridad extrema de capacidad | 🟡 En curso | 2026-10-03 | **R0–R4 y los cortes autorizados R5.1–R5.10b cerrados localmente.** R5.9a integrada en PR #19 (`1c801d8`), sin deploy. R5.9b integrada en PR #20 (`7a0926ec`): demo disponible en repo, 2.222 tests, E2E 164/164, navegador 188/188, a11y ocho superficies sin hallazgos y base QA intacta. MKT-004 parcial/inactiva y MKT-005 pendiente. R5.10a integrada en PR #21 (`5f9e3e2`): módulo taxes/ADR-0049, 917 archivos sin diagnósticos, 234 suites/2.391 pruebas y revisión sin P1/P2. Sin checkout ni proveedor; R5.10b verificada: 2.427 pruebas, E2E 168/168, navegador 340/340, a11y ocho superficies 0/0 y base QA intacta; demo disponible en repo sin deploy. Siguiente R5.11a de importe presentado y FX fixture. Fuente de verdad en [`docs/plataforma/`](plataforma/README.md). |
+| 13 | Plataforma modular: del gestor mínimo a paridad extrema de capacidad | 🟡 En curso | 2026-10-04 | **R0–R4 y los cortes autorizados R5.1–R5.11a cerrados localmente.** R5.9a integrada en PR #19 (`1c801d8`), sin deploy. R5.9b integrada en PR #20 (`7a0926ec`): demo disponible en repo, 2.222 tests, E2E 164/164, navegador 188/188, a11y ocho superficies sin hallazgos y base QA intacta. MKT-004 parcial/inactiva y MKT-005 pendiente. R5.10a integrada en PR #21 (`5f9e3e2`): módulo taxes/ADR-0049, 917 archivos sin diagnósticos, 234 suites/2.391 pruebas y revisión sin P1/P2. Sin checkout ni proveedor; R5.10b verificada: 2.427 pruebas, E2E 168/168, navegador 340/340, a11y ocho superficies 0/0 y base QA intacta; demo integrada en PR #22 (`93bc3bd`), disponible en repo sin deploy. R5.11a verificada localmente: currencies/ADR-0050, 928 archivos sin diagnósticos, 237 suites/2.561 pruebas y revisión sin P1/P2; siguiente R5.11b de métodos sintéticos. Fuente de verdad en [`docs/plataforma/`](plataforma/README.md). |
 
 ## Repo y entornos
 
@@ -1135,7 +1187,8 @@ inerte o una intención del roadmap en alcance disponible.
 | R5.9b | Demo de publicación por mercado | ✅ Local 2026-10-03 — `/demo/admin/publicacion`, 12 buffers y aplicación explícita; 905 archivos sin diagnósticos, 230 suites/2.222 pruebas, E2E 164/164, navegador 188/188 y a11y ocho superficies 0/0; disponible en repo, sin deploy ni activación |
 | R5.10a | Contrato fiscal puro y evidencias | ✅ Local 2026-10-03 — ADR-0049, módulo taxes/perfil eur-line-tax-half-up-v1 y adaptadores fixture correlacionados; 917 archivos sin diagnósticos, 234 suites/2.391 pruebas y revisión de 5.616 comprobaciones sin P1/P2; MKT-009/010 parciales/instaladas/inactivas, CHK-006 pendiente; sin proveedor, DDL ni checkout runtime |
 | R5.10b | Demo fiscal inerte | ✅ Local 2026-10-03 — /demo/admin/impuestos, cinco casos cerrados, incluido/excluido y VAT independiente; 921 archivos sin diagnósticos, 235 suites/2.427 pruebas, E2E 168/168, navegador 340/340 y a11y ocho superficies 0/0; base QA intacta, disponible en repo, sin deploy ni activación |
-| R5.11a | Importe presentado y evidencia FX fixture | ⬜ Siguiente — módulo separado, unidades menores/exponente, tasa racional dirigida y vigente, redondeo y snapshot correlacionado; sin cambiar precios, ledger o impuestos EUR ni habilitar cobro |
+| R5.11a | Importe presentado y evidencia FX fixture | ✅ Local 2026-10-04 — ADR-0050, módulo currencies y perfil minor-unit-presentment-half-up-v1; 928 archivos sin diagnósticos, 237 suites/2.561 pruebas y revisión de 8.823 aserciones sin P1/P2; MKT-008 parcial/instalada/inactiva, sin deploy ni cambios de checkout/ledger/impuestos EUR |
+| R5.11b | Métodos sintéticos elegibles | ⬜ Siguiente — contrato puro en payments y composición de reglas exactas por método/mercado/moneda, rangos minor inclusivos y referencias ID/versión de catálogos; sin fallback, FX, precios ni pagos |
 | R5.2 | Consentimiento versionado | ✅ 2026-08-17 — ADR-0040, D1 `0037`, repositorio concurrente, backup 31, rehearsal y E2E local; `CUS-007` instalada e inerte |
 | R5.3a | Derechos de datos verificables | ✅ 2026-08-17 — ADR-0041, lifecycle, dry-run, doble control y puertos; `CUS-008` instalada e inerte, sin DDL ni efectos |
 | R5.3b | Persistencia de solicitudes de derechos | ✅ 2026-08-18 — D1 `0038`, repositorio concurrente, backup 32 y rehearsal/restore local; sin PII, rutas ni ejecución |
@@ -2692,7 +2745,7 @@ solo vuelve a `main` o a producción por instrucción expresa.
 Zancada queda completado, integrado en GitHub y publicado por encargo expreso
 del 2026-09-08. La cola de plataforma que sigue no cambia por esta importación.
 
-### R5.11a — Importe presentado y evidencia FX fixture
+### R5.11b — Métodos sintéticos elegibles
 
 R5.6c.1–c.3 implementan política explícita, captura consistente, recuperación,
 publicación CAS y políticas/planes/intenciones durables. 0046 está autorizada y
@@ -2787,17 +2840,40 @@ campos NIF/país/importes libres ni envío; gate manifest demo y `DEMO_MODE=true
 E2E 168/168, navegador 340/340, a11y ocho superficies 0/0 y ocho capturas sin
 bloqueantes. Cero efectos del módulo y hash QA intacto de 143 tablas/353 filas;
 guía/rAF del shell contabilizados aparte. Worker y Chrome detenidos. Demo
-disponible en el repositorio, sin despliegue; integración pendiente.
+disponible en el repositorio, sin despliegue; integrada en PR #22 (`93bc3bd`).
 
-Siguiente seleccionado: **R5.11a**, contrato puro de importe presentado y
-evidencia FX fixture en un módulo separado. Unidades menores y exponente bajo
+R5.11a cierra localmente: [ADR-0050](plataforma/adr/0050-presentacion-divisas-fixture.md),
+contrato puro de importe presentado y evidencia FX fixture en el módulo `currencies`. Unidades menores y exponente bajo
 perfil explícito, tasa racional dirigida y vigente, aritmética BigInt y
 redondeo identificado; conservar importe/moneda originales y snapshot
 correlacionado. Sin conversión automática inversa/triangular, DDL, proveedor,
 red ni cambios del money/ledger o impuestos EUR actuales. No reutilizar el
 formateador de céntimos para monedas de otra escala. R5.11b modelará métodos
 sintéticos y R5.11c su demo; la ola continuará parcial porque presentación
-no resuelve cobro, reembolso ni conciliación operativos.
+no resuelve cobro, reembolso ni conciliación operativos. MKT-008 queda parcial
+e instalada/inactiva en avanzado y demo, dependiente de PLT-004; CHK-010
+conserva su estado. Check final: 928 archivos sin diagnósticos, 237 suites/2.561
+pruebas, 44 HTML/44 formularios/cero crons. Focales 107 de dominio y 25 de
+adaptador, seis de arquitectura, 77 de manifest/registry; revisión de 8.823
+aserciones sin P1/P2, efectos o getters.
+[Informe](audits/r5-11a/verification-report.json). E2E/navegador/a11y/hash de
+R5.10b/PR #22 son evidencia heredada, no nuevas ejecuciones. El catálogo fixture
+no certifica ISO ni habilita monedas operativas. Sin deploy, integración pendiente.
+
+Siguiente aprobado: **R5.11b, métodos sintéticos**, en
+`payments/domain/local-payment-methods.ts` y composición
+`local-payment-methods-context`. Política fixture con reglas exactas por
+método/mercado/moneda y rangos de unidades menores inclusivos. Request y
+política conservan referencias completas ID/versión de catálogos; la
+composición valida todas las reglas, también las ajenas al contexto, y exige
+`original.currency === market.currency`. Sin fallback, FX, precios ni pagos.
+CHK-010 se incorporará instalada/inactiva en ese bloque; hoy conserva su
+estado. Las otras capacidades ya activas de `payments` no se desactivan.
+
+Después **R5.11c**, demo `/demo/admin/divisas` con mercados ES/FR/JP/KW
+coherentes. Los métodos se evalúan sobre el importe original y FX permanece
+independiente. La presentación visual aún está pendiente. R5.11 continúa
+parcial: estos previews no resuelven cobro, reembolso ni conciliación operativos.
 
 Push/merge siguen autorizados tras checks hacia `main` en
 `amariner/logic2b-ecom`; no volver a pedir ese permiso. La autorización de 0046

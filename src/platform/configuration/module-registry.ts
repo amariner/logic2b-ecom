@@ -22,6 +22,7 @@ export const MODULE_IDS = [
   'markets',
   'localization',
   'taxes',
+  'currencies',
 ] as const;
 
 export type ModuleId = (typeof MODULE_IDS)[number];
@@ -285,6 +286,11 @@ export const MODULE_DESCRIPTORS = [
     id: 'taxes', version: '1.0.0', capabilities: ['MKT-009', 'MKT-010'], dependencies: ['platform-configuration'],
     permissions: [], events: [], subscriptions: [], jobs: [], healthchecks: [],
     wikiLinks: ['docs/plataforma/adr/0049-contrato-fiscal-fixture.md'], navigation: [], routes: [],
+  },
+  {
+    id: 'currencies', version: '1.0.0', capabilities: ['MKT-008'], dependencies: ['platform-configuration'],
+    permissions: [], events: [], subscriptions: [], jobs: [], healthchecks: [],
+    wikiLinks: ['docs/plataforma/adr/0050-presentacion-divisas-fixture.md'], navigation: [], routes: [],
   },
 ] as const satisfies readonly ModuleDescriptor[];
 

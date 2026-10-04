@@ -95,13 +95,13 @@ remotos ni archivos de entorno. El esquema 0046 y el backup 39 están verificado
 en QA local; no autorizan activación de consumidores, cron, DDL o despliegue
 remoto.
 
-### Evidencia local del 2026-10-03
+### Evidencia local actualizada el 2026-10-04
 
-- `pnpm check`: 921 archivos sin diagnósticos, 235 suites y 2.427 tests.
+- `pnpm check`: 928 archivos sin diagnósticos, 237 suites y 2.561 tests.
 - Build demo: 44 documentos HTML y 44 formularios de proyecto locales.
 - D1/workerd: 15 bloques correctos, backup 39 y restauración de 129 tablas;
   [informe de segmentación](docs/audits/r5-6c/facts-d1-report.json).
-- E2E: 168/168 comprobaciones. Formularios: 31 comprobaciones, cero peticiones
+- E2E de R5.10b (2026-10-03): 168/168 comprobaciones. Formularios: 31 comprobaciones, cero peticiones
   mutantes, beacons o errores JavaScript;
   [informe de fixtures](docs/audits/demo-fixtures/report.json).
 - Segmentos locales: 119 comprobaciones de navegador y ocho superficies de
@@ -131,6 +131,10 @@ remoto.
   evidencia VAT independiente, solo en memoria; 36 pruebas del modelo,
   340 comprobaciones de navegador y ocho superficies a11y sin hallazgos.
   [Evidencia R5.10b](docs/audits/r5-10b/README.md).
+- Presentación de divisas: 107 pruebas del contrato y 25 del adaptador FX
+  fixture; 8.823 comprobaciones independientes. Unidades menores explícitas,
+  tasa racional dirigida y vigencia; MKT-008 instalada e inactiva, sin cobros
+  ni conversión operativa. [Informe R5.11a](docs/audits/r5-11a/verification-report.json).
 - Base QA: 143 tablas y 353 filas, hash antes/después idéntico:
   `9cbfc811cfc4296515a403d395875a43bfa26aff0c9c9b08be0804b15bbf6eca`.
 

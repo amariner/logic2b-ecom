@@ -128,6 +128,20 @@ describe('registro de módulos (R1.4)', () => {
     }
   });
 
+  it('keeps fixture currency presentation disconnected from payments and operational surfaces', () => {
+    expect(MODULE_REGISTRY.capabilityOwners['MKT-008']).toBe('currencies');
+    expect(MODULE_REGISTRY.byId.currencies).toMatchObject({
+      dependencies: ['platform-configuration'],
+      permissions: [], events: [], subscriptions: [], jobs: [], healthchecks: [], navigation: [], routes: [],
+    });
+    expect('CHK-010' in MODULE_REGISTRY.capabilityOwners).toBe(false);
+    for (const profile of ['minimal', 'standard', 'advanced'] as const) {
+      const platform = createPlatform(createPresetManifest(profile, deployment));
+      expect(platform.hasModule('currencies')).toBe(false);
+      expect(platform.isCapabilityActive('MKT-008')).toBe(false);
+    }
+  });
+
   it('asigna cada job R1.11 a un único módulo propietario', () => {
     expect(MODULE_REGISTRY.jobOwners).toEqual({
       'notifications.event-outbox-sweep': 'notifications',
@@ -205,7 +219,7 @@ describe('registro de módulos (R1.4)', () => {
     ['minimal', ['platform-configuration', 'platform-security', 'catalog', 'pricing', 'storefront']],
     ['standard', ['platform-configuration', 'platform-security', 'catalog', 'pricing', 'inventory', 'cart', 'customers', 'orders', 'fulfillment', 'notifications', 'payments', 'checkout', 'storefront']],
     ['advanced', MODULE_REGISTRY.descriptors
-      .filter((descriptor) => !['subscriptions', 'markets', 'localization', 'taxes'].includes(descriptor.id))
+      .filter((descriptor) => !['subscriptions', 'markets', 'localization', 'taxes', 'currencies'].includes(descriptor.id))
       .map((descriptor) => descriptor.id)],
   ] as const)('compone solo los módulos operativos del preset %s', (preset, expected) => {
     const platform = createPlatform(createPresetManifest(preset, deployment));
