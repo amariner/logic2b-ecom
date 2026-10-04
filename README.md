@@ -97,11 +97,11 @@ remoto.
 
 ### Evidencia local actualizada el 2026-10-04
 
-- `pnpm check` de R6.4c: 977 archivos sin diagnósticos, 258 suites y 3.560 tests.
+- `pnpm check` de R6.5a: 979 archivos sin diagnósticos, 259 suites y 3.605 tests.
 - Build demo: 44 documentos HTML y 44 formularios de proyecto locales.
 - D1/workerd: 15 bloques correctos, backup 39 y restauración de 129 tablas;
   [informe de segmentación](docs/audits/r5-6c/facts-d1-report.json).
-- E2E de R6.4c (2026-10-04): 188/188 comprobaciones.
+- E2E de R6.4c (2026-10-04): 188/188 comprobaciones, heredadas en el contrato puro R6.5a.
   Formularios: 31 comprobaciones, cero peticiones
   mutantes, beacons o errores JavaScript;
   [informe de fixtures](docs/audits/demo-fixtures/report.json).
@@ -190,7 +190,13 @@ remoto.
   Navegador: 2.660 comprobaciones en 72 visitas y ocho capturas revisadas;
   ocho superficies de accesibilidad sin hallazgos. Sin efectos del módulo
   ni cambios en la base QA. [Evidencia R6.4c](docs/audits/r6-4c/README.md).
-- Base QA de R6.4c (comparación nueva antes/después): 143 tablas y 353 filas, hash antes/después idéntico:
+- Crédito con fixtures: tres límites independientes de exposición de empresa,
+  solicitud y comprador; evidencia correlacionada que excluye la solicitud
+  completa, cálculo exacto y diferencias firmadas. 44 pruebas propias y 51.363
+  comprobaciones independientes. B2B-004 parcial e inactiva; revisión humana
+  y demo visual pendientes. Los cinco grafos cliente existentes permanecen
+  idénticos. [Informe R6.5a](docs/audits/r6-5a/verification-report.json).
+- Base QA de R6.4c (evidencia heredada en R6.5a): 143 tablas y 353 filas, hash antes/después idéntico:
   `9cbfc811cfc4296515a403d395875a43bfa26aff0c9c9b08be0804b15bbf6eca`.
 
 Esta evidencia corresponde a QA local y no acredita que el sitio remoto haya

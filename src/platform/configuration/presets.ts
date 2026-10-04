@@ -135,6 +135,9 @@ const ADVANCED_CAPABILITIES = {
   // R6.4a: condición declarada y calendario civil con fixtures;
   // no determina estado de cobro ni ejecuta pagos o recordatorios.
   'B2B-003': { state: 'installed' },
+  // R6.5a: compara límites declarados de exposición, solicitud y comprador;
+  // no concede crédito, aprobación, reserva ni permiso de compra.
+  'B2B-004': { state: 'installed' },
   // R6.3a: reglas de cantidad por variante sobre fixtures explícitos;
   // no modifica carrito, checkout ni concede permisos de compra.
   'B2B-005': { state: 'installed' },

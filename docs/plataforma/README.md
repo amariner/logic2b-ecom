@@ -31,7 +31,41 @@ Una quinta clasificación, **fuera de alcance deliberado**, evita confundir
 paridad comercial con fabricar bancos, redes publicitarias, hardware de punto de
 venta o servicios logísticos propios.
 
-## Demo y contrato verificados localmente
+## Contrato y última demo verificados localmente
+
+**R6.5a está implementado y verificado localmente**, rama `codex/company-credit-fixtures`,
+con diseño aceptado en el [ADR-0057](adr/0057-limites-credito-fixture.md). Las tres colecciones de límites
+son independientes: exposición empresarial más solicitud, importe por solicitud
+de empresa e importe por solicitud del comprador. La exposición es declarada,
+completa y correlacionada con la solicitud excluida; los diagnósticos numéricos
+no conceden crédito ni autorizan compras. B2B-004 permanece parcial e
+instalada/inactiva; el workflow humano y la demo visual están pendientes.
+
+**Implementado y verificado localmente; integración pendiente, sin despliegue.**
+[Verificación final R6.5a](../audits/r6-5a/verification-report.json), 2026-10-04:
+`pnpm check` pasa 979 archivos sin diagnósticos, 259 suites/3.605 pruebas;
+44 de dominio, seis de arquitectura y 119 de registry/manifest/acceso
+(19/70/30). Build de 44 HTML/44 formularios locales, sin envío, beacon ni cron.
+Revisión independiente: 51.363 comprobaciones, 4.375 casos monetarios Python
+(2.813 válidos/1.562 overflow) y 160 contextos; cero P1/P2, efectos, getters o
+reloj implícito. Bundle público de diagnóstico: 15.266 B/4.277 B gzip;
+directorio/crédito y una constante histórica de R6.4 de 113 B retenida por el
+barrel, sin cálculo R6.4 ni imports operativos. No es un asset de UI.
+
+Comparación nueva contra PR #35: cinco grafos cliente idénticos en nombres,
+imports, archivos, bytes, gzip y SHA-256. También permanecen iguales las
+352 fuentes de superficie explícitamente inventariadas y los 19 CSS emitidos.
+Los grafos son Condiciones/cobros (31.812 B/9.612 gzip), Cantidades
+(53.687/17.349), Catálogo por empresa (60.527/19.836), Directorio
+(26.856/8.818) y guía (15.171/6.309). La comparación no cubre todo el grafo
+transitivo SSR ni equivale a una ejecución runtime.
+
+Navegador 2.660 comprobaciones/72 visitas, E2E 188/188, ocho superficies a11y
+sin hallazgos, ocho PNG y base QA de 143 tablas/353 filas son evidencia
+**heredada de PR #35**, sin nuevas ejecuciones de Worker, HTTP, navegador,
+a11y, E2E o DB en este corte puro. Hash histórico antes/después:
+`9cbfc811cfc4296515a403d395875a43bfa26aff0c9c9b08be0804b15bbf6eca`.
+El workflow humano R6.5b sigue en diseño y la demo visual está pendiente.
 
 **R6.4c — Demo conjunta de condiciones y cobros está implementada y verificada localmente**, rama
 `codex/company-collection-demo`. R6.4b está integrada en PR #34 (`2d72d2f0`),
@@ -48,7 +82,7 @@ inactiva siguen siendo descriptivas. Reset/recarga, memoria local, SSR completo
 y controles inertes sin JavaScript; gate manifest demo AND `DEMO_MODE=true`.
 
 **Implementada y verificada localmente, disponible en el repositorio.**
-Integración pendiente, sin despliegue. B2B-003 permanece parcial e instalada/inactiva.
+Integrada en PR #35 (`b1bf0d2a`), sin despliegue. B2B-003 permanece parcial e instalada/inactiva.
 [Verificación final R6.4c](../audits/r6-4c/verification-report.json), 2026-10-04: `pnpm check` pasa
 977 archivos sin diagnósticos, 258 suites/3.560 pruebas, 50 del modelo y seis
 de arquitectura; build de 44 HTML/44 formularios locales, sin envíos, beacons
@@ -73,15 +107,35 @@ separado, ocupa 15.171 B/6.309 B gzip; el incremento de 17 B/9 B gzip se limita
 a añadir `condiciones-pago` a la lista de rutas permitidas. Su sonda sin raíz
 no atribuye ausencia de efectos a las interacciones propias de la guía.
 
-**R6.5a — Límites de crédito declarados con fixtures** es el siguiente corte,
-con diseño exacto por fijar y sin implementación. La dirección es separar
-política por empresa/comprador, solicitud explícita y evidencia declarada de
-exposición; no convertir diagnóstico de límites en autorización de compra.
-No se reutilizan saldo regalo, `differenceCents` de R6.4 o roles descriptivos
-como crédito o permiso. Esquema, límites técnicos, cobertura y temporalidad
-requieren diseño y revisión propios antes de implementar; criterios y límites
-comerciales reales permanecen fuera del ensayo. El workflow de aprobación
-humana y su demostración se definirán en subcortes posteriores.
+**R6.5a — Límites de crédito declarados con fixtures está implementado y verificado localmente**,
+según el [ADR-0057](adr/0057-limites-credito-fixture.md). Perfil `company-credit-eur-cents-v1`:
+política versionada con `companyExposureLimits`, `companyRequestLimits` y
+`buyerLimits` independientes; solicitud EUR completa y evidencia de exposición
+`asOf` que excluye exactamente esa solicitud. Los límites de solicitud de
+empresa y comprador comparan solo su importe, sin acumulados por periodo.
+
+Tres diagnósticos separados, con diferencia firmada: ausencia de regla es
+`unconfigured`; exposición ausente, futura o incompleta es `unknown`, sin
+inventar cero. Las comparaciones conocidas por solicitud permanecen disponibles
+aunque falte exposición. No existe resultado agregado de aprobación o compra.
+`companies` 1.5.0, B2B-004 parcial e instalada/inactiva en avanzado/demo,
+dependencia única B2B-001 y superficies operativas vacías. No se reutilizan saldo
+regalo, `differenceCents` de R6.4 o roles descriptivos como crédito o permiso.
+
+**Implementado y verificado localmente; integración pendiente, sin despliegue.**
+Check final: 979 archivos sin diagnósticos, 259 suites/3.605 pruebas; revisión
+independiente de 51.363 comprobaciones sin P1/P2. Cinco grafos cliente,
+352 fuentes de superficie y 19 CSS permanecen iguales a PR #35. La interacción,
+a11y, E2E y base QA son heredados de PR #35, sin nuevas ejecuciones.
+[Informe final](../audits/r6-5a/verification-report.json).
+
+**Siguiente: R6.5b, workflow humano puro, en diseño y sin implementación.**
+Se revisará un expediente ligado al contexto completo, revisores/contactos
+explícitos y decisiones declaradas; sin inferir permisos desde roles ni
+reutilizar una aceptación al cambiar solicitud, política o evidencia.
+La demo conjunta vendrá después. R6.5 sigue parcial; criterios comerciales,
+identidad autenticada, autorización y crédito operativo quedan fuera.
+Sin DDL, proveedor, I/O, reserva ni cambios de checkout o ledger.
 
 
 **R6.4b — Evidencia de cobro con fixtures está implementado y verificado localmente**, rama
@@ -129,7 +183,7 @@ El check de a/PR #33 (971 archivos/256 suites/3.473 pruebas) conserva su propio
 corte. B2B-003 y R6.4 siguen parciales, sin activación u operación financiera.
 
 **R6.4c está implementada y verificada localmente**, disponible en el
-repositorio, con integración pendiente y sin despliegue. Ruta `/demo/admin/condiciones-pago`, «Condiciones y cobros de
+repositorio, integrada en PR #35 (`b1bf0d2a`) y sin despliegue. Ruta `/demo/admin/condiciones-pago`, «Condiciones y cobros de
 ejemplo», en Clientes después de Cantidades. Dos selectores cerrados: 12 casos
 y tres instantes de evaluación, con dos diagnósticos separados de calendario
 e importes observados. Estado inicial: aplicación parcial y evaluación en el
@@ -200,7 +254,7 @@ en R6.4a.
 
 R6.4b amplía este calendario con evidencia de importes correlacionados según el
 [ADR-0056](adr/0056-evidencia-cobro-fixture.md), verificado localmente y con
-integración en PR #34 (`2d72d2f0`). La demo conjunta R6.4c está verificada localmente, con integración pendiente y sin despliegue.
+integración en PR #34 (`2d72d2f0`). La demo conjunta R6.4c está verificada localmente e integrada en PR #35 (`b1bf0d2a`), sin despliegue.
 
 ## Última demo verificada
 

@@ -418,10 +418,10 @@ describe('capability manifest (R1.2)', () => {
 
   it.each([
     ['minimal', 'absent'], ['standard', 'absent'], ['advanced', 'installed'], ['demo', 'installed'],
-  ] as const)('keeps company quantities and payment terms %s without operational flags or surfaces', (profile, state) => {
+  ] as const)('keeps company quantities, terms and credit fixtures %s without operational flags or surfaces', (profile, state) => {
     const platform = createPlatform(profile === 'demo' ? platformManifest : createPresetManifest(profile, deployment));
     expect(platform.hasModule('companies')).toBe(false);
-    for (const id of ['B2B-003', 'B2B-005'] as const) {
+    for (const id of ['B2B-003', 'B2B-004', 'B2B-005'] as const) {
       if (profile === 'minimal' || profile === 'standard') expect(id in CAPABILITY_PRESETS[profile]).toBe(false);
       if (profile === 'advanced') expect(CAPABILITY_PRESETS.advanced[id]).toEqual({ state: 'installed' });
       expect(platform.capabilityState(id)).toBe(state);
@@ -438,33 +438,34 @@ describe('capability manifest (R1.2)', () => {
     }
   });
 
-  it('requires only the company directory for payment terms without activating collection or catalog consumers', () => {
-    expect(CAPABILITY_DEFINITIONS['B2B-003'].dependencies).toEqual(['B2B-001']);
+  it.each(['B2B-003', 'B2B-004'] as const)('requires only the company directory for %s without activating other commercial consumers', (capabilityId) => {
+    expect(CAPABILITY_DEFINITIONS[capabilityId].dependencies).toEqual(['B2B-001']);
     const input: MutableManifest = {
       manifestVersion: 1,
       deployment: { ...deployment, profile: 'custom' },
       capabilities: {
         'PLT-001': { state: 'active', flags: INERT_FLAGS },
         'PLT-004': { state: 'active', flags: INERT_FLAGS, config: { failFast: true } },
-        'B2B-003': { state: 'active', flags: INERT_FLAGS },
+        [capabilityId]: { state: 'active', flags: INERT_FLAGS },
       },
     };
     for (const state of ['absent', 'installed', 'disabled', 'retired'] as const) {
       input.capabilities['B2B-001'] = { state };
       expect(validateCapabilityManifest(input).issues).toEqual(expect.arrayContaining([
-        expect.objectContaining({ code: 'missing-dependency', path: 'capabilities.B2B-003' }),
+        expect.objectContaining({ code: 'missing-dependency', path: `capabilities.${capabilityId}` }),
       ]));
     }
     input.capabilities['B2B-001'] = { state: 'active', flags: INERT_FLAGS };
     const isolated = createPlatform(input as Parameters<typeof createPlatform>[0]);
     expect(isolated.modules.map(({ descriptor }) => descriptor.id)).toEqual(['platform-configuration', 'companies']);
-    expect(isolated.module('companies')?.activeCapabilities).toEqual(['B2B-001', 'B2B-003']);
-    for (const id of ['B2B-002', 'B2B-005', 'CHK-003', 'CHK-004', 'PRC-009', 'AUT-002', 'INT-001'] as const) {
+    expect(isolated.module('companies')?.activeCapabilities).toEqual(['B2B-001', capabilityId]);
+    for (const id of ['B2B-002', 'B2B-003', 'B2B-004', 'B2B-005', 'CHK-003', 'CHK-004', 'PRC-009', 'AUT-002', 'INT-001'] as const) {
+      if (id === capabilityId) continue;
       expect(isolated.capabilityState(id)).toBe('absent');
     }
     for (const flag of CAPABILITY_FLAG_NAMES) {
-      expect(decideCapabilityAccess(isolated, 'B2B-003', flag)).toEqual({
-        allowed: false, capabilityId: 'B2B-003', state: 'active', status: 403,
+      expect(decideCapabilityAccess(isolated, capabilityId, flag)).toEqual({
+        allowed: false, capabilityId, state: 'active', status: 403,
       });
     }
     expect(adminNavigationFor(isolated)).toEqual([]);
