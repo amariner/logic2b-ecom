@@ -1,11 +1,11 @@
 # ADR-0056 — Evidencia de importes aplicados y revertidos con fixtures
 
-- Estado: accepted; R6.4b implementado, verificado localmente e integrado en PR #34 (`2d72d2f0`). R6.4c implementada y verificada localmente, con integración pendiente; sin activación ni despliegue.
+- Estado: accepted; R6.4b implementado, verificado localmente e integrado en PR #34 (`2d72d2f0`). R6.4c implementada, verificada localmente e integrada en PR #35 (`b1bf0d2a`); sin activación ni despliegue.
 - Fecha: 2026-10-04
 - Propietario: módulo `companies`, versión 1.4.0.
 - Capacidad: B2B-003, parcial e instalada/inactiva en avanzado/demo, dependencia única B2B-001; ausente en mínimo/estándar.
 - Dependencia de módulo: `platform-configuration`; sin nuevas capacidades, flags o superficies operativas.
-- Demo: R6.4c, calendario y evidencia, verificada localmente y disponible en el repositorio; integración pendiente, sin despliegue.
+- Demo: R6.4c, calendario y evidencia, verificada localmente y disponible en el repositorio; integrada en PR #35 (`b1bf0d2a`), sin despliegue.
 
 ## Contexto
 
@@ -264,7 +264,7 @@ como resultados nuevos de cabeceras HTTP, interacción o DB.
 ## R6.4c — Demo verificada localmente
 
 **R6.4c está implementada y verificada localmente**, disponible en el
-repositorio, con integración pendiente y sin despliegue. Ruta `/demo/admin/condiciones-pago`, «Condiciones y cobros de
+repositorio, integrada en PR #35 (`b1bf0d2a`) y sin despliegue. Ruta `/demo/admin/condiciones-pago`, «Condiciones y cobros de
 ejemplo», en Clientes después de Cantidades. Dos selectores cerrados: 12 casos
 y tres instantes de evaluación, con dos diagnósticos separados de calendario
 e importes observados. Estado inicial: aplicación parcial y evaluación en el
@@ -294,7 +294,7 @@ La operación real y sus fuentes de autoridad conservan un alcance separado.
 ### Verificación de R6.4c
 
 **Implementada y verificada localmente, disponible en el repositorio.**
-Integración pendiente, sin despliegue. B2B-003 permanece parcial e instalada/inactiva.
+Integrada en PR #35 (`b1bf0d2a`), sin despliegue. B2B-003 permanece parcial e instalada/inactiva.
 [Verificación final R6.4c](../../audits/r6-4c/verification-report.json), 2026-10-04: `pnpm check` pasa
 977 archivos sin diagnósticos, 258 suites/3.560 pruebas, 50 del modelo y seis
 de arquitectura; build de 44 HTML/44 formularios locales, sin envíos, beacons
@@ -321,12 +321,32 @@ no atribuye ausencia de efectos a las interacciones propias de la guía.
 
 ## Continuidad: R6.5a
 
-**R6.5a — Límites de crédito declarados con fixtures** es el siguiente corte,
-con diseño exacto por fijar y sin implementación. La dirección es separar
-política por empresa/comprador, solicitud explícita y evidencia declarada de
-exposición; no convertir diagnóstico de límites en autorización de compra.
-No se reutilizan saldo regalo, `differenceCents` de R6.4 o roles descriptivos
-como crédito o permiso. Esquema, límites técnicos, cobertura y temporalidad
-requieren diseño y revisión propios antes de implementar; criterios y límites
-comerciales reales permanecen fuera del ensayo. El workflow de aprobación
-humana y su demostración se definirán en subcortes posteriores.
+**R6.5a — Límites de crédito declarados con fixtures está implementado y verificado localmente**,
+según el [ADR-0057](0057-limites-credito-fixture.md). Perfil `company-credit-eur-cents-v1`:
+política versionada con `companyExposureLimits`, `companyRequestLimits` y
+`buyerLimits` independientes; solicitud EUR completa y evidencia de exposición
+`asOf` que excluye exactamente esa solicitud. Los límites de solicitud de
+empresa y comprador comparan solo su importe, sin acumulados por periodo.
+
+Tres diagnósticos separados, con diferencia firmada: ausencia de regla es
+`unconfigured`; exposición ausente, futura o incompleta es `unknown`, sin
+inventar cero. Las comparaciones conocidas por solicitud permanecen disponibles
+aunque falte exposición. No existe resultado agregado de aprobación o compra.
+`companies` 1.5.0, B2B-004 parcial e instalada/inactiva en avanzado/demo,
+dependencia única B2B-001 y superficies operativas vacías. No se reutilizan saldo
+regalo, `differenceCents` de R6.4 o roles descriptivos como crédito o permiso.
+
+**Implementado y verificado localmente; integración pendiente, sin despliegue.**
+Check final: 979 archivos sin diagnósticos, 259 suites/3.605 pruebas; revisión
+independiente de 51.363 comprobaciones sin P1/P2. Cinco grafos cliente,
+352 fuentes de superficie y 19 CSS permanecen iguales a PR #35. La interacción,
+a11y, E2E y base QA son heredados de PR #35, sin nuevas ejecuciones.
+[Informe final](../../audits/r6-5a/verification-report.json).
+
+**Siguiente: R6.5b, workflow humano puro, en diseño y sin implementación.**
+Se revisará un expediente ligado al contexto completo, revisores/contactos
+explícitos y decisiones declaradas; sin inferir permisos desde roles ni
+reutilizar una aceptación al cambiar solicitud, política o evidencia.
+La demo conjunta vendrá después. R6.5 sigue parcial; criterios comerciales,
+identidad autenticada, autorización y crédito operativo quedan fuera.
+Sin DDL, proveedor, I/O, reserva ni cambios de checkout o ledger.
