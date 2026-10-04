@@ -1,11 +1,11 @@
 # ADR-0057 — Límites de crédito declarados con fixtures
 
-- Estado: accepted; R6.5a implementado y verificado localmente, integración pendiente. Sin activación ni despliegue.
+- Estado: accepted; R6.5a implementado y verificado localmente, integrado en PR #36 (`787a9e73`). Sin activación ni despliegue.
 - Fecha: 2026-10-04.
 - Módulo: `companies` 1.5.0; dependencia de módulo `platform-configuration`.
 - Capacidad: B2B-004 parcial, instalada/inactiva en avanzado/demo, ausente en mínimo/estándar; dependencia única B2B-001 y superficies operativas vacías.
 - Perfil: `company-credit-eur-cents-v1`.
-- Continuidad: R6.4c integrada en PR #35 (`b1bf0d2a`); workflow humano y demo de R6.5 pendientes.
+- Continuidad: R6.4c integrada en PR #35 (`b1bf0d2a`); R6.5b verificado localmente/integración pendiente y demo R6.5c en diseño.
 
 ## Contexto
 
@@ -207,7 +207,7 @@ Una solicitud declarada no prueba identidad, delegación, deuda o financiación.
 
 ## Verificación y continuidad
 
-**Implementado y verificado localmente; integración pendiente, sin despliegue.**
+**Implementado y verificado localmente; integrado en PR #36 (`787a9e73`), sin despliegue.**
 [Verificación final R6.5a](../../audits/r6-5a/verification-report.json), 2026-10-04:
 `pnpm check` pasa 979 archivos sin diagnósticos, 259 suites/3.605 pruebas;
 44 de dominio, seis de arquitectura y 119 de registry/manifest/acceso
@@ -231,14 +231,30 @@ sin hallazgos, ocho PNG y base QA de 143 tablas/353 filas son evidencia
 **heredada de PR #35**, sin nuevas ejecuciones de Worker, HTTP, navegador,
 a11y, E2E o DB en este corte puro. Hash histórico antes/después:
 `9cbfc811cfc4296515a403d395875a43bfa26aff0c9c9b08be0804b15bbf6eca`.
-El workflow humano R6.5b sigue en diseño y la demo visual está pendiente.
+El workflow humano R6.5b está verificado localmente, con integración pendiente; la demo visual R6.5c está en diseño.
 
-R6.5b se orientará a un workflow humano puro y acotado con decisiones declaradas
-en una simulación; el plan exacto debe revisarse antes de implementar. Una
-política fixture de revisores/contactos, separación del comprador y número
-requerido puede describir un ejemplo técnico, sin inferir permisos desde roles.
-Su recibo deberá correlacionar solicitud completa y revisiones exactas,
-incluida evidencia/`asOf`, sin reutilizar aceptación al cambiar contexto.
+**R6.5b está implementado y verificado localmente**, según el [ADR-0058](0058-revision-credito-fixture.md):
+expediente fixture con contexto íntegro, política explícita de contactos y
+quórum, estado derivado del historial, versión `1+n`, terminalidad y replay
+sobre el snapshot actual. La igualdad de contexto precede replay/conflictos;
+solo las decisiones aplicadas registran ID. No hay concurrencia durable.
+Aceptación declarada no equivale a crédito concedido; contacto no equivale a
+persona y los diagnósticos financieros desconocidos o excedidos no cambian.
+`companies` 1.6.0 conserva B2B-004 parcial e instalada/inactiva.
+Implementado y verificado localmente, integración pendiente/sin despliegue:
+981 archivos sin diagnósticos, 260 suites/3.653 pruebas, 48 dominio/seis
+arquitectura/119 registro y revisión de 33.973 comprobaciones sin P1/P2.
+Cinco grafos, 352 fuentes de superficie y 19 CSS iguales a PR #36; interacción
+y base QA heredadas de PR #35. [Informe final](../../audits/r6-5b/verification-report.json).
+
+**Siguiente: R6.5c, demo conjunta en diseño, sin código ni QA todavía.**
+`/demo/admin/credito`, «Límites y revisión de crédito», en Clientes: quince
+contextos cerrados, incluidas las tres colecciones configuradas por separado;
+apertura explícita, selector de contacto, aceptación/rechazo declarados y reset.
+Se conservan diagnóstico numérico e historial como dimensiones separadas,
+sin controles técnicos de CAS ni traslado de votos al cambiar contexto.
+Ocho capturas previstas, aún no realizadas. Sin autoridad comercial, DDL,
+proveedor, I/O, reserva ni cambios de checkout o ledger.
 
 La demo conjunta vendrá después de los contratos. No se declara resuelta la
 identidad autenticada, la autorización de compra, el crédito operativo ni la
