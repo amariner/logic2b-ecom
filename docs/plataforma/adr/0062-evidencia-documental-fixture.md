@@ -218,7 +218,7 @@ de PR #41, sin nuevas ejecuciones runtime en b.
 
 R6.7c está implementada y verificada localmente: `/demo/admin/documentos-empresa`,
 18 casos y tres evaluaciones explícitas, dos selectores y reset, ocho capturas
-revisadas. Integración pendiente, sin despliegue. No se recibe PO real, PII, archivo
+revisadas. Integrado en PR #44 (`6aade364`), sin despliegue. No se recibe PO real, PII, archivo
 o formulario con envío. Pedido operativo por PO, facturación externa registrada,
 ERP, fiscalidad certificada y conciliación/cobro reales siguen fuera de este
 corte. B2B-007/R6.7 permanecen parciales; B2B-010 no se declara resuelto.
@@ -258,12 +258,13 @@ revisadas por frontend, cuatro contrastadas por raíz, sin hallazgos.
 E2E nuevo 200/200, Worker y Chrome cerrados. Base QA sin cambios: 143 tablas,
 353 filas y SHA-256 `9cbfc811cfc4296515a403d395875a43bfa26aff0c9c9b08be0804b15bbf6eca`
 idéntico en las capturas frescas de 05:13:54 y 05:24:45 UTC; sin nueva preparación,
-siembra o migración. **Verificada localmente, disponible en repo, integración
-pendiente y sin despliegue.** [Informe final R6.7c](../../audits/r6-7c/verification-report.json). Tras c,
+siembra o migración. **Verificada localmente, disponible en repo e integrada
+en PR #44 (`6aade364`), sin despliegue.** [Informe final R6.7c](../../audits/r6-7c/verification-report.json). Tras c,
 el siguiente bloque canónico es R6.8, pedido rápido/repetición por SKU, CSV,
-listas y pedido anterior. Dirección aceptada para a: lista/identidad sin dinero
-sobre un único snapshot completo con SKUs; contrato exacto pendiente de revisión
-y aceptación, sin implementación anticipada.
+listas y pedido anterior. R6.8a tiene contrato exacto aceptado y está en
+implementación: lista/identidad sin dinero sobre un único snapshot completo con
+SKUs. La validación nueva sigue pendiente; las etapas posteriores se delimitarán
+antes de implementarlas.
 
 La vista conserva la referencia de compra aportada, su soporte declarado o
 no aportado y la oferta histórica de 77,00 EUR. En otra zona muestra la fecha de
@@ -328,9 +329,9 @@ es acotada y no acredita equivalencia SSR transitiva completa. La interacción
 de demos previas sigue siendo evidencia heredada; la nueva QA cubre Documentos
 de empresa y el E2E general de este corte.
 
-Después corresponde R6.8, pedido rápido/repetición por SKU, CSV, listas y pedido
-anterior. Se acepta como dirección para a la lista/identidad sin dinero sobre
-un único snapshot completo con SKUs. El contrato exacto requiere revisión y
-aceptación; antes de b se decidirá la separación CSV/histórico frente a la
-composición. Ninguna fuente o registro nuevos se inicia con este corte ni se
-convierten observaciones documentales en permiso de compra.
+R6.8a está implementado y verificado localmente, con integración pendiente y sin
+despliegue, según el [ADR-0063](0063-lista-identidad-sku-fixture.md): lista/identidad
+sin dinero sobre un único snapshot completo con SKUs. Check de 4.033 pruebas y
+comparación estática cerrados; su QA runtime se hereda de este corte c. Parser
+CSV propuesto para b, exacto pendiente; histórico, composición y UI se separarán.
+No se convierten observaciones documentales en permiso de compra.

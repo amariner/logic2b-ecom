@@ -418,10 +418,10 @@ describe('capability manifest (R1.2)', () => {
 
   it.each([
     ['minimal', 'absent'], ['standard', 'absent'], ['advanced', 'installed'], ['demo', 'installed'],
-  ] as const)('keeps company quantities, terms, credit, negotiation and PO fixtures %s without operational flags or surfaces', (profile, state) => {
+  ] as const)('keeps company quantities, terms, credit, negotiation, PO and quick-list fixtures %s without operational flags or surfaces', (profile, state) => {
     const platform = createPlatform(profile === 'demo' ? platformManifest : createPresetManifest(profile, deployment));
     expect(platform.hasModule('companies')).toBe(false);
-    for (const id of ['B2B-003', 'B2B-004', 'B2B-005', 'B2B-006', 'B2B-007'] as const) {
+    for (const id of ['B2B-003', 'B2B-004', 'B2B-005', 'B2B-006', 'B2B-007', 'B2B-008'] as const) {
       if (profile === 'minimal' || profile === 'standard') expect(id in CAPABILITY_PRESETS[profile]).toBe(false);
       if (profile === 'advanced') expect(CAPABILITY_PRESETS.advanced[id]).toEqual({ state: 'installed' });
       expect(platform.capabilityState(id)).toBe(state);
@@ -459,7 +459,7 @@ describe('capability manifest (R1.2)', () => {
     const isolated = createPlatform(input as Parameters<typeof createPlatform>[0]);
     expect(isolated.modules.map(({ descriptor }) => descriptor.id)).toEqual(['platform-configuration', 'companies']);
     expect(isolated.module('companies')?.activeCapabilities).toEqual(['B2B-001', capabilityId]);
-    for (const id of ['B2B-002', 'B2B-003', 'B2B-004', 'B2B-005', 'B2B-006', 'B2B-007', 'CHK-003', 'CHK-004', 'PRC-009', 'AUT-002', 'INT-001'] as const) {
+    for (const id of ['B2B-002', 'B2B-003', 'B2B-004', 'B2B-005', 'B2B-006', 'B2B-007', 'B2B-008', 'CHK-003', 'CHK-004', 'PRC-009', 'AUT-002', 'INT-001'] as const) {
       if (id === capabilityId) continue;
       expect(isolated.capabilityState(id)).toBe('absent');
     }
@@ -473,7 +473,7 @@ describe('capability manifest (R1.2)', () => {
     for (const cron of crons) expect(isolated.scheduledJobs(cron)).toEqual([]);
   });
 
-  it.each(['B2B-005', 'B2B-006'] as const)('requires the company catalog for %s without activating operational consumers', (capabilityId) => {
+  it.each(['B2B-005', 'B2B-006', 'B2B-008'] as const)('requires the company catalog for %s without activating operational consumers', (capabilityId) => {
     expect(CAPABILITY_DEFINITIONS[capabilityId].dependencies).toEqual(['B2B-002']);
     const input: MutableManifest = {
       manifestVersion: 1,
@@ -497,7 +497,7 @@ describe('capability manifest (R1.2)', () => {
     expect(isolated.modules.map(({ descriptor }) => descriptor.id)).toEqual(['platform-configuration', 'companies']);
     expect(isolated.module('companies')?.activeCapabilities).toEqual(['B2B-001', 'B2B-002', capabilityId]);
     expect(isolated.capability(capabilityId).flags).toEqual(INERT_FLAGS);
-    for (const id of ['B2B-003', 'B2B-004', 'B2B-005', 'B2B-006', 'B2B-007', 'CAT-001', 'MKT-003', 'PRC-009', 'CUS-003', 'ORD-008', 'CHK-003', 'CHK-004', 'AUT-002', 'INT-001'] as const) {
+    for (const id of ['B2B-003', 'B2B-004', 'B2B-005', 'B2B-006', 'B2B-007', 'B2B-008', 'CAT-001', 'MKT-003', 'PRC-009', 'CUS-003', 'ORD-008', 'CHK-003', 'CHK-004', 'AUT-002', 'INT-001'] as const) {
       if (id === capabilityId) continue;
       expect(isolated.capabilityState(id)).toBe('absent');
     }
@@ -541,7 +541,7 @@ describe('capability manifest (R1.2)', () => {
     expect(isolated.modules.map(({ descriptor }) => descriptor.id)).toEqual(['platform-configuration', 'companies']);
     expect(isolated.module('companies')?.activeCapabilities).toEqual(['B2B-001', 'B2B-002', 'B2B-006', 'B2B-007']);
     expect(isolated.capability('B2B-007').flags).toEqual(INERT_FLAGS);
-    for (const id of ['B2B-003', 'B2B-004', 'B2B-005', 'ORD-001', 'ORD-008', 'ORD-012', 'CHK-003', 'CHK-004', 'AUT-002', 'INT-001'] as const) {
+    for (const id of ['B2B-003', 'B2B-004', 'B2B-005', 'B2B-008', 'ORD-001', 'ORD-008', 'ORD-012', 'CHK-003', 'CHK-004', 'AUT-002', 'INT-001'] as const) {
       expect(isolated.capabilityState(id)).toBe('absent');
     }
     for (const flag of CAPABILITY_FLAG_NAMES) {
