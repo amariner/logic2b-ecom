@@ -33,12 +33,49 @@ venta o servicios logísticos propios.
 
 ## Último contrato verificado
 
+**R5.11b implementado y verificado localmente el 2026-10-04**, rama
+`codex/local-methods-fixture-contract`, con integración pendiente y sin despliegue.
+El [ADR-0051](adr/0051-metodos-locales-fixture.md) delimita el contrato puro
+`payments/domain/local-payment-methods.ts` y la composición
+`composition/local-payment-methods-context.ts`. CHK-010 permanece parcial e
+instalada/inactiva en avanzado y demo, con dependencia PLT-004. El módulo
+`payments` conserva sus otras capacidades activas.
+
+La política de origen fixture define reglas exactas método/mercado/moneda.
+Política y solicitud incluyen referencias completas id/version de ambos
+catálogos; la composición exige `original.currency = market.currency` y el
+exponente correcto. Valida todas las reglas, incluidas las deshabilitadas y
+las de otros contextos, con rangos inclusivos en unidades menores y enteros
+seguros. Distingue `available_in_fixture` de motivos de ausencia, deshabilitación
+o límites, sin conceder permiso real para pagar.
+
+No acepta importes FX ni añade fallback, I/O, relojes, DDL, rutas, jobs o
+healthchecks; tampoco cambia ledger, precios, checkout ni pagos operativos.
+Check final: 932 archivos sin diagnósticos, 239 suites/2.679 pruebas y build
+con 44 HTML/44 formularios/cero crons. Focales: 86 de dominio, 30 de composición,
+seis de arquitectura y 79 de registry/manifest. Revisión independiente de
+6.366 aserciones sin P1/P2, efectos ni ejecución de getters. Bundle de
+composición de 25.741 B sin ledger, D1, Stripe, checkout, config, preview FX
+ni adaptador FX efectivo; retiene una constante pura de `markets` de 142 B.
+[Informe final](../audits/r5-11b/verification-report.json).
+
+E2E 168/168, navegador 340/340, ocho
+superficies a11y y base QA de 143 tablas/353 filas con hash
+`9cbfc811cfc4296515a403d395875a43bfa26aff0c9c9b08be0804b15bbf6eca`
+son evidencia heredada de R5.10b, PR #22 (`93bc3bd`), sin nuevas ejecuciones
+en R5.11b. La UI no está implementada y la demo visual permanece pendiente
+para R5.11c.
+
+## Último contrato verificado
+
 **R5.11a implementado y verificado localmente el 2026-10-04 UTC**, rama
-`codex/currency-fixture-contract`, con integración pendiente y sin despliegue.
+`codex/currency-fixture-contract`, integrado en
+[PR #23](https://github.com/amariner/logic2b-ecom/pull/23), commit `c928ef9`,
+sin despliegue.
 El [ADR-0050](adr/0050-presentacion-divisas-fixture.md) define el módulo
 separado `currencies` y su contrato puro de importe presentado y evidencia FX
 fixture. MKT-008 permanece parcial e instalada/inactiva en avanzado y demo, con
-dependencia PLT-004; CHK-010 conserva su estado. La demo visual de divisas sigue
+dependencia PLT-004; ese corte no modificó CHK-010. La demo visual de divisas sigue
 pendiente para R5.11c.
 
 El perfil `minor-unit-presentment-half-up-v1` usa un catálogo completo y
@@ -144,20 +181,15 @@ ejecuciones de R5.10a ni de R5.10b.
 
 ## Siguientes fases
 
-**R5.11b aprobado, pendiente de implementación**: contrato puro en
-`payments/domain/local-payment-methods.ts` y composición
-`composition/local-payment-methods-context.ts`. La política fixture define
-tuplas exactas método/mercado/moneda y rangos inclusivos en unidades menores.
-Política y solicitud conservan referencias completas id/version de los
-catálogos; la composición valida todas las reglas y exige
-`original.currency = market.currency`. Sin fallback, FX, precios ni ejecución
-de pagos. CHK-010 pasará a instalada/inactiva solo al implementar este bloque;
-el módulo `payments` conserva sus otras capacidades activas.
-
-Después, **R5.11c** añadirá `/demo/admin/divisas` con fixtures coherentes
-ES/FR/JP/KW, métodos evaluados sobre el importe original y presentación FX
-independiente. La demo sigue pendiente. R5.11 seguirá parcial: estos previews
-no resuelven cobro, reembolso ni conciliación operativos.
+**R5.11c aprobada, pendiente de implementación**: `/demo/admin/divisas` con
+fixtures coherentes ES/FR/JP/KW e importes nominales cerrados, destinos
+EUR/JPY/KWD y evidencia FX vigente, caducada o indisponible. La identidad
+no necesita evidencia. Los métodos se evalúan sobre el importe original y
+permanecen invariantes al cambiar FX; el diseño prevé formato exacto con
+`BigInt` y 32 respuestas fixture. La UI aún no está implementada.
+Después seguirá la consolidación de R5 bajo el mandato de fixtures.
+R5.11 seguirá parcial: estos previews no resuelven cobro, reembolso ni
+conciliación operativos.
 
 ## Demo verificada
 

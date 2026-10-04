@@ -1,0 +1,59 @@
+{
+  "schemaVersion": 1,
+  "verifiedAt": "2026-10-04",
+  "environment": "local-synthetic-contracts",
+  "deployment": "not-deployed",
+  "verification": {
+    "typecheckFiles": 932,
+    "diagnostics": 0,
+    "suites": 239,
+    "tests": 2679,
+    "localPaymentMethodDomainTests": 86,
+    "contextCompositionTests": 30,
+    "architectureTests": 6,
+    "manifestAndRegistryTests": 79,
+    "buildHtmlPages": 44,
+    "buildLocalForms": 44
+  },
+  "independentReview": {
+    "assertions": 6366,
+    "openP1OrP2": 0,
+    "compositionBundleBytes": 25741,
+    "operationalRuntimeImports": 0,
+    "effectiveFxConversionImports": 0,
+    "observedEffects": 0,
+    "gettersExecuted": 0,
+    "retainedNonOperationalMarketsConstantBytes": 142
+  },
+  "inheritedRegression": {
+    "source": "r5-10b/verification-report.json",
+    "commit": "93bc3bd551132e3591b9f235d19ddd4746856790",
+    "e2eChecks": 168,
+    "browserChecks": 340,
+    "a11ySurfaces": 8,
+    "a11yErrors": 0,
+    "a11yWarnings": 0,
+    "databaseTables": 143,
+    "databaseRows": 353,
+    "databaseHash": "9cbfc811cfc4296515a403d395875a43bfa26aff0c9c9b08be0804b15bbf6eca",
+    "rerunForThisCut": false
+  },
+  "scope": {
+    "module": "payments",
+    "capabilities": [
+      "CHK-010"
+    ],
+    "state": "installed",
+    "capabilityActiveInPresets": false,
+    "existingPaymentsCapabilitiesUnchanged": true,
+    "runtimeConsumersAdded": 0,
+    "migrationsAdded": 0,
+    "routesAdded": 0,
+    "jobsAdded": 0,
+    "healthchecksAdded": 0,
+    "externalProviders": 0,
+    "checkoutPaymentRefundOrLedgerBehaviorChanged": false,
+    "availabilityMeaning": "available-in-fixture-only",
+    "fixturePresentation": "pending-r5-11c"
+  }
+}

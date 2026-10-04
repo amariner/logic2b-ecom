@@ -11,6 +11,19 @@ export {
   paymentSettlementCents,
 } from './domain/payment-ledger';
 export {
+  LOCAL_PAYMENT_METHOD_LIMITS,
+  LocalPaymentMethodContractError,
+  defineLocalPaymentMethodPolicy,
+  defineLocalPaymentMethodRequest,
+  previewLocalPaymentMethods,
+  type LocalPaymentMethodCatalogRef,
+  type LocalPaymentMethodRule,
+  type LocalPaymentMethodPolicy,
+  type LocalPaymentMethodRequest,
+  type LocalPaymentMethodResult,
+  type LocalPaymentMethodsPreview,
+} from './domain/local-payment-methods';
+export {
   STORED_VALUE_KINDS,
   STORED_VALUE_STATES,
   authorizeStoredValue,

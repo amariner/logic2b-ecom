@@ -44,7 +44,7 @@ improvisan durante la implementación.
 | R2 | Núcleo transaccional profesional | ✅ R2.1–R2.14 y Admin V2 cerrados 2026-08-12 |
 | R3 | Operación de pedidos, inventario y fulfillment | ✅ cerrado 2026-08-14 |
 | R4 | Precios, promociones y modelos de venta | ✅ cerrado 2026-08-17 |
-| R5 | Clientes, privacidad y mercados | 🟨 en curso; cortes R5.1–R5.11a cerrados localmente; siguiente R5.11b de métodos sintéticos |
+| R5 | Clientes, privacidad y mercados | 🟨 en curso; cortes R5.1–R5.11b cerrados localmente; siguiente demo R5.11c |
 | R6 | B2B | ⬜ |
 | R7 | Marketing, analítica y automatización | ⬜ |
 | R8 | Storefront componible, búsqueda y contenido | ⬜ |
@@ -180,7 +180,7 @@ suites/715 tests; producción permanece en `0032`.
 | 58 | **R5.8 Traducciones y URLs** | Campos traducibles, flujo editorial, canonical, hreflang y sitemap. | ✅ Local — R5.8a integrada en PR #17 (`6eadc3b`); R5.8b verificada con 227 suites/2.023 pruebas, E2E 160/160, navegador 120/120 y ocho superficies a11y sin hallazgos. Demo `/demo/admin/mercados` disponible en repo; MKT-003/006/007 parciales e inactivas, sin deploy |
 | 59 | **R5.9 Publicación por mercado** | Producto/variante/canal, preview y explicación. | ✅ Local — R5.9a integrada en PR #19 (`1c801d8`); R5.9b integrada en PR #20 (`7a0926ec`), disponible en repo sin deploy: 230 suites/2.222 pruebas, E2E 164/164, navegador 188/188 y ocho superficies a11y 0/0. MKT-004 parcial/inactiva y MKT-005 pendiente |
 | 60 | **R5.10 Impuestos** | Adaptador, snapshots, redondeo, exenciones y validación VAT ID. | 🟡 R5.10a integrada en PR #21 (`5f9e3e2`): ADR-0049, módulo taxes y adaptadores fixture; 917 archivos sin diagnósticos, 234 suites/2.391 pruebas y revisión sin P1/P2. MKT-009/010 parciales/instaladas/inactivas, CHK-006 pendiente; sin proveedor, DDL ni checkout runtime. R5.10b verificada: demo /demo/admin/impuestos, 2.427 pruebas, E2E 168/168, navegador 340/340, ocho superficies a11y 0/0 y hash QA intacto; integrada en PR #22 (`93bc3bd`), disponible en repo sin deploy |
-| 61 | **R5.11 Multidivisa y métodos locales** | Presentación, cobro, reembolso y conciliación. | 🟡 R5.11a verificada localmente: ADR-0050/currencies, 928 archivos sin diagnósticos, 237 suites/2.561 pruebas y revisión sin P1/P2; MKT-008 parcial/instalada/inactiva. Siguiente R5.11b de métodos sintéticos exactos y R5.11c demo. Estos previews dejan pendiente cobro, reembolso y conciliación operativos; la ola no se declara completa |
+| 61 | **R5.11 Multidivisa y métodos locales** | Presentación, cobro, reembolso y conciliación. | 🟡 R5.11a integrada en PR #23 (`c928ef9`): ADR-0050/currencies, 928 archivos sin diagnósticos, 237 suites/2.561 pruebas y revisión sin P1/P2; MKT-008 parcial/instalada/inactiva. R5.11b verificada: ADR-0051, 932 archivos sin diagnósticos, 239 suites/2.679 pruebas y revisión sin P1/P2; CHK-010 parcial/instalada/inactiva. Sigue R5.11c demo pendiente. Estos previews dejan pendiente cobro, reembolso y conciliación operativos; la ola no se declara completa |
 | 62 | **R5.12 Consolidación R5** | E2E dos mercados, privacidad y cuenta opcional; revisión SEO/legal/seguridad. | ⬜ |
 
 R5.1 cerró localmente con ADR-0039, `0036`, repositorio D1, HMAC por despliegue,
@@ -1684,7 +1684,7 @@ avanzado y demo, dependiente de PLT-004; CHK-010 permanece sin cambios.
 FX, seis de arquitectura y 77 de manifest/registry. Revisión independiente de
 8.823 aserciones sin P1/P2, cero efectos y cero getters ejecutados; bundle
 público de tres fuentes/12.910 B, sin imports de runtime operativo.
-Implementado y verificado localmente, sin despliegue; integración pendiente.
+Implementado y verificado localmente e integrado en PR #23 (`c928ef9`), sin despliegue.
 
 E2E 168/168,
 navegador 340/340, ocho superficies a11y y hash intacto de 143 tablas/353 filas
@@ -1692,20 +1692,45 @@ pertenecen a R5.10b/PR #22 (`93bc3bd`): son evidencia heredada. Demo visual de
 divisas pendiente para R5.11c; sin activación ni despliegue. No se ejecutan
 nuevas pruebas de UI/E2E/a11y/base para este corte puro.
 
-Siguiente aprobado: **R5.11b, métodos sintéticos**, en
+### Cerrado local: R5.11b — Métodos locales con fixtures
+
+En `codex/local-methods-fixture-contract`, [ADR-0051](adr/0051-metodos-locales-fixture.md),
+contrato de métodos sintéticos en
 `payments/domain/local-payment-methods.ts` y composición
 `local-payment-methods-context`. Política fixture con reglas exactas por
 método/mercado/moneda y rangos de unidades menores inclusivos. Request y
 política conservan referencias completas ID/versión de catálogos; la
 composición valida todas las reglas, también las ajenas al contexto, y exige
 `original.currency === market.currency`. Sin fallback, FX, precios ni pagos.
-CHK-010 se incorporará instalada/inactiva en ese bloque; hoy conserva su
-estado. Las otras capacidades ya activas de `payments` no se desactivan.
+CHK-010 se incorpora parcial e instalada/inactiva en avanzado y demo,
+dependiente de PLT-004. Las otras capacidades ya activas de `payments` no se
+desactivan; el módulo completo no pasa a inactivo. No hay rutas, jobs,
+healthchecks, I/O, reloj, DDL ni cambios de ledger o runtime de pagos.
 
-Después **R5.11c**, demo `/demo/admin/divisas` con mercados ES/FR/JP/KW
-coherentes. Los métodos se evalúan sobre el importe original y FX permanece
-independiente. La presentación visual aún está pendiente. R5.11 continúa
+[Verificación final](../audits/r5-11b/verification-report.json), 2026-10-04:
+`pnpm check` pasa 932 archivos sin diagnósticos, 239 suites/2.679 pruebas,
+44 HTML, 44 formularios y cero crons. Focales: 86 de dominio, 30 de composición,
+seis de arquitectura y 79 de manifest/registry. Revisión independiente de
+6.366 aserciones sin P1/P2, efectos ni getters ejecutados. El bundle de
+composición mide 25.741 B, sin ledger, D1, Stripe, checkout, configuración
+operativa ni preview/adaptador FX efectivo; retiene una constante pura de
+`markets` de 142 B. Implementado y verificado localmente, sin despliegue;
+integración pendiente.
+
+E2E 168/168, navegador 340/340, a11y de ocho superficies y hash intacto de
+143 tablas/353 filas son heredados de PR #22; no se atribuyen nuevas
+ejecuciones de UI/E2E/a11y/base en este corte puro.
+
+R5.11c tiene aprobado `/demo/admin/divisas`: mercados ES/FR/JP/KW coherentes,
+importes nominales cerrados y monedas destino EUR/JPY/KWD. FX ofrece casos
+vigente, caducado e indisponible; la identidad conserva el importe sin evidencia
+fabricada. Los métodos se evalúan siempre sobre el original y permanecen
+invariantes ante cambios de FX. Se usará formato exacto con `BigInt` y 32
+respuestas fixture. La UI todavía no está implementada; demo visual pendiente,
+sin activación de capacidades ni autorización de pagos reales. R5.11 continúa
 parcial: estos previews no resuelven cobro, reembolso ni conciliación operativos.
+Después R5.12 consolidará la integración demostrada con fixtures y sus límites
+legales, SEO y de seguridad, sin afirmar operaciones reales.
 
 Push/merge siguen autorizados después de checks. La demo pública y landing
 quedan solo con fixtures; crons vacíos y guardas ante triggers antiguos. G3/G4,

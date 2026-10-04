@@ -229,8 +229,9 @@ export const MODULE_DESCRIPTORS = [
     routes: [{ match: 'exact', path: '/demo/admin/emails', capabilityId: 'MAR-003' }],
   },
   {
-    id: 'payments', version: '1.1.0', capabilities: ['CHK-004', 'INT-001'], dependencies: ['platform-configuration'],
-    permissions: [], events: [], subscriptions: [], jobs: [], healthchecks: ['payments.stripe-checkout'], wikiLinks: [ARCHITECTURE_WIKI], navigation: [],
+    id: 'payments', version: '1.2.0', capabilities: ['CHK-004', 'CHK-010', 'INT-001'], dependencies: ['platform-configuration'],
+    permissions: [], events: [], subscriptions: [], jobs: [], healthchecks: ['payments.stripe-checkout'],
+    wikiLinks: [ARCHITECTURE_WIKI, 'docs/plataforma/adr/0051-metodos-locales-fixture.md'], navigation: [],
     routes: [{ match: 'exact', path: '/api/webhooks/stripe', capabilityId: 'CHK-004' }],
   },
   {
