@@ -1,6 +1,6 @@
 # ADR-0064 — Entrada CSV de pedido rápido mediante texto fixture
 
-- Estado: accepted; R6.8b verificado localmente: 4.099 pruebas; integración pendiente.
+- Estado: accepted; R6.8b implementado y verificado localmente, integrado en PR #46 (`09161255`), sin despliegue.
 - Fecha: 2026-10-04.
 - Aplicación: `src/modules/companies/application/company-quick-order-csv.ts`.
 - Helper privado: `src/modules/companies/domain/company-quick-order-sku.ts`.
@@ -188,7 +188,7 @@ contenido son diagnósticos `invalid/list:null`, no excepciones contractuales.
 
 ## Validación y siguientes cortes
 
-**Implementado y verificado localmente; integración pendiente y sin despliegue.** 66 focales CSV,
+**Implementado y verificado localmente; integrado en PR #46 (`09161255`), sin despliegue.** 66 focales CSV,
 63 de regresión de a y seis de arquitectura verdes; TypeScript focal en cuatro
 archivos sin diagnósticos. Registro/manifiesto/acceso 122/122 verde (19/73/30).
 Check global final: 1.010 archivos sin diagnósticos, 270 suites/4.099 pruebas;
@@ -204,7 +204,7 @@ SHA, bytes y gzip; los JS suman 432.002 B/138.864 gzip. Worker de 282 archivos:
 +65 B/+280 gzip, 280 idénticos tras mapear 24 nombres. El cambio exacto de
 companies 1.12.0 y ADR0064 explica runtime-platform; metadata generada del
 manifest aparte, sin equivalencia SSR completa. No hubo nueva QA runtime.
-**Verificado localmente, integración pendiente y sin despliegue.**
+**Verificado localmente e integrado en PR #46 (`09161255`), sin despliegue.**
 [Informe final R6.8b](../../audits/r6-8b/verification-report.json). No se atribuye nueva UI,
 HTTP, navegador o DB a este corte. La evidencia de interacción heredada procede
 de R6.7c/PR #44: 5.076 comprobaciones/108 visitas, ocho a11y/PNG, E2E 200 y hash
@@ -212,11 +212,14 @@ intacto de 143 tablas/353 filas. El [informe R6.8a](../../audits/r6-8a/verificat
 integrado en PR #45, documenta la comparación estática anterior; b ha completado
 la suya sin repetir interacción HTTP/navegador/DB ni afirmar equivalencia SSR global.
 
-El siguiente contrato de intención histórica se diseñará aparte con identidad
-explícita y snapshot íntegro de origen. No se reconstruye una compra anterior
+R6.8c está implementado y verificado localmente, con integración pendiente y sin
+despliegue, según el [ADR-0065](0065-historico-pedido-rapido-fixture.md): identidad
+explícita y snapshot íntegro de origen, check de 4.134 pruebas y estática final
+cerrados; QA runtime heredada de PR44. No se reconstruye una compra anterior
 resolviendo un SKU reutilizado ni usando el `OrderReader` sin variante. Tampoco
-se incorpora esa API por adelantado en este ADR. Composición de visibilidad y
-cantidades y demo visual siguen separadas, con alcance exacto pendiente.
+se incorpora esa API por adelantado en este ADR. La siguiente demo propuesta cubre SKU, CSV, listas e intención histórica, con
+diseño exacto pendiente. No necesita composición comercial previa de visibilidad
+o cantidades; esa ampliación solo se estudiaría para elegibilidad adicional.
 
 No hay importación operativa, lista persistida, pedido, precio, stock, permiso,
 pago, DDL o cron. La capacidad permanece parcial e inactiva aunque el texto

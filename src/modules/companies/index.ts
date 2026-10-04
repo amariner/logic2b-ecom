@@ -239,3 +239,17 @@ export {
   type CompanyQuickOrderCsvResult,
   type CompanyQuickOrderCsvContractReason,
 } from './application/company-quick-order-csv';
+
+export {
+  COMPANY_QUICK_ORDER_HISTORY_LIMITS,
+  CompanyQuickOrderHistoryContractError,
+  defineCompanyQuickOrderHistory,
+  previewCompanyQuickOrderHistory,
+  type CompanyQuickOrderHistoryLine,
+  type CompanyQuickOrderHistory,
+  type CompanyQuickOrderHistoricalIdentityComparison,
+  type CompanyQuickOrderHistoricalSkuComparison,
+  type CompanyQuickOrderHistoryLinePreview,
+  type CompanyQuickOrderHistoryPreview,
+  type CompanyQuickOrderHistoryContractReason,
+} from './domain/company-quick-order-history';

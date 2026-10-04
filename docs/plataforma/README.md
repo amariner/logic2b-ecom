@@ -33,6 +33,51 @@ venta o servicios logísticos propios.
 
 ## Contrato verificado localmente
 
+**R6.8c — Intención histórica de pedido rápido está implementada y verificada localmente**, rama
+`codex/company-quick-order-history-fixtures`, contrato exacto aceptado en el
+[ADR-0065](adr/0065-historico-pedido-rapido-fixture.md). Dos APIs puras conservan un origen íntegro y filas con
+pareja producto/variante explícita o nula; comparan por separado esa identidad
+y el SKU literal frente a otro catálogo completo.
+
+La relación `same_declared_space` es un supuesto explícito del fixture, no prueba
+de continuidad real. Ref/fecha/versión no acreditan autenticidad o vigencia;
+un SKU único nunca completa identidad histórica nula ni sustituye la pareja.
+Cantidad cero/MAX_SAFE, repetidas y orden se conservan sin suma. No lista nueva,
+pedido recuperado, precio, stock, cajas, permiso, CSV operativo o UI.
+
+companies 1.13.0 conserva B2B-008 parcial instalada/inactiva y dependencia
+B2B-002, sin superficies. Registro/manifiesto/acceso: 122/122 verdes (19/73/30).
+35 focales históricas y seis de arquitectura verdes;
+TypeScript focal en dos archivos sin diagnósticos. Revisión independiente:
+176.040 aserciones sobre 312 casos/914 filas/71 rechazos, 2.202 de delegación y
+966 de frontera sobre 115 casos, contadas por separado. Sin P1/P2, efectos,
+getters o reloj implícito. Bundle diagnóstico de cuatro exports: 11.093 B/3.306
+gzip, con 1.184 B de constantes históricas puras; sin CSV ni runtime operativo,
+distinto de un asset emitido. La inicialización de límites se encapsuló en una
+IIFE anotada pura para evitar retención innecesaria, sin cambiar API o valores.
+El diagnóstico de los cuatro exports conserva exactamente bytes y SHA anteriores;
+se revalidó importación/llamada dirigida, sin atribuir otra ejecución del oráculo.
+Check global final posterior a la corrección verde: 1.012 archivos sin diagnósticos,
+271 suites/4.134 pruebas; build del 2026-10-04 a las 06:09:55 UTC,
+44 HTML/44 formularios locales/cero cron. Comparación final frente al PR #46
+original: ocho grafos completos, 361 fuentes seleccionadas, 19 CSS y 62 JS
+públicos idénticos en nombres, imports, SHA, bytes y gzip (432.002 B/138.864 gzip).
+Retención de cliente resuelta, delta público cero. Worker de 282 archivos:
++63 B/−281 gzip; 280 iguales tras mapear 24 nombres. Solo companies 1.13.0 y
+ADR0065 en runtime-platform, más metadata generada de manifest separada;
+sin equivalencia SSR completa ni nueva QA runtime.
+**Verificado localmente, integración pendiente y sin despliegue.**
+[Informe final R6.8c](../audits/r6-8c/verification-report.json). R6.8b integrado en PR #46 (`09161255`), sin despliegue.
+Interacción heredada de PR #44: navegador 5.076/108, ocho a11y/PNG, E2E 200 y
+hash QA 143/353; ninguna ejecución nueva de c.
+
+Siguiente: R6.8d, diseño exacto aceptado de demo inerte «Listas y repetición» en
+/demo/admin/listas-sku. Diez escenarios de SKU, CSV, listas e intención histórica,
+un selector y reset; implementación pendiente de integrar c y capturar baseline.
+A+b+c bastan; no se exige composición comercial ni se habilita operación real.
+
+## Contrato verificado localmente
+
 **R6.8b — Entrada CSV de pedido rápido está implementada y verificada localmente**, rama
 `codex/company-quick-order-csv-fixtures`, contrato exacto aceptado en el
 [ADR-0064](adr/0064-entrada-csv-pedido-rapido-fixture.md). Una API pura recibe texto fixture y metadata explícita;
@@ -64,14 +109,15 @@ SHA, bytes y gzip; los JS suman 432.002 B/138.864 gzip. Worker de 282 archivos:
 +65 B/+280 gzip, 280 idénticos tras mapear 24 nombres. El cambio exacto de
 companies 1.12.0 y ADR0064 explica runtime-platform; metadata generada del
 manifest aparte, sin equivalencia SSR completa. No hubo nueva QA runtime.
-**Verificado localmente, integración pendiente y sin despliegue.**
+**Verificado localmente e integrado en PR #46 (`09161255`), sin despliegue.**
 [Informe final R6.8b](../audits/r6-8b/verification-report.json).
 R6.8a integrado en PR #45 (`4cfef237`), sin despliegue. Navegador 5.076/108,
 ocho a11y/PNG, E2E 200 y hash QA 143/353 proceden de PR #44, no de una ejecución b.
 
-Siguiente histórico separado: identidad explícita y snapshot íntegro de origen,
-contrato exacto pendiente de diseño/aceptación; ningún SKU reutilizado restaura
-una compra anterior. Composición y demo visual también pendientes, sin operación.
+R6.8c histórico está implementado y verificado localmente:
+identidad explícita y snapshot íntegro de origen, integración pendiente;
+ningún SKU reutilizado restaura una compra anterior. Composición y demo visual
+siguen pendientes de diseño separado, sin operación.
 
 ## Contrato verificado localmente
 
@@ -109,7 +155,7 @@ por registro B2B-008/companies 1.11.0/ADR0063 y metadata generada separada;
 sin despliegue: navegador 5.076/108 visitas, ocho a11y/PNG, E2E 200 y hash de
 143 tablas/353 filas son evidencia heredada, no ejecuciones nuevas de a.
 R6.8b está implementado y verificado localmente como parser CSV puro,
-con integración pendiente y sin despliegue. Histórico, composición y UI irán en cortes
+integrado en PR #46 (`09161255`) y sin despliegue. Histórico, composición y UI irán en cortes
 separados; resolver un SKU reutilizado no reconstruye una compra antigua.
 
 ## Demo verificada localmente
@@ -153,8 +199,9 @@ el siguiente bloque canónico es R6.8, pedido rápido/repetición por SKU, CSV,
 listas y pedido anterior. R6.8a está implementado y verificado localmente:
 lista/identidad sin dinero sobre un único snapshot completo con SKUs,
 integrado en PR #45 (`4cfef237`) y sin despliegue. R6.8b parser CSV puro tiene
-contrato exacto implementado y verificado localmente, con integración pendiente;
-histórico, composición y UI se delimitarán aparte.
+contrato exacto implementado y verificado localmente, integrado en PR #46
+(`09161255`); R6.8c histórico está verificado localmente, integración pendiente, y composición/UI siguen
+pendientes de diseño separado.
 
 ## Contrato verificado localmente
 
