@@ -1,6 +1,6 @@
 # ADR-0061 — Referencia PO declarada vinculada a una oferta histórica
 
-- Estado: accepted; R6.7a implementado y verificado localmente; integración pendiente, sin despliegue.
+- Estado: accepted; R6.7a implementado y verificado localmente; integrado en PR #42 (`1b783473`), sin despliegue.
 - Fecha: 2026-10-04.
 - Dominio: `src/modules/companies/domain/company-purchase-order.ts`.
 - API pública: `src/modules/companies/index.ts`.
@@ -173,7 +173,7 @@ seleccionadas, 19 CSS y los 60 JavaScript públicos idénticos; estos últimos
 suman 395.809 B/128.833 gzip. Worker +296 B explicados por registro B2B-007,
 dependencia/instalación y descriptor companies 1.9.0/ADR0061. No se acredita
 equivalencia SSR completa ni nueva ejecución HTTP/navegador/DB.
-**Implementado y verificado localmente; integración pendiente, sin despliegue.**
+**Implementado y verificado localmente; integrado en PR #42 (`1b783473`), sin despliegue.**
 [Informe final R6.7a](../../audits/r6-7a/verification-report.json).
 El Worker contiene 281 archivos; 279 coinciden tras sustituir nombres generados.
 El registro y manifest generado restantes explican los cambios medidos, sin
@@ -182,14 +182,16 @@ HTTP, navegador o base de datos en este corte.
 
 La evidencia de interacción es histórica de PR #41: navegador 9.068
 comprobaciones (72 visitas iniciales y 24 creaciones, más recorridos), ocho
-superficies a11y sin hallazgos/ocho PNG, E2E196 y hash antes/después intacto de
+superficies a11y sin hallazgos/ocho PNG, E2E 196 y hash antes/después intacto de
 143 tablas/353 filas. [Informe R6.6c](../../audits/r6-6c/verification-report.json).
 Estos datos no representan nuevas ejecuciones de R6.7a; la comparación estática
 tras su build se detalla arriba y no sustituye esas interacciones históricas.
 
-Después se concretará R6.7b: puerto fixture y evidencia documental correlacionada,
-con ausencia explícita y sin inferir factura o cobro. Requiere diseño exacto de
-referencias, valores observados y temporalidad antes de implementar. R6.7c será
-una demo inerte posterior; ruta, controles y casos están pendientes. Ninguno de
+R6.7b está implementado y verificado localmente, pendiente de integración, según el [ADR-0062](0062-evidencia-documental-fixture.md):
+puerto fixture y evidencia documental correlacionada, ausencia explícita y
+comparabilidad comercial sin inferir factura o cobro. Check final 1.001 archivos/267 suites/3.898 pruebas y comparación estática verdes;
+sin QA runtime nueva. [Informe final R6.7b](../../audits/r6-7b/verification-report.json). R6.7c será
+una demo inerte posterior con plan exacto aceptado; implementación y QA pendientes
+tras integrar b. Ninguno de
 estos subcortes elige proveedor, emite factura fiscal, crea pedido real o cierra
 ERP/conciliación operativos. R6.7 y B2B-007 siguen parciales; B2B-010 pendiente.

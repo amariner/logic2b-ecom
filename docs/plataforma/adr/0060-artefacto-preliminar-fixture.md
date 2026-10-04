@@ -326,7 +326,7 @@ la revisión estructural conserva declaraciones y referencias, sin afirmar igual
 binaria ni equivalencia SSR completa. La QA interactiva y E2E de este corte son
 nuevas y se distinguen de los análisis de assets y del histórico de a/b.
 
-R6.7a está implementado y verificado localmente, pendiente de integración, según el
+R6.7a está implementado, verificado localmente e integrado en PR #42 (`1b78347`), según el
 [ADR-0061](0061-referencia-po-fixture.md): referencia PO declarada, vinculada al
 corte completo de negociación y oferta histórica, sin preliminar o lifecycle
 comercial nuevo. Número legible, emisor correlacionado y token documental

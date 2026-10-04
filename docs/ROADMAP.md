@@ -16,6 +16,34 @@
 > 2. Actualizar el estado de la fase al terminar, con fecha y resumen de lo hecho.
 > 3. Anotar decisiones tomadas y pendientes en las secciones de abajo.
 
+## R6.7b — Evidencia documental comercial, verificada localmente (2026-10-04)
+
+**R6.7b — Evidencia documental comercial está implementada y verificada localmente**, rama
+`codex/company-document-evidence-fixtures`, según el [ADR-0062](plataforma/adr/0062-evidencia-documental-fixture.md).
+Consulta con declaración PO completa, puerto/adaptador fixture y observación
+histórica explícita. La envolvente ajena es error; empresa compradora/PO distintas
+en el documento son diagnósticos. Comparar dinero exige ambas coincidencias y
+magnitud comercial EUR declarada; ausencia o base desconocida conservan `null`,
+sin reutilizar total fiscal ni acreditar factura, saldo o cobro.
+
+`companies` 1.10.0 conserva B2B-007 parcial instalada/inactiva y dependencia
+B2B-006, sin nuevas capacidades ni superficies. Fuente congelada: 23 focales
+de dominio, 26 de regresión PO y seis arquitectura; factory 34 y registro 121
+verdes. Revisión independiente final: 28.509 aserciones de dominio, 6.726 de
+regresión PO y 14.534 de factory, contadas por separado; sin P1/P2.
+Bundle diagnóstico con factory: 30.809 B/7.774 gzip, sin efectos al importar.
+Check final: 1.001 archivos sin diagnósticos, 267 suites/3.898 pruebas,
+44 HTML/44 formularios locales/cero cron. Comparación estática final frente a R6.7a/PR #42: siete grafos completos,
+358 fuentes seleccionadas, 19 CSS y 60 JavaScript públicos idénticos; estos
+últimos suman 395.809 B/128.833 gzip. Worker +61 B por companies 1.10.0 y enlace
+ADR0062; metadata generada separada, sin equivalencia SSR completa. No hubo
+nueva ejecución HTTP/navegador/DB.
+**Implementado y verificado localmente; integración pendiente, sin despliegue.**
+[Informe final R6.7b](audits/r6-7b/verification-report.json). R6.7a está integrado en PR #42
+(`1b783473`), sin despliegue. Navegador 9.068/a11y 8/PNG 8/E2E 196/hash de 143 tablas/353
+filas siguen heredados de PR #41, no son QA nueva de b. Demo R6.7c con plan exacto aceptado, pendiente de
+implementación; no hay pedido, factura fiscal, proveedor o conciliación reales.
+
 ## R6.7a — Referencia PO declarada, verificada localmente (2026-10-04)
 
 **R6.7a — Referencia PO declarada está implementada y verificada localmente**, rama
@@ -37,12 +65,11 @@ seleccionadas, 19 CSS y los 60 JavaScript públicos idénticos; estos últimos
 suman 395.809 B/128.833 gzip. Worker +296 B explicados por registro B2B-007,
 dependencia/instalación y descriptor companies 1.9.0/ADR0061. No se acredita
 equivalencia SSR completa ni nueva ejecución HTTP/navegador/DB.
-**Implementado y verificado localmente; integración pendiente, sin despliegue.**
+**Implementado y verificado localmente; integrado en PR #42 (`1b783473`), sin despliegue.**
 [Informe final R6.7a](audits/r6-7a/verification-report.json). La demo R6.6c está integrada
 en PR #41 (`424123fe`), sin despliegue: sus 9.068 comprobaciones de navegador,
-a11y8/PNG8, E2E196 y hash143 tablas/353 filas son evidencia histórica heredada,
-no ejecuciones de R6.7a. R6.7b documental y R6.7c visual quedan pendientes de
-concretar; no cierran facturación, ERP o conciliación operativos.
+a11y 8/PNG 8, E2E 196 y hash de 143 tablas/353 filas son evidencia histórica heredada,
+no ejecuciones de R6.7a. R6.7b documental está verificado localmente y R6.7c visual tiene plan exacto aceptado, pendiente de implementación; no cierran facturación, ERP o conciliación operativos.
 
 ## R6.6c — Demo de ofertas y presupuesto, verificada localmente (2026-10-04)
 
@@ -71,7 +98,7 @@ no cliente emitido. Check global final: 993 archivos sin diagnósticos,
 264 suites/3.814 pruebas, 44 HTML/44 formularios locales y cero cron.
 QA final nueva: navegador 9.068 comprobaciones, 72 visitas iniciales
 (36 por tamaño), 24 creaciones (12 por tamaño) y recorridos adicionales;
-ocho superficies a11y sin errores/avisos, ocho PNG revisadas y E2E196/196.
+ocho superficies a11y sin errores/avisos, ocho PNG revisadas y E2E 196/196.
 Las 1.008 vistas estructurales de la sonda son una medición separada.
 Cliente emitido: cuatro archivos, 57.551 B/17.134 gzip; entrada 43.149 B/11.944 gzip,
 sin imports externos. Inicio sin raíz: cero efectos, una consulta DOM y
@@ -112,8 +139,8 @@ idénticos a PR #39. Los clientes suman 352.473 B/116.299 gzip. El Worker
 conserva ambas factories y 19 consumidores: +92 B explicados por las dos
 anotaciones PURE (+32) y registro/ADR0060 (+60), sin equivalencia SSR completa.
 **Implementado y verificado localmente; integrado en PR #40 (`ce295c6`) y sin despliegue.**
-[Informe final R6.6b](audits/r6-6b/verification-report.json). Navegador 6.368/108 visitas, E2E192, a11y8/capturas8 y
-hash143 tablas/353 filas siguen heredados de PR #38, sin nueva ejecución
+[Informe final R6.6b](audits/r6-6b/verification-report.json). Navegador 6.368/108 visitas, E2E192, a11y 8/capturas8 y
+hash de 143 tablas/353 filas siguen heredados de PR #38, sin nueva ejecución
 HTTP/Worker/navegador/DB. R6.6c está implementada y verificada localmente, según el [ADR-0060](plataforma/adr/0060-artefacto-preliminar-fixture.md),
 en `/demo/admin/presupuestos-empresa`: comparación y presupuesto independientes,
 selección histórica explícita, términos fijos, fechas cerradas y acciones
@@ -124,10 +151,10 @@ independiente 105.487 comprobaciones sin P1/P2. Check global final: 993
 archivos sin diagnósticos, 264 suites/3.814 pruebas y 44 HTML/44 formularios
 locales/cero cron. QA final nueva: navegador 9.068 comprobaciones, 72 visitas
 iniciales y 24 creaciones, más recorridos; a11y ocho superficies sin hallazgos,
-ocho PNG revisadas y E2E196/196. Cliente real 57.551 B/17.134 gzip; Worker/Chrome
+ocho PNG revisadas y E2E 196/196. Cliente real 57.551 B/17.134 gzip; Worker/Chrome
 cerrados y hash antes/después idéntico de 143 tablas/353 filas. Disponible en repo,
 integrada en PR #41 (`424123fe`) y sin despliegue. [Informe final R6.6c](audits/r6-6c/verification-report.json). R6.7a está implementado y verificado localmente: referencia PO declarada ligada a negociación
-completa y oferta histórica explícita; focales/revisión/check global verdes (995 archivos/265 suites/3.841 pruebas), assets verificados frente a PR #41 e integración pendiente; número legible y token documental opcional, presencia
+completa y oferta histórica explícita; focales/revisión/check global verdes (995 archivos/265 suites/3.841 pruebas), assets verificados frente a PR #41 e integrado en PR #42 (`1b783473`); número legible y token documental opcional, presencia
 `declared`/`not_provided`, sin dinero propio, factura, pago o pedido operativo.
 
 ## R6.6a — Solicitudes y ofertas con fixtures, verificado localmente (2026-10-04)
@@ -155,7 +182,7 @@ anterior exacto. Es comparación estática, no una nueva prueba HTTP/SSR o de
 interacción. **Implementado y verificado localmente; integrado en PR #39 (`108480f8`) y sin despliegue.**
 [Informe final R6.6a](audits/r6-6a/verification-report.json).
 No añade UI, DDL, Worker o acciones sobre DB. Navegador 6.368/108 visitas,
-E2E192, a11y8/capturas8 y hash de 143 tablas/353 filas son evidencia heredada
+E2E192, a11y 8/capturas8 y hash de 143 tablas/353 filas son evidencia heredada
 de PR #38, no nuevas ejecuciones.
 
 ## R6.5c — Demo de límites y revisión, verificada localmente (2026-10-04)
@@ -395,7 +422,7 @@ utilidad `.ordinal` sin consumidor (+175 B/+7 gzip), con SHA previo recuperable
 al retirarla. Comparación estática, sin afirmar ejecución SSR completa.
 Implementado y verificado localmente; integrado en PR #39 (`108480f8`)/sin despliegue.
 [Informe final R6.6a](audits/r6-6a/verification-report.json).
-Navegador/E2E192/a11y8/capturas8/hash143 tablas/353 filas son heredados de PR #38,
+Navegador/E2E192/a11y 8/capturas8/hash de 143 tablas/353 filas son heredados de PR #38,
 sin UI o ejecución runtime/DB nuevas.
 
 **R6.6b está implementado y verificado localmente**, según el [ADR-0060](plataforma/adr/0060-artefacto-preliminar-fixture.md):
@@ -426,10 +453,10 @@ independiente 105.487 comprobaciones sin P1/P2. Check global final: 993
 archivos sin diagnósticos, 264 suites/3.814 pruebas y 44 HTML/44 formularios
 locales/cero cron. QA final nueva: navegador 9.068 comprobaciones, 72 visitas
 iniciales y 24 creaciones, más recorridos; a11y ocho superficies sin hallazgos,
-ocho PNG revisadas y E2E196/196. Cliente real 57.551 B/17.134 gzip; Worker/Chrome
+ocho PNG revisadas y E2E 196/196. Cliente real 57.551 B/17.134 gzip; Worker/Chrome
 cerrados y hash antes/después idéntico de 143 tablas/353 filas. Disponible en repo,
 integrada en PR #41 (`424123fe`) y sin despliegue. [Informe final R6.6c](audits/r6-6c/verification-report.json). R6.7a está implementado y verificado localmente: referencia PO declarada ligada a negociación
-completa y oferta histórica explícita; focales/revisión/check global verdes (995 archivos/265 suites/3.841 pruebas), assets verificados frente a PR #41 e integración pendiente; número legible y token documental opcional, presencia
+completa y oferta histórica explícita; focales/revisión/check global verdes (995 archivos/265 suites/3.841 pruebas), assets verificados frente a PR #41 e integrado en PR #42 (`1b783473`); número legible y token documental opcional, presencia
 `declared`/`not_provided`, sin dinero propio, factura, pago o pedido operativo.
 
 
@@ -2232,8 +2259,9 @@ inerte o una intención del roadmap en alcance disponible.
 | R6.5c | Demo de límites y revisión de crédito | ✅ Cerrada localmente — /demo/admin/credito, quince contextos; 985 archivos/261 suites/3.694 pruebas, revisión 129.333 sin P1/P2, navegador 6.368/108 visitas principales, ocho superficies a11y sin hallazgos/ocho PNG, E2E nuevo 192/192 y hash QA intacto. Disponible en repo, integrada en PR #38 (`5cdb5bb`)/sin despliegue, sin aprobación comercial ni activación |
 | R6.6a | Solicitudes B2B y revisiones de oferta con fixtures | ✅ Cerrado localmente — ADR-0059, 987 archivos/262 suites/3.745 pruebas; revisión 10.245 sin P1/P2. Solicitud sin dinero, contexto completo y ofertas EUR con veinte revisiones; B2B-006 parcial instalada/inactiva. Seis grafos JS/355 fuentes iguales a PR #38; 18/19 CSS iguales, única utilidad .ordinal sin uso (+175 B/+7 gzip). Integrado en PR #39 (`108480f8`)/sin despliegue; QA runtime heredada de PR #38. [Informe final](audits/r6-6a/verification-report.json) |
 | R6.6b | Artefacto preliminar fixture sobre ORD-008 | ✅ Cerrado localmente — ADR-0060, 989 archivos/263 suites/3.789 pruebas y revisión 9.093 sin P1/P2. Oferta histórica y términos íntegros, hasta tres acciones declaradas con ORD-008. 58 JS/seis grafos/355 fuentes/19 CSS iguales a PR #39; Worker +92 B explicado. Integrado en PR #40 (`ce295c6`); QA runtime heredada PR #38, sin pagos, conversión ni operación |
-| R6.6c | Demo de ofertas y presupuesto | ✅ Verificada localmente, integrada en PR #41 (`424123fe`) — /demo/admin/presupuestos-empresa, comparación independiente y preliminar histórico explícito; términos/fechas cerrados y acciones simuladas. 25 modelo/seis arquitectura verdes, revisión 105.487 sin P1/P2; check final 993 archivos/264 suites/3.814 pruebas; navegador 9.068 comprobaciones, 72 visitas iniciales/24 creaciones más recorridos, a11y8 sin hallazgos, ocho PNG revisadas y E2E196/196. Hash nuevo antes/después idéntico de 143 tablas/353 filas; integrada en PR #41 (`424123fe`) y sin despliegue, sin operación B2B, pagos o conversión |
-| R6.7a | Referencia PO declarada con fixtures | 🟡 Verificado localmente, integración pendiente — ADR-0061, 995 archivos/265 suites/3.841 pruebas; 26 contrato/seis arquitectura/121 registro y revisión 6.726 sin P1/P2. Siete grafos/358 fuentes/19 CSS/60 JS iguales a PR #41; Worker+296 B explicado. QA runtime heredada PR #41, B2B-007 parcial instalada/inactiva; sin factura, pago, pedido o durabilidad. [Informe](audits/r6-7a/verification-report.json) |
+| R6.6c | Demo de ofertas y presupuesto | ✅ Verificada localmente, integrada en PR #41 (`424123fe`) — /demo/admin/presupuestos-empresa, comparación independiente y preliminar histórico explícito; términos/fechas cerrados y acciones simuladas. 25 modelo/seis arquitectura verdes, revisión 105.487 sin P1/P2; check final 993 archivos/264 suites/3.814 pruebas; navegador 9.068 comprobaciones, 72 visitas iniciales/24 creaciones más recorridos, a11y 8 sin hallazgos, ocho PNG revisadas y E2E 196/196. Hash nuevo antes/después idéntico de 143 tablas/353 filas; integrada en PR #41 (`424123fe`) y sin despliegue, sin operación B2B, pagos o conversión |
+| R6.7a | Referencia PO declarada con fixtures | 🟡 Verificado localmente, integrado en PR #42 (`1b783473`) — ADR-0061, 995 archivos/265 suites/3.841 pruebas; 26 contrato/seis arquitectura/121 registro y revisión 6.726 sin P1/P2. Siete grafos/358 fuentes/19 CSS/60 JS iguales a PR #41; Worker+296 B explicado. QA runtime heredada PR #41, B2B-007 parcial instalada/inactiva; sin factura, pago, pedido o durabilidad. [Informe](audits/r6-7a/verification-report.json) |
+| R6.7b | Evidencia documental comercial fixture | 🟡 Verificado localmente, integración pendiente — ADR-0062, 1.001 archivos/267 suites/3.898 pruebas; focales 23+26+6/factory 34/registro 121 y revisiones 28.509/6.726/14.534 separadas. Siete grafos/358 fuentes/19 CSS/60 JS iguales a PR #42, Worker +61 B explicado. Runtime heredado PR #41, B2B-007 parcial instalada/inactiva; sin despliegue/factura/pago/conciliación real. [Informe](audits/r6-7b/verification-report.json) |
 | R5.2 | Consentimiento versionado | ✅ 2026-08-17 — ADR-0040, D1 `0037`, repositorio concurrente, backup 31, rehearsal y E2E local; `CUS-007` instalada e inerte |
 | R5.3a | Derechos de datos verificables | ✅ 2026-08-17 — ADR-0041, lifecycle, dry-run, doble control y puertos; `CUS-008` instalada e inerte, sin DDL ni efectos |
 | R5.3b | Persistencia de solicitudes de derechos | ✅ 2026-08-18 — D1 `0038`, repositorio concurrente, backup 32 y rehearsal/restore local; sin PII, rutas ni ejecución |
@@ -3787,27 +3815,29 @@ solo vuelve a `main` o a producción por instrucción expresa.
 
 ## Próxima sesión
 
-R6.7a «Referencia PO declarada» está implementado y verificado localmente en
-`codex/company-purchase-order-fixtures`; integración pendiente, sin despliegue.
-[ADR-0061](plataforma/adr/0061-referencia-po-fixture.md): negociación completa y
-oferta histórica, declaración versionada y emisor exacto, sin factura, pago,
-autoridad o historia durable. B2B-007 permanece parcial instalada/inactiva.
+R6.7b «Evidencia documental comercial» está implementado y verificado localmente
+en `codex/company-document-evidence-fixtures`; integración pendiente y sin
+despliegue. [ADR-0062](plataforma/adr/0062-evidencia-documental-fixture.md).
+B2B-007 permanece parcial instalada/inactiva; comparar datos de un documento
+no acredita factura, cobro, deuda, permiso ni conciliación operativa.
 
-Evidencia nueva: 995 archivos sin diagnósticos, 265 suites/3.841 pruebas;
-26 contrato/seis arquitectura, 121 registro y revisión independiente de 6.726
-aserciones sin P1/P2. Siete grafos, 358 fuentes, 19 CSS y 60 JS públicos iguales
-a PR #41; Worker +296 B de registro, sin equivalencia SSR total. [Informe final](audits/r6-7a/verification-report.json).
-Navegador9.068/a11y8/PNG8/E2E196/hash143 tablas353 filas son evidencia heredada
-de PR #41, sin ejecuciones nuevas. La demo R6.6c está integrada; el estado
-servido no cambia con este cierre local.
+Evidencia nueva: 1.001 archivos sin diagnósticos, 267 suites/3.898 pruebas;
+focales 23 dominio/26 regresión PO/seis arquitectura, factory 34 y registro 121.
+Revisiones independientes 28.509/6.726/14.534 separadas. Siete grafos/358 fuentes/
+19 CSS/60 JS públicos iguales a PR #42; Worker +61 B de registro, sin equivalencia
+SSR total. [Informe final](audits/r6-7b/verification-report.json). Navegador 9.068,
+a11y 8/PNG 8/E2E 196/hash de 143 tablas/353 filas siguen heredados de PR #41, sin
+nueva ejecución. R6.7a integrada en PR #42; el estado servido no cambia.
 
-Siguiente: **R6.7b — Evidencia documental fixture correlacionada**. Diseño exacto
-en preparación, todavía sin aceptación final ni implementación. Separar
-referencia PO aportada, documento observado e importes comerciales declarados;
-ausencia o evidencia no utilizable nunca prueba deuda, cobro o saldo cero.
-Concretar referencias completas, comparabilidad y temporalidad antes de código.
-R6.7c será la demo inerte posterior. Sin proveedor elegido, factura fiscal,
-pedido real, DDL, cron o escrituras de DB; R6.7 no se declara operativo completo.
+Siguiente: **R6.7c — Demo «Referencias y documentos»**. Plan exacto aceptado por raíz;
+implementación pendiente tras integrar b.
+Ruta prevista `/demo/admin/documentos-empresa`, 18 casos y tres evaluaciones
+explícitas; dos selectores y reset, comparación por campo sin éxito global.
+Empresa observada es compradora; cifras no atribuibles quedan fuera de View/DOM.
+Metadatos futuros o incompletos no son documento utilizable; cero explícito es
+distinto de desconocido. Matriz/capturas son previsiones, no QA ejecutada.
+Sin PO real, formularios, uploads, factura fiscal, proveedor, pedido, pago,
+cron o escrituras de DB. R6.7 no se declara operativo completo.
 
 ## Histórico de reanudación
 
