@@ -31,10 +31,46 @@ Una quinta clasificación, **fuera de alcance deliberado**, evita confundir
 paridad comercial con fabricar bancos, redes publicitarias, hardware de punto de
 venta o servicios logísticos propios.
 
+## Último contrato verificado
+
+**R6.2a implementado y verificado localmente**, rama
+`codex/company-catalog-contract`; integración pendiente, sin despliegue.
+El [ADR-0053](adr/0053-catalogos-empresa-fixture.md) delimita el contrato fixture
+para catálogos de empresa. `companies` v1.1 posee B2B-002, parcial e
+instalada/inactiva en avanzado y demo, con dependencia de capacidad única
+B2B-001. El módulo conserva su dependencia de `platform-configuration`;
+la composición pura con `markets` y `pricing` no activa consumidores operativos.
+B2B-009 permanece pendiente.
+
+La implementación usa snapshot EUR con todas las variantes y precios,
+restricciones globales empresa/producto intersectadas con publicación por
+mercado/canal, vínculos de precio explícitos y una variante seleccionada por
+producto. Check final: 957 archivos sin diagnósticos, 251 suites/3.210 pruebas,
+44 HTML/44 formularios/cero crons. Evidencia focal: 132 pruebas (28 de catálogo,
+18 de vínculos, 35 de proyección/contexto y 51 de precios), seis de arquitectura,
+82 de registry/manifest (19 + 63) y regresión de 93 del directorio. Revisión
+independiente: 12.478 aserciones/300 combinaciones sin P1/P2, ejecución de
+getters, efectos ni reloj implícito.
+
+Bundles diagnósticos minificados: companies 14.371 B/dos fuentes, proyección
+5.685 B/tres, contexto 27.081 B/cinco y precios 38.098 B/siete, sin imports
+externos u operativos; no son assets de UI. El grafo del cliente existente de
+Empresas conserva sus archivos y tamaños; el nuevo contrato no entra en él.
+[Informe final](../audits/r6-2a/verification-report.json).
+
+Este contrato puro no añadió Worker, auditoría HTTP, navegador, a11y ni
+verificación de DB. E2E 176/176, navegador 601, ocho superficies a11y, ocho
+capturas y hash QA de 143 tablas/353 filas pertenecen a R6.1b, integrado en
+PR #28; son evidencia heredada, sin nuevas ejecuciones en R6.2a.
+R6.2b tiene diseño aprobado para `/demo/admin/catalogos-empresa`, dentro de
+Clientes; la UI todavía no está implementada ni tiene evidencia visual nueva.
+
 ## Última demo verificada
 
 **R6.1b implementada y verificada localmente, disponible en el repositorio**,
-rama `codex/company-directory-demo`, integración pendiente y sin despliegue.
+rama `codex/company-directory-demo`, integrada en
+[PR #28](https://github.com/amariner/logic2b-ecom/pull/28), commit `861b34ff`,
+sin despliegue.
 `/demo/admin/empresas`, «Empresas y sedes», dentro de Clientes, muestra empresa
 A activa con VAT ficticio y empresa B inactiva sin VAT, con sedes, contactos y
 roles descriptivos. Cinco estados VAT, inicialmente `not_checked`; al cambiar
@@ -63,7 +99,7 @@ Worker cerrado. [Informe final](../audits/r6-1b/verification-report.json).
 Las verificaciones del contrato R6.1a y las pruebas anteriores citadas a
 continuación conservan su procedencia.
 
-## Último contrato verificado
+## Contrato anterior verificado
 
 **R6.1a implementado y verificado localmente**, rama
 `codex/company-fixture-directory`, integrado en
@@ -358,12 +394,15 @@ rutas ni jobs. B2B-009 sigue pendiente.
 frente a empresa B inactiva sin VAT; sedes, contactos y roles descriptivos.
 Cinco estados VAT, inicialmente `not_checked`; cambiar de empresa reinicia
 ese estado. Ocho capturas revisadas sin bloqueantes;
-[evidencia final](../audits/r6-1b/verification-report.json). Integración pendiente.
+[evidencia final](../audits/r6-1b/verification-report.json). Integrada en PR #28
+(`861b34ff`), sin despliegue.
 
-**Siguiente diseño aceptado: R6.2a**, después de integrar R6.1b y todavía sin
-implementar. Preview completo de visibilidad separado del precio de una única
-variante explícita por producto: la base procede de esa variante, nunca de la
-default. Se conserva y declara la sustitución de precio de las listas existentes
+## Alcance de R6.2a verificado
+
+Snapshot EUR con todas las variantes y sus precios. Preview completo de
+visibilidad separado del precio de una única variante explícita por producto,
+hasta 100 selecciones: la base procede de esa variante, nunca de la default.
+Se conserva y declara la sustitución de precio de las listas existentes
 por producto. La política de empresa es global por empresa/producto; mercado
 y canal pertenecen a la publicación por mercado. Ambas restricciones se
 intersectan sin revivir excluidos. Empresa inactiva cierra el preview comercial
@@ -374,9 +413,22 @@ un hash puede compartirse explícitamente entre empresas. Su ausencia produce
 precio null, sin convertirse en contexto general ni derivar claves de otros
 datos. Se correlacionan `directoryRef` completo (id/version/capturedAt) y
 `catalogRef` (ref/capturedAt). La base es EUR; listas canónicas de otra moneda
-conservan el resultado `excluded_context`. La frontera `unknown` valida y copia
-todos los datos, incluidos los no seleccionados, antes de la API tipada de
-precios. Sin autorización real, DDL ni activación; B2B-002 permanece pendiente.
+se validan completas y conservan el resultado `excluded_context`. La frontera
+`unknown` valida y copia todos los datos y referencias, incluidos los ajenos
+a la selección, antes de la API tipada de precios. Sin totales, autorización
+real, DDL ni activación; B2B-002 permanece parcial e instalada/inactiva y
+B2B-009 pendiente.
+
+**R6.2b: diseño aprobado, implementación pendiente.** La demo
+`/demo/admin/catalogos-empresa`, dentro de Clientes, mostrará cuatro empresas
+sintéticas con nombres claros: dos activas, una sin vinculación de precios y
+una inactiva. Mercados ES/FR y canal `professional` fijo; tres tarjetas de
+producto con variante explícita preservada al cambiar contexto. El caso
+inicial mostrará los tres orígenes de precio: lista de empresa, lista general
+y catálogo. Sin totales, hashes ni referencias técnicas en la UI. Se prevén
+ocho capturas: caso inicial, restricciones disjuntas, vinculación ausente y
+empresa inactiva, en dos tamaños. No hay UI implementada ni evidencia visual
+nueva en este corte.
 
 ## Demo verificada
 

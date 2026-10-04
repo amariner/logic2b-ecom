@@ -1,6 +1,6 @@
 # ADR-0052 — Directorio de empresas con fixtures
 
-- Estado: accepted; R6.1a implementado, verificado e integrado en PR #27 (`9b78e69a`). R6.1b verificado localmente y disponible en repo; integración pendiente. Sin activación ni despliegue.
+- Estado: accepted; R6.1a implementado, verificado e integrado en PR #27 (`9b78e69a`). R6.1b verificado localmente, disponible en repo e integrado en PR #28 (`861b34ff`). Sin activación ni despliegue.
 - Fecha: 2026-10-04
 - Bloques: R6.1a, contrato de empresas, sedes, contactos, roles y VAT ID; R6.1b, demo inerte.
 - Propietario: módulo `companies`.
@@ -286,8 +286,8 @@ sedes, contactos y roles descriptivos. Cinco estados VAT en A, empezando por
 `not_checked`; cambiar de empresa restablece esa selección y B conserva
 `not_declared`. Reset y recarga restituyen el estado inicial. Interacción en
 memoria, sin I/O del módulo, persistencia, permisos o activación operativa.
-Demo verificada localmente y disponible en el repositorio; integración
-pendiente, sin despliegue. B2B-001 sigue parcial e instalada/inactiva y
+Demo verificada localmente y disponible en el repositorio; integrada
+en PR #28 (`861b34ff`), sin despliegue. B2B-001 sigue parcial e instalada/inactiva y
 B2B-009 pendiente.
 
 [Verificación final R6.1b](../../audits/r6-1b/verification-report.json), 2026-10-04:
@@ -321,28 +321,16 @@ referencias de perfil o hashes de email. Los fixtures del bundle son públicos;
 mostrar solo el directorio seleccionado no acredita aislamiento entre empresas
 reales ni autorización. No se añaden formularios, proveedores, jobs o crons.
 
-## Siguiente tras R6.1b: R6.2a
+## Continuidad tras R6.1b: R6.2a
 
-El siguiente diseño aceptado es **R6.2a: catálogo y precios B2B con fixtures**,
-todavía sin implementar. Separará el preview completo de visibilidad de hasta
-100 selecciones explícitas, una variante por producto, para precio. La base
-será el precio de esa variante; el override existente de listas seguirá siendo
-por producto. No habrá totales. El snapshot base será EUR e incluirá los
-precios de todas las variantes.
+**R6.2a: catálogo y precios B2B con fixtures** está implementado y verificado
+localmente, con integración pendiente; su contrato y evidencia están en el
+[ADR-0053](0053-catalogos-empresa-fixture.md). Intersecta restricciones de empresa
+con publicación de mercado y calcula precio de una variante explícita por
+producto, con binding versionado y sin totales. El selector descriptivo de
+este ADR conserva sus estados y registros; el bloqueo comercial de empresa
+inactiva pertenece al nuevo preview.
 
-La política versionada será global por empresa/producto: incluido con variantes
-explícitas, excluido o sin configurar. Se intersectará con la publicación por
-mercado/canal y nunca recuperará productos o variantes excluidos. Una empresa
-inactiva cerrará el preview comercial; el selector descriptivo de R6.1 seguirá
-mostrando sus registros. `directoryRef` conservará `{ id, version, capturedAt }`
-y `catalogRef`, `{ ref, capturedAt }`.
-
-El binding versionado empresa→`companyKeyHash` será explícito, sin derivarlo
-de VAT, perfil, email o roles; varias empresas podrán compartir una clave si
-se declara. Sin binding, precio nulo; con binding, se conserva el fallback
-empresa→general→catálogo. Una frontera `unknown` validará y copiará todos los
-datos y referencias antes de invocar la API tipada de precios, incluso empresas
-inactivas y variantes no seleccionadas. Las listas con otra moneda canónica
-se validarán completas y quedarán en `excluded_context`, sin FX ni cambio de
-etiqueta. B2B-002 sigue pendiente; sin autorización real, DDL, activación,
-stock, impuestos o cambios de checkout.
+B2B-002 permanece parcial e instalada/inactiva, sin autorización real, DDL,
+activación, stock, impuestos o cambios de checkout. R6.2b tiene diseño de demo
+aprobado, con implementación y QA visual pendientes; no se declara desplegada.

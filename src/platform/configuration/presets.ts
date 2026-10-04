@@ -129,6 +129,9 @@ const ADVANCED_CAPABILITIES = {
   // R6.1a: directorio sintético con relaciones y roles descriptivos;
   // no concede cuenta, permisos de compra, crédito ni exención fiscal.
   'B2B-001': { state: 'installed' },
+  // R6.2a: catálogo y contexto de precios sobre snapshots explícitos;
+  // no activa publicación, listas operativas ni compra por empresa.
+  'B2B-002': { state: 'installed' },
   // R5.7 declara contexto de mercado sin decidir países, idiomas, divisas
   // comerciales ni conectar el resolver a HTTP o al checkout.
   'MKT-003': { state: 'installed' },

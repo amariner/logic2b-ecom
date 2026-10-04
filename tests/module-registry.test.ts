@@ -144,7 +144,9 @@ describe('registro de módulos (R1.4)', () => {
 
   it('keeps company directory fixtures separate from operational identity and permissions', () => {
     expect(MODULE_REGISTRY.capabilityOwners['B2B-001']).toBe('companies');
+    expect(MODULE_REGISTRY.capabilityOwners['B2B-002']).toBe('companies');
     expect(MODULE_REGISTRY.byId.companies).toMatchObject({
+      version: '1.1.0', capabilities: ['B2B-001', 'B2B-002'],
       dependencies: ['platform-configuration'],
       permissions: [], events: [], subscriptions: [], jobs: [], healthchecks: [], navigation: [], routes: [],
     });
@@ -153,6 +155,7 @@ describe('registro de módulos (R1.4)', () => {
       const platform = createPlatform(createPresetManifest(profile, deployment));
       expect(platform.hasModule('companies')).toBe(false);
       expect(platform.isCapabilityActive('B2B-001')).toBe(false);
+      expect(platform.isCapabilityActive('B2B-002')).toBe(false);
     }
   });
 

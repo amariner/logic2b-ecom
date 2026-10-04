@@ -381,6 +381,38 @@ describe('capability manifest (R1.2)', () => {
     expect(isolated.scheduledJobs('*/1 * * * *')).toEqual([]);
   });
 
+  it('requires a company directory for catalog fixtures without activating operational consumers', () => {
+    expect(CAPABILITY_DEFINITIONS['B2B-002'].dependencies).toEqual(['B2B-001']);
+    expect('B2B-002' in CAPABILITY_PRESETS.minimal).toBe(false);
+    expect('B2B-002' in CAPABILITY_PRESETS.standard).toBe(false);
+    expect(CAPABILITY_PRESETS.advanced['B2B-002']).toEqual({ state: 'installed' });
+    const demo = createPlatform(platformManifest);
+    expect(demo.capabilityState('B2B-002')).toBe('installed');
+    expect(demo.capability('B2B-002').flags).toEqual(INERT_FLAGS);
+    const input: MutableManifest = {
+      manifestVersion: 1,
+      deployment: { ...deployment, profile: 'custom' },
+      capabilities: {
+        'PLT-001': { state: 'active', flags: INERT_FLAGS },
+        'PLT-004': { state: 'active', flags: INERT_FLAGS, config: { failFast: true } },
+        'B2B-002': { state: 'active', flags: INERT_FLAGS },
+      },
+    };
+    expect(validateCapabilityManifest(input).ok).toBe(false);
+    input.capabilities['B2B-001'] = { state: 'active', flags: INERT_FLAGS };
+    expect(validateCapabilityManifest(input).ok).toBe(true);
+    const isolated = createPlatform(input as Parameters<typeof createPlatform>[0]);
+    expect(isolated.hasModule('companies')).toBe(true);
+    for (const module of ['customers', 'catalog', 'markets', 'taxes', 'pricing', 'checkout', 'payments'] as const) {
+      expect(isolated.hasModule(module)).toBe(false);
+    }
+    expect(isolated.capability('B2B-002').flags).toEqual(INERT_FLAGS);
+    expect(isolated.scheduledJobs('*/1 * * * *')).toEqual([]);
+    expect(isolated.scheduledJobs('*/5 * * * *')).toEqual([]);
+    input.capabilities['B2B-001'] = { state: 'installed' };
+    expect(validateCapabilityManifest(input).ok).toBe(false);
+  });
+
   it('requires markets and variants for publication without coupling market resolution alone to catalog', () => {
     const input: MutableManifest = {
       manifestVersion: 1,

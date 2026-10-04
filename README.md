@@ -97,7 +97,7 @@ remoto.
 
 ### Evidencia local actualizada el 2026-10-04
 
-- `pnpm check`: 948 archivos sin diagnósticos, 246 suites y 3.077 tests.
+- `pnpm check`: 957 archivos sin diagnósticos, 251 suites y 3.210 tests.
 - Build demo: 44 documentos HTML y 44 formularios de proyecto locales.
 - D1/workerd: 15 bloques correctos, backup 39 y restauración de 129 tablas;
   [informe de segmentación](docs/audits/r5-6c/facts-d1-report.json).
@@ -155,6 +155,11 @@ remoto.
   cinco escenarios VAT independientes y limpieza al cambiar empresa. 23 pruebas
   del modelo, 1.532 comprobaciones independientes, 601 de navegador y ocho
   superficies a11y sin hallazgos. [Evidencia R6.1b](docs/audits/r6-1b/README.md).
+- Catálogo y precios por empresa: 132 pruebas específicas y 12.478
+  comprobaciones independientes. Intersección por variante, vínculo explícito
+  con las listas y fallback empresa→general→catálogo, sin totales ni permisos.
+  B2B-002 instalada/inactiva; demo visual R6.2b pendiente.
+  [Informe R6.2a](docs/audits/r6-2a/verification-report.json).
 - Base QA: 143 tablas y 353 filas, hash antes/después idéntico:
   `9cbfc811cfc4296515a403d395875a43bfa26aff0c9c9b08be0804b15bbf6eca`.
 

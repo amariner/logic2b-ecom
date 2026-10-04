@@ -295,9 +295,9 @@ export const MODULE_DESCRIPTORS = [
     wikiLinks: ['docs/plataforma/adr/0050-presentacion-divisas-fixture.md'], navigation: [], routes: [],
   },
   {
-    id: 'companies', version: '1.0.0', capabilities: ['B2B-001'], dependencies: ['platform-configuration'],
+    id: 'companies', version: '1.1.0', capabilities: ['B2B-001', 'B2B-002'], dependencies: ['platform-configuration'],
     permissions: [], events: [], subscriptions: [], jobs: [], healthchecks: [],
-    wikiLinks: ['docs/plataforma/adr/0052-directorio-empresas-fixture.md'], navigation: [], routes: [],
+    wikiLinks: ['docs/plataforma/adr/0052-directorio-empresas-fixture.md', 'docs/plataforma/adr/0053-catalogos-empresa-fixture.md'], navigation: [], routes: [],
   },
 ] as const satisfies readonly ModuleDescriptor[];
 
