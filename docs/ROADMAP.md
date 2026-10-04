@@ -16,6 +16,49 @@
 > 2. Actualizar el estado de la fase al terminar, con fecha y resumen de lo hecho.
 > 3. Anotar decisiones tomadas y pendientes en las secciones de abajo.
 
+## R6.1a — Directorio de empresas con fixtures, cerrado local (2026-10-04)
+
+R5.12 está integrada en PR #26 (`9dd23909`), sin despliegue. La rama
+`codex/company-fixture-directory` desarrolla el
+[ADR-0052](plataforma/adr/0052-directorio-empresas-fixture.md) y el módulo puro
+`companies`: directorio versionado de empresas, sedes, contactos, roles
+descriptivos y asignaciones con propiedad/referencias explícitas.
+
+La selección valida el snapshot completo. Activa/inactiva y roles no conceden
+permisos; referencias externas de perfil y hash de email son metadatos. El hash
+puede ser pseudónimo, no prueba anonimización ni pertenencia. La composición
+`company-vat-context` evalúa evidencia VAT correlacionada con la empresa, sin
+autenticar el directorio ni derivar exención, identidad legal o condición B2B.
+
+**Implementado y verificado localmente; integración pendiente, sin despliegue.**
+
+[Verificación final R6.1a](audits/r6-1a/verification-report.json), 2026-10-04:
+`pnpm check` pasa 944 archivos sin diagnósticos, 245 suites/3.054 pruebas,
+44 HTML, 44 formularios locales y cero crons. Focales: 93 de dominio, 24 de
+composición VAT, seis de arquitectura y 81 de registry/manifest. Revisión
+independiente de 11.249 aserciones (9.700 de directorio con 171 selecciones y
+1.549 de VAT con 48 escenarios), sin P1/P2, getters ejecutados, efectos ni
+reloj implícito. Bundles de diagnóstico minificados: directorio 6.474 B/dos
+fuentes y composición VAT 11.957 B/cuatro fuentes contribuyentes, sin imports
+externos/runtime operativo. Implementado y verificado localmente; integración
+pendiente, sin despliegue ni activación.
+
+B2B-001 se incorpora parcial e instalada/inactiva en avanzado y demo, dependencia
+PLT-004. La composición con la API pública de `taxes` no crea una dependencia
+operativa ni activa impuestos. B2B-009 sigue pendiente. Sin DDL, CRM,
+autenticación, derivación de claves de precio, crédito, cobros o UI nueva.
+HTTP 4.554 comprobaciones/163 GET-HEAD, E2E 172/172 y hash QA de 143 tablas/
+353 filas son heredados de PR #26; navegador/a11y de R5 también son anteriores,
+no ejecuciones nuevas de este contrato puro.
+
+R6.1b tiene diseño aprobado y UI pendiente: `/demo/admin/empresas`,
+«Empresas y sedes», bajo Clientes. Dos empresas sintéticas: A activa con VAT
+ficticio y B inactiva sin VAT; sedes, contactos y roles descriptivos. Cinco
+estados de consulta VAT con selección inicial `not_checked`; cambiar de
+empresa restablece esa selección, sin fabricar una declaración para B.
+Se prevén ocho capturas al verificar la demo; todavía no existen como evidencia
+de este corte. Interacción local, sin activar capacidades o autorización real.
+
 ## R5.12 — Consolidación local con fixtures, cerrada localmente (2026-10-04)
 
 R5.11c está integrada en PR #25 (`46dbe905`), sin despliegue. La rama
@@ -24,7 +67,7 @@ nueve pruebas de compatibilidad ES/FR, matriz de capacidades instaladas e
 inactivas y cabeceras privadas para respuestas tempranas de administración
 302/cuenta 404. La auditoría del build final usa GET/HEAD para privacidad y SEO.
 
-**Consolidación fixture verificada localmente; integración pendiente, sin despliegue.**
+**Consolidación fixture verificada localmente; integrada en PR #26 (`9dd23909`), sin despliegue.**
 No se crean UI, rutas, DDL, cron, pedidos, envíos de formularios o capacidades activas.
 
 [Verificación final R5.12](audits/r5-12/verification-report.json), 2026-10-04:
@@ -44,14 +87,14 @@ La base conserva 143 tablas y 353 filas; SHA-256 antes/después idéntico:
 Worker detenido. Navegador 2.030/2.030, a11y de ocho superficies y ocho capturas
 son evidencia heredada de PR #25, no nuevas ejecuciones de R5.12.
 
-Consolidación fixture realizada y verificada localmente; integración pendiente,
+Consolidación fixture realizada y verificada localmente; integrada en PR #26 (`9dd23909`),
 sin despliegue, nuevas activaciones ni declaración de operación real completa.
 
 La evidencia de R5.11c queda identificada como heredada. El cierre se limita
 al alcance fixture: no declara R5 operativo ni completa G3/G4.
 [Alcance, matriz y evidencia](plataforma/R5_CONSOLIDACION_FIXTURES.md).
 
-El siguiente corte aceptado es **R6.1a: directorio B2B fixture** en `companies`,
+El corte **R6.1a: directorio B2B fixture** está verificado localmente en `companies`,
 para B2B-001: empresas, sedes, contactos, roles descriptivos y asignaciones con
 propiedad/referencias explícitas. Selector sobre snapshot completo; estados
 activa/inactiva no conceden permisos. Composición `company-vat-context` con
@@ -145,7 +188,7 @@ QA nueva: 936 archivos sin diagnósticos, 240 suites/2.885 pruebas, navegador
 2.030/2.030, E2E 172/172, ocho superficies a11y sin errores ni avisos, ocho
 capturas aprobadas y base QA intacta. Demo disponible en el repositorio,
 integrada en PR #25 (`46dbe905`) y sin despliegue, activación ni autorización de pagos reales.
-R5.12 consolida ahora el alcance con fixtures, sin declarar operación real; check técnico 939 archivos/243 suites/2.935 pruebas, HTTP 4.554 comprobaciones/163 GET-HEAD/40 URLs, E2E nuevo 172/172 y hash QA intacto; integración pendiente, sin despliegue.
+R5.12 consolida ahora el alcance con fixtures, sin declarar operación real; check técnico 939 archivos/243 suites/2.935 pruebas, HTTP 4.554 comprobaciones/163 GET-HEAD/40 URLs, E2E nuevo 172/172 y hash QA intacto; integrada en PR #26 (`9dd23909`), sin despliegue.
 
 ## R5.11a — Presentación de divisas con fixtures, cerrado local (2026-10-04)
 
@@ -211,7 +254,7 @@ R5.11 continúa parcial: estos previews no resuelven cobro, reembolso ni
 conciliación operativos.
 
 R5.12 cierra localmente la consolidación de contratos y demos con fixtures;
-[matriz y evidencias](plataforma/R5_CONSOLIDACION_FIXTURES.md), check técnico 939 archivos/243 suites/2.935 pruebas, HTTP 4.554 comprobaciones/163 GET-HEAD/40 URLs, E2E nuevo 172/172 y hash QA intacto; integración pendiente, sin despliegue:
+[matriz y evidencias](plataforma/R5_CONSOLIDACION_FIXTURES.md), check técnico 939 archivos/243 suites/2.935 pruebas, HTTP 4.554 comprobaciones/163 GET-HEAD/40 URLs, E2E nuevo 172/172 y hash QA intacto; integrada en PR #26 (`9dd23909`), sin despliegue:
 
 - Matriz trazable de capacidades R5, contratos, estados instalada/inactiva,
   superficies demostrables y evidencia propia o heredada.
@@ -1242,7 +1285,7 @@ reconciliación se conserva abajo por contexto.
 | 11 | Landing V2 «nivel Awwwards» + negocio + funnel + docs | 🟡 En curso | 2026-08-13 | **F11.1, F11.3 (2 sesiones), F11.4, F11.5, F11.6, F11.7 y F11.8 (primera pasada + pase a11y/contenido desde cloud 2026-07-24) hechos**, más F11.8b (auditor de a11y, cloud), F11.2a-1 (tienda ASFALTO / tema Street), F11.2a-2 (tienda METRIA / tema Industrial) F11.2a-3 (tienda ROMER / tema Natural) y **F11.2a-4 (tienda KALIBRE / tema Specs, local 2026-07-25) — con la que F11.2a queda CERRADA (10/10 tiendas)**; y **F11.8c (Lighthouse citable + OG de WhatsApp + URLs sin redirección, local 2026-07-26)**; y **F11.8d–e (tabla de Lighthouse cerrada y desplegada: 7 de 8 superficies a 100×4, la landing entre ellas en móvil y escritorio, local 2026-07-27)**; y **F11.9 (contacto global de WhatsApp, cerrado y servido 2026-08-13)**. Solo queda la submission a Awwwards, decisión de pago reservada a Andreu. Detalle por bloque abajo. **Plan maestro completo en [`docs/PLAN_FASE11_LANDING_V2.md`](PLAN_FASE11_LANDING_V2.md)**: bloques F11.0–F11.8 ejecutables por sesiones independientes. **Decisiones D1–D6 APROBADAS por Andreu (2026-07-23)**: JS propio ≤15 KB sin deps, capturas con browser tools en local, dirección C «Ocho tiendas, un motor», escalera de precios (Lite 590 / Kit 1.900+39 / A medida 3.400+59), WhatsApp+email, Lite publicado sin construir. Prompt de arranque: [`docs/PROMPT_FASE11.md`](PROMPT_FASE11.md). Integra 9B.5/9B.6 (imaginería y temas restantes) como prerequisito del hero |
 | 8 | Pulido de la demo (backlog abajo) | 🟡 En curso | 2026-07-19 | Backlog técnico agotado; solo quedan decisiones y pasos locales de Andreu (ver «Decisiones pendientes» y `docs/PROMPT_CLOUD.md`). Últimas tandas: novena (race de idempotencia en el pago, PII enumerable en `/demo/gracias`, cancelación de pedido pagado sin devolver stock), décima (la misma race en el PATCH de admin, campos vacíos guardados como 0, login sin rate limit), undécima (diagrama móvil de `/arquitectura`, hedge del plazo de entrega, tokens de tema en `/demo/reset`, terminología «envío»), duodécima (aviso de corte en pedidos del admin, cabeceras sin wrap a 375px, leftover «portes», token de radio del carrito, contraste del botón eliminar, H1 en valenciano, checklist de producción) y decimotercera (misma race de idempotencia en `checkout.session.expired`, divisa hardcodeada a EUR fuera de Stripe, cobertura de test de `quoteCart`/PATCH admin/emails) y decimocuarta (config parcial de Stripe → cobro sin cumplimiento, emails duplicados bajo concurrencia, `payment_status` del webhook, color de marca centralizado en `shop.config.ts`, contraste/tema en carrito y checkout) — ver sección «Fase 8» |
 | 12 | Logic2B Ecommerce: renombrado, reposicionamiento y docs de dos visiones | ✅ Hecho | 2026-08-10 | **F12.0–F12.6 cerrados:** marca, argumento, dossier, canal agencias, ayuda, índice por audiencias, OG y auditorías citables consolidados. **Plan maestro en [`docs/PLAN_FASE12_LOGIC2B_ECOMMERCE.md`](PLAN_FASE12_LOGIC2B_ECOMMERCE.md)**. |
-| 13 | Plataforma modular: del gestor mínimo a paridad extrema de capacidad | 🟡 En curso | 2026-10-04 | **R0–R4 y los cortes autorizados R5.1–R5.11c cerrados localmente.** R5.9a integrada en PR #19 (`1c801d8`), sin deploy. R5.9b integrada en PR #20 (`7a0926ec`): demo disponible en repo, 2.222 tests, E2E 164/164, navegador 188/188, a11y ocho superficies sin hallazgos y base QA intacta. MKT-004 parcial/inactiva y MKT-005 pendiente. R5.10a integrada en PR #21 (`5f9e3e2`): módulo taxes/ADR-0049, 917 archivos sin diagnósticos, 234 suites/2.391 pruebas y revisión sin P1/P2. Sin checkout ni proveedor; R5.10b verificada: 2.427 pruebas, E2E 168/168, navegador 340/340, a11y ocho superficies 0/0 y base QA intacta; demo integrada en PR #22 (`93bc3bd`), disponible en repo sin deploy. R5.11a integrada en PR #23 (`c928ef9`): currencies/ADR-0050, 928 archivos sin diagnósticos, 237 suites/2.561 pruebas y revisión sin P1/P2. R5.11b integrada en PR #24 (`a44923c`): métodos sintéticos/ADR-0051, 932 archivos sin diagnósticos, 239 suites/2.679 pruebas y revisión sin P1/P2. R5.11c cerrada localmente: 936 archivos sin diagnósticos, 240 suites/2.885 pruebas, navegador 2.030/2.030, E2E 172/172, ocho superficies a11y sin hallazgos, capturas aprobadas y base QA intacta; integrada en PR #25 (`46dbe905`), sin despliegue; R5.12 consolidada localmente con fixtures, nueve pruebas ES/FR, matriz de capacidades y auditoría GET/HEAD; check técnico 939 archivos/243 suites/2.935 pruebas, HTTP 4.554 comprobaciones/163 GET-HEAD/40 URLs, E2E nuevo 172/172 y hash QA intacto; integración pendiente, sin despliegue. Fuente de verdad en [`docs/plataforma/`](plataforma/README.md). |
+| 13 | Plataforma modular: del gestor mínimo a paridad extrema de capacidad | 🟡 En curso | 2026-10-04 | **R0–R4 y los cortes autorizados R5.1–R5.11c cerrados localmente.** R5.9a integrada en PR #19 (`1c801d8`), sin deploy. R5.9b integrada en PR #20 (`7a0926ec`): demo disponible en repo, 2.222 tests, E2E 164/164, navegador 188/188, a11y ocho superficies sin hallazgos y base QA intacta. MKT-004 parcial/inactiva y MKT-005 pendiente. R5.10a integrada en PR #21 (`5f9e3e2`): módulo taxes/ADR-0049, 917 archivos sin diagnósticos, 234 suites/2.391 pruebas y revisión sin P1/P2. Sin checkout ni proveedor; R5.10b verificada: 2.427 pruebas, E2E 168/168, navegador 340/340, a11y ocho superficies 0/0 y base QA intacta; demo integrada en PR #22 (`93bc3bd`), disponible en repo sin deploy. R5.11a integrada en PR #23 (`c928ef9`): currencies/ADR-0050, 928 archivos sin diagnósticos, 237 suites/2.561 pruebas y revisión sin P1/P2. R5.11b integrada en PR #24 (`a44923c`): métodos sintéticos/ADR-0051, 932 archivos sin diagnósticos, 239 suites/2.679 pruebas y revisión sin P1/P2. R5.11c cerrada localmente: 936 archivos sin diagnósticos, 240 suites/2.885 pruebas, navegador 2.030/2.030, E2E 172/172, ocho superficies a11y sin hallazgos, capturas aprobadas y base QA intacta; integrada en PR #25 (`46dbe905`), sin despliegue; R5.12 consolidada localmente con fixtures, nueve pruebas ES/FR, matriz de capacidades y auditoría GET/HEAD; check técnico 939 archivos/243 suites/2.935 pruebas, HTTP 4.554 comprobaciones/163 GET-HEAD/40 URLs, E2E nuevo 172/172 y hash QA intacto; integrada en PR #26 (`9dd23909`), sin despliegue. Fuente de verdad en [`docs/plataforma/`](plataforma/README.md). |
 
 ## Repo y entornos
 
@@ -1354,7 +1397,9 @@ inerte o una intención del roadmap en alcance disponible.
 | R5.11a | Importe presentado y evidencia FX fixture | ✅ Local 2026-10-04 — ADR-0050, módulo currencies y perfil minor-unit-presentment-half-up-v1; 928 archivos sin diagnósticos, 237 suites/2.561 pruebas y revisión de 8.823 aserciones sin P1/P2; MKT-008 parcial/instalada/inactiva, sin deploy ni cambios de checkout/ledger/impuestos EUR |
 | R5.11b | Métodos sintéticos elegibles | ✅ Local 2026-10-04 — ADR-0051, dominio payments y composición de reglas exactas/rangos/referencias; 932 archivos sin diagnósticos, 239 suites/2.679 pruebas y revisión de 6.366 aserciones sin P1/P2; CHK-010 parcial/instalada/inactiva, sin deploy ni operación real |
 | R5.11c | Demo de divisas y métodos sintéticos | ✅ Cerrada localmente — /demo/admin/divisas con fixtures, 2.885 pruebas, navegador 2.030/2.030, E2E 172/172, ocho superficies a11y sin hallazgos, capturas aprobadas y base QA intacta; disponible en repo, integrada en PR #25 (`46dbe905`) y sin despliegue |
-| R5.12 | Consolidación local R5 con fixtures | ✅ Cerrada localmente — nueve pruebas entre contratos ES/FR, matriz de capacidades inactivas, cabeceras privadas tempranas y auditoría GET/HEAD de privacidad/SEO; check técnico 939 archivos/243 suites/2.935 pruebas, HTTP 4.554 comprobaciones/163 GET-HEAD/40 URLs, E2E nuevo 172/172 y hash QA intacto; integración pendiente, sin despliegue, sin E2E operativo ni declarar pendientes reales resueltos |
+| R5.12 | Consolidación local R5 con fixtures | ✅ Cerrada localmente — nueve pruebas entre contratos ES/FR, matriz de capacidades inactivas, cabeceras privadas tempranas y auditoría GET/HEAD de privacidad/SEO; check técnico 939 archivos/243 suites/2.935 pruebas, HTTP 4.554 comprobaciones/163 GET-HEAD/40 URLs, E2E nuevo 172/172 y hash QA intacto; integrada en PR #26 (`9dd23909`), sin despliegue, sin E2E operativo ni declarar pendientes reales resueltos |
+| R6.1a | Directorio de empresas con fixtures | ✅ Cerrado localmente — ADR-0052/companies y composición VAT, 944 archivos sin diagnósticos, 245 suites/3.054 pruebas, revisión 11.249 sin P1/P2; B2B-001 parcial instalada/inactiva. Integración pendiente, sin despliegue; demo R6.1b pendiente |
+| R6.1b | Demo de empresas y sedes | ⬜ Siguiente con diseño aprobado — /demo/admin/empresas, grupo Clientes, dos empresas sintéticas, sedes/contactos/roles descriptivos y cinco estados VAT; UI y ocho capturas previstas pendientes, sin activación |
 | R5.2 | Consentimiento versionado | ✅ 2026-08-17 — ADR-0040, D1 `0037`, repositorio concurrente, backup 31, rehearsal y E2E local; `CUS-007` instalada e inerte |
 | R5.3a | Derechos de datos verificables | ✅ 2026-08-17 — ADR-0041, lifecycle, dry-run, doble control y puertos; `CUS-008` instalada e inerte, sin DDL ni efectos |
 | R5.3b | Persistencia de solicitudes de derechos | ✅ 2026-08-18 — D1 `0038`, repositorio concurrente, backup 32 y rehearsal/restore local; sin PII, rutas ni ejecución |
@@ -2911,18 +2956,22 @@ solo vuelve a `main` o a producción por instrucción expresa.
 Zancada queda completado, integrado en GitHub y publicado por encargo expreso
 del 2026-09-08. La cola de plataforma que sigue no cambia por esta importación.
 
-### R6.1a — Directorio B2B con fixtures, siguiente aceptado
+### R6.1b — Empresas y sedes, siguiente con diseño aprobado
 
-R5.12 está verificada localmente, con integración pendiente y sin despliegue.
-[Consolidación y evidencia](plataforma/R5_CONSOLIDACION_FIXTURES.md).
-Tras integrarla, implementar ADR y directorio versionado puro `companies`
-(B2B-001): empresas, sedes, contactos, roles descriptivos y asignaciones con
-propiedad/referencias íntegras; selector valida todo el snapshot. Activa/inactiva
-no concede permisos, y referencias externas de perfil/hash de email no autentican.
-Composición `company-vat-context` evalúa evidencia VAT opcional sin conceder
-condición B2B o exención. R6.1b será demo inerte de dos empresas. B2B-009,
-catálogos/precios, condiciones de pago y crédito conservan su alcance posterior;
-sin DDL, CRM, autenticación, cobros o efectos operativos en R6.1a.
+R6.1a está implementado y verificado localmente; integración pendiente, sin
+despliegue. [Contrato y evidencia](plataforma/adr/0052-directorio-empresas-fixture.md).
+
+R6.1b tiene diseño aprobado y UI pendiente: `/demo/admin/empresas`,
+«Empresas y sedes», bajo Clientes. Dos empresas sintéticas: A activa con VAT
+ficticio y B inactiva sin VAT; sedes, contactos y roles descriptivos. Cinco
+estados de consulta VAT con selección inicial `not_checked`; cambiar de
+empresa restablece esa selección, sin fabricar una declaración para B.
+Se prevén ocho capturas al verificar la demo; todavía no existen como evidencia
+de este corte. Interacción local, sin activar capacidades o autorización real.
+
+B2B-001 conserva estado parcial/instalada/inactiva; B2B-009 sigue pendiente.
+El modelo no concede autenticación, permisos, exención, precios, crédito o
+cobros; no se añaden efectos operativos por mostrar su resultado.
 
 R5.6c.1–c.3 implementan política explícita, captura consistente, recuperación,
 publicación CAS y políticas/planes/intenciones durables. 0046 está autorizada y
@@ -3064,7 +3113,7 @@ R5.11 continúa parcial: estos previews no resuelven cobro, reembolso ni
 conciliación operativos.
 
 R5.12 cierra localmente la consolidación de contratos y demos con fixtures;
-[matriz y evidencias](plataforma/R5_CONSOLIDACION_FIXTURES.md), check técnico 939 archivos/243 suites/2.935 pruebas, HTTP 4.554 comprobaciones/163 GET-HEAD/40 URLs, E2E nuevo 172/172 y hash QA intacto; integración pendiente, sin despliegue:
+[matriz y evidencias](plataforma/R5_CONSOLIDACION_FIXTURES.md), check técnico 939 archivos/243 suites/2.935 pruebas, HTTP 4.554 comprobaciones/163 GET-HEAD/40 URLs, E2E nuevo 172/172 y hash QA intacto; integrada en PR #26 (`9dd23909`), sin despliegue:
 
 - Matriz trazable de capacidades R5, contratos, estados instalada/inactiva,
   superficies demostrables y evidencia propia o heredada.

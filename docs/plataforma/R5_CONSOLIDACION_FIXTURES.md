@@ -1,7 +1,7 @@
 # R5.12 — Consolidación local con fixtures
 
 Estado: **realizada y verificada localmente**, 2026-10-04, rama
-`codex/r5-fixture-consolidation`; integración pendiente, sin despliegue.
+`codex/r5-fixture-consolidation`; integrada en PR #26 (`9dd23909`), sin despliegue.
 R5.11c está integrada en PR #25 (`46dbe905`), sin despliegue. Las métricas de
 ese corte son evidencia anterior. R5.12 aporta check global, revisión
 independiente, auditoría GET/HEAD, E2E y comparación de hash propios aprobados.
@@ -123,7 +123,7 @@ La base conserva 143 tablas y 353 filas; SHA-256 antes/después idéntico:
 Worker detenido. Navegador 2.030/2.030, a11y de ocho superficies y ocho capturas
 son evidencia heredada de PR #25, no nuevas ejecuciones de R5.12.
 
-Consolidación fixture realizada y verificada localmente; integración pendiente,
+Consolidación fixture realizada y verificada localmente; integrada en PR #26 (`9dd23909`),
 sin despliegue, nuevas activaciones ni declaración de operación real completa.
 
 | Evidencia | Procedencia | Estado para R5.12 |

@@ -1,0 +1,77 @@
+{
+  "schemaVersion": 1,
+  "verifiedAt": "2026-10-04",
+  "environment": "local-synthetic-contracts",
+  "deployment": "not-deployed",
+  "verification": {
+    "typecheckFiles": 944,
+    "diagnostics": 0,
+    "suites": 245,
+    "tests": 3054,
+    "companyDirectoryTests": 93,
+    "companyVatContextTests": 24,
+    "architectureTests": 6,
+    "manifestAndRegistryTests": 81,
+    "buildHtmlPages": 44,
+    "buildLocalForms": 44
+  },
+  "independentReview": {
+    "totalAssertions": 11249,
+    "openP1OrP2": 0,
+    "directory": {
+      "assertions": 9700,
+      "selections": 171,
+      "gettersExecuted": 0,
+      "observedEffects": 0,
+      "implicitClockReads": 0,
+      "openP1OrP2": 0,
+      "publicDiagnosticMinifiedBundleBytes": 6474,
+      "bundleSources": 2,
+      "uiAsset": false
+    },
+    "vatContext": {
+      "assertions": 1549,
+      "matrixCases": 48,
+      "gettersExecuted": 0,
+      "observedEffects": 0,
+      "implicitClockReads": 0,
+      "openP1OrP2": 0,
+      "diagnosticMinifiedBundleBytes": 11957,
+      "contributingSources": 4,
+      "externalImports": 0,
+      "operationalRuntimeImports": 0,
+      "uiAsset": false
+    }
+  },
+  "inheritedRegression": {
+    "source": "../r5-12/verification-report.json",
+    "commit": "9dd239099f0196037c9471ea690f249ad1842b4b",
+    "e2eChecks": 172,
+    "httpAuditChecks": 4554,
+    "httpRequests": 163,
+    "sitemapPages": 40,
+    "databaseTables": 143,
+    "databaseRows": 353,
+    "databaseHash": "9cbfc811cfc4296515a403d395875a43bfa26aff0c9c9b08be0804b15bbf6eca",
+    "rerunForThisCut": false,
+    "browserAndA11y": "previous R5 surfaces; no new UI"
+  },
+  "scope": {
+    "module": "companies",
+    "capabilities": [
+      "B2B-001"
+    ],
+    "state": "installed",
+    "activeInPresets": false,
+    "b2bDelegatedPermissionsImplemented": false,
+    "rolesMeaning": "descriptive fixture relationships only",
+    "vatMeaning": "correlated declared company ID and VAT evidence; does not authenticate directory or authorize exemption",
+    "externalIdentityMeaning": "declared metadata only, without lookup or membership inference; hashes may be pseudonymous data",
+    "runtimeConsumersAdded": 0,
+    "routesAdded": 0,
+    "migrationsAdded": 0,
+    "jobsAdded": 0,
+    "providersActivated": 0,
+    "fixturePresentation": "pending-r6-1b"
+  }
+}

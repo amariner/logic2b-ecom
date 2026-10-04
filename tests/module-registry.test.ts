@@ -142,6 +142,20 @@ describe('registro de módulos (R1.4)', () => {
     }
   });
 
+  it('keeps company directory fixtures separate from operational identity and permissions', () => {
+    expect(MODULE_REGISTRY.capabilityOwners['B2B-001']).toBe('companies');
+    expect(MODULE_REGISTRY.byId.companies).toMatchObject({
+      dependencies: ['platform-configuration'],
+      permissions: [], events: [], subscriptions: [], jobs: [], healthchecks: [], navigation: [], routes: [],
+    });
+    expect('B2B-009' in MODULE_REGISTRY.capabilityOwners).toBe(false);
+    for (const profile of ['minimal', 'standard', 'advanced'] as const) {
+      const platform = createPlatform(createPresetManifest(profile, deployment));
+      expect(platform.hasModule('companies')).toBe(false);
+      expect(platform.isCapabilityActive('B2B-001')).toBe(false);
+    }
+  });
+
   it('adds fixture method eligibility to payments without adding operational surfaces', () => {
     expect(MODULE_REGISTRY.capabilityOwners['CHK-010']).toBe('payments');
     expect(MODULE_REGISTRY.byId.payments).toMatchObject({
@@ -234,7 +248,7 @@ describe('registro de módulos (R1.4)', () => {
     ['minimal', ['platform-configuration', 'platform-security', 'catalog', 'pricing', 'storefront']],
     ['standard', ['platform-configuration', 'platform-security', 'catalog', 'pricing', 'inventory', 'cart', 'customers', 'orders', 'fulfillment', 'notifications', 'payments', 'checkout', 'storefront']],
     ['advanced', MODULE_REGISTRY.descriptors
-      .filter((descriptor) => !['subscriptions', 'markets', 'localization', 'taxes', 'currencies'].includes(descriptor.id))
+      .filter((descriptor) => !['subscriptions', 'markets', 'localization', 'taxes', 'currencies', 'companies'].includes(descriptor.id))
       .map((descriptor) => descriptor.id)],
   ] as const)('compone solo los módulos operativos del preset %s', (preset, expected) => {
     const platform = createPlatform(createPresetManifest(preset, deployment));
