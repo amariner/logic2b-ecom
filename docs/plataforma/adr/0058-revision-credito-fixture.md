@@ -1,11 +1,11 @@
 # ADR-0058 — Expediente de revisión de crédito con fixtures
 
-- Estado: accepted; R6.5b verificado localmente, 3.653 pruebas; integración pendiente. Sin activación ni despliegue.
+- Estado: accepted; R6.5b verificado localmente, 3.653 pruebas; integrado en PR #37 (`16caef3`). Sin activación ni despliegue.
 - Fecha: 2026-10-04.
 - Módulo: `companies` 1.6.0; dependencia `platform-configuration`.
 - Capacidad: B2B-004 parcial, instalada/inactiva en avanzado/demo, ausente en mínimo/estándar; dependencia única B2B-001 y superficies operativas vacías.
 - Perfil: `company-credit-review-v1`.
-- Continuidad: R6.5a integrada en PR #36 (`787a9e73`); demo conjunta R6.5c pendiente.
+- Continuidad: R6.5a integrada en PR #36 (`787a9e73`); demo conjunta R6.5c verificada localmente, con integración pendiente y sin despliegue.
 
 ## Contexto y decisión
 
@@ -208,7 +208,7 @@ parcial e instalada/inactiva en avanzado/demo, ausente mínimo/estándar, con
 única dependencia B2B-001. Sin superficies operativas, DDL, jobs, notificaciones,
 proveedores, autenticación, reserva, checkout o cobro; B2B-009 permanece pendiente.
 
-**Implementado y verificado localmente; integración pendiente, sin despliegue.**
+**Implementado y verificado localmente; integrado en PR #37 (`16caef3`), sin despliegue.**
 [Verificación final R6.5b](../../audits/r6-5b/verification-report.json), 2026-10-04:
 `pnpm check` pasa 981 archivos sin diagnósticos, 260 suites/3.653 pruebas;
 48 de dominio, seis de arquitectura y 119 de registry/manifest/acceso.
@@ -231,19 +231,101 @@ Navegador 2.660 comprobaciones/72 visitas, E2E 188/188, ocho superficies a11y
 sin hallazgos, ocho PNG y base QA de 143 tablas/353 filas son **heredados de
 PR #35**, sin nuevas ejecuciones runtime. Hash histórico antes/después:
 `9cbfc811cfc4296515a403d395875a43bfa26aff0c9c9b08be0804b15bbf6eca`.
-R6.5c sigue en diseño, sin implementación o QA visual nueva.
+R6.5c está verificada localmente y disponible en repo, con integración pendiente y sin despliegue.
 
-R6.5c tiene orientación visual aceptada: `/demo/admin/credito`, «Límites y
-revisión de crédito», en Clientes tras condiciones de pago. Quince contextos
-cerrados, incluyendo exposición/solicitud/comprador configurados por separado;
-abrir revisión explícitamente, seleccionar contacto, declarar aceptación o
-rechazo y restablecer. No se editan importes, fechas, políticas o quórum ni se
-expone una consola de CAS/replay. Cambiar escenario inicia otro ejemplo sin
-trasladar decisiones; reset/recarga vuelve al ejemplo sin expediente abierto.
+## R6.5c — Demo verificada localmente
 
-La demo deberá separar los tres diagnósticos del resultado declarado, conservar
-unknown/unconfigured/excesos y bloquear respuestas tras terminalidad aunque
-queden contactos sin responder. Ocho capturas previstas —pendiente con una
+**R6.5c — Demo de límites y revisión de crédito está implementada y verificada localmente**,
+rama `codex/company-credit-review-demo`. R6.5b está integrada en PR #37
+(`16caef3`), sin despliegue. `/demo/admin/credito`, «Límites y revisión de crédito»,
+en Clientes después de condiciones de pago, según el [ADR-0058](0058-revision-credito-fixture.md).
+Quince contextos cerrados y apertura explícita de una revisión local; selector
+de contacto, aceptación/rechazo declarados y reset. No se conceden crédito,
+identidad autenticada, reservas o autorización de compra.
+
+Los tres diagnósticos numéricos conservan cero, diferencias negativas,
+ausencias y observación `asOf`; el expediente conserva su historial separado.
+Un cambio real de escenario descarta la revisión local de esta vista y exige
+otra apertura sin votos; seleccionar de nuevo el mismo escenario conserva el
+expediente. La terminalidad deshabilita respuestas aunque queden contactos
+sin responder. Memoria local, gate manifest demo AND `DEMO_MODE=true`, SSR
+inicial completo y controles inertes sin JavaScript. B2B-004 sigue parcial e
+instalada/inactiva; sin capacidades operativas nuevas.
+
+**Implementada y verificada localmente, disponible en el repositorio;
+integración pendiente y sin despliegue.**
+[Verificación final R6.5c](../../audits/r6-5c/verification-report.json), 2026-10-04:
+`pnpm check` pasa 985 archivos sin diagnósticos, 261 suites/3.694
+pruebas; 41 del modelo, seis de arquitectura y ocho de autenticación. Build de
+44 HTML/44 formularios locales, con cero crons. Revisión independiente: 129.333
+comprobaciones, 630 vistas estructurales, 1.260 respuestas, 630 aperturas,
+450 transiciones y 16 gates; cero P1/P2, efectos, getters o reloj implícito.
+Las vistas estructurales incluyen selecciones programáticas con controles de
+UI deshabilitados: no son visitas de navegador. Diagnóstico del modelo:
+40.364 B/10.440 B gzip, separado del cliente emitido.
+
+Cliente real: tres archivos, 46.662 B/13.177 B gzip; entrada 40.084 B/10.724
+gzip, sin imports externos. Sonda sin raíz: una consulta DOM, 88 fechas
+explícitas y cero efectos/reloj implícito; no acredita interacción de navegador.
+Guía medida aparte: 15.179 B/6.314 gzip, único incremento de 8 B/5 gzip por
+`|credito` en su allowlist, sin cambios en sus dos helpers. Sus efectos propios
+interactivos no se atribuyen al módulo ni a la sonda sin raíz.
+
+QA nueva de c: navegador 6.368 comprobaciones, 108 visitas principales
+(54 por tamaño) y guardas adicionales; ocho superficies a11y sin errores ni
+avisos. Ocho PNG revisadas por frontend y cuatro por root. E2E nuevo 192/192;
+Worker y Chrome detenidos. La base QA conserva 143 tablas/353 filas y el hash
+antes/después es idéntico:
+`9cbfc811cfc4296515a403d395875a43bfa26aff0c9c9b08be0804b15bbf6eca`.
+
+Navegador confirma cero peticiones, escrituras/storage, timers, beacons,
+ventanas o errores del módulo. La guía y el `requestAnimationFrame` del shell
+se contabilizan aparte: tres escrituras de preparación y dos de recarga de
+la guía por tamaño, más ocho escrituras propias en su prueba móvil. Los cuatro
+grafos de demos anteriores permanecen idénticos. La evidencia de a/b conserva
+su corte histórico y la interacción heredada de PR #35; c tiene validación
+propia. Sin nuevas operaciones B2B ni despliegue.
+
+El modelo `company-credit-review-demo` consume las APIs públicas de crédito y
+revisión. El estado inicial es «Bajo los límites», Contacto A y ningún expediente
+abierto. Abrir es un intento explícito; empresa/comprador inactivos o quórum
+inalcanzable muestran motivo sin fabricar un expediente pendiente. Abrir de
+nuevo una revisión existente conserva su historial y contador.
+
+Los quince contextos cubren bajo/igual/superado, exposición ausente/incompleta/
+futura, todas las reglas ausentes, cada colección de límites por separado,
+ceros, empresa/comprador inactivos, quórum inalcanzable y comprador incluido.
+Solo se eligen escenarios y contactos cerrados; no se editan importes, fechas,
+políticas o quórum, ni se expone una consola técnica de conflictos/replay.
+
+La fecha de observación permanece junto a la exposición conocida. Unknown
+retira solo sus importes derivados; solicitudes y límites conocidos permanecen.
+Unconfigured conserva el importe comparado y elimina solo límite/diferencia/
+posición ausentes. Cero y exceso negativo se muestran como tales.
+
+Aceptar/rechazar registra solo la declaración aplicada y su instante explícito.
+No se cambia de contacto automáticamente ni se avanza el reloj tras bloqueos.
+Un cambio de escenario mantiene la secuencia local pero inicia una vista sin
+expediente; reset/recarga vuelve al estado literal inicial. Los IDs son locales,
+no garantizan unicidad global y no se exponen en la proyección o el DOM.
+
+Las ocho capturas y superficies a11y verificadas cubren pendiente con una
 aceptación, aceptado con exceso, aceptado sin exposición y apertura bloqueada
-por quórum, cada una en 1.440/375 px— aún no realizadas. Diseño pendiente de
-implementación tras integrar b; no se anticipa QA ni disponibilidad visual.
+por quórum, cada una en 1.440/375 px. Frontend revisó las ocho; root contrastó
+cuatro. No se declaran resueltas identidad, permiso o crédito operativo.
+
+## Siguiente: R6.6a
+
+Solicitud B2B y revisiones completas de oferta con fixtures: diseño exacto
+revisado, pendiente de implementación. La solicitud no contiene dinero; la
+oferta declara EUR, cantidades y precios, con contexto íntegro e historial
+inmutable. 1–100 líneas, una variante explícita por producto, unidades 1–10.000
+y total positivo hasta 1.000.000.000 céntimos con BigInt. Caducidad propia por
+revisión y diff estructural, sin estados issued/approved/paid/converted ni
+herencia de aceptación o cobros ante otro contexto.
+
+R6.6b compondrá con las APIs públicas de ORD-008, que ya conserva lifecycle,
+depósito/saldo y conversión explícita; R6.6c será la demo posterior. Compatibilidad
+numérica no demuestra convertibilidad: el runtime actual recotiza catálogo y
+no se invoca ni modifica para aceptar precios negociados en estos fixtures.
+No hay implementación o QA R6.6, conversión de pedido, reserva o cobro nuevos.

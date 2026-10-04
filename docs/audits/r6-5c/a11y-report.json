@@ -1,0 +1,42 @@
+[
+  {
+    "surface": "company-credit-review:pending",
+    "url": "/demo/admin/credito",
+    "findings": []
+  },
+  {
+    "surface": "company-credit-review:above-accepted",
+    "url": "/demo/admin/credito",
+    "findings": []
+  },
+  {
+    "surface": "company-credit-review:missing-accepted",
+    "url": "/demo/admin/credito",
+    "findings": []
+  },
+  {
+    "surface": "company-credit-review:unreachable-blocked",
+    "url": "/demo/admin/credito",
+    "findings": []
+  },
+  {
+    "surface": "company-credit-review:pending@375",
+    "url": "/demo/admin/credito",
+    "findings": []
+  },
+  {
+    "surface": "company-credit-review:above-accepted@375",
+    "url": "/demo/admin/credito",
+    "findings": []
+  },
+  {
+    "surface": "company-credit-review:missing-accepted@375",
+    "url": "/demo/admin/credito",
+    "findings": []
+  },
+  {
+    "surface": "company-credit-review:unreachable-blocked@375",
+    "url": "/demo/admin/credito",
+    "findings": []
+  }
+]

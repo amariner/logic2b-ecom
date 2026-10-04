@@ -97,11 +97,11 @@ remoto.
 
 ### Evidencia local actualizada el 2026-10-04
 
-- `pnpm check` de R6.5b: 981 archivos sin diagnósticos, 260 suites y 3.653 tests.
+- `pnpm check` de R6.5c: 985 archivos sin diagnósticos, 261 suites y 3.694 tests.
 - Build demo: 44 documentos HTML y 44 formularios de proyecto locales.
 - D1/workerd: 15 bloques correctos, backup 39 y restauración de 129 tablas;
   [informe de segmentación](docs/audits/r5-6c/facts-d1-report.json).
-- E2E de R6.4c (2026-10-04): 188/188 comprobaciones, heredadas en los contratos puros R6.5a/b.
+- E2E de R6.5c (2026-10-04): 192/192 comprobaciones nuevas.
   Formularios: 31 comprobaciones, cero peticiones
   mutantes, beacons o errores JavaScript;
   [informe de fixtures](docs/audits/demo-fixtures/report.json).
@@ -193,15 +193,20 @@ remoto.
 - Crédito con fixtures: tres límites independientes de exposición de empresa,
   solicitud y comprador; evidencia correlacionada que excluye la solicitud
   completa, cálculo exacto y diferencias firmadas. 44 pruebas propias y 51.363
-  comprobaciones independientes. B2B-004 parcial e inactiva; demo visual pendiente. Los cinco grafos cliente existentes permanecen
-  idénticos. [Informe R6.5a](docs/audits/r6-5a/verification-report.json).
+  comprobaciones independientes. B2B-004 parcial e inactiva; demo conjunta
+  añadida en R6.5c. En el corte puro R6.5a los cinco grafos permanecían idénticos. [Informe R6.5a](docs/audits/r6-5a/verification-report.json).
 - Revisión de crédito con fixtures: apertura explícita, quórum por contacto,
   aceptación/rechazo declarados e historial ligado al contexto completo. Los
   reintentos conservan el estado actual y los conflictos no añaden respuestas.
   48 pruebas propias y 33.973 comprobaciones independientes; sin identidad
-  autenticada, aprobación comercial ni persistencia. Demo conjunta pendiente.
+  autenticada, aprobación comercial ni persistencia. Demo conjunta añadida en R6.5c.
   [Informe R6.5b](docs/audits/r6-5b/verification-report.json).
-- Base QA de R6.4c (evidencia heredada en R6.5a/b): 143 tablas y 353 filas, hash antes/después idéntico:
+- Demo de límites y revisión: quince escenarios con apertura explícita, respuestas
+  por contacto y reinicio en memoria. 41 pruebas propias y 129.333 comprobaciones
+  independientes; navegador 6.368/108 visitas principales, ocho capturas y ocho
+  superficies de accesibilidad sin hallazgos. Sin efectos del módulo.
+  [Evidencia R6.5c](docs/audits/r6-5c/README.md).
+- Base QA de R6.5c: 143 tablas y 353 filas, hash antes/después idéntico:
   `9cbfc811cfc4296515a403d395875a43bfa26aff0c9c9b08be0804b15bbf6eca`.
 
 Esta evidencia corresponde a QA local y no acredita que el sitio remoto haya

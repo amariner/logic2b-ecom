@@ -38,6 +38,8 @@ describe('sesión firmada del admin', () => {
     expect(demoAdminNextPath('/demo/admin/cantidades/apply')).toBe('/demo/admin');
     expect(demoAdminNextPath('/demo/admin/condiciones-pago')).toBe('/demo/admin/condiciones-pago');
     expect(demoAdminNextPath('/demo/admin/condiciones-pago/send')).toBe('/demo/admin');
+    expect(demoAdminNextPath('/demo/admin/credito')).toBe('/demo/admin/credito');
+    expect(demoAdminNextPath('/demo/admin/credito/approve')).toBe('/demo/admin');
     expect(demoAdminNextPath('/demo/admin/mercados')).toBe('/demo/admin/mercados');
     expect(demoAdminNextPath('/demo/admin/mercados/publish')).toBe('/demo/admin');
     expect(demoAdminNextPath('/demo/admin/publicacion')).toBe('/demo/admin/publicacion');

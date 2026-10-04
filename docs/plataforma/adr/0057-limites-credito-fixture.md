@@ -5,7 +5,7 @@
 - Módulo: `companies` 1.5.0; dependencia de módulo `platform-configuration`.
 - Capacidad: B2B-004 parcial, instalada/inactiva en avanzado/demo, ausente en mínimo/estándar; dependencia única B2B-001 y superficies operativas vacías.
 - Perfil: `company-credit-eur-cents-v1`.
-- Continuidad: R6.4c integrada en PR #35 (`b1bf0d2a`); R6.5b verificado localmente/integración pendiente y demo R6.5c en diseño.
+- Continuidad: R6.4c integrada en PR #35 (`b1bf0d2a`); R6.5b integrado en PR #37 (`16caef3`) y demo R6.5c verificada localmente/integración pendiente.
 
 ## Contexto
 
@@ -231,7 +231,7 @@ sin hallazgos, ocho PNG y base QA de 143 tablas/353 filas son evidencia
 **heredada de PR #35**, sin nuevas ejecuciones de Worker, HTTP, navegador,
 a11y, E2E o DB en este corte puro. Hash histórico antes/después:
 `9cbfc811cfc4296515a403d395875a43bfa26aff0c9c9b08be0804b15bbf6eca`.
-El workflow humano R6.5b está verificado localmente, con integración pendiente; la demo visual R6.5c está en diseño.
+El workflow humano R6.5b está verificado localmente, integrado en PR #37 (`16caef3`); la demo visual R6.5c está verificada localmente, con integración pendiente y sin despliegue.
 
 **R6.5b está implementado y verificado localmente**, según el [ADR-0058](0058-revision-credito-fixture.md):
 expediente fixture con contexto íntegro, política explícita de contactos y
@@ -241,20 +241,37 @@ solo las decisiones aplicadas registran ID. No hay concurrencia durable.
 Aceptación declarada no equivale a crédito concedido; contacto no equivale a
 persona y los diagnósticos financieros desconocidos o excedidos no cambian.
 `companies` 1.6.0 conserva B2B-004 parcial e instalada/inactiva.
-Implementado y verificado localmente, integración pendiente/sin despliegue:
+Implementado y verificado localmente, integrado en PR #37 (`16caef3`)/sin despliegue:
 981 archivos sin diagnósticos, 260 suites/3.653 pruebas, 48 dominio/seis
 arquitectura/119 registro y revisión de 33.973 comprobaciones sin P1/P2.
 Cinco grafos, 352 fuentes de superficie y 19 CSS iguales a PR #36; interacción
 y base QA heredadas de PR #35. [Informe final](../../audits/r6-5b/verification-report.json).
 
-**Siguiente: R6.5c, demo conjunta en diseño, sin código ni QA todavía.**
+**R6.5c está implementada y verificada localmente**, según el [ADR-0058](0058-revision-credito-fixture.md).
 `/demo/admin/credito`, «Límites y revisión de crédito», en Clientes: quince
 contextos cerrados, incluidas las tres colecciones configuradas por separado;
 apertura explícita, selector de contacto, aceptación/rechazo declarados y reset.
 Se conservan diagnóstico numérico e historial como dimensiones separadas,
 sin controles técnicos de CAS ni traslado de votos al cambiar contexto.
-Ocho capturas previstas, aún no realizadas. Sin autoridad comercial, DDL,
-proveedor, I/O, reserva ni cambios de checkout o ledger.
+El mismo escenario conserva la revisión; otro escenario exige nueva apertura.
+Terminalidad bloquea respuestas incluso con contactos sin responder.
+**Implementada y verificada localmente, disponible en repo; integración
+pendiente y sin despliegue.** Check 985 archivos/261 suites/3.694 pruebas,
+41 del modelo y revisión independiente 129.333 sin P1/P2; navegador 6.368/108
+visitas principales, ocho superficies a11y sin hallazgos, ocho PNG aprobadas,
+E2E nuevo 192/192 y hash QA de 143 tablas/353 filas intacto. Cliente real tres archivos
+46.662 B/13.177 gzip; guía medida aparte. [Informe final](../../audits/r6-5c/verification-report.json).
+Sin autorización comercial, DDL, reserva ni cambios de checkout/ledger.
+
+**Siguiente: R6.6a, solicitud B2B y revisiones completas de oferta con fixtures.**
+Diseño exacto revisado y pendiente de implementación: solicitud sin dinero,
+contexto íntegro de empresa/contacto/catálogo y ofertas EUR declaradas con
+historial inmutable y comparación estructural. Una variante explícita por
+producto, 1–100 líneas, unidades 1–10.000 y total positivo hasta 1.000.000.000
+céntimos calculado con BigInt; caducidad propia de cada revisión, sin lifecycle
+comercial. No hereda aceptación, pagos o revisión de crédito al cambiar contexto.
+R6.6b compondrá después con ORD-008 existente y R6.6c aportará demo: ninguna
+conversión de pedido, reserva o cobro se declara implementada por este diseño.
 
 La demo conjunta vendrá después de los contratos. No se declara resuelta la
 identidad autenticada, la autorización de compra, el crédito operativo ni la
