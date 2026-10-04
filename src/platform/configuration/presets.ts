@@ -133,6 +133,9 @@ const ADVANCED_CAPABILITIES = {
   // traducciones, modifica rutas ni conecta el sitemap servido.
   'MKT-006': { state: 'installed' },
   'MKT-007': { state: 'installed' },
+  // R5.11a: presentación de divisas mediante evidencia FX ficticia;
+  // sin conversión comercial, cobro ni conciliación operativos.
+  'MKT-008': { state: 'installed' },
   // R5.10a: cálculo fiscal y evidencia VAT mediante fixtures explícitos;
   // sin determinación fiscal de cliente, proveedores ni checkout operativo.
   'MKT-009': { state: 'installed' },

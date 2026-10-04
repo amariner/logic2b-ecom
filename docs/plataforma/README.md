@@ -31,10 +31,47 @@ Una quinta clasificación, **fuera de alcance deliberado**, evita confundir
 paridad comercial con fabricar bancos, redes publicitarias, hardware de punto de
 venta o servicios logísticos propios.
 
+## Último contrato verificado
+
+**R5.11a implementado y verificado localmente el 2026-10-04 UTC**, rama
+`codex/currency-fixture-contract`, con integración pendiente y sin despliegue.
+El [ADR-0050](adr/0050-presentacion-divisas-fixture.md) define el módulo
+separado `currencies` y su contrato puro de importe presentado y evidencia FX
+fixture. MKT-008 permanece parcial e instalada/inactiva en avanzado y demo, con
+dependencia PLT-004; CHK-010 conserva su estado. La demo visual de divisas sigue
+pendiente para R5.11c.
+
+El perfil `minor-unit-presentment-half-up-v1` usa un catálogo completo y
+versionado, con exponentes 0/2/3 explícitos, tasas racionales dirigidas
+base→target en unidades principales y cálculo `BigInt` con redondeo half-up.
+La identidad es explícita, sin una tasa ficticia. La evidencia se correlaciona
+con la solicitud completa, el adaptador y su vigencia; FX ausente, futura o
+caducada deja el importe presentado en `null`.
+
+El catálogo no se declara certificado ISO ni habilita monedas operativas.
+El contrato no incorpora I/O, reloj, DDL o proveedor ni modifica
+`formatCurrencyCents`, checkout, ledger o impuestos EUR. Esta ola no resuelve
+cobro, reembolso ni conciliación operativos.
+
+Check final: 928 archivos sin diagnósticos, 237 suites/2.561 pruebas y build
+con 44 HTML/44 formularios/cero crons. Focales: 107 de dominio, 25 del adaptador
+FX fixture, seis de arquitectura y 77 de registry/manifest. Revisión independiente
+de 8.823 aserciones sin P1/P2, efectos ni ejecución de getters; bundle público
+de tres fuentes/12.910 B sin importaciones de runtime operativo.
+[Informe final](../audits/r5-11a/verification-report.json).
+
+E2E 168/168, navegador 340/340, ocho superficies a11y y base QA de 143 tablas/353
+filas con hash `9cbfc811cfc4296515a403d395875a43bfa26aff0c9c9b08be0804b15bbf6eca`
+son evidencia heredada de R5.10b, integrada en PR #22 (`93bc3bd`), no nuevas
+ejecuciones de R5.11a. No hay nueva UI ni ejecución E2E, a11y, navegador o hash
+en este corte. Los resultados anteriores se conservan a continuación.
+
 ## Última demo verificada
 
 **R5.10b verificada y disponible en el repositorio, sin desplegar**, rama
-`codex/tax-fixture-demo`, con integración pendiente. `/demo/admin/impuestos`,
+`codex/tax-fixture-demo`, integrada en
+[PR #22](https://github.com/amariner/logic2b-ecom/pull/22), commit `93bc3bd`.
+`/demo/admin/impuestos`,
 «Impuestos y totales», separa «Preparar ejemplo» y «Comprobar desglose». Ofrece cinco casos
 cerrados: dos tipos con portes, céntimos y redondeo, cero y exención, portes
 pendientes y ausencia de respuesta fiscal, con selector incluido/excluido.
@@ -105,15 +142,22 @@ navegador 188/188, ocho superficies a11y y hash de 143 tablas/353 filas
 son evidencia heredada de R5.9b, integrada en PR #20 (`7a0926e`), no nuevas
 ejecuciones de R5.10a ni de R5.10b.
 
-## Siguiente contrato
+## Siguientes fases
 
-**R5.11a aprobado: importe presentado y evidencia FX fixture**, en un módulo separado.
-Unidades menores y exponente explícitos, tasa racional dirigida y vigente,
-redondeo identificado y snapshot que conserva el importe original. Sin
-modificar money/ledger, formateo de céntimos o impuestos EUR actuales; sin
-proveedor, DDL ni monedas operativas habilitadas. R5.11b modelará métodos
-sintéticos y R5.11c su demo. R5.11 seguirá parcial: esos previews no resuelven
-cobro, reembolso ni conciliación operativos. Todavía sin implementar.
+**R5.11b aprobado, pendiente de implementación**: contrato puro en
+`payments/domain/local-payment-methods.ts` y composición
+`composition/local-payment-methods-context.ts`. La política fixture define
+tuplas exactas método/mercado/moneda y rangos inclusivos en unidades menores.
+Política y solicitud conservan referencias completas id/version de los
+catálogos; la composición valida todas las reglas y exige
+`original.currency = market.currency`. Sin fallback, FX, precios ni ejecución
+de pagos. CHK-010 pasará a instalada/inactiva solo al implementar este bloque;
+el módulo `payments` conserva sus otras capacidades activas.
+
+Después, **R5.11c** añadirá `/demo/admin/divisas` con fixtures coherentes
+ES/FR/JP/KW, métodos evaluados sobre el importe original y presentación FX
+independiente. La demo sigue pendiente. R5.11 seguirá parcial: estos previews
+no resuelven cobro, reembolso ni conciliación operativos.
 
 ## Demo verificada
 

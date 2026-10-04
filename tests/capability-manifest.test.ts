@@ -309,6 +309,29 @@ describe('capability manifest (R1.2)', () => {
     expect(isolated.capability(id).flags).toEqual(INERT_FLAGS);
   });
 
+  it('keeps fixture currency presentation inactive and independent of checkout and markets', () => {
+    expect(CAPABILITY_DEFINITIONS['MKT-008'].dependencies).toEqual(['PLT-004']);
+    expect('MKT-008' in CAPABILITY_PRESETS.minimal).toBe(false);
+    expect('MKT-008' in CAPABILITY_PRESETS.standard).toBe(false);
+    expect(CAPABILITY_PRESETS.advanced['MKT-008']).toEqual({ state: 'installed' });
+    const demo = createPlatform(platformManifest);
+    expect(demo.capabilityState('MKT-008')).toBe('installed');
+    expect(demo.hasModule('currencies')).toBe(false);
+    expect(demo.capability('MKT-008').flags).toEqual(INERT_FLAGS);
+    const isolated = createPlatform({
+      manifestVersion: 1,
+      deployment: { ...deployment, profile: 'custom' },
+      capabilities: {
+        'PLT-001': { state: 'active', flags: INERT_FLAGS },
+        'PLT-004': { state: 'active', flags: INERT_FLAGS, config: { failFast: true } },
+        'MKT-008': { state: 'active', flags: INERT_FLAGS },
+      },
+    });
+    expect(isolated.hasModule('currencies')).toBe(true);
+    for (const module of ['markets', 'taxes', 'checkout', 'payments'] as const) expect(isolated.hasModule(module)).toBe(false);
+    expect(isolated.capability('MKT-008').flags).toEqual(INERT_FLAGS);
+  });
+
   it('requires markets and variants for publication without coupling market resolution alone to catalog', () => {
     const input: MutableManifest = {
       manifestVersion: 1,
