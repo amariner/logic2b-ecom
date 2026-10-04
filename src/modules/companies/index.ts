@@ -166,3 +166,16 @@ export {
   type CompanyOfferComparison,
   type CompanyNegotiationContractReason,
 } from './domain/company-negotiation';
+
+export {
+  COMPANY_PURCHASE_ORDER_LIMITS,
+  CompanyPurchaseOrderContractError,
+  defineCompanyPurchaseOrderBinding,
+  defineCompanyPurchaseOrderDeclaration,
+  previewCompanyPurchaseOrderDeclaration,
+  type CompanyPurchaseOrderBinding,
+  type CompanyPurchaseOrderReference,
+  type CompanyPurchaseOrderDeclaration,
+  type CompanyPurchaseOrderSnapshot,
+  type CompanyPurchaseOrderContractReason,
+} from './domain/company-purchase-order';

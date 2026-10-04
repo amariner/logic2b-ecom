@@ -6,7 +6,7 @@
 - Módulo registrado: `companies` 1.8.0, dependencia `platform-configuration`.
 - Capacidad: B2B-006 parcial, instalada/inactiva en avanzado/demo, ausente mínimo/estándar; conserva B2B-002 como única dependencia y superficies operativas vacías.
 - Perfil: `company-preliminary-fixture-v1`.
-- Continuidad: R6.6a integrada en PR #39 (`108480f8`), sin despliegue; R6.6b integrado en PR #40 (`ce295c6`) y demo R6.6c verificada localmente, pendiente de integración y sin despliegue.
+- Continuidad: R6.6a integrada en PR #39 (`108480f8`), sin despliegue; R6.6b integrado en PR #40 (`ce295c6`) y demo R6.6c verificada localmente, integrada en PR #41 (`424123fe`) y sin despliegue.
 
 ## Contexto y decisión
 
@@ -286,7 +286,7 @@ El módulo no efectúa peticiones, escrituras, timers, beacons ni abre ventanas;
 los efectos propios de la guía y el rAF del shell están contabilizados aparte.
 Worker/Chrome detenidos; hash nuevo antes/después idéntico de 143 tablas/353 filas:
 `9cbfc811cfc4296515a403d395875a43bfa26aff0c9c9b08be0804b15bbf6eca`.
-**Disponible y verificada localmente en el repositorio; integración pendiente,
+**Disponible y verificada localmente en el repositorio; integrada en PR #41 (`424123fe`),
 sin despliegue ni activación operativa.** [Informe final R6.6c](../../audits/r6-6c/verification-report.json).
 
 La oferta elegida conserva su total y caducidad como datos de OFERTA. Antes
@@ -326,8 +326,8 @@ la revisión estructural conserva declaraciones y referencias, sin afirmar igual
 binaria ni equivalencia SSR completa. La QA interactiva y E2E de este corte son
 nuevas y se distinguen de los análisis de assets y del histórico de a/b.
 
-Después seguirá R6.7a, cuyo diseño exacto está aceptado y espera la
-integración de c antes de implementarse: referencia PO declarada, vinculada al
+R6.7a está implementado y verificado localmente, pendiente de integración, según el
+[ADR-0061](0061-referencia-po-fixture.md): referencia PO declarada, vinculada al
 corte completo de negociación y oferta histórica, sin preliminar o lifecycle
 comercial nuevo. Número legible, emisor correlacionado y token documental
 opcional; `declared`/`not_provided` describe lo aportado y no acredita existencia

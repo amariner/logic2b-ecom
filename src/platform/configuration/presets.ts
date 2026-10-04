@@ -144,6 +144,9 @@ const ADVANCED_CAPABILITIES = {
   // R6.6a: solicitudes y revisiones completas de ofertas declaradas;
   // no emite presupuestos, ejecuta cobros ni convierte pedidos.
   'B2B-006': { state: 'installed' },
+  // R6.7a: referencia PO declarada y vinculada a una oferta histórica;
+  // no emite pedidos o facturas ni acredita documentos o pagos.
+  'B2B-007': { state: 'installed' },
   // R5.7 declara contexto de mercado sin decidir países, idiomas, divisas
   // comerciales ni conectar el resolver a HTTP o al checkout.
   'MKT-003': { state: 'installed' },
