@@ -1,0 +1,1258 @@
+{
+  "schemaVersion": 1,
+  "block": "R6.8d",
+  "verifiedAt": "2026-10-04T06:57:20.359029+00:00",
+  "environment": "local-isolated-fixtures",
+  "deployment": {
+    "status": "not-deployed",
+    "authorized": true,
+    "blocker": "Wrangler reports not authenticated; no Cloudflare credentials configured in this environment",
+    "migrationRequiredForThisBlock": false
+  },
+  "verification": {
+    "typecheckFiles": 1016,
+    "diagnostics": 0,
+    "suites": 272,
+    "tests": 4159,
+    "modelTests": 25,
+    "architectureTests": 6,
+    "adminAuthTests": 8,
+    "browserChecks": 1994,
+    "primaryVisits": 20,
+    "accessibilitySurfaces": 20,
+    "accessibilityFindings": 0,
+    "screenshots": 8,
+    "e2eChecks": 204,
+    "e2eExitCode": 0
+  },
+  "evidence": {
+    "fullcheck": "/tmp/ecom-company-quick-order-demo-release-check.log",
+    "fullcheckExitCode": 0,
+    "buildCompletedAt": "2026-10-04T06:52:48Z",
+    "e2e": "/tmp/ecom-company-quick-order-demo-release-e2e.log",
+    "browser": "report.json",
+    "accessibility": "a11y-report.json",
+    "visual": "report.md"
+  },
+  "independentReview": {
+    "schemaVersion": 1,
+    "block": "R6.8d",
+    "reviewer": "independent review_execution",
+    "status": "passed",
+    "finalizedAt": "2026-10-04T06:56:44.080324+00:00",
+    "scope": "Read-only model/UI/harness review, independent DTO/state oracle, public API delegation instrumentation and browser-bundle initialization without a DOM root. No repository edits, fullcheck, Worker, HTTP, browser or database execution by this reviewer.",
+    "findings": {
+      "P1": 0,
+      "P2": 0,
+      "items": []
+    },
+    "sourceFreeze": [
+      {
+        "path": "src/composition/company-quick-order-demo.ts",
+        "sha256": "eee7a9192d36758a6cdd7438012fffad569d25606f38c1c63c7d4144212d154a",
+        "modifiedAt": "2026-10-04T06:22:00.960099+00:00"
+      },
+      {
+        "path": "tests/company-quick-order-demo.test.ts",
+        "sha256": "7a578819e9da87816bc70f686cf69d37071f07f5e117de61c446ceeff3ad97ba",
+        "modifiedAt": "2026-10-04T06:24:33.985597+00:00"
+      },
+      {
+        "path": "src/components/admin/CompanyQuickOrderDemo.astro",
+        "sha256": "849352949c000989f5db3b488a9efc1c9f61f2bea7c7742eb2a991b7dfe10542",
+        "modifiedAt": "2026-10-04T06:23:38.991934+00:00"
+      },
+      {
+        "path": "src/pages/demo/admin/listas-sku.astro",
+        "sha256": "2c16dcc42c54a245484d82c3aed0e44fc321d8c7211bac9605747a7a8a1ca453",
+        "modifiedAt": "2026-10-04T06:23:21.476678+00:00"
+      },
+      {
+        "path": "src/layouts/Admin.astro",
+        "sha256": "5602a46fcd5f6f81a14e77fc0347838c72280461b29de5990248f92aae6861c0",
+        "modifiedAt": "2026-10-04T06:20:34.626313+00:00"
+      },
+      {
+        "path": "src/modules/companies/index.ts",
+        "sha256": "94c6401ff4753176fe6f3809ccfe78a44750d834495fea8c8f1b07cf2eeec0ec",
+        "modifiedAt": "2026-10-04T05:57:58.313643+00:00"
+      },
+      {
+        "path": "src/shared-kernel/demo-guide-routes.ts",
+        "sha256": "241e00cbf5dd1b75ce4a9de0e1e00a9fe40107f3ea85e81b0b8f741fa43b75c7",
+        "modifiedAt": "2026-10-04T06:20:34.626467+00:00"
+      },
+      {
+        "path": "scripts/test-company-quick-order-demo.mjs",
+        "sha256": "66c880e41993555e470f4de863666945dd1b0dee9f0739105525258a096f067f",
+        "modifiedAt": "2026-10-04T06:24:25.188862+00:00"
+      },
+      {
+        "path": "scripts/a11y-audit.mjs",
+        "sha256": "583722751e509e9a77b86f6ac866d0fcc020d991414c9637e72978d5d533c140",
+        "modifiedAt": "2026-10-04T06:25:20.755376+00:00"
+      }
+    ],
+    "plan": {
+      "path": "/tmp/ecom-r6-8d-plan.json",
+      "sha256": "bf4fb525753f7505752d4e548f28697d0d3e17565f9d298973ddf24d45c3d6f3"
+    },
+    "independentOracle": {
+      "schemaVersion": 1,
+      "status": "passed",
+      "startedAt": "2026-10-04T06:22:31.984Z",
+      "finishedAt": "2026-10-04T06:22:32.072Z",
+      "checks": 18665,
+      "scenarios": 10,
+      "states": 11,
+      "patches": 110,
+      "noops": 11,
+      "changed": 99,
+      "adversarialCases": 68,
+      "gateCases": 51,
+      "getters": 0,
+      "effects": {
+        "network": 0,
+        "timers": 0,
+        "storage": 0,
+        "ambient": 0,
+        "random": 0,
+        "implicitClock": 0,
+        "explicitDates": 825
+      },
+      "importEffects": {
+        "network": 0,
+        "timers": 0,
+        "storage": 0,
+        "ambient": 0,
+        "random": 0,
+        "implicitClock": 0,
+        "explicitDates": 12
+      },
+      "expectationsPreparedAt": "2026-10-04T06:20:48.241577+00:00",
+      "expectationPlanSha": "bf4fb525753f7505752d4e548f28697d0d3e17565f9d298973ddf24d45c3d6f3"
+    },
+    "oracleMethod": "Expectations prepared before implementation read, using independent Python linear scans for exact SKU/tuple ownership and related-row diagnostics, stdlib CSV decoding for the closed valid fixture, and manually located invalid fields. Complete projected DTOs compared for ten scenarios and eleven reachable states; 110 patches with 11 no-ops and 99 changes. This does not repeat domain a/b/c maximum-size matrices.",
+    "delegation": {
+      "schemaVersion": 1,
+      "status": "passed",
+      "startedAt": "2026-10-04T06:24:16.427Z",
+      "finishedAt": "2026-10-04T06:24:16.450Z",
+      "checks": 97,
+      "scenarios": 10,
+      "mutants": 5,
+      "eagerFactories": {
+        "catalog": 2,
+        "list": 4,
+        "history": 3
+      },
+      "scope": "Isolated instrumentation of actual public model imports. Invalid CSV never reaches SKU lookup; valid passes the same complete list object; history evaluates only historical API. Five perturbations confirm projection/closed labels. Private raw snapshot getters never read."
+    },
+    "gateOnlyDiagnostic": {
+      "schemaVersion": 1,
+      "builtAt": "2026-10-04T06:23:01.502Z",
+      "bytes": 1783,
+      "gzipBytes": 821,
+      "sha256": "83b91427c212e884bec7863d76e008bd1d3d7dbc9ba777c4714e3d917eb9dbd2",
+      "exports": [
+        "canShowCompanyQuickOrderDemo"
+      ],
+      "sources": [
+        {
+          "path": "src/modules/companies/domain/company-directory.ts",
+          "bytesInOutput": 718
+        },
+        {
+          "path": "src/modules/companies/domain/company-collection-evidence.ts",
+          "bytesInOutput": 112
+        },
+        {
+          "path": "src/modules/companies/domain/company-credit.ts",
+          "bytesInOutput": 167
+        },
+        {
+          "path": "src/modules/companies/domain/company-purchase-order.ts",
+          "bytesInOutput": 113
+        },
+        {
+          "path": "src/modules/companies/domain/company-document-evidence.ts",
+          "bytesInOutput": 72
+        },
+        {
+          "path": "src/modules/companies/domain/company-quick-order.ts",
+          "bytesInOutput": 200
+        },
+        {
+          "path": "src/composition/company-quick-order-demo.ts",
+          "bytesInOutput": 358
+        }
+      ],
+      "externalImports": [],
+      "fixtureOrEvaluationTokens": [],
+      "scope": "Single gate export, not a served asset; historical inert tables may remain from public barrel.",
+      "importAndCallEffects": 0,
+      "smokeAssertions": 3
+    },
+    "diagnosticBundle": {
+      "path": "/tmp/r68d-public-bundle-report.json",
+      "sha256": "15ccf24a8ddbed9816fd13967e205b7ccdf8939f89ffd9b74490e04448637901",
+      "bytes": 32597,
+      "gzipBytes": 9044,
+      "historicalInertTableBytes": 1188,
+      "externalImports": [],
+      "forbiddenTokenMatches": []
+    },
+    "builtClient": {
+      "path": "/tmp/r68d-built-client-report.json",
+      "sha256": "37ece4e07d149cd2b96cfc00fd20714c3ba9a58e002e6d8a500e9ebd1a8dc309",
+      "bytes": 39594,
+      "gzipBytes": 10636,
+      "files": 1,
+      "edges": 0,
+      "effectsWithoutRoot": 0,
+      "explicitDateConstructionsWithoutRoot": 12,
+      "buildStatus": "final-root-exit0",
+      "buildCompletedAt": "2026-10-04T06:52:48Z"
+    },
+    "builtGuide": {
+      "path": "/tmp/r68d-built-guide-report.json",
+      "sha256": "2570307ecd853e60a5f9b245c8d62d49512e33b94017947560a6c58ab342ec61",
+      "bytes": 15230,
+      "gzipBytes": 6333,
+      "files": 3,
+      "edges": 2,
+      "effectsWithoutRoot": 0,
+      "routeLiteralAddition": "|listas-sku",
+      "removingOnlyLiteralRestoresBaseline": true,
+      "entryBytesDelta": 11,
+      "entryGzipDelta": 8,
+      "buildStatus": "final-root-exit0",
+      "buildCompletedAt": "2026-10-04T06:52:48Z"
+    },
+    "staticReview": {
+      "model": "Full source read: actual public evaluator calls, strict canonical state, safe projection, closed diagnostic labels, no inferred historical identities or partial CSV flow, no implicit clock/effects. Model and test hashes match the author freeze.",
+      "tests": "All final 25 tests read: independent semantic examples, whole-list identity delegation, separate historical path, mutant projections, hostile descriptors/prototypes, detached normalization and gate AND. Author tests not rerun by reviewer.",
+      "ui": "Component/page fully read by independent child company_ui_review and main reviewer integration checked; SSR disabled controls/noscript, persistent selector/reset, textContent raw SKU/CSV, null cleanup, no numeric IDs/refs or operation forms, AND gate in page and admin navigation. Static review is not an accessibility execution.",
+      "harness": "Browser harness and twenty a11y surfaces read: raw text equality, placeholders/hidden flags, 14 result rows, six historical rows, two zero rows, invalid CSV no partial identity lookup, cross-family cleanup, keyboard/reset/reload/no-JS; guide storage and exact known shell rAF separated. No browser run by reviewer."
+    },
+    "attributedValidation": {
+      "author": {
+        "modelTests": 25,
+        "architectureTests": 6,
+        "passedAt": "2026-10-04T06:24:34Z",
+        "typescriptDiagnostics": 0,
+        "attribution": "facts_policy message; final source/tests hashes independently checked"
+      },
+      "frontend": {
+        "astroFiles": 2,
+        "diagnostics": 0,
+        "attribution": "fixture_forms/root; no reviewer rerun"
+      },
+      "rootAuth": {
+        "tests": 8,
+        "attribution": "root confirmed at 06:20:46 UTC"
+      },
+      "rootGlobalLog": {
+        "path": "/tmp/ecom-company-quick-order-demo-release-check.log",
+        "files": 1016,
+        "diagnostics": 0,
+        "suites": 272,
+        "tests": 4159,
+        "buildCompletedAt": "2026-10-04T06:52:48Z",
+        "attribution": "Root confirmed EXIT0 of session97478; final asset no-root and equality probes independently rerun. Earlier unrecoverable process status remains provisional evidence only.",
+        "processExitStatus": 0
+      }
+    },
+    "externalValidation": {
+      "attribution": "Performed by root/review_segmentation/fixture_forms; independent reviewer read and checked the artifacts and hashes, but did not execute browser, accessibility, E2E or database operations.",
+      "static": {
+        "path": "/tmp/r68d-final-static-summary.json",
+        "sha256": "454ce45eaf5ed0de5eeb00033753149124e1f1eb8aa28f8ec3f5c89641a64ef2",
+        "buildCompletedAt": "2026-10-04T06:52:48Z",
+        "unchangedBusinessGraphs": 7,
+        "newClientFiles": 1,
+        "newClientBytes": 39594,
+        "newClientGzipBytes": 10636,
+        "publicJsFiles": 63,
+        "publicJsUnchanged": 61,
+        "guideOnlyChange": "|listas-sku",
+        "guideBytesDelta": 11,
+        "guideGzipDelta": 8,
+        "cssBytesDelta": 430,
+        "cssUnchangedFiles": 18,
+        "cssMeaning": "Only the eight added utility rules reported by the PostCSS comparison; this is structural evidence, not a claim that all CSS files are identical."
+      },
+      "browser": {
+        "path": "/workspace/logic2b-ecom/docs/audits/r6-8d/report.json",
+        "sha256": "686dbf79e0deb781b02dd66af4508fa6d04871c7f37997609097a0c787d396fb",
+        "checks": 1994,
+        "matrixVisits": 20,
+        "viewports": [
+          1440,
+          375
+        ],
+        "startedAt": "2026-10-04T06:53:34.776Z",
+        "completedAt": "2026-10-04T06:53:41.744Z",
+        "errors": 0,
+        "forbiddenRequests": 0,
+        "blockedRequests": 0,
+        "hitTestFailures": 0,
+        "moduleEffects": "Both viewports report zero module storage writes/events, interaction HTTP requests, timers, beacons and windows. Existing guide storage and verified WhatsApp rAF remain separately attributed."
+      },
+      "accessibility": {
+        "path": "/workspace/logic2b-ecom/docs/audits/r6-8d/a11y-report.json",
+        "sha256": "7c0544445f7511d921c8bca1f3fff2146f8f67ec56b3c74155e11bb785201de5",
+        "surfaces": 20,
+        "findings": 0
+      },
+      "visual": {
+        "screenshots": 8,
+        "reviewedByFrontend": 8,
+        "reviewedByRoot": 4,
+        "attribution": "Frontend and root messages; independent reviewer did not repeat visual inspection."
+      },
+      "e2e": {
+        "path": "/tmp/ecom-company-quick-order-demo-release-e2e.log",
+        "sha256": "2412c3ea2ac7e435dfa2aeaa712473f74369c8fda6c1f8ef0ada7d8d2322c013",
+        "checks": 204,
+        "exitCode": 0,
+        "session": 18666,
+        "attribution": "Root executed, confirmed EXIT0; reviewer counted 204 success lines in completed log."
+      },
+      "database": {
+        "before": {
+          "path": "/tmp/r68d-release-fixtures-before-summary.json",
+          "sha256": "044ac23011bf264b259472a63d701b5759b2c38ab781b05ee9267b2c5f8996fb"
+        },
+        "after": {
+          "path": "/tmp/r68d-release-fixtures-after-summary.json",
+          "sha256": "71222087f498f22684de8035aa24bd9e00fb318e5e7092a110f8c78cd83392c9"
+        },
+        "beforeCapturedAt": "2026-10-04T06:52:47.579870+00:00",
+        "afterCapturedAt": "2026-10-04T06:55:54.093703+00:00",
+        "tables": 143,
+        "rows": 353,
+        "sha256": "9cbfc811cfc4296515a403d395875a43bfa26aff0c9c9b08be0804b15bbf6eca",
+        "result": "unchanged",
+        "attribution": "Fresh hashes captured by root around final QA; reviewer compared summaries only."
+      },
+      "workerShutdown": {
+        "session": 72316,
+        "exitCode": 130,
+        "attribution": "Root confirmation of explicit local Worker termination after successful QA; not an E2E failure."
+      }
+    },
+    "pendingExternalValidation": [],
+    "limitations": [
+      "No-root import probes do not exercise DOM interaction, keyboard, rendering or guide storage behavior. Shared guide intentionally uses session storage when its root exists; browser QA reports it separately.",
+      "Diagnostic model and gate bundles are not served assets. Retained historical frozen tables have no getters/IO and are reported separately from source evaluators.",
+      "Synthetic fixture references remain in executable client source; safe DTO and DOM omit technical identities without claiming access control or secrecy.",
+      "Counts are kept separate: 18,665 model assertions, 97 delegation assertions, 3 gate smoke assertions; import probes have no invented assertion total."
+    ],
+    "acceptedObservations": [
+      {
+        "priority": "P3",
+        "scope": "375px native scenario selector",
+        "observation": "The native closed select truncates a long option label; the native option remains fully accessible, the selected case description is visible and the arrow hit-test passes.",
+        "disposition": "Accepted by root/frontend without changing source; nonblocking.",
+        "attribution": "Root/review_segmentation visual review, distinct from independent P1/P2 review."
+      }
+    ]
+  },
+  "staticComparison": {
+    "schemaVersion": 1,
+    "block": "R6.8d",
+    "baseline": "PR47 / build 2026-10-04T06:09:55Z",
+    "finalBuild": "2026-10-04T06:52:48Z",
+    "graphs": [
+      {
+        "component": "CompanyDocumentDemo",
+        "entry": "dist/_astro/CompanyDocumentDemo.astro_astro_type_script_index_0_lang.CmP8C63F.js",
+        "fileCount": 4,
+        "importEdges": 6,
+        "totalBytes": 60721,
+        "totalGzipBytes": 17405,
+        "identical": true,
+        "changes": {
+          "added": [],
+          "removed": [],
+          "changed": []
+        }
+      },
+      {
+        "component": "CompanyNegotiationDemo",
+        "entry": "dist/_astro/CompanyNegotiationDemo.astro_astro_type_script_index_0_lang.CSe7AvEl.js",
+        "fileCount": 5,
+        "importEdges": 7,
+        "totalBytes": 57696,
+        "totalGzipBytes": 18348,
+        "identical": true,
+        "changes": {
+          "added": [],
+          "removed": [],
+          "changed": []
+        }
+      },
+      {
+        "component": "CompanyCreditReviewDemo",
+        "entry": "dist/_astro/CompanyCreditReviewDemo.astro_astro_type_script_index_0_lang.DvnpgZPX.js",
+        "fileCount": 3,
+        "importEdges": 2,
+        "totalBytes": 46662,
+        "totalGzipBytes": 13177,
+        "identical": true,
+        "changes": {
+          "added": [],
+          "removed": [],
+          "changed": []
+        }
+      },
+      {
+        "component": "CompanyCollectionDemo",
+        "entry": "dist/_astro/CompanyCollectionDemo.astro_astro_type_script_index_0_lang.pOo5tZX2.js",
+        "fileCount": 3,
+        "importEdges": 2,
+        "totalBytes": 31812,
+        "totalGzipBytes": 9612,
+        "identical": true,
+        "changes": {
+          "added": [],
+          "removed": [],
+          "changed": []
+        }
+      },
+      {
+        "component": "VariantQuantityDemo",
+        "entry": "dist/_astro/VariantQuantityDemo.astro_astro_type_script_index_0_lang.B3LXKXAu.js",
+        "fileCount": 6,
+        "importEdges": 10,
+        "totalBytes": 53810,
+        "totalGzipBytes": 17921,
+        "identical": true,
+        "changes": {
+          "added": [],
+          "removed": [],
+          "changed": []
+        }
+      },
+      {
+        "component": "CompanyCatalogDemo",
+        "entry": "dist/_astro/CompanyCatalogDemo.astro_astro_type_script_index_0_lang.Dslk7L5G.js",
+        "fileCount": 8,
+        "importEdges": 12,
+        "totalBytes": 60650,
+        "totalGzipBytes": 20407,
+        "identical": true,
+        "changes": {
+          "added": [],
+          "removed": [],
+          "changed": []
+        }
+      },
+      {
+        "component": "CompanyDirectoryDemo",
+        "entry": "dist/_astro/CompanyDirectoryDemo.astro_astro_type_script_index_0_lang.tUOZl7at.js",
+        "fileCount": 3,
+        "importEdges": 2,
+        "totalBytes": 26856,
+        "totalGzipBytes": 8818,
+        "identical": true,
+        "changes": {
+          "added": [],
+          "removed": [],
+          "changed": []
+        }
+      },
+      {
+        "component": "DemoAssistant",
+        "entry": "dist/_astro/DemoAssistant.astro_astro_type_script_index_0_lang.CceuCGhN.js",
+        "fileCount": 3,
+        "importEdges": 2,
+        "totalBytes": 15230,
+        "totalGzipBytes": 6333,
+        "identical": false,
+        "changes": {
+          "added": [
+            "dist/_astro/DemoAssistant.astro_astro_type_script_index_0_lang.CceuCGhN.js"
+          ],
+          "removed": [
+            "dist/_astro/DemoAssistant.astro_astro_type_script_index_0_lang.Bs8r7UHw.js"
+          ],
+          "changed": []
+        }
+      }
+    ],
+    "addedGraphs": [
+      {
+        "component": "CompanyQuickOrderDemo",
+        "entry": "dist/_astro/CompanyQuickOrderDemo.astro_astro_type_script_index_0_lang.DC8RILTx.js",
+        "fileCount": 1,
+        "importEdges": 0,
+        "totalBytes": 39594,
+        "totalGzipBytes": 10636
+      }
+    ],
+    "publicJavaScript": {
+      "scope": "browser-or-public",
+      "beforeCount": 62,
+      "afterCount": 63,
+      "beforeBytes": 432002,
+      "afterBytes": 471607,
+      "beforeGzipBytes": 138864,
+      "afterGzipBytes": 149508,
+      "unchangedCount": 61,
+      "identical": false,
+      "unchanged": [
+        {
+          "path": "dist/_astro/CartPage.astro_astro_type_script_index_0_lang.BOd2iBIO.js",
+          "scope": "browser-or-public",
+          "bytes": 4397,
+          "gzipBytes": 1791,
+          "sha256": "ff8f8e6189c2e9c98f0b92fa5fb591c57ba5a56ac19c8ac4602e5049dc25d2e0"
+        },
+        {
+          "path": "dist/_astro/Catalog.astro_astro_type_script_index_0_lang.DZIyy-GW.js",
+          "scope": "browser-or-public",
+          "bytes": 1862,
+          "gzipBytes": 753,
+          "sha256": "d4c0a75109bb299ca12ea3f30535fbdff839ee0c41e658f83b3b58c75e389659"
+        },
+        {
+          "path": "dist/_astro/Catalog.astro_astro_type_script_index_0_lang.Dx_mdGGk.js",
+          "scope": "browser-or-public",
+          "bytes": 714,
+          "gzipBytes": 411,
+          "sha256": "059cfbcedb0f5c4b17051055ef2b3aace13883448440c3c3b9fedaf8c4f0bf4c"
+        },
+        {
+          "path": "dist/_astro/Catalog.astro_astro_type_script_index_1_lang.B4IDrWiN.js",
+          "scope": "browser-or-public",
+          "bytes": 239,
+          "gzipBytes": 199,
+          "sha256": "aa6f28529a9704754941e8cc7aef9d86af3c59a355a53ab59b9700f811f99498"
+        },
+        {
+          "path": "dist/_astro/CatalogPage.astro_astro_type_script_index_0_lang.S35RL2wh.js",
+          "scope": "browser-or-public",
+          "bytes": 252,
+          "gzipBytes": 220,
+          "sha256": "f47699558b0fa1c8957fa14f7d1096ae9585b1405191c871a4fabc5c9e3153b7"
+        },
+        {
+          "path": "dist/_astro/CheckoutPage.astro_astro_type_script_index_0_lang.TZlWy_fq.js",
+          "scope": "browser-or-public",
+          "bytes": 2442,
+          "gzipBytes": 1068,
+          "sha256": "f77a49f53fd7bdb161e9ef0bba6cbf289eade03cb758ee0d60d4accf318d7bd7"
+        },
+        {
+          "path": "dist/_astro/CompanyCatalogDemo.astro_astro_type_script_index_0_lang.Dslk7L5G.js",
+          "scope": "browser-or-public",
+          "bytes": 26932,
+          "gzipBytes": 8083,
+          "sha256": "96af2eaa3b581eced84823fc953ed030c4e735b784c2a8049c2f5f89aca7c550"
+        },
+        {
+          "path": "dist/_astro/CompanyCollectionDemo.astro_astro_type_script_index_0_lang.pOo5tZX2.js",
+          "scope": "browser-or-public",
+          "bytes": 25234,
+          "gzipBytes": 7159,
+          "sha256": "2b233eb74611532cc5e421d779ee8de61a2006820e3d6cb66558f7e2777ad5f4"
+        },
+        {
+          "path": "dist/_astro/CompanyCreditReviewDemo.astro_astro_type_script_index_0_lang.DvnpgZPX.js",
+          "scope": "browser-or-public",
+          "bytes": 40084,
+          "gzipBytes": 10724,
+          "sha256": "4ad808dc50ca1d279640bd3e7cb05f3bb0085e684f51ddce32dafe9ecd8bf1fd"
+        },
+        {
+          "path": "dist/_astro/CompanyDirectoryDemo.astro_astro_type_script_index_0_lang.tUOZl7at.js",
+          "scope": "browser-or-public",
+          "bytes": 14693,
+          "gzipBytes": 4463,
+          "sha256": "697b4f962e9c7f4673dd4c1818accad6117deadeb0e2d90f91d0ec89b5812dec"
+        },
+        {
+          "path": "dist/_astro/CompanyDocumentDemo.astro_astro_type_script_index_0_lang.CmP8C63F.js",
+          "scope": "browser-or-public",
+          "bytes": 36029,
+          "gzipBytes": 8813,
+          "sha256": "77ca8995b0fef6d1cf59b5a556fa790a4921f15c32bf1f4197d08fa6626dce86"
+        },
+        {
+          "path": "dist/_astro/CompanyNegotiationDemo.astro_astro_type_script_index_0_lang.CSe7AvEl.js",
+          "scope": "browser-or-public",
+          "bytes": 32840,
+          "gzipBytes": 9605,
+          "sha256": "b469c5b75f92c5a5217d8930689222b6d2d3bdb7524040c5c2b306dc631ce381"
+        },
+        {
+          "path": "dist/_astro/CurrencyMethodsDemo.astro_astro_type_script_index_0_lang.C1Zw0pwf.js",
+          "scope": "browser-or-public",
+          "bytes": 30287,
+          "gzipBytes": 8662,
+          "sha256": "3c8a99353a9d56f8a4c0db7d01acccf833ff8b3f93fed982262c9245fb24f3fc"
+        },
+        {
+          "path": "dist/_astro/CustomerSegmentsDemo.astro_astro_type_script_index_0_lang.yNGmrzVV.js",
+          "scope": "browser-or-public",
+          "bytes": 20495,
+          "gzipBytes": 6591,
+          "sha256": "49d6650611e04aafe54241d206d4e8a62a210774ad4f2a925de17dedaadbba88"
+        },
+        {
+          "path": "dist/_astro/InlogemCatalog.astro_astro_type_script_index_0_lang.DpkP0-Ul.js",
+          "scope": "browser-or-public",
+          "bytes": 406,
+          "gzipBytes": 286,
+          "sha256": "49340f7544f77a5389f3d68c96f75483a2fb07268a7d4e73d3c397bf194f9664"
+        },
+        {
+          "path": "dist/_astro/InlogemProductPresentation.astro_astro_type_script_index_0_lang.CaXS8ajW.js",
+          "scope": "browser-or-public",
+          "bytes": 510,
+          "gzipBytes": 344,
+          "sha256": "cf5ce3478494fca5d8066a45db2cd15f23eb5ec9c5156ec6ed1c2613f676a8ef"
+        },
+        {
+          "path": "dist/_astro/MarketContentDemo.astro_astro_type_script_index_0_lang.ycRBGi5T.js",
+          "scope": "browser-or-public",
+          "bytes": 37617,
+          "gzipBytes": 12287,
+          "sha256": "62044905e7288a9c420345bf69160f1482dc3e8641455132f3ba772f3d2a8677"
+        },
+        {
+          "path": "dist/_astro/MarketPublicationDemo.astro_astro_type_script_index_0_lang.BgAgnxke.js",
+          "scope": "browser-or-public",
+          "bytes": 19704,
+          "gzipBytes": 5998,
+          "sha256": "5ed933e505ed4c1eb74742328b0def182327183479a88a284a99ea8b6258f756"
+        },
+        {
+          "path": "dist/_astro/ProductGrid.astro_astro_type_script_index_0_lang.9kqbsBHP.js",
+          "scope": "browser-or-public",
+          "bytes": 242,
+          "gzipBytes": 211,
+          "sha256": "adcfa6be353fa3b31f7dd19e9cfa4537389a449689992eea6f939b7dc49170c8"
+        },
+        {
+          "path": "dist/_astro/ProductGrid.astro_astro_type_script_index_0_lang.BJM_dL_C.js",
+          "scope": "browser-or-public",
+          "bytes": 249,
+          "gzipBytes": 222,
+          "sha256": "f34d5ab78893f8f3fd13f0fc20392c0ec209d1726fe8dd125e79c053f820b0ff"
+        },
+        {
+          "path": "dist/_astro/ProductGrid.astro_astro_type_script_index_0_lang.Bbt17eee.js",
+          "scope": "browser-or-public",
+          "bytes": 262,
+          "gzipBytes": 225,
+          "sha256": "d39168249dcc4bdc253986649c4fa0bb3e25a7e7c12a144ee7dd5778d928baae"
+        },
+        {
+          "path": "dist/_astro/ProductGrid.astro_astro_type_script_index_0_lang.BnSGq6bE.js",
+          "scope": "browser-or-public",
+          "bytes": 244,
+          "gzipBytes": 213,
+          "sha256": "285ff346b63f6df2bd06bf2c9ce0c7ed90adc078c9a2b23084396ce5a6f2360b"
+        },
+        {
+          "path": "dist/_astro/ProductGrid.astro_astro_type_script_index_0_lang.CAGovOqp.js",
+          "scope": "browser-or-public",
+          "bytes": 262,
+          "gzipBytes": 225,
+          "sha256": "950bc90712d7520d6c5535ad266561eeef95cc2cb8ccc9c94fd38ab7acf5ee02"
+        },
+        {
+          "path": "dist/_astro/ProductGrid.astro_astro_type_script_index_0_lang.CNRqkwYX.js",
+          "scope": "browser-or-public",
+          "bytes": 272,
+          "gzipBytes": 228,
+          "sha256": "64563a4fe20c905bb479acdccf3ae59ea5d687e5c98636142c26be3c55cc2765"
+        },
+        {
+          "path": "dist/_astro/ProductGrid.astro_astro_type_script_index_0_lang.COa9tMv1.js",
+          "scope": "browser-or-public",
+          "bytes": 240,
+          "gzipBytes": 211,
+          "sha256": "f31346f7c039d9aae59d12d65804b07a350ecff1833e0844672ce77a0b19fb94"
+        },
+        {
+          "path": "dist/_astro/ProductGrid.astro_astro_type_script_index_0_lang.CVG_ngon.js",
+          "scope": "browser-or-public",
+          "bytes": 236,
+          "gzipBytes": 207,
+          "sha256": "f59a72f37647f1b0d91a8d11319c6c6f08802e39afaba42d12d1f364ebb2960d"
+        },
+        {
+          "path": "dist/_astro/ProductGrid.astro_astro_type_script_index_0_lang.CaESwask.js",
+          "scope": "browser-or-public",
+          "bytes": 251,
+          "gzipBytes": 222,
+          "sha256": "12e3778587dd3054dae09c55160ef2a89d2c5e10289fccfb02e930ab2665e2c5"
+        },
+        {
+          "path": "dist/_astro/ProductGrid.astro_astro_type_script_index_0_lang.CcEIjbvD.js",
+          "scope": "browser-or-public",
+          "bytes": 249,
+          "gzipBytes": 221,
+          "sha256": "fe52aaa547ea5becbfd097a64d965cdd13310732b6a90a7d5367bfd6339bccb3"
+        },
+        {
+          "path": "dist/_astro/ProductGrid.astro_astro_type_script_index_0_lang.CcWu9np2.js",
+          "scope": "browser-or-public",
+          "bytes": 238,
+          "gzipBytes": 210,
+          "sha256": "64a933a1b0a3e0529aa278d038bff660cebe438014d8bd9f64135343a99a350b"
+        },
+        {
+          "path": "dist/_astro/ProductGrid.astro_astro_type_script_index_0_lang.CpakNyN2.js",
+          "scope": "browser-or-public",
+          "bytes": 241,
+          "gzipBytes": 211,
+          "sha256": "dee76121184a9e679eab99d5ea01ef39e97a5ead38a52523d28986e3679010b2"
+        },
+        {
+          "path": "dist/_astro/ProductGrid.astro_astro_type_script_index_0_lang.D0DncPk_.js",
+          "scope": "browser-or-public",
+          "bytes": 248,
+          "gzipBytes": 214,
+          "sha256": "c2ca1798687504811eb400c82138ad9cd7f79b12b5a573bc347f3e6529173463"
+        },
+        {
+          "path": "dist/_astro/ProductGrid.astro_astro_type_script_index_0_lang.D4XVQSg1.js",
+          "scope": "browser-or-public",
+          "bytes": 264,
+          "gzipBytes": 225,
+          "sha256": "c0213a96a0ae8d02ae38d7d66bac6ba7ee387ba4fd3650b3f0a3198f1b0fc022"
+        },
+        {
+          "path": "dist/_astro/ProductGrid.astro_astro_type_script_index_0_lang.D84g4dbZ.js",
+          "scope": "browser-or-public",
+          "bytes": 256,
+          "gzipBytes": 223,
+          "sha256": "698e22a273d452af850cd044ecd4062ebceb1d7e836c47ae6158f5a6cb476fa1"
+        },
+        {
+          "path": "dist/_astro/ProductGrid.astro_astro_type_script_index_0_lang.D9fSTJL_.js",
+          "scope": "browser-or-public",
+          "bytes": 261,
+          "gzipBytes": 223,
+          "sha256": "0cae7565c7fcc71ce3703ca4b2ef308c096df34e8e358d7e80d0a0209dfb25bb"
+        },
+        {
+          "path": "dist/_astro/ProductGrid.astro_astro_type_script_index_0_lang.D_EF-Nuj.js",
+          "scope": "browser-or-public",
+          "bytes": 249,
+          "gzipBytes": 220,
+          "sha256": "c313af4af5127fd1a8b536b0d55d7c728dffca1a22584c3d6d592730752ef036"
+        },
+        {
+          "path": "dist/_astro/ProductGrid.astro_astro_type_script_index_0_lang.DdXdJ685.js",
+          "scope": "browser-or-public",
+          "bytes": 242,
+          "gzipBytes": 211,
+          "sha256": "10bd92f71675ae8dbddccb91538cc2d810d41d76e17408c1f76d8a94d75097c1"
+        },
+        {
+          "path": "dist/_astro/ProductGrid.astro_astro_type_script_index_0_lang.DeGa46l-.js",
+          "scope": "browser-or-public",
+          "bytes": 242,
+          "gzipBytes": 212,
+          "sha256": "2185b466510b1f1beccccc994c8addcfd9c744c22a008cb9fe7a38facfebef27"
+        },
+        {
+          "path": "dist/_astro/ProductGrid.astro_astro_type_script_index_0_lang.Do7mniv_.js",
+          "scope": "browser-or-public",
+          "bytes": 238,
+          "gzipBytes": 209,
+          "sha256": "548b36ad5b9c5b6a8ae73cfcf6ca505504131247c2421a7e01d1b2d686f57302"
+        },
+        {
+          "path": "dist/_astro/ProductGrid.astro_astro_type_script_index_0_lang.RKBO5Z2z.js",
+          "scope": "browser-or-public",
+          "bytes": 255,
+          "gzipBytes": 216,
+          "sha256": "7559dd6f1a25d7b302d4abd97743efeed0150a80f79d49fbca7afa4d8dc7007d"
+        },
+        {
+          "path": "dist/_astro/ProductGrid.astro_astro_type_script_index_0_lang.u1lcK-k1.js",
+          "scope": "browser-or-public",
+          "bytes": 248,
+          "gzipBytes": 214,
+          "sha256": "6db26dc2f0592cf4ffaeb12f21517b823530088e26dd1f2e01e6f8979d4774d8"
+        },
+        {
+          "path": "dist/_astro/ProductPage.astro_astro_type_script_index_0_lang.DjlwRjCh.js",
+          "scope": "browser-or-public",
+          "bytes": 511,
+          "gzipBytes": 344,
+          "sha256": "50d701571d39da28e568052e84ca03e2a96a9f3e4430ef7ebf0b3ae7edaeab5a"
+        },
+        {
+          "path": "dist/_astro/ProposalLanding.astro_astro_type_script_index_0_lang.DpxMcclF.js",
+          "scope": "browser-or-public",
+          "bytes": 456,
+          "gzipBytes": 299,
+          "sha256": "56e5e3fba7453b22536cc5ffc8299473498d3515d5a33b090829d267b65c8c6c"
+        },
+        {
+          "path": "dist/_astro/Shop.astro_astro_type_script_index_0_lang.DKU1g-Uh.js",
+          "scope": "browser-or-public",
+          "bytes": 304,
+          "gzipBytes": 232,
+          "sha256": "d1d69f93332a373be951b79d47b99c4061d880b4a5cd742e6375fb4cacfb936f"
+        },
+        {
+          "path": "dist/_astro/TaxDemo.astro_astro_type_script_index_0_lang.CkxrQSMy.js",
+          "scope": "browser-or-public",
+          "bytes": 17511,
+          "gzipBytes": 5763,
+          "sha256": "ec62ff2263f25e55816d53c584b940c345d603fcad258f36ccccc230600a0281"
+        },
+        {
+          "path": "dist/_astro/ThanksPage.astro_astro_type_script_index_0_lang.DKuzUGVe.js",
+          "scope": "browser-or-public",
+          "bytes": 898,
+          "gzipBytes": 413,
+          "sha256": "2ae3bee89f5a669003c23b518511e12a0587a31228539ce02d40768d4d8c081f"
+        },
+        {
+          "path": "dist/_astro/Theme.astro_astro_type_script_index_0_lang.CB76BU7E.js",
+          "scope": "browser-or-public",
+          "bytes": 4845,
+          "gzipBytes": 1902,
+          "sha256": "f0b8e0517920cf542d8b4438e64a502522a0be32aab5102119ee0693bb11904a"
+        },
+        {
+          "path": "dist/_astro/VariantQuantityDemo.astro_astro_type_script_index_0_lang.B3LXKXAu.js",
+          "scope": "browser-or-public",
+          "bytes": 23019,
+          "gzipBytes": 6771,
+          "sha256": "b6b226cf12c085200c9e1583dd9ef0d9073266313dd49701b7d57f1359e5f011"
+        },
+        {
+          "path": "dist/_astro/_id_.astro_astro_type_script_index_0_lang.CH5pgKlt.js",
+          "scope": "browser-or-public",
+          "bytes": 9643,
+          "gzipBytes": 2797,
+          "sha256": "fde1d76b8983e39840ba57dac360bb47e1914a89fe2909d78b94b953549c7d4b"
+        },
+        {
+          "path": "dist/_astro/cart-client.ItD9TTkL.js",
+          "scope": "browser-or-public",
+          "bytes": 1059,
+          "gzipBytes": 590,
+          "sha256": "34a807152cbfd940499a32c312851384b3cbaaaddc743e8b7aa9630558d52915"
+        },
+        {
+          "path": "dist/_astro/company-catalog-context.B75Z6fk7.js",
+          "scope": "browser-or-public",
+          "bytes": 3027,
+          "gzipBytes": 1213,
+          "sha256": "3b341e2685b9bd780c62db22d633e7e47b57ab71c5c49f7e0cc95b7c5b9ebdf2"
+        },
+        {
+          "path": "dist/_astro/company-catalog.CVT0p2VD.js",
+          "scope": "browser-or-public",
+          "bytes": 7824,
+          "gzipBytes": 2737,
+          "sha256": "1ccf723de702c23528c83ca56154df999aa3a64be7d7f56db6406521526403dd"
+        },
+        {
+          "path": "dist/_astro/company-directory.mOflI4d5.js",
+          "scope": "browser-or-public",
+          "bytes": 6414,
+          "gzipBytes": 2302,
+          "sha256": "6c076800192741992b5cbfba6ce07a999d13e3499cd256b306e82dbfc49fc9bd"
+        },
+        {
+          "path": "dist/_astro/company-negotiation.5YCpHIJV.js",
+          "scope": "browser-or-public",
+          "bytes": 10454,
+          "gzipBytes": 3553,
+          "sha256": "24797115827a0c4aca8949717a4525dfc070e5936b26eae501069f0758bd3f0f"
+        },
+        {
+          "path": "dist/_astro/confirmar.astro_astro_type_script_index_0_lang.Km5M3cC0.js",
+          "scope": "browser-or-public",
+          "bytes": 2651,
+          "gzipBytes": 1266,
+          "sha256": "b8878648e44d797111761ef294a168851cca3125016e31f1504726c0a3d13fb3"
+        },
+        {
+          "path": "dist/_astro/demo-commerce.Dnz6Qizq.js",
+          "scope": "browser-or-public",
+          "bytes": 1048,
+          "gzipBytes": 584,
+          "sha256": "9a4b4e081ba480085aabae88a68b88996dff6a85e06ecd14d32715f8754c487b"
+        },
+        {
+          "path": "dist/_astro/fixture-vat-id-adapter.Ow_zwmVh.js",
+          "scope": "browser-or-public",
+          "bytes": 5749,
+          "gzipBytes": 2053,
+          "sha256": "d50f2b3b0d0dc87d3823c767a4bbfe5f40697e7aa86111a570a2d462f181a60c"
+        },
+        {
+          "path": "dist/_astro/format.D6ggcjlO.js",
+          "scope": "browser-or-public",
+          "bytes": 164,
+          "gzipBytes": 151,
+          "sha256": "7c7167f2030d738e58323bccda5878464f25a2138c4b1ddade0b4774694ba021"
+        },
+        {
+          "path": "dist/_astro/index.astro_astro_type_script_index_0_lang.B83WK6_A.js",
+          "scope": "browser-or-public",
+          "bytes": 6798,
+          "gzipBytes": 2592,
+          "sha256": "5166e73cb897e609e510e0ea3223e9b7d0403803271dfb79046327dfdf69ebb0"
+        },
+        {
+          "path": "dist/_astro/market-context.BB9rBc3-.js",
+          "scope": "browser-or-public",
+          "bytes": 6195,
+          "gzipBytes": 2224,
+          "sha256": "e9f6978ce356057950570598212faa771894f245a5fe4c5e15ca30f688c6b823"
+        },
+        {
+          "path": "dist/_astro/market-publication.DO6MUQIN.js",
+          "scope": "browser-or-public",
+          "bytes": 7331,
+          "gzipBytes": 2674,
+          "sha256": "0cec8e90df5877b043a46b8b2c3fd270758fe16b93d6b444fe18876e54ff0187"
+        },
+        {
+          "path": "dist/_astro/product.BVACAMDj.js",
+          "scope": "browser-or-public",
+          "bytes": 2763,
+          "gzipBytes": 1023,
+          "sha256": "14dd4c6dae0a8717f6c44f73f293ed7cea42d1b05ab15ce3e9e996918dcac7dc"
+        }
+      ],
+      "changed": [],
+      "removed": [
+        {
+          "path": "dist/_astro/DemoAssistant.astro_astro_type_script_index_0_lang.Bs8r7UHw.js",
+          "scope": "browser-or-public",
+          "bytes": 13112,
+          "gzipBytes": 5151,
+          "sha256": "173caca33d60bad9d9e3a31bac383e6fd7e221bf11c838dc018cdab509f834c3"
+        }
+      ],
+      "added": [
+        {
+          "path": "dist/_astro/CompanyQuickOrderDemo.astro_astro_type_script_index_0_lang.DC8RILTx.js",
+          "scope": "browser-or-public",
+          "bytes": 39594,
+          "gzipBytes": 10636,
+          "sha256": "e939984d6fe73e7fddf49f5c51eb9674ce30895cf832d8c405a458a9f7d30b89"
+        },
+        {
+          "path": "dist/_astro/DemoAssistant.astro_astro_type_script_index_0_lang.CceuCGhN.js",
+          "scope": "browser-or-public",
+          "bytes": 13123,
+          "gzipBytes": 5159,
+          "sha256": "f0e257ff0d4e8153ae01f4e4abdaa1920b8d23d3a4ddf147e841b2b4afaf8994"
+        }
+      ]
+    },
+    "guide": {
+      "before": "dist/_astro/DemoAssistant.astro_astro_type_script_index_0_lang.Bs8r7UHw.js",
+      "after": "dist/_astro/DemoAssistant.astro_astro_type_script_index_0_lang.CceuCGhN.js",
+      "beforeSha256": "173caca33d60bad9d9e3a31bac383e6fd7e221bf11c838dc018cdab509f834c3",
+      "afterSha256": "f0e257ff0d4e8153ae01f4e4abdaa1920b8d23d3a4ddf147e841b2b4afaf8994",
+      "deltaBytes": 11,
+      "deltaGzipBytes": 8,
+      "onlyChange": "|listas-sku",
+      "inverseRecoversExactBaseline": true
+    },
+    "sources": {
+      "baseline": 361,
+      "final": 364,
+      "added": [
+        "src/components/admin/CompanyQuickOrderDemo.astro",
+        "src/composition/company-quick-order-demo.ts",
+        "src/pages/demo/admin/listas-sku.astro"
+      ],
+      "removed": [],
+      "changed": [
+        "src/layouts/Admin.astro",
+        "src/shared-kernel/demo-guide-routes.ts"
+      ]
+    },
+    "contracts": {
+      "files": 6,
+      "identical": true
+    },
+    "css": {
+      "before": "dist/_astro/asignacion.DErwDQEs.css",
+      "after": "dist/_astro/asignacion.CUFjdLcn.css",
+      "beforeBytes": 97200,
+      "afterBytes": 97630,
+      "deltaBytes": 430,
+      "unchangedFiles": 18,
+      "addedRules": [
+        {
+          "context": "@layer utilities",
+          "selector": ".container",
+          "declarations": "width:100%"
+        },
+        {
+          "context": "@layer utilities > @media (min-width:40rem)",
+          "selector": ".container",
+          "declarations": "max-width:40rem"
+        },
+        {
+          "context": "@layer utilities > @media (min-width:48rem)",
+          "selector": ".container",
+          "declarations": "max-width:48rem"
+        },
+        {
+          "context": "@layer utilities > @media (min-width:64rem)",
+          "selector": ".container",
+          "declarations": "max-width:64rem"
+        },
+        {
+          "context": "@layer utilities > @media (min-width:80rem)",
+          "selector": ".container",
+          "declarations": "max-width:80rem"
+        },
+        {
+          "context": "@layer utilities > @media (min-width:96rem)",
+          "selector": ".container",
+          "declarations": "max-width:96rem"
+        },
+        {
+          "context": "@layer utilities",
+          "selector": ".hidden\\!",
+          "declarations": "display:none!important"
+        },
+        {
+          "context": "@layer utilities > @media (min-width:80rem)",
+          "selector": ".xl\\:grid-cols-\\[minmax\\(0\\,\\.85fr\\)_minmax\\(0\\,1\\.15fr\\)\\]",
+          "declarations": "grid-template-columns:minmax(0,.85fr) minmax(0,1.15fr)"
+        }
+      ],
+      "removedRules": [],
+      "scope": "PostCSS selector/context/declaration comparison. Existing rules retained; no complete cross-page style execution claim."
+    },
+    "worker": {
+      "baseline": 282,
+      "final": 283,
+      "beforeBytes": 4545401,
+      "afterBytes": 4612967,
+      "deltaBytes": 67566,
+      "beforeGzipBytes": 1018306,
+      "afterGzipBytes": 1030853,
+      "deltaGzipBytes": 12547,
+      "rawIdenticalFiles": 208,
+      "generatedFilenameChanges": 14,
+      "identicalAfterKnownFilenameReplacement": 274,
+      "newFiles": [
+        {
+          "path": "dist/_worker.js/pages/demo/admin/listas-sku.astro.mjs",
+          "scope": "server-worker",
+          "bytes": 10428,
+          "gzipBytes": 3005,
+          "sha256": "7a7b255b0926159503dc0a51f7abb186495c9adaf6e87a3d1823673514d8f7b5"
+        }
+      ],
+      "changes": [
+        {
+          "before": "dist/_worker.js/chunks/Admin_CgERhxan.mjs",
+          "after": "dist/_worker.js/chunks/Admin_CY7aObwO.mjs",
+          "deltaBytes": 52698
+        },
+        {
+          "before": "dist/_worker.js/chunks/nav_g3UyrWVl.mjs",
+          "after": "dist/_worker.js/chunks/nav_BVGQof2D.mjs",
+          "deltaBytes": 11
+        },
+        {
+          "before": "dist/_worker.js/index.js",
+          "after": "dist/_worker.js/index.js",
+          "deltaBytes": 131
+        },
+        {
+          "before": "dist/_worker.js/manifest_DQ_cwnb-.mjs",
+          "after": "dist/_worker.js/manifest_Cgy2SGaN.mjs",
+          "deltaBytes": 4298
+        },
+        {
+          "before": "dist/_worker.js/pages/demo/admin/mercados.astro.mjs",
+          "after": "dist/_worker.js/pages/demo/admin/mercados.astro.mjs",
+          "deltaBytes": 0
+        },
+        {
+          "before": "dist/_worker.js/pages/demo/admin/presupuestos-empresa.astro.mjs",
+          "after": "dist/_worker.js/pages/demo/admin/presupuestos-empresa.astro.mjs",
+          "deltaBytes": 0
+        },
+        {
+          "before": "dist/_worker.js/pages/demo/admin/publicacion.astro.mjs",
+          "after": "dist/_worker.js/pages/demo/admin/publicacion.astro.mjs",
+          "deltaBytes": 0
+        },
+        {
+          "before": "dist/_worker.js/pages/demo/admin/segmentos.astro.mjs",
+          "after": "dist/_worker.js/pages/demo/admin/segmentos.astro.mjs",
+          "deltaBytes": 0
+        }
+      ],
+      "importAliasChanges": [
+        {
+          "path": "dist/_worker.js/pages/demo/admin/mercados.astro.mjs",
+          "onlyImportedExportAliasesChanged": true
+        },
+        {
+          "path": "dist/_worker.js/pages/demo/admin/presupuestos-empresa.astro.mjs",
+          "onlyImportedExportAliasesChanged": true
+        },
+        {
+          "path": "dist/_worker.js/pages/demo/admin/publicacion.astro.mjs",
+          "onlyImportedExportAliasesChanged": true
+        },
+        {
+          "path": "dist/_worker.js/pages/demo/admin/segmentos.astro.mjs",
+          "onlyImportedExportAliasesChanged": true
+        }
+      ],
+      "explanation": "New server-rendered demo/model and Admin navigation; guided route allowlist; page loader and generated route manifest. Four existing page imports only rename generated Admin exports. Registry metadata and a/b/c source contracts unchanged. No claim of full SSR equivalence."
+    },
+    "completeCopiesVerified": {
+      "sources": "/tmp/r68d-sources-final",
+      "css": "/tmp/r68d-css-final",
+      "js": "/tmp/r68d-js-final",
+      "contracts": "/tmp/r68d-contracts-final"
+    },
+    "staticComparisonExecutedRuntime": false,
+    "baselineInteractionEvidence": {
+      "block": "R6.7c",
+      "pullRequest": 44,
+      "browserChecks": 5076,
+      "staticStateVisits": 108,
+      "accessibilitySurfaces": 8,
+      "screenshots": 8,
+      "e2eChecks": 200,
+      "databaseTables": 143,
+      "databaseRows": 353,
+      "databaseSha256": "9cbfc811cfc4296515a403d395875a43bfa26aff0c9c9b08be0804b15bbf6eca"
+    },
+    "freshRuntimeEvidence": "docs/audits/r6-8d/report.json and a11y-report.json (separate executions, not this static comparison)",
+    "limitations": [
+      "These are complete emitted client graphs and selected source boundaries, not the entire transitive SSR graph.",
+      "CSS adds utilities; CSS binary equality is not claimed. No complete cross-page style equivalence is inferred.",
+      "Generated Worker filenames and manifest metadata are not semantic equality proofs.",
+      "Per-file gzip sums are descriptive, not measured aggregate HTTP payloads."
+    ],
+    "evidenceFiles": [
+      "/tmp/r68d-inherited-baseline.json",
+      "/tmp/r68d-inherited-final.json",
+      "/tmp/r68d-surfaces-baseline.json",
+      "/tmp/r68d-surfaces-final.json",
+      "/tmp/r68d-inherited-comparison.json",
+      "/tmp/r68d-full-js-baseline.json",
+      "/tmp/r68d-full-js-final.json",
+      "/tmp/r68d-full-js-comparison.json",
+      "/tmp/r68d-worker-static-comparison.json",
+      "/tmp/r68d-contracts-baseline.json",
+      "/tmp/r68d-contracts-final.json",
+      "/tmp/r68d-css-comparison.json"
+    ],
+    "evidenceSha256": {
+      "/tmp/r68d-inherited-baseline.json": "3d49b2dc3abbbd77b017d1a93a8c4f7027ebd9cb685c538d9bf3f107999981c4",
+      "/tmp/r68d-inherited-final.json": "2f6f9a0477fb09a4bf62d6dfbc906b4f86d4fbd6b1423fc28b2200d59b01af44",
+      "/tmp/r68d-surfaces-baseline.json": "73bb37db38aca3028bd805a3e5c40e6f9a3fb0e0bc7f4f80cdf7dbb0a4a93140",
+      "/tmp/r68d-surfaces-final.json": "36db33c35e554f9953cd35ea72dcb9341f9672a4daa8c7c293dc2b1bc4401f41",
+      "/tmp/r68d-inherited-comparison.json": "335010949e6f80691f1ec6b97b7e2eab6dff4c08d507b5ef08ed64c3fbc0fcdf",
+      "/tmp/r68d-full-js-baseline.json": "917dd9a3c8deb9e5e1c2cddd339ddad539da1963d31b8a52ffecf6b9d2843ea2",
+      "/tmp/r68d-full-js-final.json": "e6c8ff02a768bc6b001cddc07cbb3040c5454ed7789e681c2c56b1ead290f51c",
+      "/tmp/r68d-full-js-comparison.json": "d6bbe3121841010e9d369130e69812dcb928b2042d82d40792761c883a9da305",
+      "/tmp/r68d-worker-static-comparison.json": "21f1b71c7ee59dbfa4d0f8aeb86861493a04b86df2fc4553b4e0d1b688aba4e4",
+      "/tmp/r68d-contracts-baseline.json": "de2b30a29a9336e765e16ce4c8986d1c41e9d2362c487236a92e4f8fbc2453d5",
+      "/tmp/r68d-contracts-final.json": "20c6ca2a1488422914b2cc2dd741fe1a8774c424c884854abe08548f2ce5f2fe",
+      "/tmp/r68d-css-comparison.json": "a628d68d971e01a37f4beec4112a3344cb38fa76eafec16e2bd129e38759322b"
+    }
+  },
+  "database": {
+    "before": {
+      "mode": "before",
+      "hash": "9cbfc811cfc4296515a403d395875a43bfa26aff0c9c9b08be0804b15bbf6eca",
+      "tables": 143,
+      "rows": 353,
+      "result": "captured",
+      "capturedAt": "2026-10-04T06:52:47.579870+00:00"
+    },
+    "after": {
+      "mode": "after",
+      "hash": "9cbfc811cfc4296515a403d395875a43bfa26aff0c9c9b08be0804b15bbf6eca",
+      "tables": 143,
+      "rows": 353,
+      "result": "unchanged",
+      "capturedAt": "2026-10-04T06:55:54.093703+00:00"
+    },
+    "readOnlyHashCapture": true,
+    "newCapture": true,
+    "workerStoppedBeforeAfterCapture": true,
+    "workerExitCode": 130
+  },
+  "runtime": {
+    "newExecution": true,
+    "scope": "R6.8d browser interactions and accessibility; global E2E regression against existing isolated synthetic fixtures",
+    "moduleEffects": {
+      "http": 0,
+      "storage": 0,
+      "timers": 0,
+      "beacons": 0,
+      "windows": 0,
+      "consoleErrors": 0
+    },
+    "sharedShell": "Guide session storage and verified shared requestAnimationFrame measured separately in report.json",
+    "otherDemoInteractionEvidence": "Inherited from PR44; static graph comparison does not rerun all prior interaction matrices"
+  },
+  "reportHashes": [
+    {
+      "path": "/tmp/r68d-independent-review.json",
+      "sha256": "b2c88ec95c5b6c30e5e3765ae4b3bf455c9e097e3bf563e38915f0e632b62a41"
+    },
+    {
+      "path": "/tmp/r68d-final-static-summary.json",
+      "sha256": "454ce45eaf5ed0de5eeb00033753149124e1f1eb8aa28f8ec3f5c89641a64ef2"
+    },
+    {
+      "path": "/tmp/r68d-built-client-report.json",
+      "sha256": "37ece4e07d149cd2b96cfc00fd20714c3ba9a58e002e6d8a500e9ebd1a8dc309"
+    },
+    {
+      "path": "/tmp/r68d-built-guide-report.json",
+      "sha256": "2570307ecd853e60a5f9b245c8d62d49512e33b94017947560a6c58ab342ec61"
+    },
+    {
+      "path": "/tmp/r68d-deployment-readonly-review.json",
+      "sha256": "3ec3ef273422afcc9acc01a97027751ae898d7418387c285c7b3908d1c2ba8b4"
+    },
+    {
+      "path": "docs/audits/r6-8d/report.json",
+      "sha256": "686dbf79e0deb781b02dd66af4508fa6d04871c7f37997609097a0c787d396fb"
+    },
+    {
+      "path": "docs/audits/r6-8d/a11y-report.json",
+      "sha256": "7c0544445f7511d921c8bca1f3fff2146f8f67ec56b3c74155e11bb785201de5"
+    },
+    {
+      "path": "docs/audits/r6-8d/report.md",
+      "sha256": "d4c927bf81edf27b59fc352ca5b6acdfaf3b3961e8290c15ef7b0219d1a79e8a"
+    }
+  ],
+  "signOff": {
+    "architecture": "passed",
+    "backend": "passed",
+    "fullstack": "passed",
+    "frontend": "passed",
+    "uxUi": "passed; accepted P3 native selector label clipping, full option and description retained",
+    "product": "passed; descriptive fixtures only",
+    "seo": "passed; private noindex demo, no public page introduced"
+  }
+}

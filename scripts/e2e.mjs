@@ -302,6 +302,16 @@ check('documentos de empresa conserva privacidad de caché e indexación',
   companyDocumentResponse.headers.get('cache-control')?.includes('no-store') && companyDocumentHtml.includes('noindex'));
 check('documentos de empresa no añade formularios ni envíos', !/<form\b/i.test(companyDocumentHtml)
   && !/<button\b(?![^>]*\btype=["']button["'])/i.test(companyDocumentHtml));
+const companyQuickOrderResponse = await fetch(`${BASE}/demo/admin/listas-sku`, { headers: { cookie } });
+const companyQuickOrderHtml = await companyQuickOrderResponse.text();
+check('panel enlaza la demostración de listas y repetición', adminHtml.includes('href="/demo/admin/listas-sku"'));
+check('listas y repetición muestra entrada y resultado locales', companyQuickOrderResponse.ok
+  && companyQuickOrderHtml.includes('data-company-quick-order-demo') && companyQuickOrderHtml.includes('data-quick-order-input')
+  && companyQuickOrderHtml.includes('data-quick-order-result'));
+check('listas y repetición conserva privacidad de caché e indexación',
+  companyQuickOrderResponse.headers.get('cache-control')?.includes('no-store') && companyQuickOrderHtml.includes('noindex'));
+check('listas y repetición no añade formularios ni envíos', !/<form\b/i.test(companyQuickOrderHtml)
+  && !/<button\b(?![^>]*\btype=["']button["'])/i.test(companyQuickOrderHtml));
 const marketDemoResponse = await fetch(`${BASE}/demo/admin/mercados`, { headers: { cookie } });
 const marketDemoHtml = await marketDemoResponse.text();
 check('panel enlaza la demostración de mercados e idiomas', adminHtml.includes('href="/demo/admin/mercados"'));

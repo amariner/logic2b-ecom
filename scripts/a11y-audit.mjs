@@ -839,6 +839,393 @@ for (const vp of [DESKTOP, MOBILE]) {
   }
 }
 
+const COMPANY_QUICK_ORDER_EXPECTED = [
+  {
+    "id": "sku-identified",
+    "csv": "",
+    "parser": null,
+    "header": null,
+    "decoded": [],
+    "diagnostics": [],
+    "rows": [
+      {
+        "kind": "resolution",
+        "sku": "KIT-A",
+        "quantity": 2,
+        "outcome": "resolved",
+        "reason": null,
+        "matches": 1,
+        "names": [
+          "Kit de muestra",
+          "Esencial"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "sku-not-found",
+    "csv": "",
+    "parser": null,
+    "header": null,
+    "decoded": [],
+    "diagnostics": [],
+    "rows": [
+      {
+        "kind": "resolution",
+        "sku": " KIT-A ",
+        "quantity": 2,
+        "outcome": "unresolved",
+        "reason": "sku_not_found",
+        "matches": 0,
+        "names": null
+      }
+    ]
+  },
+  {
+    "id": "sku-ambiguous",
+    "csv": "",
+    "parser": null,
+    "header": null,
+    "decoded": [],
+    "diagnostics": [],
+    "rows": [
+      {
+        "kind": "resolution",
+        "sku": "SHARED",
+        "quantity": 2,
+        "outcome": "unresolved",
+        "reason": "sku_ambiguous",
+        "matches": 2,
+        "names": null
+      }
+    ]
+  },
+  {
+    "id": "list-repeated",
+    "csv": "",
+    "parser": null,
+    "header": null,
+    "decoded": [],
+    "diagnostics": [],
+    "rows": [
+      {
+        "kind": "resolution",
+        "sku": "KIT-A",
+        "quantity": 2,
+        "outcome": "resolved",
+        "reason": null,
+        "matches": 1,
+        "names": [
+          "Kit de muestra",
+          "Esencial"
+        ]
+      },
+      {
+        "kind": "resolution",
+        "sku": "KIT-A",
+        "quantity": 3,
+        "outcome": "resolved",
+        "reason": null,
+        "matches": 1,
+        "names": [
+          "Kit de muestra",
+          "Esencial"
+        ]
+      },
+      {
+        "kind": "resolution",
+        "sku": "KIT-B-NEW",
+        "quantity": 0,
+        "outcome": "resolved",
+        "reason": null,
+        "matches": 1,
+        "names": [
+          "Kit de muestra",
+          "Ampliado"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "csv-valid",
+    "csv": "sku,quantity_units\n\"PACK,SMALL\",2\n\"LABEL\"\"BLUE\",0",
+    "parser": "parsed",
+    "header": "true",
+    "decoded": [],
+    "diagnostics": [],
+    "rows": [
+      {
+        "kind": "resolution",
+        "sku": "PACK,SMALL",
+        "quantity": 2,
+        "outcome": "resolved",
+        "reason": null,
+        "matches": 1,
+        "names": [
+          "Embalaje de muestra",
+          "Pequeño"
+        ]
+      },
+      {
+        "kind": "resolution",
+        "sku": "LABEL\"BLUE",
+        "quantity": 0,
+        "outcome": "resolved",
+        "reason": null,
+        "matches": 1,
+        "names": [
+          "Embalaje de muestra",
+          "Etiqueta azul"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "csv-invalid-field",
+    "csv": "sku,quantity_units\nKIT-A,2.5\nKIT-B-NEW,2",
+    "parser": "invalid",
+    "header": "true",
+    "decoded": [
+      [
+        "KIT-A",
+        "2.5"
+      ],
+      [
+        "KIT-B-NEW",
+        "2"
+      ]
+    ],
+    "diagnostics": [
+      {
+        "line": "2",
+        "column": "7",
+        "offset": "25",
+        "code": "invalid_quantity",
+        "record": "2",
+        "field": "2"
+      }
+    ],
+    "rows": []
+  },
+  {
+    "id": "csv-invalid-structure",
+    "csv": "sku,quantity_units\nKIT-A,2\n\"KIT-B-NEW,3",
+    "parser": "invalid",
+    "header": "false",
+    "decoded": [],
+    "diagnostics": [
+      {
+        "line": "3",
+        "column": "13",
+        "offset": "39",
+        "code": "unclosed_quote",
+        "record": "3",
+        "field": "1"
+      }
+    ],
+    "rows": []
+  },
+  {
+    "id": "history-same-and-renamed",
+    "csv": "",
+    "parser": null,
+    "header": null,
+    "decoded": [],
+    "diagnostics": [],
+    "rows": [
+      {
+        "kind": "history",
+        "sku": "KIT-A",
+        "quantity": 2,
+        "outcome": "resolved",
+        "reason": null,
+        "matches": 1,
+        "names": [
+          "Kit de muestra",
+          "Esencial"
+        ],
+        "declared": [
+          "Kit de muestra",
+          "Esencial"
+        ],
+        "identityOutcome": "found",
+        "skuRelation": "same",
+        "comparedSku": "KIT-A",
+        "relation": "same"
+      },
+      {
+        "kind": "history",
+        "sku": "KIT-B",
+        "quantity": 3,
+        "outcome": "unresolved",
+        "reason": "sku_not_found",
+        "matches": 0,
+        "names": null,
+        "declared": [
+          "Kit de muestra",
+          "Ampliado"
+        ],
+        "identityOutcome": "found",
+        "skuRelation": "different",
+        "comparedSku": "KIT-B-NEW",
+        "relation": null
+      }
+    ]
+  },
+  {
+    "id": "history-reused",
+    "csv": "",
+    "parser": null,
+    "header": null,
+    "decoded": [],
+    "diagnostics": [],
+    "rows": [
+      {
+        "kind": "history",
+        "sku": "OLD-C",
+        "quantity": 4,
+        "outcome": "resolved",
+        "reason": null,
+        "matches": 1,
+        "names": [
+          "Muestra alternativa",
+          "Serie C alternativa"
+        ],
+        "declared": [
+          "Kit de muestra",
+          "Serie C"
+        ],
+        "identityOutcome": "not_found",
+        "skuRelation": null,
+        "comparedSku": null,
+        "relation": "different"
+      },
+      {
+        "kind": "history",
+        "sku": "OLD-D",
+        "quantity": 5,
+        "outcome": "resolved",
+        "reason": null,
+        "matches": 1,
+        "names": [
+          "Muestra alternativa",
+          "Serie D alternativa"
+        ],
+        "declared": [
+          "Kit de muestra",
+          "Serie D"
+        ],
+        "identityOutcome": "found",
+        "skuRelation": "different",
+        "comparedSku": "NEW-D",
+        "relation": "different"
+      }
+    ]
+  },
+  {
+    "id": "history-ambiguous-and-undeclared",
+    "csv": "",
+    "parser": null,
+    "header": null,
+    "decoded": [],
+    "diagnostics": [],
+    "rows": [
+      {
+        "kind": "history",
+        "sku": "SHARED",
+        "quantity": 6,
+        "outcome": "unresolved",
+        "reason": "sku_ambiguous",
+        "matches": 2,
+        "names": null,
+        "declared": [
+          "Muestra de cerámica",
+          "Natural"
+        ],
+        "identityOutcome": "found",
+        "skuRelation": "same",
+        "comparedSku": "SHARED",
+        "relation": null
+      },
+      {
+        "kind": "history",
+        "sku": "UNDECLARED",
+        "quantity": 7,
+        "outcome": "resolved",
+        "reason": null,
+        "matches": 1,
+        "names": [
+          "Soporte de muestra",
+          "Único"
+        ],
+        "declared": null,
+        "identityOutcome": "not_provided",
+        "skuRelation": null,
+        "comparedSku": null,
+        "relation": "not_provided"
+      }
+    ]
+  }
+];
+// R6.8d: diez ejemplos cerrados de SKU, CSV e intención histórica; veinte superficies.
+const COMPANY_QUICK_ORDER_SCENARIO = (expected) => `(() => {
+  const root = document.querySelector('[data-company-quick-order-demo]');
+  if (root?.dataset.ready !== 'true') return 'not-ready';
+  const expected = ${JSON.stringify(expected)};
+  root.querySelector('[data-quick-order-reset]').click();
+  const field = root.querySelector('[data-quick-order-scenario]');
+  field.value = expected.id;
+  field.dispatchEvent(new Event('change', {bubbles:true}));
+  if (field.value !== expected.id || field.disabled) return 'wrong-selection';
+  const csv = root.querySelector('[data-quick-order-csv]');
+  if (csv.textContent !== expected.csv || csv.hidden !== (expected.parser === null)) return 'wrong-raw-csv';
+  const parser = root.querySelector('[data-quick-order-parser]');
+  if (parser.dataset.present !== String(expected.parser !== null) || parser.hidden !== (expected.parser === null) ||
+      parser.getAttribute('data-outcome') !== expected.parser || parser.getAttribute('data-header-present') !== expected.header) return 'wrong-parser';
+  const decoded = Array.from(root.querySelectorAll('[data-quick-order-decoded-row]'));
+  if (decoded.length !== expected.decoded.length || decoded.some((row,i) => JSON.stringify(Array.from(row.querySelectorAll('[data-quick-order-decoded-field]')).map(value=>value.textContent)) !== JSON.stringify(expected.decoded[i]) ||
+      Array.from([row,...row.querySelectorAll('*')]).some(node=>['data-quantity-units','data-outcome','data-match-count'].some(attr=>node.hasAttribute(attr))))) return 'wrong-decoded';
+  const diagnostics = Array.from(root.querySelectorAll('[data-quick-order-csv-diagnostic]'));
+  if (diagnostics.length !== expected.diagnostics.length || diagnostics.some((row,i)=> ['code','line','column','offset','record','field'].some(name=>row.getAttribute('data-'+name)!==expected.diagnostics[i][name]))) return 'wrong-csv-diagnostics';
+  const rows = Array.from(root.querySelectorAll('[data-quick-order-row]'));
+  const resultRows = root.querySelector('[data-quick-order-result-rows]');
+  if (rows.length !== expected.rows.length || resultRows.hidden !== (rows.length===0) || resultRows.dataset.present !== String(rows.length>0)) return 'wrong-result-count';
+  const identity = (scope,names,declared=false) => {
+    const node=scope.querySelector(declared?'[data-quick-order-declared-identity]':'[data-quick-order-identity]');
+    const empty=scope.querySelector(declared?'[data-quick-order-declared-identity-empty]':'[data-quick-order-identity-empty]');
+    return node.dataset.present === String(names!==null) && node.hidden === (names===null) && empty.hidden === (names!==null) &&
+      node.querySelector('[data-quick-order-product-label]').textContent.trim() === (names?.[0]??'') &&
+      node.querySelector('[data-quick-order-variant-label]').textContent.trim() === (names?.[1]??'');
+  };
+  for(let i=0;i<rows.length;i++) {
+    const row=rows[i],e=expected.rows[i],sku=row.querySelector('[data-quick-order-sku]');
+    if(row.dataset.position!==String(i+1) || row.dataset.kind!==e.kind || row.dataset.quantityUnits!==String(e.quantity) ||
+      sku.textContent!==e.sku || sku.dataset.sku!==e.sku) return 'wrong-row-literal';
+    if(e.kind==='resolution') {
+      if(row.dataset.outcome!==e.outcome || row.getAttribute('data-reason')!==e.reason || row.dataset.matchCount!==String(e.matches) || !identity(row,e.names)) return 'wrong-resolution';
+    } else {
+      const ic=row.querySelector('[data-quick-order-identity-comparison]'),sc=row.querySelector('[data-quick-order-sku-comparison]');
+      const compared=ic.querySelector('[data-quick-order-compared-sku]'),empty=ic.querySelector('[data-quick-order-compared-sku-empty]');
+      const code=compared.querySelector('[data-quick-order-sku]');
+      if(!identity(row,e.declared,true) || ic.dataset.outcome!==e.identityOutcome || ic.getAttribute('data-sku-relation')!==e.skuRelation ||
+        compared.dataset.present!==String(e.comparedSku!==null) || compared.hidden!==(e.comparedSku===null) || empty.hidden!==(e.comparedSku!==null) ||
+        code.textContent!==(e.comparedSku??'') || code.getAttribute('data-sku')!==e.comparedSku ||
+        sc.dataset.outcome!==e.outcome || sc.getAttribute('data-reason')!==e.reason || sc.dataset.matchCount!==String(e.matches) ||
+        sc.getAttribute('data-relation')!==e.relation || !identity(sc,e.names)) return 'wrong-history';
+    }
+  }
+  if(root.querySelector('form,input,textarea,[data-product-id],[data-variant-id]') || /demo\\.quick-order\\.|originCatalogRef|capturedAt|schemaVersion|row\\.[123]/u.test(root.outerHTML)) return 'private-or-operative';
+  return expected.id;
+})()`;
+for (const vp of [DESKTOP, MOBILE]) {
+  const suffix = vp === MOBILE ? '@375' : '';
+  for (const expected of COMPANY_QUICK_ORDER_EXPECTED) {
+    SURFACES.push({name: `company-quick-order:${expected.id}${suffix}`, url: '/demo/admin/listas-sku', vp, auth: true,
+      eval: COMPANY_QUICK_ORDER_SCENARIO(expected), expect: expected.id,
+      ...(expected.id === 'history-reused' ? {reducedMotion:true} : {})});
+  }
+}
+
 // R5.4d: estas rutas no existen en la demo y por eso no forman parte de la
 // batería ordinaria. El arnés local explícito activa un manifest cliente y una
 // composición visual inerte para auditar las páginas Astro reales sin DB,

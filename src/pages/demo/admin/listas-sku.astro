@@ -1,0 +1,21 @@
+---
+import { canShowCompanyQuickOrderDemo } from '../../../composition/company-quick-order-demo';
+import { runtimePlatform } from '../../../composition/runtime-platform';
+import Admin from '../../../layouts/Admin.astro';
+import AdminPageHeader from '../../../components/admin/AdminPageHeader.astro';
+import CompanyQuickOrderDemo from '../../../components/admin/CompanyQuickOrderDemo.astro';
+
+export const prerender = false;
+
+if (!canShowCompanyQuickOrderDemo(Astro.locals.runtime?.env, runtimePlatform)) {
+  return new Response('Página no encontrada.', {
+    status: 404,
+    headers: { 'content-type': 'text/plain; charset=utf-8', 'cache-control': 'no-store' },
+  });
+}
+---
+
+<Admin title="Listas y repetición" active="listas-sku">
+  <AdminPageHeader eyebrow="Clientes · demostración" title="Listas y repetición" description="SKU, CSV e intención histórica: consulta qué conserva cada fila y cómo se identifica en un catálogo de ejemplo." />
+  <CompanyQuickOrderDemo />
+</Admin>

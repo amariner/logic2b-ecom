@@ -44,6 +44,8 @@ describe('sesión firmada del admin', () => {
     expect(demoAdminNextPath('/demo/admin/presupuestos-empresa/issue')).toBe('/demo/admin');
     expect(demoAdminNextPath('/demo/admin/documentos-empresa')).toBe('/demo/admin/documentos-empresa');
     expect(demoAdminNextPath('/demo/admin/documentos-empresa/send')).toBe('/demo/admin');
+    expect(demoAdminNextPath('/demo/admin/listas-sku')).toBe('/demo/admin/listas-sku');
+    expect(demoAdminNextPath('/demo/admin/listas-sku/send')).toBe('/demo/admin');
     expect(demoAdminNextPath('/demo/admin/mercados')).toBe('/demo/admin/mercados');
     expect(demoAdminNextPath('/demo/admin/mercados/publish')).toBe('/demo/admin');
     expect(demoAdminNextPath('/demo/admin/publicacion')).toBe('/demo/admin/publicacion');

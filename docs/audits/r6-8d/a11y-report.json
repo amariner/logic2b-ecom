@@ -1,0 +1,102 @@
+[
+  {
+    "surface": "company-quick-order:sku-identified",
+    "url": "/demo/admin/listas-sku",
+    "findings": []
+  },
+  {
+    "surface": "company-quick-order:sku-not-found",
+    "url": "/demo/admin/listas-sku",
+    "findings": []
+  },
+  {
+    "surface": "company-quick-order:sku-ambiguous",
+    "url": "/demo/admin/listas-sku",
+    "findings": []
+  },
+  {
+    "surface": "company-quick-order:list-repeated",
+    "url": "/demo/admin/listas-sku",
+    "findings": []
+  },
+  {
+    "surface": "company-quick-order:csv-valid",
+    "url": "/demo/admin/listas-sku",
+    "findings": []
+  },
+  {
+    "surface": "company-quick-order:csv-invalid-field",
+    "url": "/demo/admin/listas-sku",
+    "findings": []
+  },
+  {
+    "surface": "company-quick-order:csv-invalid-structure",
+    "url": "/demo/admin/listas-sku",
+    "findings": []
+  },
+  {
+    "surface": "company-quick-order:history-same-and-renamed",
+    "url": "/demo/admin/listas-sku",
+    "findings": []
+  },
+  {
+    "surface": "company-quick-order:history-reused",
+    "url": "/demo/admin/listas-sku",
+    "findings": []
+  },
+  {
+    "surface": "company-quick-order:history-ambiguous-and-undeclared",
+    "url": "/demo/admin/listas-sku",
+    "findings": []
+  },
+  {
+    "surface": "company-quick-order:sku-identified@375",
+    "url": "/demo/admin/listas-sku",
+    "findings": []
+  },
+  {
+    "surface": "company-quick-order:sku-not-found@375",
+    "url": "/demo/admin/listas-sku",
+    "findings": []
+  },
+  {
+    "surface": "company-quick-order:sku-ambiguous@375",
+    "url": "/demo/admin/listas-sku",
+    "findings": []
+  },
+  {
+    "surface": "company-quick-order:list-repeated@375",
+    "url": "/demo/admin/listas-sku",
+    "findings": []
+  },
+  {
+    "surface": "company-quick-order:csv-valid@375",
+    "url": "/demo/admin/listas-sku",
+    "findings": []
+  },
+  {
+    "surface": "company-quick-order:csv-invalid-field@375",
+    "url": "/demo/admin/listas-sku",
+    "findings": []
+  },
+  {
+    "surface": "company-quick-order:csv-invalid-structure@375",
+    "url": "/demo/admin/listas-sku",
+    "findings": []
+  },
+  {
+    "surface": "company-quick-order:history-same-and-renamed@375",
+    "url": "/demo/admin/listas-sku",
+    "findings": []
+  },
+  {
+    "surface": "company-quick-order:history-reused@375",
+    "url": "/demo/admin/listas-sku",
+    "findings": []
+  },
+  {
+    "surface": "company-quick-order:history-ambiguous-and-undeclared@375",
+    "url": "/demo/admin/listas-sku",
+    "findings": []
+  }
+]

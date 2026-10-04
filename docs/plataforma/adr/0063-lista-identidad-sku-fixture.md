@@ -192,17 +192,20 @@ HTTP, navegador o DB ni una promesa de equivalencia SSR completa.
 R6.8b está implementado y verificado localmente como parser CSV puro, según el
 [ADR-0064](0064-entrada-csv-pedido-rapido-fixture.md), integrado en PR #46 (`09161255`)
 y sin despliegue: check de 4.099 pruebas y comparación estática cerrados, sin QA
-runtime nueva. El histórico tiene contrato exacto aceptado en el
-[ADR-0065](0065-historico-pedido-rapido-fixture.md); composición y UI quedan aparte.
+runtime nueva. El histórico del [ADR-0065](0065-historico-pedido-rapido-fixture.md)
+está integrado en PR #47 (`372dd221`), sin despliegue; su extensión R6.8d está
+verificada localmente como demo de las cuatro entradas, pendiente de integración.
 El histórico requiere identidad explícita y corte de origen: resolver un SKU reutilizado no restaura la compra anterior, y
 `OrderReader` sin identidad de variante no basta para reconstruirla.
 
-Una composición posterior deberá derivar SKU e identidad y el catálogo
+Una posible composición comercial posterior deberá derivar SKU e identidad y el catálogo
 empresarial de una sola copia normalizada o validar completamente sus
 proyecciones; no basta compartir referencia y fecha. Las APIs actuales de una
 variante por producto no deben recibir una selección elegida silenciosamente.
 Las cantidades canónicas tampoco son número de cajas: convertirlas exige
 división exacta por `unitsPerBox` y `policyRef` actual, sin redondear o ajustar.
+Esa ampliación no es requisito de la demo de identidad R6.8d; la siguiente
+consolidación R6.9 revisará permisos, dinero y wiki sobre fixtures.
 
 No hay dinero, totales, precio histórico reutilizado, permisos, stock, DDL,
 persistencia, cron, servicios o operación real. B2B-008 y R6.8 seguirán parciales
