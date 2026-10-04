@@ -1,0 +1,242 @@
+---
+import { createCurrencyMethodsDemo, getCurrencyMethodsDemoView } from '../../composition/currency-methods-demo';
+
+const initial = getCurrencyMethodsDemoView(createCurrencyMethodsDemo());
+const formatDate = (value: string) => new Intl.DateTimeFormat('es-ES', { timeZone: 'UTC', day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }).format(new Date(value)) + ' UTC';
+---
+
+<div data-currency-methods-demo data-ready="false" class="currency-methods-demo mt-6 space-y-6 text-foreground">
+  <div class="flex flex-col gap-3 rounded-2xl border border-border bg-card p-4 sm:flex-row sm:items-center sm:justify-between sm:px-5">
+    <div class="max-w-3xl"><p class="text-sm font-semibold leading-6">Métodos, importes y tipos de cambio ficticios. Esta pantalla no inicia pagos.</p><p class="mt-1 text-xs leading-5 text-muted-foreground">Solo cambia este ejemplo. Al recargar, vuelves al inicio.</p></div>
+    <button data-currency-action="reset" type="button" disabled class="currency-button shrink-0 border border-border bg-background text-foreground">Restablecer ejemplo</button>
+  </div>
+
+  <noscript data-currency-nojs><div class="rounded-xl border border-border bg-muted p-4 text-sm leading-6">Puedes consultar los importes y métodos iniciales sin JavaScript. Los controles permanecen desactivados; este ejemplo no envía ni guarda datos.</div></noscript>
+
+  <div class="grid items-start gap-6 xl:grid-cols-[minmax(0,.9fr)_minmax(0,1.1fr)]">
+    <section class="currency-panel" aria-labelledby="currency-context-title">
+      <div class="flex items-start gap-3"><span class="currency-step" aria-hidden="true">1</span><div><h2 id="currency-context-title" class="text-xl font-semibold">Prepara el contexto</h2><p class="mt-1 text-sm leading-6 text-muted-foreground">Elige un mercado y un importe fijo de ejemplo.</p></div></div>
+
+      <label class="currency-label mt-5" for="currency-market">Mercado de ejemplo
+        <select id="currency-market" data-currency-market disabled aria-describedby="currency-market-help" class="currency-input">
+          {initial.marketOptions.map((option) => <option value={option.id} selected={option.id === initial.selection.marketId}>{option.label}</option>)}
+        </select>
+      </label>
+      <p id="currency-market-help" class="mt-2 text-xs leading-5 text-muted-foreground">Si cambia la moneda del mercado, se carga otro importe de ejemplo. Ese cambio no es una conversión.</p>
+
+      <label class="currency-label mt-5" for="currency-amount">Importe original
+        <select id="currency-amount" data-currency-amount disabled aria-describedby="currency-amount-help" class="currency-input">
+          {initial.amountOptions.map((option) => <option value={option.id} selected={option.id === initial.selection.amountId}>{option.label}</option>)}
+        </select>
+      </label>
+      <p id="currency-amount-help" class="mt-2 text-xs leading-5 text-muted-foreground">Este importe, en su moneda original, determina qué reglas cumplen los métodos del ejemplo.</p>
+
+      <div class="mt-6 border-t border-border pt-5">
+        <h3 class="text-base font-semibold">Equivalencia para mostrar</h3>
+        <p class="mt-1 text-sm leading-6 text-muted-foreground">Cambiar la presentación no modifica el importe original ni los métodos.</p>
+        <label class="currency-label mt-4" for="currency-target">Moneda de presentación
+          <select id="currency-target" data-currency-target disabled class="currency-input">
+            {initial.targetCurrencyOptions.map((option) => <option value={option.id} selected={option.id === initial.selection.targetCurrency}>{option.label}</option>)}
+          </select>
+        </label>
+        <label class="currency-label mt-4" for="currency-fx">Tipo de cambio de ejemplo
+          <select id="currency-fx" data-currency-fx disabled aria-describedby="currency-fx-help" class="currency-input">
+            {initial.fxScenarioOptions.map((option) => <option value={option.id} selected={option.id === initial.selection.fxScenario}>{option.label}</option>)}
+          </select>
+        </label>
+        <p id="currency-fx-help" class="mt-2 text-xs leading-5 text-muted-foreground">Si las monedas coinciden, no hace falta un tipo de cambio. La vigencia se comprueba en un instante fijo del ejemplo.</p>
+      </div>
+
+      <div class="mt-5 rounded-xl border border-border bg-muted/40 p-4">
+        <p class="text-sm font-semibold">Cada moneda conserva sus decimales</p>
+        <p class="mt-1 text-xs leading-5 text-muted-foreground">EUR usa 2, JPY usa 0 y KWD usa 3 en este catálogo ficticio. Son ejemplos didácticos, sin métodos o monedas de cobro activados.</p>
+      </div>
+      <p data-currency-feedback role="status" aria-live="polite" aria-atomic="true" class="mt-5 text-sm leading-6">{initial.feedback.message}</p>
+    </section>
+
+    <section class="currency-panel" aria-labelledby="currency-result-title">
+      <div class="flex items-start gap-3"><span class="currency-step" aria-hidden="true">2</span><div><h2 id="currency-result-title" class="text-xl font-semibold">Comprueba el resultado</h2><p data-currency-context-label class="mt-1 text-sm leading-6 text-muted-foreground">{initial.context.marketLabel}</p></div></div>
+
+      <div data-currency-result data-outcome={initial.presentment.outcome} data-reason={initial.presentment.reason ?? undefined} class="mt-5">
+        <dl class="grid gap-3 sm:grid-cols-2">
+          <div class="currency-money-card"><dt>Importe original</dt><dd data-currency-original data-currency={initial.context.original.currency} data-exponent={initial.context.original.exponent} data-amount-minor={initial.context.original.amountMinor}>{initial.context.original.formatted}</dd></div>
+          <div class="currency-money-card"><dt>Equivalencia presentada</dt><dd data-currency-presented data-currency={initial.presentment.presented?.currency} data-exponent={initial.presentment.presented?.exponent} data-amount-minor={initial.presentment.presented?.amountMinor} data-resolved={String(initial.presentment.presented !== null)}>{initial.presentment.presented?.formatted ?? 'Sin equivalencia disponible'}</dd></div>
+        </dl>
+        <p data-currency-result-label class="mt-4 text-sm font-semibold">{initial.presentment.label}</p>
+        <p data-currency-result-message class="mt-1 text-sm leading-6 text-muted-foreground">{initial.presentment.message}</p>
+
+        <div data-currency-evidence data-state={initial.presentment.evidence ? 'quote' : 'none'} class="mt-3">
+          <div data-currency-evidence-content hidden={initial.presentment.evidence === null} class="rounded-xl border border-border bg-muted/40 px-4 py-3">
+            <p data-currency-evidence-label class="text-xs font-semibold">{initial.presentment.reason === 'expired' ? 'Tipo ficticio caducado · solo referencia histórica' : 'Tipo de cambio ficticio'}</p>
+            <p data-currency-rate class="mt-1 break-words text-sm font-medium tabular-nums">{initial.presentment.evidence?.rateLabel ?? ''}</p>
+            <p class="mt-1 text-xs leading-5 text-muted-foreground">La relación expresa unidades completas de cada moneda.</p>
+            <details class="mt-2">
+              <summary class="flex min-h-11 cursor-pointer items-center text-xs font-semibold">Ver fechas del ejemplo</summary>
+              <dl data-currency-evidence-dates hidden={initial.presentment.evidence === null} class="space-y-3 pb-1 text-xs leading-5 text-muted-foreground">
+                <div><dt>Instante fijo de comprobación</dt><dd data-currency-date="at" class="font-medium text-foreground">{initial.presentment.evidence ? formatDate(initial.presentment.at) : ''}</dd></div>
+                <div><dt>Tipo emitido</dt><dd data-currency-date="quotedAt" class="font-medium text-foreground">{initial.presentment.evidence ? formatDate(initial.presentment.evidence.quotedAt) : ''}</dd></div>
+                <div><dt>Fin de vigencia</dt><dd data-currency-date="expiresAt" class="font-medium text-foreground">{initial.presentment.evidence ? formatDate(initial.presentment.evidence.expiresAt) : ''}</dd></div>
+              </dl>
+            </details>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-6 border-t border-border pt-5">
+        <h3 class="text-base font-semibold">Métodos para el importe original</h3>
+        <p class="mt-1 text-sm leading-6 text-muted-foreground">Las reglas se comprueban sobre <span data-local-methods-original data-market-id={initial.selection.marketId} data-currency={initial.context.original.currency} data-exponent={initial.context.original.exponent} data-amount-minor={initial.context.original.amountMinor} class="font-semibold text-foreground">{initial.context.original.formatted}</span>.</p>
+        <div data-local-methods class="mt-4 space-y-3">
+          {initial.methods.map((method) => <article data-local-method-row data-method-id={method.id} data-outcome={method.outcome} data-reason={method.reason ?? undefined} data-min={method.range?.minMinor} data-max={method.range?.maxMinor} data-currency={method.range?.currency} data-exponent={method.range?.exponent} class="currency-method-card">
+            <h4 class="text-sm font-semibold">{method.label}</h4>
+            <p data-local-method-status class="mt-2"><span class="currency-badge">{method.available ? 'Disponible en este ejemplo' : 'No disponible en este ejemplo'}</span></p>
+            <ul data-local-method-reasons hidden={method.reasonLabels.length === 0} class="mt-2 space-y-1 text-sm leading-6 text-muted-foreground">{method.reasonLabels.map((reason) => <li>{reason}</li>)}</ul>
+            <p data-local-method-range hidden={method.rangeLabel === null} class="mt-2 text-xs leading-5 text-muted-foreground">{method.rangeLabel ?? ''}</p>
+          </article>)}
+        </div>
+        <p class="mt-4 rounded-xl border border-border bg-muted/40 p-4 text-xs leading-5 text-muted-foreground">«Disponible» significa que cumple las reglas ficticias de este contexto. No confirma disponibilidad de un proveedor ni autoriza un cobro. La equivalencia presentada tampoco determina pagos, reembolsos o liquidaciones.</p>
+      </div>
+    </section>
+  </div>
+</div>
+
+<style is:global>
+  .currency-methods-demo .currency-panel { min-width: 0; border: 1px solid var(--color-border); border-radius: var(--radius-card); background: var(--color-card); padding: 1.25rem; }
+  .currency-methods-demo .currency-step { display: flex; flex-shrink: 0; width: 2rem; height: 2rem; align-items: center; justify-content: center; border-radius: 100%; background: var(--color-foreground); color: var(--color-background); font-size: .875rem; font-weight: 600; }
+  .currency-methods-demo .currency-label { display: block; min-width: 0; font-size: .875rem; line-height: 1.5rem; font-weight: 600; }
+  .currency-methods-demo .currency-input { display: block; width: 100%; min-width: 0; min-height: 3rem; margin-top: .5rem; border: 1px solid var(--color-input); border-radius: var(--radius-btn); background: var(--color-background); padding-inline: .75rem; color: var(--color-foreground); font-size: 1rem; line-height: 1.5rem; font-weight: 400; }
+  .currency-methods-demo .currency-input:disabled { opacity: 1; cursor: default; }
+  .currency-methods-demo .currency-button { min-height: 3rem; border-radius: var(--radius-btn); padding: .75rem 1rem; font-size: .875rem; line-height: 1.5rem; font-weight: 600; cursor: pointer; }
+  .currency-methods-demo .currency-button:hover:not(:disabled) { box-shadow: 0 0 0 1px var(--color-foreground); }
+  .currency-methods-demo .currency-button:disabled { background: var(--color-muted); color: var(--color-foreground); opacity: 1; cursor: not-allowed; }
+  .currency-methods-demo .currency-money-card { min-width: 0; border-radius: var(--radius-btn); background: var(--color-muted); padding: 1rem; }
+  .currency-methods-demo .currency-money-card dt { font-size: .75rem; line-height: 1.25rem; color: var(--color-muted-foreground); }
+  .currency-methods-demo .currency-money-card dd { margin-top: .5rem; font-size: 1.5rem; line-height: 2rem; font-weight: 600; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+  .currency-methods-demo .currency-money-card dd[data-resolved="false"] { font-size: 1rem; line-height: 1.5rem; }
+  .currency-methods-demo .currency-method-card { min-width: 0; border: 1px solid var(--color-border); border-radius: var(--radius-btn); padding: 1rem; overflow-wrap: anywhere; }
+  .currency-methods-demo .currency-badge { display: inline-flex; border-radius: 999px; background: var(--color-muted); padding: .25rem .625rem; color: var(--color-foreground); font-size: .75rem; line-height: 1.25rem; font-weight: 600; }
+  .currency-methods-demo :is(button, select, summary):focus-visible { outline: 2px solid var(--color-foreground); outline-offset: 3px; }
+  @media (min-width: 640px) { .currency-methods-demo .currency-panel { padding: 1.5rem; } }
+</style>
+
+<script>
+  import {
+    configureCurrencyMethodsDemo, createCurrencyMethodsDemo, getCurrencyMethodsDemoView,
+    type CurrencyMethodsDemoSelection, type CurrencyMethodsDemoView,
+  } from '../../composition/currency-methods-demo';
+
+  const root = document.querySelector<HTMLElement>('[data-currency-methods-demo]');
+  if (root) {
+    const find = <T extends HTMLElement>(selector: string): T => root.querySelector<T>(selector)!;
+    const findSelect = (selector: string) => {
+      const element = root.querySelector(selector);
+      if (!(element instanceof HTMLSelectElement)) throw new Error('Falta un selector del ejemplo.');
+      return element;
+    };
+    const market = findSelect('[data-currency-market]');
+    const amount = findSelect('[data-currency-amount]');
+    const target = findSelect('[data-currency-target]');
+    const fx = findSelect('[data-currency-fx]');
+    const reset = find<HTMLButtonElement>('[data-currency-action="reset"]');
+    const feedback = find<HTMLElement>('[data-currency-feedback]');
+    const formatDate = (value: string) => new Intl.DateTimeFormat('es-ES', { timeZone: 'UTC', day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }).format(new Date(value)) + ' UTC';
+    let state = createCurrencyMethodsDemo();
+    let amountOptionsKey = [...amount.options].map((option) => option.value).join('|');
+
+    const setAmount = (element: HTMLElement, money: CurrencyMethodsDemoView['presentment']['presented']) => {
+      element.textContent = money?.formatted ?? 'Sin equivalencia disponible';
+      if (money === null) {
+        delete element.dataset.currency;
+        delete element.dataset.exponent;
+        delete element.dataset.amountMinor;
+      } else {
+        element.dataset.currency = money.currency;
+        element.dataset.exponent = String(money.exponent);
+        element.dataset.amountMinor = String(money.amountMinor);
+      }
+    };
+
+    const render = () => {
+      const view = getCurrencyMethodsDemoView(state);
+      market.value = view.selection.marketId;
+      target.value = view.selection.targetCurrency;
+      fx.value = view.selection.fxScenario;
+      const nextOptionsKey = view.amountOptions.map((option) => option.id).join('|');
+      // Solo cambian las opciones al pasar a otra moneda nominal; el control y su foco se conservan.
+      if (nextOptionsKey !== amountOptionsKey) {
+        amountOptionsKey = nextOptionsKey;
+        amount.replaceChildren(...view.amountOptions.map((option) => {
+          const item = document.createElement('option');
+          item.value = option.id;
+          item.textContent = option.label;
+          return item;
+        }));
+      }
+      amount.value = view.selection.amountId;
+      find('[data-currency-context-label]').textContent = view.context.marketLabel;
+      const result = find<HTMLElement>('[data-currency-result]');
+      result.dataset.outcome = view.presentment.outcome;
+      if (view.presentment.reason === null) delete result.dataset.reason;
+      else result.dataset.reason = view.presentment.reason;
+      setAmount(find('[data-currency-original]'), view.context.original);
+      const presented = find<HTMLElement>('[data-currency-presented]');
+      setAmount(presented, view.presentment.presented);
+      presented.dataset.resolved = String(view.presentment.presented !== null);
+      find('[data-currency-result-label]').textContent = view.presentment.label;
+      find('[data-currency-result-message]').textContent = view.presentment.message;
+      const evidence = view.presentment.evidence;
+      find('[data-currency-evidence]').dataset.state = evidence ? 'quote' : 'none';
+      find('[data-currency-evidence-content]').hidden = evidence === null;
+      find('[data-currency-evidence-dates]').hidden = evidence === null;
+      find('[data-currency-evidence-label]').textContent = evidence ? (view.presentment.reason === 'expired' ? 'Tipo ficticio caducado · solo referencia histórica' : 'Tipo de cambio ficticio') : '';
+      find('[data-currency-rate]').textContent = evidence?.rateLabel ?? '';
+      find('[data-currency-date="at"]').textContent = evidence ? formatDate(view.presentment.at) : '';
+      find('[data-currency-date="quotedAt"]').textContent = evidence ? formatDate(evidence.quotedAt) : '';
+      find('[data-currency-date="expiresAt"]').textContent = evidence ? formatDate(evidence.expiresAt) : '';
+
+      const originalForMethods = find<HTMLElement>('[data-local-methods-original]');
+      setAmount(originalForMethods, view.context.original);
+      originalForMethods.dataset.marketId = view.selection.marketId;
+      const rows = [...root.querySelectorAll<HTMLElement>('[data-local-method-row]')];
+      for (const method of view.methods) {
+        const row = rows.find((element) => element.dataset.methodId === method.id)!;
+        row.dataset.outcome = method.outcome;
+        if (method.reason === null) delete row.dataset.reason;
+        else row.dataset.reason = method.reason;
+        if (method.range === null) {
+          delete row.dataset.min;
+          delete row.dataset.max;
+          delete row.dataset.currency;
+          delete row.dataset.exponent;
+        } else {
+          row.dataset.min = String(method.range.minMinor);
+          row.dataset.max = String(method.range.maxMinor);
+          row.dataset.currency = method.range.currency;
+          row.dataset.exponent = String(method.range.exponent);
+        }
+        row.querySelector<HTMLElement>('[data-local-method-status] span')!.textContent = method.available ? 'Disponible en este ejemplo' : 'No disponible en este ejemplo';
+        const reasons = row.querySelector<HTMLElement>('[data-local-method-reasons]')!;
+        reasons.hidden = method.reasonLabels.length === 0;
+        reasons.replaceChildren(...method.reasonLabels.map((label) => {
+          const item = document.createElement('li');
+          item.textContent = label;
+          return item;
+        }));
+        const range = row.querySelector<HTMLElement>('[data-local-method-range]')!;
+        range.hidden = method.rangeLabel === null;
+        range.textContent = method.rangeLabel ?? '';
+      }
+      const message = view.feedback.message + ' ' + view.presentment.label + ': ' + (view.presentment.presented?.formatted ?? 'sin equivalencia disponible') + '.';
+      if (feedback.textContent !== message) feedback.textContent = message;
+    };
+
+    market.addEventListener('change', () => { state = configureCurrencyMethodsDemo(state, { marketId: market.value as CurrencyMethodsDemoSelection['marketId'] }); render(); });
+    amount.addEventListener('change', () => { state = configureCurrencyMethodsDemo(state, { amountId: amount.value as CurrencyMethodsDemoSelection['amountId'] }); render(); });
+    target.addEventListener('change', () => { state = configureCurrencyMethodsDemo(state, { targetCurrency: target.value as CurrencyMethodsDemoSelection['targetCurrency'] }); render(); });
+    fx.addEventListener('change', () => { state = configureCurrencyMethodsDemo(state, { fxScenario: fx.value as CurrencyMethodsDemoSelection['fxScenario'] }); render(); });
+    reset.addEventListener('click', () => { state = createCurrencyMethodsDemo(); render(); });
+    render();
+    [market, amount, target, fx].forEach((select) => { select.disabled = false; });
+    reset.disabled = false;
+    root.dataset.ready = 'true';
+  }
+</script>

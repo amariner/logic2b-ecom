@@ -13,12 +13,13 @@ import { canShowCustomerSegmentDemo } from '../composition/customer-segment-demo
 import { canShowMarketContentDemo } from '../composition/market-content-demo';
 import { canShowMarketPublicationDemo } from '../composition/market-publication-demo';
 import { canShowTaxDemo } from '../composition/tax-demo';
+import { canShowCurrencyMethodsDemo } from '../composition/currency-methods-demo';
 import { adminNavigationFor, type AdminNavigationId } from '../platform/configuration';
 import AdminIcon, { type AdminIconName } from '../components/admin/AdminIcon.astro';
 
 interface Props {
   title: string;
-  active: AdminNavigationId | 'segmentos' | 'mercados' | 'publicacion' | 'impuestos';
+  active: AdminNavigationId | 'segmentos' | 'mercados' | 'publicacion' | 'impuestos' | 'divisas';
 }
 
 const { title, active } = Astro.props;
@@ -38,6 +39,9 @@ const nav = [
   ...(canShowTaxDemo(Astro.locals.runtime?.env, runtimePlatform)
     ? [{ id: 'impuestos' as const, href: '/demo/admin/impuestos', label: 'Impuestos y totales · demo' }]
     : []),
+  ...(canShowCurrencyMethodsDemo(Astro.locals.runtime?.env, runtimePlatform)
+    ? [{ id: 'divisas' as const, href: '/demo/admin/divisas', label: 'Monedas y métodos · demo' }]
+    : []),
 ];
 /* Agrupación de presentación: primero lo que el comercio hace cada día y
    después el inventario avanzado. Un módulo desactivado no aparece y un grupo
@@ -45,7 +49,7 @@ const nav = [
 const NAV_GROUPS: { label: string; ids: string[] }[] = [
   { label: 'Día a día', ids: ['pedidos', 'envios', 'devoluciones', 'emails'] },
   { label: 'Clientes', ids: ['segmentos'] },
-  { label: 'Internacional', ids: ['mercados', 'publicacion', 'impuestos'] },
+  { label: 'Internacional', ids: ['mercados', 'publicacion', 'impuestos', 'divisas'] },
   { label: 'Catálogo e inventario', ids: ['productos', 'ubicaciones', 'transferencias', 'conteos', 'asignacion'] },
   { label: 'Administración', ids: ['documentos'] },
 ];
@@ -56,7 +60,7 @@ const navGroups = [
 ].filter((group) => group.items.length > 0);
 const orderedNav = navGroups.flatMap((group) => group.items);
 const iconFor: Record<string, AdminIconName> = {
-  pedidos: 'orders', documentos: 'orders', productos: 'products', ubicaciones: 'store', transferencias: 'shipping', conteos: 'products', envios: 'shipping', devoluciones: 'shipping', emails: 'email', segmentos: 'search', mercados: 'globe', publicacion: 'products', impuestos: 'orders',
+  pedidos: 'orders', documentos: 'orders', productos: 'products', ubicaciones: 'store', transferencias: 'shipping', conteos: 'products', envios: 'shipping', devoluciones: 'shipping', emails: 'email', segmentos: 'search', mercados: 'globe', publicacion: 'products', impuestos: 'orders', divisas: 'globe',
 };
 ---
 
@@ -86,7 +90,7 @@ const iconFor: Record<string, AdminIconName> = {
               {group.items.map((item) => (
                 <a href={item.href} aria-current={active === item.id ? 'page' : undefined} class:list={[
                   'flex items-center gap-3 rounded-lg px-3 text-sm font-medium transition',
-                  item.id === 'segmentos' || item.id === 'mercados' || item.id === 'publicacion' || item.id === 'impuestos' ? 'min-h-11' : 'min-h-10',
+                  item.id === 'segmentos' || item.id === 'mercados' || item.id === 'publicacion' || item.id === 'impuestos' || item.id === 'divisas' ? 'min-h-11' : 'min-h-10',
                   active === item.id ? 'bg-foreground text-background shadow-sm' : 'text-muted-foreground hover:bg-muted hover:text-foreground',
                 ]}>
                   <AdminIcon name={iconFor[item.id] ?? 'orders'} class="size-[1.1rem]" />

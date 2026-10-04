@@ -265,6 +265,15 @@ check('impuestos conserva privacidad de caché e indexación',
   taxDemoResponse.headers.get('cache-control')?.includes('no-store') && taxDemoHtml.includes('noindex'));
 check('impuestos no añade formularios ni envíos', !/<form\b/i.test(taxDemoHtml)
   && !/<button\b(?![^>]*\btype=["']button["'])/i.test(taxDemoHtml));
+const currencyMethodsResponse = await fetch(`${BASE}/demo/admin/divisas`, { headers: { cookie } });
+const currencyMethodsHtml = await currencyMethodsResponse.text();
+check('panel enlaza la demostración de monedas y métodos', adminHtml.includes('href="/demo/admin/divisas"'));
+check('monedas muestra equivalencias y métodos ficticios sobre el importe original', currencyMethodsResponse.ok
+  && currencyMethodsHtml.includes('data-currency-methods-demo') && currencyMethodsHtml.includes('data-local-methods-original'));
+check('monedas conserva privacidad de caché e indexación',
+  currencyMethodsResponse.headers.get('cache-control')?.includes('no-store') && currencyMethodsHtml.includes('noindex'));
+check('monedas no añade formularios ni envíos', !/<form\b/i.test(currencyMethodsHtml)
+  && !/<button\b(?![^>]*\btype=["']button["'])/i.test(currencyMethodsHtml));
 check(
   'índice de pedidos expone filtros URL y orden estable R3.1',
   adminHtml.includes('name="orden"')
