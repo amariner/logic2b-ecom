@@ -1,0 +1,118 @@
+{
+  "schemaVersion": 1,
+  "verifiedAt": "2026-10-04",
+  "environment": "local-synthetic-contracts",
+  "deployment": "not-deployed",
+  "verification": {
+    "typecheckFiles": 957,
+    "diagnostics": 0,
+    "suites": 251,
+    "tests": 3210,
+    "companyCatalogTests": 28,
+    "companyBindingsTests": 18,
+    "companyProjectionAndContextTests": 35,
+    "companyPricingTests": 51,
+    "architectureTests": 6,
+    "manifestAndRegistryTests": 82,
+    "buildHtmlPages": 44,
+    "buildLocalForms": 44,
+    "cronCount": 0
+  },
+  "independentReview": {
+    "assertions": 12478,
+    "matrixCases": 300,
+    "openP1OrP2": 0,
+    "getters": 0,
+    "effects": 0,
+    "implicitClockReads": 0,
+    "diagnosticBundles": {
+      "publicCompanies": {
+        "bytes": 14371,
+        "sources": 2
+      },
+      "projection": {
+        "bytes": 5685,
+        "sources": 3
+      },
+      "catalogContext": {
+        "bytes": 27081,
+        "sources": 5
+      },
+      "pricingContext": {
+        "bytes": 38098,
+        "sources": 7
+      }
+    },
+    "externalImports": 0,
+    "operationalImports": 0,
+    "existingDemoDiagnostic": {
+      "bytes": 22326,
+      "sources": 6,
+      "newContractBytes": 0
+    }
+  },
+  "inheritedRegression": {
+    "source": "../r6-1b/verification-report.json",
+    "commit": "861b34ff511713d63bc2b53245901555f934c2a5",
+    "e2eChecks": 176,
+    "browserChecks": 601,
+    "a11ySurfaces": 8,
+    "a11yErrors": 0,
+    "a11yWarnings": 0,
+    "screenshots": 8,
+    "databaseTables": 143,
+    "databaseRows": 353,
+    "databaseHash": "9cbfc811cfc4296515a403d395875a43bfa26aff0c9c9b08be0804b15bbf6eca",
+    "rerunForThisCut": false
+  },
+  "scope": {
+    "module": "companies",
+    "version": "1.1.0",
+    "capability": "B2B-002",
+    "state": "installed",
+    "activeInPresets": false,
+    "dependencies": [
+      "B2B-001"
+    ],
+    "catalogCurrency": "EUR",
+    "variantSelection": "explicit; at most one per product",
+    "priceListOverride": "product scoped; existing company/general/catalog resolver",
+    "binding": "explicit versioned selector; absence blocks pricing",
+    "visibility": "company restrictions intersect market publication per variant",
+    "inactiveCompany": "blocks commercial preview; directory API unchanged",
+    "priceTotalsAdded": 0,
+    "runtimeConsumersAdded": 0,
+    "routesAdded": 0,
+    "migrationsAdded": 0,
+    "jobsAdded": 0,
+    "providersActivated": 0,
+    "fixturePresentation": "pending-r6-2b",
+    "privacy": "selector key fields excluded from preview; supplied list labels remain; no authentication or identity inference"
+  },
+  "existingBuiltClient": {
+    "unchangedFrom": "R6.1b",
+    "entry": "CompanyDirectoryDemo.astro_astro_type_script_index_0_lang.B2Ch4nkX.js",
+    "entryBytes": 21053,
+    "entryGzipBytes": 6262,
+    "shared": "fixture-vat-id-adapter.Ow_zwmVh.js",
+    "sharedBytes": 5749,
+    "sharedGzipBytes": 2053,
+    "totalBytes": 26802,
+    "totalGzipBytes": 8315,
+    "files": 2,
+    "externalImports": 0,
+    "newCatalogOrPricingContractCode": false,
+    "noRootInitialization": {
+      "effects": 0,
+      "domLookups": 1,
+      "explicitDates": 10,
+      "implicitClockReads": 0
+    }
+  },
+  "notes": [
+    "Diagnostic bundles are pure contract probes, not new UI assets.",
+    "Complete validation includes unselected/inactive data before blocked pricing outcomes.",
+    "Lists in foreign currencies remain excluded_context; selected non-EUR market blocks pricing without FX.",
+    "No Worker, HTTP, browser, a11y or database run was repeated for this pure cut."
+  ]
+}
