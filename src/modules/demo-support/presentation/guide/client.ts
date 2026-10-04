@@ -24,6 +24,12 @@ export function initDemoAssistant(): void {
   const find = <T extends HTMLElement>(selector: string): T => root.querySelector<T>(selector)!;
   const card = find<HTMLElement>('[data-guide-card]');
   const launcher = find<HTMLButtonElement>('[data-guide-launch]');
+  const adminLauncherCandidate = root.dataset['guideInAdmin'] === 'true'
+    ? document.querySelector('[data-admin-guide-launch]') : null;
+  const adminLauncher = adminLauncherCandidate instanceof HTMLButtonElement ? adminLauncherCandidate : null;
+  const adminViewport = adminLauncher ? window.matchMedia('(max-width: 1023px)') : null;
+  if (adminLauncher) root.dataset['guideAdminLauncher'] = 'true';
+  const visibleLauncher = () => adminLauncher && adminViewport?.matches ? adminLauncher : launcher;
   const next = find<HTMLAnchorElement>('[data-guide-next]');
   const finish = find<HTMLButtonElement>('[data-guide-finish]');
   const steps = guideSteps(state.store);
@@ -52,10 +58,11 @@ export function initDemoAssistant(): void {
     window.clearTimeout(highlightTimer);
   };
   const updateHeight = () => {
-    const height = (card.hidden ? launcher : card).getBoundingClientRect().height + 24;
+    const height = card.hidden && adminLauncher && adminViewport?.matches
+      ? 0 : (card.hidden ? visibleLauncher() : card).getBoundingClientRect().height + 24;
     document.documentElement.style.setProperty('--demo-guide-height', `${height}px`);
   };
-  const focusLauncher = () => launcher.focus({ preventScroll: true });
+  const focusLauncher = () => visibleLauncher().focus({ preventScroll: true });
   const hrefFor = (path: string) => path.startsWith('/demo/admin') ? demoAdminEntryHref(path) : path;
   const feedback = (message: string) => {
     const element = find('[data-guide-feedback]');
@@ -78,7 +85,15 @@ export function initDemoAssistant(): void {
     launcher.setAttribute('aria-expanded', String(open));
     document.documentElement.classList.add('demo-guide-available');
     document.documentElement.classList.toggle('demo-guide-visible', open);
-    find('[data-guide-launch-label]').textContent = state.status === 'minimized' ? 'Reanudar guía' : state.status === 'complete' ? 'Recorrido completado · abrir guía' : 'Guía de la demo';
+    const launcherLabel = state.status === 'minimized' ? 'Reanudar guía' : state.status === 'complete' ? 'Recorrido completado · abrir guía' : 'Guía de la demo';
+    find('[data-guide-launch-label]').textContent = launcherLabel;
+    if (adminLauncher) {
+      adminLauncher.hidden = false;
+      adminLauncher.disabled = false;
+      adminLauncher.setAttribute('aria-expanded', String(open));
+      adminLauncher.setAttribute('aria-label', launcherLabel);
+      adminLauncher.title = launcherLabel;
+    }
     find('[data-guide-progress]').textContent = `Paso ${index + 1} de ${steps.length} · ${step.label}`;
     find('[data-guide-title]').textContent = isLogin ? 'Entra directamente al gestor de ejemplo' : isExtra ? 'Más herramientas para la operación' : step.title;
     find('[data-guide-description]').textContent = isLogin
@@ -138,7 +153,30 @@ export function initDemoAssistant(): void {
       if (error && !error.classList.contains('hidden')) feedback('Revisa la cesta o pulsa «Ir directamente al gestor» para seguir la demo.');
     }
   });
-  launcher.addEventListener('click', () => { state.status = 'active'; render(true); });
+  const openGuide = () => { state.status = 'active'; render(true); };
+  launcher.addEventListener('click', openGuide);
+  adminLauncher?.addEventListener('click', openGuide);
+  if (adminLauncher && adminViewport) {
+    let previousViewport = adminViewport.matches;
+    let focusedLauncher: HTMLButtonElement | null = null;
+    for (const trigger of [launcher, adminLauncher]) {
+      trigger.addEventListener('focus', () => { focusedLauncher = trigger; });
+      trigger.addEventListener('blur', () => {
+        // CSS puede ocultar el disparador antes del evento change del breakpoint.
+        if (adminViewport.matches === previousViewport) focusedLauncher = null;
+      });
+    }
+    adminViewport.addEventListener('change', () => {
+      const shouldRestoreFocus = focusedLauncher !== null || document.activeElement === launcher || document.activeElement === adminLauncher;
+      focusedLauncher = null;
+      previousViewport = adminViewport.matches;
+      if (shouldRestoreFocus) {
+        if (card.hidden) focusLauncher();
+        else find<HTMLButtonElement>('[data-guide-minimize]').focus({ preventScroll: true });
+      }
+      updateHeight();
+    });
+  }
   find('[data-guide-minimize]').addEventListener('click', () => setStatus('minimized'));
   find('[data-guide-close]').addEventListener('click', () => setStatus('closed'));
   find('[data-guide-finish]').addEventListener('click', () => setStatus('complete'));
@@ -158,6 +196,11 @@ export function initDemoAssistant(): void {
       state.status = 'minimized'; save(); card.hidden = true; launcher.hidden = false;
       launcher.setAttribute('aria-expanded', 'false');
       find('[data-guide-launch-label]').textContent = 'Reanudar guía';
+      if (adminLauncher) {
+        adminLauncher.setAttribute('aria-expanded', 'false');
+        adminLauncher.setAttribute('aria-label', 'Reanudar guía');
+        adminLauncher.title = 'Reanudar guía';
+      }
       document.documentElement.classList.remove('demo-guide-visible');
       updateHeight(); focusLauncher();
     }

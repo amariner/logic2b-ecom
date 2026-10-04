@@ -15,12 +15,13 @@ import { canShowMarketPublicationDemo } from '../composition/market-publication-
 import { canShowTaxDemo } from '../composition/tax-demo';
 import { canShowCurrencyMethodsDemo } from '../composition/currency-methods-demo';
 import { canShowCompanyDirectoryDemo } from '../composition/company-directory-demo';
+import { canShowCompanyCatalogDemo } from '../composition/company-catalog-demo';
 import { adminNavigationFor, type AdminNavigationId } from '../platform/configuration';
 import AdminIcon, { type AdminIconName } from '../components/admin/AdminIcon.astro';
 
 interface Props {
   title: string;
-  active: AdminNavigationId | 'segmentos' | 'empresas' | 'mercados' | 'publicacion' | 'impuestos' | 'divisas';
+  active: AdminNavigationId | 'segmentos' | 'empresas' | 'catalogos-empresa' | 'mercados' | 'publicacion' | 'impuestos' | 'divisas';
 }
 
 const { title, active } = Astro.props;
@@ -33,6 +34,9 @@ const nav = [
     : []),
   ...(canShowCompanyDirectoryDemo(Astro.locals.runtime?.env, runtimePlatform)
     ? [{ id: 'empresas' as const, href: '/demo/admin/empresas', label: 'Empresas y sedes · demo' }]
+    : []),
+  ...(canShowCompanyCatalogDemo(Astro.locals.runtime?.env, runtimePlatform)
+    ? [{ id: 'catalogos-empresa' as const, href: '/demo/admin/catalogos-empresa', label: 'Catálogo por empresa · demo' }]
     : []),
   ...(canShowMarketContentDemo(Astro.locals.runtime?.env, runtimePlatform)
     ? [{ id: 'mercados' as const, href: '/demo/admin/mercados', label: 'Mercados e idiomas · demo' }]
@@ -52,7 +56,7 @@ const nav = [
    sin entradas tampoco; lo que no esté listado cae en «Más». */
 const NAV_GROUPS: { label: string; ids: string[] }[] = [
   { label: 'Día a día', ids: ['pedidos', 'envios', 'devoluciones', 'emails'] },
-  { label: 'Clientes', ids: ['segmentos', 'empresas'] },
+  { label: 'Clientes', ids: ['segmentos', 'empresas', 'catalogos-empresa'] },
   { label: 'Internacional', ids: ['mercados', 'publicacion', 'impuestos', 'divisas'] },
   { label: 'Catálogo e inventario', ids: ['productos', 'ubicaciones', 'transferencias', 'conteos', 'asignacion'] },
   { label: 'Administración', ids: ['documentos'] },
@@ -64,7 +68,7 @@ const navGroups = [
 ].filter((group) => group.items.length > 0);
 const orderedNav = navGroups.flatMap((group) => group.items);
 const iconFor: Record<string, AdminIconName> = {
-  pedidos: 'orders', documentos: 'orders', productos: 'products', ubicaciones: 'store', transferencias: 'shipping', conteos: 'products', envios: 'shipping', devoluciones: 'shipping', emails: 'email', segmentos: 'search', empresas: 'store', mercados: 'globe', publicacion: 'products', impuestos: 'orders', divisas: 'globe',
+  pedidos: 'orders', documentos: 'orders', productos: 'products', ubicaciones: 'store', transferencias: 'shipping', conteos: 'products', envios: 'shipping', devoluciones: 'shipping', emails: 'email', segmentos: 'search', empresas: 'store', 'catalogos-empresa': 'products', mercados: 'globe', publicacion: 'products', impuestos: 'orders', divisas: 'globe',
 };
 ---
 
@@ -94,7 +98,7 @@ const iconFor: Record<string, AdminIconName> = {
               {group.items.map((item) => (
                 <a href={item.href} aria-current={active === item.id ? 'page' : undefined} class:list={[
                   'flex items-center gap-3 rounded-lg px-3 text-sm font-medium transition',
-                  item.id === 'segmentos' || item.id === 'empresas' || item.id === 'mercados' || item.id === 'publicacion' || item.id === 'impuestos' || item.id === 'divisas' ? 'min-h-11' : 'min-h-10',
+                  item.id === 'segmentos' || item.id === 'empresas' || item.id === 'catalogos-empresa' || item.id === 'mercados' || item.id === 'publicacion' || item.id === 'impuestos' || item.id === 'divisas' ? 'min-h-11' : 'min-h-10',
                   active === item.id ? 'bg-foreground text-background shadow-sm' : 'text-muted-foreground hover:bg-muted hover:text-foreground',
                 ]}>
                   <AdminIcon name={iconFor[item.id] ?? 'orders'} class="size-[1.1rem]" />
@@ -115,8 +119,9 @@ const iconFor: Record<string, AdminIconName> = {
 
     <header class="sticky top-0 z-20 border-b border-border bg-card/95 backdrop-blur lg:hidden">
       <div class="flex min-h-16 items-center justify-between gap-3 px-4">
-        <a href="/demo/admin" class="font-display text-base">Logic2B <span class="text-muted-foreground">Gestión</span></a>
-        <div class="flex items-center gap-1">
+        <a href="/demo/admin" class="min-w-0 font-display text-base">Logic2B <span class="hidden text-muted-foreground min-[375px]:inline">Gestión</span></a>
+        <div class="flex shrink-0 items-center gap-1">
+          <button type="button" data-admin-guide-launch hidden disabled class="flex size-11 items-center justify-center rounded-xl text-muted-foreground hover:bg-muted hover:text-foreground" aria-label="Guía de la demo" title="Guía de la demo" aria-controls="demo-assistant-card" aria-expanded="false"><span aria-hidden="true" class="text-xl">✦</span></button>
           <a href={MAIN_DEMO_HREF} class="flex size-11 items-center justify-center rounded-xl text-muted-foreground hover:bg-muted hover:text-foreground" aria-label={`Ver tienda ${MAIN_DEMO_NAME}`}><AdminIcon name="store" /></a>
           <a href="/ayuda" class="flex size-11 items-center justify-center rounded-xl text-muted-foreground hover:bg-muted hover:text-foreground" aria-label="Ayuda"><AdminIcon name="help" /></a>
           <a href="/demo/admin/login?salir=1" class="flex size-11 items-center justify-center rounded-xl text-muted-foreground hover:bg-muted hover:text-foreground" aria-label="Cerrar sesión"><AdminIcon name="logout" /></a>
@@ -136,13 +141,15 @@ const iconFor: Record<string, AdminIconName> = {
     </div>
   </div>
 
-  <DemoAssistant />
+  <DemoAssistant admin />
 
   <CloudflarePageview />
   <style is:global>
     /* Titulares en Inter, como el sitio comercial («plataforma», 2026-09-29):
        el panel es sobrio y no necesita la fuente de marca. */
     .admin-shell { --font-display: var(--font-sans); --tracking-display: -0.025em; }
+    [data-admin-guide-launch][hidden] { display: none !important; }
+    [data-admin-guide-launch]:focus-visible { outline: 2px solid var(--color-foreground); outline-offset: 3px; }
   </style>
   <script>
     // Los formularios ilustrativos no activan handlers operativos ni con Enter.

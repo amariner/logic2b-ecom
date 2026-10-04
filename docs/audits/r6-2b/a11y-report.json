@@ -1,0 +1,42 @@
+[
+  {
+    "surface": "company-catalog:baseline",
+    "url": "/demo/admin/catalogos-empresa",
+    "findings": []
+  },
+  {
+    "surface": "company-catalog:disjoint",
+    "url": "/demo/admin/catalogos-empresa",
+    "findings": []
+  },
+  {
+    "surface": "company-catalog:unbound",
+    "url": "/demo/admin/catalogos-empresa",
+    "findings": []
+  },
+  {
+    "surface": "company-catalog:inactive",
+    "url": "/demo/admin/catalogos-empresa",
+    "findings": []
+  },
+  {
+    "surface": "company-catalog:baseline@375",
+    "url": "/demo/admin/catalogos-empresa",
+    "findings": []
+  },
+  {
+    "surface": "company-catalog:disjoint@375",
+    "url": "/demo/admin/catalogos-empresa",
+    "findings": []
+  },
+  {
+    "surface": "company-catalog:unbound@375",
+    "url": "/demo/admin/catalogos-empresa",
+    "findings": []
+  },
+  {
+    "surface": "company-catalog:inactive@375",
+    "url": "/demo/admin/catalogos-empresa",
+    "findings": []
+  }
+]

@@ -31,10 +31,67 @@ Una quinta clasificación, **fuera de alcance deliberado**, evita confundir
 paridad comercial con fabricar bancos, redes publicitarias, hardware de punto de
 venta o servicios logísticos propios.
 
+## Última demo verificada
+
+**R6.2b implementada y verificada localmente, disponible en el repositorio**,
+rama `codex/company-catalog-demo`; preparada para integración, todavía
+pendiente y sin despliegue. `/demo/admin/catalogos-empresa`, dentro de Clientes,
+muestra Workshop y Studio activas, Unbound activa sin vinculación de precios
+y Closed inactiva; ES/FR y canal `professional` fijo. Tres productos y variantes
+activos con selección inicial explícita 11/21/31, sin inferir default; cambiar
+contexto conserva esa selección. El caso inicial muestra precios de lista de
+empresa, lista general y catálogo. Interacción en memoria con reset, sin
+totales, hashes ni referencias técnicas en UI, I/O, DDL u operación comercial
+real. B2B-002 sigue parcial e instalada/inactiva; B2B-009 pendiente.
+
+Check final: 961 archivos sin diagnósticos, 252 suites/3.259 pruebas,
+44 HTML/44 formularios/cero crons; 49 pruebas del modelo y seis de arquitectura.
+Revisión independiente de 14.638 comprobaciones, 32 estados y 416 transiciones,
+sin P1/P2, efectos, ejecución de getters ni reloj implícito; 16 resultados con
+precio y 80 bloqueados.
+
+El cliente real de Catálogos contiene cinco archivos, 60.244 B/18.532 B gzip
+(entrada 37.386/10.361 B). La guía se mide por separado: tres archivos,
+15.143 B/6.297 B gzip. Ambas sondas de arranque sin raíz registran una consulta
+DOM y cero efectos, imports externos o reloj implícito; Catálogos construye
+cinco fechas explícitas y la guía ninguna. El bundle de diagnóstico del modelo,
+53.231 B/diez fuentes, no es un asset de UI ni sustituye la prueba de navegador.
+
+QA final nueva: navegador 3.614 comprobaciones en 64 visitas, 32 por tamaño
+1440/375; ocho superficies a11y sin hallazgos y E2E 180/180 con salida 0.
+Ocho capturas regeneradas aprobadas por frontend y cuatro por revisión
+principal, sin nuevos defectos; Empresa queda despejada en las cuatro vistas
+móviles, sin overflow. La guía móvil usa un disparador
+de 44 px en cabecera; foco, cierre, Escape, resize 375↔1024 y anchura 320 sin
+overflow verificados. El módulo no produce efectos; las ocho escrituras
+adicionales de la guía en sessionStorage se contabilizan aparte de las tres de
+preparación y dos de recarga.
+
+Base QA intacta, 143 tablas/353 filas y hash idéntico antes/después
+`9cbfc811cfc4296515a403d395875a43bfa26aff0c9c9b08be0804b15bbf6eca`.
+Worker detenido. [Informe final](../audits/r6-2b/verification-report.json).
+Los resultados R6.2a y anteriores conservan su procedencia.
+
+**Siguiente aceptado: R6.3a**, contrato fixture de reglas de cantidad globales
+por variante, sin sustituciones por empresa ni precedencia. La regla fija la
+unidad de pedido y su factor: unidad con factor 1 o caja con `unitsPerBox` al
+menos 2. Mínimo y máximo inclusivos, múltiplo absoluto desde cero en unidades
+canónicas. Factibilidad mediante mínimo común múltiplo de múltiplo y factor,
+calculado exactamente con BigInt; overflow rechazado, sin autoajuste, redondeo
+ni clamp. Request con referencias completas a política y catálogo; count 0
+se conserva para diagnóstico, sin eliminar la línea. Regla ausente devuelve
+`unconfigured`; todas las referencias y pertenencias se validan, también fuera
+de selección. Composición aditiva con visibilidad del catálogo y una variante
+explícita por producto, sin stock, precios, totales, `purchasable` ni imports de
+pricing; quote 1..99 y el runtime permanecen intactos. Implementación pendiente
+tras integrar R6.2b; B2B-005 continúa pendiente.
+
 ## Último contrato verificado
 
 **R6.2a implementado y verificado localmente**, rama
-`codex/company-catalog-contract`; integración pendiente, sin despliegue.
+`codex/company-catalog-contract`, integrado en
+[PR #29](https://github.com/amariner/logic2b-ecom/pull/29), commit `4d7a30a9`,
+sin despliegue.
 El [ADR-0053](adr/0053-catalogos-empresa-fixture.md) delimita el contrato fixture
 para catálogos de empresa. `companies` v1.1 posee B2B-002, parcial e
 instalada/inactiva en avanzado y demo, con dependencia de capacidad única
@@ -62,10 +119,9 @@ Este contrato puro no añadió Worker, auditoría HTTP, navegador, a11y ni
 verificación de DB. E2E 176/176, navegador 601, ocho superficies a11y, ocho
 capturas y hash QA de 143 tablas/353 filas pertenecen a R6.1b, integrado en
 PR #28; son evidencia heredada, sin nuevas ejecuciones en R6.2a.
-R6.2b tiene diseño aprobado para `/demo/admin/catalogos-empresa`, dentro de
-Clientes; la UI todavía no está implementada ni tiene evidencia visual nueva.
+R6.2b aporta la demo verificada localmente, pendiente de integración.
 
-## Última demo verificada
+## Demo anterior verificada
 
 **R6.1b implementada y verificada localmente, disponible en el repositorio**,
 rama `codex/company-directory-demo`, integrada en
@@ -419,16 +475,17 @@ a la selección, antes de la API tipada de precios. Sin totales, autorización
 real, DDL ni activación; B2B-002 permanece parcial e instalada/inactiva y
 B2B-009 pendiente.
 
-**R6.2b: diseño aprobado, implementación pendiente.** La demo
-`/demo/admin/catalogos-empresa`, dentro de Clientes, mostrará cuatro empresas
-sintéticas con nombres claros: dos activas, una sin vinculación de precios y
-una inactiva. Mercados ES/FR y canal `professional` fijo; tres tarjetas de
-producto con variante explícita preservada al cambiar contexto. El caso
-inicial mostrará los tres orígenes de precio: lista de empresa, lista general
-y catálogo. Sin totales, hashes ni referencias técnicas en la UI. Se prevén
-ocho capturas: caso inicial, restricciones disjuntas, vinculación ausente y
-empresa inactiva, en dos tamaños. No hay UI implementada ni evidencia visual
-nueva en este corte.
+**R6.2b verificada localmente y disponible en repo**, pendiente de integración
+sin despliegue: `/demo/admin/catalogos-empresa`, dentro de Clientes. Workshop
+y Studio activas, Unbound activa sin vinculación y Closed inactiva; ES/FR y
+`professional` fijo. Tres productos y variantes activos, selección inicial
+explícita 11/21/31 preservada al cambiar contexto y los tres orígenes de precio
+visibles en el caso inicial. Memoria y reset, sin totales ni operación real.
+Check final 961 archivos/252 suites/3.259 pruebas; revisión de 32 estados y
+416 transiciones. Navegador final 3.614 comprobaciones/64 visitas, ocho
+superficies a11y sin hallazgos, E2E nuevo 180/180 y hash de 143 tablas/353 filas
+intacto. Ocho capturas regeneradas aprobadas por frontend, sin nuevos defectos.
+[Informe final](../audits/r6-2b/verification-report.json).
 
 ## Demo verificada
 

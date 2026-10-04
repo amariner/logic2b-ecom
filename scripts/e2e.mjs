@@ -245,6 +245,15 @@ check('empresas conserva privacidad de caché e indexación',
   companyDirectoryResponse.headers.get('cache-control')?.includes('no-store') && companyDirectoryHtml.includes('noindex'));
 check('empresas no añade formularios ni envíos', !/<form\b/i.test(companyDirectoryHtml)
   && !/<button\b(?![^>]*\btype=["']button["'])/i.test(companyDirectoryHtml));
+const companyCatalogResponse = await fetch(`${BASE}/demo/admin/catalogos-empresa`, { headers: { cookie } });
+const companyCatalogHtml = await companyCatalogResponse.text();
+check('panel enlaza la demostración de catálogo por empresa', adminHtml.includes('href="/demo/admin/catalogos-empresa"'));
+check('catálogo por empresa muestra productos ficticios y origen de sus precios', companyCatalogResponse.ok
+  && companyCatalogHtml.includes('data-company-catalog-demo') && companyCatalogHtml.includes('data-company-catalog-price'));
+check('catálogo por empresa conserva privacidad de caché e indexación',
+  companyCatalogResponse.headers.get('cache-control')?.includes('no-store') && companyCatalogHtml.includes('noindex'));
+check('catálogo por empresa no añade formularios ni envíos', !/<form\b/i.test(companyCatalogHtml)
+  && !/<button\b(?![^>]*\btype=["']button["'])/i.test(companyCatalogHtml));
 const marketDemoResponse = await fetch(`${BASE}/demo/admin/mercados`, { headers: { cookie } });
 const marketDemoHtml = await marketDemoResponse.text();
 check('panel enlaza la demostración de mercados e idiomas', adminHtml.includes('href="/demo/admin/mercados"'));

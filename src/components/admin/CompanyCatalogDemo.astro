@@ -1,0 +1,236 @@
+---
+import { createCompanyCatalogDemo, getCompanyCatalogDemoView } from '../../composition/company-catalog-demo';
+import { formatEurCents } from '../../lib/format';
+
+const initial = getCompanyCatalogDemoView(createCompanyCatalogDemo());
+---
+
+<div data-company-catalog-demo data-ready="false" class="company-catalog-demo mt-6 space-y-6 text-foreground">
+  <div class="flex flex-col gap-3 rounded-2xl border border-border bg-card p-4 sm:flex-row sm:items-center sm:justify-between sm:px-5">
+    <div class="max-w-3xl"><p class="text-sm font-semibold leading-6">Catálogo y precios ficticios. Este ejemplo no crea pedidos ni autoriza compras.</p><p class="mt-1 text-xs leading-5 text-muted-foreground">Los cambios solo duran en esta página. Al recargar, vuelves al inicio.</p></div>
+    <button data-company-catalog-action="reset" type="button" disabled class="catalog-button shrink-0 border border-border bg-background text-foreground">Restablecer ejemplo</button>
+  </div>
+
+  <noscript data-company-catalog-nojs><div class="rounded-xl border border-border bg-muted p-4 text-sm leading-6">Puedes consultar el catálogo y los precios iniciales sin JavaScript. Los controles permanecen desactivados; este ejemplo no envía ni guarda datos.</div></noscript>
+
+  <div class="grid items-start gap-6 xl:grid-cols-[minmax(0,.8fr)_minmax(0,1.2fr)]">
+    <section class="catalog-panel" aria-labelledby="company-catalog-context-title">
+      <div class="flex items-start gap-3"><span class="catalog-step" aria-hidden="true">1</span><div><h2 id="company-catalog-context-title" class="text-xl font-semibold">Elige el contexto</h2><p class="mt-1 text-sm leading-6 text-muted-foreground">Compara las reglas de empresas y mercados de ejemplo.</p></div></div>
+
+      <label class="catalog-label mt-5" for="company-catalog-company">Empresa de ejemplo
+        <select id="company-catalog-company" data-company-catalog-company disabled class="catalog-input">
+          {initial.companyOptions.map(option => <option value={option.id} selected={option.id === initial.selection.companyId}>{option.label}</option>)}
+        </select>
+      </label>
+      <p data-company-catalog-company-state class="mt-2 text-xs leading-5 text-muted-foreground">{initial.company.stateLabel}</p>
+
+      <label class="catalog-label mt-5" for="company-catalog-market">Mercado de ejemplo
+        <select id="company-catalog-market" data-company-catalog-market disabled class="catalog-input">
+          {initial.marketOptions.map(option => <option value={option.id} selected={option.id === initial.selection.marketId}>{option.label}</option>)}
+        </select>
+      </label>
+      <p data-company-catalog-channel class="mt-2 text-xs leading-5 text-muted-foreground">{initial.channelLabel}</p>
+
+      <div class="mt-5 rounded-xl border border-border bg-muted/40 p-4">
+        <h3 class="text-sm font-semibold">La variante elegida se conserva</h3>
+        <p class="mt-1 text-xs leading-5 text-muted-foreground">Al cambiar de contexto, cada tarjeta mantiene su variante, aunque quede oculta. Puedes elegir otra para comparar el resultado.</p>
+      </div>
+
+      <div class="mt-6 border-t border-border pt-5">
+        <h3 class="text-base font-semibold">De dónde sale el precio</h3>
+        <ol class="mt-3 space-y-3 text-sm leading-6">
+          <li><span class="font-semibold">1. Tarifa de la empresa.</span> Se busca un precio para ese producto.</li>
+          <li><span class="font-semibold">2. Tarifa general.</span> Se consulta si falta un precio de empresa.</li>
+          <li><span class="font-semibold">3. Catálogo.</span> Se usa el precio propio de la variante si ninguna tarifa aporta uno.</li>
+        </ol>
+        <p class="mt-3 text-xs leading-5 text-muted-foreground">Esta secuencia requiere una empresa activa con tarifas vinculadas y una variante visible. Una tarifa sustituye el precio del producto, incluso al elegir otra de sus variantes.</p>
+      </div>
+      <p data-company-catalog-feedback role="status" aria-live="polite" aria-atomic="true" class="mt-5 text-sm leading-6">{initial.feedback.message}</p>
+    </section>
+
+    <section class="catalog-panel" aria-labelledby="company-catalog-result-title">
+      <div class="flex items-start gap-3"><span class="catalog-step" aria-hidden="true">2</span><div><h2 id="company-catalog-result-title" class="text-xl font-semibold">Compara variantes y precios</h2><p data-company-catalog-context-label class="mt-1 text-sm leading-6 text-muted-foreground">{initial.company.label} · {initial.marketLabel}</p></div></div>
+      <p class="mt-4 text-xs leading-5 text-muted-foreground">Precios unitarios de ejemplo en EUR, sin totales. La visibilidad no confirma existencias, impuestos ni disponibilidad para comprar.</p>
+
+      <div class="mt-5 space-y-4">
+        {initial.products.map(product => <article data-company-catalog-product data-product-id={product.productId} data-visible={String(product.visible)} data-restriction={product.restriction} data-publication={product.publication} data-intersection-reason={product.intersectionReason ?? undefined} class="catalog-product">
+          <h3 class="text-base font-semibold">{product.label}</h3>
+          <label class="catalog-label mt-3" for={'company-catalog-variant-' + product.productId}>Variante de {product.label.toLowerCase()}
+            <select id={'company-catalog-variant-' + product.productId} data-company-catalog-variant data-product-id={product.productId} disabled aria-describedby={'company-catalog-selection-' + product.productId} class="catalog-input">
+              {product.variantOptions.map(option => <option value={option.id} selected={option.id === product.selectedVariantId}>{option.label}</option>)}
+            </select>
+          </label>
+          <p id={'company-catalog-selection-' + product.productId} class="mt-2 text-xs leading-5 text-muted-foreground"><span data-company-catalog-selected-label>{product.selectedVariant.label}</span> · <span data-company-catalog-selected-sku>{product.selectedVariant.sku}</span></p>
+          <p hidden={product.variantOptions.length !== 1} class="mt-1 text-xs leading-5 text-muted-foreground">Este producto tiene una única variante en el ejemplo.</p>
+          <p class="mt-3"><span data-company-catalog-selected-visibility class="catalog-badge">{product.selectedVariant.visible ? 'Variante visible en este contexto' : 'Variante oculta en este contexto'}</span></p>
+          <p data-company-catalog-intersection hidden={product.intersectionReason === null} class="mt-3 text-sm leading-6">{product.intersectionReason === null ? '' : 'Las variantes de la empresa y del mercado no coinciden.'}</p>
+
+          <div data-company-price data-company-catalog-price data-product-id={product.productId} data-variant-id={product.selectedVariantId} data-outcome={product.pricing.outcome} data-origin={product.pricing.price?.originType} data-fallback-depth={product.pricing.price?.fallbackDepth} class="mt-4 rounded-xl border border-border bg-muted/40 p-4">
+            <dl data-company-price-values hidden={product.pricing.price === null} class="catalog-amounts">
+              <div><dt>Catálogo de esta variante</dt><dd data-company-price-amount="catalog" data-cents={product.pricing.price?.catalogUnitPriceCents}>{product.pricing.price ? formatEurCents(product.pricing.price.catalogUnitPriceCents) : ''}</dd></div>
+              <div><dt>Precio unitario del ejemplo</dt><dd data-company-price-amount="base" data-cents={product.pricing.price?.baseUnitPriceCents}>{product.pricing.price ? formatEurCents(product.pricing.price.baseUnitPriceCents) : ''}</dd></div>
+            </dl>
+            <p data-company-price-origin hidden={product.pricing.price === null} class="mt-3 text-sm font-semibold">{product.pricing.price?.originLabel ?? ''}</p>
+            <p data-company-price-blocked hidden={product.pricing.price !== null} class="text-sm font-semibold">Sin precio calculado</p>
+            <ul data-company-price-reasons hidden={product.pricing.reasonLabels.length === 0} class="mt-2 space-y-1 text-sm leading-6 text-muted-foreground">{product.pricing.reasonLabels.map(reason => <li data-company-price-reason data-reason={reason.reason}>{reason.label}</li>)}</ul>
+          </div>
+
+          <details class="mt-3 border-t border-border pt-2">
+            <summary class="catalog-summary">Ver reglas de empresa y mercado</summary>
+            <div class="space-y-3 pt-2">
+              <ul data-company-catalog-company-reasons hidden={product.companyReasonLabels.length === 0} class="space-y-1 text-xs leading-5 text-muted-foreground">{product.companyReasonLabels.map(label => <li>{label}</li>)}</ul>
+              <ul data-company-catalog-market-reasons hidden={product.marketReasonLabels.length === 0} class="space-y-1 text-xs leading-5 text-muted-foreground">{product.marketReasonLabels.map(label => <li>{label}</li>)}</ul>
+              {product.variants.map(variant => <div data-company-catalog-variant-row data-product-id={product.productId} data-variant-id={variant.id} data-status={variant.status} data-company-selected={String(variant.companySelected)} data-market-selected={String(variant.marketSelected)} data-company-eligible={String(variant.companyEligible)} data-market-visible={String(variant.marketVisible)} data-visible={String(variant.visible)} class="catalog-variant-row">
+                <p class="text-sm font-semibold">{variant.label} <span class="font-normal text-muted-foreground">· {variant.sku}</span></p>
+                <p data-company-catalog-variant-state class="mt-1 text-xs leading-5 text-muted-foreground">{variant.statusLabel} · {variant.visible ? 'Visible en este contexto' : 'Oculta en este contexto'}</p>
+                <div class="mt-3 grid gap-3 sm:grid-cols-2">
+                  <div><p class="text-xs font-semibold">Regla de la empresa</p><ul data-company-variant-company-reasons class="mt-1 space-y-1 text-xs leading-5 text-muted-foreground">{(variant.companyReasonLabels.length ? variant.companyReasonLabels : ['Cumple la regla de la empresa.']).map(label => <li>{label}</li>)}</ul></div>
+                  <div><p class="text-xs font-semibold">Publicación en el mercado</p><ul data-company-variant-market-reasons class="mt-1 space-y-1 text-xs leading-5 text-muted-foreground">{(variant.marketReasonLabels.length ? variant.marketReasonLabels : ['Publicada en este mercado y canal.']).map(label => <li>{label}</li>)}</ul></div>
+                </div>
+              </div>)}
+            </div>
+          </details>
+        </article>)}
+      </div>
+    </section>
+  </div>
+</div>
+
+<style is:global>
+  .company-catalog-demo .catalog-panel { min-width: 0; border: 1px solid var(--color-border); border-radius: var(--radius-card); background: var(--color-card); padding: 1.25rem; overflow-wrap: anywhere; }
+  .company-catalog-demo .catalog-step { display: flex; flex-shrink: 0; width: 2rem; height: 2rem; align-items: center; justify-content: center; border-radius: 100%; background: var(--color-foreground); color: var(--color-background); font-size: .875rem; font-weight: 600; }
+  .company-catalog-demo .catalog-label { display: block; min-width: 0; font-size: .875rem; line-height: 1.5rem; font-weight: 600; }
+  .company-catalog-demo .catalog-input { display: block; width: 100%; min-width: 0; min-height: 3rem; margin-top: .5rem; border: 1px solid var(--color-input); border-radius: var(--radius-btn); background: var(--color-background); padding-inline: .75rem; color: var(--color-foreground); font-size: 1rem; line-height: 1.5rem; font-weight: 400; }
+  .company-catalog-demo .catalog-input:disabled { opacity: 1; cursor: default; }
+  .company-catalog-demo .catalog-button { min-height: 3rem; border-radius: var(--radius-btn); padding: .75rem 1rem; font-size: .875rem; line-height: 1.5rem; font-weight: 600; cursor: pointer; }
+  .company-catalog-demo .catalog-button:hover:not(:disabled) { box-shadow: 0 0 0 1px var(--color-foreground); }
+  .company-catalog-demo .catalog-button:disabled { background: var(--color-muted); color: var(--color-foreground); opacity: 1; cursor: not-allowed; }
+  .company-catalog-demo .catalog-product { min-width: 0; border: 1px solid var(--color-border); border-radius: var(--radius-btn); padding: 1rem; }
+  .company-catalog-demo .catalog-badge { display: inline-flex; border-radius: 999px; background: var(--color-muted); padding: .25rem .625rem; color: var(--color-foreground); font-size: .75rem; line-height: 1.25rem; font-weight: 600; }
+  .company-catalog-demo .catalog-amounts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .75rem; }
+  .company-catalog-demo .catalog-amounts[hidden] { display: none; }
+  .company-catalog-demo .catalog-amounts dt { font-size: .75rem; line-height: 1.25rem; color: var(--color-muted-foreground); }
+  .company-catalog-demo .catalog-amounts dd { margin-top: .5rem; font-size: 1.25rem; line-height: 1.75rem; font-weight: 600; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+  .company-catalog-demo .catalog-summary { min-height: 3rem; padding-block: .75rem; font-size: .75rem; line-height: 1.5rem; font-weight: 600; cursor: pointer; }
+  .company-catalog-demo .catalog-variant-row { border: 1px solid var(--color-border); border-radius: var(--radius-btn); padding: .75rem; }
+  .company-catalog-demo :is(button, select, summary):focus-visible { outline: 2px solid var(--color-foreground); outline-offset: 3px; }
+  @media (min-width: 640px) { .company-catalog-demo .catalog-panel { padding: 1.5rem; } }
+</style>
+
+<script>
+  import {
+    configureCompanyCatalogDemo, createCompanyCatalogDemo, getCompanyCatalogDemoView,
+    selectCompanyCatalogDemoVariant, type CompanyCatalogDemoSelection,
+  } from '../../composition/company-catalog-demo';
+  import { formatEurCents } from '../../lib/format';
+
+  const root = document.querySelector<HTMLElement>('[data-company-catalog-demo]');
+  if (root) {
+    const find = (selector: string, scope: HTMLElement = root): HTMLElement => scope.querySelector<HTMLElement>(selector)!;
+    const select = (selector: string) => {
+      const element = root.querySelector(selector);
+      if (!(element instanceof HTMLSelectElement)) throw new Error('Falta un selector del ejemplo.');
+      return element;
+    };
+    const company = select('[data-company-catalog-company]');
+    const market = select('[data-company-catalog-market]');
+    const variantSelects = [...root.querySelectorAll('[data-company-catalog-variant]')].map(element => {
+      if (!(element instanceof HTMLSelectElement)) throw new Error('Falta un selector de variante del ejemplo.');
+      return element;
+    });
+    const products = [...root.querySelectorAll<HTMLElement>('[data-company-catalog-product]')];
+    const reset = root.querySelector<HTMLButtonElement>('[data-company-catalog-action="reset"]')!;
+    const feedback = find('[data-company-catalog-feedback]');
+    let state = createCompanyCatalogDemo();
+
+    const labels = (element: HTMLElement, values: readonly string[]) => {
+      element.hidden = values.length === 0;
+      element.replaceChildren(...values.map(label => {
+        const item = document.createElement('li');
+        item.textContent = label;
+        return item;
+      }));
+    };
+    const amount = (element: HTMLElement, cents: number | null) => {
+      element.textContent = cents === null ? '' : formatEurCents(cents);
+      if (cents === null) delete element.dataset.cents;
+      else element.dataset.cents = String(cents);
+    };
+    const render = () => {
+      const view = getCompanyCatalogDemoView(state);
+      company.value = view.selection.companyId;
+      market.value = view.selection.marketId;
+      find('[data-company-catalog-company-state]').textContent = view.company.stateLabel;
+      find('[data-company-catalog-context-label]').textContent = view.company.label + ' · ' + view.marketLabel;
+      for (const product of view.products) {
+        const card = products.find(element => element.dataset.productId === String(product.productId))!;
+        card.dataset.visible = String(product.visible);
+        card.dataset.restriction = product.restriction;
+        card.dataset.publication = product.publication;
+        if (product.intersectionReason === null) delete card.dataset.intersectionReason;
+        else card.dataset.intersectionReason = product.intersectionReason;
+        const variantSelect = variantSelects.find(element => element.dataset.productId === String(product.productId))!;
+        variantSelect.value = String(product.selectedVariantId);
+        variantSelect.disabled = product.variantOptions.length === 1;
+        find('[data-company-catalog-selected-label]', card).textContent = product.selectedVariant.label;
+        find('[data-company-catalog-selected-sku]', card).textContent = product.selectedVariant.sku;
+        find('[data-company-catalog-selected-visibility]', card).textContent = product.selectedVariant.visible ? 'Variante visible en este contexto' : 'Variante oculta en este contexto';
+        const intersection = find('[data-company-catalog-intersection]', card);
+        intersection.hidden = product.intersectionReason === null;
+        intersection.textContent = product.intersectionReason === null ? '' : 'Las variantes de la empresa y del mercado no coinciden.';
+
+        const panel = find('[data-company-price]', card);
+        const price = product.pricing.price;
+        panel.dataset.variantId = String(product.selectedVariantId);
+        panel.dataset.outcome = product.pricing.outcome;
+        if (price === null) { delete panel.dataset.origin; delete panel.dataset.fallbackDepth; }
+        else { panel.dataset.origin = price.originType; panel.dataset.fallbackDepth = String(price.fallbackDepth); }
+        find('[data-company-price-values]', card).hidden = price === null;
+        amount(find('[data-company-price-amount="catalog"]', card), price?.catalogUnitPriceCents ?? null);
+        amount(find('[data-company-price-amount="base"]', card), price?.baseUnitPriceCents ?? null);
+        const origin = find('[data-company-price-origin]', card);
+        origin.hidden = price === null;
+        origin.textContent = price?.originLabel ?? '';
+        find('[data-company-price-blocked]', card).hidden = price !== null;
+        const reasons = find('[data-company-price-reasons]', card);
+        reasons.hidden = product.pricing.reasonLabels.length === 0;
+        reasons.replaceChildren(...product.pricing.reasonLabels.map(reason => {
+          const item = document.createElement('li');
+          item.dataset.companyPriceReason = '';
+          item.dataset.reason = reason.reason;
+          item.textContent = reason.label;
+          return item;
+        }));
+        labels(find('[data-company-catalog-company-reasons]', card), product.companyReasonLabels);
+        labels(find('[data-company-catalog-market-reasons]', card), product.marketReasonLabels);
+        const rows = [...card.querySelectorAll<HTMLElement>('[data-company-catalog-variant-row]')];
+        for (const variant of product.variants) {
+          const row = rows.find(element => element.dataset.variantId === String(variant.id))!;
+          row.dataset.companySelected = String(variant.companySelected);
+          row.dataset.marketSelected = String(variant.marketSelected);
+          row.dataset.companyEligible = String(variant.companyEligible);
+          row.dataset.marketVisible = String(variant.marketVisible);
+          row.dataset.visible = String(variant.visible);
+          find('[data-company-catalog-variant-state]', row).textContent = variant.statusLabel + ' · ' + (variant.visible ? 'Visible en este contexto' : 'Oculta en este contexto');
+          labels(find('[data-company-variant-company-reasons]', row), variant.companyReasonLabels.length ? variant.companyReasonLabels : ['Cumple la regla de la empresa.']);
+          labels(find('[data-company-variant-market-reasons]', row), variant.marketReasonLabels.length ? variant.marketReasonLabels : ['Publicada en este mercado y canal.']);
+        }
+      }
+      const message = view.feedback.message + ' ' + view.company.label + ', ' + view.marketLabel + '. Variantes: ' + view.products.map(product => product.selectedVariant.label).join(', ') + '.';
+      if (feedback.textContent !== message) feedback.textContent = message;
+    };
+
+    company.addEventListener('change', () => { state = configureCompanyCatalogDemo(state, { companyId: company.value as CompanyCatalogDemoSelection['companyId'] }); render(); });
+    market.addEventListener('change', () => { state = configureCompanyCatalogDemo(state, { marketId: market.value as CompanyCatalogDemoSelection['marketId'] }); render(); });
+    for (const control of variantSelects) control.addEventListener('change', () => {
+      state = selectCompanyCatalogDemoVariant(state, { productId: Number(control.dataset.productId), variantId: Number(control.value) });
+      render();
+    });
+    reset.addEventListener('click', () => { state = createCompanyCatalogDemo(); render(); });
+    render();
+    company.disabled = false;
+    market.disabled = false;
+    reset.disabled = false;
+    root.dataset.ready = 'true';
+  }
+</script>
