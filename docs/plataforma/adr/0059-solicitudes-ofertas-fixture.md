@@ -1,11 +1,11 @@
 # ADR-0059 — Solicitudes B2B y revisiones completas de oferta con fixtures
 
-- Estado: accepted; R6.6a implementado y verificado localmente. Integración pendiente, sin activación ni despliegue.
+- Estado: accepted; R6.6a implementado y verificado localmente. Integrado en PR #39 (`108480f8`), sin activación ni despliegue.
 - Fecha: 2026-10-04.
 - Módulo: `companies` 1.7.0; dependencia de módulo `platform-configuration`.
 - Capacidad: B2B-006 parcial, instalada/inactiva en avanzado/demo, ausente en mínimo/estándar; dependencia única B2B-002 y superficies operativas vacías.
 - Perfil: `company-offer-eur-cents-v1`.
-- Continuidad: R6.5c integrada en PR #38 (`5cdb5bb`); composición ORD-008 y demo posteriores.
+- Continuidad: R6.5c integrada en PR #38 (`5cdb5bb`); R6.6b implementado y verificado localmente; integración pendiente y demo posterior.
 
 ## Contexto y decisión
 
@@ -221,7 +221,7 @@ dependencia B2B-002, que ya depende de B2B-001. `companies` 1.7.0 mantiene
 crédito, pagos o permisos. No hay UI, rutas, DDL, jobs, reloj implícito,
 proveedores, reservas o cambios de checkout/ledger.
 
-**Implementado y verificado localmente el 2026-10-04; integración pendiente y sin despliegue.**
+**Implementado y verificado localmente el 2026-10-04; integrado en PR #39 (`108480f8`) y sin despliegue.**
 [Informe final R6.6a](../../audits/r6-6a/verification-report.json). `pnpm check`: 987 archivos
 sin diagnósticos, 262 suites/3.745 pruebas. Cincuenta pruebas de dominio,
 seis de arquitectura y 120 de registro/manifest/acceso; build con 44 HTML,
@@ -251,7 +251,8 @@ al retirar esos 175 B se recupera el SHA anterior exacto. Es un delta estático
 verificado, sin nueva ejecución de navegador/HTTP/DB ni prueba del grafo SSR
 transitivo completo.
 
-R6.6b compondrá una revisión explícita con APIs públicas de ORD-008. Congelará
+R6.6b está implementado y verificado localmente, según el [ADR-0060](0060-artefacto-preliminar-fixture.md). Compone
+una revisión explícita con APIs públicas de ORD-008 y congela
 oferta y parámetros de presupuesto completos: ID compatible con el patrón
 propio de `orders`, depósito, puerta de conversión y fechas explícitos. Cambio
 de oferta o parámetros exige otro artefacto y nueva emisión/aceptación; no
@@ -261,7 +262,12 @@ oferta y de la versión del ciclo ORD-008. Añadir otra oferta en una copia
 posterior no retargetea ni invalida inspeccionar el artefacto histórico con su
 binding original. `expiresAt` procede de esa oferta, sin otro plazo inferido.
 Usará create/issue/approve/expire/cancel existentes, sin recrear sus estados o
-aritmética; schema/API de b aún son diseño pendiente de implementación. Importar
+aritmética. Check 989 archivos/263 suites/3.789 pruebas y revisión 9.093 sin
+P1/P2. Los 58 JS públicos, seis grafos, 355 fuentes y 19 CSS son iguales a
+PR #39; el Worker conserva factories y consumidores, con +92 B explicado por
+PURE y registro. No se acredita equivalencia SSR completa. Integración pendiente;
+QA runtime heredada de PR #38, sin nuevas ejecuciones.
+[Informe final R6.6b](../../audits/r6-6b/verification-report.json). Importar
 APIs públicas puras no activa ORD-008 ni sus rutas o consumidores operativos.
 
 R6.6c será la demo posterior. Ningún corte fixture crea enlaces alojados,

@@ -1,0 +1,1707 @@
+{
+  "schemaVersion": 1,
+  "block": "R6.6b",
+  "verifiedAt": "2026-10-04",
+  "environment": "local-fixture-contracts",
+  "deployment": "not-deployed",
+  "verification": {
+    "typecheckFiles": 989,
+    "diagnostics": 0,
+    "suites": 263,
+    "tests": 3789,
+    "compositionTests": 44,
+    "regressionNegotiationTests": 50,
+    "architectureTests": 6,
+    "registryManifestAccessTests": 120,
+    "buildHtmlPages": 44,
+    "buildLocalForms": 44,
+    "cronCount": 0
+  },
+  "independentReview": {
+    "schemaVersion": 1,
+    "block": "R6.6b",
+    "result": "passed",
+    "reviewedAt": "2026-10-04T04:08:44.188696+00:00",
+    "openP1": 0,
+    "openP2": 0,
+    "independentChecks": 9093,
+    "oracle": {
+      "schemaVersion": 1,
+      "status": "passed",
+      "reviewedAt": "2026-10-04T04:04:53.332Z",
+      "checks": 9031,
+      "histories": 36,
+      "transitions": 1696,
+      "historicalReplays": 68,
+      "payloadReuseConflicts": 204,
+      "bindingChanges": 22,
+      "termCombinations": 18,
+      "effects": 0,
+      "getters": 0,
+      "implicitDates": 0,
+      "explicitDates": 134270
+    },
+    "reducerDelegation": {
+      "schemaVersion": 1,
+      "reviewedAt": "2026-10-04T04:06:41.778Z",
+      "status": "passed",
+      "checks": 62,
+      "badReducerOutputs": 36,
+      "getters": 0,
+      "method": "Private esbuild shim wraps actual public orders functions and records delegation; after-result/throw/future-fourth mutants injected only in probe. No product source edits.",
+      "limits": "This intentionally instrumented bundle is distinct from the public diagnostic bundle and its effect test."
+    },
+    "importOnlyRecheck": {
+      "schemaVersion": 1,
+      "status": "passed",
+      "reviewedAt": "2026-10-04T04:07:29.940Z",
+      "effects": 0,
+      "implicitDates": 0,
+      "explicitDates": 0,
+      "forbiddenOperationalTokens": [],
+      "exportedApis": [
+        "COMPANY_PRELIMINARY_LIMITS",
+        "CompanyPreliminaryContractError",
+        "applyCompanyPreliminaryAction",
+        "createCompanyPreliminaryArtifact",
+        "defineCompanyPreliminaryArtifact",
+        "defineCompanyPreliminaryBinding",
+        "previewCompanyPreliminaryArtifact"
+      ],
+      "notes": [
+        "Import-only recheck after two PURE annotations; full functional oracle was not rerun because implementation behavior is unchanged.",
+        "Data constants from infrastructure source files remain; no D1 methods, queries, adapters or ambient event factories remain."
+      ]
+    },
+    "sourceFreezeConfirmed": {
+      "composition": {
+        "path": "src/composition/company-preliminary-order.ts",
+        "modifiedAt": "2026-10-04T04:03:52.180Z",
+        "sha256": "a7f8af1c48767f8bafb51f0ffc3434f8846bd7b100ce989de47e5c8a52a29e70"
+      },
+      "rootPureAnnotations": {
+        "path": "src/composition/event-context.ts",
+        "modifiedAt": "2026-10-04T04:06:14.002Z",
+        "sha256": "8c6aa759b4e54afd79b4e624c9584f5c135dc85dd1c731e3eee70ebffdd2fc8d",
+        "delta": "Only two PURE comments on pure event factory construction calls; operational imports still retain used factories."
+      },
+      "tests": {
+        "path": "tests/company-preliminary-order.test.ts",
+        "modifiedAt": "2026-10-04T04:07:20.343100+00:00",
+        "sha256": "46e39fb6e0b878853d84384020d66813a0e5d5c905c8fde727460bd6f96f55f6"
+      },
+      "functionalSourceUnchangedSinceOracle": true
+    },
+    "publicBundle": {
+      "schemaVersion": 1,
+      "reviewedAt": "2026-10-04T04:07:07.661Z",
+      "scope": "Diagnostic public composition browser bundle, not emitted Astro client",
+      "bytes": 31399,
+      "gzipBytes": 8356,
+      "sha256": "2abf52b7083a14e74d4fac45353f3899b5dc040d019f67b2b0817ebdc901c0dd",
+      "contributingSources": [
+        {
+          "path": "src/modules/companies/domain/company-directory.ts",
+          "bytesInOutput": 5816
+        },
+        {
+          "path": "src/modules/companies/domain/company-catalog.ts",
+          "bytesInOutput": 3503
+        },
+        {
+          "path": "src/modules/companies/domain/company-collection-evidence.ts",
+          "bytesInOutput": 113
+        },
+        {
+          "path": "src/modules/companies/domain/company-credit.ts",
+          "bytesInOutput": 168
+        },
+        {
+          "path": "src/modules/companies/domain/company-negotiation.ts",
+          "bytesInOutput": 7936
+        },
+        {
+          "path": "src/modules/orders/infrastructure/d1-order-reader.ts",
+          "bytesInOutput": 234
+        },
+        {
+          "path": "src/shared-kernel/events.ts",
+          "bytesInOutput": 67
+        },
+        {
+          "path": "src/modules/orders/domain/order-bulk-action.ts",
+          "bytesInOutput": 90
+        },
+        {
+          "path": "src/modules/orders/domain/preliminary-order.ts",
+          "bytesInOutput": 4638
+        },
+        {
+          "path": "src/modules/orders/domain/order-document.ts",
+          "bytesInOutput": 105
+        },
+        {
+          "path": "src/modules/orders/infrastructure/d1-order-collaboration.ts",
+          "bytesInOutput": 89
+        },
+        {
+          "path": "src/modules/orders/infrastructure/d1-order-holds.ts",
+          "bytesInOutput": 181
+        },
+        {
+          "path": "src/modules/orders/infrastructure/d1-order-bulk-actions.ts",
+          "bytesInOutput": 89
+        },
+        {
+          "path": "src/composition/company-preliminary-order.ts",
+          "bytesInOutput": 8100
+        }
+      ],
+      "externalImports": [],
+      "forbidden": [],
+      "sourceFreeze": {
+        "path": "src/composition/company-preliminary-order.ts",
+        "modifiedAt": "2026-10-04T04:03:52.180Z",
+        "sha256": "a7f8af1c48767f8bafb51f0ffc3434f8846bd7b100ce989de47e5c8a52a29e70"
+      },
+      "rootSourceChange": {
+        "path": "src/composition/event-context.ts",
+        "modifiedAt": "2026-10-04T04:06:14.002Z",
+        "sha256": "8c6aa759b4e54afd79b4e624c9584f5c135dc85dd1c731e3eee70ebffdd2fc8d",
+        "delta": "Only two PURE comments on pure event factory construction calls; operational imports still retain used factories."
+      },
+      "retainedHistoricalData": [
+        {
+          "path": "src/modules/orders/infrastructure/d1-order-reader.ts",
+          "bytes": 234,
+          "description": "SORT_SQL column/direction lookup data; no reader/query code."
+        },
+        {
+          "path": "src/shared-kernel/events.ts",
+          "bytes": 67,
+          "description": "Event actor kind vocabulary/Set only; no validators or factories."
+        },
+        {
+          "path": "src/modules/orders/domain/order-bulk-action.ts",
+          "bytes": 90,
+          "description": "ORDER_BULK_LIMITS literal only."
+        },
+        {
+          "path": "src/modules/orders/domain/order-document.ts",
+          "bytes": 105,
+          "description": "Document-type literals/array construction only."
+        },
+        {
+          "path": "src/modules/orders/infrastructure/d1-order-collaboration.ts",
+          "bytes": 89,
+          "description": "Admin actor descriptor only."
+        },
+        {
+          "path": "src/modules/orders/infrastructure/d1-order-holds.ts",
+          "bytes": 181,
+          "description": "Admin/system actor descriptors only."
+        },
+        {
+          "path": "src/modules/orders/infrastructure/d1-order-bulk-actions.ts",
+          "bytes": 89,
+          "description": "Admin actor descriptor only."
+        },
+        {
+          "path": "src/modules/companies/domain/company-collection-evidence.ts",
+          "bytes": 113,
+          "description": "Historical limits literal only."
+        },
+        {
+          "path": "src/modules/companies/domain/company-credit.ts",
+          "bytes": 168,
+          "description": "Historical limits literal only."
+        }
+      ],
+      "importProbe": {
+        "schemaVersion": 1,
+        "status": "passed",
+        "reviewedAt": "2026-10-04T04:07:29.940Z",
+        "effects": 0,
+        "implicitDates": 0,
+        "explicitDates": 0,
+        "forbiddenOperationalTokens": [],
+        "exportedApis": [
+          "COMPANY_PRELIMINARY_LIMITS",
+          "CompanyPreliminaryContractError",
+          "applyCompanyPreliminaryAction",
+          "createCompanyPreliminaryArtifact",
+          "defineCompanyPreliminaryArtifact",
+          "defineCompanyPreliminaryBinding",
+          "previewCompanyPreliminaryArtifact"
+        ],
+        "notes": [
+          "Import-only recheck after two PURE annotations; full functional oracle was not rerun because implementation behavior is unchanged.",
+          "Data constants from infrastructure source files remain; no D1 methods, queries, adapters or ambient event factories remain."
+        ]
+      },
+      "removedAmbientFactories": {
+        "previousBytes": 34317,
+        "finalBytes": 31399,
+        "deltaBytes": -2918,
+        "previousGzipBytes": 9238,
+        "finalGzipBytes": 8356,
+        "deltaGzipBytes": -882,
+        "eventContextBytesInOutput": 0,
+        "implicitDateClosure": false,
+        "randomUUIDClosure": false
+      }
+    },
+    "resolvedIsolationFinding": {
+      "before": "orders public barrel retained ambient event factory construction and implicit Date/UUID closures, although probes observed zero calls/effects.",
+      "fix": "Root added exactly two PURE annotations to pure factory construction in event-context.ts. No reviewer product edits.",
+      "after": "Actual diagnostic regenerated: event-context and ambient factory/clock/UUID closures absent. Static historical data-only constants remain and are identified by source/size.",
+      "validation": "Focused import-only instrumentation and emitted-code/metafile inspection after annotations; full protocol oracle not rerun for comments."
+    },
+    "testDesignReview": {
+      "method": "Read-only inspection of final author test source",
+      "result": "no P1/P2",
+      "coverage": [
+        "Historical selected offer versus current negotiation and lifecycle versions remain separate.",
+        "Explicit real public constructor/reducer spies, generic blocked semantics, malformed history errors and candidate/context precedence.",
+        "Data/output adversaries, getters, immutable late-capture copies, mutable legacy enums, fourth-action future-regression limit and fixed errors.",
+        "Independent probe separately covers public diagnostic import effects; author effect test instruments calls after import."
+      ]
+    },
+    "registryAndAdrReview": {
+      "reviewer": "/root/review_execution/payment_terms_registry",
+      "method": "read-only",
+      "result": "no P1/P2",
+      "capability": "B2B-006 depends on B2B-002; advanced/demo installed/inactive, minimal/standard absent",
+      "module": "companies1.8.0 with platform-configuration only; no new operational surfaces or ORD-008 operational dependency",
+      "authorReportedFocusedChecks": 120,
+      "files": [
+        {
+          "path": "src/platform/configuration/module-registry.ts",
+          "modifiedAt": "2026-10-04T04:02:36.475155+00:00",
+          "sha256": "741e5381c644133801411fc75178d3942d9836e37f7c16990be747350367d8da"
+        },
+        {
+          "path": "tests/module-registry.test.ts",
+          "modifiedAt": "2026-10-04T04:02:37.151126+00:00",
+          "sha256": "8f0c0e300c16517a2e89d18d060b8ca62050d4d7b5885d947bd60e8dfb7db5e6"
+        },
+        {
+          "path": "docs/plataforma/adr/0060-artefacto-preliminar-fixture.md",
+          "modifiedAt": "2026-10-04T04:06:54.220209+00:00",
+          "sha256": "32f534bccee4825f84f038c8d47cdcf6a6703eb4e9d13400e20fe4bee6f5e238"
+        }
+      ]
+    },
+    "authorReportedFocusedChecks": {
+      "composition": 44,
+      "negotiationRegression": 50,
+      "architecture": 6,
+      "total": 100,
+      "passedAt": "2026-10-04T04:07:20Z",
+      "durationSeconds": 4.1,
+      "provenance": "Author report; no independent rerun"
+    },
+    "limits": [
+      "9,093 checks count only9,031 protocol/boundary assertions +62 delegation/mutant assertions. Separate import-only recheck is not added to that count.",
+      "Python oracle prepared before source inspection; protocol expectations do not call production reducers. Supplemental delegation probe wraps the actual public functions and mutates results only in private /tmp bundle.",
+      "Diagnostic browser bundle is not a served Astro client. Parent/QA compare existing real client graphs after fullcheck; no new browser/HTTP/DB evidence generated here.",
+      "Data-only constants from infrastructure paths remain; absence of D1 queries/readers/adapters and ambient factories is established separately, not inferred solely from source filenames.",
+      "Declared artifact consistency, historical state and replay do not authenticate actor/acceptance or imply purchase, payment, conversion, availability or durable CAS.",
+      "No tracked product/tests/docs edits, Git/fullcheck/Worker/browser/HTTP/DB actions by this reviewer."
+    ]
+  },
+  "builtClientComparison": {
+    "baselinePullRequest": "https://github.com/amariner/logic2b-ecom/pull/39",
+    "unchangedGraphs": true,
+    "graphs": [
+      {
+        "component": "CompanyCreditReviewDemo",
+        "entry": "dist/_astro/CompanyCreditReviewDemo.astro_astro_type_script_index_0_lang.DvnpgZPX.js",
+        "files": [
+          {
+            "path": "dist/_astro/company-directory.mOflI4d5.js",
+            "bytes": 6414,
+            "gzipBytes": 2302,
+            "sha256": "6c076800192741992b5cbfba6ce07a999d13e3499cd256b306e82dbfc49fc9bd",
+            "imports": []
+          },
+          {
+            "path": "dist/_astro/CompanyCreditReviewDemo.astro_astro_type_script_index_0_lang.DvnpgZPX.js",
+            "bytes": 40084,
+            "gzipBytes": 10724,
+            "sha256": "4ad808dc50ca1d279640bd3e7cb05f3bb0085e684f51ddce32dafe9ecd8bf1fd",
+            "imports": [
+              {
+                "path": "dist/_astro/company-directory.mOflI4d5.js",
+                "kind": "import-statement",
+                "external": false,
+                "specifier": "./company-directory.mOflI4d5.js"
+              },
+              {
+                "path": "dist/_astro/format.D6ggcjlO.js",
+                "kind": "import-statement",
+                "external": false,
+                "specifier": "./format.D6ggcjlO.js"
+              }
+            ]
+          },
+          {
+            "path": "dist/_astro/format.D6ggcjlO.js",
+            "bytes": 164,
+            "gzipBytes": 151,
+            "sha256": "7c7167f2030d738e58323bccda5878464f25a2138c4b1ddade0b4774694ba021",
+            "imports": []
+          }
+        ],
+        "totalBytes": 46662,
+        "totalGzipBytes": 13177,
+        "externalImports": []
+      },
+      {
+        "component": "CompanyCollectionDemo",
+        "entry": "dist/_astro/CompanyCollectionDemo.astro_astro_type_script_index_0_lang.pOo5tZX2.js",
+        "files": [
+          {
+            "path": "dist/_astro/company-directory.mOflI4d5.js",
+            "bytes": 6414,
+            "gzipBytes": 2302,
+            "sha256": "6c076800192741992b5cbfba6ce07a999d13e3499cd256b306e82dbfc49fc9bd",
+            "imports": []
+          },
+          {
+            "path": "dist/_astro/CompanyCollectionDemo.astro_astro_type_script_index_0_lang.pOo5tZX2.js",
+            "bytes": 25234,
+            "gzipBytes": 7159,
+            "sha256": "2b233eb74611532cc5e421d779ee8de61a2006820e3d6cb66558f7e2777ad5f4",
+            "imports": [
+              {
+                "path": "dist/_astro/company-directory.mOflI4d5.js",
+                "kind": "import-statement",
+                "external": false,
+                "specifier": "./company-directory.mOflI4d5.js"
+              },
+              {
+                "path": "dist/_astro/format.D6ggcjlO.js",
+                "kind": "import-statement",
+                "external": false,
+                "specifier": "./format.D6ggcjlO.js"
+              }
+            ]
+          },
+          {
+            "path": "dist/_astro/format.D6ggcjlO.js",
+            "bytes": 164,
+            "gzipBytes": 151,
+            "sha256": "7c7167f2030d738e58323bccda5878464f25a2138c4b1ddade0b4774694ba021",
+            "imports": []
+          }
+        ],
+        "totalBytes": 31812,
+        "totalGzipBytes": 9612,
+        "externalImports": []
+      },
+      {
+        "component": "VariantQuantityDemo",
+        "entry": "dist/_astro/VariantQuantityDemo.astro_astro_type_script_index_0_lang.B9D7Pdiw.js",
+        "files": [
+          {
+            "path": "dist/_astro/company-catalog-context.DygmWOFx.js",
+            "bytes": 10771,
+            "gzipBytes": 3390,
+            "sha256": "3ca3e78ab4c0cc109bc59548d2d2b52a6c04e389446b8c3dc4486decb9245d40",
+            "imports": [
+              {
+                "path": "dist/_astro/company-directory.mOflI4d5.js",
+                "kind": "import-statement",
+                "external": false,
+                "specifier": "./company-directory.mOflI4d5.js"
+              },
+              {
+                "path": "dist/_astro/market-context.BB9rBc3-.js",
+                "kind": "import-statement",
+                "external": false,
+                "specifier": "./market-context.BB9rBc3-.js"
+              },
+              {
+                "path": "dist/_astro/market-publication.DO6MUQIN.js",
+                "kind": "import-statement",
+                "external": false,
+                "specifier": "./market-publication.DO6MUQIN.js"
+              }
+            ]
+          },
+          {
+            "path": "dist/_astro/company-directory.mOflI4d5.js",
+            "bytes": 6414,
+            "gzipBytes": 2302,
+            "sha256": "6c076800192741992b5cbfba6ce07a999d13e3499cd256b306e82dbfc49fc9bd",
+            "imports": []
+          },
+          {
+            "path": "dist/_astro/market-context.BB9rBc3-.js",
+            "bytes": 6195,
+            "gzipBytes": 2224,
+            "sha256": "e9f6978ce356057950570598212faa771894f245a5fe4c5e15ca30f688c6b823",
+            "imports": []
+          },
+          {
+            "path": "dist/_astro/market-publication.DO6MUQIN.js",
+            "bytes": 7331,
+            "gzipBytes": 2674,
+            "sha256": "0cec8e90df5877b043a46b8b2c3fd270758fe16b93d6b444fe18876e54ff0187",
+            "imports": [
+              {
+                "path": "dist/_astro/market-context.BB9rBc3-.js",
+                "kind": "import-statement",
+                "external": false,
+                "specifier": "./market-context.BB9rBc3-.js"
+              }
+            ]
+          },
+          {
+            "path": "dist/_astro/VariantQuantityDemo.astro_astro_type_script_index_0_lang.B9D7Pdiw.js",
+            "bytes": 22976,
+            "gzipBytes": 6759,
+            "sha256": "651d2d1b8dd4f7934502aa6205273507aba44a8ab9ed3821a458a52eb7f90a04",
+            "imports": [
+              {
+                "path": "dist/_astro/company-catalog-context.DygmWOFx.js",
+                "kind": "import-statement",
+                "external": false,
+                "specifier": "./company-catalog-context.DygmWOFx.js"
+              },
+              {
+                "path": "dist/_astro/company-directory.mOflI4d5.js",
+                "kind": "import-statement",
+                "external": false,
+                "specifier": "./company-directory.mOflI4d5.js"
+              },
+              {
+                "path": "dist/_astro/market-context.BB9rBc3-.js",
+                "kind": "import-statement",
+                "external": false,
+                "specifier": "./market-context.BB9rBc3-.js"
+              },
+              {
+                "path": "dist/_astro/market-publication.DO6MUQIN.js",
+                "kind": "import-statement",
+                "external": false,
+                "specifier": "./market-publication.DO6MUQIN.js"
+              }
+            ]
+          }
+        ],
+        "totalBytes": 53687,
+        "totalGzipBytes": 17349,
+        "externalImports": []
+      },
+      {
+        "component": "CompanyCatalogDemo",
+        "entry": "dist/_astro/CompanyCatalogDemo.astro_astro_type_script_index_0_lang.HW9dUaoD.js",
+        "files": [
+          {
+            "path": "dist/_astro/company-catalog-context.DygmWOFx.js",
+            "bytes": 10771,
+            "gzipBytes": 3390,
+            "sha256": "3ca3e78ab4c0cc109bc59548d2d2b52a6c04e389446b8c3dc4486decb9245d40",
+            "imports": [
+              {
+                "path": "dist/_astro/company-directory.mOflI4d5.js",
+                "kind": "import-statement",
+                "external": false,
+                "specifier": "./company-directory.mOflI4d5.js"
+              },
+              {
+                "path": "dist/_astro/market-context.BB9rBc3-.js",
+                "kind": "import-statement",
+                "external": false,
+                "specifier": "./market-context.BB9rBc3-.js"
+              },
+              {
+                "path": "dist/_astro/market-publication.DO6MUQIN.js",
+                "kind": "import-statement",
+                "external": false,
+                "specifier": "./market-publication.DO6MUQIN.js"
+              }
+            ]
+          },
+          {
+            "path": "dist/_astro/company-directory.mOflI4d5.js",
+            "bytes": 6414,
+            "gzipBytes": 2302,
+            "sha256": "6c076800192741992b5cbfba6ce07a999d13e3499cd256b306e82dbfc49fc9bd",
+            "imports": []
+          },
+          {
+            "path": "dist/_astro/CompanyCatalogDemo.astro_astro_type_script_index_0_lang.HW9dUaoD.js",
+            "bytes": 26889,
+            "gzipBytes": 8072,
+            "sha256": "f9ed7eb41e36cdcbc2ba88bbddf839bd6f11e2f870095061b627959256c47aeb",
+            "imports": [
+              {
+                "path": "dist/_astro/company-catalog-context.DygmWOFx.js",
+                "kind": "import-statement",
+                "external": false,
+                "specifier": "./company-catalog-context.DygmWOFx.js"
+              },
+              {
+                "path": "dist/_astro/company-directory.mOflI4d5.js",
+                "kind": "import-statement",
+                "external": false,
+                "specifier": "./company-directory.mOflI4d5.js"
+              },
+              {
+                "path": "dist/_astro/format.D6ggcjlO.js",
+                "kind": "import-statement",
+                "external": false,
+                "specifier": "./format.D6ggcjlO.js"
+              },
+              {
+                "path": "dist/_astro/market-context.BB9rBc3-.js",
+                "kind": "import-statement",
+                "external": false,
+                "specifier": "./market-context.BB9rBc3-.js"
+              },
+              {
+                "path": "dist/_astro/market-publication.DO6MUQIN.js",
+                "kind": "import-statement",
+                "external": false,
+                "specifier": "./market-publication.DO6MUQIN.js"
+              },
+              {
+                "path": "dist/_astro/product.BVACAMDj.js",
+                "kind": "import-statement",
+                "external": false,
+                "specifier": "./product.BVACAMDj.js"
+              }
+            ]
+          },
+          {
+            "path": "dist/_astro/format.D6ggcjlO.js",
+            "bytes": 164,
+            "gzipBytes": 151,
+            "sha256": "7c7167f2030d738e58323bccda5878464f25a2138c4b1ddade0b4774694ba021",
+            "imports": []
+          },
+          {
+            "path": "dist/_astro/market-context.BB9rBc3-.js",
+            "bytes": 6195,
+            "gzipBytes": 2224,
+            "sha256": "e9f6978ce356057950570598212faa771894f245a5fe4c5e15ca30f688c6b823",
+            "imports": []
+          },
+          {
+            "path": "dist/_astro/market-publication.DO6MUQIN.js",
+            "bytes": 7331,
+            "gzipBytes": 2674,
+            "sha256": "0cec8e90df5877b043a46b8b2c3fd270758fe16b93d6b444fe18876e54ff0187",
+            "imports": [
+              {
+                "path": "dist/_astro/market-context.BB9rBc3-.js",
+                "kind": "import-statement",
+                "external": false,
+                "specifier": "./market-context.BB9rBc3-.js"
+              }
+            ]
+          },
+          {
+            "path": "dist/_astro/product.BVACAMDj.js",
+            "bytes": 2763,
+            "gzipBytes": 1023,
+            "sha256": "14dd4c6dae0a8717f6c44f73f293ed7cea42d1b05ab15ce3e9e996918dcac7dc",
+            "imports": []
+          }
+        ],
+        "totalBytes": 60527,
+        "totalGzipBytes": 19836,
+        "externalImports": []
+      },
+      {
+        "component": "CompanyDirectoryDemo",
+        "entry": "dist/_astro/CompanyDirectoryDemo.astro_astro_type_script_index_0_lang.tUOZl7at.js",
+        "files": [
+          {
+            "path": "dist/_astro/company-directory.mOflI4d5.js",
+            "bytes": 6414,
+            "gzipBytes": 2302,
+            "sha256": "6c076800192741992b5cbfba6ce07a999d13e3499cd256b306e82dbfc49fc9bd",
+            "imports": []
+          },
+          {
+            "path": "dist/_astro/CompanyDirectoryDemo.astro_astro_type_script_index_0_lang.tUOZl7at.js",
+            "bytes": 14693,
+            "gzipBytes": 4463,
+            "sha256": "697b4f962e9c7f4673dd4c1818accad6117deadeb0e2d90f91d0ec89b5812dec",
+            "imports": [
+              {
+                "path": "dist/_astro/company-directory.mOflI4d5.js",
+                "kind": "import-statement",
+                "external": false,
+                "specifier": "./company-directory.mOflI4d5.js"
+              },
+              {
+                "path": "dist/_astro/fixture-vat-id-adapter.Ow_zwmVh.js",
+                "kind": "import-statement",
+                "external": false,
+                "specifier": "./fixture-vat-id-adapter.Ow_zwmVh.js"
+              }
+            ]
+          },
+          {
+            "path": "dist/_astro/fixture-vat-id-adapter.Ow_zwmVh.js",
+            "bytes": 5749,
+            "gzipBytes": 2053,
+            "sha256": "d50f2b3b0d0dc87d3823c767a4bbfe5f40697e7aa86111a570a2d462f181a60c",
+            "imports": []
+          }
+        ],
+        "totalBytes": 26856,
+        "totalGzipBytes": 8818,
+        "externalImports": []
+      },
+      {
+        "component": "DemoAssistant",
+        "entry": "dist/_astro/DemoAssistant.astro_astro_type_script_index_0_lang.CTUreos1.js",
+        "files": [
+          {
+            "path": "dist/_astro/cart-client.ItD9TTkL.js",
+            "bytes": 1059,
+            "gzipBytes": 590,
+            "sha256": "34a807152cbfd940499a32c312851384b3cbaaaddc743e8b7aa9630558d52915",
+            "imports": []
+          },
+          {
+            "path": "dist/_astro/demo-commerce.Dnz6Qizq.js",
+            "bytes": 1048,
+            "gzipBytes": 584,
+            "sha256": "9a4b4e081ba480085aabae88a68b88996dff6a85e06ecd14d32715f8754c487b",
+            "imports": []
+          },
+          {
+            "path": "dist/_astro/DemoAssistant.astro_astro_type_script_index_0_lang.CTUreos1.js",
+            "bytes": 13072,
+            "gzipBytes": 5140,
+            "sha256": "8067726346e79f675315ebe2d886ebd3cda56dd9b35c27787cab6784f25bb402",
+            "imports": [
+              {
+                "path": "dist/_astro/cart-client.ItD9TTkL.js",
+                "kind": "import-statement",
+                "external": false,
+                "specifier": "./cart-client.ItD9TTkL.js"
+              },
+              {
+                "path": "dist/_astro/demo-commerce.Dnz6Qizq.js",
+                "kind": "import-statement",
+                "external": false,
+                "specifier": "./demo-commerce.Dnz6Qizq.js"
+              }
+            ]
+          }
+        ],
+        "totalBytes": 15179,
+        "totalGzipBytes": 6314,
+        "externalImports": []
+      }
+    ]
+  },
+  "surfaceComparison": {
+    "schemaVersion": 1,
+    "scope": "emitted-browser-graphs-and-explicit-source-boundaries",
+    "baselineRuntimeEvidence": {
+      "pullRequest": 38,
+      "browserChecks": 6368,
+      "stateVisits": 108,
+      "accessibilitySurfaces": 8,
+      "screenshots": 8,
+      "e2eChecks": 192,
+      "databaseTables": 143,
+      "databaseRows": 353,
+      "databaseSha256": "9cbfc811cfc4296515a403d395875a43bfa26aff0c9c9b08be0804b15bbf6eca"
+    },
+    "graphComparison": [
+      {
+        "component": "CompanyCreditReviewDemo",
+        "entry": "dist/_astro/CompanyCreditReviewDemo.astro_astro_type_script_index_0_lang.DvnpgZPX.js",
+        "fileCount": 3,
+        "importEdges": 2,
+        "totalBytes": 46662,
+        "totalGzipBytes": 13177,
+        "identical": true,
+        "changes": {
+          "added": [],
+          "removed": [],
+          "changed": []
+        }
+      },
+      {
+        "component": "CompanyCollectionDemo",
+        "entry": "dist/_astro/CompanyCollectionDemo.astro_astro_type_script_index_0_lang.pOo5tZX2.js",
+        "fileCount": 3,
+        "importEdges": 2,
+        "totalBytes": 31812,
+        "totalGzipBytes": 9612,
+        "identical": true,
+        "changes": {
+          "added": [],
+          "removed": [],
+          "changed": []
+        }
+      },
+      {
+        "component": "VariantQuantityDemo",
+        "entry": "dist/_astro/VariantQuantityDemo.astro_astro_type_script_index_0_lang.B9D7Pdiw.js",
+        "fileCount": 5,
+        "importEdges": 8,
+        "totalBytes": 53687,
+        "totalGzipBytes": 17349,
+        "identical": true,
+        "changes": {
+          "added": [],
+          "removed": [],
+          "changed": []
+        }
+      },
+      {
+        "component": "CompanyCatalogDemo",
+        "entry": "dist/_astro/CompanyCatalogDemo.astro_astro_type_script_index_0_lang.HW9dUaoD.js",
+        "fileCount": 7,
+        "importEdges": 10,
+        "totalBytes": 60527,
+        "totalGzipBytes": 19836,
+        "identical": true,
+        "changes": {
+          "added": [],
+          "removed": [],
+          "changed": []
+        }
+      },
+      {
+        "component": "CompanyDirectoryDemo",
+        "entry": "dist/_astro/CompanyDirectoryDemo.astro_astro_type_script_index_0_lang.tUOZl7at.js",
+        "fileCount": 3,
+        "importEdges": 2,
+        "totalBytes": 26856,
+        "totalGzipBytes": 8818,
+        "identical": true,
+        "changes": {
+          "added": [],
+          "removed": [],
+          "changed": []
+        }
+      },
+      {
+        "component": "DemoAssistant",
+        "entry": "dist/_astro/DemoAssistant.astro_astro_type_script_index_0_lang.CTUreos1.js",
+        "fileCount": 3,
+        "importEdges": 2,
+        "totalBytes": 15179,
+        "totalGzipBytes": 6314,
+        "identical": true,
+        "changes": {
+          "added": [],
+          "removed": [],
+          "changed": []
+        }
+      }
+    ],
+    "addedGraphs": [],
+    "sourceFiles": 355,
+    "emittedCssFiles": 19,
+    "surfacesIdentical": true,
+    "sourceChanges": {
+      "added": [],
+      "removed": [],
+      "changed": []
+    },
+    "cssChanges": {
+      "added": [],
+      "removed": [],
+      "changed": []
+    },
+    "limitations": [
+      "Source hashes do not execute SSR, HTTP, middleware or interactions.",
+      "This manifest is not the complete transitive server module graph.",
+      "This static comparison does not execute runtime QA. Browser, a11y, E2E and database evidence remain explicitly inherited from PR38; its 108 main visits do not exhaust every interaction."
+    ],
+    "result": "identical"
+  },
+  "allEmittedJsComparison": {
+    "schemaVersion": 1,
+    "baseline": "PR39 (108480f)",
+    "scope": "all emitted JS/MJS filenames and raw bytes; browser separated from Worker",
+    "browser": {
+      "scope": "browser-or-public",
+      "beforeCount": 58,
+      "afterCount": 58,
+      "beforeBytes": 352473,
+      "afterBytes": 352473,
+      "beforeGzipBytes": 116299,
+      "afterGzipBytes": 116299,
+      "unchangedCount": 58,
+      "identical": true,
+      "unchanged": [
+        {
+          "path": "dist/_astro/CartPage.astro_astro_type_script_index_0_lang.BOd2iBIO.js",
+          "scope": "browser-or-public",
+          "bytes": 4397,
+          "gzipBytes": 1791,
+          "sha256": "ff8f8e6189c2e9c98f0b92fa5fb591c57ba5a56ac19c8ac4602e5049dc25d2e0"
+        },
+        {
+          "path": "dist/_astro/Catalog.astro_astro_type_script_index_0_lang.DZIyy-GW.js",
+          "scope": "browser-or-public",
+          "bytes": 1862,
+          "gzipBytes": 753,
+          "sha256": "d4c0a75109bb299ca12ea3f30535fbdff839ee0c41e658f83b3b58c75e389659"
+        },
+        {
+          "path": "dist/_astro/Catalog.astro_astro_type_script_index_0_lang.Dx_mdGGk.js",
+          "scope": "browser-or-public",
+          "bytes": 714,
+          "gzipBytes": 411,
+          "sha256": "059cfbcedb0f5c4b17051055ef2b3aace13883448440c3c3b9fedaf8c4f0bf4c"
+        },
+        {
+          "path": "dist/_astro/Catalog.astro_astro_type_script_index_1_lang.B4IDrWiN.js",
+          "scope": "browser-or-public",
+          "bytes": 239,
+          "gzipBytes": 199,
+          "sha256": "aa6f28529a9704754941e8cc7aef9d86af3c59a355a53ab59b9700f811f99498"
+        },
+        {
+          "path": "dist/_astro/CatalogPage.astro_astro_type_script_index_0_lang.S35RL2wh.js",
+          "scope": "browser-or-public",
+          "bytes": 252,
+          "gzipBytes": 220,
+          "sha256": "f47699558b0fa1c8957fa14f7d1096ae9585b1405191c871a4fabc5c9e3153b7"
+        },
+        {
+          "path": "dist/_astro/CheckoutPage.astro_astro_type_script_index_0_lang.TZlWy_fq.js",
+          "scope": "browser-or-public",
+          "bytes": 2442,
+          "gzipBytes": 1068,
+          "sha256": "f77a49f53fd7bdb161e9ef0bba6cbf289eade03cb758ee0d60d4accf318d7bd7"
+        },
+        {
+          "path": "dist/_astro/CompanyCatalogDemo.astro_astro_type_script_index_0_lang.HW9dUaoD.js",
+          "scope": "browser-or-public",
+          "bytes": 26889,
+          "gzipBytes": 8072,
+          "sha256": "f9ed7eb41e36cdcbc2ba88bbddf839bd6f11e2f870095061b627959256c47aeb"
+        },
+        {
+          "path": "dist/_astro/CompanyCollectionDemo.astro_astro_type_script_index_0_lang.pOo5tZX2.js",
+          "scope": "browser-or-public",
+          "bytes": 25234,
+          "gzipBytes": 7159,
+          "sha256": "2b233eb74611532cc5e421d779ee8de61a2006820e3d6cb66558f7e2777ad5f4"
+        },
+        {
+          "path": "dist/_astro/CompanyCreditReviewDemo.astro_astro_type_script_index_0_lang.DvnpgZPX.js",
+          "scope": "browser-or-public",
+          "bytes": 40084,
+          "gzipBytes": 10724,
+          "sha256": "4ad808dc50ca1d279640bd3e7cb05f3bb0085e684f51ddce32dafe9ecd8bf1fd"
+        },
+        {
+          "path": "dist/_astro/CompanyDirectoryDemo.astro_astro_type_script_index_0_lang.tUOZl7at.js",
+          "scope": "browser-or-public",
+          "bytes": 14693,
+          "gzipBytes": 4463,
+          "sha256": "697b4f962e9c7f4673dd4c1818accad6117deadeb0e2d90f91d0ec89b5812dec"
+        },
+        {
+          "path": "dist/_astro/CurrencyMethodsDemo.astro_astro_type_script_index_0_lang.C1Zw0pwf.js",
+          "scope": "browser-or-public",
+          "bytes": 30287,
+          "gzipBytes": 8662,
+          "sha256": "3c8a99353a9d56f8a4c0db7d01acccf833ff8b3f93fed982262c9245fb24f3fc"
+        },
+        {
+          "path": "dist/_astro/CustomerSegmentsDemo.astro_astro_type_script_index_0_lang.yNGmrzVV.js",
+          "scope": "browser-or-public",
+          "bytes": 20495,
+          "gzipBytes": 6591,
+          "sha256": "49d6650611e04aafe54241d206d4e8a62a210774ad4f2a925de17dedaadbba88"
+        },
+        {
+          "path": "dist/_astro/DemoAssistant.astro_astro_type_script_index_0_lang.CTUreos1.js",
+          "scope": "browser-or-public",
+          "bytes": 13072,
+          "gzipBytes": 5140,
+          "sha256": "8067726346e79f675315ebe2d886ebd3cda56dd9b35c27787cab6784f25bb402"
+        },
+        {
+          "path": "dist/_astro/InlogemCatalog.astro_astro_type_script_index_0_lang.DpkP0-Ul.js",
+          "scope": "browser-or-public",
+          "bytes": 406,
+          "gzipBytes": 286,
+          "sha256": "49340f7544f77a5389f3d68c96f75483a2fb07268a7d4e73d3c397bf194f9664"
+        },
+        {
+          "path": "dist/_astro/InlogemProductPresentation.astro_astro_type_script_index_0_lang.CaXS8ajW.js",
+          "scope": "browser-or-public",
+          "bytes": 510,
+          "gzipBytes": 344,
+          "sha256": "cf5ce3478494fca5d8066a45db2cd15f23eb5ec9c5156ec6ed1c2613f676a8ef"
+        },
+        {
+          "path": "dist/_astro/MarketContentDemo.astro_astro_type_script_index_0_lang.ycRBGi5T.js",
+          "scope": "browser-or-public",
+          "bytes": 37617,
+          "gzipBytes": 12287,
+          "sha256": "62044905e7288a9c420345bf69160f1482dc3e8641455132f3ba772f3d2a8677"
+        },
+        {
+          "path": "dist/_astro/MarketPublicationDemo.astro_astro_type_script_index_0_lang.BgAgnxke.js",
+          "scope": "browser-or-public",
+          "bytes": 19704,
+          "gzipBytes": 5998,
+          "sha256": "5ed933e505ed4c1eb74742328b0def182327183479a88a284a99ea8b6258f756"
+        },
+        {
+          "path": "dist/_astro/ProductGrid.astro_astro_type_script_index_0_lang.9kqbsBHP.js",
+          "scope": "browser-or-public",
+          "bytes": 242,
+          "gzipBytes": 211,
+          "sha256": "adcfa6be353fa3b31f7dd19e9cfa4537389a449689992eea6f939b7dc49170c8"
+        },
+        {
+          "path": "dist/_astro/ProductGrid.astro_astro_type_script_index_0_lang.BJM_dL_C.js",
+          "scope": "browser-or-public",
+          "bytes": 249,
+          "gzipBytes": 222,
+          "sha256": "f34d5ab78893f8f3fd13f0fc20392c0ec209d1726fe8dd125e79c053f820b0ff"
+        },
+        {
+          "path": "dist/_astro/ProductGrid.astro_astro_type_script_index_0_lang.Bbt17eee.js",
+          "scope": "browser-or-public",
+          "bytes": 262,
+          "gzipBytes": 225,
+          "sha256": "d39168249dcc4bdc253986649c4fa0bb3e25a7e7c12a144ee7dd5778d928baae"
+        },
+        {
+          "path": "dist/_astro/ProductGrid.astro_astro_type_script_index_0_lang.BnSGq6bE.js",
+          "scope": "browser-or-public",
+          "bytes": 244,
+          "gzipBytes": 213,
+          "sha256": "285ff346b63f6df2bd06bf2c9ce0c7ed90adc078c9a2b23084396ce5a6f2360b"
+        },
+        {
+          "path": "dist/_astro/ProductGrid.astro_astro_type_script_index_0_lang.CAGovOqp.js",
+          "scope": "browser-or-public",
+          "bytes": 262,
+          "gzipBytes": 225,
+          "sha256": "950bc90712d7520d6c5535ad266561eeef95cc2cb8ccc9c94fd38ab7acf5ee02"
+        },
+        {
+          "path": "dist/_astro/ProductGrid.astro_astro_type_script_index_0_lang.CNRqkwYX.js",
+          "scope": "browser-or-public",
+          "bytes": 272,
+          "gzipBytes": 228,
+          "sha256": "64563a4fe20c905bb479acdccf3ae59ea5d687e5c98636142c26be3c55cc2765"
+        },
+        {
+          "path": "dist/_astro/ProductGrid.astro_astro_type_script_index_0_lang.COa9tMv1.js",
+          "scope": "browser-or-public",
+          "bytes": 240,
+          "gzipBytes": 211,
+          "sha256": "f31346f7c039d9aae59d12d65804b07a350ecff1833e0844672ce77a0b19fb94"
+        },
+        {
+          "path": "dist/_astro/ProductGrid.astro_astro_type_script_index_0_lang.CVG_ngon.js",
+          "scope": "browser-or-public",
+          "bytes": 236,
+          "gzipBytes": 207,
+          "sha256": "f59a72f37647f1b0d91a8d11319c6c6f08802e39afaba42d12d1f364ebb2960d"
+        },
+        {
+          "path": "dist/_astro/ProductGrid.astro_astro_type_script_index_0_lang.CaESwask.js",
+          "scope": "browser-or-public",
+          "bytes": 251,
+          "gzipBytes": 222,
+          "sha256": "12e3778587dd3054dae09c55160ef2a89d2c5e10289fccfb02e930ab2665e2c5"
+        },
+        {
+          "path": "dist/_astro/ProductGrid.astro_astro_type_script_index_0_lang.CcEIjbvD.js",
+          "scope": "browser-or-public",
+          "bytes": 249,
+          "gzipBytes": 221,
+          "sha256": "fe52aaa547ea5becbfd097a64d965cdd13310732b6a90a7d5367bfd6339bccb3"
+        },
+        {
+          "path": "dist/_astro/ProductGrid.astro_astro_type_script_index_0_lang.CcWu9np2.js",
+          "scope": "browser-or-public",
+          "bytes": 238,
+          "gzipBytes": 210,
+          "sha256": "64a933a1b0a3e0529aa278d038bff660cebe438014d8bd9f64135343a99a350b"
+        },
+        {
+          "path": "dist/_astro/ProductGrid.astro_astro_type_script_index_0_lang.CpakNyN2.js",
+          "scope": "browser-or-public",
+          "bytes": 241,
+          "gzipBytes": 211,
+          "sha256": "dee76121184a9e679eab99d5ea01ef39e97a5ead38a52523d28986e3679010b2"
+        },
+        {
+          "path": "dist/_astro/ProductGrid.astro_astro_type_script_index_0_lang.D0DncPk_.js",
+          "scope": "browser-or-public",
+          "bytes": 248,
+          "gzipBytes": 214,
+          "sha256": "c2ca1798687504811eb400c82138ad9cd7f79b12b5a573bc347f3e6529173463"
+        },
+        {
+          "path": "dist/_astro/ProductGrid.astro_astro_type_script_index_0_lang.D4XVQSg1.js",
+          "scope": "browser-or-public",
+          "bytes": 264,
+          "gzipBytes": 225,
+          "sha256": "c0213a96a0ae8d02ae38d7d66bac6ba7ee387ba4fd3650b3f0a3198f1b0fc022"
+        },
+        {
+          "path": "dist/_astro/ProductGrid.astro_astro_type_script_index_0_lang.D84g4dbZ.js",
+          "scope": "browser-or-public",
+          "bytes": 256,
+          "gzipBytes": 223,
+          "sha256": "698e22a273d452af850cd044ecd4062ebceb1d7e836c47ae6158f5a6cb476fa1"
+        },
+        {
+          "path": "dist/_astro/ProductGrid.astro_astro_type_script_index_0_lang.D9fSTJL_.js",
+          "scope": "browser-or-public",
+          "bytes": 261,
+          "gzipBytes": 223,
+          "sha256": "0cae7565c7fcc71ce3703ca4b2ef308c096df34e8e358d7e80d0a0209dfb25bb"
+        },
+        {
+          "path": "dist/_astro/ProductGrid.astro_astro_type_script_index_0_lang.D_EF-Nuj.js",
+          "scope": "browser-or-public",
+          "bytes": 249,
+          "gzipBytes": 220,
+          "sha256": "c313af4af5127fd1a8b536b0d55d7c728dffca1a22584c3d6d592730752ef036"
+        },
+        {
+          "path": "dist/_astro/ProductGrid.astro_astro_type_script_index_0_lang.DdXdJ685.js",
+          "scope": "browser-or-public",
+          "bytes": 242,
+          "gzipBytes": 211,
+          "sha256": "10bd92f71675ae8dbddccb91538cc2d810d41d76e17408c1f76d8a94d75097c1"
+        },
+        {
+          "path": "dist/_astro/ProductGrid.astro_astro_type_script_index_0_lang.DeGa46l-.js",
+          "scope": "browser-or-public",
+          "bytes": 242,
+          "gzipBytes": 212,
+          "sha256": "2185b466510b1f1beccccc994c8addcfd9c744c22a008cb9fe7a38facfebef27"
+        },
+        {
+          "path": "dist/_astro/ProductGrid.astro_astro_type_script_index_0_lang.Do7mniv_.js",
+          "scope": "browser-or-public",
+          "bytes": 238,
+          "gzipBytes": 209,
+          "sha256": "548b36ad5b9c5b6a8ae73cfcf6ca505504131247c2421a7e01d1b2d686f57302"
+        },
+        {
+          "path": "dist/_astro/ProductGrid.astro_astro_type_script_index_0_lang.RKBO5Z2z.js",
+          "scope": "browser-or-public",
+          "bytes": 255,
+          "gzipBytes": 216,
+          "sha256": "7559dd6f1a25d7b302d4abd97743efeed0150a80f79d49fbca7afa4d8dc7007d"
+        },
+        {
+          "path": "dist/_astro/ProductGrid.astro_astro_type_script_index_0_lang.u1lcK-k1.js",
+          "scope": "browser-or-public",
+          "bytes": 248,
+          "gzipBytes": 214,
+          "sha256": "6db26dc2f0592cf4ffaeb12f21517b823530088e26dd1f2e01e6f8979d4774d8"
+        },
+        {
+          "path": "dist/_astro/ProductPage.astro_astro_type_script_index_0_lang.DjlwRjCh.js",
+          "scope": "browser-or-public",
+          "bytes": 511,
+          "gzipBytes": 344,
+          "sha256": "50d701571d39da28e568052e84ca03e2a96a9f3e4430ef7ebf0b3ae7edaeab5a"
+        },
+        {
+          "path": "dist/_astro/ProposalLanding.astro_astro_type_script_index_0_lang.DpxMcclF.js",
+          "scope": "browser-or-public",
+          "bytes": 456,
+          "gzipBytes": 299,
+          "sha256": "56e5e3fba7453b22536cc5ffc8299473498d3515d5a33b090829d267b65c8c6c"
+        },
+        {
+          "path": "dist/_astro/Shop.astro_astro_type_script_index_0_lang.DKU1g-Uh.js",
+          "scope": "browser-or-public",
+          "bytes": 304,
+          "gzipBytes": 232,
+          "sha256": "d1d69f93332a373be951b79d47b99c4061d880b4a5cd742e6375fb4cacfb936f"
+        },
+        {
+          "path": "dist/_astro/TaxDemo.astro_astro_type_script_index_0_lang.CkxrQSMy.js",
+          "scope": "browser-or-public",
+          "bytes": 17511,
+          "gzipBytes": 5763,
+          "sha256": "ec62ff2263f25e55816d53c584b940c345d603fcad258f36ccccc230600a0281"
+        },
+        {
+          "path": "dist/_astro/ThanksPage.astro_astro_type_script_index_0_lang.DKuzUGVe.js",
+          "scope": "browser-or-public",
+          "bytes": 898,
+          "gzipBytes": 413,
+          "sha256": "2ae3bee89f5a669003c23b518511e12a0587a31228539ce02d40768d4d8c081f"
+        },
+        {
+          "path": "dist/_astro/Theme.astro_astro_type_script_index_0_lang.CB76BU7E.js",
+          "scope": "browser-or-public",
+          "bytes": 4845,
+          "gzipBytes": 1902,
+          "sha256": "f0b8e0517920cf542d8b4438e64a502522a0be32aab5102119ee0693bb11904a"
+        },
+        {
+          "path": "dist/_astro/VariantQuantityDemo.astro_astro_type_script_index_0_lang.B9D7Pdiw.js",
+          "scope": "browser-or-public",
+          "bytes": 22976,
+          "gzipBytes": 6759,
+          "sha256": "651d2d1b8dd4f7934502aa6205273507aba44a8ab9ed3821a458a52eb7f90a04"
+        },
+        {
+          "path": "dist/_astro/_id_.astro_astro_type_script_index_0_lang.CH5pgKlt.js",
+          "scope": "browser-or-public",
+          "bytes": 9643,
+          "gzipBytes": 2797,
+          "sha256": "fde1d76b8983e39840ba57dac360bb47e1914a89fe2909d78b94b953549c7d4b"
+        },
+        {
+          "path": "dist/_astro/cart-client.ItD9TTkL.js",
+          "scope": "browser-or-public",
+          "bytes": 1059,
+          "gzipBytes": 590,
+          "sha256": "34a807152cbfd940499a32c312851384b3cbaaaddc743e8b7aa9630558d52915"
+        },
+        {
+          "path": "dist/_astro/company-catalog-context.DygmWOFx.js",
+          "scope": "browser-or-public",
+          "bytes": 10771,
+          "gzipBytes": 3390,
+          "sha256": "3ca3e78ab4c0cc109bc59548d2d2b52a6c04e389446b8c3dc4486decb9245d40"
+        },
+        {
+          "path": "dist/_astro/company-directory.mOflI4d5.js",
+          "scope": "browser-or-public",
+          "bytes": 6414,
+          "gzipBytes": 2302,
+          "sha256": "6c076800192741992b5cbfba6ce07a999d13e3499cd256b306e82dbfc49fc9bd"
+        },
+        {
+          "path": "dist/_astro/confirmar.astro_astro_type_script_index_0_lang.Km5M3cC0.js",
+          "scope": "browser-or-public",
+          "bytes": 2651,
+          "gzipBytes": 1266,
+          "sha256": "b8878648e44d797111761ef294a168851cca3125016e31f1504726c0a3d13fb3"
+        },
+        {
+          "path": "dist/_astro/demo-commerce.Dnz6Qizq.js",
+          "scope": "browser-or-public",
+          "bytes": 1048,
+          "gzipBytes": 584,
+          "sha256": "9a4b4e081ba480085aabae88a68b88996dff6a85e06ecd14d32715f8754c487b"
+        },
+        {
+          "path": "dist/_astro/fixture-vat-id-adapter.Ow_zwmVh.js",
+          "scope": "browser-or-public",
+          "bytes": 5749,
+          "gzipBytes": 2053,
+          "sha256": "d50f2b3b0d0dc87d3823c767a4bbfe5f40697e7aa86111a570a2d462f181a60c"
+        },
+        {
+          "path": "dist/_astro/format.D6ggcjlO.js",
+          "scope": "browser-or-public",
+          "bytes": 164,
+          "gzipBytes": 151,
+          "sha256": "7c7167f2030d738e58323bccda5878464f25a2138c4b1ddade0b4774694ba021"
+        },
+        {
+          "path": "dist/_astro/index.astro_astro_type_script_index_0_lang.B83WK6_A.js",
+          "scope": "browser-or-public",
+          "bytes": 6798,
+          "gzipBytes": 2592,
+          "sha256": "5166e73cb897e609e510e0ea3223e9b7d0403803271dfb79046327dfdf69ebb0"
+        },
+        {
+          "path": "dist/_astro/market-context.BB9rBc3-.js",
+          "scope": "browser-or-public",
+          "bytes": 6195,
+          "gzipBytes": 2224,
+          "sha256": "e9f6978ce356057950570598212faa771894f245a5fe4c5e15ca30f688c6b823"
+        },
+        {
+          "path": "dist/_astro/market-publication.DO6MUQIN.js",
+          "scope": "browser-or-public",
+          "bytes": 7331,
+          "gzipBytes": 2674,
+          "sha256": "0cec8e90df5877b043a46b8b2c3fd270758fe16b93d6b444fe18876e54ff0187"
+        },
+        {
+          "path": "dist/_astro/product.BVACAMDj.js",
+          "scope": "browser-or-public",
+          "bytes": 2763,
+          "gzipBytes": 1023,
+          "sha256": "14dd4c6dae0a8717f6c44f73f293ed7cea42d1b05ab15ce3e9e996918dcac7dc"
+        }
+      ],
+      "changed": [],
+      "removed": [],
+      "added": []
+    },
+    "server": {
+      "scope": "server-worker",
+      "beforeCount": 279,
+      "afterCount": 279,
+      "beforeBytes": 4401440,
+      "afterBytes": 4401532,
+      "beforeGzipBytes": 991146,
+      "afterGzipBytes": 991036,
+      "unchangedCount": 114,
+      "identical": false
+    },
+    "eventContext": {
+      "change": "exactly two PURE comments; removing them reproduces PR39 source bytes",
+      "priorSource": "/tmp/r66b-event-context-source-pr39.ts"
+    },
+    "limitations": [
+      "Worker source/chunk changes are expected from registration and new composition; hash churn does not establish complete SSR behavior equivalence.",
+      "No browser, HTTP, Worker, DB, a11y or E2E execution in this comparison. Runtime evidence remains inherited from PR38.",
+      "Per-file gzip byte sums are descriptive; not a measured aggregate HTTP payload."
+    ]
+  },
+  "inheritedQa": {
+    "pullRequest": 38,
+    "browserChecks": 6368,
+    "stateVisits": 108,
+    "accessibilitySurfaces": 8,
+    "screenshots": 8,
+    "e2eChecks": 192,
+    "databaseTables": 143,
+    "databaseRows": 353,
+    "databaseSha256": "9cbfc811cfc4296515a403d395875a43bfa26aff0c9c9b08be0804b15bbf6eca",
+    "freshInThisBlock": false,
+    "evidence": "../r6-5c/verification-report.json"
+  },
+  "scope": {
+    "module": "companies",
+    "moduleVersion": "1.8.0",
+    "capability": "B2B-006",
+    "status": "partial-installed-inactive",
+    "profile": "company-preliminary-fixture-v1",
+    "newRoutes": [],
+    "operationalEffects": false,
+    "newMigrations": false
+  },
+  "evidence": [
+    "../../plataforma/adr/0060-artefacto-preliminar-fixture.md",
+    "../../../src/composition/company-preliminary-order.ts",
+    "../../../tests/company-preliminary-order.test.ts",
+    "../../../src/composition/event-context.ts"
+  ],
+  "limitations": [
+    "No browser, HTTP, Worker or database execution in this block. Runtime evidence is inherited from PR38, not rerun.",
+    "All58public JS assets, six complete browser graphs,355explicit source boundaries and19CSS are byte-identical to PR39; this does not establish complete transitive server behavior equivalence.",
+    "Worker chunks change from module registration and PURE annotations; source and runtime reducer/event tests are checked, not a fresh HTTP test.",
+    "Diagnostic public bundle is separate from emitted Astro clients. Retained historical constants are enumerated; no operational D1 methods or environmental event factories remain.",
+    "The selected offer and complete historical negotiation are frozen. Another offer/context/terms requires a new artifact; simulated approval is not identity, legal acceptance, credit, stock or purchasing authority.",
+    "The only declared actions are issue, approve, expire and cancel. No payment, payment plan, conversion, real order, form submission, provider call, cron, deployment or operational database write.",
+    "History and replay are in-memory consistency checks, not durable CAS, authentication, global idempotency or signed evidence."
+  ],
+  "staticSummary": {
+    "schemaVersion": 1,
+    "baselinePullRequest": 39,
+    "runtimeEvidencePullRequest": 38,
+    "graphsUnchanged": 6,
+    "sourceFilesUnchanged": 355,
+    "cssFilesUnchanged": 19,
+    "publicJs": {
+      "files": 58,
+      "allPathsAndShaIdentical": true,
+      "bytes": 352473,
+      "gzipSumBytes": 116299
+    },
+    "worker": {
+      "files": 279,
+      "byteDelta": 92,
+      "usedFactoriesRetained": true,
+      "namedImportConsumerFiles": 19,
+      "eventFactoryImplementationSha256": "d0450bed9f48df9a7413c8d381558543b7681d26acefa24236f22bfffd937d74",
+      "registryChanges": [
+        "companies.version 1.7.0 → 1.8.0",
+        "add ADR 0060 link"
+      ],
+      "completeSsrEquivalenceClaimed": false
+    },
+    "files": [
+      "/tmp/r66b-inherited-final.json",
+      "/tmp/r66b-surfaces-final.json",
+      "/tmp/r66b-inherited-comparison.json",
+      "/tmp/r66b-full-js-final.json",
+      "/tmp/r66b-full-js-comparison.json",
+      "/tmp/r66b-worker-static-comparison.json"
+    ],
+    "noNewRuntime": [
+      "browser",
+      "HTTP",
+      "Worker",
+      "DB",
+      "a11y",
+      "E2E"
+    ]
+  },
+  "workerStaticComparison": {
+    "schemaVersion": 1,
+    "scope": "static Worker text comparison after replacing exactly known generated filenames",
+    "workerFiles": 279,
+    "identicalAfterKnownFilenameReplacement": 276,
+    "differences": [
+      {
+        "before": "dist/_worker.js/chunks/event-context_BmLX8WLL.mjs",
+        "after": "dist/_worker.js/chunks/event-context_BZrJuLh7.mjs",
+        "beforeBytes": 590,
+        "afterBytes": 622,
+        "delta": 32,
+        "normalizedBefore": "/tmp/r66b-worker-before-event-context_BZrJuLh7.mjs",
+        "finalAfter": "/tmp/r66b-worker-after-event-context_BZrJuLh7.mjs"
+      },
+      {
+        "before": "dist/_worker.js/chunks/runtime-platform_BY16zHae.mjs",
+        "after": "dist/_worker.js/chunks/runtime-platform_CgDDQgTm.mjs",
+        "beforeBytes": 382921,
+        "afterBytes": 382981,
+        "delta": 60,
+        "normalizedBefore": "/tmp/r66b-worker-before-runtime-platform_CgDDQgTm.mjs",
+        "finalAfter": "/tmp/r66b-worker-after-runtime-platform_CgDDQgTm.mjs"
+      },
+      {
+        "before": "dist/_worker.js/manifest_BUTzrDFu.mjs",
+        "after": "dist/_worker.js/manifest_Ps4xbevb.mjs",
+        "beforeBytes": 353356,
+        "afterBytes": 353356,
+        "delta": 0,
+        "normalizedBefore": "/tmp/r66b-worker-before-manifest_Ps4xbevb.mjs",
+        "finalAfter": "/tmp/r66b-worker-after-manifest_Ps4xbevb.mjs"
+      }
+    ],
+    "renamedFiles": [
+      {
+        "before": "dist/_worker.js/chunks/Admin_DzhDekCK.mjs",
+        "after": "dist/_worker.js/chunks/Admin_CXqTAU_q.mjs"
+      },
+      {
+        "before": "dist/_worker.js/chunks/CartPage_BB7-SqNE.mjs",
+        "after": "dist/_worker.js/chunks/CartPage_B6BZFQOz.mjs"
+      },
+      {
+        "before": "dist/_worker.js/chunks/CatalogPage_DK6lpnIe.mjs",
+        "after": "dist/_worker.js/chunks/CatalogPage_CR_eVtqO.mjs"
+      },
+      {
+        "before": "dist/_worker.js/chunks/CheckoutPage_Cj-zYtn_.mjs",
+        "after": "dist/_worker.js/chunks/CheckoutPage_Bws_cvat.mjs"
+      },
+      {
+        "before": "dist/_worker.js/chunks/CloudflarePageview_CbG9uzGU.mjs",
+        "after": "dist/_worker.js/chunks/CloudflarePageview_Cf6im8Y6.mjs"
+      },
+      {
+        "before": "dist/_worker.js/chunks/DemoAssistant_CFgI4pMG.mjs",
+        "after": "dist/_worker.js/chunks/DemoAssistant_HcdGE4DY.mjs"
+      },
+      {
+        "before": "dist/_worker.js/chunks/ManagerShell_BP7e8RzA.mjs",
+        "after": "dist/_worker.js/chunks/ManagerShell_DtKOaLIz.mjs"
+      },
+      {
+        "before": "dist/_worker.js/chunks/ProductPage_BdJVMwzh.mjs",
+        "after": "dist/_worker.js/chunks/ProductPage_UXjVFDKd.mjs"
+      },
+      {
+        "before": "dist/_worker.js/chunks/ProjectForm_BobcA0-B.mjs",
+        "after": "dist/_worker.js/chunks/ProjectForm_D9zKflYW.mjs"
+      },
+      {
+        "before": "dist/_worker.js/chunks/Shop_nVfAdiwI.mjs",
+        "after": "dist/_worker.js/chunks/Shop_C1fAccvb.mjs"
+      },
+      {
+        "before": "dist/_worker.js/chunks/ThanksPage_BgsQZ7TX.mjs",
+        "after": "dist/_worker.js/chunks/ThanksPage_Ci6c4MYz.mjs"
+      },
+      {
+        "before": "dist/_worker.js/chunks/Theme_C5NzgPzR.mjs",
+        "after": "dist/_worker.js/chunks/Theme_DR16kM_-.mjs"
+      },
+      {
+        "before": "dist/_worker.js/chunks/_@astrojs-ssr-adapter_DsjJXZZz.mjs",
+        "after": "dist/_worker.js/chunks/_@astrojs-ssr-adapter_DSP_PSlx.mjs"
+      },
+      {
+        "before": "dist/_worker.js/chunks/admin-http_SmwDsP4M.mjs",
+        "after": "dist/_worker.js/chunks/admin-http_CiBrUdme.mjs"
+      },
+      {
+        "before": "dist/_worker.js/chunks/admin-operations_C0UVnJlG.mjs",
+        "after": "dist/_worker.js/chunks/admin-operations_iKRv0i_3.mjs"
+      },
+      {
+        "before": "dist/_worker.js/chunks/automatic-discount-operations_CR2DeYJT.mjs",
+        "after": "dist/_worker.js/chunks/automatic-discount-operations_URHMTADt.mjs"
+      },
+      {
+        "before": "dist/_worker.js/chunks/bundle-operations_C_GKA9dY.mjs",
+        "after": "dist/_worker.js/chunks/bundle-operations_CNf51d2V.mjs"
+      },
+      {
+        "before": "dist/_worker.js/chunks/d1-order-collaboration_Q3PAybAW.mjs",
+        "after": "dist/_worker.js/chunks/d1-order-collaboration_DMZgHG8w.mjs"
+      },
+      {
+        "before": "dist/_worker.js/chunks/discount-combination-operations_Ce3Ax18h.mjs",
+        "after": "dist/_worker.js/chunks/discount-combination-operations_-n8lRt81.mjs"
+      },
+      {
+        "before": "dist/_worker.js/chunks/event-context_BmLX8WLL.mjs",
+        "after": "dist/_worker.js/chunks/event-context_BZrJuLh7.mjs"
+      },
+      {
+        "before": "dist/_worker.js/chunks/fulfillment-operations_fKZ9H1ju.mjs",
+        "after": "dist/_worker.js/chunks/fulfillment-operations_BAV6X11H.mjs"
+      },
+      {
+        "before": "dist/_worker.js/chunks/nav_D9KzLr_V.mjs",
+        "after": "dist/_worker.js/chunks/nav_DZ27rTeT.mjs"
+      },
+      {
+        "before": "dist/_worker.js/chunks/order-amendment-operations_DLO9d4Eq.mjs",
+        "after": "dist/_worker.js/chunks/order-amendment-operations_vY-kvbI4.mjs"
+      },
+      {
+        "before": "dist/_worker.js/chunks/order-bulk-action-operations_dIMX9Ys9.mjs",
+        "after": "dist/_worker.js/chunks/order-bulk-action-operations_c-CGkjrw.mjs"
+      },
+      {
+        "before": "dist/_worker.js/chunks/order-hold-operations_CxPPf2Xt.mjs",
+        "after": "dist/_worker.js/chunks/order-hold-operations_DUzbslaN.mjs"
+      },
+      {
+        "before": "dist/_worker.js/chunks/order-operations_CXa8OvCY.mjs",
+        "after": "dist/_worker.js/chunks/order-operations_CHslg3X2.mjs"
+      },
+      {
+        "before": "dist/_worker.js/chunks/payment-refund-gateways_CTExjcpP.mjs",
+        "after": "dist/_worker.js/chunks/payment-refund-gateways_CJUEd4Jq.mjs"
+      },
+      {
+        "before": "dist/_worker.js/chunks/preliminary-order-operations_j4Arz7D9.mjs",
+        "after": "dist/_worker.js/chunks/preliminary-order-operations_6umXxrvJ.mjs"
+      },
+      {
+        "before": "dist/_worker.js/chunks/preorder-operations_Bo_-Ba86.mjs",
+        "after": "dist/_worker.js/chunks/preorder-operations_DzZviCsC.mjs"
+      },
+      {
+        "before": "dist/_worker.js/chunks/preview_D5DezICL.mjs",
+        "after": "dist/_worker.js/chunks/preview_C5uSDiVS.mjs"
+      },
+      {
+        "before": "dist/_worker.js/chunks/price-list-operations_D_8xZNwZ.mjs",
+        "after": "dist/_worker.js/chunks/price-list-operations_D8F_0EvT.mjs"
+      },
+      {
+        "before": "dist/_worker.js/chunks/promotion-code-operations_CWyLpsQy.mjs",
+        "after": "dist/_worker.js/chunks/promotion-code-operations_BYnMX3vP.mjs"
+      },
+      {
+        "before": "dist/_worker.js/chunks/quantity-offer-operations_Bubd_bx6.mjs",
+        "after": "dist/_worker.js/chunks/quantity-offer-operations_F3FY4QfF.mjs"
+      },
+      {
+        "before": "dist/_worker.js/chunks/return-operations_Z_ObrLKE.mjs",
+        "after": "dist/_worker.js/chunks/return-operations_DhP480uQ.mjs"
+      },
+      {
+        "before": "dist/_worker.js/chunks/runner_DGn26CO9.mjs",
+        "after": "dist/_worker.js/chunks/runner_Dynj0oZY.mjs"
+      },
+      {
+        "before": "dist/_worker.js/chunks/runtime-platform_BY16zHae.mjs",
+        "after": "dist/_worker.js/chunks/runtime-platform_CgDDQgTm.mjs"
+      },
+      {
+        "before": "dist/_worker.js/chunks/stored-value-operations_C6ZFu7du.mjs",
+        "after": "dist/_worker.js/chunks/stored-value-operations_BN2Q73pM.mjs"
+      },
+      {
+        "before": "dist/_worker.js/chunks/subscription-operations__KU_Itkc.mjs",
+        "after": "dist/_worker.js/chunks/subscription-operations_Dui3KMxd.mjs"
+      },
+      {
+        "before": "dist/_worker.js/manifest_BUTzrDFu.mjs",
+        "after": "dist/_worker.js/manifest_Ps4xbevb.mjs"
+      }
+    ],
+    "eventContext": {
+      "before": {
+        "path": "dist/_worker.js/chunks/event-context_BmLX8WLL.mjs",
+        "scope": "server-worker",
+        "bytes": 590,
+        "gzipBytes": 285,
+        "sha256": "6bfc5915269c85943fae25ba3efe3112a27a55abf2913b51d3f931cb91133e61"
+      },
+      "after": {
+        "path": "dist/_worker.js/chunks/event-context_BZrJuLh7.mjs",
+        "scope": "server-worker",
+        "bytes": 622,
+        "gzipBytes": 287,
+        "sha256": "2861796600b4c8bf1b13e8cf5ad16f24ffc99d1b0b45655057d2c63328f8555b"
+      },
+      "onlyTwoPureComments": true,
+      "eventFactoriesImplementationUnchanged": {
+        "path": "dist/_worker.js/chunks/events_Doe8Vn54.mjs",
+        "scope": "server-worker",
+        "bytes": 4633,
+        "gzipBytes": 1443,
+        "sha256": "d0450bed9f48df9a7413c8d381558543b7681d26acefa24236f22bfffd937d74"
+      },
+      "operationalNamedImportConsumers": [
+        {
+          "path": "dist/_worker.js/chunks/admin-operations_iKRv0i_3.mjs",
+          "imports": [
+            "import { r as reservePlatformEventIdentity } from './event-context_BZrJuLh7.mjs';"
+          ]
+        },
+        {
+          "path": "dist/_worker.js/chunks/automatic-discount-operations_URHMTADt.mjs",
+          "imports": [
+            "import { r as reservePlatformEventIdentity } from './event-context_BZrJuLh7.mjs';"
+          ]
+        },
+        {
+          "path": "dist/_worker.js/chunks/bundle-operations_CNf51d2V.mjs",
+          "imports": [
+            "import { r as reservePlatformEventIdentity } from './event-context_BZrJuLh7.mjs';"
+          ]
+        },
+        {
+          "path": "dist/_worker.js/chunks/d1-order-collaboration_DMZgHG8w.mjs",
+          "imports": [
+            "import { r as reservePlatformEventIdentity } from './event-context_BZrJuLh7.mjs';"
+          ]
+        },
+        {
+          "path": "dist/_worker.js/chunks/discount-combination-operations_-n8lRt81.mjs",
+          "imports": [
+            "import { r as reservePlatformEventIdentity } from './event-context_BZrJuLh7.mjs';"
+          ]
+        },
+        {
+          "path": "dist/_worker.js/chunks/fulfillment-operations_BAV6X11H.mjs",
+          "imports": [
+            "import { e as emitPlatformEvent } from './event-context_BZrJuLh7.mjs';"
+          ]
+        },
+        {
+          "path": "dist/_worker.js/chunks/order-amendment-operations_vY-kvbI4.mjs",
+          "imports": [
+            "import { e as emitPlatformEvent } from './event-context_BZrJuLh7.mjs';"
+          ]
+        },
+        {
+          "path": "dist/_worker.js/chunks/order-bulk-action-operations_c-CGkjrw.mjs",
+          "imports": [
+            "import { e as emitPlatformEvent } from './event-context_BZrJuLh7.mjs';"
+          ]
+        },
+        {
+          "path": "dist/_worker.js/chunks/order-hold-operations_DUzbslaN.mjs",
+          "imports": [
+            "import { e as emitPlatformEvent } from './event-context_BZrJuLh7.mjs';"
+          ]
+        },
+        {
+          "path": "dist/_worker.js/chunks/order-operations_CHslg3X2.mjs",
+          "imports": [
+            "import { e as emitPlatformEvent, r as reservePlatformEventIdentity } from './event-context_BZrJuLh7.mjs';"
+          ]
+        },
+        {
+          "path": "dist/_worker.js/chunks/preliminary-order-operations_6umXxrvJ.mjs",
+          "imports": [
+            "import { r as reservePlatformEventIdentity, e as emitPlatformEvent } from './event-context_BZrJuLh7.mjs';"
+          ]
+        },
+        {
+          "path": "dist/_worker.js/chunks/preorder-operations_DzZviCsC.mjs",
+          "imports": [
+            "import { r as reservePlatformEventIdentity } from './event-context_BZrJuLh7.mjs';"
+          ]
+        },
+        {
+          "path": "dist/_worker.js/chunks/price-list-operations_D8F_0EvT.mjs",
+          "imports": [
+            "import { r as reservePlatformEventIdentity } from './event-context_BZrJuLh7.mjs';"
+          ]
+        },
+        {
+          "path": "dist/_worker.js/chunks/promotion-code-operations_BYnMX3vP.mjs",
+          "imports": [
+            "import { r as reservePlatformEventIdentity } from './event-context_BZrJuLh7.mjs';"
+          ]
+        },
+        {
+          "path": "dist/_worker.js/chunks/quantity-offer-operations_F3FY4QfF.mjs",
+          "imports": [
+            "import { r as reservePlatformEventIdentity } from './event-context_BZrJuLh7.mjs';"
+          ]
+        },
+        {
+          "path": "dist/_worker.js/chunks/return-operations_DhP480uQ.mjs",
+          "imports": [
+            "import { e as emitPlatformEvent } from './event-context_BZrJuLh7.mjs';"
+          ]
+        },
+        {
+          "path": "dist/_worker.js/chunks/stored-value-operations_BN2Q73pM.mjs",
+          "imports": [
+            "import { r as reservePlatformEventIdentity } from './event-context_BZrJuLh7.mjs';"
+          ]
+        },
+        {
+          "path": "dist/_worker.js/chunks/subscription-operations_Dui3KMxd.mjs",
+          "imports": [
+            "import { r as reservePlatformEventIdentity, e as emitPlatformEvent } from './event-context_BZrJuLh7.mjs';"
+          ]
+        },
+        {
+          "path": "dist/_worker.js/pages/api/admin/refunds/_id_.astro.mjs",
+          "imports": [
+            "import { e as emitPlatformEvent } from '../../../../chunks/event-context_BZrJuLh7.mjs';"
+          ]
+        }
+      ]
+    },
+    "limitations": [
+      "Replacing generated filenames is diagnostic normalization, not byte equality or execution.",
+      "Named imports statically retain the operational factories; no operation or Worker was run.",
+      "This does not assert complete transitive SSR behavior equivalence."
+    ],
+    "registry": {
+      "exactChangesAfterKnownFilenameReplacement": [
+        "companies.version 1.7.0 → 1.8.0",
+        "add ADR 0060 link"
+      ],
+      "byteDelta": 60,
+      "validated": true
+    },
+    "generatedManifest": {
+      "changed": true,
+      "contentComparison": "not claimed; generated metadata differs",
+      "executed": false
+    },
+    "conclusion": "58 public JS files and six complete browser graphs unchanged; two PURE annotations preserve used factory creation and all 19 named-import operational consumer chunks. Worker behavior was not executed."
+  }
+}

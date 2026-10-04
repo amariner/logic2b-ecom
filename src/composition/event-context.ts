@@ -19,13 +19,13 @@ export const systemEventClock: EventClock = { now: () => new Date() };
 export const randomEventIdSource: EventIdSource = { next: () => crypto.randomUUID() };
 
 /** Fábrica que usa el runtime real. */
-export const emitPlatformEvent = createEventFactory({
+export const emitPlatformEvent = /* @__PURE__ */ createEventFactory({
   clock: systemEventClock,
   ids: randomEventIdSource,
 });
 
 /** Reserva la misma identidad que usa la fábrica, para altas con id D1 autogenerado. */
-export const reservePlatformEventIdentity = createEventIdentityFactory({
+export const reservePlatformEventIdentity = /* @__PURE__ */ createEventIdentityFactory({
   clock: systemEventClock,
   ids: randomEventIdSource,
 });
