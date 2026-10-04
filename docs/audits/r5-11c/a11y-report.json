@@ -1,0 +1,42 @@
+[
+  {
+    "surface": "currency-methods:default",
+    "url": "/demo/admin/divisas",
+    "findings": []
+  },
+  {
+    "surface": "currency-methods:identity",
+    "url": "/demo/admin/divisas",
+    "findings": []
+  },
+  {
+    "surface": "currency-methods:expired",
+    "url": "/demo/admin/divisas",
+    "findings": []
+  },
+  {
+    "surface": "currency-methods:kw",
+    "url": "/demo/admin/divisas",
+    "findings": []
+  },
+  {
+    "surface": "currency-methods:default@375",
+    "url": "/demo/admin/divisas",
+    "findings": []
+  },
+  {
+    "surface": "currency-methods:identity@375",
+    "url": "/demo/admin/divisas",
+    "findings": []
+  },
+  {
+    "surface": "currency-methods:expired@375",
+    "url": "/demo/admin/divisas",
+    "findings": []
+  },
+  {
+    "surface": "currency-methods:kw@375",
+    "url": "/demo/admin/divisas",
+    "findings": []
+  }
+]

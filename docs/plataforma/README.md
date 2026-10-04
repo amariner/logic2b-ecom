@@ -31,10 +31,52 @@ Una quinta clasificación, **fuera de alcance deliberado**, evita confundir
 paridad comercial con fabricar bancos, redes publicitarias, hardware de punto de
 venta o servicios logísticos propios.
 
+## Última demo verificada
+
+**R5.11c implementada y verificada localmente, disponible en el repositorio**,
+rama `codex/currency-methods-demo`, sin despliegue y con integración pendiente.
+`/demo/admin/divisas` reúne mercados, divisas y métodos fixture.
+El diseño aprobado usa mercados ES/FR/JP/KW, importes nominales cerrados y
+destinos EUR/JPY/KWD, con evidencia FX vigente, caducada o indisponible;
+la identidad no necesita evidencia. Los métodos se evalúan sobre el importe
+original y permanecen invariantes al cambiar FX. El formato es exacto con
+`BigInt` y la muestra contempla 32 respuestas fixture.
+
+La interacción se resuelve en memoria, con reset/recarga al estado inicial,
+bajo manifest demo **y** `DEMO_MODE=true`. Sin I/O, almacenamiento, reloj,
+API, DDL, cron, pagos ni proveedor. MKT-008 y CHK-010 permanecen parciales e
+instaladas/inactivas; `payments` conserva sus otras capacidades activas.
+
+Check técnico final de R5.11c verde: 936 archivos sin diagnósticos, 240 suites
+y 2.885 pruebas, con 206 del modelo y seis de arquitectura; 44 HTML,
+44 formularios y cero crons. La revisión independiente cubre 4.634
+comprobaciones, 126 estados y 32 evidencias, sin P1/P2, efectos ni ejecución
+de getters. El bundle cliente real suma 36.482 B, 10.886 B gzip, en dos
+chunks: entrada de 30.287/8.662 B y markets de 6.195/2.224 B. La sonda de
+arranque observa cero imports externos y efectos. El bundle de prueba del
+modelo, 48.518 B sin minificar, es una medida distinta.
+
+QA nueva de R5.11c: navegador 2.030/2.030, E2E 172/172 y ocho superficies
+a11y con cero errores y cero avisos. Ocho capturas revisadas por frontend y
+UX/UI sin bloqueantes. Base QA intacta, 143 tablas/353 filas, con hash idéntico
+antes/después: `9cbfc811cfc4296515a403d395875a43bfa26aff0c9c9b08be0804b15bbf6eca`.
+El navegador registra cero efectos del módulo; el almacenamiento de la guía
+y requestAnimationFrame del shell se contabilizan por separado. Worker cerrado.
+[Informe final](../audits/r5-11c/verification-report.json).
+
+Los 932 archivos, 239 suites y 2.679 pruebas pertenecen al corte anterior
+R5.11b, integrado en PR #24 (`a44923c`). E2E 168/168,
+navegador 340/340, ocho superficies a11y y base QA de 143 tablas/353 filas con
+hash `9cbfc811cfc4296515a403d395875a43bfa26aff0c9c9b08be0804b15bbf6eca`
+son evidencia heredada de PR #22 (`93bc3bd`), distinta de la nueva QA de
+R5.11c. La demo no habilita cobro, reembolso ni conciliación operativos.
+
 ## Último contrato verificado
 
 **R5.11b implementado y verificado localmente el 2026-10-04**, rama
-`codex/local-methods-fixture-contract`, con integración pendiente y sin despliegue.
+`codex/local-methods-fixture-contract`, integrado en
+[PR #24](https://github.com/amariner/logic2b-ecom/pull/24), commit `a44923c`,
+sin despliegue.
 El [ADR-0051](adr/0051-metodos-locales-fixture.md) delimita el contrato puro
 `payments/domain/local-payment-methods.ts` y la composición
 `composition/local-payment-methods-context.ts`. CHK-010 permanece parcial e
@@ -63,8 +105,8 @@ E2E 168/168, navegador 340/340, ocho
 superficies a11y y base QA de 143 tablas/353 filas con hash
 `9cbfc811cfc4296515a403d395875a43bfa26aff0c9c9b08be0804b15bbf6eca`
 son evidencia heredada de R5.10b, PR #22 (`93bc3bd`), sin nuevas ejecuciones
-en R5.11b. La UI no está implementada y la demo visual permanece pendiente
-para R5.11c.
+en R5.11b. Ese corte no implementó UI; R5.11c aporta ahora la demo visual
+verificada localmente y disponible en el repositorio, sin despliegue.
 
 ## Último contrato verificado
 
@@ -75,8 +117,8 @@ sin despliegue.
 El [ADR-0050](adr/0050-presentacion-divisas-fixture.md) define el módulo
 separado `currencies` y su contrato puro de importe presentado y evidencia FX
 fixture. MKT-008 permanece parcial e instalada/inactiva en avanzado y demo, con
-dependencia PLT-004; ese corte no modificó CHK-010. La demo visual de divisas sigue
-pendiente para R5.11c.
+dependencia PLT-004; ese corte no modificó CHK-010. La demo visual de divisas
+está disponible y verificada localmente en R5.11c, sin despliegue.
 
 El perfil `minor-unit-presentment-half-up-v1` usa un catálogo completo y
 versionado, con exponentes 0/2/3 explícitos, tasas racionales dirigidas
@@ -181,15 +223,21 @@ ejecuciones de R5.10a ni de R5.10b.
 
 ## Siguientes fases
 
-**R5.11c aprobada, pendiente de implementación**: `/demo/admin/divisas` con
-fixtures coherentes ES/FR/JP/KW e importes nominales cerrados, destinos
-EUR/JPY/KWD y evidencia FX vigente, caducada o indisponible. La identidad
-no necesita evidencia. Los métodos se evalúan sobre el importe original y
-permanecen invariantes al cambiar FX; el diseño prevé formato exacto con
-`BigInt` y 32 respuestas fixture. La UI aún no está implementada.
-Después seguirá la consolidación de R5 bajo el mandato de fixtures.
-R5.11 seguirá parcial: estos previews no resuelven cobro, reembolso ni
-conciliación operativos.
+Tras integrar R5.11c sigue **R5.12: consolidación local de contratos y demos
+con fixtures**. Matriz trazable de capacidades y evidencias, compatibilidad
+ES/FR entre catálogos/idiomas/publicación/moneda original/FX/impuestos/métodos,
+y casos negativos sin convertir el preview en autorización de compra.
+Privacidad y cuenta opcional se contrastan con fixtures y guardas, manteniendo
+guest checkout; no se envían accesos, consentimientos o formularios ni se
+escriben datos desde las demos. Revisión de noindex/sitemap, PII, seguridad,
+navegación/a11y, efectos y hash QA de superficies servidas cuando corresponda;
+las pruebas heredadas conservan su procedencia.
+
+El cierre será del alcance con fixtures, sin reclamar E2E operativo. R5
+conserva pendientes de cobro, reembolso, conciliación, decisiones fiscales y
+de proveedor, cuentas/privacidad reales y activación por proyecto. Esos
+pendientes no exigen DDL, proveedor o nuevas rutas para ensayar la
+consolidación local ni se dan por resueltos por mostrar una demo.
 
 ## Demo verificada
 

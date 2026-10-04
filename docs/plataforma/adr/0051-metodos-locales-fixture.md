@@ -1,7 +1,8 @@
 # ADR-0051 — Métodos locales disponibles en fixtures
 
-- Estado: accepted; R5.11b implementado y verificado localmente, pendiente
-  de integración. Sin activación ni despliegue; demo visual pendiente.
+- Estado: accepted; R5.11b integrado en PR #24 (`a44923c`). R5.11c cerrado
+  localmente y disponible en el repositorio, con integración pendiente.
+  Sin activación ni despliegue.
 - Fecha: 2026-10-04
 - Bloque: R5.11b
 - Propietario: `payments`, contrato puro `domain/local-payment-methods.ts`.
@@ -197,8 +198,8 @@ seis de arquitectura y 79 de manifest/registry. Revisión independiente de
 6.366 aserciones sin P1/P2, efectos ni getters ejecutados. El bundle de
 composición mide 25.741 B, sin ledger, D1, Stripe, checkout, configuración
 operativa ni preview/adaptador FX efectivo; retiene una constante pura de
-`markets` de 142 B. Implementado y verificado localmente, sin despliegue;
-integración pendiente.
+`markets` de 142 B. Implementado y verificado localmente e integrado en
+PR #24 (`a44923c`), sin despliegue.
 
 Se verifican tuplas exactas, ausencia/deshabilitación, bordes inclusivos,
 enteros seguros, exponentes, referencias ID/versión, reglas ajenas al contexto,
@@ -213,17 +214,62 @@ Su SHA-256 antes/después es
 No son ejecuciones nuevas de R5.11b; este corte no modifica la UI o los
 lectores runtime de la demo.
 
-## Siguientes cortes
+## R5.11c — Demo conjunta, cerrada localmente
 
-R5.11c tiene aprobado `/demo/admin/divisas`: mercados ES/FR/JP/KW coherentes,
+En `codex/currency-methods-demo` se desarrolla `/demo/admin/divisas`: mercados ES/FR/JP/KW coherentes,
 importes nominales cerrados y monedas destino EUR/JPY/KWD. FX ofrece casos
 vigente, caducado e indisponible; la identidad conserva el importe sin evidencia
 fabricada. Los métodos se evalúan siempre sobre el original y permanecen
-invariantes ante cambios de FX. Se usará formato exacto con `BigInt` y 32
-respuestas fixture. La UI todavía no está implementada; demo visual pendiente,
-sin activación de capacidades ni autorización de pagos reales.
+invariantes ante cambios de FX. Usa formato exacto con `BigInt` y 32
+respuestas fixture. Estado en memoria y reset/recarga, manifest demo y
+`DEMO_MODE=true` obligatorios. Demo implementada y verificada localmente,
+disponible en el repositorio; integración pendiente, sin despliegue, activación
+de capacidades ni autorización de pagos reales.
 
-Después, R5.12 consolidará el alcance demostrado con fixtures y sus límites
-legales, SEO y de seguridad. Los previews no resuelven cobro, reembolso o
-conciliación operativos; esos alcances no se dan por terminados por mostrar
-un método o un importe en una demo.
+[Verificación final R5.11c](../../audits/r5-11c/verification-report.json), 2026-10-04:
+`pnpm check` pasa 936 archivos sin diagnósticos, 240 suites/2.885 pruebas,
+44 HTML, 44 formularios y cero crons. Focales: 206 pruebas del modelo y seis
+de arquitectura. Revisión independiente de 4.634 comprobaciones sobre 126
+estados y 32 evidencias, sin P1/P2, efectos ni getters ejecutados.
+
+QA nueva de superficie: navegador 2.030/2.030, E2E 172/172 y ocho superficies
+a11y sin errores ni avisos. Las ocho capturas tienen revisión visual aprobada,
+sin bloqueantes. Cero HTTP, almacenamiento, temporizadores, beacons, ventanas
+o errores JavaScript propios del módulo; almacenamiento de la guía y rAF
+visual compartidos se identifican y contabilizan aparte.
+
+El cliente final suma 36.482 B, 10.886 B gzip, en dos chunks sin imports
+externos: entrada de 30.287 B/8.662 B gzip y chunk de mercados de
+6.195 B/2.224 B gzip. Su sonda de arranque tampoco observó efectos;
+esta evidencia se distingue de las interacciones completas en navegador. El bundle de prueba
+del modelo, distinto del cliente final, mide 48.518 B sin minificar.
+La base QA conserva 143 tablas y 353 filas con SHA-256 antes/después idéntico:
+`9cbfc811cfc4296515a403d395875a43bfa26aff0c9c9b08be0804b15bbf6eca`.
+Worker detenido. Demo implementada y verificada localmente, disponible en el
+repositorio; integración pendiente, sin despliegue ni activación.
+
+La evidencia técnica de R5.11b y la regresión heredada de PR #22 no se
+atribuyen a esta nueva superficie.
+
+## Siguiente: consolidación R5.12
+
+R5.12 será la siguiente consolidación local de contratos y demos con fixtures:
+
+- Matriz trazable de capacidades R5, contratos, estados instalada/inactiva,
+  superficies demostrables y evidencia propia o heredada.
+- Compatibilidad de al menos ES/FR entre referencias de catálogos, idiomas,
+  publicación, moneda original/FX, impuestos y métodos; casos negativos
+  explícitos, sin convertir un preview en autorización de compra.
+- Privacidad y cuenta opcional mediante fixtures y guardas que bloquean ante
+  ausencia de autorización; guest checkout sigue siendo la base. No se envían
+  enlaces de acceso, consentimientos ni formularios ni se escriben datos desde
+  las demos.
+- Revisión de noindex/sitemap, exposición de PII, seguridad, navegación/a11y y
+  ausencia de efectos; hash QA antes/después en las superficies servidas cuando
+  corresponda. No se atribuyen pruebas heredadas como nuevas.
+
+El cierre se limita a ese alcance con fixtures, no a un E2E operativo. Cobro,
+reembolso, conciliación, decisiones fiscales/de proveedor y activación real
+de cuentas/privacidad conservan sus pendientes explícitos. No exige DDL,
+proveedor, nuevas rutas ni activación para ensayar; las decisiones reales por
+proyecto no bloquean la consolidación local.

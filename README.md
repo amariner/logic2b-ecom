@@ -97,11 +97,11 @@ remoto.
 
 ### Evidencia local actualizada el 2026-10-04
 
-- `pnpm check`: 932 archivos sin diagnósticos, 239 suites y 2.679 tests.
+- `pnpm check`: 936 archivos sin diagnósticos, 240 suites y 2.885 tests.
 - Build demo: 44 documentos HTML y 44 formularios de proyecto locales.
 - D1/workerd: 15 bloques correctos, backup 39 y restauración de 129 tablas;
   [informe de segmentación](docs/audits/r5-6c/facts-d1-report.json).
-- E2E de R5.10b (2026-10-03): 168/168 comprobaciones. Formularios: 31 comprobaciones, cero peticiones
+- E2E de R5.11c (2026-10-04): 172/172 comprobaciones. Formularios: 31 comprobaciones, cero peticiones
   mutantes, beacons o errores JavaScript;
   [informe de fixtures](docs/audits/demo-fixtures/report.json).
 - Segmentos locales: 119 comprobaciones de navegador y ocho superficies de
@@ -139,6 +139,10 @@ remoto.
   comprobaciones independientes. Disponibilidad explicada sobre el importe
   original, sin FX, cobros ni proveedores; CHK-010 instalada e inactiva.
   [Informe R5.11b](docs/audits/r5-11b/verification-report.json).
+- Monedas y métodos: cuatro mercados, tres monedas y 126 contextos cerrados,
+  con disponibilidad sobre el importe original; 206 pruebas del modelo,
+  2.030 comprobaciones de navegador y ocho superficies a11y sin hallazgos.
+  [Evidencia R5.11c](docs/audits/r5-11c/README.md).
 - Base QA: 143 tablas y 353 filas, hash antes/después idéntico:
   `9cbfc811cfc4296515a403d395875a43bfa26aff0c9c9b08be0804b15bbf6eca`.
 

@@ -466,6 +466,42 @@ for (const vp of [DESKTOP, MOBILE]) {
   }
 }
 
+// R5.11c: equivalencia de monedas y métodos locales, ambos sobre fixtures.
+// El estado caducado conserva evidencia histórica y limpia el importe presentado.
+const CURRENCY_METHODS_SCENARIO = (stage) => `(() => {
+  const root = document.querySelector('[data-currency-methods-demo]');
+  if (root?.dataset.ready !== 'true') return 'not-ready';
+  const select = (selector, value) => {
+    const field = root.querySelector(selector);
+    field.value = value;
+    field.dispatchEvent(new Event('change', { bubbles: true }));
+  };
+  const stage = ${JSON.stringify(stage)};
+  if (stage === 'identity') select('[data-currency-target]', 'EUR');
+  if (stage === 'expired') select('[data-currency-fx]', 'expired');
+  if (stage === 'kw') select('[data-currency-market]', 'KW');
+  const result = root.querySelector('[data-currency-result]');
+  const presented = root.querySelector('[data-currency-presented]');
+  const expected = stage === 'identity' ? ['identity', 'EUR', '2', '2975']
+    : stage === 'expired' ? ['unresolved', null, null, null]
+      : ['converted', 'JPY', '0', stage === 'kw' ? '4938' : '4760'];
+  const actual = [result.dataset.outcome, presented.getAttribute('data-currency'),
+    presented.getAttribute('data-exponent'), presented.getAttribute('data-amount-minor')];
+  if (JSON.stringify(actual) !== JSON.stringify(expected)) return 'wrong-presentment';
+  const available = Array.from(root.querySelectorAll('[data-local-method-row]'))
+    .filter(row => row.dataset.outcome === 'available_in_fixture').map(row => row.dataset.methodId).sort();
+  if (JSON.stringify(available) !== JSON.stringify(stage === 'kw' ? ['method.alternative'] : ['method.local', 'method.transfer'])) return 'wrong-methods';
+  return stage;
+})()`;
+for (const vp of [DESKTOP, MOBILE]) {
+  const suffix = vp === MOBILE ? '@375' : '';
+  for (const stage of ['default', 'identity', 'expired', 'kw']) {
+    SURFACES.push({ name: `currency-methods:${stage}${suffix}`, url: '/demo/admin/divisas', vp, auth: true,
+      eval: CURRENCY_METHODS_SCENARIO(stage), expect: stage,
+      ...(stage === 'expired' ? { reducedMotion: true } : {}) });
+  }
+}
+
 // R5.4d: estas rutas no existen en la demo y por eso no forman parte de la
 // batería ordinaria. El arnés local explícito activa un manifest cliente y una
 // composición visual inerte para auditar las páginas Astro reales sin DB,

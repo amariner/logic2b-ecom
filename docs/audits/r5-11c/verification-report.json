@@ -1,0 +1,88 @@
+{
+  "schemaVersion": 1,
+  "verifiedAt": "2026-10-04",
+  "environment": "local-synthetic-fixtures",
+  "deployment": "not-deployed",
+  "verification": {
+    "typecheckFiles": 936,
+    "diagnostics": 0,
+    "suites": 240,
+    "tests": 2885,
+    "modelTests": 206,
+    "architectureTests": 6,
+    "buildHtmlPages": 44,
+    "buildLocalForms": 44,
+    "e2eChecks": 172,
+    "browserChecks": 2030,
+    "browserViewports": [
+      1440,
+      375
+    ],
+    "browserCombinationsPerViewport": 126,
+    "a11ySurfaces": 8,
+    "a11yErrors": 0,
+    "a11yWarnings": 0,
+    "screenshots": 8
+  },
+  "independentReview": {
+    "assertions": 4634,
+    "validStates": 126,
+    "fixtureFxCases": 32,
+    "openP1OrP2": 0,
+    "observedEffects": 0,
+    "gettersExecuted": 0,
+    "modelProbeUnminifiedBytes": 48518,
+    "operationalRuntimeImports": 0,
+    "builtClient": {
+      "entryBytes": 30287,
+      "entryGzipBytes": 8662,
+      "sharedImportBytes": 6195,
+      "sharedImportGzipBytes": 2224,
+      "totalBytes": 36482,
+      "totalGzipBytes": 10886,
+      "gzipMethod": "sum-of-independently-compressed-files",
+      "externalImports": 0,
+      "initializationEffects": 0,
+      "scope": "actual-built-client-graph-and-initialization-without-demo-root; interaction coverage is browser report"
+    }
+  },
+  "effects": {
+    "moduleHttpRequests": 0,
+    "moduleStorageWrites": 0,
+    "moduleMutationEvents": 0,
+    "moduleTimers": 0,
+    "beacons": 0,
+    "externalWindows": 0,
+    "blockedOrForbiddenRequests": 0,
+    "javascriptErrors": 0,
+    "sharedGuideStorageKey": "logic2b:ecom-guide:v1",
+    "sharedGuideSetupWritesPerViewport": 3,
+    "sharedGuideReloadWritesPerViewport": 2,
+    "sharedLayoutAnimation": "exact requestAnimationFrame caller verified against WhatsAppContact source; not a cron"
+  },
+  "database": {
+    "tables": 143,
+    "rows": 353,
+    "beforeHash": "9cbfc811cfc4296515a403d395875a43bfa26aff0c9c9b08be0804b15bbf6eca",
+    "afterHash": "9cbfc811cfc4296515a403d395875a43bfa26aff0c9c9b08be0804b15bbf6eca",
+    "result": "unchanged"
+  },
+  "scope": {
+    "route": "/demo/admin/divisas",
+    "gate": "demo manifest AND DEMO_MODE=true",
+    "capabilities": [
+      "MKT-008",
+      "CHK-010"
+    ],
+    "capabilityState": "installed",
+    "capabilitiesActive": false,
+    "fxFixtureResponses": 32,
+    "fixedExampleAt": "2026-10-03T12:00:00.000Z",
+    "methodsInput": "original nominal amount; independent of FX destination or scenario",
+    "migrationsAdded": 0,
+    "jobsAdded": 0,
+    "providersActivated": 0,
+    "realOrdersCreated": 0,
+    "formsAdded": 0
+  }
+}
