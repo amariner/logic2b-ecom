@@ -141,6 +141,9 @@ const ADVANCED_CAPABILITIES = {
   // R6.3a: reglas de cantidad por variante sobre fixtures explícitos;
   // no modifica carrito, checkout ni concede permisos de compra.
   'B2B-005': { state: 'installed' },
+  // R6.6a: solicitudes y revisiones completas de ofertas declaradas;
+  // no emite presupuestos, ejecuta cobros ni convierte pedidos.
+  'B2B-006': { state: 'installed' },
   // R5.7 declara contexto de mercado sin decidir países, idiomas, divisas
   // comerciales ni conectar el resolver a HTTP o al checkout.
   'MKT-003': { state: 'installed' },

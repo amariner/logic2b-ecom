@@ -31,7 +31,33 @@ Una quinta clasificación, **fuera de alcance deliberado**, evita confundir
 paridad comercial con fabricar bancos, redes publicitarias, hardware de punto de
 venta o servicios logísticos propios.
 
-## Demo y contratos verificados localmente
+## Contrato y última demo verificados localmente
+
+**R6.6a — Contrato de solicitudes B2B y revisiones completas de oferta está implementado y verificado localmente**,
+rama `codex/company-negotiation-fixtures`, según el [ADR-0059](adr/0059-solicitudes-ofertas-fixture.md).
+Solicitud sin dinero, contexto íntegro de empresa/contacto/catálogo y hasta
+veinte ofertas completas EUR, con predecesor explícito, replay y diff estructural.
+Precio ofertado entre cero y 1.000.000.000 céntimos; total positivo hasta ese
+máximo calculado con BigInt, sin heredar el límite del precio de catálogo.
+
+`companies` 1.7.0, B2B-006 parcial e instalada/inactiva en avanzado/demo,
+dependencia única B2B-002 y superficies operativas vacías. No duplica estados
+comerciales o pagos de ORD-008 ni concede permiso por conservar una oferta.
+R6.5c está integrada en PR #38 (`5cdb5bb`), sin despliegue. Check final de a:
+987 archivos sin diagnósticos, 262 suites/3.745 pruebas; cincuenta de dominio,
+seis de arquitectura y 120 de registro/manifest/acceso. Build con 44 HTML,
+44 formularios locales y cero cron. Revisión independiente: 10.245 comprobaciones,
+sin P1/P2, efectos, getters o reloj implícito. Diagnóstico público 20.138 B/5.659
+gzip, incluidas constantes históricas de 113 B/168 B; no cliente Astro.
+Seis grafos JavaScript y 355 fuentes de superficie son idénticos a PR #38.
+De 19 CSS, 18 son idénticos: el global añade únicamente `.ordinal`, utilidad sin
+consumidor en esas fuentes, +175 B/+7 gzip. Al retirarla se recupera el SHA
+anterior exacto. Es comparación estática, no una nueva prueba HTTP/SSR o de
+interacción. **Implementado y verificado localmente; integración pendiente y sin despliegue.**
+[Informe final R6.6a](../audits/r6-6a/verification-report.json).
+No añade UI, DDL, Worker o acciones sobre DB. Navegador 6.368/108 visitas,
+E2E192, a11y8/capturas8 y hash de 143 tablas/353 filas son evidencia heredada
+de PR #38, no nuevas ejecuciones.
 
 **R6.5c — Demo de límites y revisión de crédito está implementada y verificada localmente**,
 rama `codex/company-credit-review-demo`. R6.5b está integrada en PR #37
@@ -51,7 +77,7 @@ inicial completo y controles inertes sin JavaScript. B2B-004 sigue parcial e
 instalada/inactiva; sin capacidades operativas nuevas.
 
 **Implementada y verificada localmente, disponible en el repositorio;
-integración pendiente y sin despliegue.**
+integrada en PR #38 (`5cdb5bb`) y sin despliegue.**
 [Verificación final R6.5c](../audits/r6-5c/verification-report.json), 2026-10-04:
 `pnpm check` pasa 985 archivos sin diagnósticos, 261 suites/3.694
 pruebas; 41 del modelo, seis de arquitectura y ocho de autenticación. Build de
@@ -118,7 +144,7 @@ Navegador 2.660 comprobaciones/72 visitas, E2E 188/188, ocho superficies a11y
 sin hallazgos, ocho PNG y base QA de 143 tablas/353 filas son **heredados de
 PR #35**, sin nuevas ejecuciones runtime. Hash histórico antes/después:
 `9cbfc811cfc4296515a403d395875a43bfa26aff0c9c9b08be0804b15bbf6eca`.
-R6.5c está verificada localmente y disponible en repo, con integración pendiente y sin despliegue.
+R6.5c está verificada localmente y disponible en repo, integrada en PR #38 (`5cdb5bb`) y sin despliegue.
 
 **R6.5a está implementado y verificado localmente**, rama `codex/company-credit-fixtures`,
 con diseño aceptado en el [ADR-0057](adr/0057-limites-credito-fixture.md). Las tres colecciones de límites
@@ -152,7 +178,7 @@ sin hallazgos, ocho PNG y base QA de 143 tablas/353 filas son evidencia
 **heredada de PR #35**, sin nuevas ejecuciones de Worker, HTTP, navegador,
 a11y, E2E o DB en este corte puro. Hash histórico antes/después:
 `9cbfc811cfc4296515a403d395875a43bfa26aff0c9c9b08be0804b15bbf6eca`.
-El workflow humano R6.5b está verificado localmente, integrado en PR #37 (`16caef3`); la demo visual R6.5c está verificada localmente, con integración pendiente y sin despliegue.
+El workflow humano R6.5b está verificado localmente, integrado en PR #37 (`16caef3`); la demo visual R6.5c está verificada localmente, integrada en PR #38 (`5cdb5bb`) y sin despliegue.
 
 **R6.4c — Demo conjunta de condiciones y cobros está implementada y verificada localmente**, rama
 `codex/company-collection-demo`. R6.4b está integrada en PR #34 (`2d72d2f0`),
@@ -238,23 +264,35 @@ Se conservan diagnóstico numérico e historial como dimensiones separadas,
 sin controles técnicos de CAS ni traslado de votos al cambiar contexto.
 El mismo escenario conserva la revisión; otro escenario exige nueva apertura.
 Terminalidad bloquea respuestas incluso con contactos sin responder.
-**Implementada y verificada localmente, disponible en repo; integración
-pendiente y sin despliegue.** Check 985 archivos/261 suites/3.694 pruebas,
+**Implementada y verificada localmente, disponible en repo; integrada en PR #38 (`5cdb5bb`)
+y sin despliegue.** Check 985 archivos/261 suites/3.694 pruebas,
 41 del modelo y revisión independiente 129.333 sin P1/P2; navegador 6.368/108
 visitas principales, ocho superficies a11y sin hallazgos, ocho PNG aprobadas,
 E2E nuevo 192/192 y hash QA de 143 tablas/353 filas intacto. Cliente real tres archivos
 46.662 B/13.177 gzip; guía medida aparte. [Informe final](../audits/r6-5c/verification-report.json).
 Sin autorización comercial, DDL, reserva ni cambios de checkout/ledger.
 
-**Siguiente: R6.6a, solicitud B2B y revisiones completas de oferta con fixtures.**
-Diseño exacto revisado y pendiente de implementación: solicitud sin dinero,
-contexto íntegro de empresa/contacto/catálogo y ofertas EUR declaradas con
-historial inmutable y comparación estructural. Una variante explícita por
-producto, 1–100 líneas, unidades 1–10.000 y total positivo hasta 1.000.000.000
-céntimos calculado con BigInt; caducidad propia de cada revisión, sin lifecycle
-comercial. No hereda aceptación, pagos o revisión de crédito al cambiar contexto.
-R6.6b compondrá después con ORD-008 existente y R6.6c aportará demo: ninguna
-conversión de pedido, reserva o cobro se declara implementada por este diseño.
+**R6.6a está implementado y verificado localmente**, según el [ADR-0059](adr/0059-solicitudes-ofertas-fixture.md).
+Solicitud sin dinero, contexto completo de empresa/contacto/catálogo, ofertas
+EUR declaradas e historial íntegro de hasta veinte revisiones. Una variante
+explícita por producto, 1–100 líneas, unidades 1–10.000, precio ofertado 0–1.000.000.000
+céntimos y total positivo hasta 1.000.000.000 con BigInt. Cada revisión tiene
+caducidad propia y diff estructural; no agrega estados comerciales de ORD-008.
+Otro contexto exige nueva negociación sin heredar aceptación, pagos o crédito.
+B2B-006 parcial e instalada/inactiva. Check final: 987 archivos sin diagnósticos,
+262 suites/3.745 pruebas; cincuenta de dominio, seis de arquitectura y 120 de
+registro/manifest/acceso. Revisión independiente 10.245 comprobaciones sin
+P1/P2, efectos, getters o reloj implícito; 44 HTML/44 formularios locales y cero
+cron. Seis grafos JS y 355 fuentes iguales a PR #38; 18/19 CSS iguales y única
+utilidad `.ordinal` sin consumidor (+175 B/+7 gzip), con SHA previo recuperable
+al retirarla. Comparación estática, sin afirmar ejecución SSR completa.
+Implementado y verificado localmente; integración pendiente/sin despliegue.
+[Informe final R6.6a](../audits/r6-6a/verification-report.json).
+Navegador/E2E192/a11y8/capturas8/hash143 tablas/353 filas son heredados de PR #38,
+sin UI o ejecución runtime/DB nuevas. R6.6b será composición pura con ORD-008,
+con oferta histórica congelada y parámetros explícitos; revisión comercial y
+versión del ciclo permanecen separadas. R6.6c será la demo posterior. No se
+ejecutan conversión, reserva, enlaces alojados o cobro.
 
 
 **R6.4b — Evidencia de cobro con fixtures está implementado y verificado localmente**, rama
