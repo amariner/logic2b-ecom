@@ -77,11 +77,12 @@ anteriores. Nuevo modelo/página y navegación explican el delta del Worker;
 no se afirma igualdad SSR completa o equivalencia visual de todas las páginas.
 [Informe final R6.8d](../audits/r6-8d/verification-report.json).
 
-**Implementada y verificada localmente, disponible en el repositorio; integración
-pendiente.** El despliegue está expresamente autorizado, pero todavía no realizado:
-Cloudflare no está autenticado en este entorno y falta habilitar la credencial
-segura; el usuario está informado. No requiere DDL nueva. **R6.9 queda pospuesto**,
-sin implementación y sin bloquear esta entrega.
+**Implementada, verificada localmente e integrada en [PR #48](https://github.com/amariner/logic2b-ecom/pull/48)
+(`d0816ad2`).** Despliegue autorizado e intentado el 2026-10-04 a las 06:59 UTC:
+Wrangler terminó con código 1 porque falta `CLOUDFLARE_API_TOKEN`. Producción no
+se ha actualizado; falta habilitar la credencial segura y el usuario está
+informado. No requiere DDL nueva. **R6.9 queda pospuesto**, sin implementación
+y sin bloquear esta entrega.
 
 **R6.8c — Intención histórica de pedido rápido está implementada y verificada localmente**, rama
 `codex/company-quick-order-history-fixtures`, contrato exacto aceptado en el
@@ -122,7 +123,7 @@ Interacción heredada de PR #44: navegador 5.076/108, ocho a11y/PNG, E2E 200 y
 hash QA 143/353; ninguna ejecución nueva de c.
 
 R6.8d está verificada localmente según la extensión del ADR-0065: diez escenarios,
-un selector y reset; 4.159 pruebas/E2E 204, integración pendiente. A+b+c bastan,
+un selector y reset; 4.159 pruebas/E2E 204, integrada en PR #48 (`d0816ad2`). A+b+c bastan,
 sin composición comercial obligatoria ni operación real. Despliegue autorizado,
 pendiente de autenticación de Cloudflare.
 
@@ -166,7 +167,7 @@ ocho a11y/PNG, E2E 200 y hash QA 143/353 proceden de PR #44, no de una ejecució
 
 R6.8c histórico está integrado en PR #47 (`372dd221`): identidad explícita y
 snapshot íntegro de origen, sin restaurar una compra mediante un SKU reutilizado.
-R6.8d está verificada localmente como demo inerte de a+b+c; integración pendiente,
+R6.8d está verificada localmente como demo inerte de a+b+c e integrada en PR #48 (`d0816ad2`),
 sin composición comercial obligatoria ni operación real.
 
 ## Contrato verificado localmente

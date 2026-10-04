@@ -49,10 +49,15 @@ acceso guiado. Los contratos a/b/c y el registro de módulos no cambian. El CSS
 global añade 430 B y el Worker incorpora la nueva página y su modelo; no se
 afirma equivalencia completa de SSR o de los estilos de todas las páginas.
 
-[Evidencia y hashes finales](verification-report.json). El despliegue está
-autorizado, pero pendiente de autenticación de Cloudflare en este entorno;
-`wrangler whoami` indica que no hay sesión. Este bloque no requiere migración,
-seed ni activación operativa de B2B-008.
+[Evidencia y hashes finales](verification-report.json). Integrada en
+[PR #48](https://github.com/amariner/logic2b-ecom/pull/48), merge `d0816ad2`.
+El despliegue autorizado se intentó el 2026-10-04 a las 06:59 UTC sobre ese merge:
+`CI=true WRANGLER_SEND_METRICS=false node_modules/.bin/wrangler deploy --config ./wrangler.jsonc`
+terminó con código 1 por falta de `CLOUDFLARE_API_TOKEN`; `wrangler whoami` también
+indica que no hay sesión. Producción no está actualizada. Falta configurar la
+credencial mediante los secretos del entorno y repetir el despliegue del build
+verificado. Este bloque no requiere migración, seed ni activación operativa de
+B2B-008; no se usó una cuenta temporal ni se modificó D1 remota.
 
 Consejo (skill [equipo](../../../.claude/skills/equipo/SKILL.md)): arquitectura ✓ ·
 backend ✓ · fullstack ✓ · frontend ✓ · UX/UI ✓ · producto ✓ · SEO ✓.

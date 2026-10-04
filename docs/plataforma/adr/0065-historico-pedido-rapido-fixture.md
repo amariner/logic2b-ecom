@@ -1,6 +1,6 @@
 # ADR-0065 — Intención histórica de pedido rápido con fixtures
 
-- Estado: accepted; R6.8c implementado y verificado localmente, integrado en PR #47 (`372dd221`), sin despliegue; demo R6.8d verificada localmente, integración pendiente.
+- Estado: accepted; R6.8c implementado y verificado localmente, integrado en PR #47 (`372dd221`), sin despliegue; demo R6.8d verificada localmente e integrada en PR #48 (`d0816ad2`), despliegue bloqueado por autenticación.
 - Fecha: 2026-10-04.
 - Dominio: `src/modules/companies/domain/company-quick-order-history.ts`.
 - API pública: `src/modules/companies/index.ts`.
@@ -199,7 +199,7 @@ hash QA intacto de 143 tablas/353 filas; no son nuevas ejecuciones históricas.
 
 ## Extensión R6.8d — Demo «Listas y repetición»
 
-**Implementada y verificada localmente, integración pendiente.** Rama
+**Implementada, verificada localmente e integrada en PR #48 (`d0816ad2`).** Rama
 `codex/company-quick-order-demo`; ruta `/demo/admin/listas-sku`, título
 «Listas y repetición», subtítulo «SKU, CSV e intención histórica», grupo Clientes.
 La demo usa exclusivamente fixtures en memoria y exige simultáneamente el
@@ -252,7 +252,7 @@ y después de las 06:55:54 UTC idéntico: 143 tablas/353 filas,
 Sin escrituras operativas ni preparación nueva de DB atribuida a la demo.
 
 Siete grafos de negocio anteriores permanecen idénticos a PR #47 y los seis
-contratos a+b+c conservan sus fuentes. Guía separada: 15.230 B/6.333 gzip,
+archivos de contratos a+b+c, helper, barrel y registro conservan sus fuentes. Guía separada: 15.230 B/6.333 gzip,
 único cambio de allowlist `|listas-sku` (+11 B/+8 gzip). Dieciocho CSS emitidos
 siguen iguales; el global añade ocho utilidades (+430 B) conservando las reglas
 anteriores. Nuevo modelo/página y navegación explican el delta del Worker;
@@ -268,10 +268,11 @@ anteriores conservan su atribución histórica.
 
 ## Continuidad sin operación
 
-La prioridad es integrar la demo verificada y entregar el despliegue expresamente
-autorizado. Integración pendiente; Cloudflare no está autenticado en este entorno
-y falta habilitar la credencial segura, circunstancia comunicada al usuario.
-Producción todavía no está actualizada; no se necesita DDL nueva. R6.9 queda pospuesto: su propuesta de
+La demo verificada está integrada en PR #48 (`d0816ad2`). La prioridad es habilitar
+la credencial segura de Cloudflare y entregar el despliegue expresamente autorizado.
+El intento del 2026-10-04 a las 06:59 UTC terminó con código 1 por falta de
+`CLOUDFLARE_API_TOKEN`, circunstancia comunicada al usuario. Producción todavía no
+está actualizada; no se necesita DDL nueva. R6.9 queda pospuesto: su propuesta de
 consolidación fixture sobre dos empresas, permisos/dinero y wiki se conserva
 para después y no bloquea esta entrega. A+b+c bastan para esta demostración de las cuatro entradas; no
 requiere antes una composición de elegibilidad comercial. Si se propusiera esa
