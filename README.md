@@ -97,11 +97,11 @@ remoto.
 
 ### Evidencia local actualizada el 2026-10-04
 
-- `pnpm check` de R6.4a: 971 archivos sin diagnósticos, 256 suites y 3.473 tests.
+- `pnpm check` de R6.4b: 973 archivos sin diagnósticos, 257 suites y 3.510 tests.
 - Build demo: 44 documentos HTML y 44 formularios de proyecto locales.
 - D1/workerd: 15 bloques correctos, backup 39 y restauración de 129 tablas;
   [informe de segmentación](docs/audits/r5-6c/facts-d1-report.json).
-- E2E de R6.3b (2026-10-04): 184/184 comprobaciones, heredadas para el contrato puro R6.4a.
+- E2E de R6.3b (2026-10-04): 184/184 comprobaciones, heredadas para los contratos puros R6.4a/b.
   Formularios: 31 comprobaciones, cero peticiones
   mutantes, beacons o errores JavaScript;
   [informe de fixtures](docs/audits/demo-fixtures/report.json).
@@ -179,9 +179,13 @@ remoto.
 - Condiciones de pago con fixtures: asignación explícita por empresa, fechas
   civiles UTC y vencimiento/hitos descriptivos, sin inferir estado de cobro.
   46 pruebas propias y 21.702 comprobaciones independientes de calendario y
-  correlación. B2B-003 instalada/inactiva; evidencia de cobro y demo conjunta
-  pendientes. [Informe R6.4a](docs/audits/r6-4a/verification-report.json).
-- Base QA de R6.3b (evidencia heredada en R6.4a): 143 tablas y 353 filas, hash antes/después idéntico:
+  correlación. B2B-003 instalada/inactiva. [Informe R6.4a](docs/audits/r6-4a/verification-report.json).
+- Evidencia de cobro fixture: obligación completa correlacionada, importes
+  aplicados/revertidos con fecha de observación y diferencia firmada. Ausencia
+  de evidencia conserva importes desconocidos; el calendario no determina
+  deuda ni pago. 37 pruebas propias y 22.216 comprobaciones independientes.
+  Demo conjunta R6.4c pendiente. [Informe R6.4b](docs/audits/r6-4b/verification-report.json).
+- Base QA de R6.3b (evidencia heredada en R6.4a/b): 143 tablas y 353 filas, hash antes/después idéntico:
   `9cbfc811cfc4296515a403d395875a43bfa26aff0c9c9b08be0804b15bbf6eca`.
 
 Esta evidencia corresponde a QA local y no acredita que el sitio remoto haya

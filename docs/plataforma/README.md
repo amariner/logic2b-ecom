@@ -33,8 +33,76 @@ venta o servicios logísticos propios.
 
 ## Último contrato verificado
 
+**R6.4b — Evidencia de cobro con fixtures está implementado y verificado localmente**, rama
+`codex/company-collection-evidence`, según el
+[ADR-0056](adr/0056-evidencia-cobro-fixture.md). Perfil `company-applied-eur-cents-v1`: una obligación EUR
+completa/versionada y un snapshot aplicado/revertido correlacionado con todos
+sus campos. El importe esperado es declarado, no una deuda legal o fiscal.
+`companies` 1.4.0 conserva B2B-003 parcial e instalada/inactiva, dependencia
+B2B-001 y superficies operativas vacías.
+
+Evidencia completa compara el neto aplicado con el importe declarado y conserva
+la diferencia firmada, incluido exceso. Revertido mayor que aplicado es error;
+0/0 no prueba pago. Ausencia, observación futura o evidencia incompleta producen
+`unknown` sin importes observados. `asOf` conserva la fecha de observación;
+sin TTL ni garantía de saldo actual, y sin convertir antigüedad en caducidad.
+
+El preview combinado llama al calendario existente desde datos ya normalizados,
+sin aceptar vencimientos externos ni duplicar aritmética. Condición ausente o
+empresa inactiva no ocultan evidencia descriptiva; ninguna salida concede
+permisos o activa operaciones. No hay ledger, DDL, rutas, UI, proveedores,
+notificaciones, crédito o cambios de checkout.
+
+**Implementado y verificado localmente; integración pendiente, sin despliegue.**
+[Verificación final R6.4b](../audits/r6-4b/verification-report.json), 2026-10-04: `pnpm check` pasa
+973 archivos sin diagnósticos, 257 suites/3.510 pruebas, 44 HTML,
+44 formularios locales y cero crons. Focales: 37 de dominio, seis de arquitectura
+y 118 de registry/manifest/acceso (19/69/30) de la ejecución de registro de este
+corte. Revisión independiente: 22.216 comprobaciones, 3.944 casos monetarios
+(2.093 válidos y 1.851 inconsistencias rechazadas) y 300 integraciones con
+calendario (150 `observed`, 150 `unknown`); sin P1/P2, efectos, getters o reloj
+implícito. Bundle público de diagnóstico: 18.153 B/4.925 B gzip, tres fuentes
+puras, directorio/calendario/evidencia, sin imports externos; no es un asset UI.
+
+Comparación nueva contra PR #33: cuatro grafos cliente iguales en nombres,
+archivos, aristas, specifiers, SHA-256, bytes y gzip, sin imports externos.
+También permanecen iguales las 349 fuentes de superficie y 19 CSS emitidos,
+sin añadidos, eliminaciones o cambios. No se ejecutaron Worker, HTTP,
+navegador, a11y, E2E o DB para este corte puro.
+
+Navegador 2.084 comprobaciones/72 visitas, E2E 184/184, ocho superficies a11y
+sin hallazgos, ocho capturas y base QA de 143 tablas/353 filas se heredan de
+PR #32. Hash histórico, sin nueva lectura en b:
+`9cbfc811cfc4296515a403d395875a43bfa26aff0c9c9b08be0804b15bbf6eca`.
+El check de a/PR #33 (971 archivos/256 suites/3.473 pruebas) conserva su propio
+corte. B2B-003 y R6.4 siguen parciales, sin activación u operación financiera.
+
+**R6.4c tiene diseño completo aceptado, pendiente de implementación** tras
+integrar b. Ruta `/demo/admin/condiciones-pago`, «Condiciones y cobros de
+ejemplo», en Clientes después de Cantidades. Dos selectores cerrados: 12 casos
+y tres instantes de evaluación, con dos diagnósticos separados de calendario
+e importes observados. Estado inicial: aplicación parcial y evaluación en el
+día del vencimiento. Cambiar caso conserva evaluación; cambiar evaluación
+conserva obligación/evidencia del caso. Reset/recarga al inicio, sin edición,
+buffers, reloj o acciones financieras.
+
+Casos previstos: parcial, ausente, incompleto, futuro, aplicado cero, inmediato
+con igualdad, exceso, reversión parcial/total, declarado cero, sin condición
+y empresa inactiva. Los importes muestran su observación `asOf`; unknown
+elimina importes/atributos derivados y no inventa ceros. Igualdad numérica
+no se etiqueta como pago ni calendario como impago. Calendario sin condición
+conserva derivados nulos aunque haya evidencia observada.
+
+La demo consumirá los contratos públicos, con SSR inicial completo, controles
+inertes sin JavaScript y gate manifest demo AND `DEMO_MODE=true`; privada/noindex,
+solo memoria y sin I/O. Cobertura prevista: 36 estados por tamaño, 72 visitas
+1.440/375 px, ocho capturas y ocho superficies a11y (parcial/en vencimiento,
+sin evidencia/después, exceso y sin condición). Son casos de diseño, no QA
+ejecutada. La operación real permanece fuera de este corte.
+
+
 **R6.4a implementado y verificado localmente**, rama
-`codex/company-payment-terms`; integración pendiente, sin despliegue.
+`codex/company-payment-terms`, integrado en PR #33 (`cb3493ec`), sin despliegue.
 El [ADR-0055](adr/0055-condiciones-pago-fixture.md) delimita el contrato puro
 fixture de condición de pago y calendario por empresa. Companies 1.3.0 posee
 B2B-003 parcial e instalada/inactiva en avanzado y demo, ausente en
@@ -79,14 +147,9 @@ Navegador 2.084/72 visitas, E2E 184/184, ocho superficies a11y, ocho PNG y hash
 143 tablas/353 filas son evidencia heredada de PR #32, sin nuevas ejecuciones
 en R6.4a.
 
-**Secuencia siguiente aprobada:** R6.4b, evidencia correlacionada fixture pura,
-y R6.4c, demo conjunta después. Snapshot completo y acotado ligado a la revisión
-exacta de una obligación sintética, con definición explícita de importe
-observado/aplicado. Ausencia o evidencia no utilizable nunca implican impago ni
-saldo cero; sobrepago y reversiones requieren diseño explícito, sin clamp.
-No reutiliza expectedamounts/expiresAt ni acredita deuda legal o fiscal.
-Esquema, API, moneda y semántica temporal/monetaria se revisarán antes de
-implementar. Sin ledger; R6.4 sigue parcial y su operación pendiente.
+R6.4b amplía este calendario con evidencia de importes correlacionados según el
+[ADR-0056](adr/0056-evidencia-cobro-fixture.md), verificado localmente y con
+integración pendiente. La demo conjunta R6.4c tiene diseño aceptado, sin implementación.
 
 ## Última demo verificada
 

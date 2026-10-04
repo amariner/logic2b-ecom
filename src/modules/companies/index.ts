@@ -80,3 +80,21 @@ export {
   type CompanyPaymentTermsPreview,
   type CompanyPaymentTermsContractReason,
 } from './domain/company-payment-terms';
+
+export {
+  COMPANY_COLLECTION_LIMITS,
+  CompanyCollectionContractError,
+  defineCompanyCollectionObligation,
+  defineCompanyCollectionRequest,
+  defineCompanyCollectionEvidence,
+  evaluateCompanyCollectionEvidence,
+  previewCompanyCollection,
+  type CompanyCollectionObligation,
+  type CompanyCollectionRequest,
+  type CompanyCollectionEvidence,
+  type CompanyCollectionEvidenceMetadata,
+  type CompanyCollectionObservedAmounts,
+  type CompanyCollectionEvidenceEvaluation,
+  type CompanyCollectionPreview,
+  type CompanyCollectionContractReason,
+} from './domain/company-collection-evidence';

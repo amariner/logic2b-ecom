@@ -45,7 +45,7 @@ improvisan durante la implementación.
 | R3 | Operación de pedidos, inventario y fulfillment | ✅ cerrado 2026-08-14 |
 | R4 | Precios, promociones y modelos de venta | ✅ cerrado 2026-08-17 |
 | R5 | Clientes, privacidad y mercados | 🟨 consolidación fixture R5.12 cerrada localmente, integrada en PR #26 (`9dd23909`); operación real y G3/G4 pendientes; demo R5.11c integrada en PR #25 (`46dbe905`) |
-| R6 | B2B | 🟡 R6.1a integrado en PR #27 (`9b78e69a`) y demo R6.1b en PR #28 (`861b34ff`); R6.2a integrado en PR #29 (`4d7a30a9`), 3.210 pruebas; demo R6.2b integrada en PR #30 (`6305b823`); R6.3a cantidades fixture integrado en PR #31 (`7ac42e67`), 3.376 pruebas; demo R6.3b integrada en PR #32 (`04d5f9a9`), 3.426 pruebas/E2E184; R6.4a calendario fixture verificado localmente, 3.473 pruebas y revisión 21.702; integración pendiente. Sin operación B2B activada ni despliegue |
+| R6 | B2B | 🟡 R6.1a integrado en PR #27 (`9b78e69a`) y demo R6.1b en PR #28 (`861b34ff`); R6.2a integrado en PR #29 (`4d7a30a9`), 3.210 pruebas; demo R6.2b integrada en PR #30 (`6305b823`); R6.3a cantidades fixture integrado en PR #31 (`7ac42e67`), 3.376 pruebas; demo R6.3b integrada en PR #32 (`04d5f9a9`), 3.426 pruebas/E2E184; R6.4a calendario fixture integrado en PR #33 (`cb3493ec`), 3.473 pruebas; R6.4b evidencia correlacionada verificada localmente, 3.510 pruebas; integración pendiente y demo R6.4c posterior. Sin operación B2B activada ni despliegue |
 | R7 | Marketing, analítica y automatización | ⬜ |
 | R8 | Storefront componible, búsqueda y contenido | ⬜ |
 | R9 | Integraciones y omnicanalidad | ⬜ |
@@ -390,7 +390,7 @@ installed, sin flags activas, secretos ni proveedor real.
 | 63 | **R6.1 Empresas, sedes y contactos** | Modelo, roles y VAT ID. | ✅ Alcance fixture local: R6.1a integrado en PR #27 (`9b78e69a`); R6.1b verificado, disponible en repo e integrado en PR #28 (`861b34ff`). Demo /demo/admin/empresas, 948 archivos sin diagnósticos, 246 suites/3.077 pruebas, navegador 601, E2E nuevo 176, ocho superficies a11y sin hallazgos y base QA intacta. B2B-001 parcial instalada/inactiva; sin autorización operativa, DDL, CRM, proveedor o despliegue |
 | 64 | **R6.2 Catálogos y listas B2B** | Publicación/precio por empresa con fallback. | 🟡 R6.2a verificado localmente, [ADR-0053](adr/0053-catalogos-empresa-fixture.md), 957 archivos/251 suites/3.210 pruebas y revisión 12.478 sin P1/P2; integrado en PR #29 (`4d7a30a9`): política global empresa/producto intersectada con publicación; empresa inactiva cierra preview comercial. Una variante elegida por producto, base propia EUR y override por producto; binding explícito, ausencia da precio nulo, sin totales. Referencias completas y validación de todos los datos. B2B-002 parcial instalada/inactiva, sin autorización real; demo R6.2b /demo/admin/catalogos-empresa verificada localmente (961 archivos/252 suites/3.259 pruebas), navegador 3.614, E2E180, a11y8 sin hallazgos, ocho capturas aprobadas y base QA intacta; disponible en repo e integrada en PR #30 (`6305b823`) |
 | 65 | **R6.3 Reglas de cantidad** | Mínimos, múltiplos y cajas desde catálogo a checkout. | 🟡 R6.3a verificado localmente, [ADR-0054](adr/0054-reglas-cantidad-fixture.md), 965 archivos/254 suites/3.376 pruebas y oráculo 78.223 sin P1/P2; integrado en PR #31 (`7ac42e67`): política global por variante, min/max inclusivos, múltiplo absoluto, unidad/caja explícita y factibilidad mediante LCM/BigInt; composición aditiva con visibilidad, sin overrides empresa ni cambio de límites 1–99 runtime. B2B-005 parcial instalada/inactiva en avanzado/demo. Sin integración runtime; R6.3b visual verificada localmente y disponible en repo: 969 archivos/255 suites/3.426 pruebas, navegador 2.084/72 visitas, E2E 184, a11y8 y ocho capturas aprobadas; base QA intacta, integrada en PR #32 (`04d5f9a9`) sin despliegue |
-| 66 | **R6.4 Condiciones de pago** | Neto N, vencimiento, recordatorios y estado. | 🟡 R6.4a verificado localmente, [ADR-0055](adr/0055-condiciones-pago-fixture.md): 971 archivos/256 suites/3.473 pruebas y revisión 21.702 sin P1/P2; cuatro grafos cliente iguales a PR #32, QA de superficie/DB heredada. B2B-003 parcial/inactiva; integración pendiente y sin despliegue. El estado de cobro exige un subcorte posterior con evidencia correlacionada; crédito y fiscalidad separados |
+| 66 | **R6.4 Condiciones de pago** | Neto N, vencimiento, recordatorios y estado. | 🟡 R6.4a verificado localmente, [ADR-0055](adr/0055-condiciones-pago-fixture.md): 971 archivos/256 suites/3.473 pruebas y revisión 21.702 sin P1/P2; cuatro grafos cliente iguales a PR #32, QA de superficie/DB heredada. B2B-003 parcial/inactiva; integrado en PR #33 (`cb3493ec`), sin despliegue. R6.4b verificado localmente, [ADR-0056](adr/0056-evidencia-cobro-fixture.md), 973 archivos/257 suites/3.510 pruebas y revisión 22.216; cuatro grafos/349 fuentes/19 CSS iguales a PR #33, QA de superficie/DB heredada de PR #32. Integración pendiente; R6.4c con diseño aceptado sin implementar, operación real pendiente |
 | 67 | **R6.5 Crédito y aprobaciones** | Límites por empresa/comprador y workflow humano. | ⬜ |
 | 68 | **R6.6 Presupuesto/pedido preliminar** | Solicitud, negociación versionada y conversión a pedido. | ⬜ |
 | 69 | **R6.7 PO, factura y conciliación** | Referencia de compra y adaptador contable. | ⬜ |
@@ -2108,21 +2108,79 @@ sin hallazgos y ocho capturas son evidencia heredada de R6.3b/PR #32. Su base QA
 conservó 143 tablas/353 filas y SHA-256
 `9cbfc811cfc4296515a403d395875a43bfa26aff0c9c9b08be0804b15bbf6eca`.
 No constituyen una lectura o ejecución nueva en este corte puro. Implementado
-y verificado localmente, con integración pendiente y sin despliegue.
+y verificado localmente, integrado en PR #33 (`cb3493ec`), sin despliegue.
 
 
-Siguiente dirección aprobada: R6.4b, snapshot acotado de evidencia de cobro
-fixture completa, ligado a una revisión exacta de obligación sintética y a una
-definición explícita de importe observado/aplicado; R6.4c, demo conjunta después.
-Calendario y cobro siguen separados. Ausencia o evidencia no utilizable no
-prueban impago ni saldo cero; la obligación declarada no acredita deuda legal
-o fiscal. Sobrepago y reversiones requieren semántica explícita, sin clamp.
+### Verificado localmente: R6.4b — Evidencia de cobro con fixtures
 
-Schema, API, moneda y reglas monetarias/temporales de b requieren diseño y
-revisión antes de implementar. No se recrea el ledger ni se usan importes
-esperados de pago o caducidad de presupuesto como saldo/vencimiento. R6.4 sigue
-parcial, con operación real pendiente; crédito/aprobaciones, fiscalidad y
-condiciones comerciales reales conservan sus alcances separados.
+**R6.4b — Evidencia de cobro con fixtures está implementado y verificado localmente**, rama
+`codex/company-collection-evidence`, según el
+[ADR-0056](adr/0056-evidencia-cobro-fixture.md). Perfil `company-applied-eur-cents-v1`: una obligación EUR
+completa/versionada y un snapshot aplicado/revertido correlacionado con todos
+sus campos. El importe esperado es declarado, no una deuda legal o fiscal.
+`companies` 1.4.0 conserva B2B-003 parcial e instalada/inactiva, dependencia
+B2B-001 y superficies operativas vacías.
+
+Evidencia completa compara el neto aplicado con el importe declarado y conserva
+la diferencia firmada, incluido exceso. Revertido mayor que aplicado es error;
+0/0 no prueba pago. Ausencia, observación futura o evidencia incompleta producen
+`unknown` sin importes observados. `asOf` conserva la fecha de observación;
+sin TTL ni garantía de saldo actual, y sin convertir antigüedad en caducidad.
+
+El preview combinado llama al calendario existente desde datos ya normalizados,
+sin aceptar vencimientos externos ni duplicar aritmética. Condición ausente o
+empresa inactiva no ocultan evidencia descriptiva; ninguna salida concede
+permisos o activa operaciones. No hay ledger, DDL, rutas, UI, proveedores,
+notificaciones, crédito o cambios de checkout.
+
+**Implementado y verificado localmente; integración pendiente, sin despliegue.**
+[Verificación final R6.4b](../audits/r6-4b/verification-report.json), 2026-10-04: `pnpm check` pasa
+973 archivos sin diagnósticos, 257 suites/3.510 pruebas, 44 HTML,
+44 formularios locales y cero crons. Focales: 37 de dominio, seis de arquitectura
+y 118 de registry/manifest/acceso (19/69/30) de la ejecución de registro de este
+corte. Revisión independiente: 22.216 comprobaciones, 3.944 casos monetarios
+(2.093 válidos y 1.851 inconsistencias rechazadas) y 300 integraciones con
+calendario (150 `observed`, 150 `unknown`); sin P1/P2, efectos, getters o reloj
+implícito. Bundle público de diagnóstico: 18.153 B/4.925 B gzip, tres fuentes
+puras, directorio/calendario/evidencia, sin imports externos; no es un asset UI.
+
+Comparación nueva contra PR #33: cuatro grafos cliente iguales en nombres,
+archivos, aristas, specifiers, SHA-256, bytes y gzip, sin imports externos.
+También permanecen iguales las 349 fuentes de superficie y 19 CSS emitidos,
+sin añadidos, eliminaciones o cambios. No se ejecutaron Worker, HTTP,
+navegador, a11y, E2E o DB para este corte puro.
+
+Navegador 2.084 comprobaciones/72 visitas, E2E 184/184, ocho superficies a11y
+sin hallazgos, ocho capturas y base QA de 143 tablas/353 filas se heredan de
+PR #32. Hash histórico, sin nueva lectura en b:
+`9cbfc811cfc4296515a403d395875a43bfa26aff0c9c9b08be0804b15bbf6eca`.
+El check de a/PR #33 (971 archivos/256 suites/3.473 pruebas) conserva su propio
+corte. B2B-003 y R6.4 siguen parciales, sin activación u operación financiera.
+
+**R6.4c tiene diseño completo aceptado, pendiente de implementación** tras
+integrar b. Ruta `/demo/admin/condiciones-pago`, «Condiciones y cobros de
+ejemplo», en Clientes después de Cantidades. Dos selectores cerrados: 12 casos
+y tres instantes de evaluación, con dos diagnósticos separados de calendario
+e importes observados. Estado inicial: aplicación parcial y evaluación en el
+día del vencimiento. Cambiar caso conserva evaluación; cambiar evaluación
+conserva obligación/evidencia del caso. Reset/recarga al inicio, sin edición,
+buffers, reloj o acciones financieras.
+
+Casos previstos: parcial, ausente, incompleto, futuro, aplicado cero, inmediato
+con igualdad, exceso, reversión parcial/total, declarado cero, sin condición
+y empresa inactiva. Los importes muestran su observación `asOf`; unknown
+elimina importes/atributos derivados y no inventa ceros. Igualdad numérica
+no se etiqueta como pago ni calendario como impago. Calendario sin condición
+conserva derivados nulos aunque haya evidencia observada.
+
+La demo consumirá los contratos públicos, con SSR inicial completo, controles
+inertes sin JavaScript y gate manifest demo AND `DEMO_MODE=true`; privada/noindex,
+solo memoria y sin I/O. Cobertura prevista: 36 estados por tamaño, 72 visitas
+1.440/375 px, ocho capturas y ocho superficies a11y (parcial/en vencimiento,
+sin evidencia/después, exceso y sin condición). Son casos de diseño, no QA
+ejecutada. La operación real permanece fuera de este corte.
+
+
 
 Push/merge siguen autorizados después de checks. La demo pública y landing
 quedan solo con fixtures; crons vacíos y guardas ante triggers antiguos. G3/G4,
