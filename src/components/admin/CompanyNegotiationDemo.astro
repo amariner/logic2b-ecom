@@ -1,0 +1,368 @@
+---
+import { createCompanyNegotiationDemo, getCompanyNegotiationDemoView } from '../../composition/company-negotiation-demo';
+import { formatEurCents } from '../../lib/format';
+
+const initial = getCompanyNegotiationDemoView(createCompanyNegotiationDemo());
+const instantFormatter = new Intl.DateTimeFormat('es-ES', { timeZone: 'UTC', day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+const formatInstant = (value: string) => instantFormatter.format(new Date(value)) + ' UTC';
+const formatDelta = (cents: number) => (cents > 0 ? '+' : '') + formatEurCents(cents);
+const preliminary = initial.preliminary;
+const disabledMoment = initial.momentOptions.find(option => option.disabled);
+---
+
+<div data-company-negotiation-demo data-ready="false" class="company-negotiation-demo mt-6 space-y-6 text-foreground">
+  <div class="rounded-2xl border border-border bg-card px-5 py-4">
+    <p class="text-sm font-semibold leading-6">Simulación local: no acredita aceptación legal ni crea pedidos, cobros o reservas.</p>
+    <p class="mt-1 text-xs leading-5 text-muted-foreground">Los cambios solo duran en esta página. Al recargar, vuelves al inicio.</p>
+    <p class="mt-3 text-xs leading-5"><span data-negotiation-company>{initial.companyLabel}</span> · <span data-negotiation-buyer>{initial.buyerLabel}</span></p>
+  </div>
+
+  <noscript data-negotiation-nojs><div class="rounded-xl border border-border bg-muted p-4 text-sm leading-6">Puedes consultar las ofertas iniciales sin JavaScript. Los controles permanecen desactivados: no se crea un presupuesto ni se envía o guarda ningún dato.</div></noscript>
+
+  <div class="grid items-start gap-6 xl:grid-cols-2">
+    <section class="negotiation-panel" aria-labelledby="negotiation-comparison-title">
+      <div class="flex items-start gap-3"><span class="negotiation-step" aria-hidden="true">1</span><div><h2 id="negotiation-comparison-title" class="text-xl font-semibold">Comparar propuestas</h2><p class="mt-1 text-sm leading-6 text-muted-foreground">Cada oferta conserva sus productos e importes declarados.</p></div></div>
+      <label class="negotiation-label mt-5" for="negotiation-comparison">Comparar ofertas
+        <select id="negotiation-comparison" data-negotiation-comparison disabled aria-describedby="negotiation-comparison-help" class="negotiation-input">
+          {initial.comparisonOptions.map(option => <option value={option.id} selected={option.id === initial.selection.comparisonId}>{option.label}</option>)}
+        </select>
+      </label>
+      <p id="negotiation-comparison-help" class="mt-2 text-xs leading-5 text-muted-foreground">Cambiar esta comparación conserva la oferta del presupuesto y sus acciones.</p>
+
+      <div data-negotiation-comparison-result data-comparison-id={initial.comparison.id} class="mt-5">
+        <h3 class="text-base font-semibold">Comparación: <span data-negotiation-comparison-label>{initial.comparison.label}</span></h3>
+        <div class="mt-3 grid gap-3 sm:grid-cols-2">
+          {(['before', 'after'] as const).map(side => {
+            const offer = initial.comparison[side];
+            return <div data-negotiation-comparison-side={side} data-offer-id={offer.offerId} class="negotiation-summary">
+              <p class="text-xs text-muted-foreground">{side === 'before' ? 'Antes' : 'Después'}</p>
+              <h4 data-negotiation-offer-label class="mt-1 text-sm font-semibold">{offer.label}</h4>
+              <p data-negotiation-side-label class="mt-1 text-xs leading-5 text-muted-foreground">{offer.sideLabel}</p>
+              <dl class="negotiation-facts mt-3">
+                <div><dt>Suma de líneas</dt><dd data-negotiation-amount="subtotal" data-cents={offer.subtotalCents}>{formatEurCents(offer.subtotalCents)}</dd></div>
+                <div><dt>Portes declarados</dt><dd data-negotiation-amount="shipping" data-cents={offer.shippingCents}>{formatEurCents(offer.shippingCents)}</dd></div>
+                <div><dt>Total de esta oferta</dt><dd data-negotiation-amount="total" data-cents={offer.totalCents} class="negotiation-money">{formatEurCents(offer.totalCents)}</dd></div>
+                <div><dt>Propuesta declarada</dt><dd><time data-negotiation-time="created" datetime={offer.createdAt}>{formatInstant(offer.createdAt)}</time></dd></div>
+                <div><dt>Caducidad de la oferta</dt><dd><time data-negotiation-time="expires" datetime={offer.expiresAt}>{formatInstant(offer.expiresAt)}</time></dd></div>
+              </dl>
+            </div>;
+          })}
+        </div>
+        <div data-negotiation-comparison-side="delta" class="negotiation-summary mt-3">
+          <h4 class="text-sm font-semibold">Diferencia · después − antes</h4>
+          <dl class="negotiation-facts mt-3 grid gap-3 sm:grid-cols-3">
+            <div><dt>Suma de líneas</dt><dd data-negotiation-amount="subtotal" data-cents={initial.comparison.deltas.subtotalCents}>{formatDelta(initial.comparison.deltas.subtotalCents)}</dd></div>
+            <div><dt>Portes</dt><dd data-negotiation-amount="shipping" data-cents={initial.comparison.deltas.shippingCents}>{formatDelta(initial.comparison.deltas.shippingCents)}</dd></div>
+            <div><dt>Total</dt><dd data-negotiation-amount="total" data-cents={initial.comparison.deltas.totalCents}>{formatDelta(initial.comparison.deltas.totalCents)}</dd></div>
+          </dl>
+        </div>
+
+        <h3 class="mt-6 text-base font-semibold">Cambios por producto</h3>
+        <div data-negotiation-lines class="mt-3 space-y-4">
+          {initial.comparison.lineChanges.map(change => <article data-negotiation-line data-product-id={change.productId} data-kind={change.kind} class="rounded-xl border border-border p-4">
+            <h4 data-negotiation-product-label class="text-sm font-semibold">{change.productLabel}</h4>
+            <p data-negotiation-line-kind class="mt-1 text-xs font-medium leading-5">{change.kindLabel}</p>
+            <ul data-negotiation-changes class="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-xs leading-5 text-muted-foreground">
+              {change.changedFields.map((field, index) => <li data-negotiation-change data-field={field}>{change.changeLabels[index]}</li>)}
+            </ul>
+            <div class="mt-3 grid gap-4 sm:grid-cols-2">
+              {(['before', 'after'] as const).map(side => {
+                const line = change[side];
+                return <div data-negotiation-line-side={side} data-present={String(line !== null)} data-variant-id={line?.variantId} class="min-w-0">
+                  <p class="text-xs font-semibold">{side === 'before' ? 'Antes' : 'Después'} · <span data-negotiation-line-offer>{initial.comparison[side].label}</span></p>
+                  <p data-negotiation-no-counterpart hidden={line !== null} class="mt-2 text-xs leading-5 text-muted-foreground">No incluido en esta oferta</p>
+                  <div data-negotiation-line-details hidden={line === null} class="mt-2">
+                    <p data-negotiation-variant-label class="text-sm font-medium">{line?.variantLabel ?? ''}</p>
+                    <p data-negotiation-sku class="mt-1 text-xs leading-5 text-muted-foreground">{line?.sku ?? ''}</p>
+                    <dl class="negotiation-facts mt-3">
+                      <div><dt>Unidades declaradas</dt><dd data-negotiation-quantity data-units={line?.quantityUnits}>{line?.quantityUnits ?? ''}</dd></div>
+                      <div><dt>Precio unitario declarado</dt><dd data-negotiation-amount="unit" data-cents={line?.unitPriceCents}>{line === null ? '' : formatEurCents(line.unitPriceCents)}</dd></div>
+                      <div><dt>Importe de la línea</dt><dd data-negotiation-amount="line" data-cents={line?.lineTotalCents}>{line === null ? '' : formatEurCents(line.lineTotalCents)}</dd></div>
+                    </dl>
+                  </div>
+                </div>;
+              })}
+            </div>
+          </article>)}
+        </div>
+        <p class="mt-4 text-xs leading-5 text-muted-foreground">Los importes son declaraciones del ejemplo. No indican tratamiento fiscal, existencias ni autorización de precio.</p>
+      </div>
+    </section>
+
+    <section class="negotiation-panel" aria-labelledby="negotiation-prepare-title">
+      <div class="flex items-start gap-3"><span class="negotiation-step" aria-hidden="true">2</span><div><h2 id="negotiation-prepare-title" class="text-xl font-semibold">Simular un presupuesto</h2><p class="mt-1 text-sm leading-6 text-muted-foreground">El presupuesto conserva la oferta elegida y su recorrido.</p></div></div>
+      <label class="negotiation-label mt-5" for="negotiation-offer">Oferta del presupuesto
+        <select id="negotiation-offer" data-negotiation-offer disabled aria-describedby="negotiation-offer-help" class="negotiation-input">
+          {initial.offerOptions.map(option => <option value={option.id} selected={option.id === initial.selection.offerId}>{option.label}</option>)}
+        </select>
+      </label>
+      <p id="negotiation-offer-help" class="mt-2 text-xs leading-5 text-muted-foreground">Elegir otra oferta deja el presupuesto por crear. Las acciones anteriores no se trasladan.</p>
+      <div data-negotiation-selected-offer data-offer-id={initial.selectedOffer.id} class="negotiation-summary mt-4">
+        <h3 data-negotiation-selected-label class="text-sm font-semibold">Oferta para el presupuesto: {initial.selectedOffer.label.toLowerCase()}</h3>
+        <p data-negotiation-side-label class="mt-1 text-xs leading-5 text-muted-foreground">{initial.selectedOffer.sideLabel}</p>
+        <dl class="negotiation-facts mt-3 grid gap-4 sm:grid-cols-2">
+          <div><dt>Total de la oferta seleccionada</dt><dd data-negotiation-amount="total" data-cents={initial.selectedOffer.totalCents} class="negotiation-money">{formatEurCents(initial.selectedOffer.totalCents)}</dd></div>
+          <div><dt>Caducidad de esta oferta</dt><dd><time data-negotiation-time="selected-expires" datetime={initial.selectedOffer.expiresAt}>{formatInstant(initial.selectedOffer.expiresAt)}</time></dd></div>
+          <div><dt>Propuesta declarada</dt><dd><time data-negotiation-time="selected-created" datetime={initial.selectedOffer.createdAt}>{formatInstant(initial.selectedOffer.createdAt)}</time></dd></div>
+        </dl>
+      </div>
+      <div data-negotiation-terms class="mt-4 text-xs leading-5 text-muted-foreground">
+        <p>Anticipo declarado del ejemplo: <span data-negotiation-amount="deposit" data-cents={initial.terms.depositCents} class="font-semibold text-foreground">{formatEurCents(initial.terms.depositCents)}</span>.</p>
+        <p data-negotiation-gate-label class="mt-1">{initial.terms.gateLabel}</p>
+        <p data-negotiation-terms-message class="mt-1">{initial.terms.message}</p>
+      </div>
+      <label class="negotiation-label mt-5" for="negotiation-moment">Momento de la acción
+        <select id="negotiation-moment" data-negotiation-moment disabled aria-describedby="negotiation-moment-help negotiation-moment-restriction" class="negotiation-input">
+          {initial.momentOptions.map(option => <option value={option.id} selected={option.id === initial.selection.momentId} disabled={option.disabled}>{option.label}</option>)}
+        </select>
+      </label>
+      <p id="negotiation-moment-help" class="mt-2 text-xs leading-5 text-muted-foreground">Cambiar el momento no aplica ninguna acción ni caduca el presupuesto automáticamente.</p>
+      <p id="negotiation-moment-restriction" data-negotiation-moment-restriction hidden={!disabledMoment} class="mt-1 text-xs leading-5 text-muted-foreground">{disabledMoment ? `Momento desactivado: ${disabledMoment.label}. ${disabledMoment.reason ?? ''}` : ''}</p>
+      <p class="mt-2 text-xs leading-5">Instante elegido: <time data-negotiation-time="moment" datetime={initial.selectedMoment.at} class="font-semibold">{formatInstant(initial.selectedMoment.at)}</time></p>
+
+      <div class="mt-6 border-t border-border pt-5">
+        <h3 id="negotiation-result-title" tabindex="-1" class="negotiation-focus-target text-base font-semibold">Presupuesto de ejemplo</h3>
+        <p data-negotiation-no-preliminary hidden={preliminary !== null} class="mt-3 text-sm leading-6 text-muted-foreground">Todavía no hay un presupuesto de ejemplo. La oferta seleccionada se conserva sin acciones.</p>
+        <div data-negotiation-preliminary data-present={String(preliminary !== null)} data-offer-id={preliminary?.offerId} data-status={preliminary?.status} hidden={preliminary === null} class="negotiation-summary mt-3">
+          <h4 data-negotiation-preliminary-label class="text-sm font-semibold">{preliminary ? 'Presupuesto basado en ' + preliminary.offerLabel.toLowerCase() : ''}</h4>
+          <p data-negotiation-status data-negotiation-status-label class="mt-2 text-sm font-semibold">{preliminary?.statusLabel ?? ''}</p>
+          <dl class="negotiation-facts mt-3 grid gap-4 sm:grid-cols-2">
+            <div><dt>Total conservado del presupuesto</dt><dd data-negotiation-amount="total" data-cents={preliminary?.totalCents} class="negotiation-money">{preliminary ? formatEurCents(preliminary.totalCents) : ''}</dd></div>
+            <div><dt>Caducidad conservada</dt><dd><time data-negotiation-time="expires" datetime={preliminary?.expiresAt}>{preliminary ? formatInstant(preliminary.expiresAt) : ''}</time></dd></div>
+            <div><dt>Borrador creado</dt><dd><time data-negotiation-time="created" datetime={preliminary?.createdAt}>{preliminary ? formatInstant(preliminary.createdAt) : ''}</time></dd></div>
+            <div><dt>Último instante registrado</dt><dd><time data-negotiation-time="last" datetime={preliminary?.lastOccurredAt}>{preliminary ? formatInstant(preliminary.lastOccurredAt) : ''}</time></dd></div>
+            <div data-negotiation-time-row="issued" hidden={!preliminary?.issuedAt}><dt>Emisión simulada</dt><dd><time data-negotiation-time="issued" datetime={preliminary?.issuedAt ?? undefined}>{preliminary?.issuedAt ? formatInstant(preliminary.issuedAt) : ''}</time></dd></div>
+            <div data-negotiation-time-row="approved" hidden={!preliminary?.approvedAt}><dt>Aprobación simulada</dt><dd><time data-negotiation-time="approved" datetime={preliminary?.approvedAt ?? undefined}>{preliminary?.approvedAt ? formatInstant(preliminary.approvedAt) : ''}</time></dd></div>
+          </dl>
+        </div>
+        <button data-negotiation-action="create" type="button" disabled aria-describedby="negotiation-create-reason" class="negotiation-button mt-4 w-full border border-foreground bg-foreground text-background">Crear borrador de ejemplo</button>
+        <p id="negotiation-create-reason" data-negotiation-create-reason hidden={initial.createBlockedReason === null} class="mt-2 text-xs leading-5 text-muted-foreground">{initial.createBlockedReason ?? ''}</p>
+        <div class="mt-4 grid gap-3 sm:grid-cols-2">
+          {initial.actions.map(action => <div class="min-w-0"><button data-negotiation-action={action.id} type="button" disabled aria-describedby={'negotiation-action-reason-' + action.id} class="negotiation-button w-full border border-border bg-background text-foreground">{action.label}</button><p id={'negotiation-action-reason-' + action.id} data-negotiation-action-reason={action.id} hidden={action.blockedReason === null} class="mt-2 text-xs leading-5 text-muted-foreground">{action.blockedReason ?? ''}</p></div>)}
+        </div>
+        <p data-negotiation-feedback role="status" aria-live="polite" aria-atomic="true" class="mt-4 text-sm leading-6">{initial.feedback.message}</p>
+      </div>
+      <div class="mt-6 border-t border-border pt-5">
+        <h3 class="text-base font-semibold">Acciones del presupuesto</h3>
+        <p data-negotiation-history-empty hidden={(preliminary?.history.length ?? 0) > 0} class="mt-2 text-sm leading-6 text-muted-foreground">Sin acciones simuladas.</p>
+        <ol data-negotiation-history hidden={(preliminary?.history.length ?? 0) === 0} class="mt-2 divide-y divide-border">
+          {preliminary?.history.map(item => <li data-negotiation-history-row data-action={item.action} class="negotiation-history-row"><p data-negotiation-history-label>{item.label}</p><time datetime={item.occurredAt}>{formatInstant(item.occurredAt)}</time></li>)}
+        </ol>
+      </div>
+      <button data-negotiation-action="reset" type="button" disabled class="negotiation-button mt-5 w-full border border-border bg-background text-foreground">Restablecer ejemplo</button>
+    </section>
+  </div>
+</div>
+
+<style is:global>
+  .company-negotiation-demo .negotiation-panel { min-width: 0; border: 1px solid var(--color-border); border-radius: var(--radius-card); background: var(--color-card); padding: 1.25rem; overflow-wrap: anywhere; }
+  .company-negotiation-demo .negotiation-step { display: flex; flex-shrink: 0; width: 2rem; height: 2rem; align-items: center; justify-content: center; border-radius: 100%; background: var(--color-foreground); color: var(--color-background); font-size: .875rem; font-weight: 600; }
+  .company-negotiation-demo .negotiation-label { display: block; min-width: 0; font-size: .875rem; line-height: 1.5rem; font-weight: 600; }
+  .company-negotiation-demo .negotiation-input { display: block; width: 100%; min-width: 0; min-height: 3rem; margin-top: .5rem; border: 1px solid var(--color-input); border-radius: var(--radius-btn); background: var(--color-background); padding: .625rem .75rem; color: var(--color-foreground); font-size: 1rem; line-height: 1.5rem; font-weight: 400; }
+  .company-negotiation-demo .negotiation-input:disabled { opacity: 1; cursor: default; }
+  .company-negotiation-demo .negotiation-button { min-height: 3rem; border-radius: var(--radius-btn); padding: .75rem 1rem; font-size: .875rem; line-height: 1.5rem; font-weight: 600; cursor: pointer; }
+  .company-negotiation-demo .negotiation-button:hover:not(:disabled) { box-shadow: 0 0 0 1px var(--color-foreground); }
+  .company-negotiation-demo .negotiation-button:disabled { background: var(--color-muted); color: var(--color-foreground); border-color: var(--color-border); opacity: 1; cursor: not-allowed; }
+  .company-negotiation-demo .negotiation-summary { min-width: 0; border: 1px solid var(--color-border); border-radius: var(--radius-btn); background: color-mix(in oklab, var(--color-muted) 40%, transparent); padding: 1rem; }
+  .company-negotiation-demo .negotiation-facts > div + div { margin-top: .75rem; }
+  .company-negotiation-demo .negotiation-facts.grid > div + div { margin-top: 0; }
+  .company-negotiation-demo .negotiation-facts dt { font-size: .75rem; line-height: 1.25rem; color: var(--color-muted-foreground); }
+  .company-negotiation-demo .negotiation-facts dd { margin-top: .25rem; font-size: .875rem; line-height: 1.5rem; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .company-negotiation-demo .negotiation-facts dd.negotiation-money { font-size: 1.5rem; line-height: 2rem; }
+  .company-negotiation-demo .negotiation-history-row { padding-block: .875rem; font-size: .875rem; line-height: 1.5rem; }
+  .company-negotiation-demo .negotiation-history-row p { font-weight: 600; }
+  .company-negotiation-demo .negotiation-history-row time { display: block; margin-top: .25rem; font-size: .75rem; line-height: 1.25rem; color: var(--color-muted-foreground); }
+  .company-negotiation-demo [hidden] { display: none !important; }
+  .company-negotiation-demo :is(button, select, .negotiation-focus-target):focus-visible { outline: 2px solid var(--color-foreground); outline-offset: 3px; }
+  @media (min-width: 640px) { .company-negotiation-demo .negotiation-panel { padding: 1.5rem; } }
+</style>
+
+<script>
+  import {
+    applyCompanyNegotiationDemoAction, configureCompanyNegotiationDemo, createCompanyNegotiationDemo,
+    createCompanyNegotiationDemoDraft, getCompanyNegotiationDemoView,
+    type CompanyNegotiationDemoSelection, type CompanyNegotiationDemoState,
+  } from '../../composition/company-negotiation-demo';
+  import { formatEurCents } from '../../lib/format';
+
+  const root = document.querySelector<HTMLElement>('[data-company-negotiation-demo]');
+  if (root) {
+    const find = (selector: string): HTMLElement => root.querySelector<HTMLElement>(selector)!;
+    const findSelect = (selector: string) => {
+      const element = root.querySelector(selector);
+      if (!(element instanceof HTMLSelectElement)) throw new Error('Falta un selector del ejemplo.');
+      return element;
+    };
+    const findButton = (action: string) => {
+      const element = root.querySelector(`[data-negotiation-action="${action}"]`);
+      if (!(element instanceof HTMLButtonElement)) throw new Error('Falta un control del ejemplo.');
+      return element;
+    };
+    const comparison = findSelect('[data-negotiation-comparison]');
+    const offer = findSelect('[data-negotiation-offer]');
+    const moment = findSelect('[data-negotiation-moment]');
+    const create = findButton('create');
+    const reset = findButton('reset');
+    const lineTemplate = find('[data-negotiation-line]').cloneNode(true) as HTMLElement;
+    const instantFormatter = new Intl.DateTimeFormat('es-ES', { timeZone: 'UTC', day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+    const formatInstant = (value: string) => instantFormatter.format(new Date(value)) + ' UTC';
+    const setAttribute = (element: HTMLElement, name: string, value: string | number | null) => {
+      if (value === null) element.removeAttribute(name);
+      else element.setAttribute(name, String(value));
+    };
+    const setTime = (element: HTMLElement, value: string | null) => {
+      setAttribute(element, 'datetime', value);
+      element.textContent = value === null ? '' : formatInstant(value);
+    };
+    const setMoney = (element: HTMLElement, cents: number | null, signed = false) => {
+      setAttribute(element, 'data-cents', cents);
+      element.textContent = cents === null ? '' : (signed && cents > 0 ? '+' : '') + formatEurCents(cents);
+    };
+    const setOptionalText = (element: HTMLElement, text: string | null) => {
+      element.textContent = text ?? '';
+      element.hidden = text === null;
+    };
+    let state = createCompanyNegotiationDemo();
+
+    const render = () => {
+      const view = getCompanyNegotiationDemoView(state);
+      comparison.value = view.selection.comparisonId;
+      offer.value = view.selection.offerId;
+      moment.value = view.selection.momentId;
+      for (const option of view.momentOptions) {
+        const element = Array.from(moment.options).find(item => item.value === option.id)!;
+        element.disabled = option.disabled;
+      }
+      const disabledMoment = view.momentOptions.find(option => option.disabled);
+      setOptionalText(find('[data-negotiation-moment-restriction]'), disabledMoment ? `Momento desactivado: ${disabledMoment.label}. ${disabledMoment.reason ?? ''}` : null);
+      setTime(find('[data-negotiation-time="moment"]'), view.selectedMoment.at);
+      find('[data-negotiation-comparison-result]').dataset.comparisonId = view.comparison.id;
+      find('[data-negotiation-comparison-label]').textContent = view.comparison.label;
+      for (const side of ['before', 'after'] as const) {
+        const data = view.comparison[side];
+        const card = find(`[data-negotiation-comparison-side="${side}"]`);
+        const part = (selector: string) => card.querySelector<HTMLElement>(selector)!;
+        card.dataset.offerId = data.offerId;
+        part('[data-negotiation-offer-label]').textContent = data.label;
+        part('[data-negotiation-side-label]').textContent = data.sideLabel;
+        for (const [key, cents] of [['subtotal', data.subtotalCents], ['shipping', data.shippingCents], ['total', data.totalCents]] as const) setMoney(part(`[data-negotiation-amount="${key}"]`), cents);
+        setTime(part('[data-negotiation-time="created"]'), data.createdAt);
+        setTime(part('[data-negotiation-time="expires"]'), data.expiresAt);
+      }
+      const delta = find('[data-negotiation-comparison-side="delta"]');
+      for (const [key, cents] of [['subtotal', view.comparison.deltas.subtotalCents], ['shipping', view.comparison.deltas.shippingCents], ['total', view.comparison.deltas.totalCents]] as const) setMoney(delta.querySelector<HTMLElement>(`[data-negotiation-amount="${key}"]`)!, cents, true);
+
+      find('[data-negotiation-lines]').replaceChildren(...view.comparison.lineChanges.map(change => {
+        const row = lineTemplate.cloneNode(true) as HTMLElement;
+        const part = (selector: string) => row.querySelector<HTMLElement>(selector)!;
+        row.dataset.productId = String(change.productId);
+        row.dataset.kind = change.kind;
+        part('[data-negotiation-product-label]').textContent = change.productLabel;
+        part('[data-negotiation-line-kind]').textContent = change.kindLabel;
+        part('[data-negotiation-changes]').replaceChildren(...change.changedFields.map((field, index) => {
+          const item = document.createElement('li');
+          item.dataset.negotiationChange = '';
+          item.dataset.field = field;
+          item.textContent = change.changeLabels[index] ?? '';
+          return item;
+        }));
+        for (const side of ['before', 'after'] as const) {
+          const data = change[side];
+          const card = part(`[data-negotiation-line-side="${side}"]`);
+          const item = (selector: string) => card.querySelector<HTMLElement>(selector)!;
+          card.dataset.present = String(data !== null);
+          setAttribute(card, 'data-variant-id', data?.variantId ?? null);
+          item('[data-negotiation-line-offer]').textContent = view.comparison[side].label;
+          item('[data-negotiation-line-details]').hidden = data === null;
+          item('[data-negotiation-no-counterpart]').hidden = data !== null;
+          item('[data-negotiation-variant-label]').textContent = data?.variantLabel ?? '';
+          item('[data-negotiation-sku]').textContent = data?.sku ?? '';
+          setAttribute(item('[data-negotiation-quantity]'), 'data-units', data?.quantityUnits ?? null);
+          item('[data-negotiation-quantity]').textContent = data === null ? '' : String(data.quantityUnits);
+          setMoney(item('[data-negotiation-amount="unit"]'), data?.unitPriceCents ?? null);
+          setMoney(item('[data-negotiation-amount="line"]'), data?.lineTotalCents ?? null);
+        }
+        return row;
+      }));
+
+      const selected = find('[data-negotiation-selected-offer]');
+      selected.dataset.offerId = view.selectedOffer.id;
+      find('[data-negotiation-selected-label]').textContent = 'Oferta para el presupuesto: ' + view.selectedOffer.label.toLowerCase();
+      selected.querySelector<HTMLElement>('[data-negotiation-side-label]')!.textContent = view.selectedOffer.sideLabel;
+      setMoney(selected.querySelector<HTMLElement>('[data-negotiation-amount="total"]')!, view.selectedOffer.totalCents);
+      setTime(find('[data-negotiation-time="selected-created"]'), view.selectedOffer.createdAt);
+      setTime(find('[data-negotiation-time="selected-expires"]'), view.selectedOffer.expiresAt);
+
+      const data = view.preliminary;
+      const block = find('[data-negotiation-preliminary]');
+      block.dataset.present = String(data !== null);
+      block.hidden = data === null;
+      find('[data-negotiation-no-preliminary]').hidden = data !== null;
+      setAttribute(block, 'data-offer-id', data?.offerId ?? null);
+      setAttribute(block, 'data-status', data?.status ?? null);
+      find('[data-negotiation-preliminary-label]').textContent = data ? 'Presupuesto basado en ' + data.offerLabel.toLowerCase() : '';
+      find('[data-negotiation-status]').textContent = data?.statusLabel ?? '';
+      setMoney(block.querySelector<HTMLElement>('[data-negotiation-amount="total"]')!, data?.totalCents ?? null);
+      for (const [key, value] of [['created', data?.createdAt], ['expires', data?.expiresAt], ['issued', data?.issuedAt], ['approved', data?.approvedAt], ['last', data?.lastOccurredAt]] as const) setTime(block.querySelector<HTMLElement>(`[data-negotiation-time="${key}"]`)!, value ?? null);
+      find('[data-negotiation-time-row="issued"]').hidden = data?.issuedAt == null;
+      find('[data-negotiation-time-row="approved"]').hidden = data?.approvedAt == null;
+      create.disabled = !view.canCreate;
+      setOptionalText(find('[data-negotiation-create-reason]'), view.createBlockedReason);
+      for (const action of view.actions) {
+        findButton(action.id).disabled = !action.available;
+        setOptionalText(find(`[data-negotiation-action-reason="${action.id}"]`), action.blockedReason);
+      }
+      const history = data?.history ?? [];
+      find('[data-negotiation-history]').hidden = history.length === 0;
+      find('[data-negotiation-history-empty]').hidden = history.length !== 0;
+      find('[data-negotiation-history]').replaceChildren(...history.map(item => {
+        const row = document.createElement('li');
+        row.dataset.negotiationHistoryRow = '';
+        row.dataset.action = item.action;
+        row.className = 'negotiation-history-row';
+        const label = document.createElement('p');
+        label.dataset.negotiationHistoryLabel = '';
+        label.textContent = item.label;
+        const time = document.createElement('time');
+        time.setAttribute('datetime', item.occurredAt);
+        time.textContent = formatInstant(item.occurredAt);
+        row.appendChild(label);
+        row.appendChild(time);
+        return row;
+      }));
+      const feedback = find('[data-negotiation-feedback]');
+      if (feedback.textContent !== view.feedback.message) feedback.textContent = view.feedback.message;
+    };
+
+    const act = (operation: () => CompanyNegotiationDemoState, button: HTMLButtonElement) => {
+      const restoreFocus = document.activeElement === button;
+      state = operation();
+      render();
+      if (restoreFocus && button.disabled) find('#negotiation-result-title').focus();
+    };
+    comparison.addEventListener('change', () => {
+      state = configureCompanyNegotiationDemo(state, { comparisonId: comparison.value as CompanyNegotiationDemoSelection['comparisonId'] });
+      render();
+    });
+    offer.addEventListener('change', () => {
+      state = configureCompanyNegotiationDemo(state, { offerId: offer.value as CompanyNegotiationDemoSelection['offerId'] });
+      render();
+    });
+    moment.addEventListener('change', () => {
+      state = configureCompanyNegotiationDemo(state, { momentId: moment.value as CompanyNegotiationDemoSelection['momentId'] });
+      render();
+    });
+    create.addEventListener('click', () => act(() => createCompanyNegotiationDemoDraft(state), create));
+    for (const action of ['issue', 'approve', 'expire', 'cancel'] as const) {
+      const button = findButton(action);
+      button.addEventListener('click', () => act(() => applyCompanyNegotiationDemoAction(state, { action }), button));
+    }
+    reset.addEventListener('click', () => { state = createCompanyNegotiationDemo(); render(); });
+    render();
+    comparison.disabled = false;
+    offer.disabled = false;
+    moment.disabled = false;
+    reset.disabled = false;
+    root.dataset.ready = 'true';
+  }
+</script>

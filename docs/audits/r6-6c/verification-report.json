@@ -1,0 +1,3834 @@
+{
+  "schemaVersion": 1,
+  "block": "R6.6c",
+  "verifiedAt": "2026-10-04T04:36:14.134486+00:00",
+  "environment": "local-fixture-demo",
+  "deployment": "not-deployed",
+  "scope": "Three synthetic offers, independent comparison and explicit in-memory preliminary lifecycle, no operational activation",
+  "verification": {
+    "typecheckFiles": 993,
+    "diagnostics": 0,
+    "suites": 264,
+    "tests": 3814,
+    "modelTests": 25,
+    "architectureTests": 6,
+    "adminAuthTests": 8,
+    "buildHtmlPages": 44,
+    "buildLocalForms": 44,
+    "cronCount": 0,
+    "e2eChecks": 196,
+    "browserChecks": 9068,
+    "browserInitialVisits": 72,
+    "browserCreationVisits": 24,
+    "a11ySurfaces": 8,
+    "a11yErrors": 0,
+    "a11yWarnings": 0,
+    "screenshots": 8,
+    "screenshotsReviewed": 8,
+    "rootScreenshotsReviewed": 4
+  },
+  "evidence": {
+    "browser": "report.json",
+    "accessibility": "a11y-report.json",
+    "visual": "README.md",
+    "fullcheck": "/tmp/ecom-company-negotiation-demo-check.log",
+    "e2e": "/tmp/ecom-company-negotiation-demo-e2e.log",
+    "buildCompletedAt": "2026-10-04T04:33:32Z",
+    "rootVisual": [
+      "initial-1440.png",
+      "expired-1440.png",
+      "approved-after-375.png",
+      "new-draft-375.png"
+    ]
+  },
+  "independentReview": {
+    "schemaVersion": 1,
+    "reviewedAt": "2026-10-04T04:24:10.267462+00:00",
+    "stage": "R6.6c",
+    "status": "passed",
+    "findings": {
+      "P1": 0,
+      "P2": 0
+    },
+    "sourceFreeze": [
+      {
+        "path": "src/composition/company-negotiation-demo.ts",
+        "sha256": "808b25c1a61186752a4f6690f964c35fb0013a5b5d5bed79cbaf2d78ad421a99",
+        "modifiedAt": "2026-10-04T04:19:42.791611+00:00"
+      },
+      {
+        "path": "tests/company-negotiation-demo.test.ts",
+        "sha256": "e84013921804bab321fdd4ff78cdbaaea8415fc62590d1db935216e078e6e541",
+        "modifiedAt": "2026-10-04T04:22:50.379646+00:00"
+      },
+      {
+        "path": "src/components/admin/CompanyNegotiationDemo.astro",
+        "sha256": "f97cba4d81378000de96e25fb13fcd9971465ea3a04a4b3c1ef17990a77b954a",
+        "modifiedAt": "2026-10-04T04:28:43.552687+00:00"
+      },
+      {
+        "path": "src/pages/demo/admin/presupuestos-empresa.astro",
+        "sha256": "1b2c2996c8d2ef88e956ab9c5375abb087cee89428bf1a255c873a4c6701bfe6",
+        "modifiedAt": "2026-10-04T04:20:17.794123+00:00"
+      },
+      {
+        "path": "scripts/test-company-negotiation-demo.mjs",
+        "sha256": "9c1a27f9a7fc2d89c45dd0d0adc4a8339a9dc25f6f42f97a350cf2c12f87ce35",
+        "modifiedAt": "2026-10-04T04:29:12.714638+00:00"
+      },
+      {
+        "path": "scripts/a11y-audit.mjs",
+        "sha256": "4e8459589ed666427f84b8c3e5984fd81488ac2a526bc6c1f840427617f35250",
+        "modifiedAt": "2026-10-04T04:29:12.715343+00:00"
+      }
+    ],
+    "oracle": {
+      "schemaVersion": 1,
+      "status": "passed",
+      "reviewedAt": "2026-10-04T04:22:47.280Z",
+      "checks": 105487,
+      "views": 1008,
+      "histories": 150,
+      "emptyViews": 36,
+      "actions": 4032,
+      "creationChecks": 1008,
+      "contextChanges": 2016,
+      "backwardMomentRejections": 276,
+      "gateChecks": 25,
+      "effects": 0,
+      "getters": 0,
+      "implicitDates": 0,
+      "explicitDates": 2047380
+    },
+    "oracleMethod": "Independent Python integer money/diff calculations and explicit finite-state enumeration prepared before source review; expected output never imported from production. 105487 assertions include field equality and recursive immutability checks.",
+    "viewDistribution": {
+      "null": 36,
+      "draft": 90,
+      "issued": 72,
+      "approved": 90,
+      "expired": 180,
+      "cancelled": 540
+    },
+    "coverage": [
+      "Comparison pair remains independent of selected offer and preliminary lifecycle. Signed deltas, zero shipping, added/removed counterparts and product/variant ownership.",
+      "Every reachable history over four explicit moments; no implicit expiry/approval. Four availability probes discarded, actions commit only explicitly.",
+      "1008 repeat/create checks, 2016 actual offer changes, same selection no-op, comparison preserves history, backward moments rejected only after applied chronology.",
+      "Generic b-valid foreign artifact identity, complete binding, unused catalog metadata, terms, action IDs and off-profile instants rejected by the demo boundary.",
+      "MAX_SAFE artifact counter, missing artifact, zero counter, unknown state/patch/action, feedback validation, own-data/getters/Proxy/redaction, immutable detached output.",
+      "Gate AND over 25 environment/platform cases; 0 effects/getters/implicit dates throughout import and model traversal.",
+      "Static UI/page: SSR complete with disabled controls, null clears prior state/money/date/history, stable controls, focus recovery and no forms or operational IO.",
+      "Final harness source reviewed: independent literal values, feedback/no-op text, null/hidden cleanup, Tab continuity, no-JS, strict request/storage/timer guards and guide effects separated."
+    ],
+    "diagnosticBundle": {
+      "schemaVersion": 1,
+      "reviewedAt": "2026-10-04T04:20:05.140Z",
+      "scope": "Diagnostic browser demo-model bundle, not actual Astro client",
+      "bytes": 47337,
+      "gzipBytes": 12394,
+      "sha256": "0b0f345ded2fde4b397141b4962b5e2ea6f4f76f705f13b333df5ef8a3518939",
+      "contributingSources": [
+        {
+          "path": "src/modules/companies/domain/company-directory.ts",
+          "bytesInOutput": 5841
+        },
+        {
+          "path": "src/modules/companies/domain/company-catalog.ts",
+          "bytesInOutput": 3506
+        },
+        {
+          "path": "src/modules/companies/domain/company-collection-evidence.ts",
+          "bytesInOutput": 113
+        },
+        {
+          "path": "src/modules/companies/domain/company-credit.ts",
+          "bytesInOutput": 168
+        },
+        {
+          "path": "src/modules/companies/domain/company-negotiation.ts",
+          "bytesInOutput": 10295
+        },
+        {
+          "path": "src/modules/orders/infrastructure/d1-order-reader.ts",
+          "bytesInOutput": 234
+        },
+        {
+          "path": "src/shared-kernel/events.ts",
+          "bytesInOutput": 67
+        },
+        {
+          "path": "src/modules/orders/domain/order-bulk-action.ts",
+          "bytesInOutput": 90
+        },
+        {
+          "path": "src/modules/orders/domain/preliminary-order.ts",
+          "bytesInOutput": 4643
+        },
+        {
+          "path": "src/modules/orders/domain/order-document.ts",
+          "bytesInOutput": 105
+        },
+        {
+          "path": "src/modules/orders/infrastructure/d1-order-collaboration.ts",
+          "bytesInOutput": 89
+        },
+        {
+          "path": "src/modules/orders/infrastructure/d1-order-holds.ts",
+          "bytesInOutput": 181
+        },
+        {
+          "path": "src/modules/orders/infrastructure/d1-order-bulk-actions.ts",
+          "bytesInOutput": 89
+        },
+        {
+          "path": "src/composition/company-preliminary-order.ts",
+          "bytesInOutput": 8065
+        },
+        {
+          "path": "src/composition/company-negotiation-demo.ts",
+          "bytesInOutput": 13617
+        }
+      ],
+      "externalImports": [],
+      "forbidden": [],
+      "sourceFreeze": {
+        "path": "src/composition/company-negotiation-demo.ts",
+        "modifiedAt": "2026-10-04T04:19:42.792Z",
+        "sha256": "808b25c1a61186752a4f6690f964c35fb0013a5b5d5bed79cbaf2d78ad421a99"
+      }
+    },
+    "authorReportedValidation": {
+      "modelTests": 25,
+      "architectureTests": 6,
+      "passed": 31,
+      "testStartedAt": "2026-10-04T04:22:50Z"
+    },
+    "expectationRefinement": "Only display-label expectation adjusted: model returns selector label while the UI h3 owns the Comparación prefix. No monetary, state or protocol expectation changed.",
+    "limits": [
+      "Diagnostic source bundle and actual emitted Astro graph measured separately; gzip graph totals sum each file compressed independently.",
+      "Retained historical D1-source contributions are literal maps/actor vocabularies only; no queries, D1 adapters or operational effects execute.",
+      "Frozen data and full correlation do not prove identity, authorization, durable history or legal acceptance. Fixtures remain public in the bundle; view/DOM metadata exclusion is not a secrecy claim.",
+      "No fullcheck, Git, Worker, HTTP, database access or browser executed by this reviewer. Browser/a11y/E2E and DB hash belong to root/QA and are not included in these counts.",
+      "No-root client evaluation executes eager fixed fixture validation (56 explicit Date constructions) and one root query; zero IO/implicit clock is not an interaction or DOM correctness test. Shared guide effects when mounted are covered by separate Chrome QA."
+    ],
+    "completedAt": "2026-10-04T04:34:11.703532+00:00",
+    "builtClientReport": "/tmp/r66c-built-client-report.json",
+    "builtGuideReport": "/tmp/r66c-built-guide-report.json",
+    "actualBuiltClient": {
+      "entryBytes": 43149,
+      "entryGzipBytes": 11944,
+      "graphFiles": 4,
+      "graphBytes": 57551,
+      "graphGzipBytes": 17134,
+      "effectsWithoutRoot": 0,
+      "domReadsWithoutRoot": 1,
+      "explicitDateConstructionsWithoutRoot": 56,
+      "externalImports": 0
+    },
+    "actualSharedGuide": {
+      "entryBytes": 13093,
+      "entryGzipBytes": 5147,
+      "graphFiles": 3,
+      "graphBytes": 15200,
+      "graphGzipBytes": 6321,
+      "effectsWithoutRoot": 0,
+      "domReadsWithoutRoot": 1,
+      "explicitDateConstructionsWithoutRoot": 0,
+      "externalImports": 0,
+      "onlyLiteralAddition": "|presupuestos-empresa",
+      "entryBytesDelta": 21,
+      "entryGzipDelta": 7,
+      "removingOnlyLiteralRestoresPreviousSHA": true
+    },
+    "rootReportedFullcheck": {
+      "exitCode": 0,
+      "files": 993,
+      "diagnostics": 0,
+      "suites": 264,
+      "tests": 3814,
+      "buildCompletedAt": "2026-10-04T04:33:32Z"
+    },
+    "sourceFreezeBeforeCopyClarification": [
+      {
+        "path": "src/composition/company-negotiation-demo.ts",
+        "sha256": "808b25c1a61186752a4f6690f964c35fb0013a5b5d5bed79cbaf2d78ad421a99",
+        "modifiedAt": "2026-10-04T04:19:42.791611+00:00"
+      },
+      {
+        "path": "tests/company-negotiation-demo.test.ts",
+        "sha256": "e84013921804bab321fdd4ff78cdbaaea8415fc62590d1db935216e078e6e541",
+        "modifiedAt": "2026-10-04T04:22:50.379646+00:00"
+      },
+      {
+        "path": "src/components/admin/CompanyNegotiationDemo.astro",
+        "sha256": "fb0234efca3e6df38c248e2e628a38c7912bea6dfb8cc5afd32c5fe1df86743e",
+        "modifiedAt": "2026-10-04T04:21:26.563203+00:00"
+      },
+      {
+        "path": "src/pages/demo/admin/presupuestos-empresa.astro",
+        "sha256": "1b2c2996c8d2ef88e956ab9c5375abb087cee89428bf1a255c873a4c6701bfe6",
+        "modifiedAt": "2026-10-04T04:20:17.794123+00:00"
+      },
+      {
+        "path": "scripts/test-company-negotiation-demo.mjs",
+        "sha256": "69da32f0910676e639f5921d1dcc83175f0fed53d320c971586a0427915b3bc7",
+        "modifiedAt": "2026-10-04T04:22:48.618920+00:00"
+      },
+      {
+        "path": "scripts/a11y-audit.mjs",
+        "sha256": "0f763cebbf3f3b1e36e6afe46b443a923319dcad90e6a93b3cf2557086aad8ef",
+        "modifiedAt": "2026-10-04T04:21:44.967084+00:00"
+      }
+    ],
+    "copyClarificationReview": {
+      "scope": "Static read of final component, harness and a11y delta",
+      "result": "passed",
+      "note": "Restriction now names the first disabled moment explicitly in SSR and client. Harness and a11y compare its label, exact explanation and hidden flag. Selected instant, availability, model and test source unchanged. Original oracle timestamp and counts are preserved; no redundant oracle run."
+    },
+    "sharedCatalogExtractionReview": {
+      "report": "/tmp/r66c-structural-review.json",
+      "result": "same declaration structure and global references after lexical renaming; non-declaration statement sequence unchanged",
+      "catalogUnits": 141,
+      "catalogGlobalSymbols": 140,
+      "quantityUnits": 123,
+      "quantityGlobalSymbols": 122,
+      "limit": "Actual bundles are not byte-identical: extraction changes module imports and declaration order. This structural/static review does not substitute interaction QA."
+    }
+  },
+  "actualClientGraph": {
+    "schemaVersion": 1,
+    "reviewedAt": "2026-10-04T04:33:59.005Z",
+    "scope": "actual-built-client-static-graph-and-initialization-without-demo-root",
+    "entry": "dist/_astro/CompanyNegotiationDemo.astro_astro_type_script_index_0_lang.Cn5OmnWr.js",
+    "files": [
+      {
+        "path": "dist/_astro/company-directory.mOflI4d5.js",
+        "bytes": 6414,
+        "gzipBytes": 2302,
+        "sha256": "6c076800192741992b5cbfba6ce07a999d13e3499cd256b306e82dbfc49fc9bd",
+        "imports": [],
+        "forbiddenTokenMatches": []
+      },
+      {
+        "path": "dist/_astro/company-catalog.CVT0p2VD.js",
+        "bytes": 7824,
+        "gzipBytes": 2737,
+        "sha256": "1ccf723de702c23528c83ca56154df999aa3a64be7d7f56db6406521526403dd",
+        "imports": [
+          {
+            "path": "dist/_astro/company-directory.mOflI4d5.js",
+            "kind": "import-statement",
+            "original": "./company-directory.mOflI4d5.js"
+          }
+        ],
+        "forbiddenTokenMatches": []
+      },
+      {
+        "path": "dist/_astro/format.D6ggcjlO.js",
+        "bytes": 164,
+        "gzipBytes": 151,
+        "sha256": "7c7167f2030d738e58323bccda5878464f25a2138c4b1ddade0b4774694ba021",
+        "imports": [],
+        "forbiddenTokenMatches": []
+      },
+      {
+        "path": "dist/_astro/CompanyNegotiationDemo.astro_astro_type_script_index_0_lang.Cn5OmnWr.js",
+        "bytes": 43149,
+        "gzipBytes": 11944,
+        "sha256": "2009f7d94bceba70e31b7bdd61b686d40740f2ede03e59b93f664fc9041d69b8",
+        "imports": [
+          {
+            "path": "dist/_astro/company-directory.mOflI4d5.js",
+            "kind": "import-statement",
+            "original": "./company-directory.mOflI4d5.js"
+          },
+          {
+            "path": "dist/_astro/company-catalog.CVT0p2VD.js",
+            "kind": "import-statement",
+            "original": "./company-catalog.CVT0p2VD.js"
+          },
+          {
+            "path": "dist/_astro/format.D6ggcjlO.js",
+            "kind": "import-statement",
+            "original": "./format.D6ggcjlO.js"
+          }
+        ],
+        "forbiddenTokenMatches": []
+      }
+    ],
+    "sumBytes": 57551,
+    "sumGzipBytes": 17134,
+    "externalImports": [],
+    "effects": 0,
+    "domReads": 1,
+    "explicitDateReads": 56,
+    "freeze": [
+      {
+        "path": "src/composition/company-negotiation-demo.ts",
+        "modifiedAt": "2026-10-04T04:19:42.792Z",
+        "sha256": "808b25c1a61186752a4f6690f964c35fb0013a5b5d5bed79cbaf2d78ad421a99"
+      },
+      {
+        "path": "src/components/admin/CompanyNegotiationDemo.astro",
+        "modifiedAt": "2026-10-04T04:28:43.553Z",
+        "sha256": "f97cba4d81378000de96e25fb13fcd9971465ea3a04a4b3c1ef17990a77b954a"
+      },
+      {
+        "path": "src/pages/demo/admin/presupuestos-empresa.astro",
+        "modifiedAt": "2026-10-04T04:20:17.794Z",
+        "sha256": "1b2c2996c8d2ef88e956ab9c5375abb087cee89428bf1a255c873a4c6701bfe6"
+      }
+    ],
+    "notes": [
+      "Byte counts are real emitted Astro files; gzip totals sum each file compressed independently with zlib default.",
+      "Metafile enumerates emitted client graph; original-source tree shaking was separately inspected in the model probe.",
+      "No-root initialization check does not claim interaction coverage; Chrome QA is separate.",
+      "Synthetic fixture metadata may remain in client source; presentation DTO and DOM exclude internal company, policy, request and evidence references."
+    ]
+  },
+  "actualGuideGraph": {
+    "schemaVersion": 1,
+    "reviewedAt": "2026-10-04T04:33:59.014Z",
+    "scope": "actual-built-shared-guide-static-graph-and-initialization-without-guide-root",
+    "entry": "dist/_astro/DemoAssistant.astro_astro_type_script_index_0_lang.BIXjFjjj.js",
+    "files": [
+      {
+        "path": "dist/_astro/cart-client.ItD9TTkL.js",
+        "bytes": 1059,
+        "gzipBytes": 590,
+        "sha256": "34a807152cbfd940499a32c312851384b3cbaaaddc743e8b7aa9630558d52915",
+        "imports": []
+      },
+      {
+        "path": "dist/_astro/demo-commerce.Dnz6Qizq.js",
+        "bytes": 1048,
+        "gzipBytes": 584,
+        "sha256": "9a4b4e081ba480085aabae88a68b88996dff6a85e06ecd14d32715f8754c487b",
+        "imports": []
+      },
+      {
+        "path": "dist/_astro/DemoAssistant.astro_astro_type_script_index_0_lang.BIXjFjjj.js",
+        "bytes": 13093,
+        "gzipBytes": 5147,
+        "sha256": "7c34dfb49725941d880c5b0f2d4a6607cca7214b116c0b457e04ddd3fbc73cf3",
+        "imports": [
+          {
+            "path": "dist/_astro/cart-client.ItD9TTkL.js",
+            "kind": "import-statement",
+            "original": "./cart-client.ItD9TTkL.js"
+          },
+          {
+            "path": "dist/_astro/demo-commerce.Dnz6Qizq.js",
+            "kind": "import-statement",
+            "original": "./demo-commerce.Dnz6Qizq.js"
+          }
+        ]
+      }
+    ],
+    "sumBytes": 15200,
+    "sumGzipBytes": 6321,
+    "externalImports": [],
+    "effects": 0,
+    "domReads": 1,
+    "explicitDateReads": 0,
+    "freeze": [
+      {
+        "path": "src/layouts/Admin.astro",
+        "modifiedAt": "2026-10-04T04:17:38.259Z",
+        "sha256": "c9601ade87ba8d4f5456ef4a9b8282501f5284b87940e82caa70e931e13acb51"
+      },
+      {
+        "path": "src/components/store/DemoAssistant.astro",
+        "modifiedAt": "2026-10-04T02:22:57.341Z",
+        "sha256": "b963ac83395ae78477a233fcf0246c7c323220d8117c2d1d268b850d8bee8918"
+      },
+      {
+        "path": "src/modules/demo-support/presentation/guide/client.ts",
+        "modifiedAt": "2026-10-04T02:22:57.341Z",
+        "sha256": "46679804e6c1956e67ea6973e3fcc5e86d315f7ad587e2fe28ecfcebf55f7ac0"
+      },
+      {
+        "path": "src/shared-kernel/demo-guide-routes.ts",
+        "sha256": "12684a9f8a2d642af354fb13f9f72c3698a128ff80784e5e88afa716155afa57",
+        "modifiedAt": "2026-10-04T04:17:38.259714+00:00"
+      }
+    ],
+    "notes": [
+      "Byte counts are real emitted Astro files; gzip total sums each file compressed independently with zlib default.",
+      "Separate shared guide graph: these bytes are not included in the CompanyNegotiationDemo graph report.",
+      "Guide intentionally uses existing session storage and UI effects when its root is present; no-root initialization does not cover or claim zero such interaction effects.",
+      "Actual keyboard, resize, hit-test and guide storage behavior belongs to separate Chrome QA."
+    ],
+    "baselineComparison": {
+      "entry": "dist/_astro/DemoAssistant.astro_astro_type_script_index_0_lang.CTUreos1.js",
+      "sha256": "8067726346e79f675315ebe2d886ebd3cda56dd9b35c27787cab6784f25bb402",
+      "bytes": 13072,
+      "gzipBytes": 5140,
+      "routeLiteralAddition": "|presupuestos-empresa",
+      "occurrences": 1,
+      "removingOnlyLiteralRestoresPreviousSHA": true,
+      "entryBytesDelta": 21,
+      "entryGzipDelta": 7
+    }
+  },
+  "inheritedComparison": {
+    "schemaVersion": 1,
+    "scope": "emitted-browser-graphs-and-explicit-source-boundaries",
+    "baselineRuntimeEvidence": {
+      "pullRequest": 38,
+      "browserChecks": 6368,
+      "stateVisits": 108,
+      "accessibilitySurfaces": 8,
+      "screenshots": 8,
+      "e2eChecks": 192,
+      "databaseTables": 143,
+      "databaseRows": 353,
+      "databaseSha256": "9cbfc811cfc4296515a403d395875a43bfa26aff0c9c9b08be0804b15bbf6eca"
+    },
+    "graphComparison": [
+      {
+        "component": "CompanyCreditReviewDemo",
+        "entry": "dist/_astro/CompanyCreditReviewDemo.astro_astro_type_script_index_0_lang.DvnpgZPX.js",
+        "fileCount": 3,
+        "importEdges": 2,
+        "totalBytes": 46662,
+        "totalGzipBytes": 13177,
+        "identical": true,
+        "changes": {
+          "added": [],
+          "removed": [],
+          "changed": []
+        }
+      },
+      {
+        "component": "CompanyCollectionDemo",
+        "entry": "dist/_astro/CompanyCollectionDemo.astro_astro_type_script_index_0_lang.pOo5tZX2.js",
+        "fileCount": 3,
+        "importEdges": 2,
+        "totalBytes": 31812,
+        "totalGzipBytes": 9612,
+        "identical": true,
+        "changes": {
+          "added": [],
+          "removed": [],
+          "changed": []
+        }
+      },
+      {
+        "component": "VariantQuantityDemo",
+        "entry": "dist/_astro/VariantQuantityDemo.astro_astro_type_script_index_0_lang.B3LXKXAu.js",
+        "fileCount": 6,
+        "importEdges": 10,
+        "totalBytes": 53810,
+        "totalGzipBytes": 17921,
+        "identical": false,
+        "changes": {
+          "added": [
+            "dist/_astro/company-catalog-context.B75Z6fk7.js",
+            "dist/_astro/company-catalog.CVT0p2VD.js",
+            "dist/_astro/VariantQuantityDemo.astro_astro_type_script_index_0_lang.B3LXKXAu.js"
+          ],
+          "removed": [
+            "dist/_astro/company-catalog-context.DygmWOFx.js",
+            "dist/_astro/VariantQuantityDemo.astro_astro_type_script_index_0_lang.B9D7Pdiw.js"
+          ],
+          "changed": []
+        }
+      },
+      {
+        "component": "CompanyCatalogDemo",
+        "entry": "dist/_astro/CompanyCatalogDemo.astro_astro_type_script_index_0_lang.Dslk7L5G.js",
+        "fileCount": 8,
+        "importEdges": 12,
+        "totalBytes": 60650,
+        "totalGzipBytes": 20407,
+        "identical": false,
+        "changes": {
+          "added": [
+            "dist/_astro/company-catalog-context.B75Z6fk7.js",
+            "dist/_astro/company-catalog.CVT0p2VD.js",
+            "dist/_astro/CompanyCatalogDemo.astro_astro_type_script_index_0_lang.Dslk7L5G.js"
+          ],
+          "removed": [
+            "dist/_astro/company-catalog-context.DygmWOFx.js",
+            "dist/_astro/CompanyCatalogDemo.astro_astro_type_script_index_0_lang.HW9dUaoD.js"
+          ],
+          "changed": []
+        }
+      },
+      {
+        "component": "CompanyDirectoryDemo",
+        "entry": "dist/_astro/CompanyDirectoryDemo.astro_astro_type_script_index_0_lang.tUOZl7at.js",
+        "fileCount": 3,
+        "importEdges": 2,
+        "totalBytes": 26856,
+        "totalGzipBytes": 8818,
+        "identical": true,
+        "changes": {
+          "added": [],
+          "removed": [],
+          "changed": []
+        }
+      },
+      {
+        "component": "DemoAssistant",
+        "entry": "dist/_astro/DemoAssistant.astro_astro_type_script_index_0_lang.BIXjFjjj.js",
+        "fileCount": 3,
+        "importEdges": 2,
+        "totalBytes": 15200,
+        "totalGzipBytes": 6321,
+        "identical": false,
+        "changes": {
+          "added": [
+            "dist/_astro/DemoAssistant.astro_astro_type_script_index_0_lang.BIXjFjjj.js"
+          ],
+          "removed": [
+            "dist/_astro/DemoAssistant.astro_astro_type_script_index_0_lang.CTUreos1.js"
+          ],
+          "changed": []
+        }
+      }
+    ],
+    "addedGraphs": [
+      {
+        "component": "CompanyNegotiationDemo",
+        "entry": "dist/_astro/CompanyNegotiationDemo.astro_astro_type_script_index_0_lang.Cn5OmnWr.js",
+        "fileCount": 4,
+        "importEdges": 4,
+        "totalBytes": 57551,
+        "totalGzipBytes": 17134
+      }
+    ],
+    "sourceFiles": 358,
+    "emittedCssFiles": 19,
+    "surfacesIdentical": false,
+    "sourceChanges": {
+      "added": [
+        "src/components/admin/CompanyNegotiationDemo.astro",
+        "src/composition/company-negotiation-demo.ts",
+        "src/pages/demo/admin/presupuestos-empresa.astro"
+      ],
+      "removed": [],
+      "changed": [
+        "src/layouts/Admin.astro",
+        "src/shared-kernel/demo-guide-routes.ts"
+      ]
+    },
+    "cssChanges": {
+      "added": [],
+      "removed": [],
+      "changed": []
+    },
+    "limitations": [
+      "Source hashes do not execute SSR, HTTP, middleware or interactions.",
+      "This manifest is not the complete transitive server module graph.",
+      "This static comparison does not execute runtime QA. Its baseline interaction evidence is PR38; fresh R6.6c runtime evidence is reported separately after actual execution."
+    ],
+    "result": "changed"
+  },
+  "inheritedStructuralReview": {
+    "scope": "Structural comparison of actual rebundled prior/current artifacts; local alpha renaming, global-reference fingerprint propagation preserving property names, literals and operators; declaration order compared separately from executable statement order.",
+    "records": [
+      {
+        "component": "CompanyCatalogDemo",
+        "priorUnits": 141,
+        "currentUnits": 141,
+        "priorGlobals": 140,
+        "currentGlobals": 140,
+        "identicalDeclarationMultiset": true,
+        "nonDeclarationSequenceSame": true,
+        "labelRounds": 141,
+        "initializerKinds": [
+          "ArrayLiteralExpression",
+          "ClassExpression",
+          "CallExpression",
+          "RegularExpressionLiteral",
+          "StringLiteral"
+        ]
+      },
+      {
+        "component": "VariantQuantityDemo",
+        "priorUnits": 123,
+        "currentUnits": 123,
+        "priorGlobals": 122,
+        "currentGlobals": 122,
+        "identicalDeclarationMultiset": true,
+        "nonDeclarationSequenceSame": true,
+        "labelRounds": 123,
+        "initializerKinds": [
+          "CallExpression",
+          "ClassExpression",
+          "StringLiteral"
+        ]
+      }
+    ]
+  },
+  "guideExactDelta": {
+    "beforeBytes": 13072,
+    "afterBytes": 13093,
+    "delta": 21,
+    "exactOnlyAddition": "|presupuestos-empresa",
+    "priorSha256": "8067726346e79f675315ebe2d886ebd3cda56dd9b35c27787cab6784f25bb402",
+    "afterSha256": "7c34dfb49725941d880c5b0f2d4a6607cca7214b116c0b457e04ddd3fbc73cf3",
+    "proof": "Removing the one explicit demo route alternative reproduces the full previous emitted guide entry byte-for-byte."
+  },
+  "allEmittedJsComparison": {
+    "schemaVersion": 1,
+    "baseline": "PR40 (ce295c6)",
+    "scope": "all emitted JS/MJS filenames and raw bytes; browser separated from Worker",
+    "browser": {
+      "scope": "browser-or-public",
+      "beforeCount": 58,
+      "afterCount": 60,
+      "beforeBytes": 352473,
+      "afterBytes": 395809,
+      "beforeGzipBytes": 116299,
+      "afterGzipBytes": 128833,
+      "unchangedCount": 54,
+      "identical": false,
+      "unchanged": [
+        {
+          "path": "dist/_astro/CartPage.astro_astro_type_script_index_0_lang.BOd2iBIO.js",
+          "scope": "browser-or-public",
+          "bytes": 4397,
+          "gzipBytes": 1791,
+          "sha256": "ff8f8e6189c2e9c98f0b92fa5fb591c57ba5a56ac19c8ac4602e5049dc25d2e0"
+        },
+        {
+          "path": "dist/_astro/Catalog.astro_astro_type_script_index_0_lang.DZIyy-GW.js",
+          "scope": "browser-or-public",
+          "bytes": 1862,
+          "gzipBytes": 753,
+          "sha256": "d4c0a75109bb299ca12ea3f30535fbdff839ee0c41e658f83b3b58c75e389659"
+        },
+        {
+          "path": "dist/_astro/Catalog.astro_astro_type_script_index_0_lang.Dx_mdGGk.js",
+          "scope": "browser-or-public",
+          "bytes": 714,
+          "gzipBytes": 411,
+          "sha256": "059cfbcedb0f5c4b17051055ef2b3aace13883448440c3c3b9fedaf8c4f0bf4c"
+        },
+        {
+          "path": "dist/_astro/Catalog.astro_astro_type_script_index_1_lang.B4IDrWiN.js",
+          "scope": "browser-or-public",
+          "bytes": 239,
+          "gzipBytes": 199,
+          "sha256": "aa6f28529a9704754941e8cc7aef9d86af3c59a355a53ab59b9700f811f99498"
+        },
+        {
+          "path": "dist/_astro/CatalogPage.astro_astro_type_script_index_0_lang.S35RL2wh.js",
+          "scope": "browser-or-public",
+          "bytes": 252,
+          "gzipBytes": 220,
+          "sha256": "f47699558b0fa1c8957fa14f7d1096ae9585b1405191c871a4fabc5c9e3153b7"
+        },
+        {
+          "path": "dist/_astro/CheckoutPage.astro_astro_type_script_index_0_lang.TZlWy_fq.js",
+          "scope": "browser-or-public",
+          "bytes": 2442,
+          "gzipBytes": 1068,
+          "sha256": "f77a49f53fd7bdb161e9ef0bba6cbf289eade03cb758ee0d60d4accf318d7bd7"
+        },
+        {
+          "path": "dist/_astro/CompanyCollectionDemo.astro_astro_type_script_index_0_lang.pOo5tZX2.js",
+          "scope": "browser-or-public",
+          "bytes": 25234,
+          "gzipBytes": 7159,
+          "sha256": "2b233eb74611532cc5e421d779ee8de61a2006820e3d6cb66558f7e2777ad5f4"
+        },
+        {
+          "path": "dist/_astro/CompanyCreditReviewDemo.astro_astro_type_script_index_0_lang.DvnpgZPX.js",
+          "scope": "browser-or-public",
+          "bytes": 40084,
+          "gzipBytes": 10724,
+          "sha256": "4ad808dc50ca1d279640bd3e7cb05f3bb0085e684f51ddce32dafe9ecd8bf1fd"
+        },
+        {
+          "path": "dist/_astro/CompanyDirectoryDemo.astro_astro_type_script_index_0_lang.tUOZl7at.js",
+          "scope": "browser-or-public",
+          "bytes": 14693,
+          "gzipBytes": 4463,
+          "sha256": "697b4f962e9c7f4673dd4c1818accad6117deadeb0e2d90f91d0ec89b5812dec"
+        },
+        {
+          "path": "dist/_astro/CurrencyMethodsDemo.astro_astro_type_script_index_0_lang.C1Zw0pwf.js",
+          "scope": "browser-or-public",
+          "bytes": 30287,
+          "gzipBytes": 8662,
+          "sha256": "3c8a99353a9d56f8a4c0db7d01acccf833ff8b3f93fed982262c9245fb24f3fc"
+        },
+        {
+          "path": "dist/_astro/CustomerSegmentsDemo.astro_astro_type_script_index_0_lang.yNGmrzVV.js",
+          "scope": "browser-or-public",
+          "bytes": 20495,
+          "gzipBytes": 6591,
+          "sha256": "49d6650611e04aafe54241d206d4e8a62a210774ad4f2a925de17dedaadbba88"
+        },
+        {
+          "path": "dist/_astro/InlogemCatalog.astro_astro_type_script_index_0_lang.DpkP0-Ul.js",
+          "scope": "browser-or-public",
+          "bytes": 406,
+          "gzipBytes": 286,
+          "sha256": "49340f7544f77a5389f3d68c96f75483a2fb07268a7d4e73d3c397bf194f9664"
+        },
+        {
+          "path": "dist/_astro/InlogemProductPresentation.astro_astro_type_script_index_0_lang.CaXS8ajW.js",
+          "scope": "browser-or-public",
+          "bytes": 510,
+          "gzipBytes": 344,
+          "sha256": "cf5ce3478494fca5d8066a45db2cd15f23eb5ec9c5156ec6ed1c2613f676a8ef"
+        },
+        {
+          "path": "dist/_astro/MarketContentDemo.astro_astro_type_script_index_0_lang.ycRBGi5T.js",
+          "scope": "browser-or-public",
+          "bytes": 37617,
+          "gzipBytes": 12287,
+          "sha256": "62044905e7288a9c420345bf69160f1482dc3e8641455132f3ba772f3d2a8677"
+        },
+        {
+          "path": "dist/_astro/MarketPublicationDemo.astro_astro_type_script_index_0_lang.BgAgnxke.js",
+          "scope": "browser-or-public",
+          "bytes": 19704,
+          "gzipBytes": 5998,
+          "sha256": "5ed933e505ed4c1eb74742328b0def182327183479a88a284a99ea8b6258f756"
+        },
+        {
+          "path": "dist/_astro/ProductGrid.astro_astro_type_script_index_0_lang.9kqbsBHP.js",
+          "scope": "browser-or-public",
+          "bytes": 242,
+          "gzipBytes": 211,
+          "sha256": "adcfa6be353fa3b31f7dd19e9cfa4537389a449689992eea6f939b7dc49170c8"
+        },
+        {
+          "path": "dist/_astro/ProductGrid.astro_astro_type_script_index_0_lang.BJM_dL_C.js",
+          "scope": "browser-or-public",
+          "bytes": 249,
+          "gzipBytes": 222,
+          "sha256": "f34d5ab78893f8f3fd13f0fc20392c0ec209d1726fe8dd125e79c053f820b0ff"
+        },
+        {
+          "path": "dist/_astro/ProductGrid.astro_astro_type_script_index_0_lang.Bbt17eee.js",
+          "scope": "browser-or-public",
+          "bytes": 262,
+          "gzipBytes": 225,
+          "sha256": "d39168249dcc4bdc253986649c4fa0bb3e25a7e7c12a144ee7dd5778d928baae"
+        },
+        {
+          "path": "dist/_astro/ProductGrid.astro_astro_type_script_index_0_lang.BnSGq6bE.js",
+          "scope": "browser-or-public",
+          "bytes": 244,
+          "gzipBytes": 213,
+          "sha256": "285ff346b63f6df2bd06bf2c9ce0c7ed90adc078c9a2b23084396ce5a6f2360b"
+        },
+        {
+          "path": "dist/_astro/ProductGrid.astro_astro_type_script_index_0_lang.CAGovOqp.js",
+          "scope": "browser-or-public",
+          "bytes": 262,
+          "gzipBytes": 225,
+          "sha256": "950bc90712d7520d6c5535ad266561eeef95cc2cb8ccc9c94fd38ab7acf5ee02"
+        },
+        {
+          "path": "dist/_astro/ProductGrid.astro_astro_type_script_index_0_lang.CNRqkwYX.js",
+          "scope": "browser-or-public",
+          "bytes": 272,
+          "gzipBytes": 228,
+          "sha256": "64563a4fe20c905bb479acdccf3ae59ea5d687e5c98636142c26be3c55cc2765"
+        },
+        {
+          "path": "dist/_astro/ProductGrid.astro_astro_type_script_index_0_lang.COa9tMv1.js",
+          "scope": "browser-or-public",
+          "bytes": 240,
+          "gzipBytes": 211,
+          "sha256": "f31346f7c039d9aae59d12d65804b07a350ecff1833e0844672ce77a0b19fb94"
+        },
+        {
+          "path": "dist/_astro/ProductGrid.astro_astro_type_script_index_0_lang.CVG_ngon.js",
+          "scope": "browser-or-public",
+          "bytes": 236,
+          "gzipBytes": 207,
+          "sha256": "f59a72f37647f1b0d91a8d11319c6c6f08802e39afaba42d12d1f364ebb2960d"
+        },
+        {
+          "path": "dist/_astro/ProductGrid.astro_astro_type_script_index_0_lang.CaESwask.js",
+          "scope": "browser-or-public",
+          "bytes": 251,
+          "gzipBytes": 222,
+          "sha256": "12e3778587dd3054dae09c55160ef2a89d2c5e10289fccfb02e930ab2665e2c5"
+        },
+        {
+          "path": "dist/_astro/ProductGrid.astro_astro_type_script_index_0_lang.CcEIjbvD.js",
+          "scope": "browser-or-public",
+          "bytes": 249,
+          "gzipBytes": 221,
+          "sha256": "fe52aaa547ea5becbfd097a64d965cdd13310732b6a90a7d5367bfd6339bccb3"
+        },
+        {
+          "path": "dist/_astro/ProductGrid.astro_astro_type_script_index_0_lang.CcWu9np2.js",
+          "scope": "browser-or-public",
+          "bytes": 238,
+          "gzipBytes": 210,
+          "sha256": "64a933a1b0a3e0529aa278d038bff660cebe438014d8bd9f64135343a99a350b"
+        },
+        {
+          "path": "dist/_astro/ProductGrid.astro_astro_type_script_index_0_lang.CpakNyN2.js",
+          "scope": "browser-or-public",
+          "bytes": 241,
+          "gzipBytes": 211,
+          "sha256": "dee76121184a9e679eab99d5ea01ef39e97a5ead38a52523d28986e3679010b2"
+        },
+        {
+          "path": "dist/_astro/ProductGrid.astro_astro_type_script_index_0_lang.D0DncPk_.js",
+          "scope": "browser-or-public",
+          "bytes": 248,
+          "gzipBytes": 214,
+          "sha256": "c2ca1798687504811eb400c82138ad9cd7f79b12b5a573bc347f3e6529173463"
+        },
+        {
+          "path": "dist/_astro/ProductGrid.astro_astro_type_script_index_0_lang.D4XVQSg1.js",
+          "scope": "browser-or-public",
+          "bytes": 264,
+          "gzipBytes": 225,
+          "sha256": "c0213a96a0ae8d02ae38d7d66bac6ba7ee387ba4fd3650b3f0a3198f1b0fc022"
+        },
+        {
+          "path": "dist/_astro/ProductGrid.astro_astro_type_script_index_0_lang.D84g4dbZ.js",
+          "scope": "browser-or-public",
+          "bytes": 256,
+          "gzipBytes": 223,
+          "sha256": "698e22a273d452af850cd044ecd4062ebceb1d7e836c47ae6158f5a6cb476fa1"
+        },
+        {
+          "path": "dist/_astro/ProductGrid.astro_astro_type_script_index_0_lang.D9fSTJL_.js",
+          "scope": "browser-or-public",
+          "bytes": 261,
+          "gzipBytes": 223,
+          "sha256": "0cae7565c7fcc71ce3703ca4b2ef308c096df34e8e358d7e80d0a0209dfb25bb"
+        },
+        {
+          "path": "dist/_astro/ProductGrid.astro_astro_type_script_index_0_lang.D_EF-Nuj.js",
+          "scope": "browser-or-public",
+          "bytes": 249,
+          "gzipBytes": 220,
+          "sha256": "c313af4af5127fd1a8b536b0d55d7c728dffca1a22584c3d6d592730752ef036"
+        },
+        {
+          "path": "dist/_astro/ProductGrid.astro_astro_type_script_index_0_lang.DdXdJ685.js",
+          "scope": "browser-or-public",
+          "bytes": 242,
+          "gzipBytes": 211,
+          "sha256": "10bd92f71675ae8dbddccb91538cc2d810d41d76e17408c1f76d8a94d75097c1"
+        },
+        {
+          "path": "dist/_astro/ProductGrid.astro_astro_type_script_index_0_lang.DeGa46l-.js",
+          "scope": "browser-or-public",
+          "bytes": 242,
+          "gzipBytes": 212,
+          "sha256": "2185b466510b1f1beccccc994c8addcfd9c744c22a008cb9fe7a38facfebef27"
+        },
+        {
+          "path": "dist/_astro/ProductGrid.astro_astro_type_script_index_0_lang.Do7mniv_.js",
+          "scope": "browser-or-public",
+          "bytes": 238,
+          "gzipBytes": 209,
+          "sha256": "548b36ad5b9c5b6a8ae73cfcf6ca505504131247c2421a7e01d1b2d686f57302"
+        },
+        {
+          "path": "dist/_astro/ProductGrid.astro_astro_type_script_index_0_lang.RKBO5Z2z.js",
+          "scope": "browser-or-public",
+          "bytes": 255,
+          "gzipBytes": 216,
+          "sha256": "7559dd6f1a25d7b302d4abd97743efeed0150a80f79d49fbca7afa4d8dc7007d"
+        },
+        {
+          "path": "dist/_astro/ProductGrid.astro_astro_type_script_index_0_lang.u1lcK-k1.js",
+          "scope": "browser-or-public",
+          "bytes": 248,
+          "gzipBytes": 214,
+          "sha256": "6db26dc2f0592cf4ffaeb12f21517b823530088e26dd1f2e01e6f8979d4774d8"
+        },
+        {
+          "path": "dist/_astro/ProductPage.astro_astro_type_script_index_0_lang.DjlwRjCh.js",
+          "scope": "browser-or-public",
+          "bytes": 511,
+          "gzipBytes": 344,
+          "sha256": "50d701571d39da28e568052e84ca03e2a96a9f3e4430ef7ebf0b3ae7edaeab5a"
+        },
+        {
+          "path": "dist/_astro/ProposalLanding.astro_astro_type_script_index_0_lang.DpxMcclF.js",
+          "scope": "browser-or-public",
+          "bytes": 456,
+          "gzipBytes": 299,
+          "sha256": "56e5e3fba7453b22536cc5ffc8299473498d3515d5a33b090829d267b65c8c6c"
+        },
+        {
+          "path": "dist/_astro/Shop.astro_astro_type_script_index_0_lang.DKU1g-Uh.js",
+          "scope": "browser-or-public",
+          "bytes": 304,
+          "gzipBytes": 232,
+          "sha256": "d1d69f93332a373be951b79d47b99c4061d880b4a5cd742e6375fb4cacfb936f"
+        },
+        {
+          "path": "dist/_astro/TaxDemo.astro_astro_type_script_index_0_lang.CkxrQSMy.js",
+          "scope": "browser-or-public",
+          "bytes": 17511,
+          "gzipBytes": 5763,
+          "sha256": "ec62ff2263f25e55816d53c584b940c345d603fcad258f36ccccc230600a0281"
+        },
+        {
+          "path": "dist/_astro/ThanksPage.astro_astro_type_script_index_0_lang.DKuzUGVe.js",
+          "scope": "browser-or-public",
+          "bytes": 898,
+          "gzipBytes": 413,
+          "sha256": "2ae3bee89f5a669003c23b518511e12a0587a31228539ce02d40768d4d8c081f"
+        },
+        {
+          "path": "dist/_astro/Theme.astro_astro_type_script_index_0_lang.CB76BU7E.js",
+          "scope": "browser-or-public",
+          "bytes": 4845,
+          "gzipBytes": 1902,
+          "sha256": "f0b8e0517920cf542d8b4438e64a502522a0be32aab5102119ee0693bb11904a"
+        },
+        {
+          "path": "dist/_astro/_id_.astro_astro_type_script_index_0_lang.CH5pgKlt.js",
+          "scope": "browser-or-public",
+          "bytes": 9643,
+          "gzipBytes": 2797,
+          "sha256": "fde1d76b8983e39840ba57dac360bb47e1914a89fe2909d78b94b953549c7d4b"
+        },
+        {
+          "path": "dist/_astro/cart-client.ItD9TTkL.js",
+          "scope": "browser-or-public",
+          "bytes": 1059,
+          "gzipBytes": 590,
+          "sha256": "34a807152cbfd940499a32c312851384b3cbaaaddc743e8b7aa9630558d52915"
+        },
+        {
+          "path": "dist/_astro/company-directory.mOflI4d5.js",
+          "scope": "browser-or-public",
+          "bytes": 6414,
+          "gzipBytes": 2302,
+          "sha256": "6c076800192741992b5cbfba6ce07a999d13e3499cd256b306e82dbfc49fc9bd"
+        },
+        {
+          "path": "dist/_astro/confirmar.astro_astro_type_script_index_0_lang.Km5M3cC0.js",
+          "scope": "browser-or-public",
+          "bytes": 2651,
+          "gzipBytes": 1266,
+          "sha256": "b8878648e44d797111761ef294a168851cca3125016e31f1504726c0a3d13fb3"
+        },
+        {
+          "path": "dist/_astro/demo-commerce.Dnz6Qizq.js",
+          "scope": "browser-or-public",
+          "bytes": 1048,
+          "gzipBytes": 584,
+          "sha256": "9a4b4e081ba480085aabae88a68b88996dff6a85e06ecd14d32715f8754c487b"
+        },
+        {
+          "path": "dist/_astro/fixture-vat-id-adapter.Ow_zwmVh.js",
+          "scope": "browser-or-public",
+          "bytes": 5749,
+          "gzipBytes": 2053,
+          "sha256": "d50f2b3b0d0dc87d3823c767a4bbfe5f40697e7aa86111a570a2d462f181a60c"
+        },
+        {
+          "path": "dist/_astro/format.D6ggcjlO.js",
+          "scope": "browser-or-public",
+          "bytes": 164,
+          "gzipBytes": 151,
+          "sha256": "7c7167f2030d738e58323bccda5878464f25a2138c4b1ddade0b4774694ba021"
+        },
+        {
+          "path": "dist/_astro/index.astro_astro_type_script_index_0_lang.B83WK6_A.js",
+          "scope": "browser-or-public",
+          "bytes": 6798,
+          "gzipBytes": 2592,
+          "sha256": "5166e73cb897e609e510e0ea3223e9b7d0403803271dfb79046327dfdf69ebb0"
+        },
+        {
+          "path": "dist/_astro/market-context.BB9rBc3-.js",
+          "scope": "browser-or-public",
+          "bytes": 6195,
+          "gzipBytes": 2224,
+          "sha256": "e9f6978ce356057950570598212faa771894f245a5fe4c5e15ca30f688c6b823"
+        },
+        {
+          "path": "dist/_astro/market-publication.DO6MUQIN.js",
+          "scope": "browser-or-public",
+          "bytes": 7331,
+          "gzipBytes": 2674,
+          "sha256": "0cec8e90df5877b043a46b8b2c3fd270758fe16b93d6b444fe18876e54ff0187"
+        },
+        {
+          "path": "dist/_astro/product.BVACAMDj.js",
+          "scope": "browser-or-public",
+          "bytes": 2763,
+          "gzipBytes": 1023,
+          "sha256": "14dd4c6dae0a8717f6c44f73f293ed7cea42d1b05ab15ce3e9e996918dcac7dc"
+        }
+      ],
+      "changed": [],
+      "removed": [
+        {
+          "path": "dist/_astro/CompanyCatalogDemo.astro_astro_type_script_index_0_lang.HW9dUaoD.js",
+          "scope": "browser-or-public",
+          "bytes": 26889,
+          "gzipBytes": 8072,
+          "sha256": "f9ed7eb41e36cdcbc2ba88bbddf839bd6f11e2f870095061b627959256c47aeb"
+        },
+        {
+          "path": "dist/_astro/DemoAssistant.astro_astro_type_script_index_0_lang.CTUreos1.js",
+          "scope": "browser-or-public",
+          "bytes": 13072,
+          "gzipBytes": 5140,
+          "sha256": "8067726346e79f675315ebe2d886ebd3cda56dd9b35c27787cab6784f25bb402"
+        },
+        {
+          "path": "dist/_astro/VariantQuantityDemo.astro_astro_type_script_index_0_lang.B9D7Pdiw.js",
+          "scope": "browser-or-public",
+          "bytes": 22976,
+          "gzipBytes": 6759,
+          "sha256": "651d2d1b8dd4f7934502aa6205273507aba44a8ab9ed3821a458a52eb7f90a04"
+        },
+        {
+          "path": "dist/_astro/company-catalog-context.DygmWOFx.js",
+          "scope": "browser-or-public",
+          "bytes": 10771,
+          "gzipBytes": 3390,
+          "sha256": "3ca3e78ab4c0cc109bc59548d2d2b52a6c04e389446b8c3dc4486decb9245d40"
+        }
+      ],
+      "added": [
+        {
+          "path": "dist/_astro/CompanyCatalogDemo.astro_astro_type_script_index_0_lang.Dslk7L5G.js",
+          "scope": "browser-or-public",
+          "bytes": 26932,
+          "gzipBytes": 8083,
+          "sha256": "96af2eaa3b581eced84823fc953ed030c4e735b784c2a8049c2f5f89aca7c550"
+        },
+        {
+          "path": "dist/_astro/CompanyNegotiationDemo.astro_astro_type_script_index_0_lang.Cn5OmnWr.js",
+          "scope": "browser-or-public",
+          "bytes": 43149,
+          "gzipBytes": 11944,
+          "sha256": "2009f7d94bceba70e31b7bdd61b686d40740f2ede03e59b93f664fc9041d69b8"
+        },
+        {
+          "path": "dist/_astro/DemoAssistant.astro_astro_type_script_index_0_lang.BIXjFjjj.js",
+          "scope": "browser-or-public",
+          "bytes": 13093,
+          "gzipBytes": 5147,
+          "sha256": "7c34dfb49725941d880c5b0f2d4a6607cca7214b116c0b457e04ddd3fbc73cf3"
+        },
+        {
+          "path": "dist/_astro/VariantQuantityDemo.astro_astro_type_script_index_0_lang.B3LXKXAu.js",
+          "scope": "browser-or-public",
+          "bytes": 23019,
+          "gzipBytes": 6771,
+          "sha256": "b6b226cf12c085200c9e1583dd9ef0d9073266313dd49701b7d57f1359e5f011"
+        },
+        {
+          "path": "dist/_astro/company-catalog-context.B75Z6fk7.js",
+          "scope": "browser-or-public",
+          "bytes": 3027,
+          "gzipBytes": 1213,
+          "sha256": "3b341e2685b9bd780c62db22d633e7e47b57ab71c5c49f7e0cc95b7c5b9ebdf2"
+        },
+        {
+          "path": "dist/_astro/company-catalog.CVT0p2VD.js",
+          "scope": "browser-or-public",
+          "bytes": 7824,
+          "gzipBytes": 2737,
+          "sha256": "1ccf723de702c23528c83ca56154df999aa3a64be7d7f56db6406521526403dd"
+        }
+      ]
+    },
+    "server": {
+      "scope": "server-worker",
+      "beforeCount": 279,
+      "afterCount": 281,
+      "beforeBytes": 4401532,
+      "afterBytes": 4477174,
+      "beforeGzipBytes": 991036,
+      "afterGzipBytes": 1006459,
+      "unchangedCount": 202,
+      "identical": false,
+      "unchanged": [
+        {
+          "path": "dist/_worker.js/_@astrojs-ssr-adapter.mjs",
+          "scope": "server-worker",
+          "bytes": 140,
+          "gzipBytes": 132,
+          "sha256": "5dceeba35fc667aa7524e4b3e9e9f72c368b930e10c0cc158f4219de7daf0929"
+        },
+        {
+          "path": "dist/_worker.js/_astro-internal_middleware.mjs",
+          "scope": "server-worker",
+          "bytes": 211386,
+          "gzipBytes": 37557,
+          "sha256": "a67fa80b3e0840e0dfe067d41bdf04a56741661ed449cce9281d450b178943e3"
+        },
+        {
+          "path": "dist/_worker.js/chunks/AdminIcon_CY7I4OIG.mjs",
+          "scope": "server-worker",
+          "bytes": 3614,
+          "gzipBytes": 1085,
+          "sha256": "60a4eb8006245b6d8f6f04768cd2e1403fa2f428d85fb86cfe35f7c17eb5318d"
+        },
+        {
+          "path": "dist/_worker.js/chunks/AdminNotice_d2utamep.mjs",
+          "scope": "server-worker",
+          "bytes": 1171,
+          "gzipBytes": 604,
+          "sha256": "660c52a07c2864bcc768fe7c1313eb7cf93a1beb3725d890825b190e64c9e69c"
+        },
+        {
+          "path": "dist/_worker.js/chunks/AdminPageHeader_BwMqmDqB.mjs",
+          "scope": "server-worker",
+          "bytes": 1242,
+          "gzipBytes": 643,
+          "sha256": "09d13ad1da12e6a21a3568458d3a9d711636cd4e77730287bcdd243032dcacd9"
+        },
+        {
+          "path": "dist/_worker.js/chunks/AdminStatusBadge_RBx62UvM.mjs",
+          "scope": "server-worker",
+          "bytes": 1379,
+          "gzipBytes": 626,
+          "sha256": "6071d6cd7de6628cfe901117470cae65461a51d6d42661bd5b93836c7275fcc5"
+        },
+        {
+          "path": "dist/_worker.js/chunks/BrandMark_dQA1darW.mjs",
+          "scope": "server-worker",
+          "bytes": 1308,
+          "gzipBytes": 699,
+          "sha256": "b5dad0d0e0cdd5ba177ccc5875d4bdad43b99d54ecb5add64dbfe8b055c7d93e"
+        },
+        {
+          "path": "dist/_worker.js/chunks/CloudflarePageview_Cf6im8Y6.mjs",
+          "scope": "server-worker",
+          "bytes": 858,
+          "gzipBytes": 461,
+          "sha256": "b40fb31c16e100378f51a1e21825ad9c3a918f89fdec3b9494c1f71c030886a7"
+        },
+        {
+          "path": "dist/_worker.js/chunks/ProjectForm_D9zKflYW.mjs",
+          "scope": "server-worker",
+          "bytes": 5031,
+          "gzipBytes": 1847,
+          "sha256": "83d190abe320300b17bff524b21d2bd0234f71268b03b363d495624b1d4e120e"
+        },
+        {
+          "path": "dist/_worker.js/chunks/ProposalStoreFooter_CHKLxhgu.mjs",
+          "scope": "server-worker",
+          "bytes": 6181,
+          "gzipBytes": 2092,
+          "sha256": "34e74a5d83d6ef96826aafadfbe0f68f2fe293a3b2e8712b51efa1e2d65b8591"
+        },
+        {
+          "path": "dist/_worker.js/chunks/SiteHeader_D3iBjnfw.mjs",
+          "scope": "server-worker",
+          "bytes": 6799,
+          "gzipBytes": 2558,
+          "sha256": "8fa1ef0cf7ba834b0380de33aad9e75dc9dcd6a8a1ee93ed09c268ad8bf372a2"
+        },
+        {
+          "path": "dist/_worker.js/chunks/_@astrojs-ssr-adapter_DSP_PSlx.mjs",
+          "scope": "server-worker",
+          "bytes": 42115,
+          "gzipBytes": 11032,
+          "sha256": "f03f2cc205cc34462d74b17ef12a29b9698141902c1dd05b1d80f3b6787ef3e4"
+        },
+        {
+          "path": "dist/_worker.js/chunks/admin-auth_DZ3nmvSf.mjs",
+          "scope": "server-worker",
+          "bytes": 1993,
+          "gzipBytes": 919,
+          "sha256": "58429cb6ed4d75cef5f87e5ea788f490bcb68d8bfef36196f33d4798211037d9"
+        },
+        {
+          "path": "dist/_worker.js/chunks/admin-http_CiBrUdme.mjs",
+          "scope": "server-worker",
+          "bytes": 1504,
+          "gzipBytes": 615,
+          "sha256": "24a2ca8e5b7f9497ede47a1f979d9e7640615453967f44c290ad764e214c48aa"
+        },
+        {
+          "path": "dist/_worker.js/chunks/admin-operations_iKRv0i_3.mjs",
+          "scope": "server-worker",
+          "bytes": 66397,
+          "gzipBytes": 11273,
+          "sha256": "affb4aaba58030963a31f1c106d87e2b08f5b43567888547cc3cbe21033b6674"
+        },
+        {
+          "path": "dist/_worker.js/chunks/astro-designed-error-pages_D6skhbq0.mjs",
+          "scope": "server-worker",
+          "bytes": 47274,
+          "gzipBytes": 17355,
+          "sha256": "f883a73c39cb03ec7d37ee65dd518bc91affd4d3c9c8b7fbd94c90b8ffbbc015"
+        },
+        {
+          "path": "dist/_worker.js/chunks/astro/server_D9KoMM8z.mjs",
+          "scope": "server-worker",
+          "bytes": 261610,
+          "gzipBytes": 53080,
+          "sha256": "ca3a7839b282c0ec428b870393f852f559d5a14e89a1843a26615492b0d437c1"
+        },
+        {
+          "path": "dist/_worker.js/chunks/audit_DzbcpY39.mjs",
+          "scope": "server-worker",
+          "bytes": 2890,
+          "gzipBytes": 1020,
+          "sha256": "f88bd74d3791dc4ce6945419cd153b7a858ee5e75cea3b4c4b6fc33ea4a26460"
+        },
+        {
+          "path": "dist/_worker.js/chunks/automatic-discount-operations_URHMTADt.mjs",
+          "scope": "server-worker",
+          "bytes": 7856,
+          "gzipBytes": 2104,
+          "sha256": "f807f03b7817c5cae0725d4032403581f78a6e6f945a4b7787123ecc679cc113"
+        },
+        {
+          "path": "dist/_worker.js/chunks/automatic-discount_B_w3xNZM.mjs",
+          "scope": "server-worker",
+          "bytes": 4653,
+          "gzipBytes": 1449,
+          "sha256": "c11c64a87185de69b90d62219a93ba872765f82d269477a9373b539e454d3b4a"
+        },
+        {
+          "path": "dist/_worker.js/chunks/backup_DzffRfh-.mjs",
+          "scope": "server-worker",
+          "bytes": 12127,
+          "gzipBytes": 3395,
+          "sha256": "15ffdda92b44a8e2772a41675abdbf82970a7e5220039b932b53bdd0ecb61080"
+        },
+        {
+          "path": "dist/_worker.js/chunks/bundle-operations_CNf51d2V.mjs",
+          "scope": "server-worker",
+          "bytes": 6767,
+          "gzipBytes": 1795,
+          "sha256": "350462640386afc87f434382dbfcb11e85aa275bcd9746a48034cdff212c72e0"
+        },
+        {
+          "path": "dist/_worker.js/chunks/catalog_rXt_yTcZ.mjs",
+          "scope": "server-worker",
+          "bytes": 87236,
+          "gzipBytes": 15072,
+          "sha256": "05e7d13c46a3b49d43df563603ef53d91c474d08b0575c141f0a49330c713714"
+        },
+        {
+          "path": "dist/_worker.js/chunks/cloudflare-kv-binding_DMly_2Gl.mjs",
+          "scope": "server-worker",
+          "bytes": 3013,
+          "gzipBytes": 1057,
+          "sha256": "9e312b90cfdd1ccae93904ae67d4fea0823494bd8fd922206bac09a4253e49c7"
+        },
+        {
+          "path": "dist/_worker.js/chunks/contact_B5T_gD6T.mjs",
+          "scope": "server-worker",
+          "bytes": 3860,
+          "gzipBytes": 1787,
+          "sha256": "413e85aed42455f7f44ce38f5676468a3d2d39f49f2ea5e8caf66879d3a22887"
+        },
+        {
+          "path": "dist/_worker.js/chunks/customer-account-http_3_F82kEX.mjs",
+          "scope": "server-worker",
+          "bytes": 905,
+          "gzipBytes": 390,
+          "sha256": "09442d371099b8617d651d74e86dcae1787c850af7cc4a2a40dfef96cb1c7332"
+        },
+        {
+          "path": "dist/_worker.js/chunks/customer-address-http_l2-g6pjY.mjs",
+          "scope": "server-worker",
+          "bytes": 1209,
+          "gzipBytes": 427,
+          "sha256": "4de4a0cfc762a5dc9796b0cef601f68f7bc5feb78015d5a243e9151e40af55a9"
+        },
+        {
+          "path": "dist/_worker.js/chunks/customer-order-access-http_CwnwUdGX.mjs",
+          "scope": "server-worker",
+          "bytes": 1218,
+          "gzipBytes": 426,
+          "sha256": "46656dac9a34f98206a0627f7d7ec9885bc98c7255fa82c7278352a6fc1c45b9"
+        },
+        {
+          "path": "dist/_worker.js/chunks/customer-return-http_B13Jz5cj.mjs",
+          "scope": "server-worker",
+          "bytes": 1060,
+          "gzipBytes": 436,
+          "sha256": "8231f788aa06afa9713be405b80615b295c36871a3af3fa7ad5221a49efb9a54"
+        },
+        {
+          "path": "dist/_worker.js/chunks/customer-segmentation-backup_DFhThqCn.mjs",
+          "scope": "server-worker",
+          "bytes": 53532,
+          "gzipBytes": 11905,
+          "sha256": "03f4b9bfca1dac7a37f0b3a288d83651bf44b097b88d0f6d4d87feec2d6bc6c7"
+        },
+        {
+          "path": "dist/_worker.js/chunks/d1-audit-log_giJCbGfj.mjs",
+          "scope": "server-worker",
+          "bytes": 8022,
+          "gzipBytes": 1745,
+          "sha256": "84e39a2a811f657fc8c8a0b739fb61e4227d6cb676ac0e91779f91fbe933e7d3"
+        },
+        {
+          "path": "dist/_worker.js/chunks/d1-bundles_CZgrSIlv.mjs",
+          "scope": "server-worker",
+          "bytes": 13111,
+          "gzipBytes": 3399,
+          "sha256": "a952a23e56af33880320b3ca5d8f62470cf6965a31b86b327a150541f7ecfef1"
+        },
+        {
+          "path": "dist/_worker.js/chunks/d1-customer-profile-repository_Mvzs_Ucg.mjs",
+          "scope": "server-worker",
+          "bytes": 15243,
+          "gzipBytes": 3780,
+          "sha256": "698f0ae011906418bbf1d77ee81e88f9e9481a3058d237e28608b37a04bb137e"
+        },
+        {
+          "path": "dist/_worker.js/chunks/d1-event-outbox_CwVGWs5r.mjs",
+          "scope": "server-worker",
+          "bytes": 8859,
+          "gzipBytes": 1850,
+          "sha256": "f798cfa9f097f0cfcf358e8ca1b9bb4af438b78a9385b4a45775f26f40070f57"
+        },
+        {
+          "path": "dist/_worker.js/chunks/d1-fulfillment-ledger_FnJKOuSt.mjs",
+          "scope": "server-worker",
+          "bytes": 14269,
+          "gzipBytes": 2801,
+          "sha256": "613330920edabace0aad4ee4b008dd66bce0acd0c53372fb4016b97617a0bc11"
+        },
+        {
+          "path": "dist/_worker.js/chunks/d1-inventory-ledger_BR0nKW1t.mjs",
+          "scope": "server-worker",
+          "bytes": 6757,
+          "gzipBytes": 1989,
+          "sha256": "433d76784a8f87d56fa077ea98a9f29beeac33e72134cacc9a0989fecfc3d609"
+        },
+        {
+          "path": "dist/_worker.js/chunks/d1-inventory-reservations_CgiyIr7c.mjs",
+          "scope": "server-worker",
+          "bytes": 18709,
+          "gzipBytes": 3532,
+          "sha256": "9b63a3a6ed6704c2a3b1d3294cc5cfc4db6e3c29c35db4b6603fb07d1e9889d8"
+        },
+        {
+          "path": "dist/_worker.js/chunks/d1-order-amendments_B5erIkDS.mjs",
+          "scope": "server-worker",
+          "bytes": 11768,
+          "gzipBytes": 2528,
+          "sha256": "a7b924e286cded2035ce42aa43ccec759eb292a37bc4e0d5be2dd8483589d252"
+        },
+        {
+          "path": "dist/_worker.js/chunks/d1-order-collaboration_DMZgHG8w.mjs",
+          "scope": "server-worker",
+          "bytes": 10063,
+          "gzipBytes": 2262,
+          "sha256": "8b1aaddd3d27c230ad2bcc25c0d1077497be4e258fbd6367d757f45701daf48e"
+        },
+        {
+          "path": "dist/_worker.js/chunks/d1-order-holds_CIwmatJ8.mjs",
+          "scope": "server-worker",
+          "bytes": 6095,
+          "gzipBytes": 1171,
+          "sha256": "7d9593b587c4f0797f54ff06ace14d70e9b837e65cc68214c944c0f53d35645b"
+        },
+        {
+          "path": "dist/_worker.js/chunks/d1-payment-ledger_CQ_OyFsu.mjs",
+          "scope": "server-worker",
+          "bytes": 40075,
+          "gzipBytes": 6013,
+          "sha256": "b4c007ef147d018c18b62d576b1a2fc80cd84445970783c685d0ecfb1d694718"
+        },
+        {
+          "path": "dist/_worker.js/chunks/d1-preorders_BdgwZByw.mjs",
+          "scope": "server-worker",
+          "bytes": 26691,
+          "gzipBytes": 4834,
+          "sha256": "c668af5c0634e97034678b98bb4204d1c524e0236c2c21ca42d518bb1de7fbb5"
+        },
+        {
+          "path": "dist/_worker.js/chunks/d1-price-lists_CqcGf7Pc.mjs",
+          "scope": "server-worker",
+          "bytes": 15368,
+          "gzipBytes": 2778,
+          "sha256": "3825c47a6c5c303041af45b359309f88f320ba9c3ce7dec05644bc0874d18fb4"
+        },
+        {
+          "path": "dist/_worker.js/chunks/d1-stored-value_CTJJO7Iy.mjs",
+          "scope": "server-worker",
+          "bytes": 23892,
+          "gzipBytes": 4276,
+          "sha256": "e0b66f4bc448a3001616a3a5904d8fc5a227d7df94a770663c45ba0e153eb926"
+        },
+        {
+          "path": "dist/_worker.js/chunks/db_xpQEvGdZ.mjs",
+          "scope": "server-worker",
+          "bytes": 1450,
+          "gzipBytes": 707,
+          "sha256": "1446e0bf546d3369e59ec4435b7d6eeafd9b48167222fde1faec0016c6a14b21"
+        },
+        {
+          "path": "dist/_worker.js/chunks/demo-themes_BCUjkwTo.mjs",
+          "scope": "server-worker",
+          "bytes": 42297,
+          "gzipBytes": 6922,
+          "sha256": "c1ea42a00af3592ecf47bee6422b75d1a848705eeb29bf2358e0eac9b5337a69"
+        },
+        {
+          "path": "dist/_worker.js/chunks/discount-combination-operations_-n8lRt81.mjs",
+          "scope": "server-worker",
+          "bytes": 7866,
+          "gzipBytes": 1956,
+          "sha256": "689e9e60546f2436717292bc7bd64e603074862fd7a77ff4377ce13faed62a12"
+        },
+        {
+          "path": "dist/_worker.js/chunks/discount-combination_COahEWyJ.mjs",
+          "scope": "server-worker",
+          "bytes": 9793,
+          "gzipBytes": 2523,
+          "sha256": "4c2ba382896aa6f7bdde405714d4cc09b78e3e1240f32ab986f89493fc773875"
+        },
+        {
+          "path": "dist/_worker.js/chunks/emails_Dkudatm-.mjs",
+          "scope": "server-worker",
+          "bytes": 6804,
+          "gzipBytes": 1877,
+          "sha256": "75c03bb69f748a9bba5e141ffd7500cd10796b9eef3ba864942fd429b62cf502"
+        },
+        {
+          "path": "dist/_worker.js/chunks/event-context_BZrJuLh7.mjs",
+          "scope": "server-worker",
+          "bytes": 622,
+          "gzipBytes": 287,
+          "sha256": "2861796600b4c8bf1b13e8cf5ad16f24ffc99d1b0b45655057d2c63328f8555b"
+        },
+        {
+          "path": "dist/_worker.js/chunks/events_Doe8Vn54.mjs",
+          "scope": "server-worker",
+          "bytes": 4633,
+          "gzipBytes": 1443,
+          "sha256": "d0450bed9f48df9a7413c8d381558543b7681d26acefa24236f22bfffd937d74"
+        },
+        {
+          "path": "dist/_worker.js/chunks/fixtures_CuUU8e6K.mjs",
+          "scope": "server-worker",
+          "bytes": 2816,
+          "gzipBytes": 1245,
+          "sha256": "6d05067cf4f994e0277da56b295ffbf0660f299ef42d14eb406d553556d1aa45"
+        },
+        {
+          "path": "dist/_worker.js/chunks/format_DfB0yRV1.mjs",
+          "scope": "server-worker",
+          "bytes": 710,
+          "gzipBytes": 386,
+          "sha256": "1059c15b1d242c9789590a123646722134414d700777593d4020f686e2b81405"
+        },
+        {
+          "path": "dist/_worker.js/chunks/fulfillment-operations_BAV6X11H.mjs",
+          "scope": "server-worker",
+          "bytes": 14711,
+          "gzipBytes": 3109,
+          "sha256": "aaa4f5e16994d72bf3911aa9d112240588fbde9c9210e41ad8a382383cb1c8a2"
+        },
+        {
+          "path": "dist/_worker.js/chunks/http_B7XY1l48.mjs",
+          "scope": "server-worker",
+          "bytes": 6411,
+          "gzipBytes": 2635,
+          "sha256": "91d620b4be373a16afa9c15e0d4b07d0bd177a208678e16846ff8d3400f3b7b6"
+        },
+        {
+          "path": "dist/_worker.js/chunks/image-endpoint_D3eHq5Wb.mjs",
+          "scope": "server-worker",
+          "bytes": 69719,
+          "gzipBytes": 18010,
+          "sha256": "85497d8fa1de1fdd153db8d2f17b9003ff383293473b2488f8ae00f803dab413"
+        },
+        {
+          "path": "dist/_worker.js/chunks/index_7rPQKP_t.mjs",
+          "scope": "server-worker",
+          "bytes": 1256,
+          "gzipBytes": 569,
+          "sha256": "6c2c95a24a4e0116703a546e577ba078e770451e7aa3e7af647d5369c93fbd82"
+        },
+        {
+          "path": "dist/_worker.js/chunks/index_B0Y3efXX.mjs",
+          "scope": "server-worker",
+          "bytes": 24935,
+          "gzipBytes": 6848,
+          "sha256": "d460843a32f318a5ebfa38a0aadd4e353b794a8b0ccf87e1c5269d994d75cbfc"
+        },
+        {
+          "path": "dist/_worker.js/chunks/index_DIKg-Z4V.mjs",
+          "scope": "server-worker",
+          "bytes": 20670,
+          "gzipBytes": 5204,
+          "sha256": "a6cfe3896b92be651d33defa7a1464a4799e4373cb33dfd97ee6c393c5f96d5f"
+        },
+        {
+          "path": "dist/_worker.js/chunks/index_DP68CH5t.mjs",
+          "scope": "server-worker",
+          "bytes": 22744,
+          "gzipBytes": 4962,
+          "sha256": "0cc5419ace69c8ecc9692295ac7eb11104193fffcab751c749348b45b3e12e14"
+        },
+        {
+          "path": "dist/_worker.js/chunks/index_cngEE-5X.mjs",
+          "scope": "server-worker",
+          "bytes": 1765,
+          "gzipBytes": 753,
+          "sha256": "cd22a9c4278b8c0a348a0ca6f475b112afcaa4097ee1c7a1222c5a94323c181d"
+        },
+        {
+          "path": "dist/_worker.js/chunks/inventory-allocation-operations_CvyI3zt6.mjs",
+          "scope": "server-worker",
+          "bytes": 18565,
+          "gzipBytes": 4750,
+          "sha256": "c590e0ec9ccb958f84853c70819f8c716b6bb190d5a9825cb7944661527270aa"
+        },
+        {
+          "path": "dist/_worker.js/chunks/inventory-count-operations_DZxU8dy_.mjs",
+          "scope": "server-worker",
+          "bytes": 22668,
+          "gzipBytes": 4904,
+          "sha256": "d98402d6f3021ba3ab2aa9b002f2eaf133b5566b500313c53e4dc60c22dd5e8b"
+        },
+        {
+          "path": "dist/_worker.js/chunks/inventory-location-operations_BGz7NH6Q.mjs",
+          "scope": "server-worker",
+          "bytes": 6582,
+          "gzipBytes": 1904,
+          "sha256": "0e32aa8e910b4de334ef9927beabc6e3c3629f205ebc0bce884c83bdc6505f1c"
+        },
+        {
+          "path": "dist/_worker.js/chunks/inventory-transfer-operations_CBM6RQJg.mjs",
+          "scope": "server-worker",
+          "bytes": 30000,
+          "gzipBytes": 5887,
+          "sha256": "6d644b502ae85ad17f2c091c73b458cd57b94feb37bebf1dbe1ae14435198b3b"
+        },
+        {
+          "path": "dist/_worker.js/chunks/noop-middleware_Cenyd5yE.mjs",
+          "scope": "server-worker",
+          "bytes": 333,
+          "gzipBytes": 227,
+          "sha256": "44c96a784b6ef5b8db71e9717a61e46b193771d9feb6ff6707e4372895bb7933"
+        },
+        {
+          "path": "dist/_worker.js/chunks/not-found_DUb3qFBj.mjs",
+          "scope": "server-worker",
+          "bytes": 378,
+          "gzipBytes": 277,
+          "sha256": "babe9e307cc90545b3f00489f503d6d0a7545765cb3a54342d0dfb02d4d21bfd"
+        },
+        {
+          "path": "dist/_worker.js/chunks/order-amendment-operations_vY-kvbI4.mjs",
+          "scope": "server-worker",
+          "bytes": 32203,
+          "gzipBytes": 6787,
+          "sha256": "021355b54b18c3949032f49db6306cae12b115a834d27670927f9ac96dfedbb0"
+        },
+        {
+          "path": "dist/_worker.js/chunks/order-amendment-request_B_ZAoxB4.mjs",
+          "scope": "server-worker",
+          "bytes": 1470,
+          "gzipBytes": 533,
+          "sha256": "acdd06ad631bebb472067523a1189113d236ff42ad3dd9b589e762ffb44f7ee5"
+        },
+        {
+          "path": "dist/_worker.js/chunks/order-bulk-action-operations_c-CGkjrw.mjs",
+          "scope": "server-worker",
+          "bytes": 40280,
+          "gzipBytes": 8862,
+          "sha256": "ba8ba136a20b042c1a62c735bcb2788e94307c09cc8cc24a3f7e6a86b45835d0"
+        },
+        {
+          "path": "dist/_worker.js/chunks/order-document-operations_DC_jjF5U.mjs",
+          "scope": "server-worker",
+          "bytes": 30762,
+          "gzipBytes": 7051,
+          "sha256": "8d0f2e940dd4aac74fb8d81314e068181572e6f9616a29b8b788d7f6ff7d6e48"
+        },
+        {
+          "path": "dist/_worker.js/chunks/order-events_CDO1jUrJ.mjs",
+          "scope": "server-worker",
+          "bytes": 9124,
+          "gzipBytes": 2027,
+          "sha256": "cb28f5e68f114e91ec6c6e45eb04cac876adf7f557dee5a94a116355bcbe3bd6"
+        },
+        {
+          "path": "dist/_worker.js/chunks/order-hold-operations_DUzbslaN.mjs",
+          "scope": "server-worker",
+          "bytes": 7958,
+          "gzipBytes": 1863,
+          "sha256": "f8ea2c2e921be9358f62e84f235833f73a5202098f5be29a0e8445ab15daefc5"
+        },
+        {
+          "path": "dist/_worker.js/chunks/order-hold_CY_TZ_0l.mjs",
+          "scope": "server-worker",
+          "bytes": 4051,
+          "gzipBytes": 1306,
+          "sha256": "a855c6ef7ffaa8c4ee2a4b082dde0939ded798521bbd3f037b487b2b8b840a6b"
+        },
+        {
+          "path": "dist/_worker.js/chunks/order-operations_CHslg3X2.mjs",
+          "scope": "server-worker",
+          "bytes": 26140,
+          "gzipBytes": 5531,
+          "sha256": "37dcef42b570b55fd7edfab0086361fb37898b497e1374f6ffa7035f0d3fa59d"
+        },
+        {
+          "path": "dist/_worker.js/chunks/order-transitions_DYVWvGBw.mjs",
+          "scope": "server-worker",
+          "bytes": 1414,
+          "gzipBytes": 613,
+          "sha256": "bd98e0f2634912ce89e5bed587ae3e59c6f6b5f5ee2154a0fa936b1807ebb51b"
+        },
+        {
+          "path": "dist/_worker.js/chunks/orders_6sTKrNkV.mjs",
+          "scope": "server-worker",
+          "bytes": 960,
+          "gzipBytes": 494,
+          "sha256": "a369bec0302d9a1fe057611b920b7d32b1e90365538e61280b1215e7482dc5e3"
+        },
+        {
+          "path": "dist/_worker.js/chunks/outbox-dispatcher_ggH0TCcF.mjs",
+          "scope": "server-worker",
+          "bytes": 22663,
+          "gzipBytes": 5810,
+          "sha256": "289625806449f2654555d457442f979b4ed792432802eb88163743d4c3526f93"
+        },
+        {
+          "path": "dist/_worker.js/chunks/passwordless-http_ic7CZPsf.mjs",
+          "scope": "server-worker",
+          "bytes": 3403,
+          "gzipBytes": 1339,
+          "sha256": "654d7adc34aff6fb7af9276a01db611a1e45a76bb46f3007c3b7dfe3df5febe1"
+        },
+        {
+          "path": "dist/_worker.js/chunks/passwordless-web-crypto_DgTdMwfZ.mjs",
+          "scope": "server-worker",
+          "bytes": 6899,
+          "gzipBytes": 2098,
+          "sha256": "9f5d8f69b60a3fe78ce12bedaecd00263a8202ee27fcb41bc17adf88cdc415e0"
+        },
+        {
+          "path": "dist/_worker.js/chunks/path_CH3auf61.mjs",
+          "scope": "server-worker",
+          "bytes": 3083,
+          "gzipBytes": 1091,
+          "sha256": "c59724c28f8cb294c4e025448da9b2e45eff70918513d99fcd976e94da050f1b"
+        },
+        {
+          "path": "dist/_worker.js/chunks/payment-mode_9jAkSCnx.mjs",
+          "scope": "server-worker",
+          "bytes": 357,
+          "gzipBytes": 208,
+          "sha256": "52a6981d536cb8dfa361bbb865776482d87fff04976d510798a031028b9f971e"
+        },
+        {
+          "path": "dist/_worker.js/chunks/payment-refund-gateways_CJUEd4Jq.mjs",
+          "scope": "server-worker",
+          "bytes": 2352,
+          "gzipBytes": 751,
+          "sha256": "79eea079fdf3ef182c755629f4d9e78f4afe15dfbc77a98c06cf539b08ab47c0"
+        },
+        {
+          "path": "dist/_worker.js/chunks/preorder-operations_DzZviCsC.mjs",
+          "scope": "server-worker",
+          "bytes": 11090,
+          "gzipBytes": 2858,
+          "sha256": "c61870562c77141309b8421cdc0a787344f1ea6ca55cd8b1f96cc3389c05e7f3"
+        },
+        {
+          "path": "dist/_worker.js/chunks/preview_C5uSDiVS.mjs",
+          "scope": "server-worker",
+          "bytes": 2438,
+          "gzipBytes": 1088,
+          "sha256": "a4310bd7e8125be45f2f6b04893578ab5790b7d67781ce100cf3afaa574e8c1f"
+        },
+        {
+          "path": "dist/_worker.js/chunks/price-list-operations_D8F_0EvT.mjs",
+          "scope": "server-worker",
+          "bytes": 7355,
+          "gzipBytes": 1976,
+          "sha256": "118b53a04ec4925b532ff33b817208960ac9348ff1a4284b0815424c3bb1c19f"
+        },
+        {
+          "path": "dist/_worker.js/chunks/price-list_DYhpPcgV.mjs",
+          "scope": "server-worker",
+          "bytes": 6858,
+          "gzipBytes": 1900,
+          "sha256": "9c8a69051a466df63f43b9beb95f91ada410a027d18bac4975396638bb2fe863"
+        },
+        {
+          "path": "dist/_worker.js/chunks/price-rule_Dih6aT22.mjs",
+          "scope": "server-worker",
+          "bytes": 5857,
+          "gzipBytes": 1783,
+          "sha256": "583372d6614b17c057f4e5d388bfc340433480600e9193689b4efd3bcc37046c"
+        },
+        {
+          "path": "dist/_worker.js/chunks/product_C9LNQ2k5.mjs",
+          "scope": "server-worker",
+          "bytes": 5107,
+          "gzipBytes": 1401,
+          "sha256": "9267e14eb3200c0c656b99e5f776f5e62ee46857024d38bcf211a9a48b06708f"
+        },
+        {
+          "path": "dist/_worker.js/chunks/promotion-code-operations_BYnMX3vP.mjs",
+          "scope": "server-worker",
+          "bytes": 8656,
+          "gzipBytes": 2329,
+          "sha256": "ed8ffa8c42cd852c2e2387df035a2043b8b32f74ba7e0047a4a8f39191ba580d"
+        },
+        {
+          "path": "dist/_worker.js/chunks/promotion-code_Q8mAJNqS.mjs",
+          "scope": "server-worker",
+          "bytes": 4456,
+          "gzipBytes": 1276,
+          "sha256": "31450c253cad53530e87d3a6286aeeb33a87c128785514094a264a6f82ab8514"
+        },
+        {
+          "path": "dist/_worker.js/chunks/promotion-security_3uvXjNAI.mjs",
+          "scope": "server-worker",
+          "bytes": 1403,
+          "gzipBytes": 662,
+          "sha256": "770db12cf618e21628a3158640dc15fcd25e94f1b63b7837e103e2094895b47b"
+        },
+        {
+          "path": "dist/_worker.js/chunks/quantity-offer-operations_F3FY4QfF.mjs",
+          "scope": "server-worker",
+          "bytes": 11350,
+          "gzipBytes": 2719,
+          "sha256": "2d543d4f70b7de5212e490475882f87d53bd3104dd8a0458151606124e7eee0b"
+        },
+        {
+          "path": "dist/_worker.js/chunks/quantity-offer_CG-MyKPY.mjs",
+          "scope": "server-worker",
+          "bytes": 9749,
+          "gzipBytes": 2677,
+          "sha256": "6c79aa0fb22ba1764febaccfa1910a18dcaab6d871762bc7e3eb1b6bb2fdbb27"
+        },
+        {
+          "path": "dist/_worker.js/chunks/quote_DGPULq39.mjs",
+          "scope": "server-worker",
+          "bytes": 20960,
+          "gzipBytes": 5034,
+          "sha256": "89dc4e9ecbf3161844983004e16152834f727bf3e7cc7af911069f3798e5e459"
+        },
+        {
+          "path": "dist/_worker.js/chunks/rate-limit_lz5Gc-OK.mjs",
+          "scope": "server-worker",
+          "bytes": 1168,
+          "gzipBytes": 529,
+          "sha256": "7ae0e972373e8364e4a945f58a7b15e0d96894b2ad981185479074daeff83e04"
+        },
+        {
+          "path": "dist/_worker.js/chunks/remote_CVXTZJrr.mjs",
+          "scope": "server-worker",
+          "bytes": 2337,
+          "gzipBytes": 672,
+          "sha256": "cb3158968f0ed180ceaaf8cd0146cc179c96e924ebb55d3a5c01fc5befb2766b"
+        },
+        {
+          "path": "dist/_worker.js/chunks/render-context_Dj41otpl.mjs",
+          "scope": "server-worker",
+          "bytes": 122760,
+          "gzipBytes": 29688,
+          "sha256": "83e7799111fe09b79269126edac9bac4b90fea17c089f7ea5aa389ee814eb379"
+        },
+        {
+          "path": "dist/_worker.js/chunks/return-operations_DhP480uQ.mjs",
+          "scope": "server-worker",
+          "bytes": 42237,
+          "gzipBytes": 8338,
+          "sha256": "d76c0aec68c5b1cfa7d701936207b7854d046319a4b8f29c23f3e4bdf4d397c4"
+        },
+        {
+          "path": "dist/_worker.js/chunks/return-request_BJe1q0qn.mjs",
+          "scope": "server-worker",
+          "bytes": 4731,
+          "gzipBytes": 1446,
+          "sha256": "63a98e8162a9577ed019efebd09ec44372b2974d00dc2bea8ca272c93614baf8"
+        },
+        {
+          "path": "dist/_worker.js/chunks/runner_Dynj0oZY.mjs",
+          "scope": "server-worker",
+          "bytes": 8744,
+          "gzipBytes": 2310,
+          "sha256": "7d77279643704ce857c61ebc46070bbfac107f2db360112a5f50d628b6409dae"
+        },
+        {
+          "path": "dist/_worker.js/chunks/runtime-platform_CgDDQgTm.mjs",
+          "scope": "server-worker",
+          "bytes": 382981,
+          "gzipBytes": 77599,
+          "sha256": "6a4655b31e7cc295312125eec22885d52c9ce6397ff32011c11d340a1bcd4b0d"
+        },
+        {
+          "path": "dist/_worker.js/chunks/sharp_D8d4eszk.mjs",
+          "scope": "server-worker",
+          "bytes": 3169,
+          "gzipBytes": 1128,
+          "sha256": "7f360e2c2763427a667db26c963a3914bd77a14e135d0b4af842d27cb95b25dc"
+        },
+        {
+          "path": "dist/_worker.js/chunks/shipping_CVlc00ry.mjs",
+          "scope": "server-worker",
+          "bytes": 1388,
+          "gzipBytes": 643,
+          "sha256": "47f1d7dad8ebd9ca032e5a5b2a6132647b48daadd2c0cdc89242d40526bb1af4"
+        },
+        {
+          "path": "dist/_worker.js/chunks/shop.config_sQnUcQeQ.mjs",
+          "scope": "server-worker",
+          "bytes": 4015,
+          "gzipBytes": 1747,
+          "sha256": "db43bf1fdc7044f994526522d4b0d02f04d21c476e523e68bd9875bef52cc536"
+        },
+        {
+          "path": "dist/_worker.js/chunks/sitemap_B7MS1bkx.mjs",
+          "scope": "server-worker",
+          "bytes": 1458,
+          "gzipBytes": 736,
+          "sha256": "ca172df0bccaba66c5f87f6a776a149104ac39ce99aa6db752dc274e5d7a832a"
+        },
+        {
+          "path": "dist/_worker.js/chunks/stored-value-operations_BN2Q73pM.mjs",
+          "scope": "server-worker",
+          "bytes": 5987,
+          "gzipBytes": 1935,
+          "sha256": "f8357106dff5353252fc7e8067eb99200a11d008321308684a76edac42e12c65"
+        },
+        {
+          "path": "dist/_worker.js/chunks/subscription-operations_Dui3KMxd.mjs",
+          "scope": "server-worker",
+          "bytes": 28007,
+          "gzipBytes": 6017,
+          "sha256": "0448ad752aa17cd82f0c778f6b954c09940b8d3d4c359205416e2a4c048d19da"
+        },
+        {
+          "path": "dist/_worker.js/noop-entrypoint.mjs",
+          "scope": "server-worker",
+          "bytes": 97,
+          "gzipBytes": 85,
+          "sha256": "779778d3883c63a506ff47bf19be0989bebb4b769b1974ce59129fe2cde725b9"
+        },
+        {
+          "path": "dist/_worker.js/pages/404.astro.mjs",
+          "scope": "server-worker",
+          "bytes": 63,
+          "gzipBytes": 78,
+          "sha256": "b41f8c4565017449f8d029e1d584d3fbf7325b0abb25dd623e3f28b7513e8a74"
+        },
+        {
+          "path": "dist/_worker.js/pages/_image.astro.mjs",
+          "scope": "server-worker",
+          "bytes": 171,
+          "gzipBytes": 138,
+          "sha256": "383758ec11a8be4ab81c85745c3cc26d0b62d85b2e700b4291f14ca0748b2157"
+        },
+        {
+          "path": "dist/_worker.js/pages/agencias.astro.mjs",
+          "scope": "server-worker",
+          "bytes": 63,
+          "gzipBytes": 78,
+          "sha256": "b41f8c4565017449f8d029e1d584d3fbf7325b0abb25dd623e3f28b7513e8a74"
+        },
+        {
+          "path": "dist/_worker.js/pages/api/admin/automatic-discounts.astro.mjs",
+          "scope": "server-worker",
+          "bytes": 3239,
+          "gzipBytes": 1257,
+          "sha256": "07d8224365e16066d7a7e5bbb23cdf14303030101644e4f95a2afc91bc8f8398"
+        },
+        {
+          "path": "dist/_worker.js/pages/api/admin/automatic-discounts/_id_.astro.mjs",
+          "scope": "server-worker",
+          "bytes": 1853,
+          "gzipBytes": 877,
+          "sha256": "f7b7957ffdcde8e7d59eda13ea205683b98f00e67eee3420c34a7494996f89f8"
+        },
+        {
+          "path": "dist/_worker.js/pages/api/admin/backup.sql.astro.mjs",
+          "scope": "server-worker",
+          "bytes": 2835,
+          "gzipBytes": 1176,
+          "sha256": "8d064dfc418e5a8565e0e76f3ed1f2176c355c77971358f022ea28eb68adb7f8"
+        },
+        {
+          "path": "dist/_worker.js/pages/api/admin/bundles.astro.mjs",
+          "scope": "server-worker",
+          "bytes": 3269,
+          "gzipBytes": 1252,
+          "sha256": "5a5c0fb8aafbd4d47da2f0d49fe8087206162106317bd745ebbc453e4fc4f829"
+        },
+        {
+          "path": "dist/_worker.js/pages/api/admin/bundles/_id_.astro.mjs",
+          "scope": "server-worker",
+          "bytes": 2028,
+          "gzipBytes": 944,
+          "sha256": "a567411ec80e0f3e522cfdb8899675a6218a5ee95f03975fe8a7e5342641cd5a"
+        },
+        {
+          "path": "dist/_worker.js/pages/api/admin/catalog-attributes/definitions/_id_.astro.mjs",
+          "scope": "server-worker",
+          "bytes": 2668,
+          "gzipBytes": 1023,
+          "sha256": "da51bcfd3220a1b3fdea02b6b96b846833464e62ebcbb6c49252d150812e8b60"
+        },
+        {
+          "path": "dist/_worker.js/pages/api/admin/catalog-attributes/definitions/product/_id_.astro.mjs",
+          "scope": "server-worker",
+          "bytes": 2125,
+          "gzipBytes": 951,
+          "sha256": "4275c0abab5d2064f48b9ce879598f32d5fe96c992e9d84d5018fed64cf75814"
+        },
+        {
+          "path": "dist/_worker.js/pages/api/admin/catalog-attributes/values/_id_.astro.mjs",
+          "scope": "server-worker",
+          "bytes": 2857,
+          "gzipBytes": 1034,
+          "sha256": "30e9259c9bfe251e09ae76b477f4061469892fe329751a50d12884e16acbf51b"
+        },
+        {
+          "path": "dist/_worker.js/pages/api/admin/catalog-attributes/values/product/_id_.astro.mjs",
+          "scope": "server-worker",
+          "bytes": 2540,
+          "gzipBytes": 1023,
+          "sha256": "ccb8b4f0918a0d3eb584d8f949958062ffad27cd37faed4449053f3e72e68126"
+        },
+        {
+          "path": "dist/_worker.js/pages/api/admin/catalog-media/_id_.astro.mjs",
+          "scope": "server-worker",
+          "bytes": 2633,
+          "gzipBytes": 1008,
+          "sha256": "38a345e305be96668f9c0a0330c5a9a599bc1506f2a9dc1416f26850f14957d4"
+        },
+        {
+          "path": "dist/_worker.js/pages/api/admin/catalog-media/product/_id_.astro.mjs",
+          "scope": "server-worker",
+          "bytes": 3178,
+          "gzipBytes": 990,
+          "sha256": "f5d626c30ebf50c82e3a090c72fda2c096afc20d0e86017182fb2ffa82433971"
+        },
+        {
+          "path": "dist/_worker.js/pages/api/admin/catalog-option-values/_id_.astro.mjs",
+          "scope": "server-worker",
+          "bytes": 2380,
+          "gzipBytes": 920,
+          "sha256": "b670dd1b19a3edc3a891dddeb536b3bbd8fb82d1ad26ad39d4c51714af89a13b"
+        },
+        {
+          "path": "dist/_worker.js/pages/api/admin/catalog-option-values/option/_id_.astro.mjs",
+          "scope": "server-worker",
+          "bytes": 1889,
+          "gzipBytes": 844,
+          "sha256": "83c686aa2bd35ac0305c35504f6de45a694f7d744960a664ca90f912a91ced56"
+        },
+        {
+          "path": "dist/_worker.js/pages/api/admin/catalog-options/_id_.astro.mjs",
+          "scope": "server-worker",
+          "bytes": 2368,
+          "gzipBytes": 916,
+          "sha256": "6ddbcd4a649211eb058472536b5839a2e693ebd6b6e46d5de5cd71d470f6c5c6"
+        },
+        {
+          "path": "dist/_worker.js/pages/api/admin/catalog-options/product/_id_.astro.mjs",
+          "scope": "server-worker",
+          "bytes": 1885,
+          "gzipBytes": 838,
+          "sha256": "e1a0070e1a7dce3b4d8249a0c7065180e9e8f99b50874283e88facdaf9c1c090"
+        },
+        {
+          "path": "dist/_worker.js/pages/api/admin/catalog-variants/_id_.astro.mjs",
+          "scope": "server-worker",
+          "bytes": 3135,
+          "gzipBytes": 1209,
+          "sha256": "bf7d833c6b25008b0d026e665ec90ed2010ff87086a861779b9c721f141cf5e7"
+        },
+        {
+          "path": "dist/_worker.js/pages/api/admin/catalog-variants/product/_id_.astro.mjs",
+          "scope": "server-worker",
+          "bytes": 2583,
+          "gzipBytes": 1101,
+          "sha256": "a587cf353598aeed297b16641e8bf4f628ebe2371f7a824f067ec110b0042060"
+        },
+        {
+          "path": "dist/_worker.js/pages/api/admin/discount-combinations.astro.mjs",
+          "scope": "server-worker",
+          "bytes": 2968,
+          "gzipBytes": 1189,
+          "sha256": "0a6ad41349718d2b3ab6d07627cb11b803c0725afc215a3b0fe72222d83eb771"
+        },
+        {
+          "path": "dist/_worker.js/pages/api/admin/discount-combinations/_id_.astro.mjs",
+          "scope": "server-worker",
+          "bytes": 1831,
+          "gzipBytes": 868,
+          "sha256": "db893f91fa34b81ff6bd3fcee94744ea3a5e9ae7a3a93e2dedaad7439cf74021"
+        },
+        {
+          "path": "dist/_worker.js/pages/api/admin/fulfillments.astro.mjs",
+          "scope": "server-worker",
+          "bytes": 2817,
+          "gzipBytes": 1177,
+          "sha256": "42553560344430903321a17eba33023f667290bcaf4de29b0dfcab76c0f9808a"
+        },
+        {
+          "path": "dist/_worker.js/pages/api/admin/fulfillments/_id_.astro.mjs",
+          "scope": "server-worker",
+          "bytes": 1864,
+          "gzipBytes": 849,
+          "sha256": "5285bd4a3b30b2761c390b7296b4299ce9b6e378bb7f0b62f77b0c9dfd5f7549"
+        },
+        {
+          "path": "dist/_worker.js/pages/api/admin/inventory-counts.astro.mjs",
+          "scope": "server-worker",
+          "bytes": 2865,
+          "gzipBytes": 1170,
+          "sha256": "f5df9698c58221ee912f058cac10fc74ad1234d4d3e38142b1a5fe11c5e9d880"
+        },
+        {
+          "path": "dist/_worker.js/pages/api/admin/inventory-counts/_id_/approve.astro.mjs",
+          "scope": "server-worker",
+          "bytes": 2148,
+          "gzipBytes": 974,
+          "sha256": "27044fa4951297ea37b25bd704a1fb138b01cc250118c831c026ad84c12cc869"
+        },
+        {
+          "path": "dist/_worker.js/pages/api/admin/inventory-counts/_id_/submit.astro.mjs",
+          "scope": "server-worker",
+          "bytes": 2040,
+          "gzipBytes": 941,
+          "sha256": "eabadc9de37bcebc2d0d81d90e44cc53f04a8d09c50cd4d78bf465762c83f02b"
+        },
+        {
+          "path": "dist/_worker.js/pages/api/admin/inventory-locations.astro.mjs",
+          "scope": "server-worker",
+          "bytes": 2122,
+          "gzipBytes": 927,
+          "sha256": "8a74803eb8357754cefaf88a75f95a47ba4e5f33e67413375cc1da2214c9343b"
+        },
+        {
+          "path": "dist/_worker.js/pages/api/admin/inventory-locations/_id_.astro.mjs",
+          "scope": "server-worker",
+          "bytes": 2652,
+          "gzipBytes": 1134,
+          "sha256": "5c86cc3dcdc7c6075790bed7a0da227d7223edef1eecd060896f709ebe0cba1e"
+        },
+        {
+          "path": "dist/_worker.js/pages/api/admin/inventory-routing.astro.mjs",
+          "scope": "server-worker",
+          "bytes": 3007,
+          "gzipBytes": 1175,
+          "sha256": "d31f4cd2cd62eb400c86cd817ce6a509e5e0a20b58dd19cbe29382748753e796"
+        },
+        {
+          "path": "dist/_worker.js/pages/api/admin/inventory-transfers.astro.mjs",
+          "scope": "server-worker",
+          "bytes": 2757,
+          "gzipBytes": 1097,
+          "sha256": "fb0458970ddafbf4795e347cc0f5de858db2622bd60b179a54d49b14d170ac2d"
+        },
+        {
+          "path": "dist/_worker.js/pages/api/admin/inventory-transfers/_id_/receive.astro.mjs",
+          "scope": "server-worker",
+          "bytes": 2749,
+          "gzipBytes": 1155,
+          "sha256": "a65a5bb6d6d3561135829aa5005c08a5497739e0a040023e9bd6d064f83e21d6"
+        },
+        {
+          "path": "dist/_worker.js/pages/api/admin/inventory-transfers/_id_/ship.astro.mjs",
+          "scope": "server-worker",
+          "bytes": 2050,
+          "gzipBytes": 934,
+          "sha256": "2ec4b6658dbaeb4458e39d9dbdd8b3ebb387ae7e35ae320e4bf0f17dfa0817e4"
+        },
+        {
+          "path": "dist/_worker.js/pages/api/admin/order-amendments.astro.mjs",
+          "scope": "server-worker",
+          "bytes": 5642,
+          "gzipBytes": 1997,
+          "sha256": "7dff8fc97a2512f47902edbcb479a35c3e0d5c2aed56d43d219c11e592594edb"
+        },
+        {
+          "path": "dist/_worker.js/pages/api/admin/order-amendments/_id_.astro.mjs",
+          "scope": "server-worker",
+          "bytes": 2098,
+          "gzipBytes": 972,
+          "sha256": "cc54cb5b33a79c82f52a0254ae13c125c66332a575007862e0d43149f46fd008"
+        },
+        {
+          "path": "dist/_worker.js/pages/api/admin/order-amendments/preview.astro.mjs",
+          "scope": "server-worker",
+          "bytes": 2291,
+          "gzipBytes": 996,
+          "sha256": "e98b79fc7702464271271757f348b20338cfcb6729e06bb6b31d2cb550535986"
+        },
+        {
+          "path": "dist/_worker.js/pages/api/admin/order-bulk-actions.astro.mjs",
+          "scope": "server-worker",
+          "bytes": 3292,
+          "gzipBytes": 1370,
+          "sha256": "b114603efb5334144ce09124a8406225397f8a119f95ca1ff9e41c9ee0ae5e32"
+        },
+        {
+          "path": "dist/_worker.js/pages/api/admin/order-bulk-actions/_id_.astro.mjs",
+          "scope": "server-worker",
+          "bytes": 2493,
+          "gzipBytes": 1002,
+          "sha256": "23c6c10a12e783d20a24f72fcc3f849cb903d3d38c8a4693a872c4999bf4fde6"
+        },
+        {
+          "path": "dist/_worker.js/pages/api/admin/order-bulk-actions/preview.astro.mjs",
+          "scope": "server-worker",
+          "bytes": 228,
+          "gzipBytes": 160,
+          "sha256": "2f583f5223f1e7cbf3808823bdc59200998237a72631a0e2226d1d6cf001f180"
+        },
+        {
+          "path": "dist/_worker.js/pages/api/admin/order-documents.astro.mjs",
+          "scope": "server-worker",
+          "bytes": 5064,
+          "gzipBytes": 1759,
+          "sha256": "d945c39b80176434cfd952a7912e68b82cdcc958e84e6491b979baf938353fbf"
+        },
+        {
+          "path": "dist/_worker.js/pages/api/admin/order-documents/_id_.astro.mjs",
+          "scope": "server-worker",
+          "bytes": 1135,
+          "gzipBytes": 585,
+          "sha256": "f32cbca92ae7fc9836e021bbb4e81057c43cd0d27f3e2dfb690b5b35c18c31b3"
+        },
+        {
+          "path": "dist/_worker.js/pages/api/admin/order-documents/_id_/artifact.astro.mjs",
+          "scope": "server-worker",
+          "bytes": 2267,
+          "gzipBytes": 991,
+          "sha256": "a6bcf0a3334a9f2454e24a85941412cd4c15c7466e1071f265437f67c578a7f4"
+        },
+        {
+          "path": "dist/_worker.js/pages/api/admin/order-documents/_id_/void.astro.mjs",
+          "scope": "server-worker",
+          "bytes": 2192,
+          "gzipBytes": 943,
+          "sha256": "588db7b77e7fa1ecb3ed88b928e70b5f14d55f00e79897bf6dbf685c9fe1c940"
+        },
+        {
+          "path": "dist/_worker.js/pages/api/admin/order-holds.astro.mjs",
+          "scope": "server-worker",
+          "bytes": 2766,
+          "gzipBytes": 1220,
+          "sha256": "a7b15d0d602a478e31d4e56cabb59eed8621c4e6b3095593eeef5ce36faf4956"
+        },
+        {
+          "path": "dist/_worker.js/pages/api/admin/order-holds/_id_.astro.mjs",
+          "scope": "server-worker",
+          "bytes": 2744,
+          "gzipBytes": 1163,
+          "sha256": "1d99962055487c29de21d192b9a990b9c668f8165f53284af8765b9394b0bc57"
+        },
+        {
+          "path": "dist/_worker.js/pages/api/admin/order-notes.astro.mjs",
+          "scope": "server-worker",
+          "bytes": 1871,
+          "gzipBytes": 906,
+          "sha256": "4134508d6a5771e8cc9931978e9700fef94d83b27e920ed9ebdb6701bb2c67dd"
+        },
+        {
+          "path": "dist/_worker.js/pages/api/admin/order-notes/_id_.astro.mjs",
+          "scope": "server-worker",
+          "bytes": 2189,
+          "gzipBytes": 999,
+          "sha256": "c0c0ebbfbafe01145221caf40adf2e99a8c18b3ba7c882168779060a53c4d8a6"
+        },
+        {
+          "path": "dist/_worker.js/pages/api/admin/order-tags.astro.mjs",
+          "scope": "server-worker",
+          "bytes": 1678,
+          "gzipBytes": 857,
+          "sha256": "1b8e2091399c6b873ceafd120c305c4f647613f4562debf522c7cae8529f0b79"
+        },
+        {
+          "path": "dist/_worker.js/pages/api/admin/order-tags/assignments.astro.mjs",
+          "scope": "server-worker",
+          "bytes": 1883,
+          "gzipBytes": 890,
+          "sha256": "736713618a8353519ad38eb929c2a0a19656a1e0ccebc6dde46dacd43c84e441"
+        },
+        {
+          "path": "dist/_worker.js/pages/api/admin/orders/_id_.astro.mjs",
+          "scope": "server-worker",
+          "bytes": 4760,
+          "gzipBytes": 1593,
+          "sha256": "4908aa14b9da5ecb7d7b3f48217f8ae63e1e3e6ad52778fe22801e1486c74b35"
+        },
+        {
+          "path": "dist/_worker.js/pages/api/admin/orders/export.csv.astro.mjs",
+          "scope": "server-worker",
+          "bytes": 1535,
+          "gzipBytes": 771,
+          "sha256": "481866ba1cc7caff9596215b3d96cdcc5ad4e2c311652dc36992c1afe88933bc"
+        },
+        {
+          "path": "dist/_worker.js/pages/api/admin/preorders.astro.mjs",
+          "scope": "server-worker",
+          "bytes": 3867,
+          "gzipBytes": 1467,
+          "sha256": "2af40a94ac4e5b5316352157d7dfd4f22bcdf3ecf65d5a12b4e2a4ff03ed16c1"
+        },
+        {
+          "path": "dist/_worker.js/pages/api/admin/preorders/_id_.astro.mjs",
+          "scope": "server-worker",
+          "bytes": 2260,
+          "gzipBytes": 995,
+          "sha256": "a38b2221d4ce0895a7520cd016c916667d8411618177f2c4ee385605a2f9f2e0"
+        },
+        {
+          "path": "dist/_worker.js/pages/api/admin/preorders/allocate.astro.mjs",
+          "scope": "server-worker",
+          "bytes": 2569,
+          "gzipBytes": 1119,
+          "sha256": "8744a90843540fb45b698c092d1fe09c52fe2a9f593d4715ed1cc70db804c201"
+        },
+        {
+          "path": "dist/_worker.js/pages/api/admin/price-lists.astro.mjs",
+          "scope": "server-worker",
+          "bytes": 2897,
+          "gzipBytes": 1165,
+          "sha256": "104ed12301d159312eb15665c6b58d073cba9d4789e84baab7cee3c17241df9e"
+        },
+        {
+          "path": "dist/_worker.js/pages/api/admin/price-lists/_id_.astro.mjs",
+          "scope": "server-worker",
+          "bytes": 1785,
+          "gzipBytes": 853,
+          "sha256": "f3c83c52d07fb325fa2b5914064a0219be5877ccba564d853ba12bcb1b0c4c94"
+        },
+        {
+          "path": "dist/_worker.js/pages/api/admin/products/_id_.astro.mjs",
+          "scope": "server-worker",
+          "bytes": 3844,
+          "gzipBytes": 1424,
+          "sha256": "ff60f123cbf591418938577f543122e4dd68d1b97d2c6c3a70deeb40919e3d9d"
+        },
+        {
+          "path": "dist/_worker.js/pages/api/admin/promotion-codes.astro.mjs",
+          "scope": "server-worker",
+          "bytes": 3559,
+          "gzipBytes": 1390,
+          "sha256": "8511d89ef83cfb8c7f9f683a168f7093df786d90f3c0cf824a18e66acac2443b"
+        },
+        {
+          "path": "dist/_worker.js/pages/api/admin/promotion-codes/_id_.astro.mjs",
+          "scope": "server-worker",
+          "bytes": 1836,
+          "gzipBytes": 873,
+          "sha256": "6095cfa43418b7b7caed4b69ba80a514ca0c871039192a615660dd5d44f30fe4"
+        },
+        {
+          "path": "dist/_worker.js/pages/api/admin/quantity-offers.astro.mjs",
+          "scope": "server-worker",
+          "bytes": 4155,
+          "gzipBytes": 1468,
+          "sha256": "794b16f2ff37ddd6c587e06238776009f821c2d5b237c25a545672ac44742ff5"
+        },
+        {
+          "path": "dist/_worker.js/pages/api/admin/quantity-offers/_id_.astro.mjs",
+          "scope": "server-worker",
+          "bytes": 2401,
+          "gzipBytes": 978,
+          "sha256": "6deb35b576391fd1e177139a4ab8c0f16176c0717845980f3956b99c86c1fcb0"
+        },
+        {
+          "path": "dist/_worker.js/pages/api/admin/refunds/_id_.astro.mjs",
+          "scope": "server-worker",
+          "bytes": 30422,
+          "gzipBytes": 6423,
+          "sha256": "acd10fd584e4c36b0d1bf0dd91fcecf0e76e02564219cdf005e49c1419d4466b"
+        },
+        {
+          "path": "dist/_worker.js/pages/api/admin/returns.astro.mjs",
+          "scope": "server-worker",
+          "bytes": 3380,
+          "gzipBytes": 1330,
+          "sha256": "32a592393affa0cbab38084ba33949c1f9c819ea1d9822db0585935f40f7718e"
+        },
+        {
+          "path": "dist/_worker.js/pages/api/admin/returns/_id_.astro.mjs",
+          "scope": "server-worker",
+          "bytes": 5343,
+          "gzipBytes": 1679,
+          "sha256": "32c269184a4ceb35487f200e2f106aa6cb1d2f26f5b7fa1c4727543f0182705c"
+        },
+        {
+          "path": "dist/_worker.js/pages/api/admin/shipping-rates/_id_.astro.mjs",
+          "scope": "server-worker",
+          "bytes": 1962,
+          "gzipBytes": 904,
+          "sha256": "459524aba28efa47f8eab2ce66b34d7e338530a1a23750b896b8ac6915dfa47c"
+        },
+        {
+          "path": "dist/_worker.js/pages/api/admin/stored-value.astro.mjs",
+          "scope": "server-worker",
+          "bytes": 3493,
+          "gzipBytes": 1377,
+          "sha256": "87e83720152e1a12c99e9ae14df43d30a44817bdf1c2bccbc344078461a164c4"
+        },
+        {
+          "path": "dist/_worker.js/pages/api/admin/stored-value/_id_.astro.mjs",
+          "scope": "server-worker",
+          "bytes": 1851,
+          "gzipBytes": 866,
+          "sha256": "14be7ce5369c51e16e2657e3aaff9746db2fddb2dea8b6ce1608af54f7612702"
+        },
+        {
+          "path": "dist/_worker.js/pages/api/admin/subscriptions.astro.mjs",
+          "scope": "server-worker",
+          "bytes": 2784,
+          "gzipBytes": 1107,
+          "sha256": "74373884ae0e93e96cde921706b3b2df5d95ecd91c6e8ace3caa3740be673dea"
+        },
+        {
+          "path": "dist/_worker.js/pages/api/admin/subscriptions/_id_.astro.mjs",
+          "scope": "server-worker",
+          "bytes": 3367,
+          "gzipBytes": 1305,
+          "sha256": "7b73f8f8ab14c7264e96e306cd32c334f63426eb6d8e10391acb990070816a8b"
+        },
+        {
+          "path": "dist/_worker.js/pages/api/admin/subscriptions/_id_/portal.astro.mjs",
+          "scope": "server-worker",
+          "bytes": 2325,
+          "gzipBytes": 986,
+          "sha256": "3b383ae7a4630b84cffd98183e06cfd01536e25cd7f97a4dc9d2e3c86869997f"
+        },
+        {
+          "path": "dist/_worker.js/pages/api/admin/subscriptions/plans.astro.mjs",
+          "scope": "server-worker",
+          "bytes": 2638,
+          "gzipBytes": 1138,
+          "sha256": "f47d0ca1ea71060abd30e0a8680593bcb4eb07f817420134acdfbf2d6095d0af"
+        },
+        {
+          "path": "dist/_worker.js/pages/api/cart/quote.astro.mjs",
+          "scope": "server-worker",
+          "bytes": 2153,
+          "gzipBytes": 930,
+          "sha256": "dcf7aaca4d98c803a496860bf6b12ab49951e417e499e13f308d37b938c3c0ec"
+        },
+        {
+          "path": "dist/_worker.js/pages/api/checkout/session.astro.mjs",
+          "scope": "server-worker",
+          "bytes": 19986,
+          "gzipBytes": 5391,
+          "sha256": "3ec575115e5a7372288ab4abf43bb5a3b6beaa64f2363586b0380dd09fe2cc67"
+        },
+        {
+          "path": "dist/_worker.js/pages/api/contact.astro.mjs",
+          "scope": "server-worker",
+          "bytes": 4012,
+          "gzipBytes": 1754,
+          "sha256": "f20c17c4b5ba48393965b93a87f0fdf5ddadd7e28903a3bd7d4874537b7720eb"
+        },
+        {
+          "path": "dist/_worker.js/pages/api/customer/addresses.astro.mjs",
+          "scope": "server-worker",
+          "bytes": 1310,
+          "gzipBytes": 582,
+          "sha256": "3743d68e4781c0a77938ac1886cadafe6d90ce93a318266cf74b0a0966b69bfb"
+        },
+        {
+          "path": "dist/_worker.js/pages/api/customer/addresses/_ref_.astro.mjs",
+          "scope": "server-worker",
+          "bytes": 1095,
+          "gzipBytes": 529,
+          "sha256": "ea9ba6331d180942d5834c8e22892bd7c680910ef546a2b288081be07fed6fc3"
+        },
+        {
+          "path": "dist/_worker.js/pages/api/customer/orders.astro.mjs",
+          "scope": "server-worker",
+          "bytes": 1230,
+          "gzipBytes": 598,
+          "sha256": "6fe841e1cbd0131623a18ba7c36a28b6cab7b09d0efccec587a5bbd9b83bb7c2"
+        },
+        {
+          "path": "dist/_worker.js/pages/api/customer/orders/_ref_.astro.mjs",
+          "scope": "server-worker",
+          "bytes": 889,
+          "gzipBytes": 477,
+          "sha256": "b4c4f116be13251e0912313ec5cf28d07e66d5461d1835acd57ae6f7d0f4aa1a"
+        },
+        {
+          "path": "dist/_worker.js/pages/api/customer/returns.astro.mjs",
+          "scope": "server-worker",
+          "bytes": 1154,
+          "gzipBytes": 550,
+          "sha256": "226dc9e80fd104b4a772caf7cb3186143480209209a5bbd5307f00f74eeba3b5"
+        },
+        {
+          "path": "dist/_worker.js/pages/api/customer/returns/_ref_.astro.mjs",
+          "scope": "server-worker",
+          "bytes": 1041,
+          "gzipBytes": 534,
+          "sha256": "6135a23c280a844ebe6f6daf7dc6d17143caa0b6a82b7bab7612b706d3a56314"
+        },
+        {
+          "path": "dist/_worker.js/pages/api/demo/reset.astro.mjs",
+          "scope": "server-worker",
+          "bytes": 542,
+          "gzipBytes": 360,
+          "sha256": "e6ff5eb501bb3cf8f3258477a3bdaeadd531a5e76680a8e2fcd22afd3e4dc631"
+        },
+        {
+          "path": "dist/_worker.js/pages/api/webhooks/stripe.astro.mjs",
+          "scope": "server-worker",
+          "bytes": 4370,
+          "gzipBytes": 1496,
+          "sha256": "9de54a474cc34f99d1ee015089d20df89536a89d0a6e9df961c54cb60ef0577b"
+        },
+        {
+          "path": "dist/_worker.js/pages/arquitectura.astro.mjs",
+          "scope": "server-worker",
+          "bytes": 63,
+          "gzipBytes": 78,
+          "sha256": "b41f8c4565017449f8d029e1d584d3fbf7325b0abb25dd623e3f28b7513e8a74"
+        },
+        {
+          "path": "dist/_worker.js/pages/ayuda.astro.mjs",
+          "scope": "server-worker",
+          "bytes": 63,
+          "gzipBytes": 78,
+          "sha256": "b41f8c4565017449f8d029e1d584d3fbf7325b0abb25dd623e3f28b7513e8a74"
+        },
+        {
+          "path": "dist/_worker.js/pages/demo/reset.astro.mjs",
+          "scope": "server-worker",
+          "bytes": 63,
+          "gzipBytes": 78,
+          "sha256": "b41f8c4565017449f8d029e1d584d3fbf7325b0abb25dd623e3f28b7513e8a74"
+        },
+        {
+          "path": "dist/_worker.js/pages/dossier.astro.mjs",
+          "scope": "server-worker",
+          "bytes": 63,
+          "gzipBytes": 78,
+          "sha256": "b41f8c4565017449f8d029e1d584d3fbf7325b0abb25dd623e3f28b7513e8a74"
+        },
+        {
+          "path": "dist/_worker.js/pages/index.astro.mjs",
+          "scope": "server-worker",
+          "bytes": 63,
+          "gzipBytes": 78,
+          "sha256": "b41f8c4565017449f8d029e1d584d3fbf7325b0abb25dd623e3f28b7513e8a74"
+        },
+        {
+          "path": "dist/_worker.js/pages/precios.astro.mjs",
+          "scope": "server-worker",
+          "bytes": 63,
+          "gzipBytes": 78,
+          "sha256": "b41f8c4565017449f8d029e1d584d3fbf7325b0abb25dd623e3f28b7513e8a74"
+        },
+        {
+          "path": "dist/_worker.js/pages/proyecto-recibido.astro.mjs",
+          "scope": "server-worker",
+          "bytes": 63,
+          "gzipBytes": 78,
+          "sha256": "b41f8c4565017449f8d029e1d584d3fbf7325b0abb25dd623e3f28b7513e8a74"
+        },
+        {
+          "path": "dist/_worker.js/pages/sitemap.xml.astro.mjs",
+          "scope": "server-worker",
+          "bytes": 63,
+          "gzipBytes": 78,
+          "sha256": "b41f8c4565017449f8d029e1d584d3fbf7325b0abb25dd623e3f28b7513e8a74"
+        },
+        {
+          "path": "dist/_worker.js/pages/temas.astro.mjs",
+          "scope": "server-worker",
+          "bytes": 63,
+          "gzipBytes": 78,
+          "sha256": "b41f8c4565017449f8d029e1d584d3fbf7325b0abb25dd623e3f28b7513e8a74"
+        },
+        {
+          "path": "dist/_worker.js/pages/temas/_id_.astro.mjs",
+          "scope": "server-worker",
+          "bytes": 63,
+          "gzipBytes": 78,
+          "sha256": "b41f8c4565017449f8d029e1d584d3fbf7325b0abb25dd623e3f28b7513e8a74"
+        },
+        {
+          "path": "dist/_worker.js/renderers.mjs",
+          "scope": "server-worker",
+          "bytes": 103,
+          "gzipBytes": 93,
+          "sha256": "99d4e6b665a2605e9a2e0fd765631eb2bd60884d01d7e65d1650ded39fc88d29"
+        }
+      ],
+      "changed": [
+        {
+          "before": {
+            "path": "dist/_worker.js/index.js",
+            "scope": "server-worker",
+            "bytes": 22114,
+            "gzipBytes": 3192,
+            "sha256": "d91d5504e47d1fcdfe81a2c49377ac5af913336da62a6bc588e48432adb86d09"
+          },
+          "after": {
+            "path": "dist/_worker.js/index.js",
+            "scope": "server-worker",
+            "bytes": 22265,
+            "gzipBytes": 3215,
+            "sha256": "c10e7808153f3bca3f24bc0561ad8959f0e700d7906bda6711a1f440e5131c79"
+          }
+        },
+        {
+          "before": {
+            "path": "dist/_worker.js/pages/api/admin/preliminary-order-payment-links.astro.mjs",
+            "scope": "server-worker",
+            "bytes": 2519,
+            "gzipBytes": 1081,
+            "sha256": "027578e5b990425cd59e77eb85e1d03a440b1aec37fad906ec8061b98448ae14"
+          },
+          "after": {
+            "path": "dist/_worker.js/pages/api/admin/preliminary-order-payment-links.astro.mjs",
+            "scope": "server-worker",
+            "bytes": 2519,
+            "gzipBytes": 1081,
+            "sha256": "a56d32a9644889d7d7fe4612e7cab7dd1e5c34b29de3c43d8978c56ba527558f"
+          }
+        },
+        {
+          "before": {
+            "path": "dist/_worker.js/pages/api/admin/preliminary-order-payment-links/_id_.astro.mjs",
+            "scope": "server-worker",
+            "bytes": 2237,
+            "gzipBytes": 1001,
+            "sha256": "e4bf5a7086c3f74b9be181269e9a4e76ec307b65f75e55f84efa00dc0693bbfd"
+          },
+          "after": {
+            "path": "dist/_worker.js/pages/api/admin/preliminary-order-payment-links/_id_.astro.mjs",
+            "scope": "server-worker",
+            "bytes": 2237,
+            "gzipBytes": 1002,
+            "sha256": "affcb73c13f5cfe1de91bfe3da3b00b42409278fa636eb4a0c19b3daaaaf3786"
+          }
+        },
+        {
+          "before": {
+            "path": "dist/_worker.js/pages/api/admin/preliminary-orders.astro.mjs",
+            "scope": "server-worker",
+            "bytes": 3602,
+            "gzipBytes": 1417,
+            "sha256": "bcf594d093411f8186676052e75aea71ee722520716e52fd8b88bc58a4d77d71"
+          },
+          "after": {
+            "path": "dist/_worker.js/pages/api/admin/preliminary-orders.astro.mjs",
+            "scope": "server-worker",
+            "bytes": 3602,
+            "gzipBytes": 1418,
+            "sha256": "36659bebfb5fa47be454ffbba710913363625a2e86e19e7e7cee6377a58dc892"
+          }
+        },
+        {
+          "before": {
+            "path": "dist/_worker.js/pages/api/admin/preliminary-orders/_id_.astro.mjs",
+            "scope": "server-worker",
+            "bytes": 4057,
+            "gzipBytes": 1405,
+            "sha256": "b54f0573c7a6abad6171f967253d8a40d792accc0d5e3e7772f33f462fec1b37"
+          },
+          "after": {
+            "path": "dist/_worker.js/pages/api/admin/preliminary-orders/_id_.astro.mjs",
+            "scope": "server-worker",
+            "bytes": 4057,
+            "gzipBytes": 1405,
+            "sha256": "7773acad9f47a1d9e139678ee39200df569c448f15cd50f861eb8be353b39550"
+          }
+        },
+        {
+          "before": {
+            "path": "dist/_worker.js/pages/cuenta/acceso.astro.mjs",
+            "scope": "server-worker",
+            "bytes": 3886,
+            "gzipBytes": 1700,
+            "sha256": "d15f5608ab8f8a4f430f00e0ababfb098933b81d56af1d6e87b1015381dea336"
+          },
+          "after": {
+            "path": "dist/_worker.js/pages/cuenta/acceso.astro.mjs",
+            "scope": "server-worker",
+            "bytes": 3886,
+            "gzipBytes": 1703,
+            "sha256": "82d0cab8a8a5b2d9355825208dbcba45e569a76055be4d8fb20a7271c9a93028"
+          }
+        },
+        {
+          "before": {
+            "path": "dist/_worker.js/pages/cuenta/acceso/confirmar.astro.mjs",
+            "scope": "server-worker",
+            "bytes": 4127,
+            "gzipBytes": 1740,
+            "sha256": "352105690bab85a335444e23be291a6744d014904f06f6a125f83ce0911e1fc0"
+          },
+          "after": {
+            "path": "dist/_worker.js/pages/cuenta/acceso/confirmar.astro.mjs",
+            "scope": "server-worker",
+            "bytes": 4127,
+            "gzipBytes": 1744,
+            "sha256": "2946af537966f06555d89d08e4d5e22eeac46c647337777d40792b8259289513"
+          }
+        },
+        {
+          "before": {
+            "path": "dist/_worker.js/pages/cuenta/devoluciones.astro.mjs",
+            "scope": "server-worker",
+            "bytes": 9004,
+            "gzipBytes": 3179,
+            "sha256": "22aa83e256743afa7a05f369ac1ae26fc8b4302068cef19731e5a54e5b927aba"
+          },
+          "after": {
+            "path": "dist/_worker.js/pages/cuenta/devoluciones.astro.mjs",
+            "scope": "server-worker",
+            "bytes": 9004,
+            "gzipBytes": 3179,
+            "sha256": "a1fcb18512134d4032ceee0ab061223d6f061d99924ab2d30bfaf2a77ee243c1"
+          }
+        },
+        {
+          "before": {
+            "path": "dist/_worker.js/pages/cuenta/devoluciones/_ref_.astro.mjs",
+            "scope": "server-worker",
+            "bytes": 4457,
+            "gzipBytes": 2007,
+            "sha256": "3f884d89bd0480b35d6a6a4863ccede5f1d602ce3a698c78ad87eae2cbfdf32b"
+          },
+          "after": {
+            "path": "dist/_worker.js/pages/cuenta/devoluciones/_ref_.astro.mjs",
+            "scope": "server-worker",
+            "bytes": 4457,
+            "gzipBytes": 2008,
+            "sha256": "5c34135c82c8cb52ef5e00b7a99794d884d16661fc108403c3b1fbd82f1781dd"
+          }
+        },
+        {
+          "before": {
+            "path": "dist/_worker.js/pages/cuenta/direcciones.astro.mjs",
+            "scope": "server-worker",
+            "bytes": 12197,
+            "gzipBytes": 3338,
+            "sha256": "c25eed09366e06180ac62b175fd763b9581e024f1987a82f568c8a14243eb178"
+          },
+          "after": {
+            "path": "dist/_worker.js/pages/cuenta/direcciones.astro.mjs",
+            "scope": "server-worker",
+            "bytes": 12197,
+            "gzipBytes": 3339,
+            "sha256": "10b4a6ba710c8f439496bd4e809af146a96e73405e10ae9d3ea77db18819a1fd"
+          }
+        },
+        {
+          "before": {
+            "path": "dist/_worker.js/pages/cuenta/pedidos.astro.mjs",
+            "scope": "server-worker",
+            "bytes": 6687,
+            "gzipBytes": 2531,
+            "sha256": "9c0bc48c62383bb761ea0580eaa939e6646d92a58f51065ebf0354dc01baa32e"
+          },
+          "after": {
+            "path": "dist/_worker.js/pages/cuenta/pedidos.astro.mjs",
+            "scope": "server-worker",
+            "bytes": 6687,
+            "gzipBytes": 2532,
+            "sha256": "cf9b177dbb3986484155b3ea6a0138e459349130951c2884bac657494771377b"
+          }
+        },
+        {
+          "before": {
+            "path": "dist/_worker.js/pages/cuenta/pedidos/_ref_.astro.mjs",
+            "scope": "server-worker",
+            "bytes": 6031,
+            "gzipBytes": 2254,
+            "sha256": "f7f992ba428f224cb51dc5c56a15a3487d43bb16d9ecccbe0a6a27a3b5b334d0"
+          },
+          "after": {
+            "path": "dist/_worker.js/pages/cuenta/pedidos/_ref_.astro.mjs",
+            "scope": "server-worker",
+            "bytes": 6031,
+            "gzipBytes": 2255,
+            "sha256": "0f8c710159781bdb7d599cad585d9f44e8b14b8fdb64ea7f335f87d120935058"
+          }
+        },
+        {
+          "before": {
+            "path": "dist/_worker.js/pages/cuenta/sesiones.astro.mjs",
+            "scope": "server-worker",
+            "bytes": 4733,
+            "gzipBytes": 1833,
+            "sha256": "2113211fd0b1daf1d214c1a65081ea98d1f0aaf043807cf908c2ff55e6a8ce93"
+          },
+          "after": {
+            "path": "dist/_worker.js/pages/cuenta/sesiones.astro.mjs",
+            "scope": "server-worker",
+            "bytes": 4733,
+            "gzipBytes": 1834,
+            "sha256": "b3150b58478c5e8dff548cbd38f65498ef9f7334ca80853a69cfb5e4a9646049"
+          }
+        },
+        {
+          "before": {
+            "path": "dist/_worker.js/pages/demo/admin.astro.mjs",
+            "scope": "server-worker",
+            "bytes": 26993,
+            "gzipBytes": 7135,
+            "sha256": "b6a198fc6767fd4172a8538c83b6f7d5d3c01af7f5e323b89f1be2888e60055e"
+          },
+          "after": {
+            "path": "dist/_worker.js/pages/demo/admin.astro.mjs",
+            "scope": "server-worker",
+            "bytes": 26993,
+            "gzipBytes": 7135,
+            "sha256": "c6a3b8d6c01a3066ba5dbdde732b400b051b31b5f7792e77b98437804c1eaf18"
+          }
+        },
+        {
+          "before": {
+            "path": "dist/_worker.js/pages/demo/admin/asignacion.astro.mjs",
+            "scope": "server-worker",
+            "bytes": 9023,
+            "gzipBytes": 2969,
+            "sha256": "7abd4264e41914d2923675caa334373b454d02a5d23769930fd7f1c1c0b917e8"
+          },
+          "after": {
+            "path": "dist/_worker.js/pages/demo/admin/asignacion.astro.mjs",
+            "scope": "server-worker",
+            "bytes": 9023,
+            "gzipBytes": 2968,
+            "sha256": "b9fbe07cc61c37aa5fd2ae22412ebcc9b9da2bf2caa7c2800072cc438911797e"
+          }
+        },
+        {
+          "before": {
+            "path": "dist/_worker.js/pages/demo/admin/cantidades.astro.mjs",
+            "scope": "server-worker",
+            "bytes": 11629,
+            "gzipBytes": 3325,
+            "sha256": "c5462f191b1fcc47486c710168159bec446715cb45ad79239b97eb59a994aee2"
+          },
+          "after": {
+            "path": "dist/_worker.js/pages/demo/admin/cantidades.astro.mjs",
+            "scope": "server-worker",
+            "bytes": 11629,
+            "gzipBytes": 3324,
+            "sha256": "b46c9aedb41f6af3d12385da02304961fa16ba00a9f8b1bfbe54f9ea9cdfe126"
+          }
+        },
+        {
+          "before": {
+            "path": "dist/_worker.js/pages/demo/admin/catalogos-empresa.astro.mjs",
+            "scope": "server-worker",
+            "bytes": 13271,
+            "gzipBytes": 3615,
+            "sha256": "57055a43269afaf1a21af6d449eeb483c9fc2df988238dc3c5e19681203de709"
+          },
+          "after": {
+            "path": "dist/_worker.js/pages/demo/admin/catalogos-empresa.astro.mjs",
+            "scope": "server-worker",
+            "bytes": 13271,
+            "gzipBytes": 3614,
+            "sha256": "029484c79bf3d95205b2fadfb3a5e7c0cb7275a3a30d7894ed896dd39a4fa68f"
+          }
+        },
+        {
+          "before": {
+            "path": "dist/_worker.js/pages/demo/admin/condiciones-pago.astro.mjs",
+            "scope": "server-worker",
+            "bytes": 13020,
+            "gzipBytes": 3665,
+            "sha256": "d8497334bd58a7239443718d27c3a99dc290ae44139f88a60fbbe7c87e3d67ca"
+          },
+          "after": {
+            "path": "dist/_worker.js/pages/demo/admin/condiciones-pago.astro.mjs",
+            "scope": "server-worker",
+            "bytes": 13020,
+            "gzipBytes": 3664,
+            "sha256": "7ba877348019a39277359d6c430eb317ecc7ada205a551558a6fd451cad4d97b"
+          }
+        },
+        {
+          "before": {
+            "path": "dist/_worker.js/pages/demo/admin/conteos.astro.mjs",
+            "scope": "server-worker",
+            "bytes": 11774,
+            "gzipBytes": 3483,
+            "sha256": "ab19123634b18b2fdad05619e32e36c0854c5d714009425271bfc2ad8eb4559f"
+          },
+          "after": {
+            "path": "dist/_worker.js/pages/demo/admin/conteos.astro.mjs",
+            "scope": "server-worker",
+            "bytes": 11774,
+            "gzipBytes": 3481,
+            "sha256": "e3d9c05bd29ac587a6779c46bcf0f5e4c87fc25e628a418b855baf1b6e5519a9"
+          }
+        },
+        {
+          "before": {
+            "path": "dist/_worker.js/pages/demo/admin/credito.astro.mjs",
+            "scope": "server-worker",
+            "bytes": 17081,
+            "gzipBytes": 4411,
+            "sha256": "6dc2bd0073e200270e46a71a46f988c3e97a6fe67f3b81f6f79fabc0b4670f64"
+          },
+          "after": {
+            "path": "dist/_worker.js/pages/demo/admin/credito.astro.mjs",
+            "scope": "server-worker",
+            "bytes": 17081,
+            "gzipBytes": 4412,
+            "sha256": "49f503657fb3a18024c2f3581e447441872e40a43a64d9469204a44c07a075f9"
+          }
+        },
+        {
+          "before": {
+            "path": "dist/_worker.js/pages/demo/admin/devoluciones.astro.mjs",
+            "scope": "server-worker",
+            "bytes": 14356,
+            "gzipBytes": 3558,
+            "sha256": "6c19d3f4edfd8e5293e6eefcede6c844f871ea782c1e08c0f301590cf883ba96"
+          },
+          "after": {
+            "path": "dist/_worker.js/pages/demo/admin/devoluciones.astro.mjs",
+            "scope": "server-worker",
+            "bytes": 14356,
+            "gzipBytes": 3557,
+            "sha256": "497119a719a0608dcd5f61cb04855bca6a8686280823b813ba9702908aa2ce8b"
+          }
+        },
+        {
+          "before": {
+            "path": "dist/_worker.js/pages/demo/admin/divisas.astro.mjs",
+            "scope": "server-worker",
+            "bytes": 12614,
+            "gzipBytes": 3643,
+            "sha256": "61e49d1f3063220a6e768068d2c42c7665d8dcc6a76f6ce2fa73485a08dd29a1"
+          },
+          "after": {
+            "path": "dist/_worker.js/pages/demo/admin/divisas.astro.mjs",
+            "scope": "server-worker",
+            "bytes": 12614,
+            "gzipBytes": 3643,
+            "sha256": "b811e95df6353300bbe7de5b332e80e457a66f66ee3e60078de690529f43a983"
+          }
+        },
+        {
+          "before": {
+            "path": "dist/_worker.js/pages/demo/admin/documentos.astro.mjs",
+            "scope": "server-worker",
+            "bytes": 15279,
+            "gzipBytes": 4003,
+            "sha256": "4395490794b1d3e8dccc19ec8b70c5635a5e62c1b0d9e99e3b227bb07753dcfc"
+          },
+          "after": {
+            "path": "dist/_worker.js/pages/demo/admin/documentos.astro.mjs",
+            "scope": "server-worker",
+            "bytes": 15279,
+            "gzipBytes": 4001,
+            "sha256": "5c6da9c33ce96bd619a97257cd10321cf1e81d4bc8e396d8b214042f51969559"
+          }
+        },
+        {
+          "before": {
+            "path": "dist/_worker.js/pages/demo/admin/emails.astro.mjs",
+            "scope": "server-worker",
+            "bytes": 6353,
+            "gzipBytes": 2458,
+            "sha256": "d1fbb30f9d0b77980438e1e7faeaa6cea285d132c9ff712130a50571009a0334"
+          },
+          "after": {
+            "path": "dist/_worker.js/pages/demo/admin/emails.astro.mjs",
+            "scope": "server-worker",
+            "bytes": 6353,
+            "gzipBytes": 2459,
+            "sha256": "233a4d33ad66773ba1976db21d79baaa85b7abc84acb9647f20a1aa80107239d"
+          }
+        },
+        {
+          "before": {
+            "path": "dist/_worker.js/pages/demo/admin/empresas.astro.mjs",
+            "scope": "server-worker",
+            "bytes": 11400,
+            "gzipBytes": 3411,
+            "sha256": "f1929d603c1d0d6e0cfaf50459603ff4178c023c829001e01d9768d87642ac8a"
+          },
+          "after": {
+            "path": "dist/_worker.js/pages/demo/admin/empresas.astro.mjs",
+            "scope": "server-worker",
+            "bytes": 11400,
+            "gzipBytes": 3410,
+            "sha256": "98b1dc640277418518945b455acce0cd573d37383ef1bd669f0aff302b636f48"
+          }
+        },
+        {
+          "before": {
+            "path": "dist/_worker.js/pages/demo/admin/envios.astro.mjs",
+            "scope": "server-worker",
+            "bytes": 7336,
+            "gzipBytes": 2542,
+            "sha256": "47b26f89a9e189d140e89613b65a9a8e7cfa3cea44acae125db10bc54d045a46"
+          },
+          "after": {
+            "path": "dist/_worker.js/pages/demo/admin/envios.astro.mjs",
+            "scope": "server-worker",
+            "bytes": 7336,
+            "gzipBytes": 2541,
+            "sha256": "396a427bc61a9a92f5f5d8dc6a70a0c5383afa9be496d6afb75f3f6d1153939a"
+          }
+        },
+        {
+          "before": {
+            "path": "dist/_worker.js/pages/demo/admin/impuestos.astro.mjs",
+            "scope": "server-worker",
+            "bytes": 12182,
+            "gzipBytes": 3855,
+            "sha256": "6fb73afbeffa4511247aa12cefb521600d5a935e0139e12efdd8f1224f5b5972"
+          },
+          "after": {
+            "path": "dist/_worker.js/pages/demo/admin/impuestos.astro.mjs",
+            "scope": "server-worker",
+            "bytes": 12182,
+            "gzipBytes": 3854,
+            "sha256": "f0fca3915883261c02279ce64e09f023b876956f461b79f3b4cf6e2a7aa10451"
+          }
+        },
+        {
+          "before": {
+            "path": "dist/_worker.js/pages/demo/admin/login.astro.mjs",
+            "scope": "server-worker",
+            "bytes": 7462,
+            "gzipBytes": 2823,
+            "sha256": "6f7c6a2beb8fc86524db2d3bf435e6730ab23ac42d9ce1f1d9d3ba96316e839b"
+          },
+          "after": {
+            "path": "dist/_worker.js/pages/demo/admin/login.astro.mjs",
+            "scope": "server-worker",
+            "bytes": 7462,
+            "gzipBytes": 2824,
+            "sha256": "2471e3d23cafeb9ac180e8952b9fe1601b8cdf7971afc68aa33c2951d39bc9a5"
+          }
+        },
+        {
+          "before": {
+            "path": "dist/_worker.js/pages/demo/admin/mercados.astro.mjs",
+            "scope": "server-worker",
+            "bytes": 20709,
+            "gzipBytes": 4969,
+            "sha256": "e3070aaa6034613bdac4960dbab9d2fcbab28f62e48a68364d6021e3dad0c7b9"
+          },
+          "after": {
+            "path": "dist/_worker.js/pages/demo/admin/mercados.astro.mjs",
+            "scope": "server-worker",
+            "bytes": 20709,
+            "gzipBytes": 4969,
+            "sha256": "1e414f43cea7e09be8940b823e00fb362b83b4528eb28fce08ca0b72724b790e"
+          }
+        },
+        {
+          "before": {
+            "path": "dist/_worker.js/pages/demo/admin/pedidos/_id_.astro.mjs",
+            "scope": "server-worker",
+            "bytes": 50433,
+            "gzipBytes": 11060,
+            "sha256": "7ca9b187354394c1b9f33a8547af484f3b48fbd003a1d6854c8607c128fbffcf"
+          },
+          "after": {
+            "path": "dist/_worker.js/pages/demo/admin/pedidos/_id_.astro.mjs",
+            "scope": "server-worker",
+            "bytes": 50433,
+            "gzipBytes": 11060,
+            "sha256": "e053fc35d4a409711fc5d8de3cf9ec5c500b742b2bd0190f4c46b9094a396b32"
+          }
+        },
+        {
+          "before": {
+            "path": "dist/_worker.js/pages/demo/admin/productos.astro.mjs",
+            "scope": "server-worker",
+            "bytes": 12450,
+            "gzipBytes": 3929,
+            "sha256": "a91f01c08d762e11236ce1bda4ef3ebf501a98d61afe7986ddf2bf06efa4874b"
+          },
+          "after": {
+            "path": "dist/_worker.js/pages/demo/admin/productos.astro.mjs",
+            "scope": "server-worker",
+            "bytes": 12450,
+            "gzipBytes": 3929,
+            "sha256": "b72b11607020b47fc2bdf788bbef33c9aa0224123d8218dfe4f26b1231add4e5"
+          }
+        },
+        {
+          "before": {
+            "path": "dist/_worker.js/pages/demo/admin/productos/_id_.astro.mjs",
+            "scope": "server-worker",
+            "bytes": 58271,
+            "gzipBytes": 9197,
+            "sha256": "47129057ce384b3fb4358d905292ae887fcf8a3bbb152ad57bd97a7fc141c4f7"
+          },
+          "after": {
+            "path": "dist/_worker.js/pages/demo/admin/productos/_id_.astro.mjs",
+            "scope": "server-worker",
+            "bytes": 58271,
+            "gzipBytes": 9195,
+            "sha256": "a0935bc0e16933aa7b3bce4001b7924801bf521a2932c624164f19ceb2efd3a6"
+          }
+        },
+        {
+          "before": {
+            "path": "dist/_worker.js/pages/demo/admin/publicacion.astro.mjs",
+            "scope": "server-worker",
+            "bytes": 16049,
+            "gzipBytes": 4461,
+            "sha256": "c1ca5a38a129d433cf249d3be66ed665f33c6a745b7ca14ca78fb5fc77c0d7b4"
+          },
+          "after": {
+            "path": "dist/_worker.js/pages/demo/admin/publicacion.astro.mjs",
+            "scope": "server-worker",
+            "bytes": 16049,
+            "gzipBytes": 4460,
+            "sha256": "f997c4637e53ee57aa407c18e8f97e6429332b850aecac3fe32ebdd51020058d"
+          }
+        },
+        {
+          "before": {
+            "path": "dist/_worker.js/pages/demo/admin/segmentos.astro.mjs",
+            "scope": "server-worker",
+            "bytes": 14116,
+            "gzipBytes": 3997,
+            "sha256": "3d420abb88c1da7235ad9eb262d857cf93a225135f4d26083d2fdc9f8d7048e8"
+          },
+          "after": {
+            "path": "dist/_worker.js/pages/demo/admin/segmentos.astro.mjs",
+            "scope": "server-worker",
+            "bytes": 14116,
+            "gzipBytes": 3996,
+            "sha256": "b8a36d5bf3e78fdb241edbfd421936496d002beaccfc116f3bc16dd39531f958"
+          }
+        },
+        {
+          "before": {
+            "path": "dist/_worker.js/pages/demo/admin/transferencias.astro.mjs",
+            "scope": "server-worker",
+            "bytes": 13010,
+            "gzipBytes": 3605,
+            "sha256": "11bcacaeebc9c7d96da45b318297f7743bb9210951483c9340348b640eea37c2"
+          },
+          "after": {
+            "path": "dist/_worker.js/pages/demo/admin/transferencias.astro.mjs",
+            "scope": "server-worker",
+            "bytes": 13010,
+            "gzipBytes": 3602,
+            "sha256": "4a9c70b8bb09f79059de7f78174c1d488ac4cb9adc49df45dcbc3fdea5ec95cf"
+          }
+        },
+        {
+          "before": {
+            "path": "dist/_worker.js/pages/demo/admin/ubicaciones.astro.mjs",
+            "scope": "server-worker",
+            "bytes": 6842,
+            "gzipBytes": 2347,
+            "sha256": "8cb430f2d7e3908a1a1ab5f157cf5778938dfb9a1cdba0e6004050310d8d6ff1"
+          },
+          "after": {
+            "path": "dist/_worker.js/pages/demo/admin/ubicaciones.astro.mjs",
+            "scope": "server-worker",
+            "bytes": 6842,
+            "gzipBytes": 2346,
+            "sha256": "d478efc8af356abb178992625168be554046921679cc9842751929f447811284"
+          }
+        },
+        {
+          "before": {
+            "path": "dist/_worker.js/pages/demo/carrito.astro.mjs",
+            "scope": "server-worker",
+            "bytes": 1009,
+            "gzipBytes": 513,
+            "sha256": "e396ae7ec2820c4953810f2f32c0e71f44b4fa6a68d61cd70aaecece56d27e52"
+          },
+          "after": {
+            "path": "dist/_worker.js/pages/demo/carrito.astro.mjs",
+            "scope": "server-worker",
+            "bytes": 1009,
+            "gzipBytes": 511,
+            "sha256": "db9a0c2855044182b9b0930e048d9b2c7862d5f75e7a16369b36a1c7b29319ff"
+          }
+        },
+        {
+          "before": {
+            "path": "dist/_worker.js/pages/demo/checkout.astro.mjs",
+            "scope": "server-worker",
+            "bytes": 1030,
+            "gzipBytes": 512,
+            "sha256": "181823e04cb518b430333b2fe6eb6c427114a9952e57b25cbfdf62091d59c6a5"
+          },
+          "after": {
+            "path": "dist/_worker.js/pages/demo/checkout.astro.mjs",
+            "scope": "server-worker",
+            "bytes": 1030,
+            "gzipBytes": 514,
+            "sha256": "ca6afdb5715231eea0f23379d10ac1049c6becedd01f9d8670ef97e02c9f0eaf"
+          }
+        },
+        {
+          "before": {
+            "path": "dist/_worker.js/pages/demo/gracias.astro.mjs",
+            "scope": "server-worker",
+            "bytes": 1017,
+            "gzipBytes": 516,
+            "sha256": "528ee1b6295d516a65ef6f97c677870a1548b6c87025309b32ecea1ba4f78635"
+          },
+          "after": {
+            "path": "dist/_worker.js/pages/demo/gracias.astro.mjs",
+            "scope": "server-worker",
+            "bytes": 1017,
+            "gzipBytes": 517,
+            "sha256": "7ea45eb578042b4f7cee6d2be7d22e53fd5294dbdb664877f5fbdd04da94a349"
+          }
+        },
+        {
+          "before": {
+            "path": "dist/_worker.js/pages/demo/tienda.astro.mjs",
+            "scope": "server-worker",
+            "bytes": 1211,
+            "gzipBytes": 587,
+            "sha256": "091b10426675fa063b1879eec0b59f1be1c78b4a805e538db07de3a7245e1e25"
+          },
+          "after": {
+            "path": "dist/_worker.js/pages/demo/tienda.astro.mjs",
+            "scope": "server-worker",
+            "bytes": 1211,
+            "gzipBytes": 589,
+            "sha256": "683843cfbba54537e3e1009ea0a157c2fb27fb4c9a3814b9ad6cf82394f07fa7"
+          }
+        },
+        {
+          "before": {
+            "path": "dist/_worker.js/pages/demo/tienda/_slug_.astro.mjs",
+            "scope": "server-worker",
+            "bytes": 1789,
+            "gzipBytes": 791,
+            "sha256": "55d6b8c6db2f10512def7bc7f0e932279f3bd8aa94d0052b844246aa93f9d109"
+          },
+          "after": {
+            "path": "dist/_worker.js/pages/demo/tienda/_slug_.astro.mjs",
+            "scope": "server-worker",
+            "bytes": 1789,
+            "gzipBytes": 793,
+            "sha256": "3a16da29a7b89901dd253d029ada3096070aa4191089fe04cdd96153ca71362f"
+          }
+        },
+        {
+          "before": {
+            "path": "dist/_worker.js/pages/demo/tiendas/_collection_.astro.mjs",
+            "scope": "server-worker",
+            "bytes": 1573,
+            "gzipBytes": 704,
+            "sha256": "266c05f04a6c89764b54fcbff282d07b874585ec6f60eed281ca784f85530179"
+          },
+          "after": {
+            "path": "dist/_worker.js/pages/demo/tiendas/_collection_.astro.mjs",
+            "scope": "server-worker",
+            "bytes": 1573,
+            "gzipBytes": 705,
+            "sha256": "ef3cdb965117fb2a815b5013bf443c361adf4250b8b2eae27a89990c99e5a223"
+          }
+        },
+        {
+          "before": {
+            "path": "dist/_worker.js/pages/demo/tiendas/_collection_/_slug_.astro.mjs",
+            "scope": "server-worker",
+            "bytes": 21355,
+            "gzipBytes": 4456,
+            "sha256": "6c075600636564ea7288c6f4abbd08c3ee2526665e8ac1aa0e0fe96d878496b9"
+          },
+          "after": {
+            "path": "dist/_worker.js/pages/demo/tiendas/_collection_/_slug_.astro.mjs",
+            "scope": "server-worker",
+            "bytes": 21355,
+            "gzipBytes": 4456,
+            "sha256": "cf249a470b03be8fef89ae8309cc56dc3d08d44389863607f18aa4e1b8d7c50d"
+          }
+        },
+        {
+          "before": {
+            "path": "dist/_worker.js/pages/demo/tiendas/_collection_/carrito.astro.mjs",
+            "scope": "server-worker",
+            "bytes": 1772,
+            "gzipBytes": 783,
+            "sha256": "d5f1ac558c335f68f2151c517d8730e6cb8e1dfdb9d295e820280991cae8ea19"
+          },
+          "after": {
+            "path": "dist/_worker.js/pages/demo/tiendas/_collection_/carrito.astro.mjs",
+            "scope": "server-worker",
+            "bytes": 1772,
+            "gzipBytes": 783,
+            "sha256": "d7396f1c3400b41b61d136f9e247a410a7eb0f71967bec4ab82b6ab51208dfc0"
+          }
+        },
+        {
+          "before": {
+            "path": "dist/_worker.js/pages/demo/tiendas/_collection_/checkout.astro.mjs",
+            "scope": "server-worker",
+            "bytes": 1797,
+            "gzipBytes": 794,
+            "sha256": "32a281625a10d01d20f161c4a144bb49b7e77fba06f24d24303e64b66fc45a1e"
+          },
+          "after": {
+            "path": "dist/_worker.js/pages/demo/tiendas/_collection_/checkout.astro.mjs",
+            "scope": "server-worker",
+            "bytes": 1797,
+            "gzipBytes": 797,
+            "sha256": "b69068e1ee0e618b9f760db7456ded7c3dcd1ab3f679af82bb0e287aa84d0701"
+          }
+        },
+        {
+          "before": {
+            "path": "dist/_worker.js/pages/demo/tiendas/_collection_/gracias.astro.mjs",
+            "scope": "server-worker",
+            "bytes": 1821,
+            "gzipBytes": 813,
+            "sha256": "180c5d4ca2d7f3f1f578cb7163f81181de9be9dbf9ce5b760dd4e0f99269a928"
+          },
+          "after": {
+            "path": "dist/_worker.js/pages/demo/tiendas/_collection_/gracias.astro.mjs",
+            "scope": "server-worker",
+            "bytes": 1821,
+            "gzipBytes": 814,
+            "sha256": "ba8097e2616a729be3a971019f0b95103e7e4be199b79b25922c38057a85a3df"
+          }
+        },
+        {
+          "before": {
+            "path": "dist/_worker.js/pages/demo/tiendas/forma.astro.mjs",
+            "scope": "server-worker",
+            "bytes": 1238,
+            "gzipBytes": 591,
+            "sha256": "ae4d9801b788de84054c60012dd06483ab9afe945d9882ecdd95c1caa8ddba07"
+          },
+          "after": {
+            "path": "dist/_worker.js/pages/demo/tiendas/forma.astro.mjs",
+            "scope": "server-worker",
+            "bytes": 1238,
+            "gzipBytes": 593,
+            "sha256": "bb1ea94710b268cce267027a4f0f584be2930ec5b8d47b279596432fc694b95d"
+          }
+        },
+        {
+          "before": {
+            "path": "dist/_worker.js/pages/demo/tiendas/forma/_slug_.astro.mjs",
+            "scope": "server-worker",
+            "bytes": 6511,
+            "gzipBytes": 2187,
+            "sha256": "bc42ef0bf64671809b34cc633acd2b522a0fb283970e9449b6ac0e85a7e4f3be"
+          },
+          "after": {
+            "path": "dist/_worker.js/pages/demo/tiendas/forma/_slug_.astro.mjs",
+            "scope": "server-worker",
+            "bytes": 6511,
+            "gzipBytes": 2185,
+            "sha256": "680871f1c65e5f811b78e5a489cfa8ad4c433e77fcbcc42ea6ccafbc4c3ce40f"
+          }
+        },
+        {
+          "before": {
+            "path": "dist/_worker.js/pages/demo/tiendas/forma/carrito.astro.mjs",
+            "scope": "server-worker",
+            "bytes": 1840,
+            "gzipBytes": 829,
+            "sha256": "bb57ac708373bab071ead1792191f29381b40ef718d117caed4dec23cc86a65b"
+          },
+          "after": {
+            "path": "dist/_worker.js/pages/demo/tiendas/forma/carrito.astro.mjs",
+            "scope": "server-worker",
+            "bytes": 1840,
+            "gzipBytes": 829,
+            "sha256": "5adbec8a151417d26b8edd5c250ecf23b9ff890714980a72df04a6c23685dc26"
+          }
+        },
+        {
+          "before": {
+            "path": "dist/_worker.js/pages/demo/tiendas/forma/checkout.astro.mjs",
+            "scope": "server-worker",
+            "bytes": 2188,
+            "gzipBytes": 923,
+            "sha256": "56158cc6cf5bc8f20d4ac8e30fc12caf9b4ae1c1465cb2897bb311af6b055a5e"
+          },
+          "after": {
+            "path": "dist/_worker.js/pages/demo/tiendas/forma/checkout.astro.mjs",
+            "scope": "server-worker",
+            "bytes": 2188,
+            "gzipBytes": 924,
+            "sha256": "d40bed058d02bd6219ed2131751932762fbf83ad28f48febd765cc7ffbc0ae1b"
+          }
+        },
+        {
+          "before": {
+            "path": "dist/_worker.js/pages/demo/tiendas/forma/gracias.astro.mjs",
+            "scope": "server-worker",
+            "bytes": 2312,
+            "gzipBytes": 1011,
+            "sha256": "b1965cab09287862393150dc3f35d7f18d80a098cc7a56510bfa49dba2a70911"
+          },
+          "after": {
+            "path": "dist/_worker.js/pages/demo/tiendas/forma/gracias.astro.mjs",
+            "scope": "server-worker",
+            "bytes": 2312,
+            "gzipBytes": 1012,
+            "sha256": "7ae129c6d448382e0ed71e2a79cb65dc0881bbca07da26b2b5b57071d1c5ee5d"
+          }
+        },
+        {
+          "before": {
+            "path": "dist/_worker.js/pages/propuestas/_publicid_.astro.mjs",
+            "scope": "server-worker",
+            "bytes": 15807,
+            "gzipBytes": 4355,
+            "sha256": "a8732fd2f95115111f26853ca0b3cb5302c0497c0d4feca59c9f5bcb1f90b0cb"
+          },
+          "after": {
+            "path": "dist/_worker.js/pages/propuestas/_publicid_.astro.mjs",
+            "scope": "server-worker",
+            "bytes": 15807,
+            "gzipBytes": 4356,
+            "sha256": "a522c71a77455fdf76292ce9d271b4def2f90138719e4594f3b629095dcc7cb3"
+          }
+        },
+        {
+          "before": {
+            "path": "dist/_worker.js/pages/propuestas/_publicid_/gestor.astro.mjs",
+            "scope": "server-worker",
+            "bytes": 5187,
+            "gzipBytes": 1778,
+            "sha256": "fff64a0e250287fccf559a8a1936a6ceffba8849bfd87467949bb9a846789856"
+          },
+          "after": {
+            "path": "dist/_worker.js/pages/propuestas/_publicid_/gestor.astro.mjs",
+            "scope": "server-worker",
+            "bytes": 5187,
+            "gzipBytes": 1777,
+            "sha256": "4e07f065fd2d56d4cfd45f268004e01b1aa33dada4e11eaa19e19d810baf606a"
+          }
+        },
+        {
+          "before": {
+            "path": "dist/_worker.js/pages/propuestas/_publicid_/gestor/emails.astro.mjs",
+            "scope": "server-worker",
+            "bytes": 3481,
+            "gzipBytes": 1462,
+            "sha256": "21e524f01e12747a3db24de14163956cc56ad72a38f00848a51d062b58e8ca56"
+          },
+          "after": {
+            "path": "dist/_worker.js/pages/propuestas/_publicid_/gestor/emails.astro.mjs",
+            "scope": "server-worker",
+            "bytes": 3481,
+            "gzipBytes": 1462,
+            "sha256": "5c815ecef4beb2399ce94103b00d9f262a0f41f1ee7a998234d0259bcb0fff49"
+          }
+        },
+        {
+          "before": {
+            "path": "dist/_worker.js/pages/propuestas/_publicid_/gestor/pedidos.astro.mjs",
+            "scope": "server-worker",
+            "bytes": 3863,
+            "gzipBytes": 1530,
+            "sha256": "d2bd0de3d273b5d77b1388bbcae36497a1d9e924e742769daa513dc5a80955d6"
+          },
+          "after": {
+            "path": "dist/_worker.js/pages/propuestas/_publicid_/gestor/pedidos.astro.mjs",
+            "scope": "server-worker",
+            "bytes": 3863,
+            "gzipBytes": 1529,
+            "sha256": "26822939a73016a7684cada688d3136dafefca55c96bb7fa0d9f6c91d23e721b"
+          }
+        },
+        {
+          "before": {
+            "path": "dist/_worker.js/pages/propuestas/_publicid_/gestor/pedidos/_reference_.astro.mjs",
+            "scope": "server-worker",
+            "bytes": 5509,
+            "gzipBytes": 2031,
+            "sha256": "0ce190e1ca44818cf6ff02bbe4822cf8ea0c1104c5f22d98861079a6050d04e2"
+          },
+          "after": {
+            "path": "dist/_worker.js/pages/propuestas/_publicid_/gestor/pedidos/_reference_.astro.mjs",
+            "scope": "server-worker",
+            "bytes": 5509,
+            "gzipBytes": 2030,
+            "sha256": "bce195758dcd1b5dc88efac2ff93e8e572489ba7848b60cfefea1fac0758da6d"
+          }
+        },
+        {
+          "before": {
+            "path": "dist/_worker.js/pages/propuestas/_publicid_/gestor/productos.astro.mjs",
+            "scope": "server-worker",
+            "bytes": 4463,
+            "gzipBytes": 1785,
+            "sha256": "0e8452cb256cfeef70c600a5116fd9dc1de60fdd8979afe8ff106ababeff8f3a"
+          },
+          "after": {
+            "path": "dist/_worker.js/pages/propuestas/_publicid_/gestor/productos.astro.mjs",
+            "scope": "server-worker",
+            "bytes": 4463,
+            "gzipBytes": 1784,
+            "sha256": "efc041e97a266d3b235fee35b130536013ca689047e232e5f8a7ae7615222e60"
+          }
+        },
+        {
+          "before": {
+            "path": "dist/_worker.js/pages/propuestas/_publicid_/tienda.astro.mjs",
+            "scope": "server-worker",
+            "bytes": 14454,
+            "gzipBytes": 3917,
+            "sha256": "abeb7ab752709ae1b0877df9fa40f6e6f718b805fdccdf2ca05c2bad0ed71916"
+          },
+          "after": {
+            "path": "dist/_worker.js/pages/propuestas/_publicid_/tienda.astro.mjs",
+            "scope": "server-worker",
+            "bytes": 14454,
+            "gzipBytes": 3918,
+            "sha256": "227e5aa737b14a520b964141a2a0cf4381aa34da9df410a78809d4b47ecdcf78"
+          }
+        },
+        {
+          "before": {
+            "path": "dist/_worker.js/pages/propuestas/_publicid_/tienda/_slug_.astro.mjs",
+            "scope": "server-worker",
+            "bytes": 10487,
+            "gzipBytes": 3039,
+            "sha256": "14dc258a3e17a60bcab410dd66808f63db62169f79ead408c59bfce3cd417820"
+          },
+          "after": {
+            "path": "dist/_worker.js/pages/propuestas/_publicid_/tienda/_slug_.astro.mjs",
+            "scope": "server-worker",
+            "bytes": 10487,
+            "gzipBytes": 3037,
+            "sha256": "5a7667a371376faaf68889cc66daebbdd6357c26881fcdc49f001ed70e1e94a4"
+          }
+        },
+        {
+          "before": {
+            "path": "dist/_worker.js/pages/propuestas/_publicid_/tienda/carrito.astro.mjs",
+            "scope": "server-worker",
+            "bytes": 2831,
+            "gzipBytes": 1310,
+            "sha256": "d24f275db64f1bb6b90cd46fbe5a5c8a382f42ee2731b1f73edf6c04844324cc"
+          },
+          "after": {
+            "path": "dist/_worker.js/pages/propuestas/_publicid_/tienda/carrito.astro.mjs",
+            "scope": "server-worker",
+            "bytes": 2831,
+            "gzipBytes": 1310,
+            "sha256": "6ecfe92b03acee1e4765602739f7d737261287cff1f7a5ed0d9dcc064ce5e80c"
+          }
+        },
+        {
+          "before": {
+            "path": "dist/_worker.js/pages/propuestas/_publicid_/tienda/checkout.astro.mjs",
+            "scope": "server-worker",
+            "bytes": 2998,
+            "gzipBytes": 1170,
+            "sha256": "0f573438567877f72563a1576b306c9e1bd4bd3a9f28d64bead3afa3449c82f0"
+          },
+          "after": {
+            "path": "dist/_worker.js/pages/propuestas/_publicid_/tienda/checkout.astro.mjs",
+            "scope": "server-worker",
+            "bytes": 2998,
+            "gzipBytes": 1172,
+            "sha256": "7e7b95f9ffb2be84b541a32a60915b080f9d676d2d905e2b54b14cda4cec275e"
+          }
+        },
+        {
+          "before": {
+            "path": "dist/_worker.js/pages/propuestas/_publicid_/tienda/gracias.astro.mjs",
+            "scope": "server-worker",
+            "bytes": 3282,
+            "gzipBytes": 1391,
+            "sha256": "029642b667be1e68d192e2c3b5a41bd072b45040035215758e23b43a2c4e0cce"
+          },
+          "after": {
+            "path": "dist/_worker.js/pages/propuestas/_publicid_/tienda/gracias.astro.mjs",
+            "scope": "server-worker",
+            "bytes": 3282,
+            "gzipBytes": 1391,
+            "sha256": "bfff9f8644a1a0e89dc7fb7ec90a0bd67a9c192b22c3a17247bdc97ca60d27f5"
+          }
+        }
+      ],
+      "removed": [
+        {
+          "path": "dist/_worker.js/chunks/Admin_CXqTAU_q.mjs",
+          "scope": "server-worker",
+          "bytes": 344507,
+          "gzipBytes": 67132,
+          "sha256": "42f40a77614cae70cb8245eac49c1600d7475060b1578d99c612c7b26f150a80"
+        },
+        {
+          "path": "dist/_worker.js/chunks/Base_wLKw03Hp.mjs",
+          "scope": "server-worker",
+          "bytes": 14981,
+          "gzipBytes": 3885,
+          "sha256": "38b8a4e1c3105e539e3f457cf9bd22d5fa5e5915cc7db3ee65ae016b3deed11c"
+        },
+        {
+          "path": "dist/_worker.js/chunks/CartPage_B6BZFQOz.mjs",
+          "scope": "server-worker",
+          "bytes": 5283,
+          "gzipBytes": 2077,
+          "sha256": "be0de91770beea158d9823adbfff0bcf4551100c9cff954fc849f083aab14dd6"
+        },
+        {
+          "path": "dist/_worker.js/chunks/CatalogPage_CR_eVtqO.mjs",
+          "scope": "server-worker",
+          "bytes": 360407,
+          "gzipBytes": 55997,
+          "sha256": "918afaee0e5df9c003c5826a289cf6dcce471841859e91bcef25fd04ede59aeb"
+        },
+        {
+          "path": "dist/_worker.js/chunks/CheckoutPage_Bws_cvat.mjs",
+          "scope": "server-worker",
+          "bytes": 7855,
+          "gzipBytes": 2717,
+          "sha256": "07c0e4a2a783119eac7ce84db302c4e4b5f78bc623115511f388a2f499426672"
+        },
+        {
+          "path": "dist/_worker.js/chunks/CustomerAccount_Ces5E5j1.mjs",
+          "scope": "server-worker",
+          "bytes": 2371,
+          "gzipBytes": 1136,
+          "sha256": "b9031c1210bbcb968935629d6f7bc138e751237db250e547bfcbf16280a21302"
+        },
+        {
+          "path": "dist/_worker.js/chunks/DemoAssistant_HcdGE4DY.mjs",
+          "scope": "server-worker",
+          "bytes": 92946,
+          "gzipBytes": 26050,
+          "sha256": "b9f99aac5ccd0c1c1befd97f03045c6c4e1f05b20be1e555d5ec556331244b63"
+        },
+        {
+          "path": "dist/_worker.js/chunks/ManagerShell_DtKOaLIz.mjs",
+          "scope": "server-worker",
+          "bytes": 3684,
+          "gzipBytes": 1606,
+          "sha256": "f32ca78424df1c66907b1ebc600907ea7a114b056696f897807e835d0cb799f8"
+        },
+        {
+          "path": "dist/_worker.js/chunks/ProductPage_UXjVFDKd.mjs",
+          "scope": "server-worker",
+          "bytes": 8310,
+          "gzipBytes": 2964,
+          "sha256": "674c28ec7eedda41fd02c60d680c73584d26d7d8662e4ee3e04eb8d84be2df98"
+        },
+        {
+          "path": "dist/_worker.js/chunks/Shop_C1fAccvb.mjs",
+          "scope": "server-worker",
+          "bytes": 15366,
+          "gzipBytes": 4496,
+          "sha256": "88595b387f828643751f17caedbca41f97f3e8d685f18a6c0950e7d1f94ea789"
+        },
+        {
+          "path": "dist/_worker.js/chunks/ThanksPage_Ci6c4MYz.mjs",
+          "scope": "server-worker",
+          "bytes": 3023,
+          "gzipBytes": 1311,
+          "sha256": "3b44608ffb08e0bd6dc10c60248f24138eea23f5521f508fbbc280451b10da77"
+        },
+        {
+          "path": "dist/_worker.js/chunks/Theme_DR16kM_-.mjs",
+          "scope": "server-worker",
+          "bytes": 26246,
+          "gzipBytes": 7997,
+          "sha256": "88e5426bb39489a0861e460596095184451c256433969639c0d334db16b2abb4"
+        },
+        {
+          "path": "dist/_worker.js/chunks/nav_DZ27rTeT.mjs",
+          "scope": "server-worker",
+          "bytes": 1771,
+          "gzipBytes": 846,
+          "sha256": "f180d2d3b39a79f78eadce927b6e0a14cf074cb3bf1d800899bfc17f8e8e9fe3"
+        },
+        {
+          "path": "dist/_worker.js/chunks/preliminary-order-operations_6umXxrvJ.mjs",
+          "scope": "server-worker",
+          "bytes": 45829,
+          "gzipBytes": 9479,
+          "sha256": "168d6fe873ba3a4bf0a7f3b413b392794a2bbcd49aa783f860a50fd724bfb637"
+        },
+        {
+          "path": "dist/_worker.js/manifest_Ps4xbevb.mjs",
+          "scope": "server-worker",
+          "bytes": 353356,
+          "gzipBytes": 35960,
+          "sha256": "67c20cf9f12e6fd06bf14edf5d4086b86656e7f5ffb2dea5f4bd943c165eb48b"
+        }
+      ],
+      "added": [
+        {
+          "path": "dist/_worker.js/chunks/Admin_MGoJ_86g.mjs",
+          "scope": "server-worker",
+          "bytes": 395909,
+          "gzipBytes": 76892,
+          "sha256": "2ff34e4e7f693da93689dfbb6002399451cecb2fe55a5d53abad5a2748d462e7"
+        },
+        {
+          "path": "dist/_worker.js/chunks/Base_CCTSNVQP.mjs",
+          "scope": "server-worker",
+          "bytes": 14981,
+          "gzipBytes": 3885,
+          "sha256": "38b8a4e1c3105e539e3f457cf9bd22d5fa5e5915cc7db3ee65ae016b3deed11c"
+        },
+        {
+          "path": "dist/_worker.js/chunks/CartPage_YxpcZLxi.mjs",
+          "scope": "server-worker",
+          "bytes": 5283,
+          "gzipBytes": 2078,
+          "sha256": "63e7e257a5d3a6988e17726803ddd7efc5994bbc9b51ab78c8a75b1c6b964d33"
+        },
+        {
+          "path": "dist/_worker.js/chunks/CatalogPage_C4HbRSB1.mjs",
+          "scope": "server-worker",
+          "bytes": 360407,
+          "gzipBytes": 55999,
+          "sha256": "38a45535d656a6ffbbeb4db92a610a3961b1d5f1773e2e1e0e3a34dcec870b04"
+        },
+        {
+          "path": "dist/_worker.js/chunks/CheckoutPage_BHm3gRhw.mjs",
+          "scope": "server-worker",
+          "bytes": 7855,
+          "gzipBytes": 2719,
+          "sha256": "5a6595e1389091479f4f5f8a791c89937f483a254bc5c017637ff98d8a56e8b6"
+        },
+        {
+          "path": "dist/_worker.js/chunks/CustomerAccount_DqQQOeU8.mjs",
+          "scope": "server-worker",
+          "bytes": 2371,
+          "gzipBytes": 1136,
+          "sha256": "b9031c1210bbcb968935629d6f7bc138e751237db250e547bfcbf16280a21302"
+        },
+        {
+          "path": "dist/_worker.js/chunks/DemoAssistant_CkVE9JnA.mjs",
+          "scope": "server-worker",
+          "bytes": 92946,
+          "gzipBytes": 26051,
+          "sha256": "c4fe00e85407cfc3bbaa3f1d279da784b86277f8d5c5fdab004f3909eaceb6c6"
+        },
+        {
+          "path": "dist/_worker.js/chunks/ManagerShell_Cze5Mlbp.mjs",
+          "scope": "server-worker",
+          "bytes": 3684,
+          "gzipBytes": 1607,
+          "sha256": "8b8f2e4f944a7f88fd97c3ee801186da8ac24cbdfc417a097518a72c61527064"
+        },
+        {
+          "path": "dist/_worker.js/chunks/ProductPage_zc8r782o.mjs",
+          "scope": "server-worker",
+          "bytes": 8310,
+          "gzipBytes": 2966,
+          "sha256": "26f5bd2de7e3953431080a814f5783b1022fd812a2e4aa661c29186a071537fc"
+        },
+        {
+          "path": "dist/_worker.js/chunks/Shop_DRYqrDTp.mjs",
+          "scope": "server-worker",
+          "bytes": 15366,
+          "gzipBytes": 4497,
+          "sha256": "6901e139aa4a7b4f40ed64bc3e4db6ff490f09d73ab47114e4a2b0b5cd2604c9"
+        },
+        {
+          "path": "dist/_worker.js/chunks/ThanksPage_CJSpAo66.mjs",
+          "scope": "server-worker",
+          "bytes": 3023,
+          "gzipBytes": 1313,
+          "sha256": "854f7ddd21aa8d72d370ccda3ed33af6c622d0b6d132620d8ea32edab1b167d5"
+        },
+        {
+          "path": "dist/_worker.js/chunks/Theme_Y2L6fK8a.mjs",
+          "scope": "server-worker",
+          "bytes": 26246,
+          "gzipBytes": 7998,
+          "sha256": "e40609172dd1331d6a3c91b52c237c1d0898be39bc26435566502e1d043ea848"
+        },
+        {
+          "path": "dist/_worker.js/chunks/nav_CQkCSNHD.mjs",
+          "scope": "server-worker",
+          "bytes": 1792,
+          "gzipBytes": 852,
+          "sha256": "7eaa662518f0b2a22bee3efb2a601ae3acbe5b8418e82d609d577bfe34def157"
+        },
+        {
+          "path": "dist/_worker.js/chunks/preliminary-order-operations_788uQ0V7.mjs",
+          "scope": "server-worker",
+          "bytes": 36191,
+          "gzipBytes": 7754,
+          "sha256": "68d12cb4ed445d142169f58dbc96ad78c2e1ae907740b09b33c575963936c9d6"
+        },
+        {
+          "path": "dist/_worker.js/chunks/preliminary-order_FqiYFOWi.mjs",
+          "scope": "server-worker",
+          "bytes": 10273,
+          "gzipBytes": 2386,
+          "sha256": "6c540d95be971ab5ed709ccd03776ab0390934aa999fd2e76951b714f87d9155"
+        },
+        {
+          "path": "dist/_worker.js/manifest_C6yYths9.mjs",
+          "scope": "server-worker",
+          "bytes": 357836,
+          "gzipBytes": 36319,
+          "sha256": "a81a3ce5fbc961af465244562fcff1a0f36f2e817046394359cb7e76db59ba92"
+        },
+        {
+          "path": "dist/_worker.js/pages/demo/admin/presupuestos-empresa.astro.mjs",
+          "scope": "server-worker",
+          "bytes": 18953,
+          "gzipBytes": 4594,
+          "sha256": "a5756da1d8fde229e76144986b548e40ea34d66a9d80365fb9e57cc470c02ec7"
+        }
+      ]
+    },
+    "limitations": [
+      "Worker source/chunk changes are expected from registration and new composition; hash churn does not establish complete SSR behavior equivalence.",
+      "No browser, HTTP, Worker, DB, a11y or E2E execution in this comparison. Baseline runtime evidence is PR38; fresh R6.6c runtime checks will be reported separately.",
+      "Per-file gzip byte sums are descriptive; not a measured aggregate HTTP payload."
+    ]
+  },
+  "fixtureDatabase": {
+    "before": {
+      "capturedAt": "2026-10-04T04:18:03.720782+00:00",
+      "source": "/workspace/logic2b-ecom/tmp/segmentation-e2e/qa-VVZATM/fixtures-before.json",
+      "hash": "9cbfc811cfc4296515a403d395875a43bfa26aff0c9c9b08be0804b15bbf6eca",
+      "tables": 143,
+      "rows": 353
+    },
+    "afterCapturedAt": "2026-10-04T04:36:14.135806+00:00",
+    "after": {
+      "hash": "9cbfc811cfc4296515a403d395875a43bfa26aff0c9c9b08be0804b15bbf6eca",
+      "tables": 143,
+      "rows": 353
+    },
+    "result": "unchanged",
+    "preparation": "Reused already prepared isolated synthetic QA; no new seed, migration or remote DB access",
+    "serverStopped": true,
+    "chromeStopped": true
+  },
+  "limits": [
+    "Fresh browser/a11y/E2E and before/after logical fixture hash belong to R6.6c; inherited surface runtime from PR38 is not claimed as newly repeated.",
+    "Browser harness only GET/HEAD; separately identified E2E sends synthetic forbidden commands to verify rejection against isolated QA. Hash includes all143 application tables and353 rows.",
+    "No deployment, remote migration, cron, payment, real order, form submission to providers or durable demo mutation.",
+    "Fullcheck and root UI review follow the final disabled-date copy fix. Initial provisional browser/a11y/captures were replaced.",
+    "AST comparison supports shared catalog chunk extraction; it is not byte equality or a new runtime check for those inherited screens."
+  ],
+  "signOff": {
+    "architecture": "passed",
+    "fullstack": "passed",
+    "backend": "passed",
+    "product": "passed",
+    "frontend": "passed",
+    "ux-ui": "passed",
+    "seo": "passed"
+  }
+}

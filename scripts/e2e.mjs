@@ -283,6 +283,16 @@ check('crédito conserva privacidad de caché e indexación',
   companyCreditReviewResponse.headers.get('cache-control')?.includes('no-store') && companyCreditReviewHtml.includes('noindex'));
 check('crédito no añade formularios ni envíos', !/<form\b/i.test(companyCreditReviewHtml)
   && !/<button\b(?![^>]*\btype=["']button["'])/i.test(companyCreditReviewHtml));
+const companyNegotiationResponse = await fetch(`${BASE}/demo/admin/presupuestos-empresa`, { headers: { cookie } });
+const companyNegotiationHtml = await companyNegotiationResponse.text();
+check('panel enlaza la demostración de ofertas y presupuesto', adminHtml.includes('href="/demo/admin/presupuestos-empresa"'));
+check('ofertas y presupuesto separa comparación y simulación local', companyNegotiationResponse.ok
+  && companyNegotiationHtml.includes('data-company-negotiation-demo') && companyNegotiationHtml.includes('data-negotiation-comparison')
+  && companyNegotiationHtml.includes('data-negotiation-preliminary'));
+check('ofertas y presupuesto conserva privacidad de caché e indexación',
+  companyNegotiationResponse.headers.get('cache-control')?.includes('no-store') && companyNegotiationHtml.includes('noindex'));
+check('ofertas y presupuesto no añade formularios ni envíos', !/<form\b/i.test(companyNegotiationHtml)
+  && !/<button\b(?![^>]*\btype=["']button["'])/i.test(companyNegotiationHtml));
 const marketDemoResponse = await fetch(`${BASE}/demo/admin/mercados`, { headers: { cookie } });
 const marketDemoHtml = await marketDemoResponse.text();
 check('panel enlaza la demostración de mercados e idiomas', adminHtml.includes('href="/demo/admin/mercados"'));

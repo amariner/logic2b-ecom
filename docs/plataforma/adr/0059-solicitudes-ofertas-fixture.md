@@ -5,7 +5,7 @@
 - Módulo: `companies` 1.7.0; dependencia de módulo `platform-configuration`.
 - Capacidad: B2B-006 parcial, instalada/inactiva en avanzado/demo, ausente en mínimo/estándar; dependencia única B2B-002 y superficies operativas vacías.
 - Perfil: `company-offer-eur-cents-v1`.
-- Continuidad: R6.5c integrada en PR #38 (`5cdb5bb`); R6.6b implementado y verificado localmente; integración pendiente y demo posterior.
+- Continuidad: R6.5c integrada en PR #38 (`5cdb5bb`); R6.6b integrado en PR #40 (`ce295c6`); demo R6.6c verificada localmente, pendiente de integración y sin despliegue.
 
 ## Contexto y decisión
 
@@ -265,12 +265,17 @@ Usará create/issue/approve/expire/cancel existentes, sin recrear sus estados o
 aritmética. Check 989 archivos/263 suites/3.789 pruebas y revisión 9.093 sin
 P1/P2. Los 58 JS públicos, seis grafos, 355 fuentes y 19 CSS son iguales a
 PR #39; el Worker conserva factories y consumidores, con +92 B explicado por
-PURE y registro. No se acredita equivalencia SSR completa. Integración pendiente;
+PURE y registro. No se acredita equivalencia SSR completa. Integrado en PR #40 (`ce295c6`);
 QA runtime heredada de PR #38, sin nuevas ejecuciones.
 [Informe final R6.6b](../../audits/r6-6b/verification-report.json). Importar
 APIs públicas puras no activa ORD-008 ni sus rutas o consumidores operativos.
 
-R6.6c será la demo posterior. Ningún corte fixture crea enlaces alojados,
+R6.6c está implementada y verificada localmente según el [ADR-0060](0060-artefacto-preliminar-fixture.md),
+en `/demo/admin/presupuestos-empresa`, con 25 focales de modelo/seis arquitectura y revisión 105.487 sin P1/P2;
+check global final 993 archivos/264 suites/3.814 pruebas, 44 HTML/44 formularios
+locales/cero cron. QA final nueva: navegador 9.068 comprobaciones, a11y8 sin hallazgos,
+ocho PNG revisadas y E2E196/196; hash antes/después idéntico de 143 tablas/353 filas.
+Integración pendiente, sin despliegue. [Informe final R6.6c](../../audits/r6-6c/verification-report.json). Ningún corte fixture crea enlaces alojados,
 confirma pagos ficticios como hechos financieros, fabrica orderId ni ejecuta
 conversión/reserva. Autorización, stock actual, precio respetado, fiscalidad,
 concurrencia durable y operación real siguen como alcances separados.

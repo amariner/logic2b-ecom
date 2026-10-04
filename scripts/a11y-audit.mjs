@@ -730,6 +730,65 @@ for (const vp of [DESKTOP, MOBILE]) {
   }
 }
 
+// R6.6c: comparación independiente y presupuesto por acciones explícitas.
+const COMPANY_NEGOTIATION_SCENARIO = (stage) => `(() => {
+  const root = document.querySelector('[data-company-negotiation-demo]');
+  if (root?.dataset.ready !== 'true') return 'not-ready';
+  const stage = ${JSON.stringify(stage)};
+  const select = (name, value) => {
+    const field = root.querySelector('[data-negotiation-' + name + ']');
+    if (field.disabled || !Array.from(field.options).some(option => option.value === value && !option.disabled)) throw new Error('Opción no disponible.');
+    field.value = value;
+    field.dispatchEvent(new Event('change', { bubbles: true }));
+  };
+  const act = name => {
+    const button = root.querySelector('[data-negotiation-action="' + name + '"]');
+    if (button.disabled) throw new Error('Acción no disponible.');
+    button.click();
+  };
+  act('reset');
+  if (stage === 'approved-after' || stage === 'new-draft') {
+    act('create'); act('issue'); act('approve');
+    select('moment', 'after');
+    select('comparison', 'two-three');
+    if (stage === 'new-draft') { select('offer', 'two'); act('create'); }
+  } else if (stage === 'expired') {
+    act('create'); select('moment', 'first-expiry'); act('expire');
+  }
+  const preliminary = root.querySelector('[data-negotiation-preliminary]');
+  const expected = stage === 'initial' ? null : stage === 'approved-after' ? 'approved' : stage === 'new-draft' ? 'draft' : 'expired';
+  const offer = stage === 'new-draft' ? 'two' : 'one';
+  const comparison = stage === 'approved-after' || stage === 'new-draft' ? 'two-three' : 'one-two';
+  const moment = stage === 'approved-after' ? 'after' : stage === 'expired' ? 'first-expiry' : 'start';
+  const count = stage === 'approved-after' ? 2 : stage === 'expired' ? 1 : 0;
+  if (preliminary.getAttribute('data-status') !== expected || preliminary.dataset.present !== String(expected !== null) || preliminary.hidden !== (expected === null)) return 'wrong-status';
+  if (preliminary.getAttribute('data-offer-id') !== (expected === null ? null : offer)) return 'wrong-artifact-offer';
+  if (root.querySelector('[data-negotiation-offer]').value !== offer || root.querySelector('[data-negotiation-comparison]').value !== comparison || root.querySelector('[data-negotiation-moment]').value !== moment) return 'wrong-selection';
+  if (root.querySelectorAll('[data-negotiation-history-row]').length !== count) return 'wrong-history';
+  if (root.querySelector('[data-negotiation-history]').hidden !== (count === 0) || root.querySelector('[data-negotiation-history-empty]').hidden !== (count !== 0)) return 'wrong-history-visibility';
+  const total = preliminary.querySelector('[data-negotiation-amount="total"]');
+  if (total.getAttribute('data-cents') !== (expected === null ? null : stage === 'new-draft' ? '4200' : '7700')) return 'wrong-total';
+  if (expected === null && (total.textContent.trim() !== '' || Array.from(preliminary.querySelectorAll('time')).some(time => time.hasAttribute('datetime') || time.textContent.trim() !== ''))) return 'stale-preliminary';
+  const available = Object.fromEntries(['create','issue','approve','expire','cancel'].map(name => [name, !root.querySelector('[data-negotiation-action="' + name + '"]').disabled]));
+  const expectedAvailable = stage === 'initial' ? {create:true,issue:false,approve:false,expire:false,cancel:false}
+    : stage === 'approved-after' ? {create:false,issue:false,approve:false,expire:false,cancel:true}
+    : stage === 'new-draft' ? {create:false,issue:true,approve:false,expire:false,cancel:true}
+    : {create:false,issue:false,approve:false,expire:false,cancel:false};
+  if (JSON.stringify(available) !== JSON.stringify(expectedAvailable)) return 'wrong-actions';
+  if (stage === 'new-draft' && Array.from(preliminary.querySelectorAll('[data-negotiation-time="issued"],[data-negotiation-time="approved"]')).some(time => time.hasAttribute('datetime') || time.textContent.trim() !== '')) return 'transferred-approval';
+  const restriction = root.querySelector('[data-negotiation-moment-restriction]');
+  if (restriction.hidden !== (stage !== 'expired') || restriction.textContent.trim() !== (stage === 'expired' ? 'Momento desactivado: 3 oct · 14:00 UTC. Este momento es anterior a la creación o a la última acción aplicada.' : '')) return 'ambiguous-moment-restriction';
+  return stage;
+})()`;
+for (const vp of [DESKTOP, MOBILE]) {
+  const suffix = vp === MOBILE ? '@375' : '';
+  for (const stage of ['initial', 'approved-after', 'new-draft', 'expired']) {
+    SURFACES.push({ name: `company-negotiation:${stage}${suffix}`, url: '/demo/admin/presupuestos-empresa', vp, auth: true,
+      eval: COMPANY_NEGOTIATION_SCENARIO(stage), expect: stage,
+      ...(stage === 'approved-after' ? { reducedMotion: true } : {}) });
+  }
+}
+
 // R5.4d: estas rutas no existen en la demo y por eso no forman parte de la
 // batería ordinaria. El arnés local explícito activa un manifest cliente y una
 // composición visual inerte para auditar las páginas Astro reales sin DB,

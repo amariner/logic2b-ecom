@@ -1,0 +1,42 @@
+[
+  {
+    "surface": "company-negotiation:initial",
+    "url": "/demo/admin/presupuestos-empresa",
+    "findings": []
+  },
+  {
+    "surface": "company-negotiation:approved-after",
+    "url": "/demo/admin/presupuestos-empresa",
+    "findings": []
+  },
+  {
+    "surface": "company-negotiation:new-draft",
+    "url": "/demo/admin/presupuestos-empresa",
+    "findings": []
+  },
+  {
+    "surface": "company-negotiation:expired",
+    "url": "/demo/admin/presupuestos-empresa",
+    "findings": []
+  },
+  {
+    "surface": "company-negotiation:initial@375",
+    "url": "/demo/admin/presupuestos-empresa",
+    "findings": []
+  },
+  {
+    "surface": "company-negotiation:approved-after@375",
+    "url": "/demo/admin/presupuestos-empresa",
+    "findings": []
+  },
+  {
+    "surface": "company-negotiation:new-draft@375",
+    "url": "/demo/admin/presupuestos-empresa",
+    "findings": []
+  },
+  {
+    "surface": "company-negotiation:expired@375",
+    "url": "/demo/admin/presupuestos-empresa",
+    "findings": []
+  }
+]
