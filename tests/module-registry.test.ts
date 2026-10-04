@@ -134,11 +134,26 @@ describe('registro de módulos (R1.4)', () => {
       dependencies: ['platform-configuration'],
       permissions: [], events: [], subscriptions: [], jobs: [], healthchecks: [], navigation: [], routes: [],
     });
-    expect('CHK-010' in MODULE_REGISTRY.capabilityOwners).toBe(false);
+    expect(MODULE_REGISTRY.byId.currencies.capabilities).not.toContain('CHK-010');
     for (const profile of ['minimal', 'standard', 'advanced'] as const) {
       const platform = createPlatform(createPresetManifest(profile, deployment));
       expect(platform.hasModule('currencies')).toBe(false);
       expect(platform.isCapabilityActive('MKT-008')).toBe(false);
+    }
+  });
+
+  it('adds fixture method eligibility to payments without adding operational surfaces', () => {
+    expect(MODULE_REGISTRY.capabilityOwners['CHK-010']).toBe('payments');
+    expect(MODULE_REGISTRY.byId.payments).toMatchObject({
+      dependencies: ['platform-configuration'],
+      permissions: [], events: [], subscriptions: [], jobs: [], navigation: [],
+      healthchecks: ['payments.stripe-checkout'],
+      routes: [{ match: 'exact', path: '/api/webhooks/stripe', capabilityId: 'CHK-004' }],
+    });
+    for (const profile of ['minimal', 'standard', 'advanced'] as const) {
+      const platform = createPlatform(createPresetManifest(profile, deployment));
+      expect(platform.isCapabilityActive('CHK-010')).toBe(false);
+      expect(platform.hasCapabilityFlag('CHK-010', 'sideEffects')).toBe(false);
     }
   });
 

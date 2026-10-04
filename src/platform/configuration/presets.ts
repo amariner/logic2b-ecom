@@ -101,6 +101,9 @@ const ADVANCED_CAPABILITIES = {
   // R4.11 solo instala el contrato: cada proyecto debe aportar importes,
   // vigencia, puerta de conversión y adaptador de enlace alojado.
   'ORD-008': { state: 'installed' },
+  // R5.11b: disponibilidad ilustrativa de métodos; no inicia pagos ni
+  // autoriza proveedores, conversión o rutas de checkout.
+  'CHK-010': { state: 'installed' },
   'CHK-011': { state: 'installed' },
   // R5.1 instala identidad/dominio, pero no crea perfiles hasta disponer de
   // persistencia expand-only y un secreto HMAC por despliegue.

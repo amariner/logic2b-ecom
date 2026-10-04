@@ -97,7 +97,7 @@ remoto.
 
 ### Evidencia local actualizada el 2026-10-04
 
-- `pnpm check`: 928 archivos sin diagnósticos, 237 suites y 2.561 tests.
+- `pnpm check`: 932 archivos sin diagnósticos, 239 suites y 2.679 tests.
 - Build demo: 44 documentos HTML y 44 formularios de proyecto locales.
 - D1/workerd: 15 bloques correctos, backup 39 y restauración de 129 tablas;
   [informe de segmentación](docs/audits/r5-6c/facts-d1-report.json).
@@ -135,6 +135,10 @@ remoto.
   fixture; 8.823 comprobaciones independientes. Unidades menores explícitas,
   tasa racional dirigida y vigencia; MKT-008 instalada e inactiva, sin cobros
   ni conversión operativa. [Informe R5.11a](docs/audits/r5-11a/verification-report.json).
+- Métodos locales ficticios: 86 pruebas de reglas y 30 de contexto, más 6.366
+  comprobaciones independientes. Disponibilidad explicada sobre el importe
+  original, sin FX, cobros ni proveedores; CHK-010 instalada e inactiva.
+  [Informe R5.11b](docs/audits/r5-11b/verification-report.json).
 - Base QA: 143 tablas y 353 filas, hash antes/después idéntico:
   `9cbfc811cfc4296515a403d395875a43bfa26aff0c9c9b08be0804b15bbf6eca`.
 

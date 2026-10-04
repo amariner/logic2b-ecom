@@ -332,6 +332,31 @@ describe('capability manifest (R1.2)', () => {
     expect(isolated.capability('MKT-008').flags).toEqual(INERT_FLAGS);
   });
 
+  it('keeps fixture payment methods independent of checkout, providers and currency conversion', () => {
+    expect(CAPABILITY_DEFINITIONS['CHK-010'].dependencies).toEqual(['PLT-004']);
+    expect('CHK-010' in CAPABILITY_PRESETS.minimal).toBe(false);
+    expect('CHK-010' in CAPABILITY_PRESETS.standard).toBe(false);
+    expect(CAPABILITY_PRESETS.advanced['CHK-010']).toEqual({ state: 'installed' });
+    const demo = createPlatform(platformManifest);
+    expect(demo.capabilityState('CHK-010')).toBe('installed');
+    expect(demo.capability('CHK-010').flags).toEqual(INERT_FLAGS);
+    const isolated = createPlatform({
+      manifestVersion: 1,
+      deployment: { ...deployment, profile: 'custom' },
+      capabilities: {
+        'PLT-001': { state: 'active', flags: INERT_FLAGS },
+        'PLT-004': { state: 'active', flags: INERT_FLAGS, config: { failFast: true } },
+        'CHK-010': { state: 'active', flags: INERT_FLAGS },
+      },
+    });
+    expect(isolated.hasModule('payments')).toBe(true);
+    for (const module of ['markets', 'currencies', 'checkout'] as const) expect(isolated.hasModule(module)).toBe(false);
+    for (const id of ['CHK-003', 'CHK-004', 'INT-001', 'MKT-008'] as const) expect(isolated.isCapabilityActive(id)).toBe(false);
+    expect(isolated.capability('CHK-010').flags).toEqual(INERT_FLAGS);
+    expect(isolated.scheduledJobs('*/1 * * * *')).toEqual([]);
+    expect(isolated.scheduledJobs('*/5 * * * *')).toEqual([]);
+  });
+
   it('requires markets and variants for publication without coupling market resolution alone to catalog', () => {
     const input: MutableManifest = {
       manifestVersion: 1,
