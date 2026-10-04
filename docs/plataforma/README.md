@@ -33,6 +33,37 @@ venta o servicios logísticos propios.
 
 ## Contrato y última demo verificados localmente
 
+**R6.6b — Artefacto preliminar fixture está implementado y verificado localmente**,
+rama `codex/company-preliminary-fixtures`, según el [ADR-0060](adr/0060-artefacto-preliminar-fixture.md).
+Congela negociación completa, revisión histórica explícita y términos de
+presupuesto; reconstruye estado y versión exclusivamente con los reducers
+públicos ORD-008. Hasta tres acciones declaradas emitir/aprobar/caducar/cancelar,
+con fechas UTC explícitas, replay y comparación íntegra antes de conflictos.
+La edición de oferta, el corte de negociación y la versión del ciclo son distintos.
+
+Cambiar oferta o términos exige nuevo artefacto, sin trasladar aprobación.
+`unpaid`/cero describe el borrador simulado, no dinero real o impago; no hay
+pago, conversión, reserva o autorización. `companies` 1.8.0 mantiene B2B-006
+parcial instalada/inactiva y dependencia B2B-002; usar APIs puras no activa ORD-008.
+R6.6a está integrado en PR #39 (`108480f8`), sin despliegue. Check final de b:
+989 archivos sin diagnósticos, 263 suites/3.789 pruebas; 44 de composición,
+50 de regresión de negociación, seis de arquitectura y 120 de registro.
+Build con 44 HTML/44 formularios locales y cero cron. Revisión independiente:
+9.093 comprobaciones sin P1/P2, efectos, getters o reloj implícito. Bundle de
+diagnóstico 31.399 B/8.356 gzip, sin factories de contexto de eventos ni
+funciones D1; conserva pequeñas constantes históricas, incluidas algunas de
+archivos de infraestructura. Dos anotaciones PURE permiten eliminar factories
+no usadas; sonda de importación posterior con cero efectos, separada del oráculo.
+Los 58 JavaScript públicos, seis grafos completos, 355 fuentes y 19 CSS son
+idénticos a PR #39. Los clientes suman 352.473 B/116.299 gzip. El Worker
+conserva ambas factories y 19 consumidores: +92 B explicados por las dos
+anotaciones PURE (+32) y registro/ADR0060 (+60), sin equivalencia SSR completa.
+**Implementado y verificado localmente; integración pendiente y sin despliegue.**
+[Informe final R6.6b](../audits/r6-6b/verification-report.json). Navegador 6.368/108 visitas, E2E192, a11y8/capturas8 y
+hash143 tablas/353 filas siguen heredados de PR #38, sin nueva ejecución
+HTTP/Worker/navegador/DB. R6.6c será la demo posterior; dirección aceptada,
+schema exacto en preparación, sin implementación o QA nueva.
+
 **R6.6a — Contrato de solicitudes B2B y revisiones completas de oferta está implementado y verificado localmente**,
 rama `codex/company-negotiation-fixtures`, según el [ADR-0059](adr/0059-solicitudes-ofertas-fixture.md).
 Solicitud sin dinero, contexto íntegro de empresa/contacto/catálogo y hasta
@@ -53,7 +84,7 @@ Seis grafos JavaScript y 355 fuentes de superficie son idénticos a PR #38.
 De 19 CSS, 18 son idénticos: el global añade únicamente `.ordinal`, utilidad sin
 consumidor en esas fuentes, +175 B/+7 gzip. Al retirarla se recupera el SHA
 anterior exacto. Es comparación estática, no una nueva prueba HTTP/SSR o de
-interacción. **Implementado y verificado localmente; integración pendiente y sin despliegue.**
+interacción. **Implementado y verificado localmente; integrado en PR #39 (`108480f8`) y sin despliegue.**
 [Informe final R6.6a](../audits/r6-6a/verification-report.json).
 No añade UI, DDL, Worker o acciones sobre DB. Navegador 6.368/108 visitas,
 E2E192, a11y8/capturas8 y hash de 143 tablas/353 filas son evidencia heredada
@@ -286,13 +317,31 @@ P1/P2, efectos, getters o reloj implícito; 44 HTML/44 formularios locales y cer
 cron. Seis grafos JS y 355 fuentes iguales a PR #38; 18/19 CSS iguales y única
 utilidad `.ordinal` sin consumidor (+175 B/+7 gzip), con SHA previo recuperable
 al retirarla. Comparación estática, sin afirmar ejecución SSR completa.
-Implementado y verificado localmente; integración pendiente/sin despliegue.
+Implementado y verificado localmente; integrado en PR #39 (`108480f8`)/sin despliegue.
 [Informe final R6.6a](../audits/r6-6a/verification-report.json).
 Navegador/E2E192/a11y8/capturas8/hash143 tablas/353 filas son heredados de PR #38,
-sin UI o ejecución runtime/DB nuevas. R6.6b será composición pura con ORD-008,
-con oferta histórica congelada y parámetros explícitos; revisión comercial y
-versión del ciclo permanecen separadas. R6.6c será la demo posterior. No se
-ejecutan conversión, reserva, enlaces alojados o cobro.
+sin UI o ejecución runtime/DB nuevas.
+
+**R6.6b está implementado y verificado localmente**, según el [ADR-0060](adr/0060-artefacto-preliminar-fixture.md):
+artefacto histórico íntegro, oferta seleccionada explícitamente y términos
+congelados; estado/versión reconstruidos solo por los reducers ORD-008.
+Hasta tres acciones declaradas con fechas UTC, replay y binding completo antes
+de conflictos. Nuevo contexto/oferta/términos exige otro artefacto, sin heredar
+aprobación; una negociación posterior no retargetea el corte histórico.
+`unpaid`/cero es dato de simulación, no dinero observado o permiso comercial.
+B2B-006 parcial instalada/inactiva, companies 1.8.0; import público puro no
+activa ORD-008. Check final: 989 archivos sin diagnósticos, 263 suites/3.789
+pruebas; 44 composición, 50 regresión de negociación, seis arquitectura y 120
+registro. Revisión 9.093 sin P1/P2, efectos, getters o reloj implícito; diagnóstico
+31.399 B/8.356 gzip sin factories de eventos ni funciones D1, con constantes
+históricas de datos. 44 HTML/44 formularios locales/cero cron. Los 58 JS públicos, seis grafos completos, 355 fuentes y 19 CSS permanecen
+iguales a PR #39. Worker +92 B por PURE/registro, con ambas factories y 19
+consumidores conservados; no es prueba de equivalencia SSR completa.
+Implementado y verificado localmente; integración pendiente/sin despliegue.
+[Informe final R6.6b](../audits/r6-6b/verification-report.json).
+Interacción/base QA heredadas de PR #38, sin nuevo HTTP/Worker/navegador/DB.
+Sin pago, conversión, reserva o enlaces alojados. R6.6c será la demo inerte
+posterior, con dirección aceptada y schema exacto en preparación; sin fuentes.
 
 
 **R6.4b — Evidencia de cobro con fixtures está implementado y verificado localmente**, rama

@@ -295,9 +295,9 @@ export const MODULE_DESCRIPTORS = [
     wikiLinks: ['docs/plataforma/adr/0050-presentacion-divisas-fixture.md'], navigation: [], routes: [],
   },
   {
-    id: 'companies', version: '1.7.0', capabilities: ['B2B-001', 'B2B-002', 'B2B-003', 'B2B-004', 'B2B-005', 'B2B-006'], dependencies: ['platform-configuration'],
+    id: 'companies', version: '1.8.0', capabilities: ['B2B-001', 'B2B-002', 'B2B-003', 'B2B-004', 'B2B-005', 'B2B-006'], dependencies: ['platform-configuration'],
     permissions: [], events: [], subscriptions: [], jobs: [], healthchecks: [],
-    wikiLinks: ['docs/plataforma/adr/0052-directorio-empresas-fixture.md', 'docs/plataforma/adr/0053-catalogos-empresa-fixture.md', 'docs/plataforma/adr/0054-reglas-cantidad-fixture.md', 'docs/plataforma/adr/0055-condiciones-pago-fixture.md', 'docs/plataforma/adr/0056-evidencia-cobro-fixture.md', 'docs/plataforma/adr/0057-limites-credito-fixture.md', 'docs/plataforma/adr/0058-revision-credito-fixture.md', 'docs/plataforma/adr/0059-solicitudes-ofertas-fixture.md'], navigation: [], routes: [],
+    wikiLinks: ['docs/plataforma/adr/0052-directorio-empresas-fixture.md', 'docs/plataforma/adr/0053-catalogos-empresa-fixture.md', 'docs/plataforma/adr/0054-reglas-cantidad-fixture.md', 'docs/plataforma/adr/0055-condiciones-pago-fixture.md', 'docs/plataforma/adr/0056-evidencia-cobro-fixture.md', 'docs/plataforma/adr/0057-limites-credito-fixture.md', 'docs/plataforma/adr/0058-revision-credito-fixture.md', 'docs/plataforma/adr/0059-solicitudes-ofertas-fixture.md', 'docs/plataforma/adr/0060-artefacto-preliminar-fixture.md'], navigation: [], routes: [],
   },
 ] as const satisfies readonly ModuleDescriptor[];
 
