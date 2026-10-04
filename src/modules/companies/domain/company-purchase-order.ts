@@ -2,9 +2,10 @@ import {
   defineCompanyNegotiation, previewCompanyOfferRevision,
   type CompanyNegotiation, type CompanyOfferSnapshot,
 } from './company-negotiation';
+import { COMPANY_PURCHASE_ORDER_NUMBER_LENGTH, isCompanyPurchaseOrderNumber } from './company-purchase-order-number';
 
 export const COMPANY_PURCHASE_ORDER_LIMITS = /* @__PURE__ */ Object.freeze({
-  idLength: 100, numberLength: 120, documentReferenceLength: 100, version: Number.MAX_SAFE_INTEGER,
+  idLength: 100, numberLength: COMPANY_PURCHASE_ORDER_NUMBER_LENGTH, documentReferenceLength: 100, version: Number.MAX_SAFE_INTEGER,
 });
 /** Corte histórico íntegro: ni una referencia abreviada ni la última oferta implícita. */
 export type CompanyPurchaseOrderBinding = Readonly<{
@@ -93,9 +94,7 @@ function instant(input: unknown): string {
 }
 /** Texto exacto: no trim, case folding ni normalización Unicode o numérica. */
 function purchaseNumber(input: unknown): string {
-  if (typeof input !== 'string' || input.length < 1 || input.length > COMPANY_PURCHASE_ORDER_LIMITS.numberLength ||
-    input.endsWith(' ') || !/^[\p{L}\p{N}][\p{L}\p{M}\p{N} ._\/#-]*$/u.test(input) ||
-    /\p{Default_Ignorable_Code_Point}|\u20e3/u.test(input)) return invalid();
+  if (!isCompanyPurchaseOrderNumber(input)) return invalid();
   return input;
 }
 function readBinding(input: unknown): Readonly<{ binding: CompanyPurchaseOrderBinding; offer: CompanyOfferSnapshot }> {

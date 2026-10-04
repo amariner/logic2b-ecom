@@ -179,3 +179,28 @@ export {
   type CompanyPurchaseOrderSnapshot,
   type CompanyPurchaseOrderContractReason,
 } from './domain/company-purchase-order';
+
+export {
+  COMPANY_DOCUMENT_EVIDENCE_LIMITS,
+  CompanyDocumentContractError,
+  defineCompanyDocumentRequest,
+  defineCompanyDocumentResponse,
+  evaluateCompanyDocumentEvidence,
+  type CompanyDocumentRequest,
+  type CompanyDocumentCommercialAmount,
+  type CompanyObservedDocument,
+  type CompanyDocumentEvidenceMetadata,
+  type CompanyDocumentEvidence,
+  type CompanyDocumentResponse,
+  type CompanyDocumentExpected,
+  type CompanyDocumentFieldComparison,
+  type CompanyDocumentAmountComparison,
+  type CompanyDocumentEvaluation,
+  type CompanyDocumentContractReason,
+} from './domain/company-document-evidence';
+
+export type { CompanyDocumentAdapter } from './application/company-document-adapter';
+export {
+  MAX_FIXTURE_COMPANY_DOCUMENT_CASES,
+  createFixtureCompanyDocumentAdapter,
+} from './infrastructure/fixture-company-document-adapter';
