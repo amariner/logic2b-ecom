@@ -1,0 +1,736 @@
+{
+  "schemaVersion": 1,
+  "verifiedAt": "2026-10-04",
+  "environment": "local-fixture-demo",
+  "deployment": "not-deployed",
+  "scope": "R6.5c: fifteen synthetic credit contexts and explicit in-memory review, no operational activation",
+  "verification": {
+    "typecheckFiles": 985,
+    "diagnostics": 0,
+    "suites": 261,
+    "tests": 3694,
+    "modelTests": 41,
+    "architectureTests": 6,
+    "adminAuthTests": 8,
+    "buildHtmlPages": 44,
+    "buildLocalForms": 44,
+    "cronCount": 0,
+    "e2eChecks": 192,
+    "browserChecks": 6368,
+    "browserMainStateVisits": 108,
+    "a11ySurfaces": 8,
+    "a11yErrors": 0,
+    "a11yWarnings": 0,
+    "screenshots": 8,
+    "screenshotsReviewed": 8,
+    "rootScreenshotsReviewed": 4
+  },
+  "evidence": {
+    "browser": "report.json",
+    "accessibility": "a11y-report.json",
+    "visual": "README.md",
+    "e2e": "/tmp/ecom-company-credit-review-demo-e2e.log",
+    "fullcheck": "/tmp/ecom-company-credit-review-demo-check.log",
+    "rootVisual": [
+      "pending-1440.png",
+      "above-accepted-375.png",
+      "missing-accepted-1440.png",
+      "unreachable-blocked-375.png"
+    ]
+  },
+  "independentReview": {
+    "schemaVersion": 1,
+    "block": "R6.5c",
+    "reviewedAt": "2026-10-04T03:35:06.760657Z",
+    "result": "passed",
+    "findings": {
+      "openProductP1": 0,
+      "openProductP2": 0,
+      "harnessCoveragePending": []
+    },
+    "scope": "independent read-only model oracle, static UI/page, browser/a11y harness and diagnostic bundle review",
+    "probe": {
+      "status": "passed",
+      "checks": 129333,
+      "structuralViews": 630,
+      "scenarios": 15,
+      "responses": 1260,
+      "openings": 630,
+      "scenarioChanges": 450,
+      "gateChecks": 16,
+      "effects": 0,
+      "getters": 0,
+      "implicitDates": 0,
+      "explicitDates": 349845,
+      "oracle": "Independent Python scenario arithmetic and finite-state enumeration from accepted semantic rules; no production or expected-table imports",
+      "artifact": "/tmp/r65c-demo-probe.mjs",
+      "command": "python3 /tmp/r65c-demo-oracle.py && node /tmp/r65c-demo-probe.mjs",
+      "expectations": "/tmp/r65c-demo-expectations.json",
+      "matrix": {
+        "structuralViews": 630,
+        "notOpen": 75,
+        "openingBlocked": 15,
+        "pending": 180,
+        "accepted": 120,
+        "rejected": 240,
+        "numericalContexts": 15,
+        "comparisonRows": 45,
+        "compared": 33,
+        "unconfigured": 9,
+        "unknown": 3,
+        "belowLimit": 25,
+        "equalLimit": 5,
+        "aboveLimit": 3
+      },
+      "coverage": [
+        "Independent Python arithmetic and state enumeration written before source inspection; expected tables in product/plan are not used as engine.",
+        "630 structural views, including valid programmatic reviewer selections while UI is disabled; not claimed as 630 reachable browser interactions.",
+        "1260 accept/reject attempts,630 open attempts and450 same/new-scenario transitions preserve local case history, counter and deterministic timestamp slots correctly.",
+        "Explicit opening only; repeated open preserves votes, same scenario is no-op and changed scenario clears local case and resets reviewer A without mutating prior artifacts.",
+        "Null/zero/signed differences, independent absent limits, historical asOf and unknown exposure remain unchanged by declarations.",
+        "Full fixed-context case validation rejects generic otherwise valid review IDs/times and tampered artifacts; private metadata excluded from frozen DTO.",
+        "Closed feedback/state/patches, descriptor/Proxy redaction, detached copies, immutable history and AND demo gate; import and all calls without IO/getters/implicit clock."
+      ]
+    },
+    "diagnosticModelBundle": {
+      "schemaVersion": 1,
+      "reviewedAt": "2026-10-04T03:30:54.154Z",
+      "scope": "diagnostic browser-targeted demo model bundle",
+      "bytes": 40364,
+      "gzipBytes": 10440,
+      "sha256": "f15eb8536c68e9a4957b53ef2e98ecf6d5135254ac9ce0f7874169b0f7c88c88",
+      "contributingSources": [
+        {
+          "path": "src/modules/companies/domain/company-directory.ts",
+          "bytesInOutput": 5830
+        },
+        {
+          "path": "src/modules/companies/domain/company-collection-evidence.ts",
+          "bytesInOutput": 113
+        },
+        {
+          "path": "src/modules/companies/domain/company-credit.ts",
+          "bytesInOutput": 9180
+        },
+        {
+          "path": "src/modules/companies/domain/company-credit-review.ts",
+          "bytesInOutput": 8824
+        },
+        {
+          "path": "src/composition/company-credit-review-demo.ts",
+          "bytesInOutput": 16188
+        }
+      ],
+      "externalImports": [],
+      "forbiddenTokenMatches": [],
+      "sourceSnapshot": [
+        {
+          "path": "src/composition/company-credit-review-demo.ts",
+          "modifiedAt": "2026-10-04T03:29:16.664Z",
+          "sha256": "c55469e276dd3ca610b6699a55e6dc042ac6645174eea8fd97feb46cf971bfd5"
+        },
+        {
+          "path": "src/components/admin/CompanyCreditReviewDemo.astro",
+          "modifiedAt": "2026-10-04T03:29:25.192Z",
+          "sha256": "41b82c5a7c32876a72c3aca8049b554206b41db5af6abf3b90c1d26ea9660e4f"
+        },
+        {
+          "path": "src/pages/demo/admin/credito.astro",
+          "modifiedAt": "2026-10-04T03:29:24.452Z",
+          "sha256": "b50ea3722db86cab761ab1f1187fb553a22a71b273a72a77291d2315fa05c8f4"
+        }
+      ],
+      "historicalRetainedConstant": {
+        "path": "src/modules/companies/domain/company-collection-evidence.ts",
+        "bytesInOutput": 113,
+        "description": "Only historical COMPANY_COLLECTION_LIMITS, no collection/calendar logic."
+      },
+      "limits": [
+        "Diagnostic model bundle is not the final emitted Astro client graph.",
+        "Eager fixture factories perform pure normalization; the instrumented probe covers import and all model calls with IO/getters/implicit clocks blocked.",
+        "Synthetic raw metadata may remain in the fixture bundle; presentation DTO and DOM exclude it without an RBAC claim.",
+        "Rendered/browser/HTTP/DB checks belong to parent/QA."
+      ]
+    },
+    "sourceFreezeConfirmed": {
+      "pendingModelAuthorConfirmation": false,
+      "component": "2026-10-04T03:29:25.191Z",
+      "page": "2026-10-04T03:29:24.451Z",
+      "changedAfterOracle": false,
+      "model": "2026-10-04T03:29:16.663Z",
+      "modelSha256": "c55469e276dd3ca610b6699a55e6dc042ac6645174eea8fd97feb46cf971bfd5",
+      "tests": {
+        "path": "tests/company-credit-review-demo.test.ts",
+        "modifiedAt": "2026-10-04T03:35:49.291211+00:00",
+        "sha256": "5a66f0fb7a0f4e9964ab2f98621358c4d350c4b1f862d259693118754aa37062"
+      },
+      "testOnlyTypeCorrection": {
+        "previousSha256": "cd08fa5e4cc21e75dc7841eee08a6173d2ba8926368816c638c267365660b2b9",
+        "delta": "reviewerKey: 'a' as const inside adversarial Object.assign input; type-only literal narrowing, runtime/model unchanged",
+        "review": "Source line read; model/UI/page hashes remain unchanged. No repeated oracle."
+      }
+    },
+    "uiReview": {
+      "reviewers": [
+        "/root/review_execution",
+        "/root/review_execution/payment_terms_registry"
+      ],
+      "result": "no P1/P2",
+      "method": "static source review",
+      "coverage": [
+        "SSR full initial fixture with disabled controls and no forms; explicit AND gate in private noindex page.",
+        "Null values remove numeric/time/position attributes and text; real zero and negative differences remain visible.",
+        "Unknown observation metadata retained separately from null monetary asOf; absent limits clear only their dimension.",
+        "Persistent controls, reset/context cleanup, and focus moves to preceding visible result heading only when an action disables its focused button.",
+        "No internal artifact IDs or serialized context in DOM; no network/storage/timers or operative imports."
+      ]
+    },
+    "harnessReview": {
+      "status": "passed",
+      "method": "static source review only; no browser execution",
+      "coverage": [
+        "Literal money/date/result labels,54 main visits per viewport, rejection before/after acceptance and terminal Sin responder.",
+        "Closed disabled actions, stable selectors,44px targets, focus-visible Tab progression, mobile arrow hit tests.",
+        "Inherited exact shared-rAF allowance, guide-only session key in separate interaction phase, HTTP interception, DOMStorage events and fresh reload epochs."
+      ],
+      "hardeningResolved": "Exact hidden flags and literal placeholder text for monetary nulls, acceptance counts, observation metadata, dates and history are now asserted; no product change.",
+      "sourceSnapshot": {
+        "path": "scripts/test-company-credit-review-demo.mjs",
+        "sha256": "55b29a2d529b0ca8986205c35d091c621094bfd60df073d53e37812de8cc0243",
+        "modifiedAt": "2026-10-04T03:32:15.616278+00:00"
+      }
+    },
+    "authorReportedFocalChecks": {
+      "model": 41,
+      "architecture": 6,
+      "ui": "Author reports Astro and TypeScript focal zero diagnostics; no independent rerun.",
+      "total": 47,
+      "passedAt": "2026-10-04T03:34:32Z",
+      "durationSeconds": 4.53,
+      "source": "Author report; not independently rerun."
+    },
+    "limits": [
+      "Diagnostic model bundle and actual emitted Astro client graph are measured separately; no-root initialization does not substitute for browser interaction QA.",
+      "Structural model states include programmatic configurations not available through disabled UI controls; browser matrix and screenshots belong to separate QA.",
+      "Raw synthetic metadata may remain in client code to execute the pure contracts; DTO/DOM omission is not RBAC or authentication.",
+      "accepted/rejected remains a declared fixture conclusion, never credit availability, authentic identity, reservation or purchase permission.",
+      "No tracked product/test/doc edits, Git, fullcheck, Worker, browser, HTTP or DB actions were performed by this reviewer."
+    ],
+    "testDesignReview": {
+      "method": "Static source review of author tests only; no rerun",
+      "result": "no P1/P2",
+      "coverage": [
+        "Literal 15-scenario monetary and timestamp expectations, independent absence of three limit collections, explicit opening and terminal history.",
+        "Public review API compatibility for generic cases and commands, then tighter fixed demo IDs and timestamp slots.",
+        "Immutable copies, hostile own-record inputs and getters, private DTO projection, effect and clock traps."
+      ],
+      "limits": [
+        "Author runtime effects test instruments model calls after module import; independent bundled probe separately covers eager import initialization."
+      ]
+    },
+    "actualBuiltClientReview": {
+      "report": "/tmp/r65c-built-client-report.json",
+      "entryBytes": 40084,
+      "entryGzipBytes": 10724,
+      "graphFiles": 3,
+      "graphBytes": 46662,
+      "graphGzipBytes": 13177,
+      "effectsWithoutRoot": 0,
+      "externalImports": 0,
+      "implicitClock": 0,
+      "explicitDateReads": 88,
+      "sharedGuideReport": "/tmp/r65c-built-guide-report.json",
+      "sharedGuideGraphBytes": 15179,
+      "sharedGuideGraphGzipBytes": 6314,
+      "sharedGuideDeltaBytes": 8,
+      "sharedGuideOnlyChange": "|credito route alternative; exact SHA comparison proved other bytes unchanged"
+    }
+  },
+  "builtClient": {
+    "schemaVersion": 1,
+    "reviewedAt": "2026-10-04T03:39:51.260Z",
+    "scope": "actual-built-client-static-graph-and-initialization-without-demo-root",
+    "entry": "dist/_astro/CompanyCreditReviewDemo.astro_astro_type_script_index_0_lang.DvnpgZPX.js",
+    "files": [
+      {
+        "path": "dist/_astro/company-directory.mOflI4d5.js",
+        "bytes": 6414,
+        "gzipBytes": 2302,
+        "sha256": "6c076800192741992b5cbfba6ce07a999d13e3499cd256b306e82dbfc49fc9bd",
+        "imports": [],
+        "forbiddenTokenMatches": []
+      },
+      {
+        "path": "dist/_astro/format.D6ggcjlO.js",
+        "bytes": 164,
+        "gzipBytes": 151,
+        "sha256": "7c7167f2030d738e58323bccda5878464f25a2138c4b1ddade0b4774694ba021",
+        "imports": [],
+        "forbiddenTokenMatches": []
+      },
+      {
+        "path": "dist/_astro/CompanyCreditReviewDemo.astro_astro_type_script_index_0_lang.DvnpgZPX.js",
+        "bytes": 40084,
+        "gzipBytes": 10724,
+        "sha256": "4ad808dc50ca1d279640bd3e7cb05f3bb0085e684f51ddce32dafe9ecd8bf1fd",
+        "imports": [
+          {
+            "path": "dist/_astro/company-directory.mOflI4d5.js",
+            "kind": "import-statement",
+            "original": "./company-directory.mOflI4d5.js"
+          },
+          {
+            "path": "dist/_astro/format.D6ggcjlO.js",
+            "kind": "import-statement",
+            "original": "./format.D6ggcjlO.js"
+          }
+        ],
+        "forbiddenTokenMatches": []
+      }
+    ],
+    "sumBytes": 46662,
+    "sumGzipBytes": 13177,
+    "externalImports": [],
+    "effects": 0,
+    "domReads": 1,
+    "explicitDateReads": 88,
+    "freeze": [
+      {
+        "path": "src/composition/company-credit-review-demo.ts",
+        "modifiedAt": "2026-10-04T03:29:16.664Z",
+        "sha256": "c55469e276dd3ca610b6699a55e6dc042ac6645174eea8fd97feb46cf971bfd5"
+      },
+      {
+        "path": "src/components/admin/CompanyCreditReviewDemo.astro",
+        "modifiedAt": "2026-10-04T03:29:25.192Z",
+        "sha256": "41b82c5a7c32876a72c3aca8049b554206b41db5af6abf3b90c1d26ea9660e4f"
+      },
+      {
+        "path": "src/pages/demo/admin/credito.astro",
+        "modifiedAt": "2026-10-04T03:29:24.452Z",
+        "sha256": "b50ea3722db86cab761ab1f1187fb553a22a71b273a72a77291d2315fa05c8f4"
+      }
+    ],
+    "notes": [
+      "Byte counts are real emitted Astro files; gzip totals sum each file compressed independently with zlib default.",
+      "Metafile enumerates emitted client graph; original-source tree shaking was separately inspected in the model probe.",
+      "No-root initialization check does not claim interaction coverage; Chrome QA is separate.",
+      "Synthetic fixture metadata may remain in client source; presentation DTO and DOM exclude internal company, policy, request and evidence references."
+    ],
+    "parentBuild": {
+      "completedAt": "2026-10-04T03:39:02Z",
+      "fullcheck": {
+        "files": 985,
+        "diagnostics": 0,
+        "suites": 261,
+        "tests": 3694,
+        "html": 44,
+        "localForms": 44,
+        "cron": 0
+      },
+      "source": "Parent report; not rerun"
+    },
+    "effectsProbe": {
+      "network": 0,
+      "storage": 0,
+      "timers": 0,
+      "implicitDate": 0,
+      "random": 0,
+      "windowHistoryNavigatorCryptoReads": 0,
+      "limits": "No root present; cannot establish correctness or absence of intended shared-guide effects during interactive browser use."
+    },
+    "sharedGuideReport": "/tmp/r65c-built-guide-report.json"
+  },
+  "sharedGuide": {
+    "schemaVersion": 1,
+    "reviewedAt": "2026-10-04T03:39:36.523Z",
+    "scope": "actual-built-shared-guide-static-graph-and-initialization-without-guide-root",
+    "entry": "dist/_astro/DemoAssistant.astro_astro_type_script_index_0_lang.CTUreos1.js",
+    "files": [
+      {
+        "path": "dist/_astro/cart-client.ItD9TTkL.js",
+        "bytes": 1059,
+        "gzipBytes": 590,
+        "sha256": "34a807152cbfd940499a32c312851384b3cbaaaddc743e8b7aa9630558d52915",
+        "imports": []
+      },
+      {
+        "path": "dist/_astro/demo-commerce.Dnz6Qizq.js",
+        "bytes": 1048,
+        "gzipBytes": 584,
+        "sha256": "9a4b4e081ba480085aabae88a68b88996dff6a85e06ecd14d32715f8754c487b",
+        "imports": []
+      },
+      {
+        "path": "dist/_astro/DemoAssistant.astro_astro_type_script_index_0_lang.CTUreos1.js",
+        "bytes": 13072,
+        "gzipBytes": 5140,
+        "sha256": "8067726346e79f675315ebe2d886ebd3cda56dd9b35c27787cab6784f25bb402",
+        "imports": [
+          {
+            "path": "dist/_astro/cart-client.ItD9TTkL.js",
+            "kind": "import-statement",
+            "original": "./cart-client.ItD9TTkL.js"
+          },
+          {
+            "path": "dist/_astro/demo-commerce.Dnz6Qizq.js",
+            "kind": "import-statement",
+            "original": "./demo-commerce.Dnz6Qizq.js"
+          }
+        ]
+      }
+    ],
+    "sumBytes": 15179,
+    "sumGzipBytes": 6314,
+    "externalImports": [],
+    "effects": 0,
+    "domReads": 1,
+    "explicitDateReads": 0,
+    "freeze": [
+      {
+        "path": "src/layouts/Admin.astro",
+        "modifiedAt": "2026-10-04T03:26:17.512Z",
+        "sha256": "20a064519d5632f57cc8bde04e1126fb503826f802fb147b38d1ae3d35d11f6b"
+      },
+      {
+        "path": "src/components/store/DemoAssistant.astro",
+        "modifiedAt": "2026-10-04T02:22:57.341Z",
+        "sha256": "b963ac83395ae78477a233fcf0246c7c323220d8117c2d1d268b850d8bee8918"
+      },
+      {
+        "path": "src/modules/demo-support/presentation/guide/client.ts",
+        "modifiedAt": "2026-10-04T02:22:57.341Z",
+        "sha256": "46679804e6c1956e67ea6973e3fcc5e86d315f7ad587e2fe28ecfcebf55f7ac0"
+      }
+    ],
+    "notes": [
+      "Byte counts are real emitted Astro files; gzip total sums each file compressed independently with zlib default.",
+      "Separate shared guide graph: these bytes are not included in the CompanyCreditReviewDemo graph report.",
+      "Guide intentionally uses existing session storage and UI effects when its root is present; no-root initialization does not cover or claim zero such interaction effects.",
+      "Actual keyboard, resize, hit-test and guide storage behavior belongs to separate Chrome QA."
+    ],
+    "baselineComparison": {
+      "baseline": "/tmp/r65c-inherited-baseline.json",
+      "entryDeltaBytes": 8,
+      "entryDeltaGzipBytes": 5,
+      "graphDeltaBytes": 8,
+      "graphDeltaGzipBytes": 5,
+      "onlyChange": "Exact emitted entry comparison proven by removing the one |credito allowlist alternative and obtaining previous complete-file SHA-256.",
+      "previousEntrySha256": "9a697cc413006063faf39a6f456caea0b223d6231602d68165a22ba3577518ed",
+      "sharedHelperFilesUnchanged": 2
+    }
+  },
+  "inheritedClientComparison": {
+    "schemaVersion": 1,
+    "scope": "emitted-browser-graphs-and-explicit-source-boundaries",
+    "baselineRuntimeEvidence": {
+      "pullRequest": 35,
+      "browserChecks": 2660,
+      "stateVisits": 72,
+      "accessibilitySurfaces": 8,
+      "screenshots": 8,
+      "e2eChecks": 188,
+      "databaseTables": 143,
+      "databaseRows": 353,
+      "databaseSha256": "9cbfc811cfc4296515a403d395875a43bfa26aff0c9c9b08be0804b15bbf6eca"
+    },
+    "graphComparison": [
+      {
+        "component": "CompanyCollectionDemo",
+        "entry": "dist/_astro/CompanyCollectionDemo.astro_astro_type_script_index_0_lang.pOo5tZX2.js",
+        "fileCount": 3,
+        "importEdges": 2,
+        "totalBytes": 31812,
+        "totalGzipBytes": 9612,
+        "identical": true,
+        "changes": {
+          "added": [],
+          "removed": [],
+          "changed": []
+        }
+      },
+      {
+        "component": "VariantQuantityDemo",
+        "entry": "dist/_astro/VariantQuantityDemo.astro_astro_type_script_index_0_lang.B9D7Pdiw.js",
+        "fileCount": 5,
+        "importEdges": 8,
+        "totalBytes": 53687,
+        "totalGzipBytes": 17349,
+        "identical": true,
+        "changes": {
+          "added": [],
+          "removed": [],
+          "changed": []
+        }
+      },
+      {
+        "component": "CompanyCatalogDemo",
+        "entry": "dist/_astro/CompanyCatalogDemo.astro_astro_type_script_index_0_lang.HW9dUaoD.js",
+        "fileCount": 7,
+        "importEdges": 10,
+        "totalBytes": 60527,
+        "totalGzipBytes": 19836,
+        "identical": true,
+        "changes": {
+          "added": [],
+          "removed": [],
+          "changed": []
+        }
+      },
+      {
+        "component": "CompanyDirectoryDemo",
+        "entry": "dist/_astro/CompanyDirectoryDemo.astro_astro_type_script_index_0_lang.tUOZl7at.js",
+        "fileCount": 3,
+        "importEdges": 2,
+        "totalBytes": 26856,
+        "totalGzipBytes": 8818,
+        "identical": true,
+        "changes": {
+          "added": [],
+          "removed": [],
+          "changed": []
+        }
+      },
+      {
+        "component": "DemoAssistant",
+        "entry": "dist/_astro/DemoAssistant.astro_astro_type_script_index_0_lang.CTUreos1.js",
+        "fileCount": 3,
+        "importEdges": 2,
+        "totalBytes": 15179,
+        "totalGzipBytes": 6314,
+        "identical": false,
+        "changes": {
+          "added": [
+            "dist/_astro/DemoAssistant.astro_astro_type_script_index_0_lang.CTUreos1.js"
+          ],
+          "removed": [
+            "dist/_astro/DemoAssistant.astro_astro_type_script_index_0_lang.CxlO2EoN.js"
+          ],
+          "changed": []
+        }
+      }
+    ],
+    "addedGraphs": [
+      {
+        "component": "CompanyCreditReviewDemo",
+        "entry": "dist/_astro/CompanyCreditReviewDemo.astro_astro_type_script_index_0_lang.DvnpgZPX.js",
+        "fileCount": 3,
+        "importEdges": 2,
+        "totalBytes": 46662,
+        "totalGzipBytes": 13177
+      }
+    ],
+    "sourceFiles": 355,
+    "emittedCssFiles": 19,
+    "surfacesIdentical": false,
+    "sourceChanges": {
+      "added": [
+        "src/components/admin/CompanyCreditReviewDemo.astro",
+        "src/composition/company-credit-review-demo.ts",
+        "src/pages/demo/admin/credito.astro"
+      ],
+      "removed": [],
+      "changed": [
+        "src/layouts/Admin.astro",
+        "src/shared-kernel/demo-guide-routes.ts"
+      ]
+    },
+    "cssChanges": {
+      "added": [
+        "dist/_astro/asignacion.D7EJtQbO.css"
+      ],
+      "removed": [
+        "dist/_astro/asignacion.DCBoxTIZ.css"
+      ],
+      "changed": []
+    },
+    "limitations": [
+      "Source hashes do not execute SSR, HTTP, middleware or interactions.",
+      "This manifest is not the complete transitive server module graph.",
+      "This static comparison does not execute runtime QA. Baseline evidence came from PR35; new R6.5c runtime evidence is reported separately in docs/audits/r6-5c."
+    ],
+    "result": "changed"
+  },
+  "matrixPerViewport": [
+    {
+      "width": 1440,
+      "visits": 54,
+      "contexts": 15,
+      "observed": 12,
+      "unknown": 3,
+      "compared": 33,
+      "unconfigured": 9,
+      "unknownComparisons": 3,
+      "below": 25,
+      "equal": 5,
+      "above": 3,
+      "notOpen": 15,
+      "pendingZero": 12,
+      "pendingOne": 12,
+      "accepted": 12,
+      "openingBlocked": 3
+    },
+    {
+      "width": 375,
+      "visits": 54,
+      "contexts": 15,
+      "observed": 12,
+      "unknown": 3,
+      "compared": 33,
+      "unconfigured": 9,
+      "unknownComparisons": 3,
+      "below": 25,
+      "equal": 5,
+      "above": 3,
+      "notOpen": 15,
+      "pendingZero": 12,
+      "pendingOne": 12,
+      "accepted": 12,
+      "openingBlocked": 3
+    }
+  ],
+  "privacy": [
+    {
+      "context": "anonymous",
+      "method": "GET",
+      "status": 302,
+      "location": "/demo/admin/login",
+      "cacheControl": "private, no-store, max-age=0",
+      "vary": "Cookie",
+      "robots": "noindex, nofollow, noarchive"
+    },
+    {
+      "context": "anonymous",
+      "method": "HEAD",
+      "status": 302,
+      "location": "/demo/admin/login",
+      "cacheControl": "private, no-store, max-age=0",
+      "vary": "Cookie",
+      "robots": "noindex, nofollow, noarchive"
+    },
+    {
+      "context": "guided",
+      "method": "GET",
+      "width": 1440,
+      "status": 200,
+      "cacheControl": "private, no-store, max-age=0",
+      "vary": "Cookie",
+      "robots": "noindex, nofollow, noarchive"
+    },
+    {
+      "context": "guided",
+      "method": "GET",
+      "width": 375,
+      "status": 200,
+      "cacheControl": "private, no-store, max-age=0",
+      "vary": "Cookie",
+      "robots": "noindex, nofollow, noarchive"
+    }
+  ],
+  "effects": {
+    "blockedOperationalRequests": 0,
+    "forbiddenRequests": 0,
+    "javascriptErrors": 0,
+    "selectArrowHitTestFailures": 0,
+    "perViewport": [
+      {
+        "width": 1440,
+        "setupGuideWrites": 3,
+        "guideInteraction": null,
+        "moduleWrites": 0,
+        "moduleMutationEvents": 0,
+        "moduleRequests": 0,
+        "timers": 0,
+        "beacons": 0,
+        "windows": 0,
+        "unchanged": true,
+        "sharedLayout": {
+          "source": "src/components/WhatsAppContact.astro",
+          "api": "requestAnimationFrame",
+          "verifiedCallsite": "http://127.0.0.1:8793/demo/admin/credito:107:50",
+          "setupCalls": 5,
+          "totalCalls": 118,
+          "reloadCalls": 2
+        },
+        "reloadGuideWrites": 2
+      },
+      {
+        "width": 375,
+        "setupGuideWrites": 3,
+        "guideInteraction": {
+          "actions": [
+            "open/minimize",
+            "open/close",
+            "open/Escape",
+            "open/resize/close",
+            "resize-with-selector-focus"
+          ],
+          "widths": [
+            375,
+            1024,
+            375,
+            1024,
+            320,
+            375,
+            1024,
+            375,
+            1024,
+            375
+          ],
+          "writes": 8,
+          "mutationEvents": 8,
+          "storage": "session",
+          "key": "logic2b:ecom-guide:v1",
+          "unchangedAtEnd": true
+        },
+        "moduleWrites": 0,
+        "moduleMutationEvents": 0,
+        "moduleRequests": 0,
+        "timers": 0,
+        "beacons": 0,
+        "windows": 0,
+        "unchanged": true,
+        "sharedLayout": {
+          "source": "src/components/WhatsAppContact.astro",
+          "api": "requestAnimationFrame",
+          "verifiedCallsite": "http://127.0.0.1:8793/demo/admin/credito:107:50",
+          "setupCalls": 7,
+          "totalCalls": 137,
+          "reloadCalls": 4
+        },
+        "reloadGuideWrites": 2
+      }
+    ]
+  },
+  "database": {
+    "tables": 143,
+    "rows": 353,
+    "hashBefore": "9cbfc811cfc4296515a403d395875a43bfa26aff0c9c9b08be0804b15bbf6eca",
+    "hashAfter": "9cbfc811cfc4296515a403d395875a43bfa26aff0c9c9b08be0804b15bbf6eca",
+    "unchanged": true,
+    "newMigrations": 0,
+    "beforeObservedAt": "2026-10-04T03:26:47.634221+00:00",
+    "afterObservedAt": "2026-10-04T03:41:19.809291+00:00"
+  },
+  "limitations": [
+    "Browser, accessibility, E2E and fixture-hash evidence is newly executed local synthetic QA; no deployment or remote database operation.",
+    "Accepted/rejected is a fixture declaration, not authenticated identity, commercial approval or purchase authorization. No orders, payments, reservations or durable writes.",
+    "The 108 main browser visits have additional focused checks; this is not exhaustive UI coverage. The independent model oracle separately covers 630 structural views.",
+    "The no-root built-client probe covers initialization only. Interaction effects and the existing guide storage/exact shared layout callsite are separately recorded.",
+    "Four existing demo graphs are identical. The guide adds only |credito. The explicit UI source/CSS comparison does not prove an unchanged transitive SSR graph.",
+    "Worker and Chrome stopped after QA."
+  ],
+  "artifactSha256": {
+    "report.json": "1e1def4693f1d39430503d145b018b3d924ac5c78a9693af0b7ef872904290c3",
+    "a11y-report.json": "fd6e0a15d54ae39c02a62660c332220be89026dd0e76c3e387f846dde6a3e535",
+    "README.md": "59a6ece3c7cab289154f791aa8adcd22152c911281a7ee9400861b055e6d9cb5",
+    "above-accepted-1440.png": "80689ae5c5199e8a368ada7847fc5139ef246166cdca3a1046fd689ac81c4929",
+    "above-accepted-375.png": "00de3daa696ad85bfceb344619e7a2cf3dc93c85c3987f7b96fc175f6db7ffa3",
+    "missing-accepted-1440.png": "5910a6318f3d84b5792aedc265282c9fb13a3e4e9bbb78e8d322fb07c3210b17",
+    "missing-accepted-375.png": "6f9ea7868f8505ea4b10b83dc3114691fcfc74ec7eb070bd5eab8c9a1a8eac5c",
+    "pending-1440.png": "9abcce4344e38c8d1d8f212c44b53bab8014cb42344a4ced7e8b99f0d831d3b5",
+    "pending-375.png": "829f1be0a90056a8d3851e47153a48ee7e653f9f6b266c3d9664275b60a18ac8",
+    "unreachable-blocked-1440.png": "d40122cd33c4fa1d1ec0cf06caef8556e5413b51975618eb7f4a5ffc666524b2",
+    "unreachable-blocked-375.png": "c1ca67827489633f1412309aecd03c9db47f48a8cf57c6948395d8fca03e284c"
+  }
+}

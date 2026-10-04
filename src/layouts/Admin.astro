@@ -18,12 +18,13 @@ import { canShowCompanyDirectoryDemo } from '../composition/company-directory-de
 import { canShowCompanyCatalogDemo } from '../composition/company-catalog-demo';
 import { canShowVariantQuantityDemo } from '../composition/variant-quantity-demo';
 import { canShowCompanyCollectionDemo } from '../composition/company-collection-demo';
+import { canShowCompanyCreditReviewDemo } from '../composition/company-credit-review-demo';
 import { adminNavigationFor, type AdminNavigationId } from '../platform/configuration';
 import AdminIcon, { type AdminIconName } from '../components/admin/AdminIcon.astro';
 
 interface Props {
   title: string;
-  active: AdminNavigationId | 'segmentos' | 'empresas' | 'catalogos-empresa' | 'cantidades' | 'condiciones-pago' | 'mercados' | 'publicacion' | 'impuestos' | 'divisas';
+  active: AdminNavigationId | 'segmentos' | 'empresas' | 'catalogos-empresa' | 'cantidades' | 'condiciones-pago' | 'credito' | 'mercados' | 'publicacion' | 'impuestos' | 'divisas';
 }
 
 const { title, active } = Astro.props;
@@ -46,6 +47,9 @@ const nav = [
   ...(canShowCompanyCollectionDemo(Astro.locals.runtime?.env, runtimePlatform)
     ? [{ id: 'condiciones-pago' as const, href: '/demo/admin/condiciones-pago', label: 'Condiciones y cobros · demo' }]
     : []),
+  ...(canShowCompanyCreditReviewDemo(Astro.locals.runtime?.env, runtimePlatform)
+    ? [{ id: 'credito' as const, href: '/demo/admin/credito', label: 'Límites y revisión · demo' }]
+    : []),
   ...(canShowMarketContentDemo(Astro.locals.runtime?.env, runtimePlatform)
     ? [{ id: 'mercados' as const, href: '/demo/admin/mercados', label: 'Mercados e idiomas · demo' }]
     : []),
@@ -64,7 +68,7 @@ const nav = [
    sin entradas tampoco; lo que no esté listado cae en «Más». */
 const NAV_GROUPS: { label: string; ids: string[] }[] = [
   { label: 'Día a día', ids: ['pedidos', 'envios', 'devoluciones', 'emails'] },
-  { label: 'Clientes', ids: ['segmentos', 'empresas', 'catalogos-empresa', 'cantidades', 'condiciones-pago'] },
+  { label: 'Clientes', ids: ['segmentos', 'empresas', 'catalogos-empresa', 'cantidades', 'condiciones-pago', 'credito'] },
   { label: 'Internacional', ids: ['mercados', 'publicacion', 'impuestos', 'divisas'] },
   { label: 'Catálogo e inventario', ids: ['productos', 'ubicaciones', 'transferencias', 'conteos', 'asignacion'] },
   { label: 'Administración', ids: ['documentos'] },
@@ -76,7 +80,7 @@ const navGroups = [
 ].filter((group) => group.items.length > 0);
 const orderedNav = navGroups.flatMap((group) => group.items);
 const iconFor: Record<string, AdminIconName> = {
-  pedidos: 'orders', documentos: 'orders', productos: 'products', ubicaciones: 'store', transferencias: 'shipping', conteos: 'products', envios: 'shipping', devoluciones: 'shipping', emails: 'email', segmentos: 'search', empresas: 'store', 'catalogos-empresa': 'products', cantidades: 'products', 'condiciones-pago': 'orders', mercados: 'globe', publicacion: 'products', impuestos: 'orders', divisas: 'globe',
+  pedidos: 'orders', documentos: 'orders', productos: 'products', ubicaciones: 'store', transferencias: 'shipping', conteos: 'products', envios: 'shipping', devoluciones: 'shipping', emails: 'email', segmentos: 'search', empresas: 'store', 'catalogos-empresa': 'products', cantidades: 'products', 'condiciones-pago': 'orders', credito: 'orders', mercados: 'globe', publicacion: 'products', impuestos: 'orders', divisas: 'globe',
 };
 ---
 
@@ -106,7 +110,7 @@ const iconFor: Record<string, AdminIconName> = {
               {group.items.map((item) => (
                 <a href={item.href} aria-current={active === item.id ? 'page' : undefined} class:list={[
                   'flex items-center gap-3 rounded-lg px-3 text-sm font-medium transition',
-                  item.id === 'segmentos' || item.id === 'empresas' || item.id === 'catalogos-empresa' || item.id === 'cantidades' || item.id === 'condiciones-pago' || item.id === 'mercados' || item.id === 'publicacion' || item.id === 'impuestos' || item.id === 'divisas' ? 'min-h-11' : 'min-h-10',
+                  item.id === 'segmentos' || item.id === 'empresas' || item.id === 'catalogos-empresa' || item.id === 'cantidades' || item.id === 'condiciones-pago' || item.id === 'credito' || item.id === 'mercados' || item.id === 'publicacion' || item.id === 'impuestos' || item.id === 'divisas' ? 'min-h-11' : 'min-h-10',
                   active === item.id ? 'bg-foreground text-background shadow-sm' : 'text-muted-foreground hover:bg-muted hover:text-foreground',
                 ]}>
                   <AdminIcon name={iconFor[item.id] ?? 'orders'} class="size-[1.1rem]" />

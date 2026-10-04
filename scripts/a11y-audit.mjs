@@ -675,6 +675,61 @@ for (const vp of [DESKTOP, MOBILE]) {
   }
 }
 
+// R6.5c: revisión explícita, separada de límites y exposición desconocida.
+const COMPANY_CREDIT_REVIEW_SCENARIO = (stage) => `(() => {
+  const root = document.querySelector('[data-company-credit-review-demo]');
+  if (root?.dataset.ready !== 'true') return 'not-ready';
+  const stage = ${JSON.stringify(stage)};
+  const select = (selector, value) => {
+    const field = root.querySelector(selector);
+    if (field.disabled) throw new Error('Selector de ejemplo desactivado.');
+    field.value = value;
+    field.dispatchEvent(new Event('change', { bubbles: true }));
+  };
+  const act = name => {
+    const button = root.querySelector('[data-credit-action="' + name + '"]');
+    if (button.disabled) throw new Error('Acción de ejemplo desactivada.');
+    button.click();
+  };
+  const scenario = stage === 'pending' ? 'within' : stage === 'above-accepted' ? 'above'
+    : stage === 'missing-accepted' ? 'missing' : 'unreachable';
+  select('[data-credit-scenario]', scenario);
+  act('open');
+  if (stage !== 'unreachable-blocked') act('accept');
+  if (stage === 'above-accepted' || stage === 'missing-accepted') {
+    select('[data-credit-reviewer]', 'b');
+    act('accept');
+  }
+  const review = root.querySelector('[data-credit-review]');
+  const expectedStatus = stage === 'pending' ? 'pending' : stage === 'unreachable-blocked' ? 'opening_blocked' : 'accepted';
+  const expectedCount = stage === 'pending' ? '1' : stage === 'unreachable-blocked' ? null : '2';
+  if (review.dataset.status !== expectedStatus ||
+    root.querySelector('[data-credit-acceptance-count]').getAttribute('data-count') !== expectedCount) return 'wrong-review';
+  if (root.querySelectorAll('[data-credit-history-row]').length !== (expectedCount === null ? 0 : Number(expectedCount))) return 'wrong-history';
+  if (!root.querySelector('[data-credit-action="accept"]').disabled || !root.querySelector('[data-credit-action="reject"]').disabled) return 'response-enabled';
+  if (root.querySelector('[data-credit-reviewer]').disabled !== (stage !== 'pending')) return 'wrong-reviewer-state';
+  if (stage === 'unreachable-blocked' && review.dataset.openingReason !== 'quorum_unreachable') return 'wrong-block';
+  const expectedDifferences = stage === 'above-accepted' ? ['-2000', '-1000', '-3000'] : stage === 'missing-accepted'
+    ? [null, '3000', '1000'] : ['2000', '3000', '1000'];
+  const differences = Array.from(root.querySelectorAll('[data-credit-comparison]')).map(card =>
+    card.querySelector('[data-credit-comparison-amount="difference"]').getAttribute('data-cents'));
+  if (JSON.stringify(differences) !== JSON.stringify(expectedDifferences)) return 'wrong-differences';
+  if (stage === 'missing-accepted') {
+    const amounts = root.querySelector('[data-credit-exposure-amounts]');
+    if (root.querySelector('[data-credit-exposure]').dataset.reason !== 'missing_evidence' || !amounts.hidden || amounts.hasAttribute('data-as-of') ||
+      Array.from(root.querySelectorAll('[data-credit-exposure-amount]')).some(item => item.hasAttribute('data-cents') || item.textContent.trim() !== '')) return 'stale-exposure';
+  }
+  return stage;
+})()`;
+for (const vp of [DESKTOP, MOBILE]) {
+  const suffix = vp === MOBILE ? '@375' : '';
+  for (const stage of ['pending', 'above-accepted', 'missing-accepted', 'unreachable-blocked']) {
+    SURFACES.push({ name: `company-credit-review:${stage}${suffix}`, url: '/demo/admin/credito', vp, auth: true,
+      eval: COMPANY_CREDIT_REVIEW_SCENARIO(stage), expect: stage,
+      ...(stage === 'missing-accepted' ? { reducedMotion: true } : {}) });
+  }
+}
+
 // R5.4d: estas rutas no existen en la demo y por eso no forman parte de la
 // batería ordinaria. El arnés local explícito activa un manifest cliente y una
 // composición visual inerte para auditar las páginas Astro reales sin DB,

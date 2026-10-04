@@ -1,0 +1,331 @@
+---
+import { createCompanyCreditReviewDemo, getCompanyCreditReviewDemoView } from '../../composition/company-credit-review-demo';
+import { formatEurCents } from '../../lib/format';
+
+const initial = getCompanyCreditReviewDemoView(createCompanyCreditReviewDemo());
+const instantFormatter = new Intl.DateTimeFormat('es-ES', { timeZone: 'UTC', day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+const formatInstant = (value: string) => instantFormatter.format(new Date(value)) + ' UTC';
+const observed = initial.exposure.amounts;
+---
+
+<div data-company-credit-review-demo data-ready="false" class="company-credit-review-demo mt-6 space-y-6 text-foreground">
+  <div class="rounded-2xl border border-border bg-card px-5 py-4">
+    <p class="text-sm font-semibold leading-6">Límites, exposición y respuestas ficticios. Este ejemplo no concede crédito, reserva importes ni autoriza compras.</p>
+    <p class="mt-1 text-xs leading-5 text-muted-foreground">Los cambios solo duran en esta página. Al recargar, vuelves al inicio.</p>
+  </div>
+  <noscript data-credit-nojs><div class="rounded-xl border border-border bg-muted p-4 text-sm leading-6">Puedes consultar las comparaciones iniciales sin JavaScript. La revisión está sin abrir y los controles permanecen desactivados. Para recorrer otros ejemplos se necesita JavaScript; no se envía ni guarda ningún dato.</div></noscript>
+
+  <div class="grid items-start gap-6 xl:grid-cols-[minmax(0,.8fr)_minmax(0,1.2fr)]">
+    <section class="credit-panel" aria-labelledby="credit-prepare-title">
+      <div class="flex items-start gap-3"><span class="credit-step" aria-hidden="true">1</span><div><h2 id="credit-prepare-title" class="text-xl font-semibold">Configura el ejemplo</h2><p class="mt-1 text-sm leading-6 text-muted-foreground">Cada caso tiene sus propios datos y su revisión.</p></div></div>
+      <label class="credit-label mt-5" for="credit-scenario">Caso de ejemplo
+        <select id="credit-scenario" data-credit-scenario disabled aria-describedby="credit-scenario-description" class="credit-input">
+          {initial.scenarioOptions.map(option => <option value={option.id} selected={option.id === initial.selection.scenarioId}>{option.label}</option>)}
+        </select>
+      </label>
+      <p id="credit-scenario-description" data-credit-scenario-description class="mt-2 text-sm leading-6 text-muted-foreground">{initial.scenarioDescription}</p>
+
+      <dl class="credit-facts mt-5 space-y-4 border-t border-border pt-5">
+        <div data-credit-company data-state={initial.company.state}><dt>Empresa del ejemplo</dt><dd data-credit-company-label>{initial.company.label}</dd><dd data-credit-company-state class="credit-secondary">{initial.company.stateLabel}</dd></div>
+        <div data-credit-buyer data-state={initial.buyer.state}><dt>Comprador del ejemplo</dt><dd data-credit-buyer-label>{initial.buyer.label}</dd><dd data-credit-buyer-state class="credit-secondary">{initial.buyer.stateLabel}</dd></div>
+        <div><dt>Importe de la solicitud · EUR</dt><dd data-credit-requested data-cents={initial.requested.amountCents} data-currency={initial.requested.currency} class="credit-money">{formatEurCents(initial.requested.amountCents)}</dd></div>
+        <div><dt>Evaluación fija del ejemplo</dt><dd><time data-credit-evaluated-at datetime={initial.evaluatedAt}>{formatInstant(initial.evaluatedAt)}</time></dd></div>
+      </dl>
+
+      <div class="mt-6 border-t border-border pt-5">
+        <h3 id="credit-review-title" data-credit-action-result tabindex="-1" class="credit-focus-target text-base font-semibold">{initial.review.statusLabel}</h3>
+        <p class="mt-2 text-sm leading-6 text-muted-foreground">Abre la revisión y elige qué contacto declara una respuesta. Son contactos ficticios, sin identidad autenticada ni permisos reales.</p>
+        <button data-credit-action="open" type="button" disabled class="credit-button mt-4 w-full border border-border bg-foreground text-background">Abrir revisión de ejemplo</button>
+
+        <label class="credit-label mt-5" for="credit-reviewer">Contacto que responde
+          <select id="credit-reviewer" data-credit-reviewer disabled aria-describedby="credit-response-help" class="credit-input">
+            {initial.review.contactOptions.map(option => <option value={option.id} selected={option.id === initial.selection.reviewerKey}>{option.label}</option>)}
+          </select>
+        </label>
+        <p id="credit-response-help" data-credit-response-blocked-reason hidden={initial.review.blockedReason === null} class="mt-2 text-sm leading-6 text-muted-foreground">{initial.review.blockedReason ?? ''}</p>
+        <div class="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-1">
+          <button data-credit-action="accept" type="button" disabled class="credit-button border border-border bg-background text-foreground">Declarar aceptación</button>
+          <button data-credit-action="reject" type="button" disabled class="credit-button border border-border bg-background text-foreground">Declarar rechazo</button>
+        </div>
+        <p class="mt-3 text-xs leading-5 text-muted-foreground">Cambiar de caso deja su revisión sin abrir. Las respuestas anteriores no se trasladan al nuevo ejemplo.</p>
+      </div>
+
+      <p data-credit-feedback role="status" aria-live="polite" aria-atomic="true" class="mt-5 text-sm leading-6">{initial.feedback.message}</p>
+      <button data-credit-action="reset" type="button" disabled class="credit-button mt-4 w-full border border-border bg-background text-foreground">Restablecer ejemplo</button>
+    </section>
+
+    <section class="credit-panel" aria-labelledby="credit-results-title">
+      <div class="flex items-start gap-3"><span class="credit-step" aria-hidden="true">2</span><div><h2 id="credit-results-title" class="text-xl font-semibold">Compara límites y recorre la revisión</h2><p class="mt-1 text-sm leading-6 text-muted-foreground">Las cifras y las respuestas son resultados separados.</p></div></div>
+
+      <div data-credit-exposure data-outcome={initial.exposure.outcome} data-reason={initial.exposure.reason ?? undefined} data-coverage={initial.exposure.coverage ?? undefined} class="mt-6">
+        <h3 class="text-base font-semibold">Exposición declarada de la empresa</h3>
+        <p data-credit-exposure-label class="mt-2 text-sm font-semibold leading-6">{initial.exposure.label}</p>
+        <p data-credit-exposure-message class="mt-1 text-sm leading-6 text-muted-foreground">{initial.exposure.message}</p>
+        <p data-credit-observed-row hidden={initial.exposure.observedAt === null} class="mt-3 text-xs leading-5 text-muted-foreground">Fecha declarada de observación: <time data-credit-observed-at datetime={initial.exposure.observedAt ?? undefined} class="font-medium text-foreground">{initial.exposure.observedAt ? formatInstant(initial.exposure.observedAt) : ''}</time></p>
+        <div data-credit-exposure-amounts hidden={observed === null} data-as-of={observed?.asOf} class="mt-4 rounded-xl border border-border bg-muted/40 p-4">
+          <p class="text-xs leading-5 text-muted-foreground">Corte observado a <time data-credit-as-of datetime={observed?.asOf} class="font-semibold text-foreground">{observed ? formatInstant(observed.asOf) : ''}</time></p>
+          <dl class="credit-facts mt-4 grid gap-4 sm:grid-cols-2">
+            <div><dt>Exposición sin esta solicitud</dt><dd data-credit-exposure-amount="company" data-cents={observed?.companyExposureCents} class="credit-money">{observed ? formatEurCents(observed.companyExposureCents) : ''}</dd></div>
+            <div><dt>Hipótesis al sumar esta solicitud</dt><dd data-credit-exposure-amount="with-request" data-cents={observed?.companyExposureWithRequestCents} class="credit-money">{observed ? formatEurCents(observed.companyExposureWithRequestCents) : ''}</dd></div>
+          </dl>
+          <p class="mt-3 text-xs leading-5 text-muted-foreground">Exposición declarada a la fecha de observación; no acredita saldo ni crédito disponible actual.</p>
+        </div>
+      </div>
+
+      <div class="mt-6 border-t border-border pt-5">
+        <h3 class="text-base font-semibold">Tres comparaciones independientes</h3>
+        <p class="mt-1 text-sm leading-6 text-muted-foreground">Cada importe se compara con su propio límite declarado. Un límite ausente no se sustituye por otro.</p>
+        <div class="mt-4 space-y-4">
+          {initial.comparisons.map(comparison => <article data-credit-comparison={comparison.id} data-status={comparison.status} data-position={comparison.position ?? undefined} data-reason={comparison.reason ?? undefined} class="credit-comparison">
+            <h4 data-credit-comparison-label class="text-sm font-semibold leading-6">{comparison.label}</h4>
+            <p data-credit-comparison-status class="mt-1 text-xs leading-5 text-muted-foreground">{comparison.statusLabel}</p>
+            <dl class="credit-facts mt-3 grid gap-3 sm:grid-cols-3">
+              <div><dt>Importe comparado</dt><dd><span data-credit-comparison-amount="compared" data-cents={comparison.comparedCents ?? undefined}>{comparison.comparedCents === null ? '' : formatEurCents(comparison.comparedCents)}</span><span data-credit-comparison-empty="compared" hidden={comparison.comparedCents !== null} class="credit-secondary">Sin importe conocido</span></dd></div>
+              <div><dt>Límite declarado</dt><dd><span data-credit-comparison-amount="limit" data-cents={comparison.limitCents ?? undefined}>{comparison.limitCents === null ? '' : formatEurCents(comparison.limitCents)}</span><span data-credit-comparison-empty="limit" hidden={comparison.limitCents !== null} class="credit-secondary">Sin límite declarado</span></dd></div>
+              <div><dt>Diferencia: límite − importe</dt><dd><span data-credit-comparison-amount="difference" data-cents={comparison.differenceCents ?? undefined}>{comparison.differenceCents === null ? '' : formatEurCents(comparison.differenceCents)}</span><span data-credit-comparison-empty="difference" hidden={comparison.differenceCents !== null} class="credit-secondary">Sin comparación</span></dd></div>
+            </dl>
+            <p data-credit-comparison-position hidden={comparison.positionLabel === null} class="mt-3 text-sm font-medium leading-6">{comparison.positionLabel ?? ''}</p>
+            <p data-credit-comparison-reason-label hidden={comparison.reasonLabel === null} class="mt-2 text-xs leading-5 text-muted-foreground">{comparison.reasonLabel ?? ''}</p>
+          </article>)}
+        </div>
+        <p class="mt-3 text-xs leading-5 text-muted-foreground">Las diferencias negativas conservan el importe que supera un límite. Ninguna de estas comparaciones concede crédito o decide la revisión.</p>
+      </div>
+
+      <div data-credit-review data-status={initial.review.status} data-opening-reason={initial.review.openingReason ?? undefined} class="mt-6 border-t border-border pt-5" aria-labelledby="credit-review-summary-title">
+        <h3 id="credit-review-summary-title" class="text-base font-semibold">Registro de la revisión</h3>
+        <p data-credit-review-status class="mt-2 text-sm font-semibold leading-6">{initial.review.statusLabel}</p>
+        <p data-credit-opening-reason hidden={initial.review.openingReasonLabel === null} class="mt-2 text-sm leading-6 text-muted-foreground">{initial.review.openingReasonLabel ?? ''}</p>
+        <dl class="credit-facts mt-4 grid gap-4 sm:grid-cols-2">
+          <div><dt>Aceptaciones necesarias en este ejemplo</dt><dd data-credit-quorum data-count={initial.review.quorum}>{initial.review.quorum}</dd></div>
+          <div><dt>Aceptaciones declaradas</dt><dd><span data-credit-acceptance-count data-count={initial.review.acceptanceCount ?? undefined}>{initial.review.acceptanceCount ?? ''}</span><span data-credit-no-acceptance-count hidden={initial.review.acceptanceCount !== null} class="credit-secondary">Sin revisión abierta</span></dd></div>
+        </dl>
+        <dl data-credit-review-dates hidden={initial.review.createdAt === null} class="credit-facts mt-4 grid gap-4 sm:grid-cols-2">
+          <div><dt>Apertura del ejemplo</dt><dd><time data-credit-created-at datetime={initial.review.createdAt ?? undefined}>{initial.review.createdAt ? formatInstant(initial.review.createdAt) : ''}</time></dd></div>
+          <div><dt>Último instante registrado</dt><dd><time data-credit-last-occurred-at datetime={initial.review.lastOccurredAt ?? undefined}>{initial.review.lastOccurredAt ? formatInstant(initial.review.lastOccurredAt) : ''}</time></dd></div>
+        </dl>
+
+        <h4 class="mt-5 text-sm font-semibold">Contactos de ejemplo</h4>
+        <ul class="mt-2 divide-y divide-border">
+          {initial.review.contacts.map(contact => <li data-credit-contact={contact.id} data-state={contact.state} data-response-state={contact.responseState} class="py-3">
+            <div class="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1"><span data-credit-contact-label class="text-sm font-semibold">{contact.label}</span><span data-credit-contact-state class="text-xs text-muted-foreground">{contact.stateLabel}</span></div>
+            <p data-credit-contact-response class="mt-1 text-xs leading-5">{contact.statusLabel}</p>
+            <p data-credit-contact-reason hidden={contact.eligibilityReasonLabel === null} class="mt-1 text-xs leading-5 text-muted-foreground">{contact.eligibilityReasonLabel ?? ''}</p>
+          </li>)}
+        </ul>
+
+        <h4 class="mt-5 text-sm font-semibold">Respuestas declaradas</h4>
+        <p data-credit-history-empty hidden={initial.review.history.length !== 0} class="mt-2 text-sm leading-6 text-muted-foreground">Sin declaraciones registradas.</p>
+        <ol data-credit-history hidden={initial.review.history.length === 0} class="mt-2 divide-y divide-border">
+          {initial.review.history.map(item => <li data-credit-history-row data-reviewer-key={item.reviewerKey} data-decision={item.decision} class="credit-history-row"><p><span data-credit-history-contact>{item.reviewerLabel}</span> · <span data-credit-history-decision>{item.decisionLabel}</span></p><time datetime={item.occurredAt}>{formatInstant(item.occurredAt)}</time></li>)}
+        </ol>
+        <p class="mt-4 rounded-xl border border-border bg-muted/40 p-4 text-sm leading-6">La conclusión es declarativa; no concede crédito ni autoriza compras.</p>
+      </div>
+    </section>
+  </div>
+</div>
+
+<style is:global>
+  .company-credit-review-demo .credit-panel { min-width: 0; border: 1px solid var(--color-border); border-radius: var(--radius-card); background: var(--color-card); padding: 1.25rem; overflow-wrap: anywhere; }
+  .company-credit-review-demo .credit-step { display: flex; flex-shrink: 0; width: 2rem; height: 2rem; align-items: center; justify-content: center; border-radius: 100%; background: var(--color-foreground); color: var(--color-background); font-size: .875rem; font-weight: 600; }
+  .company-credit-review-demo .credit-label { display: block; min-width: 0; font-size: .875rem; line-height: 1.5rem; font-weight: 600; }
+  .company-credit-review-demo .credit-input { display: block; width: 100%; min-width: 0; min-height: 3rem; margin-top: .5rem; border: 1px solid var(--color-input); border-radius: var(--radius-btn); background: var(--color-background); padding: .625rem .75rem; color: var(--color-foreground); font-size: 1rem; line-height: 1.5rem; font-weight: 400; }
+  .company-credit-review-demo .credit-input:disabled { background: var(--color-muted); color: var(--color-foreground); opacity: 1; cursor: default; }
+  .company-credit-review-demo .credit-button { min-height: 3rem; border-radius: var(--radius-btn); padding: .75rem 1rem; font-size: .875rem; line-height: 1.5rem; font-weight: 600; cursor: pointer; }
+  .company-credit-review-demo .credit-button:hover:not(:disabled) { box-shadow: 0 0 0 1px var(--color-foreground); }
+  .company-credit-review-demo .credit-button:disabled { background: var(--color-muted); color: var(--color-foreground); opacity: 1; cursor: not-allowed; }
+  .company-credit-review-demo .credit-facts dt { font-size: .75rem; line-height: 1.25rem; color: var(--color-muted-foreground); }
+  .company-credit-review-demo .credit-facts dd { margin-top: .25rem; font-size: .875rem; line-height: 1.5rem; font-weight: 600; }
+  .company-credit-review-demo .credit-facts dd.credit-money { font-size: 1.5rem; line-height: 2rem; font-variant-numeric: tabular-nums; }
+  .company-credit-review-demo .credit-facts .credit-secondary { font-size: .75rem; line-height: 1.25rem; font-weight: 400; color: var(--color-muted-foreground); }
+  .company-credit-review-demo .credit-comparison { min-width: 0; border: 1px solid var(--color-border); border-radius: var(--radius-btn); padding: 1rem; }
+  .company-credit-review-demo [data-credit-comparison-amount] { font-variant-numeric: tabular-nums; }
+  .company-credit-review-demo .credit-history-row { padding-block: .75rem; font-size: .875rem; line-height: 1.5rem; }
+  .company-credit-review-demo .credit-history-row p { font-weight: 600; }
+  .company-credit-review-demo .credit-history-row time { display: block; margin-top: .25rem; font-size: .75rem; line-height: 1.25rem; color: var(--color-muted-foreground); }
+  .company-credit-review-demo [hidden] { display: none !important; }
+  .company-credit-review-demo :is(button, select, .credit-focus-target):focus-visible { outline: 2px solid var(--color-foreground); outline-offset: 3px; }
+  @media (min-width: 640px) { .company-credit-review-demo .credit-panel { padding: 1.5rem; } }
+</style>
+
+<script>
+  import {
+    configureCompanyCreditReviewDemo, createCompanyCreditReviewDemo, getCompanyCreditReviewDemoView,
+    openCompanyCreditReviewDemo, respondCompanyCreditReviewDemo,
+    type CompanyCreditReviewDemoSelection, type CompanyCreditReviewDemoState,
+  } from '../../composition/company-credit-review-demo';
+  import { formatEurCents } from '../../lib/format';
+
+  const root = document.querySelector<HTMLElement>('[data-company-credit-review-demo]');
+  if (root) {
+    const find = (selector: string): HTMLElement => root.querySelector<HTMLElement>(selector)!;
+    const findSelect = (selector: string) => {
+      const element = root.querySelector(selector);
+      if (!(element instanceof HTMLSelectElement)) throw new Error('Falta un selector del ejemplo.');
+      return element;
+    };
+    const findButton = (action: string) => {
+      const element = root.querySelector(`[data-credit-action="${action}"]`);
+      if (!(element instanceof HTMLButtonElement)) throw new Error('Falta una acción del ejemplo.');
+      return element;
+    };
+    const scenario = findSelect('[data-credit-scenario]');
+    const reviewer = findSelect('[data-credit-reviewer]');
+    const openButton = findButton('open');
+    const acceptButton = findButton('accept');
+    const rejectButton = findButton('reject');
+    const resetButton = findButton('reset');
+    const instantFormatter = new Intl.DateTimeFormat('es-ES', { timeZone: 'UTC', day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+    const formatInstant = (value: string) => instantFormatter.format(new Date(value)) + ' UTC';
+    const setAttribute = (element: HTMLElement, name: string, value: string | number | null) => {
+      if (value === null) element.removeAttribute(name);
+      else element.setAttribute(name, String(value));
+    };
+    const setMoney = (element: HTMLElement, cents: number | null) => {
+      setAttribute(element, 'data-cents', cents);
+      element.textContent = cents === null ? '' : formatEurCents(cents);
+    };
+    const setTime = (element: HTMLElement, value: string | null) => {
+      setAttribute(element, 'datetime', value);
+      element.textContent = value === null ? '' : formatInstant(value);
+    };
+    const setOptionalText = (element: HTMLElement, value: string | null) => {
+      element.hidden = value === null;
+      element.textContent = value ?? '';
+    };
+    let state = createCompanyCreditReviewDemo();
+
+    const render = () => {
+      const view = getCompanyCreditReviewDemoView(state);
+      scenario.value = view.selection.scenarioId;
+      reviewer.value = view.selection.reviewerKey;
+      find('[data-credit-scenario-description]').textContent = view.scenarioDescription;
+      find('[data-credit-company]').dataset.state = view.company.state;
+      find('[data-credit-company-label]').textContent = view.company.label;
+      find('[data-credit-company-state]').textContent = view.company.stateLabel;
+      find('[data-credit-buyer]').dataset.state = view.buyer.state;
+      find('[data-credit-buyer-label]').textContent = view.buyer.label;
+      find('[data-credit-buyer-state]').textContent = view.buyer.stateLabel;
+      setMoney(find('[data-credit-requested]'), view.requested.amountCents);
+      setTime(find('[data-credit-evaluated-at]'), view.evaluatedAt);
+
+      const exposure = find('[data-credit-exposure]');
+      exposure.dataset.outcome = view.exposure.outcome;
+      setAttribute(exposure, 'data-reason', view.exposure.reason);
+      setAttribute(exposure, 'data-coverage', view.exposure.coverage);
+      find('[data-credit-exposure-label]').textContent = view.exposure.label;
+      find('[data-credit-exposure-message]').textContent = view.exposure.message;
+      find('[data-credit-observed-row]').hidden = view.exposure.observedAt === null;
+      setTime(find('[data-credit-observed-at]'), view.exposure.observedAt);
+      const amounts = view.exposure.amounts;
+      const amountBlock = find('[data-credit-exposure-amounts]');
+      amountBlock.hidden = amounts === null;
+      setAttribute(amountBlock, 'data-as-of', amounts?.asOf ?? null);
+      setTime(find('[data-credit-as-of]'), amounts?.asOf ?? null);
+      setMoney(find('[data-credit-exposure-amount="company"]'), amounts?.companyExposureCents ?? null);
+      setMoney(find('[data-credit-exposure-amount="with-request"]'), amounts?.companyExposureWithRequestCents ?? null);
+
+      for (const comparison of view.comparisons) {
+        const card = find(`[data-credit-comparison="${comparison.id}"]`);
+        const part = (selector: string) => card.querySelector<HTMLElement>(selector)!;
+        card.dataset.status = comparison.status;
+        setAttribute(card, 'data-position', comparison.position);
+        setAttribute(card, 'data-reason', comparison.reason);
+        part('[data-credit-comparison-label]').textContent = comparison.label;
+        part('[data-credit-comparison-status]').textContent = comparison.statusLabel;
+        for (const [key, cents] of [['limit', comparison.limitCents], ['compared', comparison.comparedCents], ['difference', comparison.differenceCents]] as const) {
+          setMoney(part(`[data-credit-comparison-amount="${key}"]`), cents);
+          part(`[data-credit-comparison-empty="${key}"]`).hidden = cents !== null;
+        }
+        setOptionalText(part('[data-credit-comparison-position]'), comparison.positionLabel);
+        setOptionalText(part('[data-credit-comparison-reason-label]'), comparison.reasonLabel);
+      }
+
+      const review = find('[data-credit-review]');
+      review.dataset.status = view.review.status;
+      setAttribute(review, 'data-opening-reason', view.review.openingReason);
+      find('[data-credit-review-status]').textContent = view.review.statusLabel;
+      find('[data-credit-action-result]').textContent = view.review.statusLabel;
+      setOptionalText(find('[data-credit-opening-reason]'), view.review.openingReasonLabel);
+      setOptionalText(find('[data-credit-response-blocked-reason]'), view.review.blockedReason);
+      const quorum = find('[data-credit-quorum]');
+      quorum.dataset.count = String(view.review.quorum);
+      quorum.textContent = String(view.review.quorum);
+      const accepted = find('[data-credit-acceptance-count]');
+      setAttribute(accepted, 'data-count', view.review.acceptanceCount);
+      accepted.textContent = view.review.acceptanceCount === null ? '' : String(view.review.acceptanceCount);
+      find('[data-credit-no-acceptance-count]').hidden = view.review.acceptanceCount !== null;
+      find('[data-credit-review-dates]').hidden = view.review.createdAt === null;
+      setTime(find('[data-credit-created-at]'), view.review.createdAt);
+      setTime(find('[data-credit-last-occurred-at]'), view.review.lastOccurredAt);
+
+      for (const contact of view.review.contacts) {
+        const row = find(`[data-credit-contact="${contact.id}"]`);
+        row.dataset.state = contact.state;
+        row.dataset.responseState = contact.responseState;
+        row.querySelector<HTMLElement>('[data-credit-contact-label]')!.textContent = contact.label;
+        row.querySelector<HTMLElement>('[data-credit-contact-state]')!.textContent = contact.stateLabel;
+        row.querySelector<HTMLElement>('[data-credit-contact-response]')!.textContent = contact.statusLabel;
+        setOptionalText(row.querySelector<HTMLElement>('[data-credit-contact-reason]')!, contact.eligibilityReasonLabel);
+      }
+      const history = find('[data-credit-history]');
+      history.hidden = view.review.history.length === 0;
+      find('[data-credit-history-empty]').hidden = view.review.history.length !== 0;
+      history.replaceChildren(...view.review.history.map(item => {
+        const row = document.createElement('li');
+        row.className = 'credit-history-row';
+        row.dataset.creditHistoryRow = '';
+        row.dataset.reviewerKey = item.reviewerKey;
+        row.dataset.decision = item.decision;
+        const heading = document.createElement('p');
+        const contact = document.createElement('span');
+        contact.dataset.creditHistoryContact = '';
+        contact.textContent = item.reviewerLabel;
+        const decision = document.createElement('span');
+        decision.dataset.creditHistoryDecision = '';
+        decision.textContent = item.decisionLabel;
+        heading.appendChild(contact);
+        heading.appendChild(document.createTextNode(' · '));
+        heading.appendChild(decision);
+        const occurredAt = document.createElement('time');
+        occurredAt.setAttribute('datetime', item.occurredAt);
+        occurredAt.textContent = formatInstant(item.occurredAt);
+        row.appendChild(heading);
+        row.appendChild(occurredAt);
+        return row;
+      }));
+
+      openButton.disabled = !view.review.canOpen;
+      reviewer.disabled = !view.review.canSelectReviewer;
+      acceptButton.disabled = !view.review.canRespond;
+      rejectButton.disabled = !view.review.canRespond;
+      const feedback = find('[data-credit-feedback]');
+      const message = view.feedback.message + ' ' + view.review.statusLabel + '.';
+      if (feedback.textContent !== message) feedback.textContent = message;
+    };
+
+    // Solo se restaura el foco cuando la propia acción desactiva su control.
+    // El encabezado precede a los controles: Tab continúa por los que siguen disponibles.
+    const act = (operation: () => CompanyCreditReviewDemoState, button: HTMLButtonElement) => {
+      const restoreFocus = document.activeElement === button;
+      state = operation();
+      render();
+      if (restoreFocus && button.disabled) find('[data-credit-action-result]').focus();
+    };
+    scenario.addEventListener('change', () => {
+      state = configureCompanyCreditReviewDemo(state, { scenarioId: scenario.value as CompanyCreditReviewDemoSelection['scenarioId'] });
+      render();
+    });
+    reviewer.addEventListener('change', () => {
+      state = configureCompanyCreditReviewDemo(state, { reviewerKey: reviewer.value as CompanyCreditReviewDemoSelection['reviewerKey'] });
+      render();
+    });
+    openButton.addEventListener('click', () => act(() => openCompanyCreditReviewDemo(state), openButton));
+    acceptButton.addEventListener('click', () => act(() => respondCompanyCreditReviewDemo(state, { decision: 'accept' }), acceptButton));
+    rejectButton.addEventListener('click', () => act(() => respondCompanyCreditReviewDemo(state, { decision: 'reject' }), rejectButton));
+    resetButton.addEventListener('click', () => { state = createCompanyCreditReviewDemo(); render(); });
+    render();
+    scenario.disabled = false;
+    resetButton.disabled = false;
+    root.dataset.ready = 'true';
+  }
+</script>

@@ -1,0 +1,21 @@
+---
+import { canShowCompanyCreditReviewDemo } from '../../../composition/company-credit-review-demo';
+import { runtimePlatform } from '../../../composition/runtime-platform';
+import Admin from '../../../layouts/Admin.astro';
+import AdminPageHeader from '../../../components/admin/AdminPageHeader.astro';
+import CompanyCreditReviewDemo from '../../../components/admin/CompanyCreditReviewDemo.astro';
+
+export const prerender = false;
+
+if (!canShowCompanyCreditReviewDemo(Astro.locals.runtime?.env, runtimePlatform)) {
+  return new Response('Página no encontrada.', {
+    status: 404,
+    headers: { 'content-type': 'text/plain; charset=utf-8', 'cache-control': 'no-store' },
+  });
+}
+---
+
+<Admin title="Límites y revisión de crédito" active="credito">
+  <AdminPageHeader eyebrow="Clientes · demostración" title="Límites y revisión de crédito" description="Compara límites declarados y recorre una revisión local. Sus respuestas no conceden crédito ni autorizan compras." />
+  <CompanyCreditReviewDemo />
+</Admin>
