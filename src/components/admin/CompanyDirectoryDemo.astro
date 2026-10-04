@@ -1,0 +1,245 @@
+---
+import { createCompanyDirectoryDemo, getCompanyDirectoryDemoView } from '../../composition/company-directory-demo';
+
+const initial = getCompanyDirectoryDemoView(createCompanyDirectoryDemo());
+const formatDate = (value: string) => new Intl.DateTimeFormat('es-ES', { timeZone: 'UTC', day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }).format(new Date(value)) + ' UTC';
+---
+
+<div data-company-directory-demo data-ready="false" class="company-directory-demo mt-6 space-y-6 text-foreground">
+  <div class="flex flex-col gap-3 rounded-2xl border border-border bg-card p-4 sm:flex-row sm:items-center sm:justify-between sm:px-5">
+    <div class="max-w-3xl"><p class="text-sm font-semibold leading-6">Empresas, sedes y contactos ficticios. Este ejemplo no concede permisos ni crea cuentas.</p><p class="mt-1 text-xs leading-5 text-muted-foreground">Los cambios solo duran en esta página. Al recargar, vuelves al inicio.</p></div>
+    <button data-company-action="reset" type="button" disabled class="company-button shrink-0 border border-border bg-background text-foreground">Restablecer ejemplo</button>
+  </div>
+
+  <noscript data-company-nojs><div class="rounded-xl border border-border bg-muted p-4 text-sm leading-6">Puedes consultar el directorio inicial sin JavaScript. Los controles permanecen desactivados; este ejemplo no envía ni guarda datos.</div></noscript>
+
+  <div class="grid items-start gap-6 xl:grid-cols-[minmax(0,.9fr)_minmax(0,1.1fr)]">
+    <section class="company-panel" aria-labelledby="company-context-title">
+      <div class="flex items-start gap-3"><span class="company-step" aria-hidden="true">1</span><div><h2 id="company-context-title" class="text-xl font-semibold">Elige una empresa</h2><p class="mt-1 text-sm leading-6 text-muted-foreground">Cada empresa conserva sus propias sedes, contactos y roles.</p></div></div>
+
+      <fieldset class="mt-5 space-y-3" aria-describedby="company-state-help">
+        <legend class="mb-2 text-sm font-semibold">Empresas de ejemplo</legend>
+        {initial.companyOptions.map((option) => <label class="company-option">
+          <input data-company-select type="radio" name="company-directory-company" value={option.id} checked={option.id === initial.selection.companyId} disabled class="company-choice" />
+          <span class="min-w-0 flex-1"><span class="block text-sm font-semibold">{option.label}</span><span class="mt-1 block text-xs leading-5 text-muted-foreground">{option.siteCount} sedes · {option.contactCount} contactos</span><span class="company-badge mt-2">{option.stateLabel}</span></span>
+        </label>)}
+      </fieldset>
+      <p id="company-state-help" class="mt-3 text-xs leading-5 text-muted-foreground">Los registros inactivos también se muestran para conservar el contexto. Su estado no define permisos.</p>
+
+      <div class="mt-6 border-t border-border pt-5">
+        <h3 class="text-base font-semibold">Evidencia VAT, por separado</h3>
+        <p id="company-vat-help" class="mt-1 text-sm leading-6 text-muted-foreground">La declaración fiscal y su comprobación son distintas. Una respuesta favorable no concede exenciones, crédito ni acceso.</p>
+        <div data-company-vat-control hidden={!initial.vat.selectable} class="mt-4">
+          <label class="company-label" for="company-vat">Comprobación de ejemplo
+            <select id="company-vat" data-company-vat disabled aria-describedby="company-vat-help company-vat-change-help" class="company-input">
+              {initial.vat.scenarioOptions.map((option) => <option value={option.id} selected={option.id === initial.selection.vatScenario}>{option.label}</option>)}
+            </select>
+          </label>
+          <p id="company-vat-change-help" class="mt-2 text-xs leading-5 text-muted-foreground">Al cambiar de empresa, la comprobación vuelve a su estado inicial.</p>
+        </div>
+
+        <div data-company-vat-result data-company-id={initial.selectedCompany.id} data-status={initial.vat.status} data-evaluation-status={initial.vat.evaluationStatus ?? undefined} data-query-company-id={initial.vat.queryCompanyId ?? undefined} data-outcome={initial.vat.outcome ?? undefined} data-reason={initial.vat.reason ?? undefined} class="mt-4 rounded-xl border border-border bg-muted/40 p-4">
+          <p data-company-vat-label class="text-sm font-semibold">{initial.vat.label}</p>
+          <p data-company-vat-message class="mt-1 text-sm leading-6 text-muted-foreground">{initial.vat.message}</p>
+          <details data-company-vat-dates hidden={initial.vat.evaluationStatus === null} class="mt-2">
+            <summary class="flex min-h-11 cursor-pointer items-center text-xs font-semibold">Ver fechas ficticias de la comprobación</summary>
+            <dl class="space-y-3 pb-1 text-xs leading-5 text-muted-foreground">
+              <div data-company-vat-date-row="at" hidden={initial.vat.at === null}><dt>Instante fijo del ejemplo</dt><dd data-company-vat-date="at" class="font-medium text-foreground">{initial.vat.at ? formatDate(initial.vat.at) : ''}</dd></div>
+              <div data-company-vat-date-row="checkedAt" hidden={initial.vat.checkedAt === null}><dt>Comprobada</dt><dd data-company-vat-date="checkedAt" class="font-medium text-foreground">{initial.vat.checkedAt ? formatDate(initial.vat.checkedAt) : ''}</dd></div>
+              <div data-company-vat-date-row="expiresAt" hidden={initial.vat.expiresAt === null}><dt>Fin de vigencia</dt><dd data-company-vat-date="expiresAt" class="font-medium text-foreground">{initial.vat.expiresAt ? formatDate(initial.vat.expiresAt) : ''}</dd></div>
+            </dl>
+          </details>
+        </div>
+      </div>
+      <p data-company-feedback role="status" aria-live="polite" aria-atomic="true" class="mt-5 text-sm leading-6">{initial.feedback.message}</p>
+    </section>
+
+    <section data-company-directory data-company-id={initial.selectedCompany.id} data-state={initial.selectedCompany.state} class="company-panel" aria-labelledby="company-directory-title">
+      <div class="flex items-start gap-3"><span class="company-step" aria-hidden="true">2</span><div><h2 id="company-directory-title" class="text-xl font-semibold">Consulta su directorio</h2><p class="mt-1 text-sm leading-6 text-muted-foreground">Solo los registros de la empresa seleccionada.</p></div></div>
+
+      <div class="mt-5 flex flex-wrap items-start justify-between gap-3 rounded-xl border border-border bg-muted/40 p-4">
+        <h3 data-company-label class="min-w-0 text-base font-semibold">{initial.selectedCompany.label}</h3><span data-company-state class="company-badge">{initial.selectedCompany.stateLabel}</span>
+      </div>
+
+      <div class="mt-5">
+        <h3 class="text-base font-semibold">Sedes <span data-company-site-count class="ml-1 text-sm font-normal text-muted-foreground">({initial.sites.length})</span></h3>
+        <div data-company-sites class="mt-3 grid gap-3 sm:grid-cols-2">
+          {initial.sites.map((site) => <article data-company-site data-site-id={site.id} data-company-id={site.companyId} data-state={site.state} class="company-record">
+            <h4 class="text-sm font-semibold">{site.label}</h4><p class="mt-1 text-xs leading-5 text-muted-foreground">{site.countryLabel}</p><p class="mt-3"><span class="company-badge">{site.stateLabel}</span></p>
+          </article>)}
+        </div>
+      </div>
+
+      <div class="mt-6 border-t border-border pt-5">
+        <h3 class="text-base font-semibold">Contactos y roles <span data-company-contact-count class="ml-1 text-sm font-normal text-muted-foreground">({initial.contacts.length})</span></h3>
+        <p class="mt-1 text-xs leading-5 text-muted-foreground">Cada rol describe un ámbito concreto. No se extiende a otras sedes ni concede acceso.</p>
+        <div data-company-contacts class="mt-3 space-y-3">
+          {initial.contacts.map((contact) => <article data-company-contact data-contact-id={contact.id} data-company-id={contact.companyId} data-state={contact.state} class="company-record">
+            <div class="flex flex-wrap items-start justify-between gap-2"><h4 class="min-w-0 text-sm font-semibold">{contact.label}</h4><span class="company-badge">{contact.stateLabel}</span></div>
+            {contact.assignments.length > 0 ? <ul class="company-assignments mt-3 space-y-3">{contact.assignments.map((assignment) => <li data-company-assignment data-company-id={assignment.companyId} data-contact-id={assignment.contactId} data-role-id={assignment.roleId} data-scope-type={assignment.scopeType} data-site-id={assignment.siteId ?? undefined}>
+              <p class="text-sm font-medium">{assignment.roleLabel}</p><p class="mt-1 text-xs leading-5 text-muted-foreground">Ámbito: {assignment.scopeLabel}</p>
+            </li>)}</ul> : <p class="mt-3 text-sm leading-6 text-muted-foreground">Sin roles descriptivos asignados.</p>}
+          </article>)}
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<style is:global>
+  .company-directory-demo .company-panel { min-width: 0; border: 1px solid var(--color-border); border-radius: var(--radius-card); background: var(--color-card); padding: 1.25rem; overflow-wrap: anywhere; }
+  .company-directory-demo .company-step { display: flex; flex-shrink: 0; width: 2rem; height: 2rem; align-items: center; justify-content: center; border-radius: 100%; background: var(--color-foreground); color: var(--color-background); font-size: .875rem; font-weight: 600; }
+  .company-directory-demo .company-label { display: block; min-width: 0; font-size: .875rem; line-height: 1.5rem; font-weight: 600; }
+  .company-directory-demo .company-input { display: block; width: 100%; min-width: 0; min-height: 3rem; margin-top: .5rem; border: 1px solid var(--color-input); border-radius: var(--radius-btn); background: var(--color-background); padding-inline: .75rem; color: var(--color-foreground); font-size: 1rem; line-height: 1.5rem; font-weight: 400; }
+  .company-directory-demo .company-input:disabled { opacity: 1; cursor: default; }
+  .company-directory-demo .company-button { min-height: 3rem; border-radius: var(--radius-btn); padding: .75rem 1rem; font-size: .875rem; line-height: 1.5rem; font-weight: 600; cursor: pointer; }
+  .company-directory-demo .company-button:hover:not(:disabled) { box-shadow: 0 0 0 1px var(--color-foreground); }
+  .company-directory-demo .company-button:disabled { background: var(--color-muted); color: var(--color-foreground); opacity: 1; cursor: not-allowed; }
+  .company-directory-demo .company-option { display: flex; min-height: 3rem; align-items: flex-start; gap: .75rem; border: 1px solid var(--color-border); border-radius: var(--radius-btn); padding: 1rem; cursor: pointer; }
+  .company-directory-demo .company-option:has(input:checked) { border-color: var(--color-foreground); background: var(--color-muted); }
+  .company-directory-demo .company-option:has(input:disabled) { cursor: default; }
+  .company-directory-demo .company-choice { width: 1.125rem; height: 1.125rem; flex-shrink: 0; margin-top: .125rem; accent-color: var(--color-foreground); }
+  .company-directory-demo .company-choice:disabled { opacity: 1; }
+  .company-directory-demo .company-record { min-width: 0; border: 1px solid var(--color-border); border-radius: var(--radius-btn); padding: 1rem; overflow-wrap: anywhere; }
+  .company-directory-demo .company-badge { display: inline-flex; border-radius: 999px; background: var(--color-muted); padding: .25rem .625rem; color: var(--color-foreground); font-size: .75rem; line-height: 1.25rem; font-weight: 600; }
+  .company-directory-demo .company-assignments { border-top: 1px solid var(--color-border); padding-top: .75rem; }
+  .company-directory-demo :is(button, input, select, summary):focus-visible { outline: 2px solid var(--color-foreground); outline-offset: 3px; }
+  @media (min-width: 640px) { .company-directory-demo .company-panel { padding: 1.5rem; } }
+</style>
+
+<script>
+  import {
+    configureCompanyDirectoryDemo, createCompanyDirectoryDemo, getCompanyDirectoryDemoView,
+    type CompanyDirectoryDemoSelection, type CompanyDirectoryDemoView,
+  } from '../../composition/company-directory-demo';
+
+  const root = document.querySelector<HTMLElement>('[data-company-directory-demo]');
+  if (root) {
+    const find = <T extends HTMLElement>(selector: string): T => root.querySelector<T>(selector)!;
+    const vat = root.querySelector('[data-company-vat]');
+    if (!(vat instanceof HTMLSelectElement)) throw new Error('Falta el selector del ejemplo.');
+    const radios = [...root.querySelectorAll<HTMLInputElement>('[data-company-select]')];
+    const reset = find<HTMLButtonElement>('[data-company-action="reset"]');
+    const feedback = find<HTMLElement>('[data-company-feedback]');
+    const directory = find<HTMLElement>('[data-company-directory]');
+    const formatDate = (value: string) => new Intl.DateTimeFormat('es-ES', { timeZone: 'UTC', day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }).format(new Date(value)) + ' UTC';
+    let state = createCompanyDirectoryDemo();
+    let renderedCompanyId = directory.dataset.companyId;
+
+    const textNode = <K extends keyof HTMLElementTagNameMap>(tag: K, text: string, className: string) => {
+      const element = document.createElement(tag);
+      element.textContent = text;
+      element.className = className;
+      return element;
+    };
+
+    const siteCard = (site: CompanyDirectoryDemoView['sites'][number]) => {
+      const card = document.createElement('article');
+      card.className = 'company-record';
+      card.dataset.companySite = '';
+      card.dataset.siteId = site.id;
+      card.dataset.companyId = site.companyId;
+      card.dataset.state = site.state;
+      card.appendChild(textNode('h4', site.label, 'text-sm font-semibold'));
+      card.appendChild(textNode('p', site.countryLabel, 'mt-1 text-xs leading-5 text-muted-foreground'));
+      const status = document.createElement('p');
+      status.className = 'mt-3';
+      status.appendChild(textNode('span', site.stateLabel, 'company-badge'));
+      card.appendChild(status);
+      return card;
+    };
+
+    const contactCard = (contact: CompanyDirectoryDemoView['contacts'][number]) => {
+      const card = document.createElement('article');
+      card.className = 'company-record';
+      card.dataset.companyContact = '';
+      card.dataset.contactId = contact.id;
+      card.dataset.companyId = contact.companyId;
+      card.dataset.state = contact.state;
+      const heading = document.createElement('div');
+      heading.className = 'flex flex-wrap items-start justify-between gap-2';
+      heading.appendChild(textNode('h4', contact.label, 'min-w-0 text-sm font-semibold'));
+      heading.appendChild(textNode('span', contact.stateLabel, 'company-badge'));
+      card.appendChild(heading);
+      if (contact.assignments.length === 0) {
+        card.appendChild(textNode('p', 'Sin roles descriptivos asignados.', 'mt-3 text-sm leading-6 text-muted-foreground'));
+      } else {
+        const assignments = document.createElement('ul');
+        assignments.className = 'company-assignments mt-3 space-y-3';
+        for (const assignment of contact.assignments) {
+          const item = document.createElement('li');
+          item.dataset.companyAssignment = '';
+          item.dataset.companyId = assignment.companyId;
+          item.dataset.contactId = assignment.contactId;
+          item.dataset.roleId = assignment.roleId;
+          item.dataset.scopeType = assignment.scopeType;
+          if (assignment.siteId !== null) item.dataset.siteId = assignment.siteId;
+          item.appendChild(textNode('p', assignment.roleLabel, 'text-sm font-medium'));
+          item.appendChild(textNode('p', 'Ámbito: ' + assignment.scopeLabel, 'mt-1 text-xs leading-5 text-muted-foreground'));
+          assignments.appendChild(item);
+        }
+        card.appendChild(assignments);
+      }
+      return card;
+    };
+
+    const render = () => {
+      const view = getCompanyDirectoryDemoView(state);
+      for (const radio of radios) radio.checked = radio.value === view.selection.companyId;
+      vat.value = view.selection.vatScenario;
+      vat.disabled = !view.vat.selectable;
+      find('[data-company-vat-control]').hidden = !view.vat.selectable;
+      directory.dataset.companyId = view.selectedCompany.id;
+      directory.dataset.state = view.selectedCompany.state;
+      find('[data-company-label]').textContent = view.selectedCompany.label;
+      find('[data-company-state]').textContent = view.selectedCompany.stateLabel;
+      // Las tarjetas de resultado solo cambian al elegir otra empresa. Los controles conservan el foco.
+      if (renderedCompanyId !== view.selectedCompany.id) {
+        renderedCompanyId = view.selectedCompany.id;
+        find('[data-company-sites]').replaceChildren(...view.sites.map(siteCard));
+        find('[data-company-contacts]').replaceChildren(...view.contacts.map(contactCard));
+        find('[data-company-site-count]').textContent = '(' + view.sites.length + ')';
+        find('[data-company-contact-count]').textContent = '(' + view.contacts.length + ')';
+      }
+
+      const evidence = find<HTMLElement>('[data-company-vat-result]');
+      evidence.dataset.companyId = view.selectedCompany.id;
+      evidence.dataset.status = view.vat.status;
+      if (view.vat.evaluationStatus === null) delete evidence.dataset.evaluationStatus;
+      else evidence.dataset.evaluationStatus = view.vat.evaluationStatus;
+      if (view.vat.queryCompanyId === null) delete evidence.dataset.queryCompanyId;
+      else evidence.dataset.queryCompanyId = view.vat.queryCompanyId;
+      if (view.vat.outcome === null) delete evidence.dataset.outcome;
+      else evidence.dataset.outcome = view.vat.outcome;
+      if (view.vat.reason === null) delete evidence.dataset.reason;
+      else evidence.dataset.reason = view.vat.reason;
+      find('[data-company-vat-label]').textContent = view.vat.label;
+      find('[data-company-vat-message]').textContent = view.vat.message;
+      const dates = find<HTMLDetailsElement>('[data-company-vat-dates]');
+      dates.hidden = view.vat.evaluationStatus === null;
+      if (dates.hidden) dates.open = false;
+      for (const key of ['at', 'checkedAt', 'expiresAt'] as const) {
+        const value = view.vat[key];
+        find('[data-company-vat-date="' + key + '"]').textContent = value === null ? '' : formatDate(value);
+        find('[data-company-vat-date-row="' + key + '"]').hidden = value === null;
+      }
+      const message = view.feedback.message + ' ' + view.vat.label + '.';
+      if (feedback.textContent !== message) feedback.textContent = message;
+    };
+
+    for (const radio of radios) radio.addEventListener('change', () => {
+      if (!radio.checked) return;
+      state = configureCompanyDirectoryDemo(state, { companyId: radio.value as CompanyDirectoryDemoSelection['companyId'] });
+      render();
+    });
+    vat.addEventListener('change', () => {
+      state = configureCompanyDirectoryDemo(state, { vatScenario: vat.value as CompanyDirectoryDemoSelection['vatScenario'] });
+      render();
+    });
+    reset.addEventListener('click', () => { state = createCompanyDirectoryDemo(); render(); });
+    render();
+    for (const radio of radios) radio.disabled = false;
+    reset.disabled = false;
+    root.dataset.ready = 'true';
+  }
+</script>

@@ -45,7 +45,7 @@ improvisan durante la implementación.
 | R3 | Operación de pedidos, inventario y fulfillment | ✅ cerrado 2026-08-14 |
 | R4 | Precios, promociones y modelos de venta | ✅ cerrado 2026-08-17 |
 | R5 | Clientes, privacidad y mercados | 🟨 consolidación fixture R5.12 cerrada localmente, integrada en PR #26 (`9dd23909`); operación real y G3/G4 pendientes; demo R5.11c integrada en PR #25 (`46dbe905`) |
-| R6 | B2B | 🟡 R6.1a verificado localmente, integración pendiente: companies fixture/VAT, 3.054 pruebas; R6.1b siguiente con diseño aprobado y UI pendiente; sin operación B2B activada |
+| R6 | B2B | 🟡 R6.1a integrado en PR #27 (`9b78e69a`); demo R6.1b verificada localmente, disponible en repo e integración pendiente: 3.077 pruebas, navegador 601 y E2E 176. R6.2a siguiente; sin operación B2B activada ni despliegue |
 | R7 | Marketing, analítica y automatización | ⬜ |
 | R8 | Storefront componible, búsqueda y contenido | ⬜ |
 | R9 | Integraciones y omnicanalidad | ⬜ |
@@ -387,8 +387,8 @@ installed, sin flags activas, secretos ni proveedor real.
 
 | Orden | Bloque de una sesión | Entregables y criterio específico | Estado |
 |---:|---|---|---|
-| 63 | **R6.1 Empresas, sedes y contactos** | Modelo, roles y VAT ID. | 🟡 R6.1a verificado localmente: ADR-0052/companies, B2B-001 parcial instalada/inactiva y composición VAT; 944 archivos sin diagnósticos, 245 suites/3.054 pruebas y revisión 11.249 sin P1/P2. Integración pendiente, sin deploy. R6.1b /demo/admin/empresas con diseño aprobado, UI y QA visual pendientes; sin autorización operativa, DDL, CRM o proveedor |
-| 64 | **R6.2 Catálogos y listas B2B** | Publicación/precio por empresa con fallback. | ⬜ |
+| 63 | **R6.1 Empresas, sedes y contactos** | Modelo, roles y VAT ID. | ✅ Alcance fixture local: R6.1a integrado en PR #27 (`9b78e69a`); R6.1b verificado, disponible en repo e integración pendiente. Demo /demo/admin/empresas, 948 archivos sin diagnósticos, 246 suites/3.077 pruebas, navegador 601, E2E nuevo 176, ocho superficies a11y sin hallazgos y base QA intacta. B2B-001 parcial instalada/inactiva; sin autorización operativa, DDL, CRM, proveedor o despliegue |
+| 64 | **R6.2 Catálogos y listas B2B** | Publicación/precio por empresa con fallback. | ⬜ Siguiente diseño aceptado R6.2a fixture: política global empresa/producto intersectada con publicación; empresa inactiva cierra preview comercial. Una variante elegida por producto, base propia EUR y override por producto; binding explícito, ausencia da precio nulo, sin totales. Referencias completas y validación de todos los datos; sin implementación o autorización real |
 | 65 | **R6.3 Reglas de cantidad** | Mínimos, múltiplos y cajas desde catálogo a checkout. | ⬜ |
 | 66 | **R6.4 Condiciones de pago** | Neto N, vencimiento, recordatorios y estado. | ⬜ |
 | 67 | **R6.5 Crédito y aprobaciones** | Límites por empresa/comprador y workflow humano. | ⬜ |
@@ -1837,23 +1837,65 @@ independiente de 11.249 aserciones (9.700 de directorio con 171 selecciones y
 1.549 de VAT con 48 escenarios), sin P1/P2, getters ejecutados, efectos ni
 reloj implícito. Bundles de diagnóstico minificados: directorio 6.474 B/dos
 fuentes y composición VAT 11.957 B/cuatro fuentes contribuyentes, sin imports
-externos/runtime operativo. Implementado y verificado localmente; integración
-pendiente, sin despliegue ni activación.
+externos/runtime operativo. Implementado y verificado localmente e integrado
+en PR #27 (`9b78e69a`), sin despliegue ni activación.
 
 La evidencia HTTP/E2E/hash de R5.12 es heredada; navegador y a11y de PR #25
 también son anteriores; no se ejecutaron de nuevo para este contrato puro.
 R6.2–R6.5 conservan precios, cantidades, pagos y crédito como alcances separados.
 
-### Siguiente: R6.1b — Empresas y sedes
+### Cerrada localmente: R6.1b — Empresas y sedes
 
-R6.1b tiene diseño aprobado y UI pendiente: `/demo/admin/empresas`,
-«Empresas y sedes», bajo Clientes. Dos empresas sintéticas: A activa con VAT
-ficticio y B inactiva sin VAT; sedes, contactos y roles descriptivos. Cinco
-estados de consulta VAT con selección inicial `not_checked`; cambiar de
-empresa restablece esa selección, sin fabricar una declaración para B.
-Se prevén ocho capturas al verificar la demo; todavía no existen como evidencia
-de este corte. Interacción local, sin activar capacidades o autorización real.
+R6.1b implementa `/demo/admin/empresas`, «Empresas y sedes», bajo Clientes.
+Dos empresas sintéticas: A activa con VAT ficticio y B inactiva sin VAT;
+sedes, contactos y roles descriptivos. Cinco estados VAT en A, empezando por
+`not_checked`; cambiar de empresa restablece esa selección y B conserva
+`not_declared`. Reset y recarga restituyen el estado inicial. Interacción en
+memoria, sin I/O del módulo, persistencia, permisos o activación operativa.
+Demo verificada localmente y disponible en el repositorio; integración
+pendiente, sin despliegue. B2B-001 sigue parcial e instalada/inactiva y
+B2B-009 pendiente.
 
+[Verificación final R6.1b](../audits/r6-1b/verification-report.json), 2026-10-04:
+`pnpm check` pasa 948 archivos sin diagnósticos, 246 suites/3.077 pruebas,
+44 HTML, 44 formularios locales y cero crons; 23 pruebas de modelo y seis de
+arquitectura. Revisión independiente: 1.532 aserciones, seis estados y 38
+transiciones, sin P1/P2, getters, efectos o reloj implícito.
+
+QA nueva: navegador 601/601, E2E 176/176, ocho superficies a11y sin errores ni
+avisos y ocho capturas aprobadas por frontend y root. El módulo no genera HTTP,
+escrituras de almacenamiento, timers, beacons, ventanas ni errores JavaScript;
+las escrituras de la guía compartida y el rAF del layout se identifican aparte.
+La base QA conserva 143 tablas/353 filas y SHA-256 antes/después idéntico:
+`9cbfc811cfc4296515a403d395875a43bfa26aff0c9c9b08be0804b15bbf6eca`.
+Worker detenido. Son comprobaciones de R6.1b, separadas de la evidencia heredada
+del contrato R6.1a.
+
+### Siguiente: R6.2 — Catálogos y listas B2B
+
+El siguiente diseño aceptado es **R6.2a: catálogo y precios B2B con fixtures**,
+todavía sin implementar. Separará el preview completo de visibilidad de hasta
+100 selecciones explícitas, una variante por producto, para precio. La base
+será el precio de esa variante; el override existente de listas seguirá siendo
+por producto. No habrá totales. El snapshot base será EUR e incluirá los
+precios de todas las variantes.
+
+La política versionada será global por empresa/producto: incluido con variantes
+explícitas, excluido o sin configurar. Se intersectará con la publicación por
+mercado/canal y nunca recuperará productos o variantes excluidos. Una empresa
+inactiva cerrará el preview comercial; el selector descriptivo de R6.1 seguirá
+mostrando sus registros. `directoryRef` conservará `{ id, version, capturedAt }`
+y `catalogRef`, `{ ref, capturedAt }`.
+
+El binding versionado empresa→`companyKeyHash` será explícito, sin derivarlo
+de VAT, perfil, email o roles; varias empresas podrán compartir una clave si
+se declara. Sin binding, precio nulo; con binding, se conserva el fallback
+empresa→general→catálogo. Una frontera `unknown` validará y copiará todos los
+datos y referencias antes de invocar la API tipada de precios, incluso empresas
+inactivas y variantes no seleccionadas. Las listas con otra moneda canónica
+se validarán completas y quedarán en `excluded_context`, sin FX ni cambio de
+etiqueta. B2B-002 sigue pendiente; sin autorización real, DDL, activación,
+stock, impuestos o cambios de checkout.
 
 Push/merge siguen autorizados después de checks. La demo pública y landing
 quedan solo con fixtures; crons vacíos y guardas ante triggers antiguos. G3/G4,

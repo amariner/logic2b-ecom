@@ -15,8 +15,28 @@
 La prioridad no autoriza activación automática. Cada cliente recibe solo lo que
 su alcance requiera.
 
+**R6.1b implementada y verificada localmente, disponible en repo**, rama
+`codex/company-directory-demo`, integración pendiente y sin despliegue:
+`/demo/admin/empresas`, «Empresas y sedes», dentro de Clientes. Empresa A activa
+con VAT ficticio y B inactiva sin VAT; sedes/contactos/roles descriptivos y cinco
+estados VAT inicialmente `not_checked`, reiniciado al cambiar empresa.
+Check final: 948 archivos sin diagnósticos, 246 suites/3.077 pruebas, 23 del
+modelo y seis de arquitectura; 44 HTML/44 formularios/cero crons. Revisión de
+1.532 comprobaciones, seis estados y 38 transiciones sin P1/P2, efectos,
+getters o reloj implícito. Cliente real de 26.802 B/8.315 B gzip en dos archivos
+(entrada 21.053/6.262 B y compartido 5.749/2.053 B), sin imports externos u
+operativos; sonda de arranque sin raíz demo: una consulta DOM, diez fechas
+explícitas, cero efectos/reloj implícito, separada de la interacción en navegador.
+QA nueva: navegador 601, E2E 176/176, ocho superficies a11y sin errores/avisos
+y ocho capturas aprobadas. Base intacta, 143 tablas/353 filas, hash antes/después
+`9cbfc811cfc4296515a403d395875a43bfa26aff0c9c9b08be0804b15bbf6eca`.
+Cero efectos del módulo en navegador; guía y rAF del shell separados. Worker
+cerrado; [informe final](../audits/r6-1b/verification-report.json). B2B-001 parcial
+e instalada/inactiva; B2B-009 pendiente. Sin permisos, autenticación, precios,
+crédito ni I/O. Los resultados de cortes siguientes son evidencia anterior.
+
 **R6.1a implementado y verificado localmente**, rama
-`codex/company-fixture-directory`, integración pendiente y sin despliegue:
+`codex/company-fixture-directory`, integrado en PR #27 (`9b78e69a`), sin despliegue:
 [ADR-0052](adr/0052-directorio-empresas-fixture.md), directorio puro fixture
 `companies` para B2B-001 parcial e instalada/inactiva en avanzado y demo,
 con dependencia única PLT-004. VAT se relaciona mediante composición con
@@ -29,7 +49,7 @@ minificados: directorio 6.474 B/dos fuentes y VAT 11.957 B/cuatro fuentes
 contribuyentes, sin imports externos ni runtime. Check final con salida 0:
 944 archivos sin diagnósticos, 245 suites/3.054 pruebas, 44 HTML/44 formularios
 y cero crons; [informe final](../audits/r6-1a/verification-report.json).
-Sin UI nueva; diseño R6.1b aprobado, implementación pendiente. HTTP
+R6.1a no añadió UI; R6.1b aporta la demo verificada localmente. HTTP
 4.554/163 GET/HEAD, E2E 172/172 y hash de 143 tablas/353 filas de PR #26,
 así como navegador 2.030/2.030, ocho superficies a11y y ocho capturas de PR #25,
 son evidencia heredada, sin nuevas ejecuciones en este corte.
@@ -251,8 +271,8 @@ R5 operativo completo y mantiene G3/G4 pendientes.
 
 | ID | Capacidad | Vía | Prioridad | Estado | Resultado objetivo |
 |---|---|---|---|---|---|
-| B2B-001 | Empresas y sedes | módulo | P2 | parcial | **R6.1a implementado y verificado localmente**, rama `codex/company-fixture-directory`, integración pendiente y sin despliegue: [ADR-0052](adr/0052-directorio-empresas-fixture.md), contrato puro fixture `companies`, instalada/inactiva en avanzado y demo con dependencia única PLT-004. Directorio versionado de empresas/sedes/contactos, roles descriptivos y asignaciones con referencias de pertenencia; la selección valida el snapshot completo. Solo empresas/sedes/contactos tienen estado activo/inactivo, no las asignaciones/relaciones; estados y roles no conceden permisos. identityRef es exclusivamente referencia de perfil, hash de email de 64 caracteres o null. Son metadatos potencialmente seudónimos, no anonimización; pueden repetirse entre empresas y no acreditan pertenencia. Sin email en claro, autenticación ni derivación de claves de precios. VAT opcional declarativo y composición con taxes, sin dependencia operativa del módulo: consulta correlacionada con empresa, país y VAT; la misma declaración puede reutilizar evidencia vigente tras una nueva versión editorial, sin acreditar autorización ni exención. Sin DDL, CRM, cobro, crédito, rutas ni jobs; B2B-009 pendiente. Focales 93 dominio/24 VAT/6 arquitectura/81 registry-manifest y revisión independiente aprobados; check final 944 archivos sin diagnósticos, 245 suites/3.054 pruebas, 44 HTML/44 formularios/cero crons. [Informe final](../audits/r6-1a/verification-report.json). HTTP/E2E/hash R5.12 y navegador/a11y/capturas R5.11c heredados, sin nueva ejecución ni UI. Siguiente R6.1b con diseño aprobado, aún sin implementar: `/demo/admin/empresas`, «Empresas y sedes», grupo Clientes; empresa A activa con VAT ficticio y B inactiva sin VAT, sedes/contactos/roles descriptivos y cinco estados VAT inicialmente not_checked, reiniciado al cambiar de empresa. Ocho capturas previstas, sin nueva evidencia visual ni demo disponible. |
-| B2B-002 | Catálogo por empresa | módulo | P2 | pendiente | Productos y precios autorizados por contrato. |
+| B2B-001 | Empresas y sedes | módulo | P2 | parcial | **R6.1a implementado y verificado localmente**, rama `codex/company-fixture-directory`, integrado en PR #27 (`9b78e69a`), sin despliegue: [ADR-0052](adr/0052-directorio-empresas-fixture.md), contrato puro fixture `companies`, instalada/inactiva en avanzado y demo con dependencia única PLT-004. Directorio versionado de empresas/sedes/contactos, roles descriptivos y asignaciones con referencias de pertenencia; la selección valida el snapshot completo. Solo empresas/sedes/contactos tienen estado activo/inactivo, no las asignaciones/relaciones; estados y roles no conceden permisos. identityRef es exclusivamente referencia de perfil, hash de email de 64 caracteres o null. Son metadatos potencialmente seudónimos, no anonimización; pueden repetirse entre empresas y no acreditan pertenencia. Sin email en claro, autenticación ni derivación de claves de precios. VAT opcional declarativo y composición con taxes, sin dependencia operativa del módulo: consulta correlacionada con empresa, país y VAT; la misma declaración puede reutilizar evidencia vigente tras una nueva versión editorial, sin acreditar autorización ni exención. Sin DDL, CRM, cobro, crédito, rutas ni jobs; B2B-009 pendiente. Focales 93 dominio/24 VAT/6 arquitectura/81 registry-manifest y revisión independiente aprobados; check final 944 archivos sin diagnósticos, 245 suites/3.054 pruebas, 44 HTML/44 formularios/cero crons. [Informe final](../audits/r6-1a/verification-report.json). HTTP/E2E/hash R5.12 y navegador/a11y/capturas R5.11c heredados, sin nueva ejecución ni UI. **R6.1b implementada y verificada localmente, disponible en repo**, rama `codex/company-directory-demo`, integración pendiente y sin despliegue: `/demo/admin/empresas`, «Empresas y sedes», grupo Clientes; empresa A activa con VAT ficticio y B inactiva sin VAT, sedes/contactos/roles descriptivos y cinco estados VAT inicialmente not_checked, reiniciado al cambiar de empresa. Check 948 archivos sin diagnósticos, 246 suites/3.077 pruebas; 23 del modelo, seis de arquitectura y revisión de 1.532 comprobaciones sin P1/P2. QA nueva: navegador 601, E2E 176/176, ocho superficies a11y sin errores/avisos y ocho capturas aprobadas; base QA intacta y Worker cerrado. Cliente real 26.802 B/8.315 B gzip; sonda sin raíz separada de las interacciones de navegador. [Evidencia final](../audits/r6-1b/verification-report.json). |
+| B2B-002 | Catálogo por empresa | módulo | P2 | pendiente | **R6.2a, diseño aceptado para después de integrar R6.1b; sin implementar**. Preview completo de visibilidad separado del precio de una única variante explícita por producto; base de esa variante, nunca default, con sustitución de precio por producto de las listas existentes preservada y declarada. Política global empresa/producto; mercado/canal pertenecen a market publication. Intersección sin revivir excluidos; empresa inactiva cierra el preview comercial sin cambiar el selector descriptivo. Vinculación versionada explícita companyId→companyKeyHash, compartible explícitamente entre empresas; ausencia produce precio null, sin derivaciones ni conversión en contexto general. Referencias exactas directoryRef id/version/capturedAt y catalogRef ref/capturedAt. Base EUR; listas canónicas de otra moneda quedan excluded_context. Frontera unknown valida y copia todos los datos, incluidos los no seleccionados, antes de la API tipada pricing. Sin autorización real, DDL ni activación. |
 | B2B-003 | Condiciones de pago | módulo | P2 | pendiente | Inmediato, neto N, vencimiento y estado de cobro. |
 | B2B-004 | Límites y aprobación | módulo | P2 | pendiente | Crédito, importe, comprador y flujo de aprobación. |
 | B2B-005 | Reglas de cantidad | módulo | P2 | pendiente | Mínimo, máximo, múltiplo y caja. |

@@ -502,6 +502,43 @@ for (const vp of [DESKTOP, MOBILE]) {
   }
 }
 
+// R6.1b: directorio descriptivo y evidencia VAT, sin autenticación empresarial.
+// Los mismos cuatro estados de las capturas; panel claro y movimiento reducido.
+const COMPANY_DIRECTORY_SCENARIO = (stage) => `(() => {
+  const root = document.querySelector('[data-company-directory-demo]');
+  if (root?.dataset.ready !== 'true') return 'not-ready';
+  const stage = ${JSON.stringify(stage)};
+  if (stage === 'no-vat') root.querySelector('[data-company-select][value="company.beta"]').click();
+  else if (stage !== 'default') {
+    const field = root.querySelector('[data-company-vat]');
+    field.value = stage;
+    field.dispatchEvent(new Event('change', { bubbles: true }));
+  }
+  const directory = root.querySelector('[data-company-directory]');
+  const result = root.querySelector('[data-company-vat-result]');
+  const companyId = stage === 'no-vat' ? 'company.beta' : 'company.alpha';
+  if (directory.dataset.companyId !== companyId || result.dataset.companyId !== companyId) return 'wrong-company';
+  const actual = [result.dataset.status, result.dataset.evaluationStatus ?? null,
+    result.dataset.outcome ?? null, result.dataset.reason ?? null];
+  const expected = stage === 'default' ? ['not_checked', null, null, null]
+    : stage === 'valid' ? ['evaluated', 'usable', 'valid', null]
+      : stage === 'expired' ? ['evaluated', 'unusable', null, 'expired']
+        : ['not_declared', null, null, null];
+  if (JSON.stringify(actual) !== JSON.stringify(expected)) return 'wrong-vat';
+  if (directory.querySelectorAll('[data-company-site]').length !== 2 ||
+    directory.querySelectorAll('[data-company-contact]').length !== (stage === 'no-vat' ? 2 : 3) ||
+    directory.querySelectorAll('[data-company-assignment]').length !== (stage === 'no-vat' ? 2 : 3)) return 'wrong-directory';
+  return stage;
+})()`;
+for (const vp of [DESKTOP, MOBILE]) {
+  const suffix = vp === MOBILE ? '@375' : '';
+  for (const stage of ['default', 'valid', 'expired', 'no-vat']) {
+    SURFACES.push({ name: `company-directory:${stage}${suffix}`, url: '/demo/admin/empresas', vp, auth: true,
+      eval: COMPANY_DIRECTORY_SCENARIO(stage), expect: stage,
+      ...(stage === 'expired' ? { reducedMotion: true } : {}) });
+  }
+}
+
 // R5.4d: estas rutas no existen en la demo y por eso no forman parte de la
 // batería ordinaria. El arnés local explícito activa un manifest cliente y una
 // composición visual inerte para auditar las páginas Astro reales sin DB,
