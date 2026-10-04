@@ -1,0 +1,21 @@
+---
+import { canShowCompanyNegotiationDemo } from '../../../composition/company-negotiation-demo';
+import { runtimePlatform } from '../../../composition/runtime-platform';
+import Admin from '../../../layouts/Admin.astro';
+import AdminPageHeader from '../../../components/admin/AdminPageHeader.astro';
+import CompanyNegotiationDemo from '../../../components/admin/CompanyNegotiationDemo.astro';
+
+export const prerender = false;
+
+if (!canShowCompanyNegotiationDemo(Astro.locals.runtime?.env, runtimePlatform)) {
+  return new Response('Página no encontrada.', {
+    status: 404,
+    headers: { 'content-type': 'text/plain; charset=utf-8', 'cache-control': 'no-store' },
+  });
+}
+---
+
+<Admin title="Ofertas y presupuesto" active="presupuestos-empresa">
+  <AdminPageHeader eyebrow="Clientes · demostración" title="Ofertas y presupuesto" description="Compara propuestas completas y recorre un presupuesto de ejemplo ligado a la oferta que elijas." />
+  <CompanyNegotiationDemo />
+</Admin>

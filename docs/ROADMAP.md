@@ -16,6 +16,46 @@
 > 2. Actualizar el estado de la fase al terminar, con fecha y resumen de lo hecho.
 > 3. Anotar decisiones tomadas y pendientes en las secciones de abajo.
 
+## R6.6c — Demo de ofertas y presupuesto, verificada localmente (2026-10-04)
+
+**R6.6c — Demo «Ofertas y presupuesto» está implementada y verificada localmente**,
+rama `codex/company-negotiation-demo`, según el [ADR-0060](plataforma/adr/0060-artefacto-preliminar-fixture.md).
+Ruta `/demo/admin/presupuestos-empresa`, grupo Clientes después de Crédito.
+Dos zonas separan comparar revisiones de simular un presupuesto: tres pares
+de comparación, tres ofertas y cuatro momentos UTC cerrados. La comparación
+no cambia el presupuesto; elegir otra oferta lo elimina y exige crear otro
+borrador. Cambiar fecha conserva historia y nunca aplica una transición.
+
+Términos fijos visibles: anticipo ilustrativo de 20,00 € y condición declarada
+de conversión por anticipo, sin cobros ni conversión. Crear borrador es explícito;
+«Simular emisión/aprobación/caducidad/cancelación» usa las APIs reales de b.
+Disponibilidad calculada con probes descartados, sin tabla alternativa de
+estados. Sin entradas libres de dinero, cantidades, PII o IDs; proyección
+sin artefacto/contexto/refs privados, memoria local y reset/recarga al inicio.
+
+R6.6b está integrado en PR #40 (`ce295c6`), sin despliegue. B2B-006 sigue
+parcial instalada/inactiva; operación de pedido, pago y conversión pendientes.
+Fuente congelada: 25 pruebas de modelo y seis de arquitectura verdes;
+regresión de auth ocho. Revisión independiente final: 105.487 comprobaciones,
+1.008 vistas estructurales, 150 historiales, 4.032 acciones, 2.016 cambios de
+oferta y 276 retrocesos; cero P1/P2. Bundle de diagnóstico 47.337 B/12.394 gzip,
+no cliente emitido. Check global final: 993 archivos sin diagnósticos,
+264 suites/3.814 pruebas, 44 HTML/44 formularios locales y cero cron.
+QA final nueva: navegador 9.068 comprobaciones, 72 visitas iniciales
+(36 por tamaño), 24 creaciones (12 por tamaño) y recorridos adicionales;
+ocho superficies a11y sin errores/avisos, ocho PNG revisadas y E2E196/196.
+Las 1.008 vistas estructurales de la sonda son una medición separada.
+Cliente emitido: cuatro archivos, 57.551 B/17.134 gzip; entrada 43.149 B/11.944 gzip,
+sin imports externos. Inicio sin raíz: cero efectos, una consulta DOM y
+56 fechas explícitas; no sustituye la interacción de navegador. Guía separada:
+15.200 B/6.321 gzip, incremento de 21 B/7 gzip por la ruta en su allowlist.
+El módulo no efectúa peticiones, escrituras, timers, beacons ni abre ventanas;
+los efectos propios de la guía y el rAF del shell están contabilizados aparte.
+Worker/Chrome detenidos; hash nuevo antes/después idéntico de 143 tablas/353 filas:
+`9cbfc811cfc4296515a403d395875a43bfa26aff0c9c9b08be0804b15bbf6eca`.
+**Disponible y verificada localmente en el repositorio; integración pendiente,
+sin despliegue ni activación operativa.** [Informe final R6.6c](audits/r6-6c/verification-report.json).
+
 ## R6.6b — Artefacto preliminar fixture, verificado localmente (2026-10-04)
 
 **R6.6b — Artefacto preliminar fixture está implementado y verificado localmente**,
@@ -43,11 +83,25 @@ Los 58 JavaScript públicos, seis grafos completos, 355 fuentes y 19 CSS son
 idénticos a PR #39. Los clientes suman 352.473 B/116.299 gzip. El Worker
 conserva ambas factories y 19 consumidores: +92 B explicados por las dos
 anotaciones PURE (+32) y registro/ADR0060 (+60), sin equivalencia SSR completa.
-**Implementado y verificado localmente; integración pendiente y sin despliegue.**
+**Implementado y verificado localmente; integrado en PR #40 (`ce295c6`) y sin despliegue.**
 [Informe final R6.6b](audits/r6-6b/verification-report.json). Navegador 6.368/108 visitas, E2E192, a11y8/capturas8 y
 hash143 tablas/353 filas siguen heredados de PR #38, sin nueva ejecución
-HTTP/Worker/navegador/DB. R6.6c será la demo posterior; dirección aceptada,
-schema exacto en preparación, sin implementación o QA nueva.
+HTTP/Worker/navegador/DB. R6.6c está implementada y verificada localmente, según el [ADR-0060](plataforma/adr/0060-artefacto-preliminar-fixture.md),
+en `/demo/admin/presupuestos-empresa`: comparación y presupuesto independientes,
+selección histórica explícita, términos fijos, fechas cerradas y acciones
+«Simular…». Cambiar oferta exige nuevo borrador; cambiar momento no aplica
+transición. Proyección privada y todo en memoria, sin pago o conversión.
+Focales 25 modelo/seis arquitectura y regresión auth ocho verdes; revisión
+independiente 105.487 comprobaciones sin P1/P2. Check global final: 993
+archivos sin diagnósticos, 264 suites/3.814 pruebas y 44 HTML/44 formularios
+locales/cero cron. QA final nueva: navegador 9.068 comprobaciones, 72 visitas
+iniciales y 24 creaciones, más recorridos; a11y ocho superficies sin hallazgos,
+ocho PNG revisadas y E2E196/196. Cliente real 57.551 B/17.134 gzip; Worker/Chrome
+cerrados y hash antes/después idéntico de 143 tablas/353 filas. Disponible en repo,
+integración pendiente y sin despliegue. [Informe final R6.6c](audits/r6-6c/verification-report.json). Siguiente: R6.7a, referencia PO declarada ligada a negociación completa y oferta
+histórica explícita. Diseño exacto aceptado, pendiente de implementación tras
+integrar c; número legible y token documental opcional, presencia
+`declared`/`not_provided`, sin dinero propio, factura, pago o pedido operativo.
 
 ## R6.6a — Solicitudes y ofertas con fixtures, verificado localmente (2026-10-04)
 
@@ -332,11 +386,25 @@ registro. Revisión 9.093 sin P1/P2, efectos, getters o reloj implícito; diagn�
 históricas de datos. 44 HTML/44 formularios locales/cero cron. Los 58 JS públicos, seis grafos completos, 355 fuentes y 19 CSS permanecen
 iguales a PR #39. Worker +92 B por PURE/registro, con ambas factories y 19
 consumidores conservados; no es prueba de equivalencia SSR completa.
-Implementado y verificado localmente; integración pendiente/sin despliegue.
+Implementado y verificado localmente; integrado en PR #40 (`ce295c6`)/sin despliegue.
 [Informe final R6.6b](audits/r6-6b/verification-report.json).
 Interacción/base QA heredadas de PR #38, sin nuevo HTTP/Worker/navegador/DB.
-Sin pago, conversión, reserva o enlaces alojados. R6.6c será la demo inerte
-posterior, con dirección aceptada y schema exacto en preparación; sin fuentes.
+Sin pago, conversión, reserva o enlaces alojados. R6.6c está implementada y verificada localmente, según el [ADR-0060](plataforma/adr/0060-artefacto-preliminar-fixture.md),
+en `/demo/admin/presupuestos-empresa`: comparación y presupuesto independientes,
+selección histórica explícita, términos fijos, fechas cerradas y acciones
+«Simular…». Cambiar oferta exige nuevo borrador; cambiar momento no aplica
+transición. Proyección privada y todo en memoria, sin pago o conversión.
+Focales 25 modelo/seis arquitectura y regresión auth ocho verdes; revisión
+independiente 105.487 comprobaciones sin P1/P2. Check global final: 993
+archivos sin diagnósticos, 264 suites/3.814 pruebas y 44 HTML/44 formularios
+locales/cero cron. QA final nueva: navegador 9.068 comprobaciones, 72 visitas
+iniciales y 24 creaciones, más recorridos; a11y ocho superficies sin hallazgos,
+ocho PNG revisadas y E2E196/196. Cliente real 57.551 B/17.134 gzip; Worker/Chrome
+cerrados y hash antes/después idéntico de 143 tablas/353 filas. Disponible en repo,
+integración pendiente y sin despliegue. [Informe final R6.6c](audits/r6-6c/verification-report.json). Siguiente: R6.7a, referencia PO declarada ligada a negociación completa y oferta
+histórica explícita. Diseño exacto aceptado, pendiente de implementación tras
+integrar c; número legible y token documental opcional, presencia
+`declared`/`not_provided`, sin dinero propio, factura, pago o pedido operativo.
 
 
 ## R6.4b — Evidencia de cobro con fixtures, verificado localmente (2026-10-04)
@@ -2137,7 +2205,8 @@ inerte o una intención del roadmap en alcance disponible.
 | R6.5b | Expediente de revisión de crédito con fixtures | ✅ Cerrado localmente — ADR-0058, 981 archivos sin diagnósticos/260 suites/3.653 pruebas, revisión 33.973 sin P1/P2; cinco grafos/352 fuentes/19 CSS iguales a PR #36. Interacción/base QA heredadas de PR #35; B2B-004 parcial instalada/inactiva, integrado en PR #37 (`16caef3`)/sin despliegue; demo R6.5c integrada en PR #38 (`5cdb5bb`) |
 | R6.5c | Demo de límites y revisión de crédito | ✅ Cerrada localmente — /demo/admin/credito, quince contextos; 985 archivos/261 suites/3.694 pruebas, revisión 129.333 sin P1/P2, navegador 6.368/108 visitas principales, ocho superficies a11y sin hallazgos/ocho PNG, E2E nuevo 192/192 y hash QA intacto. Disponible en repo, integrada en PR #38 (`5cdb5bb`)/sin despliegue, sin aprobación comercial ni activación |
 | R6.6a | Solicitudes B2B y revisiones de oferta con fixtures | ✅ Cerrado localmente — ADR-0059, 987 archivos/262 suites/3.745 pruebas; revisión 10.245 sin P1/P2. Solicitud sin dinero, contexto completo y ofertas EUR con veinte revisiones; B2B-006 parcial instalada/inactiva. Seis grafos JS/355 fuentes iguales a PR #38; 18/19 CSS iguales, única utilidad .ordinal sin uso (+175 B/+7 gzip). Integrado en PR #39 (`108480f8`)/sin despliegue; QA runtime heredada de PR #38. [Informe final](audits/r6-6a/verification-report.json) |
-| R6.6b | Artefacto preliminar fixture sobre ORD-008 | ✅ Cerrado localmente — ADR-0060, 989 archivos/263 suites/3.789 pruebas y revisión 9.093 sin P1/P2. Oferta histórica y términos íntegros, hasta tres acciones declaradas con ORD-008. 58 JS/seis grafos/355 fuentes/19 CSS iguales a PR #39; Worker +92 B explicado. Integración pendiente; QA runtime heredada PR #38, sin pagos, conversión ni operación |
+| R6.6b | Artefacto preliminar fixture sobre ORD-008 | ✅ Cerrado localmente — ADR-0060, 989 archivos/263 suites/3.789 pruebas y revisión 9.093 sin P1/P2. Oferta histórica y términos íntegros, hasta tres acciones declaradas con ORD-008. 58 JS/seis grafos/355 fuentes/19 CSS iguales a PR #39; Worker +92 B explicado. Integrado en PR #40 (`ce295c6`); QA runtime heredada PR #38, sin pagos, conversión ni operación |
+| R6.6c | Demo de ofertas y presupuesto | 🟡 Verificada localmente, integración pendiente — /demo/admin/presupuestos-empresa, comparación independiente y preliminar histórico explícito; términos/fechas cerrados y acciones simuladas. 25 modelo/seis arquitectura verdes, revisión 105.487 sin P1/P2; check final 993 archivos/264 suites/3.814 pruebas; navegador 9.068 comprobaciones, 72 visitas iniciales/24 creaciones más recorridos, a11y8 sin hallazgos, ocho PNG revisadas y E2E196/196. Hash nuevo antes/después idéntico de 143 tablas/353 filas; integración pendiente y sin despliegue, sin operación B2B, pagos o conversión |
 | R5.2 | Consentimiento versionado | ✅ 2026-08-17 — ADR-0040, D1 `0037`, repositorio concurrente, backup 31, rehearsal y E2E local; `CUS-007` instalada e inerte |
 | R5.3a | Derechos de datos verificables | ✅ 2026-08-17 — ADR-0041, lifecycle, dry-run, doble control y puertos; `CUS-008` instalada e inerte, sin DDL ni efectos |
 | R5.3b | Persistencia de solicitudes de derechos | ✅ 2026-08-18 — D1 `0038`, repositorio concurrente, backup 32 y rehearsal/restore local; sin PII, rutas ni ejecución |
@@ -3691,10 +3760,41 @@ solo vuelve a `main` o a producción por instrucción expresa.
 
 ## Próxima sesión
 
+R6.6c «Ofertas y presupuesto» está implementada y verificada localmente en
+`/demo/admin/presupuestos-empresa`, rama `codex/company-negotiation-demo`;
+queda pendiente integrar este corte. R6.6b está integrado en PR #40 (`ce295c6`).
+El repositorio contiene la demo; este cierre no despliega ni cambia el estado
+servido. B2B-006 sigue parcial e instalada/inactiva, sin pago o conversión reales.
+
+Evidencia final de c: 993 archivos sin diagnósticos, 264 suites/3.814 pruebas;
+navegador 9.068 comprobaciones (72 visitas iniciales y 24 creaciones, más
+recorridos), ocho superficies a11y sin hallazgos, ocho PNG revisadas y
+E2E196/196. Worker/Chrome cerrados; hash nuevo antes/después idéntico de
+143 tablas/353 filas. [Informe final](audits/r6-6c/verification-report.json).
+
+Siguiente bloque aceptado, pendiente de implementación tras integrar c:
+**R6.7a — Referencia de orden de compra (PO) declarada**. Contrato puro fixture
+ligado al corte completo de negociación y a una oferta histórica explícita;
+declaración versionada, emisor correlacionado, número legible y referencia
+documental opaca opcionales. `declared`/`not_provided` describe lo aportado;
+no demuestra existencia, autenticidad o recepción de un documento. La fecha
+registra la asociación declarada y la versión no promete historia durable.
+
+Conservar límites: sin dinero propio, factura fiscal, cobro, pedido operativo,
+proveedor, DDL, cron o escrituras de DB. B2B-007 aún espera este contrato; R6.7
+no queda completado por declarar una PO. La evidencia documental y una demo
+posterior se concretarán en sus subcortes, sin simular deuda ni pagos reales.
+
+## Histórico de reanudación
+
+Se conserva íntegra la reanudación anterior como histórico; sus próximos pasos
+y estados provisionales no sustituyen el bloque vigente de arriba.
+
+
 Zancada queda completado, integrado en GitHub y publicado por encargo expreso
 del 2026-09-08. La cola de plataforma que sigue no cambia por esta importación.
 
-### R6.6c — Demo de ofertas y presupuesto, siguiente diseño
+### R6.6c — Demo de ofertas y presupuesto, en implementación
 
 **R6.5a — Límites de crédito declarados con fixtures está implementado y verificado localmente**,
 según el [ADR-0057](plataforma/adr/0057-limites-credito-fixture.md). Perfil `company-credit-eur-cents-v1`:
@@ -3782,11 +3882,22 @@ registro. Revisión 9.093 sin P1/P2, efectos, getters o reloj implícito; diagn�
 históricas de datos. 44 HTML/44 formularios locales/cero cron. Los 58 JS públicos, seis grafos completos, 355 fuentes y 19 CSS permanecen
 iguales a PR #39. Worker +92 B por PURE/registro, con ambas factories y 19
 consumidores conservados; no es prueba de equivalencia SSR completa.
-Implementado y verificado localmente; integración pendiente/sin despliegue.
+Implementado y verificado localmente; integrado en PR #40 (`ce295c6`)/sin despliegue.
 [Informe final R6.6b](audits/r6-6b/verification-report.json).
 Interacción/base QA heredadas de PR #38, sin nuevo HTTP/Worker/navegador/DB.
-Sin pago, conversión, reserva o enlaces alojados. R6.6c será la demo inerte
-posterior, con dirección aceptada y schema exacto en preparación; sin fuentes.
+Sin pago, conversión, reserva o enlaces alojados. R6.6c está en implementación, según el [ADR-0060](plataforma/adr/0060-artefacto-preliminar-fixture.md),
+en `/demo/admin/presupuestos-empresa`: comparación y presupuesto independientes,
+selección histórica explícita, términos fijos, fechas cerradas y acciones
+«Simular…». Cambiar oferta exige nuevo borrador; cambiar momento no aplica
+transición. Proyección privada y todo en memoria, sin pago o conversión.
+Focales 25 modelo/seis arquitectura y regresión auth ocho verdes; revisión
+independiente 105.487 comprobaciones sin P1/P2. Check global final: 993
+archivos sin diagnósticos, 264 suites/3.814 pruebas y 44 HTML/44 formularios
+locales/cero cron. QA navegador/a11y/E2E/hash pendientes; las 36 vistas por tamaño y ocho capturas
+son previsiones, no pruebas ejecutadas. Siguiente: R6.7a, referencia PO declarada ligada a negociación completa y oferta
+histórica explícita. Diseño exacto aceptado, pendiente de implementación tras
+cerrar e integrar c; número legible y token documental opcional, presencia
+`declared`/`not_provided`, sin dinero propio, factura, pago o pedido operativo.
 
 ### R6.4c — Demo verificada localmente
 

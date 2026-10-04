@@ -1,12 +1,12 @@
 # ADR-0060 — Artefacto preliminar fixture ligado a una oferta histórica
 
-- Estado: accepted; R6.6b implementado y verificado localmente. Integración pendiente, sin activación ni despliegue.
+- Estado: accepted; R6.6b implementado y verificado localmente. Integrado en PR #40 (`ce295c6`), sin activación ni despliegue.
 - Fecha: 2026-10-04.
 - Composición: `src/composition/company-preliminary-order.ts`.
 - Módulo registrado: `companies` 1.8.0, dependencia `platform-configuration`.
 - Capacidad: B2B-006 parcial, instalada/inactiva en avanzado/demo, ausente mínimo/estándar; conserva B2B-002 como única dependencia y superficies operativas vacías.
 - Perfil: `company-preliminary-fixture-v1`.
-- Continuidad: R6.6a integrada en PR #39 (`108480f8`), sin despliegue; demo R6.6c pendiente.
+- Continuidad: R6.6a integrada en PR #39 (`108480f8`), sin despliegue; R6.6b integrado en PR #40 (`ce295c6`) y demo R6.6c verificada localmente, pendiente de integración y sin despliegue.
 
 ## Contexto y decisión
 
@@ -200,7 +200,7 @@ entorno, D1, storage, red, jobs o efectos de importación.
 
 ## Validación y continuidad
 
-**Implementado y verificado localmente el 2026-10-04; integración pendiente y sin despliegue.**
+**Implementado y verificado localmente el 2026-10-04; integrado en PR #40 (`ce295c6`) y sin despliegue.**
 [Informe final R6.6b](../../audits/r6-6b/verification-report.json). `pnpm check` final:
 989 archivos sin diagnósticos, 263 suites/3.789 pruebas, build con 44 HTML,
 44 formularios locales y cero cron. Focales: 44 composición, 50 de regresión
@@ -249,12 +249,92 @@ hash antes/después idéntico
 `9cbfc811cfc4296515a403d395875a43bfa26aff0c9c9b08be0804b15bbf6eca`.
 Es evidencia heredada, no nuevas ejecuciones de HTTP, navegador o DB en b.
 
-R6.6c será la demo inerte posterior, con selección y comparación explícitas de
-ofertas y presupuesto congelado, sin entradas libres de dinero o datos
-personales. La dirección UX está aceptada: comparar y seleccionar oferta son
-controles independientes; cambiar oferta reinicia el presupuesto y cambiar
-fecha nunca transiciona. Acciones «Simular emisión/aprobación/caducidad/
-cancelación». Schema exacto en preparación, implementación y QA propias pendientes.
-El runtime operativo actual recotiza con catálogo: este contrato no demuestra
-que acepte precios negociados ni resuelve autorización, fiscalidad, stock,
-concurrencia durable, pagos o conversión real. R6.6/B2B-006 siguen parciales.
+## R6.6c — Demo verificada localmente
+
+**R6.6c — Demo «Ofertas y presupuesto» está implementada y verificada localmente**,
+rama `codex/company-negotiation-demo`, con los contratos de este ADR y del ADR-0059.
+Ruta `/demo/admin/presupuestos-empresa`, grupo Clientes después de Crédito.
+Dos zonas separan comparar revisiones de simular un presupuesto: tres pares
+de comparación, tres ofertas y cuatro momentos UTC cerrados. La comparación
+no cambia el presupuesto; elegir otra oferta lo elimina y exige crear otro
+borrador. Cambiar fecha conserva historia y nunca aplica una transición.
+
+Términos fijos visibles: anticipo ilustrativo de 20,00 € y condición declarada
+de conversión por anticipo, sin cobros ni conversión. Crear borrador es explícito;
+«Simular emisión/aprobación/caducidad/cancelación» usa las APIs reales de b.
+Disponibilidad calculada con probes descartados, sin tabla alternativa de
+estados. Sin entradas libres de dinero, cantidades, PII o IDs; proyección
+sin artefacto/contexto/refs privados, memoria local y reset/recarga al inicio.
+
+R6.6b está integrado en PR #40 (`ce295c6`), sin despliegue. B2B-006 sigue
+parcial instalada/inactiva; operación de pedido, pago y conversión pendientes.
+Fuente congelada: 25 pruebas de modelo y seis de arquitectura verdes;
+regresión de auth ocho. Revisión independiente final: 105.487 comprobaciones,
+1.008 vistas estructurales, 150 historiales, 4.032 acciones, 2.016 cambios de
+oferta y 276 retrocesos; cero P1/P2. Bundle de diagnóstico 47.337 B/12.394 gzip,
+no cliente emitido. Check global final: 993 archivos sin diagnósticos,
+264 suites/3.814 pruebas, 44 HTML/44 formularios locales y cero cron.
+QA final nueva: navegador 9.068 comprobaciones, 72 visitas iniciales
+(36 por tamaño), 24 creaciones (12 por tamaño) y recorridos adicionales;
+ocho superficies a11y sin errores/avisos, ocho PNG revisadas y E2E196/196.
+Las 1.008 vistas estructurales de la sonda son una medición separada.
+Cliente emitido: cuatro archivos, 57.551 B/17.134 gzip; entrada 43.149 B/11.944 gzip,
+sin imports externos. Inicio sin raíz: cero efectos, una consulta DOM y
+56 fechas explícitas; no sustituye la interacción de navegador. Guía separada:
+15.200 B/6.321 gzip, incremento de 21 B/7 gzip por la ruta en su allowlist.
+El módulo no efectúa peticiones, escrituras, timers, beacons ni abre ventanas;
+los efectos propios de la guía y el rAF del shell están contabilizados aparte.
+Worker/Chrome detenidos; hash nuevo antes/después idéntico de 143 tablas/353 filas:
+`9cbfc811cfc4296515a403d395875a43bfa26aff0c9c9b08be0804b15bbf6eca`.
+**Disponible y verificada localmente en el repositorio; integración pendiente,
+sin despliegue ni activación operativa.** [Informe final R6.6c](../../audits/r6-6c/verification-report.json).
+
+La oferta elegida conserva su total y caducidad como datos de OFERTA. Antes
+de crear, `preliminary:null` implica ausencia de estado/importes/fechas/historia
+DEL presupuesto. La etiqueta es «Oferta para el presupuesto» hasta crear;
+«Presupuesto basado en…» se reserva para el artefacto existente. Cambiar el
+par de comparación conserva exactamente ese presupuesto, incluso si muestra
+otras ofertas. Una parte ausente de la comparación se muestra sin importe,
+no como cero.
+
+Cuatro momentos visibles cubren el 3 de octubre a las 14:00 UTC, los límites
+del 10 y 11 de octubre a las 12:00 UTC y el 12 de octubre a las 12:00 UTC de
+2026. No dependen del reloj real. Momentos anteriores a la creación o última
+acción quedan deshabilitados; igualdad temporal es válida. La disponibilidad
+de acciones se obtiene aplicando comandos deterministas sobre copias mediante
+la API b y descartando esos resultados. Solo una acción explícita aplicada
+se conserva; probes y bloqueos no generan historial ni cambian fechas.
+
+La proyección entrega etiquetas sintéticas, importes, fechas y claves UI
+cerradas. No serializa negociación, contexto, binding, identidades de contacto,
+refs, IDs de comando, contador o versión del ciclo. Estado «Aprobación simulada»
+no concede aceptación legal, crédito, compra ni conversión. SSR inicial inerte,
+controles deshabilitados sin JavaScript y gate estricto manifest demo AND entorno
+DEMO_MODE=true; reset y recarga vuelven a selección inicial sin storage.
+
+La validación final recorre 36 combinaciones sin artefacto por viewport y doce
+creaciones por viewport, separadas de recorridos legales posteriores. Las ocho
+PNG y superficies a11y cubren estado inicial, oferta histórica aprobada consultada
+tras la caducidad, borrador nuevo de otra oferta sin acciones transferidas y
+caducidad explícita, a 1440/375. Frontend revisó las ocho capturas y raíz cuatro;
+no hay hallazgos pendientes. El aviso temporal identifica la opción deshabilitada,
+sin confundirla con el instante seleccionado. Las vistas y acciones de la sonda
+independiente no se atribuyen a visitas o clics de Chrome.
+
+Los grafos de Catálogo y Cantidades cambian por extracción de código compartido;
+la revisión estructural conserva declaraciones y referencias, sin afirmar igualdad
+binaria ni equivalencia SSR completa. La QA interactiva y E2E de este corte son
+nuevas y se distinguen de los análisis de assets y del histórico de a/b.
+
+Después seguirá R6.7a, cuyo diseño exacto está aceptado y espera la
+integración de c antes de implementarse: referencia PO declarada, vinculada al
+corte completo de negociación y oferta histórica, sin preliminar o lifecycle
+comercial nuevo. Número legible, emisor correlacionado y token documental
+opcional; `declared`/`not_provided` describe lo aportado y no acredita existencia
+de documento. `recordedAt` fecha la asociación declarada, no emisión o recepción.
+La versión es declarada por el llamador, sin prometer historia durable. No hay
+importe propio, factura fiscal, proveedor elegido o saldo real. PO documental,
+factura y conciliación operativas siguen como alcances separados. El runtime de presupuestos actual recotiza catálogo; estas demos
+no prueban conversión de precios negociados ni resuelven autorización, stock,
+fiscalidad, concurrencia durable, pago o pedido operativo. R6.6/B2B-006 siguen
+parciales.
