@@ -97,11 +97,11 @@ remoto.
 
 ### Evidencia local actualizada el 2026-10-04
 
-- `pnpm check` de R6.4b: 973 archivos sin diagnósticos, 257 suites y 3.510 tests.
+- `pnpm check` de R6.4c: 977 archivos sin diagnósticos, 258 suites y 3.560 tests.
 - Build demo: 44 documentos HTML y 44 formularios de proyecto locales.
 - D1/workerd: 15 bloques correctos, backup 39 y restauración de 129 tablas;
   [informe de segmentación](docs/audits/r5-6c/facts-d1-report.json).
-- E2E de R6.3b (2026-10-04): 184/184 comprobaciones, heredadas para los contratos puros R6.4a/b.
+- E2E de R6.4c (2026-10-04): 188/188 comprobaciones.
   Formularios: 31 comprobaciones, cero peticiones
   mutantes, beacons o errores JavaScript;
   [informe de fixtures](docs/audits/demo-fixtures/report.json).
@@ -184,8 +184,13 @@ remoto.
   aplicados/revertidos con fecha de observación y diferencia firmada. Ausencia
   de evidencia conserva importes desconocidos; el calendario no determina
   deuda ni pago. 37 pruebas propias y 22.216 comprobaciones independientes.
-  Demo conjunta R6.4c pendiente. [Informe R6.4b](docs/audits/r6-4b/verification-report.json).
-- Base QA de R6.3b (evidencia heredada en R6.4a/b): 143 tablas y 353 filas, hash antes/después idéntico:
+  [Informe R6.4b](docs/audits/r6-4b/verification-report.json).
+- Demo de condiciones y cobros: doce casos con tres fechas de evaluación;
+  distingue calendario, evidencia desconocida, cero observado y exceso aplicado.
+  Navegador: 2.660 comprobaciones en 72 visitas y ocho capturas revisadas;
+  ocho superficies de accesibilidad sin hallazgos. Sin efectos del módulo
+  ni cambios en la base QA. [Evidencia R6.4c](docs/audits/r6-4c/README.md).
+- Base QA de R6.4c (comparación nueva antes/después): 143 tablas y 353 filas, hash antes/después idéntico:
   `9cbfc811cfc4296515a403d395875a43bfa26aff0c9c9b08be0804b15bbf6eca`.
 
 Esta evidencia corresponde a QA local y no acredita que el sitio remoto haya

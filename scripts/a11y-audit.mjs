@@ -631,6 +631,50 @@ for (const vp of [DESKTOP, MOBILE]) {
   }
 }
 
+// R6.4c: calendario y observación histórica separados; ausencia sin cero ficticio.
+const COMPANY_COLLECTION_SCENARIO = (stage) => `(() => {
+  const root = document.querySelector('[data-company-collection-demo]');
+  if (root?.dataset.ready !== 'true') return 'not-ready';
+  const stage = ${JSON.stringify(stage)};
+  const select = (selector, value) => {
+    const field = root.querySelector(selector);
+    field.value = value;
+    field.dispatchEvent(new Event('change', { bubbles: true }));
+  };
+  const scenario = stage === 'missing-after' ? 'missing' : stage;
+  select('[data-collection-scenario]', scenario);
+  select('[data-collection-evaluation]', stage === 'missing-after' ? 'after' : 'on');
+  const calendar = root.querySelector('[data-collection-calendar]');
+  const evidence = root.querySelector('[data-collection-evidence]');
+  const amounts = root.querySelector('[data-collection-amounts]');
+  const values = Array.from(root.querySelectorAll('[data-collection-amount]'));
+  const expected = stage === 'missing-after' ? [null, null, null, null] : stage === 'excess'
+    ? ['12500', '0', '12500', '-2500'] : ['4000', '0', '4000', '6000'];
+  if (JSON.stringify(values.map(item => item.getAttribute('data-cents'))) !== JSON.stringify(expected)) return 'wrong-amounts';
+  if (calendar.dataset.outcome !== (stage === 'unconfigured' ? 'unconfigured' : 'configured')) return 'wrong-calendar';
+  if (root.querySelector('[data-collection-declared]').dataset.cents !== '10000') return 'wrong-declared';
+  if (evidence.dataset.outcome !== (stage === 'missing-after' ? 'unknown' : 'observed')) return 'wrong-evidence';
+  if (stage === 'missing-after') {
+    if (evidence.dataset.reason !== 'missing_evidence' || !amounts.hidden || amounts.hasAttribute('data-as-of') ||
+      amounts.hasAttribute('data-position') || amounts.hasAttribute('data-reversal-position') ||
+      values.some(item => item.textContent.trim() !== '') ||
+      root.querySelector('[data-collection-as-of]').hasAttribute('datetime')) return 'stale-amounts';
+  } else if (amounts.hidden || amounts.dataset.asOf !== '2026-10-29T10:00:00.000Z' ||
+    amounts.dataset.position !== (stage === 'excess' ? 'above_expected' : 'below_expected')) return 'wrong-observation';
+  if (stage === 'unconfigured' && (calendar.hasAttribute('data-due-position') ||
+    root.querySelector('[data-collection-due-date]').hasAttribute('datetime') ||
+    root.querySelectorAll('[data-collection-milestone]').length !== 0)) return 'stale-calendar';
+  return stage;
+})()`;
+for (const vp of [DESKTOP, MOBILE]) {
+  const suffix = vp === MOBILE ? '@375' : '';
+  for (const stage of ['partial', 'missing-after', 'excess', 'unconfigured']) {
+    SURFACES.push({ name: `company-collection:${stage}${suffix}`, url: '/demo/admin/condiciones-pago', vp, auth: true,
+      eval: COMPANY_COLLECTION_SCENARIO(stage), expect: stage,
+      ...(stage === 'missing-after' ? { reducedMotion: true } : {}) });
+  }
+}
+
 // R5.4d: estas rutas no existen en la demo y por eso no forman parte de la
 // batería ordinaria. El arnés local explícito activa un manifest cliente y una
 // composición visual inerte para auditar las páginas Astro reales sin DB,

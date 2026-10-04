@@ -1,0 +1,42 @@
+[
+  {
+    "surface": "company-collection:partial",
+    "url": "/demo/admin/condiciones-pago",
+    "findings": []
+  },
+  {
+    "surface": "company-collection:missing-after",
+    "url": "/demo/admin/condiciones-pago",
+    "findings": []
+  },
+  {
+    "surface": "company-collection:excess",
+    "url": "/demo/admin/condiciones-pago",
+    "findings": []
+  },
+  {
+    "surface": "company-collection:unconfigured",
+    "url": "/demo/admin/condiciones-pago",
+    "findings": []
+  },
+  {
+    "surface": "company-collection:partial@375",
+    "url": "/demo/admin/condiciones-pago",
+    "findings": []
+  },
+  {
+    "surface": "company-collection:missing-after@375",
+    "url": "/demo/admin/condiciones-pago",
+    "findings": []
+  },
+  {
+    "surface": "company-collection:excess@375",
+    "url": "/demo/admin/condiciones-pago",
+    "findings": []
+  },
+  {
+    "surface": "company-collection:unconfigured@375",
+    "url": "/demo/admin/condiciones-pago",
+    "findings": []
+  }
+]

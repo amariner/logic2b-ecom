@@ -215,15 +215,16 @@ igualdad de JavaScript por sí sola no prueba HTTP o DB.
 ## Continuidad y límites
 
 R6.4a está integrada en PR #33 (`cb3493ec`), sin despliegue. R6.4b está
-implementado y verificado localmente, con integración pendiente, según el [ADR-0056](0056-evidencia-cobro-fixture.md): perfil EUR,
+implementado y verificado localmente, integrado en PR #34 (`2d72d2f0`), según el [ADR-0056](0056-evidencia-cobro-fixture.md): perfil EUR,
 obligación completa/versionada, evidencia aplicada/revertida correlacionada y
 comparación firmada referida a `asOf`. El preview combinado consume el
 calendario de este ADR desde datos normalizados, sin convertir posiciones
 temporales en estado de cobro ni admitir vencimientos externos.
 
 La obligación declarada no prueba deuda legal/fiscal; ausencia, evidencia
-incompleta o futura no implican impago o saldo cero. R6.4c tiene diseño completo
-aceptado de demo conjunta; su implementación y QA visual permanecen pendientes. B2B-003 y R6.4 siguen parciales, con operación real
+incompleta o futura no implican impago o saldo cero. R6.4c está implementada y
+verificada localmente como demo conjunta, disponible en el repositorio con
+integración pendiente y sin despliegue. B2B-003 y R6.4 siguen parciales, con operación real
 separada y sin reutilizar importes esperados o caducidad de presupuesto como
 evidencia financiera.
 

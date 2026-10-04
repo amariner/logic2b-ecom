@@ -16,6 +16,59 @@
 > 2. Actualizar el estado de la fase al terminar, con fecha y resumen de lo hecho.
 > 3. Anotar decisiones tomadas y pendientes en las secciones de abajo.
 
+## R6.4c — Demo conjunta de condiciones y cobros, verificada localmente (2026-10-04)
+
+**R6.4c — Demo conjunta de condiciones y cobros está implementada y verificada localmente**, rama
+`codex/company-collection-demo`. R6.4b está integrada en PR #34 (`2d72d2f0`),
+sin despliegue. `/demo/admin/condiciones-pago`, «Condiciones y cobros de ejemplo»,
+en Clientes después de Cantidades; dos selectores cerrados y dos diagnósticos
+independientes de calendario e importes observados, conforme al
+[ADR-0056](plataforma/adr/0056-evidencia-cobro-fixture.md).
+
+Doce casos y tres evaluaciones explícitas; aplicación parcial/en vencimiento
+como estado inicial. Cambiar caso conserva evaluación y cambiar evaluación
+conserva obligación/evidencia. `asOf` acompaña los importes; las ramas desconocidas
+retiran valores derivados sin inventar ceros. Condición ausente y empresa
+inactiva siguen siendo descriptivas. Reset/recarga, memoria local, SSR completo
+y controles inertes sin JavaScript; gate manifest demo AND `DEMO_MODE=true`.
+
+**Implementada y verificada localmente, disponible en el repositorio.**
+Integración pendiente, sin despliegue. B2B-003 permanece parcial e instalada/inactiva.
+[Verificación final R6.4c](audits/r6-4c/verification-report.json), 2026-10-04: `pnpm check` pasa
+977 archivos sin diagnósticos, 258 suites/3.560 pruebas, 50 del modelo y seis
+de arquitectura; build de 44 HTML/44 formularios locales, sin envíos, beacons
+o crons. Revisión independiente: 23.857 comprobaciones, 36 estados y 540
+transiciones, sin P1/P2, efectos, getters o reloj implícito. Matriz: 28 estados
+con observación y ocho desconocidos, 33 calendarios configurados y tres sin
+condición; los importes no se convierten en indicadores de autorización.
+
+QA nueva: navegador 2.660 comprobaciones/72 visitas, ocho superficies a11y sin
+hallazgos y ocho PNG revisadas por frontend; root contrastó cuatro. E2E nuevo
+188/188 y Worker cerrado. La base QA conserva 143 tablas/353 filas con SHA-256
+antes/después idéntico:
+`9cbfc811cfc4296515a403d395875a43bfa26aff0c9c9b08be0804b15bbf6eca`.
+Estas ejecuciones corresponden a c; los checks de a/b y la interacción de
+PR #32 conservan sus cortes históricos.
+
+Cliente real: tres archivos, 31.812 B/9.612 B gzip, sin imports externos;
+arranque sin raíz con una consulta DOM, 82 fechas explícitas y cero efectos.
+Es una sonda diferente de la interacción de navegador. El diagnóstico del
+modelo ocupa 26.964 B/7.341 B gzip, cuatro fuentes puras. La guía, medida por
+separado, ocupa 15.171 B/6.309 B gzip; el incremento de 17 B/9 B gzip se limita
+a añadir `condiciones-pago` a la lista de rutas permitidas. Su sonda sin raíz
+no atribuye ausencia de efectos a las interacciones propias de la guía.
+
+**R6.5a — Límites de crédito declarados con fixtures** es el siguiente corte,
+con diseño exacto por fijar y sin implementación. La dirección es separar
+política por empresa/comprador, solicitud explícita y evidencia declarada de
+exposición; no convertir diagnóstico de límites en autorización de compra.
+No se reutilizan saldo regalo, `differenceCents` de R6.4 o roles descriptivos
+como crédito o permiso. Esquema, límites técnicos, cobertura y temporalidad
+requieren diseño y revisión propios antes de implementar; criterios y límites
+comerciales reales permanecen fuera del ensayo. El workflow de aprobación
+humana y su demostración se definirán en subcortes posteriores.
+
+
 ## R6.4b — Evidencia de cobro con fixtures, verificado localmente (2026-10-04)
 
 R6.4a está integrada en PR #33 (`cb3493ec`), sin despliegue.
@@ -40,7 +93,7 @@ empresa inactiva no ocultan evidencia descriptiva; ninguna salida concede
 permisos o activa operaciones. No hay ledger, DDL, rutas, UI, proveedores,
 notificaciones, crédito o cambios de checkout.
 
-**Implementado y verificado localmente; integración pendiente, sin despliegue.**
+**Implementado y verificado localmente; integrado en PR #34 (`2d72d2f0`), sin despliegue.**
 [Verificación final R6.4b](audits/r6-4b/verification-report.json), 2026-10-04: `pnpm check` pasa
 973 archivos sin diagnósticos, 257 suites/3.510 pruebas, 44 HTML,
 44 formularios locales y cero crons. Focales: 37 de dominio, seis de arquitectura
@@ -64,8 +117,8 @@ PR #32. Hash histórico, sin nueva lectura en b:
 El check de a/PR #33 (971 archivos/256 suites/3.473 pruebas) conserva su propio
 corte. B2B-003 y R6.4 siguen parciales, sin activación u operación financiera.
 
-**R6.4c tiene diseño completo aceptado, pendiente de implementación** tras
-integrar b. Ruta `/demo/admin/condiciones-pago`, «Condiciones y cobros de
+**R6.4c está implementada y verificada localmente**, disponible en el
+repositorio, con integración pendiente y sin despliegue. Ruta `/demo/admin/condiciones-pago`, «Condiciones y cobros de
 ejemplo», en Clientes después de Cantidades. Dos selectores cerrados: 12 casos
 y tres instantes de evaluación, con dos diagnósticos separados de calendario
 e importes observados. Estado inicial: aplicación parcial y evaluación en el
@@ -73,19 +126,19 @@ día del vencimiento. Cambiar caso conserva evaluación; cambiar evaluación
 conserva obligación/evidencia del caso. Reset/recarga al inicio, sin edición,
 buffers, reloj o acciones financieras.
 
-Casos previstos: parcial, ausente, incompleto, futuro, aplicado cero, inmediato
+Casos incluidos: parcial, ausente, incompleto, futuro, aplicado cero, inmediato
 con igualdad, exceso, reversión parcial/total, declarado cero, sin condición
 y empresa inactiva. Los importes muestran su observación `asOf`; unknown
 elimina importes/atributos derivados y no inventa ceros. Igualdad numérica
 no se etiqueta como pago ni calendario como impago. Calendario sin condición
 conserva derivados nulos aunque haya evidencia observada.
 
-La demo consumirá los contratos públicos, con SSR inicial completo, controles
+La demo consume los contratos públicos, con SSR inicial completo, controles
 inertes sin JavaScript y gate manifest demo AND `DEMO_MODE=true`; privada/noindex,
-solo memoria y sin I/O. Cobertura prevista: 36 estados por tamaño, 72 visitas
+solo memoria y sin I/O. Verificados 36 estados por tamaño, 72 visitas en
 1.440/375 px, ocho capturas y ocho superficies a11y (parcial/en vencimiento,
-sin evidencia/después, exceso y sin condición). Son casos de diseño, no QA
-ejecutada. La operación real permanece fuera de este corte.
+sin evidencia/después, exceso y sin condición). La operación real permanece
+fuera de este corte.
 
 
 ## R6.4a — Condiciones y calendario de pago con fixtures, verificado localmente (2026-10-04)
@@ -125,7 +178,7 @@ No constituyen una lectura o ejecución nueva en este corte puro. Implementado
 y verificado localmente, integrado en PR #33 (`cb3493ec`), sin despliegue.
 
 R6.4b está verificado localmente según el [ADR-0056](plataforma/adr/0056-evidencia-cobro-fixture.md),
-con integración pendiente. R6.4c tiene diseño aceptado y está pendiente de implementación.
+integrado en PR #34 (`2d72d2f0`). R6.4c está verificada localmente, con integración pendiente y sin despliegue.
 
 ## R6.3b — Demo de mínimos, múltiplos y cajas, verificada localmente (2026-10-04)
 
@@ -1808,7 +1861,8 @@ inerte o una intención del roadmap en alcance disponible.
 | R6.3a | Reglas de cantidad con fixtures | ✅ Cerrado localmente — ADR-0054, 965 archivos sin diagnósticos/254 suites/3.376 pruebas, 112 focales y oráculo 78.223 sin P1/P2; assets existentes idénticos a PR #30. B2B-005 parcial instalada/inactiva; integrado en PR #31 (`7ac42e67`), sin UI, DDL, activación o despliegue |
 | R6.3b | Demo de mínimos, múltiplos y cajas | ✅ Cerrada localmente — 969 archivos sin diagnósticos/255 suites/3.426 pruebas; navegador 2.084 comprobaciones/72 visitas, ocho superficies a11y sin hallazgos, ocho capturas aprobadas y E2E nuevo 184/184; base QA intacta. Disponible en repo, integrada en PR #32 (`04d5f9a9`), sin activación ni despliegue |
 | R6.4a | Condiciones y calendario de pago con fixtures | ✅ Cerrado localmente — ADR-0055, 971 archivos sin diagnósticos/256 suites/3.473 pruebas, 46 de dominio y revisión 21.702 sin P1/P2. Cuatro grafos cliente idénticos a PR #32; QA de superficie/DB heredada. B2B-003 parcial/inactiva; integrado en PR #33 (`cb3493ec`), sin UI nueva ni despliegue |
-| R6.4b | Evidencia de cobro con fixtures | ✅ Cerrado localmente — ADR-0056, 973 archivos sin diagnósticos/257 suites/3.510 pruebas, revisión 22.216 sin P1/P2; cuatro grafos, 349 fuentes y 19 CSS iguales a PR #33. QA de superficie/DB heredada de PR #32; B2B-003 parcial/inactiva, integración pendiente y sin despliegue |
+| R6.4b | Evidencia de cobro con fixtures | ✅ Cerrado localmente — ADR-0056, 973 archivos sin diagnósticos/257 suites/3.510 pruebas, revisión 22.216 sin P1/P2; cuatro grafos, 349 fuentes y 19 CSS iguales a PR #33. QA de superficie/DB heredada de PR #32; B2B-003 parcial/inactiva, integrado en PR #34 (`2d72d2f0`) sin despliegue |
+| R6.4c | Demo conjunta de condiciones y cobros | ✅ Cerrada localmente — 977 archivos sin diagnósticos/258 suites/3.560 pruebas; navegador 2.660/72 visitas, ocho superficies a11y sin hallazgos, ocho PNG aprobadas y E2E nuevo 188/188; hash QA intacto. Disponible en repo, integración pendiente/sin despliegue, capacidades inactivas |
 | R5.2 | Consentimiento versionado | ✅ 2026-08-17 — ADR-0040, D1 `0037`, repositorio concurrente, backup 31, rehearsal y E2E local; `CUS-007` instalada e inerte |
 | R5.3a | Derechos de datos verificables | ✅ 2026-08-17 — ADR-0041, lifecycle, dry-run, doble control y puertos; `CUS-008` instalada e inerte, sin DDL ni efectos |
 | R5.3b | Persistencia de solicitudes de derechos | ✅ 2026-08-18 — D1 `0038`, repositorio concurrente, backup 32 y rehearsal/restore local; sin PII, rutas ni ejecución |
@@ -3365,10 +3419,22 @@ solo vuelve a `main` o a producción por instrucción expresa.
 Zancada queda completado, integrado en GitHub y publicado por encargo expreso
 del 2026-09-08. La cola de plataforma que sigue no cambia por esta importación.
 
-### R6.4c — Demo conjunta de condiciones y cobros, siguiente diseño aprobado
+### R6.5a — Límites de crédito con fixtures, siguiente diseño por fijar
 
-**R6.4c tiene diseño completo aceptado, pendiente de implementación** tras
-integrar b. Ruta `/demo/admin/condiciones-pago`, «Condiciones y cobros de
+**R6.5a — Límites de crédito declarados con fixtures** es el siguiente corte,
+con diseño exacto por fijar y sin implementación. La dirección es separar
+política por empresa/comprador, solicitud explícita y evidencia declarada de
+exposición; no convertir diagnóstico de límites en autorización de compra.
+No se reutilizan saldo regalo, `differenceCents` de R6.4 o roles descriptivos
+como crédito o permiso. Esquema, límites técnicos, cobertura y temporalidad
+requieren diseño y revisión propios antes de implementar; criterios y límites
+comerciales reales permanecen fuera del ensayo. El workflow de aprobación
+humana y su demostración se definirán en subcortes posteriores.
+
+### R6.4c — Demo verificada localmente
+
+**R6.4c está implementada y verificada localmente**, disponible en el
+repositorio, con integración pendiente y sin despliegue. Ruta `/demo/admin/condiciones-pago`, «Condiciones y cobros de
 ejemplo», en Clientes después de Cantidades. Dos selectores cerrados: 12 casos
 y tres instantes de evaluación, con dos diagnósticos separados de calendario
 e importes observados. Estado inicial: aplicación parcial y evaluación en el
@@ -3376,19 +3442,19 @@ día del vencimiento. Cambiar caso conserva evaluación; cambiar evaluación
 conserva obligación/evidencia del caso. Reset/recarga al inicio, sin edición,
 buffers, reloj o acciones financieras.
 
-Casos previstos: parcial, ausente, incompleto, futuro, aplicado cero, inmediato
+Casos incluidos: parcial, ausente, incompleto, futuro, aplicado cero, inmediato
 con igualdad, exceso, reversión parcial/total, declarado cero, sin condición
 y empresa inactiva. Los importes muestran su observación `asOf`; unknown
 elimina importes/atributos derivados y no inventa ceros. Igualdad numérica
 no se etiqueta como pago ni calendario como impago. Calendario sin condición
 conserva derivados nulos aunque haya evidencia observada.
 
-La demo consumirá los contratos públicos, con SSR inicial completo, controles
+La demo consume los contratos públicos, con SSR inicial completo, controles
 inertes sin JavaScript y gate manifest demo AND `DEMO_MODE=true`; privada/noindex,
-solo memoria y sin I/O. Cobertura prevista: 36 estados por tamaño, 72 visitas
+solo memoria y sin I/O. Verificados 36 estados por tamaño, 72 visitas en
 1.440/375 px, ocho capturas y ocho superficies a11y (parcial/en vencimiento,
-sin evidencia/después, exceso y sin condición). Son casos de diseño, no QA
-ejecutada. La operación real permanece fuera de este corte.
+sin evidencia/después, exceso y sin condición). La operación real permanece
+fuera de este corte.
 
 ### R6.4b — Evidencia de cobro verificada localmente
 
@@ -3412,7 +3478,7 @@ empresa inactiva no ocultan evidencia descriptiva; ninguna salida concede
 permisos o activa operaciones. No hay ledger, DDL, rutas, UI, proveedores,
 notificaciones, crédito o cambios de checkout.
 
-**Implementado y verificado localmente; integración pendiente, sin despliegue.**
+**Implementado y verificado localmente; integrado en PR #34 (`2d72d2f0`), sin despliegue.**
 [Verificación final R6.4b](audits/r6-4b/verification-report.json), 2026-10-04: `pnpm check` pasa
 973 archivos sin diagnósticos, 257 suites/3.510 pruebas, 44 HTML,
 44 formularios locales y cero crons. Focales: 37 de dominio, seis de arquitectura

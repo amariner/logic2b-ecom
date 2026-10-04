@@ -1,0 +1,484 @@
+{
+  "schemaVersion": 1,
+  "verifiedAt": "2026-10-04",
+  "environment": "local-synthetic-fixtures",
+  "deployment": "not-deployed",
+  "scope": {
+    "route": "/demo/admin/condiciones-pago",
+    "navigationGroup": "Clientes",
+    "gate": "manifest demo AND DEMO_MODE=true",
+    "capability": "B2B-003",
+    "activeInPresets": false,
+    "companyCount": 4,
+    "scenarios": 12,
+    "evaluations": 3,
+    "initialSelection": {
+      "scenarioId": "partial",
+      "evaluationId": "on"
+    },
+    "calendarAndObservationSeparated": true,
+    "evidenceFixedAcrossEvaluationChanges": true,
+    "unknownAmounts": null,
+    "zeroAndSignedDifferenceRetained": true,
+    "currentBalanceClaim": false,
+    "purchasingAuthorization": false,
+    "newMigrations": 0,
+    "newProviders": 0,
+    "newJobs": 0,
+    "landingChanged": false,
+    "noJavaScript": "complete initial SSR; disabled controls"
+  },
+  "verification": {
+    "typecheckFiles": 977,
+    "diagnostics": 0,
+    "suites": 258,
+    "tests": 3560,
+    "modelTests": 50,
+    "architectureTests": 6,
+    "buildHtmlPages": 44,
+    "buildLocalForms": 44,
+    "cronCount": 0,
+    "e2eChecks": 188,
+    "browserChecks": 2660,
+    "browserStateVisits": 72,
+    "a11ySurfaces": 8,
+    "a11yErrors": 0,
+    "a11yWarnings": 0,
+    "screenshots": 8,
+    "screenshotsReviewed": 8
+  },
+  "limitations": [
+    "Local verification does not establish remote deployment.",
+    "Public fixture companies and numerical comparisons do not authenticate buyers, authorize purchasing or prove payment, debt or current balance.",
+    "Global E2E includes rejected command requests only against isolated synthetic QA; browser interaction audit records no operational requests.",
+    "Built initialization without demo root does not claim interaction coverage; rendered Chrome checks are separate.",
+    "The existing desktop guide launcher overlaps part of one milestone position label in the full-page capture; dates and controls stay uncovered and scrolling exposes the text."
+  ],
+  "evidence": {
+    "browser": "report.json",
+    "accessibility": "a11y-report.json",
+    "visual": "README.md",
+    "e2e": "local run: /tmp/ecom-company-collection-demo-e2e.log",
+    "fullcheck": "local run: /tmp/ecom-company-collection-demo-check.log"
+  },
+  "independentReview": {
+    "schemaVersion": 1,
+    "block": "R6.4c",
+    "reviewedAt": "2026-10-04T02:52:16.585Z",
+    "result": "passed",
+    "findings": {
+      "openP1": 0,
+      "openP2": 0,
+      "resolvedP2": [
+        {
+          "scope": "browser harness",
+          "issue": "Checking datetime/enum attributes plus nonempty/UTC text could miss stale visible observation dates or result labels.",
+          "resolution": "Harness now compares literal day/instant/label expectations and hidden-state flags as well as attributes; both selector arrows explicitly hit-tested at 320/375.",
+          "productChanged": false
+        }
+      ]
+    },
+    "scope": "independent read-only model oracle, static UI/page, browser/a11y harness and diagnostic bundle review",
+    "probe": {
+      "status": "passed",
+      "checks": 23857,
+      "transitions": 540,
+      "matrix": {
+        "states": 36,
+        "observed": 28,
+        "unknown": 8,
+        "configuredCalendar": 33,
+        "unconfiguredCalendar": 3,
+        "belowExpected": 13,
+        "equalExpected": 9,
+        "aboveExpected": 6,
+        "partialReversals": 3,
+        "fullReversals": 3,
+        "noReversal": 22
+      },
+      "effects": 0,
+      "getters": 0,
+      "implicitDates": 0,
+      "explicitDates": 16562,
+      "artifact": "/tmp/r64c-collection-demo-review.mjs",
+      "expectations": "/tmp/r64c-expectations.mjs",
+      "command": "node /tmp/r64c-collection-demo-review.mjs",
+      "coverage": [
+        "36 literal fixture states and all 540 one-selector transitions",
+        "Stable observedAt/asOf and amounts across evaluation changes; future-after becomes observed without retargeting evidence",
+        "Exact null/zero/negative differences, full reversal counters and neutral 0/0 equality",
+        "Calendar independent from monetary outcome, unconfigured/inactive descriptive cases",
+        "Private artifact metadata excluded from deeply frozen presentation DTO",
+        "Strict selectors/state/feedback, descriptor/Proxy error redaction, detached snapshots and AND demo gate"
+      ]
+    },
+    "diagnosticModelBundle": {
+      "schemaVersion": 1,
+      "reviewedAt": "2026-10-04T02:50:18.251Z",
+      "scope": "diagnostic browser-targeted demo model bundle",
+      "bytes": 26964,
+      "gzipBytes": 7341,
+      "contributingSources": [
+        {
+          "path": "src/modules/companies/domain/company-directory.ts",
+          "bytesInOutput": 5813
+        },
+        {
+          "path": "src/modules/companies/domain/company-payment-terms.ts",
+          "bytesInOutput": 6289
+        },
+        {
+          "path": "src/modules/companies/domain/company-collection-evidence.ts",
+          "bytesInOutput": 5813
+        },
+        {
+          "path": "src/composition/company-collection-demo.ts",
+          "bytesInOutput": 8899
+        }
+      ],
+      "externalImports": [],
+      "forbiddenTokenMatches": [],
+      "sourceSnapshot": [
+        {
+          "path": "src/composition/company-collection-demo.ts",
+          "modifiedAt": "2026-10-04T02:47:07.221Z",
+          "sha256": "7a570a68e87c06d140caa31c4bba7e52a60258674b4f0a71f3750bc0151f3dcd"
+        },
+        {
+          "path": "src/components/admin/CompanyCollectionDemo.astro",
+          "modifiedAt": "2026-10-04T02:47:39.831Z",
+          "sha256": "5973d933b87f8375117e3e0b595070cb437c37eb957416c4d52ab0300eb1f469"
+        },
+        {
+          "path": "src/pages/demo/admin/condiciones-pago.astro",
+          "modifiedAt": "2026-10-04T02:47:39.095Z",
+          "sha256": "a5a637e37a3fa87082862585e1dca32062910d9c77dc1dedc6c389039d4ed851"
+        }
+      ],
+      "limits": [
+        "This is the diagnostic model bundle, not the final emitted Astro client graph.",
+        "Synthetic internal metadata stays in the fixture bundle; the presentation DTO and rendered DOM omit it.",
+        "Rendered/browser/HTTP/DB checks belong to parent and QA."
+      ]
+    },
+    "sourceFreezeConfirmed": {
+      "model": "2026-10-04T02:47:07.220Z",
+      "component": "2026-10-04T02:47:39.831Z",
+      "page": "2026-10-04T02:47:39.095Z",
+      "authorTests": "2026-10-04T02:49:27.514Z",
+      "changedAfterOracle": false
+    },
+    "uiReview": {
+      "reviewers": [
+        "/root/review_execution",
+        "/root/review_execution/payment_terms_registry"
+      ],
+      "result": "no P1/P2",
+      "method": "static source review",
+      "coverage": [
+        "SSR complete/inert controls without JavaScript",
+        "Unknown clears all money/date/position attributes and labels while retaining legitimate observation metadata",
+        "Unconfigured calendar removes due date, days and milestone rows",
+        "UTC-only explicit formatting, persistent controls, local reset, no form/IO/storage/timers",
+        "Private noindex shell and explicit demo AND gate",
+        "Harness explicitly checks 44px controls and keyboard focus-visible outline"
+      ]
+    },
+    "harnessSourceSnapshot": [
+      {
+        "path": "scripts/test-company-collection-demo.mjs",
+        "modifiedAt": "2026-10-04T02:51:53.525Z",
+        "sha256": "5a40ee978b88d41b733148471e0def1eb887b8e73b1994e506d4db454c2fe922"
+      },
+      {
+        "path": "scripts/a11y-audit.mjs",
+        "modifiedAt": "2026-10-04T02:50:56.883Z",
+        "sha256": "ab71022221b267f9043404cabc62f6e4c3d8f730734a0ce6218ac0c91729d2e1"
+      }
+    ],
+    "authorReportedFocalChecks": {
+      "model": 50,
+      "architecture": 6
+    },
+    "limits": [
+      "The model probe uses a browser-targeted diagnostic bundle, not the final emitted Astro client graph.",
+      "UI, accessibility and harness findings here are static; browser interactions/screenshots/rendered a11y/HTTP/E2E/DB evidence belong to parent/QA.",
+      "The fixture bundle may contain synthetic internal metadata required by the pure engine; the public presentation DTO and DOM exclude it without claiming RBAC.",
+      "No tracked product/test/doc edits, Git, fullcheck, Worker, browser, HTTP or DB actions were performed by this reviewer.",
+      "Calendar positions and amounts asOf do not prove payment, non-payment, current balance, legal debt or authorization."
+    ]
+  },
+  "builtClient": {
+    "schemaVersion": 1,
+    "scope": "actual-built-client-static-graph-and-initialization-without-demo-root",
+    "entry": "dist/_astro/CompanyCollectionDemo.astro_astro_type_script_index_0_lang.pOo5tZX2.js",
+    "files": [
+      {
+        "path": "dist/_astro/company-directory.mOflI4d5.js",
+        "bytes": 6414,
+        "gzipBytes": 2302,
+        "forbiddenTokenMatches": [],
+        "sha256": "6c076800192741992b5cbfba6ce07a999d13e3499cd256b306e82dbfc49fc9bd"
+      },
+      {
+        "path": "dist/_astro/format.D6ggcjlO.js",
+        "bytes": 164,
+        "gzipBytes": 151,
+        "forbiddenTokenMatches": [],
+        "sha256": "7c7167f2030d738e58323bccda5878464f25a2138c4b1ddade0b4774694ba021"
+      },
+      {
+        "path": "dist/_astro/CompanyCollectionDemo.astro_astro_type_script_index_0_lang.pOo5tZX2.js",
+        "bytes": 25234,
+        "gzipBytes": 7159,
+        "forbiddenTokenMatches": [],
+        "sha256": "2b233eb74611532cc5e421d779ee8de61a2006820e3d6cb66558f7e2777ad5f4"
+      }
+    ],
+    "sumBytes": 31812,
+    "sumGzipBytes": 9612,
+    "externalImports": [],
+    "effects": 0,
+    "domReads": 1,
+    "explicitDateReads": 82,
+    "freeze": [
+      {
+        "path": "src/composition/company-collection-demo.ts",
+        "modifiedAt": "2026-10-04T02:47:07.221Z"
+      },
+      {
+        "path": "src/components/admin/CompanyCollectionDemo.astro",
+        "modifiedAt": "2026-10-04T02:47:39.831Z"
+      },
+      {
+        "path": "src/pages/demo/admin/condiciones-pago.astro",
+        "modifiedAt": "2026-10-04T02:47:39.095Z"
+      }
+    ],
+    "notes": [
+      "Byte counts are real emitted Astro files; gzip totals sum each file compressed independently with zlib default.",
+      "Metafile enumerates emitted client graph; original-source tree shaking was separately inspected in the model probe.",
+      "No-root initialization check does not claim interaction coverage; Chrome QA is separate.",
+      "Synthetic fixture metadata may remain in client source; presentation DTO and DOM exclude internal company, policy, obligation and evidence references."
+    ],
+    "reviewedAt": "2026-10-04T02:53:08.286Z",
+    "result": "passed",
+    "findings": {
+      "P1": 0,
+      "P2": 0
+    },
+    "sharedGuide": {
+      "schemaVersion": 1,
+      "scope": "actual-built-shared-guide-static-graph-and-initialization-without-guide-root",
+      "entry": "dist/_astro/DemoAssistant.astro_astro_type_script_index_0_lang.CxlO2EoN.js",
+      "files": [
+        {
+          "path": "dist/_astro/cart-client.ItD9TTkL.js",
+          "bytes": 1059,
+          "gzipBytes": 590,
+          "sha256": "34a807152cbfd940499a32c312851384b3cbaaaddc743e8b7aa9630558d52915"
+        },
+        {
+          "path": "dist/_astro/demo-commerce.Dnz6Qizq.js",
+          "bytes": 1048,
+          "gzipBytes": 584,
+          "sha256": "9a4b4e081ba480085aabae88a68b88996dff6a85e06ecd14d32715f8754c487b"
+        },
+        {
+          "path": "dist/_astro/DemoAssistant.astro_astro_type_script_index_0_lang.CxlO2EoN.js",
+          "bytes": 13064,
+          "gzipBytes": 5135,
+          "sha256": "9a697cc413006063faf39a6f456caea0b223d6231602d68165a22ba3577518ed"
+        }
+      ],
+      "sumBytes": 15171,
+      "sumGzipBytes": 6309,
+      "externalImports": [],
+      "effects": 0,
+      "domReads": 1,
+      "explicitDateReads": 0,
+      "freeze": [
+        {
+          "path": "src/layouts/Admin.astro",
+          "modifiedAt": "2026-10-04T02:46:03.295Z"
+        },
+        {
+          "path": "src/components/store/DemoAssistant.astro",
+          "modifiedAt": "2026-10-04T02:22:57.341Z"
+        },
+        {
+          "path": "src/modules/demo-support/presentation/guide/client.ts",
+          "modifiedAt": "2026-10-04T02:22:57.341Z"
+        }
+      ],
+      "notes": [
+        "Byte counts are real emitted Astro files; gzip total sums each file compressed independently with zlib default.",
+        "Separate shared guide graph: these bytes are not included in the CompanyCollectionDemo graph report.",
+        "Guide intentionally uses existing session storage and UI effects when its root is present; no-root initialization does not cover or claim zero such interaction effects.",
+        "Actual keyboard, resize, hit-test and guide storage behavior belongs to separate Chrome QA."
+      ],
+      "comparison": {
+        "baseline": "R6.4b / PR34",
+        "deltaBytes": 17,
+        "deltaGzipBytes": 9,
+        "exactChange": "Only |condiciones-pago added to guided route allowlist; removing those 17 bytes restores previous entry SHA-256 exactly; both helper files unchanged."
+      }
+    }
+  },
+  "matrixPerViewport": [
+    {
+      "width": 1440,
+      "states": 36,
+      "observed": 28,
+      "unknown": 8,
+      "configuredCalendar": 33,
+      "unconfiguredCalendar": 3,
+      "belowExpected": 13,
+      "equalExpected": 9,
+      "aboveExpected": 6,
+      "partialReversals": 3,
+      "fullReversals": 3,
+      "noReversal": 22
+    },
+    {
+      "width": 375,
+      "states": 36,
+      "observed": 28,
+      "unknown": 8,
+      "configuredCalendar": 33,
+      "unconfiguredCalendar": 3,
+      "belowExpected": 13,
+      "equalExpected": 9,
+      "aboveExpected": 6,
+      "partialReversals": 3,
+      "fullReversals": 3,
+      "noReversal": 22
+    }
+  ],
+  "privacy": {
+    "headers": [
+      {
+        "context": "anonymous",
+        "method": "GET",
+        "status": 302,
+        "location": "/demo/admin/login",
+        "cacheControl": "private, no-store, max-age=0",
+        "vary": "Cookie",
+        "robots": "noindex, nofollow, noarchive"
+      },
+      {
+        "context": "anonymous",
+        "method": "HEAD",
+        "status": 302,
+        "location": "/demo/admin/login",
+        "cacheControl": "private, no-store, max-age=0",
+        "vary": "Cookie",
+        "robots": "noindex, nofollow, noarchive"
+      },
+      {
+        "context": "guided",
+        "method": "GET",
+        "width": 1440,
+        "status": 200,
+        "cacheControl": "private, no-store, max-age=0",
+        "vary": "Cookie",
+        "robots": "noindex, nofollow, noarchive"
+      },
+      {
+        "context": "guided",
+        "method": "GET",
+        "width": 375,
+        "status": 200,
+        "cacheControl": "private, no-store, max-age=0",
+        "vary": "Cookie",
+        "robots": "noindex, nofollow, noarchive"
+      }
+    ],
+    "formsAdded": 0,
+    "rawInternalReferencesInViewAndDom": false,
+    "fixtureBundleIsPublic": true
+  },
+  "effects": {
+    "blockedOperationalRequests": 0,
+    "forbiddenRequests": 0,
+    "javascriptErrors": 0,
+    "selectArrowHitTestFailures": 0,
+    "perViewport": [
+      {
+        "width": 1440,
+        "setupGuideWrites": 3,
+        "guideInteraction": null,
+        "moduleWrites": 0,
+        "moduleMutationEvents": 0,
+        "moduleRequests": 0,
+        "timers": 0,
+        "beacons": 0,
+        "windows": 0,
+        "unchanged": true,
+        "sharedLayout": {
+          "source": "src/components/WhatsAppContact.astro",
+          "api": "requestAnimationFrame",
+          "verifiedCallsite": "http://127.0.0.1:8793/demo/admin/condiciones-pago:107:50",
+          "setupCalls": 6,
+          "totalCalls": 58,
+          "reloadCalls": 2
+        },
+        "reloadGuideWrites": 2
+      },
+      {
+        "width": 375,
+        "setupGuideWrites": 3,
+        "guideInteraction": {
+          "actions": [
+            "open/minimize",
+            "open/close",
+            "open/Escape",
+            "open/resize/close",
+            "resize-with-selector-focus"
+          ],
+          "widths": [
+            375,
+            1024,
+            375,
+            1024,
+            320,
+            375,
+            1024,
+            375,
+            1024,
+            375
+          ],
+          "writes": 8,
+          "mutationEvents": 8,
+          "storage": "session",
+          "key": "logic2b:ecom-guide:v1",
+          "unchangedAtEnd": true
+        },
+        "moduleWrites": 0,
+        "moduleMutationEvents": 0,
+        "moduleRequests": 0,
+        "timers": 0,
+        "beacons": 0,
+        "windows": 0,
+        "unchanged": true,
+        "sharedLayout": {
+          "source": "src/components/WhatsAppContact.astro",
+          "api": "requestAnimationFrame",
+          "verifiedCallsite": "http://127.0.0.1:8793/demo/admin/condiciones-pago:107:50",
+          "setupCalls": 6,
+          "totalCalls": 80,
+          "reloadCalls": 3
+        },
+        "reloadGuideWrites": 2
+      }
+    ]
+  },
+  "database": {
+    "tables": 143,
+    "rows": 353,
+    "hashBefore": "9cbfc811cfc4296515a403d395875a43bfa26aff0c9c9b08be0804b15bbf6eca",
+    "hashAfter": "9cbfc811cfc4296515a403d395875a43bfa26aff0c9c9b08be0804b15bbf6eca",
+    "unchanged": true,
+    "newMigrations": 0
+  }
+}

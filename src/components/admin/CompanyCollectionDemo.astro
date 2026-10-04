@@ -1,0 +1,242 @@
+---
+import { createCompanyCollectionDemo, getCompanyCollectionDemoView } from '../../composition/company-collection-demo';
+import { formatEurCents } from '../../lib/format';
+
+const initial = getCompanyCollectionDemoView(createCompanyCollectionDemo());
+const dayFormatter = new Intl.DateTimeFormat('es-ES', { timeZone: 'UTC', day: 'numeric', month: 'short', year: 'numeric' });
+const instantFormatter = new Intl.DateTimeFormat('es-ES', { timeZone: 'UTC', day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+const formatDay = (value: string) => dayFormatter.format(new Date(value + 'T00:00:00.000Z'));
+const formatInstant = (value: string) => instantFormatter.format(new Date(value)) + ' UTC';
+const amounts = initial.collection.amounts;
+---
+
+<div data-company-collection-demo data-ready="false" class="company-collection-demo mt-6 space-y-6 text-foreground">
+  <div class="rounded-2xl border border-border bg-card px-5 py-4">
+    <p class="text-sm font-semibold leading-6">Datos e importes ficticios. Este ejemplo no cobra, envía recordatorios ni registra pedidos.</p>
+    <p class="mt-1 text-xs leading-5 text-muted-foreground">Los cambios solo duran en esta página. Al recargar, vuelves al inicio.</p>
+  </div>
+
+  <noscript data-collection-nojs><div class="rounded-xl border border-border bg-muted p-4 text-sm leading-6">Puedes consultar el calendario y la evidencia inicial sin JavaScript. Para elegir otro ejemplo se necesita JavaScript; los controles permanecen desactivados y no se envía ni guarda ningún dato.</div></noscript>
+
+  <div class="grid items-start gap-6 xl:grid-cols-[minmax(0,.8fr)_minmax(0,1.2fr)]">
+    <section class="collection-panel" aria-labelledby="collection-prepare-title">
+      <div class="flex items-start gap-3"><span class="collection-step" aria-hidden="true">1</span><div><h2 id="collection-prepare-title" class="text-xl font-semibold">Elige un ejemplo</h2><p class="mt-1 text-sm leading-6 text-muted-foreground">Cada caso conserva sus datos declarados.</p></div></div>
+
+      <label class="collection-label mt-5" for="collection-scenario">Caso de ejemplo
+        <select id="collection-scenario" data-collection-scenario disabled aria-describedby="collection-scenario-description" class="collection-input">
+          {initial.scenarioOptions.map(option => <option value={option.id} selected={option.id === initial.selection.scenarioId}>{option.label}</option>)}
+        </select>
+      </label>
+      <p id="collection-scenario-description" data-collection-scenario-description class="mt-2 text-sm leading-6 text-muted-foreground">{initial.scenarioDescription}</p>
+
+      <label class="collection-label mt-5" for="collection-evaluation">Fecha de evaluación del ejemplo
+        <select id="collection-evaluation" data-collection-evaluation disabled aria-describedby="collection-evaluation-help" class="collection-input">
+          {initial.evaluationOptions.map(option => <option value={option.id} selected={option.id === initial.selection.evaluationId}>{option.label}</option>)}
+        </select>
+      </label>
+      <p id="collection-evaluation-help" class="mt-2 text-xs leading-5 text-muted-foreground">Elige una fecha fija para consultar el calendario. Este cambio no genera cobros ni modifica la evidencia.</p>
+
+      <dl class="collection-facts mt-6 border-t border-border pt-5">
+        <div><dt>Empresa del ejemplo</dt><dd data-collection-company data-state={initial.company.state}>{initial.company.label}</dd><dd data-collection-company-state class="mt-1 text-xs text-muted-foreground">{initial.company.stateLabel}</dd></div>
+        <div><dt>Importe declarado · EUR</dt><dd data-collection-declared data-cents={initial.declared.amountCents} data-currency={initial.declared.currency} class="collection-money">{formatEurCents(initial.declared.amountCents)}</dd></div>
+      </dl>
+      <p class="mt-4 text-xs leading-5 text-muted-foreground">El importe es un dato ficticio del caso. No acredita una deuda ni autoriza operaciones.</p>
+
+      <div class="mt-5 rounded-xl border border-border bg-muted/40 p-4">
+        <h3 class="text-sm font-semibold">Dos fechas, dos lecturas</h3>
+        <p class="mt-1 text-sm leading-6 text-muted-foreground">Los importes describen la fecha de observación indicada. Cambiar la evaluación no prueba movimientos posteriores.</p>
+      </div>
+      <button data-collection-action="reset" type="button" disabled class="collection-button mt-5 w-full border border-border bg-background text-foreground">Restablecer ejemplo</button>
+      <p data-collection-feedback role="status" aria-live="polite" aria-atomic="true" class="mt-4 text-sm leading-6">{initial.feedback.message}</p>
+    </section>
+
+    <section class="collection-panel" aria-labelledby="collection-results-title">
+      <div class="flex items-start gap-3"><span class="collection-step" aria-hidden="true">2</span><div><h2 id="collection-results-title" class="text-xl font-semibold">Compara los dos resultados</h2><p class="mt-1 text-sm leading-6 text-muted-foreground">El calendario y los importes observados se leen por separado.</p></div></div>
+
+      <div data-collection-calendar data-outcome={initial.calendar.outcome} data-due-position={initial.calendar.duePosition ?? undefined} class="mt-6">
+        <h3 class="text-base font-semibold">Calendario declarado</h3>
+        <p data-collection-calendar-position class="mt-2 text-sm leading-6 font-medium">{initial.calendar.positionLabel}</p>
+        <dl class="collection-facts mt-4 grid gap-4 sm:grid-cols-2">
+          <div><dt>Condición declarada</dt><dd data-collection-condition>{initial.calendar.conditionLabel}</dd></div>
+          <div><dt>Fecha base declarada</dt><dd><time data-collection-base-date datetime={initial.calendar.baseDate}>{formatDay(initial.calendar.baseDate)}</time></dd></div>
+          <div><dt>Evaluación del ejemplo</dt><dd><time data-collection-evaluated-at datetime={initial.evaluatedAt}>{formatInstant(initial.evaluatedAt)}</time></dd></div>
+          <div><dt>Fecha de vencimiento calculada</dt><dd><time data-collection-due-date datetime={initial.calendar.dueDate ?? undefined}>{initial.calendar.dueDate ? formatDay(initial.calendar.dueDate) : ''}</time><span data-collection-no-due-date hidden={initial.calendar.dueDate !== null}>Sin fecha calculada</span></dd></div>
+          <div data-collection-days-row hidden={initial.calendar.daysUntilDue === null}><dt>Días hasta esa fecha</dt><dd data-collection-days-until-due data-days={initial.calendar.daysUntilDue ?? undefined}>{initial.calendar.daysUntilDue ?? ''}</dd></div>
+        </dl>
+        <p class="mt-4 text-xs leading-5 text-muted-foreground">Una fecha superada describe el calendario; por sí sola no demuestra que falte un cobro. Los días negativos indican fechas anteriores a la evaluación.</p>
+
+        <div data-collection-milestone-section hidden={initial.calendar.milestones.length === 0} class="mt-5 rounded-xl border border-border px-4 py-3">
+          <h4 class="text-sm font-semibold">Hitos de calendario · sin envíos</h4>
+          <ol data-collection-milestones class="mt-2 divide-y divide-border">
+            {initial.calendar.milestones.map(milestone => <li data-collection-milestone data-offset={milestone.offsetDays} data-position={milestone.milestonePosition} class="collection-milestone"><time datetime={milestone.date}>{formatDay(milestone.date)}</time><span>{milestone.label}</span></li>)}
+          </ol>
+        </div>
+      </div>
+
+      <div data-collection-evidence data-outcome={initial.collection.outcome} data-reason={initial.collection.reason ?? undefined} data-coverage={initial.collection.coverage ?? undefined} class="mt-6 border-t border-border pt-5">
+        <h3 class="text-base font-semibold">Evidencia observada</h3>
+        <p data-collection-evidence-label class="mt-2 text-sm font-semibold leading-6">{initial.collection.label}</p>
+        <p data-collection-evidence-message class="mt-1 text-sm leading-6 text-muted-foreground">{initial.collection.message}</p>
+        <p data-collection-observed-row hidden={initial.collection.observedAt === null} class="mt-3 text-xs leading-5 text-muted-foreground">Fecha declarada de observación: <time data-collection-observed-at datetime={initial.collection.observedAt ?? undefined} class="font-medium text-foreground">{initial.collection.observedAt ? formatInstant(initial.collection.observedAt) : ''}</time></p>
+
+        <div data-collection-amounts hidden={amounts === null} data-as-of={amounts?.asOf} data-position={amounts?.amountPosition} data-reversal-position={amounts?.reversalPosition} class="mt-4 rounded-xl border border-border bg-muted/40 p-4">
+          <p class="text-xs leading-5 text-muted-foreground">Importes observados a <time data-collection-as-of datetime={amounts?.asOf} class="font-semibold text-foreground">{amounts ? formatInstant(amounts.asOf) : ''}</time></p>
+          <dl class="collection-facts mt-4 grid gap-4 sm:grid-cols-2">
+            <div><dt>Aplicado acumulado</dt><dd data-collection-amount="applied" data-cents={amounts?.appliedCents} class="collection-money">{amounts ? formatEurCents(amounts.appliedCents) : ''}</dd></div>
+            <div><dt>Reversiones acumuladas</dt><dd data-collection-amount="reversed" data-cents={amounts?.reversedCents} class="collection-money">{amounts ? formatEurCents(amounts.reversedCents) : ''}</dd></div>
+            <div><dt>Aplicado neto</dt><dd data-collection-amount="net" data-cents={amounts?.netAppliedCents} class="collection-money">{amounts ? formatEurCents(amounts.netAppliedCents) : ''}</dd></div>
+            <div><dt>Diferencia: declarado − neto</dt><dd data-collection-amount="difference" data-cents={amounts?.differenceCents} class="collection-money">{amounts ? formatEurCents(amounts.differenceCents) : ''}</dd></div>
+          </dl>
+          <p data-collection-position-label class="mt-4 text-sm font-semibold leading-6">{initial.collection.amountPositionLabel ?? ''}</p>
+          <p data-collection-reversal-label class="mt-1 text-sm leading-6 text-muted-foreground">{initial.collection.reversalPositionLabel ?? ''}</p>
+          <p class="mt-3 text-xs leading-5 text-muted-foreground">Una diferencia negativa conserva el exceso observado. Una igualdad de importes, también de cero, no acredita por sí sola un pago.</p>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<style is:global>
+  .company-collection-demo .collection-panel { min-width: 0; border: 1px solid var(--color-border); border-radius: var(--radius-card); background: var(--color-card); padding: 1.25rem; overflow-wrap: anywhere; }
+  .company-collection-demo .collection-step { display: flex; flex-shrink: 0; width: 2rem; height: 2rem; align-items: center; justify-content: center; border-radius: 100%; background: var(--color-foreground); color: var(--color-background); font-size: .875rem; font-weight: 600; }
+  .company-collection-demo .collection-label { display: block; min-width: 0; font-size: .875rem; line-height: 1.5rem; font-weight: 600; }
+  .company-collection-demo .collection-input { display: block; width: 100%; min-width: 0; min-height: 3rem; margin-top: .5rem; border: 1px solid var(--color-input); border-radius: var(--radius-btn); background: var(--color-background); padding: .625rem .75rem; color: var(--color-foreground); font-size: 1rem; line-height: 1.5rem; font-weight: 400; }
+  .company-collection-demo .collection-input:disabled { opacity: 1; cursor: default; }
+  .company-collection-demo .collection-button { min-height: 3rem; border-radius: var(--radius-btn); padding: .75rem 1rem; font-size: .875rem; line-height: 1.5rem; font-weight: 600; cursor: pointer; }
+  .company-collection-demo .collection-button:hover:not(:disabled) { box-shadow: 0 0 0 1px var(--color-foreground); }
+  .company-collection-demo .collection-button:disabled { background: var(--color-muted); color: var(--color-foreground); opacity: 1; cursor: not-allowed; }
+  .company-collection-demo .collection-facts > div + div { margin-top: 1rem; }
+  .company-collection-demo .collection-facts.grid > div + div { margin-top: 0; }
+  .company-collection-demo .collection-facts dt { font-size: .75rem; line-height: 1.25rem; color: var(--color-muted-foreground); }
+  .company-collection-demo .collection-facts dd { margin-top: .25rem; font-size: .875rem; line-height: 1.5rem; font-weight: 600; }
+  .company-collection-demo .collection-facts dd.collection-money { font-size: 1.5rem; line-height: 2rem; font-variant-numeric: tabular-nums; }
+  .company-collection-demo .collection-milestone { display: flex; flex-wrap: wrap; justify-content: space-between; gap: .25rem .75rem; padding-block: .625rem; font-size: .75rem; line-height: 1.25rem; }
+  .company-collection-demo .collection-milestone time { font-weight: 600; }
+  .company-collection-demo .collection-milestone span { color: var(--color-muted-foreground); }
+  .company-collection-demo [hidden] { display: none !important; }
+  .company-collection-demo :is(button, select):focus-visible { outline: 2px solid var(--color-foreground); outline-offset: 3px; }
+  @media (min-width: 640px) { .company-collection-demo .collection-panel { padding: 1.5rem; } }
+</style>
+
+<script>
+  import {
+    configureCompanyCollectionDemo, createCompanyCollectionDemo, getCompanyCollectionDemoView,
+    type CompanyCollectionDemoSelection,
+  } from '../../composition/company-collection-demo';
+  import { formatEurCents } from '../../lib/format';
+
+  const root = document.querySelector<HTMLElement>('[data-company-collection-demo]');
+  if (root) {
+    const find = (selector: string): HTMLElement => root.querySelector<HTMLElement>(selector)!;
+    const findSelect = (selector: string) => {
+      const element = root.querySelector(selector);
+      if (!(element instanceof HTMLSelectElement)) throw new Error('Falta un selector del ejemplo.');
+      return element;
+    };
+    const scenario = findSelect('[data-collection-scenario]');
+    const evaluation = findSelect('[data-collection-evaluation]');
+    const reset = root.querySelector('[data-collection-action="reset"]');
+    if (!(reset instanceof HTMLButtonElement)) throw new Error('Falta el control de reinicio del ejemplo.');
+    const dayFormatter = new Intl.DateTimeFormat('es-ES', { timeZone: 'UTC', day: 'numeric', month: 'short', year: 'numeric' });
+    const instantFormatter = new Intl.DateTimeFormat('es-ES', { timeZone: 'UTC', day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+    const formatDay = (value: string) => dayFormatter.format(new Date(value + 'T00:00:00.000Z'));
+    const formatInstant = (value: string) => instantFormatter.format(new Date(value)) + ' UTC';
+    const setAttribute = (element: HTMLElement, name: string, value: string | number | null) => {
+      if (value === null) element.removeAttribute(name);
+      else element.setAttribute(name, String(value));
+    };
+    const setTime = (element: HTMLElement, value: string | null, instant = false) => {
+      setAttribute(element, 'datetime', value);
+      element.textContent = value === null ? '' : instant ? formatInstant(value) : formatDay(value);
+    };
+    const setMoney = (element: HTMLElement, cents: number | null) => {
+      setAttribute(element, 'data-cents', cents);
+      element.textContent = cents === null ? '' : formatEurCents(cents);
+    };
+    let state = createCompanyCollectionDemo();
+
+    const render = () => {
+      const view = getCompanyCollectionDemoView(state);
+      scenario.value = view.selection.scenarioId;
+      evaluation.value = view.selection.evaluationId;
+      find('[data-collection-scenario-description]').textContent = view.scenarioDescription;
+      const company = find('[data-collection-company]');
+      company.textContent = view.company.label;
+      company.dataset.state = view.company.state;
+      find('[data-collection-company-state]').textContent = view.company.stateLabel;
+      setMoney(find('[data-collection-declared]'), view.declared.amountCents);
+
+      const calendar = find('[data-collection-calendar]');
+      calendar.dataset.outcome = view.calendar.outcome;
+      setAttribute(calendar, 'data-due-position', view.calendar.duePosition);
+      find('[data-collection-condition]').textContent = view.calendar.conditionLabel;
+      find('[data-collection-calendar-position]').textContent = view.calendar.positionLabel;
+      setTime(find('[data-collection-base-date]'), view.calendar.baseDate);
+      setTime(find('[data-collection-evaluated-at]'), view.evaluatedAt, true);
+      setTime(find('[data-collection-due-date]'), view.calendar.dueDate);
+      find('[data-collection-no-due-date]').hidden = view.calendar.dueDate !== null;
+      find('[data-collection-days-row]').hidden = view.calendar.daysUntilDue === null;
+      const days = find('[data-collection-days-until-due]');
+      setAttribute(days, 'data-days', view.calendar.daysUntilDue);
+      days.textContent = view.calendar.daysUntilDue === null ? '' : String(view.calendar.daysUntilDue);
+      find('[data-collection-milestone-section]').hidden = view.calendar.milestones.length === 0;
+      find('[data-collection-milestones]').replaceChildren(...view.calendar.milestones.map(milestone => {
+        const row = document.createElement('li');
+        row.className = 'collection-milestone';
+        row.dataset.collectionMilestone = '';
+        row.dataset.offset = String(milestone.offsetDays);
+        row.dataset.position = milestone.milestonePosition;
+        const date = document.createElement('time');
+        date.setAttribute('datetime', milestone.date);
+        date.textContent = formatDay(milestone.date);
+        const label = document.createElement('span');
+        label.textContent = milestone.label;
+        row.appendChild(date);
+        row.appendChild(label);
+        return row;
+      }));
+
+      const evidence = find('[data-collection-evidence]');
+      evidence.dataset.outcome = view.collection.outcome;
+      setAttribute(evidence, 'data-reason', view.collection.reason);
+      setAttribute(evidence, 'data-coverage', view.collection.coverage);
+      find('[data-collection-evidence-label]').textContent = view.collection.label;
+      find('[data-collection-evidence-message]').textContent = view.collection.message;
+      find('[data-collection-observed-row]').hidden = view.collection.observedAt === null;
+      setTime(find('[data-collection-observed-at]'), view.collection.observedAt, true);
+
+      const amounts = view.collection.amounts;
+      const amountBlock = find('[data-collection-amounts]');
+      amountBlock.hidden = amounts === null;
+      setAttribute(amountBlock, 'data-as-of', amounts?.asOf ?? null);
+      setAttribute(amountBlock, 'data-position', amounts?.amountPosition ?? null);
+      setAttribute(amountBlock, 'data-reversal-position', amounts?.reversalPosition ?? null);
+      setTime(find('[data-collection-as-of]'), amounts?.asOf ?? null, true);
+      setMoney(find('[data-collection-amount="applied"]'), amounts?.appliedCents ?? null);
+      setMoney(find('[data-collection-amount="reversed"]'), amounts?.reversedCents ?? null);
+      setMoney(find('[data-collection-amount="net"]'), amounts?.netAppliedCents ?? null);
+      setMoney(find('[data-collection-amount="difference"]'), amounts?.differenceCents ?? null);
+      find('[data-collection-position-label]').textContent = view.collection.amountPositionLabel ?? '';
+      find('[data-collection-reversal-label]').textContent = view.collection.reversalPositionLabel ?? '';
+
+      const feedback = find('[data-collection-feedback]');
+      const message = view.feedback.message + ' ' + view.calendar.positionLabel + ' ' + view.collection.label;
+      if (feedback.textContent !== message) feedback.textContent = message;
+    };
+
+    scenario.addEventListener('change', () => {
+      state = configureCompanyCollectionDemo(state, { scenarioId: scenario.value as CompanyCollectionDemoSelection['scenarioId'] });
+      render();
+    });
+    evaluation.addEventListener('change', () => {
+      state = configureCompanyCollectionDemo(state, { evaluationId: evaluation.value as CompanyCollectionDemoSelection['evaluationId'] });
+      render();
+    });
+    reset.addEventListener('click', () => { state = createCompanyCollectionDemo(); render(); });
+    render();
+    scenario.disabled = false;
+    evaluation.disabled = false;
+    reset.disabled = false;
+    root.dataset.ready = 'true';
+  }
+</script>
