@@ -254,6 +254,15 @@ check('catálogo por empresa conserva privacidad de caché e indexación',
   companyCatalogResponse.headers.get('cache-control')?.includes('no-store') && companyCatalogHtml.includes('noindex'));
 check('catálogo por empresa no añade formularios ni envíos', !/<form\b/i.test(companyCatalogHtml)
   && !/<button\b(?![^>]*\btype=["']button["'])/i.test(companyCatalogHtml));
+const variantQuantityResponse = await fetch(`${BASE}/demo/admin/cantidades`, { headers: { cookie } });
+const variantQuantityHtml = await variantQuantityResponse.text();
+check('panel enlaza la demostración de reglas de cantidad', adminHtml.includes('href="/demo/admin/cantidades"'));
+check('cantidades muestra reglas ficticias y diagnóstico local', variantQuantityResponse.ok
+  && variantQuantityHtml.includes('data-variant-quantity-demo') && variantQuantityHtml.includes('data-variant-quantity-result'));
+check('cantidades conserva privacidad de caché e indexación',
+  variantQuantityResponse.headers.get('cache-control')?.includes('no-store') && variantQuantityHtml.includes('noindex'));
+check('cantidades no añade formularios ni envíos', !/<form\b/i.test(variantQuantityHtml)
+  && !/<button\b(?![^>]*\btype=["']button["'])/i.test(variantQuantityHtml));
 const marketDemoResponse = await fetch(`${BASE}/demo/admin/mercados`, { headers: { cookie } });
 const marketDemoHtml = await marketDemoResponse.text();
 check('panel enlaza la demostración de mercados e idiomas', adminHtml.includes('href="/demo/admin/mercados"'));

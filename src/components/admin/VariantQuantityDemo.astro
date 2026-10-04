@@ -1,0 +1,229 @@
+---
+import { createVariantQuantityDemo, getVariantQuantityDemoView } from '../../composition/variant-quantity-demo';
+
+const initial = getVariantQuantityDemoView(createVariantQuantityDemo());
+---
+
+<div data-quantity-demo data-variant-quantity-demo data-ready="false" class="variant-quantity-demo mt-6 space-y-6 text-foreground">
+  <div class="flex flex-col gap-3 rounded-2xl border border-border bg-card p-4 sm:flex-row sm:items-center sm:justify-between sm:px-5">
+    <div class="max-w-3xl"><p class="text-sm font-semibold leading-6">Cantidades y reglas ficticias. Este ejemplo no crea pedidos ni autoriza compras.</p><p class="mt-1 text-xs leading-5 text-muted-foreground">Los cambios solo duran en esta página. Al recargar, vuelves al inicio.</p></div>
+    <button data-quantity-action="reset" type="button" disabled class="quantity-button shrink-0 border border-border bg-background text-foreground">Restablecer ejemplo</button>
+  </div>
+
+  <noscript data-quantity-nojs><div class="rounded-xl border border-border bg-muted p-4 text-sm leading-6">Puedes consultar la regla y el resultado inicial sin JavaScript. Los controles permanecen desactivados; este ejemplo no envía ni guarda datos.</div></noscript>
+
+  <div class="grid items-start gap-6 xl:grid-cols-[minmax(0,.8fr)_minmax(0,1.2fr)]">
+    <section class="quantity-panel" aria-labelledby="quantity-prepare-title">
+      <div class="flex items-start gap-3"><span class="quantity-step" aria-hidden="true">1</span><div><h2 id="quantity-prepare-title" class="text-xl font-semibold">Prueba una cantidad</h2><p class="mt-1 text-sm leading-6 text-muted-foreground">{initial.companyLabel} · {initial.channelLabel}</p></div></div>
+
+      <label class="quantity-label mt-5" for="quantity-market">Mercado de ejemplo
+        <select id="quantity-market" data-quantity-market disabled class="quantity-input">
+          {initial.marketOptions.map(option => <option value={option.id} selected={option.id === initial.selection.marketId}>{option.label}</option>)}
+        </select>
+      </label>
+      <label class="quantity-label mt-5" for="quantity-variant">Variante de ejemplo
+        <select id="quantity-variant" data-quantity-variant disabled aria-describedby="quantity-memory" class="quantity-input">
+          {initial.variantOptions.map(option => <option value={option.id} selected={option.id === initial.selection.variantId}>{option.label}</option>)}
+        </select>
+      </label>
+      <label class="quantity-label mt-5" for="quantity-count"><span data-quantity-count-label>{initial.requestedCountLabel}</span>
+        <select id="quantity-count" data-quantity-count disabled aria-describedby="quantity-format-help" class="quantity-input">
+          {initial.countOptions.map(option => <option value={option.id} selected={option.id === initial.requestedCount}>{option.label}</option>)}
+        </select>
+      </label>
+      <p id="quantity-format-help" data-quantity-format-help class="mt-2 text-xs leading-5 text-muted-foreground">{initial.rule ? initial.rule.unitsPerBoxLabel + ' El formato lo fija la regla de esta variante.' : 'Falta definir si este valor corresponde a unidades o cajas.'}</p>
+
+      <div class="mt-5 rounded-xl border border-border bg-muted/40 p-4">
+        <h3 class="text-sm font-semibold">Tu cantidad se conserva</h3>
+        <p id="quantity-memory" class="mt-1 text-xs leading-5 text-muted-foreground">Cada variante recuerda el valor que pruebes. Cambiar de mercado no lo modifica, y una cantidad que no cumple la regla nunca se corrige automáticamente.</p>
+      </div>
+      <p data-quantity-feedback role="status" aria-live="polite" aria-atomic="true" class="mt-5 text-sm leading-6">{initial.feedback.message}</p>
+    </section>
+
+    <section data-quantity-result data-variant-quantity-result data-product-id={initial.selectedProduct.id} data-variant-id={initial.selectedVariant.id} data-outcome={initial.result.outcome} class="quantity-panel" aria-labelledby="quantity-result-title">
+      <div class="flex items-start gap-3"><span class="quantity-step" aria-hidden="true">2</span><div><h2 id="quantity-result-title" class="text-xl font-semibold">Comprueba la regla</h2><p data-quantity-context-label class="mt-1 text-sm leading-6 text-muted-foreground">{initial.marketOptions.find(option => option.id === initial.selection.marketId)?.label}</p></div></div>
+      <div class="mt-5 border-b border-border pb-5">
+        <h3 data-quantity-product-label class="text-base font-semibold">{initial.selectedProduct.label}</h3>
+        <p class="mt-1 text-sm leading-6"><span data-quantity-selected-label>{initial.selectedVariant.label}</span> · <span data-quantity-selected-sku class="text-muted-foreground">{initial.selectedVariant.sku}</span></p>
+        <p class="mt-3"><span data-quantity-result-label class="quantity-badge">{initial.result.label}</span></p>
+      </div>
+
+      <div data-quantity-rule data-order-unit={initial.rule?.orderUnit} data-units-per-box={initial.rule?.unitsPerBox} data-min={initial.rule?.minUnits} data-max={initial.rule?.maxUnits} data-multiple={initial.rule?.multipleUnits} class="mt-5">
+        <h3 class="text-sm font-semibold">Regla de esta variante</h3>
+        <dl class="quantity-facts mt-3">
+          <div><dt>Formato de pedido</dt><dd data-quantity-order-unit>{initial.rule?.orderUnitLabel ?? 'Sin definir'}</dd></div>
+          <div><dt>Equivalencia del formato</dt><dd data-quantity-factor>{initial.rule?.unitsPerBoxLabel ?? 'Sin definir'}</dd></div>
+          <div><dt>Rango de unidades</dt><dd data-quantity-range>{initial.rule ? initial.rule.minUnits + '–' + initial.rule.maxUnits + ' unidades, ambos límites incluidos' : 'Sin definir'}</dd></div>
+          <div><dt>Múltiplo de unidades</dt><dd data-quantity-multiple>{initial.rule ? 'De ' + initial.rule.multipleUnits + ' en ' + initial.rule.multipleUnits + ', desde cero' : 'Sin definir'}</dd></div>
+        </dl>
+        <p data-quantity-rule-help class="mt-3 text-xs leading-5 text-muted-foreground">{initial.rule ? 'El rango y el múltiplo se comprueban a la vez sobre las unidades, también cuando se solicitan cajas.' : 'No hay una regla configurada para esta variante. El valor solicitado se conserva sin interpretar su formato.'}</p>
+      </div>
+
+      <div class="mt-5 rounded-xl border border-border bg-muted/40 p-4">
+        <dl class="quantity-facts">
+          <div><dt data-quantity-requested-label>{initial.requestedCountLabel}</dt><dd data-quantity-requested-count data-count={initial.requestedCount} class="quantity-number">{initial.requestedCount}</dd></div>
+          <div><dt>Cantidad en unidades</dt><dd data-quantity-units data-units={initial.quantity.quantityUnits ?? undefined} class="quantity-number">{initial.quantity.quantityUnits ?? 'Sin conversión'}</dd></div>
+        </dl>
+        <p data-quantity-conversion class="mt-3 text-sm leading-6">{initial.quantity.conversionLabel ?? 'Sin un formato definido no se puede convertir el valor a unidades.'}</p>
+      </div>
+
+      <div data-quantity-check data-outcome={initial.quantity.outcome} class="mt-5 border-t border-border pt-5">
+        <h3 class="text-sm font-semibold">Cantidad</h3>
+        <p data-quantity-check-label class="mt-2 text-sm leading-6">{initial.quantity.label}</p>
+        <ul data-quantity-reasons hidden={initial.quantity.reasonLabels.length === 0} class="mt-2 space-y-1 text-sm leading-6 text-muted-foreground">{initial.quantity.reasonLabels.map(reason => <li data-quantity-reason data-reason={reason.reason}>{reason.label}</li>)}</ul>
+      </div>
+      <div data-quantity-visibility data-visible={String(initial.visibility.visible)} class="mt-5 border-t border-border pt-5">
+        <h3 class="text-sm font-semibold">Visibilidad en este contexto</h3>
+        <p data-quantity-visibility-label class="mt-2 text-sm leading-6">{initial.visibility.label}</p>
+        <ul data-quantity-company-reasons hidden={initial.visibility.companyReasonLabels.length === 0} class="mt-2 space-y-1 text-sm leading-6 text-muted-foreground">{initial.visibility.companyReasonLabels.map(label => <li data-quantity-visibility-reason>{label}</li>)}</ul>
+        <ul data-quantity-market-reasons hidden={initial.visibility.marketReasonLabels.length === 0} class="mt-2 space-y-1 text-sm leading-6 text-muted-foreground">{initial.visibility.marketReasonLabels.map(label => <li data-quantity-visibility-reason>{label}</li>)}</ul>
+        <p class="mt-3 text-xs leading-5 text-muted-foreground">Cumplir la cantidad y ser visible son comprobaciones distintas. Este diagnóstico no autoriza una compra.</p>
+      </div>
+      <details data-quantity-final-details hidden={initial.result.reasonLabels.length === 0} class="mt-4 border-t border-border pt-2">
+        <summary class="quantity-summary">Ver motivos del resultado</summary>
+        <ul data-quantity-final-reasons class="space-y-1 pb-2 text-sm leading-6 text-muted-foreground">{initial.result.reasonLabels.map(reason => <li data-quantity-final-reason data-reason={reason.reason}>{reason.label}</li>)}</ul>
+      </details>
+    </section>
+  </div>
+</div>
+
+<style is:global>
+  .variant-quantity-demo .quantity-panel { min-width: 0; border: 1px solid var(--color-border); border-radius: var(--radius-card); background: var(--color-card); padding: 1.25rem; overflow-wrap: anywhere; }
+  .variant-quantity-demo .quantity-step { display: flex; flex-shrink: 0; width: 2rem; height: 2rem; align-items: center; justify-content: center; border-radius: 100%; background: var(--color-foreground); color: var(--color-background); font-size: .875rem; font-weight: 600; }
+  .variant-quantity-demo .quantity-label { display: block; min-width: 0; font-size: .875rem; line-height: 1.5rem; font-weight: 600; }
+  .variant-quantity-demo .quantity-input { display: block; width: 100%; min-width: 0; min-height: 3rem; margin-top: .5rem; border: 1px solid var(--color-input); border-radius: var(--radius-btn); background: var(--color-background); padding-inline: .75rem; color: var(--color-foreground); font-size: 1rem; line-height: 1.5rem; font-weight: 400; }
+  .variant-quantity-demo .quantity-input:disabled { opacity: 1; cursor: default; }
+  .variant-quantity-demo .quantity-button { min-height: 3rem; border-radius: var(--radius-btn); padding: .75rem 1rem; font-size: .875rem; line-height: 1.5rem; font-weight: 600; cursor: pointer; }
+  .variant-quantity-demo .quantity-button:hover:not(:disabled) { box-shadow: 0 0 0 1px var(--color-foreground); }
+  .variant-quantity-demo .quantity-button:disabled { background: var(--color-muted); color: var(--color-foreground); opacity: 1; cursor: not-allowed; }
+  .variant-quantity-demo .quantity-badge { display: inline-flex; border-radius: 999px; background: var(--color-muted); padding: .25rem .625rem; color: var(--color-foreground); font-size: .875rem; line-height: 1.5rem; font-weight: 600; }
+  .variant-quantity-demo .quantity-facts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
+  .variant-quantity-demo .quantity-facts dt { color: var(--color-muted-foreground); font-size: .75rem; line-height: 1.25rem; }
+  .variant-quantity-demo .quantity-facts dd { margin-top: .375rem; font-size: .875rem; line-height: 1.5rem; font-weight: 600; }
+  .variant-quantity-demo .quantity-facts .quantity-number { font-size: 1.125rem; line-height: 1.75rem; font-variant-numeric: tabular-nums; }
+  .variant-quantity-demo .quantity-summary { min-height: 3rem; padding-block: .75rem; font-size: .875rem; line-height: 1.5rem; font-weight: 600; cursor: pointer; }
+  .variant-quantity-demo :is(button, select, summary):focus-visible { outline: 2px solid var(--color-foreground); outline-offset: 3px; }
+  @media (min-width: 640px) { .variant-quantity-demo .quantity-panel { padding: 1.5rem; } }
+</style>
+
+<script>
+  import {
+    configureVariantQuantityDemo, createVariantQuantityDemo, getVariantQuantityDemoView,
+    selectVariantQuantityDemoCount, type VariantQuantityDemoSelection,
+  } from '../../composition/variant-quantity-demo';
+
+  const root = document.querySelector<HTMLElement>('[data-quantity-demo]');
+  if (root) {
+    const find = (selector: string): HTMLElement => root.querySelector<HTMLElement>(selector)!;
+    const select = (selector: string) => {
+      const element = root.querySelector(selector);
+      if (!(element instanceof HTMLSelectElement)) throw new Error('Falta un selector del ejemplo de cantidades.');
+      return element;
+    };
+    const market = select('[data-quantity-market]');
+    const variant = select('[data-quantity-variant]');
+    const count = select('[data-quantity-count]');
+    const reset = root.querySelector<HTMLButtonElement>('[data-quantity-action="reset"]')!;
+    let state = createVariantQuantityDemo();
+
+    const attribute = (element: HTMLElement, name: string, value: string | number | null) => {
+      if (value === null) element.removeAttribute(name);
+      else element.setAttribute(name, String(value));
+    };
+    const reasons = (element: HTMLElement, values: readonly Readonly<{ reason: string; label: string }>[], marker: string) => {
+      element.hidden = values.length === 0;
+      element.replaceChildren(...values.map(reason => {
+        const item = document.createElement('li');
+        item.setAttribute(marker, '');
+        item.dataset.reason = reason.reason;
+        item.textContent = reason.label;
+        return item;
+      }));
+    };
+    const visibilityReasons = (element: HTMLElement, values: readonly string[]) => {
+      element.hidden = values.length === 0;
+      element.replaceChildren(...values.map(label => {
+        const item = document.createElement('li');
+        item.setAttribute('data-quantity-visibility-reason', '');
+        item.textContent = label;
+        return item;
+      }));
+    };
+    const render = () => {
+      const view = getVariantQuantityDemoView(state);
+      market.value = view.selection.marketId;
+      variant.value = String(view.selection.variantId);
+      // Se conserva el select y su foco. Solo cambia el vocabulario al elegir otra variante.
+      const currentOptions = [...count.options];
+      if (currentOptions.length !== view.countOptions.length || currentOptions.some((option, index) => option.value !== String(view.countOptions[index]?.id) || option.textContent !== view.countOptions[index]?.label)) {
+        count.replaceChildren(...view.countOptions.map(option => {
+          const element = document.createElement('option');
+          element.value = String(option.id);
+          element.textContent = option.label;
+          return element;
+        }));
+      }
+      count.value = String(view.requestedCount);
+      find('[data-quantity-count-label]').textContent = view.requestedCountLabel;
+      find('[data-quantity-format-help]').textContent = view.rule ? view.rule.unitsPerBoxLabel + ' El formato lo fija la regla de esta variante.' : 'Falta definir si este valor corresponde a unidades o cajas.';
+      const result = find('[data-quantity-result]');
+      result.dataset.productId = String(view.selectedProduct.id);
+      result.dataset.variantId = String(view.selectedVariant.id);
+      result.dataset.outcome = view.result.outcome;
+      find('[data-quantity-context-label]').textContent = view.marketOptions.find(option => option.id === view.selection.marketId)?.label ?? '';
+      find('[data-quantity-product-label]').textContent = view.selectedProduct.label;
+      find('[data-quantity-selected-label]').textContent = view.selectedVariant.label;
+      find('[data-quantity-selected-sku]').textContent = view.selectedVariant.sku;
+      find('[data-quantity-result-label]').textContent = view.result.label;
+      const rule = find('[data-quantity-rule]');
+      attribute(rule, 'data-order-unit', view.rule?.orderUnit ?? null);
+      attribute(rule, 'data-units-per-box', view.rule?.unitsPerBox ?? null);
+      attribute(rule, 'data-min', view.rule?.minUnits ?? null);
+      attribute(rule, 'data-max', view.rule?.maxUnits ?? null);
+      attribute(rule, 'data-multiple', view.rule?.multipleUnits ?? null);
+      find('[data-quantity-order-unit]').textContent = view.rule?.orderUnitLabel ?? 'Sin definir';
+      find('[data-quantity-factor]').textContent = view.rule?.unitsPerBoxLabel ?? 'Sin definir';
+      find('[data-quantity-range]').textContent = view.rule ? view.rule.minUnits + '–' + view.rule.maxUnits + ' unidades, ambos límites incluidos' : 'Sin definir';
+      find('[data-quantity-multiple]').textContent = view.rule ? 'De ' + view.rule.multipleUnits + ' en ' + view.rule.multipleUnits + ', desde cero' : 'Sin definir';
+      find('[data-quantity-rule-help]').textContent = view.rule ? 'El rango y el múltiplo se comprueban a la vez sobre las unidades, también cuando se solicitan cajas.' : 'No hay una regla configurada para esta variante. El valor solicitado se conserva sin interpretar su formato.';
+      const requested = find('[data-quantity-requested-count]');
+      find('[data-quantity-requested-label]').textContent = view.requestedCountLabel;
+      requested.textContent = String(view.requestedCount);
+      requested.dataset.count = String(view.requestedCount);
+      const units = find('[data-quantity-units]');
+      units.textContent = view.quantity.quantityUnits === null ? 'Sin conversión' : String(view.quantity.quantityUnits);
+      attribute(units, 'data-units', view.quantity.quantityUnits);
+      find('[data-quantity-conversion]').textContent = view.quantity.conversionLabel ?? 'Sin un formato definido no se puede convertir el valor a unidades.';
+      find('[data-quantity-check]').dataset.outcome = view.quantity.outcome;
+      find('[data-quantity-check-label]').textContent = view.quantity.label;
+      reasons(find('[data-quantity-reasons]'), view.quantity.reasonLabels, 'data-quantity-reason');
+      find('[data-quantity-visibility]').dataset.visible = String(view.visibility.visible);
+      find('[data-quantity-visibility-label]').textContent = view.visibility.label;
+      visibilityReasons(find('[data-quantity-company-reasons]'), view.visibility.companyReasonLabels);
+      visibilityReasons(find('[data-quantity-market-reasons]'), view.visibility.marketReasonLabels);
+      find('[data-quantity-final-details]').hidden = view.result.reasonLabels.length === 0;
+      reasons(find('[data-quantity-final-reasons]'), view.result.reasonLabels, 'data-quantity-final-reason');
+      find('[data-quantity-feedback]').textContent = view.feedback.message + ' ' + view.selectedVariant.label + '. ' + view.requestedCountLabel + ': ' + view.requestedCount + '. ' + view.result.label + '.';
+    };
+
+    market.addEventListener('change', () => {
+      state = configureVariantQuantityDemo(state, { marketId: market.value as VariantQuantityDemoSelection['marketId'] });
+      render();
+    });
+    variant.addEventListener('change', () => {
+      state = configureVariantQuantityDemo(state, { variantId: Number(variant.value) as VariantQuantityDemoSelection['variantId'] });
+      render();
+    });
+    count.addEventListener('change', () => {
+      state = selectVariantQuantityDemoCount(state, { requestedCount: Number(count.value) });
+      render();
+    });
+    reset.addEventListener('click', () => { state = createVariantQuantityDemo(); render(); });
+    render();
+    market.disabled = false;
+    variant.disabled = false;
+    count.disabled = false;
+    reset.disabled = false;
+    root.dataset.ready = 'true';
+  }
+</script>

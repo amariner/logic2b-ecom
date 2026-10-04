@@ -1,0 +1,42 @@
+[
+  {
+    "surface": "variant-quantity:unit-valid",
+    "url": "/demo/admin/cantidades",
+    "findings": []
+  },
+  {
+    "surface": "variant-quantity:box-invalid",
+    "url": "/demo/admin/cantidades",
+    "findings": []
+  },
+  {
+    "surface": "variant-quantity:unconfigured",
+    "url": "/demo/admin/cantidades",
+    "findings": []
+  },
+  {
+    "surface": "variant-quantity:hidden",
+    "url": "/demo/admin/cantidades",
+    "findings": []
+  },
+  {
+    "surface": "variant-quantity:unit-valid@375",
+    "url": "/demo/admin/cantidades",
+    "findings": []
+  },
+  {
+    "surface": "variant-quantity:box-invalid@375",
+    "url": "/demo/admin/cantidades",
+    "findings": []
+  },
+  {
+    "surface": "variant-quantity:unconfigured@375",
+    "url": "/demo/admin/cantidades",
+    "findings": []
+  },
+  {
+    "surface": "variant-quantity:hidden@375",
+    "url": "/demo/admin/cantidades",
+    "findings": []
+  }
+]

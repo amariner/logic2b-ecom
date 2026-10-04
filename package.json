@@ -23,6 +23,7 @@
     "test:e2e:currencies": "node scripts/test-currency-methods-demo.mjs",
     "test:e2e:companies": "node scripts/test-company-directory-demo.mjs",
     "test:e2e:company-catalog": "node scripts/test-company-catalog-demo.mjs",
+    "test:e2e:quantities": "node scripts/test-variant-quantity-demo.mjs",
     "test:e2e:proposal": "node scripts/e2e.mjs --only-proposal",
     "audit:customer-account": "node scripts/audit-customer-account-local.mjs",
     "audit:r5:fixtures": "node scripts/audit-r5-fixtures.mjs",
