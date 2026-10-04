@@ -149,8 +149,9 @@ describe('registro de módulos (R1.4)', () => {
     expect(MODULE_REGISTRY.capabilityOwners['B2B-004']).toBe('companies');
     expect(MODULE_REGISTRY.capabilityOwners['B2B-005']).toBe('companies');
     expect(MODULE_REGISTRY.capabilityOwners['B2B-006']).toBe('companies');
+    expect(MODULE_REGISTRY.capabilityOwners['B2B-007']).toBe('companies');
     expect(MODULE_REGISTRY.byId.companies).toMatchObject({
-      version: '1.8.0', capabilities: ['B2B-001', 'B2B-002', 'B2B-003', 'B2B-004', 'B2B-005', 'B2B-006'],
+      version: '1.9.0', capabilities: ['B2B-001', 'B2B-002', 'B2B-003', 'B2B-004', 'B2B-005', 'B2B-006', 'B2B-007'],
       dependencies: ['platform-configuration'],
       permissions: [], events: [], subscriptions: [], jobs: [], healthchecks: [], navigation: [], routes: [],
     });
@@ -161,6 +162,7 @@ describe('registro de módulos (R1.4)', () => {
     expect(MODULE_REGISTRY.byId.companies.wikiLinks).toContain('docs/plataforma/adr/0058-revision-credito-fixture.md');
     expect(MODULE_REGISTRY.byId.companies.wikiLinks).toContain('docs/plataforma/adr/0059-solicitudes-ofertas-fixture.md');
     expect(MODULE_REGISTRY.byId.companies.wikiLinks).toContain('docs/plataforma/adr/0060-artefacto-preliminar-fixture.md');
+    expect(MODULE_REGISTRY.byId.companies.wikiLinks).toContain('docs/plataforma/adr/0061-referencia-po-fixture.md');
     expect('B2B-009' in MODULE_REGISTRY.capabilityOwners).toBe(false);
     for (const profile of ['minimal', 'standard', 'advanced'] as const) {
       const platform = createPlatform(createPresetManifest(profile, deployment));
@@ -171,6 +173,7 @@ describe('registro de módulos (R1.4)', () => {
       expect(platform.isCapabilityActive('B2B-004')).toBe(false);
       expect(platform.isCapabilityActive('B2B-005')).toBe(false);
       expect(platform.isCapabilityActive('B2B-006')).toBe(false);
+      expect(platform.isCapabilityActive('B2B-007')).toBe(false);
     }
   });
 
