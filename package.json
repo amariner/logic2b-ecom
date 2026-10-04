@@ -27,6 +27,7 @@
     "test:e2e:collection": "node scripts/test-company-collection-demo.mjs",
     "test:e2e:credit": "node scripts/test-company-credit-review-demo.mjs",
     "test:e2e:negotiation": "node scripts/test-company-negotiation-demo.mjs",
+    "test:e2e:company-documents": "node scripts/test-company-document-demo.mjs",
     "test:e2e:proposal": "node scripts/e2e.mjs --only-proposal",
     "audit:customer-account": "node scripts/audit-customer-account-local.mjs",
     "audit:r5:fixtures": "node scripts/audit-r5-fixtures.mjs",

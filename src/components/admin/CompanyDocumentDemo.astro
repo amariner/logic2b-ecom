@@ -1,0 +1,252 @@
+---
+import { createCompanyDocumentDemo, getCompanyDocumentDemoView } from '../../composition/company-document-demo';
+
+const initial = getCompanyDocumentDemoView(createCompanyDocumentDemo());
+const metadata = initial.evidence.metadata;
+const observed = initial.evidence.document;
+const amount = initial.comparisons?.amount ?? null;
+const fields = [
+  { key: 'company', title: 'Empresa compradora' },
+  { key: 'purchaseOrder', title: 'Referencia de compra (PO)' },
+] as const;
+const moneyRows = [
+  { key: 'expected', label: 'Total comercial de la oferta', money: amount?.expected ?? null },
+  { key: 'observed', label: 'Importe comercial de la evidencia', money: amount?.observed ?? null },
+  { key: 'delta', label: 'Diferencia: evidencia menos oferta', money: amount?.delta ?? null },
+] as const;
+---
+
+<div data-company-document-demo data-ready="false" class="company-document-demo mt-6 space-y-6 text-foreground">
+  <div class="rounded-2xl border border-border bg-card px-5 py-4">
+    <p class="text-sm font-semibold leading-6">Datos ficticios. Este ejemplo no emite facturas ni registra pedidos o cobros.</p>
+    <p class="mt-1 text-xs leading-5 text-muted-foreground">Los cambios solo duran en esta página. Al recargar, vuelves al inicio.</p>
+  </div>
+
+  <noscript data-document-nojs><div class="rounded-xl border border-border bg-muted p-4 text-sm leading-6">Puedes leer la referencia y la evidencia inicial sin JavaScript. Para elegir otro ejemplo se necesita JavaScript; los controles permanecen desactivados y no se envía ni guarda ningún dato.</div></noscript>
+
+  <div class="grid items-start gap-6 xl:grid-cols-[minmax(0,.8fr)_minmax(0,1.2fr)]">
+    <section class="document-panel" aria-labelledby="document-prepare-title">
+      <div class="flex items-start gap-3"><span class="document-step" aria-hidden="true">1</span><div><h2 id="document-prepare-title" class="text-xl font-semibold">Referencia aportada</h2><p class="mt-1 text-sm leading-6 text-muted-foreground">Elige un caso y consulta sus datos declarados.</p></div></div>
+
+      <label class="document-label mt-5" for="document-scenario">Ejemplo
+        <select id="document-scenario" data-document-scenario disabled aria-describedby="document-scenario-description" class="document-input">
+          {initial.scenarioOptions.map(option => <option value={option.id} selected={option.id === initial.selection.scenarioId}>{option.label}</option>)}
+        </select>
+      </label>
+      <p id="document-scenario-description" data-document-scenario-description class="mt-2 text-sm leading-6 text-muted-foreground">{initial.scenarioDescription}</p>
+
+      <label class="document-label mt-5" for="document-evaluation">Momento de evaluación
+        <select id="document-evaluation" data-document-evaluation disabled aria-describedby="document-evaluation-help" class="document-input">
+          {initial.evaluationOptions.map(option => <option value={option.id} selected={option.id === initial.selection.evaluationId}>{option.label}</option>)}
+        </select>
+      </label>
+      <p id="document-evaluation-help" class="mt-2 text-xs leading-5 text-muted-foreground">El momento elegido cambia la lectura del caso. No modifica la evidencia ni registra acciones.</p>
+
+      <div data-document-reference class="mt-6 border-t border-border pt-5">
+        <h3 class="text-base font-semibold">Datos de la referencia</h3>
+        <dl class="document-facts mt-4">
+          <div><dt>Empresa compradora</dt><dd data-document-buyer-label>{initial.reference.buyerCompanyLabel}</dd></div>
+          <div><dt data-document-po-label>{initial.reference.purchaseOrderLabel}</dt><dd><span data-document-reference-po data-present={String(initial.reference.purchaseOrderNumber !== null)}>{initial.reference.purchaseOrderNumber ?? ''}</span><span data-document-reference-po-empty hidden={initial.reference.purchaseOrderNumber !== null} class="document-placeholder">No aportado</span></dd></div>
+          <div><dt>Soporte de la referencia</dt><dd data-document-support data-status={initial.reference.supportStatus}>{initial.reference.supportLabel}</dd></div>
+          <div><dt>Oferta histórica del ejemplo</dt><dd data-document-offer-label>{initial.reference.offerLabel}</dd></div>
+          <div><dt>Total comercial de la oferta</dt><dd data-document-amount="reference" data-cents={initial.reference.declaredAmount.amountCents} class="document-money">{initial.reference.declaredAmount.formatted}</dd></div>
+        </dl>
+        <p class="mt-4 text-xs leading-5 text-muted-foreground">El soporte de la referencia y el documento observado son datos separados. No se abre ni se valida ningún archivo.</p>
+      </div>
+
+      <button data-document-action="reset" type="button" disabled class="document-button mt-6 w-full border border-border bg-background text-foreground">Restablecer ejemplo</button>
+      <p data-document-feedback role="status" aria-live="polite" aria-atomic="true" class="mt-4 text-sm leading-6">{initial.feedback.message}</p>
+    </section>
+
+    <section data-company-document-result class="document-panel" aria-labelledby="document-result-title">
+      <div class="flex items-start gap-3"><span class="document-step" aria-hidden="true">2</span><div><h2 id="document-result-title" class="text-xl font-semibold">Lectura documental</h2><p class="mt-1 text-sm leading-6 text-muted-foreground">Cada campo tiene su propio resultado de comparación.</p></div></div>
+      <p class="mt-4 text-xs leading-5 text-muted-foreground">Evaluado el <time data-document-time="evaluation" datetime={initial.evaluatedAt} class="font-semibold text-foreground">{initial.evaluatedAtLabel}</time></p>
+
+      <div data-document-evidence data-outcome={initial.evidence.outcome} data-reason={initial.evidence.reason ?? undefined} class="document-summary mt-5">
+        <h3 data-document-evidence-label class="text-base font-semibold leading-6">{initial.evidence.label}</h3>
+        <p data-document-evidence-message class="mt-1 text-sm leading-6 text-muted-foreground">{initial.evidence.message}</p>
+        <dl data-document-metadata data-present={String(metadata !== null)} data-coverage={metadata?.coverage} hidden={metadata === null} class="document-facts mt-4 grid gap-4 sm:grid-cols-2">
+          <div><dt>Fecha declarada del corte</dt><dd><time data-document-time="observed" datetime={metadata?.observedAt}>{metadata?.observedAtLabel ?? ''}</time></dd></div>
+          <div><dt>Cobertura de la evidencia</dt><dd data-document-coverage-label>{metadata?.coverageLabel ?? ''}</dd></div>
+        </dl>
+        <p data-document-metadata-empty data-document-time-empty="observed" hidden={metadata !== null} class="mt-3 text-xs leading-5 text-muted-foreground">Fecha del corte: sin dato.</p>
+        <dl data-document-observed data-present={String(observed !== null)} hidden={observed === null} class="document-facts mt-4 border-t border-border pt-4">
+          <div><dt>Documento declarado</dt><dd data-document-observed-label>{observed?.label ?? ''}</dd></div>
+          <div><dt>Observación del documento a</dt><dd><time data-document-time="document-as-of" datetime={observed?.asOf}>{observed?.asOfLabel ?? ''}</time></dd></div>
+        </dl>
+      </div>
+
+      <div data-document-comparisons data-present={String(initial.comparisons !== null)} hidden={initial.comparisons === null} class="mt-5 space-y-4">
+        {fields.map(({ key, title }) => {
+          const field = initial.comparisons?.[key] ?? null;
+          return <article data-document-field={key} data-outcome={field?.outcome} data-reason={field?.reason ?? undefined} class="document-comparison">
+            <h3 class="text-sm font-semibold">{title}</h3>
+            <p data-document-field-label class="mt-2 text-sm font-semibold leading-6">{field?.label ?? ''}</p>
+            <p data-document-field-reason hidden={field?.reasonLabel == null} class="mt-1 text-xs leading-5 text-muted-foreground">{field?.reasonLabel ?? ''}</p>
+            <dl class="document-facts mt-3 grid gap-4 sm:grid-cols-2">
+              <div><dt>Referencia aportada</dt><dd><span data-document-field-value="expected" data-present={String(field?.expectedValue != null)}>{field?.expectedValue ?? ''}</span><span data-document-field-empty="expected" hidden={field?.expectedValue != null} class="document-placeholder">No aportado</span></dd></div>
+              <div><dt>Documento del ejemplo</dt><dd><span data-document-field-value="observed" data-present={String(field?.observedValue != null)}>{field?.observedValue ?? ''}</span><span data-document-field-empty="observed" hidden={field?.observedValue != null} class="document-placeholder">No aportado</span></dd></div>
+            </dl>
+          </article>;
+        })}
+
+        <article data-document-amount-comparison data-outcome={amount?.outcome} data-reason={amount?.reason ?? undefined} data-position={amount?.position ?? undefined} class="document-comparison">
+          <h3 class="text-sm font-semibold">Importe comercial</h3>
+          <p data-document-amount-label class="mt-2 text-sm font-semibold leading-6">{amount?.label ?? ''}</p>
+          <p data-document-amount-reason hidden={amount?.reasonLabel == null} class="mt-1 text-sm leading-6 text-muted-foreground">{amount?.reasonLabel ?? ''}</p>
+          <p data-document-amount-time-row hidden={amount?.asOf == null} class="mt-3 text-xs leading-5 text-muted-foreground">Importe de la evidencia a <time data-document-time="amount-as-of" datetime={amount?.asOf ?? undefined} class="font-semibold text-foreground">{amount?.asOfLabel ?? ''}</time></p>
+          <dl class="document-facts mt-4 grid gap-4 sm:grid-cols-2">
+            {moneyRows.map(({ key, label, money }) => <div class={key === 'delta' ? 'border-t border-border pt-4 sm:col-span-2' : ''}><dt>{label}</dt><dd><span data-document-amount={key} data-cents={money?.amountCents} class="document-money">{money?.formatted ?? ''}</span><span data-document-amount-empty={key} hidden={money !== null} class="document-placeholder">Sin comparación</span></dd></div>)}
+          </dl>
+        </article>
+        <p class="text-xs leading-5 text-muted-foreground">Una coincidencia describe este campo del ejemplo. No acredita autenticidad, deuda ni pago.</p>
+      </div>
+      <p data-document-comparisons-empty data-document-no-comparisons hidden={initial.comparisons !== null} class="mt-5 rounded-xl border border-border px-4 py-3 text-sm leading-6 text-muted-foreground">Sin comparación documental para esta evaluación. Los datos de la referencia aportada se conservan.</p>
+    </section>
+  </div>
+</div>
+
+<style is:global>
+  .company-document-demo .document-panel { min-width: 0; border: 1px solid var(--color-border); border-radius: var(--radius-card); background: var(--color-card); padding: 1.25rem; overflow-wrap: anywhere; }
+  .company-document-demo .document-step { display: flex; flex-shrink: 0; width: 2rem; height: 2rem; align-items: center; justify-content: center; border-radius: 100%; background: var(--color-foreground); color: var(--color-background); font-size: .875rem; font-weight: 600; }
+  .company-document-demo .document-label { display: block; min-width: 0; font-size: .875rem; line-height: 1.5rem; font-weight: 600; }
+  .company-document-demo .document-input { display: block; width: 100%; min-width: 0; min-height: 3rem; margin-top: .5rem; border: 1px solid var(--color-input); border-radius: var(--radius-btn); background: var(--color-background); padding: .625rem .75rem; color: var(--color-foreground); font-size: 1rem; line-height: 1.5rem; font-weight: 400; }
+  .company-document-demo .document-input:disabled { opacity: 1; cursor: default; }
+  .company-document-demo .document-button { min-height: 3rem; border-radius: var(--radius-btn); padding: .75rem 1rem; font-size: .875rem; line-height: 1.5rem; font-weight: 600; cursor: pointer; }
+  .company-document-demo .document-button:hover:not(:disabled) { box-shadow: 0 0 0 1px var(--color-foreground); }
+  .company-document-demo .document-button:disabled { background: var(--color-muted); color: var(--color-foreground); opacity: 1; cursor: not-allowed; }
+  .company-document-demo .document-summary { border: 1px solid var(--color-border); border-radius: .75rem; background: var(--color-muted); padding: 1rem; }
+  .company-document-demo .document-comparison { min-width: 0; border: 1px solid var(--color-border); border-radius: .75rem; padding: 1rem; }
+  .company-document-demo .document-facts > div + div { margin-top: 1rem; }
+  .company-document-demo .document-facts.grid > div + div { margin-top: 0; }
+  .company-document-demo .document-facts dt { font-size: .75rem; line-height: 1.25rem; color: var(--color-muted-foreground); }
+  .company-document-demo .document-facts dd { margin-top: .25rem; font-size: .875rem; line-height: 1.5rem; font-weight: 600; }
+  .company-document-demo .document-money { font-size: 1.375rem; line-height: 2rem; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .company-document-demo .document-placeholder { font-size: .875rem; line-height: 1.5rem; color: var(--color-muted-foreground); font-weight: 400; }
+  .company-document-demo [hidden] { display: none !important; }
+  .company-document-demo :is(button, select):focus-visible { outline: 2px solid var(--color-foreground); outline-offset: 3px; }
+  @media (min-width: 640px) { .company-document-demo .document-panel { padding: 1.5rem; } }
+</style>
+
+<script>
+  import {
+    configureCompanyDocumentDemo, createCompanyDocumentDemo, getCompanyDocumentDemoView,
+    type CompanyDocumentDemoMoney,
+  } from '../../composition/company-document-demo';
+
+  const root = document.querySelector<HTMLElement>('[data-company-document-demo]');
+  if (root) {
+    const find = (selector: string): HTMLElement => root.querySelector<HTMLElement>(selector)!;
+    const findSelect = (selector: string) => {
+      const element = root.querySelector(selector);
+      if (!(element instanceof HTMLSelectElement)) throw new Error('Falta un selector del ejemplo.');
+      return element;
+    };
+    const scenario = findSelect('[data-document-scenario]');
+    const evaluation = findSelect('[data-document-evaluation]');
+    const reset = root.querySelector('[data-document-action="reset"]');
+    if (!(reset instanceof HTMLButtonElement)) throw new Error('Falta el control de reinicio del ejemplo.');
+    const setAttribute = (element: HTMLElement, name: string, value: string | number | null) => {
+      if (value === null) element.removeAttribute(name);
+      else element.setAttribute(name, String(value));
+    };
+    const setMoney = (key: string, money: CompanyDocumentDemoMoney | null) => {
+      const element = find(`[data-document-amount="${key}"]`);
+      setAttribute(element, 'data-cents', money?.amountCents ?? null);
+      element.textContent = money?.formatted ?? '';
+      const placeholder = root.querySelector<HTMLElement>(`[data-document-amount-empty="${key}"]`);
+      if (placeholder) placeholder.hidden = money !== null;
+    };
+    const setTime = (key: string, value: string | null, label: string | null) => {
+      const element = find(`[data-document-time="${key}"]`);
+      setAttribute(element, 'datetime', value);
+      element.textContent = label ?? '';
+    };
+    let state = createCompanyDocumentDemo();
+
+    const render = () => {
+      const view = getCompanyDocumentDemoView(state);
+      scenario.value = view.selection.scenarioId;
+      evaluation.value = view.selection.evaluationId;
+      find('[data-document-scenario-description]').textContent = view.scenarioDescription;
+      find('[data-document-buyer-label]').textContent = view.reference.buyerCompanyLabel;
+      find('[data-document-offer-label]').textContent = view.reference.offerLabel;
+      find('[data-document-po-label]').textContent = view.reference.purchaseOrderLabel;
+      const po = find('[data-document-reference-po]');
+      po.dataset.present = String(view.reference.purchaseOrderNumber !== null);
+      po.textContent = view.reference.purchaseOrderNumber ?? '';
+      find('[data-document-reference-po-empty]').hidden = view.reference.purchaseOrderNumber !== null;
+      const support = find('[data-document-support]');
+      support.dataset.status = view.reference.supportStatus;
+      support.textContent = view.reference.supportLabel;
+      setMoney('reference', view.reference.declaredAmount);
+      setTime('evaluation', view.evaluatedAt, view.evaluatedAtLabel);
+
+      const evidence = find('[data-document-evidence]');
+      evidence.dataset.outcome = view.evidence.outcome;
+      setAttribute(evidence, 'data-reason', view.evidence.reason);
+      find('[data-document-evidence-label]').textContent = view.evidence.label;
+      find('[data-document-evidence-message]').textContent = view.evidence.message;
+      const metadata = view.evidence.metadata;
+      const metadataBlock = find('[data-document-metadata]');
+      metadataBlock.dataset.present = String(metadata !== null);
+      metadataBlock.hidden = metadata === null;
+      setAttribute(metadataBlock, 'data-coverage', metadata?.coverage ?? null);
+      setTime('observed', metadata?.observedAt ?? null, metadata?.observedAtLabel ?? null);
+      find('[data-document-coverage-label]').textContent = metadata?.coverageLabel ?? '';
+      find('[data-document-metadata-empty]').hidden = metadata !== null;
+      const observed = view.evidence.document;
+      const documentBlock = find('[data-document-observed]');
+      documentBlock.dataset.present = String(observed !== null);
+      documentBlock.hidden = observed === null;
+      find('[data-document-observed-label]').textContent = observed?.label ?? '';
+      setTime('document-as-of', observed?.asOf ?? null, observed?.asOfLabel ?? null);
+
+      const comparisons = find('[data-document-comparisons]');
+      comparisons.dataset.present = String(view.comparisons !== null);
+      comparisons.hidden = view.comparisons === null;
+      find('[data-document-comparisons-empty]').hidden = view.comparisons !== null;
+      for (const key of ['company', 'purchaseOrder'] as const) {
+        const field = view.comparisons?.[key] ?? null;
+        const block = find(`[data-document-field="${key}"]`);
+        setAttribute(block, 'data-outcome', field?.outcome ?? null);
+        setAttribute(block, 'data-reason', field?.reason ?? null);
+        block.querySelector<HTMLElement>('[data-document-field-label]')!.textContent = field?.label ?? '';
+        const reason = block.querySelector<HTMLElement>('[data-document-field-reason]')!;
+        reason.textContent = field?.reasonLabel ?? '';
+        reason.hidden = field?.reasonLabel == null;
+        for (const side of ['expected', 'observed'] as const) {
+          const value = (side === 'expected' ? field?.expectedValue : field?.observedValue) ?? null;
+          const element = block.querySelector<HTMLElement>(`[data-document-field-value="${side}"]`)!;
+          element.dataset.present = String(value !== null);
+          element.textContent = value ?? '';
+          block.querySelector<HTMLElement>(`[data-document-field-empty="${side}"]`)!.hidden = value !== null;
+        }
+      }
+      const amount = view.comparisons?.amount ?? null;
+      const amountBlock = find('[data-document-amount-comparison]');
+      setAttribute(amountBlock, 'data-outcome', amount?.outcome ?? null);
+      setAttribute(amountBlock, 'data-reason', amount?.reason ?? null);
+      setAttribute(amountBlock, 'data-position', amount?.position ?? null);
+      find('[data-document-amount-label]').textContent = amount?.label ?? '';
+      const amountReason = find('[data-document-amount-reason]');
+      amountReason.textContent = amount?.reasonLabel ?? '';
+      amountReason.hidden = amount?.reasonLabel == null;
+      setMoney('expected', amount?.expected ?? null);
+      setMoney('observed', amount?.observed ?? null);
+      setMoney('delta', amount?.delta ?? null);
+      setTime('amount-as-of', amount?.asOf ?? null, amount?.asOfLabel ?? null);
+      find('[data-document-amount-time-row]').hidden = amount?.asOf == null;
+      find('[data-document-feedback]').textContent = view.feedback.message;
+    };
+
+    scenario.addEventListener('change', () => { state = configureCompanyDocumentDemo(state, { scenarioId: scenario.value }); render(); });
+    evaluation.addEventListener('change', () => { state = configureCompanyDocumentDemo(state, { evaluationId: evaluation.value }); render(); });
+    reset.addEventListener('click', () => { state = createCompanyDocumentDemo(); render(); });
+    render();
+    scenario.disabled = false;
+    evaluation.disabled = false;
+    reset.disabled = false;
+    root.dataset.ready = 'true';
+  }
+</script>

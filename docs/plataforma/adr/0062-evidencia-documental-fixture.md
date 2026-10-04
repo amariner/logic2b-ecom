@@ -1,6 +1,6 @@
 # ADR-0062 — Evidencia documental comercial con adaptador fixture
 
-- Estado: accepted; R6.7b implementado y verificado localmente; integración pendiente, sin despliegue.
+- Estado: accepted; R6.7b implementado y verificado localmente; integrado en PR #43 (`feff0a27`), sin despliegue.
 - Fecha: 2026-10-04.
 - Dominio: `src/modules/companies/domain/company-document-evidence.ts`.
 - Puerto: `src/modules/companies/application/company-document-adapter.ts`.
@@ -205,7 +205,7 @@ Comparación estática final frente a R6.7a/PR #42: siete grafos completos,
 últimos suman 395.809 B/128.833 gzip. Worker +61 B por companies 1.10.0 y enlace
 ADR0062; metadata generada separada, sin equivalencia SSR completa. No hubo
 nueva ejecución HTTP/navegador/DB.
-**Implementado y verificado localmente; integración pendiente, sin despliegue.**
+**Implementado y verificado localmente; integrado en PR #43 (`feff0a27`), sin despliegue.**
 [Informe final R6.7b](../../audits/r6-7b/verification-report.json).
 El Worker contiene 281 archivos: 279 iguales tras mapear 24 nombres generados;
 registro y manifest restantes explicados estáticamente, sin afirmar equivalencia
@@ -216,9 +216,121 @@ cubre contrato y comparación estática; navegador 9.068 comprobaciones,
 a11y 8/PNG 8, E2E 196 y hash de 143 tablas/353 filas siguen siendo evidencia histórica
 de PR #41, sin nuevas ejecuciones runtime en b.
 
-R6.7c tiene plan visual exacto aceptado: `/demo/admin/documentos-empresa`,
+R6.7c está implementada y verificada localmente: `/demo/admin/documentos-empresa`,
 18 casos y tres evaluaciones explícitas, dos selectores y reset, ocho capturas
-previstas. Implementación y QA pendientes tras integrar b. No se recibe PO real, PII, archivo
+revisadas. Integración pendiente, sin despliegue. No se recibe PO real, PII, archivo
 o formulario con envío. Pedido operativo por PO, facturación externa registrada,
 ERP, fiscalidad certificada y conciliación/cobro reales siguen fuera de este
 corte. B2B-007/R6.7 permanecen parciales; B2B-010 no se declara resuelto.
+
+## R6.7c — Demo verificada localmente
+
+**R6.7c — Demo «Referencias y documentos» está implementada y verificada localmente**, rama
+`codex/company-document-demo`, según el [ADR-0062](0062-evidencia-documental-fixture.md).
+Ruta `/demo/admin/documentos-empresa`, Clientes después de Ofertas y presupuesto.
+Dieciocho ejemplos cerrados y tres evaluaciones UTC explícitas; dos selectores
+independientes y reset, sin inputs libres, formularios o archivos. Cambiar
+momento conserva la misma evidencia; recarga restaura el ejemplo inicial.
+
+La referencia aportada y el documento observado se comparan por campo, sin
+éxito global. Empresa observada significa compradora; soporte PO y referencia
+documental son distintos. Importe observado, diferencia y fecha monetaria solo
+se proyectan cuando el contrato los considera comparables; cifras ajenas no
+llegan a View/DOM. Metadatos futuros/incompletos no son documento utilizable;
+cero explícito se distingue de desconocido. Sin factura, pago o autoridad.
+
+R6.7b está integrado en PR #43 (`feff0a27`), sin despliegue. B2B-007 sigue parcial
+instalada/inactiva. Check global final del 2026-10-04 verde: 1.005 archivos sin
+diagnósticos, 268 suites/3.969 pruebas; build a las 05:21:46 UTC con 44 HTML,
+44 formularios locales y cero cron. Modelo: 71 focales, seis de arquitectura y
+ocho de autenticación; los dos archivos del autor sin diagnósticos TypeScript.
+Revisión independiente: 7.132 aserciones del oráculo y 589 de delegación,
+contadas por separado, sin P1/P2, efectos, getters o reloj implícito. Bundle
+diagnóstico del modelo: 49.778 B/11.697 gzip; no es el cliente emitido.
+Cliente real: cuatro archivos, 60.721 B/17.405 gzip, entrada 36.029 B/8.813 gzip;
+sin imports externos. Sonda sin raíz: una consulta DOM, 2.098 fechas explícitas
+y cero efectos, separada de la interacción real. Guía aparte: 15.219 B/6.325 gzip,
+único incremento +19 B/+4 gzip por allowlist de la ruta.
+Navegador: 5.076 comprobaciones y 108 visitas (54 a 1440 y 54 a 375), cero
+efectos del módulo, errores, overflow o fallos de hit-test; guía contabilizada
+aparte. Ocho superficies a11y sin errores/avisos y ocho capturas definitivas
+revisadas por frontend, cuatro contrastadas por raíz, sin hallazgos.
+E2E nuevo 200/200, Worker y Chrome cerrados. Base QA sin cambios: 143 tablas,
+353 filas y SHA-256 `9cbfc811cfc4296515a403d395875a43bfa26aff0c9c9b08be0804b15bbf6eca`
+idéntico en las capturas frescas de 05:13:54 y 05:24:45 UTC; sin nueva preparación,
+siembra o migración. **Verificada localmente, disponible en repo, integración
+pendiente y sin despliegue.** [Informe final R6.7c](../../audits/r6-7c/verification-report.json). Tras c,
+el siguiente bloque canónico es R6.8, pedido rápido/repetición por SKU, CSV,
+listas y pedido anterior. Dirección aceptada para a: lista/identidad sin dinero
+sobre un único snapshot completo con SKUs; contrato exacto pendiente de revisión
+y aceptación, sin implementación anticipada.
+
+La vista conserva la referencia de compra aportada, su soporte declarado o
+no aportado y la oferta histórica de 77,00 EUR. En otra zona muestra la fecha de
+evaluación, los metadatos legítimos del corte y, cuando es observable, el documento
+del ejemplo y las comparaciones de empresa compradora, número PO e importe.
+Los encabezados de campos son «Referencia aportada» y «Documento del ejemplo»;
+los de dinero distinguen total comercial de oferta e importe comercial de evidencia.
+
+Casos cerrados: coincidencia, importe menor/mayor/cero, PO ausente, soporte PO
+ausente, empresa compradora ausente/distinta, PO observada ausente/distinta,
+importe comercial ausente, respuesta ausente, caso no configurado, indisponible,
+no soportado, futuro, incompleto y documento no aportado. Son 18 ejemplos de
+consulta/evidencia sintéticas, no estados de un pedido o factura.
+
+Las evaluaciones son el 3 de octubre de 2026 a las 14:00, 14:15 y 14:30 UTC.
+El corte normal es de las 14:00 y el futuro de las 14:15: este último es desconocido
+antes de su fecha y observable en igualdad o después, sin cambiar su `asOf`.
+Todas las opciones de momento están habilitadas; no hay cronología de acciones.
+
+El modelo usa la factory y el evaluador reales de b; no copia sus comparaciones
+en una tabla de presentación. Mantiene solo selección cerrada y feedback, sin
+respuesta, importe o diagnóstico externo arbitrario. Los cinco documentos con
+importe privado 8.888 céntimos y atribución bloqueada sirven para verificar que
+esa cifra nunca pasa al DTO/DOM. El esperado de oferta permanece conocido; cero
+observado comparable se representa como cero real, no ausencia.
+
+La proyección omite consulta, declaración, binding, adaptador, tokens, IDs de
+empresa/contacto/documento, hashes y JSON técnico. Documento observado muestra
+solo etiqueta humana y fecha, nunca cifra monetaria bruta. `unknown` global
+vacía documento/comparaciones; importe desconocido vacía cifra observada, delta
+y fecha monetaria. El corte puede conservar fecha/cobertura como metadatos sin
+presentarse como documento utilizable. No se confunde ocultar una cifra del DTO
+con una promesa de secreto sobre los fixtures sintéticos del bundle.
+
+Dos selects nativos persistentes y reset, SSR inicial legible con controles
+deshabilitados sin JavaScript, gate AND de manifest demo y DEMO_MODE=true,
+noindex/private. La recarga restaura selección inicial; no storage, red, timers,
+beacons o formularios. Los casos y la evaluación se conservan mutuamente al
+cambiar un selector; no hay creación o actualización de evidencia.
+
+La QA de navegador ejecutó 54 combinaciones por tamaño (108 visitas a 1440/375),
+además de recorridos de limpieza, frontera temporal, teclado/reset/sin JS.
+Las 5.076 comprobaciones no detectaron efectos del módulo, errores, overflow o
+fallos de hit-test; la guía se contó por separado. Las ocho capturas definitivas
+y superficies a11y cubren coincidencia, importe menor, empresa compradora ajena
+y corte futuro a ambos tamaños. Frontend revisó las ocho imágenes y raíz cuatro;
+sin hallazgos visuales ni errores/avisos a11y. E2E nuevo 200/200 y hash final
+de 143 tablas/353 filas idéntico al corte previo de esta ejecución; Worker y
+Chrome cerrados, sin preparación, siembra o migración adicional.
+
+El cliente real de la demo ocupa cuatro archivos/60.721 B/17.405 gzip. La sonda
+sin raíz observa una consulta DOM y 2.098 construcciones Date explícitas sin
+efectos ni imports externos; no sustituye la interacción de navegador. La guía
+se mide aparte (15.219 B/6.325 gzip), con delta +19 B/+4 gzip explicado únicamente
+por la allowlist de ruta. El cliente previo de Ofertas y presupuesto extrae un
+chunk compartido: +145 B y comparación estructural validada, sin afirmar que sus
+bytes sean idénticos. El cierre estático confirma cinco grafos de negocio
+previos idénticos y 19 CSS emitidos iguales; el nuevo componente añade sus
+estilos inline. Los 62 JavaScript públicos suman 432.002 B/138.864 gzip;
+58 archivos públicos permanecen idénticos. La comparación de Worker y fuentes
+es acotada y no acredita equivalencia SSR transitiva completa. La interacción
+de demos previas sigue siendo evidencia heredada; la nueva QA cubre Documentos
+de empresa y el E2E general de este corte.
+
+Después corresponde R6.8, pedido rápido/repetición por SKU, CSV, listas y pedido
+anterior. Se acepta como dirección para a la lista/identidad sin dinero sobre
+un único snapshot completo con SKUs. El contrato exacto requiere revisión y
+aceptación; antes de b se decidirá la separación CSV/histórico frente a la
+composición. Ninguna fuente o registro nuevos se inicia con este corte ni se
+convierten observaciones documentales en permiso de compra.

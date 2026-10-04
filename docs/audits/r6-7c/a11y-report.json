@@ -1,0 +1,42 @@
+[
+  {
+    "surface": "company-document:same",
+    "url": "/demo/admin/documentos-empresa",
+    "findings": []
+  },
+  {
+    "surface": "company-document:lower",
+    "url": "/demo/admin/documentos-empresa",
+    "findings": []
+  },
+  {
+    "surface": "company-document:company-different",
+    "url": "/demo/admin/documentos-empresa",
+    "findings": []
+  },
+  {
+    "surface": "company-document:future",
+    "url": "/demo/admin/documentos-empresa",
+    "findings": []
+  },
+  {
+    "surface": "company-document:same@375",
+    "url": "/demo/admin/documentos-empresa",
+    "findings": []
+  },
+  {
+    "surface": "company-document:lower@375",
+    "url": "/demo/admin/documentos-empresa",
+    "findings": []
+  },
+  {
+    "surface": "company-document:company-different@375",
+    "url": "/demo/admin/documentos-empresa",
+    "findings": []
+  },
+  {
+    "surface": "company-document:future@375",
+    "url": "/demo/admin/documentos-empresa",
+    "findings": []
+  }
+]
