@@ -66,6 +66,12 @@ describe('frontera HTTP passwordless', () => {
     expect(options).not.toHaveProperty('domain');
   });
 
+  it.each(['*', 'Origin, cookie'])('conserva Vary %s sin estrecharlo ni duplicar Cookie', vary => {
+    const headers = customerAccountHeaders({ vary });
+    expect(headers.get('vary')).toBe(vary);
+    expect(headers.get('cache-control')).toBe('private, no-store, max-age=0');
+  });
+
   it('aplica CSP cerrada y cabeceras privadas a toda respuesta de cuenta', async () => {
     const headers = customerAccountHeaders({ vary: 'Accept-Encoding' });
     expect(headers.get('content-security-policy')).toBe(CUSTOMER_ACCOUNT_CONTENT_SECURITY_POLICY);
@@ -74,6 +80,7 @@ describe('frontera HTTP passwordless', () => {
     expect(headers.get('cache-control')).toBe('private, no-store, max-age=0');
     expect(headers.get('referrer-policy')).toBe('no-referrer');
     expect(headers.get('x-content-type-options')).toBe('nosniff');
+    expect(headers.get('x-robots-tag')).toBe('noindex, nofollow, noarchive');
     expect(headers.get('vary')).toBe('Accept-Encoding, Cookie');
 
     const response = withCustomerAccountHeaders(new Response('genérico', {

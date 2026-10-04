@@ -66,10 +66,9 @@ const PUBLIC_API_RULES: Record<string, RateLimitRule> = {
 };
 const CUSTOMER_ACCOUNT_ROUTE_PATHS = new Set<string>(Object.values(CUSTOMER_ACCOUNT_ROUTES));
 
-export const onRequest = defineMiddleware(async (context, next) => {
+const routeRequest = defineMiddleware(async (context, next) => {
   const { search } = context.url;
   const pathname = canonicalRoutePathname(context.url.pathname);
-  const adminSurface = pathname.startsWith('/api/admin') || pathname.startsWith('/demo/admin');
   const customerAccountSurface = CUSTOMER_ACCOUNT_ROUTE_PATHS.has(pathname);
   const customerOrderSurface = isCustomerOrderAccessPath(pathname);
   const customerAddressSurface = isCustomerAddressPath(pathname);
@@ -80,14 +79,6 @@ export const onRequest = defineMiddleware(async (context, next) => {
     pathname.startsWith(CUSTOMER_ADDRESS_API_PREFIX);
   const customerReturnApiSurface = pathname === CUSTOMER_RETURN_API_PATH ||
     pathname.startsWith(CUSTOMER_RETURN_API_PREFIX);
-  const privateResponse = async (): Promise<Response> => {
-    const response = await next();
-    const headers = new Headers(response.headers);
-    headers.set('cache-control', 'private, no-store, max-age=0');
-    headers.set('vary', 'Cookie');
-    return new Response(response.body, { status: response.status, statusText: response.statusText, headers });
-  };
-
   const routeAccess = decideRouteAccess(runtimePlatform, pathname);
   if (routeAccess && !routeAccess.allowed) {
     if ((customerOrderApiSurface || customerAddressApiSurface || customerReturnApiSurface) && routeAccess.status === 404) {
@@ -273,15 +264,15 @@ export const onRequest = defineMiddleware(async (context, next) => {
     }
   }
 
-  if (!needsAuth(pathname)) return adminSurface ? privateResponse() : next();
+  if (!needsAuth(pathname)) return next();
 
   // En una tienda real (DEMO_MODE off) el guardián es Cloudflare Access
   // (docs/PRODUCCION.md §5); la cookie de login es la capa didáctica de la demo.
-  if (context.locals.runtime.env.DEMO_MODE !== 'true') return privateResponse();
+  if (context.locals.runtime.env.DEMO_MODE !== 'true') return next();
 
   const secret = resolveCookieSecret(context.locals.runtime.env);
   const token = context.cookies.get(ADMIN_COOKIE_NAME)?.value;
-  if (secret && token && (await verifySessionToken(secret, token))) return privateResponse();
+  if (secret && token && (await verifySessionToken(secret, token))) return next();
 
   if (pathname.startsWith('/api/')) {
     return Response.json(
@@ -290,4 +281,29 @@ export const onRequest = defineMiddleware(async (context, next) => {
     );
   }
   return context.redirect(`/demo/admin/login?next=${encodeURIComponent(pathname + search)}`, 302);
+});
+
+/** La política de privacidad también cubre denegaciones y redirecciones tempranas. */
+function withAdminPrivateHeaders(response: Response): Response {
+  const headers = new Headers(response.headers);
+  headers.set('cache-control', 'private, no-store, max-age=0');
+  headers.set('x-robots-tag', 'noindex, nofollow, noarchive');
+  const vary = (headers.get('vary') ?? '').split(',').map(value => value.trim()).filter(Boolean);
+  if (!vary.includes('*') && !vary.some(value => value.toLowerCase() === 'cookie')) vary.push('Cookie');
+  headers.set('vary', vary.join(', '));
+  return new Response(response.body, { status: response.status, statusText: response.statusText, headers });
+}
+
+export const onRequest = defineMiddleware(async (context, next) => {
+  const pathname = canonicalRoutePathname(context.url.pathname);
+  const response = await routeRequest(context, next);
+  if (!(response instanceof Response)) throw new TypeError('El middleware de rutas debe devolver una respuesta.');
+  if (pathname.startsWith('/api/admin') || pathname.startsWith('/demo/admin')) {
+    return withAdminPrivateHeaders(response);
+  }
+  if (pathname === '/cuenta' || pathname.startsWith('/cuenta/') ||
+      pathname === '/api/customer' || pathname.startsWith('/api/customer/')) {
+    return withCustomerAccountHeaders(response);
+  }
+  return response;
 });

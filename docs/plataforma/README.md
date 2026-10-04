@@ -31,10 +31,41 @@ Una quinta clasificación, **fuera de alcance deliberado**, evita confundir
 paridad comercial con fabricar bancos, redes publicitarias, hardware de punto de
 venta o servicios logísticos propios.
 
+## Consolidación local verificada
+
+**R5.12 realizada y verificada localmente con fixtures**, rama
+`codex/r5-fixture-consolidation`, integración pendiente y sin despliegue.
+La [consolidación de R5 con fixtures](R5_CONSOLIDACION_FIXTURES.md) reúne
+nueve pruebas entre contratos ES/FR, la matriz de capacidades instaladas e
+inactivas y el refuerzo de cabeceras de privacidad en las respuestas tempranas
+302 de administración y 404 de cuenta. Check técnico completo verde: 939
+archivos sin diagnósticos, 243 suites/2.935 pruebas, 44 HTML/44 formularios y
+cero crons. Nuevas focales: nueve entre contratos, siete de capacidades y 32
+de cabeceras privadas; las de cabeceras passwordless suman ahora siete.
+La revisión independiente cubre 1.114 aserciones y 127 casos sin P1/P2 ni
+accesos a getters de entorno, cuerpos, cookies o waitUntil en los casos protegidos.
+
+La auditoría HTTP de privacidad y SEO completa 4.554 comprobaciones sobre
+163 solicitudes estrictamente GET/HEAD y 40 URLs de sitemap del build final.
+El E2E global propio pasa 172/172 con salida 0, separado del auditor: comprueba
+comandos rechazados solo en QA aislada y sintética. La base conserva 143 tablas
+y 353 filas, con hash idéntico antes/después:
+`9cbfc811cfc4296515a403d395875a43bfa26aff0c9c9b08be0804b15bbf6eca`.
+Worker de QA cerrado. [Informe final](../audits/r5-12/verification-report.json).
+Navegador 2.030/2.030, ocho superficies a11y y ocho capturas son evidencia
+heredada de PR #25; no son nuevas ejecuciones de R5.12.
+
+Sin nuevas interfaces, DDL, activación, formularios enviados ni escrituras de
+base de datos desde las demos. El alcance no convierte R5 en operación real
+ni completa los gates G3/G4. La evidencia de R5.11c que sigue pertenece a ese
+corte anterior.
+
 ## Última demo verificada
 
 **R5.11c implementada y verificada localmente, disponible en el repositorio**,
-rama `codex/currency-methods-demo`, sin despliegue y con integración pendiente.
+rama `codex/currency-methods-demo`, integrada en
+[PR #25](https://github.com/amariner/logic2b-ecom/pull/25), commit `46dbe905`,
+sin despliegue.
 `/demo/admin/divisas` reúne mercados, divisas y métodos fixture.
 El diseño aprobado usa mercados ES/FR/JP/KW, importes nominales cerrados y
 destinos EUR/JPY/KWD, con evidencia FX vigente, caducada o indisponible;
@@ -221,10 +252,9 @@ navegador 188/188, ocho superficies a11y y hash de 143 tablas/353 filas
 son evidencia heredada de R5.9b, integrada en PR #20 (`7a0926e`), no nuevas
 ejecuciones de R5.10a ni de R5.10b.
 
-## Siguientes fases
+## Alcance consolidado de R5.12
 
-Tras integrar R5.11c sigue **R5.12: consolidación local de contratos y demos
-con fixtures**. Matriz trazable de capacidades y evidencias, compatibilidad
+**R5.12: consolidación local de contratos y demos con fixtures**. Matriz trazable de capacidades y evidencias, compatibilidad
 ES/FR entre catálogos/idiomas/publicación/moneda original/FX/impuestos/métodos,
 y casos negativos sin convertir el preview en autorización de compra.
 Privacidad y cuenta opcional se contrastan con fixtures y guardas, manteniendo
@@ -233,11 +263,26 @@ escriben datos desde las demos. Revisión de noindex/sitemap, PII, seguridad,
 navegación/a11y, efectos y hash QA de superficies servidas cuando corresponda;
 las pruebas heredadas conservan su procedencia.
 
-El cierre será del alcance con fixtures, sin reclamar E2E operativo. R5
+El cierre se limita al alcance con fixtures, sin reclamar E2E operativo. R5
 conserva pendientes de cobro, reembolso, conciliación, decisiones fiscales y
 de proveedor, cuentas/privacidad reales y activación por proyecto. Esos
 pendientes no exigen DDL, proveedor o nuevas rutas para ensayar la
 consolidación local ni se dan por resueltos por mostrar una demo.
+
+**Siguiente aprobado: R6.1a, contrato puro fixture de `companies` para
+B2B-001**, todavía sin implementar. Directorio versionado de empresas, sedes,
+contactos, roles descriptivos y asignaciones con referencias de pertenencia.
+La selección valida el snapshot completo; estados activo/inactivo y roles
+no conceden permisos. Referencias externas a perfil o hash de email de 64
+caracteres son metadatos, sin email en claro ni autenticación.
+
+VAT es opcional y declarativo. La composición `company-vat-context`, mediante
+`evaluateCompanyVatEvidence`, exigirá que el ID de consulta sea `company.id`
+y que país/VAT coincidan. Una declaración idéntica puede reutilizar evidencia
+vigente tras una nueva versión editorial; eso no convierte el snapshot en
+credencial o autorización. Sin DDL, CRM, autenticación, cobro ni crédito.
+B2B-001 quedará instalada/inactiva, sin rutas ni jobs, al implementarse;
+B2B-009 permanece pendiente. Después seguirá una demo fixture de dos empresas.
 
 ## Demo verificada
 

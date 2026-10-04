@@ -113,7 +113,7 @@ function appendVaryCookie(headers: Headers): void {
     .split(',')
     .map((value) => value.trim())
     .filter(Boolean);
-  if (!values.some((value) => value.toLowerCase() === 'cookie')) values.push('Cookie');
+  if (!values.includes('*') && !values.some((value) => value.toLowerCase() === 'cookie')) values.push('Cookie');
   headers.set('vary', values.join(', '));
 }
 
@@ -123,6 +123,7 @@ export function customerAccountHeaders(initial?: HeadersInit): Headers {
   headers.set('content-security-policy', CUSTOMER_ACCOUNT_CONTENT_SECURITY_POLICY);
   headers.set('referrer-policy', 'no-referrer');
   headers.set('x-content-type-options', 'nosniff');
+  headers.set('x-robots-tag', 'noindex, nofollow, noarchive');
   appendVaryCookie(headers);
   return headers;
 }
