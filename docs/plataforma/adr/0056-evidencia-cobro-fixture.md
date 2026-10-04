@@ -1,11 +1,11 @@
 # ADR-0056 — Evidencia de importes aplicados y revertidos con fixtures
 
-- Estado: accepted; R6.4b implementado y verificado localmente. Integración pendiente; sin activación ni despliegue.
+- Estado: accepted; R6.4b implementado, verificado localmente e integrado en PR #34 (`2d72d2f0`). R6.4c implementada y verificada localmente, con integración pendiente; sin activación ni despliegue.
 - Fecha: 2026-10-04
 - Propietario: módulo `companies`, versión 1.4.0.
 - Capacidad: B2B-003, parcial e instalada/inactiva en avanzado/demo, dependencia única B2B-001; ausente en mínimo/estándar.
 - Dependencia de módulo: `platform-configuration`; sin nuevas capacidades, flags o superficies operativas.
-- Siguiente: R6.4c, demo conjunta de calendario y evidencia, con diseño aceptado y pendiente de implementación.
+- Demo: R6.4c, calendario y evidencia, verificada localmente y disponible en el repositorio; integración pendiente, sin despliegue.
 
 ## Contexto
 
@@ -231,7 +231,7 @@ desconocido, no una excepción.
 
 ## Estado y verificación
 
-**Implementado y verificado localmente; integración pendiente, sin despliegue.**
+**Implementado y verificado localmente; integrado en PR #34 (`2d72d2f0`), sin despliegue.**
 [Verificación final R6.4b](../../audits/r6-4b/verification-report.json), 2026-10-04: `pnpm check` pasa
 973 archivos sin diagnósticos, 257 suites/3.510 pruebas, 44 HTML,
 44 formularios locales y cero crons. Focales: 37 de dominio, seis de arquitectura
@@ -261,10 +261,10 @@ Los grafos conservan Cantidades (53.687 B/17.349 B gzip), Catálogo de empresa
 es un grafo transitivo completo de SSR; estas comprobaciones no se presentan
 como resultados nuevos de cabeceras HTTP, interacción o DB.
 
-## Siguiente corte: R6.4c
+## R6.4c — Demo verificada localmente
 
-**R6.4c tiene diseño completo aceptado, pendiente de implementación** tras
-integrar b. Ruta `/demo/admin/condiciones-pago`, «Condiciones y cobros de
+**R6.4c está implementada y verificada localmente**, disponible en el
+repositorio, con integración pendiente y sin despliegue. Ruta `/demo/admin/condiciones-pago`, «Condiciones y cobros de
 ejemplo», en Clientes después de Cantidades. Dos selectores cerrados: 12 casos
 y tres instantes de evaluación, con dos diagnósticos separados de calendario
 e importes observados. Estado inicial: aplicación parcial y evaluación en el
@@ -272,21 +272,61 @@ día del vencimiento. Cambiar caso conserva evaluación; cambiar evaluación
 conserva obligación/evidencia del caso. Reset/recarga al inicio, sin edición,
 buffers, reloj o acciones financieras.
 
-Casos previstos: parcial, ausente, incompleto, futuro, aplicado cero, inmediato
+Casos incluidos: parcial, ausente, incompleto, futuro, aplicado cero, inmediato
 con igualdad, exceso, reversión parcial/total, declarado cero, sin condición
 y empresa inactiva. Los importes muestran su observación `asOf`; unknown
 elimina importes/atributos derivados y no inventa ceros. Igualdad numérica
 no se etiqueta como pago ni calendario como impago. Calendario sin condición
 conserva derivados nulos aunque haya evidencia observada.
 
-La demo consumirá los contratos públicos, con SSR inicial completo, controles
+La demo consume los contratos públicos, con SSR inicial completo, controles
 inertes sin JavaScript y gate manifest demo AND `DEMO_MODE=true`; privada/noindex,
-solo memoria y sin I/O. Cobertura prevista: 36 estados por tamaño, 72 visitas
+solo memoria y sin I/O. Verificados 36 estados por tamaño, 72 visitas en
 1.440/375 px, ocho capturas y ocho superficies a11y (parcial/en vencimiento,
-sin evidencia/después, exceso y sin condición). Son casos de diseño, no QA
-ejecutada. La operación real permanece fuera de este corte.
+sin evidencia/después, exceso y sin condición). La operación real permanece
+fuera de este corte.
 
 B2B-003 y R6.4 permanecen parciales. No se acreditan deuda legal/fiscal,
 autenticidad bancaria, liquidación, conciliación, movimiento de dinero,
 autorización, reembolso, crédito, intereses o envío de recordatorios.
 La operación real y sus fuentes de autoridad conservan un alcance separado.
+
+### Verificación de R6.4c
+
+**Implementada y verificada localmente, disponible en el repositorio.**
+Integración pendiente, sin despliegue. B2B-003 permanece parcial e instalada/inactiva.
+[Verificación final R6.4c](../../audits/r6-4c/verification-report.json), 2026-10-04: `pnpm check` pasa
+977 archivos sin diagnósticos, 258 suites/3.560 pruebas, 50 del modelo y seis
+de arquitectura; build de 44 HTML/44 formularios locales, sin envíos, beacons
+o crons. Revisión independiente: 23.857 comprobaciones, 36 estados y 540
+transiciones, sin P1/P2, efectos, getters o reloj implícito. Matriz: 28 estados
+con observación y ocho desconocidos, 33 calendarios configurados y tres sin
+condición; los importes no se convierten en indicadores de autorización.
+
+QA nueva: navegador 2.660 comprobaciones/72 visitas, ocho superficies a11y sin
+hallazgos y ocho PNG revisadas por frontend; root contrastó cuatro. E2E nuevo
+188/188 y Worker cerrado. La base QA conserva 143 tablas/353 filas con SHA-256
+antes/después idéntico:
+`9cbfc811cfc4296515a403d395875a43bfa26aff0c9c9b08be0804b15bbf6eca`.
+Estas ejecuciones corresponden a c; los checks de a/b y la interacción de
+PR #32 conservan sus cortes históricos.
+
+Cliente real: tres archivos, 31.812 B/9.612 B gzip, sin imports externos;
+arranque sin raíz con una consulta DOM, 82 fechas explícitas y cero efectos.
+Es una sonda diferente de la interacción de navegador. El diagnóstico del
+modelo ocupa 26.964 B/7.341 B gzip, cuatro fuentes puras. La guía, medida por
+separado, ocupa 15.171 B/6.309 B gzip; el incremento de 17 B/9 B gzip se limita
+a añadir `condiciones-pago` a la lista de rutas permitidas. Su sonda sin raíz
+no atribuye ausencia de efectos a las interacciones propias de la guía.
+
+## Continuidad: R6.5a
+
+**R6.5a — Límites de crédito declarados con fixtures** es el siguiente corte,
+con diseño exacto por fijar y sin implementación. La dirección es separar
+política por empresa/comprador, solicitud explícita y evidencia declarada de
+exposición; no convertir diagnóstico de límites en autorización de compra.
+No se reutilizan saldo regalo, `differenceCents` de R6.4 o roles descriptivos
+como crédito o permiso. Esquema, límites técnicos, cobertura y temporalidad
+requieren diseño y revisión propios antes de implementar; criterios y límites
+comerciales reales permanecen fuera del ensayo. El workflow de aprobación
+humana y su demostración se definirán en subcortes posteriores.
