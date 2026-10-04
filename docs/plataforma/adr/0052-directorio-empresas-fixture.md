@@ -333,4 +333,4 @@ inactiva pertenece al nuevo preview.
 
 B2B-002 permanece parcial e instalada/inactiva, sin autorización real, DDL,
 activación, stock, impuestos o cambios de checkout. R6.2b añade la demo
-verificada localmente y disponible en repo; integración pendiente, sin despliegue.
+verificada localmente y disponible en repo, integrada en PR #30 (`6305b823`), sin despliegue.

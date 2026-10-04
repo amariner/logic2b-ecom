@@ -1,0 +1,213 @@
+{
+  "schemaVersion": 1,
+  "verifiedAt": "2026-10-04",
+  "environment": "local-fixture-contracts",
+  "deployment": "not-deployed",
+  "verification": {
+    "typecheckFiles": 965,
+    "diagnostics": 0,
+    "suites": 254,
+    "tests": 3376,
+    "domainTests": 57,
+    "compositionTests": 55,
+    "architectureTests": 6,
+    "registryManifestAccessTests": 117,
+    "buildHtmlPages": 44,
+    "buildLocalForms": 44,
+    "cronCount": 0
+  },
+  "independentReview": {
+    "assertions": 78223,
+    "policies": 3234,
+    "feasiblePolicies": 1738,
+    "quantities": 12372,
+    "visibilityIntersections": 900,
+    "effects": 0,
+    "getters": 0,
+    "implicitClockReads": 0,
+    "openP1OrP2": 0,
+    "oracle": "policy feasibility enumerated independently without reusing gcd or LCM",
+    "diagnosticBundles": {
+      "quantityPublicApi": {
+        "bytes": 7728,
+        "pureSources": 2,
+        "note": "includes 718 bytes of preexisting pure company-directory constants via barrel"
+      },
+      "companyQuantityContext": {
+        "bytes": 35934,
+        "pureSources": 7
+      },
+      "externalImports": 0
+    }
+  },
+  "builtClientComparison": {
+    "baselinePullRequest": "https://github.com/amariner/logic2b-ecom/pull/30",
+    "unchangedEntryNames": true,
+    "unchangedFileGraphs": true,
+    "unchangedSha256": true,
+    "unchangedBytesAndGzip": true,
+    "graphs": [
+      {
+        "component": "CompanyCatalogDemo",
+        "entry": "dist/_astro/CompanyCatalogDemo.astro_astro_type_script_index_0_lang.Ca5BI841.js",
+        "files": [
+          {
+            "path": "dist/_astro/market-context.BB9rBc3-.js",
+            "bytes": 6195,
+            "gzipBytes": 2224,
+            "sha256": "e9f6978ce356057950570598212faa771894f245a5fe4c5e15ca30f688c6b823"
+          },
+          {
+            "path": "dist/_astro/market-publication.CYs3338V.js",
+            "bytes": 10085,
+            "gzipBytes": 3494,
+            "sha256": "20974f81ba3097f921841e1af24e063e11a0bc9cc02f7e75fb1cbc3a1db14d9d"
+          },
+          {
+            "path": "dist/_astro/company-directory.mOflI4d5.js",
+            "bytes": 6414,
+            "gzipBytes": 2302,
+            "sha256": "6c076800192741992b5cbfba6ce07a999d13e3499cd256b306e82dbfc49fc9bd"
+          },
+          {
+            "path": "dist/_astro/format.D6ggcjlO.js",
+            "bytes": 164,
+            "gzipBytes": 151,
+            "sha256": "7c7167f2030d738e58323bccda5878464f25a2138c4b1ddade0b4774694ba021"
+          },
+          {
+            "path": "dist/_astro/CompanyCatalogDemo.astro_astro_type_script_index_0_lang.Ca5BI841.js",
+            "bytes": 37386,
+            "gzipBytes": 10361,
+            "sha256": "054674d830c1e997a2c2ccf798c5573d7b0d58549ab58d3c5eff4074eb4a27a2"
+          }
+        ],
+        "totalBytes": 60244,
+        "totalGzipBytes": 18532,
+        "externalImports": []
+      },
+      {
+        "component": "CompanyDirectoryDemo",
+        "entry": "dist/_astro/CompanyDirectoryDemo.astro_astro_type_script_index_0_lang.tUOZl7at.js",
+        "files": [
+          {
+            "path": "dist/_astro/company-directory.mOflI4d5.js",
+            "bytes": 6414,
+            "gzipBytes": 2302,
+            "sha256": "6c076800192741992b5cbfba6ce07a999d13e3499cd256b306e82dbfc49fc9bd"
+          },
+          {
+            "path": "dist/_astro/fixture-vat-id-adapter.Ow_zwmVh.js",
+            "bytes": 5749,
+            "gzipBytes": 2053,
+            "sha256": "d50f2b3b0d0dc87d3823c767a4bbfe5f40697e7aa86111a570a2d462f181a60c"
+          },
+          {
+            "path": "dist/_astro/CompanyDirectoryDemo.astro_astro_type_script_index_0_lang.tUOZl7at.js",
+            "bytes": 14693,
+            "gzipBytes": 4463,
+            "sha256": "697b4f962e9c7f4673dd4c1818accad6117deadeb0e2d90f91d0ec89b5812dec"
+          }
+        ],
+        "totalBytes": 26856,
+        "totalGzipBytes": 8818,
+        "externalImports": []
+      },
+      {
+        "component": "DemoAssistant",
+        "entry": "dist/_astro/DemoAssistant.astro_astro_type_script_index_0_lang.DrLAblic.js",
+        "files": [
+          {
+            "path": "dist/_astro/cart-client.ItD9TTkL.js",
+            "bytes": 1059,
+            "gzipBytes": 590,
+            "sha256": "34a807152cbfd940499a32c312851384b3cbaaaddc743e8b7aa9630558d52915"
+          },
+          {
+            "path": "dist/_astro/demo-commerce.Dnz6Qizq.js",
+            "bytes": 1048,
+            "gzipBytes": 584,
+            "sha256": "9a4b4e081ba480085aabae88a68b88996dff6a85e06ecd14d32715f8754c487b"
+          },
+          {
+            "path": "dist/_astro/DemoAssistant.astro_astro_type_script_index_0_lang.DrLAblic.js",
+            "bytes": 13036,
+            "gzipBytes": 5123,
+            "sha256": "853251bc8b98bfee0b1c3336024a10258565f7e1cc4b537a5419fb0e9b110119"
+          }
+        ],
+        "totalBytes": 15143,
+        "totalGzipBytes": 6297,
+        "externalImports": []
+      }
+    ],
+    "scope": "fresh comparison of actual emitted client files; no new browser interaction run",
+    "gzipMeasurement": "sum of each emitted file compressed independently within each entry graph"
+  },
+  "inheritedQa": {
+    "source": "../r6-2b/verification-report.json",
+    "pullRequest": "https://github.com/amariner/logic2b-ecom/pull/30",
+    "newExecution": false,
+    "e2eChecks": 180,
+    "browserChecks": 3614,
+    "a11ySurfaces": 8,
+    "a11yErrors": 0,
+    "a11yWarnings": 0,
+    "screenshotsReviewed": 8,
+    "database": {
+      "tables": 143,
+      "rows": 353,
+      "hashBefore": "9cbfc811cfc4296515a403d395875a43bfa26aff0c9c9b08be0804b15bbf6eca",
+      "hashAfter": "9cbfc811cfc4296515a403d395875a43bfa26aff0c9c9b08be0804b15bbf6eca",
+      "unchanged": true
+    },
+    "note": "Inherited local synthetic QA evidence, not a new measurement for this pure contract cut."
+  },
+  "scope": {
+    "capability": "B2B-005",
+    "owner": "companies",
+    "ownerVersion": "1.2.0",
+    "capabilityDependencies": [
+      "B2B-002"
+    ],
+    "moduleDependencies": [
+      "platform-configuration"
+    ],
+    "advancedAndDemo": "installed/inactive",
+    "minimalAndStandard": "absent",
+    "operationalSurfaces": [],
+    "policy": "global per variant, fixed unit or box, inclusive minimum and maximum, absolute multiple in canonical units",
+    "request": "one explicit variant per product with exact catalogRef and policyRef",
+    "arithmetic": "BigInt conversion and independent LCM feasibility; no rounding, clamping or automatic adjustment",
+    "zero": "retained as canonical 0/below_minimum when rule exists; unconfigured/null when rule absent",
+    "unconfigured": "blocked; order unit, box factor and canonical quantity null",
+    "overflow": "contract error even for hidden variants or inactive companies",
+    "composition": "single validated company catalog projected internally to neutral identity snapshot; quantity and visibility diagnoses remain separate",
+    "prices": false,
+    "totals": false,
+    "stock": false,
+    "pricingBindingLookup": false,
+    "purchasingAuthorization": false,
+    "existingRuntimeQuantityLimits": "1..99 unchanged",
+    "newMigrations": 0,
+    "newRoutes": 0,
+    "newJobs": 0,
+    "newProviders": 0,
+    "newForms": 0,
+    "newUi": false,
+    "visualDemo": "R6.3b pending"
+  },
+  "evidence": {
+    "fullcheck": "local run: /tmp/ecom-variant-quantity-check.log",
+    "domainTests": "tests/variant-quantity-domain.test.ts",
+    "compositionTests": "tests/company-quantity-context.test.ts",
+    "adr": "../../plataforma/adr/0054-reglas-cantidad-fixture.md"
+  },
+  "limitations": [
+    "Quantity satisfaction and visibility are descriptive; they do not authorize purchasing or establish price, stock, taxes or payment availability.",
+    "Declared references are metadata, not signatures or hashes; reusing id/version for changed policy content is not detected.",
+    "Operational checkout integration remains pending and existing quantity 1..99 behavior is unchanged.",
+    "Browser, E2E, accessibility, screenshots and database hash above are explicitly inherited from PR30.",
+    "Local contract verification does not establish remote deployment."
+  ]
+}

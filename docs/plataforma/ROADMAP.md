@@ -45,7 +45,7 @@ improvisan durante la implementación.
 | R3 | Operación de pedidos, inventario y fulfillment | ✅ cerrado 2026-08-14 |
 | R4 | Precios, promociones y modelos de venta | ✅ cerrado 2026-08-17 |
 | R5 | Clientes, privacidad y mercados | 🟨 consolidación fixture R5.12 cerrada localmente, integrada en PR #26 (`9dd23909`); operación real y G3/G4 pendientes; demo R5.11c integrada en PR #25 (`46dbe905`) |
-| R6 | B2B | 🟡 R6.1a integrado en PR #27 (`9b78e69a`) y demo R6.1b en PR #28 (`861b34ff`); R6.2a integrado en PR #29 (`4d7a30a9`), 3.210 pruebas; demo R6.2b verificada localmente, disponible en repo y preparada para integración. Sin operación B2B activada ni despliegue |
+| R6 | B2B | 🟡 R6.1a integrado en PR #27 (`9b78e69a`) y demo R6.1b en PR #28 (`861b34ff`); R6.2a integrado en PR #29 (`4d7a30a9`), 3.210 pruebas; demo R6.2b integrada en PR #30 (`6305b823`); R6.3a cantidades fixture verificado localmente con 3.376 pruebas e integración pendiente; R6.3b visual posterior. Sin operación B2B activada ni despliegue |
 | R7 | Marketing, analítica y automatización | ⬜ |
 | R8 | Storefront componible, búsqueda y contenido | ⬜ |
 | R9 | Integraciones y omnicanalidad | ⬜ |
@@ -388,8 +388,8 @@ installed, sin flags activas, secretos ni proveedor real.
 | Orden | Bloque de una sesión | Entregables y criterio específico | Estado |
 |---:|---|---|---|
 | 63 | **R6.1 Empresas, sedes y contactos** | Modelo, roles y VAT ID. | ✅ Alcance fixture local: R6.1a integrado en PR #27 (`9b78e69a`); R6.1b verificado, disponible en repo e integrado en PR #28 (`861b34ff`). Demo /demo/admin/empresas, 948 archivos sin diagnósticos, 246 suites/3.077 pruebas, navegador 601, E2E nuevo 176, ocho superficies a11y sin hallazgos y base QA intacta. B2B-001 parcial instalada/inactiva; sin autorización operativa, DDL, CRM, proveedor o despliegue |
-| 64 | **R6.2 Catálogos y listas B2B** | Publicación/precio por empresa con fallback. | 🟡 R6.2a verificado localmente, [ADR-0053](adr/0053-catalogos-empresa-fixture.md), 957 archivos/251 suites/3.210 pruebas y revisión 12.478 sin P1/P2; integrado en PR #29 (`4d7a30a9`): política global empresa/producto intersectada con publicación; empresa inactiva cierra preview comercial. Una variante elegida por producto, base propia EUR y override por producto; binding explícito, ausencia da precio nulo, sin totales. Referencias completas y validación de todos los datos. B2B-002 parcial instalada/inactiva, sin autorización real; demo R6.2b /demo/admin/catalogos-empresa verificada localmente (961 archivos/252 suites/3.259 pruebas), navegador 3.614, E2E180, a11y8 sin hallazgos, ocho capturas aprobadas y base QA intacta; disponible en repo e integración pendiente |
-| 65 | **R6.3 Reglas de cantidad** | Mínimos, múltiplos y cajas desde catálogo a checkout. | ⬜ R6.3a siguiente diseño aprobado fixture: política global por variante, min/max inclusivos, múltiplo absoluto, unidad/caja explícita y factibilidad mediante LCM/BigInt; composición aditiva con visibilidad, sin overrides empresa ni cambio de límites1–99 runtime. B2B-005 pendiente; diseño de esquema/API cerrado, sin implementación ni integración runtime |
+| 64 | **R6.2 Catálogos y listas B2B** | Publicación/precio por empresa con fallback. | 🟡 R6.2a verificado localmente, [ADR-0053](adr/0053-catalogos-empresa-fixture.md), 957 archivos/251 suites/3.210 pruebas y revisión 12.478 sin P1/P2; integrado en PR #29 (`4d7a30a9`): política global empresa/producto intersectada con publicación; empresa inactiva cierra preview comercial. Una variante elegida por producto, base propia EUR y override por producto; binding explícito, ausencia da precio nulo, sin totales. Referencias completas y validación de todos los datos. B2B-002 parcial instalada/inactiva, sin autorización real; demo R6.2b /demo/admin/catalogos-empresa verificada localmente (961 archivos/252 suites/3.259 pruebas), navegador 3.614, E2E180, a11y8 sin hallazgos, ocho capturas aprobadas y base QA intacta; disponible en repo e integrada en PR #30 (`6305b823`) |
+| 65 | **R6.3 Reglas de cantidad** | Mínimos, múltiplos y cajas desde catálogo a checkout. | 🟡 R6.3a verificado localmente, [ADR-0054](adr/0054-reglas-cantidad-fixture.md), 965 archivos/254 suites/3.376 pruebas y oráculo 78.223 sin P1/P2; integración pendiente: política global por variante, min/max inclusivos, múltiplo absoluto, unidad/caja explícita y factibilidad mediante LCM/BigInt; composición aditiva con visibilidad, sin overrides empresa ni cambio de límites 1–99 runtime. B2B-005 parcial instalada/inactiva en avanzado/demo. Sin integración runtime; R6.3b visual aprobada, pendiente de implementación |
 | 66 | **R6.4 Condiciones de pago** | Neto N, vencimiento, recordatorios y estado. | ⬜ |
 | 67 | **R6.5 Crédito y aprobaciones** | Límites por empresa/comprador y workflow humano. | ⬜ |
 | 68 | **R6.6 Presupuesto/pedido preliminar** | Solicitud, negociación versionada y conversión a pedido. | ⬜ |
@@ -1928,7 +1928,7 @@ tamaños. Ocho capturas finales cubren estado inicial, intersección sin variant
 comunes, binding ausente y empresa inactiva. Interacción en memoria, reset y
 recarga; sin permisos reales, DDL, persistencia del módulo, cron, formularios
 o cobros. B2B-002 permanece parcial e instalada/inactiva y B2B-009 pendiente.
-Integración pendiente, sin despliegue.
+Integrada en PR #30 (`6305b823`), sin despliegue.
 
 [Verificación final R6.2b](../audits/r6-2b/verification-report.json), 2026-10-04:
 `pnpm check` pasa 961 archivos sin diagnósticos, 252 suites/3.259 pruebas,
@@ -1959,12 +1959,31 @@ almacenamiento, timers, beacons, ventanas ni errores JavaScript. Las ocho
 escrituras adicionales de la guía en `sessionStorage` se contabilizan aparte
 de las tres de preparación y dos de recarga del recorrido compartido.
 
-### Siguiente tras R6.2b: R6.3a — Reglas de cantidad con fixtures
+### Cerrado localmente: R6.3a — Reglas de cantidad con fixtures
 
-El siguiente diseño aprobado y cerrado es **R6.3a: reglas de cantidad con
-fixtures**, todavía sin implementar. B2B-005 permanece pendiente; el corte
-prevé `companies` 1.2.0, dependencia de capacidad B2B-002 e instalación inactiva
-en avanzado/demo, sin superficies operativas.
+[ADR-0054](adr/0054-reglas-cantidad-fixture.md).
+
+[Verificación final R6.3a](../audits/r6-3a/verification-report.json), 2026-10-04:
+`pnpm check` pasa 965 archivos sin diagnósticos, 254 suites/3.376 pruebas,
+44 HTML, 44 formularios locales y cero crons. Focales propias: 57 de dominio
+y 55 de composición, 112 en total; seis de arquitectura y 117 de
+registry/manifest/acceso (19/68/30). Oráculo independiente: 78.223
+comprobaciones, 3.234 políticas, 1.738 factibles, 12.372 cantidades y 900
+intersecciones, sin P1/P2, getters, efectos o reloj implícito.
+
+La revisión del build confirma que los grafos, nombres, SHA, bytes y gzip de
+Catálogo por empresa, Empresas y guía son idénticos a PR #30; el nuevo contrato
+no entra en esas interfaces. Corte puro, sin nuevas ejecuciones de Worker,
+HTTP, navegador, a11y o base QA. E2E 180/180, navegador 3.614/64 visitas, ocho
+superficies a11y sin hallazgos, ocho capturas y base QA de 143 tablas/353 filas se
+heredan de R6.2b/PR #30. Su hash es
+`9cbfc811cfc4296515a403d395875a43bfa26aff0c9c9b08be0804b15bbf6eca`;
+no es una nueva medición de este contrato. Integración pendiente, sin despliegue.
+
+**R6.3a: reglas de cantidad con fixtures** está implementado y verificado
+localmente, con integración pendiente y sin despliegue. B2B-005 es parcial e
+instalada/inactiva en avanzado/demo; `companies` 1.2.0, dependencia de capacidad
+B2B-002 y sin superficies operativas.
 
 Política global por variante, sin overrides de empresa. La regla fija
 `orderUnit: 'unit' | 'box'`: factor uno para unidad y al menos dos para caja.
@@ -1972,8 +1991,10 @@ Mínimo/máximo inclusivos y múltiplo absoluto desde cero se expresan en unidad
 canónicas. La petición declara `requestedCount`, una variante explícita por
 producto y referencias exactas `policyRef: { id, version }` y
 `catalogRef: { ref, capturedAt }`; no puede elegir otra unidad ni reinterpretar
-la regla de una versión diferente. Cero conserva cantidad cero y diagnostica
-`below_minimum`, sin eliminar la línea; `-0` se rechaza.
+la regla de una versión diferente. Con regla configurada, cero conserva
+cantidad cero y diagnostica `below_minimum`, sin eliminar la línea; `-0` se
+rechaza. Sin regla conserva `unconfigured` y cantidad/factor/unidad nulos,
+incluso cuando `requestedCount` es cero.
 
 El cálculo usa `BigInt` para conversión y factibilidad: el primer múltiplo del
 mínimo común múltiplo de `multipleUnits` y `unitsPerBox` dentro del rango debe
@@ -1988,8 +2009,29 @@ sin recuperar exclusiones; cantidad satisfecha y variante visible siguen
 siendo diagnósticos, no permiso de compra. No consulta bindings de precio ni
 devuelve snapshot monetario, precios, stock, descuentos, totales o
 `purchasable`. Los límites operativos 1–99 de quote/pricing se conservan.
-Sin DDL, rutas, cron o escritura durable; R6.3b visual seguirá al contrato puro.
-La integración real con checkout permanece fuera de este siguiente corte.
+Sin DDL, rutas, cron o escritura durable; R6.3b tiene diseño visual aprobado,
+con implementación y QA propias pendientes. La integración real con checkout permanece
+fuera de este corte.
+
+### Siguiente: R6.3b — Demo de mínimos, múltiplos y cajas
+
+El siguiente corte aprobado es **R6.3b**, demo inerte en
+`/demo/admin/cantidades`, «Mínimos, múltiplos y cajas», dentro de Clientes,
+después de Catálogo por empresa. Una empresa activa y canal `professional`
+fijos, mercados ES/FR y una única línea de variante seleccionada. Cada variante
+conserva su contador en memoria: 11 empieza en 8, 12 en 2 y 21 en 1.
+
+Variante 11: unidades, factor uno, mínimo 5, máximo 17 y múltiplo 4. Variante
+12: cajas de seis, mínimo 6, máximo 18 y múltiplo 4. Variante 21: sin regla,
+con unidad/factor/cantidad canónica nulos incluso al solicitar cero. ES muestra
+las tres; FR oculta la 11. Cantidad conforme y visibilidad se explicarán por
+separado, sin precios, stock, totales, autorización o ajustes automáticos.
+
+Diseño aprobado, implementación y QA pendientes. Se prevén 36 estados por
+tamaño: contadores 0, 2, 4, 5, 8, 12, 16, 17, 19 y 20 para unidades; 0–4 para
+cajas; 0–2 sin regla, en ES/FR. Ocho capturas previstas: unidad conforme, una
+caja que incumple el múltiplo, ausencia de regla y ocho unidades ocultas, en
+1.440/375 px. Son casos planificados, no evidencia visual producida.
 
 Push/merge siguen autorizados después de checks. La demo pública y landing
 quedan solo con fixtures; crons vacíos y guardas ante triggers antiguos. G3/G4,

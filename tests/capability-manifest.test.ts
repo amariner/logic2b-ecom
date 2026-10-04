@@ -8,12 +8,15 @@ import {
 } from '../src/modules/customers';
 import {
   CAPABILITY_DEFINITIONS,
+  CAPABILITY_FLAG_NAMES,
   CAPABILITY_IDS,
   CAPABILITY_PRESETS,
   CAPABILITY_STATES,
   CONFIGURED_CAPABILITY_IDS,
   CapabilityManifestError,
+  adminNavigationFor,
   createPresetManifest,
+  decideCapabilityAccess,
   resolveCapabilityManifest,
   validateCapabilityManifest,
   type CapabilityConfigById,
@@ -411,6 +414,67 @@ describe('capability manifest (R1.2)', () => {
     expect(isolated.scheduledJobs('*/5 * * * *')).toEqual([]);
     input.capabilities['B2B-001'] = { state: 'installed' };
     expect(validateCapabilityManifest(input).ok).toBe(false);
+  });
+
+  it.each([
+    ['minimal', 'absent'], ['standard', 'absent'], ['advanced', 'installed'], ['demo', 'installed'],
+  ] as const)('keeps variant quantities %s without operational flags or surfaces', (profile, state) => {
+    if (profile === 'minimal' || profile === 'standard') {
+      expect('B2B-005' in CAPABILITY_PRESETS[profile]).toBe(false);
+    }
+    if (profile === 'advanced') expect(CAPABILITY_PRESETS.advanced['B2B-005']).toEqual({ state: 'installed' });
+    const platform = createPlatform(profile === 'demo' ? platformManifest : createPresetManifest(profile, deployment));
+    expect(platform.capabilityState('B2B-005')).toBe(state);
+    expect(platform.isCapabilityActive('B2B-005')).toBe(false);
+    expect(platform.capability('B2B-005').flags).toEqual(INERT_FLAGS);
+    expect(platform.hasModule('companies')).toBe(false);
+    for (const flag of CAPABILITY_FLAG_NAMES) {
+      expect(decideCapabilityAccess(platform, 'B2B-005', flag)).toEqual({
+        allowed: false, capabilityId: 'B2B-005', state, status: 404,
+      });
+    }
+    expect(adminNavigationFor(platform).filter(({ capabilityId }) => capabilityId === 'B2B-005')).toEqual([]);
+    expect(platform.registry.routes.filter(({ capabilityId }) => capabilityId === 'B2B-005')).toEqual([]);
+    expect(platform.jobRegistry.descriptors.filter(({ requiredCapabilityId }) => requiredCapabilityId === 'B2B-005')).toEqual([]);
+  });
+
+  it('requires company catalog quantities without activating market, price or purchase consumers', () => {
+    expect(CAPABILITY_DEFINITIONS['B2B-005'].dependencies).toEqual(['B2B-002']);
+    const input: MutableManifest = {
+      manifestVersion: 1,
+      deployment: { ...deployment, profile: 'custom' },
+      capabilities: {
+        'PLT-001': { state: 'active', flags: INERT_FLAGS },
+        'PLT-004': { state: 'active', flags: INERT_FLAGS, config: { failFast: true } },
+        'B2B-001': { state: 'active', flags: INERT_FLAGS },
+        'B2B-005': { state: 'active', flags: INERT_FLAGS },
+      },
+    };
+    for (const state of ['absent', 'installed', 'disabled', 'retired'] as const) {
+      input.capabilities['B2B-002'] = { state };
+      expect(validateCapabilityManifest(input).issues).toEqual(expect.arrayContaining([
+        expect.objectContaining({ code: 'missing-dependency', path: 'capabilities.B2B-005' }),
+      ]));
+    }
+    input.capabilities['B2B-002'] = { state: 'active', flags: INERT_FLAGS };
+    expect(validateCapabilityManifest(input).ok).toBe(true);
+    const isolated = createPlatform(input as Parameters<typeof createPlatform>[0]);
+    expect(isolated.modules.map(({ descriptor }) => descriptor.id)).toEqual(['platform-configuration', 'companies']);
+    expect(isolated.module('companies')?.activeCapabilities).toEqual(['B2B-001', 'B2B-002', 'B2B-005']);
+    expect(isolated.capability('B2B-005').flags).toEqual(INERT_FLAGS);
+    for (const flag of CAPABILITY_FLAG_NAMES) {
+      expect(decideCapabilityAccess(isolated, 'B2B-005', flag)).toEqual({
+        allowed: false, capabilityId: 'B2B-005', state: 'active', status: 403,
+      });
+    }
+    expect(adminNavigationFor(isolated)).toEqual([]);
+    const crons = new Set(isolated.jobRegistry.descriptors.flatMap(({ trigger }) => trigger.kind === 'recurring' ? trigger.crons : []));
+    for (const cron of crons) expect(isolated.scheduledJobs(cron)).toEqual([]);
+    // El ancestro instalado tampoco satisface la cadena operativa completa.
+    input.capabilities['B2B-001'] = { state: 'installed' };
+    expect(validateCapabilityManifest(input).issues).toEqual(expect.arrayContaining([
+      expect.objectContaining({ code: 'missing-dependency', path: 'capabilities.B2B-002' }),
+    ]));
   });
 
   it('requires markets and variants for publication without coupling market resolution alone to catalog', () => {
