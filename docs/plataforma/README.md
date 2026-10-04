@@ -31,10 +31,42 @@ Una quinta clasificación, **fuera de alcance deliberado**, evita confundir
 paridad comercial con fabricar bancos, redes publicitarias, hardware de punto de
 venta o servicios logísticos propios.
 
+## Último contrato verificado
+
+**R6.1a implementado y verificado localmente**, rama
+`codex/company-fixture-directory`, integración pendiente y sin despliegue.
+El [ADR-0052](adr/0052-directorio-empresas-fixture.md) delimita el directorio
+puro fixture del módulo `companies`: empresas, sedes, contactos, roles
+meramente descriptivos y asignaciones con referencias de pertenencia.
+B2B-001 permanece parcial e instalada/inactiva en avanzado y demo, con dependencia
+única PLT-004. La evidencia VAT se evalúa mediante composición con `taxes`,
+sin convertirlo en dependencia operativa del módulo `companies`.
+B2B-009 permanece pendiente.
+
+Evidencia focal aprobada: 93 pruebas de dominio, 24 de composición VAT,
+seis de arquitectura y 81 de registry/manifest. La revisión independiente
+cubre 11.249 aserciones: 9.700 del directorio sobre 171 selecciones y 1.549 VAT
+sobre 48 escenarios, sin P1/P2, ejecución de getters, efectos ni reloj implícito.
+Bundles diagnósticos minificados: directorio 6.474 B/dos fuentes y composición
+VAT 11.957 B/cuatro fuentes contribuyentes, sin imports externos ni runtime.
+Check final con salida 0: 944 archivos sin diagnósticos, 245 suites/3.054
+pruebas, 44 HTML/44 formularios/cero crons.
+[Informe final](../audits/r6-1a/verification-report.json).
+
+No hay nueva UI. El check de 939 archivos/243 suites/2.935 pruebas y el auditor
+HTTP 4.554/163 GET/HEAD/40 URLs,
+E2E 172/172 y hash QA de 143 tablas/353 filas son evidencia anterior de
+R5.12, integrada en PR #26. Navegador 2.030/2.030, ocho superficies a11y y
+ocho capturas siguen siendo evidencia heredada de PR #25, sin nuevas
+ejecuciones en este corte. El diseño de la demo R6.1b está aprobado, pero
+la UI no está implementada ni disponible.
+
 ## Consolidación local verificada
 
 **R5.12 realizada y verificada localmente con fixtures**, rama
-`codex/r5-fixture-consolidation`, integración pendiente y sin despliegue.
+`codex/r5-fixture-consolidation`, integrada en
+[PR #26](https://github.com/amariner/logic2b-ecom/pull/26), commit `9dd23909`,
+sin despliegue.
 La [consolidación de R5 con fixtures](R5_CONSOLIDACION_FIXTURES.md) reúne
 nueve pruebas entre contratos ES/FR, la matriz de capacidades instaladas e
 inactivas y el refuerzo de cabeceras de privacidad en las respuestas tempranas
@@ -269,20 +301,30 @@ de proveedor, cuentas/privacidad reales y activación por proyecto. Esos
 pendientes no exigen DDL, proveedor o nuevas rutas para ensayar la
 consolidación local ni se dan por resueltos por mostrar una demo.
 
-**Siguiente aprobado: R6.1a, contrato puro fixture de `companies` para
-B2B-001**, todavía sin implementar. Directorio versionado de empresas, sedes,
-contactos, roles descriptivos y asignaciones con referencias de pertenencia.
-La selección valida el snapshot completo; estados activo/inactivo y roles
-no conceden permisos. Referencias externas a perfil o hash de email de 64
-caracteres son metadatos, sin email en claro ni autenticación.
+## Alcance implementado de R6.1a
 
-VAT es opcional y declarativo. La composición `company-vat-context`, mediante
-`evaluateCompanyVatEvidence`, exigirá que el ID de consulta sea `company.id`
-y que país/VAT coincidan. Una declaración idéntica puede reutilizar evidencia
-vigente tras una nueva versión editorial; eso no convierte el snapshot en
-credencial o autorización. Sin DDL, CRM, autenticación, cobro ni crédito.
-B2B-001 quedará instalada/inactiva, sin rutas ni jobs, al implementarse;
-B2B-009 permanece pendiente. Después seguirá una demo fixture de dos empresas.
+El directorio `companies` es versionado y su selección valida el snapshot
+completo. Solo empresas, sedes y contactos tienen estados activo/inactivo;
+las asignaciones y relaciones no tienen estado. Esos estados y los roles
+descriptivos no conceden permisos. `identityRef` admite, de forma excluyente,
+una referencia de perfil, un hash de email de 64 caracteres o null. Son
+metadatos potencialmente seudónimos, no anonimización: pueden repetirse entre
+empresas y no acreditan pertenencia. Sin email en claro, autenticación
+ni derivación de claves para precios.
+
+VAT es opcional y declarativo. La composición con `taxes` correlaciona la
+consulta con la empresa, el país y el VAT declarado; una declaración idéntica
+puede reutilizar evidencia vigente tras una nueva versión editorial. El
+directorio no acredita autorización ni concede exención fiscal. Sin DDL, CRM,
+autenticación, cobro o crédito; B2B-001 permanece instalada/inactiva y sin
+rutas ni jobs. B2B-009 sigue pendiente.
+
+**Siguiente R6.1b, diseño aprobado y UI pendiente**: `/demo/admin/empresas`,
+«Empresas y sedes», dentro del grupo Clientes. Empresa A activa con VAT ficticio
+frente a empresa B inactiva sin VAT; sedes, contactos y roles descriptivos.
+Cinco estados VAT, inicialmente `not_checked`; cambiar de empresa reinicia
+ese estado. Se prevén ocho capturas de QA, todavía sin evidencia visual nueva.
+La demo aún no está implementada ni disponible.
 
 ## Demo verificada
 

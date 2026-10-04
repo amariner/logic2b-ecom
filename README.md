@@ -97,7 +97,7 @@ remoto.
 
 ### Evidencia local actualizada el 2026-10-04
 
-- `pnpm check`: 939 archivos sin diagnósticos, 243 suites y 2.935 tests.
+- `pnpm check`: 944 archivos sin diagnósticos, 245 suites y 3.054 tests.
 - Build demo: 44 documentos HTML y 44 formularios de proyecto locales.
 - D1/workerd: 15 bloques correctos, backup 39 y restauración de 129 tablas;
   [informe de segmentación](docs/audits/r5-6c/facts-d1-report.json).
@@ -147,6 +147,10 @@ remoto.
   cabeceras privadas también en redirecciones y denegaciones. Auditoría local
   de 4.554 comprobaciones GET/HEAD sobre las demos, cuenta cerrada y las 40 URLs
   del sitemap. [Evidencia R5.12](docs/audits/r5-12/README.md).
+- Directorio B2B con fixtures: 93 pruebas de empresas/sedes/contactos/roles,
+  24 de composición VAT y 11.249 comprobaciones independientes. Relaciones
+  explícitas sin permisos, identidad ni exenciones inferidas; B2B-001 instalada
+  e inactiva, demo visual pendiente. [Informe R6.1a](docs/audits/r6-1a/verification-report.json).
 - Base QA: 143 tablas y 353 filas, hash antes/después idéntico:
   `9cbfc811cfc4296515a403d395875a43bfa26aff0c9c9b08be0804b15bbf6eca`.
 

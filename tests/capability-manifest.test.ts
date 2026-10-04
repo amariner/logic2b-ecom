@@ -357,6 +357,30 @@ describe('capability manifest (R1.2)', () => {
     expect(isolated.scheduledJobs('*/5 * * * *')).toEqual([]);
   });
 
+  it('keeps company fixtures inactive and independent of account, tax, pricing and checkout', () => {
+    expect(CAPABILITY_DEFINITIONS['B2B-001'].dependencies).toEqual(['PLT-004']);
+    expect('B2B-001' in CAPABILITY_PRESETS.minimal).toBe(false);
+    expect('B2B-001' in CAPABILITY_PRESETS.standard).toBe(false);
+    expect(CAPABILITY_PRESETS.advanced['B2B-001']).toEqual({ state: 'installed' });
+    const demo = createPlatform(platformManifest);
+    expect(demo.capabilityState('B2B-001')).toBe('installed');
+    expect(demo.hasModule('companies')).toBe(false);
+    expect(demo.capability('B2B-001').flags).toEqual(INERT_FLAGS);
+    const isolated = createPlatform({
+      manifestVersion: 1,
+      deployment: { ...deployment, profile: 'custom' },
+      capabilities: {
+        'PLT-001': { state: 'active', flags: INERT_FLAGS },
+        'PLT-004': { state: 'active', flags: INERT_FLAGS, config: { failFast: true } },
+        'B2B-001': { state: 'active', flags: INERT_FLAGS },
+      },
+    });
+    expect(isolated.hasModule('companies')).toBe(true);
+    for (const module of ['customers', 'taxes', 'pricing', 'checkout', 'payments'] as const) expect(isolated.hasModule(module)).toBe(false);
+    expect(isolated.capability('B2B-001').flags).toEqual(INERT_FLAGS);
+    expect(isolated.scheduledJobs('*/1 * * * *')).toEqual([]);
+  });
+
   it('requires markets and variants for publication without coupling market resolution alone to catalog', () => {
     const input: MutableManifest = {
       manifestVersion: 1,

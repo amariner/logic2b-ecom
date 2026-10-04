@@ -126,6 +126,9 @@ const ADVANCED_CAPABILITIES = {
   // R5.6a instala únicamente el lenguaje calculado y su lifecycle observable.
   // Persistencia, job, rutas y umbrales comerciales pertenecen a gates propios.
   'CUS-009': { state: 'installed' },
+  // R6.1a: directorio sintético con relaciones y roles descriptivos;
+  // no concede cuenta, permisos de compra, crédito ni exención fiscal.
+  'B2B-001': { state: 'installed' },
   // R5.7 declara contexto de mercado sin decidir países, idiomas, divisas
   // comerciales ni conectar el resolver a HTTP o al checkout.
   'MKT-003': { state: 'installed' },
