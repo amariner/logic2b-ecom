@@ -212,14 +212,14 @@ intacto de 143 tablas/353 filas. El [informe R6.8a](../../audits/r6-8a/verificat
 integrado en PR #45, documenta la comparación estática anterior; b ha completado
 la suya sin repetir interacción HTTP/navegador/DB ni afirmar equivalencia SSR global.
 
-R6.8c está implementado y verificado localmente, con integración pendiente y sin
-despliegue, según el [ADR-0065](0065-historico-pedido-rapido-fixture.md): identidad
+R6.8c está implementado y verificado localmente, integrado en PR #47 (`372dd221`)
+y sin despliegue, según el [ADR-0065](0065-historico-pedido-rapido-fixture.md): identidad
 explícita y snapshot íntegro de origen, check de 4.134 pruebas y estática final
 cerrados; QA runtime heredada de PR44. No se reconstruye una compra anterior
-resolviendo un SKU reutilizado ni usando el `OrderReader` sin variante. Tampoco
-se incorpora esa API por adelantado en este ADR. La siguiente demo propuesta cubre SKU, CSV, listas e intención histórica, con
-diseño exacto pendiente. No necesita composición comercial previa de visibilidad
-o cantidades; esa ampliación solo se estudiaría para elegibilidad adicional.
+resolviendo un SKU reutilizado ni usando el `OrderReader` sin variante. La extensión R6.8d del ADR-0065 está verificada localmente: diez ejemplos de SKU,
+CSV, listas e intención histórica, un selector y reset; integración pendiente. No
+necesita composición comercial previa de visibilidad o cantidades; esa ampliación
+solo se estudiaría para elegibilidad adicional.
 
 No hay importación operativa, lista persistida, pedido, precio, stock, permiso,
 pago, DDL o cron. La capacidad permanece parcial e inactiva aunque el texto

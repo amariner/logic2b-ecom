@@ -16,6 +16,58 @@
 > 2. Actualizar el estado de la fase al terminar, con fecha y resumen de lo hecho.
 > 3. Anotar decisiones tomadas y pendientes en las secciones de abajo.
 
+## R6.8d — Demo de listas e identidad, verificada localmente (2026-10-04)
+
+**R6.8d — Demo «Listas y repetición» está implementada y verificada localmente**, rama
+`codex/company-quick-order-demo`, según la extensión del
+[ADR-0065](plataforma/adr/0065-historico-pedido-rapido-fixture.md). Ruta `/demo/admin/listas-sku`, grupo Clientes:
+diez ejemplos cerrados de SKU, lista, texto CSV e intención histórica, un selector
+«Ejemplo» y «Restablecer ejemplo». Dos zonas muestran la entrada y sus resultados
+por fila. Reinicio y recarga restauran el ejemplo inicial; no hay edición libre,
+archivos, formularios, persistencia, red ni reloj implícito.
+
+La composición delega en las APIs reales de a+b+c. Un CSV inválido conserva los
+diagnósticos que devuelve el parser, con lista nula y sin identificar filas por
+separado. El histórico compara la variante aportada y el SKU de origen de forma
+independiente; nunca crea otra lista o completa una identidad ausente. SKU,
+espacios, duplicados y cero se conservan. Los nombres humanos proceden de parejas
+explícitas y la vista omite IDs/referencias técnicos. No se calculan precios,
+stock, visibilidad, cajas, cantidades comerciales o permisos de compra.
+
+R6.8c está integrado en PR #47 (`372dd221`), sin despliegue;
+[informe del contrato](audits/r6-8c/verification-report.json). B2B-008 permanece parcial e instalada/inactiva,
+con dependencia B2B-002. La página de demostración requiere modo demo y
+`DEMO_MODE='true'`; no activa operaciones.
+
+Validación local final del 2026-10-04: `pnpm check` verde, 1.016 archivos sin
+diagnósticos, 272 suites/4.159 pruebas; build de las 06:52:48 UTC, 44 HTML y
+44 formularios locales, sin envíos/beacon/cron. Focales: 25 de modelo, seis de
+arquitectura y ocho de acceso guiado. Revisión independiente: 18.665 aserciones,
+97 de delegación y tres de gate contadas por separado, sin P1/P2. Cliente real:
+un archivo de 39.594 B/10.636 gzip, sin imports externos ni efectos de arranque
+sin raíz; esa sonda se distingue de la interacción del navegador.
+
+Navegador nuevo: 1.994 comprobaciones/20 visitas; veinte superficies a11y sin
+hallazgos y ocho PNG aprobadas por frontend, cuatro contrastadas por raíz.
+E2E nuevo 204/204. Worker y Chrome detenidos. Hash fresco antes de las 06:52:47
+y después de las 06:55:54 UTC idéntico: 143 tablas/353 filas,
+`9cbfc811cfc4296515a403d395875a43bfa26aff0c9c9b08be0804b15bbf6eca`.
+Sin escrituras operativas ni preparación nueva de DB atribuida a la demo.
+
+Siete grafos de negocio anteriores permanecen idénticos a PR #47 y los seis
+archivos de contratos a+b+c, helper, barrel y registro conservan sus fuentes. Guía separada: 15.230 B/6.333 gzip,
+único cambio de allowlist `|listas-sku` (+11 B/+8 gzip). Dieciocho CSS emitidos
+siguen iguales; el global añade ocho utilidades (+430 B) conservando las reglas
+anteriores. Nuevo modelo/página y navegación explican el delta del Worker;
+no se afirma igualdad SSR completa o equivalencia visual de todas las páginas.
+[Informe final R6.8d](audits/r6-8d/verification-report.json).
+
+**Implementada y verificada localmente, disponible en el repositorio; integración
+pendiente.** El despliegue está expresamente autorizado, pero todavía no realizado:
+Cloudflare no está autenticado en este entorno y falta habilitar la credencial
+segura; el usuario está informado. No requiere DDL nueva. **R6.9 queda pospuesto**,
+sin implementación y sin bloquear esta entrega.
+
 ## R6.8c — Intención histórica fixture, verificada localmente (2026-10-04)
 
 **R6.8c — Intención histórica de pedido rápido está implementada y verificada localmente**, rama
@@ -51,15 +103,15 @@ Retención de cliente resuelta, delta público cero. Worker de 282 archivos:
 +63 B/−281 gzip; 280 iguales tras mapear 24 nombres. Solo companies 1.13.0 y
 ADR0065 en runtime-platform, más metadata generada de manifest separada;
 sin equivalencia SSR completa ni nueva QA runtime.
-**Verificado localmente, integración pendiente y sin despliegue.**
+**Verificado localmente e integrado en PR #47 (`372dd221`), sin despliegue.**
 [Informe final R6.8c](audits/r6-8c/verification-report.json). R6.8b integrado en PR #46 (`09161255`), sin despliegue.
 Interacción heredada de PR #44: navegador 5.076/108, ocho a11y/PNG, E2E 200 y
 hash QA 143/353; ninguna ejecución nueva de c.
 
-Siguiente: R6.8d, diseño exacto aceptado de demo inerte «Listas y repetición» en
-/demo/admin/listas-sku. Diez escenarios de SKU, CSV, listas e intención histórica,
-un selector y reset; implementación pendiente de integrar c y capturar baseline.
-A+b+c bastan; no se exige composición comercial ni se habilita operación real.
+R6.8d está verificada localmente según la extensión del ADR-0065: diez escenarios,
+un selector y reset; 4.159 pruebas/E2E 204, integración pendiente. A+b+c bastan,
+sin composición comercial obligatoria ni operación real. Despliegue autorizado,
+pendiente de autenticación de Cloudflare.
 
 ## R6.8b — Entrada CSV fixture, verificada localmente (2026-10-04)
 
@@ -99,10 +151,10 @@ manifest aparte, sin equivalencia SSR completa. No hubo nueva QA runtime.
 R6.8a integrado en PR #45 (`4cfef237`), sin despliegue. Navegador 5.076/108,
 ocho a11y/PNG, E2E 200 y hash QA 143/353 proceden de PR #44, no de una ejecución b.
 
-R6.8c histórico está implementado y verificado localmente:
-identidad explícita y snapshot íntegro de origen, integración pendiente;
-ningún SKU reutilizado restaura una compra anterior. Composición y demo visual
-siguen pendientes de diseño separado, sin operación.
+R6.8c histórico está integrado en PR #47 (`372dd221`): identidad explícita y
+snapshot íntegro de origen, sin restaurar una compra mediante un SKU reutilizado.
+R6.8d está verificada localmente como demo inerte de a+b+c; integración pendiente,
+sin composición comercial obligatoria ni operación real.
 
 ## R6.8a — Lista e identidad de SKU, verificada localmente (2026-10-04)
 
@@ -140,8 +192,9 @@ por registro B2B-008/companies 1.11.0/ADR0063 y metadata generada separada;
 sin despliegue: navegador 5.076/108 visitas, ocho a11y/PNG, E2E 200 y hash de
 143 tablas/353 filas son evidencia heredada, no ejecuciones nuevas de a.
 R6.8b está implementado y verificado localmente como parser CSV puro,
-integrado en PR #46 (`09161255`) y sin despliegue. Histórico, composición y UI irán en cortes
-separados; resolver un SKU reutilizado no reconstruye una compra antigua.
+integrado en PR #46 (`09161255`) y sin despliegue. El histórico R6.8c está
+integrado en PR #47 (`372dd221`) y la demo R6.8d está verificada localmente, pendiente de integración;
+resolver un SKU reutilizado no reconstruye una compra antigua.
 
 ## R6.7c — Demo de referencias y documentos, verificada localmente (2026-10-04)
 
@@ -185,7 +238,8 @@ listas y pedido anterior. R6.8a está implementado y verificado localmente:
 lista/identidad sin dinero sobre un único snapshot completo con SKUs,
 integrado en PR #45 (`4cfef237`) y sin despliegue. R6.8b parser CSV puro tiene
 contrato exacto implementado y verificado localmente, integrado en PR #46
-(`09161255`); R6.8c histórico está verificado localmente, integración pendiente, y composición/UI siguen
+(`09161255`); R6.8c histórico está integrado en PR #47 (`372dd221`) y la demo
+R6.8d está verificada localmente, pendiente de integración. Las operaciones siguen
 pendientes de diseño separado.
 
 ## R6.7b — Evidencia documental comercial, verificada localmente (2026-10-04)
@@ -2434,9 +2488,10 @@ inerte o una intención del roadmap en alcance disponible.
 | R6.7a | Referencia PO declarada con fixtures | 🟡 Verificado localmente, integrado en PR #42 (`1b783473`) — ADR-0061, 995 archivos/265 suites/3.841 pruebas; 26 contrato/seis arquitectura/121 registro y revisión 6.726 sin P1/P2. Siete grafos/358 fuentes/19 CSS/60 JS iguales a PR #41; Worker+296 B explicado. QA runtime heredada PR #41, B2B-007 parcial instalada/inactiva; sin factura, pago, pedido o durabilidad. [Informe](audits/r6-7a/verification-report.json) |
 | R6.7b | Evidencia documental comercial fixture | 🟡 Verificado localmente, integrado en PR #43 (`feff0a27`) — ADR-0062, 1.001 archivos/267 suites/3.898 pruebas; focales 23+26+6/factory 34/registro 121 y revisiones 28.509/6.726/14.534 separadas. Siete grafos/358 fuentes/19 CSS/60 JS iguales a PR #42, Worker +61 B explicado. Runtime heredado PR #41, B2B-007 parcial instalada/inactiva; sin despliegue/factura/pago/conciliación real. [Informe](audits/r6-7b/verification-report.json) |
 | R6.7c | Demo de referencias y documentos | ✅ Verificada localmente, integrada en PR #44 (`6aade364`) — /demo/admin/documentos-empresa, 18 casos/tres evaluaciones explícitas y comparaciones por campo. Check 1.005 archivos/268 suites/3.969 pruebas; revisión 7.132 + 589 separadas sin P1/P2. Navegador 5.076 comprobaciones/108 visitas, ocho a11y sin hallazgos, ocho PNG revisadas y E2E 200/200. Hash fresco de 143 tablas/353 filas idéntico antes/después; Worker y Chrome cerrados. Sin despliegue, factura, pago o conciliación operativa. [Informe](audits/r6-7c/verification-report.json) |
-| R6.8a | Lista estructurada e identidad de SKU | ✅ Verificado localmente, integrado en PR #45 (`4cfef237`) — ADR-0063, contrato exacto aceptado; snapshot único y filas literales conservadas, sin dinero o compra. 63 dominio/seis arquitectura/122 registro y revisión 55.894 verdes; check global 1.007 archivos/269 suites/4.033 pruebas verde; ocho grafos/361 fuentes/19 CSS/62 JS iguales a PR #44 y Worker +294 B explicado. Integrado en PR #45 (`4cfef237`), sin despliegue; QA runtime heredada PR #44. R6.8b parser CSV puro implementado, QA final pendiente; histórico/composición/UI separados. |
+| R6.8a | Lista estructurada e identidad de SKU | ✅ Verificado localmente, integrado en PR #45 (`4cfef237`) — ADR-0063, contrato exacto aceptado; snapshot único y filas literales conservadas, sin dinero o compra. 63 dominio/seis arquitectura/122 registro y revisión 55.894 verdes; check global 1.007 archivos/269 suites/4.033 pruebas verde; ocho grafos/361 fuentes/19 CSS/62 JS iguales a PR #44 y Worker +294 B explicado. Integrado en PR #45 (`4cfef237`), sin despliegue; QA runtime heredada PR #44. |
 | R6.8b | Entrada CSV fixture hacia intención estructurada | ✅ Verificado localmente, integrado en PR #46 (`09161255`) — ADR-0064, contrato exacto aceptado; parser puro todo o nada, sin lookup SKU/archivo real/pedido. 66 CSV/63 regresión/seis arquitectura y registro 122 verdes; global 1.010 archivos/270 suites/4.099 pruebas y revisión independiente verdes; ocho grafos/361 fuentes/19 CSS/62 JS idénticos a PR #45 y Worker +65 B explicado. Integrado en PR #46 (`09161255`), sin despliegue; runtime heredado PR #44. |
-| R6.8c | Intención histórica e identidad/SKU separados | ✅ Verificado localmente, integración pendiente — ADR-0065, contrato exacto aceptado; origen y comparado completos, pareja nullable y relación de IDs declarada. 35 históricas/seis arquitectura/registro 122 verdes; revisión 176.040 + 2.202 + 966 separadas sin P1/P2, global final 1.012 archivos/271 suites/4.134 pruebas verde; inicialización pura corregida, ocho grafos/361 fuentes/19 CSS/62 JS iguales a PR46 y Worker +63 B explicado. Integración pendiente/sin despliegue, runtime heredado PR44. Sin lista nueva, histórico real, precio o compra. |
+| R6.8c | Intención histórica e identidad/SKU separados | ✅ Verificado localmente e integrado en PR #47 (`372dd221`) — ADR-0065, contrato exacto aceptado; origen y comparado completos, pareja nullable y relación de IDs declarada. 35 históricas/seis arquitectura/registro 122 verdes; revisión 176.040 + 2.202 + 966 separadas sin P1/P2, global final 1.012 archivos/271 suites/4.134 pruebas verde; inicialización pura corregida, ocho grafos/361 fuentes/19 CSS/62 JS iguales a PR46 y Worker +63 B explicado. Integrado en PR #47 (`372dd221`), sin despliegue; runtime heredado PR #44. Sin lista nueva, histórico real, precio o compra. |
+| R6.8d | Demo de SKU, CSV, listas e intención histórica | ✅ Verificada localmente — diez ejemplos, un selector y reset en `/demo/admin/listas-sku`; 1.016 archivos/272 suites/4.159 pruebas, navegador 1.994/20, veinte a11y sin hallazgos, ocho PNG, E2E 204 y hash 143/353 intacto. Integración pendiente; despliegue autorizado pendiente de autenticación Cloudflare. B2B-008 parcial/inactiva. |
 | R5.2 | Consentimiento versionado | ✅ 2026-08-17 — ADR-0040, D1 `0037`, repositorio concurrente, backup 31, rehearsal y E2E local; `CUS-007` instalada e inerte |
 | R5.3a | Derechos de datos verificables | ✅ 2026-08-17 — ADR-0041, lifecycle, dry-run, doble control y puertos; `CUS-008` instalada e inerte, sin DDL ni efectos |
 | R5.3b | Persistencia de solicitudes de derechos | ✅ 2026-08-18 — D1 `0038`, repositorio concurrente, backup 32 y rehearsal/restore local; sin PII, rutas ni ejecución |
@@ -3990,22 +4045,19 @@ solo vuelve a `main` o a producción por instrucción expresa.
 
 ## Próxima sesión
 
-R6.8c «Intención histórica fixture» está implementado y verificado localmente en
-`codex/company-quick-order-history-fixtures`, [ADR-0065](plataforma/adr/0065-historico-pedido-rapido-fixture.md).
-Integración pendiente y sin despliegue; B2B-008 parcial instalada/inactiva.
-Origen/comparado completos; pareja histórica y SKU separados, sin lista nueva.
+**R6.8d — Listas y repetición está implementada y verificada localmente**, rama
+`codex/company-quick-order-demo`, [ADR-0065](plataforma/adr/0065-historico-pedido-rapido-fixture.md).
+Diez ejemplos en `/demo/admin/listas-sku`, con APIs reales a+b+c. Global final:
+1.016 archivos sin diagnósticos/272 suites/4.159 pruebas, navegador nuevo
+1.994/20 visitas, veinte a11y sin hallazgos, ocho PNG y E2E 204/204. Hash fresco
+de 143 tablas/353 filas intacto; [informe](audits/r6-8d/verification-report.json).
 
-Check final 1.012 archivos sin diagnósticos/271 suites/4.134 pruebas, build
-06:09:55 UTC; 35 históricas/seis arquitectura y registro 122 verdes. Revisión
-independiente por categorías sin P1/P2; inicialización pura corregida y ocho
-grafos/361 fuentes/19 CSS/62 JS iguales a PR46. Worker +63 B explicado sin
-igualdad SSR global. [Informe](audits/r6-8c/verification-report.json). Runtime heredado PR44:
-navegador 5.076/108, ocho a11y/PNG, E2E 200 y hash 143/353; ninguna ejecución nueva.
-
-Siguiente: **R6.8d**, diseño exacto aceptado de /demo/admin/listas-sku,
-«Listas y repetición»: diez escenarios, un selector y reset sobre a+b+c.
-Implementación/QA pendientes de integrar c y capturar baseline; no necesita
-composición comercial ni permite compra. Sin DB operativa, cron o formularios.
+Prioridad: integrar y entregar el despliegue actual expresamente autorizado.
+Integración pendiente; Cloudflare no está autenticado y falta credencial segura
+(usuario informado), por lo que producción aún no está actualizada. No requiere
+DDL nueva. R6.8c sí está integrado en PR #47 (`372dd221`). Mantener B2B-008 parcial
+e inactiva, sin pedidos reales, formularios enviados, cron ni escrituras operativas.
+**R6.9 está pospuesto**, sin implementación y sin bloquear esta entrega.
 
 ## Histórico de reanudación
 

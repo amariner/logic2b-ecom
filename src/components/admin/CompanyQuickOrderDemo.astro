@@ -1,0 +1,285 @@
+---
+import { createCompanyQuickOrderDemo, getCompanyQuickOrderDemoView } from '../../composition/company-quick-order-demo';
+
+const initial = getCompanyQuickOrderDemoView(createCompanyQuickOrderDemo());
+---
+
+<div data-company-quick-order-demo data-ready="false" data-family={initial.family} class="company-quick-order-demo mt-6 space-y-6 text-foreground">
+  <div class="rounded-2xl border border-border bg-card px-5 py-4">
+    <p class="text-sm font-semibold leading-6">Ejemplos locales de identidad. Las cantidades se conservan por fila; no se comprueban precios, disponibilidad ni condiciones de compra.</p>
+    <p class="mt-1 text-xs leading-5 text-muted-foreground">No se envían ni guardan datos. Al recargar, vuelves al inicio.</p>
+  </div>
+
+  <noscript data-quick-order-nojs><div class="rounded-xl border border-border bg-muted p-4 text-sm leading-6">Puedes leer el ejemplo inicial sin JavaScript. Para elegir otro ejemplo se necesita JavaScript; los controles permanecen desactivados y no se envía ni guarda ningún dato.</div></noscript>
+
+  <div class="grid items-start gap-6 xl:grid-cols-[minmax(0,.85fr)_minmax(0,1.15fr)]">
+    <section data-quick-order-input data-present="true" class="quick-order-panel" aria-labelledby="quick-order-input-title">
+      <div class="flex items-start gap-3"><span class="quick-order-step" aria-hidden="true">1</span><div><h2 id="quick-order-input-title" class="text-xl font-semibold">Entrada del ejemplo</h2><p class="mt-1 text-sm leading-6 text-muted-foreground">Elige una muestra y consulta sus datos originales.</p></div></div>
+
+      <label for="quick-order-scenario" class="quick-order-label mt-5">Ejemplo
+        <select id="quick-order-scenario" data-quick-order-scenario disabled aria-describedby="quick-order-scenario-description" class="quick-order-select">
+          {initial.scenarioOptions.map(option => <option value={option.id} selected={option.id === initial.selection.scenarioId}>{option.label}</option>)}
+        </select>
+      </label>
+      <p id="quick-order-scenario-description" data-quick-order-scenario-description class="mt-2 text-sm leading-6 text-muted-foreground">{initial.scenarioDescription}</p>
+
+      <div class="mt-6 border-t border-border pt-5">
+        <p data-quick-order-family-label class="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{initial.familyLabel}</p>
+        <h3 data-quick-order-input-label class="mt-2 text-base font-semibold">{initial.input.label}</h3>
+        <p data-quick-order-origin-label hidden={initial.input.originLabel === null} class="mt-2 text-xs leading-5 text-muted-foreground">{initial.input.originLabel ?? ''}</p>
+        <p data-quick-order-catalog-label class="mt-1 text-xs leading-5 text-muted-foreground">{initial.input.catalogLabel}</p>
+        <pre data-quick-order-csv hidden={initial.input.csvText === null} class="quick-order-csv mt-4">{initial.input.csvText ?? ''}</pre>
+
+        <div data-quick-order-input-rows data-present={String(initial.input.rows.length > 0)} hidden={initial.input.rows.length === 0} class="mt-4 space-y-3">
+          {initial.input.rows.map(row => <article data-quick-order-input-row data-position={row.position} data-quantity-units={row.quantityUnits} class="quick-order-card">
+            <h4 class="text-sm font-semibold">Fila {row.position}</h4>
+            <p class="quick-order-caption mt-3">SKU aportado</p>
+            <code data-quick-order-sku data-sku={row.sku.literal} class="quick-order-sku">{row.sku.literal}</code>
+            <p data-quick-order-space-note hidden={row.sku.spaceNote === null} class="quick-order-caption mt-2">{row.sku.spaceNote ?? ''}</p>
+            <p data-quick-order-quantity data-quantity-units={row.quantityUnits} class="mt-3 text-sm font-semibold tabular-nums">{row.quantityLabel}</p>
+          </article>)}
+        </div>
+      </div>
+
+      <button id="quick-order-reset" data-quick-order-reset type="button" disabled class="quick-order-button mt-6 w-full">Restablecer ejemplo</button>
+      <p data-quick-order-feedback data-code={initial.feedback.code} role="status" aria-live="polite" aria-atomic="true" class="mt-4 text-sm leading-6">{initial.feedback.message}</p>
+    </section>
+
+    <section data-quick-order-result data-present="true" class="quick-order-panel" aria-labelledby="quick-order-result-title">
+      <div class="flex items-start gap-3"><span class="quick-order-step" aria-hidden="true">2</span><div><h2 id="quick-order-result-title" class="text-xl font-semibold">Lectura por fila</h2><p data-quick-order-result-label class="mt-1 text-sm font-semibold leading-6">{initial.resultLabel}</p></div></div>
+      <p data-quick-order-result-message class="mt-4 text-sm leading-6 text-muted-foreground">{initial.resultMessage}</p>
+      <p data-quick-order-relation-copy hidden={initial.family !== 'history'} class="quick-order-note mt-4">Los dos catálogos son ficticios. Comparamos las variantes indicadas en el ejemplo; no recuperamos pedidos reales.</p>
+
+      <div data-quick-order-parser data-present="false" hidden class="quick-order-card mt-5">
+        <h3 data-quick-order-parser-label class="text-base font-semibold"></h3>
+        <p data-quick-order-parser-message class="mt-1 text-sm leading-6 text-muted-foreground"></p>
+        <ul data-quick-order-csv-diagnostics hidden class="mt-4 space-y-3"></ul>
+        <div data-quick-order-decoded hidden class="mt-5 border-t border-border pt-4">
+          <h4 class="text-sm font-semibold">Filas decodificadas para revisar</h4>
+          <div data-quick-order-decoded-rows class="mt-3 space-y-3"></div>
+        </div>
+      </div>
+
+      <div data-quick-order-result-rows data-present={String(initial.rows.length > 0)} hidden={initial.rows.length === 0} class="mt-5 space-y-4">
+        {initial.rows.map(row => row.kind === 'resolution' && <article data-quick-order-row data-kind={row.kind} data-position={row.position} data-quantity-units={row.quantityUnits} data-outcome={row.outcome} data-reason={row.reason ?? undefined} data-match-count={row.matchCount} class="quick-order-card">
+          <h3 class="text-base font-semibold">Fila {row.position}</h3>
+          <p data-quick-order-quantity data-quantity-units={row.quantityUnits} class="mt-1 text-sm text-muted-foreground tabular-nums">{row.quantityLabel}</p>
+          <p class="quick-order-caption mt-4">SKU aportado</p>
+          <code data-quick-order-sku data-sku={row.sku.literal} class="quick-order-sku">{row.sku.literal}</code>
+          <p data-quick-order-space-note hidden={row.sku.spaceNote === null} class="quick-order-caption mt-2">{row.sku.spaceNote ?? ''}</p>
+          <p data-quick-order-resolution-label class="mt-4 text-sm font-semibold leading-6">{row.label}</p>
+          <div class="mt-3">
+            <div data-quick-order-identity data-present={String(row.identity !== null)} hidden={row.identity === null}>
+              <p data-quick-order-product-label class="text-sm font-semibold leading-6">{row.identity?.productLabel ?? ''}</p>
+              <p data-quick-order-variant-label class="text-sm leading-6 text-muted-foreground">{row.identity?.variantLabel ?? ''}</p>
+            </div>
+            <p data-quick-order-identity-empty hidden={row.identity !== null} class="quick-order-caption">Sin variante identificada</p>
+          </div>
+          <p data-quick-order-match-count class="quick-order-caption mt-3">Coincidencias en el catálogo: {row.matchCount}</p>
+          <ul data-quick-order-row-diagnostics hidden={row.diagnostics.length === 0} class="mt-4 space-y-3">
+            {row.diagnostics.map(diagnostic => <li data-quick-order-row-diagnostic data-code={diagnostic.code} class="quick-order-note"><p data-quick-order-diagnostic-label class="font-semibold">{diagnostic.label}</p><p data-quick-order-related-label>{diagnostic.relatedLabel}</p></li>)}
+          </ul>
+        </article>)}
+      </div>
+    </section>
+  </div>
+</div>
+
+<style is:global>
+  .company-quick-order-demo .quick-order-panel { min-width: 0; border: 1px solid var(--color-border); border-radius: var(--radius-card); background: var(--color-card); padding: 1.25rem; overflow-wrap: anywhere; }
+  .company-quick-order-demo .quick-order-step { display: flex; flex-shrink: 0; width: 2rem; height: 2rem; align-items: center; justify-content: center; border-radius: 100%; background: var(--color-foreground); color: var(--color-background); font-size: .875rem; font-weight: 600; }
+  .company-quick-order-demo .quick-order-label { display: block; min-width: 0; font-size: .875rem; line-height: 1.5rem; font-weight: 600; }
+  .company-quick-order-demo .quick-order-select { display: block; width: 100%; min-width: 0; min-height: 3rem; margin-top: .5rem; border: 1px solid var(--color-input); border-radius: var(--radius-btn); background: var(--color-background); padding: .625rem .75rem; color: var(--color-foreground); font-size: 1rem; line-height: 1.5rem; font-weight: 400; }
+  .company-quick-order-demo .quick-order-select:disabled { opacity: 1; cursor: default; }
+  .company-quick-order-demo .quick-order-button { min-height: 3rem; border: 1px solid var(--color-border); border-radius: var(--radius-btn); background: var(--color-background); color: var(--color-foreground); padding: .75rem 1rem; font-size: .875rem; line-height: 1.5rem; font-weight: 600; cursor: pointer; }
+  .company-quick-order-demo .quick-order-button:hover:not(:disabled) { box-shadow: 0 0 0 1px var(--color-foreground); }
+  .company-quick-order-demo .quick-order-button:disabled { background: var(--color-muted); color: var(--color-foreground); opacity: 1; cursor: not-allowed; }
+  .company-quick-order-demo .quick-order-card { min-width: 0; border: 1px solid var(--color-border); border-radius: .75rem; padding: 1rem; }
+  .company-quick-order-demo .quick-order-caption { font-size: .75rem; line-height: 1.25rem; color: var(--color-muted-foreground); }
+  .company-quick-order-demo .quick-order-sku { display: inline-block; max-width: 100%; margin-top: .25rem; border: 1px solid var(--color-border); border-radius: .375rem; background: var(--color-muted); padding: .25rem .5rem; white-space: pre-wrap; overflow-wrap: anywhere; font-size: .875rem; line-height: 1.5rem; color: var(--color-foreground); }
+  .company-quick-order-demo .quick-order-csv { max-width: 100%; border: 1px solid var(--color-border); border-radius: .75rem; background: var(--color-muted); padding: 1rem; white-space: pre-wrap; overflow-wrap: anywhere; font-size: .875rem; line-height: 1.75rem; color: var(--color-foreground); }
+  .company-quick-order-demo .quick-order-note { border: 1px solid var(--color-border); border-radius: .5rem; background: var(--color-muted); padding: .75rem; font-size: .75rem; line-height: 1.25rem; }
+  .company-quick-order-demo [hidden] { display: none !important; }
+  .company-quick-order-demo :is(button, select):focus-visible { outline: 2px solid var(--color-foreground); outline-offset: 3px; }
+  @media (min-width: 640px) { .company-quick-order-demo .quick-order-panel { padding: 1.5rem; } }
+</style>
+
+<script>
+  import {
+    configureCompanyQuickOrderDemo, createCompanyQuickOrderDemo, getCompanyQuickOrderDemoView,
+    type CompanyQuickOrderDemoSku, type CompanyQuickOrderDemoIdentityLabel,
+    type CompanyQuickOrderDemoInputRow, type CompanyQuickOrderDemoResolutionRow,
+    type CompanyQuickOrderDemoHistoryRow,
+  } from '../../composition/company-quick-order-demo';
+
+  const root = document.querySelector<HTMLElement>('[data-company-quick-order-demo]');
+  if (root) {
+    const find = (selector: string): HTMLElement => root.querySelector<HTMLElement>(selector)!;
+    const scenario = root.querySelector('[data-quick-order-scenario]');
+    const reset = root.querySelector('[data-quick-order-reset]');
+    if (!(scenario instanceof HTMLSelectElement) || !(reset instanceof HTMLButtonElement)) throw new Error('Faltan los controles del ejemplo.');
+    const attr = (element: HTMLElement, name: string, value: string | number | boolean | null) => {
+      if (value === null) element.removeAttribute(name);
+      else element.setAttribute(name, String(value));
+    };
+    const node = (tag: 'div' | 'article' | 'h3' | 'h4' | 'p' | 'code' | 'ul' | 'li', className = '', text?: string,
+      attributes: Readonly<Record<string, string | number | boolean | null>> = {}): HTMLElement => {
+      const element = document.createElement(tag);
+      element.className = className;
+      if (text !== undefined) element.textContent = text;
+      for (const [key, value] of Object.entries(attributes)) attr(element, key, value);
+      return element;
+    };
+    const clear = (element: HTMLElement) => { while (element.firstChild) element.removeChild(element.firstChild); };
+    const sku = (value: CompanyQuickOrderDemoSku): HTMLElement => {
+      const block = node('div');
+      block.appendChild(node('code', 'quick-order-sku', value.literal, { 'data-quick-order-sku': '', 'data-sku': value.literal }));
+      const note = node('p', 'quick-order-caption mt-2', value.spaceNote ?? '', { 'data-quick-order-space-note': '' });
+      note.hidden = value.spaceNote === null;
+      block.appendChild(note);
+      return block;
+    };
+    const identity = (value: CompanyQuickOrderDemoIdentityLabel | null, placeholder = 'Sin variante identificada', declared = false): HTMLElement => {
+      const container = node('div', 'mt-3');
+      const block = node('div', '', undefined, { 'data-quick-order-identity': '', 'data-present': value !== null });
+      block.hidden = value === null;
+      block.appendChild(node('p', 'text-sm font-semibold leading-6', value?.productLabel ?? '', { 'data-quick-order-product-label': '' }));
+      block.appendChild(node('p', 'text-sm leading-6 text-muted-foreground', value?.variantLabel ?? '', { 'data-quick-order-variant-label': '' }));
+      const empty = node('p', 'quick-order-caption', placeholder, { 'data-quick-order-identity-empty': '' });
+      empty.hidden = value !== null;
+      if (declared) {
+        attr(block, 'data-quick-order-declared-identity', '');
+        attr(empty, 'data-quick-order-declared-identity-empty', '');
+      }
+      container.appendChild(block); container.appendChild(empty);
+      return container;
+    };
+    const declaredIdentity = (value: CompanyQuickOrderDemoIdentityLabel | null): HTMLElement => {
+      const block = node('div', 'mt-4 border-t border-border pt-4', undefined, { 'data-quick-order-declared-region': '' });
+      block.appendChild(node('h4', 'text-sm font-semibold', 'Variante de origen indicada'));
+      block.appendChild(identity(value, 'No indicada', true));
+      return block;
+    };
+    const inputRow = (row: CompanyQuickOrderDemoInputRow, historical: boolean): HTMLElement => {
+      const block = node('article', 'quick-order-card', undefined, { 'data-quick-order-input-row': '', 'data-position': row.position, 'data-quantity-units': row.quantityUnits });
+      block.appendChild(node('h4', 'text-sm font-semibold', `Fila ${row.position}`));
+      block.appendChild(node('p', 'quick-order-caption mt-3', 'SKU aportado'));
+      block.appendChild(sku(row.sku));
+      block.appendChild(node('p', 'mt-3 text-sm font-semibold tabular-nums', row.quantityLabel, { 'data-quick-order-quantity': '', 'data-quantity-units': row.quantityUnits }));
+      if (historical) block.appendChild(declaredIdentity(row.historicalIdentity));
+      return block;
+    };
+    const resultRow = (row: CompanyQuickOrderDemoResolutionRow | CompanyQuickOrderDemoHistoryRow): HTMLElement => {
+      const block = node('article', 'quick-order-card', undefined, { 'data-quick-order-row': '', 'data-kind': row.kind, 'data-position': row.position, 'data-quantity-units': row.quantityUnits });
+      block.appendChild(node('h3', 'text-base font-semibold', `Fila ${row.position}`));
+      block.appendChild(node('p', 'mt-1 text-sm text-muted-foreground tabular-nums', row.quantityLabel, { 'data-quick-order-quantity': '', 'data-quantity-units': row.quantityUnits }));
+      block.appendChild(node('p', 'quick-order-caption mt-4', row.kind === 'history' ? 'SKU del origen' : 'SKU aportado'));
+      block.appendChild(sku(row.sku));
+      if (row.kind === 'resolution') {
+        attr(block, 'data-outcome', row.outcome); attr(block, 'data-reason', row.reason); attr(block, 'data-match-count', row.matchCount);
+        block.appendChild(node('p', 'mt-4 text-sm font-semibold leading-6', row.label, { 'data-quick-order-resolution-label': '' }));
+        block.appendChild(identity(row.identity));
+        block.appendChild(node('p', 'quick-order-caption mt-3', `Coincidencias en el catálogo: ${row.matchCount}`, { 'data-quick-order-match-count': '' }));
+        const diagnostics = node('ul', 'mt-4 space-y-3', undefined, { 'data-quick-order-row-diagnostics': '' });
+        diagnostics.hidden = row.diagnostics.length === 0;
+        for (const diagnostic of row.diagnostics) {
+          const item = node('li', 'quick-order-note', undefined, { 'data-quick-order-row-diagnostic': '', 'data-code': diagnostic.code });
+          item.appendChild(node('p', 'font-semibold', diagnostic.label, { 'data-quick-order-diagnostic-label': '' }));
+          item.appendChild(node('p', '', diagnostic.relatedLabel, { 'data-quick-order-related-label': '' }));
+          diagnostics.appendChild(item);
+        }
+        block.appendChild(diagnostics);
+      } else {
+        block.appendChild(declaredIdentity(row.historicalIdentity));
+        const comparison = row.identityComparison;
+        const compared = node('div', 'mt-4 border-t border-border pt-4', undefined, { 'data-quick-order-identity-comparison': '', 'data-outcome': comparison.outcome, 'data-sku-relation': comparison.skuRelation });
+        compared.appendChild(node('h4', 'text-sm font-semibold', 'Comparación por variante declarada'));
+        compared.appendChild(node('p', 'mt-2 text-sm leading-6', comparison.label, { 'data-quick-order-identity-comparison-label': '' }));
+        const relation = node('p', 'quick-order-caption mt-1', comparison.skuRelationLabel ?? '', { 'data-quick-order-sku-relation-label': '' });
+        relation.hidden = comparison.skuRelationLabel === null;
+        compared.appendChild(relation);
+        compared.appendChild(node('p', 'quick-order-caption mt-3', 'SKU de la variante en el catálogo comparado'));
+        const comparedSku = node('div', '', undefined, { 'data-quick-order-compared-sku': '', 'data-present': comparison.comparedSku !== null });
+        comparedSku.hidden = comparison.comparedSku === null;
+        if (comparison.comparedSku !== null) comparedSku.appendChild(sku(comparison.comparedSku));
+        else {
+          comparedSku.appendChild(node('code', 'quick-order-sku', '', { 'data-quick-order-sku': '' }));
+          const emptyNote = node('p', 'quick-order-caption', '', { 'data-quick-order-space-note': '' });
+          emptyNote.hidden = true; comparedSku.appendChild(emptyNote);
+        }
+        const noSku = node('p', 'quick-order-caption mt-1', 'No consta en esta comparación', { 'data-quick-order-compared-sku-empty': '' });
+        noSku.hidden = comparison.comparedSku !== null;
+        compared.appendChild(comparedSku); compared.appendChild(noSku); block.appendChild(compared);
+
+        const match = row.skuComparison;
+        const lookup = node('div', 'mt-4 border-t border-border pt-4', undefined, { 'data-quick-order-sku-comparison': '', 'data-outcome': match.outcome, 'data-reason': match.reason, 'data-match-count': match.matchCount, 'data-relation': match.relationToHistoricalIdentity });
+        lookup.appendChild(node('h4', 'text-sm font-semibold', 'Comparación por SKU del origen'));
+        lookup.appendChild(node('p', 'mt-2 text-sm leading-6', match.label, { 'data-quick-order-sku-comparison-label': '' }));
+        lookup.appendChild(identity(match.identity));
+        lookup.appendChild(node('p', 'quick-order-caption mt-3', `Coincidencias en el catálogo: ${match.matchCount}`, { 'data-quick-order-match-count': '' }));
+        const matchRelation = node('p', 'quick-order-note mt-3', match.relationLabel ?? '', { 'data-quick-order-relation-label': '' });
+        matchRelation.hidden = match.relationLabel === null;
+        lookup.appendChild(matchRelation); block.appendChild(lookup);
+      }
+      return block;
+    };
+    let state = createCompanyQuickOrderDemo();
+    const render = () => {
+      const view = getCompanyQuickOrderDemoView(state);
+      scenario.value = view.selection.scenarioId;
+      root.dataset.family = view.family;
+      find('[data-quick-order-scenario-description]').textContent = view.scenarioDescription;
+      find('[data-quick-order-family-label]').textContent = view.familyLabel;
+      find('[data-quick-order-input-label]').textContent = view.input.label;
+      find('[data-quick-order-catalog-label]').textContent = view.input.catalogLabel;
+      const origin = find('[data-quick-order-origin-label]');
+      origin.textContent = view.input.originLabel ?? ''; origin.hidden = view.input.originLabel === null;
+      const csv = find('[data-quick-order-csv]');
+      csv.textContent = view.input.csvText ?? ''; csv.hidden = view.input.csvText === null;
+      const inputs = find('[data-quick-order-input-rows]');
+      clear(inputs); inputs.hidden = view.input.rows.length === 0; inputs.dataset.present = String(view.input.rows.length > 0);
+      for (const row of view.input.rows) inputs.appendChild(inputRow(row, view.family === 'history'));
+      find('[data-quick-order-result-label]').textContent = view.resultLabel;
+      find('[data-quick-order-result-message]').textContent = view.resultMessage;
+      find('[data-quick-order-relation-copy]').hidden = view.family !== 'history';
+
+      const parser = find('[data-quick-order-parser]');
+      parser.hidden = view.parser === null; parser.dataset.present = String(view.parser !== null);
+      attr(parser, 'data-outcome', view.parser?.outcome ?? null); attr(parser, 'data-header-present', view.parser?.headerPresent ?? null);
+      find('[data-quick-order-parser-label]').textContent = view.parser?.label ?? '';
+      find('[data-quick-order-parser-message]').textContent = view.parser?.message ?? '';
+      const diagnostics = find('[data-quick-order-csv-diagnostics]');
+      clear(diagnostics); diagnostics.hidden = !view.parser?.diagnostics.length;
+      for (const diagnostic of view.parser?.diagnostics ?? []) {
+        const item = node('li', 'quick-order-note', undefined, { 'data-quick-order-csv-diagnostic': '', 'data-category': diagnostic.category, 'data-code': diagnostic.code, 'data-offset': diagnostic.at?.offset ?? null, 'data-line': diagnostic.at?.line ?? null, 'data-column': diagnostic.at?.column ?? null, 'data-record': diagnostic.recordNumber, 'data-field': diagnostic.fieldNumber });
+        item.appendChild(node('p', 'font-semibold', diagnostic.label, { 'data-quick-order-csv-diagnostic-label': '' }));
+        const location = node('p', '', diagnostic.locationLabel ?? '', { 'data-quick-order-csv-location': '' });
+        location.hidden = diagnostic.locationLabel === null; item.appendChild(location); diagnostics.appendChild(item);
+      }
+      const decoded = find('[data-quick-order-decoded-rows]');
+      clear(decoded);
+      const decodedRows = view.parser?.outcome === 'invalid' ? view.parser.decodedRows : [];
+      find('[data-quick-order-decoded]').hidden = decodedRows.length === 0;
+      for (const row of decodedRows) {
+        const block = node('div', 'quick-order-card', undefined, { 'data-quick-order-decoded-row': '', 'data-position': row.position });
+        block.appendChild(node('p', 'text-sm font-semibold', `Fila ${row.position}`));
+        row.fields.forEach((field, index) => {
+          block.appendChild(node('p', 'quick-order-caption mt-3', index === 0 ? 'SKU escrito' : 'Cantidad escrita'));
+          block.appendChild(node('code', 'quick-order-sku', field, { 'data-quick-order-decoded-field': index === 0 ? 'sku' : 'quantity' }));
+        });
+        decoded.appendChild(block);
+      }
+      const results = find('[data-quick-order-result-rows]');
+      clear(results); results.hidden = view.rows.length === 0; results.dataset.present = String(view.rows.length > 0);
+      for (const row of view.rows) results.appendChild(resultRow(row));
+      const feedback = find('[data-quick-order-feedback]');
+      feedback.textContent = view.feedback.message; feedback.dataset.code = view.feedback.code;
+    };
+
+    scenario.addEventListener('change', () => { state = configureCompanyQuickOrderDemo(state, { scenarioId: scenario.value }); render(); });
+    reset.addEventListener('click', () => { state = createCompanyQuickOrderDemo(); render(); });
+    render();
+    scenario.disabled = false; reset.disabled = false;
+    root.dataset.ready = 'true';
+  }
+</script>

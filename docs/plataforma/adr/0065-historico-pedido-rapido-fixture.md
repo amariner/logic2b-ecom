@@ -1,6 +1,6 @@
 # ADR-0065 — Intención histórica de pedido rápido con fixtures
 
-- Estado: accepted; R6.8c implementado y verificado localmente, integración pendiente y sin despliegue.
+- Estado: accepted; R6.8c implementado y verificado localmente, integrado en PR #47 (`372dd221`), sin despliegue; demo R6.8d verificada localmente, integración pendiente.
 - Fecha: 2026-10-04.
 - Dominio: `src/modules/companies/domain/company-quick-order-history.ts`.
 - API pública: `src/modules/companies/index.ts`.
@@ -159,7 +159,7 @@ comparado íntegro; solo entonces diagnósticos. Ref o captura comparadas distin
 pareja ausente, SKU ambiguo o coincidente con otra identidad son resultados
 normales; corrupción interna es error previo.
 
-## Ejemplo y validación pendiente
+## Ejemplo y validación del contrato
 
 El fixture de diseño contiene doce filas: siete parejas encontradas, tres no
 encontradas y dos no aportadas. El SKU da siete coincidencias únicas, dos
@@ -169,7 +169,7 @@ Incluye cero/MAX_SAFE, repetidas, SKU renombrado/reutilizado, variante bajo otro
 propietario y colisión de origen resuelta solo por pareja explícita. Son
 expectativas de diseño, no métricas de QA ejecutada.
 
-**Verificado localmente, integración pendiente y sin despliegue.**
+**Verificado localmente e integrado en PR #47 (`372dd221`), sin despliegue.**
 Registro/manifiesto/acceso 122/122 verde (19/73/30).
 35 focales históricas y seis de arquitectura verdes;
 TypeScript focal en dos archivos sin diagnósticos. Revisión independiente:
@@ -190,24 +190,95 @@ Retención de cliente resuelta, delta público cero. Worker de 282 archivos:
 +63 B/−281 gzip; 280 iguales tras mapear 24 nombres. Solo companies 1.13.0 y
 ADR0065 en runtime-platform, más metadata generada de manifest separada;
 sin equivalencia SSR completa ni nueva QA runtime.
-**Verificado localmente, integración pendiente y sin despliegue.**
+**Verificado localmente e integrado en PR #47 (`372dd221`), sin despliegue.**
 [Informe final R6.8c](../../audits/r6-8c/verification-report.json). No se atribuye nueva UI,
 HTTP, navegador o DB a c. [R6.8b](../../audits/r6-8b/verification-report.json),
 integrado en PR #46, aporta el corte estático anterior. La interacción sigue
 heredada de R6.7c/PR #44: navegador 5.076/108 visitas, ocho a11y/PNG, E2E 200 y
 hash QA intacto de 143 tablas/353 filas; no son nuevas ejecuciones históricas.
 
+## Extensión R6.8d — Demo «Listas y repetición»
+
+**Implementada y verificada localmente, integración pendiente.** Rama
+`codex/company-quick-order-demo`; ruta `/demo/admin/listas-sku`, título
+«Listas y repetición», subtítulo «SKU, CSV e intención histórica», grupo Clientes.
+La demo usa exclusivamente fixtures en memoria y exige simultáneamente el
+manifiesto demo y `DEMO_MODE='true'`. No activa B2B-008 ni sus superficies operativas.
+
+Un selector «Ejemplo» recorre diez casos cerrados y un botón «Restablecer ejemplo»
+restaura el estado inicial, igual que recargar. No hay editor, archivo, formulario,
+selector de fila o fecha. Las dos zonas muestran entrada y lectura por fila;
+como máximo tres filas por ejemplo permiten conservar duplicados sin ocultarlos.
+Los casos cubren SKU identificado/no encontrado/ambiguo, lista repetida con cero,
+CSV válido/cantidad inválida/comilla sin cerrar e históricos con SKU conservado,
+renombrado, reutilizado, ambiguo o identidad de origen ausente.
+
+La composición `company-quick-order-demo` define `createCompanyQuickOrderDemo`,
+`configureCompanyQuickOrderDemo`, `getCompanyQuickOrderDemoView` y
+`canShowCompanyQuickOrderDemo`. Estado y vista son copias congeladas; selección
+y feedback se validan completos. Un cambio real de ejemplo modifica el feedback;
+un patch vacío o repetido lo conserva. Los resultados se obtienen de las APIs
+públicas reales, no de tablas de respuestas precalculadas:
+
+- SKU y lista delegan en `previewCompanyQuickOrderList`.
+- CSV llama a `parseCompanyQuickOrderCsv`; solo `parsed` permite identificar la
+  lista íntegra devuelta. `invalid` conserva los diagnósticos/filas decodificadas
+  realmente retenidos, con lista nula y sin lookup parcial.
+- Histórico llama a `previewCompanyQuickOrderHistory` con la relación declarada;
+  distingue variante de origen y coincidencia del SKU, sin crear otra lista.
+
+La vista conserva SKU literal, espacios, cantidad cero y ordinales. Los nombres
+se unen por pareja explícita; nunca se deducen de una coincidencia ambigua. Omite
+IDs privados, referencias, perfiles y snapshots completos. CSV/SKU se representan
+como texto, sin enlaces ni ejecución. Campos ausentes permanecen nulos y eliminan
+valores de la vista anterior; una cantidad escrita inválida no se presenta como
+unidades. `headerPresent` solo informa si el parser retuvo la cabecera, sin
+inferir que el texto original carecía de ella. No se suman cantidades ni se
+comprueban precio, stock, visibilidad, cajas o condiciones de compra.
+
+Validación local final del 2026-10-04: `pnpm check` verde, 1.016 archivos sin
+diagnósticos, 272 suites/4.159 pruebas; build de las 06:52:48 UTC, 44 HTML y
+44 formularios locales, sin envíos/beacon/cron. Focales: 25 de modelo, seis de
+arquitectura y ocho de acceso guiado. Revisión independiente: 18.665 aserciones,
+97 de delegación y tres de gate contadas por separado, sin P1/P2. Cliente real:
+un archivo de 39.594 B/10.636 gzip, sin imports externos ni efectos de arranque
+sin raíz; esa sonda se distingue de la interacción del navegador.
+
+Navegador nuevo: 1.994 comprobaciones/20 visitas; veinte superficies a11y sin
+hallazgos y ocho PNG aprobadas por frontend, cuatro contrastadas por raíz.
+E2E nuevo 204/204. Worker y Chrome detenidos. Hash fresco antes de las 06:52:47
+y después de las 06:55:54 UTC idéntico: 143 tablas/353 filas,
+`9cbfc811cfc4296515a403d395875a43bfa26aff0c9c9b08be0804b15bbf6eca`.
+Sin escrituras operativas ni preparación nueva de DB atribuida a la demo.
+
+Siete grafos de negocio anteriores permanecen idénticos a PR #47 y los seis
+contratos a+b+c conservan sus fuentes. Guía separada: 15.230 B/6.333 gzip,
+único cambio de allowlist `|listas-sku` (+11 B/+8 gzip). Dieciocho CSS emitidos
+siguen iguales; el global añade ocho utilidades (+430 B) conservando las reglas
+anteriores. Nuevo modelo/página y navegación explican el delta del Worker;
+no se afirma igualdad SSR completa o equivalencia visual de todas las páginas.
+[Informe final R6.8d](../../audits/r6-8d/verification-report.json).
+
+Las ocho capturas representan lista repetida, CSV con cantidad inválida, SKU
+histórico reutilizado y ambigüedad/identidad ausente, a 1440/375. La etiqueta
+larga del selector nativo a 375 px conserva una limitación visual P3 aceptada;
+la descripción íntegra del ejemplo permanece visible. No fue un bloqueo y no
+se alteró el control nativo. Esta QA es nueva de d; las métricas de c y PR #44
+anteriores conservan su atribución histórica.
+
 ## Continuidad sin operación
 
-Una futura composición debe decidir cómo tratar duplicados, varias variantes
-de producto, SKU cambiado y cantidades, sobre una fuente completa común. No se
-devuelve aquí una lista sugerida ni se acepta una decisión de compra implícita.
-R6.8d tiene diseño exacto aceptado: /demo/admin/listas-sku, «Listas y repetición»,
-diez escenarios de las cuatro entradas, un selector y reset sobre a+b+c. Sus
-fuentes y QA esperan integración de c y baseline. No necesita composición
-comercial previa ni acredita elegibilidad; la demo conserva cada diagnóstico.
-No se atribuye aquí implementación o evidencia visual de d.
+La prioridad es integrar la demo verificada y entregar el despliegue expresamente
+autorizado. Integración pendiente; Cloudflare no está autenticado en este entorno
+y falta habilitar la credencial segura, circunstancia comunicada al usuario.
+Producción todavía no está actualizada; no se necesita DDL nueva. R6.9 queda pospuesto: su propuesta de
+consolidación fixture sobre dos empresas, permisos/dinero y wiki se conserva
+para después y no bloquea esta entrega. A+b+c bastan para esta demostración de las cuatro entradas; no
+requiere antes una composición de elegibilidad comercial. Si se propusiera esa
+ampliación, tendría que resolver duplicados, múltiples variantes y conversión de
+unidades sobre una fuente completa común, sin decisiones silenciosas de compra.
 
-B2B-008 conserva instalación inactiva y dependencia B2B-002; la importación de
-normalizadores puros no activa operaciones. R6.8 sigue parcial: estos snapshots
-no recuperan un pedido real ni autorizan repetición, precio, stock o cobro.
+B2B-008 conserva instalación inactiva y dependencia B2B-002. R6.8 sigue parcial:
+los snapshots y su demostración no recuperan pedidos reales ni autorizan
+repetición, precios, stock o cobro. No hay persistencia, DB operativa, cron,
+servicios, publicación remota o despliegue atribuido a este corte.
