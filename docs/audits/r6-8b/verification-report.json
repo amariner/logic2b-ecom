@@ -1,0 +1,796 @@
+{
+  "schemaVersion": 1,
+  "block": "R6.8b",
+  "verifiedAt": "2026-10-04T05:54:04.506896+00:00",
+  "environment": "local-fixture-contracts",
+  "deployment": "not-deployed",
+  "verification": {
+    "typecheckFiles": 1010,
+    "diagnostics": 0,
+    "suites": 270,
+    "tests": 4099,
+    "csvTests": 66,
+    "identityRegressionTests": 63,
+    "architectureTests": 6,
+    "registryManifestAccessTests": 122,
+    "buildHtmlPages": 44,
+    "buildLocalForms": 44,
+    "cronCount": 0
+  },
+  "evidence": {
+    "fullcheck": "/tmp/ecom-company-quick-order-csv-check.log",
+    "buildCompletedAt": "2026-10-04T05:51:48Z",
+    "registryFocals": "/tmp/ecom-company-quick-order-csv-registry.log"
+  },
+  "independentReview": {
+    "schemaVersion": 1,
+    "block": "R6.8b",
+    "reviewer": "review_execution",
+    "status": "passed",
+    "reviewedAt": "2026-10-04T05:50:44.592273+00:00",
+    "findings": [],
+    "p1": 0,
+    "p2": 0,
+    "sourceFreeze": [
+      {
+        "path": "src/modules/companies/application/company-quick-order-csv.ts",
+        "sha256": "33bd2f4ea32c57154eeeb9ab665bbb7c000fe5d6cbbd3afc77f5d450ad6da8f5",
+        "modifiedAt": "2026-10-04T05:45:50.713284+00:00"
+      },
+      {
+        "path": "src/modules/companies/domain/company-quick-order-sku.ts",
+        "sha256": "68db70a853ad4dab3e29192909f14a5d7c6d44aa687677e22aa5d79990f6a88d",
+        "modifiedAt": "2026-10-04T05:45:49.361341+00:00"
+      },
+      {
+        "path": "src/modules/companies/domain/company-quick-order.ts",
+        "sha256": "d224264dc67d78d01515723ab4cfbacef6e2016322a3cb7ad8bb1e65d015d762",
+        "modifiedAt": "2026-10-04T05:45:50.121309+00:00"
+      },
+      {
+        "path": "src/modules/companies/index.ts",
+        "sha256": "9cec3a0be7e0555d29eb90ac2af763b16c2661a2db8e10ff08fe1462559cd32a",
+        "modifiedAt": "2026-10-04T05:45:51.321259+00:00"
+      },
+      {
+        "path": "tests/company-quick-order-csv.test.ts",
+        "sha256": "450ca27c23f64363dcbd0f9260c7618559dbd6f70265de2e83cc32f026e5a4c8",
+        "modifiedAt": "2026-10-04T05:48:59.385655+00:00"
+      },
+      {
+        "path": "tests/company-quick-order.test.ts",
+        "sha256": "7c36bddc1a60fa70a6aabe5d98af479a8ad1df63bbacee7e60c5a4cae85c1f0a",
+        "modifiedAt": "2026-10-04T05:43:30.035225+00:00"
+      },
+      {
+        "path": "src/platform/configuration/module-registry.ts",
+        "sha256": "b70466b751fad12389c246455dc42c830c422a23a3966684e8245dc9ac89b6cf",
+        "modifiedAt": "2026-10-04T05:44:30.760704+00:00"
+      },
+      {
+        "path": "tests/module-registry.test.ts",
+        "sha256": "33fc3bbcb0c3ff046834cea5d411a6390385d7c96375d6a93d2f8bd2585b4d1f",
+        "modifiedAt": "2026-10-04T05:44:30.761415+00:00"
+      }
+    ],
+    "exactPlan": {
+      "path": "/tmp/ecom-r6-8b-plan.json",
+      "sha256": "f1b121f3bb9dfa3bc16d42f7dde5a2f6ea883293a1ce18fdafaa50fe27787d22"
+    },
+    "independentOracle": {
+      "schemaVersion": 1,
+      "status": "passed",
+      "startedAt": "2026-10-04T05:48:57.937Z",
+      "finishedAt": "2026-10-04T05:48:58.057Z",
+      "checks": 35917,
+      "cases": 976,
+      "parsed": 25,
+      "invalid": 951,
+      "rows": 1364,
+      "diagnostics": {
+        "header_missing": 3,
+        "column_count": 275,
+        "invalid_quantity": 294,
+        "quantity_out_of_range": 19,
+        "invalid_sku": 235,
+        "unclosed_quote": 139,
+        "header_mismatch": 34,
+        "bare_cr": 389,
+        "unexpected_quote": 60,
+        "unexpected_after_quote": 11,
+        "invalid_utf16": 3,
+        "column_limit": 5,
+        "record_limit": 3,
+        "text_utf16_limit": 1,
+        "text_utf8_limit": 3
+      },
+      "hostileCases": 76,
+      "getters": 0,
+      "effects": {
+        "network": 0,
+        "timers": 0,
+        "storage": 0,
+        "ambient": 0,
+        "random": 0,
+        "implicitClock": 0,
+        "explicitDates": 1061
+      },
+      "importEffects": {
+        "network": 0,
+        "timers": 0,
+        "storage": 0,
+        "ambient": 0,
+        "random": 0,
+        "implicitClock": 0,
+        "explicitDates": 0
+      },
+      "expectationsPreparedAt": "2026-10-04T05:46:08.891278+00:00",
+      "expectationPlanSha": "f1b121f3bb9dfa3bc16d42f7dde5a2f6ea883293a1ce18fdafaa50fe27787d22"
+    },
+    "normalizerDelegation": {
+      "schemaVersion": 1,
+      "status": "passed",
+      "startedAt": "2026-10-04T05:49:39.247Z",
+      "finishedAt": "2026-10-04T05:49:39.390Z",
+      "checks": 1997,
+      "normalizerCases": 976,
+      "mutants": 4,
+      "scope": "Isolated /tmp bundle instruments the actual sibling normalizer import; production source unchanged. Calls real domain normalizer before optional return perturbation; checks failure routing and authority."
+    },
+    "independentPriorContractRegression": {
+      "schemaVersion": 1,
+      "status": "passed",
+      "startedAt": "2026-10-04T05:49:04.746Z",
+      "finishedAt": "2026-10-04T05:49:04.931Z",
+      "checks": 55894,
+      "cases": 123,
+      "rows": 1131,
+      "lexicalVectors": 194,
+      "maximumCatalogProducts": 1000,
+      "maximumVariants": 10000,
+      "maximumListRows": 100,
+      "maximumMatchCount": 10000,
+      "maximumRelatedLineIds": 99,
+      "hostileCases": 60,
+      "getters": 0,
+      "effects": {
+        "network": 0,
+        "timers": 0,
+        "storage": 0,
+        "ambient": 0,
+        "random": 0,
+        "implicitClock": 0,
+        "explicitDates": 1103
+      },
+      "importEffects": {
+        "network": 0,
+        "timers": 0,
+        "storage": 0,
+        "ambient": 0,
+        "random": 0,
+        "implicitClock": 0,
+        "explicitDates": 0
+      },
+      "expectationsPreparedAt": "2026-10-04T05:30:35.026616+00:00"
+    },
+    "parallelScannerReview": {
+      "attributedTo": "review_execution/url_security_review",
+      "assertions": 269,
+      "additionalTargetedCases": 4,
+      "status": "passed",
+      "script": "/tmp/r6-8b-scanner-review.mjs",
+      "parserSha256": "33bd2f4ea32c57154eeeb9ab665bbb7c000fe5d6cbbd3afc77f5d450ad6da8f5",
+      "helperSha256": "68db70a853ad4dab3e29192909f14a5d7c6d44aa687677e22aa5d79990f6a88d",
+      "scope": "Positions/BOM/astral/quoted-empty/CRLF/EOF; exact 32/101 ceilings including first malformed token beyond limit; UTF limits and 200 diagnostics; unchanged extracted SKU predicate."
+    },
+    "sourceReview": {
+      "fullParserRead": true,
+      "privateSkuHelperRead": true,
+      "publicBarrelRead": true,
+      "finalAuthorTestsRead": true,
+      "registryRead": true,
+      "adrRead": "docs/plataforma/adr/0064-entrada-csv-pedido-rapido-fixture.md",
+      "conclusions": [
+        "Wrapper and metadata validation precede all content outcomes, including oversized or malformed text. Own-data descriptor capture rejects getters and arbitrary prototypes without leaking errors.",
+        "UTF-16 preflight is complete before UTF-8 limits and scanner; positions and literal spans preserve BOM, astrals, CRLF and quotes.",
+        "The bounded scanner never exposes a structural prefix on fatal failure. Decoded records are retained only after complete scan; all invalid content yields list:null.",
+        "Exact header and quantity grammar, safe numeric conversion, zero/duplicate preservation and inherited literal SKU semantics are unchanged.",
+        "Metadata and final intention use the real sibling normalizer; final normalizer failure is redacted as normalization_failure. No domain lookup, aggregation, export or executable interpretation occurs.",
+        "Source accepts no files/URLs/IO. Registry update is version 1.12.0 and ADR0064 only; B2B-008 dependencies, inactive profiles and empty operational surfaces remain unchanged."
+      ],
+      "issuesFixedDuringReview": [],
+      "finalEvidenceNote": "Read the final static summary. Existing eight browser graphs, 361 selected sources, 19 CSS and all 62 public JS files are byte-identical. Worker registry changes are explicitly delimited; generated manifest metadata is not claimed equivalent. No oracle was repeated after stable source freeze."
+    },
+    "authorVerification": {
+      "attributedTo": "facts_policy",
+      "csvTests": 66,
+      "identityRegressionTests": 63,
+      "architectureTests": 6,
+      "total": 135,
+      "status": "passed",
+      "typescriptFiles": 4,
+      "typescriptDiagnostics": 0,
+      "notes": [
+        "One expected test offset corrected from 33 to 31; product source unchanged and independent oracle required no corrections.",
+        "Author tests were read, not reexecuted by reviewer."
+      ]
+    },
+    "registryVerification": {
+      "attributedTo": "root",
+      "total": 122,
+      "moduleRegistryTests": 19,
+      "manifestTests": 73,
+      "accessTests": 30,
+      "startedAt": "2026-10-04T05:44:31Z",
+      "log": "/tmp/ecom-company-quick-order-csv-registry.log",
+      "status": "passed"
+    },
+    "diagnosticPublicBundle": {
+      "schemaVersion": 1,
+      "reviewedAt": "2026-10-04T05:48:22.392Z",
+      "scope": "Diagnostic browser bundle of explicit public companies APIs; not an emitted Astro asset",
+      "bytes": 13408,
+      "gzipBytes": 4269,
+      "sha256": "c77ab13d7b0c5085ae4e7d1d4ca8daf7a561ff975360ad2cfa3e35b5a306535a",
+      "exports": [
+        "parseCompanyQuickOrderCsv",
+        "CompanyQuickOrderCsvContractError",
+        "COMPANY_QUICK_ORDER_CSV_LIMITS",
+        "defineCompanyQuickOrderCatalog",
+        "defineCompanyQuickOrderList",
+        "previewCompanyQuickOrderList",
+        "CompanyQuickOrderContractError",
+        "COMPANY_QUICK_ORDER_LIMITS"
+      ],
+      "contributingSources": [
+        {
+          "path": "src/modules/companies/domain/company-directory.ts",
+          "bytesInOutput": 719
+        },
+        {
+          "path": "src/modules/companies/domain/company-collection-evidence.ts",
+          "bytesInOutput": 112
+        },
+        {
+          "path": "src/modules/companies/domain/company-credit.ts",
+          "bytesInOutput": 167
+        },
+        {
+          "path": "src/modules/companies/domain/company-purchase-order.ts",
+          "bytesInOutput": 114
+        },
+        {
+          "path": "src/modules/companies/domain/company-document-evidence.ts",
+          "bytesInOutput": 72
+        },
+        {
+          "path": "src/modules/companies/domain/company-quick-order-sku.ts",
+          "bytesInOutput": 193
+        },
+        {
+          "path": "src/modules/companies/domain/company-quick-order.ts",
+          "bytesInOutput": 5512
+        },
+        {
+          "path": "src/modules/companies/application/company-quick-order-csv.ts",
+          "bytesInOutput": 6233
+        }
+      ],
+      "externalImports": [],
+      "forbiddenTokens": [],
+      "sourceFreeze": [
+        {
+          "path": "src/modules/companies/application/company-quick-order-csv.ts",
+          "sha256": "33bd2f4ea32c57154eeeb9ab665bbb7c000fe5d6cbbd3afc77f5d450ad6da8f5",
+          "modifiedAt": "2026-10-04T05:45:50.713Z"
+        },
+        {
+          "path": "src/modules/companies/domain/company-quick-order-sku.ts",
+          "sha256": "68db70a853ad4dab3e29192909f14a5d7c6d44aa687677e22aa5d79990f6a88d",
+          "modifiedAt": "2026-10-04T05:45:49.361Z"
+        },
+        {
+          "path": "src/modules/companies/domain/company-quick-order.ts",
+          "sha256": "d224264dc67d78d01515723ab4cfbacef6e2016322a3cb7ad8bb1e65d015d762",
+          "modifiedAt": "2026-10-04T05:45:50.121Z"
+        },
+        {
+          "path": "src/modules/companies/index.ts",
+          "sha256": "9cec3a0be7e0555d29eb90ac2af763b16c2661a2db8e10ff08fe1462559cd32a",
+          "modifiedAt": "2026-10-04T05:45:51.321Z"
+        }
+      ],
+      "importEvaluation": {
+        "network": 0,
+        "timers": 0,
+        "storage": 0,
+        "ambient": 0,
+        "random": 0,
+        "implicitClock": 0,
+        "explicitDates": 0
+      },
+      "duringOracleEvaluation": {
+        "network": 0,
+        "timers": 0,
+        "storage": 0,
+        "ambient": 0,
+        "random": 0,
+        "implicitClock": 0,
+        "explicitDates": 1061
+      },
+      "retainedHistoricalConstants": {
+        "bytesInOutput": 1184,
+        "sources": 5,
+        "description": "Actual emitted diagnostic source inspected: only frozen literal limit/message tables from directory, collection, credit, PO and document contracts. No operational functions retained."
+      },
+      "limits": [
+        "Diagnostic of eight named public exports, including the prior identity APIs used for extraction regression; not an Astro asset or browser interaction test.",
+        "No claim of semantic or byte equality for served assets until separate final build comparison."
+      ]
+    },
+    "pendingExternalValidation": [],
+    "runtimeEvidence": {
+      "newRuntimeRun": false,
+      "inheritedFrom": "R6.7c / PR44 6aade3643795c8c8801c0e25ecd0019ee6e149bb",
+      "browserChecks": 5076,
+      "primaryVisits": 108,
+      "a11ySurfaces": 8,
+      "screenshotsReviewed": 8,
+      "e2eChecks": 200,
+      "fixtureDatabase": {
+        "tables": 143,
+        "rows": 353,
+        "sha256": "9cbfc811cfc4296515a403d395875a43bfa26aff0c9c9b08be0804b15bbf6eca"
+      },
+      "limitations": "Historical interaction evidence only; R6.8b has no UI, HTTP, Worker, Chrome or database run by this reviewer."
+    },
+    "reviewLimits": [
+      "Not a proof for every Unicode character/string; vectors include generated structural combinations and Unicode boundary cases.",
+      "Counts are assertion calls, not independent production scenarios or author test counts. No combined inflated total is claimed.",
+      "The child scanner and author/root evidence are attributed separately.",
+      "No product, canonical tests, documentation or Git was changed; probes/reports only /tmp."
+    ],
+    "finalizedAt": "2026-10-04T05:53:46.995137+00:00",
+    "externalValidation": {
+      "global": {
+        "attributedTo": "root",
+        "command": "pnpm check",
+        "status": "passed",
+        "exitCode": 0,
+        "files": 1010,
+        "diagnostics": 0,
+        "suites": 270,
+        "tests": 4099,
+        "buildAt": "2026-10-04T05:51:48Z",
+        "log": "/tmp/ecom-company-quick-order-csv-check.log",
+        "postGlobalSourceFreeze": "Root verified all eight recorded source/test hashes unchanged."
+      },
+      "staticComparison": {
+        "attributedTo": "review_segmentation",
+        "summary": "/tmp/r68b-final-static-summary.json",
+        "summarySha256": "92424044ed71a7494c8331b78c7c66deed8698d279046562b86fe22d2bb11ddb",
+        "baseline": "R6.8a/PR45 final build 2026-10-04T05:36:26Z",
+        "finalBuild": "2026-10-04T05:51:48Z",
+        "identicalBrowserGraphs": 8,
+        "selectedSources": 361,
+        "selectedSourcesIdentical": true,
+        "cssFiles": 19,
+        "cssIdentical": true,
+        "publicJavaScript": {
+          "count": 62,
+          "identical": true,
+          "bytes": 432002,
+          "gzipBytes": 138864
+        },
+        "worker": {
+          "count": 282,
+          "beforeBytes": 4545273,
+          "afterBytes": 4545338,
+          "deltaBytes": 65,
+          "beforeGzipBytes": 1018307,
+          "afterGzipBytes": 1018587,
+          "deltaGzipBytes": 280,
+          "rawIdenticalFiles": 131,
+          "generatedFilenameChanges": 24,
+          "identicalAfterKnownFilenameReplacement": 280,
+          "runtimePlatform": {
+            "before": "dist/_worker.js/chunks/runtime-platform_BtxuuwKc.mjs",
+            "after": "dist/_worker.js/chunks/runtime-platform_XfZKVWC0.mjs",
+            "deltaBytes": 65,
+            "onlyExactWhitelistedReplacements": true,
+            "replacements": [
+              {
+                "from": "id: \"companies\",\n    version: \"1.11.0\",",
+                "to": "id: \"companies\",\n    version: \"1.12.0\","
+              },
+              {
+                "from": "\"docs/plataforma/adr/0063-lista-identidad-sku-fixture.md\"],",
+                "to": "\"docs/plataforma/adr/0063-lista-identidad-sku-fixture.md\", \"docs/plataforma/adr/0064-entrada-csv-pedido-rapido-fixture.md\"],"
+              }
+            ]
+          },
+          "otherNormalizedDifference": "Generated manifest metadata; no byte or semantic equality claim"
+        },
+        "runtimeExecuted": false,
+        "limitations": [
+          "Source hashes do not execute SSR, HTTP, middleware or interactions.",
+          "This manifest is not the complete transitive server module graph.",
+          "This static comparison does not execute runtime QA. Its baseline interaction evidence is R6.7c/PR44: 108 matrix-state visits and separate cleanup/keyboard/reload paths; not all possible browser transitions.",
+          "Worker source/chunk changes are expected from registry metadata; hash churn does not establish complete SSR behavior equivalence.",
+          "No browser, HTTP, Worker, DB, a11y or E2E execution in this comparison. Runtime evidence is inherited explicitly from R6.7c/PR44; no new interaction is executed by this static comparison.",
+          "Per-file gzip byte sums are descriptive; not a measured aggregate HTTP payload."
+        ]
+      }
+    }
+  },
+  "staticComparison": {
+    "schemaVersion": 1,
+    "block": "R6.8b",
+    "baseline": "R6.8a/PR45 final build 2026-10-04T05:36:26Z",
+    "finalBuild": "2026-10-04T05:51:48Z",
+    "scope": "Static complete emitted browser graphs, selected source boundaries, emitted CSS and all JS/MJS",
+    "graphs": [
+      {
+        "component": "CompanyDocumentDemo",
+        "entry": "dist/_astro/CompanyDocumentDemo.astro_astro_type_script_index_0_lang.CmP8C63F.js",
+        "fileCount": 4,
+        "importEdges": 6,
+        "totalBytes": 60721,
+        "totalGzipBytes": 17405,
+        "identical": true,
+        "changes": {
+          "added": [],
+          "removed": [],
+          "changed": []
+        }
+      },
+      {
+        "component": "CompanyNegotiationDemo",
+        "entry": "dist/_astro/CompanyNegotiationDemo.astro_astro_type_script_index_0_lang.CSe7AvEl.js",
+        "fileCount": 5,
+        "importEdges": 7,
+        "totalBytes": 57696,
+        "totalGzipBytes": 18348,
+        "identical": true,
+        "changes": {
+          "added": [],
+          "removed": [],
+          "changed": []
+        }
+      },
+      {
+        "component": "CompanyCreditReviewDemo",
+        "entry": "dist/_astro/CompanyCreditReviewDemo.astro_astro_type_script_index_0_lang.DvnpgZPX.js",
+        "fileCount": 3,
+        "importEdges": 2,
+        "totalBytes": 46662,
+        "totalGzipBytes": 13177,
+        "identical": true,
+        "changes": {
+          "added": [],
+          "removed": [],
+          "changed": []
+        }
+      },
+      {
+        "component": "CompanyCollectionDemo",
+        "entry": "dist/_astro/CompanyCollectionDemo.astro_astro_type_script_index_0_lang.pOo5tZX2.js",
+        "fileCount": 3,
+        "importEdges": 2,
+        "totalBytes": 31812,
+        "totalGzipBytes": 9612,
+        "identical": true,
+        "changes": {
+          "added": [],
+          "removed": [],
+          "changed": []
+        }
+      },
+      {
+        "component": "VariantQuantityDemo",
+        "entry": "dist/_astro/VariantQuantityDemo.astro_astro_type_script_index_0_lang.B3LXKXAu.js",
+        "fileCount": 6,
+        "importEdges": 10,
+        "totalBytes": 53810,
+        "totalGzipBytes": 17921,
+        "identical": true,
+        "changes": {
+          "added": [],
+          "removed": [],
+          "changed": []
+        }
+      },
+      {
+        "component": "CompanyCatalogDemo",
+        "entry": "dist/_astro/CompanyCatalogDemo.astro_astro_type_script_index_0_lang.Dslk7L5G.js",
+        "fileCount": 8,
+        "importEdges": 12,
+        "totalBytes": 60650,
+        "totalGzipBytes": 20407,
+        "identical": true,
+        "changes": {
+          "added": [],
+          "removed": [],
+          "changed": []
+        }
+      },
+      {
+        "component": "CompanyDirectoryDemo",
+        "entry": "dist/_astro/CompanyDirectoryDemo.astro_astro_type_script_index_0_lang.tUOZl7at.js",
+        "fileCount": 3,
+        "importEdges": 2,
+        "totalBytes": 26856,
+        "totalGzipBytes": 8818,
+        "identical": true,
+        "changes": {
+          "added": [],
+          "removed": [],
+          "changed": []
+        }
+      },
+      {
+        "component": "DemoAssistant",
+        "entry": "dist/_astro/DemoAssistant.astro_astro_type_script_index_0_lang.Bs8r7UHw.js",
+        "fileCount": 3,
+        "importEdges": 2,
+        "totalBytes": 15219,
+        "totalGzipBytes": 6325,
+        "identical": true,
+        "changes": {
+          "added": [],
+          "removed": [],
+          "changed": []
+        }
+      }
+    ],
+    "selectedSourceCount": 361,
+    "selectedSourcesIdentical": true,
+    "emittedCssCount": 19,
+    "emittedCssIdentical": true,
+    "publicJavaScript": {
+      "count": 62,
+      "identical": true,
+      "bytes": 432002,
+      "gzipBytes": 138864
+    },
+    "worker": {
+      "count": 282,
+      "beforeBytes": 4545273,
+      "afterBytes": 4545338,
+      "deltaBytes": 65,
+      "beforeGzipBytes": 1018307,
+      "afterGzipBytes": 1018587,
+      "deltaGzipBytes": 280,
+      "rawIdenticalFiles": 131,
+      "generatedFilenameChanges": 24,
+      "identicalAfterKnownFilenameReplacement": 280,
+      "runtimePlatform": {
+        "before": "dist/_worker.js/chunks/runtime-platform_BtxuuwKc.mjs",
+        "after": "dist/_worker.js/chunks/runtime-platform_XfZKVWC0.mjs",
+        "deltaBytes": 65,
+        "onlyExactWhitelistedReplacements": true,
+        "replacements": [
+          {
+            "from": "id: \"companies\",\n    version: \"1.11.0\",",
+            "to": "id: \"companies\",\n    version: \"1.12.0\","
+          },
+          {
+            "from": "\"docs/plataforma/adr/0063-lista-identidad-sku-fixture.md\"],",
+            "to": "\"docs/plataforma/adr/0063-lista-identidad-sku-fixture.md\", \"docs/plataforma/adr/0064-entrada-csv-pedido-rapido-fixture.md\"],"
+          }
+        ]
+      },
+      "otherNormalizedDifference": "Generated manifest metadata; no byte or semantic equality claim"
+    },
+    "completeCopiesVerified": {
+      "sources": "/tmp/r68b-sources-final",
+      "css": "/tmp/r68b-css-final",
+      "js": "/tmp/r68b-js-final"
+    },
+    "runtimeExecuted": false,
+    "inheritedRuntime": {
+      "block": "R6.7c",
+      "pullRequest": 44,
+      "browserChecks": 5076,
+      "staticStateVisits": 108,
+      "accessibilitySurfaces": 8,
+      "screenshots": 8,
+      "e2eChecks": 200,
+      "databaseTables": 143,
+      "databaseRows": 353,
+      "databaseSha256": "9cbfc811cfc4296515a403d395875a43bfa26aff0c9c9b08be0804b15bbf6eca"
+    },
+    "evidenceFiles": [
+      "/tmp/r68b-inherited-baseline.json",
+      "/tmp/r68b-inherited-final.json",
+      "/tmp/r68b-surfaces-baseline.json",
+      "/tmp/r68b-surfaces-final.json",
+      "/tmp/r68b-inherited-comparison.json",
+      "/tmp/r68b-full-js-baseline.json",
+      "/tmp/r68b-full-js-final.json",
+      "/tmp/r68b-full-js-comparison.json",
+      "/tmp/r68b-worker-static-comparison.json"
+    ],
+    "limitations": [
+      "Source hashes do not execute SSR, HTTP, middleware or interactions.",
+      "This manifest is not the complete transitive server module graph.",
+      "This static comparison does not execute runtime QA. Its baseline interaction evidence is R6.7c/PR44: 108 matrix-state visits and separate cleanup/keyboard/reload paths; not all possible browser transitions.",
+      "Worker source/chunk changes are expected from registry metadata; hash churn does not establish complete SSR behavior equivalence.",
+      "No browser, HTTP, Worker, DB, a11y or E2E execution in this comparison. Runtime evidence is inherited explicitly from R6.7c/PR44; no new interaction is executed by this static comparison.",
+      "Per-file gzip byte sums are descriptive; not a measured aggregate HTTP payload."
+    ]
+  },
+  "workerTextComparison": {
+    "schemaVersion": 1,
+    "scope": "static Worker text after substituting only the explicit generated filename mapping",
+    "workerFiles": 282,
+    "renamedFiles": [
+      {
+        "before": "dist/_worker.js/chunks/Admin_CQkxg3GU.mjs",
+        "after": "dist/_worker.js/chunks/Admin_owGXsE40.mjs"
+      },
+      {
+        "before": "dist/_worker.js/chunks/CartPage_DPKQaNd0.mjs",
+        "after": "dist/_worker.js/chunks/CartPage_DekZyXtN.mjs"
+      },
+      {
+        "before": "dist/_worker.js/chunks/CatalogPage_DHgidkb8.mjs",
+        "after": "dist/_worker.js/chunks/CatalogPage_D58_yYdx.mjs"
+      },
+      {
+        "before": "dist/_worker.js/chunks/CheckoutPage_CyVKqQes.mjs",
+        "after": "dist/_worker.js/chunks/CheckoutPage_Y2BT-2BO.mjs"
+      },
+      {
+        "before": "dist/_worker.js/chunks/CloudflarePageview_CyuWrV6m.mjs",
+        "after": "dist/_worker.js/chunks/CloudflarePageview_DTUypkxf.mjs"
+      },
+      {
+        "before": "dist/_worker.js/chunks/DemoAssistant_C0B1sB6K.mjs",
+        "after": "dist/_worker.js/chunks/DemoAssistant_CLB3dEjE.mjs"
+      },
+      {
+        "before": "dist/_worker.js/chunks/ManagerShell_FKCRPO7l.mjs",
+        "after": "dist/_worker.js/chunks/ManagerShell_Cz4OHOy5.mjs"
+      },
+      {
+        "before": "dist/_worker.js/chunks/ProductPage_CzcdH2bj.mjs",
+        "after": "dist/_worker.js/chunks/ProductPage_Cex5RZoA.mjs"
+      },
+      {
+        "before": "dist/_worker.js/chunks/ProjectForm_VkVyoSfe.mjs",
+        "after": "dist/_worker.js/chunks/ProjectForm_Bc5TCqm6.mjs"
+      },
+      {
+        "before": "dist/_worker.js/chunks/Shop_D9FpBjfF.mjs",
+        "after": "dist/_worker.js/chunks/Shop_DckXRt5y.mjs"
+      },
+      {
+        "before": "dist/_worker.js/chunks/ThanksPage_DhkHJS9-.mjs",
+        "after": "dist/_worker.js/chunks/ThanksPage_a_fmfJ_I.mjs"
+      },
+      {
+        "before": "dist/_worker.js/chunks/Theme_Bo75-TmH.mjs",
+        "after": "dist/_worker.js/chunks/Theme_DUtDgCwD.mjs"
+      },
+      {
+        "before": "dist/_worker.js/chunks/_@astrojs-ssr-adapter_DZDK3oAR.mjs",
+        "after": "dist/_worker.js/chunks/_@astrojs-ssr-adapter_OwGFEBua.mjs"
+      },
+      {
+        "before": "dist/_worker.js/chunks/fulfillment-operations_ZSW0DXb0.mjs",
+        "after": "dist/_worker.js/chunks/fulfillment-operations_lgupVM2P.mjs"
+      },
+      {
+        "before": "dist/_worker.js/chunks/nav_FCm7EtZC.mjs",
+        "after": "dist/_worker.js/chunks/nav_BCtJyJk2.mjs"
+      },
+      {
+        "before": "dist/_worker.js/chunks/order-bulk-action-operations_p2Af9MFN.mjs",
+        "after": "dist/_worker.js/chunks/order-bulk-action-operations_B432TE3a.mjs"
+      },
+      {
+        "before": "dist/_worker.js/chunks/order-operations_UQrkcjLV.mjs",
+        "after": "dist/_worker.js/chunks/order-operations_CCn_XxtA.mjs"
+      },
+      {
+        "before": "dist/_worker.js/chunks/payment-refund-gateways_Kug0Uyd2.mjs",
+        "after": "dist/_worker.js/chunks/payment-refund-gateways_CzLFWNkR.mjs"
+      },
+      {
+        "before": "dist/_worker.js/chunks/preliminary-order-operations_Cr5bTJnR.mjs",
+        "after": "dist/_worker.js/chunks/preliminary-order-operations_BXerF464.mjs"
+      },
+      {
+        "before": "dist/_worker.js/chunks/preview_CHb3yWEW.mjs",
+        "after": "dist/_worker.js/chunks/preview_C7fD6tjK.mjs"
+      },
+      {
+        "before": "dist/_worker.js/chunks/return-operations_y-gWloCL.mjs",
+        "after": "dist/_worker.js/chunks/return-operations_goylltlJ.mjs"
+      },
+      {
+        "before": "dist/_worker.js/chunks/runner_fCRpnJuj.mjs",
+        "after": "dist/_worker.js/chunks/runner_R0o-jW3T.mjs"
+      },
+      {
+        "before": "dist/_worker.js/chunks/runtime-platform_BtxuuwKc.mjs",
+        "after": "dist/_worker.js/chunks/runtime-platform_XfZKVWC0.mjs"
+      },
+      {
+        "before": "dist/_worker.js/manifest_Dv0kANkz.mjs",
+        "after": "dist/_worker.js/manifest_-JX-Q34a.mjs"
+      }
+    ],
+    "identicalAfterKnownFilenameReplacement": 280,
+    "differences": [
+      {
+        "before": "dist/_worker.js/chunks/runtime-platform_BtxuuwKc.mjs",
+        "after": "dist/_worker.js/chunks/runtime-platform_XfZKVWC0.mjs",
+        "beforeBytes": 383632,
+        "afterBytes": 383697,
+        "delta": 65,
+        "normalizedBefore": "/tmp/r68b-worker-before-runtime-platform_XfZKVWC0.mjs",
+        "finalAfter": "/tmp/r68b-worker-after-runtime-platform_XfZKVWC0.mjs"
+      },
+      {
+        "before": "dist/_worker.js/manifest_Dv0kANkz.mjs",
+        "after": "dist/_worker.js/manifest_-JX-Q34a.mjs",
+        "beforeBytes": 361943,
+        "afterBytes": 361943,
+        "delta": 0,
+        "normalizedBefore": "/tmp/r68b-worker-before-manifest_-JX-Q34a.mjs",
+        "finalAfter": "/tmp/r68b-worker-after-manifest_-JX-Q34a.mjs"
+      }
+    ],
+    "limitations": [
+      "Diagnostic filename normalization does not establish byte equality or complete SSR behavior equivalence.",
+      "No Worker, browser, HTTP or DB was executed; interaction evidence remains R6.7c/PR44.",
+      "Generated manifest metadata is not asserted equivalent."
+    ]
+  },
+  "reportHashes": [
+    {
+      "path": "/tmp/r68b-independent-review.json",
+      "sha256": "cb5646fb94b9fb3b60b966e1b7b7f4f12bb9b9c4f242789528c1bdf3e69e13b9"
+    },
+    {
+      "path": "/tmp/r68b-public-bundle-report.json",
+      "sha256": "a1b40da65876c5feb2b5df7eddb6b28656e16649a0a1b69f29a0f4a6bd28a027"
+    },
+    {
+      "path": "/tmp/r68b-final-static-summary.json",
+      "sha256": "92424044ed71a7494c8331b78c7c66deed8698d279046562b86fe22d2bb11ddb"
+    },
+    {
+      "path": "/tmp/r68b-inherited-comparison.json",
+      "sha256": "d72966c51812cf897df32e6515d9a15e4b69d7cf9fe3f32d0bf9f2479f5cac09"
+    },
+    {
+      "path": "/tmp/r68b-worker-static-comparison.json",
+      "sha256": "b1249d6b3adf33e20744391e5ccdb5dc672dcbadd16234c5d748516271bf9eef"
+    }
+  ],
+  "runtime": {
+    "newExecution": false,
+    "inherited": {
+      "block": "R6.7c",
+      "pullRequest": 44,
+      "browserChecks": 5076,
+      "staticStateVisits": 108,
+      "accessibilitySurfaces": 8,
+      "screenshots": 8,
+      "e2eChecks": 200,
+      "databaseTables": 143,
+      "databaseRows": 353,
+      "databaseSha256": "9cbfc811cfc4296515a403d395875a43bfa26aff0c9c9b08be0804b15bbf6eca"
+    },
+    "scope": "R6.7c / PR44 evidence is historical. No Worker, browser, HTTP, a11y, E2E or fixture database run for this cut."
+  },
+  "signOff": {
+    "architecture": "passed: pure application API and unchanged SKU semantics",
+    "backend": "passed: bounded all-or-nothing input and exact quantities",
+    "fullstack": "passed: full check and static output comparison",
+    "product": "passed: partial fixture capability, visual demo pending"
+  }
+}

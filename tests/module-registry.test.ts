@@ -152,7 +152,7 @@ describe('registro de módulos (R1.4)', () => {
     expect(MODULE_REGISTRY.capabilityOwners['B2B-007']).toBe('companies');
     expect(MODULE_REGISTRY.capabilityOwners['B2B-008']).toBe('companies');
     expect(MODULE_REGISTRY.byId.companies).toMatchObject({
-      version: '1.11.0', capabilities: ['B2B-001', 'B2B-002', 'B2B-003', 'B2B-004', 'B2B-005', 'B2B-006', 'B2B-007', 'B2B-008'],
+      version: '1.12.0', capabilities: ['B2B-001', 'B2B-002', 'B2B-003', 'B2B-004', 'B2B-005', 'B2B-006', 'B2B-007', 'B2B-008'],
       dependencies: ['platform-configuration'],
       permissions: [], events: [], subscriptions: [], jobs: [], healthchecks: [], navigation: [], routes: [],
     });
@@ -166,6 +166,7 @@ describe('registro de módulos (R1.4)', () => {
     expect(MODULE_REGISTRY.byId.companies.wikiLinks).toContain('docs/plataforma/adr/0061-referencia-po-fixture.md');
     expect(MODULE_REGISTRY.byId.companies.wikiLinks).toContain('docs/plataforma/adr/0062-evidencia-documental-fixture.md');
     expect(MODULE_REGISTRY.byId.companies.wikiLinks).toContain('docs/plataforma/adr/0063-lista-identidad-sku-fixture.md');
+    expect(MODULE_REGISTRY.byId.companies.wikiLinks).toContain('docs/plataforma/adr/0064-entrada-csv-pedido-rapido-fixture.md');
     expect('B2B-009' in MODULE_REGISTRY.capabilityOwners).toBe(false);
     for (const profile of ['minimal', 'standard', 'advanced'] as const) {
       const platform = createPlatform(createPresetManifest(profile, deployment));

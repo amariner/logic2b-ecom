@@ -15,6 +15,46 @@
 La prioridad no autoriza activación automática. Cada cliente recibe solo lo que
 su alcance requiera.
 
+**R6.8b — Entrada CSV de pedido rápido está implementada y verificada localmente**, rama
+`codex/company-quick-order-csv-fixtures`, contrato exacto aceptado en el
+[ADR-0064](adr/0064-entrada-csv-pedido-rapido-fixture.md). Una API pura recibe texto fixture y metadata explícita;
+produce la lista real de a solo cuando toda la entrada es válida. Sin catálogo,
+resolución SKU, archivo real, importación operativa, pedido o UI.
+
+Cabecera decodificada exacta, quoting/BOM/LF/CRLF y posiciones UTF-16 definidos;
+límites de 65.536 unidades/bytes, 101 registros y 100 filas. Campos literales,
+cero y duplicados conservados, sin coerción, suma, corrección o lista parcial.
+Un fallo fatal no devuelve prefijo; campos inválidos tras parse íntegro permiten
+corrección con `list:null`, sin intención utilizable. Parser válido no significa
+SKU identificado, visible, cantidad satisfecha o compra permitida.
+
+companies 1.12.0 conserva B2B-008 parcial instalada/inactiva y dependencia
+B2B-002, sin nuevas capacidades, presets o superficies. Registro/manifiesto/
+acceso: 122 pruebas verdes (19/73/30). Fuente y pruebas congeladas: 66 focales
+CSV, 63 de regresión de a y seis de arquitectura verdes; TypeScript focal en
+cuatro archivos sin diagnósticos. Check global final verde: 1.010 archivos sin
+diagnósticos, 270 suites/4.099 pruebas; build del 2026-10-04 a las 05:51:48 UTC,
+44 HTML/44 formularios locales/cero cron. Revisión independiente: 35.917
+aserciones sobre 976 CSV y 76 casos hostiles, 1.997 de delegación y 55.894 de
+regresión de a, separadas; scanner auxiliar 269 aserciones y cuatro sondas,
+sin sumar categorías. Sin P1/P2, getters, efectos o reloj implícito. Bundle
+diagnóstico de ocho exports: 13.408 B/4.269 gzip, incluidas 1.184 B de constantes
+históricas puras; sin operativo y distinto de un asset emitido.
+Comparación final frente a PR #45: ocho grafos completos, 361 fuentes
+seleccionadas, 19 CSS y 62 JavaScript públicos idénticos en nombres, imports,
+SHA, bytes y gzip; los JS suman 432.002 B/138.864 gzip. Worker de 282 archivos:
++65 B/+280 gzip, 280 idénticos tras mapear 24 nombres. El cambio exacto de
+companies 1.12.0 y ADR0064 explica runtime-platform; metadata generada del
+manifest aparte, sin equivalencia SSR completa. No hubo nueva QA runtime.
+**Verificado localmente, integración pendiente y sin despliegue.**
+[Informe final R6.8b](../audits/r6-8b/verification-report.json).
+R6.8a integrado en PR #45 (`4cfef237`), sin despliegue. Navegador 5.076/108,
+ocho a11y/PNG, E2E 200 y hash QA 143/353 proceden de PR #44, no de una ejecución b.
+
+Siguiente histórico separado: identidad explícita y snapshot íntegro de origen,
+contrato exacto pendiente de diseño/aceptación; ningún SKU reutilizado restaura
+una compra anterior. Composición y demo visual también pendientes, sin operación.
+
 **R6.8a — Lista estructurada e identidad de SKU está implementada y verificada localmente**, rama
 `codex/company-quick-order-fixtures`, con contrato exacto aceptado en el
 [ADR-0063](adr/0063-lista-identidad-sku-fixture.md). Tres APIs puras sobre un único snapshot completo de
@@ -44,12 +84,12 @@ y cero cron. Comparación estática final frente a PR #44: ocho grafos completos
 imports, SHA, bytes y gzip. Worker de 282 archivos: +294 B/+164 gzip explicados
 por registro B2B-008/companies 1.11.0/ADR0063 y metadata generada separada;
 280 archivos iguales tras mapear 24 nombres, sin equivalencia SSR completa.
-**Verificado localmente, integración pendiente y sin despliegue.**
+**Verificado localmente e integrado en PR #45 (`4cfef237`), sin despliegue.**
 [Informe final R6.8a](../audits/r6-8a/verification-report.json). R6.7c está integrado en PR #44 (`6aade364`), [informe](../audits/r6-7c/verification-report.json),
 sin despliegue: navegador 5.076/108 visitas, ocho a11y/PNG, E2E 200 y hash de
 143 tablas/353 filas son evidencia heredada, no ejecuciones nuevas de a.
-Siguiente propuesto: R6.8b limitado al parser CSV puro, contrato exacto todavía
-en diseño y pendiente de aceptación. Histórico, composición y UI irán en cortes
+R6.8b está implementado y verificado localmente como parser CSV puro,
+con integración pendiente y sin despliegue. Histórico, composición y UI irán en cortes
 separados; resolver un SKU reutilizado no reconstruye una compra antigua.
 
 **R6.7c — Demo «Referencias y documentos» está implementada y verificada localmente**, rama
@@ -89,9 +129,10 @@ siembra o migración. **Verificada localmente, disponible en repo e integrada
 en PR #44 (`6aade364`), sin despliegue.** [Informe final R6.7c](../audits/r6-7c/verification-report.json). Tras c,
 el siguiente bloque canónico es R6.8, pedido rápido/repetición por SKU, CSV,
 listas y pedido anterior. R6.8a está implementado y verificado localmente:
-lista/identidad sin dinero sobre un único snapshot completo con SKUs, con
-integración pendiente y sin despliegue. Parser CSV propuesto para b, contrato
-exacto todavía pendiente; histórico, composición y UI se delimitarán aparte.
+lista/identidad sin dinero sobre un único snapshot completo con SKUs,
+integrado en PR #45 (`4cfef237`) y sin despliegue. R6.8b parser CSV puro tiene
+contrato exacto implementado y verificado localmente, con integración pendiente;
+histórico, composición y UI se delimitarán aparte.
 
 **R6.7b — Evidencia documental comercial está implementada y verificada localmente**, rama
 `codex/company-document-evidence-fixtures`, según el [ADR-0062](adr/0062-evidencia-documental-fixture.md).
@@ -1052,7 +1093,7 @@ R5 operativo completo y mantiene G3/G4 pendientes.
 | B2B-005 | Reglas de cantidad | módulo | P2 | parcial | **R6.3a implementado y verificado localmente**, rama codex/variant-quantity-rules, integrado en PR #31 (`7ac42e67`) sin despliegue; [ADR-0054](adr/0054-reglas-cantidad-fixture.md). Propietario companies 1.2.0, dependencia de capacidad única B2B-002 y de módulo platform-configuration; instalada/inactiva en avanzado/demo, ausente en mínimo/estándar y sin superficies operativas. Política global por variante; regla fija unit/factor 1 o box/factor al menos 2, min/max inclusivos y múltiplo absoluto desde cero. Request con requestedCount y referencias exactas a política/catálogo; cero conserva diagnóstico below_minimum con regla y -0 se rechaza. BigInt para multiplicación/LCM/factibilidad; overflow rechazado también en ocultos/inactivos, sin ajuste automático. Ausencia unconfigured con unidad/factor/cantidad null; validación completa de referencias y pertenencia. Composición deriva identidad del mismo catálogo de empresa completamente normalizado, sin segundo catálogo; una variante por producto y diagnóstico aditivo a visibilidad, sin búsqueda de binding, pricing, precios/totales, autorización ni stock. Runtime quote 1..99 intacto. Check final 965 archivos/254 suites/3.376 pruebas; 112 propias (57 + 55), seis arquitectura y 117 registry/manifest/access. Oráculo 78.223 comprobaciones/3.234 políticas/1.738 factibles/12.372 cantidades/900 intersecciones sin P1/P2, efectos, getters ni reloj implícito. Diagnósticos API 7.728 B/dos fuentes y composición 35.934 B/siete, sin imports externos u operativos; clientes reales de Catálogo/Directorio/Guía conservan grafo, nombres, SHA y tamaños/gzip de PR #30, sin fuentes nuevas de cantidades en UI. Evidencia navegador/E2E/a11y/PNG/hash heredada de PR #30, sin nuevas ejecuciones; [informe](../audits/r6-3a/verification-report.json). **R6.3b implementada y verificada localmente, disponible en repo**, rama codex/variant-quantity-demo, integrada en PR #32 (`04d5f9a9`) sin despliegue: /demo/admin/cantidades, «Mínimos, múltiplos y cajas», Clientes tras Catálogo de empresa; empresa activa/professional fijos, ES/FR, una línea seleccionada y cantidades en memoria por variante (11→8, 12→2, 21→1), sin reinterpretación ni autoajuste. Preview existente, diagnóstico separado de visibilidad; sin regla count conservado con unidad/factor/conversión null, con regla count cero mantiene cantidad cero y below_minimum. Sin precios, totales, stock, permisos, I/O ni persistencia. Check final 969 archivos/255 suites/3.426 pruebas, 50 modelo y seis arquitectura; 44 HTML/44 formularios/cero crons. Revisión 39.967 comprobaciones/36 estados/484 transiciones/150 combinaciones de memoria/900 vistas, sin P1/P2, efectos, getters ni reloj implícito. Cliente real cinco archivos/53.687 B/17.349 B gzip, sin imports externos u operativos; guía separada 15.154 B/6.300 B gzip. Navegador nuevo 2.084 comprobaciones/72 visitas, a11y ocho sin hallazgos, ocho PNG aprobados por frontend y cuatro por revisión principal, E2E nuevo 184/184 y hash antes/después intacto de 143 tablas/353 filas; [informe final](../audits/r6-3b/verification-report.json). |
 | B2B-006 | Presupuesto a pedido | módulo | P2 | parcial | **R6.6a implementado y verificado localmente**, [ADR-0059](adr/0059-solicitudes-ofertas-fixture.md), companies 1.7.0. Instalada/inactiva avanzado/demo, ausente mínimo/estándar, dependencia única B2B-002 y superficies operativas vacías. Solicitud sin dinero; directorio/catálogo/solicitud completos y ofertas EUR declaradas con historial de hasta veinte revisiones, replay y diff. Precio ofertado 0–1.000.000.000 y total 1–1.000.000.000 céntimos con BigInt; caducidad por oferta y referencias exactas, sin precio autorizado o estado comercial implícitos. Check final 987 archivos sin diagnósticos/262 suites/3.745 pruebas, 50 dominio/seis arquitectura/120 registro y revisión 10.245 sin P1/P2. Seis grafos JS/355 fuentes iguales a PR #38; 18/19 CSS iguales, única utilidad .ordinal sin uso (+175 B/+7 gzip). Integrado en PR #39 (`108480f8`)/sin despliegue; QA runtime heredada de PR #38. [Informe final](../audits/r6-6a/verification-report.json). No UI, DDL, runtime D1, conversión, reserva o cobro. **R6.6b implementado y verificado localmente**, [ADR-0060](adr/0060-artefacto-preliminar-fixture.md), companies 1.8.0: corte histórico íntegro y términos explícitos, estado/versiones derivados mediante ORD-008 y hasta tres acciones declaradas. Binding antes de replay/CAS, sin latest o retarget; unpaid/cero no prueba impago y approve no concede autoridad. Dependencias/flags/superficies sin cambios; check 989 archivos sin diagnósticos/263 suites/3.789 pruebas, 44 composición/50 regresión/seis arquitectura/120 registro; revisión 9.093 sin P1/P2. 58 JS/seis grafos/355 fuentes/19 CSS iguales a PR #39, Worker +92 B explicado y sin equivalencia SSR completa. Integrado en PR #40 (`ce295c6`)/sin despliegue; runtime heredado de PR #38. [Informe final](../audits/r6-6b/verification-report.json). **R6.6c implementada y verificada localmente**, /demo/admin/presupuestos-empresa: dos zonas independientes, tres pares/tres ofertas/cuatro fechas cerradas; creación explícita y acciones simuladas, términos fijos visibles y proyección privada. 25 modelo/seis arquitectura verdes y revisión 105.487 sin P1/P2; check final 993 archivos/264 suites/3.814 pruebas; navegador 9.068 comprobaciones, 72 visitas iniciales/24 creaciones más recorridos, a11y 8 sin hallazgos, ocho PNG revisadas y E2E 196/196. Hash nuevo antes/después idéntico de 143 tablas/353 filas; integrada en PR #41 (`424123fe`) y sin despliegue. Sin duplicar estados, heredar aprobación de crédito o habilitar pagos/conversión. |
 | B2B-007 | Pedido por PO | módulo | P2 | parcial | **R6.7a implementado y verificado localmente**, [ADR-0061](adr/0061-referencia-po-fixture.md), companies 1.9.0. Instalada/inactiva avanzado/demo, ausente mínimo/estándar; dependencia B2B-006, superficies vacías. Declaración versionada y binding histórico completo; número legible/token opaco o not_provided, emisor exacto, asociación temporal explícita. Sin dinero propio, factura, pago, autoridad ni historia durable. 26 contrato/seis arquitectura y 121 registro verdes; revisión 6.726 sin P1/P2. Check global 995 archivos/265 suites/3.841 pruebas verde; siete grafos/358 fuentes/19 CSS/60 JS iguales a PR #41, Worker +296 B explicado. Integrado en PR #42 (`1b783473`), sin despliegue; interacción/base heredadas de PR #41, sin nuevas ejecuciones. Evidencia documental, demo y conciliación operativas permanecen pendientes.  **R6.7b implementado y verificado localmente**, [ADR-0062](adr/0062-evidencia-documental-fixture.md), companies 1.10.0. Consulta/adaptador íntegros frente a documento observado; empresa compradora, PO e importe comercial EUR comparable/null, asOf y unknown explícitos. Misma instalación/dependencia inactivas, sin nuevas capacidades. Check 1.001 archivos/267 suites/3.898 pruebas; focales 23+26+6/factory 34/registro 121, revisiones independientes 28.509/6.726/14.534 separadas y sin P1/P2. Siete grafos/358 fuentes/19 CSS/60 JS idénticos a PR #42, Worker +61 B explicado sin equivalencia SSR. QA runtime heredada PR #41; integrado en PR #43 (`feff0a27`)/sin despliegue. [Informe final](../audits/r6-7b/verification-report.json). R6.7c está verificada localmente e integrada en PR #44 (`6aade364`), sin despliegue.  **R6.7c verificada localmente**: /demo/admin/documentos-empresa, 18 ejemplos y tres evaluaciones explícitas, dos selectores/reset. Campos y comparabilidad separados; importe ajeno oculto, unknown distinto de0. Check 1.005 archivos/268 suites/3.969 pruebas verde; 71 modelo/seis arquitectura, revisión 7.132 + 589 separadas sin P1/P2. Cliente real 60.721 B/17.405 gzip; navegador 5.076/108 visitas, ocho a11y sin hallazgos y ocho PNG revisadas. E2E 200/200, hash nuevo de 143 tablas/353 filas intacto; integrada en PR #44 (`6aade364`), sin activación operativa ni despliegue. |
-| B2B-008 | Repetir pedido/lista rápida | módulo | P2 | parcial | **R6.8a verificado localmente**, [ADR-0063](adr/0063-lista-identidad-sku-fixture.md): lista estructurada y resolución literal de SKU sobre snapshot completo único. Conserva filas, cantidades y ambigüedad, sin suma/default; identidad resuelta no acredita compra, visibilidad o cantidad satisfecha. companies 1.11.0; instalada/inactiva avanzado/demo, dependencia B2B-002, sin superficies. 63 dominio/seis arquitectura/122 registro y revisión 55.894 sin P1/P2; global 1.007 archivos/269 suites/4.033 pruebas verde; ocho grafos/361 fuentes/19 CSS/62 JS iguales a PR #44 y Worker +294 B explicado. Integración pendiente, sin despliegue; QA runtime heredada PR #44. R6.8b parser CSV puro propuesto, exacto pendiente; histórico/composición/UI separados; sin operación real ni despliegue. |
+| B2B-008 | Repetir pedido/lista rápida | módulo | P2 | parcial | **R6.8a verificado localmente**, [ADR-0063](adr/0063-lista-identidad-sku-fixture.md): lista estructurada y resolución literal de SKU sobre snapshot completo único. Conserva filas, cantidades y ambigüedad, sin suma/default; identidad resuelta no acredita compra, visibilidad o cantidad satisfecha. companies 1.11.0; instalada/inactiva avanzado/demo, dependencia B2B-002, sin superficies. 63 dominio/seis arquitectura/122 registro y revisión 55.894 sin P1/P2; global 1.007 archivos/269 suites/4.033 pruebas verde; ocho grafos/361 fuentes/19 CSS/62 JS iguales a PR #44 y Worker +294 B explicado. Integrado en PR #45 (`4cfef237`), sin despliegue; QA runtime heredada PR #44. R6.8b parser CSV puro implementado, QA final pendiente; histórico/composición/UI separados; sin operación real ni despliegue. **R6.8b verificado localmente**, [ADR-0064](adr/0064-entrada-csv-pedido-rapido-fixture.md): parser puro todo o nada, metadata real a y tokens conservados; companies 1.12.0, dependencias/flags intactos. 66 CSV/63 regresión/seis arquitectura y registro 122 verdes; global 1.010 archivos/270 suites/4.099 pruebas y revisión independiente verdes; ocho grafos/361 fuentes/19 CSS/62 JS idénticos a PR #45 y Worker +65 B explicado. Integración pendiente, sin despliegue; runtime heredado PR #44. Sin archivo real, histórico, composición, UI o operación. |
 | B2B-009 | Delegación y permisos comprador | módulo | P3 | pendiente | Roles por sede y límites. |
 | B2B-010 | Factura electrónica/ERP | conector | P2 | conector | Adaptador por sistema y país. |
 | B2B-011 | Venta mayorista sin cuenta | gestionado | P2 | gestionado | Flujo de solicitud/presupuesto para proyectos simples. |
