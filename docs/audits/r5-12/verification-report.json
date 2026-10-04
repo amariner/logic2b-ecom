@@ -1,0 +1,79 @@
+{
+  "schemaVersion": 1,
+  "verifiedAt": "2026-10-04",
+  "environment": "local-synthetic-fixtures",
+  "deployment": "not-deployed",
+  "verification": {
+    "typecheckFiles": 939,
+    "diagnostics": 0,
+    "suites": 243,
+    "tests": 2935,
+    "internationalContractTests": 9,
+    "capabilityIsolationTests": 7,
+    "privateSurfaceHeaderTests": 32,
+    "customerHeaderTests": 7,
+    "buildHtmlPages": 44,
+    "buildLocalForms": 44,
+    "e2eChecks": 172,
+    "e2eRerun": true,
+    "httpAuditChecks": 4554,
+    "httpRequests": 163,
+    "httpMethods": [
+      "GET",
+      "HEAD"
+    ],
+    "sitemapPages": 40
+  },
+  "independentReview": {
+    "assertions": 1114,
+    "cases": 127,
+    "trapEnvironmentReads": 0,
+    "requestBodiesConsumed": 0,
+    "waitUntilCalls": 0,
+    "cookieWrites": 0,
+    "openP1OrP2": 0,
+    "crossContractAndCapabilityTestsReviewed": true,
+    "httpAuditorReviewed": true
+  },
+  "database": {
+    "tables": 143,
+    "rows": 353,
+    "beforeHash": "9cbfc811cfc4296515a403d395875a43bfa26aff0c9c9b08be0804b15bbf6eca",
+    "afterHash": "9cbfc811cfc4296515a403d395875a43bfa26aff0c9c9b08be0804b15bbf6eca",
+    "result": "unchanged"
+  },
+  "httpAudit": {
+    "report": "http-report.json",
+    "automaticRedirects": false,
+    "browserExecuted": false,
+    "cookiesStoredInReport": false,
+    "bodiesStoredInReport": false,
+    "scope": "local HTTP/SSR with only GET/HEAD; global E2E separately exercises rejected synthetic commands"
+  },
+  "inheritedBrowserAndA11y": {
+    "rerunForThisCut": false,
+    "reason": "no UI or client asset changes; server headers verified on final build",
+    "sources": [
+      "../r5-6d/verification-report.json",
+      "../r5-8b/verification-report.json",
+      "../r5-9b/verification-report.json",
+      "../r5-10b/verification-report.json",
+      "../r5-11c/verification-report.json"
+    ],
+    "latestSourceCommit": "46dbe905c3575f7e8ec9c5d2f62a4c986a726243"
+  },
+  "scope": {
+    "completion": "R5 fixture contract and surface consolidation only",
+    "privateResponses": "admin and customer families retain response semantics with private/no-store, cookie-aware Vary and noindex",
+    "capabilitiesActivated": 0,
+    "routesAdded": 0,
+    "migrationsAdded": 0,
+    "jobsAdded": 0,
+    "providersActivated": 0,
+    "realOrdersCreated": 0,
+    "formsAdded": 0,
+    "operationalInternationalCheckoutCompleted": false,
+    "legalComplianceCertified": false,
+    "next": "R6.1a companies fixture directory and VAT context"
+  }
+}

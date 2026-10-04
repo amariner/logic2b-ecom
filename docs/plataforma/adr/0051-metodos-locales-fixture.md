@@ -1,7 +1,7 @@
 # ADR-0051 — Métodos locales disponibles en fixtures
 
 - Estado: accepted; R5.11b integrado en PR #24 (`a44923c`). R5.11c cerrado
-  localmente y disponible en el repositorio, con integración pendiente.
+  localmente y disponible en el repositorio, integrado en PR #25 (`46dbe905`).
   Sin activación ni despliegue.
 - Fecha: 2026-10-04
 - Bloque: R5.11b
@@ -223,7 +223,7 @@ fabricada. Los métodos se evalúan siempre sobre el original y permanecen
 invariantes ante cambios de FX. Usa formato exacto con `BigInt` y 32
 respuestas fixture. Estado en memoria y reset/recarga, manifest demo y
 `DEMO_MODE=true` obligatorios. Demo implementada y verificada localmente,
-disponible en el repositorio; integración pendiente, sin despliegue, activación
+disponible en el repositorio; integrada en PR #25 (`46dbe905`), sin despliegue, activación
 de capacidades ni autorización de pagos reales.
 
 [Verificación final R5.11c](../../audits/r5-11c/verification-report.json), 2026-10-04:
@@ -246,14 +246,39 @@ del modelo, distinto del cliente final, mide 48.518 B sin minificar.
 La base QA conserva 143 tablas y 353 filas con SHA-256 antes/después idéntico:
 `9cbfc811cfc4296515a403d395875a43bfa26aff0c9c9b08be0804b15bbf6eca`.
 Worker detenido. Demo implementada y verificada localmente, disponible en el
-repositorio; integración pendiente, sin despliegue ni activación.
+repositorio; integrada en PR #25 (`46dbe905`), sin despliegue ni activación.
 
 La evidencia técnica de R5.11b y la regresión heredada de PR #22 no se
 atribuyen a esta nueva superficie.
 
-## Siguiente: consolidación R5.12
+## Consolidación R5.12 cerrada localmente
 
-R5.12 será la siguiente consolidación local de contratos y demos con fixtures:
+R5.12 queda realizada y verificada localmente en `codex/r5-fixture-consolidation`,
+posterior a PR #25; integración pendiente, sin despliegue.
+[Alcance y matriz de evidencia](../R5_CONSOLIDACION_FIXTURES.md). Nueve pruebas
+entre contratos ES/FR, matriz del manifest, cabeceras privadas tempranas y
+auditoría GET/HEAD sobre el build final; sin UI, DDL, rutas o activación nuevas.
+[Verificación final R5.12](../../audits/r5-12/verification-report.json), 2026-10-04:
+`pnpm check` pasa 939 archivos sin diagnósticos, 243 suites/2.935 pruebas,
+44 HTML, 44 formularios y cero crons. Nueve pruebas de compatibilidad ES/FR,
+siete de capacidades y 32 de cabeceras privadas; el contrato HTTP passwordless
+suma siete. Revisión independiente de 1.114 aserciones en 127 casos, sin P1/P2,
+accesos a entorno/bindings trampa, cuerpos leídos, escrituras de cookies ni
+`waitUntil` en los casos protegidos.
+
+La auditoría nueva pasa 4.554 comprobaciones mediante 163 solicitudes GET/HEAD
+y contrasta 40 URLs del sitemap. El E2E global nuevo pasa 172/172: se ejecuta
+aparte por el cambio de middleware/admin y comprueba rechazos en QA aislada
+sintética, sin escrituras. No se confunde con la auditoría estricta GET/HEAD.
+La base conserva 143 tablas y 353 filas; SHA-256 antes/después idéntico:
+`9cbfc811cfc4296515a403d395875a43bfa26aff0c9c9b08be0804b15bbf6eca`.
+Worker detenido. Navegador 2.030/2.030, a11y de ocho superficies y ocho capturas
+son evidencia heredada de PR #25, no nuevas ejecuciones de R5.12.
+
+Consolidación fixture realizada y verificada localmente; integración pendiente,
+sin despliegue, nuevas activaciones ni declaración de operación real completa.
+
+El alcance de consolidación conserva estos límites:
 
 - Matriz trazable de capacidades R5, contratos, estados instalada/inactiva,
   superficies demostrables y evidencia propia o heredada.
