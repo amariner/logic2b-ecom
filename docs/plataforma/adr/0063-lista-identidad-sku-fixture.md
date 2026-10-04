@@ -190,11 +190,11 @@ la comparación estática final acota esta herencia, sin una nueva ejecución
 HTTP, navegador o DB ni una promesa de equivalencia SSR completa.
 
 R6.8b está implementado y verificado localmente como parser CSV puro, según el
-[ADR-0064](0064-entrada-csv-pedido-rapido-fixture.md), con integración pendiente y
-sin despliegue: check de 4.099 pruebas y comparación estática cerrados, sin QA
-runtime nueva. Histórico, composición y UI se separarán en cortes posteriores,
-sin adelantar sus APIs o una demo en este ADR. El histórico requiere identidad explícita y corte
-de origen: resolver un SKU reutilizado no restaura la compra anterior, y
+[ADR-0064](0064-entrada-csv-pedido-rapido-fixture.md), integrado en PR #46 (`09161255`)
+y sin despliegue: check de 4.099 pruebas y comparación estática cerrados, sin QA
+runtime nueva. El histórico tiene contrato exacto aceptado en el
+[ADR-0065](0065-historico-pedido-rapido-fixture.md); composición y UI quedan aparte.
+El histórico requiere identidad explícita y corte de origen: resolver un SKU reutilizado no restaura la compra anterior, y
 `OrderReader` sin identidad de variante no basta para reconstruirla.
 
 Una composición posterior deberá derivar SKU e identidad y el catálogo
