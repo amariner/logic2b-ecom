@@ -1,12 +1,12 @@
 # ADR-0054 — Reglas de cantidad por variante con fixtures
 
-- Estado: accepted; R6.3a implementado, verificado localmente e integrado en PR #31 (`7ac42e67`). R6.3b implementada y verificada localmente, con integración pendiente; sin activación ni despliegue.
+- Estado: accepted; R6.3a implementado, verificado localmente e integrado en PR #31 (`7ac42e67`). R6.3b implementada, verificada localmente e integrada en PR #32 (`04d5f9a9`); sin activación ni despliegue.
 - Fecha: 2026-10-04
 - Bloques: R6.3a, contrato de mínimo, máximo, múltiplo y caja; R6.3b, demo inerte.
 - Propietario: módulo `companies`, versión 1.2.0.
 - Capacidad: B2B-005, parcial e instalada/inactiva en avanzado/demo, dependencia B2B-002.
 - Composición: `previewCompanyQuantities`, mediante contratos públicos puros y el contexto de catálogo existente.
-- Demo visual: R6.3b verificada localmente y disponible en el repositorio; integración pendiente, sin despliegue.
+- Demo visual: R6.3b verificada localmente y disponible en el repositorio, integrada en PR #32 (`04d5f9a9`), sin despliegue.
 
 ## Contexto
 
@@ -304,8 +304,8 @@ con unidad/factor/cantidad canónica nulos incluso al solicitar cero. ES muestra
 las tres; FR oculta la 11. Cantidad conforme y visibilidad se explican por
 separado, sin precios, stock, totales, autorización o ajustes automáticos.
 
-Implementada y verificada localmente, disponible en el repositorio; integración
-pendiente y sin despliegue. Verificados 36 estados por tamaño, 72 visitas en
+Implementada y verificada localmente, disponible en el repositorio e integrada
+en PR #32 (`04d5f9a9`), sin despliegue. Verificados 36 estados por tamaño, 72 visitas en
 1.440/375 px: contadores 0, 2, 4, 5, 8, 12, 16, 17, 19 y 20 para unidades;
 0–4 para cajas y 0–2 sin regla, en ES/FR. Ocho capturas aprobadas: unidad
 conforme, una caja que incumple el múltiplo, ausencia de regla y ocho unidades
@@ -351,19 +351,14 @@ del modelo, 45.400 B/ocho fuentes puras, es una medición distinta de los assets
 
 ## Continuidad: R6.4a
 
-**R6.4a — Condiciones y calendario de pago con fixtures** es el siguiente
-diseño aprobado, todavía sin implementación. Condición explícita/versionada
-por empresa, `immediate` o `net_days`, fecha base y fecha de evaluación
-explícitas bajo un calendario civil UTC declarado. Ausencia de condición
-produce `unconfigured`; no se sustituye por pago inmediato ni se infieren
-impago, captura o autorización desde el tiempo transcurrido.
+R6.3b está integrada en PR #32 (`04d5f9a9`), sin despliegue. R6.4a está
+implementado y verificado localmente, con integración pendiente; contrato y estado en el
+[ADR-0055](0055-condiciones-pago-fixture.md): condición explícita/versionada por
+empresa, calendario civil UTC, fechas declaradas e hitos sin destinatario,
+envío o job. Ausencia no infiere pago inmediato; una posición temporal no
+acredita impago, captura, saldo o autorización. Sin activación ni despliegue.
 
-Los recordatorios serán únicamente hitos calculados con offsets explícitos,
-sin destinatario, envío, job o cron. El estado de cobro requiere un subcorte
-posterior con evidencia completa correlacionada; R6.4 no se declarará completo
-solo por calcular vencimientos. Crédito/aprobaciones y fiscalidad conservan
-sus alcances separados; no se fijan plazos comerciales reales.
-
-Esquema, API, límites y semántica exacta de fechas se cerrarán con los autores
-antes de implementar. El ensayo fixture no necesita DDL ni proveedor; este
-outline no añade activación, persistencia ni cambios en el ledger.
+La siguiente dirección aprobada es R6.4b, evidencia correlacionada fixture
+pura, y R6.4c, demo conjunta después. Schema/API y semántica monetaria/temporal
+de b requieren revisión antes de implementar; no se recrea un ledger. R6.4
+sigue parcial, con crédito/aprobaciones, fiscalidad y operación real separados.

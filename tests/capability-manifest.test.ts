@@ -418,24 +418,58 @@ describe('capability manifest (R1.2)', () => {
 
   it.each([
     ['minimal', 'absent'], ['standard', 'absent'], ['advanced', 'installed'], ['demo', 'installed'],
-  ] as const)('keeps variant quantities %s without operational flags or surfaces', (profile, state) => {
-    if (profile === 'minimal' || profile === 'standard') {
-      expect('B2B-005' in CAPABILITY_PRESETS[profile]).toBe(false);
-    }
-    if (profile === 'advanced') expect(CAPABILITY_PRESETS.advanced['B2B-005']).toEqual({ state: 'installed' });
+  ] as const)('keeps company quantities and payment terms %s without operational flags or surfaces', (profile, state) => {
     const platform = createPlatform(profile === 'demo' ? platformManifest : createPresetManifest(profile, deployment));
-    expect(platform.capabilityState('B2B-005')).toBe(state);
-    expect(platform.isCapabilityActive('B2B-005')).toBe(false);
-    expect(platform.capability('B2B-005').flags).toEqual(INERT_FLAGS);
     expect(platform.hasModule('companies')).toBe(false);
+    for (const id of ['B2B-003', 'B2B-005'] as const) {
+      if (profile === 'minimal' || profile === 'standard') expect(id in CAPABILITY_PRESETS[profile]).toBe(false);
+      if (profile === 'advanced') expect(CAPABILITY_PRESETS.advanced[id]).toEqual({ state: 'installed' });
+      expect(platform.capabilityState(id)).toBe(state);
+      expect(platform.isCapabilityActive(id)).toBe(false);
+      expect(platform.capability(id).flags).toEqual(INERT_FLAGS);
+      for (const flag of CAPABILITY_FLAG_NAMES) {
+        expect(decideCapabilityAccess(platform, id, flag)).toEqual({
+          allowed: false, capabilityId: id, state, status: 404,
+        });
+      }
+      expect(adminNavigationFor(platform).filter(({ capabilityId }) => capabilityId === id)).toEqual([]);
+      expect(platform.registry.routes.filter(({ capabilityId }) => capabilityId === id)).toEqual([]);
+      expect(platform.jobRegistry.descriptors.filter(({ requiredCapabilityId }) => requiredCapabilityId === id)).toEqual([]);
+    }
+  });
+
+  it('requires only the company directory for payment terms without activating collection or catalog consumers', () => {
+    expect(CAPABILITY_DEFINITIONS['B2B-003'].dependencies).toEqual(['B2B-001']);
+    const input: MutableManifest = {
+      manifestVersion: 1,
+      deployment: { ...deployment, profile: 'custom' },
+      capabilities: {
+        'PLT-001': { state: 'active', flags: INERT_FLAGS },
+        'PLT-004': { state: 'active', flags: INERT_FLAGS, config: { failFast: true } },
+        'B2B-003': { state: 'active', flags: INERT_FLAGS },
+      },
+    };
+    for (const state of ['absent', 'installed', 'disabled', 'retired'] as const) {
+      input.capabilities['B2B-001'] = { state };
+      expect(validateCapabilityManifest(input).issues).toEqual(expect.arrayContaining([
+        expect.objectContaining({ code: 'missing-dependency', path: 'capabilities.B2B-003' }),
+      ]));
+    }
+    input.capabilities['B2B-001'] = { state: 'active', flags: INERT_FLAGS };
+    const isolated = createPlatform(input as Parameters<typeof createPlatform>[0]);
+    expect(isolated.modules.map(({ descriptor }) => descriptor.id)).toEqual(['platform-configuration', 'companies']);
+    expect(isolated.module('companies')?.activeCapabilities).toEqual(['B2B-001', 'B2B-003']);
+    for (const id of ['B2B-002', 'B2B-005', 'CHK-003', 'CHK-004', 'PRC-009', 'AUT-002', 'INT-001'] as const) {
+      expect(isolated.capabilityState(id)).toBe('absent');
+    }
     for (const flag of CAPABILITY_FLAG_NAMES) {
-      expect(decideCapabilityAccess(platform, 'B2B-005', flag)).toEqual({
-        allowed: false, capabilityId: 'B2B-005', state, status: 404,
+      expect(decideCapabilityAccess(isolated, 'B2B-003', flag)).toEqual({
+        allowed: false, capabilityId: 'B2B-003', state: 'active', status: 403,
       });
     }
-    expect(adminNavigationFor(platform).filter(({ capabilityId }) => capabilityId === 'B2B-005')).toEqual([]);
-    expect(platform.registry.routes.filter(({ capabilityId }) => capabilityId === 'B2B-005')).toEqual([]);
-    expect(platform.jobRegistry.descriptors.filter(({ requiredCapabilityId }) => requiredCapabilityId === 'B2B-005')).toEqual([]);
+    expect(adminNavigationFor(isolated)).toEqual([]);
+    const crons = new Set(isolated.jobRegistry.descriptors.flatMap(({ trigger }) => trigger.kind === 'recurring' ? trigger.crons : []));
+    for (const cron of crons) expect(isolated.scheduledJobs(cron)).toEqual([]);
   });
 
   it('requires company catalog quantities without activating market, price or purchase consumers', () => {
