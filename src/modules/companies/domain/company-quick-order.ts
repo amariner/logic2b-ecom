@@ -1,5 +1,7 @@
+import { isCompanyQuickOrderSku, MAX_COMPANY_QUICK_ORDER_SKU_LENGTH } from './company-quick-order-sku';
+
 export const COMPANY_QUICK_ORDER_LIMITS = /* @__PURE__ */ Object.freeze({
-  idLength: 100, skuLength: 100, products: 1000, perProductVariants: 100, variants: 10000,
+  idLength: 100, skuLength: MAX_COMPANY_QUICK_ORDER_SKU_LENGTH, products: 1000, perProductVariants: 100, variants: 10000,
   lines: 100, productId: 2_147_483_647, quantityUnits: Number.MAX_SAFE_INTEGER, version: Number.MAX_SAFE_INTEGER,
 });
 const PROFILE = 'company-quick-order-identity-v1';
@@ -111,9 +113,7 @@ function id(input: unknown): string {
 }
 function sku(input: unknown): string {
   // Length mide UTF-16; espacios extremos, mayúsculas y NFC/NFD conservan su identidad literal.
-  if (typeof input !== 'string' || input.length < 1 || input.length > COMPANY_QUICK_ORDER_LIMITS.skuLength
-    || !/^[\p{L}\p{M}\p{N}\p{P}\p{S} ]+$/u.test(input) || !/[\p{L}\p{N}\p{P}\p{S}]/u.test(input)
-    || /\p{Default_Ignorable_Code_Point}/u.test(input)) return invalid();
+  if (!isCompanyQuickOrderSku(input)) return invalid();
   return input;
 }
 function instant(input: unknown): string {

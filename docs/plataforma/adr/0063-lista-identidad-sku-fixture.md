@@ -1,6 +1,6 @@
 # ADR-0063 — Lista estructurada e identidad de SKU con fixtures
 
-- Estado: accepted; R6.8a verificado localmente: 4.033 pruebas; integración pendiente.
+- Estado: accepted; R6.8a implementado y verificado localmente, integrado en PR #45 (`4cfef237`), sin despliegue.
 - Fecha: 2026-10-04.
 - Dominio: `src/modules/companies/domain/company-quick-order.ts`.
 - API pública: `src/modules/companies/index.ts`.
@@ -167,7 +167,7 @@ perfil; los recuentos de verificación se atribuyen por separado abajo.
 
 ## Validación y continuidad
 
-**Implementado y verificado localmente; integración pendiente y sin despliegue.**
+**Implementado y verificado localmente; integrado en PR #45 (`4cfef237`), sin despliegue.**
 63 focales de dominio y seis de arquitectura verdes; TypeScript focal en dos
 archivos sin diagnósticos. Registro/manifiesto/acceso: 122 pruebas (19/73/30).
 Revisión independiente: 55.894 aserciones, 123 casos, 1.131 filas, 194 SKU y
@@ -189,10 +189,11 @@ comprobaciones/108 visitas, ocho superficies a11y y ocho PNG revisadas, E2E
 la comparación estática final acota esta herencia, sin una nueva ejecución
 HTTP, navegador o DB ni una promesa de equivalencia SSR completa.
 
-El siguiente R6.8b se propone exclusivamente como parser CSV puro; su contrato
-exacto está en diseño y pendiente de aceptación. Histórico, composición y UI se
-separarán en cortes posteriores. No se establece una API o demo para esos pasos
-en este ADR. El histórico requiere identidad explícita y corte
+R6.8b está implementado y verificado localmente como parser CSV puro, según el
+[ADR-0064](0064-entrada-csv-pedido-rapido-fixture.md), con integración pendiente y
+sin despliegue: check de 4.099 pruebas y comparación estática cerrados, sin QA
+runtime nueva. Histórico, composición y UI se separarán en cortes posteriores,
+sin adelantar sus APIs o una demo en este ADR. El histórico requiere identidad explícita y corte
 de origen: resolver un SKU reutilizado no restaura la compra anterior, y
 `OrderReader` sin identidad de variante no basta para reconstruirla.
 

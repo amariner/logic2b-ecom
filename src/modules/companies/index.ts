@@ -223,3 +223,19 @@ export {
   type CompanyQuickOrderPreview,
   type CompanyQuickOrderContractReason,
 } from './domain/company-quick-order';
+
+export {
+  COMPANY_QUICK_ORDER_CSV_LIMITS,
+  CompanyQuickOrderCsvContractError,
+  parseCompanyQuickOrderCsv,
+  type CompanyQuickOrderCsvPosition,
+  type CompanyQuickOrderCsvRange,
+  type CompanyQuickOrderCsvField,
+  type CompanyQuickOrderCsvRecord,
+  type CompanyQuickOrderCsvRow,
+  type CompanyQuickOrderCsvMetadata,
+  type CompanyQuickOrderCsvTextInfo,
+  type CompanyQuickOrderCsvDiagnostic,
+  type CompanyQuickOrderCsvResult,
+  type CompanyQuickOrderCsvContractReason,
+} from './application/company-quick-order-csv';

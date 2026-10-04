@@ -261,10 +261,10 @@ idéntico en las capturas frescas de 05:13:54 y 05:24:45 UTC; sin nueva preparac
 siembra o migración. **Verificada localmente, disponible en repo e integrada
 en PR #44 (`6aade364`), sin despliegue.** [Informe final R6.7c](../../audits/r6-7c/verification-report.json). Tras c,
 el siguiente bloque canónico es R6.8, pedido rápido/repetición por SKU, CSV,
-listas y pedido anterior. R6.8a tiene contrato exacto aceptado y está en
-implementación: lista/identidad sin dinero sobre un único snapshot completo con
-SKUs. La validación nueva sigue pendiente; las etapas posteriores se delimitarán
-antes de implementarlas.
+listas y pedido anterior. R6.8a está verificado e integrado en PR #45 (`4cfef237`):
+lista/identidad sin dinero sobre un único snapshot completo con SKUs. R6.8b
+añade el parser CSV puro según el [ADR-0064](0064-entrada-csv-pedido-rapido-fixture.md);
+histórico, composición y UI se delimitan en cortes separados.
 
 La vista conserva la referencia de compra aportada, su soporte declarado o
 no aportado y la oferta histórica de 77,00 EUR. En otra zona muestra la fecha de
@@ -329,9 +329,9 @@ es acotada y no acredita equivalencia SSR transitiva completa. La interacción
 de demos previas sigue siendo evidencia heredada; la nueva QA cubre Documentos
 de empresa y el E2E general de este corte.
 
-R6.8a está implementado y verificado localmente, con integración pendiente y sin
-despliegue, según el [ADR-0063](0063-lista-identidad-sku-fixture.md): lista/identidad
+R6.8a está implementado y verificado localmente, integrado en PR #45 (`4cfef237`)
+y sin despliegue, según el [ADR-0063](0063-lista-identidad-sku-fixture.md): lista/identidad
 sin dinero sobre un único snapshot completo con SKUs. Check de 4.033 pruebas y
 comparación estática cerrados; su QA runtime se hereda de este corte c. Parser
-CSV propuesto para b, exacto pendiente; histórico, composición y UI se separarán.
+CSV de b con contrato exacto aceptado en ADR-0064; histórico, composición y UI separados.
 No se convierten observaciones documentales en permiso de compra.
