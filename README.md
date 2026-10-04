@@ -158,8 +158,13 @@ remoto.
 - Catálogo y precios por empresa: 132 pruebas específicas y 12.478
   comprobaciones independientes. Intersección por variante, vínculo explícito
   con las listas y fallback empresa→general→catálogo, sin totales ni permisos.
-  B2B-002 instalada/inactiva; demo visual R6.2b pendiente.
+  B2B-002 instalada/inactiva; contrato separado de la demostración visual.
   [Informe R6.2a](docs/audits/r6-2a/verification-report.json).
+- Demo de catálogo por empresa: cuatro empresas, dos mercados y variantes
+  explícitas; tres orígenes de precio y bloqueos explicados sin totales.
+  49 pruebas del modelo, 3.614 comprobaciones de navegador y ocho superficies
+  a11y sin hallazgos. Guía en la cabecera móvil, con foco y controles despejados.
+  [Evidencia R6.2b](docs/audits/r6-2b/README.md).
 - Base QA: 143 tablas y 353 filas, hash antes/después idéntico:
   `9cbfc811cfc4296515a403d395875a43bfa26aff0c9c9b08be0804b15bbf6eca`.
 

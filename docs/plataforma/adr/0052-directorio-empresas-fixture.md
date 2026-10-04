@@ -324,7 +324,7 @@ reales ni autorización. No se añaden formularios, proveedores, jobs o crons.
 ## Continuidad tras R6.1b: R6.2a
 
 **R6.2a: catálogo y precios B2B con fixtures** está implementado y verificado
-localmente, con integración pendiente; su contrato y evidencia están en el
+localmente e integrado en PR #29 (`4d7a30a9`); su contrato y evidencia están en el
 [ADR-0053](0053-catalogos-empresa-fixture.md). Intersecta restricciones de empresa
 con publicación de mercado y calcula precio de una variante explícita por
 producto, con binding versionado y sin totales. El selector descriptivo de
@@ -332,5 +332,5 @@ este ADR conserva sus estados y registros; el bloqueo comercial de empresa
 inactiva pertenece al nuevo preview.
 
 B2B-002 permanece parcial e instalada/inactiva, sin autorización real, DDL,
-activación, stock, impuestos o cambios de checkout. R6.2b tiene diseño de demo
-aprobado, con implementación y QA visual pendientes; no se declara desplegada.
+activación, stock, impuestos o cambios de checkout. R6.2b añade la demo
+verificada localmente y disponible en repo; integración pendiente, sin despliegue.

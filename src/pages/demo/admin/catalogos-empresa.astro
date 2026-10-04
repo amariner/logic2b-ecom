@@ -1,0 +1,21 @@
+---
+import { canShowCompanyCatalogDemo } from '../../../composition/company-catalog-demo';
+import { runtimePlatform } from '../../../composition/runtime-platform';
+import Admin from '../../../layouts/Admin.astro';
+import AdminPageHeader from '../../../components/admin/AdminPageHeader.astro';
+import CompanyCatalogDemo from '../../../components/admin/CompanyCatalogDemo.astro';
+
+export const prerender = false;
+
+if (!canShowCompanyCatalogDemo(Astro.locals.runtime?.env, runtimePlatform)) {
+  return new Response('Página no encontrada.', {
+    status: 404,
+    headers: { 'content-type': 'text/plain; charset=utf-8', 'cache-control': 'no-store' },
+  });
+}
+---
+
+<Admin title="Catálogo por empresa" active="catalogos-empresa">
+  <AdminPageHeader eyebrow="Clientes · demostración" title="Catálogo por empresa" description="Compara qué variantes se muestran para cada empresa y mercado, y de dónde procede su precio unitario de ejemplo." />
+  <CompanyCatalogDemo />
+</Admin>

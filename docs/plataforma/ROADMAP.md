@@ -45,7 +45,7 @@ improvisan durante la implementación.
 | R3 | Operación de pedidos, inventario y fulfillment | ✅ cerrado 2026-08-14 |
 | R4 | Precios, promociones y modelos de venta | ✅ cerrado 2026-08-17 |
 | R5 | Clientes, privacidad y mercados | 🟨 consolidación fixture R5.12 cerrada localmente, integrada en PR #26 (`9dd23909`); operación real y G3/G4 pendientes; demo R5.11c integrada en PR #25 (`46dbe905`) |
-| R6 | B2B | 🟡 R6.1a integrado en PR #27 (`9b78e69a`) y demo R6.1b en PR #28 (`861b34ff`); R6.2a catálogo/precios fixture verificado localmente, 3.210 pruebas e integración pendiente; demo R6.2b posterior. Sin operación B2B activada ni despliegue |
+| R6 | B2B | 🟡 R6.1a integrado en PR #27 (`9b78e69a`) y demo R6.1b en PR #28 (`861b34ff`); R6.2a integrado en PR #29 (`4d7a30a9`), 3.210 pruebas; demo R6.2b verificada localmente, disponible en repo y preparada para integración. Sin operación B2B activada ni despliegue |
 | R7 | Marketing, analítica y automatización | ⬜ |
 | R8 | Storefront componible, búsqueda y contenido | ⬜ |
 | R9 | Integraciones y omnicanalidad | ⬜ |
@@ -388,8 +388,8 @@ installed, sin flags activas, secretos ni proveedor real.
 | Orden | Bloque de una sesión | Entregables y criterio específico | Estado |
 |---:|---|---|---|
 | 63 | **R6.1 Empresas, sedes y contactos** | Modelo, roles y VAT ID. | ✅ Alcance fixture local: R6.1a integrado en PR #27 (`9b78e69a`); R6.1b verificado, disponible en repo e integrado en PR #28 (`861b34ff`). Demo /demo/admin/empresas, 948 archivos sin diagnósticos, 246 suites/3.077 pruebas, navegador 601, E2E nuevo 176, ocho superficies a11y sin hallazgos y base QA intacta. B2B-001 parcial instalada/inactiva; sin autorización operativa, DDL, CRM, proveedor o despliegue |
-| 64 | **R6.2 Catálogos y listas B2B** | Publicación/precio por empresa con fallback. | 🟡 R6.2a verificado localmente, [ADR-0053](adr/0053-catalogos-empresa-fixture.md), 957 archivos/251 suites/3.210 pruebas y revisión 12.478 sin P1/P2; integración pendiente: política global empresa/producto intersectada con publicación; empresa inactiva cierra preview comercial. Una variante elegida por producto, base propia EUR y override por producto; binding explícito, ausencia da precio nulo, sin totales. Referencias completas y validación de todos los datos. B2B-002 parcial instalada/inactiva, sin autorización real; demo R6.2b pendiente |
-| 65 | **R6.3 Reglas de cantidad** | Mínimos, múltiplos y cajas desde catálogo a checkout. | ⬜ |
+| 64 | **R6.2 Catálogos y listas B2B** | Publicación/precio por empresa con fallback. | 🟡 R6.2a verificado localmente, [ADR-0053](adr/0053-catalogos-empresa-fixture.md), 957 archivos/251 suites/3.210 pruebas y revisión 12.478 sin P1/P2; integrado en PR #29 (`4d7a30a9`): política global empresa/producto intersectada con publicación; empresa inactiva cierra preview comercial. Una variante elegida por producto, base propia EUR y override por producto; binding explícito, ausencia da precio nulo, sin totales. Referencias completas y validación de todos los datos. B2B-002 parcial instalada/inactiva, sin autorización real; demo R6.2b /demo/admin/catalogos-empresa verificada localmente (961 archivos/252 suites/3.259 pruebas), navegador 3.614, E2E180, a11y8 sin hallazgos, ocho capturas aprobadas y base QA intacta; disponible en repo e integración pendiente |
+| 65 | **R6.3 Reglas de cantidad** | Mínimos, múltiplos y cajas desde catálogo a checkout. | ⬜ R6.3a siguiente diseño aprobado fixture: política global por variante, min/max inclusivos, múltiplo absoluto, unidad/caja explícita y factibilidad mediante LCM/BigInt; composición aditiva con visibilidad, sin overrides empresa ni cambio de límites1–99 runtime. B2B-005 pendiente; diseño de esquema/API cerrado, sin implementación ni integración runtime |
 | 66 | **R6.4 Condiciones de pago** | Neto N, vencimiento, recordatorios y estado. | ⬜ |
 | 67 | **R6.5 Crédito y aprobaciones** | Límites por empresa/comprador y workflow humano. | ⬜ |
 | 68 | **R6.6 Presupuesto/pedido preliminar** | Solicitud, negociación versionada y conversión a pedido. | ⬜ |
@@ -1879,7 +1879,7 @@ se instala inactiva en avanzado/demo. Componer APIs públicas puras de mercados
 y listas de precios no activa sus capacidades operativas. B2B-009 pendiente.
 
 **R6.2a: catálogo y precios B2B con fixtures** está implementado y verificado
-localmente; integración pendiente, sin despliegue. Separa el preview completo
+localmente e integrado en PR #29 (`4d7a30a9`), sin despliegue. Separa el preview completo
 de visibilidad de hasta 100 selecciones explícitas, una variante por producto,
 para precio. Usa la base propia de esa variante y conserva el override por
 producto de las listas existentes. Snapshot EUR con todas las variantes y
@@ -1913,22 +1913,83 @@ La SHA-256 de aquella verificación es
 `9cbfc811cfc4296515a403d395875a43bfa26aff0c9c9b08be0804b15bbf6eca`;
 no se presenta como una medición nueva de R6.2a.
 
-### Siguiente: R6.2b — Demo de catálogo y precios por empresa
+### Cerrada localmente: R6.2b — Demo de catálogo y precios por empresa
 
-El siguiente corte aprobado es **R6.2b**, demo inerte en
-`/demo/admin/catalogos-empresa`, dentro de Clientes. Usará cuatro empresas
+**R6.2b está implementada, verificada localmente y disponible en el repositorio**: `/demo/admin/catalogos-empresa`, dentro de Clientes. Cuatro empresas
 sintéticas: Workshop y Studio activas con políticas/precios distintos, Unbound
 activa sin binding y Closed inactiva. Contextos ES/FR, canal `professional`
 fijo y tres productos con variantes activas. La selección inicial 11/21/31
-será explícita, sin inferir una variante predeterminada, y se conservará al
-cambiar contexto.
-El estado inicial mostrará los tres orígenes de precio: lista de empresa,
-lista general y catálogo. Sin totales, hashes o referencias técnicas en la UI.
+es explícita, sin inferir una variante predeterminada, y se conserva al cambiar
+contexto. El estado inicial muestra precio de lista de empresa, lista general
+y catálogo. Sin totales, hashes o referencias técnicas en la UI.
 
-Implementación visual y QA todavía pendientes. Se prevén ocho capturas:
-estado inicial, intersección sin variantes comunes, binding ausente y empresa
-inactiva, en dos tamaños. Son casos planificados, no evidencia producida.
-No se añaden permisos reales, DDL, persistencia, cron, formularios o cobros.
+La revisión del modelo cubre 32 estados y la de navegador 64 visitas, en dos
+tamaños. Ocho capturas finales cubren estado inicial, intersección sin variantes
+comunes, binding ausente y empresa inactiva. Interacción en memoria, reset y
+recarga; sin permisos reales, DDL, persistencia del módulo, cron, formularios
+o cobros. B2B-002 permanece parcial e instalada/inactiva y B2B-009 pendiente.
+Integración pendiente, sin despliegue.
+
+[Verificación final R6.2b](../audits/r6-2b/verification-report.json), 2026-10-04:
+`pnpm check` pasa 961 archivos sin diagnósticos, 252 suites/3.259 pruebas,
+44 HTML, 44 formularios locales y cero crons. Incluye 49 pruebas de modelo y
+seis de arquitectura. Revisión independiente: 14.638 comprobaciones, 32 estados
+y 416 transiciones; 16 resultados de precio y 80 bloqueados, sin P1/P2,
+getters, efectos o reloj implícito.
+
+Navegador: 3.614 comprobaciones y 64 visitas de estado, 32 por tamaño.
+Ocho superficies a11y sin errores ni avisos y ocho capturas finales revisadas
+y aprobadas por frontend; root contrastó cuatro. E2E nuevo 180/180, Worker detenido. La base QA
+conserva 143 tablas/353 filas y SHA-256 antes/después idéntico:
+`9cbfc811cfc4296515a403d395875a43bfa26aff0c9c9b08be0804b15bbf6eca`.
+Sin migraciones nuevas ni despliegue. Estas ejecuciones corresponden a R6.2b;
+la evidencia técnica anterior de R6.2a conserva su corte propio.
+
+El cliente real del catálogo usa cinco archivos, 60.244 B/18.532 B gzip,
+con entrada de 37.386 B/10.361 B gzip. La guía se mide por separado: tres
+archivos, 15.143 B/6.297 B gzip. Ambas sondas de arranque sin raíz registran
+cero efectos/imports externos y una consulta DOM; catálogo crea cinco fechas
+explícitas y guía ninguna, sin reloj implícito. El diagnóstico minificado del
+modelo (53.231 B/diez fuentes) es una medición distinta de los assets UI.
+
+La guía móvil del panel se abre desde un botón de 44 px en la cabecera,
+sin tapar los selectores. Verificados foco, cerrar, Escape, cambios entre
+375 y 1.024 px y ausencia de overflow a 320 px. El módulo no produce HTTP,
+almacenamiento, timers, beacons, ventanas ni errores JavaScript. Las ocho
+escrituras adicionales de la guía en `sessionStorage` se contabilizan aparte
+de las tres de preparación y dos de recarga del recorrido compartido.
+
+### Siguiente tras R6.2b: R6.3a — Reglas de cantidad con fixtures
+
+El siguiente diseño aprobado y cerrado es **R6.3a: reglas de cantidad con
+fixtures**, todavía sin implementar. B2B-005 permanece pendiente; el corte
+prevé `companies` 1.2.0, dependencia de capacidad B2B-002 e instalación inactiva
+en avanzado/demo, sin superficies operativas.
+
+Política global por variante, sin overrides de empresa. La regla fija
+`orderUnit: 'unit' | 'box'`: factor uno para unidad y al menos dos para caja.
+Mínimo/máximo inclusivos y múltiplo absoluto desde cero se expresan en unidades
+canónicas. La petición declara `requestedCount`, una variante explícita por
+producto y referencias exactas `policyRef: { id, version }` y
+`catalogRef: { ref, capturedAt }`; no puede elegir otra unidad ni reinterpretar
+la regla de una versión diferente. Cero conserva cantidad cero y diagnostica
+`below_minimum`, sin eliminar la línea; `-0` se rechaza.
+
+El cálculo usa `BigInt` para conversión y factibilidad: el primer múltiplo del
+mínimo común múltiplo de `multipleUnits` y `unitsPerBox` dentro del rango debe
+existir. Sin redondeo, clamping o ajuste automático; overflow y reglas inviables
+son errores. Se validan todas las referencias y propiedad, incluidas reglas
+ajenas a la selección. Ausencia de regla devuelve `unconfigured`, con unidad,
+factor y cantidad canónica nulos.
+
+La composición deriva el snapshot neutro de identidad desde el mismo catálogo
+normalizado de empresa, sin aceptar un segundo catálogo. Añade visibilidad
+sin recuperar exclusiones; cantidad satisfecha y variante visible siguen
+siendo diagnósticos, no permiso de compra. No consulta bindings de precio ni
+devuelve snapshot monetario, precios, stock, descuentos, totales o
+`purchasable`. Los límites operativos 1–99 de quote/pricing se conservan.
+Sin DDL, rutas, cron o escritura durable; R6.3b visual seguirá al contrato puro.
+La integración real con checkout permanece fuera de este siguiente corte.
 
 Push/merge siguen autorizados después de checks. La demo pública y landing
 quedan solo con fixtures; crons vacíos y guardas ante triggers antiguos. G3/G4,

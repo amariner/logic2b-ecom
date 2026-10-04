@@ -539,6 +539,54 @@ for (const vp of [DESKTOP, MOBILE]) {
   }
 }
 
+// R6.2b: tres productos, variantes explícitas y precios unitarios de fixtures.
+// El bloqueo limpia ambos importes; no hay totales ni modo oscuro del panel.
+const COMPANY_CATALOG_SCENARIO = (stage) => `(() => {
+  const root = document.querySelector('[data-company-catalog-demo]');
+  if (root?.dataset.ready !== 'true') return 'not-ready';
+  const stage = ${JSON.stringify(stage)};
+  const select = (selector, value) => {
+    const field = root.querySelector(selector);
+    field.value = value;
+    field.dispatchEvent(new Event('change', { bubbles: true }));
+  };
+  if (stage === 'disjoint') {
+    select('[data-company-catalog-company]', 'company.studio');
+    select('[data-company-catalog-market]', 'FR');
+  }
+  if (stage === 'unbound') select('[data-company-catalog-company]', 'company.unbound');
+  if (stage === 'inactive') select('[data-company-catalog-company]', 'company.closed');
+  const prices = Array.from(root.querySelectorAll('[data-company-price]')).sort((a, b) => Number(a.dataset.productId) - Number(b.dataset.productId));
+  if (prices.length !== 3) return 'wrong-products';
+  const selected = prices.map(price => price.dataset.variantId);
+  if (JSON.stringify(selected) !== JSON.stringify(['11', '21', '31'])) return 'wrong-variants';
+  if (stage === 'baseline') {
+    const actual = prices.map(price => [price.dataset.outcome, price.dataset.origin, price.dataset.fallbackDepth,
+      price.querySelector('[data-company-price-amount="catalog"]').getAttribute('data-cents'),
+      price.querySelector('[data-company-price-amount="base"]').getAttribute('data-cents')]);
+    if (JSON.stringify(actual) !== JSON.stringify([
+      ['priced', 'company', '0', '1000', '800'], ['priced', 'general', '1', '2000', '1800'],
+      ['priced', 'catalog', '2', '3000', '3000'],
+    ])) return 'wrong-prices';
+  } else {
+    if (!prices.every(price => price.dataset.outcome === 'blocked' && !price.hasAttribute('data-origin') &&
+      !price.hasAttribute('data-fallback-depth') && !price.querySelector('[data-cents]'))) return 'uncleared-prices';
+    const reason = stage === 'unbound' ? 'pricing_binding_missing' : stage === 'inactive' ? 'company_inactive' : 'variant_not_visible';
+    if (!prices.every(price => Array.from(price.querySelectorAll('[data-company-price-reason]')).some(item => item.dataset.reason === reason))) return 'wrong-reason';
+    if (stage === 'disjoint' && root.querySelector('[data-company-catalog-product][data-product-id="1"]').dataset.intersectionReason !== 'no_common_variants') return 'wrong-intersection';
+  }
+  if (!root.querySelector('[data-company-catalog-variant][data-product-id="3"]').disabled) return 'single-variant-enabled';
+  return stage;
+})()`;
+for (const vp of [DESKTOP, MOBILE]) {
+  const suffix = vp === MOBILE ? '@375' : '';
+  for (const stage of ['baseline', 'disjoint', 'unbound', 'inactive']) {
+    SURFACES.push({ name: `company-catalog:${stage}${suffix}`, url: '/demo/admin/catalogos-empresa', vp, auth: true,
+      eval: COMPANY_CATALOG_SCENARIO(stage), expect: stage,
+      ...(stage === 'disjoint' ? { reducedMotion: true } : {}) });
+  }
+}
+
 // R5.4d: estas rutas no existen en la demo y por eso no forman parte de la
 // batería ordinaria. El arnés local explícito activa un manifest cliente y una
 // composición visual inerte para auditar las páginas Astro reales sin DB,

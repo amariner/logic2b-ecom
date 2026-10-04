@@ -4,7 +4,7 @@ import { getDemoProducts } from '../../composition/demo-catalog';
 import { demoJson } from '../../lib/demo-catalog';
 import { MAIN_DEMO_ID } from '../../lib/nav';
 
-interface Props { collection?: CollectionConfig }
+interface Props { collection?: CollectionConfig; admin?: boolean }
 const collection = Astro.props.collection ?? resolveCollection(MAIN_DEMO_ID) ?? defaultCollection();
 const paths = storePaths(collection.id);
 const products = getDemoProducts(collection.id);
@@ -19,7 +19,7 @@ const enabled = Astro.locals.runtime?.env.DEMO_MODE === 'true';
 ---
 
 {enabled && (
-  <div data-demo-assistant data-guide-store={demoJson(store)} data-guide-product={product?.slug} data-guide-in-store={Boolean(Astro.props.collection)}>
+  <div data-demo-assistant data-guide-store={demoJson(store)} data-guide-product={product?.slug} data-guide-in-store={Boolean(Astro.props.collection)} data-guide-in-admin={Boolean(Astro.props.admin)}>
     <button type="button" class="demo-assistant__launcher" data-guide-launch hidden aria-controls="demo-assistant-card" aria-expanded="false">
       <span aria-hidden="true">✦</span> <span data-guide-launch-label>Guía de la demo</span>
     </button>
@@ -104,6 +104,10 @@ const enabled = Astro.locals.runtime?.env.DEMO_MODE === 'true';
   .demo-guide-highlight { outline: 3px solid var(--color-foreground) !important; outline-offset: 5px; scroll-margin-block: 2rem; }
   html.demo-guide-visible .whatsapp-contact { visibility: hidden; }
   html.demo-guide-available { --whatsapp-contact-lift: 64px; }
+  /* El gestor móvil abre la misma tarjeta desde sus acciones sticky, sin tapar controles. */
+  @media (max-width: 1023px) {
+    [data-demo-assistant][data-guide-admin-launcher="true"] .demo-assistant__launcher { display: none; }
+  }
   /* La guía ocupa su propio espacio en móvil y no tapa la compra ni el login. */
   @media (max-width: 639px) {
     html.demo-guide-available body { padding-bottom: var(--demo-guide-height, 80px); }
