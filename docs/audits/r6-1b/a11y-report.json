@@ -1,0 +1,42 @@
+[
+  {
+    "surface": "company-directory:default",
+    "url": "/demo/admin/empresas",
+    "findings": []
+  },
+  {
+    "surface": "company-directory:valid",
+    "url": "/demo/admin/empresas",
+    "findings": []
+  },
+  {
+    "surface": "company-directory:expired",
+    "url": "/demo/admin/empresas",
+    "findings": []
+  },
+  {
+    "surface": "company-directory:no-vat",
+    "url": "/demo/admin/empresas",
+    "findings": []
+  },
+  {
+    "surface": "company-directory:default@375",
+    "url": "/demo/admin/empresas",
+    "findings": []
+  },
+  {
+    "surface": "company-directory:valid@375",
+    "url": "/demo/admin/empresas",
+    "findings": []
+  },
+  {
+    "surface": "company-directory:expired@375",
+    "url": "/demo/admin/empresas",
+    "findings": []
+  },
+  {
+    "surface": "company-directory:no-vat@375",
+    "url": "/demo/admin/empresas",
+    "findings": []
+  }
+]

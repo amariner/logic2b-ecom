@@ -236,6 +236,15 @@ check('segmentos muestra perfiles ficticios y simulación local', segmentDemoRes
   && segmentDemoHtml.includes('data-customer-segments-demo') && segmentDemoHtml.includes('Sin dato'));
 check('segmentos conserva privacidad de caché e indexación',
   segmentDemoResponse.headers.get('cache-control')?.includes('no-store') && segmentDemoHtml.includes('noindex'));
+const companyDirectoryResponse = await fetch(`${BASE}/demo/admin/empresas`, { headers: { cookie } });
+const companyDirectoryHtml = await companyDirectoryResponse.text();
+check('panel enlaza la demostración de empresas y sedes', adminHtml.includes('href="/demo/admin/empresas"'));
+check('empresas muestra su directorio ficticio y evidencia VAT local', companyDirectoryResponse.ok
+  && companyDirectoryHtml.includes('data-company-directory-demo') && companyDirectoryHtml.includes('data-company-vat'));
+check('empresas conserva privacidad de caché e indexación',
+  companyDirectoryResponse.headers.get('cache-control')?.includes('no-store') && companyDirectoryHtml.includes('noindex'));
+check('empresas no añade formularios ni envíos', !/<form\b/i.test(companyDirectoryHtml)
+  && !/<button\b(?![^>]*\btype=["']button["'])/i.test(companyDirectoryHtml));
 const marketDemoResponse = await fetch(`${BASE}/demo/admin/mercados`, { headers: { cookie } });
 const marketDemoHtml = await marketDemoResponse.text();
 check('panel enlaza la demostración de mercados e idiomas', adminHtml.includes('href="/demo/admin/mercados"'));

@@ -31,10 +31,44 @@ Una quinta clasificación, **fuera de alcance deliberado**, evita confundir
 paridad comercial con fabricar bancos, redes publicitarias, hardware de punto de
 venta o servicios logísticos propios.
 
+## Última demo verificada
+
+**R6.1b implementada y verificada localmente, disponible en el repositorio**,
+rama `codex/company-directory-demo`, integración pendiente y sin despliegue.
+`/demo/admin/empresas`, «Empresas y sedes», dentro de Clientes, muestra empresa
+A activa con VAT ficticio y empresa B inactiva sin VAT, con sedes, contactos y
+roles descriptivos. Cinco estados VAT, inicialmente `not_checked`; al cambiar
+de empresa se reinicia la selección y vuelve a `not_checked`.
+
+B2B-001 permanece parcial e instalada/inactiva; B2B-009 sigue pendiente.
+La demo no concede permisos ni incorpora autenticación, precios, crédito o I/O.
+Check final: 948 archivos sin diagnósticos, 246 suites/3.077 pruebas, incluidas
+23 del modelo y seis de arquitectura; 44 HTML/44 formularios/cero crons.
+Revisión independiente de 1.532 comprobaciones, seis estados y 38 transiciones,
+sin P1/P2, efectos, ejecución de getters ni reloj implícito.
+
+Cliente real: 26.802 B/8.315 B gzip en dos archivos, entrada de 21.053/6.262 B
+y compartido de 5.749/2.053 B, sin imports externos u operativos. La sonda de
+arranque sin raíz demo registra una consulta DOM, diez fechas explícitas y
+cero efectos o reloj implícito; las interacciones se acreditan por separado
+en navegador, no por esa sonda.
+
+QA nueva: navegador 601 comprobaciones aprobadas, E2E 176/176 y ocho superficies
+a11y sin errores ni avisos. Ocho capturas aprobadas por frontend y revisión
+principal. El módulo no genera HTTP, escrituras de almacenamiento, temporizadores,
+beacons, ventanas ni errores JS; guía y requestAnimationFrame del shell se
+verifican aparte. Base QA intacta: 143 tablas/353 filas y hash antes/después
+`9cbfc811cfc4296515a403d395875a43bfa26aff0c9c9b08be0804b15bbf6eca`.
+Worker cerrado. [Informe final](../audits/r6-1b/verification-report.json).
+Las verificaciones del contrato R6.1a y las pruebas anteriores citadas a
+continuación conservan su procedencia.
+
 ## Último contrato verificado
 
 **R6.1a implementado y verificado localmente**, rama
-`codex/company-fixture-directory`, integración pendiente y sin despliegue.
+`codex/company-fixture-directory`, integrado en
+[PR #27](https://github.com/amariner/logic2b-ecom/pull/27), commit `9b78e69a`,
+sin despliegue.
 El [ADR-0052](adr/0052-directorio-empresas-fixture.md) delimita el directorio
 puro fixture del módulo `companies`: empresas, sedes, contactos, roles
 meramente descriptivos y asignaciones con referencias de pertenencia.
@@ -53,13 +87,13 @@ Check final con salida 0: 944 archivos sin diagnósticos, 245 suites/3.054
 pruebas, 44 HTML/44 formularios/cero crons.
 [Informe final](../audits/r6-1a/verification-report.json).
 
-No hay nueva UI. El check de 939 archivos/243 suites/2.935 pruebas y el auditor
+R6.1a no añadió UI. El check de 939 archivos/243 suites/2.935 pruebas y el auditor
 HTTP 4.554/163 GET/HEAD/40 URLs,
 E2E 172/172 y hash QA de 143 tablas/353 filas son evidencia anterior de
 R5.12, integrada en PR #26. Navegador 2.030/2.030, ocho superficies a11y y
 ocho capturas siguen siendo evidencia heredada de PR #25, sin nuevas
-ejecuciones en este corte. El diseño de la demo R6.1b está aprobado, pero
-la UI no está implementada ni disponible.
+ejecuciones en ese corte. R6.1b aporta ahora la demo verificada localmente
+y disponible en el repositorio, sin despliegue.
 
 ## Consolidación local verificada
 
@@ -319,12 +353,30 @@ directorio no acredita autorización ni concede exención fiscal. Sin DDL, CRM,
 autenticación, cobro o crédito; B2B-001 permanece instalada/inactiva y sin
 rutas ni jobs. B2B-009 sigue pendiente.
 
-**Siguiente R6.1b, diseño aprobado y UI pendiente**: `/demo/admin/empresas`,
+**R6.1b verificada localmente y disponible en repo, sin desplegar**: `/demo/admin/empresas`,
 «Empresas y sedes», dentro del grupo Clientes. Empresa A activa con VAT ficticio
 frente a empresa B inactiva sin VAT; sedes, contactos y roles descriptivos.
 Cinco estados VAT, inicialmente `not_checked`; cambiar de empresa reinicia
-ese estado. Se prevén ocho capturas de QA, todavía sin evidencia visual nueva.
-La demo aún no está implementada ni disponible.
+ese estado. Ocho capturas revisadas sin bloqueantes;
+[evidencia final](../audits/r6-1b/verification-report.json). Integración pendiente.
+
+**Siguiente diseño aceptado: R6.2a**, después de integrar R6.1b y todavía sin
+implementar. Preview completo de visibilidad separado del precio de una única
+variante explícita por producto: la base procede de esa variante, nunca de la
+default. Se conserva y declara la sustitución de precio de las listas existentes
+por producto. La política de empresa es global por empresa/producto; mercado
+y canal pertenecen a la publicación por mercado. Ambas restricciones se
+intersectan sin revivir excluidos. Empresa inactiva cierra el preview comercial
+sin alterar el selector descriptivo del directorio.
+
+Una vinculación versionada explícita relaciona `companyId` con `companyKeyHash`;
+un hash puede compartirse explícitamente entre empresas. Su ausencia produce
+precio null, sin convertirse en contexto general ni derivar claves de otros
+datos. Se correlacionan `directoryRef` completo (id/version/capturedAt) y
+`catalogRef` (ref/capturedAt). La base es EUR; listas canónicas de otra moneda
+conservan el resultado `excluded_context`. La frontera `unknown` valida y copia
+todos los datos, incluidos los no seleccionados, antes de la API tipada de
+precios. Sin autorización real, DDL ni activación; B2B-002 permanece pendiente.
 
 ## Demo verificada
 

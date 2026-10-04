@@ -97,11 +97,11 @@ remoto.
 
 ### Evidencia local actualizada el 2026-10-04
 
-- `pnpm check`: 944 archivos sin diagnósticos, 245 suites y 3.054 tests.
+- `pnpm check`: 948 archivos sin diagnósticos, 246 suites y 3.077 tests.
 - Build demo: 44 documentos HTML y 44 formularios de proyecto locales.
 - D1/workerd: 15 bloques correctos, backup 39 y restauración de 129 tablas;
   [informe de segmentación](docs/audits/r5-6c/facts-d1-report.json).
-- E2E de R5.12 (2026-10-04): 172/172 comprobaciones. Formularios: 31 comprobaciones, cero peticiones
+- E2E de R6.1b (2026-10-04): 176/176 comprobaciones. Formularios: 31 comprobaciones, cero peticiones
   mutantes, beacons o errores JavaScript;
   [informe de fixtures](docs/audits/demo-fixtures/report.json).
 - Segmentos locales: 119 comprobaciones de navegador y ocho superficies de
@@ -150,7 +150,11 @@ remoto.
 - Directorio B2B con fixtures: 93 pruebas de empresas/sedes/contactos/roles,
   24 de composición VAT y 11.249 comprobaciones independientes. Relaciones
   explícitas sin permisos, identidad ni exenciones inferidas; B2B-001 instalada
-  e inactiva, demo visual pendiente. [Informe R6.1a](docs/audits/r6-1a/verification-report.json).
+  e inactiva. [Informe R6.1a](docs/audits/r6-1a/verification-report.json).
+- Empresas y sedes: directorios ficticios con estados y ámbitos descriptivos,
+  cinco escenarios VAT independientes y limpieza al cambiar empresa. 23 pruebas
+  del modelo, 1.532 comprobaciones independientes, 601 de navegador y ocho
+  superficies a11y sin hallazgos. [Evidencia R6.1b](docs/audits/r6-1b/README.md).
 - Base QA: 143 tablas y 353 filas, hash antes/después idéntico:
   `9cbfc811cfc4296515a403d395875a43bfa26aff0c9c9b08be0804b15bbf6eca`.
 
