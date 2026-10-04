@@ -148,12 +148,13 @@ describe('registro de módulos (R1.4)', () => {
     expect(MODULE_REGISTRY.capabilityOwners['B2B-003']).toBe('companies');
     expect(MODULE_REGISTRY.capabilityOwners['B2B-005']).toBe('companies');
     expect(MODULE_REGISTRY.byId.companies).toMatchObject({
-      version: '1.3.0', capabilities: ['B2B-001', 'B2B-002', 'B2B-003', 'B2B-005'],
+      version: '1.4.0', capabilities: ['B2B-001', 'B2B-002', 'B2B-003', 'B2B-005'],
       dependencies: ['platform-configuration'],
       permissions: [], events: [], subscriptions: [], jobs: [], healthchecks: [], navigation: [], routes: [],
     });
     expect(MODULE_REGISTRY.byId.companies.wikiLinks).toContain('docs/plataforma/adr/0054-reglas-cantidad-fixture.md');
     expect(MODULE_REGISTRY.byId.companies.wikiLinks).toContain('docs/plataforma/adr/0055-condiciones-pago-fixture.md');
+    expect(MODULE_REGISTRY.byId.companies.wikiLinks).toContain('docs/plataforma/adr/0056-evidencia-cobro-fixture.md');
     expect('B2B-009' in MODULE_REGISTRY.capabilityOwners).toBe(false);
     for (const profile of ['minimal', 'standard', 'advanced'] as const) {
       const platform = createPlatform(createPresetManifest(profile, deployment));

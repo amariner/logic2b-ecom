@@ -15,8 +15,76 @@
 La prioridad no autoriza activación automática. Cada cliente recibe solo lo que
 su alcance requiera.
 
+**R6.4b — Evidencia de cobro con fixtures está implementado y verificado localmente**, rama
+`codex/company-collection-evidence`, según el
+[ADR-0056](adr/0056-evidencia-cobro-fixture.md). Perfil `company-applied-eur-cents-v1`: una obligación EUR
+completa/versionada y un snapshot aplicado/revertido correlacionado con todos
+sus campos. El importe esperado es declarado, no una deuda legal o fiscal.
+`companies` 1.4.0 conserva B2B-003 parcial e instalada/inactiva, dependencia
+B2B-001 y superficies operativas vacías.
+
+Evidencia completa compara el neto aplicado con el importe declarado y conserva
+la diferencia firmada, incluido exceso. Revertido mayor que aplicado es error;
+0/0 no prueba pago. Ausencia, observación futura o evidencia incompleta producen
+`unknown` sin importes observados. `asOf` conserva la fecha de observación;
+sin TTL ni garantía de saldo actual, y sin convertir antigüedad en caducidad.
+
+El preview combinado llama al calendario existente desde datos ya normalizados,
+sin aceptar vencimientos externos ni duplicar aritmética. Condición ausente o
+empresa inactiva no ocultan evidencia descriptiva; ninguna salida concede
+permisos o activa operaciones. No hay ledger, DDL, rutas, UI, proveedores,
+notificaciones, crédito o cambios de checkout.
+
+**Implementado y verificado localmente; integración pendiente, sin despliegue.**
+[Verificación final R6.4b](../audits/r6-4b/verification-report.json), 2026-10-04: `pnpm check` pasa
+973 archivos sin diagnósticos, 257 suites/3.510 pruebas, 44 HTML,
+44 formularios locales y cero crons. Focales: 37 de dominio, seis de arquitectura
+y 118 de registry/manifest/acceso (19/69/30) de la ejecución de registro de este
+corte. Revisión independiente: 22.216 comprobaciones, 3.944 casos monetarios
+(2.093 válidos y 1.851 inconsistencias rechazadas) y 300 integraciones con
+calendario (150 `observed`, 150 `unknown`); sin P1/P2, efectos, getters o reloj
+implícito. Bundle público de diagnóstico: 18.153 B/4.925 B gzip, tres fuentes
+puras, directorio/calendario/evidencia, sin imports externos; no es un asset UI.
+
+Comparación nueva contra PR #33: cuatro grafos cliente iguales en nombres,
+archivos, aristas, specifiers, SHA-256, bytes y gzip, sin imports externos.
+También permanecen iguales las 349 fuentes de superficie y 19 CSS emitidos,
+sin añadidos, eliminaciones o cambios. No se ejecutaron Worker, HTTP,
+navegador, a11y, E2E o DB para este corte puro.
+
+Navegador 2.084 comprobaciones/72 visitas, E2E 184/184, ocho superficies a11y
+sin hallazgos, ocho capturas y base QA de 143 tablas/353 filas se heredan de
+PR #32. Hash histórico, sin nueva lectura en b:
+`9cbfc811cfc4296515a403d395875a43bfa26aff0c9c9b08be0804b15bbf6eca`.
+El check de a/PR #33 (971 archivos/256 suites/3.473 pruebas) conserva su propio
+corte. B2B-003 y R6.4 siguen parciales, sin activación u operación financiera.
+
+**R6.4c tiene diseño completo aceptado, pendiente de implementación** tras
+integrar b. Ruta `/demo/admin/condiciones-pago`, «Condiciones y cobros de
+ejemplo», en Clientes después de Cantidades. Dos selectores cerrados: 12 casos
+y tres instantes de evaluación, con dos diagnósticos separados de calendario
+e importes observados. Estado inicial: aplicación parcial y evaluación en el
+día del vencimiento. Cambiar caso conserva evaluación; cambiar evaluación
+conserva obligación/evidencia del caso. Reset/recarga al inicio, sin edición,
+buffers, reloj o acciones financieras.
+
+Casos previstos: parcial, ausente, incompleto, futuro, aplicado cero, inmediato
+con igualdad, exceso, reversión parcial/total, declarado cero, sin condición
+y empresa inactiva. Los importes muestran su observación `asOf`; unknown
+elimina importes/atributos derivados y no inventa ceros. Igualdad numérica
+no se etiqueta como pago ni calendario como impago. Calendario sin condición
+conserva derivados nulos aunque haya evidencia observada.
+
+La demo consumirá los contratos públicos, con SSR inicial completo, controles
+inertes sin JavaScript y gate manifest demo AND `DEMO_MODE=true`; privada/noindex,
+solo memoria y sin I/O. Cobertura prevista: 36 estados por tamaño, 72 visitas
+1.440/375 px, ocho capturas y ocho superficies a11y (parcial/en vencimiento,
+sin evidencia/después, exceso y sin condición). Son casos de diseño, no QA
+ejecutada. La operación real permanece fuera de este corte.
+
+
 **R6.4a implementado y verificado localmente**, rama
-`codex/company-payment-terms`; integración pendiente, sin despliegue.
+`codex/company-payment-terms`, integrado en PR #33 (`cb3493ec`), sin despliegue.
 El [ADR-0055](adr/0055-condiciones-pago-fixture.md) delimita el contrato puro
 fixture de condición de pago y calendario por empresa. Companies 1.3.0 posee
 B2B-003 parcial e instalada/inactiva en avanzado y demo, ausente en
@@ -61,14 +129,9 @@ Navegador 2.084/72 visitas, E2E 184/184, ocho superficies a11y, ocho PNG y hash
 143 tablas/353 filas son evidencia heredada de PR #32, sin nuevas ejecuciones
 en R6.4a.
 
-**Secuencia siguiente aprobada:** R6.4b, evidencia correlacionada fixture pura,
-y R6.4c, demo conjunta después. Snapshot completo y acotado ligado a la revisión
-exacta de una obligación sintética, con definición explícita de importe
-observado/aplicado. Ausencia o evidencia no utilizable nunca implican impago ni
-saldo cero; sobrepago y reversiones requieren diseño explícito, sin clamp.
-No reutiliza expectedamounts/expiresAt ni acredita deuda legal o fiscal.
-Esquema, API, moneda y semántica temporal/monetaria se revisarán antes de
-implementar. Sin ledger; R6.4 sigue parcial y su operación pendiente.
+R6.4b amplía este calendario con evidencia de importes correlacionados según el
+[ADR-0056](adr/0056-evidencia-cobro-fixture.md), verificado localmente y con
+integración pendiente. La demo conjunta R6.4c tiene diseño aceptado, sin implementación.
 
 **R6.3b implementada y verificada localmente, disponible en el repositorio**,
 rama `codex/variant-quantity-demo`, integrada en
@@ -481,7 +544,7 @@ R5 operativo completo y mantiene G3/G4 pendientes.
 |---|---|---|---|---|---|
 | B2B-001 | Empresas y sedes | módulo | P2 | parcial | **R6.1a implementado y verificado localmente**, rama `codex/company-fixture-directory`, integrado en PR #27 (`9b78e69a`), sin despliegue: [ADR-0052](adr/0052-directorio-empresas-fixture.md), contrato puro fixture `companies`, instalada/inactiva en avanzado y demo con dependencia única PLT-004. Directorio versionado de empresas/sedes/contactos, roles descriptivos y asignaciones con referencias de pertenencia; la selección valida el snapshot completo. Solo empresas/sedes/contactos tienen estado activo/inactivo, no las asignaciones/relaciones; estados y roles no conceden permisos. identityRef es exclusivamente referencia de perfil, hash de email de 64 caracteres o null. Son metadatos potencialmente seudónimos, no anonimización; pueden repetirse entre empresas y no acreditan pertenencia. Sin email en claro, autenticación ni derivación de claves de precios. VAT opcional declarativo y composición con taxes, sin dependencia operativa del módulo: consulta correlacionada con empresa, país y VAT; la misma declaración puede reutilizar evidencia vigente tras una nueva versión editorial, sin acreditar autorización ni exención. Sin DDL, CRM, cobro, crédito, rutas ni jobs; B2B-009 pendiente. Focales 93 dominio/24 VAT/6 arquitectura/81 registry-manifest y revisión independiente aprobados; check final 944 archivos sin diagnósticos, 245 suites/3.054 pruebas, 44 HTML/44 formularios/cero crons. [Informe final](../audits/r6-1a/verification-report.json). HTTP/E2E/hash R5.12 y navegador/a11y/capturas R5.11c heredados, sin nueva ejecución ni UI. **R6.1b implementada y verificada localmente, disponible en repo**, rama `codex/company-directory-demo`, integrada en PR #28 (`861b34ff`), sin despliegue: `/demo/admin/empresas`, «Empresas y sedes», grupo Clientes; empresa A activa con VAT ficticio y B inactiva sin VAT, sedes/contactos/roles descriptivos y cinco estados VAT inicialmente not_checked, reiniciado al cambiar de empresa. Check 948 archivos sin diagnósticos, 246 suites/3.077 pruebas; 23 del modelo, seis de arquitectura y revisión de 1.532 comprobaciones sin P1/P2. QA nueva: navegador 601, E2E 176/176, ocho superficies a11y sin errores/avisos y ocho capturas aprobadas; base QA intacta y Worker cerrado. Cliente real 26.802 B/8.315 B gzip; sonda sin raíz separada de las interacciones de navegador. [Evidencia final](../audits/r6-1b/verification-report.json). |
 | B2B-002 | Catálogo por empresa | módulo | P2 | parcial | **R6.2a implementado y verificado localmente**, rama `codex/company-catalog-contract`, integrado en PR #29 (`4d7a30a9`) sin despliegue: [ADR-0053](adr/0053-catalogos-empresa-fixture.md). Propietario companies v1.1, instalada/inactiva en avanzado y demo; dependencia de capacidad única B2B-001 y dependencia de módulo platform-configuration conservada. Composición pura con markets/pricing sin activación operativa. Snapshot EUR con todas las variantes y precios. Preview completo de visibilidad separado del precio de una única variante explícita por producto, hasta 100 selecciones; base de esa variante, nunca default, con sustitución de precio por producto de las listas existentes preservada y declarada. Política global empresa/producto; mercado/canal pertenecen a market publication. Intersección sin revivir excluidos; empresa inactiva cierra el preview comercial sin cambiar el selector descriptivo. Vinculación versionada explícita companyId→companyKeyHash, compartible explícitamente entre empresas; ausencia produce precio null, sin derivaciones ni conversión en contexto general. Referencias exactas directoryRef id/version/capturedAt y catalogRef ref/capturedAt. Base EUR; listas canónicas de otra moneda se validan completas y quedan excluded_context. Frontera unknown valida y copia todos los datos y referencias, incluidos los ajenos a la selección, antes de la API tipada pricing. Sin totales, autorización real, DDL ni activación; B2B-009 pendiente. Check final 957 archivos/251 suites/3.210 pruebas; 132 focales, seis de arquitectura, 82 registry/manifest y 93 de regresión del directorio. Revisión de 12.478 aserciones/300 combinaciones sin P1/P2; [informe final](../audits/r6-2a/verification-report.json). E2E 176/176, navegador 601, a11y ocho superficies, ocho capturas y hash 143 tablas/353 filas heredados de PR #28, sin nuevas ejecuciones. **R6.2b verificada localmente y disponible en repo**, rama codex/company-catalog-demo, integrada en PR #30 (`6305b823`) sin despliegue: /demo/admin/catalogos-empresa en Clientes, Workshop/Studio activas, Unbound activa sin vinculación y Closed inactiva; ES/FR y professional fijo. Tres productos y variantes activos, selección explícita 11/21/31 preservada al cambiar contexto; precio de lista empresa/lista general/catálogo en el caso inicial. Memoria/reset, sin totales, hashes ni referencias técnicas en UI, I/O, DDL u operación real. Check final 961 archivos/252 suites/3.259 pruebas, 49 modelo y seis arquitectura; revisión 14.638 comprobaciones/32 estados/416 transiciones sin P1/P2. Cliente real cinco archivos/60.244 B/18.532 B gzip separado de diagnóstico modelo y guía. Navegador final 3.614 comprobaciones/64 visitas; ocho superficies a11y sin hallazgos, E2E nuevo 180/180, hash intacto de 143 tablas/353 filas y Worker detenido. Ocho capturas regeneradas aprobadas por frontend, sin nuevos defectos; [informe final](../audits/r6-2b/verification-report.json). Efectos del módulo cero; escrituras de guía contabilizadas aparte. |
-| B2B-003 | Condiciones de pago | módulo | P2 | parcial | **R6.4a implementado y verificado localmente**, rama codex/company-payment-terms, integración pendiente sin despliegue; [ADR-0055](adr/0055-condiciones-pago-fixture.md). Propietario companies 1.3.0, dependencia de capacidad única B2B-001 y de módulo platform-configuration; instalada/inactiva avanzado/demo, ausente mínimo/estándar, sin superficies operativas. Condición explícita versionada immediate/net_days y calendario utc-civil-days-v1 con base/evaluación YYYY-MM-DD explícitas; sin inferirlas de capturedAt ni reloj. Directorio, política y solicitud completamente validados; referencias exactas. Ausencia unconfigured con derivados null y sin hitos; empresa desconocida es error. Inactiva conserva condición descriptiva de esta revisión, sin permisos ni cambios en bloqueos comerciales. Hitos de calendario por offsets, sin destinatarios/envío/jobs; after_due no acredita impago ni captura. Sin importes, crédito, aprobaciones, fiscalidad, persistencia ni checkout/ledger. Estado de cobro requiere contrato posterior con evidencia completa correlacionada; R6.4 no está completo. Check final 971 archivos/256 suites/3.473 pruebas; 46 dominio, seis arquitectura y 118 registry/manifest/access. Revisión 21.702 comprobaciones/15.090 casos/336 bases/14.327 resultados/763 overflow y 96 fechas inválidas en 192 comprobaciones, sin P1/P2, efectos, getters ni reloj implícito. Diagnóstico 12.249 B/3.802 B gzip/dos fuentes puras, no UI; cuatro grafos reales (Cantidades/Catálogo de empresa/Directorio/Guía) idénticos a PR #32 en nombres, aristas, specifiers, SHA-256, bytes y gzip, sin imports externos; análisis de assets sin ejecución HTTP/navegador/DB. QA navegador/E2E/a11y/PNG/hash heredada de PR #32, sin nuevas ejecuciones; [informe](../audits/r6-4a/verification-report.json). Secuencia siguiente aprobada: R6.4b evidencia correlacionada fixture pura y después R6.4c demo conjunta; esquema/API/moneda/semántica pendientes de revisión antes de implementar, sin ledger ni operación real. |
+| B2B-003 | Condiciones de pago | módulo | P2 | parcial | **R6.4a implementado y verificado localmente**, rama codex/company-payment-terms, integrado en PR #33 (`cb3493ec`) sin despliegue; [ADR-0055](adr/0055-condiciones-pago-fixture.md). Propietario companies 1.3.0, dependencia de capacidad única B2B-001 y de módulo platform-configuration; instalada/inactiva avanzado/demo, ausente mínimo/estándar, sin superficies operativas. Condición explícita versionada immediate/net_days y calendario utc-civil-days-v1 con base/evaluación YYYY-MM-DD explícitas; sin inferirlas de capturedAt ni reloj. Directorio, política y solicitud completamente validados; referencias exactas. Ausencia unconfigured con derivados null y sin hitos; empresa desconocida es error. Inactiva conserva condición descriptiva de esta revisión, sin permisos ni cambios en bloqueos comerciales. Hitos de calendario por offsets, sin destinatarios/envío/jobs; after_due no acredita impago ni captura. Sin importes, crédito, aprobaciones, fiscalidad, persistencia ni checkout/ledger. Estado de cobro requiere contrato posterior con evidencia completa correlacionada; R6.4 no está completo. Check final 971 archivos/256 suites/3.473 pruebas; 46 dominio, seis arquitectura y 118 registry/manifest/access. Revisión 21.702 comprobaciones/15.090 casos/336 bases/14.327 resultados/763 overflow y 96 fechas inválidas en 192 comprobaciones, sin P1/P2, efectos, getters ni reloj implícito. Diagnóstico 12.249 B/3.802 B gzip/dos fuentes puras, no UI; cuatro grafos reales (Cantidades/Catálogo de empresa/Directorio/Guía) idénticos a PR #32 en nombres, aristas, specifiers, SHA-256, bytes y gzip, sin imports externos; análisis de assets sin ejecución HTTP/navegador/DB. QA navegador/E2E/a11y/PNG/hash heredada de PR #32, sin nuevas ejecuciones; [informe](../audits/r6-4a/verification-report.json). R6.4b está verificado localmente y después seguirá la demo conjunta R6.4c; sin ledger ni operación real. **R6.4b implementado y verificado localmente**, [ADR-0056](adr/0056-evidencia-cobro-fixture.md): companies 1.4.0, obligación completa EUR/versionada y snapshot aplicado/revertido asOf, unknown sin importes ante ausencia/incomplete/futura, diferencia firmada y cero sin prueba de pago. Calendario existente desde datos normalizados, sin ledger ni superficies. Check 973 archivos/257 suites/3.510 pruebas; 37 dominio, seis arquitectura y 118 registry/manifest/acceso. Revisión 22.216, cero P1/P2/efectos/getters/reloj; diagnóstico 18.153 B/4.925 gzip/tres fuentes puras. Cuatro grafos cliente, 349 fuentes y 19 CSS iguales a PR #33; navegador/E2E/a11y/capturas/hash heredados de PR #32, sin ejecuciones nuevas. [Informe final](../audits/r6-4b/verification-report.json). Integración pendiente, sin despliegue. R6.4c diseño aceptado, 12 casos×3 evaluaciones, ocho capturas previstas; sin implementar. |
 | B2B-004 | Límites y aprobación | módulo | P2 | pendiente | Crédito, importe, comprador y flujo de aprobación. |
 | B2B-005 | Reglas de cantidad | módulo | P2 | parcial | **R6.3a implementado y verificado localmente**, rama codex/variant-quantity-rules, integrado en PR #31 (`7ac42e67`) sin despliegue; [ADR-0054](adr/0054-reglas-cantidad-fixture.md). Propietario companies 1.2.0, dependencia de capacidad única B2B-002 y de módulo platform-configuration; instalada/inactiva en avanzado/demo, ausente en mínimo/estándar y sin superficies operativas. Política global por variante; regla fija unit/factor 1 o box/factor al menos 2, min/max inclusivos y múltiplo absoluto desde cero. Request con requestedCount y referencias exactas a política/catálogo; cero conserva diagnóstico below_minimum con regla y -0 se rechaza. BigInt para multiplicación/LCM/factibilidad; overflow rechazado también en ocultos/inactivos, sin ajuste automático. Ausencia unconfigured con unidad/factor/cantidad null; validación completa de referencias y pertenencia. Composición deriva identidad del mismo catálogo de empresa completamente normalizado, sin segundo catálogo; una variante por producto y diagnóstico aditivo a visibilidad, sin búsqueda de binding, pricing, precios/totales, autorización ni stock. Runtime quote 1..99 intacto. Check final 965 archivos/254 suites/3.376 pruebas; 112 propias (57 + 55), seis arquitectura y 117 registry/manifest/access. Oráculo 78.223 comprobaciones/3.234 políticas/1.738 factibles/12.372 cantidades/900 intersecciones sin P1/P2, efectos, getters ni reloj implícito. Diagnósticos API 7.728 B/dos fuentes y composición 35.934 B/siete, sin imports externos u operativos; clientes reales de Catálogo/Directorio/Guía conservan grafo, nombres, SHA y tamaños/gzip de PR #30, sin fuentes nuevas de cantidades en UI. Evidencia navegador/E2E/a11y/PNG/hash heredada de PR #30, sin nuevas ejecuciones; [informe](../audits/r6-3a/verification-report.json). **R6.3b implementada y verificada localmente, disponible en repo**, rama codex/variant-quantity-demo, integrada en PR #32 (`04d5f9a9`) sin despliegue: /demo/admin/cantidades, «Mínimos, múltiplos y cajas», Clientes tras Catálogo de empresa; empresa activa/professional fijos, ES/FR, una línea seleccionada y cantidades en memoria por variante (11→8, 12→2, 21→1), sin reinterpretación ni autoajuste. Preview existente, diagnóstico separado de visibilidad; sin regla count conservado con unidad/factor/conversión null, con regla count cero mantiene cantidad cero y below_minimum. Sin precios, totales, stock, permisos, I/O ni persistencia. Check final 969 archivos/255 suites/3.426 pruebas, 50 modelo y seis arquitectura; 44 HTML/44 formularios/cero crons. Revisión 39.967 comprobaciones/36 estados/484 transiciones/150 combinaciones de memoria/900 vistas, sin P1/P2, efectos, getters ni reloj implícito. Cliente real cinco archivos/53.687 B/17.349 B gzip, sin imports externos u operativos; guía separada 15.154 B/6.300 B gzip. Navegador nuevo 2.084 comprobaciones/72 visitas, a11y ocho sin hallazgos, ocho PNG aprobados por frontend y cuatro por revisión principal, E2E nuevo 184/184 y hash antes/después intacto de 143 tablas/353 filas; [informe final](../audits/r6-3b/verification-report.json). |
 | B2B-006 | Presupuesto a pedido | módulo | P2 | pendiente | Conecta ORD-008 con aprobación y enlace de pago. |

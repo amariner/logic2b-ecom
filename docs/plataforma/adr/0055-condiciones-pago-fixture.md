@@ -1,6 +1,6 @@
 # ADR-0055 — Condiciones de pago y calendario civil con fixtures
 
-- Estado: accepted; R6.4a implementado y verificado localmente. Integración pendiente; sin activación ni despliegue.
+- Estado: accepted; R6.4a implementado, verificado localmente e integrado en PR #33 (`cb3493ec`); sin activación ni despliegue.
 - Fecha: 2026-10-04
 - Bloque: R6.4a, condición declarada por empresa y calendario civil.
 - Propietario: módulo `companies`, versión 1.3.0.
@@ -204,7 +204,7 @@ sin hallazgos y ocho capturas son evidencia heredada de R6.3b/PR #32. Su base QA
 conservó 143 tablas/353 filas y SHA-256
 `9cbfc811cfc4296515a403d395875a43bfa26aff0c9c9b08be0804b15bbf6eca`.
 No constituyen una lectura o ejecución nueva en este corte puro. Implementado
-y verificado localmente, con integración pendiente y sin despliegue.
+y verificado localmente, integrado en PR #33 (`cb3493ec`), sin despliegue.
 
 La comparación de assets mantiene Cantidades (53.687 B/17.349 B gzip),
 Catálogo por empresa (60.527 B/19.836 B gzip), Empresas (26.856 B/8.818 B gzip)
@@ -214,20 +214,18 @@ igualdad de JavaScript por sí sola no prueba HTTP o DB.
 
 ## Continuidad y límites
 
-R6.4 y B2B-003 seguirán parciales después de a. La siguiente dirección aprobada
-es **R6.4b, evidencia correlacionada fixture pura**, y después **R6.4c, demo
-conjunta**. b definirá un snapshot acotado de evidencia completa, ligado a una
-revisión exacta de obligación sintética y a una definición explícita de importe
-observado/aplicado. No recreará un ledger ni reutilizará importes esperados de
-pago o caducidad de presupuesto como saldo/vencimiento.
+R6.4a está integrada en PR #33 (`cb3493ec`), sin despliegue. R6.4b está
+implementado y verificado localmente, con integración pendiente, según el [ADR-0056](0056-evidencia-cobro-fixture.md): perfil EUR,
+obligación completa/versionada, evidencia aplicada/revertida correlacionada y
+comparación firmada referida a `asOf`. El preview combinado consume el
+calendario de este ADR desde datos normalizados, sin convertir posiciones
+temporales en estado de cobro ni admitir vencimientos externos.
 
-La obligación declarada no prueba deuda legal o fiscal. Ausencia o evidencia
-no utilizable nunca prueban impago o saldo cero; el estado de cobro no se
-derivará de `after_due`. Sobrepago y reversiones deben resolverse expresamente
-en el diseño, sin clamp ni compensaciones implícitas. Schema, API, moneda y
-semántica monetaria/temporal requieren revisión antes de implementar b.
-La demo c mostrará calendario y cobro como dimensiones separadas. No hay
-implementación ni QA de esos subcortes, y la operación real permanece pendiente.
+La obligación declarada no prueba deuda legal/fiscal; ausencia, evidencia
+incompleta o futura no implican impago o saldo cero. R6.4c tiene diseño completo
+aceptado de demo conjunta; su implementación y QA visual permanecen pendientes. B2B-003 y R6.4 siguen parciales, con operación real
+separada y sin reutilizar importes esperados o caducidad de presupuesto como
+evidencia financiera.
 
 Sin DDL, persistencia, UI, rutas, jobs, crons, formularios, destinatarios,
 proveedores o cambios de checkout/ledger. Crédito y aprobaciones B2B-004,
