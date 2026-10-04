@@ -1,0 +1,729 @@
+{
+  "schemaVersion": 1,
+  "verifiedAt": "2026-10-04",
+  "environment": "local-fixture-contracts",
+  "deployment": "not-deployed",
+  "verification": {
+    "typecheckFiles": 981,
+    "diagnostics": 0,
+    "suites": 260,
+    "tests": 3653,
+    "domainTests": 48,
+    "architectureTests": 6,
+    "registryManifestAccessTests": 119,
+    "buildHtmlPages": 44,
+    "buildLocalForms": 44,
+    "cronCount": 0
+  },
+  "independentReview": {
+    "schemaVersion": 1,
+    "block": "R6.5b",
+    "reviewedAt": "2026-10-04T03:17:25.447Z",
+    "result": "passed",
+    "findings": {
+      "P1": 0,
+      "P2": 0
+    },
+    "scope": "independent read-only finite-state oracle, complete context/history/replay validation, strict boundary/effects, registry and ADR",
+    "probe": {
+      "status": "passed",
+      "checks": 33973,
+      "scenarios": 9,
+      "reachableCases": 128,
+      "transitions": 4512,
+      "outcomes": {
+        "applied": 120,
+        "blocked": 1416,
+        "conflict": 2976
+      },
+      "replays": 240,
+      "contextChanges": 114,
+      "historyCorruptions": 22,
+      "effects": 0,
+      "getters": 0,
+      "implicitDates": 0,
+      "explicitDates": 193171,
+      "oracle": "Python finite-state enumeration written from the accepted protocol before reading implementation; no production imports",
+      "artifact": "/tmp/r65b-review-probe.mjs",
+      "command": "python3 /tmp/r65b-state-oracle.py && node /tmp/r65b-review-probe.mjs",
+      "expectations": "/tmp/r65b-state-expectations.json",
+      "coverage": [
+        "Python oracle written from accepted protocol before reading implementation enumerates 128 reachable histories across 9 reviewer/quorum/separation settings and 4512 transitions.",
+        "Independent applied/blocked/conflict expectations preserve terminal status, exact version, acceptance count, decided and remaining contacts and chronology.",
+        "Historical replay returns the current snapshot, including all later votes, without version rollback; every canonical command field is bound, and blocked/conflicting IDs are not consumed.",
+        "Complete context comparison precedes replay/CAS/terminal checks; valid newly inactive or unreachable contexts produce context_mismatch rather than being silently reinterpreted.",
+        "All references, inactive and unrelated records, company ownership and unknown credit remain fully validated; financial preview is recomputed through the existing R6.5a API, without duplicated monetary arithmetic.",
+        "Unknown, unconfigured and above-limit financial diagnostics remain unchanged after declared acceptance; reviewers are explicit contacts, not authenticated people or role grants.",
+        "History reconstruction rejects version drift, expectation gaps, duplicate IDs/contacts, ineligible votes, chronology regression and post-terminal events; maximum 20 votes and version21 remain exact.",
+        "Strict own-data records, bounded dense arrays, fixed redacted errors, deep immutable copies, canonical reviewer ordering and captured normalized data survive late caller mutation."
+      ]
+    },
+    "diagnosticPublicBundle": {
+      "schemaVersion": 1,
+      "reviewedAt": "2026-10-04T03:14:42.331Z",
+      "scope": "diagnostic browser-targeted named public exports through companies barrel",
+      "bytes": 24218,
+      "gzipBytes": 6199,
+      "sha256": "84616061da7bc972b45559e85d6ad437dc25deb9c098202e2d96f8721fb2bd5f",
+      "contributingSources": [
+        {
+          "path": "src/modules/companies/domain/company-directory.ts",
+          "bytesInOutput": 5816
+        },
+        {
+          "path": "src/modules/companies/domain/company-collection-evidence.ts",
+          "bytesInOutput": 113
+        },
+        {
+          "path": "src/modules/companies/domain/company-credit.ts",
+          "bytesInOutput": 9169
+        },
+        {
+          "path": "src/modules/companies/domain/company-credit-review.ts",
+          "bytesInOutput": 8857
+        }
+      ],
+      "externalImports": [],
+      "forbiddenTokenMatches": [],
+      "sourceSnapshot": [
+        {
+          "path": "src/modules/companies/domain/company-credit-review.ts",
+          "modifiedAt": "2026-10-04T03:13:30.052Z",
+          "sha256": "b1b8e198e8e16aca2c3acd7ded2c5a67154b03945eb13eb8d73bca873b5f63cd"
+        },
+        {
+          "path": "src/modules/companies/index.ts",
+          "modifiedAt": "2026-10-04T03:13:30.656Z",
+          "sha256": "9af05afe57ac33873bebc4c52d00be05f41ed76cfdcc8e58c288801e0db8e7a8"
+        }
+      ],
+      "limits": [
+        "Diagnostic bundle is not an emitted Astro client asset.",
+        "Only synthetic contract calculations are exercised, with IO and implicit clocks forbidden by the independent probe.",
+        "Existing emitted-client graph comparison belongs to QA; this reviewer runs no browser, HTTP, DB or fullcheck."
+      ],
+      "historicalRetainedConstant": {
+        "path": "src/modules/companies/domain/company-collection-evidence.ts",
+        "bytesInOutput": 113,
+        "description": "Only historical COMPANY_COLLECTION_LIMITS constant retained through the public barrel; no collection/calendar computation or operational effect."
+      }
+    },
+    "sourceFreezeConfirmed": {
+      "domain": "2026-10-04T03:13:30.052Z",
+      "index": "2026-10-04T03:13:30.656Z",
+      "authorTests": "2026-10-04T03:16:51.291Z",
+      "changedAfterOracle": false
+    },
+    "independentRegistryReview": {
+      "reviewer": "/root/review_execution/payment_terms_registry",
+      "result": "no P1/P2",
+      "method": "static review, author focal checks not repeated",
+      "module": "companies",
+      "moduleVersion": "1.6.0",
+      "moduleDependencies": [
+        "platform-configuration"
+      ],
+      "capability": "B2B-004",
+      "dependsOn": [
+        "B2B-001"
+      ],
+      "advancedAndDemo": "installed/inactive",
+      "minimalAndStandard": "absent",
+      "operationalSurfaces": [],
+      "sourceFreeze": {
+        "registry": "2026-10-04T03:12:22.287Z",
+        "registryTest": "2026-10-04T03:12:22.902Z"
+      }
+    },
+    "authorReportedFocalChecks": {
+      "domain": 48,
+      "architecture": 6,
+      "registryManifestAccess": 119
+    },
+    "documentation": {
+      "path": "docs/plataforma/adr/0058-revision-credito-fixture.md",
+      "result": "No material divergence from source; contact-vs-person, synthetic decisions and inherited runtime evidence explicitly limited."
+    },
+    "limits": [
+      "The state oracle uses a separate Python finite-state model generated before inspecting production implementation. The existing money API is used only to verify financial diagnostics remain unchanged; its monetary matrix from R6.5a is not repeated.",
+      "Only applied commands exist in the artifact. ExpectedVersion and replay are pure comparisons, not durable CAS, server idempotency, a tamper-proof history or global case-ID uniqueness.",
+      "A declared contact is not an authenticated person. Accepted/rejected does not grant real credit, purchase permission, buyer identity, reservation or commercial authority.",
+      "The complete case contains its full declared context; there is no new endpoint, logging or persistence. A later demo must project synthetic labels and exclude technical identity data.",
+      "The diagnostic browser-targeted bundle is not an emitted Astro asset graph; another QA agent owns inherited-client comparisons after the root build.",
+      "No tracked product/test/doc edits, Git, fullcheck, Worker, browser, HTTP, DB or external actions were performed by this reviewer.",
+      "Parent owns final fullcheck; runtime browser/E2E/database evidence remains explicitly inherited from PR35 unless separately rerun."
+    ],
+    "reviewedTestSource": {
+      "path": "tests/company-credit-review.test.ts",
+      "sha256": "f204d6099a9f8f3dea7495fc1fca82c507811f5358680853b2a3331dbc008a8e",
+      "method": "Readonly final test design and case coverage; no independent rerun of author checks."
+    }
+  },
+  "builtClientComparison": {
+    "baselinePullRequest": "https://github.com/amariner/logic2b-ecom/pull/36",
+    "unchangedEntryNames": true,
+    "unchangedFileGraphs": true,
+    "unchangedImportEdgesAndSpecifiers": true,
+    "unchangedSha256": true,
+    "unchangedBytesAndGzip": true,
+    "graphs": [
+      {
+        "component": "CompanyCollectionDemo",
+        "entry": "dist/_astro/CompanyCollectionDemo.astro_astro_type_script_index_0_lang.pOo5tZX2.js",
+        "files": [
+          {
+            "path": "dist/_astro/company-directory.mOflI4d5.js",
+            "bytes": 6414,
+            "gzipBytes": 2302,
+            "sha256": "6c076800192741992b5cbfba6ce07a999d13e3499cd256b306e82dbfc49fc9bd",
+            "imports": []
+          },
+          {
+            "path": "dist/_astro/CompanyCollectionDemo.astro_astro_type_script_index_0_lang.pOo5tZX2.js",
+            "bytes": 25234,
+            "gzipBytes": 7159,
+            "sha256": "2b233eb74611532cc5e421d779ee8de61a2006820e3d6cb66558f7e2777ad5f4",
+            "imports": [
+              {
+                "path": "dist/_astro/company-directory.mOflI4d5.js",
+                "kind": "import-statement",
+                "external": false,
+                "specifier": "./company-directory.mOflI4d5.js"
+              },
+              {
+                "path": "dist/_astro/format.D6ggcjlO.js",
+                "kind": "import-statement",
+                "external": false,
+                "specifier": "./format.D6ggcjlO.js"
+              }
+            ]
+          },
+          {
+            "path": "dist/_astro/format.D6ggcjlO.js",
+            "bytes": 164,
+            "gzipBytes": 151,
+            "sha256": "7c7167f2030d738e58323bccda5878464f25a2138c4b1ddade0b4774694ba021",
+            "imports": []
+          }
+        ],
+        "totalBytes": 31812,
+        "totalGzipBytes": 9612,
+        "externalImports": []
+      },
+      {
+        "component": "VariantQuantityDemo",
+        "entry": "dist/_astro/VariantQuantityDemo.astro_astro_type_script_index_0_lang.B9D7Pdiw.js",
+        "files": [
+          {
+            "path": "dist/_astro/company-catalog-context.DygmWOFx.js",
+            "bytes": 10771,
+            "gzipBytes": 3390,
+            "sha256": "3ca3e78ab4c0cc109bc59548d2d2b52a6c04e389446b8c3dc4486decb9245d40",
+            "imports": [
+              {
+                "path": "dist/_astro/company-directory.mOflI4d5.js",
+                "kind": "import-statement",
+                "external": false,
+                "specifier": "./company-directory.mOflI4d5.js"
+              },
+              {
+                "path": "dist/_astro/market-context.BB9rBc3-.js",
+                "kind": "import-statement",
+                "external": false,
+                "specifier": "./market-context.BB9rBc3-.js"
+              },
+              {
+                "path": "dist/_astro/market-publication.DO6MUQIN.js",
+                "kind": "import-statement",
+                "external": false,
+                "specifier": "./market-publication.DO6MUQIN.js"
+              }
+            ]
+          },
+          {
+            "path": "dist/_astro/company-directory.mOflI4d5.js",
+            "bytes": 6414,
+            "gzipBytes": 2302,
+            "sha256": "6c076800192741992b5cbfba6ce07a999d13e3499cd256b306e82dbfc49fc9bd",
+            "imports": []
+          },
+          {
+            "path": "dist/_astro/market-context.BB9rBc3-.js",
+            "bytes": 6195,
+            "gzipBytes": 2224,
+            "sha256": "e9f6978ce356057950570598212faa771894f245a5fe4c5e15ca30f688c6b823",
+            "imports": []
+          },
+          {
+            "path": "dist/_astro/market-publication.DO6MUQIN.js",
+            "bytes": 7331,
+            "gzipBytes": 2674,
+            "sha256": "0cec8e90df5877b043a46b8b2c3fd270758fe16b93d6b444fe18876e54ff0187",
+            "imports": [
+              {
+                "path": "dist/_astro/market-context.BB9rBc3-.js",
+                "kind": "import-statement",
+                "external": false,
+                "specifier": "./market-context.BB9rBc3-.js"
+              }
+            ]
+          },
+          {
+            "path": "dist/_astro/VariantQuantityDemo.astro_astro_type_script_index_0_lang.B9D7Pdiw.js",
+            "bytes": 22976,
+            "gzipBytes": 6759,
+            "sha256": "651d2d1b8dd4f7934502aa6205273507aba44a8ab9ed3821a458a52eb7f90a04",
+            "imports": [
+              {
+                "path": "dist/_astro/company-catalog-context.DygmWOFx.js",
+                "kind": "import-statement",
+                "external": false,
+                "specifier": "./company-catalog-context.DygmWOFx.js"
+              },
+              {
+                "path": "dist/_astro/company-directory.mOflI4d5.js",
+                "kind": "import-statement",
+                "external": false,
+                "specifier": "./company-directory.mOflI4d5.js"
+              },
+              {
+                "path": "dist/_astro/market-context.BB9rBc3-.js",
+                "kind": "import-statement",
+                "external": false,
+                "specifier": "./market-context.BB9rBc3-.js"
+              },
+              {
+                "path": "dist/_astro/market-publication.DO6MUQIN.js",
+                "kind": "import-statement",
+                "external": false,
+                "specifier": "./market-publication.DO6MUQIN.js"
+              }
+            ]
+          }
+        ],
+        "totalBytes": 53687,
+        "totalGzipBytes": 17349,
+        "externalImports": []
+      },
+      {
+        "component": "CompanyCatalogDemo",
+        "entry": "dist/_astro/CompanyCatalogDemo.astro_astro_type_script_index_0_lang.HW9dUaoD.js",
+        "files": [
+          {
+            "path": "dist/_astro/company-catalog-context.DygmWOFx.js",
+            "bytes": 10771,
+            "gzipBytes": 3390,
+            "sha256": "3ca3e78ab4c0cc109bc59548d2d2b52a6c04e389446b8c3dc4486decb9245d40",
+            "imports": [
+              {
+                "path": "dist/_astro/company-directory.mOflI4d5.js",
+                "kind": "import-statement",
+                "external": false,
+                "specifier": "./company-directory.mOflI4d5.js"
+              },
+              {
+                "path": "dist/_astro/market-context.BB9rBc3-.js",
+                "kind": "import-statement",
+                "external": false,
+                "specifier": "./market-context.BB9rBc3-.js"
+              },
+              {
+                "path": "dist/_astro/market-publication.DO6MUQIN.js",
+                "kind": "import-statement",
+                "external": false,
+                "specifier": "./market-publication.DO6MUQIN.js"
+              }
+            ]
+          },
+          {
+            "path": "dist/_astro/company-directory.mOflI4d5.js",
+            "bytes": 6414,
+            "gzipBytes": 2302,
+            "sha256": "6c076800192741992b5cbfba6ce07a999d13e3499cd256b306e82dbfc49fc9bd",
+            "imports": []
+          },
+          {
+            "path": "dist/_astro/CompanyCatalogDemo.astro_astro_type_script_index_0_lang.HW9dUaoD.js",
+            "bytes": 26889,
+            "gzipBytes": 8072,
+            "sha256": "f9ed7eb41e36cdcbc2ba88bbddf839bd6f11e2f870095061b627959256c47aeb",
+            "imports": [
+              {
+                "path": "dist/_astro/company-catalog-context.DygmWOFx.js",
+                "kind": "import-statement",
+                "external": false,
+                "specifier": "./company-catalog-context.DygmWOFx.js"
+              },
+              {
+                "path": "dist/_astro/company-directory.mOflI4d5.js",
+                "kind": "import-statement",
+                "external": false,
+                "specifier": "./company-directory.mOflI4d5.js"
+              },
+              {
+                "path": "dist/_astro/format.D6ggcjlO.js",
+                "kind": "import-statement",
+                "external": false,
+                "specifier": "./format.D6ggcjlO.js"
+              },
+              {
+                "path": "dist/_astro/market-context.BB9rBc3-.js",
+                "kind": "import-statement",
+                "external": false,
+                "specifier": "./market-context.BB9rBc3-.js"
+              },
+              {
+                "path": "dist/_astro/market-publication.DO6MUQIN.js",
+                "kind": "import-statement",
+                "external": false,
+                "specifier": "./market-publication.DO6MUQIN.js"
+              },
+              {
+                "path": "dist/_astro/product.BVACAMDj.js",
+                "kind": "import-statement",
+                "external": false,
+                "specifier": "./product.BVACAMDj.js"
+              }
+            ]
+          },
+          {
+            "path": "dist/_astro/format.D6ggcjlO.js",
+            "bytes": 164,
+            "gzipBytes": 151,
+            "sha256": "7c7167f2030d738e58323bccda5878464f25a2138c4b1ddade0b4774694ba021",
+            "imports": []
+          },
+          {
+            "path": "dist/_astro/market-context.BB9rBc3-.js",
+            "bytes": 6195,
+            "gzipBytes": 2224,
+            "sha256": "e9f6978ce356057950570598212faa771894f245a5fe4c5e15ca30f688c6b823",
+            "imports": []
+          },
+          {
+            "path": "dist/_astro/market-publication.DO6MUQIN.js",
+            "bytes": 7331,
+            "gzipBytes": 2674,
+            "sha256": "0cec8e90df5877b043a46b8b2c3fd270758fe16b93d6b444fe18876e54ff0187",
+            "imports": [
+              {
+                "path": "dist/_astro/market-context.BB9rBc3-.js",
+                "kind": "import-statement",
+                "external": false,
+                "specifier": "./market-context.BB9rBc3-.js"
+              }
+            ]
+          },
+          {
+            "path": "dist/_astro/product.BVACAMDj.js",
+            "bytes": 2763,
+            "gzipBytes": 1023,
+            "sha256": "14dd4c6dae0a8717f6c44f73f293ed7cea42d1b05ab15ce3e9e996918dcac7dc",
+            "imports": []
+          }
+        ],
+        "totalBytes": 60527,
+        "totalGzipBytes": 19836,
+        "externalImports": []
+      },
+      {
+        "component": "CompanyDirectoryDemo",
+        "entry": "dist/_astro/CompanyDirectoryDemo.astro_astro_type_script_index_0_lang.tUOZl7at.js",
+        "files": [
+          {
+            "path": "dist/_astro/company-directory.mOflI4d5.js",
+            "bytes": 6414,
+            "gzipBytes": 2302,
+            "sha256": "6c076800192741992b5cbfba6ce07a999d13e3499cd256b306e82dbfc49fc9bd",
+            "imports": []
+          },
+          {
+            "path": "dist/_astro/CompanyDirectoryDemo.astro_astro_type_script_index_0_lang.tUOZl7at.js",
+            "bytes": 14693,
+            "gzipBytes": 4463,
+            "sha256": "697b4f962e9c7f4673dd4c1818accad6117deadeb0e2d90f91d0ec89b5812dec",
+            "imports": [
+              {
+                "path": "dist/_astro/company-directory.mOflI4d5.js",
+                "kind": "import-statement",
+                "external": false,
+                "specifier": "./company-directory.mOflI4d5.js"
+              },
+              {
+                "path": "dist/_astro/fixture-vat-id-adapter.Ow_zwmVh.js",
+                "kind": "import-statement",
+                "external": false,
+                "specifier": "./fixture-vat-id-adapter.Ow_zwmVh.js"
+              }
+            ]
+          },
+          {
+            "path": "dist/_astro/fixture-vat-id-adapter.Ow_zwmVh.js",
+            "bytes": 5749,
+            "gzipBytes": 2053,
+            "sha256": "d50f2b3b0d0dc87d3823c767a4bbfe5f40697e7aa86111a570a2d462f181a60c",
+            "imports": []
+          }
+        ],
+        "totalBytes": 26856,
+        "totalGzipBytes": 8818,
+        "externalImports": []
+      },
+      {
+        "component": "DemoAssistant",
+        "entry": "dist/_astro/DemoAssistant.astro_astro_type_script_index_0_lang.CxlO2EoN.js",
+        "files": [
+          {
+            "path": "dist/_astro/cart-client.ItD9TTkL.js",
+            "bytes": 1059,
+            "gzipBytes": 590,
+            "sha256": "34a807152cbfd940499a32c312851384b3cbaaaddc743e8b7aa9630558d52915",
+            "imports": []
+          },
+          {
+            "path": "dist/_astro/demo-commerce.Dnz6Qizq.js",
+            "bytes": 1048,
+            "gzipBytes": 584,
+            "sha256": "9a4b4e081ba480085aabae88a68b88996dff6a85e06ecd14d32715f8754c487b",
+            "imports": []
+          },
+          {
+            "path": "dist/_astro/DemoAssistant.astro_astro_type_script_index_0_lang.CxlO2EoN.js",
+            "bytes": 13064,
+            "gzipBytes": 5135,
+            "sha256": "9a697cc413006063faf39a6f456caea0b223d6231602d68165a22ba3577518ed",
+            "imports": [
+              {
+                "path": "dist/_astro/cart-client.ItD9TTkL.js",
+                "kind": "import-statement",
+                "external": false,
+                "specifier": "./cart-client.ItD9TTkL.js"
+              },
+              {
+                "path": "dist/_astro/demo-commerce.Dnz6Qizq.js",
+                "kind": "import-statement",
+                "external": false,
+                "specifier": "./demo-commerce.Dnz6Qizq.js"
+              }
+            ]
+          }
+        ],
+        "totalBytes": 15171,
+        "totalGzipBytes": 6309,
+        "externalImports": []
+      }
+    ]
+  },
+  "surfaceComparison": {
+    "schemaVersion": 1,
+    "scope": "emitted-browser-graphs-and-explicit-source-boundaries",
+    "inheritedQa": {
+      "pullRequest": 35,
+      "browserChecks": 2660,
+      "stateVisits": 72,
+      "accessibilitySurfaces": 8,
+      "screenshots": 8,
+      "e2eChecks": 188,
+      "databaseTables": 143,
+      "databaseRows": 353,
+      "databaseSha256": "9cbfc811cfc4296515a403d395875a43bfa26aff0c9c9b08be0804b15bbf6eca"
+    },
+    "graphComparison": [
+      {
+        "component": "CompanyCollectionDemo",
+        "entry": "dist/_astro/CompanyCollectionDemo.astro_astro_type_script_index_0_lang.pOo5tZX2.js",
+        "fileCount": 3,
+        "importEdges": 2,
+        "totalBytes": 31812,
+        "totalGzipBytes": 9612,
+        "identical": true,
+        "changes": {
+          "added": [],
+          "removed": [],
+          "changed": []
+        }
+      },
+      {
+        "component": "VariantQuantityDemo",
+        "entry": "dist/_astro/VariantQuantityDemo.astro_astro_type_script_index_0_lang.B9D7Pdiw.js",
+        "fileCount": 5,
+        "importEdges": 8,
+        "totalBytes": 53687,
+        "totalGzipBytes": 17349,
+        "identical": true,
+        "changes": {
+          "added": [],
+          "removed": [],
+          "changed": []
+        }
+      },
+      {
+        "component": "CompanyCatalogDemo",
+        "entry": "dist/_astro/CompanyCatalogDemo.astro_astro_type_script_index_0_lang.HW9dUaoD.js",
+        "fileCount": 7,
+        "importEdges": 10,
+        "totalBytes": 60527,
+        "totalGzipBytes": 19836,
+        "identical": true,
+        "changes": {
+          "added": [],
+          "removed": [],
+          "changed": []
+        }
+      },
+      {
+        "component": "CompanyDirectoryDemo",
+        "entry": "dist/_astro/CompanyDirectoryDemo.astro_astro_type_script_index_0_lang.tUOZl7at.js",
+        "fileCount": 3,
+        "importEdges": 2,
+        "totalBytes": 26856,
+        "totalGzipBytes": 8818,
+        "identical": true,
+        "changes": {
+          "added": [],
+          "removed": [],
+          "changed": []
+        }
+      },
+      {
+        "component": "DemoAssistant",
+        "entry": "dist/_astro/DemoAssistant.astro_astro_type_script_index_0_lang.CxlO2EoN.js",
+        "fileCount": 3,
+        "importEdges": 2,
+        "totalBytes": 15171,
+        "totalGzipBytes": 6309,
+        "identical": true,
+        "changes": {
+          "added": [],
+          "removed": [],
+          "changed": []
+        }
+      }
+    ],
+    "sourceFiles": 352,
+    "emittedCssFiles": 19,
+    "surfacesIdentical": true,
+    "sourceChanges": {
+      "added": [],
+      "removed": [],
+      "changed": []
+    },
+    "cssChanges": {
+      "added": [],
+      "removed": [],
+      "changed": []
+    },
+    "limitations": [
+      "Source hashes do not execute SSR, HTTP, middleware or interactions.",
+      "This manifest is not the complete transitive server module graph.",
+      "Browser/a11y/E2E and database evidence remains inherited from PR35."
+    ],
+    "result": "identical",
+    "artifacts": [
+      {
+        "path": "/tmp/r65b-inherited-baseline.json",
+        "sha256": "2979be9ee861f31214805cd44f7f6fe4a454713858c1636ee4bfd1738417f3ba"
+      },
+      {
+        "path": "/tmp/r65b-inherited-final.json",
+        "sha256": "2979be9ee861f31214805cd44f7f6fe4a454713858c1636ee4bfd1738417f3ba"
+      },
+      {
+        "path": "/tmp/r65b-surfaces-baseline.json",
+        "sha256": "04510d9b053fc03efe82527a7f70c3d64fbc749d3c8cd286f9ca767b5b7e39dd"
+      },
+      {
+        "path": "/tmp/r65b-surfaces-final.json",
+        "sha256": "04510d9b053fc03efe82527a7f70c3d64fbc749d3c8cd286f9ca767b5b7e39dd"
+      }
+    ]
+  },
+  "inheritedQa": {
+    "source": "../r6-4c/verification-report.json",
+    "pullRequest": "https://github.com/amariner/logic2b-ecom/pull/35",
+    "newExecution": false,
+    "e2eChecks": 188,
+    "browserChecks": 2660,
+    "browserStateVisits": 72,
+    "a11ySurfaces": 8,
+    "a11yErrors": 0,
+    "a11yWarnings": 0,
+    "screenshotsReviewed": 8,
+    "database": {
+      "tables": 143,
+      "rows": 353,
+      "hashBefore": "9cbfc811cfc4296515a403d395875a43bfa26aff0c9c9b08be0804b15bbf6eca",
+      "hashAfter": "9cbfc811cfc4296515a403d395875a43bfa26aff0c9c9b08be0804b15bbf6eca",
+      "unchanged": true,
+      "newMigrations": 0
+    },
+    "note": "Inherited local synthetic QA evidence, not new browser, HTTP, E2E, accessibility or database measurements for this pure contract cut."
+  },
+  "scope": {
+    "capability": "B2B-004",
+    "owner": "companies",
+    "ownerVersion": "1.6.0",
+    "capabilityDependencies": [
+      "B2B-001"
+    ],
+    "moduleDependencies": [
+      "platform-configuration"
+    ],
+    "advancedAndDemo": "installed/inactive",
+    "minimalAndStandard": "absent",
+    "operationalSurfaces": [],
+    "profile": "company-credit-review-v1",
+    "reviewersMaximum": 20,
+    "decisionsMaximum": 20,
+    "casesPerCall": 1,
+    "commandsPerApply": 1,
+    "contextBinding": "full normalized directory, credit policy, request, explicit evaluation, complete evidence or null, and review policy compared before replay, version conflict or terminal branches",
+    "policy": "explicit contacts of one company, buyer separation required or allowed, quorum; no roles or identity authority",
+    "creation": "explicit only; inactive company/buyer or unreachable quorum block opening after validation",
+    "history": "complete replay from empty state; version equals 1 + decisions.length; unique command IDs and one declaration per contact; monotonically nondecreasing explicit timestamps",
+    "states": [
+      "pending",
+      "accepted",
+      "rejected"
+    ],
+    "terminality": "quorum of acceptances or first rejection is terminal; no new decisions afterward",
+    "replay": "exact stored command returns current snapshot including later declarations without increment or rollback",
+    "conflicts": [
+      "version_mismatch",
+      "command_id_reused"
+    ],
+    "recording": "only applied commands enter history; blocked or conflicted commands do not consume IDs",
+    "changedContext": "requires a separate new case; no rebind, reopen or vote migration",
+    "contactIdentity": "distinct contacts are not deduplicated into authenticated people",
+    "creditIndependence": "all numerical comparisons and unknown/unconfigured states preserved even when declarations reach accepted",
+    "authenticity": false,
+    "durableConcurrencyControl": false,
+    "globalCaseUniqueness": false,
+    "creditReservation": false,
+    "purchasingAuthorization": false,
+    "newMigrations": 0,
+    "newRoutes": 0,
+    "newJobs": 0,
+    "newProviders": 0,
+    "newForms": 0,
+    "newUi": false,
+    "visualDemo": "R6.5c design in preparation with 15 contexts; no implementation or visual QA yet"
+  },
+  "evidence": {
+    "fullcheck": "local run: /tmp/ecom-company-credit-review-check.log",
+    "domainTests": "tests/company-credit-review.test.ts",
+    "adr": "../../plataforma/adr/0058-revision-credito-fixture.md"
+  },
+  "limitations": [
+    "Accepted/rejected describe declared fixture responses and quorum, not authenticated approval, financing or authorization to purchase.",
+    "One vote per contact does not establish one vote per real person; shared external identity references are not deduplicated.",
+    "Expected version, replay and complete context equality are pure comparisons between supplied artifacts, not durable CAS, global uniqueness or protection against a coherently rewritten artifact.",
+    "Only applied commands are recorded; blocked and conflict outcomes do not prove receipt or consume command IDs.",
+    "Historical credit asOf and unknown/unconfigured/exceeded limits remain separate from the declared review conclusion; no current credit availability is inferred.",
+    "Diagnostic public bundle retains a historical 113-byte collection-limit constant, without collection operations; existing client graphs remain unchanged.",
+    "No UI, provider, database, notification, job or checkout integration. R6.5c remains pending and B2B-004 remains partial.",
+    "Browser, E2E, accessibility, screenshots and database hashes remain inherited from PR35; PR36 is the unchanged asset baseline only.",
+    "Source/CSS comparison is not the complete transitive SSR graph or a fresh HTTP measurement.",
+    "Local verification does not establish remote deployment."
+  ]
+}
