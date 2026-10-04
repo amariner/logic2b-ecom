@@ -97,11 +97,12 @@ remoto.
 
 ### Evidencia local actualizada el 2026-10-04
 
-- `pnpm check`: 957 archivos sin diagnósticos, 251 suites y 3.210 tests.
+- `pnpm check` de R6.4a: 971 archivos sin diagnósticos, 256 suites y 3.473 tests.
 - Build demo: 44 documentos HTML y 44 formularios de proyecto locales.
 - D1/workerd: 15 bloques correctos, backup 39 y restauración de 129 tablas;
   [informe de segmentación](docs/audits/r5-6c/facts-d1-report.json).
-- E2E de R6.1b (2026-10-04): 176/176 comprobaciones. Formularios: 31 comprobaciones, cero peticiones
+- E2E de R6.3b (2026-10-04): 184/184 comprobaciones, heredadas para el contrato puro R6.4a.
+  Formularios: 31 comprobaciones, cero peticiones
   mutantes, beacons o errores JavaScript;
   [informe de fixtures](docs/audits/demo-fixtures/report.json).
 - Segmentos locales: 119 comprobaciones de navegador y ocho superficies de
@@ -168,9 +169,19 @@ remoto.
 - Cantidades por variante: mínimos, máximos, múltiplos y cajas explícitas,
   con conversión exacta y diagnóstico separado de la visibilidad. 112 pruebas
   específicas y 78.223 comprobaciones independientes; B2B-005 instalada/inactiva.
-  Sin integración operativa con checkout; demo visual R6.3b pendiente.
+  Sin integración operativa con checkout.
   [Informe R6.3a](docs/audits/r6-3a/verification-report.json).
-- Base QA: 143 tablas y 353 filas, hash antes/después idéntico:
+- Demo de mínimos, múltiplos y cajas: conserva cantidades por variante y
+  distingue cantidad conforme, visibilidad y ausencia de regla. Navegador:
+  2.084 comprobaciones en 72 visitas a estados; ocho superficies a11y sin
+  hallazgos. E2E 184/184 y hash de la base QA sin cambios. Integrada en PR #32,
+  sin despliegue. [Evidencia R6.3b](docs/audits/r6-3b/README.md).
+- Condiciones de pago con fixtures: asignación explícita por empresa, fechas
+  civiles UTC y vencimiento/hitos descriptivos, sin inferir estado de cobro.
+  46 pruebas propias y 21.702 comprobaciones independientes de calendario y
+  correlación. B2B-003 instalada/inactiva; evidencia de cobro y demo conjunta
+  pendientes. [Informe R6.4a](docs/audits/r6-4a/verification-report.json).
+- Base QA de R6.3b (evidencia heredada en R6.4a): 143 tablas y 353 filas, hash antes/después idéntico:
   `9cbfc811cfc4296515a403d395875a43bfa26aff0c9c9b08be0804b15bbf6eca`.
 
 Esta evidencia corresponde a QA local y no acredita que el sitio remoto haya

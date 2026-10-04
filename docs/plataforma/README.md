@@ -31,10 +31,69 @@ Una quinta clasificación, **fuera de alcance deliberado**, evita confundir
 paridad comercial con fabricar bancos, redes publicitarias, hardware de punto de
 venta o servicios logísticos propios.
 
+## Último contrato verificado
+
+**R6.4a implementado y verificado localmente**, rama
+`codex/company-payment-terms`; integración pendiente, sin despliegue.
+El [ADR-0055](adr/0055-condiciones-pago-fixture.md) delimita el contrato puro
+fixture de condición de pago y calendario por empresa. Companies 1.3.0 posee
+B2B-003 parcial e instalada/inactiva en avanzado y demo, ausente en
+mínimo/estándar, con dependencia de capacidad única B2B-001 y de módulo
+`platform-configuration`; sin superficies operativas. No depende de catálogo,
+cantidades, precios, ledger ni proveedores.
+
+Condición explícita y versionada `immediate`/`net_days`, sin herencia ni fallback.
+Calendario `utc-civil-days-v1`, fechas civiles UTC `YYYY-MM-DD` exactas entre
+0001 y 9999; base y evaluación explícitas, sin inferirlas del reloj ni de
+`capturedAt`. Immediate vence en la base y net_days suma días civiles; sin
+festivos, días laborales, intereses ni ajustes automáticos. La evaluación
+puede preceder la base. Referencias completas de directorio/política y
+validación íntegra antes de seleccionar o responder ausencia; overflow de
+vencimiento o cualquier hito rechaza el resultado completo.
+
+Empresa existente sin asignación devuelve `unconfigured` y derivados null,
+sin hitos; empresa desconocida es error. La inactiva conserva la lectura
+descriptiva de la condición declarada en esta revisión y su calendario, sin
+permisos ni cambios en los bloqueos comerciales existentes. Los recordatorios
+son hitos por offsets explícitos, sin destinatarios, envíos, jobs ni crons.
+Pasar la fecha solo produce una posición temporal: no acredita impago, saldo,
+captura ni pago completo. Sin importes, crédito, aprobaciones, fiscalidad,
+persistencia, UI ni cambios de checkout/ledger. El estado de cobro necesita
+un contrato posterior de evidencia completa y correlacionada; R6.4 no se
+considera completo por calcular fechas.
+
+Check final con salida 0: 971 archivos sin diagnósticos, 256 suites/3.473
+pruebas; 44 HTML/44 formularios/cero crons. Evidencia focal: 46 de dominio,
+seis de arquitectura y 118 de registry/manifest/access (19 + 69 + 30).
+Revisión independiente de 21.702 comprobaciones/15.090 casos, 336 fechas base,
+14.327 resultados y 763 rechazos por overflow; 96 fechas inválidas contrastadas
+en 192 comprobaciones. Sin P1/P2, efectos, ejecución de getters ni reloj
+implícito. Bundle de diagnóstico: 12.249 B/3.802 B gzip, dos fuentes puras;
+no representa un asset de UI. La revisión del build confirma igualdad íntegra
+con PR #32 en Cantidades, Catálogo de empresa, Directorio y Guía: nombres,
+grafos, aristas, specifiers, SHA-256, bytes y gzip; sin imports externos.
+Es análisis de assets existentes, sin nuevas ejecuciones HTTP, navegador o DB.
+[Informe final](../audits/r6-4a/verification-report.json).
+
+Navegador 2.084/72 visitas, E2E 184/184, ocho superficies a11y, ocho PNG y hash
+143 tablas/353 filas son evidencia heredada de PR #32, sin nuevas ejecuciones
+en R6.4a.
+
+**Secuencia siguiente aprobada:** R6.4b, evidencia correlacionada fixture pura,
+y R6.4c, demo conjunta después. Snapshot completo y acotado ligado a la revisión
+exacta de una obligación sintética, con definición explícita de importe
+observado/aplicado. Ausencia o evidencia no utilizable nunca implican impago ni
+saldo cero; sobrepago y reversiones requieren diseño explícito, sin clamp.
+No reutiliza expectedamounts/expiresAt ni acredita deuda legal o fiscal.
+Esquema, API, moneda y semántica temporal/monetaria se revisarán antes de
+implementar. Sin ledger; R6.4 sigue parcial y su operación pendiente.
+
 ## Última demo verificada
 
 **R6.3b implementada y verificada localmente, disponible en el repositorio**,
-rama `codex/variant-quantity-demo`; integración pendiente, sin despliegue.
+rama `codex/variant-quantity-demo`, integrada en
+[PR #32](https://github.com/amariner/logic2b-ecom/pull/32), commit `04d5f9a9`,
+sin despliegue.
 `/demo/admin/cantidades`, «Mínimos, múltiplos y cajas», está en Clientes,
 tras Catálogo de empresa, con dos zonas: «Prueba una cantidad» y «Comprueba la
 regla». Empresa activa y canal `professional` fijos; ES/FR, una sola línea
@@ -77,17 +136,7 @@ hash `9cbfc811cfc4296515a403d395875a43bfa26aff0c9c9b08be0804b15bbf6eca`.
 Las verificaciones R6.3a/PR #31 y la evidencia anterior de PR #30 conservan
 su procedencia histórica en los apartados siguientes.
 
-**Siguiente aceptado: R6.4a**, condición explícita y versionada por empresa,
-`immediate`/`net_days`, con fechas base/de evaluación explícitas y calendario
-civil UTC declarado. Ausencia `unconfigured`, sin inferir impago ni captura.
-Los recordatorios serán solo hitos calculados con offsets explícitos, sin
-destinatario, envío ni job. El estado de cobro requiere un subcorte posterior
-con evidencia completa y correlacionada antes de afirmar R6.4 completo;
-crédito, aprobaciones y fiscalidad quedan separados, sin plazos comerciales
-reales. Esquema, API, límites y semántica exacta de fecha se cerrarán entre los
-autores; no hay implementación y B2B-003 continúa pendiente.
-
-## Último contrato verificado
+## Contrato anterior verificado
 
 **R6.3a implementado y verificado localmente**, rama
 `codex/variant-quantity-rules`, integrado en

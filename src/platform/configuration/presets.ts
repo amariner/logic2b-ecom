@@ -132,6 +132,9 @@ const ADVANCED_CAPABILITIES = {
   // R6.2a: catálogo y contexto de precios sobre snapshots explícitos;
   // no activa publicación, listas operativas ni compra por empresa.
   'B2B-002': { state: 'installed' },
+  // R6.4a: condición declarada y calendario civil con fixtures;
+  // no determina estado de cobro ni ejecuta pagos o recordatorios.
+  'B2B-003': { state: 'installed' },
   // R6.3a: reglas de cantidad por variante sobre fixtures explícitos;
   // no modifica carrito, checkout ni concede permisos de compra.
   'B2B-005': { state: 'installed' },

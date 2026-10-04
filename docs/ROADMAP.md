@@ -16,6 +16,45 @@
 > 2. Actualizar el estado de la fase al terminar, con fecha y resumen de lo hecho.
 > 3. Anotar decisiones tomadas y pendientes en las secciones de abajo.
 
+## R6.4a — Condiciones y calendario de pago con fixtures, verificado localmente (2026-10-04)
+
+R6.3b está integrada en PR #32 (`04d5f9a9`), sin despliegue. La rama
+`codex/company-payment-terms` implementa el
+[ADR-0055](plataforma/adr/0055-condiciones-pago-fixture.md): asignación declarada
+por empresa, inmediato/neto N, fechas civiles explícitas y hitos de calendario.
+El dominio valida el directorio completo y referencias; la ausencia no infiere
+una condición, y la inactividad conserva únicamente lectura descriptiva.
+
+`companies` 1.3.0, B2B-003 parcial e instalada/inactiva en avanzado/demo,
+dependencia B2B-001. Sin UI, DDL, rutas, jobs, persistencia, proveedores ni
+cambios de ledger/checkout. Calendario y evidencia de cobro son dimensiones
+separadas: una fecha vencida no prueba impago o captura.
+
+[Verificación final R6.4a](audits/r6-4a/verification-report.json), 2026-10-04:
+`pnpm check` pasa 971 archivos sin diagnósticos, 256 suites/3.473 pruebas,
+44 HTML, 44 formularios locales y cero crons. Focales: 46 de dominio, seis de
+arquitectura y 118 de registry/manifest/acceso (19/69/30). Revisión independiente:
+21.702 comprobaciones, 15.090 casos de calendario y 336 fechas base; 14.327
+resultados válidos y 763 overflow esperados. Las 96 fechas inválidas producen
+192 rechazos al probar ambos campos. Sin P1/P2, efectos, getters o reloj implícito.
+
+El bundle público de diagnóstico ocupa 12.249 B/3.802 B gzip, con dos fuentes
+puras, directorio y condiciones, sin imports externos. No es un asset de UI.
+La comparación nueva del build conserva íntegros los cuatro clientes de PR #32:
+Cantidades, Catálogo por empresa, Empresas y guía; mismos nombres, grafos,
+aristas, specifiers, SHA-256 y tamaños bytes/gzip, sin imports externos.
+No hubo nuevas ejecuciones de Worker, HTTP, navegador, a11y, E2E o DB.
+
+Navegador 2.084 comprobaciones/72 visitas, E2E 184/184, ocho superficies a11y
+sin hallazgos y ocho capturas son evidencia heredada de R6.3b/PR #32. Su base QA
+conservó 143 tablas/353 filas y SHA-256
+`9cbfc811cfc4296515a403d395875a43bfa26aff0c9c9b08be0804b15bbf6eca`.
+No constituyen una lectura o ejecución nueva en este corte puro. Implementado
+y verificado localmente, con integración pendiente y sin despliegue.
+
+Dirección posterior aprobada: R6.4b evidencia correlacionada y R6.4c demo
+conjunta; schema/API, semántica, implementación y QA propios pendientes.
+
 ## R6.3b — Demo de mínimos, múltiplos y cajas, verificada localmente (2026-10-04)
 
 R6.3a está integrada en PR #31 (`7ac42e67`), sin despliegue. La rama
@@ -32,7 +71,7 @@ superficie privada/noindex y sin precios, stock, totales, envíos o persistencia
 B2B-005 permanece parcial e instalada/inactiva; no cambia quote/pricing 1–99.
 
 **Implementada y verificada localmente; disponible en el repositorio.**
-Integración pendiente, sin despliegue ni activación operativa.
+Integrada en PR #32 (`04d5f9a9`), sin despliegue ni activación operativa.
 
 [Verificación final R6.3b](audits/r6-3b/verification-report.json), 2026-10-04:
 `pnpm check` pasa 969 archivos sin diagnósticos, 255 suites/3.426 pruebas,
@@ -58,9 +97,8 @@ guía se mide aparte, 15.154 B/6.300 B gzip; sus 11 B adicionales corresponden
 a incluir Cantidades en la lista de rutas permitidas. El bundle de diagnóstico
 del modelo, 45.400 B/ocho fuentes puras, es una medición distinta de los assets.
 
-El siguiente diseño aprobado es R6.4a: condiciones y calendario de pago con
-fixtures, todavía sin implementación; el estado de cobro requiere evidencia
-correlacionada en un subcorte posterior.
+R6.4a está verificado localmente según el [ADR-0055](plataforma/adr/0055-condiciones-pago-fixture.md);
+el estado de cobro requiere evidencia correlacionada en un subcorte posterior.
 
 ## R6.3a — Reglas de cantidad con fixtures, integrado (2026-10-04)
 
@@ -114,8 +152,8 @@ con unidad/factor/cantidad canónica nulos incluso al solicitar cero. ES muestra
 las tres; FR oculta la 11. Cantidad conforme y visibilidad se explican por
 separado, sin precios, stock, totales, autorización o ajustes automáticos.
 
-Implementada y verificada localmente, disponible en el repositorio; integración
-pendiente y sin despliegue. Verificados 36 estados por tamaño, 72 visitas en
+Implementada y verificada localmente, disponible en el repositorio e integrada
+en PR #32 (`04d5f9a9`), sin despliegue. Verificados 36 estados por tamaño, 72 visitas en
 1.440/375 px: contadores 0, 2, 4, 5, 8, 12, 16, 17, 19 y 20 para unidades;
 0–4 para cajas y 0–2 sin regla, en ES/FR. Ocho capturas aprobadas: unidad
 conforme, una caja que incumple el múltiplo, ausencia de regla y ocho unidades
@@ -200,7 +238,7 @@ siendo diagnósticos, no permiso de compra. No consulta bindings de precio ni
 devuelve snapshot monetario, precios, stock, descuentos, totales o
 `purchasable`. Los límites operativos 1–99 de quote/pricing se conservan.
 El contrato no añade DDL, rutas, cron o escritura durable. La demo R6.3b está
-verificada localmente, con integración pendiente y sin despliegue. La integración
+verificada localmente e integrada en PR #32 (`04d5f9a9`), sin despliegue. La integración
 real con checkout permanece fuera de este corte.
 
 ## R6.2a — Catálogo y precios por empresa con fixtures, cerrado localmente (2026-10-04)
@@ -1696,7 +1734,8 @@ inerte o una intención del roadmap en alcance disponible.
 | R6.2a | Catálogo y precios B2B con fixtures | ✅ Cerrado localmente — ADR-0053, 957 archivos sin diagnósticos, 251 suites/3.210 pruebas, 132 focales y revisión 12.478/300 sin P1/P2. B2B-002 parcial instalada/inactiva; integrado en PR #29 (`4d7a30a9`), sin UI, DDL, activación o despliegue. Demo R6.2b implementada y verificada localmente |
 | R6.2b | Demo de catálogo y precios por empresa | ✅ Cerrada localmente — 961 archivos sin diagnósticos/252 suites/3.259 pruebas, navegador 3.614 comprobaciones/64 visitas, ocho superficies a11y sin hallazgos, ocho capturas aprobadas y E2E nuevo 180/180; base QA intacta. Disponible en repo, integrada en PR #30 (`6305b823`), sin activación ni despliegue |
 | R6.3a | Reglas de cantidad con fixtures | ✅ Cerrado localmente — ADR-0054, 965 archivos sin diagnósticos/254 suites/3.376 pruebas, 112 focales y oráculo 78.223 sin P1/P2; assets existentes idénticos a PR #30. B2B-005 parcial instalada/inactiva; integrado en PR #31 (`7ac42e67`), sin UI, DDL, activación o despliegue |
-| R6.3b | Demo de mínimos, múltiplos y cajas | ✅ Cerrada localmente — 969 archivos sin diagnósticos/255 suites/3.426 pruebas; navegador 2.084 comprobaciones/72 visitas, ocho superficies a11y sin hallazgos, ocho capturas aprobadas y E2E nuevo 184/184; base QA intacta. Disponible en repo, integración pendiente y sin activación ni despliegue |
+| R6.3b | Demo de mínimos, múltiplos y cajas | ✅ Cerrada localmente — 969 archivos sin diagnósticos/255 suites/3.426 pruebas; navegador 2.084 comprobaciones/72 visitas, ocho superficies a11y sin hallazgos, ocho capturas aprobadas y E2E nuevo 184/184; base QA intacta. Disponible en repo, integrada en PR #32 (`04d5f9a9`), sin activación ni despliegue |
+| R6.4a | Condiciones y calendario de pago con fixtures | ✅ Cerrado localmente — ADR-0055, 971 archivos sin diagnósticos/256 suites/3.473 pruebas, 46 de dominio y revisión 21.702 sin P1/P2. Cuatro grafos cliente idénticos a PR #32; QA de superficie/DB heredada. B2B-003 parcial/inactiva; integración pendiente, sin UI nueva ni despliegue |
 | R5.2 | Consentimiento versionado | ✅ 2026-08-17 — ADR-0040, D1 `0037`, repositorio concurrente, backup 31, rehearsal y E2E local; `CUS-007` instalada e inerte |
 | R5.3a | Derechos de datos verificables | ✅ 2026-08-17 — ADR-0041, lifecycle, dry-run, doble control y puertos; `CUS-008` instalada e inerte, sin DDL ni efectos |
 | R5.3b | Persistencia de solicitudes de derechos | ✅ 2026-08-18 — D1 `0038`, repositorio concurrente, backup 32 y rehearsal/restore local; sin PII, rutas ni ejecución |
@@ -3253,24 +3292,66 @@ solo vuelve a `main` o a producción por instrucción expresa.
 Zancada queda completado, integrado en GitHub y publicado por encargo expreso
 del 2026-09-08. La cola de plataforma que sigue no cambia por esta importación.
 
-### R6.4a — Condiciones y calendario de pago con fixtures, siguiente diseño aprobado
+### R6.4b — Evidencia de cobro correlacionada con fixtures, siguiente diseño aprobado
 
-**R6.4a — Condiciones y calendario de pago con fixtures** es el siguiente
-diseño aprobado, todavía sin implementación. Condición explícita/versionada
-por empresa, `immediate` o `net_days`, fecha base y fecha de evaluación
-explícitas bajo un calendario civil UTC declarado. Ausencia de condición
-produce `unconfigured`; no se sustituye por pago inmediato ni se infieren
-impago, captura o autorización desde el tiempo transcurrido.
+Siguiente dirección aprobada: R6.4b, snapshot acotado de evidencia de cobro
+fixture completa, ligado a una revisión exacta de obligación sintética y a una
+definición explícita de importe observado/aplicado; R6.4c, demo conjunta después.
+Calendario y cobro siguen separados. Ausencia o evidencia no utilizable no
+prueban impago ni saldo cero; la obligación declarada no acredita deuda legal
+o fiscal. Sobrepago y reversiones requieren semántica explícita, sin clamp.
 
-Los recordatorios serán únicamente hitos calculados con offsets explícitos,
-sin destinatario, envío, job o cron. El estado de cobro requiere un subcorte
-posterior con evidencia completa correlacionada; R6.4 no se declarará completo
-solo por calcular vencimientos. Crédito/aprobaciones y fiscalidad conservan
-sus alcances separados; no se fijan plazos comerciales reales.
+Schema, API, moneda y reglas monetarias/temporales de b requieren diseño y
+revisión antes de implementar. No se recrea el ledger ni se usan importes
+esperados de pago o caducidad de presupuesto como saldo/vencimiento. R6.4 sigue
+parcial, con operación real pendiente; crédito/aprobaciones, fiscalidad y
+condiciones comerciales reales conservan sus alcances separados.
 
-Esquema, API, límites y semántica exacta de fechas se cerrarán con los autores
-antes de implementar. El ensayo fixture no necesita DDL ni proveedor; este
-outline no añade activación, persistencia ni cambios en el ledger.
+### R6.4a — Contrato de calendario verificado localmente
+
+**R6.4a — Condiciones y calendario de pago con fixtures está implementado y verificado localmente**,
+con diseño final aceptado en [ADR-0055](plataforma/adr/0055-condiciones-pago-fixture.md). Política explícita/versionada
+por empresa, `immediate` o `net_days`; petición ligada a política y directorio
+completo mediante referencias declaradas. Perfil `utc-civil-days-v1`, fechas
+base/evaluación `YYYY-MM-DD` explícitas, años 0001–9999 y aritmética gregoriana
+sin horas, festivos, gracia o ajustes automáticos. La evaluación puede preceder
+la base; offsets negativos pueden situar hitos antes de ella.
+
+Ausencia produce `unconfigured` con condición/vencimiento/delta nulos e hitos
+vacíos. Empresa inactiva conserva la lectura descriptiva de la condición de
+esta revisión, sin llamarla histórica, vigente o autorizada. Se normaliza el
+directorio completo y todas las referencias antes de seleccionar; overflow de
+vencimiento o cualquier hito rechaza el resultado entero. Límites técnicos:
+100 asignaciones, 20 offsets por asignación, neto 1–3.650 días y offsets
+−3.650–3.650, sin interpretar esos límites como política financiera real.
+
+`companies` 1.3.0 conserva dependencia de módulo `platform-configuration`;
+B2B-003 depende solo de B2B-001, con alcance parcial e instalada/inactiva en
+avanzado/demo. Sin composición transversal, catálogo, precios, ledger, cobros,
+fiscalidad, DDL, UI, rutas, destinatarios, envíos o jobs. Hitos y posiciones
+son exclusivamente temporales. No se infieren impago, captura o autorización.
+[Verificación final R6.4a](audits/r6-4a/verification-report.json), 2026-10-04:
+`pnpm check` pasa 971 archivos sin diagnósticos, 256 suites/3.473 pruebas,
+44 HTML, 44 formularios locales y cero crons. Focales: 46 de dominio, seis de
+arquitectura y 118 de registry/manifest/acceso (19/69/30). Revisión independiente:
+21.702 comprobaciones, 15.090 casos de calendario y 336 fechas base; 14.327
+resultados válidos y 763 overflow esperados. Las 96 fechas inválidas producen
+192 rechazos al probar ambos campos. Sin P1/P2, efectos, getters o reloj implícito.
+
+El bundle público de diagnóstico ocupa 12.249 B/3.802 B gzip, con dos fuentes
+puras, directorio y condiciones, sin imports externos. No es un asset de UI.
+La comparación nueva del build conserva íntegros los cuatro clientes de PR #32:
+Cantidades, Catálogo por empresa, Empresas y guía; mismos nombres, grafos,
+aristas, specifiers, SHA-256 y tamaños bytes/gzip, sin imports externos.
+No hubo nuevas ejecuciones de Worker, HTTP, navegador, a11y, E2E o DB.
+
+Navegador 2.084 comprobaciones/72 visitas, E2E 184/184, ocho superficies a11y
+sin hallazgos y ocho capturas son evidencia heredada de R6.3b/PR #32. Su base QA
+conservó 143 tablas/353 filas y SHA-256
+`9cbfc811cfc4296515a403d395875a43bfa26aff0c9c9b08be0804b15bbf6eca`.
+No constituyen una lectura o ejecución nueva en este corte puro. Implementado
+y verificado localmente, con integración pendiente y sin despliegue.
+
 
 **R6.3a: reglas de cantidad con fixtures** está implementado y verificado
 localmente e integrado en PR #31 (`7ac42e67`), sin despliegue. B2B-005 es parcial e
@@ -3302,7 +3383,7 @@ siendo diagnósticos, no permiso de compra. No consulta bindings de precio ni
 devuelve snapshot monetario, precios, stock, descuentos, totales o
 `purchasable`. Los límites operativos 1–99 de quote/pricing se conservan.
 El contrato no añade DDL, rutas, cron o escritura durable. La demo R6.3b está
-verificada localmente, con integración pendiente y sin despliegue. La integración
+verificada localmente e integrada en PR #32 (`04d5f9a9`), sin despliegue. La integración
 real con checkout permanece fuera de este corte.
 
 **R6.2b está implementada, verificada localmente y disponible en el repositorio**: `/demo/admin/catalogos-empresa`, dentro de Clientes. Cuatro empresas

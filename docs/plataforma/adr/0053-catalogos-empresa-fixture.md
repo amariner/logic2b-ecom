@@ -336,4 +336,6 @@ global por variante, unidad/caja fijada por regla, petición ligada a referencia
 exactas y factibilidad/conversión con `BigInt`. La composición añade visibilidad
 sin decidir precio, stock o autorización. B2B-005 permanece parcial e
 instalada/inactiva. R6.3b está implementada, verificada localmente y disponible
-en el repositorio; integración pendiente, sin despliegue ni operación B2B real.
+en el repositorio, integrada en PR #32 (`04d5f9a9`), sin despliegue ni operación
+B2B real. R6.4a está implementado y verificado localmente según el
+[ADR-0055](0055-condiciones-pago-fixture.md), con integración pendiente y sin despliegue.
