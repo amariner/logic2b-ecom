@@ -145,3 +145,24 @@ export {
   type CompanyCreditReviewTransition,
   type CompanyCreditReviewContractReason,
 } from './domain/company-credit-review';
+
+export {
+  COMPANY_NEGOTIATION_LIMITS,
+  CompanyNegotiationContractError,
+  defineCompanyNegotiationRequest,
+  defineCompanyNegotiation,
+  createCompanyNegotiation,
+  appendCompanyOfferRevision,
+  previewCompanyOfferRevision,
+  compareCompanyOfferRevisions,
+  type CompanyNegotiationRequest,
+  type CompanyNegotiationContext,
+  type CompanyOfferRevision,
+  type CompanyNegotiation,
+  type CompanyOfferAppendCommand,
+  type CompanyOfferAmountLine,
+  type CompanyOfferSnapshot,
+  type CompanyOfferTransition,
+  type CompanyOfferComparison,
+  type CompanyNegotiationContractReason,
+} from './domain/company-negotiation';

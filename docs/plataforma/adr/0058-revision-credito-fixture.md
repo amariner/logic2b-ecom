@@ -5,7 +5,7 @@
 - Módulo: `companies` 1.6.0; dependencia `platform-configuration`.
 - Capacidad: B2B-004 parcial, instalada/inactiva en avanzado/demo, ausente en mínimo/estándar; dependencia única B2B-001 y superficies operativas vacías.
 - Perfil: `company-credit-review-v1`.
-- Continuidad: R6.5a integrada en PR #36 (`787a9e73`); demo conjunta R6.5c verificada localmente, con integración pendiente y sin despliegue.
+- Continuidad: R6.5a integrada en PR #36 (`787a9e73`); demo conjunta R6.5c verificada localmente, integrada en PR #38 (`5cdb5bb`) y sin despliegue.
 
 ## Contexto y decisión
 
@@ -20,7 +20,7 @@ Una política fixture declara contactos revisores, separación del comprador y
 quórum. Son reglas explícitas del perfil de simulación, sin inferir autoridad
 desde roles del directorio. No se reutiliza la aprobación de `preliminary-order`,
 que expresa aceptación de una oferta, ni saldo regalo, cobros, ledger o B2B-009.
-R6.5 y B2B-004 siguen parciales, con operación real y demo pendientes.
+R6.5 y B2B-004 siguen parciales, con operación real pendiente y demo verificada localmente.
 
 ## API y artefactos
 
@@ -231,7 +231,7 @@ Navegador 2.660 comprobaciones/72 visitas, E2E 188/188, ocho superficies a11y
 sin hallazgos, ocho PNG y base QA de 143 tablas/353 filas son **heredados de
 PR #35**, sin nuevas ejecuciones runtime. Hash histórico antes/después:
 `9cbfc811cfc4296515a403d395875a43bfa26aff0c9c9b08be0804b15bbf6eca`.
-R6.5c está verificada localmente y disponible en repo, con integración pendiente y sin despliegue.
+R6.5c está verificada localmente y disponible en repo, integrada en PR #38 (`5cdb5bb`) y sin despliegue.
 
 ## R6.5c — Demo verificada localmente
 
@@ -253,7 +253,7 @@ inicial completo y controles inertes sin JavaScript. B2B-004 sigue parcial e
 instalada/inactiva; sin capacidades operativas nuevas.
 
 **Implementada y verificada localmente, disponible en el repositorio;
-integración pendiente y sin despliegue.**
+integrada en PR #38 (`5cdb5bb`) y sin despliegue.**
 [Verificación final R6.5c](../../audits/r6-5c/verification-report.json), 2026-10-04:
 `pnpm check` pasa 985 archivos sin diagnósticos, 261 suites/3.694
 pruebas; 41 del modelo, seis de arquitectura y ocho de autenticación. Build de
@@ -314,18 +314,30 @@ aceptación, aceptado con exceso, aceptado sin exposición y apertura bloqueada
 por quórum, cada una en 1.440/375 px. Frontend revisó las ocho; root contrastó
 cuatro. No se declaran resueltas identidad, permiso o crédito operativo.
 
-## Siguiente: R6.6a
+## Continuidad: R6.6a
 
-Solicitud B2B y revisiones completas de oferta con fixtures: diseño exacto
-revisado, pendiente de implementación. La solicitud no contiene dinero; la
-oferta declara EUR, cantidades y precios, con contexto íntegro e historial
-inmutable. 1–100 líneas, una variante explícita por producto, unidades 1–10.000
-y total positivo hasta 1.000.000.000 céntimos con BigInt. Caducidad propia por
-revisión y diff estructural, sin estados issued/approved/paid/converted ni
-herencia de aceptación o cobros ante otro contexto.
+**R6.6a está implementado y verificado localmente**, según el [ADR-0059](0059-solicitudes-ofertas-fixture.md).
+Solicitud sin dinero, contexto completo de empresa/contacto/catálogo, ofertas
+EUR declaradas e historial íntegro de hasta veinte revisiones. Una variante
+explícita por producto, 1–100 líneas, unidades 1–10.000, precio ofertado 0–1.000.000.000
+céntimos y total positivo hasta 1.000.000.000 con BigInt. Cada revisión tiene
+caducidad propia y diff estructural; no agrega estados comerciales de ORD-008.
+Otro contexto exige nueva negociación sin heredar aceptación, pagos o crédito.
+B2B-006 parcial e instalada/inactiva. Check final: 987 archivos sin diagnósticos,
+262 suites/3.745 pruebas; cincuenta de dominio, seis de arquitectura y 120 de
+registro/manifest/acceso. Revisión independiente 10.245 comprobaciones sin
+P1/P2, efectos, getters o reloj implícito; 44 HTML/44 formularios locales y cero
+cron. Seis grafos JS y 355 fuentes iguales a PR #38; 18/19 CSS iguales y única
+utilidad `.ordinal` sin consumidor (+175 B/+7 gzip), con SHA previo recuperable
+al retirarla. Comparación estática, sin afirmar ejecución SSR completa.
+Implementado y verificado localmente; integración pendiente/sin despliegue.
+[Informe final R6.6a](../../audits/r6-6a/verification-report.json).
+Navegador/E2E192/a11y8/capturas8/hash143 tablas/353 filas son heredados de PR #38,
+sin UI o ejecución runtime/DB nuevas. R6.6b será composición pura con ORD-008,
+con oferta histórica congelada y parámetros explícitos; revisión comercial y
+versión del ciclo permanecen separadas. R6.6c será la demo posterior. No se
+ejecutan conversión, reserva, enlaces alojados o cobro.
 
-R6.6b compondrá con las APIs públicas de ORD-008, que ya conserva lifecycle,
-depósito/saldo y conversión explícita; R6.6c será la demo posterior. Compatibilidad
-numérica no demuestra convertibilidad: el runtime actual recotiza catálogo y
-no se invoca ni modifica para aceptar precios negociados en estos fixtures.
-No hay implementación o QA R6.6, conversión de pedido, reserva o cobro nuevos.
+Compatibilidad numérica no demuestra convertibilidad: el runtime preliminar
+actual recotiza catálogo y no se invoca ni modifica para aceptar precios
+negociados en estos fixtures. El ciclo comercial de ORD-008 conserva su dueño.
