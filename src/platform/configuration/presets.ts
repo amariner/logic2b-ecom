@@ -147,6 +147,9 @@ const ADVANCED_CAPABILITIES = {
   // R6.7a: referencia PO declarada y vinculada a una oferta histórica;
   // no emite pedidos o facturas ni acredita documentos o pagos.
   'B2B-007': { state: 'installed' },
+  // R6.8a: identidad de SKU y filas de intención preservadas;
+  // no aplica cantidades comerciales ni crea carritos o pedidos.
+  'B2B-008': { state: 'installed' },
   // R5.7 declara contexto de mercado sin decidir países, idiomas, divisas
   // comerciales ni conectar el resolver a HTTP o al checkout.
   'MKT-003': { state: 'installed' },

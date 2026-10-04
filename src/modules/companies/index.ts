@@ -204,3 +204,22 @@ export {
   MAX_FIXTURE_COMPANY_DOCUMENT_CASES,
   createFixtureCompanyDocumentAdapter,
 } from './infrastructure/fixture-company-document-adapter';
+
+export {
+  COMPANY_QUICK_ORDER_LIMITS,
+  CompanyQuickOrderContractError,
+  defineCompanyQuickOrderCatalog,
+  defineCompanyQuickOrderList,
+  previewCompanyQuickOrderList,
+  type CompanyQuickOrderCatalogRef,
+  type CompanyQuickOrderCatalogVariant,
+  type CompanyQuickOrderCatalogProduct,
+  type CompanyQuickOrderCatalog,
+  type CompanyQuickOrderListLine,
+  type CompanyQuickOrderList,
+  type CompanyQuickOrderIdentity,
+  type CompanyQuickOrderLineDiagnostic,
+  type CompanyQuickOrderLineResolution,
+  type CompanyQuickOrderPreview,
+  type CompanyQuickOrderContractReason,
+} from './domain/company-quick-order';
