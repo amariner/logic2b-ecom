@@ -789,6 +789,56 @@ for (const vp of [DESKTOP, MOBILE]) {
   }
 }
 
+// R6.7c: referencia, documento y comparaciones independientes de fixtures.
+const COMPANY_DOCUMENT_SCENARIO = (stage) => `(() => {
+  const root = document.querySelector('[data-company-document-demo]');
+  if (root?.dataset.ready !== 'true') return 'not-ready';
+  const stage = ${JSON.stringify(stage)};
+  root.querySelector('[data-document-action="reset"]').click();
+  const scenario = root.querySelector('[data-document-scenario]');
+  scenario.value = stage;
+  scenario.dispatchEvent(new Event('change', { bubbles: true }));
+  const evidence = root.querySelector('[data-document-evidence]');
+  const future = stage === 'future';
+  const compared = stage === 'same' || stage === 'lower';
+  if (scenario.value !== stage || root.querySelector('[data-document-evaluation]').value !== 'first') return 'wrong-selection';
+  if (evidence.dataset.outcome !== (future ? 'unknown' : 'observed') || evidence.getAttribute('data-reason') !== (future ? 'future_observation' : null)) return 'wrong-evidence';
+  const metadata = root.querySelector('[data-document-metadata]');
+  if (metadata.hidden || metadata.dataset.present !== 'true' || metadata.dataset.coverage !== 'complete') return 'wrong-metadata';
+  const time = root.querySelector('[data-document-time="observed"]');
+  if (time.getAttribute('datetime') !== (future ? '2026-10-03T14:15:00.000Z' : '2026-10-03T14:00:00.000Z') ||
+      time.textContent.trim() !== (future ? '3 oct 2026 · 14:15 UTC' : '3 oct 2026 · 14:00 UTC')) return 'wrong-observed-at';
+  const observedDocument = root.querySelector('[data-document-observed]');
+  const comparisons = root.querySelector('[data-document-comparisons]');
+  if (observedDocument.hidden !== future || comparisons.hidden !== future || observedDocument.dataset.present !== String(!future) ||
+      comparisons.dataset.present !== String(!future) || root.querySelector('[data-document-no-comparisons]').hidden === future) return 'wrong-observation-visibility';
+  const money = (name, cents, formatted) => {
+    const span = root.querySelector('[data-document-amount="' + name + '"]');
+    const empty = root.querySelector('[data-document-amount-empty="' + name + '"]');
+    return span.getAttribute('data-cents') === (cents === null ? null : String(cents)) && span.textContent.trim() === formatted &&
+      (!empty || empty.hidden === (cents !== null));
+  };
+  if (!money('reference', 7700, '77,00 EUR') || !money('expected', future ? null : 7700, future ? '' : '77,00 EUR') ||
+      !money('observed', compared ? stage === 'same' ? 7700 : 7200 : null, compared ? stage === 'same' ? '77,00 EUR' : '72,00 EUR' : '') ||
+      !money('delta', compared ? stage === 'same' ? 0 : -500 : null, compared ? stage === 'same' ? '0,00 EUR' : '−5,00 EUR' : '')) return 'wrong-money';
+  const amount = root.querySelector('[data-document-amount-comparison]');
+  if (amount.getAttribute('data-outcome') !== (future ? null : compared ? 'compared' : 'unknown') ||
+      amount.getAttribute('data-reason') !== (stage === 'company-different' ? 'company_mismatch' : null) ||
+      root.querySelector('[data-document-amount-time-row]').hidden !== !compared) return 'wrong-comparability';
+  if (stage === 'company-different' && root.querySelector('[data-document-field="company"]').dataset.outcome !== 'differs') return 'wrong-company';
+  if (future && Array.from(comparisons.querySelectorAll('[data-document-field-value]')).some(span => span.textContent.trim() !== '' || span.dataset.present !== 'false')) return 'stale-fields';
+  if (root.outerHTML.includes('8888') || root.outerHTML.includes('88,88') || root.outerHTML.includes('demo.company-document.')) return 'private-data';
+  return stage;
+})()`;
+for (const vp of [DESKTOP, MOBILE]) {
+  const suffix = vp === MOBILE ? '@375' : '';
+  for (const stage of ['same', 'lower', 'company-different', 'future']) {
+    SURFACES.push({ name: `company-document:${stage}${suffix}`, url: '/demo/admin/documentos-empresa', vp, auth: true,
+      eval: COMPANY_DOCUMENT_SCENARIO(stage), expect: stage,
+      ...(stage === 'future' ? { reducedMotion: true } : {}) });
+  }
+}
+
 // R5.4d: estas rutas no existen en la demo y por eso no forman parte de la
 // batería ordinaria. El arnés local explícito activa un manifest cliente y una
 // composición visual inerte para auditar las páginas Astro reales sin DB,

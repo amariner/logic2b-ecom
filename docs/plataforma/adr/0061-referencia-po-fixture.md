@@ -187,11 +187,9 @@ superficies a11y sin hallazgos/ocho PNG, E2E 196 y hash antes/después intacto d
 Estos datos no representan nuevas ejecuciones de R6.7a; la comparación estática
 tras su build se detalla arriba y no sustituye esas interacciones históricas.
 
-R6.7b está implementado y verificado localmente, pendiente de integración, según el [ADR-0062](0062-evidencia-documental-fixture.md):
+R6.7b está implementado y verificado localmente, integrado en PR #43 (`feff0a27`), según el [ADR-0062](0062-evidencia-documental-fixture.md):
 puerto fixture y evidencia documental correlacionada, ausencia explícita y
 comparabilidad comercial sin inferir factura o cobro. Check final 1.001 archivos/267 suites/3.898 pruebas y comparación estática verdes;
-sin QA runtime nueva. [Informe final R6.7b](../../audits/r6-7b/verification-report.json). R6.7c será
-una demo inerte posterior con plan exacto aceptado; implementación y QA pendientes
-tras integrar b. Ninguno de
+sin QA runtime nueva. [Informe final R6.7b](../../audits/r6-7b/verification-report.json). R6.7c está implementada y verificada localmente como demo inerte; integración pendiente, sin despliegue. Ninguno de
 estos subcortes elige proveedor, emite factura fiscal, crea pedido real o cierra
 ERP/conciliación operativos. R6.7 y B2B-007 siguen parciales; B2B-010 pendiente.
